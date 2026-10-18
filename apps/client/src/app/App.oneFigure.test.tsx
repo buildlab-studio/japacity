@@ -5,14 +5,13 @@ import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { Bank } from "../features/phone/apps/Bank";
-import { phoneWords } from "../features/phone/phone.words";
 import { savings } from "../features/turn/month.results";
 import { Results } from "../features/turn/Results";
 import { type Archetype, answersInOrder, archetypeOf, presetAnswer } from "../shared/frontdoor/archetypes";
 import { newGame } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { formatMoney } from "../shared/words/format";
-import { words } from "../shared/words/text";
+import { say, words } from "../shared/words/text";
 import { newsLines, toldOnResults } from "../shared/words/told";
 
 const HUNT = "activity.job-hunt";
@@ -48,7 +47,7 @@ describe("Saved for the move on the results and the Bank", () => {
     if (shown === null || shown.kind !== "funds") throw new Error("The results show no figure toward the move.");
     await renderWithView(<Bank />, view);
     expect(document.querySelector("[data-savings-none]")).toBeNull();
-    expect(document.querySelector("[data-savings]")?.textContent).toContain(phoneWords("phone.bank.savings.line", { shown: formatMoney(shown.shown, shown.currency), required: formatMoney(shown.required, shown.currency) }));
+    expect(document.querySelector("[data-savings]")?.textContent).toContain(say("phone.bank.savings.line", { shown: formatMoney(shown.shown, shown.currency), required: formatMoney(shown.required, shown.currency) }));
   });
 });
 

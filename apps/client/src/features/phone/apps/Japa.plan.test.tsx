@@ -13,7 +13,6 @@ import { createGameStore } from "../../../authority/store";
 import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { inMonths, nameOf, say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { chapterAhead, Japa } from "./Japa";
 import { planMarks } from "../../../shared/words/plan";
 
@@ -33,7 +32,7 @@ describe("the plan in Japa's head", () => {
     const game = nurseOnCare();
     await renderWithView(<Japa />, game.view());
     const head = document.querySelector<HTMLElement>("[data-japa-head]");
-    expect(head?.querySelector("[data-japa-plan]")?.textContent).toBe(phoneWords("phone.japa.plan", { route: nameOf(CARE) }));
+    expect(head?.querySelector("[data-japa-plan]")?.textContent).toBe(say("phone.japa.plan", { route: nameOf(CARE) }));
     expect(head?.querySelector("[data-japa-route]")?.textContent).toBe(nameOf(CARE));
     expect(head?.querySelector("[data-japa-file]")?.textContent).toBe("The care file");
   });

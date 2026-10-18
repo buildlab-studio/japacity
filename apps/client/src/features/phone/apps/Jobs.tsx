@@ -14,7 +14,6 @@ import { byMonths, hasWords, lowerFirst, monthsAgo, nameOf, say, sayCount, words
 import { PhoneNav } from "../../../shared/phone/nav";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head, useAsk } from "../act";
-import { phoneWords } from "../phone.words";
 import { openJobs } from "../context";
 import { jobOffers } from "../seen";
 import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
@@ -36,7 +35,7 @@ function payWords(job: Id<"activity">, pay: OfferView["pay"] | PlayerView["job"]
 function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
   const raise = view.job.raise;
   if (raise === undefined) return null;
-  return raise.month === null ? phoneWords("phone.jobs.raised.unknown") : phoneWords("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) });
+  return raise.month === null ? say("phone.jobs.raised.unknown") : say("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) });
 }
 
 const HUNT = "activity.job-hunt";
@@ -56,7 +55,7 @@ function appliedJobs(view: Pick<PlayerView, "activities" | "job">, monthLines: r
 /** "Applied: Staff nurse at the clinic. They answer at the month's end.": the place that stages the job, where there is one. */
 function appliedLine(job: Id<"activity">): string {
   const place = Object.values(content.place).find((entry) => entry.stages.includes(job));
-  return place === undefined ? phoneWords("phone.jobs.applied", { job: nameOf(job) }) : phoneWords("phone.jobs.applied-at", { job: nameOf(job), place: nameOf(place.id) });
+  return place === undefined ? say("phone.jobs.applied", { job: nameOf(job) }) : say("phone.jobs.applied-at", { job: nameOf(job), place: nameOf(place.id) });
 }
 
 /** The job an offer carries, from its terms. */
@@ -88,12 +87,12 @@ function Board() {
     <PicCard
       pic={HUNT}
       tint="study"
-      title={phoneWords("phone.jobs.board", { place: name })}
-      line={phoneWords("phone.jobs.board.line")}
+      title={say("phone.jobs.board", { place: name })}
+      line={say("phone.jobs.board.line")}
       foot={
         <GhostButton wide onClick={() => nav.openMap?.(place)} data-jobs-board={place}>
           <MapPin size={18} aria-hidden />
-          {phoneWords("phone.jobs.board.go", { place: name })}
+          {say("phone.jobs.board.go", { place: name })}
         </GhostButton>
       }
     />
@@ -168,13 +167,13 @@ export function Jobs() {
       form: "card",
       icon: "briefcase",
       who: nameOf(held),
-      title: phoneWords(sideJob ? "phone.jobs.quit-side.title" : "phone.jobs.quit.title"),
-      line: sideJob ? phoneWords("phone.jobs.quit-side.line") : say("ui.job.quit-sure"),
+      title: say(sideJob ? "phone.jobs.quit-side.title" : "phone.jobs.quit.title"),
+      line: sideJob ? say("phone.jobs.quit-side.line") : say("ui.job.quit-sure"),
       cost: null,
       button: say("ui.job.quit-yes"),
       have: 0,
       command: sideJob ? { type: "activity/quit", side: true } : { type: "activity/quit" },
-      done: phoneWords("phone.jobs.left"),
+      done: say("phone.jobs.left"),
     });
   };
 
@@ -186,35 +185,35 @@ export function Jobs() {
       form: "card",
       icon: "briefcase",
       who: words(`${offer.entry}.title`, offer.terms),
-      title: offered === null ? phoneWords("phone.jobs.take.title") : nameOf(offered),
+      title: offered === null ? say("phone.jobs.take.title") : nameOf(offered),
       line: [words(`${offer.entry}.body`, offer.terms), offered === null ? null : payWords(offered, offer.pay, view)].filter((part): part is string => part !== null).join(" "),
       cost: null,
-      button: phoneWords("phone.jobs.take.button"),
+      button: say("phone.jobs.take.button"),
       have: 0,
       command: { type: "offer/choose", offer: offer.id, choice },
-      done: phoneWords("phone.jobs.taken"),
+      done: say("phone.jobs.taken"),
     });
   };
 
   return (
     <div data-phone-app="jobs" className="flex flex-col gap-2">
-      <Head>{phoneWords("phone.jobs.held")}</Head>
+      <Head>{say("phone.jobs.held")}</Head>
       {job === null ? (
         <div className="lively-card flex items-center gap-3 p-3" data-job-none>
           <PicTile of={HUNT} size={48} tint="study" />
           <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("ui.job.none")}</p>
         </div>
       ) : (
-        <JobRow id={job} name={nameOf(job)} pay={payWords(job, view.job.pay, view)} lines={[raised, months]} act={view.ended ? null : () => quit(false)} actLabel={phoneWords("phone.jobs.quit")} />
+        <JobRow id={job} name={nameOf(job)} pay={payWords(job, view.job.pay, view)} lines={[raised, months]} act={view.ended ? null : () => quit(false)} actLabel={say("phone.jobs.quit")} />
       )}
       {side === null ? null : (
         <>
-          <Head>{phoneWords("phone.jobs.side")}</Head>
-          <JobRow id={side} name={nameOf(side)} pay={payWords(side, view.job.sidePay, view)} lines={[]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
+          <Head>{say("phone.jobs.side")}</Head>
+          <JobRow id={side} name={nameOf(side)} pay={payWords(side, view.job.sidePay, view)} lines={[]} act={view.ended ? null : () => quit(true)} actLabel={say("phone.jobs.quit")} />
         </>
       )}
 
-      <Head>{phoneWords("phone.jobs.offers")}</Head>
+      <Head>{say("phone.jobs.offers")}</Head>
       {/* An application out is said while it waits, never "no job offers" over it. */}
       {applied.map((asked) => (
         <PicCard key={asked} pic={asked} tint="money" title={nameOf(asked)} line={<span data-job-applied={asked}>{appliedLine(asked)}</span>} />
@@ -224,14 +223,14 @@ export function Jobs() {
           <>
             {/* The head's pill counts the jobs open on the board where no offer waits; the screen says the same count. */}
             <p className="px-0.5 text-[15px] text-text-2" data-jobs-none>
-              {onBoard === 0 ? phoneWords("phone.jobs.offers.none") : phoneWords(onBoard === 1 ? "phone.jobs.offers.board.one" : "phone.jobs.offers.board", { count: onBoard })}
+              {onBoard === 0 ? say("phone.jobs.offers.none") : say(onBoard === 1 ? "phone.jobs.offers.board.one" : "phone.jobs.offers.board", { count: onBoard })}
             </p>
             {view.ended ? null : <Board />}
           </>
         )
       ) : (
         <>
-          <ul className="flex flex-col gap-2.5" role="radiogroup" aria-label={phoneWords("phone.jobs.offers")} data-job-offers>
+          <ul className="flex flex-col gap-2.5" role="radiogroup" aria-label={say("phone.jobs.offers")} data-job-offers>
             {offers.map((offer) => {
               const offered = offeredJob(offer);
               return (
@@ -241,7 +240,7 @@ export function Jobs() {
                   job={offered}
                   name={offerName(offer)}
                   pay={offered === null ? null : payWords(offered, offer.pay, view)}
-                  answer={phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })}
+                  answer={say("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })}
                   on={offer.id === chosen?.id}
                   onPick={() => setPicked(offer.id)}
                 />
@@ -252,7 +251,7 @@ export function Jobs() {
           {chosen === undefined || view.ended || takeChoice(chosen) === null ? null : (
             <div className="sticky bottom-0 bg-sheet pt-2 pb-1">
               <PressButton className="w-full" onClick={() => take(chosen)} data-take-offer={chosen.id}>
-                <span>{phoneWords("phone.jobs.take")}</span>
+                <span>{say("phone.jobs.take")}</span>
                 <span aria-hidden>·</span>
                 <span className="min-w-0 truncate">{offerName(chosen)}</span>
               </PressButton>

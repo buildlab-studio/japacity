@@ -14,9 +14,8 @@ import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixt
 import "../../../shared/testing/render";
 import { marketTile } from "../../../shared/tiles/tiles.data";
 import { formatMoney } from "../../../shared/words/format";
-import { nameOf } from "../../../shared/words/text";
+import { nameOf, say } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
-import { phoneWords } from "../phone.words";
 
 const FAMILY = "place.family-house";
 
@@ -43,7 +42,7 @@ describe("the Market", () => {
     expect(grid.sort()).toEqual(Object.keys(content.thing).sort());
     expect(card("thing.fan")?.querySelector(`[data-pic="${marketTile("thing.fan")}"]`)).not.toBeNull();
     expect(card("thing.fan")?.querySelector("[data-market-price]")?.textContent).toBe(formatMoney(content.thing["thing.fan"]!.price, "NGN"));
-    expect(card("thing.tv")?.textContent).toContain(phoneWords("phone.market.shut.family"));
+    expect(card("thing.tv")?.textContent).toContain(say("phone.market.shut.family"));
     expect(card("thing.tv")?.querySelector("[data-market-price]")).toBeNull();
     const order = [...document.querySelectorAll<HTMLElement>("[data-market-thing]")].map((node) => node.dataset.marketThing ?? "");
     expect(order.indexOf("thing.fan")).toBeLessThan(order.indexOf("thing.tv"));
@@ -80,8 +79,8 @@ describe("the Market", () => {
       await Promise.resolve();
     });
     expect(game.state.things.owned.map((one) => one.thing)).toEqual(["thing.fan"]);
-    expect(document.querySelector("[data-market-delivered]")?.textContent).toBe(phoneWords("phone.market.delivered"));
-    expect(card("thing.fan")?.querySelector("[data-market-owned]")?.textContent).toBe(phoneWords("phone.market.owned"));
+    expect(document.querySelector("[data-market-delivered]")?.textContent).toBe(say("phone.market.delivered"));
+    expect(card("thing.fan")?.querySelector("[data-market-owned]")?.textContent).toBe(say("phone.market.owned"));
     unmount();
   });
 
@@ -92,7 +91,7 @@ describe("the Market", () => {
     const { unmount } = await openMarket(game, FAMILY);
     fireEvent.click(card("thing.radio")!);
     const resale = game.view().things.owned[0]!.resale;
-    expect(document.querySelector("[data-market-sell]")?.textContent).toBe(phoneWords("phone.market.sell", { amount: formatMoney(resale, "NGN") }));
+    expect(document.querySelector("[data-market-sell]")?.textContent).toBe(say("phone.market.sell", { amount: formatMoney(resale, "NGN") }));
     await act(async () => {
       fireEvent.click(document.querySelector<HTMLElement>("[data-market-sell]")!);
       await Promise.resolve();
@@ -108,7 +107,7 @@ describe("the Market", () => {
     fireEvent.click(card("thing.fan")!);
     const button = document.querySelector<HTMLButtonElement>("[data-market-buy]");
     expect(button?.disabled).toBe(true);
-    expect(button?.textContent).toContain(phoneWords("phone.market.short", { amount: formatMoney(content.thing["thing.fan"]!.price - 10_000_00, "NGN") }));
+    expect(button?.textContent).toContain(say("phone.market.short", { amount: formatMoney(content.thing["thing.fan"]!.price - 10_000_00, "NGN") }));
     expect(document.querySelector("[data-balance-after]")).toBeNull();
     unmount();
   });
@@ -117,7 +116,7 @@ describe("the Market", () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, "place.yaba");
-    expect(document.querySelector("[data-market-line]")?.textContent).toBe(phoneWords("phone.market.away"));
+    expect(document.querySelector("[data-market-line]")?.textContent).toBe(say("phone.market.away"));
     fireEvent.click(card("thing.fan")!);
     expect(card("thing.fan")?.className).toContain("shake");
     expect(document.querySelector("[data-market-buy]")).toBeNull();
@@ -128,7 +127,7 @@ describe("the Market", () => {
     const game = newGame();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     const { unmount } = await openMarket(game, null);
-    expect(document.querySelector("[data-market-abroad]")?.textContent).toBe(phoneWords("phone.market.abroad"));
+    expect(document.querySelector("[data-market-abroad]")?.textContent).toBe(say("phone.market.abroad"));
     expect(document.querySelector("[data-market-grid]")).toBeNull();
     unmount();
   });

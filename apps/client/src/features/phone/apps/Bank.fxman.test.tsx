@@ -11,7 +11,6 @@ import { renderWithView } from "../../../shared/testing/render";
 import { changeQuote } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { Bank } from "./Bank";
 
 function card(): HTMLElement {
@@ -32,7 +31,7 @@ function heldAtHome(): PlayerView {
 async function changeAllWithTheFxMan(view: PlayerView): Promise<void> {
   await renderWithView(<Bank opening="change" />, view);
   fireEvent.click(screen.getByRole("radio", { name: say("ui.wallet.via.aboki") }));
-  fireEvent.click(screen.getByRole("radio", { name: phoneWords("phone.bank.all") }));
+  fireEvent.click(screen.getByRole("radio", { name: say("phone.bank.all") }));
   fireEvent.click(document.querySelector<HTMLElement>('[data-go="change"]')!);
 }
 

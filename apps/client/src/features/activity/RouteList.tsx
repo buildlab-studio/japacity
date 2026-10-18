@@ -4,7 +4,6 @@
 import type { PlayerView } from "@japacity/sim";
 
 import { blurbOf, nameOf, say } from "../../shared/words/text";
-import { routesWords } from "./routes.words";
 
 /** Heard of, looked into, or further on: the route's state now, from the view. */
 function stateWords(view: PlayerView, id: string): string | null {
@@ -46,7 +45,7 @@ export function RouteList({ view, routes, chosen, onPick, label }: { view: Playe
   return (
     <div className="flex flex-col gap-1 text-sm">
       <span className="font-medium" id={label}>
-        {routesWords("routes.pick")}
+        {say("routes.pick")}
       </span>
       <ul role="radiogroup" aria-labelledby={label} className="flex flex-col gap-1.5" data-routes>
         {routes.map((id) => (

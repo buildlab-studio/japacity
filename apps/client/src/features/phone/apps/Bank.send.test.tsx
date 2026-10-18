@@ -13,7 +13,6 @@ import { recordedGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatBp, formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { Bank } from "./Bank";
 
 function sent(authority: { sent: Command[] }): unknown[] {
@@ -37,7 +36,7 @@ describe("Change money says what you get", () => {
     const view = game.view();
     await renderWithView(<Bank />, view);
     fireEvent.click(within(document.querySelector<HTMLElement>('[data-held="USD"]')!).getByRole("button"));
-    fireEvent.click(screen.getByRole("radio", { name: phoneWords("phone.bank.all") }));
+    fireEvent.click(screen.getByRole("radio", { name: say("phone.bank.all") }));
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="change"]')!);
     const told = card().textContent ?? "";
 

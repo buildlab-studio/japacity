@@ -14,12 +14,12 @@ import tejuoshoRaw from "../../../../public/assets/places/tejuosho-front/place.j
 import type { Act, Thing } from "../../../shared/world/contract";
 import { plainActLine } from "../acts/actLines";
 import type { Stage } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow } from "../scene/things";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { actEntries } from "./frontage.testing";
 import { instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 interface Expected {
   thing: string;
@@ -71,7 +71,7 @@ describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
   test.each(things)(`[R-WORLD-005] [R-STREET-011] given ${id}'s $thing, when it is read, then it stands at its own model with its name and the one act that opens what content stages there`, ({ thing: thingId, model, name, act }) => {
     const thing = thingOf(stage, thingId);
     expect(thing.file).toBe(model);
-    expect(sceneWords(thing.label)).toBe(name);
+    expect(cityWords(thing.label)).toBe(name);
     const { seat, ...rest } = thing.acts[0] ?? act;
     expect(thing.acts).toHaveLength(1);
     expect(rest).toEqual(act);
@@ -142,8 +142,8 @@ describe("the hours on Bode Thomas", () => {
       const now = { ...stage, things: thingsNow(street, all, part) };
       const viewing = thingOf(now, "viewing");
       const joint = thingOf(now, "joint");
-      expect(viewing.acts.map((act) => sceneWords(act.label))).toEqual(["Opens in the evening"]);
-      expect(joint.acts.map((act) => sceneWords(act.label))).toEqual(["Opens in the evening"]);
+      expect(viewing.acts.map((act) => cityWords(act.label))).toEqual(["Opens in the evening"]);
+      expect(joint.acts.map((act) => cityWords(act.label))).toEqual(["Opens in the evening"]);
       expect(plainActLine(viewing, viewing.acts[0] ?? { label: "" })).toEqual({ kind: "tell", words: "Shut till evening. The screen is dark." });
       expect(plainActLine(joint, joint.acts[0] ?? { label: "" })).toEqual({ kind: "tell", words: "The chairs are stacked. Come back in the evening." });
       expect(thingOf(now, "barber").acts[0]?.stages).toBe("activity.barber");

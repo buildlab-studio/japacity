@@ -39,7 +39,6 @@ import { crowdSize } from "../../../shared/scene/crowd";
 import { crowdTuning } from "../../../shared/scene/limits";
 import { heardHere } from "../overheard";
 import { type PlaceFile, stageFilePath, stageOf } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { onShift, SHIFT_ACT, shiftMarks } from "../acts/shift";
 import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow, thingSpot } from "../scene/things";
@@ -102,7 +101,7 @@ describe("Calgary's strip mall and its station", () => {
       expect([thing, opens(calgary, thing)]).toEqual([thing, [act]]);
       expect([thing, stagedAt(act, CANADA, PLACES)]).toEqual([thing, "place.calgary-north-east"]);
     }
-    expect(sceneWords(thingIn(calgary, "transfer").label)).toBe("Money transfer");
+    expect(cityWords(thingIn(calgary, "transfer").label)).toBe("Money transfer");
   });
 
   test("[R-CITY-013] given the hubs of Calgary and Castel Volturno, when their files are read, then each entry is its country's hub and its file is not the first download", () => {
@@ -183,7 +182,7 @@ describe("the interiors with a door", () => {
     expect(things.length).toBeGreaterThanOrEqual(3);
     expect(things.filter((thing) => thingSpot(stage, thing) === null).map((thing) => thing.id)).toEqual([]);
     const labels = things.flatMap((thing) => [thing.label, ...thing.acts.map((act) => act.label)]);
-    expect(labels.filter((label) => sceneWords(label) === label)).toEqual([]);
+    expect(labels.filter((label) => cityWords(label) === label)).toEqual([]);
     const plain = things.flatMap((thing) => thing.acts.filter((act) => act.kind === "plain").map((act) => ({ id: `${thing.id} ${act.id}`, says: plainActLine(thing, act) !== null, posed: act.pose !== undefined })));
     expect(plain.filter((act) => act.says === act.posed)).toEqual([]);
     expect(things.some((thing) => thing.acts.some((act) => act.kind === "out"))).toBe(true);
@@ -207,7 +206,7 @@ describe("the interiors with a door", () => {
     }
     expect(opens(bigShopCa, "clothes")).toEqual(["activity.buy-clothes-ca"]);
     expect(stagedAt("activity.buy-clothes-ca", CANADA, PLACES)).toBe("place.big-shop-ca");
-    expect(sceneWords(thingIn(bigShopCa, "clothes").label)).toBe("Winter clothes");
+    expect(cityWords(thingIn(bigShopCa, "clothes").label)).toBe("Winter clothes");
   });
 
   test("[R-WORLD-039] [R-CITY-010] given Calgary's workplaces and the site, when their doors are read, then each opens its job staged there for its country, the rota board opens overtime with a reader once it is done, the care home's manager's door is looked at with no senior rung, and the office's desks and glass office open the professional's and the developer's jobs", () => {

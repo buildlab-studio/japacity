@@ -13,10 +13,10 @@ import { actsOffered } from "../acts/acts";
 import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { CARE, hearCare, hire, month, readCare, readyNurse, tileNurse, until } from "../../../shared/testing/nurse";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { stepOpen } from "./stepOpen";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "../scene/things";
 import { stopReached } from "./stops";
+import { cityWords } from "../city.words";
 
 const CLINIC = "place.tb-clinic";
 const VISA_CENTRE = "place.visa-centre";
@@ -196,7 +196,7 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     const certify = (thingsOf(stageOf(clinic as unknown as PlaceFile)).find((thing) => thing.id === "jobs-notice")?.acts ?? []).find((act) => act.id === "certify");
     expect(certify?.stages).toBe("activity.nurse-certification");
     expect(certify?.more).toBeUndefined();
-    expect(sceneWords(certify?.label ?? "")).toBe(nameOf("activity.nurse-certification"));
+    expect(cityWords(certify?.label ?? "")).toBe(nameOf("activity.nurse-certification"));
     const listed = (notice?.acts ?? []).flatMap((act) => [act.stages, ...(act.more ?? [])]);
     expect(listed).not.toContain("activity.request-verification");
     expect(listed).not.toContain("activity.renew-licence");

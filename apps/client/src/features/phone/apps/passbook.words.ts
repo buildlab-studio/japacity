@@ -4,15 +4,10 @@
 import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { hasWords, say, type Params } from "../../../shared/words/text";
 
-/** Words for a passbook key. */
-export function passbookWords(key: string, params: Params = {}): string {
-  return say(key, params);
-}
-
 /** A count's own words where the drafts have them (`.one`, `.zero`), else the plain key. */
 export function passbookCount(key: string, count: number, params: Params = {}): string {
   const exact = count === 1 ? `${key}.one` : count === 0 ? `${key}.zero` : null;
-  return passbookWords(exact !== null && hasWords(exact) ? exact : key, { ...params, months: count });
+  return say(exact !== null && hasWords(exact) ? exact : key, { ...params, months: count });
 }
 
 /** Naira in the short way people say a big sum: "₦11m", "₦2.5m", "₦850,000" under a million. Rounded down, never up past what is held. */

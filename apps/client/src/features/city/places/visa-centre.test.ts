@@ -4,10 +4,10 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/visa-centre/place.json";
 import type { Act } from "../../../shared/world/contract";
-import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
 import { staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const { stage, entry } = staged(raw, "place.visa-centre");
 const things = stage.things ?? [];
@@ -24,9 +24,9 @@ describe("the visa desk after the interview", () => {
     const shown = thingsNow(things, stagedNow(offeredFrom(view), new Set(entry.stages), new Set(view.offers.map((offer) => offer.entry)), null));
     expect(shown.find((candidate) => candidate.id === "desk")).toBeUndefined();
     const officer = shown.find((candidate) => candidate.id === "officer");
-    expect(sceneWords(officer?.label ?? "")).toBe("Visa desk");
+    expect(cityWords(officer?.label ?? "")).toBe("Visa desk");
     // The officer says it over his own head (R-WORLD-005).
-    expect(officer?.acts.map((act) => [act.kind, sceneWords(act.label), sceneWords(`${act.label}.who`), sceneWords(`${act.label}.says`)])).toEqual([["plain", "Ask at the desk", "The officer", "Nothing for you today."]]);
+    expect(officer?.acts.map((act) => [act.kind, cityWords(act.label), cityWords(`${act.label}.who`), cityWords(`${act.label}.says`)])).toEqual([["plain", "Ask at the desk", "The officer", "Nothing for you today."]]);
   });
 
   test("[R-INTERVIEW-005] given the desk's ask, when what stands in its place is read, then it names the application and the interview, the desk's own acts, at the desk's own spot", () => {

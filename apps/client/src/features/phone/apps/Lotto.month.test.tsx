@@ -9,8 +9,8 @@ import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { lottoMonth } from "../../../shared/words/lottoLines";
-import { phoneWords } from "../phone.words";
 import { Lotto } from "./Lotto";
+import { say } from "../../../shared/words/text";
 
 const { ticket } = content.tuning.luck;
 
@@ -29,8 +29,8 @@ describe("the month's lotto", () => {
     const { store } = await renderWithView(<Lotto />, game.view());
     act(() => store.setState({ monthLines: lines }));
     const fact = document.querySelector("[data-lotto-month]");
-    expect(fact?.textContent).toContain(phoneWords("phone.lotto.month", { count: 3 }));
-    expect(fact?.textContent).toContain(phoneWords("phone.lotto.month-cost", { amount: formatMoney(ticket * 3, "NGN") }));
+    expect(fact?.textContent).toContain(say("phone.lotto.month", { count: 3 }));
+    expect(fact?.textContent).toContain(say("phone.lotto.month-cost", { amount: formatMoney(ticket * 3, "NGN") }));
   });
 
   test("[R-LUCK-005] given no ticket bought this month, when the Lotto app opens, then it says no figure", async () => {

@@ -13,7 +13,6 @@ import { nairaForFee } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
 import { monthsAgo, nameOf, say, sayCount } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
-import { phoneWords } from "../phone.words";
 
 const UK = content.country["country.uk"]!;
 
@@ -94,8 +93,8 @@ describe("where you are, in Papers", () => {
     await openPapers(view);
     const items = within(within(placeCard()).getByRole("list", { name: say("ui.place.returns") })).getAllByRole("listitem");
     expect(items.map((item) => item.textContent)).toEqual([
-      phoneWords("phone.papers.return", { when: monthsAgo(50, 60), country: nameOf("country.uk"), shape: say("ui.place.shape.with-papers") }),
-      phoneWords("phone.papers.return", { when: monthsAgo(30, 60), country: nameOf("country.uk"), shape: say("ui.place.shape.broke") }),
+      say("phone.papers.return", { when: monthsAgo(50, 60), country: nameOf("country.uk"), shape: say("ui.place.shape.with-papers") }),
+      say("phone.papers.return", { when: monthsAgo(30, 60), country: nameOf("country.uk"), shape: say("ui.place.shape.broke") }),
     ]);
     for (const item of items) expect(item.textContent).not.toMatch(/\bmonth \d/i);
     expect(within(placeCard()).getByText(say("ui.place.token", { status: nameOf("status.uk-settled") }))).toBeDefined();
@@ -105,6 +104,6 @@ describe("where you are, in Papers", () => {
     const base = abroadView();
     const view: PlayerView = { ...base, place: { ...base.place, returns: [{ month: 20, shape: "assisted", country: null }] } };
     await openPapers(view);
-    expect(within(placeCard()).getByText(phoneWords("phone.papers.return", { when: monthsAgo(20, view.month), country: say("ui.place.road-name"), shape: say("ui.place.shape.assisted") }))).toBeDefined();
+    expect(within(placeCard()).getByText(say("phone.papers.return", { when: monthsAgo(20, view.month), country: say("ui.place.road-name"), shape: say("ui.place.shape.assisted") }))).toBeDefined();
   });
 });

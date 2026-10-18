@@ -15,10 +15,10 @@ import { plainActLine } from "../acts/actLines";
 import { crowdSize } from "../../../shared/scene/crowd";
 import { crowdTuning } from "../../../shared/scene/limits";
 import { personOfLook } from "../../../shared/scene/roster";
-import { sceneWords } from "../scene.words";
 import { thingSpot, withMoreAt } from "../scene/things";
 import { groundGeometry } from "../../../shared/scene/world";
 import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 /** The crowd a frontage shows in each mode: the entry's figures under the world's outdoor caps. */
 function cappedCrowd(id: Id<"place">, mode: "low" | "high"): number {
@@ -135,9 +135,9 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
       expect(thingSpot(stage, thing), `${thing.id}`).not.toBeNull();
       expect(thing.acts.length, `${thing.id}`).toBeGreaterThanOrEqual(1);
       expect(thing.acts.length, `${thing.id}`).toBeLessThanOrEqual(2);
-      expect(sceneWords(thing.label), `${thing.id}`).not.toBe(thing.label);
+      expect(cityWords(thing.label), `${thing.id}`).not.toBe(thing.label);
       for (const act of thing.acts) {
-        expect(sceneWords(act.label), `${thing.id} ${act.id}`).not.toBe(act.label);
+        expect(cityWords(act.label), `${thing.id} ${act.id}`).not.toBe(act.label);
         if (act.kind === "sheet") expect(act.stages, `${thing.id} ${act.id}`).toBeDefined();
         // A plain act tells its line or a person speaks; one with a pose is seen, and says nothing (R-WORLD-005, R-TEXT-008).
         if (act.kind === "plain") expect(plainActLine(thing, act) === null, `${thing.id} ${act.id}`).toBe(act.pose !== undefined);

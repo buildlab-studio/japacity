@@ -11,8 +11,8 @@ import { resetLines } from "../../shared/world/Lines";
 import { shortNaira } from "./apps/passbook.words";
 import { appContext } from "./context";
 import { PhoneApps } from "./PhoneApps";
-import { phoneWords } from "./phone.words";
 import { APP_IDS, reloadSeen } from "./seen";
+import { say } from "../../shared/words/text";
 
 beforeEach(() => {
   resetLines();
@@ -35,7 +35,7 @@ describe("the context pill's words", () => {
     const base = engineView();
     const hunt = { id: "activity.job-hunt", allowed: true, params: ["activity.job-a", "activity.job-b", "activity.job-c", "activity.job-d", "activity.job-e"] } as unknown as PlayerView["activities"][number];
     const open: PlayerView = { ...base, activities: [hunt], offers: [] };
-    expect(appContext("jobs", open)).toBe(phoneWords("phone.context.jobs.open", { count: 5 }));
+    expect(appContext("jobs", open)).toBe(say("phone.context.jobs.open", { count: 5 }));
     expect(appContext("jobs", open)).toBe("5 open");
     const offer = { ...base.offers[0], id: "offer-9", entry: "offer.job" } as unknown as PlayerView["offers"][number];
     expect(appContext("jobs", { ...open, offers: [offer] })).toBe("1 offer");
@@ -52,8 +52,8 @@ describe("the context pill's words", () => {
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="jobs"]')!);
     expect(document.querySelector("[data-app-context]")?.textContent).toBe("3 open");
     const said = document.querySelector<HTMLElement>("[data-jobs-none]")!;
-    expect(said.textContent).toBe(phoneWords("phone.jobs.offers.board", { count: 3 }));
-    expect(document.body.textContent).not.toContain(phoneWords("phone.jobs.offers.none"));
+    expect(said.textContent).toBe(say("phone.jobs.offers.board", { count: 3 }));
+    expect(document.body.textContent).not.toContain(say("phone.jobs.offers.none"));
   });
 
   test("[R-WORLD-018] [R-LUCK-005] given a life in Lagos, when Lotto's pill is read, then it says the draw is on Friday; abroad with no online draw it says nothing", () => {
@@ -76,7 +76,7 @@ describe("the context pill's words", () => {
     const base = engineView();
     const book = (stamps: { at: number; month: number | null; target: boolean }[]): PlayerView => ({ ...base, passbook: { held: 0, target: null, stamps, pace: null, months: null, roads: [], best: null } });
     expect(appContext("bank", book([{ at: 100_000_000, month: 3, target: false }, { at: 250_000_000, month: null, target: false }]))).toBe(`Next stamp ${shortNaira(250_000_000)}`);
-    expect(appContext("bank", book([{ at: 900_000_000, month: null, target: true }]))).toBe(phoneWords("phone.context.bank.target", { amount: shortNaira(900_000_000) }));
+    expect(appContext("bank", book([{ at: 900_000_000, month: null, target: true }]))).toBe(say("phone.context.bank.target", { amount: shortNaira(900_000_000) }));
     expect(appContext("bank", book([{ at: 100_000_000, month: 3, target: false }]))).toBe("All in");
     expect(appContext("bank", { ...base, passbook: null })).toBeNull();
   });
@@ -105,7 +105,7 @@ describe("the pill in the app's head", () => {
       const said = appContext(id, view);
       expect({ id, pill: pill?.textContent ?? null }).toEqual({ id, pill: said });
       // The pill stands beside the name, in the same row.
-      expect(pill === null || pill.parentElement?.querySelector("h2")?.textContent === phoneWords(`phone.app.${id}`)).toBe(true);
+      expect(pill === null || pill.parentElement?.querySelector("h2")?.textContent === say(`phone.app.${id}`)).toBe(true);
       fireEvent.click(document.querySelector<HTMLElement>("[data-phone-back]")!);
     }
     expect(appContext("lotto", view)).not.toBeNull();

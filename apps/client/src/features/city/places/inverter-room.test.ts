@@ -15,11 +15,11 @@ import { plainActLine } from "../acts/actLines";
 import { crowdSize } from "../../../shared/scene/crowd";
 import { crowdTuning } from "../../../shared/scene/limits";
 import { personOfLook } from "../../../shared/scene/roster";
-import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow, thingsOf } from "../scene/things";
 import { groundGeometry } from "../../../shared/scene/world";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.yaba-hub";
 const { file, stage, entry } = staged(placeFile, ID);
@@ -125,9 +125,9 @@ describe("the Inverter Room's things", () => {
       say(one.copy >= copies, `${one.id} stands at no copy`);
       say(thingSpot(stage, one) === null, `${one.id} has no spot`);
       say(one.acts.length < 1 || one.acts.length > 2, `${one.id} offers ${String(one.acts.length)} acts`);
-      say(sceneWords(one.label) === one.label, `${one.id} has no name`);
+      say(cityWords(one.label) === one.label, `${one.id} has no name`);
       for (const act of one.acts) {
-        say(sceneWords(act.label) === act.label, `${one.id} ${act.id} has no label`);
+        say(cityWords(act.label) === act.label, `${one.id} ${act.id} has no label`);
         say(act.kind === "sheet" && act.stages === undefined, `${one.id} ${act.id} stages nothing`);
         say(act.kind === "plain" && act.pose === undefined && plainActLine(one, act) === null, `${one.id} ${act.id} says nothing`);
         say(act.kind === "plain" && act.pose !== undefined && plainActLine(one, act) !== null, `${one.id} ${act.id} says a line the scene shows`);
@@ -140,14 +140,14 @@ describe("the Inverter Room's things", () => {
     const inverter = thing("inverter");
     const chair = thing("chair");
     const notices = thing("notices");
-    expect(sceneWords(inverter?.label ?? "")).toBe("Inverter");
-    expect(inverter?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Look"]]);
+    expect(cityWords(inverter?.label ?? "")).toBe("Inverter");
+    expect(inverter?.acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([["plain", "Look"]]);
     const sit = chair?.acts[0];
     expect(sit?.kind).toBe("plain");
     expect(sit?.pose).toBe("sit");
     expect(sit?.seat).toBeDefined();
     expect(notices?.acts.map((act) => act.kind)).toEqual(["plain"]);
-    for (const act of [...(inverter?.acts ?? []), ...(notices?.acts ?? [])]) expect(sceneWords(`${act.label}.done`).length).toBeGreaterThan(20);
+    for (const act of [...(inverter?.acts ?? []), ...(notices?.acts ?? [])]) expect(cityWords(`${act.label}.done`).length).toBeGreaterThan(20);
   });
 
   test("[R-WORLD-005] given a month where the view offers nothing, when the room's things are read for now, then the inverter, the chair, the notices and the door keep their acts, so the room is never a door alone", () => {

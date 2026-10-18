@@ -22,11 +22,11 @@ import { crowdTuning } from "../../../shared/scene/limits";
 import { roomPartner, standingAsThemselves, withStanding } from "../meetings";
 import { dressPlace, type Dressing, filesOf, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { personOfLook } from "../../../shared/scene/roster";
-import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow, thingsOf } from "../scene/things";
 import { groundGeometry } from "../../../shared/scene/world";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.their-room";
 const { file, stage, entry } = staged(placeFile, ID);
@@ -95,8 +95,8 @@ describe("their room's things", () => {
       if (one.copy >= copies) wrong.push(`${one.id} stands at no copy`);
       if (thingSpot(stage, one) === null) wrong.push(`${one.id} has no spot`);
       if (one.acts.length < 1 || one.acts.length > 2) wrong.push(`${one.id} offers ${String(one.acts.length)} acts`);
-      if (sceneWords(one.label) === one.label) wrong.push(`${one.id} has no name`);
-      for (const act of one.acts) if (sceneWords(act.label) === act.label) wrong.push(`${one.id} ${act.id} has no label`);
+      if (cityWords(one.label) === one.label) wrong.push(`${one.id} has no name`);
+      for (const act of one.acts) if (cityWords(act.label) === act.label) wrong.push(`${one.id} ${act.id} has no label`);
     }
     expect(wrong).toEqual([]);
     expect(new Set(things.map((one) => one.id)).size).toBe(things.length);

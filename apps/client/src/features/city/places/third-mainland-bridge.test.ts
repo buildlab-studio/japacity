@@ -7,11 +7,11 @@ import { describe, expect, test } from "vitest";
 import { BRIDGE, girderDepth } from "@japacity/assets-src/lm/third-mainland-span/build";
 
 import raw from "../../../../public/assets/places/third-mainland-bridge/place.json";
-import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
 import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.third-mainland-bridge";
 const { stage } = staged(raw, ID);
@@ -33,7 +33,7 @@ describe("the Third Mainland Bridge", () => {
     expect(sleep?.pose).toBe("lie");
     expect(night?.kind).toBe("sheet");
     expect([night?.stages, ...(night?.more ?? [])]).toEqual(NIGHT);
-    expect(mats.acts.map((act) => sceneWords(act.label))).toEqual(["Sleep here", "The night"]);
+    expect(mats.acts.map((act) => cityWords(act.label))).toEqual(["Sleep here", "The night"]);
   });
 
   test("[R-STREET-004] given the sleeping spot, when it is read against the pallets and the deck, then it lies on a mat on a pallet and under the span's girder", () => {
@@ -66,7 +66,7 @@ describe("the Third Mainland Bridge", () => {
   test("[R-WORLD-005] given the drum fire, when its act is read, then warming your hands is a plain act that says what happened, and its smoke rises from it", () => {
     const fire = thing("drum-fire");
     expect(fire.acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(sceneWords("city.act.warm-hands.done")).not.toBe("city.act.warm-hands.done");
+    expect(cityWords("city.act.warm-hands.done")).not.toBe("city.act.warm-hands.done");
     const spot = thingSpot(stage, fire);
     const smoke = stage.motion.find((motion) => motion.kind === "smoke");
     if (spot === null || smoke === undefined) throw new Error("No fire or smoke");

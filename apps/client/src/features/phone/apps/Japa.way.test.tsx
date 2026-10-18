@@ -10,7 +10,6 @@ import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { nameOf, runningName, say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { Japa, moveCosts } from "./Japa";
 
 const UK = "route.uk-masters";
@@ -23,12 +22,12 @@ describe("the way out in Japa", () => {
     const head = document.querySelector("[data-japa-route]");
     expect(head?.getAttribute("data-japa-route")).toBe(UK);
     expect(head?.textContent).toBe(nameOf(UK));
-    expect(document.body.textContent).not.toContain(phoneWords("phone.japa.none"));
+    expect(document.body.textContent).not.toContain(say("phone.japa.none"));
   });
 
   test("[R-WORLD-019] given no route heard of, when Japa shows, then it says there is no way out yet", async () => {
     await renderWithView(<Japa />, newGame("scenario.ada").view());
-    expect(document.querySelector("[data-japa-route]")?.textContent).toBe(phoneWords("phone.japa.none"));
+    expect(document.querySelector("[data-japa-route]")?.textContent).toBe(say("phone.japa.none"));
   });
 
   test("[R-WORLD-019] [R-ROUTE-009] given the UK master's looked into, when Japa shows, then the funds to show are broken down into the tuition and the living money, with the flight beside them", async () => {

@@ -10,8 +10,8 @@ import { ARCHETYPES, answersInOrder, presetAnswer } from "../../../shared/frontd
 import { newGame, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
-import { phoneWords } from "../phone.words";
 import { Bank, savedFor, savingsOf } from "./Bank";
+import { say } from "../../../shared/words/text";
 
 const TALENT = "route.uk-talent";
 const DEVELOPER = ARCHETYPES.find((archetype) => archetype.id === "developer")!;
@@ -64,8 +64,8 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(savedFor(view, "GBP")).toBe(Math.floor(((view.pockets.NGN.bank + view.pockets.NGN.cash) * 100) / view.rates.GBP.official));
     await renderWithView(<Bank />, view);
     const shown = document.querySelector("[data-savings]")?.textContent ?? "";
-    expect(shown).toContain(phoneWords("phone.bank.savings.line", { shown: formatMoney(savings!.shown, "GBP"), required: formatMoney(endorsement + visa, "GBP") }));
-    expect(document.body.textContent).not.toContain(phoneWords("phone.bank.savings.none"));
+    expect(shown).toContain(say("phone.bank.savings.line", { shown: formatMoney(savings!.shown, "GBP"), required: formatMoney(endorsement + visa, "GBP") }));
+    expect(document.body.textContent).not.toContain(say("phone.bank.savings.none"));
   });
 
   test("[R-WORLD-019] given the endorsement asked for, when the Bank opens, then its fee is no longer ahead and only the visa's remain", () => {
@@ -94,7 +94,7 @@ describe("Saved for the move, on the plan's own way", () => {
     const view = planOn(newGame("scenario.ngozi"), "route.gulf-contract").view();
     expect(savingsOf(view)).toBeNull();
     await renderWithView(<Bank />, view);
-    expect(document.body.textContent).toContain(phoneWords("phone.bank.savings.paid"));
+    expect(document.body.textContent).toContain(say("phone.bank.savings.paid"));
   });
 
   // R-WORLD-019: the figure shows from the month the plan is set, as the results show it, without waiting for the

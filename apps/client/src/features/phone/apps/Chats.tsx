@@ -17,7 +17,6 @@ import { faceMark } from "../../../shared/ui/lively/Face";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { Head, useInnerBack } from "../act";
 import { familyFeedLines } from "../feed";
-import { phoneWords } from "../phone.words";
 import { troubleWords } from "../../../shared/words/trouble";
 import { BlockReport } from "../../../shared/moderation/BlockReport";
 
@@ -109,7 +108,7 @@ function Family() {
   return (
     <div data-chat="family">
       {feed.length === 0 ? (
-        <p className="text-[14px] text-text-2">{phoneWords("phone.chats.family.none")}</p>
+        <p className="text-[14px] text-text-2">{say("phone.chats.family.none")}</p>
       ) : (
         <ul className="flex flex-col gap-2.5" data-feed>
           {feed.map((line, index) => (
@@ -124,7 +123,7 @@ function Family() {
       )}
       {people.length === 0 ? null : (
         <>
-          <Head>{phoneWords("phone.chats.people")}</Head>
+          <Head>{say("phone.chats.people")}</Head>
           <ul className="flex flex-col gap-1.5" data-people-lines>
             {people.map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className="phone-bubble px-3 py-2 text-center text-[14px] text-text-2">
@@ -147,7 +146,7 @@ function Computer({ bond, name }: { bond: BondView; name: string }) {
   const first = courtedLine(bond.person);
   return (
     <div data-chat={bond.id}>
-      {bond.stage === "ended" ? null : <p className="text-[14px] text-text-2">{phoneWords("phone.chats.computer", { name })}</p>}
+      {bond.stage === "ended" ? null : <p className="text-[14px] text-text-2">{say("phone.chats.computer", { name })}</p>}
       {first === null && moments.length === 0 ? null : (
         <ul className="mt-3 flex flex-col gap-2" data-thread>
           {first === null ? null : (
@@ -250,8 +249,8 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
           ))}
         </ul>
       )}
-      <Head>{phoneWords("phone.chats.pick")}</Head>
-      <div className="-mx-3 flex flex-wrap gap-2 px-3 pt-1 pb-2" role="radiogroup" aria-label={phoneWords("phone.chats.pick")}>
+      <Head>{say("phone.chats.pick")}</Head>
+      <div className="-mx-3 flex flex-wrap gap-2 px-3 pt-1 pb-2" role="radiogroup" aria-label={say("phone.chats.pick")}>
         {PHRASES.map((entry) => (
           <button
             key={entry.id}
@@ -280,7 +279,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
       )}
       {phraseId === null ? null : (
         <PressButton className="mt-3 w-full" disabled={busy || (phrase?.fill !== null && chosenFill === null)} onClick={() => void send()} data-say>
-          <span className="shrink-0">{phoneWords("phone.chats.say")}</span>
+          <span className="shrink-0">{say("phone.chats.say")}</span>
           <span aria-hidden>·</span>
           <span className="min-w-0 truncate">{phraseWords(phraseId, chosenFill)}</span>
         </PressButton>
@@ -312,7 +311,7 @@ export function Chats() {
   if (open === SLOTS && screens !== null) {
     return (
       <div data-phone-app="chats">
-        <h3 className="mb-3 text-[20px] font-bold">{phoneWords("phone.chats.slots")}</h3>
+        <h3 className="mb-3 text-[20px] font-bold">{say("phone.chats.slots")}</h3>
         <div data-chat={SLOTS}>{screens.slots}</div>
       </div>
     );
@@ -359,8 +358,8 @@ export function Chats() {
                 <UserRound size={22} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[17px] font-bold">{phoneWords("phone.chats.slots")}</span>
-                <span className="block truncate text-[14px] text-text-2">{phoneWords("phone.chats.slots.line")}</span>
+                <span className="block truncate text-[17px] font-bold">{say("phone.chats.slots")}</span>
+                <span className="block truncate text-[14px] text-text-2">{say("phone.chats.slots.line")}</span>
               </span>
               <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
             </button>
@@ -373,7 +372,7 @@ export function Chats() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[17px] font-bold">{groupName}</span>
-              <span className="block truncate text-[14px] text-text-2">{latest === undefined ? phoneWords("phone.chats.family.none") : phoneWords("phone.chats.family.line", { from: latest.from, words: latest.words })}</span>
+              <span className="block truncate text-[14px] text-text-2">{latest === undefined ? say("phone.chats.family.none") : say("phone.chats.family.line", { from: latest.from, words: latest.words })}</span>
             </span>
             <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
           </button>
@@ -388,7 +387,7 @@ export function Chats() {
                   {mark.initial}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[17px] font-bold">{phoneWords("phone.chats.with", { name })}</span>
+                  <span className="block truncate text-[17px] font-bold">{say("phone.chats.with", { name })}</span>
                   <span className="block truncate text-[14px] text-text-2">{say(`ui.people.stage.${person.stage}`)}</span>
                 </span>
                 <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />

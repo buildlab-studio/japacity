@@ -12,7 +12,6 @@ import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { inMonths, nameOf, say } from "../../../shared/words/text";
 import { Japa } from "./Japa";
 import { agoWords } from "./JapaWays";
-import { phoneWords } from "../phone.words";
 
 /** A view whose only route is the engine's own entry for this id, known, with the given gate. */
 function withRoute(id: RouteView["id"], gate: RouteGateView | null, base: PlayerView = abroadView()): PlayerView {
@@ -50,7 +49,7 @@ describe("the gate on each way in Japa", () => {
     const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
     await renderWithView(<Japa />, view);
     // Said as months ago and away (R-WORLD-002): in the pool since the end of month 30, lapsing as month 42 ends.
-    expect(screen.getByText(phoneWords("phone.japa.pool", { since: agoWords(30, view.month), ends: inMonths(42, view.month) }))).toBeDefined();
+    expect(screen.getByText(say("phone.japa.pool", { since: agoWords(30, view.month), ends: inMonths(42, view.month) }))).toBeDefined();
     expect(document.querySelector('[data-gate="points"]')?.textContent).not.toMatch(/month \d+/i);
   });
 
@@ -72,8 +71,8 @@ describe("the gate on each way in Japa", () => {
     await renderWithView(<Japa />, view);
     // Said as months ago and away (R-WORLD-002). The refusal is stamped as month 30 ends; asking again is judged while
     // planning, so from 42 months played, the month the header calls 43.
-    expect(screen.getByText(phoneWords("phone.japa.endorsement.refused", { when: agoWords(30, view.month) }))).toBeDefined();
-    expect(screen.getByText(phoneWords("phone.japa.endorsement.again", { when: inMonths(42, view.month) }))).toBeDefined();
+    expect(screen.getByText(say("phone.japa.endorsement.refused", { when: agoWords(30, view.month) }))).toBeDefined();
+    expect(screen.getByText(say("phone.japa.endorsement.again", { when: inMonths(42, view.month) }))).toBeDefined();
     expect(document.querySelector('[data-gate="endorsement"]')?.textContent).not.toMatch(/month \d+/i);
   });
 

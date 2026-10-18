@@ -10,8 +10,8 @@ import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
 import { Tile } from "../../shared/tiles/Tile";
-import { nameOf } from "../../shared/words/text";
-import { type ChanceBand, chanceOf, huntBand, jobsWords, payWords } from "../../shared/words/jobs";
+import { nameOf, say } from "../../shared/words/text";
+import { type ChanceBand, chanceOf, huntBand, payWords } from "../../shared/words/jobs";
 import { payAMonth } from "../../shared/words/pay";
 import { liftWords } from "../../shared/words/profile";
 
@@ -145,7 +145,7 @@ function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: st
               )}
               <span className={`sticker-chip ${chance === "long" ? "bg-tint-body" : chance === "fair" ? "bg-[var(--soft)]" : "bg-tint-study"}`} style={{ rotate: "1.5deg" }}>
                 <Gauge chance={chance} chosen={false} />
-                <span data-chance={chance}>{jobsWords(`jobs.chance.${chance}`)}</span>
+                <span data-chance={chance}>{say(`jobs.chance.${chance}`)}</span>
               </span>
             </span>
           </span>
@@ -166,7 +166,7 @@ function OutRow({ job, pay }: { job: OutOfReach; pay: string | null }) {
       <button type="button" className="press flex w-full items-center gap-2 px-3 py-2.5 text-left text-text-2" aria-expanded={open} onClick={() => setOpen((was) => !was)} data-job-needs={job.needs.length}>
         <span className="flex w-0 min-w-0 flex-1 flex-col">
           <span className="truncate font-medium">{nameOf(job.id)}</span>
-          <span className="text-[12px]">{jobsWords(job.needs.length === 1 ? "jobs.needs-count.one" : "jobs.needs-count", { count: job.needs.length })}</span>
+          <span className="text-[12px]">{say(job.needs.length === 1 ? "jobs.needs-count.one" : "jobs.needs-count", { count: job.needs.length })}</span>
         </span>
         {pay === null ? null : <span className="num shrink-0 whitespace-nowrap text-[13px]">{pay}</span>}
         <ChevronDown size={16} aria-hidden className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -189,7 +189,7 @@ function OutRow({ job, pay }: { job: OutOfReach; pay: string | null }) {
 export function ApplyFor({ id }: { id: string }) {
   return (
     <>
-      <span>{jobsWords("jobs.apply")}</span>
+      <span>{say("jobs.apply")}</span>
       <span className="min-w-0 truncate text-[13px] font-semibold opacity-80" data-apply-for={id}>
         {nameOf(id)}
       </span>
@@ -204,7 +204,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
     <div className="flex flex-col gap-3 text-sm">
       <div className="flex flex-col gap-1">
         <span className="font-medium" id="jobs-pick">
-          {jobsWords("jobs.pick")}
+          {say("jobs.pick")}
         </span>
         <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col gap-2" data-jobs>
           {jobs.map((id) => (
@@ -215,7 +215,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
       {out.length === 0 ? null : (
         <div className="flex flex-col gap-1">
           <span className="font-medium text-text-2" id="jobs-out">
-            {jobsWords("jobs.out-of-reach")}
+            {say("jobs.out-of-reach")}
           </span>
           <ul aria-labelledby="jobs-out" className="flex flex-col" data-jobs-out>
             {out.map((job) => (

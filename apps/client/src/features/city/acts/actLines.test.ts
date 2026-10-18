@@ -9,7 +9,6 @@ import { lightBack, nowLands, plainActLine } from "./actLines";
 import { cityWords } from "../city.words";
 import { stageOf } from "../../../shared/scene/placeFile";
 import { builtPlaces } from "../../../shared/scene/placeFile.testing";
-import { sceneWords } from "../scene.words";
 import { thingsOf } from "../scene/things";
 import { addLateWords } from "../../../shared/words/late";
 
@@ -21,7 +20,7 @@ const ACTS = builtPlaces().flatMap(({ folder, file }) => thingsOf(stageOf(file))
 
 /** True when nothing has words for the key. */
 function silent(key: string): boolean {
-  return sceneWords(key) === key;
+  return cityWords(key) === key;
 }
 
 describe("an act's line as it lands", () => {
@@ -52,7 +51,7 @@ describe("an act's line as it lands", () => {
     const tells = ACTS.filter(({ act }) => act.kind === "plain" && !silent(`${act.label}.done`) && act.label !== "city.act.papers");
     expect(tells.length).toBeGreaterThan(10);
     for (const { act } of tells) {
-      const line = sceneWords(`${act.label}.done`);
+      const line = cityWords(`${act.label}.done`);
       expect({ line, short: line.length <= 90, sentences: line.split(/(?<=\.) /).length <= 2 }).toEqual({ line, short: true, sentences: true });
       expect(line).not.toMatch(/^You\b|['‘“]/);
     }
@@ -93,12 +92,12 @@ describe("where an act done at once lands its line", () => {
 
   test("[R-WORLD-005] given gist with Mama in the parlour, when it is done, then her words land over her head under her name, never in the corner", () => {
     const landed = nowLands(now("activity.family-time"), parlour);
-    expect(landed).toEqual({ kind: "say", who: "mama", name: sceneWords("scene.thing.mama"), words: "You have eaten? Sit small.", then: null });
+    expect(landed).toEqual({ kind: "say", who: "mama", name: cityWords("scene.thing.mama"), words: "You have eaten? Sit small.", then: null });
   });
 
   test("[R-WORLD-005] [R-HOME-012] given the big pot bought for the house with Mama in the place, when it is done, then her thanks land over her head under her name; with no Mama there, the corner tells it", () => {
     const landed = nowLands(now("activity.cook-jollof"), parlour);
-    expect(landed).toEqual({ kind: "say", who: "mama", name: sceneWords("scene.thing.mama"), words: "God bless you. The whole house will eat well this week.", then: null });
+    expect(landed).toEqual({ kind: "say", who: "mama", name: cityWords("scene.thing.mama"), words: "God bless you. The whole house will eat well this week.", then: null });
     expect(nowLands(now("activity.cook-jollof"), parlour.filter((thing) => thing.id !== "mama"))).toEqual({ kind: "tell", words: words(now("activity.cook-jollof").key) });
   });
 

@@ -14,12 +14,12 @@ import { abroadGame, abroadView, openOffer, recordedGame, viewAfter } from "../.
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
 import { stageOf, type PlaceFile } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 import { addLateWords } from "../../../shared/words/late";
+import { cityWords } from "../city.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
 addLateWords(uiLondonText);
@@ -45,7 +45,7 @@ describe("Peckham", () => {
   test("[R-WORLD-005] given Peckham's things, when they are read, then the grocer is looked at, the barber looked at, the bench sat on with the find beside it, and the bus stop opens the ride sheet", () => {
     expect(thing("grocer").acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(thing("barber").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(thing("bench").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([
+    expect(thing("bench").acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([
       ["plain", "Sit"],
       ["sheet", "See what's on"],
     ]);
@@ -56,7 +56,7 @@ describe("Peckham", () => {
 
   test("[R-STREET-005] given the grocer, when its act is read, then it is a look that tells a line, and the street shopping is staged on Rye Lane's stalls, not here", () => {
     expect(thing("grocer").acts.map((act) => [act.id, act.kind, act.stages ?? null])).toEqual([["look", "plain", null]]);
-    expect(sceneWords(`${thing("grocer").acts[0]?.label ?? ""}.done`)).not.toBe(`${thing("grocer").acts[0]?.label ?? ""}.done`);
+    expect(cityWords(`${thing("grocer").acts[0]?.label ?? ""}.done`)).not.toBe(`${thing("grocer").acts[0]?.label ?? ""}.done`);
     expect(stagedAt("activity.street-shopping-uk", { where: "abroad", country: "country.uk" }, Object.values(content.place))).toBe("place.rye-lane");
     expect(entry.stages).not.toContain("activity.street-shopping-uk");
   });
@@ -118,8 +118,8 @@ describe("Peckham's jobs", () => {
   };
 
   test("[R-WORLD-005] [R-WORLD-039] [R-CITY-010] given the UK's jobs, when Peckham is read, then the jobs notice and the agency each open the hunt staged here, the agency also takes a question, and every job is staged at its own workplace", () => {
-    expect(thing("jobs-notice").acts.map((act) => [act.kind, act.stages, sceneWords(act.label)])).toEqual([["sheet", "activity.job-hunt", "Jobs"]]);
-    expect(thing("agency").acts.map((act) => [act.kind, act.stages ?? null, sceneWords(act.label)])).toEqual([
+    expect(thing("jobs-notice").acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.job-hunt", "Jobs"]]);
+    expect(thing("agency").acts.map((act) => [act.kind, act.stages ?? null, cityWords(act.label)])).toEqual([
       ["sheet", "activity.job-hunt", "Jobs"],
       ["plain", null, "Ask"],
     ]);
@@ -130,8 +130,8 @@ describe("Peckham's jobs", () => {
     }
     for (const [job, door] of Object.entries(DOORS)) expect([job, stagedAt(job, UK, PLACES)]).toEqual([job, door]);
     expect(entry.stages.filter((id) => id.startsWith("activity.job-uk-"))).toEqual([]);
-    expect(sceneWords(thing("jobs-notice").label)).toBe("Jobs notice");
-    expect(sceneWords(thing("agency").label)).toBe("Job agency");
+    expect(cityWords(thing("jobs-notice").label)).toBe("Jobs notice");
+    expect(cityWords(thing("agency").label)).toBe("Job agency");
   });
 
   test("[R-WORLD-005] given Ada landed in London on a student visa, when Peckham's things are read, then the notice and the agency open the hunt, whose card asks for the shop job, and the agency's question stays", () => {
@@ -182,9 +182,9 @@ describe("Peckham's notice once hired", () => {
     const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);
     expect(view.job.id).toBe("activity.job-uk-retail-part");
     const notice = read(view);
-    expect(notice.map((candidate) => sceneWords(candidate.label))).toEqual(["Jobs notice"]);
-    expect(notice[0]?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Read"]]);
-    expect(sceneWords(`${notice[0]?.acts[0]?.label ?? ""}.done`)).toBe("Shops, kitchens, care homes, warehouses. Nothing new on it is open to you this month.");
+    expect(notice.map((candidate) => cityWords(candidate.label))).toEqual(["Jobs notice"]);
+    expect(notice[0]?.acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([["plain", "Read"]]);
+    expect(cityWords(`${notice[0]?.acts[0]?.label ?? ""}.done`)).toBe("Shops, kitchens, care homes, warehouses. Nothing new on it is open to you this month.");
   });
 
   test("[R-WORLD-005] given Ada just landed with the shop job open, when the notice is read, then its hunt shows and the reader is gone, the reader standing in only while the hunt cannot open", () => {

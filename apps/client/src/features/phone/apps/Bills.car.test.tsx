@@ -9,7 +9,6 @@ import { carViewOf, richAbroadView } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say, sayCount } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { carFigures } from "./BillFacts";
 import { Bills } from "./Bills";
 
@@ -51,7 +50,7 @@ describe("the car on finance, in Bills", () => {
     expect(shown.getByText(say("ui.car.half-mark"))).toBeDefined();
     expect(shown.getByText(say("ui.car.past-third", { half: formatMoney(figures.half - figures.paid, "GBP") }))).toBeDefined();
     expect(shown.getByText(say("ui.car.final", { amount: formatMoney(figures.final, "GBP") }))).toBeDefined();
-    expect(shown.getByText(phoneWords("phone.bills.car.interest", { amount: formatMoney(owed.car!.interest, "GBP") }))).toBeDefined();
+    expect(shown.getByText(say("phone.bills.car.interest", { amount: formatMoney(owed.car!.interest, "GBP") }))).toBeDefined();
     expect(card(owed).textContent).not.toContain("%");
     expect(shown.getByText(sayCount("ui.obligation.missed", 2, { count: 2 }))).toBeDefined();
     expect(shown.getByText(say("ui.car.notice"))).toBeDefined();

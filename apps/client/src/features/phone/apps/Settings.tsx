@@ -20,7 +20,6 @@ import { Sheet } from "../../../shared/ui/Sheet";
 import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { Chips, Head } from "../act";
-import { phoneWords } from "../phone.words";
 import { PicTile } from "../ui";
 import { GRAPHICS_KEY } from "../../../shared/kept/storage";
 
@@ -61,41 +60,41 @@ export function Settings({ account = null, about = null, dedication = null }: { 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 text-[17px] font-bold">
           <Volume2 size={20} aria-hidden />
-          {phoneWords("phone.settings.sound")}
+          {say("phone.settings.sound")}
         </h3>
       <Chips
-        label={phoneWords("phone.settings.sound")}
+        label={say("phone.settings.sound")}
         value={muted ? "off" : "on"}
         onChange={(next) => setMuted(next === "off")}
         options={[
-          { value: "on", label: phoneWords("phone.settings.sound.on") },
-          { value: "off", label: phoneWords("phone.settings.sound.off") },
+          { value: "on", label: say("phone.settings.sound.on") },
+          { value: "off", label: say("phone.settings.sound.off") },
         ]}
       />
       </div>
       <div className="h-px bg-sheet-line" aria-hidden />
       <h3 className="flex items-center gap-2 text-[17px] font-bold">
         <Sparkles size={20} aria-hidden />
-        {phoneWords("phone.settings.graphics")}
+        {say("phone.settings.graphics")}
       </h3>
       <Chips
-        label={phoneWords("phone.settings.graphics")}
+        label={say("phone.settings.graphics")}
         value={graphics}
         onChange={(next) => {
           chooseGraphics(next);
           keepGraphics(next);
           setGraphics(next);
         }}
-        options={GRAPHICS.map((value) => ({ value, label: phoneWords(`phone.settings.graphics.${value}`) }))}
+        options={GRAPHICS.map((value) => ({ value, label: say(`phone.settings.graphics.${value}`) }))}
       />
-      <p className="text-[13px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
+      <p className="text-[13px] text-text-2">{say("phone.settings.graphics.when")}</p>
       </div>
 
       {/* R-MODERATION-020, R-MODERATION-016: the feedback box and the team's notice, in the game's menu. */}
       <ModerationRows />
       {about === null ? null : (
         <>
-          <Head>{phoneWords("phone.settings.about")}</Head>
+          <Head>{say("phone.settings.about")}</Head>
           <div data-about>{about}</div>
         </>
       )}
@@ -152,9 +151,9 @@ function VersionLine({ dedication }: { dedication: DedicationScreen | null }) {
         onClick={tap}
         className="flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 py-2 text-left text-[14px] select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
       >
-        <span className="font-semibold">{phoneWords("phone.settings.version")}</span>
+        <span className="font-semibold">{say("phone.settings.version")}</span>
         <span className="text-text-2 tabular-nums" data-version-build>
-          {version ?? phoneWords("phone.settings.version.local")}
+          {version ?? say("phone.settings.version.local")}
         </span>
       </button>
       {dedication?.(open, () => setOpen(false)) ?? null}

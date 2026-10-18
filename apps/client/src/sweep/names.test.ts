@@ -4,8 +4,8 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { sceneWords } from "../features/city/scene.words";
 import { say, words } from "../shared/words/text";
+import { cityWords } from "../features/city/city.words";
 
 describe("one name for one thing", () => {
   test("[R-TEXT-005] given the savings circle, when its ask, its results and its bill name it, then each says the savings circle, and the ask says ajo once beside it", () => {
@@ -28,17 +28,17 @@ describe("one name for one thing", () => {
   test("[R-TEXT-005] given the character's mother, when home, Chats, her stall and her shop name her, then she is Mama everywhere", () => {
     expect(text["chats.from.mum"]).toBe("Mama");
     expect(text["family.from.mum"]).toBe("Mama");
-    expect(sceneWords("city.thing.mama")).toBe("Mama");
-    expect(sceneWords("city.thing.mummy")).toBe("Mama");
-    expect(sceneWords("city.thing.mum-stall")).toBe("Mama's stall");
-    expect(sceneWords("city.act.greet-mum")).toBe("Greet Mama");
-    expect(sceneWords("city.act.mum-shop")).toBe("Help Mama");
+    expect(cityWords("city.thing.mama")).toBe("Mama");
+    expect(cityWords("city.thing.mummy")).toBe("Mama");
+    expect(cityWords("city.thing.mum-stall")).toBe("Mama's stall");
+    expect(cityWords("city.act.greet-mum")).toBe("Greet Mama");
+    expect(cityWords("city.act.mum-shop")).toBe("Help Mama");
     // Her ask is in her own voice: the title is hers, and the pill names her Mama.
     expect(words("offer.mum-shop.title")).toBe("Help my shop");
     expect(say("offer.family-send-off.who")).toBe("Mama");
     expect(words("offer.mum-shop.name")).toBe("Mama's shop");
     expect(say("ui.line.family-paid.offer.mum-shop", { amount: "₦1" })).toBe("For Mama's shop: ₦1.");
-    expect(sceneWords("city.act.greet-mum.done")).not.toMatch(/Mummy/);
+    expect(cityWords("city.act.greet-mum.done")).not.toMatch(/Mummy/);
   });
 
   test("[R-TEXT-005] given the scam text opened, when the results name it, then it reads as a message that says you won, never as a prize", () => {

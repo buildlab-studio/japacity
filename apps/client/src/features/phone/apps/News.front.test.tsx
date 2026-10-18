@@ -12,7 +12,6 @@ import { newsSource } from "../../../shared/ui/NewsSource";
 import { formatMoney } from "../../../shared/words/format";
 import { blurbOf, inMonths, monthsAgo, nameOf, say } from "../../../shared/words/text";
 import { drawnWords, News } from "./News";
-import { phoneWords } from "../phone.words";
 
 const RESULT: LotteryResult = {
   draw: 6,
@@ -98,7 +97,7 @@ describe("the era on the front of News", () => {
     await renderWithView(<News />, view);
     expect(screen.getByText(nameOf(era.id))).toBeDefined();
     const months = document.querySelector("[data-era-months]")?.textContent;
-    expect(months).toBe(`${phoneWords("phone.news.era.since", { when: monthsAgo(era.sinceMonth, view.month).toLowerCase() })} ${phoneWords("phone.news.era.until", { when: inMonths(era.untilMonth, view.month) })}`);
+    expect(months).toBe(`${say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, view.month).toLowerCase() })} ${say("phone.news.era.until", { when: inMonths(era.untilMonth, view.month) })}`);
     expect(months).not.toMatch(/\bmonth \d/i);
     // The chip wraps inside the era's card rather than running out of it.
     expect(document.querySelector("[data-era-months]")?.className).toContain("chip-wrap");

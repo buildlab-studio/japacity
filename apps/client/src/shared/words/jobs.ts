@@ -7,12 +7,7 @@ import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
 import { formatMoney } from "./format";
 import { payAMonth } from "./pay";
 import { tierPay, withNextTier } from "./profile";
-import { say, type Params } from "./text";
-
-/** Words for a jobs key. */
-export function jobsWords(key: string, params: Params = {}): string {
-  return say(key, params);
-}
+import { say } from "./text";
 
 const NETWORK = "quality.network";
 const HUNT = "activity.job-hunt";
@@ -66,7 +61,7 @@ export function chanceOf(view: PlayerView, id: string): number {
 export function payWords(id: string, view?: Pick<PlayerView, "qualities">): string | null {
   const tiered = view !== undefined && (content.activity[id as Id<"activity">]?.tiers ?? []).length > 0;
   const pay = tiered ? tierPay(view, id) : payAMonth(id);
-  return pay === null ? null : jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
+  return pay === null ? null : say("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
 }
 
 /** The pay now and what lifts it next, in one run of words: "₦60,000 a month; ₦90,000 once your tech is good" (R-ACTIVITY-014). */
@@ -80,9 +75,9 @@ export function payLiftWords(id: string, view: Pick<PlayerView, "qualities">): s
  * board or a notice names the job (Peckham's notice shows pay and chance like the hub's board).
  */
 export function jobCardWords(view: PlayerView, id: string): string {
-  const chance = jobsWords(`jobs.chance.${huntBand(chanceOf(view, id))}`);
+  const chance = say(`jobs.chance.${huntBand(chanceOf(view, id))}`);
   const pay = payLiftWords(id, view);
-  return pay === null ? jobsWords("jobs.card.chance", { chance }) : jobsWords("jobs.card", { pay, chance });
+  return pay === null ? say("jobs.card.chance", { chance }) : say("jobs.card", { pay, chance });
 }
 
 /**
@@ -93,6 +88,6 @@ export function jobCardWords(view: PlayerView, id: string): string {
 export function jobCardLine(view: PlayerView, hunt: string, job: string): string {
   const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${hunt}.blurb`] ?? null;
   // R-GUIDE-014: the first hunt's card says it lands for sure, before the job's own odds.
-  const sure = sureHunt(view) ? jobsWords("jobs.sure-first") : null;
+  const sure = sureHunt(view) ? say("jobs.sure-first") : null;
   return [own, sure, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
 }

@@ -6,7 +6,8 @@ import type { ReportLine, Tuning } from "@japacity/sim";
 import { int } from "@japacity/sim";
 
 import { formatBand } from "./format";
-import { chanceBand, type ChanceBand, jobsWords } from "./jobs";
+import { chanceBand, type ChanceBand } from "./jobs";
+import { say } from "./text";
 
 export const ENGLISH_TEST = "activity.sit-english-test";
 export const STUDY_ENGLISH = "activity.study-english";
@@ -88,11 +89,11 @@ export interface TestChance {
 export function testChance(view: { qualities: readonly { id: string; value: number }[] } & BandView): TestChance {
   const needed = bandNeeded(view);
   const band = chanceBand(bandChanceBp(englishOf(view), needed));
-  const chance = jobsWords(`jobs.chance.${band}`).toLowerCase();
+  const chance = say(`jobs.chance.${band}`).toLowerCase();
   return {
     band,
-    words: jobsWords("activity.sit-english-test.chance", { band: formatBand(needed), chance }),
-    study: band === "long" ? jobsWords("activity.sit-english-test.study-first") : null,
+    words: say("activity.sit-english-test.chance", { band: formatBand(needed), chance }),
+    study: band === "long" ? say("activity.sit-english-test.study-first") : null,
   };
 }
 

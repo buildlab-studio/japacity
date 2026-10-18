@@ -10,11 +10,11 @@ import { Tile } from "../../../shared/tiles/Tile";
 import { Sticker } from "../../../shared/ui/lively/Sticker";
 import { say } from "../../../shared/words/text";
 import type { Thing } from "../../../shared/world/contract";
-import { sceneWords } from "../scene.words";
 import { clearFanAnchor, fanAnchor, subscribeFanAnchor } from "./anchor";
 import { type FanEntry, MOST_FANNED } from "./fanActs";
 import { curvePath, type FanLayout, fanLayout, fanSizes, placesAt, shiftRange } from "./fanLayout";
 import "./fan.css";
+import { cityWords } from "../city.words";
 
 export interface FanProps {
   /** The fanned thing's id: the scene finds the fan by it and moves it with the thing. */
@@ -129,7 +129,7 @@ export function Fan({ thing, title, mark, entries, onAct, onFallback, going = nu
       {title}
       {mark === undefined ? null : (
         <span className="fan-mark" data-person-mark={mark}>
-          {sceneWords(`ui.people.mark.${mark}`)}
+          {cityWords(`ui.people.mark.${mark}`)}
         </span>
       )}
     </span>

@@ -17,7 +17,6 @@ import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
 import { hasWords, inMonths, nameOf, runningName, say, words } from "../../shared/words/text";
 import { afterPaying, plannedCosts } from "../../shared/words/cost";
-import { adviceWords } from "./advice.words";
 
 /** Every entry of the agent family starts with this (R-ADVICE-005). */
 const FAMILY = "offer.agent-";
@@ -58,7 +57,7 @@ function pitchOf(offer: Offer): { pitch: string; paper: string; months: number }
 /** The office a paper comes from, in the sheet's words: the registry for a transcript, else the office. */
 function deskOf(paper: string): string {
   const key = `advice.desk.${paper}`;
-  return adviceWords(hasWords(key) ? key : "advice.desk");
+  return say(hasWords(key) ? key : "advice.desk");
 }
 
 /** R-ADVICE-013: his claim in plain words, then what it would bring forward and by how much. */
@@ -67,8 +66,8 @@ function Pitch({ offer }: { offer: Offer }) {
   if (said === null) return null;
   const moves =
     said.paper === ""
-      ? adviceWords("advice.moves.none")
-      : adviceWords(said.months === 1 ? "advice.moves.one" : "advice.moves", { document: runningName(said.paper), desk: deskOf(said.paper), count: said.months });
+      ? say("advice.moves.none")
+      : say(said.months === 1 ? "advice.moves.one" : "advice.moves", { document: runningName(said.paper), desk: deskOf(said.paper), count: said.months });
   return (
     <section className="flex flex-col gap-1 rounded-[5px] bg-sheet-2 px-3 py-2 text-[15px] leading-snug" data-agent-pitch={said.pitch}>
       <p data-agent-says-he>{words(`${offer.entry}.pitch.${said.pitch}`)}</p>
@@ -190,7 +189,7 @@ function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices
           {after === null ? null : <span className="text-[13px] font-semibold opacity-80">{after}</span>}
         </button>
       ))}
-      {main.length > 0 && main.every((choice) => !choice.allowed) ? <p className="text-[13px] text-text-2">{adviceWords("advice.short")}</p> : null}
+      {main.length > 0 && main.every((choice) => !choice.allowed) ? <p className="text-[13px] text-text-2">{say("advice.short")}</p> : null}
       {decline === undefined ? null : (
         <button type="button" className="press min-h-11 w-full rounded-[5px] text-[15px] font-bold text-text-2" disabled={!idle} onClick={() => pick(DECLINE)} data-agent-choice={DECLINE}>
           {words(`${offer.entry}.choice.${DECLINE}`)}
@@ -225,18 +224,18 @@ function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; 
   if (looks.length === 0) return null;
   const nobody = looks.some((choice) => !choice.allowed && !offer.signs.includes(choice.id));
   return (
-    <section className="flex flex-col gap-1.5" aria-label={adviceWords("advice.looks")}>
+    <section className="flex flex-col gap-1.5" aria-label={say("advice.looks")}>
       <p className="flex items-center justify-between gap-2">
-        <span className="label">{adviceWords("advice.looks")}</span>
+        <span className="label">{say("advice.looks")}</span>
         <span className="rounded-[4px] bg-sheet-muted px-1.5 py-0.5 text-[12px] font-bold text-text-2" data-looks-free>
-          {adviceWords("advice.looks.free")}
+          {say("advice.looks.free")}
         </span>
       </p>
       {looks.map((choice) => {
         const done = offer.signs.includes(choice.id);
         return done ? (
           <p key={choice.id} className="flex min-h-11 items-center gap-2 rounded-[5px] border-2 border-sheet-line px-3 text-[14px] text-text-2" data-look={choice.id} data-look-done>
-            <Check size={16} className="shrink-0 text-in" aria-label={adviceWords("advice.look.done")} />
+            <Check size={16} className="shrink-0 text-in" aria-label={say("advice.look.done")} />
             {words(`${offer.entry}.sign.${choice.id}`)}
           </p>
         ) : (
@@ -258,7 +257,7 @@ function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; 
           </button>
         );
       })}
-      {nobody ? <p className="text-[13px] text-text-2">{adviceWords("advice.look.nobody")}</p> : null}
+      {nobody ? <p className="text-[13px] text-text-2">{say("advice.look.nobody")}</p> : null}
       {/* What a look finds joins "You notice" above, marked as just found; its reply shows here only when it found nothing new. */}
       {found === null || freshTells(found).size > 0 ? null : <Lines lines={found.lines} mark={found.look} />}
     </section>
@@ -283,13 +282,13 @@ const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
  */
 function Tell({ entry, tell, fresh }: { entry: string; tell: string; fresh: boolean }) {
   const short = `advice.tell.${tell}.short`;
-  const said = adviceWords(short);
+  const said = say(short);
   const Icon = TELL_ICONS[tell] ?? Eye;
   return (
     <li className={`pop flex min-h-11 items-center gap-2.5 rounded-[6px] bg-sheet-2 px-3 py-2 text-[15px] leading-tight font-semibold ${fresh ? "ring-2 ring-out" : ""}`} data-tell={tell} data-fresh={fresh ? "" : undefined}>
       <Icon size={18} className="shrink-0 text-strong" aria-hidden />
       <span className="min-w-0 flex-1">{said === short ? words(`${entry}.sign.${tell}`) : said}</span>
-      <Mark state="setback" word={adviceWords("advice.tell.mark")} />
+      <Mark state="setback" word={say("advice.tell.mark")} />
     </li>
   );
 }
@@ -308,8 +307,8 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
       <Pitch offer={offer} />
       {fee === null ? null : <Cost fee={fee} />}
       {tells.length === 0 ? null : (
-        <section className="flex flex-col gap-1" aria-label={adviceWords("advice.notice")}>
-          <p className="label">{adviceWords("advice.notice")}</p>
+        <section className="flex flex-col gap-1" aria-label={say("advice.notice")}>
+          <p className="label">{say("advice.notice")}</p>
           <ul className="flex flex-col gap-1.5">
             {tells.map((tell) => (
               <Tell key={tell} entry={offer.entry} tell={tell} fresh={fresh.has(tell)} />
@@ -319,14 +318,14 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
       )}
       <Looks offer={offer} found={found} setFound={setFound} />
       {says.length === 0 ? null : (
-        <section className="flex flex-col gap-1" aria-label={adviceWords("advice.says")} data-agent-says>
-          <p className="label">{adviceWords("advice.says")}</p>
+        <section className="flex flex-col gap-1" aria-label={say("advice.says")} data-agent-says>
+          <p className="label">{say("advice.says")}</p>
           <ul className="list-disc pl-5 text-[14px] leading-snug">
             {says.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
-          <p className="text-[13px] text-text-2">{adviceWords("advice.says.sure")}</p>
+          <p className="text-[13px] text-text-2">{say("advice.says.sure")}</p>
         </section>
       )}
       <Choices offer={offer} main={take} onChosen={onChosen} />
@@ -357,7 +356,7 @@ function PromiseSheet({ offer }: { offer: Offer }) {
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
       <Head offer={offer} titled />
       <p className="border-y border-sheet-line py-2.5 text-[14px] font-semibold" data-agent-month>
-        {adviceWords("advice.promise.month", { when: inMonths(offer.expiresMonth, view.month) })}
+        {say("advice.promise.month", { when: inMonths(offer.expiresMonth, view.month) })}
       </p>
     </article>
   );
@@ -393,7 +392,7 @@ export function AgentSheets({ ids, others }: { ids: readonly string[]; others: (
         ),
       )}
       {agents.length > 0 ? <Rejection /> : null}
-      {agents.length > 0 && open.length === 0 && outcome === null ? <p className="text-[14px] text-text-2">{adviceWords("advice.gone")}</p> : null}
+      {agents.length > 0 && open.length === 0 && outcome === null ? <p className="text-[14px] text-text-2">{say("advice.gone")}</p> : null}
       {rest.length === 0 ? null : others((offer) => rest.includes(offer.entry))}
     </div>
   );

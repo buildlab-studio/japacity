@@ -9,7 +9,7 @@ import { counting } from "../../shared/analytics/start";
 import { useJapaMark } from "../../shared/world/briefHanded";
 import { Tile } from "../../shared/tiles/Tile";
 import { TILE_TABLE } from "../../shared/tiles/tiles.data";
-import { nameOf } from "../../shared/words/text";
+import { nameOf, say } from "../../shared/words/text";
 import { useGame, useView } from "../../authority/GameProvider";
 import { todayWords } from "../../shared/words/format";
 import type { PhoneApp } from "../../shared/world/contract";
@@ -26,7 +26,6 @@ import { type PaperCards, Papers } from "./apps/Papers";
 import { type DedicationScreen, Settings } from "./apps/Settings";
 import { Notices, useSignalsWaiting } from "./Notices";
 import { Phone } from "./Phone";
-import { phoneWords } from "./phone.words";
 import { appContext } from "./context";
 import { APP_IDS, type AppId, markSeen, marksOf, useSeen, waitingOf } from "./seen";
 
@@ -120,7 +119,7 @@ function usePhoneApps({ account = null, about = null, opening = null, calendar =
   const waiting = waitingOf(marksOf(view), useSeen());
   return APP_IDS.map((id) => ({
     id,
-    name: phoneWords(`phone.app.${id}`),
+    name: say(`phone.app.${id}`),
     icon: ICON[id],
     tint: `--app-${id}`,
     screen: (

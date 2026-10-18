@@ -14,11 +14,11 @@ import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixt
 import "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { PhoneApps } from "../PhoneApps";
-import { phoneWords } from "../phone.words";
+import { say } from "../../../shared/words/text";
 
-const RISK = phoneWords("phone.home.risk");
+const RISK = say("phone.home.risk");
 // Decision 0013 (R-HOME-012): nothing of the living is charged as the month turns at home, so the card says it is bought as you go.
-const BY_HAND = phoneWords("phone.home.charge.by-hand");
+const BY_HAND = say("phone.home.charge.by-hand");
 const RENT = content.tuning.home.makokoUpkeep;
 const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === "obligation.upkeep")!.amount;
 
@@ -48,10 +48,10 @@ describe("the home card", () => {
     setPockets(game, { NGN: 500_000_00 });
     const { card, unmount } = await openBills(game);
     const said = card()?.textContent ?? "";
-    expect(said).toContain(phoneWords("phone.home.place.place.family-house"));
+    expect(said).toContain(say("phone.home.place.place.family-house"));
     // Decision 0013: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
     // house says it as your share for the house, with Papa paying the rest (decision 0018).
-    expect(said).toContain(phoneWords("phone.home.charge.by-hand.place.family-house"));
+    expect(said).toContain(say("phone.home.charge.by-hand.place.family-house"));
     expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
     expect(moveButton("place.makoko")?.disabled).toBe(false);
     expect(moveButton("place.makoko")?.textContent).toContain(formatMoney(RENT, "NGN"));
@@ -73,7 +73,7 @@ describe("the home card", () => {
     });
     expect(game.state.home.place).toBe("place.makoko");
     const said = card()?.textContent ?? "";
-    expect(said).toContain(phoneWords("phone.home.place.place.makoko"));
+    expect(said).toContain(say("phone.home.place.place.makoko"));
     // Decision 0013: R-HOME-012 leaves Makoko's upkeep uncharged as the month turns, so the card says the engine's charge,
     // nothing a month, as living bought as you go; the room's figure was paid on the move.
     expect(game.view().home.rent).toEqual({ currency: "NGN", amount: 0 });
@@ -81,7 +81,7 @@ describe("the home card", () => {
     expect(said).not.toContain(`${formatMoney(RENT, "NGN")} a month`);
     expect(times(said, RISK)).toBe(1);
     expect(moveButton("place.family-house")?.disabled).toBe(true);
-    expect(said).toContain(phoneWords("phone.home.shut.moved"));
+    expect(said).toContain(say("phone.home.shut.moved"));
     unmount();
   });
 
@@ -90,7 +90,7 @@ describe("the home card", () => {
     setPockets(game, { NGN: RENT - 100 });
     const { card, unmount } = await openBills(game);
     expect(moveButton("place.makoko")?.disabled).toBe(true);
-    expect(card()?.textContent).toContain(phoneWords("phone.home.shut.short", { amount: { currency: "NGN", amount: RENT } }));
+    expect(card()?.textContent).toContain(say("phone.home.shut.short", { amount: { currency: "NGN", amount: RENT } }));
     unmount();
   });
 
@@ -105,7 +105,7 @@ describe("the home card", () => {
     const said = card()?.textContent ?? "";
     expect(said).toContain("Your sibling in Lagos");
     expect(said).toContain("3 more months");
-    expect(said).toContain(phoneWords("phone.home.charge.none"));
+    expect(said).toContain(say("phone.home.charge.none"));
     unmount();
   });
 
@@ -125,7 +125,7 @@ describe("the home card", () => {
     expect(game.view().home.moves.find((move) => move.to === "place.family-house")?.monthly.amount).toBe(0);
     const { unmount } = await openBills(game);
     fireEvent.click(moveButton("place.family-house")!);
-    expect(document.body.textContent).toContain(phoneWords("phone.home.move.line.place.family-house.by-hand"));
+    expect(document.body.textContent).toContain(say("phone.home.move.line.place.family-house.by-hand"));
     expect(document.body.textContent).not.toContain(formatMoney(opens.amount, "NGN"));
     unmount();
   });
@@ -163,14 +163,14 @@ describe("the home card", () => {
     setPockets(game, { NGN: month });
     const { unmount } = await openBills(game);
     expect(moveButton("place.hostel-room")?.disabled).toBe(false);
-    expect(moveButton("place.hostel-room")?.textContent).toBe(`${phoneWords("phone.home.move.place.hostel-room")}: ${formatMoney(month, "NGN")}`);
+    expect(moveButton("place.hostel-room")?.textContent).toBe(`${say("phone.home.move.place.hostel-room")}: ${formatMoney(month, "NGN")}`);
     fireEvent.click(moveButton("place.hostel-room")!);
-    expect(document.body.textContent).toContain(phoneWords("phone.home.move.line.place.hostel-room", { amount: { currency: "NGN", amount: month }, now: { currency: "NGN", amount: month } }));
+    expect(document.body.textContent).toContain(say("phone.home.move.line.place.hostel-room", { amount: { currency: "NGN", amount: month }, now: { currency: "NGN", amount: month } }));
     unmount();
     game.accept({ type: "home/move", to: "place.hostel-room" });
     const after = await openBills(game);
-    expect(after.card()?.textContent).toContain(phoneWords("phone.home.place.place.hostel-room"));
-    expect(document.querySelector("[data-home-charge]")?.textContent).toBe(phoneWords("phone.home.charge.place.hostel-room", { amount: { currency: "NGN", amount: month } }));
+    expect(after.card()?.textContent).toContain(say("phone.home.place.place.hostel-room"));
+    expect(document.querySelector("[data-home-charge]")?.textContent).toBe(say("phone.home.charge.place.hostel-room", { amount: { currency: "NGN", amount: month } }));
     expect(document.querySelector("[data-home-rent-year]")).toBeNull();
     after.unmount();
   });
@@ -219,11 +219,11 @@ describe("the room in a compound on the card (R-HOME-010)", () => {
     const { card, unmount } = await openBills(game);
     const button = moveButton("place.compound-room");
     expect(button?.disabled).toBe(false);
-    expect(button?.textContent).toBe(`${phoneWords("phone.home.move.place.compound-room")}: ${formatMoney(MOVE_IN, "NGN")}`);
+    expect(button?.textContent).toBe(`${say("phone.home.move.place.compound-room")}: ${formatMoney(MOVE_IN, "NGN")}`);
     fireEvent.click(button!);
     const asked = document.querySelector("[data-ask]")?.textContent ?? document.body.textContent ?? "";
     // Decision 0013: the ask says the year and fees taken now, and that the living is bought as you go, with no figure a month.
-    expect(asked).toContain(phoneWords("phone.home.move.line.place.compound-room.by-hand", { now: { currency: "NGN", amount: MOVE_IN } }));
+    expect(asked).toContain(say("phone.home.move.line.place.compound-room.by-hand", { now: { currency: "NGN", amount: MOVE_IN } }));
     expect(asked).toContain(formatMoney(MOVE_IN, "NGN"));
     expect(asked).not.toContain(formatMoney(LIVING, "NGN"));
     const confirm = document.querySelector<HTMLButtonElement>("[data-ask-main]");
@@ -233,7 +233,7 @@ describe("the room in a compound on the card (R-HOME-010)", () => {
     });
     expect(game.state.home.place).toBe("place.compound-room");
     const said = card()?.textContent ?? "";
-    expect(said).toContain(phoneWords("phone.home.place.place.compound-room"));
+    expect(said).toContain(say("phone.home.place.place.compound-room"));
     // Decision 0013: the room's charge is its rent a year; its living is bought as you go.
     expect(said).toContain(formatMoney(content.tuning.home.compound.rentYear, "NGN"));
     expect(said).toContain(BY_HAND);
@@ -249,7 +249,7 @@ describe("the room in a compound on the card (R-HOME-010)", () => {
     const { unmount } = await openBills(game);
     expect(moveButton("place.compound-room")?.disabled).toBe(true);
     const shut = document.querySelector('[data-home-shut="place.compound-room"]')?.textContent;
-    expect(shut).toBe(phoneWords("phone.home.shut.short.place.compound-room", { amount: { currency: "NGN", amount: MOVE_IN } }));
+    expect(shut).toBe(say("phone.home.shut.short.place.compound-room", { amount: { currency: "NGN", amount: MOVE_IN } }));
     expect(shut).toContain(formatMoney(MOVE_IN, "NGN"));
     unmount();
   });

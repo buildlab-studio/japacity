@@ -10,11 +10,11 @@ import site from "../../../../public/assets/places/site-uae/place.json";
 import { addLateWords } from "../../../shared/words/late";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
-import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 // Dubai's words ride their own chunk in the game (shared/words/late.ts); a test of Dubai adds them as the city does.
 addLateWords(uiDubaiText);
@@ -37,7 +37,7 @@ describe("Deira", () => {
 
   test("[R-WORLD-005] given the corner, when its act is read, then the community in Dubai opens as a sheet under its own words", () => {
     const corner = thing("corner");
-    expect(corner.acts.map((act) => [act.kind, act.stages, sceneWords(act.label)])).toEqual([["sheet", "activity.community-uae", "Community"]]);
+    expect(corner.acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.community-uae", "Community"]]);
     expect(stagedAt("activity.community-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
@@ -45,7 +45,7 @@ describe("Deira", () => {
   test("[R-WORLD-005] [R-STREET-005] given the souk's other things, when they are read, then the gold shop and the spice stall are looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
     expect(thing("gold-shop").acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(thing("cafe").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([
+    expect(thing("cafe").acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([
       ["plain", "Sit"],
       ["sheet", "See what's on"],
     ]);
@@ -57,7 +57,7 @@ describe("Deira", () => {
   // Deira does not stage.
   test("[R-STREET-005] [R-STREET-014] given the spice stall, when its acts are read, then it is looked at with words of its own, and the street shopping is staged at Naif for Dubai, not here", () => {
     expect(thing("spice-stall").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([["plain", null]]);
-    expect(sceneWords(thing("spice-stall").acts[0]?.label ?? "")).not.toBe(thing("spice-stall").acts[0]?.label);
+    expect(cityWords(thing("spice-stall").acts[0]?.label ?? "")).not.toBe(thing("spice-stall").acts[0]?.label);
     expect(entry.stages).not.toContain("activity.street-shopping-uae");
     expect(stagedAt("activity.street-shopping-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe("place.naif");
   });

@@ -9,7 +9,6 @@ import { formatMoney } from "../../../shared/words/format";
 import { clockWords } from "../../../shared/words/quality";
 import { hasWords, inMonths, nameOf, say, sayCount } from "../../../shared/words/text";
 import { Head, useAsk, type AskSpec } from "../act";
-import { phoneWords } from "../phone.words";
 import { GhostButton, MoneyChip, PicCard, WordChip } from "../ui";
 import { CarFacts, UndertakingFacts } from "./BillFacts";
 import { HomeCard } from "./Home";
@@ -22,11 +21,11 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
   if (type === "loan" || type === "group-loan") {
     if (owed.outstanding <= 0) return null;
     const amount = owed.due > 0 ? Math.min(owed.due, owed.outstanding) : owed.outstanding;
-    return { amount, line: phoneWords("phone.bills.loan.line"), button: phoneWords("phone.bills.loan.button"), locked: false };
+    return { amount, line: say("phone.bills.loan.line"), button: say("phone.bills.loan.button"), locked: false };
   }
-  if (type === "held-funds") return owed.outstanding > 0 ? { amount: owed.outstanding, line: phoneWords("phone.bills.held.line"), button: say("ui.obligation.return"), locked: true } : null;
-  if (type === "car") return owed.missed > 0 && owed.due > 0 ? { amount: owed.due, line: phoneWords("phone.bills.car.line"), button: phoneWords("phone.bills.car.button"), locked: false } : null;
-  if (type === "undertaking") return owed.outstanding > 0 ? { amount: owed.outstanding, line: phoneWords("phone.bills.undertaking.line"), button: phoneWords("phone.bills.undertaking.button"), locked: false } : null;
+  if (type === "held-funds") return owed.outstanding > 0 ? { amount: owed.outstanding, line: say("phone.bills.held.line"), button: say("ui.obligation.return"), locked: true } : null;
+  if (type === "car") return owed.missed > 0 && owed.due > 0 ? { amount: owed.due, line: say("phone.bills.car.line"), button: say("phone.bills.car.button"), locked: false } : null;
+  if (type === "undertaking") return owed.outstanding > 0 ? { amount: owed.outstanding, line: say("phone.bills.undertaking.line"), button: say("phone.bills.undertaking.button"), locked: false } : null;
   return null;
 }
 
@@ -63,7 +62,7 @@ export function nextTakenAhead(owed: Owed, month: number): number | null {
 function noticeWords(owed: Owed, currency: Currency): string {
   const amount = formatMoney(owed.due, currency);
   const key = `${owed.entry}.notice`;
-  return hasWords(key) ? say(key, { amount }) : phoneWords("phone.bills.notice", { name: nameOf(owed.entry), amount });
+  return hasWords(key) ? say(key, { amount }) : say("phone.bills.notice", { name: nameOf(owed.entry), amount });
 }
 
 /**
@@ -95,13 +94,13 @@ export function Bills() {
     form: "slip",
     icon: "receipt",
     who: nameOf(bill.entry),
-    title: phoneWords("phone.app.bills"),
+    title: say("phone.app.bills"),
     line: pay.line,
     cost: { amount: pay.amount, currency },
     button: pay.button,
     have: haveFor(view.pockets[currency], pay),
     command: { type: "obligation/pay", obligation: bill.id, amount: pay.amount },
-    done: phoneWords("phone.bills.paid"),
+    done: say("phone.bills.paid"),
     // The game's own time, as the band's clock says it, never the real calendar.
     reference: clockWords(view.qualities).toUpperCase(),
   });
@@ -113,7 +112,7 @@ export function Bills() {
         <p className="px-0.5 text-[15px] text-text-2">{say("ui.obligation.none")}</p>
       ) : (
         <>
-          <Head>{phoneWords("phone.bills.title")}</Head>
+          <Head>{say("phone.bills.title")}</Head>
           <ul className="flex flex-col gap-2.5">
             {owed.map((bill) => {
               const currency: Currency = content.obligation[bill.entry]?.currency ?? "NGN";
@@ -125,7 +124,7 @@ export function Bills() {
                     pic="phone.bill"
                     tint={bill.missed > 0 ? "food" : "plain"}
                     title={bill.due > 0 ? noticeWords(bill, currency) : nameOf(bill.entry)}
-                    line={pay === null ? (nextTaken(bill, view.month) ?? phoneWords("phone.bills.auto")) : null}
+                    line={pay === null ? (nextTaken(bill, view.month) ?? say("phone.bills.auto")) : null}
                     chips={
                       bill.outstanding <= 0 && bill.missed <= 0 && bill.state === "active" ? null : (
                         <>
@@ -144,7 +143,7 @@ export function Bills() {
                           {kind === "car" ? <CarFacts owed={bill} /> : kind === "undertaking" ? <UndertakingFacts owed={bill} /> : null}
                           {pay === null ? null : (
                             <GhostButton wide onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>
-                              {phoneWords("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
+                              {say("phone.bills.pay")}: {formatMoney(pay.amount, currency)}
                             </GhostButton>
                           )}
                         </div>

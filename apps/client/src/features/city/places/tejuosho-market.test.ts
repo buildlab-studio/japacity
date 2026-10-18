@@ -7,9 +7,9 @@ import { MARKET_STALL } from "@japacity/assets-src/prop/market-stall/build";
 import frontRaw from "../../../../public/assets/places/tejuosho-front/place.json";
 import raw from "../../../../public/assets/places/tejuosho-market/place.json";
 import type { Act } from "../../../shared/world/contract";
-import { sceneWords } from "../scene.words";
 import { copiesOf, staged } from "./place.testing";
 import { nearest, stagedPlaceTests } from "./staged.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.tejuosho-market";
 const { stage } = staged(raw, ID);
@@ -57,8 +57,8 @@ describe("Mummy at her stall at Tejuosho", () => {
     if (stall === undefined || mummy === undefined) throw new Error("The stall or Mummy is missing.");
     expect(mummy.at).toEqual(stall.at);
     const greet = mummy.acts[0] as Act & { unless?: string[] };
-    expect([greet.kind, sceneWords(greet.label)]).toEqual(["plain", "Greet Mama"]);
+    expect([greet.kind, cityWords(greet.label)]).toEqual(["plain", "Greet Mama"]);
     expect(greet.unless).toEqual(stall.acts.map((act) => act.stages));
-    expect(sceneWords(`${greet.label}.done`)).toMatch(/Mama/);
+    expect(cityWords(`${greet.label}.done`)).toMatch(/Mama/);
   });
 });

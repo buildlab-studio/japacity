@@ -8,7 +8,8 @@ import { describe, expect, test } from "vitest";
 
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
-import { chanceOf, huntBand, jobCardLine, jobsWords } from "../../shared/words/jobs";
+import { chanceOf, huntBand, jobCardLine } from "../../shared/words/jobs";
+import { say } from "../../shared/words/text";
 
 const RACKS = "activity.job-fish-racks";
 const HUNT = "activity.job-hunt";
@@ -42,9 +43,9 @@ describe("the racks' card", () => {
     expect(chanceOf(view, RACKS)).toBe(bar);
     expect(huntBand(bar)).toBe("certain");
     expect(huntBand(bar - 1)).toBe("likely");
-    expect(jobsWords("jobs.chance.certain")).toBe("As good as certain");
+    expect(say("jobs.chance.certain")).toBe("As good as certain");
     expect(jobCardLine(view, HUNT, RACKS)).toContain("As good as certain");
-    expect(jobCardLine(view, HUNT, RACKS)).not.toContain(jobsWords("jobs.chance.likely"));
+    expect(jobCardLine(view, HUNT, RACKS)).not.toContain(say("jobs.chance.likely"));
   });
 
   test("[R-WORLD-006] given every main job on the real content, when a card names it, then its words are its own where content has them, else the hunt's", () => {

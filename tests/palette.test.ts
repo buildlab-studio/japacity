@@ -99,7 +99,7 @@ describe("the palette", () => {
     expect(clientFiles).toContain(`${CLIENT}/index.css`);
     expect(clientFiles).toContain(`${CLIENT}/features/activity/JobList.tsx`);
     expect(wordFiles).toContain("packages/content/src/ui/ui.text.ts");
-    expect(wordFiles).toContain(`${CLIENT}/features/phone/phone.words.ts`);
+    expect(wordFiles).toContain(`${CLIENT}/features/map/map.words.ts`);
   });
 
   test("[R-WORLD-021] given the client, when its classes are read, then none names the older page palette", () => {

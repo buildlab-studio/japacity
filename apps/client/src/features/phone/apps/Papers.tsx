@@ -18,7 +18,6 @@ import { sealedTillMorning } from "../../../shared/words/morning";
 import { forMonths, inMonths, nameOf, runningName, say, sayCount } from "../../../shared/words/text";
 import { PhoneSaid } from "../act";
 import { type PaperRow, papersOf } from "../papers";
-import { phoneWords } from "../phone.words";
 import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
 import { PapersPlace, PapersStatus, PapersYou } from "./PapersMore";
 
@@ -32,19 +31,19 @@ export type PaperCards = (ids: string[]) => ReactNode;
 function stateWords(row: PaperRow, view: PlayerView): string {
   if (row.kind === "visa") {
     const left = view.status?.monthsLeft ?? null;
-    return view.status === null ? phoneWords("phone.papers.visa") : left === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", left, { months: left });
+    return view.status === null ? say("phone.papers.visa") : left === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", left, { months: left });
   }
   switch (row.state) {
     case "coming":
       // A result sealed until the morning says when it comes (R-CLOCK-032), never "this month".
       if (sealedTillMorning(view, row.id)) return say("ui.wait.morning");
-      return phoneWords("phone.papers.pending", { when: inMonths(row.onItsWay ?? view.month, view.month) });
+      return say("phone.papers.pending", { when: inMonths(row.onItsWay ?? view.month, view.month) });
     case "held":
-      return row.expiresMonth === null ? say("ui.document.held") : phoneWords("phone.papers.valid", { when: forMonths(row.expiresMonth, view.month) });
+      return row.expiresMonth === null ? say("ui.document.held") : say("phone.papers.valid", { when: forMonths(row.expiresMonth, view.month) });
     case "expired":
       return say("ui.document.expired");
     case "not-yet":
-      return phoneWords("phone.papers.not-yet");
+      return say("phone.papers.not-yet");
     default: {
       const never: never = row.state;
       return never;
@@ -56,8 +55,8 @@ function stateWords(row: PaperRow, view: PlayerView): string {
 function countsWords(counts: readonly string[]): string | null {
   const [first, second] = counts;
   if (first === undefined) return null;
-  const routes = second === undefined ? runningName(first) : phoneWords("phone.papers.for.and", { first: runningName(first), last: runningName(second) });
-  return phoneWords("phone.papers.for", { routes });
+  const routes = second === undefined ? runningName(first) : say("phone.papers.for.and", { first: runningName(first), last: runningName(second) });
+  return say("phone.papers.for", { routes });
 }
 
 function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard: (activity: string) => void }) {
@@ -111,7 +110,7 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
             >
               <MapPin size={18} className="shrink-0" aria-hidden />
               {/* The place's words wrap and the button grows, never cut short as "At the English test ce...". */}
-              <span className="min-w-0 flex-1 py-2.5 leading-snug" data-paper-act-words>{phoneWords("phone.papers.at", { place: act.place === null ? "" : say(`${act.place}.name`) })}</span>
+              <span className="min-w-0 flex-1 py-2.5 leading-snug" data-paper-act-words>{say("phone.papers.at", { place: act.place === null ? "" : say(`${act.place}.name`) })}</span>
               <ChevronRight size={18} className="shrink-0" aria-hidden />
             </GhostButton>
           )
@@ -144,7 +143,7 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
       <div data-phone-app="papers" data-paper-card={card}>
         <button type="button" onClick={() => setCard(null)} className="press mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2" data-papers-back>
           <ChevronLeft size={16} aria-hidden />
-          {phoneWords("phone.papers.back")}
+          {say("phone.papers.back")}
         </button>
         {cards([card])}
       </div>
@@ -157,13 +156,13 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
       <div className="mb-3 flex items-center gap-3 px-0.5">
         <PicTile of="thing.papers-box" size={56} tint="plain" tilt={-8} />
         <div className="min-w-0 flex-1">
-          <h3 className="text-[19px] leading-tight font-bold">{phoneWords("phone.papers.title")}</h3>
-          <p className="mt-0.5 text-[14px] leading-snug text-text-2">{phoneWords("phone.papers.hint")}</p>
+          <h3 className="text-[19px] leading-tight font-bold">{say("phone.papers.title")}</h3>
+          <p className="mt-0.5 text-[14px] leading-snug text-text-2">{say("phone.papers.hint")}</p>
         </div>
       </div>
       {rows.length === 0 ? (
         <p className="px-0.5 text-[15px] text-text-2" data-papers-none>
-          {phoneWords("phone.papers.none")}
+          {say("phone.papers.none")}
         </p>
       ) : (
         <ul className="flex flex-col gap-2.5">

@@ -11,8 +11,7 @@ import { familyFeedLines } from "./feed";
 import { PhoneApps } from "./PhoneApps";
 import { APP_IDS, marksOf, reloadSeen, waitingOf } from "./seen";
 import { todayWords } from "../../shared/words/format";
-import { inMonths, nameOf } from "../../shared/words/text";
-import { phoneWords } from "./phone.words";
+import { inMonths, nameOf, say } from "../../shared/words/text";
 import { resetLines, tell } from "../../shared/world/Lines";
 import { TOLD_LANE } from "./Phone";
 import { handBrief } from "../../shared/world/briefHanded";
@@ -284,12 +283,12 @@ describe("what the phone carries", () => {
     await openPhone({ ...engineView(), month: 3 });
     openApp("chats");
     fireEvent.click(document.querySelector<HTMLElement>('[data-chat-row="family"]')!);
-    expect(screen.getAllByRole("button", { name: phoneWords("phone.back") })).toHaveLength(1);
-    expect(screen.queryByRole("button", { name: phoneWords("phone.app.chats") })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+    expect(screen.getAllByRole("button", { name: say("phone.back") })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: say("phone.app.chats") })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("phone.back") }));
     expect(document.querySelector('[data-chat-row="family"]')).not.toBeNull();
     expect(document.querySelector("[data-phone-home]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+    fireEvent.click(screen.getByRole("button", { name: say("phone.back") }));
     expect(document.querySelector("[data-phone-home]")).not.toBeNull();
   });
 
@@ -328,7 +327,7 @@ describe("what the phone carries", () => {
     expect(document.querySelectorAll("[data-steps] [data-met]")).toHaveLength(view.routes[0]!.checklist.length);
     // The reminder says the paper and when, each once (R-TEXT-008).
     const reminder = document.querySelector("[data-reminder='paper']");
-    expect(reminder?.textContent).toBe(`${phoneWords("phone.japa.paper-ready", { paper: nameOf("document.transcript") })}${inMonths(12, view.month)}`);
+    expect(reminder?.textContent).toBe(`${say("phone.japa.paper-ready", { paper: nameOf("document.transcript") })}${inMonths(12, view.month)}`);
     // The step opens the Papers app, one source for the papers.
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     expect(document.querySelector("[data-app-screen]")?.getAttribute("data-app-screen")).toBe("papers");

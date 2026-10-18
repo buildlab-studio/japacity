@@ -10,7 +10,6 @@ import { blurbOf, inMonths, monthsAgo, nameOf, say, words } from "../../../share
 import { SourceMark } from "../../../shared/ui/NewsSource";
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { Head } from "../act";
-import { phoneWords } from "../phone.words";
 import { PicCard, WordChip } from "../ui";
 
 /** What is happening now first, talk next, the past last. */
@@ -49,8 +48,8 @@ function storyPicture(id: string): string {
  * month's number (world.md R-WORLD-002): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
  */
 function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
-  const began = era.sinceMonth < 0 ? say("ui.news.era-before") : phoneWords("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
-  return `${began} ${phoneWords("phone.news.era.until", { when: inMonths(era.untilMonth, month) })}`;
+  const began = era.sinceMonth < 0 ? say("ui.news.era-before") : say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
+  return `${began} ${say("phone.news.era.until", { when: inMonths(era.untilMonth, month) })}`;
 }
 
 /**
@@ -99,7 +98,7 @@ export function News() {
 
       {report === null ? null : (
         <div data-report={report.month}>
-          <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
+          <Head>{say("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008), each
               as a chip: good news in green, a loss plain, never louder than the good. */}
           <ul className="flex flex-wrap gap-2">

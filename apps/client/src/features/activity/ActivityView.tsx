@@ -28,7 +28,6 @@ import { localCurrency } from "../../shared/words/wayHome";
 import { countsWords, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, firstJob, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
-import { routesWords } from "./routes.words";
 
 const ENGLISH_RESULT = "document.english-test";
 const GRADE = "quality.edu-grade";
@@ -323,7 +322,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const already = plannedShut(plan, { activity: option.id, param: chosenParam === "" ? null : chosenParam });
   const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && !already && (!needsParam || chosenParam !== "");
   const unpicked = routes !== null && option.allowed && chosenParam === "";
-  const line = unpicked ? { words: routesWords("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
+  const line = unpicked ? { words: say("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
   const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const selectId = `param-${option.id}`;
   // R-WORLD-006: the English test says its chance of the band the route needs before the fee is paid.

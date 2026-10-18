@@ -8,7 +8,6 @@ import { createGameStore } from "../authority/store";
 import { chargedLivingGame, engineView, fakeAuthority, viewAfter } from "../shared/testing/fixtures";
 import { found, renderWithView } from "../shared/testing/render";
 import { nameOf, say } from "../shared/words/text";
-import { phoneWords } from "../features/phone/phone.words";
 import { RunDownBanner } from "../features/health/RunDownBanner";
 
 const WELLBEING = "quality.wellbeing";
@@ -59,7 +58,7 @@ describe("the run-down warning", () => {
       // Above the app's own screen, never inside it.
       const banner = await waitFor(() => found(`[data-app-screen="${app}"] > [data-run-down]`));
       expect(banner.parentElement?.firstElementChild).toBe(banner);
-      fireEvent.click(screen.getByRole("button", { name: phoneWords("phone.back") }));
+      fireEvent.click(screen.getByRole("button", { name: say("phone.back") }));
     }
   });
 });

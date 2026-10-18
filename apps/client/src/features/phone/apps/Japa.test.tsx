@@ -13,7 +13,6 @@ import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words
 import { comingOf } from "../../../shared/words/coming";
 import { remindersOf } from "./Japa";
 import { PhoneApps } from "../PhoneApps";
-import { phoneWords } from "../phone.words";
 import { reloadSeen } from "../seen";
 
 const OFFICIAL = "activity.look-into-route";
@@ -45,10 +44,10 @@ describe("the official page in Japa", () => {
     const button = document.querySelector<HTMLButtonElement>("[data-official-page]");
     expect(button?.getAttribute("data-official-page")).toBe(UK);
     expect(button?.textContent).toContain(nameOf(OFFICIAL));
-    expect(button?.textContent).toContain(phoneWords("phone.japa.official", { route: runningName(UK) }));
+    expect(button?.textContent).toContain(say("phone.japa.official", { route: runningName(UK) }));
     // Free is said once, as the card's tag, and the line beside it is one line with no full stop.
     expect(button?.querySelector("[data-official-free]")?.textContent).toBe("Free");
-    expect(phoneWords("phone.japa.official", { route: runningName(UK) })).not.toMatch(/\./);
+    expect(say("phone.japa.official", { route: runningName(UK) })).not.toMatch(/\./);
     fireEvent.click(button!);
     // R-ACTIVITY-015: the official page is read at once: the command goes now, nothing is planned, and
     // the phone says the page's line.
@@ -83,9 +82,9 @@ describe("the official page in Japa", () => {
     await openJapa(view);
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     const paper = document.querySelector(`[data-paper="${held.id}"]`);
-    expect(paper?.textContent).toContain(phoneWords("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
+    expect(paper?.textContent).toContain(say("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(document.querySelector("[data-papers]")?.textContent).not.toMatch(/month \d|until in/i);
-    expect(screen.getByText(phoneWords("phone.papers.title"))).toBeTruthy();
+    expect(screen.getByText(say("phone.papers.title"))).toBeTruthy();
   });
 });
 
@@ -101,8 +100,8 @@ describe("Japa's reminders, from the one coming list", () => {
     const coming = comingOf(view).filter((item) => item.kind === "paper" || item.kind === "visa" || item.kind === "plan");
     expect(coming.map((item) => item.kind)).toEqual(["paper", "visa"]);
     expect(remindersOf(view)).toEqual([
-      { kind: "paper", what: phoneWords("phone.japa.paper-ready", { paper: nameOf("document.passport") }), when: inMonths(12, 10) },
-      { kind: "visa", what: phoneWords("phone.japa.visa"), when: inMonths(14, 10) },
+      { kind: "paper", what: say("phone.japa.paper-ready", { paper: nameOf("document.passport") }), when: inMonths(12, 10) },
+      { kind: "visa", what: say("phone.japa.visa"), when: inMonths(14, 10) },
     ]);
     for (const row of remindersOf(view)) expect(row.what).not.toContain(row.when);
   });
@@ -118,7 +117,7 @@ describe("a paper being renewed in Japa", () => {
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     const paper = document.querySelector(`[data-paper="document.passport"]`);
     expect(paper?.getAttribute("data-state")).toBe("coming");
-    expect(paper?.textContent).toContain(phoneWords("phone.papers.pending", { when: inMonths(passport.onItsWay, view.month) }));
+    expect(paper?.textContent).toContain(say("phone.papers.pending", { when: inMonths(passport.onItsWay, view.month) }));
     expect(paper?.textContent).not.toMatch(/Runs out/);
   });
 });
@@ -147,7 +146,7 @@ describe("Japa after the grant and the flight", () => {
     await openJapa(view);
     const app = document.querySelector<HTMLElement>('[data-phone-app="japa"]');
     expect(app?.querySelector("[data-japa-percent]")).toBeNull();
-    expect(app?.textContent).not.toContain(phoneWords("phone.japa.label"));
+    expect(app?.textContent).not.toContain(say("phone.japa.label"));
     const visa = app?.querySelector<HTMLElement>("[data-japa-visa]");
     expect(visa?.dataset.japaVisa).toBe(held.entry);
     expect(visa?.textContent).toContain(nameOf(held.entry));
@@ -183,7 +182,7 @@ describe("the figure's one name", () => {
     await openJapa(view);
     const head = document.querySelector<HTMLElement>("[data-japa-head]");
     expect(head?.textContent).toContain("Japacity");
-    expect(head?.textContent).toContain(phoneWords("phone.japa.none"));
+    expect(head?.textContent).toContain(say("phone.japa.none"));
     expect(head?.textContent).not.toMatch(/ready/i);
   });
 
@@ -193,8 +192,8 @@ describe("the figure's one name", () => {
     await openJapa(view);
     const head = document.querySelector<HTMLElement>("[data-japa-head]");
     expect(head?.querySelector("[data-japa-label]")?.textContent).toBe("Japacity");
-    expect(head?.querySelector("[data-japa-gloss]")?.textContent).toBe(phoneWords("phone.japa.gloss"));
-    expect(phoneWords("phone.japa.gloss")).toMatch(/^How ready you are to go/);
+    expect(head?.querySelector("[data-japa-gloss]")?.textContent).toBe(say("phone.japa.gloss"));
+    expect(say("phone.japa.gloss")).toMatch(/^How ready you are to go/);
     for (const key of ["share.japacity", "share.send-off.japacity", "ui.card.japacity"]) expect(say(key)).toMatch(/^Japacity\b/);
     expect(say("share.japacity")).not.toMatch(/^Ready to go$/i);
   });

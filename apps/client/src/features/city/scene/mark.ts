@@ -5,7 +5,7 @@
 // thing for two seconds the first time a place is entered in a life. Built in the DOM box beside the canvas, which the
 // frame loop moves over the thing.
 import type { Thing } from "../../../shared/world/contract";
-import { sceneWords } from "../scene.words";
+import { cityWords } from "../city.words";
 
 /** How a mark shows now: its name over the dot, the name taught then fading, the dot pulsing for the nudge. */
 export interface MarkShown {
@@ -22,12 +22,12 @@ export function markNode(thing: Pick<Thing, "id" | "label" | "mark">, onTap: () 
   node.type = "button";
   node.dataset.mark = thing.id;
   node.dataset.thingMark = thing.id;
-  node.setAttribute("aria-label", sceneWords(thing.label));
+  node.setAttribute("aria-label", cityWords(thing.label));
   node.className = "pointer-events-auto absolute flex -translate-x-1/2 -translate-y-full flex-col items-center";
   const name = document.createElement("span");
   name.dataset.markName = "";
   name.className = "chip whitespace-nowrap px-2.5 py-1 text-[12px] font-extrabold";
-  name.textContent = sceneWords(thing.label);
+  name.textContent = cityWords(thing.label);
   name.hidden = true;
   if (thing.mark !== undefined) name.append(markTag(thing.mark));
   const tag = document.createElement("span");
@@ -96,6 +96,6 @@ export function markTag(mark: NonNullable<Thing["mark"]>): HTMLSpanElement {
   const tag = document.createElement("span");
   tag.dataset.personMark = mark;
   tag.className = "ml-1.5 rounded-[3px] border border-sheet-line px-1.5 py-px align-[2px] text-[12px] font-semibold text-text-2";
-  tag.textContent = sceneWords(`ui.people.mark.${mark}`);
+  tag.textContent = cityWords(`ui.people.mark.${mark}`);
   return tag;
 }

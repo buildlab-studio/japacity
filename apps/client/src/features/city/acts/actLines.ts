@@ -10,7 +10,6 @@ import type { Act, Thing } from "../../../shared/world/contract";
 import { nowActOf, nowLineWords } from "../../../shared/words/acts";
 import { say } from "../../../shared/words/text";
 import { cityWords } from "../city.words";
-import { sceneWords } from "../scene.words";
 
 /** What a landed act puts in the world: words over the speaker, a line in the corner, or nothing. */
 export type ActLine = { kind: "say"; who: string; name: string; words: string; then: string | null } | { kind: "tell"; words: string } | null;
@@ -22,7 +21,7 @@ const MAMA = "mama";
 
 /** A scene key's words, or null when nothing has words for it. */
 function wordsFor(key: string): string | null {
-  const found = sceneWords(key);
+  const found = cityWords(key);
   return found === key ? null : found;
 }
 
@@ -49,10 +48,10 @@ export function inTurn(key: string, nth: number): string {
 export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, "label"> & Partial<Pick<Act, "tells">>, nth = 0): ActLine {
   const tells = act.tells === undefined ? undefined : inTurn(act.tells, nth);
   const own = tells?.startsWith(PERSON_LINE) === true ? wordsFor(tells) : null;
-  if (own !== null) return { kind: "say", who: thing.id, name: sceneWords(thing.label), words: own, then: null };
+  if (own !== null) return { kind: "say", who: thing.id, name: cityWords(thing.label), words: own, then: null };
   const told = wordsFor(tells ?? `${act.label}.done`);
   const says = wordsFor(`${act.label}.says`);
-  if (says !== null) return { kind: "say", who: thing.id, name: wordsFor(`${act.label}.who`) ?? sceneWords(thing.label), words: says, then: told };
+  if (says !== null) return { kind: "say", who: thing.id, name: wordsFor(`${act.label}.who`) ?? cityWords(thing.label), words: says, then: told };
   return told === null ? null : { kind: "tell", words: told };
 }
 
@@ -83,7 +82,7 @@ export function lightBack(lines: readonly { key: string; params: Record<string, 
   const paid = lines.some((line) => line.key === "line.offer.taken" && line.params.offer === LIGHT_BILL && line.params.choice === "pay");
   const mama = things.find((thing) => thing.id === MAMA);
   if (!paid || mama === undefined) return null;
-  return { who: mama.id, name: sceneWords(mama.label), words: cityWords("city.say.light-back"), told: cityWords("city.told.light-paid"), heard: cityWords("city.heard.up-nepa") };
+  return { who: mama.id, name: cityWords(mama.label), words: cityWords("city.say.light-back"), told: cityWords("city.told.light-paid"), heard: cityWords("city.heard.up-nepa") };
 }
 
 /** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (R-WORLD-005). */
@@ -107,7 +106,7 @@ export function nowLands(line: Pick<ReportLine, "key" | "params">, things: reado
   const activity = nowActOf(line);
   if (SHOWN_BY_SCENE.has(activity)) return null;
   const mama = things.find((thing) => thing.id === MAMA);
-  if (MAMA_SAYS.has(activity) && mama !== undefined) return { kind: "say", who: mama.id, name: sceneWords(mama.label), words: spoken(nowLineWords(line)), then: null };
+  if (MAMA_SAYS.has(activity) && mama !== undefined) return { kind: "say", who: mama.id, name: cityWords(mama.label), words: spoken(nowLineWords(line)), then: null };
   if (content.activity[activity as Id<"activity">]?.repeat !== true) return null;
   return { kind: "tell", words: nowLineWords(line) };
 }

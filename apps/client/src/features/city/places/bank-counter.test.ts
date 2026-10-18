@@ -4,10 +4,10 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/bank-counter/place.json";
 import { say } from "../../../shared/words/text";
-import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { heldFundsOpen, heldFundsPaid, offeredFrom } from "./offices.testing";
 import { staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const { stage, entry } = staged(raw, "place.olokun-office");
 const things = stage.things ?? [];
@@ -22,9 +22,9 @@ describe("the bank's counter after the deposit", () => {
     expect(view.obligations.map((owed) => owed.entry)).toContain("obligation.held-funds");
     const clerk = now(view).find((thing) => thing.id === "clerk");
     expect(clerk?.acts).toEqual([{ id: "pay-back", label: "ui.world.pay-back", kind: "command", command: "obligation/pay" }]);
-    expect(sceneWords(clerk?.label ?? "")).toBe("Clerk");
-    expect(sceneWords(clerk?.acts[0]?.label ?? "")).toBe(say("ui.world.pay-back"));
-    expect(sceneWords(clerk?.acts[0]?.label ?? "")).toBe("Pay back what is held");
+    expect(cityWords(clerk?.label ?? "")).toBe("Clerk");
+    expect(cityWords(clerk?.acts[0]?.label ?? "")).toBe(say("ui.world.pay-back"));
+    expect(cityWords(clerk?.acts[0]?.label ?? "")).toBe("Pay back what is held");
   });
 
   test("[R-WORLD-005] given the held funds paid back, when the counter's things are read, then the clerk's act is gone with them", () => {

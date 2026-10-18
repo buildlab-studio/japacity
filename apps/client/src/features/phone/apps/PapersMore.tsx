@@ -14,7 +14,6 @@ import { formatMoney } from "../../../shared/words/format";
 import { AGE, valueWords } from "../../../shared/words/quality";
 import { blurbOf, hasWords, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, Refused } from "../act";
-import { phoneWords } from "../phone.words";
 import { PicCard, WordChip } from "../ui";
 
 type Held = NonNullable<PlayerView["status"]>;
@@ -164,7 +163,7 @@ export function PapersPlace() {
                 <ol className="flex flex-col gap-1 text-[14px]" aria-label={say("ui.place.returns")}>
                   {returns.map((back) => (
                     <li key={`${String(back.month)}-${back.country ?? "road"}`}>
-                      {phoneWords("phone.papers.return", { when: monthsAgo(back.month, view.month), country: back.country === null ? say("ui.place.road-name") : nameOf(back.country), shape: say(`ui.place.shape.${back.shape}`) })}
+                      {say("phone.papers.return", { when: monthsAgo(back.month, view.month), country: back.country === null ? say("ui.place.road-name") : nameOf(back.country), shape: say(`ui.place.shape.${back.shape}`) })}
                     </li>
                   ))}
                 </ol>

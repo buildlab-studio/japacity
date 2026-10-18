@@ -7,7 +7,7 @@ import type { PlayerView } from "@japacity/sim";
 import { int } from "@japacity/sim";
 
 import { formatMoney } from "../../../shared/words/format";
-import { chanceBand, jobsWords } from "../../../shared/words/jobs";
+import { chanceBand } from "../../../shared/words/jobs";
 import { nameOf, say } from "../../../shared/words/text";
 
 export const APPLY_TO_SCHOOL = "activity.apply-to-school";
@@ -27,6 +27,6 @@ export function offerChance(view: Pick<PlayerView, "qualities">, school: string)
 /** The sheet's line for one school: where the papers go, the deposit if it says yes, and the chance of an offer. */
 export function schoolSheetLine(view: Pick<PlayerView, "qualities">, school: string): string {
   const entry = (content.school as Record<string, (typeof content.school)[keyof typeof content.school] | undefined>)[school];
-  const chance = jobsWords(`jobs.chance.${chanceBand(offerChance(view, school))}`).toLowerCase();
+  const chance = say(`jobs.chance.${chanceBand(offerChance(view, school))}`).toLowerCase();
   return say("ui.route.apply-sheet", { school: nameOf(school), deposit: formatMoney(entry?.deposit ?? 0, "GBP"), chance });
 }

@@ -11,7 +11,7 @@ import { formatMoney } from "../../shared/words/format";
 import { AskSheet } from "../../shared/world/AskSheet";
 import type { Ask } from "../../shared/world/contract";
 import { iconFor } from "./PhoneIcon";
-import { phoneWords } from "./phone.words";
+import { say } from "../../shared/words/text";
 
 /** The phone's told line: an app says what happened, the corner over the handset shows it (R-WORLD-026). */
 export const PhoneSaid = createContext<(words: string) => void>(() => undefined);
@@ -96,7 +96,7 @@ export function Refused() {
     <div role="alert" className="shake lively-card mb-3 flex items-start gap-2 p-3 text-[15px] text-out">
       <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden />
       <p className="flex-1">{rejection.words}</p>
-      <button type="button" onClick={dismiss} aria-label={phoneWords("ui.dismiss")} className="flex size-7 items-center justify-center">
+      <button type="button" onClick={dismiss} aria-label={say("ui.dismiss")} className="flex size-7 items-center justify-center">
         <X size={16} aria-hidden />
       </button>
     </div>

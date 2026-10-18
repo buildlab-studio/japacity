@@ -4,9 +4,8 @@ import type { HomeMoveShut, HomePlace, PlayerView } from "@japacity/sim";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
-import { blurbOf, forMonths, hasWords, nameOf, sayCount } from "../../../shared/words/text";
+import { blurbOf, forMonths, hasWords, nameOf, say, sayCount } from "../../../shared/words/text";
 import { useAsk } from "../act";
-import { phoneWords } from "../phone.words";
 import { PicTile } from "../ui";
 
 const MAKOKO: HomePlace = "place.makoko";
@@ -26,9 +25,9 @@ export interface HomeMove {
 function shutWords(shut: HomeMoveShut, now: number, to: HomePlace): string {
   switch (shut) {
     case "moved":
-      return phoneWords("phone.home.shut.moved");
+      return say("phone.home.shut.moved");
     case "short":
-      return phoneWords(to === COMPOUND ? `phone.home.shut.short.${to}` : "phone.home.shut.short", { amount: { currency: "NGN", amount: now } });
+      return say(to === COMPOUND ? `phone.home.shut.short.${to}` : "phone.home.shut.short", { amount: { currency: "NGN", amount: now } });
     default: {
       const never: never = shut;
       return never;
@@ -46,15 +45,15 @@ function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
  * room's rent; the family house's and the room's are living costs, food and light, never rent.
  */
 function chargeWords(home: PlayerView["home"]): string {
-  if (home.rent === null) return phoneWords("phone.home.charge.none");
+  if (home.rent === null) return say("phone.home.charge.none");
   // R-HOME-012 (decision 0013): nothing of the living is charged as the month turns, so no figure a month is said for it;
   // the family house says it as your share for the house (decision 0018).
   if (home.rent.amount === 0) {
     const byHand = home.place === null ? null : `phone.home.charge.by-hand.${home.place}`;
-    return phoneWords(byHand !== null && hasWords(byHand) ? byHand : "phone.home.charge.by-hand");
+    return say(byHand !== null && hasWords(byHand) ? byHand : "phone.home.charge.by-hand");
   }
   const own = home.place === null ? null : `phone.home.charge.${home.place}`;
-  return phoneWords(own !== null && hasWords(own) ? own : "phone.home.charge", { amount: home.rent });
+  return say(own !== null && hasWords(own) ? own : "phone.home.charge", { amount: home.rent });
 }
 
 /** R-HOME-010: the room's yearly rent and when it is next taken, or null where none is open. */
@@ -90,26 +89,26 @@ export function HomeCard() {
     open({
       form: "card",
       icon: "house",
-      who: phoneWords("phone.home.title"),
-      title: phoneWords(`phone.home.move.${move.to}`),
-      line: phoneWords(moveLineKey(home.place, move.to, move.monthly), { amount: { currency: "NGN", amount: move.monthly }, now: { currency: "NGN", amount: move.now } }),
+      who: say("phone.home.title"),
+      title: say(`phone.home.move.${move.to}`),
+      line: say(moveLineKey(home.place, move.to, move.monthly), { amount: { currency: "NGN", amount: move.monthly }, now: { currency: "NGN", amount: move.now } }),
       cost: move.now > 0 ? { amount: move.now, currency: "NGN" } : null,
-      button: phoneWords("phone.home.move.button"),
+      button: say("phone.home.move.button"),
       have: view.pockets.NGN.cash + view.pockets.NGN.bank,
       when: "now",
       command: { type: "home/move", to: move.to },
-      done: phoneWords("phone.home.moved"),
+      done: say("phone.home.moved"),
     });
 
   return (
-    <section className="lively-card mb-3 p-3.5" data-home-card data-home-place={home.place ?? "none"} aria-label={phoneWords("phone.home.title")}>
+    <section className="lively-card mb-3 p-3.5" data-home-card data-home-place={home.place ?? "none"} aria-label={say("phone.home.title")}>
       {/* Where you live: the home's picture, its name, what it costs as a chip, its
           line; then the other homes as picture tiles, each with its move and what is paid on it. */}
       <div className="flex items-start gap-3">
         {home.place === null ? null : <PicTile of={home.place} size={60} tint="plain" />}
         <div className="min-w-0 flex-1">
-          <h3 className="text-[13px] font-semibold text-text-2">{phoneWords("phone.home.title")}</h3>
-          <p className="text-[19px] leading-tight font-bold">{home.place === null ? phoneWords("phone.home.none") : phoneWords(`phone.home.place.${home.place}`)}</p>
+          <h3 className="text-[13px] font-semibold text-text-2">{say("phone.home.title")}</h3>
+          <p className="text-[19px] leading-tight font-bold">{home.place === null ? say("phone.home.none") : say(`phone.home.place.${home.place}`)}</p>
           {/* R-HOME-008: the card opens with what the home is, the place's own blurb. */}
           {home.place === null || blurbOf(home.place) === null ? null : (
             <p className="mt-0.5 text-[14px] leading-snug text-text-2" data-home-blurb>
@@ -121,7 +120,7 @@ export function HomeCard() {
       <div className="mt-2 flex flex-col items-start gap-1.5">
         {home.guest === null ? null : (
           <p className="text-[14px]" data-home-guest>
-            {phoneWords("phone.home.guest", { who: hostWords(home.guest), until: forMonths(home.guest.until, view.month) })}
+            {say("phone.home.guest", { who: hostWords(home.guest), until: forMonths(home.guest.until, view.month) })}
           </p>
         )}
         {home.roomRent === null ? null : (
@@ -134,7 +133,7 @@ export function HomeCard() {
         </span>
         {home.place === MAKOKO ? (
           <p className="text-[13px] text-text-2" data-home-risk>
-            {phoneWords("phone.home.risk")}
+            {say("phone.home.risk")}
           </p>
         ) : null}
       </div>
@@ -148,7 +147,7 @@ export function HomeCard() {
               <PicTile of={move.to} size={52} tint="plain" />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5 text-center">
               <button type="button" onClick={() => ask(move)} disabled={move.shut !== null} className="phone-ghost press min-h-11 w-full flex-col justify-center gap-0.5 py-1.5 leading-tight" data-home-move={move.to}>
-                <span>{phoneWords(`phone.home.move.${move.to}`)}</span>
+                <span>{say(`phone.home.move.${move.to}`)}</span>
                 {move.now > 0 ? (
                   <>
                     <span className="sr-only">: </span>
@@ -159,7 +158,7 @@ export function HomeCard() {
               {/* The risk is said once, plainly, beside the move it belongs to (R-HOME-007), not under the family house. */}
               {move.to === MAKOKO ? (
                 <p className="text-[12px] text-text-2" data-home-risk>
-                  {phoneWords("phone.home.risk")}
+                  {say("phone.home.risk")}
                 </p>
               ) : null}
               {move.shut === null ? null : (

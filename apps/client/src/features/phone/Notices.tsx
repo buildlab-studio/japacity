@@ -18,7 +18,6 @@ import { Tile } from "../../shared/tiles/Tile";
 import { formatBand } from "../../shared/words/format";
 import { runningName, say } from "../../shared/words/text";
 import { paperNotices, paperNoticeWords, papersMarkOf } from "./papers";
-import { phoneWords } from "./phone.words";
 import { markSeen, useSeen } from "./seen";
 
 /** The lines due and those still waiting, from the days kept, the view and the plan. */
@@ -39,12 +38,12 @@ export function useSignalsWaiting(): boolean {
 function envelopeWords(envelope: Envelope, view: Pick<PlayerView, "routes">): { from: string | null; words: string } {
   if (envelope.kind === "route") {
     const refused = envelope.held.some((line) => line.key.startsWith("line.route.refused")) || view.routes.find((route) => route.id === envelope.id)?.state === "refused";
-    return { from: phoneWords("phone.morning.from.route"), words: phoneWords(refused ? "phone.morning.route.refused" : "phone.morning.route.granted") };
+    return { from: say("phone.morning.from.route"), words: say(refused ? "phone.morning.route.refused" : "phone.morning.route.granted") };
   }
   const own = `phone.morning.${envelope.id}`;
   const band = envelope.held.map((line) => line.params.band).find((value) => typeof value === "number");
-  if (phoneWords(own) === own) return { from: null, words: phoneWords("phone.papers.notice.issued", { paper: runningName(envelope.id) }) };
-  return { from: phoneWords(`phone.morning.from.${envelope.id}`), words: phoneWords(own, { band: band === undefined ? "" : formatBand(band) }) };
+  if (say(own) === own) return { from: null, words: say("phone.papers.notice.issued", { paper: runningName(envelope.id) }) };
+  return { from: say(`phone.morning.from.${envelope.id}`), words: say(own, { band: band === undefined ? "" : formatBand(band) }) };
 }
 
 /** The picture of a result by what it is: the test desk for a band, the desk for the endorsement, the visa centre for a decision. */
@@ -70,7 +69,7 @@ function MorningNotices({ told }: { told: readonly Envelope[] }) {
   if (told.length === 0) return null;
   const [first, ...rest] = told;
   return (
-    <div className="mt-4 flex flex-col gap-2 px-4" aria-label={phoneWords("phone.morning.notices")} role="list" data-morning>
+    <div className="mt-4 flex flex-col gap-2 px-4" aria-label={say("phone.morning.notices")} role="list" data-morning>
       {first === undefined ? null : (
         <div role="listitem" className="morning-card pop flex items-center gap-3 p-3 text-left text-text" data-envelope={first.id} data-envelope-first>
           <span className="flex size-[72px] shrink-0 items-center justify-center rounded-[16px] bg-[var(--soft)]">
@@ -84,7 +83,7 @@ function MorningNotices({ told }: { told: readonly Envelope[] }) {
           </span>
         </div>
       )}
-      {rest.length === 0 ? null : <p className="mt-1 text-[14px] font-bold text-white/85">{phoneWords("phone.morning.also")}</p>}
+      {rest.length === 0 ? null : <p className="mt-1 text-[14px] font-bold text-white/85">{say("phone.morning.also")}</p>}
       {rest.map((envelope) => {
         const { from, words } = envelopeWords(envelope, view);
         return (
@@ -115,7 +114,7 @@ function PaperNotices({ skip }: { skip: ReadonlySet<string> }) {
   const notices = paperNotices(view).filter((notice) => !skip.has(notice.document));
   if (mark === "" || seen.papers === mark || notices.length === 0) return null;
   return (
-    <ul className="mt-4 flex flex-col gap-2 px-4" aria-label={phoneWords("phone.papers.notices")} data-paper-notices>
+    <ul className="mt-4 flex flex-col gap-2 px-4" aria-label={say("phone.papers.notices")} data-paper-notices>
       {notices.map((notice) => (
         <li key={`${notice.kind}.${notice.document}`}>
           <button
@@ -128,7 +127,7 @@ function PaperNotices({ skip }: { skip: ReadonlySet<string> }) {
               <FolderOpen size={20} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-semibold text-text-2">{phoneWords("phone.app.papers")}</span>
+              <span className="block text-[13px] font-semibold text-text-2">{say("phone.app.papers")}</span>
               <span className="block text-[15px] leading-snug font-bold" data-notice-words>{paperNoticeWords(notice, view.month)}</span>
             </span>
           </button>

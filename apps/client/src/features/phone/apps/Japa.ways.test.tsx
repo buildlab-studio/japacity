@@ -14,7 +14,6 @@ import { formatBand, formatMoney } from "../../../shared/words/format";
 import { checklistWords } from "../../../shared/words/requirement";
 import { byMonths, nameOf, say, sayCount } from "../../../shared/words/text";
 import { Japa } from "./Japa";
-import { phoneWords } from "../phone.words";
 
 const UK = "route.uk-masters";
 
@@ -50,7 +49,7 @@ describe("the ways out in Japa", () => {
     expect(screen.getByText(say("ui.refusal.funds"))).toBeDefined();
     expect(screen.getByText(nameOf("school.northgate"))).toBeDefined();
     // The answer's month as months away (R-WORLD-002): the school answers as month 13 ends.
-    expect(screen.getByText(phoneWords("phone.japa.school.pending", { when: byMonths(13, richView().month) }))).toBeDefined();
+    expect(screen.getByText(say("phone.japa.school.pending", { when: byMonths(13, richView().month) }))).toBeDefined();
     expect(document.querySelector("[data-way-file]")?.textContent).not.toMatch(/month \d+/i);
   });
 

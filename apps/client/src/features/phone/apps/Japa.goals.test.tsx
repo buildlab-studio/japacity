@@ -11,7 +11,6 @@ import { requirementSentence } from "../../../shared/words/requirement";
 import { nameOf, say } from "../../../shared/words/text";
 import { Japa } from "./Japa";
 import { agoWords } from "./JapaWays";
-import { phoneWords } from "../phone.words";
 
 // These tests build the view of goals by hand.
 describe("life goals in Japa", () => {
@@ -30,7 +29,7 @@ describe("life goals in Japa", () => {
   test("given a goal done, then the done list names it with its month, said as months ago (R-WORLD-002)", async () => {
     const view = richAbroadView();
     await renderWithView(<Japa />, view);
-    expect(screen.getByText(phoneWords("phone.japa.goal.done", { goal: nameOf("goal.first-car"), when: agoWords(41, view.month) }))).toBeDefined();
+    expect(screen.getByText(say("phone.japa.goal.done", { goal: nameOf("goal.first-car"), when: agoWords(41, view.month) }))).toBeDefined();
     expect(document.querySelector("[data-goals]")?.textContent).not.toMatch(/month \d+/i);
   });
 

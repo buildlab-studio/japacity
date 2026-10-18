@@ -7,11 +7,11 @@ import { describe, expect, test } from "vitest";
 import { STADIUM } from "@japacity/assets-src/lm/national-stadium/build";
 
 import raw from "../../../../public/assets/places/national-stadium/place.json";
-import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
 import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.national-stadium";
 const { stage, entry } = staged(raw, ID);
@@ -27,7 +27,7 @@ describe("the National Stadium", () => {
   test("[R-STREET-008] given the track, when its act is read, then the morning run is done on the spot, and it is the only thing the stadium stages", () => {
     const track = thing("track");
     expect(track.acts.map((act) => [act.kind, act.stages])).toEqual([["do", "activity.morning-run"]]);
-    expect(sceneWords(track.acts[0]?.label ?? "")).toBe("Run");
+    expect(cityWords(track.acts[0]?.label ?? "")).toBe("Run");
     expect(entry.stages).toEqual(["activity.morning-run"]);
     expect(stagedAt("activity.morning-run", { where: "home", country: null }, Object.values(content.place))).toBe(ID);
   });

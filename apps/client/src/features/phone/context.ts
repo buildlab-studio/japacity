@@ -4,10 +4,9 @@
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { inMonths } from "../../shared/words/text";
+import { inMonths, say } from "../../shared/words/text";
 import { nextTakenAhead } from "./apps/Bills";
 import { shortNaira } from "./apps/passbook.words";
-import { phoneWords } from "./phone.words";
 import { jobOffers } from "./seen";
 
 type View = Pick<PlayerView, "activities" | "offers" | "lottery" | "obligations" | "month" | "passbook" | "place" | "ended">;
@@ -23,21 +22,21 @@ export function openJobs(view: Pick<PlayerView, "activities">): number {
 /** Jobs: the offers waiting first, else the jobs the hunt can ask for now. */
 function jobsContext(view: View): string | null {
   const offers = jobOffers(view).length;
-  if (offers > 0) return phoneWords(offers === 1 ? "phone.context.jobs.offer" : "phone.context.jobs.offers", { count: offers });
+  if (offers > 0) return say(offers === 1 ? "phone.context.jobs.offer" : "phone.context.jobs.offers", { count: offers });
   const open = openJobs(view);
-  return open === 0 ? null : phoneWords("phone.context.jobs.open", { count: open });
+  return open === 0 ? null : say("phone.context.jobs.open", { count: open });
 }
 
 /** Lotto: the Friday draw, online or at the kiosk in Lagos (R-LUCK-005, R-LOTTERY-001); abroad the kiosk is far away. */
 function lottoContext(view: View): string | null {
   if (view.lottery === null && view.place.where !== "home") return null;
-  return phoneWords("phone.context.lotto");
+  return say("phone.context.lotto");
 }
 
 /** Bills: what is due now, else the next bill taken every few months, said in months. */
 function billsContext(view: View): string | null {
   const due = view.obligations.filter((owed) => owed.due > 0 || owed.missed > 0).length;
-  if (due > 0) return phoneWords(due === 1 ? "phone.context.bills.due.one" : "phone.context.bills.due", { count: due });
+  if (due > 0) return say(due === 1 ? "phone.context.bills.due.one" : "phone.context.bills.due", { count: due });
   const next = view.obligations
     .flatMap((owed) => {
       const ahead = nextTakenAhead(owed, view.month);
@@ -47,7 +46,7 @@ function billsContext(view: View): string | null {
   if (next === undefined) return null;
   const type = content.obligation[next.owed.entry]?.type;
   const when = inMonths(view.month + next.ahead, view.month + 1);
-  return phoneWords(type === "rent" ? "phone.context.bills.rent" : type === "tuition" ? "phone.context.bills.fees" : "phone.context.bills.next", { when });
+  return say(type === "rent" ? "phone.context.bills.rent" : type === "tuition" ? "phone.context.bills.fees" : "phone.context.bills.next", { when });
 }
 
 /** Bank: the next stamp of the passbook to reach, or all in once the target is held (R-WALLET-021). */
@@ -55,8 +54,8 @@ function bankContext(view: View): string | null {
   const book = view.passbook;
   if (book === null || book.stamps.length === 0) return null;
   const next = book.stamps.find((stamp) => stamp.month === null);
-  if (next === undefined) return phoneWords("phone.context.bank.ready");
-  return phoneWords(next.target ? "phone.context.bank.target" : "phone.context.bank.stamp", { amount: shortNaira(next.at) });
+  if (next === undefined) return say("phone.context.bank.ready");
+  return say(next.target ? "phone.context.bank.target" : "phone.context.bank.stamp", { amount: shortNaira(next.at) });
 }
 
 /** The pill's words for an app, or null for an app with none or nothing to say now. */

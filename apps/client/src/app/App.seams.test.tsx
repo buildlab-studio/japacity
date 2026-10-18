@@ -16,7 +16,6 @@ import { countInto, countSound } from "../shared/analytics/start";
 import { makeCounters } from "../shared/analytics/counters";
 import { City } from "../features/city/City";
 import { cityWords } from "../features/city/city.words";
-import { phoneWords } from "../features/phone/phone.words";
 import { chooseGraphics, graphicsMode, setGraphicsMode } from "../shared/graphics/mode";
 import type { AccountApi } from "../shared/net/auth";
 import { abroadView, engineView, fakeAuthority } from "../shared/testing/fixtures";
@@ -59,7 +58,7 @@ describe("the interface counters", () => {
     const phoneThumb = await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 });
     const openApp = async (id: string) => {
       fireEvent.click(await waitFor(() => found(`[data-app="${id}"]`)));
-      fireEvent.click(await screen.findByRole("button", { name: phoneWords("phone.back") }));
+      fireEvent.click(await screen.findByRole("button", { name: say("phone.back") }));
     };
     fireEvent.click(phoneThumb);
     // The month's plan is the Calendar app (R-WORLD-018).

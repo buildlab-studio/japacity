@@ -5,8 +5,9 @@ import type { PlayerView } from "@japacity/sim";
 import { int } from "@japacity/sim";
 
 import { countWords } from "../../shared/words/count";
-import { chanceBand, jobsWords } from "../../shared/words/jobs";
+import { chanceBand } from "../../shared/words/jobs";
 import { bandChanceBp, bandNeeded, type BandView, englishOf, STUDY_ENGLISH, testChance } from "../../shared/words/englishTest";
+import { say } from "../../shared/words/text";
 
 const ENGLISH = "quality.english";
 const BP_WHOLE = 10_000;
@@ -54,6 +55,6 @@ export function studyWords(view: Pick<PlayerView, "qualities" | "job"> & BandVie
   if (plain === null) return null;
   const months = studyMonths(view);
   if (months === 1) return plain;
-  if (months === null) return jobsWords("activity.sit-english-test.study-year");
-  return jobsWords("activity.sit-english-test.study-months", { count: countWords(months) });
+  if (months === null) return say("activity.sit-english-test.study-year");
+  return say("activity.sit-english-test.study-months", { count: countWords(months) });
 }

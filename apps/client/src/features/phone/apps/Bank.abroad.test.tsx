@@ -13,7 +13,6 @@ import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { Bank } from "./Bank";
-import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
 
 /** Ada's careful life, replayed to the flight: the first morning abroad. */
@@ -88,8 +87,8 @@ describe("the Bank abroad", () => {
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
     // Decision 0012: the re-recorded life lands with £1,954.
-    expect(first?.textContent).toContain(phoneWords("phone.bank.dues", { due: "£4,352", held: "£1,954" }));
-    expect(phoneWords("phone.bank.dues", { due: "£4,352", held: "£1,954" })).toBe("Due this month: £4,352. You hold £1,954.");
+    expect(first?.textContent).toContain(say("phone.bank.dues", { due: "£4,352", held: "£1,954" }));
+    expect(say("phone.bank.dues", { due: "£4,352", held: "£1,954" })).toBe("Due this month: £4,352. You hold £1,954.");
     // The way names the pair only: Change money is said once on the screen.
     expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });
@@ -144,7 +143,7 @@ describe("the Bank abroad", () => {
     expect(view.japacity.percent).toBe(100);
     await renderWithView(<Bank />, view);
     expect(document.querySelector("[data-savings]")).toBeNull();
-    expect(document.body.textContent).not.toContain(phoneWords("phone.bank.savings"));
+    expect(document.body.textContent).not.toContain(say("phone.bank.savings"));
   });
 
   test("[R-WORLD-019] given the pounds held cover the month, when the Bank opens abroad, then no gap is shown", async () => {

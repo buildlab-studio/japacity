@@ -2,8 +2,8 @@
 // thing's copy with its shadow, and where on the floor a finger points. Nothing clever on a phone: a plain lift, a plain
 // drag, short eases on the thing's position and turn alone.
 import { CircleGeometry, type Camera, Mesh, MeshBasicMaterial, type Object3D, Plane, Raycaster, Vector2, Vector3 } from "three";
+import { cityWords } from "../city.words";
 
-import { sceneWords } from "../scene.words";
 
 /** How long a press must rest on a thing you own before it lifts, in ms. */
 export const LIFT_HOLD_MS = 420;
@@ -28,7 +28,7 @@ export function liftHintNode(): HTMLDivElement {
   const node = document.createElement("div");
   node.dataset.liftHint = "";
   node.className = "chip pointer-events-none absolute -translate-x-1/2 whitespace-nowrap px-3 py-1 text-[12px] font-extrabold";
-  node.textContent = sceneWords("city.lift.hint");
+  node.textContent = cityWords("city.lift.hint");
   node.style.display = "none";
   return node;
 }

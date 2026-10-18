@@ -24,7 +24,6 @@ import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
-import { phoneWords } from "../phone.words";
 import { PicCard, PicTile, WordChip } from "../ui";
 import { Goals, StepBar, WayFiles } from "./JapaWays";
 import { RoutePage } from "./PlanSwitch";
@@ -102,7 +101,7 @@ function ClosedLine({ view, route }: { view: PlayerView; route: RouteView | null
   const every = everyRouteClosed(view);
   return (
     <p className="lively-card mt-2 px-3.5 py-2.5 text-[15px] font-bold text-out" data-japa-closed={every ? "every" : route.id}>
-      {phoneWords(every ? "phone.japa.closed.every" : "phone.japa.closed")}
+      {say(every ? "phone.japa.closed.every" : "phone.japa.closed")}
     </p>
   );
 }
@@ -203,9 +202,9 @@ export interface ReminderRow {
 function reminderWhat(item: Reminder): string {
   switch (item.kind) {
     case "visa":
-      return phoneWords("phone.japa.visa");
+      return say("phone.japa.visa");
     case "paper":
-      return phoneWords("phone.japa.paper-ready", { paper: item.what });
+      return say("phone.japa.paper-ready", { paper: item.what });
     case "plan":
       return item.what;
     default: {
@@ -268,7 +267,7 @@ function NextStep({ step }: { step: string }) {
   return (
     <p className="lively-card phone-picked mt-2 flex items-center gap-2 px-3.5 py-2.5 text-[15px] font-bold" data-japa-next>
       <ChevronRight size={16} className="shrink-0" aria-hidden />
-      {phoneWords("phone.japa.next", { step })}
+      {say("phone.japa.next", { step })}
     </p>
   );
 }
@@ -284,15 +283,15 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
       <PicCard
         pic="place.airport-lagos"
         tint="money"
-        over={phoneWords("phone.japa.visa.label")}
-        title={held === null ? phoneWords("phone.japa.visa.none") : nameOf(held.entry)}
+        over={say("phone.japa.visa.label")}
+        title={held === null ? say("phone.japa.visa.none") : nameOf(held.entry)}
         chips={held === null ? null : <WordChip tone="study">{held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}</WordChip>}
         data-japa-visa={held?.entry ?? ""}
       />
       {held === null ? <p className="mt-2 text-[14px]">{say("ui.status.none")}</p> : null}
       {lets === null ? null : (
         <>
-          <Head>{phoneWords("phone.japa.visa.lets")}</Head>
+          <Head>{say("phone.japa.visa.lets")}</Head>
           <p className="text-[14px]">{lets}</p>
         </>
       )}
@@ -301,7 +300,7 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
       {ahead === null ? null : (
         <div data-landing={ahead.now ? "now" : "soon"}>
           <Head>{nameOf(ahead.id)}</Head>
-          {ahead.now ? null : <p className="mb-1 text-[13px] text-text-2">{phoneWords("phone.japa.chapter.soon")}</p>}
+          {ahead.now ? null : <p className="mb-1 text-[13px] text-text-2">{say("phone.japa.chapter.soon")}</p>}
           <ul className="lively-card flex flex-col divide-y divide-sheet-line py-1">
             {ahead.items.map((item) => (
               <Step key={item.id} met={item.met}>
@@ -313,7 +312,7 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
       )}
       {held?.nextStep === null || held?.nextStep === undefined ? null : (
         <>
-          <Head>{phoneWords("phone.japa.visa.way-up")}</Head>
+          <Head>{say("phone.japa.visa.way-up")}</Head>
           <p className="text-[14px]">{words(held.nextStep)}</p>
         </>
       )}
@@ -326,7 +325,7 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
 
 /** "Your plan: Care work in the UK", the route's name its own element, with the file its chapters build beneath. */
 function PlanHead({ route }: { route: Id<"route"> }) {
-  const [before = "", after = ""] = phoneWords("phone.japa.plan", { route: "\u0000" }).split("\u0000");
+  const [before = "", after = ""] = say("phone.japa.plan", { route: "\u0000" }).split("\u0000");
   return (
     <>
       <div className="text-[24px] leading-tight font-bold" data-japa-plan={route}>
@@ -350,10 +349,10 @@ function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }
       <PicTile of="thing.papers-box" size={48} tint="plain" />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5 text-[16px] font-bold">
-          {phoneWords("phone.japa.papers")}
+          {say("phone.japa.papers")}
           {view.documents.length > 0 && held === view.documents.length ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : null}
         </span>
-        <span className="block text-[14px] text-text-2">{view.documents.length === 0 ? phoneWords("phone.japa.papers.none") : phoneWords("phone.japa.papers.line", { held, count: view.documents.length })}</span>
+        <span className="block text-[14px] text-text-2">{view.documents.length === 0 ? say("phone.japa.papers.none") : say("phone.japa.papers.line", { held, count: view.documents.length })}</span>
       </span>
       <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
     </button>
@@ -365,9 +364,9 @@ function ReadyMeter({ percent }: { percent: number }) {
   return (
     <div className="mt-2" data-japa-percent={percent}>
       <p className="text-[14px] text-text-2" data-japa-gloss>
-        {phoneWords("phone.japa.gloss")}
+        {say("phone.japa.gloss")}
       </p>
-      <div className="phone-meter mt-1 h-3 w-full overflow-hidden" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label={phoneWords("phone.japa.gloss")}>
+      <div className="phone-meter mt-1 h-3 w-full overflow-hidden" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-label={say("phone.japa.gloss")}>
         <span style={{ width: `${String(Math.max(4, Math.min(100, percent)))}%` }} />
       </div>
     </div>
@@ -388,7 +387,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
   if (page !== null) {
     return (
       <div data-phone-app="japa">
-        <RoutePage route={page} onClose={() => setPage(null)} back={phoneWords("phone.app.japa")} onSaid={said} />
+        <RoutePage route={page} onClose={() => setPage(null)} back={say("phone.app.japa")} onSaid={said} />
       </div>
     );
   }
@@ -426,11 +425,11 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
             <span className="min-w-0 text-[16px] font-bold">{otherWay ? say("ui.japa.official.title-route", { route: runningName(lookInto) }) : nameOf(OFFICIAL)}</span>
             {planned ? null : (
               <span className="sticker-chip shrink-0 bg-tint-money" style={{ rotate: "-2deg", color: "var(--money-ink)" }} data-official-free>
-                {phoneWords("phone.japa.official.free")}
+                {say("phone.japa.official.free")}
               </span>
             )}
           </span>
-          <span className="block text-[14px] text-text-2">{phoneWords(planned ? "phone.japa.official-planned" : "phone.japa.official", { route: runningName(lookInto) })}</span>
+          <span className="block text-[14px] text-text-2">{say(planned ? "phone.japa.official-planned" : "phone.japa.official", { route: runningName(lookInto) })}</span>
         </span>
         {planned ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />}
       </button>
@@ -445,7 +444,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
               <span className="text-[13px] font-semibold text-text-2" data-japa-label>
-                {phoneWords("phone.japa.label")}
+                {say("phone.japa.label")}
               </span>
               <span className="sticker-chip shrink-0 bg-tint-money" style={{ rotate: "3deg", color: "var(--money-ink)" }}>
                 {say("ui.brief.road")}
@@ -453,7 +452,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
             </div>
             {lean === null || head === null ? (
               <div className="text-[20px] leading-tight font-bold" data-japa-route={head?.id ?? ""}>
-                {head === null ? phoneWords("phone.japa.none") : nameOf(head.id)}
+                {head === null ? say("phone.japa.none") : nameOf(head.id)}
               </div>
             ) : (
               <PlanHead route={head.id} />
@@ -471,7 +470,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
       {ahead === null ? <ChapterSteps view={view} /> : null}
       {others.length === 0 ? null : (
         <div data-japa-others>
-          <Head>{phoneWords("phone.japa.others")}</Head>
+          <Head>{say("phone.japa.others")}</Head>
           <ul className="grid grid-cols-2 gap-2.5">
             {others.map((way) => (
               <li key={way.route}>
@@ -490,7 +489,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
 
       {coming.length === 0 ? null : (
         <>
-          <Head>{phoneWords("phone.japa.reminders")}</Head>
+          <Head>{say("phone.japa.reminders")}</Head>
           <ul className="flex flex-col gap-2" data-reminders>
             {coming.map((row) => {
               const Icon = REMINDER_ICONS[row.kind];
@@ -530,7 +529,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
           {officialCard}
         </>
       ) : null}
-      <Head>{phoneWords("phone.japa.steps")}</Head>
+      <Head>{say("phone.japa.steps")}</Head>
       <ul className={`flex flex-col ${route === null || route.state === "heard" ? "" : "lively-card divide-y divide-sheet-line py-1"}`} data-steps>
         {route === null || route.state === "heard"
           ? null

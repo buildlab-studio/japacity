@@ -5,9 +5,9 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/tb-clinic/place.json";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
-import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { onGround, staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const { stage, entry } = staged(raw, "place.tb-clinic");
 const NURSE_JOB = "activity.job-nurse";
@@ -25,7 +25,7 @@ describe("the clinic's jobs notice", () => {
     const view = viewAfter(newGame("scenario.ada"), [{ type: "quality/add", quality: "quality.care", amount: 60 }]);
     expect(noticeActs(view)).toEqual([NURSE_JOB]);
     const notice = (stage.things ?? []).find((thing) => thing.id === "jobs-notice")!;
-    expect(sceneWords(notice.label)).toBe("Jobs notice");
+    expect(cityWords(notice.label)).toBe("Jobs notice");
     const spot = thingSpot(stage, notice);
     expect(spot !== null && onGround(stage, [spot[0], spot[1], 0])).toBe(true);
   });

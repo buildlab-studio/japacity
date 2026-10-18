@@ -23,13 +23,13 @@ import { crowdSize } from "../../../shared/scene/crowd";
 import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { personOfLook } from "../../../shared/scene/roster";
 import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
-import { sceneWords } from "../scene.words";
 import { aimRoom, easeRoomView, easeZoom, EASE, FULL_TURN, homeTap, ROOM_ACROSS, ROOM_EASE, ROOM_SETTLE, roomAcross, roomAt, roomFirst, roomTarget, SETTLE, SHOT_FOV, shotOf, TOP_PITCH, type ViewEase } from "../scene/shot";
 import { thingSpot } from "../scene/things";
 import { groundGeometry } from "../../../shared/scene/world";
 import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./place.testing";
 import { stubReducedMotion } from "../../../shared/testing/motion";
 import { motionReduced } from "../../../shared/ui/motion";
+import { cityWords } from "../city.words";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -222,8 +222,8 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(new Set(things.map((thing) => thing.id)).size).toBe(things.length);
     for (const thing of things) {
       const copies = stage.models.find((model) => model.file === thing.file)?.at.length ?? 0;
-      expect({ thing: thing.id, staged: thing.copy < copies, spot: thingSpot(stage, thing) !== null, named: sceneWords(thing.label) !== thing.label }).toEqual({ thing: thing.id, staged: true, spot: true, named: true });
-      for (const act of thing.acts) expect({ thing: thing.id, act: act.id, named: sceneWords(act.label) !== act.label }).toEqual({ thing: thing.id, act: act.id, named: true });
+      expect({ thing: thing.id, staged: thing.copy < copies, spot: thingSpot(stage, thing) !== null, named: cityWords(thing.label) !== thing.label }).toEqual({ thing: thing.id, staged: true, spot: true, named: true });
+      for (const act of thing.acts) expect({ thing: thing.id, act: act.id, named: cityWords(act.label) !== act.label }).toEqual({ thing: thing.id, act: act.id, named: true });
     }
     const out = things.filter((thing) => thing.acts.some((act) => act.kind === "out"));
     expect(out.map((thing) => thing.id)).toEqual(["out"]);

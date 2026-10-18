@@ -10,9 +10,9 @@ import hubFile from "../../../../public/assets/places/yaba-hub/place.json";
 import roomFile from "../../../../public/assets/places/inverter-room/place.json";
 import { say } from "../../../shared/words/text";
 import { plannedMarks } from "../acts/actLines";
-import { sceneWords } from "../scene.words";
 import { stagedNow, thingsNow } from "../scene/things";
 import { staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const CASES: { raw: unknown; place: Id<"place">; thing: string; act: string; entries: string[] }[] = [
   { raw: hubFile, place: "place.yaba", thing: "desk", act: "learn", entries: ["activity.open-source", "activity.conference-talk"] },
@@ -32,8 +32,8 @@ describe("the waiting months' acts on their things", () => {
       if (found === undefined) throw new Error(`${place} has no ${thing}`);
       expect(found.acts.length, `${place} ${thing}`).toBeLessThanOrEqual(2);
       const listing = found.acts.find((candidate) => candidate.id === act);
-      expect(sceneWords(found.label), `${thing}'s name`).not.toBe(found.label);
-      expect(sceneWords(listing?.label ?? ""), `${act}'s label`).not.toBe(listing?.label);
+      expect(cityWords(found.label), `${thing}'s name`).not.toBe(found.label);
+      expect(cityWords(listing?.label ?? ""), `${act}'s label`).not.toBe(listing?.label);
       for (const id of entries) {
         expect(entry.stages, `${place} stages ${id}`).toContain(id);
         expect([listing?.stages, ...(listing?.more ?? [])], `${thing} ${act} lists ${id}`).toContain(id);
@@ -49,7 +49,7 @@ describe("the waiting months' acts on their things", () => {
     expect(post?.kind).toBe("do");
     expect(post?.pose).toBe("sit");
     // The seat shows the act, so it says no line; the laptops' label says it is planned (R-WORLD-005, R-TEXT-008).
-    expect(sceneWords(`${post?.label ?? ""}.done`)).toBe(`${post?.label ?? ""}.done`);
+    expect(cityWords(`${post?.label ?? ""}.done`)).toBe(`${post?.label ?? ""}.done`);
     expect(plannedMarks([laptops], new Set(["activity.tech-posts"]))).toEqual({ laptops: say("ui.world.thing.planned") });
     const offered = thingsNow([laptops], stagedNow(new Set(["activity.tech-posts"]), new Set(entry.stages), new Set(), null));
     expect(offered[0]?.acts.map((act) => act.stages)).toEqual(["activity.tech-posts"]);

@@ -10,7 +10,7 @@ import type { PhoneApp } from "../../shared/world/contract";
 import { tell, useLines } from "../../shared/world/Lines";
 import { PhoneBack, PhoneSaid } from "./act";
 import { PhoneIcon } from "./PhoneIcon";
-import { phoneWords } from "./phone.words";
+import { say } from "../../shared/words/text";
 
 export interface PhoneProps {
   apps: readonly PhoneApp[];
@@ -178,7 +178,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     <button
       type="button"
       onClick={toggle}
-      aria-label={phoneWords(grown ? "phone.shrink" : "phone.grow")}
+      aria-label={say(grown ? "phone.shrink" : "phone.grow")}
       aria-pressed={grown}
       data-grow
       className={`press phone-round flex size-10 shrink-0 items-center justify-center ${app === null ? "bg-white/15 text-wall-text" : "border border-sheet-line bg-sheet-2 text-text shadow-[0_2px_6px_rgba(19,26,51,0.08)]"}`}
@@ -191,7 +191,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     <PhoneSaid value={tell}>
       <PhoneBack value={handBack}>
       <PhoneNav value={{ openApp, close: putAway, ...(onMap === undefined ? {} : { openMap: onMap }) }}>
-      <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={phoneWords("phone.title")} data-phone data-grown={grown} data-away={away}>
+      <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={say("phone.title")} data-phone data-grown={grown} data-away={away}>
         <button type="button" tabIndex={-1} aria-hidden onClick={putAway} className={`motion-in-fade absolute inset-0 cursor-default bg-scrim ${away ? "opacity-0" : ""}`} data-phone-scrim />
         {/* The handset is laid out at rest or grown, centred at the foot, and never moves by layout: the grow and the
             shrink are one transform from the box it left (useGrow), and putting it away is a transform too, so the
@@ -239,14 +239,14 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                       the home bar. With room to spare the grid rests at the foot. */}
                   <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain" data-wallpaper-room>
                     {notices}
-                    <ul className="mt-auto grid shrink-0 grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={phoneWords("phone.apps")}>
+                    <ul className="mt-auto grid shrink-0 grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={say("phone.apps")}>
                     {apps.map((candidate) => (
                       <li key={candidate.id} className="flex flex-col items-center gap-1">
                         <button
                           type="button"
                           onClick={() => openApp(candidate.id)}
                           data-app={candidate.id}
-                          aria-label={candidate.waiting ? `${candidate.name}, ${phoneWords("phone.new")}` : candidate.name}
+                          aria-label={candidate.waiting ? `${candidate.name}, ${say("phone.new")}` : candidate.name}
                           className="phone-app-icon press pop relative flex size-[56px] items-center justify-center rounded-[16px] text-white"
                           style={{ background: `var(${candidate.tint})` }}
                         >
@@ -266,7 +266,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                   {/* The app's head: back, the app's own icon as a small tile, its name in
                       Rubik, and the grow as a round white button; plain on the sheet, no band. */}
                   <div className="flex items-center gap-2 px-2.5 pt-3 pb-2" data-app-head>
-                    <button type="button" onClick={back} aria-label={phoneWords("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
+                    <button type="button" onClick={back} aria-label={say("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
                       <ChevronLeft size={24} aria-hidden />
                     </button>
                     <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: `var(${app.tint})` }} aria-hidden data-app-tile>
@@ -290,7 +290,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                 </div>
               )}
               <div className="flex justify-center pt-1 pb-2">
-                <button type="button" onClick={putAway} aria-label={phoneWords("phone.close")} data-home-bar className="flex h-6 w-40 items-center justify-center">
+                <button type="button" onClick={putAway} aria-label={say("phone.close")} data-home-bar className="flex h-6 w-40 items-center justify-center">
                   <span className={`h-[5px] w-28 rounded-[3px] ${app === null ? "bg-wall-text/70" : "bg-text/30"}`} />
                 </button>
               </div>

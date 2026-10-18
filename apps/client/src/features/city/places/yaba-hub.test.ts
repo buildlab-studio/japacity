@@ -4,10 +4,10 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import placeFile from "../../../../public/assets/places/yaba-hub/place.json";
-import { sceneWords } from "../scene.words";
 import { stagedNow, thingsNow } from "../scene/things";
 import { actEntries } from "./frontage.testing";
 import { staged } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const PREP = "activity.interview-prep";
 const { stage, entry } = staged(placeFile, "place.yaba");
@@ -25,10 +25,10 @@ describe("the hub's desk", () => {
     expect(desk.acts.length).toBeLessThanOrEqual(2);
     const lists = desk.acts.filter((act) => act.stages === PREP || (act.more ?? []).includes(PREP));
     expect(lists).toHaveLength(1);
-    expect(sceneWords(lists[0]?.label ?? "")).not.toBe(lists[0]?.label);
+    expect(cityWords(lists[0]?.label ?? "")).not.toBe(lists[0]?.label);
     expect(content.activity[PREP]).toBeDefined();
-    expect(sceneWords(`${PREP}.name`)).not.toBe(`${PREP}.name`);
-    expect(sceneWords(`${PREP}.blurb`)).not.toBe(`${PREP}.blurb`);
+    expect(cityWords(`${PREP}.name`)).not.toBe(`${PREP}.name`);
+    expect(cityWords(`${PREP}.blurb`)).not.toBe(`${PREP}.blurb`);
   });
 
   test("[R-WORLD-005] given the practice offered and nothing else the desk lists, when the desk's acts are read for now, then the act stays and opens the practice; with the practice not offered it goes", () => {

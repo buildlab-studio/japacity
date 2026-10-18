@@ -6,10 +6,9 @@ import { describe, expect, test } from "vitest";
 
 import { newGame, recordedGame, viewAfter } from "../testing/fixtures";
 import { formatBand } from "./format";
-import { jobsWords } from "./jobs";
 import { tidyLines } from "./lines";
 import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND_MET, ISSUED_BAND_SHORT, possibleBands, testChance } from "./englishTest";
-import { words } from "./text";
+import { say, words } from "./text";
 
 const PAPER = "document.english-test";
 
@@ -56,13 +55,13 @@ describe("the English test's chance", () => {
 
   test("[R-WORLD-006] given English at a long shot, a fair chance and likely, when the card's words are read, then each says the chance of 6.0 in the jobs' words and only the long shot says to study first", () => {
     const long = testChance(adaWith(40).view);
-    expect(long.words).toBe(`Band 6.0 this sitting: ${jobsWords("jobs.chance.long").toLowerCase()}.`);
+    expect(long.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.long").toLowerCase()}.`);
     expect(long.study).toBe("Study first: a month of study lifts the chance.");
     const fair = testChance(adaWith(55).view);
-    expect(fair.words).toBe(`Band 6.0 this sitting: ${jobsWords("jobs.chance.fair").toLowerCase()}.`);
+    expect(fair.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.fair").toLowerCase()}.`);
     expect(fair.study).toBeNull();
     const likely = testChance(adaWith(75).view);
-    expect(likely.words).toBe(`Band 6.0 this sitting: ${jobsWords("jobs.chance.likely").toLowerCase()}.`);
+    expect(likely.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.likely").toLowerCase()}.`);
     expect(likely.study).toBeNull();
   });
 

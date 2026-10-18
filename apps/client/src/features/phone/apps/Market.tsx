@@ -12,10 +12,9 @@ import { cue } from "../../../shared/sound/cues";
 import { marketTile } from "../../../shared/tiles/tiles.data";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
 import { formatMoney } from "../../../shared/words/format";
-import { nameOf } from "../../../shared/words/text";
+import { nameOf, say } from "../../../shared/words/text";
 import { Balance } from "../../../shared/world/Balance";
 import { PhoneSaid } from "../act";
-import { phoneWords } from "../phone.words";
 import { GhostButton, PicTile, WordChip } from "../ui";
 
 /** How long the delivery's toast stands, in ms. */
@@ -30,9 +29,9 @@ const naira = (amount: number): string => formatMoney(amount, "NGN");
 function shutWords(offer: Offer, view: Pick<PlayerView, "home">): string | null {
   switch (offer.shut) {
     case "home":
-      return phoneWords(view.home.place === "place.family-house" ? "phone.market.shut.family" : "phone.market.shut.home");
+      return say(view.home.place === "place.family-house" ? "phone.market.shut.family" : "phone.market.shut.home");
     case "needs":
-      return phoneWords("phone.market.shut.needs");
+      return say("phone.market.shut.needs");
     case "away":
     case "owned":
     case "short":
@@ -63,7 +62,7 @@ export function Market({ here = null }: { here?: string | null }) {
       <div data-phone-app="market" className="flex flex-col gap-2">
         <div className="lively-card flex items-center gap-3 p-3" data-market-abroad>
           <PicTile of={marketTile("thing.fan")} size={56} />
-          <p className="min-w-0 flex-1 text-[15px] leading-snug">{phoneWords("phone.market.abroad")}</p>
+          <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("phone.market.abroad")}</p>
         </div>
       </div>
     );
@@ -108,7 +107,7 @@ export function Market({ here = null }: { here?: string | null }) {
       if (reply?.ok !== true) return;
       cue("coin");
       setPicked(null);
-      said(phoneWords("phone.market.sold", { thing: nameOf(offer.thing), amount: naira(one.resale) }));
+      said(say("phone.market.sold", { thing: nameOf(offer.thing), amount: naira(one.resale) }));
     });
   };
 
@@ -117,13 +116,13 @@ export function Market({ here = null }: { here?: string | null }) {
       {delivered === null ? null : (
         <div key={delivered.at} className="brief-toast slide-in sticky top-0 z-[1] flex items-center gap-3 p-2.5 pr-3" role="status" data-market-delivered={delivered.thing}>
           <PicTile of={marketTile(delivered.thing)} size={44} tint="money" />
-          <span className="min-w-0 flex-1 text-[15px] leading-snug font-bold">{phoneWords("phone.market.delivered")}</span>
+          <span className="min-w-0 flex-1 text-[15px] leading-snug font-bold">{say("phone.market.delivered")}</span>
         </div>
       )}
       <p className="px-0.5 text-[15px] text-text-2" data-market-line>
-        {phoneWords(atHome ? "phone.market.line" : "phone.market.away")}
+        {say(atHome ? "phone.market.line" : "phone.market.away")}
       </p>
-      <ul className="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label={phoneWords("phone.app.market")} data-market-grid>
+      <ul className="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label={say("phone.app.market")} data-market-grid>
         {offers.map((offer) => {
           const one = owned.get(offer.thing);
           const shut = shutWords(offer, view);
@@ -143,14 +142,14 @@ export function Market({ here = null }: { here?: string | null }) {
                   <PicTile of={marketTile(offer.thing)} size={84} tilt={on ? -7 : -4} />
                 </span>
                 <span className="text-[16px] leading-tight font-bold">{nameOf(offer.thing)}</span>
-                <span className="text-[13px] leading-snug text-text-2">{phoneWords(`${offer.thing}.line`)}</span>
+                <span className="text-[13px] leading-snug text-text-2">{say(`${offer.thing}.line`)}</span>
                 {/* The price stands last in every tile, the running cost over it, so the tiles of a row end at one height
                     with their prices in line, never one lifted by a running chip under it. */}
                 <span className="mt-auto flex flex-col items-start gap-1.5 pt-1" data-market-foot-of={offer.thing}>
-                  {offer.running > 0 && one === undefined && shut === null ? <WordChip tone="plain" data-market-running>{phoneWords("phone.market.running", { amount: naira(offer.running) })}</WordChip> : null}
+                  {offer.running > 0 && one === undefined && shut === null ? <WordChip tone="plain" data-market-running>{say("phone.market.running", { amount: naira(offer.running) })}</WordChip> : null}
                   {one !== undefined ? (
                     <WordChip tone="soft" data-market-owned={offer.thing}>
-                      {phoneWords(one.stored ? "phone.market.stored" : "phone.market.owned")}
+                      {say(one.stored ? "phone.market.stored" : "phone.market.owned")}
                     </WordChip>
                   ) : shut !== null ? (
                     <WordChip tone="plain">{shut}</WordChip>
@@ -171,7 +170,7 @@ export function Market({ here = null }: { here?: string | null }) {
             <>
               <Balance className="justify-center text-[13px]" before={{ amount: held, words: naira(held) }} after={{ amount: held + mine.resale, words: naira(held + mine.resale) }} />
               <GhostButton wide onClick={() => sell(chosen, mine)} data-market-sell={chosen.thing}>
-                {phoneWords("phone.market.sell", { amount: naira(mine.resale) })}
+                {say("phone.market.sell", { amount: naira(mine.resale) })}
               </GhostButton>
             </>
           ) : (
@@ -179,11 +178,11 @@ export function Market({ here = null }: { here?: string | null }) {
               {chosen.shut === "short" ? null : <Balance className="justify-center text-[13px]" before={{ amount: held, words: naira(held) }} after={{ amount: held - chosen.price, words: naira(held - chosen.price) }} />}
               <PressButton className="w-full flex-col gap-0" disabled={chosen.shut !== null} onClick={() => buy(chosen)} data-market-buy={chosen.thing}>
                 <span className="flex items-center gap-1.5">
-                  <span>{phoneWords("phone.market.buy")}</span>
+                  <span>{say("phone.market.buy")}</span>
                   <span aria-hidden>·</span>
                   <span className="min-w-0 truncate">{nameOf(chosen.thing)}</span>
                 </span>
-                {chosen.shut === "short" ? <span className="text-[13px] font-semibold opacity-80">{phoneWords("phone.market.short", { amount: naira(chosen.price - held) })}</span> : null}
+                {chosen.shut === "short" ? <span className="text-[13px] font-semibold opacity-80">{say("phone.market.short", { amount: naira(chosen.price - held) })}</span> : null}
               </PressButton>
             </>
           )}

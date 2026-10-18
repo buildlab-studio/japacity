@@ -13,11 +13,11 @@ import { WALKWAY } from "@japacity/assets-src/prop/plank-walkway/build";
 
 import manifest from "../../../../public/assets/manifest.json";
 import raw from "../../../../public/assets/places/makoko/place.json";
-import { sceneWords } from "../scene.words";
 import { stopReached } from "../nudge/stops";
 import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.makoko";
 const { file, stage, entry } = staged(raw, ID);
@@ -69,7 +69,7 @@ describe("Makoko", () => {
     expect(papers.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     for (const id of ["room", "room-chores", "room-papers"]) expect(thing(id).acts.length).toBeLessThanOrEqual(2);
     // The parlour's own words for the same acts.
-    expect([sceneWords(room.acts[0]?.otherwise?.label ?? ""), ...room.acts.map((act) => sceneWords(act.label))]).toEqual([sceneWords("city.act.lie"), sceneWords("activity.nap.name"), sceneWords("ui.world.end-month")]);
+    expect([cityWords(room.acts[0]?.otherwise?.label ?? ""), ...room.acts.map((act) => cityWords(act.label))]).toEqual([cityWords("city.act.lie"), cityWords("activity.nap.name"), cityWords("ui.world.end-month")]);
   });
 
   test("[R-HOME-006] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {
@@ -92,7 +92,7 @@ describe("Makoko", () => {
   test("[R-WORLD-017] given the canoe moored at the walk, when it is tapped, then Go by canoe opens the ride sheet, the way back to the city by water", () => {
     const canoe = thing("canoe");
     expect(canoe.file).toBe("places/third-mainland-bridge/prop_canoe.glb");
-    expect(canoe.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["ride", "Go by canoe"]]);
+    expect(canoe.acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([["ride", "Go by canoe"]]);
     expect(vehicleOf(canoe)).toBeNull();
     const moored = stage.models.find((model) => model.file === canoe.file && model.glide === undefined);
     expect(moored?.bob).toBe(true);
@@ -105,7 +105,7 @@ describe("Makoko", () => {
       ["plain", null],
       ["sheet", "activity.job-fish-racks"],
     ]);
-    expect(sceneWords(racks.acts[0]?.label ?? "")).toBe("Look");
+    expect(cityWords(racks.acts[0]?.label ?? "")).toBe("Look");
     expect(wordsOf(`${racks.acts[0]?.label ?? ""}.done`)).not.toBe("");
     const school = thing("school");
     expect(school.acts.map((act) => act.kind)).toEqual(["plain"]);

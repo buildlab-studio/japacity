@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { blurbOf, say, sayCount } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { GhostButton, MoneyChip, WordChip } from "../ui";
 
 type Owed = PlayerView["obligations"][number];
@@ -87,7 +86,7 @@ export function CarFacts({ owed }: { owed: Owed }) {
       </p>
       <div className="flex flex-wrap gap-1.5">
         <MoneyChip out className="num">{say("ui.car.final", { amount: formatMoney(final, currency) })}</MoneyChip>
-        <MoneyChip out className="num">{phoneWords("phone.bills.car.interest", { amount: formatMoney(interest, currency) })}</MoneyChip>
+        <MoneyChip out className="num">{say("phone.bills.car.interest", { amount: formatMoney(interest, currency) })}</MoneyChip>
         {owed.monthsLeft === null ? null : <WordChip tone="plain">{sayCount("ui.obligation.months-left", owed.monthsLeft, { months: owed.monthsLeft })}</WordChip>}
       </div>
       {notice ? <p className="text-[14px] font-bold text-out">{say("ui.car.notice")}</p> : null}

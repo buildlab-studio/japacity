@@ -5,8 +5,8 @@ import { describe, expect, test } from "vitest";
 
 import { stageOf } from "../../../shared/scene/placeFile";
 import { builtPlaces } from "../../../shared/scene/placeFile.testing";
-import { sceneWords } from "../scene.words";
 import { thingsOf } from "../scene/things";
+import { cityWords } from "../city.words";
 
 /** The papers box in each home's file: the family house's, the room in a compound's, the hostel room's and the room on the water's. */
 const BOXES = builtPlaces().flatMap(({ folder, file }) => thingsOf(stageOf(file)).filter((thing) => thing.label === "city.thing.papers").map((thing) => ({ folder, thing })));
@@ -16,7 +16,7 @@ describe("the papers box", () => {
     expect(BOXES.map(({ folder }) => folder).sort()).toEqual(["home-family-house", "home-hostel-house", "home-room-house", "makoko"]);
     for (const { folder, thing } of BOXES) {
       expect({ folder, acts: thing.acts }).toEqual({ folder, acts: [{ id: "papers", label: "city.act.papers", kind: "app", app: "papers" }] });
-      expect(sceneWords(thing.acts[0]!.label)).toBe("Look in the box");
+      expect(cityWords(thing.acts[0]!.label)).toBe("Look in the box");
     }
   });
 

@@ -14,7 +14,7 @@ import { needsWords } from "../../../shared/words/requirement";
 import { nameOf, say } from "../../../shared/words/text";
 import type { Act, Thing } from "../../../shared/world/contract";
 import { isPaper } from "../acts/acts";
-import { sceneWords } from "../scene.words";
+import { cityWords } from "../city.words";
 
 /** The tint a button takes by what its act is (section 2, "Tints by kind"). */
 export type FanTint = "food" | "study" | "money" | "body" | "people" | "plain";
@@ -199,21 +199,21 @@ export function fanModel(entries: readonly FanEntryOf[], view: PlayerView, plan:
   const counts = () => (counted ??= { planned: plannedCosts(view, plan), dues: monthDues(view) });
   return entries.flatMap(({ act, kind, stages }): FanEntry[] => {
     if (kind === "stop") {
-      const what = sceneWords(act.label);
-      return [{ id: `${act.id}:stop`, from: act.id, kind, act, name: sceneWords("ui.world.stop"), label: sceneWords("ui.world.stop-act", { what }), picture: glyphTile("stop"), tint: "plain", price: null, balance: null, refusal: null, param: null }];
+      const what = cityWords(act.label);
+      return [{ id: `${act.id}:stop`, from: act.id, kind, act, name: cityWords("ui.world.stop"), label: cityWords("ui.world.stop-act", { what }), picture: glyphTile("stop"), tint: "plain", price: null, balance: null, refusal: null, param: null }];
     }
     if (kind === "act" || stages === null) {
       const picture = pictureOf(act);
       const glyph = picture.startsWith("act.") ? (picture.slice("act.".length) as ActGlyph) : null;
       const refusal: FanRefusal | null =
-        act.planned === true ? { kind: "planned", words: sceneWords("ui.world.thing.planned") } : act.spent === true ? { kind: "spent", words: say("ui.act.spent") } : null;
+        act.planned === true ? { kind: "planned", words: cityWords("ui.world.thing.planned") } : act.spent === true ? { kind: "spent", words: say("ui.act.spent") } : null;
       return [
         {
           id: act.stages ?? act.id,
           from: act.id,
           kind: "act",
           act,
-          name: sceneWords(act.label),
+          name: cityWords(act.label),
           picture,
           tint: glyph === null ? tintOf(picture) : (GLYPH_TINTS[glyph] ?? "plain"),
           price: null,

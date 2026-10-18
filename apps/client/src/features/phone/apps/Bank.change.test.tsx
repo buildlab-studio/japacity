@@ -13,7 +13,6 @@ import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixt
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
 import { Bank, bankLimit, latelyMoney } from "./Bank";
 
@@ -33,7 +32,7 @@ function sent(authority: { sent: Command[] }): unknown[] {
 }
 
 function chips(): string[] {
-  const group = screen.getByRole("radiogroup", { name: phoneWords("phone.bank.how-much") });
+  const group = screen.getByRole("radiogroup", { name: say("phone.bank.how-much") });
   return [...group.querySelectorAll('[role="radio"]')].map((radio) => radio.textContent ?? "");
 }
 
@@ -70,14 +69,14 @@ describe("the Bank's change at home, within the month's limit", () => {
     // A quarter and a half are both past what the bank will sell this month.
     expect(Math.floor(view.pockets.NGN.bank / 4 / 100) * 100).toBeGreaterThan(limit);
     await renderWithView(<Bank opening="change" />, view);
-    expect(chips()).toEqual([phoneWords("phone.bank.limit")]);
+    expect(chips()).toEqual([say("phone.bank.limit")]);
     const chooser = document.querySelector<HTMLElement>('[data-chooser="change"]')!;
     const said = chooser.querySelector<HTMLElement>("[data-bank-limit]");
-    expect(said?.textContent).toBe(phoneWords("phone.bank.limit.line", { amount: formatMoney(limit, "NGN") }));
+    expect(said?.textContent).toBe(say("phone.bank.limit.line", { amount: formatMoney(limit, "NGN") }));
     const go = chooser.querySelector<HTMLElement>('[data-go="change"]')!;
     // Said before the button.
     expect(said!.compareDocumentPosition(go) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(go.textContent).toBe(phoneWords("phone.bank.go", { amount: formatMoney(limit, "NGN") }));
+    expect(go.textContent).toBe(say("phone.bank.go", { amount: formatMoney(limit, "NGN") }));
   });
 
   test("[R-WALLET-005] given a pocket whose quarter fits the limit, when the change opens, then the limit comes first, the quarter stays the one picked, and only shares under the limit are offered", async () => {
@@ -86,8 +85,8 @@ describe("the Bank's change at home, within the month's limit", () => {
     // A pocket three times the limit: a quarter fits, a half and all of it do not.
     setPockets(game, { NGN: limit * 3 });
     await renderWithView(<Bank opening="change" />, game.view());
-    expect(chips()).toEqual([phoneWords("phone.bank.limit"), phoneWords("phone.bank.quarter")]);
-    expect(screen.getByRole("radio", { name: phoneWords("phone.bank.quarter") }).getAttribute("aria-checked")).toBe("true");
+    expect(chips()).toEqual([say("phone.bank.limit"), say("phone.bank.quarter")]);
+    expect(screen.getByRole("radio", { name: say("phone.bank.quarter") }).getAttribute("aria-checked")).toBe("true");
   });
 
   test("[R-WALLET-007] given the FX man, when the change opens, then no limit is said and every share is offered", async () => {
@@ -96,7 +95,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_000, to: "cash" });
     await renderWithView(<Bank opening="change" />, game.view());
     fireEvent.click(screen.getByRole("radio", { name: say("ui.wallet.via.aboki") }));
-    expect(chips()).toEqual(["quarter", "half", "all"].map((share) => phoneWords(`phone.bank.${share}`)));
+    expect(chips()).toEqual(["quarter", "half", "all"].map((share) => say(`phone.bank.${share}`)));
     expect(document.querySelector("[data-bank-limit]")).toBeNull();
   });
 
@@ -105,7 +104,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     const view = { ...heldAtHome().view(), bankAllowanceLeft: 12 };
     expect(bankLimit(view, "NGN", "GBP")).toBe(0);
     await renderWithView(<Bank opening="change" />, view);
-    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(phoneWords("phone.bank.limit.none"));
+    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(say("phone.bank.limit.none"));
     expect(document.querySelector('[data-go="change"]')).toBeNull();
   });
 
@@ -117,14 +116,14 @@ describe("the Bank's change at home, within the month's limit", () => {
     const limit = bankLimit(view, "NGN", "GBP")!;
     expect(limit).toBeGreaterThan(0);
     await renderWithView(<Bank opening="change" />, view);
-    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(phoneWords("phone.bank.limit.line", { amount: formatMoney(limit, "NGN") }));
+    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(say("phone.bank.limit.line", { amount: formatMoney(limit, "NGN") }));
   });
 
   test("[R-WORLD-006] given the bank's limit spent this month, when the change opens at the bank, then it says so and the FX man's way, with no button", async () => {
     const game = heldAtHome();
     game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: bankLimit(game.view(), "NGN", "GBP")!, via: "bank" });
     await renderWithView(<Bank opening="change" />, game.view());
-    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(phoneWords("phone.bank.limit.none"));
+    expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(say("phone.bank.limit.none"));
     expect(document.querySelector('[data-go="change"]')).toBeNull();
   });
 
@@ -158,13 +157,13 @@ describe("the Bank's change at home, within the month's limit", () => {
         <Bank opening="move" />
       </GameProvider>,
     );
-    fireEvent.click(screen.getByRole("radio", { name: phoneWords("phone.bank.to-cash") }));
+    fireEvent.click(screen.getByRole("radio", { name: say("phone.bank.to-cash") }));
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="move"]')!);
     const main = document.querySelector<HTMLElement>("[data-ask-main]")!;
     expect(main.textContent).toContain(say("ui.world.now"));
     expect(main.textContent).not.toContain(say("ui.world.counts-at-end"));
     const quarter = Math.floor(game.view().pockets.NGN.bank / 4 / 100) * 100;
-    expect(document.body.textContent).toContain(phoneWords("phone.bank.move.line.cash", { amount: formatMoney(quarter, "NGN") }));
+    expect(document.body.textContent).toContain(say("phone.bank.move.line.cash", { amount: formatMoney(quarter, "NGN") }));
     const cashBefore = game.view().pockets.NGN.cash;
     await act(async () => {
       fireEvent.click(main);

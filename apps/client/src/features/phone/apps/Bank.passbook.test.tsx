@@ -16,9 +16,9 @@ import { gameAuthority, newGame, viewAfter } from "../../../shared/testing/fixtu
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { moneyLines } from "../../../shared/words/money";
-import { nameOf, runningName } from "../../../shared/words/text";
+import { nameOf, runningName, say } from "../../../shared/words/text";
 import { Bank } from "./Bank";
-import { passbookCount, passbookWords, shortNaira } from "./passbook.words";
+import { passbookCount, shortNaira } from "./passbook.words";
 
 const CARE = "route.uk-care" as const;
 
@@ -49,10 +49,10 @@ describe("the Bank's first page, the passbook", () => {
     await renderWithView(<Bank />, view);
     const card = document.querySelector("[data-passbook]")!;
     expect(card.querySelector("[data-passbook-held]")?.textContent).toBe(formatMoney(book.held, "NGN"));
-    expect(card.querySelector("[data-passbook-target]")?.textContent).toBe(passbookWords("passbook.of", { target: shortNaira(book.target!.total) }));
+    expect(card.querySelector("[data-passbook-target]")?.textContent).toBe(say("passbook.of", { target: shortNaira(book.target!.total) }));
     expect(card.querySelector('[role="progressbar"]')?.getAttribute("aria-valuemax")).toBe(String(book.target!.total));
     const pace = text("[data-pace]");
-    expect(pace).toContain(passbookWords("passbook.pace", { months: book.months! }));
+    expect(pace).toContain(say("passbook.pace", { months: book.months! }));
     const best = book.roads.find((road) => road.road === book.best)!;
     expect(document.querySelector("[data-pace-best]")?.getAttribute("data-pace-best")).toBe(String(best.months));
     expect(pace).toContain(`${String(best.months)}.`);
@@ -63,12 +63,12 @@ describe("the Bank's first page, the passbook", () => {
 
   test("[R-WALLET-023] [R-WORLD-019] given no plan, or a plan only heard of, when the Bank opens, then the pace line says what sets the road's cost and no target is drawn", async () => {
     await renderWithView(<Bank />, newGame("scenario.ngozi").view());
-    expect(text("[data-pace]")).toBe(passbookWords("passbook.pace.no-plan"));
+    expect(text("[data-pace]")).toBe(say("passbook.pace.no-plan"));
     expect(document.querySelector("[data-passbook-target]")).toBeNull();
     const game = newGame("scenario.ngozi");
     const heard = viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     await renderWithView(<Bank />, heard);
-    expect(document.querySelectorAll("[data-pace]")[1]?.textContent).toBe(passbookWords("passbook.pace.unread", { route: runningName(CARE) }));
+    expect(document.querySelectorAll("[data-pace]")[1]?.textContent).toBe(say("passbook.pace.unread", { route: runningName(CARE) }));
   });
 
   test("[R-WALLET-022] [R-WORLD-019] given the stamps the view carries, when the Bank opens, then each is a round sticker with its short sum, the reached ones filled with their month and the road's own last", async () => {
@@ -83,7 +83,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(stamps.map((stamp) => stamp.dataset.stampReached ?? null)).toEqual(book.stamps.map((stamp) => (stamp.month === null ? null : String(stamp.month))));
     expect(stamps.at(-1)?.dataset.stampTarget).toBe("");
     expect(stamps[0]?.textContent).toContain(shortNaira(content.tuning.wallet.stamps[0]!));
-    expect(stamps[0]?.textContent).toContain(passbookWords("passbook.stamp.heard"));
+    expect(stamps[0]?.textContent).toContain(say("passbook.stamp.heard"));
   });
 
   test("[R-WALLET-021] [R-WORLD-019] given last month's money, when the Bank opens, then it shows as chips, in before out, each the month's total in its money", async () => {
@@ -96,7 +96,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(sum(1)).toBeGreaterThan(0);
     expect(sum(-1)).toBeGreaterThan(0);
     expect(chips.map((chip) => chip.dataset.lastMonthChip)).toEqual(["in", "out"]);
-    expect(chips.map((chip) => chip.textContent)).toEqual([passbookWords("passbook.in", { amount: formatMoney(sum(1), "NGN") }), passbookWords("passbook.out", { amount: formatMoney(sum(-1), "NGN") })]);
+    expect(chips.map((chip) => chip.textContent)).toEqual([say("passbook.in", { amount: formatMoney(sum(1), "NGN") }), say("passbook.out", { amount: formatMoney(sum(-1), "NGN") })]);
   });
 
   test("[R-WALLET-024] [R-WORLD-019] given the nurse's roads, when the Bank opens, then each is a card with its state and the view's months, and a job's road opens the Jobs app", async () => {

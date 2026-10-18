@@ -8,7 +8,6 @@ import { describe, expect, test } from "vitest";
 import { abroadView, engineView, richAbroadView } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { inMonths, nameOf, say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { Bank } from "./Bank";
 
 function nextTen(): HTMLElement {
@@ -39,7 +38,7 @@ describe("the credit file in the Bank", () => {
     const rich = richAbroadView();
     const view: PlayerView = { ...rich, credit: { ...rich.credit!, mark: 25, judgmentUntil: 90 } };
     await renderWithView(<Bank />, view);
-    expect(document.querySelector("[data-credit-judgment]")?.textContent).toBe(phoneWords("phone.bank.credit.judgment", { when: inMonths(90, view.month), cap: "20" }));
+    expect(document.querySelector("[data-credit-judgment]")?.textContent).toBe(say("phone.bank.credit.judgment", { when: inMonths(90, view.month), cap: "20" }));
     expect(within(nextTen()).queryByText(new RegExp(nameOf("obligation.car")))).toBeNull();
     expect(screen.getByText(say("ui.credit.next-none"))).toBeDefined();
   });

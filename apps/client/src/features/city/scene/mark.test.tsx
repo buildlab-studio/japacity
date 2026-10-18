@@ -11,9 +11,9 @@ import { anchorFan } from "../fan/anchor";
 import { Fan } from "../fan/Fan";
 import { fanEntriesOf, fanModel } from "../fan/fanActs";
 import { withMeetings } from "../meetings";
-import { sceneWords } from "../scene.words";
 import { isPerson, markNode, namedThings, showMark } from "./mark";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
+import { cityWords } from "../city.words";
 
 const things = stageOf(parlourRaw as unknown as PlaceFile).things ?? [];
 
@@ -29,7 +29,7 @@ describe("a thing's mark", () => {
     const node = markNode(thingOf("mattress"), () => (tapped += 1));
     showMark(node, { named: false, teaching: false, pulse: false });
     expect(node.dataset["thingMark"]).toBe("mattress");
-    expect(node.getAttribute("aria-label")).toBe(sceneWords("city.thing.mattress"));
+    expect(node.getAttribute("aria-label")).toBe(cityWords("city.thing.mattress"));
     expect(node.querySelector("[data-mark-dot]")?.className).toBe("mark-dot");
     expect(node.querySelector<HTMLElement>("[data-mark-name]")?.hidden).toBe(true);
     expect(node.hasAttribute("data-named")).toBe(false);
@@ -86,13 +86,13 @@ describe("a person met in a place", () => {
     showMark(node, { named: false, teaching: true, pulse: false });
     expect(name?.hidden).toBe(false);
     expect(name?.textContent).toContain("Tobi");
-    expect(name?.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
+    expect(name?.querySelector("[data-person-mark]")?.textContent).toBe(cityWords("ui.people.mark.computer"));
     // His fan, which a tap opens (R-WORLD-034), carries the same tag beside his name.
-    render(<Fan thing={tobi!.id} title={sceneWords(tobi!.label)} mark={tobi!.mark} entries={fanModel(fanEntriesOf(tobi!), engineView("scenario.ada"), [])} onAct={vi.fn()} onFallback={vi.fn()} />);
+    render(<Fan thing={tobi!.id} title={cityWords(tobi!.label)} mark={tobi!.mark} entries={fanModel(fanEntriesOf(tobi!), engineView("scenario.ada"), [])} onAct={vi.fn()} onFallback={vi.fn()} />);
     act(() => anchorFan(tobi!.id, { x: 90, y: 420 }));
     const title = document.querySelector(`[data-fan="${tobi!.id}"] [data-fan-title]`);
     expect(title?.textContent).toContain("Tobi");
-    expect(title?.querySelector("[data-person-mark]")?.textContent).toBe(sceneWords("ui.people.mark.computer"));
+    expect(title?.querySelector("[data-person-mark]")?.textContent).toBe(cityWords("ui.people.mark.computer"));
     cleanup();
   });
 });

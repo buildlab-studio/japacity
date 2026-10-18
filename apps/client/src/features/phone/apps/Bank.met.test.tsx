@@ -8,8 +8,8 @@ import { describe, expect, test } from "vitest";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
-import { phoneWords } from "../phone.words";
 import { Bank, savingsOf } from "./Bank";
+import { say } from "../../../shared/words/text";
 
 const CARE = "route.uk-care" as const;
 
@@ -32,9 +32,9 @@ describe("Saved for the move, once it is met", () => {
     expect(savings.shown).toBeGreaterThanOrEqual(savings.required);
     await renderWithView(<Bank />, view);
     const shown = document.querySelector("[data-savings]")?.textContent ?? "";
-    expect(shown).toContain(phoneWords("phone.bank.savings.met.fees", { shown: formatMoney(savings.shown, "GBP"), required: formatMoney(savings.required, "GBP") }));
+    expect(shown).toContain(say("phone.bank.savings.met.fees", { shown: formatMoney(savings.shown, "GBP"), required: formatMoney(savings.required, "GBP") }));
     expect(shown).toMatch(/enough for the move's fees/i);
-    expect(shown).not.toContain(phoneWords("phone.bank.savings.line", { shown: formatMoney(savings.shown, "GBP"), required: formatMoney(savings.required, "GBP") }));
+    expect(shown).not.toContain(say("phone.bank.savings.line", { shown: formatMoney(savings.shown, "GBP"), required: formatMoney(savings.required, "GBP") }));
   });
 
 });

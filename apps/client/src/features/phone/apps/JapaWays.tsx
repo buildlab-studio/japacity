@@ -15,7 +15,6 @@ import { formatBand, formatMoney, formatNumber } from "../../../shared/words/for
 import { anyOptions, requirementSentence } from "../../../shared/words/requirement";
 import { blurbOf, byMonths, hasWords, inMonths, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head } from "../act";
-import { phoneWords } from "../phone.words";
 import { MoneyChip, PicTile, WordChip } from "../ui";
 
 const GRADE = "quality.edu-grade";
@@ -93,11 +92,11 @@ function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points"
       <Line tone={gate.invites ? "good" : "bad"}>{said}</Line>
       {gate.careCutoff === null ? null : <Line tone="quiet">{say("ui.gate.points.care", { cutoff: formatNumber(gate.careCutoff) })}</Line>}
       {gate.invitedMonth !== null ? (
-        <Line tone="good">{phoneWords("phone.japa.invited", { when: agoWords(gate.invitedMonth, month) })}</Line>
+        <Line tone="good">{say("phone.japa.invited", { when: agoWords(gate.invitedMonth, month) })}</Line>
       ) : gate.poolMonth === null ? (
         <Line tone="quiet">{say("ui.gate.points.no-pool")}</Line>
       ) : (
-        <Line>{phoneWords("phone.japa.pool", { since: agoWords(gate.poolMonth, month), ends: inMonths(gate.profileEndsMonth ?? gate.poolMonth, month) })}</Line>
+        <Line>{say("phone.japa.pool", { since: agoWords(gate.poolMonth, month), ends: inMonths(gate.profileEndsMonth ?? gate.poolMonth, month) })}</Line>
       )}
       <p className="text-[13px] text-text-2">{say("ui.gate.points.clock")}</p>
     </>
@@ -109,8 +108,8 @@ function Endorsement({ gate, month }: { gate: Extract<RouteGateView, { gate: "en
   const cooled = gate.cooledFromMonth !== null && month >= gate.cooledFromMonth;
   return (
     <>
-      <Line tone="bad">{phoneWords("phone.japa.endorsement.refused", { when: agoWords(gate.refusedMonth, month) })}</Line>
-      <Line>{cooled ? say("ui.gate.endorsement.again-now") : phoneWords("phone.japa.endorsement.again", { when: inMonths(gate.cooledFromMonth ?? month, month) })}</Line>
+      <Line tone="bad">{say("phone.japa.endorsement.refused", { when: agoWords(gate.refusedMonth, month) })}</Line>
+      <Line>{cooled ? say("ui.gate.endorsement.again-now") : say("phone.japa.endorsement.again", { when: inMonths(gate.cooledFromMonth ?? month, month) })}</Line>
     </>
   );
 }
@@ -180,7 +179,7 @@ function Schools({ route, view }: { route: RouteView; view: PlayerView }) {
             school === undefined
               ? null
               : school.state === "pending"
-                ? phoneWords("phone.japa.school.pending", { when: byMonths(school.readyMonth, view.month) })
+                ? say("phone.japa.school.pending", { when: byMonths(school.readyMonth, view.month) })
                 : school.state === "offer"
                   ? say("ui.route.school.offer")
                   : say("ui.route.school.rejected");
@@ -256,7 +255,7 @@ function Record({ route, month }: { route: RouteView; month: number }) {
   return (
     <div className="mt-3 flex flex-col gap-1" data-way-record>
       {route.depositPaid > 0 ? <Line>{say("ui.route.deposit-paid", { amount: formatMoney(route.depositPaid, "GBP") })}</Line> : null}
-      {route.visa === null ? null : <Line>{phoneWords("phone.japa.visa.sent", { sent: agoWords(route.visa.submittedMonth, month), decision: inMonths(route.visa.decisionMonth, month) })}</Line>}
+      {route.visa === null ? null : <Line>{say("phone.japa.visa.sent", { sent: agoWords(route.visa.submittedMonth, month), decision: inMonths(route.visa.decisionMonth, month) })}</Line>}
       {route.refusals > 0 ? (
         <div>
           <WordChip tone="bad">{sayCount("ui.route.refusals", route.refusals, { count: route.refusals })}</WordChip>
@@ -264,7 +263,7 @@ function Record({ route, month }: { route: RouteView; month: number }) {
       ) : null}
       {route.lastRefusal === null ? null : (
         <div data-last-refusal>
-          <Line>{phoneWords("phone.japa.last-refusal", { when: agoWords(route.lastRefusal.month, month) })}</Line>
+          <Line>{say("phone.japa.last-refusal", { when: agoWords(route.lastRefusal.month, month) })}</Line>
           <ul className="mt-1 flex flex-col gap-1">
             {route.lastRefusal.reasons.map((reason) => (
               <li key={reason} className="text-[14px] font-semibold" data-refusal-reason={reason}>
@@ -274,7 +273,7 @@ function Record({ route, month }: { route: RouteView; month: number }) {
           </ul>
         </div>
       )}
-      {route.depositRefund === null ? null : <Line>{phoneWords("phone.japa.refund", { amount: formatMoney(route.depositRefund.amount, "GBP"), when: inMonths(route.depositRefund.readyMonth, month) })}</Line>}
+      {route.depositRefund === null ? null : <Line>{say("phone.japa.refund", { amount: formatMoney(route.depositRefund.amount, "GBP"), when: inMonths(route.depositRefund.readyMonth, month) })}</Line>}
     </div>
   );
 }
@@ -388,7 +387,7 @@ export function Goals({ view }: { view: PlayerView }) {
             {done.map((goal) => (
               <li key={goal.id}>
                 <WordChip tone="soft" data-goal-done={goal.id}>
-                  {phoneWords("phone.japa.goal.done", { goal: nameOf(goal.id), when: agoWords(goal.month, view.month) })}
+                  {say("phone.japa.goal.done", { goal: nameOf(goal.id), when: agoWords(goal.month, view.month) })}
                 </WordChip>
               </li>
             ))}

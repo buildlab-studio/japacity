@@ -17,7 +17,7 @@ import { linesNow, murmur, NEAR_SPEAKER, resetLines } from "../../shared/world/L
 import { markTaught } from "../../shared/world/taught";
 import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
-import { sceneWords } from "./scene.words";
+import { cityWords } from "./city.words";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
@@ -212,7 +212,7 @@ describe("the cooking corner's fan", () => {
     fireEvent.click(found('[data-stand-in-thing="mattress"]'));
     act(() => anchorFan("mattress", { x: 90, y: 560 }));
     const fan = found('[data-fan="mattress"]');
-    expect(fan.querySelector("[data-fan-title]")?.textContent).toBe(sceneWords("city.thing.mattress"));
+    expect(fan.querySelector("[data-fan-title]")?.textContent).toBe(cityWords("city.thing.mattress"));
     const sleep = found('[data-fan="mattress"] [data-fan-act="end-month"]');
     expect(sleep.dataset.fanKind).toBe("act");
     expect(sleep.textContent).toContain(say("ui.world.end-month"));
@@ -255,7 +255,7 @@ describe("the cooking corner's fan", () => {
     act(() => anchorFan("mama", { x: 90, y: 560 }));
     const bills = found('[data-fan="mama"] [data-fan-act="offer.nepa-bill"]');
     expect(bills.dataset.fanFrom).toBe("bills");
-    expect(bills.textContent).toContain(sceneWords("city.act.bills"));
+    expect(bills.textContent).toContain(cityWords("city.act.bills"));
     expect(bills.querySelector("[data-tile]")?.getAttribute("data-tile")).toBe("act.pay");
     expect(bills.querySelector("[data-fan-price]")).toBeNull();
     fireEvent.click(found('[data-fan="mama"] [data-fan-act="offer.nepa-bill"] button'));

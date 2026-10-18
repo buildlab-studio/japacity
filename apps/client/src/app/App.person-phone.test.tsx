@@ -17,7 +17,6 @@ import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithG
 import { nameOf, say, sayCount } from "../shared/words/text";
 import { PhoneBack } from "../features/phone/act";
 import { Chats, PhonePeople } from "../features/phone/apps/Chats";
-import { phoneWords } from "../features/phone/phone.words";
 import { pairApiFor } from "../features/person/pairApi";
 import { askName, BondHead, leftWords, PeopleSlots, togetherWords } from "../features/person/PeopleOnPhone";
 
@@ -72,7 +71,7 @@ describe("the People row", () => {
     const { store, authority } = await renderWithGame(chats(), game);
     const first = document.querySelector<HTMLElement>("[data-chat-row]");
     expect(first?.dataset.chatRow).toBe("people");
-    expect(within(first!).getByText(phoneWords("phone.chats.slots"))).toBeDefined();
+    expect(within(first!).getByText(say("phone.chats.slots"))).toBeDefined();
     fireEvent.click(first!);
     const slots = document.querySelector<HTMLElement>("[data-people-slots]")!;
     expect([...slots.querySelectorAll<HTMLElement>("[data-slot]")].map((slot) => slot.dataset.slot)).toEqual(slotOrder(Object.keys(game.state.people.slots)));

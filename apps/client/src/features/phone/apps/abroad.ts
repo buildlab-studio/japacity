@@ -1,6 +1,6 @@
 // The Bank abroad when the month's dues pass the country's money held (docs/rules/world.md R-WORLD-019): which
 // money to change first, and the monies named for the way. The gap itself is read in shared/words/dues.ts, which
-// the nudge reads too; the words are in phone.words.ts.
+// the nudge reads too; the words are in content's ui/ui.phone.text.ts.
 import type { Currency } from "@japacity/sim";
 
 import { lowerFirst, say } from "../../../shared/words/text";

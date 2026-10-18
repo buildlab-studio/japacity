@@ -1,5 +1,5 @@
-// The jobs' words the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006), read by the
-// client's jobsWords. In the voice of docs/rules/text.md.
+// The jobs' words the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006), in the voice of
+// docs/rules/text.md.
 export const uiJobsText: Record<string, string> = {
   "jobs.pick": "Which job",
   "jobs.apply": "Apply",

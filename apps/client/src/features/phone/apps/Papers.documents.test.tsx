@@ -11,7 +11,6 @@ import { renderWithView } from "../../../shared/testing/render";
 import { inMonths, say, sayCount } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
 import { papersOf } from "../papers";
-import { phoneWords } from "../phone.words";
 
 async function openPapers(view: PlayerView) {
   const rendered = await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 11, 12, 0)} talk={null} />, view);
@@ -34,7 +33,7 @@ describe("the papers, in Papers", () => {
     const view: PlayerView = { ...base, documents: [], plan: { ...base.plan, route: null }, routes: base.routes.map((route) => ({ ...route, state: "unknown" as const })) };
     expect(papersOf(view)).toEqual([]);
     await openPapers(view);
-    expect(document.querySelector("[data-papers-none]")?.textContent).toBe(phoneWords("phone.papers.none"));
+    expect(document.querySelector("[data-papers-none]")?.textContent).toBe(say("phone.papers.none"));
   });
 
   test("[R-WORLD-019] [R-DOCUMENT-008] given held and pending papers, then each is named from content with its state, the coming one as months away", async () => {
@@ -45,7 +44,7 @@ describe("the papers, in Papers", () => {
     expect(passport.textContent).toContain(text["document.passport.name"]!);
     const coming = view.documents.find((held) => held.onItsWay !== null || held.state === "pending");
     if (coming === undefined) throw new Error("Nothing on its way in the rich view.");
-    expect(paper(coming.id).querySelector("[data-paper-state]")?.textContent).toBe(phoneWords("phone.papers.pending", { when: inMonths(coming.onItsWay ?? view.month, view.month) }));
+    expect(paper(coming.id).querySelector("[data-paper-state]")?.textContent).toBe(say("phone.papers.pending", { when: inMonths(coming.onItsWay ?? view.month, view.month) }));
     expect(paper("document.english-test").textContent).toContain(say("ui.document.band", { band: "6.5" }));
   });
 
@@ -60,7 +59,7 @@ describe("the papers, in Papers", () => {
     const rich = richView();
     const documents = [{ id: TB, state: "held" as const, readyMonth: rich.month + 1, expiresMonth: rich.month + 2, value: null, onItsWay: rich.month + 1 }];
     await openPapers({ ...rich, documents });
-    expect(paper(TB).querySelector("[data-paper-state]")?.textContent).toBe(phoneWords("phone.papers.pending", { when: inMonths(rich.month + 1, rich.month) }));
+    expect(paper(TB).querySelector("[data-paper-state]")?.textContent).toBe(say("phone.papers.pending", { when: inMonths(rich.month + 1, rich.month) }));
     expect(paper(TB).textContent).not.toContain(sayCount("ui.document.expires-soon", 2, { months: 2 }));
   });
 

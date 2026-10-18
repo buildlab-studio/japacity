@@ -14,11 +14,11 @@ import type { Shot } from "../../../shared/world/contract";
 import { abroadView, engineView } from "../../../shared/testing/fixtures";
 import { type PlaceFile, showPlanned, stageOf } from "../../../shared/scene/placeFile";
 import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
-import { sceneWords } from "../scene.words";
 import { aimShot, shotOf, WHOLE } from "../scene/shot";
 import { byHandAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { instancesOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;
@@ -118,7 +118,7 @@ describe("the room down its length", () => {
 
 describe("the basics at home", () => {
   test("[R-WORLD-029] [R-OBLIGATION-014] [R-ACTIVITY-019] [R-CITY-037] given the family house, when its things are read, then the cooking corner cooks, the drum fetches water, the bed naps and sleeps, and the bag by the door packs and throws the send-off; each says its act in words", () => {
-    const acts = (id: string) => thingOf(parlour, id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null, sceneWords(act.label)]);
+    const acts = (id: string) => thingOf(parlour, id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null, cityWords(act.label)]);
     expect(acts("cooking")).toEqual([["sheet", COOK, "Cook"]]);
     expect(acts("drum")).toEqual([["sheet", WATER, "Water and a bath"]]);
     expect(acts("bag")).toEqual([
@@ -127,7 +127,7 @@ describe("the basics at home", () => {
     ]);
     expect(acts("mattress").map(([kind]) => kind)).toEqual(["sheet", "end"]);
     expect(thingOf(parlour, "table").acts.length).toBeGreaterThan(0);
-    expect(["cooking", "drum", "bag"].map((id) => sceneWords(thingOf(parlour, id).label))).toEqual(["Cooking corner", "Water drum", "Bag"]);
+    expect(["cooking", "drum", "bag"].map((id) => cityWords(thingOf(parlour, id).label))).toEqual(["Cooking corner", "Water drum", "Bag"]);
     // The bag stands by the door.
     const bag = thingSpot(stageOf(parlour), thingOf(parlour, "bag"));
     const door = thingSpot(stageOf(parlour), thingOf(parlour, "out"));

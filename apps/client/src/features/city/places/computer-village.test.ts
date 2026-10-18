@@ -6,11 +6,11 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/computer-village/place.json";
-import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
 import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const ID = "place.computer-village";
 const { stage } = staged(raw, ID);
@@ -30,7 +30,7 @@ describe("Computer Village", () => {
       ["sheet", "offer.laptop-fault"],
       ["sheet", "activity.side-gig"],
     ]);
-    expect(bench.acts.map((act) => sceneWords(act.label))).toEqual(["The laptop", "Side gig"]);
+    expect(bench.acts.map((act) => cityWords(act.label))).toEqual(["The laptop", "Side gig"]);
   });
 
   test("[R-STREET-001] given the phone stall, when its acts are read, then buying a phone opens as a sheet under its own words and looking stays a plain act", () => {
@@ -39,7 +39,7 @@ describe("Computer Village", () => {
       ["sheet", "activity.buy-phone"],
       ["plain", undefined],
     ]);
-    expect(stall.acts.map((act) => sceneWords(act.label))).toEqual(["Buy a phone", "Look"]);
+    expect(stall.acts.map((act) => cityWords(act.label))).toEqual(["Buy a phone", "Look"]);
   });
 
   test("[R-STREET-002] [R-STREET-003] given the accessories stall, when its acts are read, then the apprenticeship and the phone sales job each open as a sheet under their own words", () => {
@@ -48,7 +48,7 @@ describe("Computer Village", () => {
       ["sheet", "activity.apprentice-repair"],
       ["sheet", "activity.job-phone-sales"],
     ]);
-    expect(stall.acts.map((act) => sceneWords(act.label))).toEqual(["Learn repairs", "Sell phones"]);
+    expect(stall.acts.map((act) => cityWords(act.label))).toEqual(["Learn repairs", "Sell phones"]);
   });
 
   test("[R-CITY-011] given what Computer Village stages, when the city looks for where each is shown at home, then it is shown here", () => {

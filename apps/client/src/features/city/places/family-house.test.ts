@@ -15,12 +15,12 @@ import { engineView, richView } from "../../../shared/testing/fixtures";
 import { crowdSize, poolOf, sampleCrowd } from "../../../shared/scene/crowd";
 import { CAR_FILE, dancerShown, DANCER_SLOT, dressPlace, filesOf, parkCar } from "../../../shared/scene/placeFile";
 import { personOf } from "../../../shared/scene/roster";
-import { sceneWords } from "../scene.words";
 import { offersHere } from "../../../shared/scene/staging";
 import { MAX_ACTS, stagedNow, thingsNow } from "../scene/things";
 import { checkLimits } from "../../../../../../tools/assets/world-check";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
+import { cityWords } from "../city.words";
 
 const { file, stage, entry } = staged(placeFile, "place.family-house");
 const PARTY = "offer.send-off-party";
@@ -134,7 +134,7 @@ describe("the send-off party", () => {
     expect(bag.acts.length).toBeLessThanOrEqual(MAX_ACTS);
     const now = thingsNow([bag], stagedNow(new Set(), new Set(entry.stages), new Set([PARTY]), null));
     expect(now[0]?.acts.map((each) => [each.id, each.stages])).toEqual([["send-off", PARTY]]);
-    expect(sceneWords(bag.acts[1]?.label ?? "")).toBe("The send-off");
+    expect(cityWords(bag.acts[1]?.label ?? "")).toBe("The send-off");
   });
 
   test("[R-CITY-024] given the house's boards, when they are read, then the banner has its words from the text table; the street front behind the door keeps the notice on the gate, its one house lettered once", () => {
@@ -168,7 +168,7 @@ describe("the family's asks round the centre table", () => {
     expect(table.acts.length).toBeLessThanOrEqual(MAX_ACTS);
     const act = table.acts.find((each) => each.stages === SEND_OFF);
     expect(act?.kind).toBe("sheet");
-    expect(sceneWords(act?.label ?? "")).toBe("Your send-off");
+    expect(cityWords(act?.label ?? "")).toBe("Your send-off");
   });
 
   test("[R-CHAPTER-008] [R-WORLD-005] given only the send-off open, when the table's acts are read for now, then its one act opens the send-off's sheet; with nothing open the table offers nothing", () => {

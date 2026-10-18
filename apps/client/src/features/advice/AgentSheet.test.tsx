@@ -9,7 +9,6 @@ import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, say, words } from "../../shared/words/text";
-import { adviceWords } from "./advice.words";
 import { AgentSheets } from "./AgentSheet";
 
 const STOP = "offer.agent-stop";
@@ -77,9 +76,9 @@ describe("the agent's sheet", () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"])));
     const tells = document.querySelectorAll("[data-tell]");
     expect(tells).toHaveLength(1);
-    expect(tells[0]?.textContent).toBe(adviceWords("advice.tell.cash-only.short"));
-    expect(tells[0]?.querySelector("[data-mark='setback']")?.getAttribute("aria-label")).toBe(adviceWords("advice.tell.mark"));
-    expect(screen.getByText(adviceWords("advice.notice"))).toBeTruthy();
+    expect(tells[0]?.textContent).toBe(say("advice.tell.cash-only.short"));
+    expect(tells[0]?.querySelector("[data-mark='setback']")?.getAttribute("aria-label")).toBe(say("advice.tell.mark"));
+    expect(screen.getByText(say("advice.notice"))).toBeTruthy();
     for (const look of ["look-office", "look-licence", "look-name"]) {
       const button = screen.getByRole<HTMLButtonElement>("button", { name: text[`${STOP}.choice.${look}`]! });
       expect(button.disabled).toBe(false);
@@ -97,7 +96,7 @@ describe("the agent's sheet", () => {
     expect(authority.sent).toEqual([expect.objectContaining({ type: "offer/choose", offer: "offer-1", choice: "look-office" })]);
     expect(authority.sent.some((command) => command.type === "offer/choose" && command.choice === "take")).toBe(false);
     expect([...document.querySelectorAll("[data-tell]")].map((node) => node.getAttribute("data-tell"))).toEqual(["cash-only", "no-office"]);
-    expect(screen.getByText(adviceWords("advice.tell.no-office.short"))).toBeTruthy();
+    expect(screen.getByText(say("advice.tell.no-office.short"))).toBeTruthy();
     expect([...document.querySelectorAll("[data-fresh]")].map((node) => node.getAttribute("data-tell"))).toEqual(["no-office"]);
     expect(document.querySelector("[data-look-done]")?.textContent).toContain(text[`${STOP}.sign.look-office`]);
   });
@@ -110,13 +109,13 @@ describe("the agent's sheet", () => {
     for (const node of tells) {
       const tell = node.getAttribute("data-tell")!;
       const said = node.textContent ?? "";
-      expect(said).toBe(adviceWords(`advice.tell.${tell}.short`));
+      expect(said).toBe(say(`advice.tell.${tell}.short`));
       expect(said).not.toBe(text[`${STOP}.sign.${tell}`]);
       expect(said.split(" ").length).toBeGreaterThanOrEqual(2);
       expect(said.split(" ").length).toBeLessThanOrEqual(4);
       expect(said).not.toMatch(/\./);
       expect(node.querySelector("svg[aria-hidden='true']")).not.toBeNull();
-      expect(node.querySelector("[data-mark='setback']")?.getAttribute("aria-label")).toBe(adviceWords("advice.tell.mark"));
+      expect(node.querySelector("[data-mark='setback']")?.getAttribute("aria-label")).toBe(say("advice.tell.mark"));
     }
   });
 
@@ -146,7 +145,7 @@ describe("the agent's sheet", () => {
   test("[R-ADVICE-006] given nobody to check his name with, when his sheet opens, then that look cannot be made and the sheet says why", async () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"], [...allowed("take", "look-office", "look-licence"), { id: "look-name", allowed: false, pick: null }, ...allowed("decline")])));
     expect(screen.getByRole<HTMLButtonElement>("button", { name: text[`${STOP}.choice.look-name`]! }).disabled).toBe(true);
-    expect(screen.getByText(adviceWords("advice.look.nobody"))).toBeTruthy();
+    expect(screen.getByText(say("advice.look.nobody"))).toBeTruthy();
   });
 
   test("[R-ADVICE-005] given an agent whose kind rides hidden, when his sheet shows his fee, then nothing on it names a kind or counts his tells", async () => {
@@ -174,10 +173,10 @@ describe("the agent's sheet", () => {
   test("[R-ADVICE-005] given an agent's version of the checklist, when his sheet opens, then it lists the items he says by name and says only the official page is sure", async () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"])));
     const says = document.querySelector<HTMLElement>("[data-agent-says]")!;
-    expect(within(says).getByText(adviceWords("advice.says"))).toBeTruthy();
+    expect(within(says).getByText(say("advice.says"))).toBeTruthy();
     for (const item of understated()) expect(within(says).getByText(words(`${ROUTE}.item.${item}.name`))).toBeTruthy();
     expect(within(says).getAllByRole("listitem")).toHaveLength(understated().length);
-    expect(within(says).getByText(adviceWords("advice.says.sure"))).toBeTruthy();
+    expect(within(says).getByText(say("advice.says.sure"))).toBeTruthy();
   });
 
   test("[R-ADVICE-009] given he was paid, when the reply comes, then the report's words stay on the sheet after he has gone", async () => {
@@ -221,7 +220,7 @@ describe("what he leaves behind", () => {
     const view = withOffers(promise);
     const { authority } = await renderWithView(sheet([PROMISE]), view);
     expect(screen.getByText(text[`${PROMISE}.body`]!)).toBeTruthy();
-    expect(document.querySelector("[data-agent-month]")?.textContent).toBe(adviceWords("advice.promise.month", { when: inMonths(5, view.month) }));
+    expect(document.querySelector("[data-agent-month]")?.textContent).toBe(say("advice.promise.month", { when: inMonths(5, view.month) }));
     expect(screen.queryAllByRole("button")).toHaveLength(0);
     expect(authority.sent).toHaveLength(0);
   });
@@ -267,7 +266,7 @@ describe("what he says he does", () => {
     const pitch = document.querySelector("[data-agent-pitch]");
     expect(pitch?.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${STOP}.pitch.insider`]);
     expect(pitch?.querySelector("[data-agent-moves]")?.textContent).toBe(
-      adviceWords("advice.moves", { document: "degree transcript", desk: text["advice.desk.document.transcript"]!, count: 2 }),
+      say("advice.moves", { document: "degree transcript", desk: text["advice.desk.document.transcript"]!, count: 2 }),
     );
     expect(pitch?.textContent).toContain("2 months sooner");
     expect(document.body.textContent).not.toMatch(/fixer|chaser|scam|overpromis/i);
@@ -287,7 +286,7 @@ describe("what he says he does", () => {
     expect(document.querySelector("[data-agent-who]")?.textContent).toBe("Hadiza");
     expect(document.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${CHASER}.pitch.chaser`]);
     expect(document.querySelector("[data-agent-moves]")?.textContent).toBe(
-      adviceWords("advice.moves.one", { document: "police character certificate", desk: text["advice.desk.document.police-certificate"]!, count: 1 }),
+      say("advice.moves.one", { document: "police character certificate", desk: text["advice.desk.document.police-certificate"]!, count: 1 }),
     );
     expect(document.querySelector("[data-agent-moves]")?.textContent).toContain("a month sooner");
     expect(document.querySelector("[data-agent-fee]")?.textContent).toContain(formatMoney(800_000, "NGN"));
@@ -297,6 +296,6 @@ describe("what he says he does", () => {
     const offer = stopOffer([]);
     await renderWithView(sheet(), withOffers({ ...offer, terms: { ...offer.terms, pitch: "chaser", paper: "", months: 1 } }));
     expect(document.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${STOP}.pitch.chaser`]);
-    expect(document.querySelector("[data-agent-moves]")?.textContent).toBe(adviceWords("advice.moves.none"));
+    expect(document.querySelector("[data-agent-moves]")?.textContent).toBe(say("advice.moves.none"));
   });
 });

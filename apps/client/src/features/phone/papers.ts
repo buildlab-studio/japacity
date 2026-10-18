@@ -8,8 +8,7 @@ import type { PlayerView } from "@japacity/sim";
 
 import { formatBand } from "../../shared/words/format";
 import { savingsRoute } from "../../shared/words/savings";
-import { inMonths, runningName } from "../../shared/words/text";
-import { phoneWords } from "./phone.words";
+import { inMonths, runningName, say } from "../../shared/words/text";
 
 /**
  * The paper acts that are a call or a message in real life, taken on the phone: the transcript asked of the registry,
@@ -160,6 +159,6 @@ export function papersMarkOf(view: Pick<PlayerView, "report">): string {
 /** A paper notice's words: the paper's own where the phone has them ("The council has verified your licence."), else the kind's. */
 export function paperNoticeWords(notice: PaperNotice, month: number): string {
   const own = `phone.papers.notice.${notice.kind}.${notice.document}`;
-  const key = phoneWords(own) === own ? `phone.papers.notice.${notice.kind}` : own;
-  return phoneWords(key, { paper: runningName(notice.document), when: notice.month === null ? "" : inMonths(notice.month, month), band: notice.band === null ? "" : formatBand(notice.band) });
+  const key = say(own) === own ? `phone.papers.notice.${notice.kind}` : own;
+  return say(key, { paper: runningName(notice.document), when: notice.month === null ? "" : inMonths(notice.month, month), band: notice.band === null ? "" : formatBand(notice.band) });
 }

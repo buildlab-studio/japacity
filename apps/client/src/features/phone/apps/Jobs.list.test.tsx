@@ -8,8 +8,7 @@ import { describe, expect, test } from "vitest";
 
 import { abroadGame, setPockets } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
-import { nameOf } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
+import { nameOf, say } from "../../../shared/words/text";
 import { Jobs } from "./Jobs";
 
 const SHOP = "activity.job-uk-retail-part" as Id<"activity">;
@@ -48,11 +47,11 @@ describe("the offers in Jobs", () => {
     expect(rows().every((row) => row.querySelector("[data-money-chip]") !== null)).toBe(true);
     const main = (): HTMLElement => document.querySelector<HTMLElement>("[data-take-offer]")!;
     expect(main().className).toContain("press-button");
-    expect(main().textContent).toBe(`${phoneWords("phone.jobs.take")}·${nameOf(SHOP)}`);
+    expect(main().textContent).toBe(`${say("phone.jobs.take")}·${nameOf(SHOP)}`);
     fireEvent.click(rows()[1]!);
     expect(rows().map((row) => row.getAttribute("aria-checked"))).toEqual(["false", "true"]);
     expect(rows().map((row) => card(row)?.getAttribute("data-picked") ?? null)).toEqual([null, "true"]);
-    expect(main().textContent).toBe(`${phoneWords("phone.jobs.take")}·${nameOf(OTHER)}`);
+    expect(main().textContent).toBe(`${say("phone.jobs.take")}·${nameOf(OTHER)}`);
     expect(document.querySelectorAll("[data-press-button]")).toHaveLength(1);
   });
 });

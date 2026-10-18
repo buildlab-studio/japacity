@@ -9,10 +9,10 @@ import placeFile from "../../../../public/assets/places/bode-thomas-front/place.
 import { dressPlace, type Stage } from "../../../shared/scene/placeFile";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
-import { sceneWords } from "../scene.words";
 import { offersHere, stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow } from "../scene/things";
 import { PARCEL } from "../../../shared/world/parcel.ask";
+import { cityWords } from "../city.words";
 
 const { file, stage, entry } = staged(placeFile, "place.bode-thomas");
 const BOOTH = "shop_provisions.glb";
@@ -35,9 +35,9 @@ describe("the cargo office", () => {
   test("[R-WORLD-005] given the street's things, when the cargo office is read, then it stands at the booth, is named, and its one act opens the parcel's sheet", () => {
     if (cargo === undefined) throw new Error("No cargo office on the street");
     expect(cargo.file.endsWith(BOOTH)).toBe(true);
-    expect(sceneWords(cargo.label)).toBe(wordsOf(`${PARCEL}.booth`));
+    expect(cityWords(cargo.label)).toBe(wordsOf(`${PARCEL}.booth`));
     expect(cargo.acts).toEqual([{ id: "collect", label: `${PARCEL}.act`, kind: "sheet", stages: PARCEL }]);
-    expect(sceneWords(cargo.acts[0]!.label)).toBe(wordsOf(`${PARCEL}.act`));
+    expect(cityWords(cargo.acts[0]!.label)).toBe(wordsOf(`${PARCEL}.act`));
   });
 
   test("[R-WORLD-005] given no parcel waiting and then one, when the things the player can act on are read, then the office shows no name and no act until a parcel waits", () => {

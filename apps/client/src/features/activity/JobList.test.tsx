@@ -9,7 +9,8 @@ import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
 import { firstJob, huntOrder, jobsOutOfReach } from "./JobList";
-import { chanceBand, jobCardLine, jobChanceBp, jobsWords } from "../../shared/words/jobs";
+import { chanceBand, jobCardLine, jobChanceBp } from "../../shared/words/jobs";
+import { say } from "../../shared/words/text";
 
 const HUNT = "activity.job-hunt";
 const NETWORK = "quality.network";
@@ -33,7 +34,7 @@ function networkOf(view: PlayerView): number {
 function payWords(id: string): string {
   const pay = entryOf(id).pay;
   if (pay === null || typeof pay.amount !== "number") throw new Error(`${id} has no figure for its pay`);
-  return jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
+  return say("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
 }
 
 describe("the chance in words", () => {
@@ -64,14 +65,14 @@ describe("the jobs list on the hunt's card", () => {
     const jobs = huntOf(view);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     expect(document.querySelector(`select[id="param-${HUNT}"]`)).toBeNull();
-    const list = screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") });
+    const list = screen.getByRole("radiogroup", { name: say("jobs.pick") });
     const rows = within(list).getAllByRole("radio");
     expect(rows).toHaveLength(jobs.length);
     for (const job of jobs) {
       const row = within(list).getByRole("radio", { name: new RegExp(`^${text[`${job}.name`] ?? job}`) });
       const band = chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
       expect(within(row).getByText(payWords(job))).toBeDefined();
-      expect(within(row).getByText(jobsWords(`jobs.chance.${band}`))).toBeDefined();
+      expect(within(row).getByText(say(`jobs.chance.${band}`))).toBeDefined();
     }
   });
 
@@ -111,7 +112,7 @@ describe("the jobs list on the hunt's card", () => {
     // The staff nurse is hunted (R-PROLOGUE-010), so a life without the care lists it apart with that need.
     expect(out.find((job) => job.id === "activity.job-nurse")?.needs).toEqual([requirementSentence({ type: "quality/min", quality: "quality.care", value: 60 }, { routes: view.routes })]);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
-    const apart = screen.getByRole("list", { name: jobsWords("jobs.out-of-reach") });
+    const apart = screen.getByRole("list", { name: say("jobs.out-of-reach") });
     for (const job of out) {
       const row = within(apart).getByText(text[`${job.id}.name`] ?? job.id).closest("li");
       if (row === null) throw new Error(`${job.id} has no row`);
@@ -119,7 +120,7 @@ describe("the jobs list on the hunt's card", () => {
       // The needs fold behind the row: a count until the row is tapped, then each need.
       const fold = within(row).getByRole("button");
       expect(fold.getAttribute("aria-expanded")).toBe("false");
-      expect(within(row).getByText(jobsWords(job.needs.length === 1 ? "jobs.needs-count.one" : "jobs.needs-count", { count: job.needs.length }))).toBeDefined();
+      expect(within(row).getByText(say(job.needs.length === 1 ? "jobs.needs-count.one" : "jobs.needs-count", { count: job.needs.length }))).toBeDefined();
       for (const need of job.needs) expect(within(row).queryByText(need, { exact: false })).toBeNull();
       fireEvent.click(fold);
       expect(fold.getAttribute("aria-expanded")).toBe("true");
@@ -150,7 +151,7 @@ describe("the jobs list as picture cards", () => {
   test("[R-WORLD-021] given the hunt's card, when the list shows, then each job is a card with its picture and no radio circle, and only the chosen card is ringed", async () => {
     const view = engineView();
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
-    const rows = within(screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") })).getAllByRole("radio");
+    const rows = within(screen.getByRole("radiogroup", { name: say("jobs.pick") })).getAllByRole("radio");
     for (const row of rows) {
       // No radio circle: the drawn marks in a card are the job's picture and the chance gauge (a card each, ringed when
       // chosen).
@@ -171,7 +172,7 @@ describe("the jobs list as picture cards", () => {
       const band = chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
       expect(row?.querySelector("[data-gauge]")?.getAttribute("data-gauge")).toBe(steps[band]);
       expect(row?.querySelector("[data-gauge]")?.children).toHaveLength(3);
-      expect(row?.querySelector(`[data-chance='${band}']`)?.textContent).toBe(jobsWords(`jobs.chance.${band}`));
+      expect(row?.querySelector(`[data-chance='${band}']`)?.textContent).toBe(say(`jobs.chance.${band}`));
     }
   });
 
@@ -189,10 +190,10 @@ describe("the jobs list as picture cards", () => {
     const ordered = huntOrder(view, huntOf(view));
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     // R-ACTIVITY-005: the pick the card opens on is the life's own trade.
-    expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(firstJob(view, ordered) ?? "")}`);
+    expect(applyButton().textContent).toBe(`${say("jobs.apply")}${nameOfJob(firstJob(view, ordered) ?? "")}`);
     const last = ordered.at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));
-    expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(last)}`);
+    expect(applyButton().textContent).toBe(`${say("jobs.apply")}${nameOfJob(last)}`);
     expect(applyButton().querySelector(`[data-apply-for='${last}']`)).not.toBeNull();
     // The rows out of reach fold their needs behind a button of their own (aria-expanded); the card's one main button is the rest.
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
@@ -202,7 +203,7 @@ describe("the jobs list as picture cards", () => {
     const view = engineView();
     const job = huntOf(view)[0]!;
     expect(view.activities.find((option) => option.id === HUNT)?.sure).toBe(true);
-    expect(jobCardLine(view, HUNT, job)).toContain(jobsWords("jobs.sure-first"));
+    expect(jobCardLine(view, HUNT, job)).toContain(say("jobs.sure-first"));
     const plain: PlayerView = {
       ...view,
       activities: view.activities.map((option) => {
@@ -212,6 +213,6 @@ describe("the jobs list as picture cards", () => {
         return rest;
       }),
     };
-    expect(jobCardLine(plain, HUNT, job)).not.toContain(jobsWords("jobs.sure-first"));
+    expect(jobCardLine(plain, HUNT, job)).not.toContain(say("jobs.sure-first"));
   });
 });

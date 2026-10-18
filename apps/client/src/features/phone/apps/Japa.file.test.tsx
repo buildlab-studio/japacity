@@ -9,7 +9,6 @@ import { describe, expect, test } from "vitest";
 
 import { renderWithView } from "../../../shared/testing/render";
 import { say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { Japa } from "./Japa";
 
 const TALENT: Id<"route"> = "route.uk-talent";
@@ -47,7 +46,7 @@ describe("a closed way in Japa", () => {
     await renderWithView(<Japa />, developer(WINDOWS));
     const line = document.querySelector("[data-japa-closed]");
     expect(line?.getAttribute("data-japa-closed")).toBe("every");
-    expect(line?.textContent).toBe(phoneWords("phone.japa.closed.every"));
+    expect(line?.textContent).toBe(say("phone.japa.closed.every"));
     expect(line?.textContent).toBe("Every route is closed for now. The news says when they open.");
   });
 
@@ -55,6 +54,6 @@ describe("a closed way in Japa", () => {
     await renderWithView(<Japa />, developer(["var.uk-talent-window"]));
     const line = document.querySelector("[data-japa-closed]");
     expect(line?.getAttribute("data-japa-closed")).toBe(TALENT);
-    expect(line?.textContent).toBe(phoneWords("phone.japa.closed"));
+    expect(line?.textContent).toBe(say("phone.japa.closed"));
   });
 });

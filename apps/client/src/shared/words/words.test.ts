@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { formatBand, formatMoney, formatRate } from "./format";
 import { newGame } from "../testing/fixtures";
-import { jobCardWords, jobsWords } from "./jobs";
+import { jobCardWords } from "./jobs";
 import { valueWords } from "./quality";
 import { requirementSentence } from "./requirement";
 import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
@@ -126,12 +126,12 @@ describe("a job's gates in words", () => {
     expect(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 })).toBe("Good tech");
     expect(requirementSentence({ type: "quality/min", quality: "quality.portfolio", value: 3 })).toBe("A portfolio with a few pieces");
     expect(requirementSentence({ type: "quality/min", quality: "quality.driving", value: 1 })).toBe("Someone who can drive");
-    expect(jobsWords("jobs.needs", { needs: requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 }) })).toBe("Needs: More than basic English");
+    expect(say("jobs.needs", { needs: requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 }) })).toBe("Needs: More than basic English");
   });
 
   test("[R-TEXT-005] given a job that asks for time in another, when its gate is said, then the time reads as a person says it and the job as the person who does it", () => {
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 })).toBe("Three years as a bank officer");
-    expect(jobsWords("jobs.needs", { needs: requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }) })).toBe("Needs: Three years as a bank officer");
+    expect(say("jobs.needs", { needs: requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }) })).toBe("Needs: Three years as a bank officer");
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 })).toBe(`Two years as a ${runningName("activity.job-nurse")}`);
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 })).toBe(`Six months as a ${runningName("activity.job-junior-dev")} or a ${runningName("activity.job-mid-dev")}`);
     expect(requirementSentence({ type: "activity/tenure", activities: [], months: 24 })).toBe("Two years in any job");
@@ -185,6 +185,6 @@ describe("the words the world's sheets borrow", () => {
     const pay = content.activity["activity.night-support"]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The night shift has no pay.");
     expect(said).toContain(formatMoney(pay.amount, pay.currency));
-    expect(["jobs.chance.likely", "jobs.chance.fair", "jobs.chance.long"].some((key) => said.includes(jobsWords(key)))).toBe(true);
+    expect(["jobs.chance.likely", "jobs.chance.fair", "jobs.chance.long"].some((key) => said.includes(say(key)))).toBe(true);
   });
 });

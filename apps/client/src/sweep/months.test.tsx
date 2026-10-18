@@ -10,7 +10,6 @@ import { OfferView } from "../features/offer/OfferView";
 import { Japa } from "../features/phone/apps/Japa";
 import { agoWords } from "../features/phone/apps/JapaWays";
 import { PhoneApps } from "../features/phone/PhoneApps";
-import { phoneWords } from "../features/phone/phone.words";
 import { newGame, openOffer, richAbroadView, richView } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { monthEnding, playerMonth } from "../shared/words/format";
@@ -63,7 +62,7 @@ describe("one count for months", () => {
     const promised = monthEnding(pending.readyMonth);
     // The phone says it as months away from now (R-WORLD-002): one for each month's end from the header's month to the
     // promised one, so a paper the end of this month brings is ready "next month".
-    expect(paperState(PASSPORT)).toBe(phoneWords("phone.papers.pending", { when: inMonths(pending.readyMonth, view.month) }));
+    expect(paperState(PASSPORT)).toBe(say("phone.papers.pending", { when: inMonths(pending.readyMonth, view.month) }));
     expect(promised - header(view) + 1).toBe(pending.readyMonth - view.month);
 
     let issuedIn: number | null = null;
@@ -86,7 +85,7 @@ describe("one count for months", () => {
     const last = monthEnding(held.expiresMonth);
     expect(playerMonth(held.expiresMonth)).toBe(last + 1);
     // The phone says it as how long it holds (R-WORLD-002): one for each month's end from the header's month to `last`.
-    expect(paperState(held.id)).toBe(phoneWords("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
+    expect(paperState(held.id)).toBe(say("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(last - header(view) + 1).toBe(held.expiresMonth - view.month);
   });
 
@@ -99,7 +98,7 @@ describe("one count for months", () => {
     // is said as months ago, counted from the report's own month: a goal done as the report's month ended reads as its
     // report does, "this month" when the report is this month's, and so on back.
     await renderWithView(<Japa />, { ...view, report });
-    expect(document.querySelector(`[data-goal-done="${done.id}"]`)?.textContent).toBe(phoneWords("phone.japa.goal.done", { goal: nameOf(done.id), when: agoWords(done.month, view.month) }));
+    expect(document.querySelector(`[data-goal-done="${done.id}"]`)?.textContent).toBe(say("phone.japa.goal.done", { goal: nameOf(done.id), when: agoWords(done.month, view.month) }));
     expect(agoWords(done.month, view.month)).toBe(agoWords(report.month, view.month));
     expect(document.querySelector("[data-goals]")?.textContent).not.toMatch(/month \d+/i);
   });

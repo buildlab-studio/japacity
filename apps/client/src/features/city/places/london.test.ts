@@ -20,7 +20,6 @@ import { inTurn, plainActLine } from "../acts/actLines";
 import { cityWords } from "../city.words";
 import { heardHere } from "../overheard";
 import { stageOf, type PlaceFile } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { onShift, SHIFT_ACT, shiftMarks } from "../acts/shift";
 import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow, thingSpot } from "../scene/things";
@@ -74,7 +73,7 @@ describe("Rye Lane", () => {
       expect([thing, opens(thing)]).toEqual([thing, act]);
       expect([thing, stagedAt(act, UK, PLACES)]).toEqual([thing, "place.rye-lane"]);
     }
-    expect(sceneWords(thingIn(ryeLane, "naija-shop").acts[0]?.label ?? "")).toBe("A taste of home");
+    expect(cityWords(thingIn(ryeLane, "naija-shop").acts[0]?.label ?? "")).toBe("A taste of home");
   });
 
   test("[R-WORLD-039] [R-WORLD-005] given two shops on one terrace, when their things are placed, then each is marked at its own spot along the frontage, never one over the other", () => {
@@ -95,7 +94,7 @@ describe("Peckham Rye station", () => {
   frontageTests(station, "place.peckham-rye-station");
 
   test("[R-PLACE-012] [R-WORLD-005] given the station, when its things are read, then the ticket machine sells the month's bus pass, the platform rides, and the courier's bike is the courier's job", () => {
-    expect(thingIn(station, "ticket-machine").acts.map((act) => [act.kind, act.stages, sceneWords(act.label)])).toEqual([["sheet", "activity.bus-pass-uk", "Bus pass"]]);
+    expect(thingIn(station, "ticket-machine").acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.bus-pass-uk", "Bus pass"]]);
     expect(thingIn(station, "platform").acts.map((act) => act.kind)).toEqual(["ride"]);
     expect(thingIn(station, "courier").acts[0]?.stages).toBe("activity.job-uk-courier-cash");
     expect(stagedAt("activity.bus-pass-uk", UK, PLACES)).toBe("place.peckham-rye-station");
@@ -110,7 +109,7 @@ describe("the workplaces with a door", () => {
     expect(things.length).toBeGreaterThanOrEqual(3);
     expect(things.filter((thing) => thingSpot(stage, thing) === null).map((thing) => thing.id)).toEqual([]);
     const labels = things.flatMap((thing) => [thing.label, ...thing.acts.map((act) => act.label)]);
-    expect(labels.filter((label) => sceneWords(label) === label)).toEqual([]);
+    expect(labels.filter((label) => cityWords(label) === label)).toEqual([]);
     // A plain act says a line or a person speaks; one with a pose is seen, and says nothing (R-WORLD-005, R-TEXT-008).
     const plain = things.flatMap((thing) => thing.acts.filter((act) => act.kind === "plain").map((act) => ({ id: `${thing.id} ${act.id}`, says: plainActLine(thing, act) !== null, posed: act.pose !== undefined })));
     expect(plain.filter((act) => act.says === act.posed)).toEqual([]);
@@ -157,7 +156,7 @@ describe("the workplaces with a door", () => {
     for (const line of lines) expect(dashes.filter((mark) => line.includes(mark))).toEqual([]);
     // The talk budget: a line over a head floats whole, never cut short (world.md R-WORLD-026).
     expect(lines.filter((line) => isLong(line))).toEqual([]);
-    expect(sceneWords(colleague.label)).toBe("Colleague");
+    expect(cityWords(colleague.label)).toBe("Colleague");
   });
 
   test("[R-WORLD-039] given a key that names no set, when it is told in turn, then it is itself", () => {
@@ -173,7 +172,7 @@ describe("a job held at its door", () => {
     const offered = new Set(view.activities.filter((option) => option.allowed).map((option) => option.id));
     const now = thingsNow(onShift(stage.things ?? [], view.job.id, true), stagedNow(offered, new Set(entry.stages), new Set(), null));
     const tills = now.find((thing) => thing.id === "tills");
-    expect(tills?.acts.map((act) => [act.id, act.kind, sceneWords(act.label)])).toEqual([[SHIFT_ACT, "plain", "Your shift"]]);
+    expect(tills?.acts.map((act) => [act.id, act.kind, cityWords(act.label)])).toEqual([[SHIFT_ACT, "plain", "Your shift"]]);
     expect(shiftMarks(now, cityWords("city.thing.on-shift"))).toEqual({ tills: "On shift" });
     expect(plainActLine(tills as Thing, tills?.acts[0] as Thing["acts"][number])).toEqual({ kind: "tell", words: cityWords("city.act.on-shift.done") });
     // Without the shift the held job's act would leave the thing: the hunt never lists the job held.

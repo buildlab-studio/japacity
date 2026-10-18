@@ -17,8 +17,8 @@ import { createGameStore, type GameStore } from "../../../authority/store";
 import "../../../shared/testing/render";
 import { STAMP_META } from "../../../shared/stamp/stamp";
 import { PhoneApps } from "../PhoneApps";
-import { phoneWords } from "../phone.words";
 import { type DedicationScreen, DEDICATION_TAPS, DEDICATION_WINDOW_MS, versionOf } from "./Settings";
+import { say } from "../../../shared/words/text";
 
 const OWNERS_LINE = "Dedicated to my best friend, Osoko Emmanuel (July 1998 to June 2026). From Al-Ameen.";
 
@@ -117,14 +117,14 @@ describe("the version line and the dedication", () => {
     await openSettings();
     const settings = document.querySelector("[data-phone-app='settings']");
     expect(settings?.lastElementChild?.hasAttribute("data-version")).toBe(true);
-    expect(versionButton().textContent).toBe(`${phoneWords("phone.settings.version")}a1b2c3d`);
+    expect(versionButton().textContent).toBe(`${say("phone.settings.version")}a1b2c3d`);
     expect(dedication()).toEqual([]);
 
     meta.remove();
     fireEvent.click(document.querySelector<HTMLElement>("[data-phone-back]")!);
     openApp("settings");
-    expect(versionButton().textContent).toBe(`${phoneWords("phone.settings.version")}${phoneWords("phone.settings.version.local")}`);
-    expect(phoneWords("phone.settings.version.local")).toBe("local");
+    expect(versionButton().textContent).toBe(`${say("phone.settings.version")}${say("phone.settings.version.local")}`);
+    expect(say("phone.settings.version.local")).toBe("local");
   });
 
   test("[R-CITY-021] [R-ACCOUNT-032] given Settings open, when the version line is tapped four times, then nothing opens; the fifth opens the dedication page; the sixth does nothing new, and nothing is counted or sent", async () => {

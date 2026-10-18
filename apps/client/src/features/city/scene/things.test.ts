@@ -9,10 +9,10 @@ import { say } from "../../../shared/words/text";
 import type { Act, Thing } from "../../../shared/world/contract";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { builtPlaces } from "../../../shared/scene/placeFile.testing";
-import { sceneWords } from "../scene.words";
 import { plainActLine } from "../acts/actLines";
 import { MAX_ACTS, stagedNow, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
 import { addLateWords } from "../../../shared/words/late";
+import { cityWords } from "../city.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
 addLateWords(uiLondonText);
@@ -32,8 +32,8 @@ describe("things in a place", () => {
       expect(thing.copy).toBe(0);
       expect(thing.acts).toHaveLength(1);
       expect(thingSpot(street, thing)).toEqual(street.models.find((model) => model.file === thing.file)?.at[0]?.slice(0, 2));
-      expect(sceneWords(thing.label)).not.toBe(thing.label);
-      for (const act of thing.acts) expect(sceneWords(act.label)).not.toBe(act.label);
+      expect(cityWords(thing.label)).not.toBe(thing.label);
+      for (const act of thing.acts) expect(cityWords(act.label)).not.toBe(act.label);
     }
     expect(things.find((thing) => thing.id === "play-lotto")?.acts[0]).toMatchObject({ kind: "sheet", stages: "activity.play-lotto" });
     expect(things.find((thing) => thing.id === "veh_danfo")?.acts[0]?.kind).toBe("ride");
@@ -132,7 +132,7 @@ describe("a command act", () => {
     if (found === undefined) throw new Error("No bank counter");
     const counter = (stageOf(found.file).things ?? []).find((thing) => thing.id === "counter");
     expect(counter?.acts[0]).toMatchObject({ id: "deposit", kind: "command", command: "route/pay-deposit" });
-    expect(sceneWords(counter?.acts[0]?.label ?? "")).toBe(say("ui.route.pay-deposit"));
+    expect(cityWords(counter?.acts[0]?.label ?? "")).toBe(say("ui.route.pay-deposit"));
     const due = stagedNow(new Set(["command:route/pay-deposit"]), new Set(), new Set(), null);
     expect(thingsNow([counter as Thing], due)[0]?.acts.map((act) => act.id)).toContain("deposit");
     const none = stagedNow(new Set(), new Set(), new Set(), null);
@@ -146,7 +146,7 @@ describe("the gate", () => {
     if (found === undefined) throw new Error("No arrivals hall");
     const gate = (stageOf(found.file).things ?? []).find((thing) => thing.id === "gate");
     expect(gate?.acts[0]).toMatchObject({ id: "depart", kind: "command", command: "route/depart" });
-    expect(sceneWords(gate?.acts[0]?.label ?? "")).toBe(say("ui.route.depart"));
+    expect(cityWords(gate?.acts[0]?.label ?? "")).toBe(say("ui.route.depart"));
     const granted = stagedNow(new Set(["command:route/depart"]), new Set(), new Set(), null, "chapter.send-off");
     expect(thingsNow([gate as Thing], granted)[0]?.acts.map((act) => act.id)).toEqual(["depart", "send-off"]);
     const none = stagedNow(new Set(), new Set(), new Set(), null, "chapter.send-off");
@@ -201,9 +201,9 @@ describe("the things of the built places", () => {
     expect(files.length).toBeGreaterThan(10);
     for (const { folder, file } of files) {
       for (const thing of stageOf(file).things ?? []) {
-        expect(sceneWords(thing.label), `${folder} ${thing.id}`).not.toBe(thing.label);
+        expect(cityWords(thing.label), `${folder} ${thing.id}`).not.toBe(thing.label);
         expect(thing.acts.length, `${folder} ${thing.id}`).toBeLessThanOrEqual(2);
-        for (const act of thing.acts) expect(sceneWords(act.label), `${folder} ${thing.id} ${act.id}`).not.toBe(act.label);
+        for (const act of thing.acts) expect(cityWords(act.label), `${folder} ${thing.id} ${act.id}`).not.toBe(act.label);
       }
     }
   });
@@ -220,12 +220,12 @@ describe("the things of the built places", () => {
         ["end-month", "end", undefined, undefined],
       ]);
       const [nap, sleep] = bed.acts;
-      expect(sceneWords(nap?.label ?? "")).toBe("Nap");
-      expect(sceneWords(sleep?.label ?? "")).toBe(say("ui.world.end-month"));
+      expect(cityWords(nap?.label ?? "")).toBe("Nap");
+      expect(cityWords(sleep?.label ?? "")).toBe(say("ui.world.end-month"));
       expect(say("ui.world.end-month")).toBe("Sleep");
       const lie = nap?.otherwise;
       expect([lie?.id, lie?.kind, lie?.stages, lie?.pose]).toEqual(["lie", "plain", undefined, "lie"]);
-      expect(sceneWords(lie?.label ?? "")).toBe("Lie down");
+      expect(cityWords(lie?.label ?? "")).toBe("Lie down");
       expect(lie?.seat).toEqual(nap?.seat);
       expect(lie?.top).toBe(nap?.top);
       // A nap to be had: Nap and Sleep. None (night, spent, abroad): Lie down and Sleep. Never three.
@@ -238,7 +238,7 @@ describe("the things of the built places", () => {
     const found = builtPlaces().find((built) => built.folder === "home-family-house");
     if (found === undefined) throw new Error("No parlour");
     const stage = stageOf(found.file);
-    const acts = (id: string) => (stage.things ?? []).find((thing) => thing.id === id)?.acts.map((act) => [act.kind, act.stages ?? null, act.more ?? null, sceneWords(act.label)]);
+    const acts = (id: string) => (stage.things ?? []).find((thing) => thing.id === id)?.acts.map((act) => [act.kind, act.stages ?? null, act.more ?? null, cityWords(act.label)]);
     expect(acts("cooking")).toEqual([["sheet", "activity.cook-at-home", ["activity.cook-jollof"], "Cook"]]);
     expect(acts("drum")).toEqual([["sheet", "activity.fetch-water", ["activity.bucket-bath"], "Water and a bath"]]);
     expect(acts("tv")).toEqual([["sheet", "activity.watch-tv", null, "Nollywood with Papa"]]);
@@ -259,7 +259,7 @@ describe("the things of the built places", () => {
     expect(tv.acts[0]?.pose).toBe("sit");
     expect(tv.acts[0]?.seat).toEqual(sit?.seat);
     // Each act's sheet lists only what can open now, and the names come from content.
-    expect(sceneWords("activity.cook-jollof.name")).toBe("A big pot for the house");
+    expect(cityWords("activity.cook-jollof.name")).toBe("A big pot for the house");
     const cooking = (stage.things ?? []).find((thing) => thing.id === "cooking");
     expect(thingsNow(cooking === undefined ? [] : [cooking], (stages) => stages === "activity.cook-at-home")[0]?.acts[0]).toEqual({ id: "cook", label: "city.act.cook", kind: "sheet", stages: "activity.cook-at-home" });
   });
@@ -279,8 +279,8 @@ describe("the things of the built places", () => {
     expect(Math.hypot(tin[0] - bed[0], tin[1] - bed[1])).toBeLessThan(1.5);
     // The box has no sheet of papers: they are on the phone.
     expect(box.acts.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
-    expect(sceneWords(box.label)).toBe("Papers box");
-    expect(box.acts.map((act) => sceneWords(act.label))).toEqual(["Look in the box"]);
+    expect(cityWords(box.label)).toBe("Papers box");
+    expect(box.acts.map((act) => cityWords(act.label))).toEqual(["Look in the box"]);
   });
 });
 
@@ -307,7 +307,7 @@ describe("the hours a thing keeps", () => {
       const [shut] = thingsNow([viewing], all, part);
       expect(shut?.id).toBe("viewing");
       expect(shut?.acts).toEqual([{ id: "shut", label: "city.act.opens-evening", kind: "plain", tells: "city.act.match.shut" }]);
-      expect(sceneWords("city.act.opens-evening")).toBe("Opens in the evening");
+      expect(cityWords("city.act.opens-evening")).toBe("Opens in the evening");
       expect(plainActLine(viewing, shut?.acts[0] ?? match)).toEqual({ kind: "tell", words: "Shut till evening. The screen is dark." });
       const [stacked] = thingsNow([joint], all, part);
       expect(stacked?.acts).toEqual([{ id: "shut", label: "city.act.opens-evening", kind: "plain", tells: "city.act.joint.shut" }]);
@@ -320,7 +320,7 @@ describe("the hours a thing keeps", () => {
   test("[R-CLOCK-033] [R-WORLD-005] given a thing open only at night, when the world stands in the evening, then its shut act names the night, the first part it opens in", () => {
     expect(thingsNow([late], all, "evening")[0]?.acts[0]?.label).toBe("city.act.opens-night");
     expect(thingsNow([late], all, "morning")[0]?.acts[0]?.label).toBe("city.act.opens-night");
-    expect(sceneWords("city.act.opens-night")).toBe("Opens at night");
+    expect(cityWords("city.act.opens-night")).toBe("Opens at night");
     expect(thingsNow([late], all, "night")[0]).toBe(late);
   });
 

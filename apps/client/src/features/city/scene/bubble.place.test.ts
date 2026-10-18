@@ -7,13 +7,13 @@ import { describe, expect, test } from "vitest";
 import { bubbleRect, bubbleSpot, LIFT_MAX, overlap, type Rect, TAIL, TAIL_MAX } from "../../../shared/world/Lines";
 import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT, NAME_LIFT_MAX } from "./labels";
 import { isPerson } from "./mark";
-import { sceneWords } from "../scene.words";
 import { stageOf } from "../../../shared/scene/placeFile";
 import { builtPlaces } from "../../../shared/scene/placeFile.testing";
 import { cameraAt, projected } from "./scene.testing";
 import { aimRoom, aimShot, shotOf } from "./shot";
 import { thingSpot, thingsOf } from "./things";
 import { standAt } from "../../../shared/scene/walk";
+import { cityWords } from "../city.words";
 
 /** Pixel 7 as the catalog shoots it, and the band with its second row over the world. */
 const SIZE = { width: 412, height: 839 };
@@ -78,7 +78,7 @@ describe("no line over a face", () => {
         anchors.push(at);
         // A person's name shows while they hold an ask; every other thing is its dot (R-WORLD-005). Nothing speaks in a
         // place's first seconds, while the first entry names everything (R-WORLD-026).
-        if (isPerson(thing)) persons.push({ id: thing.id, spot, name: { x: at.x, y: at.y - MARK_HIT, width: sceneWords(thing.label).length * 8 + 24, height: 26 } });
+        if (isPerson(thing)) persons.push({ id: thing.id, spot, name: { x: at.x, y: at.y - MARK_HIT, width: cityWords(thing.label).length * 8 + 24, height: 26 } });
       }
       const soft: Rect[] = anchors.map(dotRect);
       const heads: Rect[] = [];
@@ -143,7 +143,7 @@ describe("a thing's mark on its thing", () => {
         const at = scene.inView(spot[0], LABEL_Y, spot[1]);
         if (at === null) continue;
         dots.push({ x: at.x, y: at.y - MARK_HIT / 2 + 6, width: 12, height: 12 });
-        names.push({ x: at.x, y: at.y - MARK_HIT, width: sceneWords(thing.label).length * 8 + 24, height: 26 });
+        names.push({ x: at.x, y: at.y - MARK_HIT, width: cityWords(thing.label).length * 8 + 24, height: 26 });
       }
       const laid = layNames(names, dots);
       const shown = names.flatMap((name, index) => (laid[index]?.shown === true ? [{ ...name, y: laid[index]?.foot ?? name.y }] : []));

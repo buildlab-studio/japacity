@@ -14,7 +14,6 @@ import { formatBand } from "../../../shared/words/format";
 import { forMonths, inMonths, nameOf, runningName, say } from "../../../shared/words/text";
 import { PHONE_ACTS, paperNotices, papersMarkOf, papersOf, placeOf, requestOf } from "../papers";
 import { PhoneApps } from "../PhoneApps";
-import { phoneWords } from "../phone.words";
 import { marksOf, reloadSeen, waitingOf } from "../seen";
 import { CITY_LAST_KEY } from "../../../shared/kept/storage";
 
@@ -80,8 +79,8 @@ describe("the Papers app", () => {
     expect(rows.map((row) => row.dataset.paper)).toEqual(expect.arrayContaining([PASSPORT, TRANSCRIPT, "document.english-test"]));
     for (const row of rows) {
       expect(row.dataset.state).toBe("not-yet");
-      expect(row.textContent).toContain(phoneWords("phone.papers.not-yet"));
-      expect(row.querySelector("[data-paper-counts]")?.textContent).toBe(phoneWords("phone.papers.for", { routes: runningName(UK) }));
+      expect(row.textContent).toContain(say("phone.papers.not-yet"));
+      expect(row.querySelector("[data-paper-counts]")?.textContent).toBe(say("phone.papers.for", { routes: runningName(UK) }));
     }
     const transcript = document.querySelector<HTMLElement>(`[data-paper="${TRANSCRIPT}"] [data-paper-act]`);
     expect(transcript?.dataset.actHow).toBe("phone");
@@ -89,7 +88,7 @@ describe("the Papers app", () => {
     const passport = document.querySelector<HTMLElement>(`[data-paper="${PASSPORT}"] [data-paper-act]`);
     expect(passport?.dataset.actHow).toBe("visit");
     expect(passport?.dataset.actPlace).toBe("place.passport-office");
-    expect(passport?.textContent).toBe(phoneWords("phone.papers.at", { place: say("place.passport-office.name") }));
+    expect(passport?.textContent).toBe(say("phone.papers.at", { place: say("place.passport-office.name") }));
     fireEvent.click(passport!);
     expect(onMap).toHaveBeenCalledWith("place.passport-office");
     // The English result waits on the passport: no act is offered for it yet.
@@ -146,7 +145,7 @@ describe("the Papers app", () => {
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
     const visa = document.querySelector<HTMLElement>('[data-paper][data-kind="visa"]');
     expect(visa?.textContent).toContain(nameOf(first?.id ?? ""));
-    expect(visa?.textContent).toContain(phoneWords("phone.papers.visa"));
+    expect(visa?.textContent).toContain(say("phone.papers.visa"));
   });
 
   test("[R-WORLD-019] given the papers' acts, when they are read from content, then each paper's request is found, the calls are on the phone, and the passport is staged at the passport office alone", () => {
@@ -168,7 +167,7 @@ describe("a result sealed until the morning", () => {
     cleanup();
     await openPhone(pending(view.month + 1));
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
-    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-state]')?.textContent).toBe(phoneWords("phone.papers.pending", { when: inMonths(view.month + 1, view.month) }));
+    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-state]')?.textContent).toBe(say("phone.papers.pending", { when: inMonths(view.month + 1, view.month) }));
   });
 });
 
@@ -185,7 +184,7 @@ describe("a paper that lands or moves", () => {
     const notice = document.querySelector<HTMLElement>(`[data-paper-notice="issued.${TRANSCRIPT}"]`);
     // A notice names its app over its words.
     expect(notice?.querySelector("[data-notice-words]")?.textContent).toBe("Your transcript is ready to collect.");
-    expect(notice?.textContent).toBe(`${phoneWords("phone.app.papers")}Your transcript is ready to collect.`);
+    expect(notice?.textContent).toBe(`${say("phone.app.papers")}Your transcript is ready to collect.`);
     expect(document.querySelector('[data-app="papers"] [data-dot]')).not.toBeNull();
     fireEvent.click(notice!);
     expect(document.querySelector("[data-app-screen]")?.getAttribute("data-app-screen")).toBe("papers");
@@ -209,9 +208,9 @@ describe("a paper that lands or moves", () => {
       "issued-band.document.english-test",
       `requested.${TRANSCRIPT}`,
     ]);
-    expect(phoneWords("phone.papers.notice.issued.document.nmcn-verification")).toBe("The council has verified your licence.");
-    expect(phoneWords("phone.papers.notice.issued-band", { band: formatBand(65) })).toBe(`Your English result is out: band ${formatBand(65)}.`);
-    expect(phoneWords("phone.papers.notice.requested", { paper: runningName(TRANSCRIPT), when: inMonths(view.month + 2, view.month) })).toMatch(/^Your degree transcript is on its way, ready in 2 months\.$/);
+    expect(say("phone.papers.notice.issued.document.nmcn-verification")).toBe("The council has verified your licence.");
+    expect(say("phone.papers.notice.issued-band", { band: formatBand(65) })).toBe(`Your English result is out: band ${formatBand(65)}.`);
+    expect(say("phone.papers.notice.requested", { paper: runningName(TRANSCRIPT), when: inMonths(view.month + 2, view.month) })).toMatch(/^Your degree transcript is on its way, ready in 2 months\.$/);
     expect(papersMarkOf(withReport(adaPlanned(), [line("line.activity.rest", {})]))).toBe("");
     expect(papersMarkOf({ report: null })).toBe("");
   });

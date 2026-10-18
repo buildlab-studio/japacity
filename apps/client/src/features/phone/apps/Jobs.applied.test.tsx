@@ -9,8 +9,8 @@ import { createGameStore } from "../../../authority/store";
 import { gameAuthority } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { tileNurse } from "../../../shared/testing/nurse";
-import { phoneWords } from "../phone.words";
 import { Jobs } from "./Jobs";
+import { say } from "../../../shared/words/text";
 
 describe("an application out in Jobs", () => {
   test("[R-WORLD-019] [R-ACTIVITY-015] given the tile's nurse who has just applied for staff nurse at the clinic, when Jobs opens, then it says the application waits and when they answer, never that there are no offers", async () => {
@@ -24,7 +24,7 @@ describe("an application out in Jobs", () => {
       </GameProvider>,
     );
     expect(document.querySelector("[data-job-applied]")?.textContent).toBe("Applied: Staff nurse at the clinic. They answer at the month's end.");
-    expect(document.body.textContent).not.toContain(phoneWords("phone.jobs.offers.none"));
+    expect(document.body.textContent).not.toContain(say("phone.jobs.offers.none"));
   });
 
   test("[R-WORLD-019] given the month ended and the answer in, when Jobs opens, then the application is no longer said to wait", async () => {

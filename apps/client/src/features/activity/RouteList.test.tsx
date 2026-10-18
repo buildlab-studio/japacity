@@ -6,7 +6,6 @@ import { newGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { blurbOf, nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
-import { routesWords } from "./routes.words";
 
 const OFFICIAL = "activity.look-into-route";
 const FRIEND = "activity.ask-someone-who-went";
@@ -54,7 +53,7 @@ describe("the routes list", () => {
     const { store, authority } = await renderWithView(<ActivityPicker only={[OFFICIAL]} />, twoRoutesHeard());
     expect(within(card(OFFICIAL)).getAllByRole("radio").every((row) => row.getAttribute("aria-checked") === "false")).toBe(true);
     expect(addButton(OFFICIAL).disabled).toBe(true);
-    expect(addButton(OFFICIAL).querySelector("[data-after]")?.textContent).toBe(routesWords("routes.pick-first"));
+    expect(addButton(OFFICIAL).querySelector("[data-after]")?.textContent).toBe(say("routes.pick-first"));
     fireEvent.click(within(card(OFFICIAL)).getByRole("radio", { name: new RegExp(nameOf(CANADA)) }));
     expect(addButton(OFFICIAL).disabled).toBe(false);
     fireEvent.click(addButton(OFFICIAL));

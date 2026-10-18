@@ -7,8 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
-import { nameOf, words } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
+import { nameOf, say, words } from "../../../shared/words/text";
 import { kioskDrawLine, kioskStreet, Lotto } from "./Lotto";
 
 describe("the Lotto app offline", () => {
@@ -20,8 +19,8 @@ describe("the Lotto app offline", () => {
     expect(kioskStreet()).toBe("Bode Thomas Street");
     await renderWithView(<Lotto />, game.view());
     const app = document.querySelector("[data-lotto-kiosk]");
-    expect(app?.querySelector("[data-lotto-street]")?.textContent).toBe(phoneWords("phone.lotto.kiosk", { street: "Bode Thomas Street" }));
-    expect(app?.querySelector("[data-lotto-none]")?.textContent).toBe(phoneWords("phone.lotto.none-month"));
+    expect(app?.querySelector("[data-lotto-street]")?.textContent).toBe(say("phone.lotto.kiosk", { street: "Bode Thomas Street" }));
+    expect(app?.querySelector("[data-lotto-none]")?.textContent).toBe(say("phone.lotto.none-month"));
     expect(app?.querySelectorAll("p").length).toBeGreaterThanOrEqual(2);
     expect(app?.textContent).not.toMatch(/phone\.|ui\.|line\./);
   });
@@ -31,7 +30,7 @@ describe("the Lotto app offline", () => {
     const lines = game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines;
     const { store } = await renderWithView(<Lotto />, game.view());
     act(() => store.setState({ monthLines: lines }));
-    expect(document.querySelector("[data-lotto-month]")?.textContent).toContain(phoneWords("phone.lotto.month.one"));
+    expect(document.querySelector("[data-lotto-month]")?.textContent).toContain(say("phone.lotto.month.one"));
     expect(document.querySelector("[data-lotto-none]")).toBeNull();
     expect(document.querySelector("[data-lotto-street]")).not.toBeNull();
   });

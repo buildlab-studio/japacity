@@ -12,9 +12,9 @@ import { engineView, newGame, setPockets } from "../../../shared/testing/fixture
 import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
 import { aimRoom, shotOf } from "../scene/shot";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { byHandAt, homeStagesAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../scene/things";
+import { cityWords } from "../city.words";
 
 const ID = "place.compound-room";
 const file = raw as unknown as PlaceFile;
@@ -69,7 +69,7 @@ describe("the room in a compound", () => {
     expect(acts("papers-box")).toEqual([["app", null]]);
     expect(thingOf("papers-box").acts[0]?.app).toBe("papers");
     expect(acts("bag")).toEqual([["command", "route/depart"]]);
-    expect(["bed", "cooking", "drum", "papers-box", "bag", "out"].map((id) => sceneWords(thingOf(id).label))).toEqual(["Mattress", "Stove", "Water drum", "Papers box", "Bag", "Door"]);
+    expect(["bed", "cooking", "drum", "papers-box", "bag", "out"].map((id) => cityWords(thingOf(id).label))).toEqual(["Mattress", "Stove", "Water drum", "Papers box", "Bag", "Door"]);
     // The bag and the drum stand by the door, the drum just outside it, where the water comes from the yard's tap.
     const door = thingSpot(stage, thingOf("out"));
     for (const id of ["bag", "drum"]) {

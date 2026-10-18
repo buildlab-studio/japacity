@@ -11,7 +11,6 @@ import { abroadView, engineView, richView } from "../../../shared/testing/fixtur
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney, formatOne, formatRate } from "../../../shared/words/format";
 import { inMonths, say } from "../../../shared/words/text";
-import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
 import { Bank } from "./Bank";
 
@@ -38,15 +37,15 @@ describe("money in the Bank", () => {
     expect(balance).toContain(formatMoney(view.pockets.NGN.bank, "NGN"));
     expect(balance).toContain(formatMoney(view.pockets.NGN.cash, "NGN"));
     // Naira into pounds at the bank: the bank's rate in whole naira.
-    expect(document.querySelector('[data-rate="bank"]')?.textContent).toBe(phoneWords("phone.bank.rate.bank", { one: formatOne("GBP"), rate: formatMoney(view.rates.GBP.official, "NGN") }));
+    expect(document.querySelector('[data-rate="bank"]')?.textContent).toBe(say("phone.bank.rate.bank", { one: formatOne("GBP"), rate: formatMoney(view.rates.GBP.official, "NGN") }));
     expect(formatMoney(view.rates.GBP.official, "NGN")).not.toMatch(/\./);
     // Naira into dollars with the FX man: his rate to the kobo.
-    fireEvent.click(radio(phoneWords("phone.bank.where"), say("ui.wallet.via.aboki")));
-    fireEvent.click(radio(phoneWords("phone.bank.into"), say("ui.currency.USD")));
-    expect(document.querySelector('[data-rate="aboki"]')?.textContent).toBe(phoneWords("phone.bank.rate.aboki", { one: formatOne("USD"), rate: formatRate(view.rates.USD.street, "NGN") }));
+    fireEvent.click(radio(say("phone.bank.where"), say("ui.wallet.via.aboki")));
+    fireEvent.click(radio(say("phone.bank.into"), say("ui.currency.USD")));
+    expect(document.querySelector('[data-rate="aboki"]')?.textContent).toBe(say("phone.bank.rate.aboki", { one: formatOne("USD"), rate: formatRate(view.rates.USD.street, "NGN") }));
     expect(formatRate(view.rates.USD.street, "NGN")).toMatch(/\.\d\d$/);
     // R-WALLET-005: at home the bank's limit for the month is said where a change at the bank is chosen.
-    fireEvent.click(radio(phoneWords("phone.bank.where"), say("ui.wallet.via.bank")));
+    fireEvent.click(radio(say("phone.bank.where"), say("ui.wallet.via.bank")));
     expect(document.querySelector("[data-bank-limit]")).not.toBeNull();
   });
 
@@ -54,13 +53,13 @@ describe("money in the Bank", () => {
     const view = richView();
     await renderWithView(<Bank />, view);
     const item = view.queued[0]!;
-    expect(document.querySelector("[data-bank-queued]")?.textContent).toContain(phoneWords("phone.bank.queued.item", { paid: formatMoney(50_000_000, "NGN"), to: say("ui.currency.USD"), when: inMonths(item.readyMonth, view.month) }));
+    expect(document.querySelector("[data-bank-queued]")?.textContent).toContain(say("phone.bank.queued.item", { paid: formatMoney(50_000_000, "NGN"), to: say("ui.currency.USD"), when: inMonths(item.readyMonth, view.month) }));
   });
 
   test("given Change money with the FX man, when it is confirmed, then wallet/convert carries the amount in kobo", async () => {
     const view = engineView();
     const { authority } = await renderWithView(<Bank opening="change" />, view);
-    fireEvent.click(radio(phoneWords("phone.bank.where"), say("ui.wallet.via.aboki")));
+    fireEvent.click(radio(say("phone.bank.where"), say("ui.wallet.via.aboki")));
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="change"]')!);
     fireEvent.click(document.querySelector<HTMLElement>("[data-ask-main]")!);
     const amount = quarterOf(view.pockets.NGN.cash);
@@ -109,7 +108,7 @@ describe("sending money home from the Bank", () => {
     const view = abroadView();
     const { authority } = await renderWithView(<Bank opening="send" />, view);
     const currency = sentFirst(view);
-    fireEvent.click(radio(phoneWords("phone.bank.how-much"), phoneWords("phone.bank.all")));
+    fireEvent.click(radio(say("phone.bank.how-much"), say("phone.bank.all")));
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="send"]')!);
     fireEvent.click(document.querySelector<HTMLElement>("[data-ask-main]")!);
     await waitFor(() => expect(authority.sent[0]).toMatchObject({ type: "wallet/remit", currency, amount: view.pockets[currency].bank }));

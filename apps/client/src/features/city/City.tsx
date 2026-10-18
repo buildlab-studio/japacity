@@ -76,7 +76,6 @@ import { HOUSE, insideOf, roomOf } from "./acts/room";
 import { personOf, personOfLook } from "../../shared/scene/roster";
 import type { Picked, ScenePick } from "./scene/scene.types";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./acts/school";
-import { sceneWords } from "./scene.words";
 import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, type ViewPlace } from "../../shared/scene/staging";
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
@@ -884,7 +883,7 @@ export function City({
         return signs.length === 0 ? name : signs.map((said) => said.replace(/\n/g, " ")).join(". ");
       }
       case "action":
-        return picked.label === undefined ? nameOf(picked.activity) : sceneWords(picked.label);
+        return picked.label === undefined ? nameOf(picked.activity) : cityWords(picked.label);
       case "ride":
         return cityWords(`city.ride.${picked.vehicle}`);
       case "enter":
@@ -894,7 +893,7 @@ export function City({
       case "out":
         return cityWords("city.thing.out");
       case "thing":
-        return sceneWords(picked.thing.label);
+        return cityWords(picked.thing.label);
       case "command":
         if (picked.command === COURT) return picked.with === undefined ? "" : nameOf(picked.with);
         if (picked.command === GO_HOME) return say("ui.world.go-home");
@@ -1998,9 +1997,9 @@ export function City({
           {drawing && ready && sample !== null ? <Emotes people={sample.people} hidden={!worldFree || !settled || asleep !== null || openingUp} quiet={talking} onTap={(slot) => readPick({ kind: "person", slot })} /> : null}
           {fanned !== null && fanEntries !== null && picked?.kind === "thing" ? (
             fanSheet === fanned.id ? (
-              <FanSheet key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onClose={() => setPicked(null)} going={fanGoingId} />
+              <FanSheet key={fanned.id} thing={fanned.id} title={cityWords(fanned.label)} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onClose={() => setPicked(null)} going={fanGoingId} />
             ) : (
-              <Fan key={fanned.id} thing={fanned.id} title={sceneWords(fanned.label)} {...(fanned.mark === undefined ? {} : { mark: fanned.mark })} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
+              <Fan key={fanned.id} thing={fanned.id} title={cityWords(fanned.label)} {...(fanned.mark === undefined ? {} : { mark: fanned.mark })} entries={fanModel(fanEntries, view, plan)} onAct={fanTap} onFallback={fanFallback} going={fanGoingId} onPreview={setBandPreview} />
             )
           ) : null}
           <Rise rise={japa.rise} />

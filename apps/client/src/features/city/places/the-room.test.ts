@@ -12,9 +12,9 @@ import deira from "../../../../public/assets/places/deira/place.json";
 import ryeLane from "../../../../public/assets/places/rye-lane/place.json";
 import { abroadView } from "../../../shared/testing/fixtures";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
-import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow } from "../scene/things";
+import { cityWords } from "../city.words";
 
 const stage = stageOf(raw as unknown as PlaceFile);
 const entry = content.place["place.the-room"];
@@ -22,7 +22,7 @@ const entry = content.place["place.the-room"];
 describe("the room abroad", () => {
   test("[R-WORLD-005] [R-WORLD-003] given the phone by the bed, when its acts are read, then it calls home, staged in the room and open to Ada just landed, and sends no money, which the room no longer stages", () => {
     const phone = (stage.things ?? []).find((thing) => thing.id === "phone");
-    expect(phone?.acts.map((act) => [act.kind, act.stages, sceneWords(act.label)])).toEqual([["sheet", "activity.call-home", "Call home"]]);
+    expect(phone?.acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.call-home", "Call home"]]);
     expect(entry?.stages).not.toContain("activity.send-money");
     const staged = new Set<string>(entry?.stages ?? []);
     const view = abroadView();

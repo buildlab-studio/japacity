@@ -14,7 +14,6 @@ import { lottoMonth } from "../../../shared/words/lottoLines";
 import { nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { PhoneNav } from "../../../shared/phone/nav";
 import { Head } from "../act";
-import { phoneWords } from "../phone.words";
 import { GhostButton, MoneyChip, PicCard, PicTile } from "../ui";
 
 /** The street kiosk's draw told in the month's results: one ticket or more, and whether one came in (R-LUCK-005). */
@@ -40,7 +39,7 @@ function ToKiosk() {
   return (
     <GhostButton wide className="mt-4 justify-center" onClick={() => nav.openMap?.(place)} data-lotto-go={place}>
       <MapPin size={18} aria-hidden />
-      {phoneWords("phone.lotto.go")}
+      {say("phone.lotto.go")}
     </GhostButton>
   );
 }
@@ -56,7 +55,7 @@ function ThisMonth() {
   if (spent === null) return null;
   return (
     <div className="mt-3" data-lotto-month={tickets}>
-      <FactChip icon={Ticket} label={phoneWords(tickets === 1 ? "phone.lotto.month.one" : "phone.lotto.month", { count: tickets })} note={phoneWords("phone.lotto.month-cost", { amount: formatMoney(spent.amount, spent.currency) })} id="lotto-month" />
+      <FactChip icon={Ticket} label={say(tickets === 1 ? "phone.lotto.month.one" : "phone.lotto.month", { count: tickets })} note={say("phone.lotto.month-cost", { amount: formatMoney(spent.amount, spent.currency) })} id="lotto-month" />
     </div>
   );
 }
@@ -75,8 +74,8 @@ function KioskLotto() {
       <div className="flex items-center gap-3 px-0.5">
         <PicTile of={KIOSK_ACT} size={64} tint="money" />
         <div className="min-w-0 flex-1">
-          {street === null ? null : <p className="text-[17px] leading-snug font-bold" data-lotto-street>{phoneWords("phone.lotto.kiosk", { street })}</p>}
-          {bought ? null : <p className="mt-0.5 text-[14px] text-text-2" data-lotto-none>{phoneWords("phone.lotto.none-month")}</p>}
+          {street === null ? null : <p className="text-[17px] leading-snug font-bold" data-lotto-street>{say("phone.lotto.kiosk", { street })}</p>}
+          {bought ? null : <p className="mt-0.5 text-[14px] text-text-2" data-lotto-none>{say("phone.lotto.none-month")}</p>}
         </div>
       </div>
       <ThisMonth />
@@ -104,7 +103,7 @@ export function Lotto() {
       <PicCard
         pic={KIOSK_ACT}
         tint="money"
-        over={phoneWords("phone.lotto.next")}
+        over={say("phone.lotto.next")}
         title={say("ui.lottery.draw", { draw: lottery.draw })}
         chips={
           <MoneyChip className="num text-[16px]">
@@ -125,7 +124,7 @@ export function Lotto() {
             ))}
           </div>
         )}
-        <p className="text-[14px] text-text-2">{phoneWords("phone.lotto.buy-where")}</p>
+        <p className="text-[14px] text-text-2">{say("phone.lotto.buy-where")}</p>
       </div>
       <ThisMonth />
 
@@ -133,7 +132,7 @@ export function Lotto() {
         <div data-last-draw={last.draw}>
           <Head>{say("ui.lottery.last")}</Head>
           <p className="px-0.5 text-[15px]">{say("ui.lottery.last-line", { draw: last.draw, count: formatNumber(last.count) })}</p>
-          <p className="mt-1 px-0.5 text-[15px] font-bold">{heldInLast ? (won.length > 0 ? phoneWords("phone.lotto.won", { number: won.map((ticket) => formatNumber(ticket)).join(", ") }) : phoneWords("phone.lotto.lost")) : phoneWords("phone.lotto.none-held")}</p>
+          <p className="mt-1 px-0.5 text-[15px] font-bold">{heldInLast ? (won.length > 0 ? say("phone.lotto.won", { number: won.map((ticket) => formatNumber(ticket)).join(", ") }) : say("phone.lotto.lost")) : say("phone.lotto.none-held")}</p>
           <ul className="mt-2 flex flex-col gap-2">
             {last.winners.map((tier) => (
               <li key={tier.tier} data-tier={tier.tier} className="lively-card px-3.5 py-2.5">
@@ -142,7 +141,7 @@ export function Lotto() {
                   {tier.tickets.length === 0 ? null : <MoneyChip className="num">{formatMoney(tier.amount, "NGN")}</MoneyChip>}
                 </div>
                 {tier.tickets.length === 0 ? null : (
-                  <div className="mt-2 flex flex-wrap gap-1.5" aria-label={phoneWords("phone.lotto.winners")}>
+                  <div className="mt-2 flex flex-wrap gap-1.5" aria-label={say("phone.lotto.winners")}>
                     {tier.tickets.map((ticket) => (
                       <span key={ticket} className={`phone-ball num flex size-10 items-center justify-center text-[14px] font-bold ${heldInLast && mine.has(ticket) ? "phone-ball-on" : ""}`} data-matched={heldInLast && mine.has(ticket) ? "true" : undefined}>
                         {formatNumber(ticket)}

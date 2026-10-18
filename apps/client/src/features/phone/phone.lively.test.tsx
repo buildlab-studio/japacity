@@ -10,8 +10,8 @@ import { renderWithView } from "../../shared/testing/render";
 import { todayWords } from "../../shared/words/format";
 import { resetLines } from "../../shared/world/Lines";
 import { PhoneApps } from "./PhoneApps";
-import { phoneWords } from "./phone.words";
 import { APP_IDS, reloadSeen } from "./seen";
+import { say } from "../../shared/words/text";
 
 const NOON = () => new Date(2026, 9, 13, 12, 5);
 
@@ -58,7 +58,7 @@ describe("the phone in the lively dress", () => {
       openApp(id);
       const head = document.querySelector<HTMLElement>("[data-app-head]");
       expect({ id, tile: head?.querySelector("[data-app-tile]")?.getAttribute("style") ?? "" }).toEqual({ id, tile: expect.stringContaining(`--app-${id}`) as string });
-      expect(head?.textContent).toContain(phoneWords(`phone.app.${id}`));
+      expect(head?.textContent).toContain(say(`phone.app.${id}`));
       expect(head?.className).not.toMatch(/\bband\b/);
       back();
     }
@@ -120,7 +120,7 @@ describe("the phone in the lively dress", () => {
     await openPhone(view);
     const jobs = openApp("jobs");
     expect(jobs.querySelector("[data-jobs-board]")?.getAttribute("data-jobs-board")).toBe("place.yaba");
-    expect(jobs.querySelector("[data-jobs-board]")?.textContent).toBe(phoneWords("phone.jobs.board.go", { place: "the hub" }));
+    expect(jobs.querySelector("[data-jobs-board]")?.textContent).toBe(say("phone.jobs.board.go", { place: "the hub" }));
   });
 
   test("[R-WORLD-018] given the month's lines in News, when it opens, then each line is a chip, good news in green", async () => {
