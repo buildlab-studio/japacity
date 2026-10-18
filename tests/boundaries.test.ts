@@ -93,6 +93,8 @@ const isRelative = (specifier: string) => /^\.\.?(?:\/|$)/.test(specifier);
 const inside = (path: string, folder: string) => path === folder || path.startsWith(`${folder}/`);
 const appOf = (path: string) => /^apps\/([^/]+)/.exec(path)?.[1];
 const featureOf = (path: string) => /^apps\/client\/src\/features\/([^/]+)\//.exec(path)?.[1];
+// The client's layers under its features: a feature reads them, never the other way.
+const CLIENT_BELOW_FEATURES = ["apps/client/src/shared", "apps/client/src/authority"];
 
 function violations(files: readonly string[], packages: ReadonlyMap<string, string>): Exception[] {
   const found: Exception[] = [];
@@ -165,6 +167,10 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
       const targetApp = target === undefined ? undefined : appOf(target);
       if (targetApp !== undefined && appOf(file) !== targetApp) {
         report(`only files inside apps/${targetApp} may import from it`);
+      }
+
+      if (CLIENT_BELOW_FEATURES.some((folder) => inside(file, folder)) && target !== undefined && inside(target, "apps/client/src/features")) {
+        report("shared and authority do not import a feature; move what both need to shared/");
       }
 
       const fromFeature = featureOf(file);
