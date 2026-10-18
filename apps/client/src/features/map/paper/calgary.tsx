@@ -6,7 +6,7 @@
 // in, laid on the paper through Calgary's own fit; rough on purpose, as the positions are (city.md R-CITY-008).
 import { content } from "@japacity/content";
 
-import { mapWords } from "../map.words";
+import { calgaryMapWords } from "./paper.words";
 import type { PaperCity, StripMark } from "./city";
 import { type Card, cardByRules, type Rule } from "./districts";
 import type { DrawSource } from "./draw";
@@ -170,28 +170,6 @@ const CARDS: readonly Card[] = [
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "airport", latMin: 51104 }, { card: "downtown", lonMax: -114030 }, { card: "north-east" }];
 
-/** Calgary's own words: its districts, its cards and its river. Content and the map's words win over these. */
-export const calgaryText: Record<string, string> = {
-  "map.area.calgary.whitehorn": "Whitehorn",
-  "map.area.calgary.rundle": "Rundle",
-  "map.area.calgary.sunridge": "Sunridge",
-  "map.area.calgary.airport": "The airport",
-  "map.area.calgary.downtown": "Downtown",
-  "map.water.bow": "The Bow",
-  "map.card.airport": "The airport",
-  "map.card.north-east": "The north-east",
-  "map.card.downtown": "Downtown",
-};
-
-export function calgaryWords(key: string, params: Record<string, string | number> = {}): string {
-  const own = calgaryText[key];
-  if (own === undefined) return mapWords(key, params);
-  return own.replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => {
-    const value = params[name];
-    return value === undefined ? whole : String(value);
-  });
-}
-
 /** The places of Canada with a position, as content keeps them. */
 function canadaPlaces(): Position[] {
   return Object.values(content.place)
@@ -251,7 +229,7 @@ export const CALGARY: PaperCity = {
   // The north-east a little below the middle of the first look, so the airport comes into it from the north.
   opening: { phone: [0, -120], wide: [0, -80] },
   canoe: null,
-  words: calgaryWords,
+  words: calgaryMapWords,
   sizes: { "place.calgary-north-east": 108, "place.calgary-airport": 112 },
 };
 

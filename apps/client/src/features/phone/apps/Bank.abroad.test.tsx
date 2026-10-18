@@ -12,7 +12,6 @@ import { bandMoney } from "../../../shared/world/Band";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
-import { abroadWords } from "./abroad";
 import { Bank } from "./Bank";
 import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
@@ -89,8 +88,8 @@ describe("the Bank abroad", () => {
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
     // Decision 0012: the re-recorded life lands with £1,954.
-    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,352", held: "£1,954" }));
-    expect(abroadWords("phone.bank.dues", { due: "£4,352", held: "£1,954" })).toBe("Due this month: £4,352. You hold £1,954.");
+    expect(first?.textContent).toContain(phoneWords("phone.bank.dues", { due: "£4,352", held: "£1,954" }));
+    expect(phoneWords("phone.bank.dues", { due: "£4,352", held: "£1,954" })).toBe("Due this month: £4,352. You hold £1,954.");
     // The way names the pair only: Change money is said once on the screen.
     expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });

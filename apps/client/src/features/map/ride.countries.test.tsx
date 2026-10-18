@@ -17,9 +17,9 @@ import { TAXI_SEAT } from "../../../../../assets-src/veh/taxi/build";
 import { VAN_SEAT } from "../../../../../assets-src/veh/van/build";
 import { landedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { calgaryWords } from "../../shared/words/calgary.words";
-import { castelWords } from "../../shared/words/castel.words";
-import { dubaiWords } from "../../shared/words/dubai.words";
+import { calgaryText } from "../../shared/words/tables/calgary.words";
+import { castelText } from "../../shared/words/tables/castel.words";
+import { dubaiText } from "../../shared/words/tables/dubai.words";
 import { formatMoney } from "../../shared/words/format";
 import { addLateWords } from "../../shared/words/late";
 import { nameOf } from "../../shared/words/text";
@@ -33,7 +33,7 @@ import { anglesOf, buildRide } from "./rideScene";
 import { type AbroadVehicle, SEATS, VEHICLES, vehicleFor, wayModelFor } from "./rideVehicles";
 
 // Each country's words ride their own chunk in the game (shared/words/late.ts); the tests add them as the city does.
-for (const table of [calgaryWords, dubaiWords, castelWords]) addLateWords(table);
+for (const table of [calgaryText, dubaiText, castelText]) addLateWords(table);
 
 /** A words key left unsaid, or an en or em dash (docs/rules/text.md), built from their codes so no dash stands in this file. */
 const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);

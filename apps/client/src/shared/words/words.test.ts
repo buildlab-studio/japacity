@@ -8,7 +8,7 @@ import { jobCardWords, jobsWords } from "./jobs";
 import { valueWords } from "./quality";
 import { requirementSentence } from "./requirement";
 import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
-import { uiText } from "./ui";
+import { uiText } from "./tables/ui.words";
 
 describe("words", () => {
   test("given naira, then the naira sign is used whatever the locale data", () => {

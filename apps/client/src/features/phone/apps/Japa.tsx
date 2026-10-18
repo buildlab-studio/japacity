@@ -31,22 +31,6 @@ import { RoutePage } from "./PlanSwitch";
 
 const OFFICIAL = "activity.look-into-route";
 
-/** Japa's words after the grant and the flight, in the voice of docs/rules/text.md; content's and the phone's tables win. */
-const AFTER_TEXT: Record<string, string> = {
-  "phone.japa.next": "Next: {step}",
-  "phone.japa.visa.label": "Your visa",
-  "phone.japa.visa.none": "No visa here",
-  "phone.japa.visa.lets": "What it lets you do",
-  "phone.japa.visa.way-up": "The way up",
-  "phone.japa.chapter.soon": "Starts when this month ends.",
-};
-
-function afterWords(key: string, params: Record<string, string> = {}): string {
-  const said = phoneWords(key, params);
-  if (said !== key) return said;
-  return (AFTER_TEXT[key] ?? key).replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => params[name] ?? whole);
-}
-
 /**
  * The chapter whose steps lie ahead (R-WORLD-019): the current one while it does not close, its steps as the
  * view marks them; once the view says it closes at the month's end (R-CHAPTER-010, `closesOn` honoured), the
@@ -284,7 +268,7 @@ function NextStep({ step }: { step: string }) {
   return (
     <p className="lively-card phone-picked mt-2 flex items-center gap-2 px-3.5 py-2.5 text-[15px] font-bold" data-japa-next>
       <ChevronRight size={16} className="shrink-0" aria-hidden />
-      {afterWords("phone.japa.next", { step })}
+      {phoneWords("phone.japa.next", { step })}
     </p>
   );
 }
@@ -300,15 +284,15 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
       <PicCard
         pic="place.airport-lagos"
         tint="money"
-        over={afterWords("phone.japa.visa.label")}
-        title={held === null ? afterWords("phone.japa.visa.none") : nameOf(held.entry)}
+        over={phoneWords("phone.japa.visa.label")}
+        title={held === null ? phoneWords("phone.japa.visa.none") : nameOf(held.entry)}
         chips={held === null ? null : <WordChip tone="study">{held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}</WordChip>}
         data-japa-visa={held?.entry ?? ""}
       />
       {held === null ? <p className="mt-2 text-[14px]">{say("ui.status.none")}</p> : null}
       {lets === null ? null : (
         <>
-          <Head>{afterWords("phone.japa.visa.lets")}</Head>
+          <Head>{phoneWords("phone.japa.visa.lets")}</Head>
           <p className="text-[14px]">{lets}</p>
         </>
       )}
@@ -317,7 +301,7 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
       {ahead === null ? null : (
         <div data-landing={ahead.now ? "now" : "soon"}>
           <Head>{nameOf(ahead.id)}</Head>
-          {ahead.now ? null : <p className="mb-1 text-[13px] text-text-2">{afterWords("phone.japa.chapter.soon")}</p>}
+          {ahead.now ? null : <p className="mb-1 text-[13px] text-text-2">{phoneWords("phone.japa.chapter.soon")}</p>}
           <ul className="lively-card flex flex-col divide-y divide-sheet-line py-1">
             {ahead.items.map((item) => (
               <Step key={item.id} met={item.met}>
@@ -329,7 +313,7 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
       )}
       {held?.nextStep === null || held?.nextStep === undefined ? null : (
         <>
-          <Head>{afterWords("phone.japa.visa.way-up")}</Head>
+          <Head>{phoneWords("phone.japa.visa.way-up")}</Head>
           <p className="text-[14px]">{words(held.nextStep)}</p>
         </>
       )}

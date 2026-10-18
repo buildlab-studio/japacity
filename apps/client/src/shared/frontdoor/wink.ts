@@ -1,6 +1,6 @@
 // The lines with a wink (docs/rules/account.md R-ACCOUNT-031, text.md R-TEXT-006): a few places carry two or three
 // lines at most, and one is picked at random once per visit on the device, so a reload may show another. Never
-// from the player's data, and never on bad news. The words are in shared/words/online.ts.
+// from the player's data, and never on bad news. The words are in shared/words/tables/online.words.ts.
 import { deviceRandom, type RandomBelow } from "../net/random";
 
 /** The places that carry a line with a wink, and how many lines each has. */

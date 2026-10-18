@@ -9,20 +9,17 @@ import { adviceUiText } from "../../features/advice/advice.words";
 import { cityText } from "../../features/city/city.words";
 import { sceneText } from "../../features/city/scene.words";
 import { mapText } from "../../features/map/map.words";
-import { londonText } from "../../features/map/paper/london";
-import { londonWords } from "./london.words";
-import { calgaryText } from "../../features/map/paper/calgary";
-import { castelText } from "../../features/map/paper/castel";
-import { dubaiText } from "../../features/map/paper/dubai";
-import { calgaryWords } from "./calgary.words";
-import { castelWords } from "./castel.words";
-import { dubaiWords } from "./dubai.words";
+import { calgaryMapText, castelMapText, dubaiMapText, londonMapText } from "../../features/map/paper/paper.words";
+import { londonText } from "./tables/london.words";
+import { calgaryText } from "./tables/calgary.words";
+import { castelText } from "./tables/castel.words";
+import { dubaiText } from "./tables/dubai.words";
 import { phoneText } from "../../features/phone/phone.words";
 import { roomText } from "../../features/setpiece/room.words";
 import { turnText } from "../../features/turn/turn.words";
 import { soundText } from "../sound/sound.words";
-import { jobsUiText } from "./jobs";
-import { uiText } from "./ui";
+import { jobsUiText } from "./tables/jobs.words";
+import { uiText } from "./tables/ui.words";
 // The content check on institutions beside wrongdoing (people.md R-PEOPLE-063), run here over the client's tables too.
 import { institutionProblems } from "../../../../../packages/content/src/person/person.names.check";
 
@@ -33,15 +30,15 @@ const clientTables: Record<string, Record<string, string>> = {
   city: cityText,
   scene: sceneText,
   map: mapText,
-  london: londonText,
-  londonPlaces: { ...londonWords },
+  london: londonMapText,
+  londonPlaces: { ...londonText },
   // Calgary's, Dubai's and Castel Volturno's papers and places, each a chunk of its own in the game.
-  calgary: calgaryText,
-  dubai: dubaiText,
-  castel: castelText,
-  calgaryPlaces: { ...calgaryWords },
-  dubaiPlaces: { ...dubaiWords },
-  castelPlaces: { ...castelWords },
+  calgary: calgaryMapText,
+  dubai: dubaiMapText,
+  castel: castelMapText,
+  calgaryPlaces: { ...calgaryText },
+  dubaiPlaces: { ...dubaiText },
+  castelPlaces: { ...castelText },
   phone: phoneText,
   room: roomText,
   turn: turnText,

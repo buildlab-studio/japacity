@@ -31,7 +31,7 @@ import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
 import { Chips, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
-import { abroadWords, changeFirst, currencyList } from "./abroad";
+import { changeFirst, currencyList } from "./abroad";
 import { passbookCount, passbookWords, shortNaira } from "./passbook.words";
 
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
@@ -425,11 +425,11 @@ function DuesGapCard({ onChange }: { onChange: (start: ChangeStart) => void }) {
   const from = changeFirst(gap.from);
   return (
     <div className="lively-card px-3 py-2.5 shadow-[inset_5px_0_0_var(--out)]" role="alert" data-dues-gap={gap.currency}>
-      <p className="text-[15px] font-bold">{abroadWords("phone.bank.dues", { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) })}</p>
+      <p className="text-[15px] font-bold">{phoneWords("phone.bank.dues", { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) })}</p>
       {from === null ? null : (
         <button type="button" className="press mt-2 flex min-h-11 w-full items-center gap-2 rounded-[14px] btn-dark px-3 text-left text-[14px] font-bold" onClick={() => onChange({ from, to: gap.currency })}>
           <ArrowLeftRight size={16} className="shrink-0" aria-hidden />
-          <span>{opening(abroadWords("phone.bank.dues.way", { from: currencyList(gap.from), to: lowerFirst(currencyWords(gap.currency)) }))}</span>
+          <span>{opening(phoneWords("phone.bank.dues.way", { from: currencyList(gap.from), to: lowerFirst(currencyWords(gap.currency)) }))}</span>
         </button>
       )}
     </div>
@@ -458,7 +458,7 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
             </span>
             <button type="button" className="press flex min-h-10 shrink-0 items-center gap-1.5 rounded-[12px] border-2 border-edge bg-sheet-2 px-3 text-[13px] font-bold shadow-[0_2px_0_var(--edge)]" onClick={() => onChange({ from: currency, to: local })}>
               <ArrowLeftRight size={15} aria-hidden />
-              {abroadWords("phone.bank.pair", { from: currencyWords(currency), to: lowerFirst(currencyWords(local)) })}
+              {phoneWords("phone.bank.pair", { from: currencyWords(currency), to: lowerFirst(currencyWords(local)) })}
             </button>
           </li>
         ))}

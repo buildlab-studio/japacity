@@ -28,7 +28,7 @@ const clientFiles = filesUnder(CLIENT, (rel) => /\.(?:tsx?|css)$/.test(rel));
 
 /** The files that hold the player's words: the shell's, each feature's and content's. */
 const wordFiles = [
-  ...filesUnder(CLIENT, (rel) => rel === `${CLIENT}/shared/words/ui.ts` || /^apps\/client\/src\/features\/[^/]+\/[^/]+\.words\.ts$/.test(rel)),
+  ...filesUnder(CLIENT, (rel) => rel === `${CLIENT}/shared/words/tables/ui.words.ts` || /^apps\/client\/src\/features\/[^/]+\/[^/]+\.words\.ts$/.test(rel)),
   ...filesUnder("packages/content/src", (rel) => rel.endsWith(".text.ts")),
 ];
 
@@ -101,7 +101,7 @@ describe("the palette", () => {
   test("[R-WORLD-021] given the walk, then it sees the client's screens, styles and words", () => {
     expect(clientFiles).toContain(`${CLIENT}/index.css`);
     expect(clientFiles).toContain(`${CLIENT}/features/activity/JobList.tsx`);
-    expect(wordFiles).toContain(`${CLIENT}/shared/words/ui.ts`);
+    expect(wordFiles).toContain(`${CLIENT}/shared/words/tables/ui.words.ts`);
     expect(wordFiles.some((file) => file.startsWith("packages/content/src/"))).toBe(true);
   });
 

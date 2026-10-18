@@ -7,8 +7,8 @@ import { expect, test, type Page } from "@playwright/test";
 // to 027), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
 import { content } from "../../../packages/content/src/index";
-import { onlineText } from "../src/shared/words/online";
-import { uiText } from "../src/shared/words/ui";
+import { onlineText } from "../src/shared/words/tables/online.words";
+import { uiText } from "../src/shared/words/tables/ui.words";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });

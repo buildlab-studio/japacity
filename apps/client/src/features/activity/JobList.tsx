@@ -11,10 +11,7 @@ import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
 import { requirementSentence } from "../../shared/words/requirement";
 import { Tile } from "../../shared/tiles/Tile";
 import { nameOf } from "../../shared/words/text";
-import { type ChanceBand, chanceBand, chanceOf, huntBand, jobCardLine, jobCardWords, jobChanceBp, jobsWords, payWords } from "../../shared/words/jobs";
-
-// The figures and words moved to shared/words/jobs.ts so the city can read them; the list's tests keep these names.
-export { type ChanceBand, chanceBand, chanceOf, huntBand, jobCardLine, jobCardWords, jobChanceBp };
+import { type ChanceBand, chanceOf, huntBand, jobsWords, payWords } from "../../shared/words/jobs";
 import { payAMonth } from "../../shared/words/pay";
 import { liftWords } from "../../shared/words/profile";
 

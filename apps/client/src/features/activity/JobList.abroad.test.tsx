@@ -6,8 +6,7 @@ import { abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { ActivityPicker } from "./ActivityView";
-import { chanceBand, jobCardWords, jobChanceBp } from "./JobList";
-import { jobsWords } from "./jobs.words";
+import { chanceBand, jobCardWords, jobChanceBp, jobsWords } from "../../shared/words/jobs";
 import { payAMonth } from "../../shared/words/pay";
 
 const SHOP = "activity.job-uk-retail-part" as Id<"activity">;

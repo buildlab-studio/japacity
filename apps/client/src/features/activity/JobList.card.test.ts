@@ -8,8 +8,7 @@ import { describe, expect, test } from "vitest";
 
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
-import { chanceOf, huntBand, jobCardLine } from "./JobList";
-import { jobsWords } from "./jobs.words";
+import { chanceOf, huntBand, jobCardLine, jobsWords } from "../../shared/words/jobs";
 
 const RACKS = "activity.job-fish-racks";
 const HUNT = "activity.job-hunt";

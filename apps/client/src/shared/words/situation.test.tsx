@@ -13,7 +13,7 @@ import { renderWithView } from "../testing/render";
 import { tidyLines } from "./lines";
 import { valueWords } from "./quality";
 import { bandWords, say, words } from "./text";
-import { uiText } from "./ui";
+import { uiText } from "./tables/ui.words";
 
 /** The lines of the prologue's first answer: the draw, as the first screen tells it. */
 function firstAnswer(): ReportLine[] {

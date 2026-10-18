@@ -3,7 +3,7 @@
 // city bus, the labour bus and the taxi. In the voice of docs/rules/text.md; content's table wins over these.
 // Kept in a chunk of their own and added once the life is in the UAE (late.ts), so a first visit at home carries none of
 // them (engine.md R-ENGINE-020).
-export const dubaiWords: Readonly<Record<string, string>> = {
+export const dubaiText: Readonly<Record<string, string>> = {
   // Deira restaged (design page 15 section 3): the exchange house for money home, the African foods shop, the cafeteria.
   "city.thing.exchange-house": "Money exchange",
   "city.thing.african-foods": "African foods",

@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/deira/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
-import { dubaiWords } from "../../../shared/words/dubai.words";
+import { dubaiText } from "../../../shared/words/tables/dubai.words";
 import { addLateWords } from "../../../shared/words/late";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
@@ -17,7 +17,7 @@ import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 
 // Dubai's words ride their own chunk in the game (shared/words/late.ts); a test of Dubai adds them as the city does.
-addLateWords(dubaiWords);
+addLateWords(dubaiText);
 
 const ID = "place.deira";
 const { file, stage, entry } = staged(raw, ID);
