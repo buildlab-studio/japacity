@@ -51,6 +51,14 @@ export function shippedBuild(): BuildEnvironmentOptions {
       treeshake: { manualPureFunctions: [...DROPPED_CONSOLE] },
       output: {
         minify: { compress: { dropDebugger: true }, mangle: true, codegen: true },
+        // engine:first-download-has-budget: the 3D library and the model loader are chunks of their own, whatever imports
+        // the entry, so they are cached across releases and measured apart from the game's own code.
+        codeSplitting: {
+          groups: [
+            { name: "three", test: /[\\/]node_modules[\\/]three[\\/]build[\\/]/, priority: 2 },
+            { name: "load", test: /[\\/]node_modules[\\/]three[\\/]examples[\\/]jsm[\\/]|[\\/]packages[\\/]assets[\\/]src[\\/]load\.ts$|[\\/]src[\\/]shared[\\/]three[\\/]load\.ts$/, priority: 1 },
+          ],
+        },
       },
     },
   };
