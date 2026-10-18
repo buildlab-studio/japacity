@@ -1,41 +1,23 @@
 import { content, OFFICER_REACTIONS, setpieceVoice, text, uiRoomText, uiSoundText } from "@japacity/content";
 import type { Game } from "@japacity/sim/testing";
-import { drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
-import { act, fireEvent, screen, within } from "@testing-library/react";
+import { uk } from "@japacity/sim/testing";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/sound/sound.testing";
 import { installSoundWake, MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { renderWithGame } from "../../shared/testing/person";
+import { after, interviewOpened, room } from "./interview.testing";
 import { CLOSE, drawReaction, GREET, roomStore, VOICED } from "./room.store";
 import { SetpieceView } from "./SetpieceView";
 
 const entry = content.setpiece[VOICED]!;
-const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit");
 /** The longest line, so waiting this long lets any line's answers show. */
 const LONGEST = Math.max(...Object.values(setpieceVoice).map((voice) => voice.ms));
 
-/** A life whose visa interview has just opened, asking who pays first. */
-function interviewGame(): Game {
-  const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask)[0] === "who-pays");
-  const game = readyLife(content, { seed });
-  toApplied(game);
-  return game;
-}
-
 function clipOf(key: string): string {
   return `/voice/${setpieceVoice[key]!.clip}`;
-}
-
-async function after(ms: number): Promise<void> {
-  await act(() => vi.advanceTimersByTimeAsync(ms));
-}
-
-function room(): HTMLElement {
-  const found = document.querySelector<HTMLElement>(`[data-scene='${VOICED}']`);
-  if (found === null) throw new Error("The interview room is not on screen.");
-  return found;
 }
 
 function notice(): string | null {
@@ -46,7 +28,7 @@ function answersOpen(): boolean {
   return document.querySelector("[data-answers='open']") !== null;
 }
 
-async function open(options: FakeSoundOptions, game = interviewGame()): Promise<{ fake: FakeSound; game: Game }> {
+async function open(options: FakeSoundOptions, game = interviewOpened()): Promise<{ fake: FakeSound; game: Game }> {
   const fake = fakeSound(options);
   setSoundBackend(fake.backend);
   // The notice is mounted once at the app root; the test mounts it beside the scene the same way.
