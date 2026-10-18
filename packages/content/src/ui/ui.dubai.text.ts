@@ -4,7 +4,7 @@
 // Fetched in a chunk of their own and added to the client's late words once the life is in the UAE
 // (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine:first-download-has-budget).
 export const uiDubaiText: Readonly<Record<string, string>> = {
-  // Deira restaged (design page 15 section 3): the exchange house for money home, the African foods shop, the cafeteria.
+  // Deira (design page 15 section 3): the exchange house for money home, the African foods shop, the cafeteria.
   "city.thing.exchange-house": "Money exchange",
   "city.thing.african-foods": "African foods",
   "city.act.naija-shop": "A taste of home",

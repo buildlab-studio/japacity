@@ -55,7 +55,7 @@ export interface OfficialAccount {
 export const officialAccounts: readonly OfficialAccount[] = [
   // The game's one address. japacity.com redirects to it, so it is not listed as a second address.
   { platform: "web", address: "japacity.app", aliases: [] },
-  // The product email: it receives only; the game's own mail will send from a subdomain.
+  // The product email: it receives only; the game's own mail sends from a subdomain (game@mail.japacity.app).
   { platform: "email", address: "social@japacity.app", aliases: [] },
   { platform: "whatsapp", address: null, aliases: [] },
   { platform: "instagram", address: null, aliases: [] },

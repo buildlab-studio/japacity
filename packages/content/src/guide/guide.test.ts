@@ -30,7 +30,7 @@ describe("the guides", () => {
   test("[guide:guide-entry-fields] given the guides, when they are checked, then each has a title, sections with words, dated sources and a checked date", () => {
     expect(Object.keys(content.guide).sort()).toEqual([
       "guide.agents",
-      // The two family guides cover the people routes (guide:every-route-has-a-guide), added when those routes went live.
+      // The two family guides cover the people routes (guide:every-route-has-a-guide).
       "guide.ca-family",
       "guide.canada-points",
       "guide.global-talent",

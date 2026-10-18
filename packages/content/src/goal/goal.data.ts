@@ -1,6 +1,6 @@
 // From docs/rules/goal.md "Entries". Several of the page's conditions have no
 // requirement type in the contract; each is written as the nearest one that
-// exists.
+// exists, with a comment beside it saying which.
 import type { Effect, Id, GoalEntry, Requirement } from "@japacity/sim";
 
 import { DECEMBER_COUNTRIES } from "../setpiece/setpiece.data";

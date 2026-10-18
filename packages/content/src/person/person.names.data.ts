@@ -50,7 +50,7 @@ export const peopleRegion: Record<NamePeople, "north" | "south"> = {
 
 /**
  * The mix, in basis points of every name drawn (names rule 2): the three largest
- * peoples first, then a real share for the others. A proposed mix.
+ * peoples first, then a real share for the others.
  */
 export const nameMix: Record<NamePeople, number> = {
   "hausa-fulani": 2200,
