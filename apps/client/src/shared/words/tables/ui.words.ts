@@ -91,7 +91,6 @@ export const uiText: Record<string, string> = {
   "ui.month.expiring.item.one": "{document} runs out at the end of this month. Renew it now if you still need it.",
 
   // The report
-  "ui.report.title": "Month {month}",
   "ui.report.last": "Last month",
   "ui.report.open": "Read the report",
   "ui.report.quiet": "A quiet month. Nothing changed that you need to know about.",
