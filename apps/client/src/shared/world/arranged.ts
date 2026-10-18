@@ -4,9 +4,7 @@
 // one key of its own that goes when the life ends, with the life's scenario so another life's arrangement is never read.
 // The way a wide home's view is turned is kept under the same key, by home, as a quarter from 0 to
 // 3, so a reload opens the house as it was left.
-
-/** The one localStorage key the arrangement is kept under, beside `japacity.save` and `japacity.taught`. */
-export const ARRANGED_KEY = "japacity.arranged";
+import { ARRANGED_KEY, browserStorage } from "../kept/storage";
 
 export type Arranged = Record<string, [number, number, number]>;
 
@@ -18,15 +16,6 @@ interface Kept {
 }
 
 type Store = Pick<Storage, "getItem" | "setItem" | "removeItem">;
-
-function browserStorage(): Store | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    // Some browsers throw on access when storage is blocked.
-    return null;
-  }
-}
 
 function isSpot(value: unknown): value is [number, number, number] {
   return Array.isArray(value) && value.length === 3 && value.every((side) => typeof side === "number" && Number.isFinite(side));

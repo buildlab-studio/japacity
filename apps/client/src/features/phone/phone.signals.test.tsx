@@ -11,11 +11,11 @@ import { localAuthority } from "../../authority/local";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { dayOfView } from "../../shared/days/days";
 import { forgetDays } from "../../shared/days/days.store";
-import { CITY_LAST_KEY } from "../../shared/days/standing";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { PhoneApps, usePhoneWaiting } from "./PhoneApps";
 import { APP_IDS, markSeen, marksOf, reloadSeen } from "./seen";
+import { CITY_LAST_KEY } from "../../shared/kept/storage";
 
 // Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and is never planned, so the course that carries
 // on and tells of itself is a master's at home.

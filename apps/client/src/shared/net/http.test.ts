@@ -2,7 +2,8 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { BASE } from "../testing/server";
 import { api, classify, COMMAND_TIMEOUT_MS, failureOf, type Fetch, isReloading, READ_TIMEOUT_MS } from "./http";
-import { WALL_AGAIN_MS, WALL_KEY, WALL_SETTLE_MS, wallGuard, type WallGuard } from "./wall";
+import { WALL_AGAIN_MS, WALL_SETTLE_MS, wallGuard, type WallGuard } from "./wall";
+import { WALL_KEY } from "../kept/storage";
 
 /** A wall that never reloads: these tests read the kind alone. */
 const noWall: WallGuard = { met: () => false, passed: () => undefined };

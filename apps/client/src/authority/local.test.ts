@@ -3,8 +3,8 @@ import type { Command, Content, Id, Save } from "@japacity/sim";
 import { lastSegment, lifeStart, savedCommands, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { localAuthority, SAVE_KEY } from "./local";
-import { PERSON_KEY } from "../shared/frontdoor/person";
+import { localAuthority } from "./local";
+import { PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
 
 function memoryStorage() {
   const items = new Map<string, string>();

@@ -24,6 +24,7 @@ import {
 import type { Id, PlayerView } from "@japacity/sim";
 
 import { say } from "../words/text";
+import { browserStorage, FULL_PROLOGUE_KEY } from "../kept/storage";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 
@@ -154,10 +155,7 @@ export function throughUniversity(archetype: Archetype): boolean {
   return (archetype.preset["after-school"] ?? []).includes("jamb");
 }
 
-/** The setting `prologue.full`: every card of the prologue, one answer each, no preset. No screen offers it. */
-export const FULL_PROLOGUE_KEY = "japacity.prologue.full";
-
-export function fullPrologue(storage: Pick<Storage, "getItem"> | null = safeStorage()): boolean {
+export function fullPrologue(storage: Pick<Storage, "getItem"> | null = browserStorage()): boolean {
   try {
     return storage?.getItem(FULL_PROLOGUE_KEY) === "on";
   } catch {
@@ -165,10 +163,3 @@ export function fullPrologue(storage: Pick<Storage, "getItem"> | null = safeStor
   }
 }
 
-function safeStorage(): Pick<Storage, "getItem"> | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}

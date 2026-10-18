@@ -3,7 +3,8 @@ import { describe, expect, test } from "vitest";
 
 import { nextGameMorning } from "@japacity/sim";
 
-import { localAuthority, MORNING_KEY, SAVE_KEY } from "./local";
+import { localAuthority } from "./local";
+import { MORNING_KEY, SAVE_KEY } from "../shared/kept/storage";
 
 const ENGLISH: Id<"document"> = "document.english-test";
 

@@ -96,6 +96,7 @@ import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { onMap } from "../../shared/world/rentedHomes";
 import { LoadingNote } from "./LoadingNote";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
+import { browserStorage, CITY_BEEN_KEY, CITY_LAST_KEY } from "../../shared/kept/storage";
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
@@ -146,8 +147,6 @@ const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
 // The world mode (docs/design/11-the-world-first.md, docs/rules/world.md).
-const LAST_KEY = "japacity.city.last";
-const BEEN_KEY = "japacity.city.been";
 /** Sending money home: an act whose sheet is the Bank's, where the money is. */
 const SEND_MONEY = "activity.send-money";
 /** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
@@ -328,7 +327,7 @@ function bandName(name: string): string {
  * With no home that can be entered, the hub.
  */
 function lastPlace(here: ViewPlace, home: string | null, day: number | null): string {
-  const [kept, , keptDay] = readKept(LAST_KEY);
+  const [kept, , keptDay] = readKept(CITY_LAST_KEY);
   const open = enterable(here, PLACES);
   const sameDay = day === null || keptDay === undefined || keptDay === String(day);
   if (kept !== undefined && sameDay && open.some((place) => place.id === kept)) return kept;
@@ -359,14 +358,6 @@ function device(): Device {
     pixelRatio: window.devicePixelRatio,
     memory: (navigator as { deviceMemory?: number }).deviceMemory ?? null,
   };
-}
-
-function storage(): Storage | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null;
-  }
 }
 
 /** The player's own look: the one built at the front door (R-PROLOGUE-009), else the starting life's person where one is shipped. */
@@ -505,7 +496,7 @@ export function City({
   const [date] = useState(() => localDate(new Date()));
   const [looking, setLooking] = useState(world);
   const [map, setMap] = useState(false);
-  const [inside, setInside] = useState(() => world && readKept(LAST_KEY)[1] === "inside");
+  const [inside, setInside] = useState(() => world && readKept(CITY_LAST_KEY)[1] === "inside");
   const { cutting, cutTo } = useCut();
   // The world opens with nothing said yet: lines from a life before are not carried into this one.
   useEffect(() => resetLines(), []);
@@ -680,7 +671,7 @@ export function City({
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [heardCount, setHeardCount] = useState(0);
-  const [choice, setChoice] = useState<ModeChoice>(() => readChoice(storage()));
+  const [choice, setChoice] = useState<ModeChoice>(() => readChoice(browserStorage()));
   const [mode, setMode] = useState<Mode>(() => startingMode(device(), city, choice));
   const watch = useRef(watchFrames(mode, choice !== "auto"));
   useEffect(() => setGraphicsMode(mode), [mode]);
@@ -805,11 +796,11 @@ export function City({
   useEffect(() => {
     if (!world) return;
     // The world's day is kept with the place, so a return after the sky has turned starts at home.
-    keep(LAST_KEY, [placeId, inside ? "inside" : "", ...(dayClock.served ? [String(dayClock.day)] : [])]);
-    const been = readKept(BEEN_KEY);
+    keep(CITY_LAST_KEY, [placeId, inside ? "inside" : "", ...(dayClock.served ? [String(dayClock.day)] : [])]);
+    const been = readKept(CITY_BEEN_KEY);
     const here = inside && insideEntry !== null ? [placeId, insideEntry.id] : [placeId];
     const fresh = here.filter((id) => !been.includes(id));
-    if (fresh.length > 0) keep(BEEN_KEY, [...been, ...fresh]);
+    if (fresh.length > 0) keep(CITY_BEEN_KEY, [...been, ...fresh]);
   }, [world, placeId, inside, insideEntry]);
   // R-WORLD-029: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
   // the pot steaming once cooked and the drum full once fetched (R-OBLIGATION-014).
@@ -872,7 +863,7 @@ export function City({
 
   const choose = (next: ModeChoice): void => {
     chooseGraphics(next);
-    keepChoice(storage(), next);
+    keepChoice(browserStorage(), next);
     setChoice(next);
     const nextMode = startingMode(device(), city, next);
     watch.current = watchFrames(nextMode, next !== "auto");
@@ -1164,7 +1155,7 @@ export function City({
   }, [picked]);
   const pins: Pin[] = (() => {
     if (!world) return [];
-    const been = readKept(BEEN_KEY);
+    const been = readKept(CITY_BEEN_KEY);
     // A built place with no position of its own (an office or a clinic known by its area) stands at its area's middle, each a little apart.
     const spotted = new Map<string, number>();
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {

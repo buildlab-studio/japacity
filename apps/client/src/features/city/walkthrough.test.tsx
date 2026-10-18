@@ -7,9 +7,10 @@ import { describe, expect, test } from "vitest";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { FIRST_THUMBS, WALK_KEY, walkSeen } from "../../shared/world/Walkthrough";
+import { FIRST_THUMBS, walkSeen } from "../../shared/world/Walkthrough";
 import { City } from "./City";
 import { cityWords } from "./city.words";
+import { WALK_KEY } from "../../shared/kept/storage";
 
 const world = () => <City world results={(place) => <p data-results-for={place} />} />;
 

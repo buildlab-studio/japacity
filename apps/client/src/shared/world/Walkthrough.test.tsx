@@ -4,7 +4,8 @@ import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import "../testing/render";
-import { thumbsTapped, useFirstUse, WALK_KEY } from "./Walkthrough";
+import { thumbsTapped, useFirstUse } from "./Walkthrough";
+import { WALK_KEY } from "../kept/storage";
 
 afterEach(() => {
   localStorage.clear();

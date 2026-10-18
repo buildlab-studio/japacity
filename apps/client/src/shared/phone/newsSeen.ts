@@ -1,8 +1,7 @@
 // Whether the month's News has been read (docs/rules/world.md R-WORLD-003, R-WORLD-018): the phone keeps what was seen under one key; the nudge that says "the month's news is in"
 // goes once News has been opened for this month's report.
 import type { PlayerView } from "@japacity/sim";
-
-export const SEEN_KEY = "japacity.phone.seen";
+import { SEEN_KEY } from "../kept/storage";
 
 /** The News app's mark: the report's month and the stories there now; empty when there is nothing. */
 export function newsMarkOf(view: Pick<PlayerView, "report" | "news">): string {

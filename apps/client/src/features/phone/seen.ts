@@ -5,12 +5,11 @@ import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { useSyncExternalStore } from "react";
 
-import { newsMarkOf, SEEN_KEY } from "../../shared/phone/newsSeen";
+import { newsMarkOf } from "../../shared/phone/newsSeen";
 import { japaMark } from "../../shared/world/briefHanded";
 import { familyFeedLines } from "./feed";
 import { papersMarkOf } from "./papers";
-
-export { SEEN_KEY };
+import { browserStorage, SEEN_KEY } from "../../shared/kept/storage";
 
 // The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002). Papers sits beside Japa: the
 // plan's papers, held and on their way (R-WORLD-019).
@@ -60,17 +59,9 @@ export function waitingOf(marks: Record<AppId, string>, seen: Seen): Record<AppI
   return waiting;
 }
 
-function storage(): Storage | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
 function read(): Seen {
   try {
-    const kept = storage()?.getItem(SEEN_KEY) ?? null;
+    const kept = browserStorage()?.getItem(SEEN_KEY) ?? null;
     const parsed: unknown = kept === null ? {} : JSON.parse(kept);
     if (typeof parsed !== "object" || parsed === null) return {};
     const seen: Seen = {};
@@ -97,7 +88,7 @@ export function markSeen(id: AppId, mark: string): void {
   if (current()[id] === mark) return;
   seen = { ...current(), [id]: mark };
   try {
-    storage()?.setItem(SEEN_KEY, JSON.stringify(seen));
+    browserStorage()?.setItem(SEEN_KEY, JSON.stringify(seen));
   } catch {
     // Storage may be shut; the dot clears for this visit only.
   }

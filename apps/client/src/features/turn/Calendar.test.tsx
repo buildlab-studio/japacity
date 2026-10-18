@@ -10,7 +10,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { plannable } from "../../shared/words/acts";
 import { GameProvider } from "../../authority/GameProvider";
-import { createGameStore, MONTH_KEY } from "../../authority/store";
+import { createGameStore } from "../../authority/store";
 import { PhoneNav } from "../../shared/phone/nav";
 import { abroadGame, chargedLivingGame, engineView, gameAuthority, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
@@ -19,6 +19,7 @@ import { nameOf, say, words } from "../../shared/words/text";
 import { Calendar, calendarOpening, choresWords, passWords } from "./Calendar";
 import { turnWords } from "./turn.words";
 import { carriedPlan } from "../../shared/sim/carried";
+import { MONTH_KEY } from "../../shared/kept/storage";
 
 const LEARN = "activity.learn-tech" as Id<"activity">;
 // Decision 0012 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so they are never

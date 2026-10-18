@@ -7,16 +7,16 @@ import { soundStore } from "../../shared/sound/sound";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import type { PairTalk } from "./apps/Chats";
-import { GRAPHICS_KEY } from "./apps/Settings";
 import { familyFeedLines } from "./feed";
 import { PhoneApps } from "./PhoneApps";
-import { APP_IDS, marksOf, reloadSeen, SEEN_KEY, waitingOf } from "./seen";
+import { APP_IDS, marksOf, reloadSeen, waitingOf } from "./seen";
 import { todayWords } from "../../shared/words/format";
 import { inMonths, nameOf } from "../../shared/words/text";
 import { phoneWords } from "./phone.words";
 import { resetLines, tell } from "../../shared/world/Lines";
 import { TOLD_LANE } from "./Phone";
 import { handBrief } from "../../shared/world/briefHanded";
+import { GRAPHICS_KEY, SEEN_KEY } from "../../shared/kept/storage";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 

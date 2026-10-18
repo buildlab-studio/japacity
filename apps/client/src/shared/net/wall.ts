@@ -4,9 +4,7 @@
 // nothing reloads again and the card with Reload says it instead. A reply from the game clears the mark, but only
 // one that comes 3 s or more after the reload: on a host walled in part, a route that answers at once beside one that
 // is walled must not clear it, or the page would reload for ever.
-
-/** Where the time of the last reload for a wall is kept: this tab only, gone with it. */
-export const WALL_KEY = "japacity.wall";
+import { browserStorage, WALL_KEY } from "../kept/storage";
 
 /** A second wall sooner than this after the reload shows the card instead of reloading again. */
 export const WALL_AGAIN_MS = 60_000;
@@ -27,15 +25,6 @@ export interface WallOptions {
   storage: () => TabStore | null;
   now: () => number;
   reload: () => void;
-}
-
-function tabStorage(): TabStore | null {
-  try {
-    return typeof sessionStorage === "undefined" ? null : sessionStorage;
-  } catch {
-    // Some browsers throw on access when storage is blocked.
-    return null;
-  }
 }
 
 export function wallGuard({ storage, now, reload }: WallOptions): WallGuard {
@@ -70,7 +59,7 @@ export function wallGuard({ storage, now, reload }: WallOptions): WallGuard {
 
 /** The page's own guard: this tab's session storage, the device's clock, and a reload of the page. */
 export const pageWall: WallGuard = wallGuard({
-  storage: tabStorage,
+  storage: () => browserStorage("session"),
   now: () => Date.now(),
   reload: () => location.reload(),
 });

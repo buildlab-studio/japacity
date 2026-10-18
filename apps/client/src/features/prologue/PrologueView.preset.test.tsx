@@ -13,8 +13,6 @@ import { App } from "../../app/App";
 import { keepPerson } from "../../shared/frontdoor/person";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
-import { DOOR_KEY } from "../../shared/datapage/door";
-import { TRAIL_KEY } from "../../shared/datapage/family";
 import { playPresetOn } from "../../shared/net/preset.testing";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
@@ -22,6 +20,7 @@ import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 import { PageHandover, REVEAL_MS, TURN_MS } from "./PrologueView";
 import { noteSteps, readTrail, yearChips } from "./years";
+import { DOOR_KEY, TRAIL_KEY } from "../../shared/kept/storage";
 
 const PROLOGUE = "scenario.prologue" as Id<"scenario">;
 const CLOCK: ClockView = { tick: 0, nextTickAt: 3_600_000, nextTurnAt: null, morningAt: 0, world: worldClockAt(0) };

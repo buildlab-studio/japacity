@@ -7,7 +7,6 @@ import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { useGame } from "../../../authority/GameProvider";
-import { CITY_LAST_KEY } from "../../../shared/days/standing";
 import { newGame, recordedGame, richView, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { nowLineWords } from "../../../shared/words/acts";
@@ -17,6 +16,7 @@ import { PHONE_ACTS, paperNotices, papersMarkOf, papersOf, placeOf, requestOf } 
 import { PhoneApps } from "../PhoneApps";
 import { phoneWords } from "../phone.words";
 import { marksOf, reloadSeen, waitingOf } from "../seen";
+import { CITY_LAST_KEY } from "../../../shared/kept/storage";
 
 const UK = "route.uk-masters";
 const PASSPORT = "document.passport";

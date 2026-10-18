@@ -1,9 +1,10 @@
 // The kept type's reader never trusts the gallery's storage (decision 0024).
 import { describe, expect, test } from "vitest";
 
-import { KEPT_CARDS, keptTypeOf } from "./kept";
+import { keptTypeOf } from "./kept";
+import { CARDS_KEY } from "../kept/storage";
 
-const read = (value: string | null) => ({ getItem: (key: string) => (key === KEPT_CARDS ? value : null) });
+const read = (value: string | null) => ({ getItem: (key: string) => (key === CARDS_KEY ? value : null) });
 
 describe("the type kept with the send-off", () => {
   test("[R-PROLOGUE-009] given the gallery's entries, when the type is read for a life, then only that life's send-off card with a known type gives it", () => {

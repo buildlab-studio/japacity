@@ -8,8 +8,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { localAuthority } from "../../authority/local";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { DAYS_IN_MONTH, dayOfView, dueSignals, isMonthAct, monthActs, signalsOf, waitingSignals } from "./days";
-import { atHome, CITY_LAST_KEY } from "./standing";
+import { atHome } from "./standing";
 import { currentDays, forgetDays, tellSignals, watchDays } from "./days.store";
+import { CITY_LAST_KEY } from "../kept/storage";
 
 /** The month-acts of docs/rules/activity.md R-ACTIVITY-015 beside every job and side job. */
 const MONTH_ACTS_FREE = [

@@ -9,6 +9,7 @@ import { createStore } from "zustand/vanilla";
 import type { ShareCard } from "../../shared/share/face";
 import { cardKey } from "../../shared/ui/stage";
 import type { Seat } from "../../shared/world/sendOff";
+import { CARDS_KEY } from "../../shared/kept/storage";
 
 export interface Kept {
   key: string;
@@ -26,12 +27,11 @@ interface Gallery {
   clear: () => void;
 }
 
-const STORAGE = "japacity.cards";
 const MOST_KEPT = 60;
 
 function load(): Kept[] {
   try {
-    const stored = localStorage.getItem(STORAGE);
+    const stored = localStorage.getItem(CARDS_KEY);
     if (stored === null) return [];
     const parsed: unknown = JSON.parse(stored);
     return Array.isArray(parsed) ? (parsed as Kept[]) : [];
@@ -42,7 +42,7 @@ function load(): Kept[] {
 
 function save(kept: Kept[]): void {
   try {
-    localStorage.setItem(STORAGE, JSON.stringify(kept));
+    localStorage.setItem(CARDS_KEY, JSON.stringify(kept));
   } catch {
     // A full or blocked store keeps the gallery for this visit only.
   }

@@ -22,10 +22,10 @@ import { say } from "../../../shared/words/text";
 import { Chips, Head } from "../act";
 import { phoneWords } from "../phone.words";
 import { PicTile } from "../ui";
+import { GRAPHICS_KEY } from "../../../shared/kept/storage";
 
-// The city keeps its graphics choice under this key (shared/scene/mode.ts) and reads it
-// when it opens, so a choice made here applies when the city next opens, not at once.
-export const GRAPHICS_KEY = "japacity.city.graphics";
+// The city reads the graphics choice (GRAPHICS_KEY, shared/scene/mode.ts) when it opens, so a choice made here
+// applies when the city next opens, not at once.
 const GRAPHICS: readonly GraphicsChoice[] = ["auto", "low", "high"];
 
 function readGraphics(): GraphicsChoice {

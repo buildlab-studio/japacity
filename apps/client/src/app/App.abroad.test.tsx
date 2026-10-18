@@ -4,13 +4,13 @@ import { describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
-import { SAVE_KEY } from "../authority/local";
 import { createGameStore } from "../authority/store";
 import { abroadView, fakeAuthority, recordedSave, richAbroadView } from "../shared/testing/fixtures";
 import { say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
+import { SAVE_KEY } from "../shared/kept/storage";
 
 function memoryStorage() {
   const items = new Map<string, string>();

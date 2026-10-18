@@ -14,6 +14,7 @@ import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { When } from "./boards";
+import { PERSON_KEY } from "../../shared/kept/storage";
 
 function figureWords(row: BoardRow, when: When): string {
   const figure = formatNumber(row.figure);
@@ -32,16 +33,13 @@ function nameOf(row: BoardRow): string {
  */
 export const BOARD_FACES: readonly string[] = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi", "chr_amaka", "chr_bayo", "chr_dayo", "chr_emeka", "chr_kunle", "chr_sade", "chr_segun", "chr_tolani"];
 
-/** Where the door keeps the person built there (shared/frontdoor/person.ts PERSON_KEY), read here alone for its look. */
-export const KEPT_PERSON = "japacity.person";
-
 /**
  * The look kept from the door, or null. Read straight from the device so the boards' chunk shares no module with the
  * city's loader (a shared module there regroups the first visit's chunks).
  */
 export function keptLook(): string | null {
   try {
-    const kept: unknown = JSON.parse(window.localStorage.getItem(KEPT_PERSON) ?? "null");
+    const kept: unknown = JSON.parse(window.localStorage.getItem(PERSON_KEY) ?? "null");
     const look = typeof kept === "object" && kept !== null ? (kept as { look?: unknown }).look : null;
     return typeof look === "string" ? look : null;
   } catch {

@@ -5,10 +5,11 @@
 import { type Footprint, type FootprintBox } from "@japacity/assets";
 import { describe, expect, test } from "vitest";
 
-import { arrangedIn, ARRANGED_KEY, forgetArranged, keepArranged, keepTurn, turnIn } from "../../../shared/world/arranged";
+import { arrangedIn, forgetArranged, keepArranged, keepTurn, turnIn } from "../../../shared/world/arranged";
 import { boxesOverlap, misfit, QUARTER, turned } from "./arrange";
 import { buyModeAt, liftable, ownedThingId, showOwned } from "./owned";
 import type { PlaceFile, Stage } from "../../../shared/scene/placeFile";
+import { ARRANGED_KEY } from "../../../shared/kept/storage";
 
 const SHELL = "places/x/bld_x.glb";
 const BED = "shared/prop/prop_bed.glb";

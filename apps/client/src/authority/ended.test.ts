@@ -5,15 +5,14 @@ import type { Save } from "@japacity/sim";
 import { lifeStart } from "@japacity/sim";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { DAYS_KEY } from "../shared/days/days.store";
 import { engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
-import { TRAIL_KEY } from "../shared/datapage/family";
 import { forgetLife, LIFE_KEYS } from "./ended";
-import { localAuthority, SAVE_KEY } from "./local";
-import { keepPerson, PERSON_KEY, readPerson } from "../shared/frontdoor/person";
+import { localAuthority } from "./local";
+import { keepPerson, readPerson } from "../shared/frontdoor/person";
 import { remoteAuthority } from "./remote";
-import { createGameStore, MONTH_KEY } from "./store";
+import { createGameStore } from "./store";
+import { DAYS_KEY, MONTH_KEY, PERSON_KEY, SAVE_KEY, TRAIL_KEY } from "../shared/kept/storage";
 
 afterEach(() => {
   localStorage.clear();

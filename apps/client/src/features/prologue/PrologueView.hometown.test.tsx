@@ -5,12 +5,12 @@ import { content } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { keepPerson } from "../../shared/frontdoor/person";
-import { TRAIL_KEY } from "../../shared/datapage/family";
 import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { hometownWords, say } from "../../shared/words/text";
 import { PageHandover, TURN_MS } from "./PrologueView";
+import { TRAIL_KEY } from "../../shared/kept/storage";
 
 const PROLOGUE = "scenario.prologue";
 

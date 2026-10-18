@@ -2,9 +2,7 @@
 // is pressed, the brief is carried, and the phone's Japa app takes a dot until it is next opened (the app's seen mark,
 // features/phone/seen.ts). Kept on the device with the life's scenario, so another life's brief is never read as this one's.
 import { useSyncExternalStore } from "react";
-
-/** The one localStorage key the handed brief is kept under. */
-const BRIEF_KEY = "japacity.brief";
+import { BRIEF_KEY, browserStorage } from "../kept/storage";
 
 interface Kept {
   scenario: string;
@@ -15,17 +13,9 @@ interface Kept {
 const listeners = new Set<() => void>();
 let cache: { raw: string | null; kept: Kept | null } = { raw: null, kept: null };
 
-function storage(): Storage | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
 function read(): Kept | null {
   try {
-    const raw = storage()?.getItem(BRIEF_KEY) ?? null;
+    const raw = browserStorage()?.getItem(BRIEF_KEY) ?? null;
     if (raw === cache.raw) return cache.kept;
     const parsed: unknown = raw === null ? null : JSON.parse(raw);
     const kept = typeof parsed === "object" && parsed !== null && typeof (parsed as Kept).scenario === "string" && Array.isArray((parsed as Kept).handed) ? (parsed as Kept) : null;
@@ -52,7 +42,7 @@ export function handBrief(scenario: string, chapter: string): void {
   const handed = briefsHanded(scenario);
   if (handed.includes(chapter)) return;
   try {
-    storage()?.setItem(BRIEF_KEY, JSON.stringify({ scenario, handed: [...handed, chapter] } satisfies Kept));
+    browserStorage()?.setItem(BRIEF_KEY, JSON.stringify({ scenario, handed: [...handed, chapter] } satisfies Kept));
   } catch {
     // A private window may refuse storage; the brief is then carried for the visit only.
   }

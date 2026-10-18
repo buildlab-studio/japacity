@@ -7,8 +7,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { useGameStoreIfAny } from "../../authority/GameProvider";
 import type { GameStore } from "../../authority/store";
 import { type MonthDays, stepDays } from "./days";
-
-export const DAYS_KEY = "japacity.days";
+import { DAYS_KEY } from "../kept/storage";
 
 function read(): MonthDays | null {
   try {

@@ -2,27 +2,17 @@
 // the gallery's own storage so the data page, which is shared code, needs nothing from the card feature. The
 // gallery writes the entries; this reads only the one field the page shows, and never trusts the shape.
 import { type JapaType, japaTypes } from "@japacity/content";
-
-/** Where the gallery keeps the cards of this device. */
-export const KEPT_CARDS = "japacity.cards";
+import { browserStorage, CARDS_KEY } from "../kept/storage";
 
 interface Read {
   getItem: (key: string) => string | null;
 }
 
-function storage(): Read | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
 /** The type kept with this life's send-off card, or null before the send-off has been closed (or on a blocked storage). */
-export function keptTypeOf(scenario: string, read: Read | null = storage()): JapaType | null {
+export function keptTypeOf(scenario: string, read: Read | null = browserStorage()): JapaType | null {
   if (read === null) return null;
   try {
-    const parsed: unknown = JSON.parse(read.getItem(KEPT_CARDS) ?? "[]");
+    const parsed: unknown = JSON.parse(read.getItem(CARDS_KEY) ?? "[]");
     if (!Array.isArray(parsed)) return null;
     for (const entry of parsed as unknown[]) {
       if (typeof entry !== "object" || entry === null) continue;

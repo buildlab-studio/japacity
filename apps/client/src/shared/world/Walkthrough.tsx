@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
 import { say } from "../words/text";
+import { browserStorage, WALK_KEY } from "../kept/storage";
 
-export const WALK_KEY = "japacity.walkthrough";
 /** What the key holds once the device has played: the walkthrough's own mark, so a device that saw it shows no labels. */
 const PLAYED = "1";
 
@@ -18,17 +18,9 @@ export const FIRST_THUMBS = [
 ] as const;
 export type FirstThumb = (typeof FIRST_THUMBS)[number]["id"];
 
-function storage(): Pick<Storage, "getItem" | "setItem"> | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
 function kept(): string | null {
   try {
-    return storage()?.getItem(WALK_KEY) ?? null;
+    return browserStorage()?.getItem(WALK_KEY) ?? null;
   } catch {
     return null;
   }
@@ -52,7 +44,7 @@ function markThumbTapped(thumb: FirstThumb): Set<FirstThumb> {
   tapped.add(thumb);
   const all = FIRST_THUMBS.every((one) => tapped.has(one.id));
   try {
-    storage()?.setItem(WALK_KEY, all ? PLAYED : [...tapped].join(","));
+    browserStorage()?.setItem(WALK_KEY, all ? PLAYED : [...tapped].join(","));
   } catch {
     // Storage may be shut; the labels then go for this visit only.
   }
@@ -62,7 +54,7 @@ function markThumbTapped(thumb: FirstThumb): Set<FirstThumb> {
 /** Keeps that this device has played, so no label shows on it again. */
 function markPlayed(): void {
   try {
-    storage()?.setItem(WALK_KEY, PLAYED);
+    browserStorage()?.setItem(WALK_KEY, PLAYED);
   } catch {
     // Storage may be shut; the labels then show again on the next visit.
   }

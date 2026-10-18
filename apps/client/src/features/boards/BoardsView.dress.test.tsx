@@ -6,14 +6,14 @@ import type { BoardRow } from "@japacity/api";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { PERSON_KEY } from "../../shared/frontdoor/person";
 import "../../shared/testing/render";
 import { LOOKS } from "../../shared/frontdoor/looks";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
-import { BOARD_FACES, boardFace, KEPT_PERSON, keptLook } from "./BoardList";
+import { BOARD_FACES, boardFace, keptLook } from "./BoardList";
 import { boardsApiFor, BoardsApiProvider } from "./boards";
 import { BoardsView } from "./BoardsView";
+import { PERSON_KEY } from "../../shared/kept/storage";
 
 afterEach(() => window.localStorage.clear());
 
@@ -76,7 +76,6 @@ describe("the boards in the lively dress", () => {
     // A kept look the door does not offer falls back to the name's face.
     expect(boardFace("ada_lagos", true, "chr_nobody")).toBe(boardFace("ada_lagos", false));
 
-    expect(KEPT_PERSON).toBe(PERSON_KEY);
     expect(keptLook()).toBeNull();
     window.localStorage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_kemi", name: "Kemi", archetype: "developer" }));
     show([row(1, "zainab_b", 12), row(2, "ada_lagos", 5, true)]);

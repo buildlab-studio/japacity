@@ -2,7 +2,8 @@
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { engineView } from "../testing/fixtures";
-import { newsMarkOf, newsRead, SEEN_KEY } from "./newsSeen";
+import { newsMarkOf, newsRead } from "./newsSeen";
+import { SEEN_KEY } from "../kept/storage";
 
 beforeEach(() => {
   localStorage.clear();

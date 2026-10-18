@@ -22,6 +22,7 @@ import { forgetLife } from "./ended";
 import { swapsFor } from "./others";
 import { playerName } from "../shared/frontdoor/person";
 import type { AuthorityEvent } from "./remote";
+import { MONTH_KEY } from "../shared/kept/storage";
 
 /** A number of the world at this tick as the store holds it: the fetched world's online, the local authority's offline; 0 before either is known. */
 export function worldVar(state: Pick<GameState, "world" | "vars">, id: string): number {
@@ -317,9 +318,6 @@ function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick |
   while (kept.length < slots) kept.push(null);
   return kept;
 }
-
-/** What the browser keeps of the month between loads: the plan, the lines so far, and the card closed. */
-export const MONTH_KEY = "japacity.month";
 
 interface MonthMemory {
   /** The view the memory belongs to: a reload lands on the same view, so the same number. */

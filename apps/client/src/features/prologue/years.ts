@@ -13,7 +13,7 @@ import { formatMoney } from "../../shared/words/format";
 import { nextMonthWords } from "../../shared/words/living";
 import { gradeShort, sixteenPath } from "../../shared/words/sixteen";
 import { hasWords, say, sayCount, words } from "../../shared/words/text";
-import { TRAIL_KEY } from "../../shared/datapage/family";
+import { browserStorage, TRAIL_KEY } from "../../shared/kept/storage";
 
 type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
 
@@ -37,14 +37,6 @@ export interface Trail {
 
 const EMPTY: Trail = { draw: null, steps: [] };
 
-function storage(): Pick<Storage, "getItem" | "setItem"> | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
 function isTrail(value: unknown): value is Trail {
   if (typeof value !== "object" || value === null) return false;
   const { draw, steps, fresh } = value as Record<string, unknown>;
@@ -53,7 +45,7 @@ function isTrail(value: unknown): value is Trail {
 
 export function readTrail(): Trail {
   try {
-    const raw = storage()?.getItem(TRAIL_KEY) ?? null;
+    const raw = browserStorage()?.getItem(TRAIL_KEY) ?? null;
     if (raw === null) return EMPTY;
     const parsed: unknown = JSON.parse(raw);
     return isTrail(parsed) ? parsed : EMPTY;
@@ -64,7 +56,7 @@ export function readTrail(): Trail {
 
 function keepTrail(trail: Trail): void {
   try {
-    storage()?.setItem(TRAIL_KEY, JSON.stringify(trail));
+    browserStorage()?.setItem(TRAIL_KEY, JSON.stringify(trail));
   } catch {
     // A private window may refuse storage; the page then reads the life as it stands.
   }

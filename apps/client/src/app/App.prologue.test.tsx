@@ -4,7 +4,6 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
-import { FULL_PROLOGUE_KEY } from "../shared/frontdoor/archetypes";
 import { startArchetype } from "../shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "../authority/store";
 import { playerMonth } from "../shared/words/format";
@@ -12,6 +11,7 @@ import { nameOf, say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
+import { FULL_PROLOGUE_KEY } from "../shared/kept/storage";
 
 const PROLOGUE = "scenario.prologue";
 const HUNT = "activity.job-hunt";

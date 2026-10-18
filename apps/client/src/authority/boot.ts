@@ -5,11 +5,12 @@ import { setUsageCounts, startCounting } from "../shared/analytics/start";
 import { readAccount } from "../shared/net/account";
 import { betterAuthApi } from "../shared/net/auth";
 import { clockMode } from "./clock";
-import { localAuthority, type LocalAuthorityOptions, MORNING_KEY } from "./local";
+import { localAuthority, type LocalAuthorityOptions } from "./local";
 import { authorityMode } from "../shared/net/authorityMode";
 import { goOnline } from "./online";
 import { remoteAuthority } from "./remote";
 import { createGameStore, type GameStore } from "./store";
+import { MORNING_KEY } from "../shared/kept/storage";
 
 export function bootGame(options: Partial<LocalAuthorityOptions> = {}): GameStore {
   const mode = authorityMode();

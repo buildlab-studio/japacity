@@ -11,7 +11,6 @@ import { localAuthority } from "../../authority/local";
 import { readPerson } from "../../shared/frontdoor/person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { ageStepWords, startYearFor, stepsOpen, yearsWorked } from "../../shared/datapage/age";
-import { DOOR_KEY } from "../../shared/datapage/door";
 import { readyMonths, yearsOf } from "../../shared/datapage/years";
 import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { problemWords } from "../../shared/datapage/name";
@@ -24,6 +23,7 @@ import { content, text } from "@japacity/content";
 import { fitHome, pocketIn, ScenarioView, selfContainReached, selfContainYear, startIn } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
+import { DOOR_KEY } from "../../shared/kept/storage";
 
 afterEach(() => {
   localStorage.clear();

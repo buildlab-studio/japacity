@@ -6,9 +6,7 @@ import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
 import { readStyle, type LookStyle } from "./style";
-
-/** The one localStorage key the person is kept under, beside `japacity.save`. */
-export const PERSON_KEY = "japacity.person";
+import { browserStorage, PERSON_KEY } from "../kept/storage";
 
 export interface KeptPerson {
   /** A shipped person's file name, `chr_ada`: a whole look, never a stat. */
@@ -30,15 +28,6 @@ const PHOTO = /^data:image\/(png|webp|jpeg);base64,/;
 
 type Read = Pick<Storage, "getItem">;
 type Write = Pick<Storage, "setItem">;
-
-function browserStorage(): (Read & Write) | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    // Some browsers throw on access when storage is blocked.
-    return null;
-  }
-}
 
 function isPerson(value: unknown): value is KeptPerson {
   if (typeof value !== "object" || value === null) return false;

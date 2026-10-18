@@ -6,6 +6,7 @@
 import type { Id } from "@japacity/sim";
 import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
+import { SEAT_KEY } from "../kept/storage";
 
 /** The six beats, in order (R-CHAPTER-012). */
 export const BEATS = ["departures", "counter", "gate", "plane", "landing", "ride"] as const;
@@ -38,9 +39,6 @@ interface SendOffStore {
   save: () => void;
   close: () => void;
 }
-
-/** Where the seat is kept on this device. */
-const SEAT_KEY = "japacity.send-off.seat";
 
 function keptSeat(): Seat {
   try {

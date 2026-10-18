@@ -4,6 +4,7 @@
 import { createStore } from "zustand/vanilla";
 
 import { type ClipFormat, type Playing, type SoundBackend, webAudioBackend } from "./sound.backend";
+import { MUTED_KEY } from "../kept/storage";
 
 /** The four notices of section 7, one a scene at most. */
 export type NoticeCase = "on" | "blocked" | "saver" | "unsupported";
@@ -37,7 +38,6 @@ export interface Spoken {
   skip: () => void;
 }
 
-const MUTED_KEY = "japacity.sound.muted";
 /** Added to a clip's known length before the answers show anyway, for a clip slow to load. */
 export const MARGIN_MS = 1500;
 /** How long a line waits after a tap for the browser to let sound start. */

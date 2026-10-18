@@ -7,12 +7,12 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
-import { DOOR_KEY } from "../../shared/datapage/door";
 import { ARCHETYPES } from "../../shared/frontdoor/archetypes";
 import { say } from "../../shared/words/text";
 import { ScenarioView } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
+import { DOOR_KEY } from "../../shared/kept/storage";
 
 afterEach(() => {
   vi.useRealTimers();

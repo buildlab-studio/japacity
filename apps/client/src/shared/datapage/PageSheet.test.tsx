@@ -14,10 +14,11 @@ import { readyWords } from "../words/ready";
 import { say } from "../words/text";
 import { Band } from "../world/Band";
 import { stripLines } from "./DataPage";
-import { familyCard, TRAIL_KEY } from "./family";
+import { familyCard } from "./family";
 import { stampsOf } from "./stamps";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
+import { TRAIL_KEY } from "../kept/storage";
 
 /** The age in months the view holds. */
 function ageOf(view: Pick<PlayerView, "qualities">): number {

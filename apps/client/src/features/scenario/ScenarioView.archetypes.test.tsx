@@ -7,7 +7,6 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
-import { SAVE_KEY } from "../../authority/local";
 import { readPerson } from "../../shared/frontdoor/person";
 import { ARCHETYPES, archetypeOf } from "../../shared/frontdoor/archetypes";
 import { startIn } from "./ScenarioView";
@@ -16,6 +15,7 @@ import type { GameStore } from "../../authority/store";
 import { say } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
+import { SAVE_KEY } from "../../shared/kept/storage";
 
 afterEach(() => {
   localStorage.clear();

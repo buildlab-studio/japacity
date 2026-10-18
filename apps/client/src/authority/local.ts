@@ -9,10 +9,8 @@ import type { Authority, Command, Content, Envelope, FlatSave, Id, PlayerView, R
 import { archetypeOf, fullPrologue } from "../shared/frontdoor/archetypes";
 import { tileSeed } from "../shared/frontdoor/draw";
 import { lastSegment, lifeStart, loadSave, newSave, newState, nextGameMorning, recordCommand, replay, savedCommands, sealFrom, standInWorld, step, time, viewFor, withhold, withholdLines, worldClockAt } from "@japacity/sim";
-import { PERSON_KEY, readPerson } from "../shared/frontdoor/person";
-
-/** The one localStorage key the life is kept under. */
-export const SAVE_KEY = "japacity.save";
+import { readPerson } from "../shared/frontdoor/person";
+import { browserStorage, MORNING_KEY, PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
 
 /** How the authority's life began. A replaced save is shown to the player. */
 type LifeStart =
@@ -70,22 +68,10 @@ interface Stored {
   envelopes?: Envelope[];
 }
 
-/** The dev switch that opens every envelope at once, so a tester need not wait for seven in Lagos. */
-export const MORNING_KEY = "japacity.morning";
-
 function randomSeed(): string {
   const words = new Uint32Array(2);
   crypto.getRandomValues(words);
   return Array.from(words, (word) => word.toString(16).padStart(8, "0")).join("");
-}
-
-function browserStorage(): LocalStorage | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    // Some browsers throw on access when storage is blocked.
-    return null;
-  }
 }
 
 /** A save in segments, or a flat one written before saves had segments (decision 0004). */

@@ -7,11 +7,9 @@ import type { PlayerView } from "@japacity/sim";
 
 import type { Tone } from "../ui/ToneTag";
 import { hometownWords, say, sayCount } from "../words/text";
+import { browserStorage, TRAIL_KEY } from "../kept/storage";
 
 type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
-
-/** The one localStorage key the years' trail is kept under, beside the door's run. */
-export const TRAIL_KEY = "japacity.door.years";
 
 export interface FamilyCard {
   /** Where the family is from: "Family from Enugu"; the child of the water's house on stilts in Makoko. */
@@ -52,7 +50,7 @@ export function familyCard(draw: Draw, water: boolean, hometown: string | null =
 }
 
 /** The draw kept with the years' trail, or null where none is kept or it cannot be read. */
-export function keptDraw(storage: Pick<Storage, "getItem"> | null = safeStorage()): Draw | null {
+export function keptDraw(storage: Pick<Storage, "getItem"> | null = browserStorage()): Draw | null {
   try {
     const raw = storage?.getItem(TRAIL_KEY) ?? null;
     if (raw === null) return null;
@@ -65,10 +63,3 @@ export function keptDraw(storage: Pick<Storage, "getItem"> | null = safeStorage(
   }
 }
 
-function safeStorage(): Pick<Storage, "getItem"> | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    return null;
-  }
-}

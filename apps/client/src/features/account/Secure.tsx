@@ -25,6 +25,7 @@ import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { tellWay, WayToast } from "./WayToast";
+import { secureAskedKey } from "../../shared/kept/storage";
 
 const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userAgent);
 
@@ -265,7 +266,7 @@ export function SecureAsk() {
   }, [due]);
   useEffect(() => {
     if (moment === null || me === null || !quiet || open || !clear || otherSheetUp()) return;
-    const key = `japacity-secure-asked:${me.id}:${moment}`;
+    const key = secureAskedKey(me.id, moment);
     if (askedBefore(key)) return;
     markAsked(key);
     setReason(say(`ui.secure.ask.${moment}`));

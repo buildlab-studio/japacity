@@ -2,9 +2,7 @@
 // the device under one key of its own, so a reload at any step comes back to that step. The life itself is written
 // only at Begin (the authority keeps the save unwritten until a life is chosen).
 import { readStyle, type LookStyle } from "../frontdoor/style";
-
-/** The one localStorage key the run is kept under. */
-export const DOOR_KEY = "japacity.door";
+import { browserStorage, DOOR_KEY } from "../kept/storage";
 
 /**
  * The steps of the run, in order (R-PROLOGUE-013): `you` (the name and the look), `life` (the tiles and the age under
@@ -42,15 +40,6 @@ export interface DoorDraft {
 
 type Read = Pick<Storage, "getItem">;
 type Write = Pick<Storage, "setItem">;
-
-function browserStorage(): (Read & Write) | null {
-  try {
-    return typeof localStorage === "undefined" ? null : localStorage;
-  } catch {
-    // Some browsers throw on access when storage is blocked.
-    return null;
-  }
-}
 
 function isDraft(value: unknown): value is DoorDraft {
   if (typeof value !== "object" || value === null) return false;

@@ -2,7 +2,8 @@
 // player's own colours on the look with the page's photo drawn in them.
 import { describe, expect, test } from "vitest";
 
-import { keepPerson, keptStyleOf, PERSON_KEY, readPerson } from "./person";
+import { keepPerson, keptStyleOf, readPerson } from "./person";
+import { PERSON_KEY } from "../kept/storage";
 
 function memoryStorage() {
   const items = new Map<string, string>();

@@ -1,6 +1,7 @@
 // The two graphics modes and how the city moves between them (city.md R-CITY-019). Pure: the scene
 // feeds in each frame's time and the time spent in the place, and reads back the mode and its table.
 import type { Tuning } from "@japacity/sim";
+import { GRAPHICS_KEY } from "../kept/storage";
 
 export type Mode = "low" | "high";
 /** What the player chose in settings: the game's own judgement, or a mode fixed for this device. */
@@ -119,12 +120,10 @@ export function modeSettings(mode: Mode, device: Device, city: CityTuning): Mode
   }
 }
 
-const CHOICE_KEY = "japacity.city.graphics";
-
 /** The player's choice on this device, or auto when none is kept or storage is shut. */
 export function readChoice(storage: Pick<Storage, "getItem"> | null): ModeChoice {
   try {
-    const kept = storage?.getItem(CHOICE_KEY) ?? null;
+    const kept = storage?.getItem(GRAPHICS_KEY) ?? null;
     return kept === "low" || kept === "high" ? kept : "auto";
   } catch {
     return "auto";
@@ -133,7 +132,7 @@ export function readChoice(storage: Pick<Storage, "getItem"> | null): ModeChoice
 
 export function keepChoice(storage: Pick<Storage, "setItem"> | null, choice: ModeChoice): void {
   try {
-    storage?.setItem(CHOICE_KEY, choice);
+    storage?.setItem(GRAPHICS_KEY, choice);
   } catch {
     // A private window may refuse storage; the choice then lasts the session only.
   }
