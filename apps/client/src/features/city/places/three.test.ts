@@ -45,6 +45,7 @@ import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow, thingSpot } from "../scene/things";
 import { actEntries, frontageTests } from "./frontage.testing";
 import { city, staged } from "./place.testing";
+import { thingIn as thingAmong } from "../../../shared/testing/things";
 
 /** A place's file read from its assets folder, for a folder whose name reads as a style class to the palette's walk. */
 function placeJson(id: Id<"place">): unknown {
@@ -62,9 +63,7 @@ const UAE = { where: "abroad", country: "country.uae" } as const;
 const ITALY = { where: "abroad", country: "country.italy" } as const;
 
 function thingIn(raw: unknown, id: string): Thing {
-  const found = (stageOf(raw as PlaceFile).things ?? []).find((thing) => thing.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
+  return thingAmong(stageOf(raw as PlaceFile).things, id);
 }
 
 /** The entry each thing's sheet opens, by thing. */

@@ -15,6 +15,7 @@ import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
 import { byHandAt, homeStagesAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../scene/things";
+import { thingIn } from "../../../shared/testing/things";
 
 const ID = "place.compound-room";
 const file = raw as unknown as PlaceFile;
@@ -23,9 +24,7 @@ const PLACES = Object.values(content.place);
 const HOME = { where: "home", country: null } as const;
 
 function thingOf(id: string) {
-  const found = (stage.things ?? []).find((thing) => thing.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
+  return thingIn(stage.things, id);
 }
 
 /** Ada's view living in the room: moved in through the game, so her upkeep is the room's own (R-HOME-010). */

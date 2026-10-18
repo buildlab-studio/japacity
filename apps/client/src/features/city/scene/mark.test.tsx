@@ -14,13 +14,12 @@ import { withMeetings } from "../meetings";
 import { sceneWords } from "../scene.words";
 import { isPerson, markNode, namedThings, showMark } from "./mark";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
+import { thingIn } from "../../../shared/testing/things";
 
 const things = stageOf(parlourRaw as unknown as PlaceFile).things ?? [];
 
 function thingOf(id: string) {
-  const thing = things.find((candidate) => candidate.id === id);
-  if (thing === undefined) throw new Error(`No ${id}`);
-  return thing;
+  return thingIn(things, id);
 }
 
 describe("a thing's mark", () => {

@@ -12,14 +12,11 @@ import { stagedAt } from "../../../shared/scene/staging";
 import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged } from "./place.testing";
+import { thingIn } from "../../../shared/testing/things";
 
 const ID = "place.third-mainland-bridge";
 const { stage } = staged(raw, ID);
-const thing = (id: string) => {
-  const found = (stage.things ?? []).find((candidate) => candidate.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
-};
+const thing = (id: string) => thingIn(stage.things, id);
 const NIGHT = ["offer.bridge-night", "offer.bridge-theft", "offer.bridge-mosquitoes"];
 
 describe("the Third Mainland Bridge", () => {

@@ -8,14 +8,11 @@ import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
 import { staged } from "./place.testing";
+import { thingIn } from "../../../shared/testing/things";
 
 const { stage, entry } = staged(raw, "place.visa-centre");
 const things = stage.things ?? [];
-const thing = (id: string) => {
-  const found = things.find((candidate) => candidate.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
-};
+const thing = (id: string) => thingIn(things, id);
 
 describe("the visa desk after the interview", () => {
   test("[R-INTERVIEW-005] given the recorded life after its interview, when the visa centre's things are read, then the desk still stands with one act to ask, and its line says nothing waits there", () => {
