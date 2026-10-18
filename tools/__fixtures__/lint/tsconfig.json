@@ -2,7 +2,7 @@
   // Used only so type-aware lint rules can run on the fixtures. The DOM and
   // Node types are here on purpose: each fixture must trip exactly one lint
   // rule, not a type error or an unsafe-any rule as well.
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2023", "DOM"],
     "types": ["node"]

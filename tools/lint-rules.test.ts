@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, test } from "vitest";
 
 // Proves the purity rules in eslint.config.js actually fire. Each fixture in
-// lint-fixtures/sim is linted as if it lived in packages/sim/src.
+// __fixtures__/lint/sim is linted as if it lived in packages/sim/src.
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 
 const expectations: ReadonlyArray<readonly [fixture: string, rule: string | null]> = [
@@ -35,10 +35,10 @@ const rulesByFixture = new Map<string, string[]>();
 beforeAll(async () => {
   // ignore: false lets ESLint see the fixtures, which `pnpm lint` skips.
   const eslint = new ESLint({ cwd: repoRoot, ignore: false });
-  const files = expectations.map(([fixture]) => `tools/lint-fixtures/sim/${fixture}`);
+  const files = expectations.map(([fixture]) => `tools/__fixtures__/lint/sim/${fixture}`);
   const results = await eslint.lintFiles(files);
   for (const result of results) {
-    const fixture = result.filePath.split("lint-fixtures/sim/")[1] ?? result.filePath;
+    const fixture = result.filePath.split("__fixtures__/lint/sim/")[1] ?? result.filePath;
     const rules = result.messages.map((message) => message.ruleId ?? `fatal: ${message.message}`);
     rulesByFixture.set(fixture, [...new Set(rules)]);
   }
