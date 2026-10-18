@@ -1,6 +1,7 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test } from "vitest";
 
-import { BASE, fakeServer } from "../testing/server";
+import { fakePhone, type Phone } from "../testing/passkeys";
+import { BASE, fakeServer, type FakeServer } from "../testing/server";
 import { betterAuthApi, CAPTCHA_HEADER } from "./auth";
 
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
@@ -203,5 +204,51 @@ describe("the trip to Google and back (account:guest-secures-the-life)", () => {
     history.replaceState(null, "", "/?error=account_not_linked");
     expect(api.returnedFromGoogle()).toBe("not-linked");
     expect(location.search).toBe("");
+  });
+});
+
+const OWN = "b3duLWtleQ";
+const OTHERS = "b3RoZXJzLWtleQ";
+/** The library's options for a sign-in from a signed-in session: the account's own passkeys allowed, when it holds any. */
+const SIGN_IN_OPTIONS = { challenge: "Y2hhbGxlbmdl", rpId: "play.test", allowCredentials: [{ id: OWN, type: "public-key" }], userVerification: "preferred", timeout: 60000 };
+const OWN_ROW = { id: "row-own", credentialID: OWN, userId: "account-1", aaguid: "ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4", createdAt: "2026-10-01T09:00:00.000Z" };
+
+let phone: Phone | null = null;
+afterEach(() => {
+  phone?.restore();
+  phone = null;
+});
+
+const routes = (server: FakeServer) => server.sent.map((request) => `${request.method} ${request.path}`);
+
+describe("confirming with a passkey (account:player-deletes-account)", () => {
+  test("[account:player-deletes-account] given a phone that answers with a passkey of another account, when the deletion is confirmed with a passkey, then the answer never reaches the server, no session is opened for that account, and other-account is told", async () => {
+    const { server, api } = account();
+    phone = fakePhone({ signsInWith: OTHERS });
+    server.answer("GET /api/auth/passkey/list-user-passkeys", { body: [OWN_ROW] });
+    server.answer("GET /api/auth/passkey/generate-authenticate-options", { body: { ...SIGN_IN_OPTIONS, allowCredentials: undefined } });
+    server.answer("POST /api/auth/passkey/verify-authentication", { body: { session: { id: "s-other" }, user: { id: "account-2" } } });
+    expect(await api.confirmWithPasskey()).toEqual({ ok: false, why: "other-account" });
+    expect(routes(server)).toEqual(["GET /api/auth/passkey/list-user-passkeys", "GET /api/auth/passkey/generate-authenticate-options"]);
+  });
+
+  test("[account:player-deletes-account] given a phone that answers with one of the account's own passkeys, then it goes to the server and the session is fresh", async () => {
+    const { server, api } = account();
+    phone = fakePhone({ signsInWith: OWN });
+    server.answer("GET /api/auth/passkey/list-user-passkeys", { body: [OWN_ROW] });
+    server.answer("GET /api/auth/passkey/generate-authenticate-options", { body: SIGN_IN_OPTIONS });
+    server.answer("POST /api/auth/passkey/verify-authentication", { body: { session: { id: "s-1" }, user: { id: "account-1" } } });
+    expect(await api.confirmWithPasskey()).toEqual({ ok: true });
+    expect(phone.asked).toEqual([{ allow: [OWN] }]);
+    expect(server.sent.find((request) => request.path === "/api/auth/passkey/verify-authentication")?.body).toMatchObject({ response: { id: OWN } });
+  });
+
+  test("[account:player-deletes-account] given an account that holds no passkey, then no passkey is asked for at all", async () => {
+    const { server, api } = account();
+    phone = fakePhone();
+    server.answer("GET /api/auth/passkey/list-user-passkeys", { body: [] });
+    expect(await api.confirmWithPasskey()).toEqual({ ok: false, why: "refused" });
+    expect(routes(server)).toEqual(["GET /api/auth/passkey/list-user-passkeys"]);
+    expect(phone.asked).toEqual([]);
   });
 });

@@ -62,6 +62,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     email: () => Promise.resolve("ada@example.test"),
     deleteAccount: log("deleteAccount"),
     signOut: () => (calls.push("signOut()"), Promise.resolve()),
+    confirmWithPasskey: log("confirmWithPasskey"),
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: (on) => (calls.push(`setUsageCounts(${String(on)})`), Promise.resolve(true)),
     ...over,
@@ -680,14 +681,26 @@ describe("deleting the account", () => {
     expect(account.calls.filter((call) => call.startsWith("deleteAccount"))).toEqual(["deleteAccount(null)", 'deleteAccount("111111")', 'deleteAccount("222222")']);
   });
 
-  test("[account:player-deletes-account] given a stale session, then a passkey sign-in makes it fresh and the deletion goes with no code", async () => {
+  test("[account:player-deletes-account] given a stale session on an account holding a passkey, then a sign-in with one of its own passkeys makes it fresh and the deletion goes with no code", async () => {
     const answers: AuthResult[] = [notFresh, OK];
-    const account = fakeAccount();
+    const account = fakeAccount({ view: () => Promise.resolve({ ...SECURED, ways: { ...SECURED.ways, passkeys: 1 } }) });
     const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
     askToDelete();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
     await waitFor(() => expect(store.getState().signedOut).toBe(true));
-    expect(account.calls).toEqual(["deleteAccount(null)", "signInWithPasskey()", "deleteAccount(null)"]);
+    expect(account.calls).toEqual(["deleteAccount(null)", "confirmWithPasskey()", "deleteAccount(null)"]);
+  });
+});
+
+describe("the delete confirmation's passkey", () => {
+  test("[account:player-deletes-account] given a stale session on an account that holds no passkey, then the confirmation offers no passkey, only the code and Google", async () => {
+    const account = fakeAccount({ view: () => Promise.resolve(SECURED), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }) });
+    cleanUpAndSettings(account);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.confirm") }));
+    expect(await screen.findByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) })).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
   });
 });
 

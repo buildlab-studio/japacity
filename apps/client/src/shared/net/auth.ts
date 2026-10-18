@@ -36,8 +36,23 @@ import { pageWall, type WallGuard } from "./wall";
  * `passkey-first`: account:passkey-needs-signed-in-session's refusal of a new passkey on an admin account from a session not opened with a passkey.
  * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
  * (its `account_not_linked`); the player is pointed to the code (account:guest-secures-the-life).
+ * `other-account`: the phone answered with a passkey of another account, never sent on (account:player-deletes-account).
  */
-type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first" | "not-linked";
+type AuthFailure =
+  | "not-fresh"
+  | "bad-code"
+  | "wrong-code"
+  | "expired"
+  | "too-many"
+  | "cancelled"
+  | "unreachable"
+  | "refused"
+  | "no-life"
+  | "taken"
+  | "guest-only"
+  | "passkey-first"
+  | "not-linked"
+  | "other-account";
 
 /** Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), or to sign back in to a kept one. */
 type GoogleTrip = "keep" | "sign-in";
@@ -92,6 +107,12 @@ export interface AccountApi {
   signInWithPasskey(): Promise<AuthResult>;
   /** account:passkey-needs-signed-in-session: only from a signed-in session. */
   addPasskey(): Promise<AuthResult>;
+  /**
+   * account:player-deletes-account: signs in again with one of the signed-in account's own passkeys, for a fresh session.
+   * The phone's answer is checked against the account's passkeys before it goes to the server, so a passkey of another
+   * account never opens a session here (`other-account`).
+   */
+  confirmWithPasskey(): Promise<AuthResult>;
   /** The signed-in account's email, where it has one. */
   email(): Promise<string | null>;
   /** analytics:player-can-stop-usage-counts: the account's "Send usage counts", or null when the server does not say. */
@@ -114,6 +135,9 @@ interface LibraryError {
   status: number;
 }
 
+/** The refusal the seam itself gives a passkey of another account, in place of the server's answer (account:player-deletes-account). */
+const OTHER_ACCOUNT = "OTHER_ACCOUNT";
+
 /** The library's error codes this game tells apart; every other one is a plain refusal. */
 const FAILURES: Record<string, AuthFailure> = {
   "method-taken": "taken",
@@ -126,6 +150,7 @@ const FAILURES: Record<string, AuthFailure> = {
   TOO_MANY_ATTEMPTS: "too-many",
   AUTH_CANCELLED: "cancelled",
   REGISTRATION_CANCELLED: "cancelled",
+  [OTHER_ACCOUNT]: "other-account",
   // The library's OAuth callback says its refusal with spaces made underscores (better-auth's oauth2/link-account).
   account_not_linked: "not-linked",
 };
@@ -153,6 +178,23 @@ async function attempt(run: () => Promise<{ error: LibraryError | null }>, bySta
 }
 
 const botHeaders = (bot: string | null) => (bot === null ? {} : { headers: { [CAPTCHA_HEADER]: bot } });
+
+/** The credential id a passkey's verification carries in its body, or null. */
+function credentialSent(init: RequestInit | undefined): string | null {
+  if (typeof init?.body !== "string") return null;
+  try {
+    const id = (JSON.parse(init.body) as { response?: { id?: unknown } }).response?.id;
+    return typeof id === "string" ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+/** One passkey row as the library's `/passkey/list-user-passkeys` answers it. */
+interface LibraryPasskey {
+  id: string;
+  credentialID: string;
+}
 
 /** server:signups-off-shows-full: the server's wait before asking again, from the refusal or its Retry-After header, in seconds. */
 const FULL_RETRY_FALLBACK_S = 30;
@@ -211,6 +253,28 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
   });
   const home = () => (typeof location === "undefined" ? "/" : `${location.origin}/`);
   const google = (trip: GoogleTrip) => ({ provider: "google" as const, callbackURL: `${home()}?${GOOGLE_BACK}=${GOOGLE_DONE[trip]}`, errorCallbackURL: home() });
+
+  /** The signed-in account's passkeys as the library keeps them, or null when the server cannot say. */
+  async function ownPasskeys(): Promise<LibraryPasskey[] | null> {
+    try {
+      const { data, error } = await client.passkey.listUserPasskeys();
+      return error === null && Array.isArray(data) ? data : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** A passkey sign-in that only these credential ids may answer: any other is refused here, before it reaches the server, so no session is opened for it. */
+  function passkeySignIn(only: ReadonlySet<string>): Promise<AuthResult> {
+    const guard = (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+      const id = credentialSent(init);
+      if (id === null || !only.has(id)) {
+        return Promise.resolve(new Response(JSON.stringify({ code: OTHER_ACCOUNT, message: "That passkey is not this account's." }), { status: 403, headers: { "content-type": "application/json" } }));
+      }
+      return classified(input instanceof Request ? input.url : String(input), init);
+    };
+    return attempt(() => client.signIn.passkey({ autoFill: false, fetchOptions: { customFetchImpl: guard } }));
+  }
 
   return {
     async ageStatus() {
@@ -278,6 +342,14 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
     signInWithPasskey: () => attempt(() => client.signIn.passkey({ autoFill: false })),
     // account:passkey-needs-signed-in-session: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session (apps/server/src/auth/hooks.ts).
     addPasskey: () => attempt(() => client.passkey.addPasskey({}), { 403: "passkey-first" }),
+    async confirmWithPasskey() {
+      const rows = await ownPasskeys();
+      if (rows === null) return { ok: false, why: "unreachable" };
+      if (rows.length === 0) return { ok: false, why: "refused" };
+      const result = await passkeySignIn(new Set(rows.map((row) => row.credentialID)));
+      forgetAccount(server);
+      return result;
+    },
     async email() {
       try {
         const { data } = await client.getSession();

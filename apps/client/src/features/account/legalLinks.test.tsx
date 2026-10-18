@@ -30,6 +30,7 @@ function account(): AccountApi {
     email: () => Promise.resolve("ada@example.test"),
     deleteAccount: ok,
     signOut: () => Promise.resolve(),
+    confirmWithPasskey: ok,
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: () => Promise.resolve(true),
   };

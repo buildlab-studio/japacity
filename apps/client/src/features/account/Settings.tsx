@@ -3,7 +3,7 @@
 // the life is kept (account:passkey-needs-signed-in-session, account:guest-secures-the-life), any setting the shell places in it,
 // sign out, and delete the account (account:player-deletes-account) through the server's
 // `DELETE /api/account`. Deleting needs a session signed in within the last 10
-// minutes; when the server says it is older, the player signs in again or
+// minutes; when the server says it is older, the player signs in again with one of the account's own passkeys or
 // sends the code the server's email carries along with the deletion. A guest
 // has no other way in, so its own session confirms it. The account opens from its own row at the head of the phone's
 // Settings: the name's initial, the name, the username and the way the life is kept, the whole row one tap; its sheet names the username and the name as two plain rows, then the way in and the passkeys
@@ -212,6 +212,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
   const leave = useGame((state) => state.leave);
   const me = useAccountView();
   const guest = me?.state === "guest";
+  const ways = me === null ? NO_WAYS : waysOf(me);
   const [leaving, setLeaving] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
@@ -248,6 +249,13 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
         }
         setProblem(failureWords(result));
       },
+    );
+
+  /** account:player-deletes-account: only one of this account's own passkeys confirms. */
+  const confirmWithPasskey = () =>
+    run(
+      () => account.confirmWithPasskey(),
+      (result) => (result.ok ? remove() : setProblem(failureWords(result))),
     );
 
   const signOut = async () => {
@@ -327,9 +335,13 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
         {step === "confirm" ? (
           <>
             <p>{say("ui.account.delete.fresh")}</p>
-            <Button disabled={busy} onClick={() => void run(() => account.signInWithPasskey(), (result) => (result.ok ? remove() : setProblem(failureWords(result))))}>
-              {say("ui.account.passkey")}
-            </Button>
+            {ways.passkeys > 0 ? (
+              <div>
+                <Button disabled={busy} onClick={() => void confirmWithPasskey()}>
+                  {say("ui.account.passkey")}
+                </Button>
+              </div>
+            ) : null}
             {email === null ? null : (
               <CodeForm
                 account={account}

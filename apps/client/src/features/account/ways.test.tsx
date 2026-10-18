@@ -55,6 +55,7 @@ function fakeAccount(view: AccountView, over: Partial<AccountApi> = {}): Account
     setUsageCounts: () => Promise.resolve(true),
     deleteAccount: () => Promise.resolve(OK),
     signOut: () => Promise.resolve(),
+    confirmWithPasskey: () => Promise.resolve(OK),
     ...over,
   };
 }

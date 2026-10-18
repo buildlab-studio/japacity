@@ -255,6 +255,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.delete.code": "Send a code to {email}",
   "ui.account.delete.code.go": "Delete with this code",
   "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
+  "ui.account.fail.other-account": "That passkey belongs to another life. Use one made for this life.",
 
   // The bank-full notice (clock:full-bank-push-notification)
   "ui.notify.ask.title": "Know when your months are full",

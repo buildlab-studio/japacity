@@ -48,6 +48,7 @@ function fakeAccount(startGuest: (username: string) => GuestAnswer = () => ({ ok
     setUsageCounts: () => Promise.resolve(true),
     deleteAccount: ok,
     signOut: () => Promise.resolve(),
+    confirmWithPasskey: ok,
   };
 }
 

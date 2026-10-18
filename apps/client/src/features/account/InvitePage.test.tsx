@@ -73,6 +73,7 @@ function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => unde
     email: () => Promise.resolve(null),
     deleteAccount: ok,
     signOut: () => Promise.resolve(),
+    confirmWithPasskey: ok,
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: () => Promise.resolve(true),
   };
