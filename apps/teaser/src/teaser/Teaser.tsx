@@ -4,7 +4,7 @@
 // bulbs lit, the name and "Play it". Every shot names the recorded clips it shows, so a test can mount each one.
 import type { ClipName } from "../clips";
 import { loadRubik } from "../parts/fonts";
-import { NIGHT } from "../parts/tokens";
+import { NIGHT } from "@japacity/brand";
 import { SaveUp, WayOut } from "./inserts";
 import { Flight, MapShot, NightEnd, NightFalls, PhoneShot, TitleCard, WideShot } from "./scenes";
 import { lengthOf, type Shot, Shots } from "./shots";

@@ -8,7 +8,7 @@ import { Internals } from "remotion";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { CLIPS, STILLS } from "../clips";
-import { VIDEO } from "../parts/tokens";
+import { VIDEO } from "../parts/frame";
 import { shotStarts, Teaser, TEASER_FRAMES, TEASER_SHOTS } from "./Teaser";
 
 // A page test reads the module as a web address, so the folder is found from the repository root the tests run in.

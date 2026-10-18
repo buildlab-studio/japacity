@@ -10,7 +10,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { TALL_CLIPS } from "../clips";
 import { GITHUB_MARK } from "../parts/brand";
-import { TALL_VIDEO, VIDEO } from "../parts/tokens";
+import { TALL_VIDEO, VIDEO } from "../parts/frame";
 import { FEED_BARS, type Zone, ZONES } from "../parts/zones";
 import { END_LINE, layLines, Lead, LEAD_COMPOSITIONS, LEAD_FRAMES, LEAD_SHOTS, LeadPortrait } from "./Lead";
 import { STILLS } from "./stills";

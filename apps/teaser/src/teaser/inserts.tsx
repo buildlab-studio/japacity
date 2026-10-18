@@ -4,7 +4,7 @@ import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remo
 
 import { Card, Chip, Sticker } from "../parts/dress";
 import { land, pop, ramp } from "../parts/motion";
-import { DAY, FONT, GREEN, TINT } from "../parts/tokens";
+import { DAY, FONT, GREEN, TINT } from "@japacity/brand";
 
 function Sky({ children }: { children: React.ReactNode }) {
   return <AbsoluteFill style={{ background: DAY.sky, overflow: "hidden" }}>{children}</AbsoluteFill>;

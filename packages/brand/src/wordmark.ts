@@ -1,5 +1,6 @@
-// The wordmark's letters as drawn to paths in the lockup (apps/client/public/brand/japacity-lockup-light.svg), copied so the
-// teaser draws the name in the game's own letters at any size. The box is the lockup's, right of the seal.
+// The wordmark's letters as drawn to paths in the lockup (apps/client/public/brand/japacity-lockup-light.svg), so a
+// picture drawn outside the client gives the name in the game's own letters at any size. The box is the lockup's,
+// right of the seal.
 export const WORDMARK_BOX = { x: 240, y: 48, width: 560, height: 124 } as const;
 
 export const WORDMARK_PATH =

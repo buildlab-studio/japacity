@@ -2,7 +2,7 @@
 // with two other cuts beside it: `Teaser` and `Deck`, the deck of cards.
 import { Composition } from "remotion";
 
-import { VIDEO } from "./parts/tokens";
+import { VIDEO } from "./parts/frame";
 import { Lead, LEAD_COMPOSITIONS, LeadPortrait } from "./lead/Lead";
 import { Poster } from "./lead/Poster";
 import { DECK_FRAMES, Deck } from "./deck/Deck";

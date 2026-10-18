@@ -17,7 +17,8 @@ import { Card, Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
 import { loadRubik } from "../parts/fonts";
 import { FrameContext, type FrameShape, useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
-import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, type Paint, TALL_VIDEO, TINT, VIDEO, YELLOW } from "../parts/tokens";
+import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, type Paint, TINT, YELLOW } from "@japacity/brand";
+import { TALL_VIDEO, VIDEO } from "../parts/frame";
 import { FEED_BARS, Piece, ZONES } from "../parts/zones";
 import { Flight, MapShot, NightFalls } from "../teaser/scenes";
 

@@ -5,7 +5,7 @@ import { Internals } from "remotion";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { CLIPS } from "../clips";
-import { VIDEO } from "../parts/tokens";
+import { VIDEO } from "../parts/frame";
 import { DECK_CLIPS, DECK_FRAMES, Deck } from "./Deck";
 
 // React's act() needs this flag in a test page.

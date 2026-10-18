@@ -1,4 +1,5 @@
-// The game's role colours (apps/client/src/index.css, R-WORLD-021), copied: the teaser wears the same two paints.
+// The game's role colours as apps/client/src/index.css sets them (R-WORLD-021), for a picture drawn outside the client:
+// the teaser wears the same two paints.
 export const DAY = {
   sky: "#eaf3fb",
   skyDeep: "#dae8f5",
@@ -38,9 +39,3 @@ export const TINT = {
 } as const;
 
 export const FONT = "Rubik, system-ui, sans-serif";
-
-/** The composition: horizontal, 1920 by 1080 at 30 frames a second. */
-export const VIDEO = { width: 1920, height: 1080, fps: 30 } as const;
-
-/** The portrait composition for a phone's feed: 1080 by 1920 at 30 frames a second. */
-export const TALL_VIDEO = { width: 1080, height: 1920, fps: 30 } as const;
