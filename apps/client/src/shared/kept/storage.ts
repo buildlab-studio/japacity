@@ -46,6 +46,10 @@ export const MORNING_KEY = "japacity.morning";
 export const WALL_KEY = "japacity.wall";
 /** When this device last turned the ask for notices down, in ms since 1970. */
 export const NOTIFY_DISMISSED_KEY = "japacity.notify.dismissedAt";
+/** That a kept life was open in this browser (account:start-screen-over-live-city): "1" or nothing, with no account data in it. */
+export const KEPT_MARK_KEY = "japacity.account.kept";
+/** That a passkey was added or used in this browser (account:passkey-in-email-autofill): "1" or nothing, with no account data in it. */
+export const PASSKEY_MARK_KEY = "japacity.account.passkey";
 
 /** The key an account's ask to secure it is marked under, once per account and moment. */
 export function secureAskedKey(account: string, moment: string): string {

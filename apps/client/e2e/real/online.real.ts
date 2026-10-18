@@ -211,9 +211,8 @@ test.describe("one new player, played in order on one phone", () => {
     await sheet.getByLabel("Email").fill(EMAIL);
     await sheet.getByRole("button", { name: "Send me a code" }).click();
     const code = await codeFor(page, EMAIL, asked);
+    // The sixth digit sends the code (account:code-form-forgives).
     await sheet.getByLabel("The 6-digit code").fill(code);
-    await shoot(page, "real-05-keep-code", SETTLED);
-    await sheet.getByRole("button", { name: "Keep my life" }).click();
     await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible({ timeout: 20_000 });
     const account = await page.request.get("/api/account");
     expect(((await account.json()) as { account: { state: string; username: string } }).account).toMatchObject({ state: "secured", username: USERNAME });
@@ -273,14 +272,14 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("button", { name: "Sign out" }).click();
     // Signed out, the client asks again who is there.
     seen.allow("401 GET /api/view", "401 GET /api/account");
-    await page.getByRole("button", { name: "I already have a life here" }).click({ timeout: 30_000 });
+    // A kept life was open in this browser, so the start screen offers the way back in first (account:start-screen-over-live-city).
+    await page.getByRole("button", { name: /^(Sign in to my life|I already have a life here)$/ }).click({ timeout: 30_000 });
     const asked = Date.now() - 1_000;
     await page.getByLabel("Email").fill(EMAIL);
     await page.getByRole("button", { name: "Send me a code" }).click();
     const code = await codeFor(page, EMAIL, asked);
+    // The sixth digit sends the code (account:code-form-forgives).
     await page.getByLabel("The 6-digit code").fill(code);
-    await shoot(page, "real-08-sign-in", SETTLED);
-    await page.getByRole("button", { name: /^Sign in/ }).click();
     await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
     const account = await page.request.get("/api/account");
     expect(((await account.json()) as { account: { username: string } }).account.username).toBe(USERNAME);

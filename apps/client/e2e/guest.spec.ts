@@ -105,7 +105,7 @@ test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] a gues
 test.describe("inside a messaging app's browser", () => {
   test.use({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36 WhatsApp/2.24.1" });
 
-  test("[account:guest-secures-the-life] the securing sheet offers the emailed code and the way out to the browser, and no Google", async ({ page }, info) => {
+  test("[account:guest-secures-the-life] the securing sheet offers the emailed code alone, with no Google and no way out before the life is kept", async ({ page }, info) => {
     const view = pastFirstChapter();
     await serve(page, {
       "GET /api/view": view,
@@ -117,14 +117,14 @@ test.describe("inside a messaging app's browser", () => {
     const sheet = page.getByRole("dialog", { name: "Keep this life" });
     await expect(sheet).toBeVisible({ timeout: 20_000 });
     await expect(sheet.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
-    await expect(sheet.getByText("Google sign-in does not work inside this app.", { exact: false })).toBeVisible();
-    await expect(sheet.getByRole("link", { name: "Open in your browser" })).toHaveAttribute("href", /^intent:\/\//);
+    await expect(sheet.getByText("Google does not open inside this app. Keep this life with your email here, then open it in any browser.")).toBeVisible();
+    await expect(sheet.getByRole("link", { name: "Open in my browser" })).toHaveCount(0);
     await sheet.getByLabel("Email").fill("ada@example.com");
     await shootPhone(page, "securing-sheet-in-app-phone", info.project.name, PICTURE);
   });
 });
 
-test("[account:guest-secures-the-life] a guest secures the life later by a code sent to an email, from the ask after the first chapter, and the same life goes on", async ({ page }) => {
+test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secures the life later by a code sent to an email, from the ask after the first chapter, and the same life goes on", async ({ page }) => {
   const sent: string[] = [];
   const view = pastFirstChapter();
   const answers: Record<string, Answer> = {
@@ -142,8 +142,8 @@ test("[account:guest-secures-the-life] a guest secures the life later by a code 
   await sheet.getByLabel("Email").fill("ada@example.com");
   await sheet.getByRole("button", { name: "Send me a code" }).click();
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured" } } };
+  // The sixth digit sends the code (account:code-form-forgives).
   await sheet.getByLabel("The 6-digit code").fill("123456");
-  await sheet.getByRole("button", { name: "Keep my life" }).click();
   await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible();
   // Kept, the sheet says only that.
   const kept = page.getByRole("dialog", { name: "Kept" });
@@ -173,7 +173,7 @@ test("[account:guest-secures-the-life] a guest that comes back from Google with 
   await expect(page.locator("[data-way-toast]")).toHaveText("Kept with Google");
 });
 
-test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] a kept life names its way in on Settings' account row; signing out says so once on the start screen, and the notice goes when I already have a life here is tapped", async ({ page }, info) => {
+test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] [account:start-screen-over-live-city] a kept life names its way in on Settings' account row; signing out says so once on the start screen, turned round for a browser a kept life was open in, and the notice goes when Sign in to my life is tapped", async ({ page }, info) => {
   const sent: string[] = [];
   const answers: Record<string, Answer> = {
     "GET /api/view": pastFirstChapter(),
@@ -202,10 +202,11 @@ test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] a ke
   const notice = page.getByText(uiOnlineText["ui.account.notice.signed-out"] ?? "You have signed out.");
   await expect(notice).toBeVisible({ timeout: 20_000 });
   expect(sent).toContain("POST /api/auth/sign-out");
-  await page.getByRole("button", { name: "I already have a life here" }).click();
+  // A kept life was open in this browser: the way back in comes first (account:start-screen-over-live-city).
+  await page.getByRole("button", { name: "Sign in to my life" }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(notice).toHaveCount(0);
   await page.getByRole("button", { name: uiOnlineText["ui.account.back"] ?? "Back" }).click();
-  await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start a new life" })).toBeVisible();
   await expect(notice).toHaveCount(0);
 });

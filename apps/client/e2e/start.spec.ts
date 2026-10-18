@@ -185,3 +185,60 @@ test("[account:start-screen-over-live-city] I already have a life here shows the
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
 });
+
+test("[account:start-screen-over-live-city] the returning door is a full-width button as tall as Play, and the age screen's one line turns back to the ways back in", async ({ page }, info) => {
+  const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
+  await page.goto("/");
+  const play = page.getByRole("button", { name: "Play", exact: true });
+  const returning = page.getByRole("button", { name: "I already have a life here" });
+  await expect(play).toBeVisible({ timeout: 20_000 });
+  const [playBox, returningBox] = await Promise.all([play.boundingBox(), returning.boundingBox()]);
+  expect(returningBox?.height ?? 0).toBeCloseTo(playBox?.height ?? -1, 0);
+  expect(returningBox?.width ?? 0).toBeCloseTo(playBox?.width ?? -1, 0);
+  expect((returningBox?.y ?? 0) > (playBox?.y ?? 0)).toBe(true);
+
+  await play.click();
+  await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible();
+  const line = page.getByRole("button", { name: "Already have a life here? Sign in." });
+  await expect(line).toBeVisible();
+  await shootAtSize(page, "start-age-sign-in-line", info.project.name);
+  await line.click();
+  await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
+  expect(faked.sent.some((request) => request.route === "POST /api/age")).toBe(false);
+});
+
+test("[account:start-screen-over-live-city] in a browser a kept life was open in, the start screen offers Sign in to my life first and Start a new life under it", async ({ page }, info) => {
+  await page.addInitScript(() => localStorage.setItem("japacity.account.kept", "1"));
+  await fakeDoor(page, signUpRoutes(lifeMade()));
+  await page.goto("/");
+  const back = page.getByRole("button", { name: "Sign in to my life" });
+  const fresh = page.getByRole("button", { name: "Start a new life" });
+  await expect(back).toBeVisible({ timeout: 20_000 });
+  await expect(fresh).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toHaveCount(0);
+  const [backBox, freshBox] = await Promise.all([back.boundingBox(), fresh.boundingBox()]);
+  expect((freshBox?.y ?? 0) > (backBox?.y ?? 0)).toBe(true);
+  await page.locator("[data-front-scene] canvas").waitFor({ timeout: 15_000 }).catch(() => undefined);
+  await page.waitForTimeout(800);
+  await shootAtSize(page, "start-screen-kept", info.project.name);
+  await back.click();
+  await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
+  await page.getByRole("button", { name: "Back" }).click();
+  await fresh.click();
+  await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible();
+});
+
+test.describe("inside a messaging app's browser", () => {
+  test.use({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36 WhatsApp/2.24.1" });
+
+  test("[account:guest-secures-the-life] the start screen says where the life is saved, with Open in my browser to Chrome, and Play still works", async ({ page }, info) => {
+    await fakeDoor(page, signUpRoutes(lifeMade()));
+    await page.goto("/");
+    await expect(page.getByText("Opened inside an app? Your life is saved in the browser you play in.")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("link", { name: "Open in my browser" })).toHaveAttribute("href", /^intent:\/\/.*package=com\.android\.chrome;S\.browser_fallback_url=/);
+    await page.waitForTimeout(800);
+    await shootAtSize(page, "start-screen-in-app", info.project.name);
+    await page.getByRole("button", { name: "Play", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible();
+  });
+});

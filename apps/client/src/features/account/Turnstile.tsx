@@ -4,7 +4,9 @@
 // Test keys: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 // A token is good once, so the widget is reset after every attempt that used it.
 // The check runs unseen (account:start-screen-over-live-city): `interaction-only` shows the widget only
-// when Cloudflare needs the person to do something.
+// when Cloudflare needs the person to do something, and then it is scrolled into view. A script that could not load
+// is asked for again on the next attempt, and why there was no pass is handed up (account:bot-check-on-guest-creation),
+// as Cloudflare's client-side errors page asks: https://developers.cloudflare.com/turnstile/troubleshooting/client-side-errors/
 import { useEffect, useRef } from "react";
 
 export interface TurnstileOptions {
@@ -13,7 +15,8 @@ export interface TurnstileOptions {
   action: string;
   callback: (token: string) => void;
   "expired-callback": () => void;
-  "error-callback": () => void;
+  "error-callback": (code?: string) => void;
+  "before-interactive-callback"?: () => void;
   appearance: "always" | "execute" | "interaction-only";
 }
 
@@ -69,14 +72,22 @@ export function siteKey(): string | null {
   return import.meta.env.PROD ? null : TEST_SITE_KEY;
 }
 
-/** `onShown`: the widget is up, so a token is on its way; a script that never loads never calls it. */
-export function Turnstile({ sitekey, load, round, onToken, onShown }: { sitekey: string; load: LoadTurnstile; round: number; onToken: (token: string | null) => void; onShown?: () => void }) {
+/** Why the check gave no pass: its script could not load, or the widget failed in this browser. */
+export type CheckTrouble = "unloaded" | "error";
+
+/**
+ * `onShown`: the widget is up, so a token is on its way; a script that never loads never calls it. `attempt`: a new
+ * number loads the script again after it failed. `onTrouble`: why no pass is coming.
+ */
+export function Turnstile({ sitekey, load, round, attempt = 0, onToken, onShown, onTrouble }: { sitekey: string; load: LoadTurnstile; round: number; attempt?: number; onToken: (token: string | null) => void; onShown?: () => void; onTrouble?: (trouble: CheckTrouble) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const widget = useRef<{ api: TurnstileApi; id: string } | null>(null);
   const tell = useRef(onToken);
   tell.current = onToken;
   const up = useRef(onShown);
   up.current = onShown;
+  const troubled = useRef(onTrouble);
+  troubled.current = onTrouble;
 
   useEffect(() => {
     let gone = false;
@@ -89,21 +100,29 @@ export function Turnstile({ sitekey, load, round, onToken, onShown }: { sitekey:
           action: TURNSTILE_ACTION,
           callback: (token) => tell.current(token),
           "expired-callback": () => tell.current(null),
-          "error-callback": () => tell.current(null),
+          "error-callback": () => {
+            tell.current(null);
+            troubled.current?.("error");
+          },
+          // Cloudflare needs a tap: the widget is brought into view, wherever it stands on the page.
+          "before-interactive-callback": () => box.current?.scrollIntoView({ block: "center", behavior: "smooth" }),
           appearance: "interaction-only",
         });
         if (id === undefined) return;
         widget.current = { api, id };
         up.current?.();
       })
-      .catch(() => tell.current(null));
+      .catch(() => {
+        tell.current(null);
+        if (!gone) troubled.current?.("unloaded");
+      });
     return () => {
       gone = true;
       const shown = widget.current;
       widget.current = null;
       if (shown !== null) shown.api.remove(shown.id);
     };
-  }, [sitekey, load]);
+  }, [sitekey, load, attempt]);
 
   useEffect(() => {
     const shown = widget.current;

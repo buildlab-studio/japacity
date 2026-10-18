@@ -4,7 +4,7 @@ import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id, InviteCard } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
 import { GameProvider } from "../../authority/GameProvider";
@@ -20,6 +20,11 @@ import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { nameOf, say, words } from "../../shared/words/text";
 import { answerAge } from "./age.testing";
 import { inviteCodeOf, InvitePage, InviteServerProvider } from "./InvitePage";
+
+// The marks a kept life and a used passkey leave in this browser turn the screens round; each test starts from a new browser.
+beforeEach(() => {
+  localStorage.clear();
+});
 
 const CODE = "a1b2c3d4e5f6a1b2c3d4e5f6";
 const CLOCK = { tick: 3, nextTickAt: 2_000_000_000_000, nextTurnAt: null };

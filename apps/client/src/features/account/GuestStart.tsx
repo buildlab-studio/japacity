@@ -2,7 +2,9 @@
 // filled in from the name on the page and changed there, goes to `POST /api/guest` with the token of the bot check
 // that ran unseen on the page. No email and no sign-in method: those come later, when the player keeps the life.
 // The guest line is said once, on the page. Inside the invite page, where the card makes the life, the same fields
-// stand under the age screen with a button of their own.
+// stand under the age screen with a button of their own. A bot check that could not load, or that failed in this
+// browser, is said as that and not as "try again"; a session lost a second time in a row, or cookies off, is said as a
+// browser that keeps no sign-in (account:bot-check-on-guest-creation).
 import { USERNAME, USERNAME_LONGEST as LONGEST, USERNAME_SHORTEST as SHORTEST } from "@japacity/api";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
@@ -37,6 +39,14 @@ export function withDigits(username: string, digits: string): string {
 
 function someDigits(): string {
   return String(Math.floor(Math.random() * 10 ** TAKEN_DIGITS)).padStart(TAKEN_DIGITS, "0");
+}
+
+/** How many lost sessions or age answers in a row tell that the browser keeps no sign-in. */
+export const LAPSES_TOLD = 2;
+
+/** The browser says it keeps no cookies at all. */
+export function cookiesOff(): boolean {
+  return typeof navigator !== "undefined" && navigator.cookieEnabled === false;
 }
 
 /** What the player is told when the guest start is refused. */
@@ -94,9 +104,15 @@ export interface GuestDoorOptions {
   onFull: () => void;
   onStarted: () => Promise<void>;
   botWaitMs?: number;
+  /** The sessions and age answers found gone in a row so far, and the call that counts one more. */
+  lapses?: number;
+  onLapse?: () => void;
 }
 
-export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, botWaitMs }: GuestDoorOptions): GuestDoor {
+/** What a refused bot check is told as: why the check gave no pass, when the page knows. */
+const BOT_WORDS = { unloaded: "ui.account.bot.unloaded", error: "ui.account.bot.error" } as const;
+
+export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, botWaitMs, lapses = 0, onLapse }: GuestDoorOptions): GuestDoor {
   const check = useUnseenCheck(sitekey, load, botWaitMs);
   // The script is fetched while the door's first screens show, so the widget is up by the page.
   useEffect(() => {
@@ -124,6 +140,8 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     }
     if (why === "expired") onExpired();
     if (why === "full") onFull();
+    const trouble = check.trouble();
+    if (why === "bot-check" && trouble !== null) return say(BOT_WORDS[trouble]);
     return say(GUEST_WORDS[why]);
   };
 
@@ -137,7 +155,8 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     lost: (error) => {
       if (!made.current || !isReported(error) || (error as { reported?: unknown }).reported !== "signed-out") return null;
       made.current = false;
-      return say("ui.account.guest.lost");
+      onLapse?.();
+      return say(cookiesOff() || lapses + 1 >= LAPSES_TOLD ? "ui.account.cookies" : "ui.account.guest.lost");
     },
   };
 }

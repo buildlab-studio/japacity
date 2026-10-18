@@ -90,6 +90,8 @@ export interface AccountApi {
   /** What the last trip to Google came back with, once: a failure, a success by its trip, or null when there was none. */
   returnedFromGoogle(): AuthFailure | GoogleDone | null;
   signInWithPasskey(): Promise<AuthResult>;
+  /** account:passkey-in-email-autofill: the passkey offered in the email field's autofill; resolves once one is picked, or with why it stopped. */
+  signInWithPasskeyAutofill?(): Promise<AuthResult>;
   /** account:passkey-needs-signed-in-session: only from a signed-in session. */
   addPasskey(): Promise<AuthResult>;
   /** The signed-in account's email, where it has one. */
@@ -274,8 +276,9 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       if (done === GOOGLE_DONE.keep) return "kept";
       return done === GOOGLE_DONE["sign-in"] ? "signed-in" : null;
     },
-    // A button, not the browser's autofill: autofill needs a field this game does not have.
+    // The button: the browser's own prompt. The field's autofill is the ask below, which the button's cancels.
     signInWithPasskey: () => attempt(() => client.signIn.passkey({ autoFill: false })),
+    signInWithPasskeyAutofill: () => attempt(() => client.signIn.passkey({ autoFill: true })),
     // account:passkey-needs-signed-in-session: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session (apps/server/src/auth/hooks.ts).
     addPasskey: () => attempt(() => client.passkey.addPasskey({}), { 403: "passkey-first" }),
     async email() {

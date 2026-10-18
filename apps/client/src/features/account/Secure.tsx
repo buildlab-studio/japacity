@@ -1,6 +1,7 @@
 // Keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:guest-reminded-to-secure). The securing sheet: Google
-// first, then a code by email; inside an in-app browser no Google, and a way
-// out to the phone's own browser. The asks that open it: after the first
+// first, then a code by email; inside an in-app browser the code alone, here, since the life lives in that app's own
+// browser and nowhere else, and once it is kept the way out to the phone's own browser. A way in that already has a life is refused, with the way to open that kept life
+// instead, which ends this one; the account sheet offers the same. The asks that open it: after the first
 // chapter, before the visa decision (the decision-day chapter), and at every
 // `guest-only` refusal; never at the door and never before the early win
 // (guide:nothing-asked-before-early-win). And the quiet lines, on the settings and on the
@@ -9,7 +10,7 @@
 // (GuestStart.tsx). Once kept, by the code here or by the trip to Google and back, the sheet says so in its kept
 // state, and as it closes the world says which way in a short line (WayToast.tsx).
 import type { PlayerView } from "@japacity/sim";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { countAsk } from "../../shared/analytics/start";
@@ -22,38 +23,49 @@ import { useEarlyWin } from "../../shared/ui/stage";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
-import { browserLink, inAppBrowser } from "./inApp";
+import { inAppBrowser } from "./inApp";
+import { askWaysBackIn } from "./marks";
+import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { tellWay, WayToast } from "./WayToast";
 import { secureAskedKey } from "../../shared/kept/storage";
 
 const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userAgent);
 
-/** The way out of an in-app browser: a link on Android, the address copied elsewhere. */
-function OpenInBrowser({ agent }: { agent: string }) {
-  const [copied, setCopied] = useState(false);
-  const here = typeof location === "undefined" ? "" : location.href;
-  const link = here === "" ? null : browserLink(here, agent);
-  if (link !== null) {
-    return (
-      <a className="inline-flex min-h-11 items-center justify-center rounded-lg border border-ink/70 bg-sheet-2 px-4" href={link}>
-        {say("ui.secure.open")}
-      </a>
-    );
-  }
+/**
+ * Leaves this guest life for a kept one (account:guest-secures-the-life): signs the guest out and opens the ways back in, the
+ * address the guest typed filled in. The guest life has no way back after it, which is said before.
+ */
+export function useOpenKeptLife(): (email: string | null) => Promise<void> {
+  const account = useGame((state) => state.account);
+  const leave = useGame((state) => state.leave);
+  return async (email) => {
+    if (account === null) return;
+    await account.signOut();
+    askWaysBackIn(email);
+    leave(null);
+  };
+}
+
+/** The way to the kept life, with what it costs said first. */
+function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: ReactNode }) {
+  const open = useOpenKeptLife();
+  const [busy, setBusy] = useState(false);
   return (
-    <div className="flex flex-col gap-1">
-      <Button
-        onClick={() => {
-          void navigator.clipboard
-            ?.writeText(here)
-            .then(() => setCopied(true))
-            .catch(() => undefined);
-        }}
-      >
-        {say("ui.secure.copy")}
-      </Button>
-      {copied ? <p role="status">{say("ui.secure.copied")}</p> : null}
+    <div className="flex flex-col gap-2" data-open-kept>
+      {lead}
+      <p className="text-[14px]">{say("ui.secure.taken.ends")}</p>
+      <div>
+        <Button
+          disabled={busy}
+          onClick={() => {
+            setBusy(true);
+            void open(email).finally(() => setBusy(false));
+          }}
+        >
+          {say("ui.secure.taken.open")}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -68,6 +80,8 @@ export interface SecureSheetProps {
   problem?: string | null;
   /** The life came back kept from Google: the sheet opens in its kept state. */
   kept?: "google" | null;
+  /** Google came back refused because its address already has a life: the way to that life is offered. */
+  taken?: boolean;
   /** Seam for tests: the browser's user agent. */
   agent?: string;
 }
@@ -77,7 +91,7 @@ export interface SecureSheetProps {
  * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close, with no reason, no
  * ways to keep and no Not now.
  */
-export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, agent }: SecureSheetProps) {
+export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, taken: takenBack = false, agent }: SecureSheetProps) {
   const earlyWin = useEarlyWin();
   const [problem, setProblem] = useState<string | null>(given);
   // Which way the life was kept, once it is: the sheet's kept state, and the line the world says as it closes.
@@ -86,8 +100,11 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   const [busy, setBusy] = useState(false);
   const browser = agent ?? userAgent();
   const inApp = inAppBrowser(browser);
+  // A way in that already has a life, with the address when the code was the way: the kept life can be opened instead.
+  const [taken, setTaken] = useState<{ email: string | null } | null>(takenBack ? { email: null } : null);
 
   useEffect(() => setProblem(given), [given]);
+  useEffect(() => setTaken(takenBack ? { email: null } : null), [takenBack]);
   useEffect(() => {
     if (back !== null) setKeptWith(back);
   }, [back]);
@@ -95,6 +112,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   async function google() {
     setBusy(true);
     setProblem(null);
+    setTaken(null);
     const result: AuthResult = await account.signInWithGoogle(null, "keep");
     setBusy(false);
     setProblem(failureWords(result));
@@ -120,28 +138,35 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
       top={<Wordmark ground="light" />}
     >
       {done ? (
-        <p role="status" data-secure-kept>
-          {say("ui.secure.done")}
-        </p>
-      ) : (
-        <div className="flex flex-col gap-4" data-secure-sheet>
+        <div className="flex flex-col gap-3">
+          <p role="status" data-secure-kept>
+            {say("ui.secure.done")}
+          </p>
+          {/* Kept inside an app's own browser: now the life can go to the phone's own. */}
           {inApp ? (
-            <div className="flex flex-col gap-2">
-              <p>{say("ui.secure.in-app")}</p>
+            <div>
               <OpenInBrowser agent={browser} />
             </div>
+          ) : null}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4" data-secure-sheet>
+          {/* Inside an in-app browser the life lives in that app's own browser: it is kept here, by the code. */}
+          {inApp ? (
+            <p data-in-app>{say("ui.secure.in-app")}</p>
           ) : (
             <GoogleButton label={say("ui.secure.google")} disabled={busy} onClick={() => void google()} />
           )}
           <div className="flex flex-col gap-2">
             {inApp ? null : <p className="text-sm text-text-2">{say("ui.secure.or")}</p>}
-            <CodeForm account={account} sendLabel={say("ui.secure.code.send")} goLabel={say("ui.secure.code.go")} onSignedIn={kept} />
+            <CodeForm account={account} sendLabel={say("ui.secure.code.send")} goLabel={say("ui.secure.code.go")} onSignedIn={kept} onTaken={(email) => setTaken({ email })} />
           </div>
           {problem === null ? null : (
             <p role="alert" className="text-bad">
               {problem}
             </p>
           )}
+          {taken === null ? null : <OpenKeptLife email={taken.email} />}
           <div>
             <Button variant="quiet" onClick={() => openChange(false)}>
               {say("ui.secure.later")}
@@ -213,6 +238,7 @@ export function SecureAsk() {
   const [reason, setReason] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [kept, setKept] = useState<"google" | null>(null);
+  const [taken, setTaken] = useState(false);
   const won = useRef(earlyWin);
   useEffect(() => {
     won.current = earlyWin;
@@ -249,6 +275,7 @@ export function SecureAsk() {
       return;
     }
     setKept(null);
+    setTaken(back === "taken");
     setProblem(failureWords({ ok: false, why: back }));
     setOpen(true);
   }, [account]);
@@ -279,18 +306,23 @@ export function SecureAsk() {
   if (account === null) return null;
   return (
     <>
-      <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} kept={kept} />
+      <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} kept={kept} taken={taken} />
       <WayToast account={account} />
     </>
   );
 }
 
-/** account:guest-reminded-to-secure: the quiet reminder, a line and a way to keep the life. Nothing for a secured account or offline. */
-export function GuestReminder({ afterFirstChapter = false }: { afterFirstChapter?: boolean }) {
+/**
+ * account:guest-reminded-to-secure: the quiet reminder, a line and a way to keep the life. Nothing for a secured account or offline.
+ * On the account sheet (`returning`, there unless it stands after the first chapter) it also offers "I already have a life here"
+ * (account:guest-secures-the-life): a first press says that this life ends, a second opens the ways back in.
+ */
+export function GuestReminder({ afterFirstChapter = false, returning = !afterFirstChapter }: { afterFirstChapter?: boolean; returning?: boolean }) {
   const account = useGame((state) => state.account);
   const firstDone = useGame((state) => (state.view?.chapter.done.length ?? 0) > 0);
   const guest = useGuest();
   const [open, setOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   if (account === null || !guest || (afterFirstChapter && !firstDone)) return null;
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-sheet-line bg-sheet-2 p-3" data-guest-reminder>
@@ -300,6 +332,15 @@ export function GuestReminder({ afterFirstChapter = false }: { afterFirstChapter
           {say("ui.guest.keep")}
         </Button>
       </div>
+      {!returning ? null : leaving ? (
+        <OpenKeptLife email={null} />
+      ) : (
+        <div>
+          <Button variant="quiet" small onClick={() => setLeaving(true)}>
+            {say("ui.account.start.returning")}
+          </Button>
+        </div>
+      )}
       <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={null} />
     </div>
   );

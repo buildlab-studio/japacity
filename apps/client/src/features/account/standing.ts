@@ -1,7 +1,8 @@
 // The account as the server last said it (`GET /api/account`), shared by the
 // screens that change with it: whether the life is a guest's (account:guest-and-secured-states),
 // the username (account:username-and-unconfirmed-email). One store for each account seam, read again
-// whenever something changes it.
+// whenever something changes it. A kept life read here marks this browser as one a kept life was open in, which turns
+// the start screen round once it shows again (account:start-screen-over-live-city).
 import type { AccountView } from "@japacity/api";
 import { useEffect } from "react";
 import { useStore } from "zustand";
@@ -9,6 +10,7 @@ import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi } from "../../shared/net/auth";
+import { markKeptHere } from "./marks";
 
 interface Held {
   view: AccountView | null;
@@ -32,6 +34,7 @@ export async function refreshAccount(account: AccountApi): Promise<AccountView |
   const store = storeOf(account);
   store.setState({ asked: true });
   const view = await account.view();
+  if (view?.state === "secured") markKeptHere();
   store.setState({ view });
   return view;
 }

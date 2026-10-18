@@ -73,8 +73,8 @@ describe("the in-app browsers", () => {
     for (const agent of [PLAIN_CHROME, "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Version/17.0 Mobile/15E148 Safari/604.1"]) expect(inAppBrowser(agent)).toBe(false);
   });
 
-  test("[account:guest-secures-the-life] given an in-app browser, then Android gets a link that opens the phone's browser at the same address, and an iPhone none", () => {
-    expect(browserLink("https://japacity.test/?x=1", ANDROID_WHATSAPP)).toBe("intent://japacity.test/?x=1#Intent;scheme=https;end");
+  test("[account:guest-secures-the-life] given an in-app browser, then Android gets a link that opens Chrome at the same address, the plain address where Chrome is not there, and an iPhone none", () => {
+    expect(browserLink("https://japacity.test/?x=1", ANDROID_WHATSAPP)).toBe("intent://japacity.test/?x=1#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fjapacity.test%2F%3Fx%3D1;end");
     expect(browserLink("https://japacity.test/", IPHONE_INSTAGRAM)).toBeNull();
   });
 });
@@ -140,12 +140,14 @@ describe("the securing sheet", () => {
     expect(marks[0]!.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  test("[account:guest-secures-the-life] given an in-app browser, then Google is not shown, the code is offered, and the way out to the browser is there", async () => {
+  test("[account:guest-secures-the-life] given an in-app browser, then Google is not shown and the life is kept here by the code alone: no way out to another browser, where the life is not", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={ANDROID_WHATSAPP} />);
     expect(screen.queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
     expect(screen.getByText(say("ui.secure.in-app"))).toBeDefined();
-    expect(screen.getByRole("link", { name: say("ui.secure.open") }).getAttribute("href")).toMatch(/^intent:\/\//);
+    expect(say("ui.secure.in-app")).toBe("Google does not open inside this app. Keep this life with your email here, then open it in any browser.");
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.in-app.copy") })).toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
 

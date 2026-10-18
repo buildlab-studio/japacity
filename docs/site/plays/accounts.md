@@ -23,11 +23,12 @@ flowchart TD
   P -->|"Begin"| B["The bot check runs unseen"]
   B --> G["A guest life: plays at once"]
   S -->|"I already have a life here"| W["Sign back in: Google, a code by email, a passkey"]
+  A -->|"Already have a life here? Sign in."| W
   W -->|"A life is kept"| L["The life opens"]
   W -->|"No life with that"| S
 ```
 
-The age screen asks for a date of birth with nothing filled in and no hint of the age needed. The account keeps only that the screen was passed, never the date. The username is filled in from the character's name on the page and can be changed there: 3 to 20 letters, numbers or underscores, unique, never a name kept for the game's own people. Other players see it; it is never the character's name and never a way in. One change is free, then there is a wait between changes.
+In a browser a kept life was open in, the start screen turns its two doors round: "Sign in to my life" first, "Start a new life" under it. The age screen asks for a date of birth with nothing filled in and no hint of the age needed, with one quiet line under it for a returning player who tapped Play by habit. The account keeps only that the screen was passed, never the date. The username is filled in from the character's name on the page and can be changed there: 3 to 20 letters, numbers or underscores, unique, never a name kept for the game's own people. Other players see it; it is never the character's name and never a way in. One change is free, then there is a wait between changes.
 
 ## What a guest can do
 
@@ -57,11 +58,11 @@ The ask comes after the first chapter, before the visa decision, and whenever a 
 | A passkey | Added from the settings once the life is kept; bound to the game's own address |
 
 ::: tip Inside a chat app's browser
-Some apps' built-in browsers block Google sign-in. There the game does not show Google: it offers the email code and a way to open the game in the phone's own browser.
+Some apps' built-in browsers block Google sign-in. There the game does not show Google. The ways back in offer the email code and a way to open the game in the phone's own browser; a guest life there is kept with the email code alone, since it lives in that app's browser, and once kept it opens in any browser.
 :::
 
 ::: details Exceptions
-- **A sign-in already used.** Keeping a guest life with a Google account or email that already has a life joins nothing and overwrites nothing: the game says so and the guest life stays as it is.
+- **A sign-in already used.** Keeping a guest life with a Google account or email that already has a life joins nothing and overwrites nothing: the game says so and the guest life stays as it is. It also offers to open the kept life instead, which ends the guest one; a guest's account sheet offers the same.
 - **A sign-in with no life.** Signing back in never makes an account: a way in with no life behind it says so and sends you back to Play.
 - **Full.** While sign-ups are switched off, a full screen says to try again shortly, and checks again on its own once the wait is over.
 - **Too many new lives.** Guest lives from one device or one connection in a day are limited.
