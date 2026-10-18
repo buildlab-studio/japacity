@@ -91,7 +91,7 @@ async function codeFor(page: Page, email: string, after: number): Promise<string
         const { messages } = (await reply.json()) as { messages: { To: { Address: string }[]; Subject: string; Snippet: string; Created: string }[] };
         const mine = messages.find((one) => one.To.some((to) => to.Address === email) && Date.parse(one.Created) >= after);
         found = mine?.Snippet.match(/\b(\d{6})\b/)?.[1] ?? "";
-        if (mine !== undefined) expect(mine.Subject).toBe("Your Japacity code");
+        if (mine !== undefined) expect(mine.Subject).toBe(`${found} is your Japacity code`);
         return found;
       },
       { timeout: 20_000, message: `no code reached Mailpit for ${email}` },
