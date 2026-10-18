@@ -4,29 +4,15 @@
 import { text, textTables } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { routesUiText } from "../features/activity/routes.words";
-import { adviceUiText } from "../features/advice/advice.words";
-import { cityText } from "../features/city/city.words";
-import { sceneText } from "../features/city/scene.words";
-import { mapText } from "../features/map/map.words";
 import { calgaryMapText, castelMapText, dubaiMapText, londonMapText } from "../features/map/paper/paper.words";
 import { londonText } from "../shared/words/tables/london.words";
 import { calgaryText } from "../shared/words/tables/calgary.words";
 import { castelText } from "../shared/words/tables/castel.words";
 import { dubaiText } from "../shared/words/tables/dubai.words";
-import { phoneText } from "../features/phone/phone.words";
-import { roomText } from "../features/setpiece/room.words";
-import { turnText } from "../features/turn/turn.words";
-import { soundText } from "../shared/sound/sound.words";
 // The content check on institutions beside wrongdoing (person.md R-PEOPLE-063), run here over the client's tables too.
 import { institutionProblems } from "../../../../packages/content/src/person/person.names.check";
 
 const clientTables: Record<string, Record<string, string>> = {
-  routes: routesUiText,
-  advice: adviceUiText,
-  city: cityText,
-  scene: sceneText,
-  map: mapText,
   london: londonMapText,
   londonPlaces: { ...londonText },
   // Calgary's, Dubai's and Castel Volturno's papers and places, each a chunk of its own in the game.
@@ -36,10 +22,6 @@ const clientTables: Record<string, Record<string, string>> = {
   calgaryPlaces: { ...calgaryText },
   dubaiPlaces: { ...dubaiText },
   castelPlaces: { ...castelText },
-  phone: phoneText,
-  room: roomText,
-  turn: turnText,
-  sound: soundText,
 };
 
 /** Every line a player can read, with the table it is in. */
@@ -65,7 +47,7 @@ describe("the voice: no machine tells anywhere", () => {
   test("[R-TEXT-007] [R-TEXT-005] given the walk, then it reads content's words and every table of the client's", () => {
     expect(every.length).toBeGreaterThan(5000);
     expect(every.filter(({ table }) => table.startsWith("content.")).length).toBe(Object.keys(text).length);
-    expect(Object.keys(clientTables)).toEqual(expect.arrayContaining(["city", "map", "phone", "turn"]));
+    expect(Object.keys(textTables)).toEqual(expect.arrayContaining(["ui", "uiCity", "uiMap", "uiPhone", "uiTurn"]));
   });
 
   test("[R-TEXT-007] [R-TEXT-005] given every line, then none has an em-dash, an en-dash or an exclamation mark, but for the scam's own shout", () => {

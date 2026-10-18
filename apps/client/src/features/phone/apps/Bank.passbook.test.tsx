@@ -3,7 +3,7 @@
 // as cards with one tap each and the pace line under the figure, every figure the view's own (PlayerView.passbook).
 // These tests cite the Bank's rule, R-WORLD-019, and the moments' rules for the stamp's card. Played on the real
 // engine and content.
-import { content } from "@japacity/content";
+import { content, uiPassbookText } from "@japacity/content";
 import type { Effect, PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
@@ -18,7 +18,7 @@ import { formatMoney } from "../../../shared/words/format";
 import { moneyLines } from "../../../shared/words/money";
 import { nameOf, runningName } from "../../../shared/words/text";
 import { Bank } from "./Bank";
-import { passbookCount, passbookText, passbookWords, shortNaira } from "./passbook.words";
+import { passbookCount, passbookWords, shortNaira } from "./passbook.words";
 
 const CARE = "route.uk-care" as const;
 
@@ -173,7 +173,7 @@ describe("the Bank's first page, the passbook", () => {
     await renderWithView(<Bank />, nurse(2).view());
     const said = [...document.querySelectorAll("[data-passbook], [data-stamps], [data-last-month], [data-roads]")].map((part) => part.textContent ?? "").join(" ");
     expect(said).not.toMatch(/\bslots?\b|\bturns?\b|\bbanked\b|\bpages?\b|days left|%/i);
-    expect(Object.values(passbookText).join(" ")).not.toMatch(/\bslots?\b|\bturns?\b|\bbanked\b|\bpages?\b|days left|%|[–—!]/i);
+    expect(Object.values(uiPassbookText).join(" ")).not.toMatch(/\bslots?\b|\bturns?\b|\bbanked\b|\bpages?\b|days left|%|[–—!]/i);
   });
 });
 

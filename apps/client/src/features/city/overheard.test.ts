@@ -1,11 +1,11 @@
 // Street talk abroad (docs/rules/world.md R-WORLD-026, city.md R-CITY-003, streets.md R-STREET-007):
 // a place abroad says only its own lines, never the Lagos talk of the news and the routes, and the
 // room abroad has its own short set: the landlord, the radiator, a neighbour through the wall.
-import { text } from "@japacity/content";
+import { text, uiCityText } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, newGame } from "../../shared/testing/fixtures";
-import { cityText, heardWords } from "./city.words";
+import { heardWords } from "./city.words";
 import { heardHere, overheard, placeLines, speakerOf } from "./overheard";
 
 const ROOM = "place.the-room";
@@ -34,7 +34,7 @@ describe("talk overheard abroad", () => {
     expect(set.length).toBeGreaterThanOrEqual(3);
     expect(own).toEqual([...placeLines(ROOM), ...set]);
     const said = set.map((key) => heardWords(key, {}));
-    expect(said).toEqual(set.map((key) => cityText[key]));
+    expect(said).toEqual(set.map((key) => uiCityText[key]));
     expect(said.filter((words) => DASHES.test(words))).toEqual([]);
     expect(said.some((words) => /landlord/i.test(words))).toBe(true);
     expect(said.some((words) => /radiator/i.test(words))).toBe(true);
@@ -98,7 +98,7 @@ describe("talk overheard abroad", () => {
 
 
 describe("who says a line overheard", () => {
-  const said = (key: string): string => text[key] ?? cityText[key] ?? key;
+  const said = (key: string): string => text[key] ?? key;
 
   test("[R-WORLD-026] given the family house, when its own lines are heard, then each carries who says it, read from content beside the line, and a compound's rota, said by nobody in particular, carries no one", () => {
     const view = newGame("scenario.ada").view();

@@ -88,6 +88,17 @@ import { uiOnlineText } from "./ui/ui.online.text";
 import { uiPersonText } from "./ui/ui.person.text";
 import { uiProfileText } from "./ui/ui.profile.text";
 import { uiWorldText } from "./ui/ui.world.text";
+import { uiAdviceText } from "./ui/ui.advice.text";
+import { uiCityText } from "./ui/ui.city.text";
+import { uiMapText } from "./ui/ui.map.text";
+import { uiModerationText } from "./ui/ui.moderation.text";
+import { uiPassbookText } from "./ui/ui.passbook.text";
+import { uiPhoneText } from "./ui/ui.phone.text";
+import { uiRoomText } from "./ui/ui.room.text";
+import { uiRoutesText } from "./ui/ui.routes.text";
+import { uiSceneText } from "./ui/ui.scene.text";
+import { uiSoundText } from "./ui/ui.sound.text";
+import { uiTurnText } from "./ui/ui.turn.text";
 
 export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about.data";
 export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/about.light";
@@ -228,6 +239,17 @@ export const textTables: Record<string, Record<string, string>> = {
   uiPerson: uiPersonText,
   uiProfile: uiProfileText,
   uiWorld: uiWorldText,
+  uiAdvice: uiAdviceText,
+  uiCity: uiCityText,
+  uiMap: uiMapText,
+  uiModeration: uiModerationText,
+  uiPassbook: uiPassbookText,
+  uiPhone: uiPhoneText,
+  uiRoom: uiRoomText,
+  uiRoutes: uiRoutesText,
+  uiScene: uiSceneText,
+  uiSound: uiSoundText,
+  uiTurn: uiTurnText,
 };
 
 /**
@@ -252,7 +274,30 @@ export function mergeText(tables: Record<string, Record<string, string>>): Recor
 
 export const text: Record<string, string> = mergeText(textTables);
 /** The interface's own tables, each also merged into `text`. */
-export { uiBoardsText, uiColoursText, uiDaysText, uiJobsText, uiLivelyText, uiLotteryText, uiOnlineText, uiPersonText, uiProfileText, uiText, uiWorldText };
+export {
+  uiAdviceText,
+  uiBoardsText,
+  uiCityText,
+  uiColoursText,
+  uiDaysText,
+  uiJobsText,
+  uiLivelyText,
+  uiLotteryText,
+  uiMapText,
+  uiModerationText,
+  uiOnlineText,
+  uiPassbookText,
+  uiPersonText,
+  uiPhoneText,
+  uiProfileText,
+  uiRoomText,
+  uiRoutesText,
+  uiSceneText,
+  uiSoundText,
+  uiText,
+  uiTurnText,
+  uiWorldText,
+};
 
 export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guide.check";
 export { GUIDE_SECTIONS } from "./guide/guide.data";

@@ -1,4 +1,4 @@
-import { content, OFFICER_REACTIONS, setpieceVoice, text } from "@japacity/content";
+import { content, OFFICER_REACTIONS, setpieceVoice, text, uiRoomText, uiSoundText } from "@japacity/content";
 import { offerChanceBp } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
 import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
@@ -8,10 +8,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/sound/sound.testing";
 import { installSoundWake, MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
-import { soundText } from "../../shared/sound/sound.words";
 import { renderWithGame } from "../../shared/testing/person";
 import { CLOSE, drawReaction, GREET, roomStore, VOICED } from "./room.store";
-import { roomText } from "./room.words";
 import { SetpieceView } from "./SetpieceView";
 
 const entry = content.setpiece[VOICED]!;
@@ -65,7 +63,7 @@ async function open(options: FakeSoundOptions, game = interviewGame()): Promise<
 }
 
 async function enter(): Promise<void> {
-  fireEvent.click(within(room()).getByRole("button", { name: roomText["room.enter"]! }));
+  fireEvent.click(within(room()).getByRole("button", { name: uiRoomText["room.enter"]! }));
   await after(0);
 }
 
@@ -109,7 +107,7 @@ describe("walking in", () => {
   test("given the application just sent, then the room waits for the player to enter, with no answers yet, and only this interview's clips are fetched ahead", async () => {
     const { fake, game } = await open({});
     await after(0);
-    expect(within(room()).getByRole("button", { name: roomText["room.enter"]! })).toBeDefined();
+    expect(within(room()).getByRole("button", { name: uiRoomText["room.enter"]! })).toBeDefined();
     expect(answersOpen()).toBe(false);
     const first = `${VOICED}.q.${game.view().setpiece!.question!.id}`;
     const expected = [GREET, first, ...OFFICER_REACTIONS, CLOSE].map((key) => `${clipOf(key)}.opus`);
@@ -138,7 +136,7 @@ describe("walking in", () => {
   test("given the officer speaking, when the player taps to skip, then the answers show at once and the clip stops", async () => {
     const { fake } = await open({});
     await enter();
-    fireEvent.click(within(room()).getByRole("button", { name: roomText["room.skip"]! }));
+    fireEvent.click(within(room()).getByRole("button", { name: uiRoomText["room.skip"]! }));
     await after(0);
     expect(answersOpen()).toBe(true);
     expect(fake.played).toHaveLength(1);
@@ -149,7 +147,7 @@ describe("the notice never blocks an answer", () => {
   test("given the sound-on notice showing, when an answer is tapped, then it is sent, the notice still there; and the notice goes by itself", async () => {
     const { fake, game } = await open({});
     await enter();
-    fireEvent.click(within(room()).getByRole("button", { name: roomText["room.skip"]! }));
+    fireEvent.click(within(room()).getByRole("button", { name: uiRoomText["room.skip"]! }));
     await after(0);
     expect(notice()).toBe("on");
     const answer = game.view().setpiece!.question!.answers[1]!;
@@ -165,9 +163,9 @@ describe("the notice never blocks an answer", () => {
   test("given the sound-on notice, when it is tapped, then sound mutes and the switch shows it", async () => {
     await open({});
     await enter();
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(soundText["sound.notice.on"]!) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(uiSoundText["sound.notice.on"]!) }));
     await after(0);
-    expect(screen.getByRole("button", { name: soundText["sound.unmute"]! }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: uiSoundText["sound.unmute"]! }).getAttribute("aria-pressed")).toBe("true");
   });
 
   test("given the notice is announced, then it sits in a polite live region and takes no focus", async () => {
@@ -196,7 +194,7 @@ describe("the scene completes whatever sound does", () => {
     await enter();
     await after(READY_MS);
     fake.allow();
-    fireEvent.click(screen.getByRole("button", { name: soundText["sound.notice.blocked"]! }));
+    fireEvent.click(screen.getByRole("button", { name: uiSoundText["sound.notice.blocked"]! }));
     await after(0);
     expect(notice()).toBe("none");
     expect(fake.played).toEqual([`${clipOf(`${VOICED}.q.who-pays`)}.opus`]);
@@ -250,7 +248,7 @@ describe("the scene completes whatever sound does", () => {
   test("given data-saver on, when its notice is tapped, then the clips are fetched and the question is spoken", async () => {
     const { fake, game } = await open({ saveData: true, awake: true });
     await enter();
-    fireEvent.click(screen.getByRole("button", { name: soundText["sound.notice.saver"]! }));
+    fireEvent.click(screen.getByRole("button", { name: uiSoundText["sound.notice.saver"]! }));
     await after(0);
     const question = `${clipOf(`${VOICED}.q.${game.view().setpiece!.question!.id}`)}.opus`;
     expect(fake.fetched).toContain(question);
@@ -261,7 +259,7 @@ describe("the scene completes whatever sound does", () => {
     await open({ supported: false });
     await enter();
     expect(notice()).toBe("unsupported");
-    expect(screen.queryByRole("button", { name: soundText["sound.notice.unsupported"]! })).toBeNull();
+    expect(screen.queryByRole("button", { name: uiSoundText["sound.notice.unsupported"]! })).toBeNull();
     expect(answersOpen()).toBe(true);
   });
 
@@ -272,7 +270,7 @@ describe("the scene completes whatever sound does", () => {
     expect(answersOpen()).toBe(true);
     expect(fake.fetched).toEqual([]);
     expect(notice()).toBe("none");
-    fireEvent.click(screen.getByRole("button", { name: soundText["sound.unmute"]! }));
+    fireEvent.click(screen.getByRole("button", { name: uiSoundText["sound.unmute"]! }));
     expect(localStorage.getItem("japacity.sound.muted")).toBe("0");
   });
 });
@@ -286,7 +284,7 @@ describe("what the officer says", () => {
     const reaction = room().querySelector("[data-line]")!.getAttribute("data-line")!;
     expect(OFFICER_REACTIONS).toContain(reaction);
     expect(within(room()).getByText(text[`${VOICED}.q.sponsor-who`]!)).toBeDefined();
-    expect(within(room()).getByText(roomText["room.follow-up"]!)).toBeDefined();
+    expect(within(room()).getByText(uiRoomText["room.follow-up"]!)).toBeDefined();
     expect(within(room()).getByText(`Question 2 of ${String(entry.ask + 1)}`)).toBeDefined();
   });
 

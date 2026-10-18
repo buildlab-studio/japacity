@@ -1,6 +1,6 @@
 // The interview's close as the world shows it: the officer's last
 // line holds the sheet open with one button, and the sound notice sits in the sheet's header, never over the band.
-import { content, OFFICER_REACTIONS, text } from "@japacity/content";
+import { content, OFFICER_REACTIONS, text, uiRoomText, uiSoundText } from "@japacity/content";
 import { offerChanceBp } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
 import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
@@ -11,10 +11,8 @@ import { useView } from "../../authority/GameProvider";
 import { fakeSound } from "../../shared/sound/sound.testing";
 import { installSoundWake, NOTICE_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
-import { soundText } from "../../shared/sound/sound.words";
 import { renderWithGame } from "../../shared/testing/person";
 import { CLOSE, roomStore, VOICED } from "./room.store";
-import { roomText } from "./room.words";
 import { SetpieceView, useClosingOpen } from "./SetpieceView";
 
 const entry = content.setpiece[VOICED]!;
@@ -54,7 +52,7 @@ async function open(options: Parameters<typeof fakeSound>[0], game = interviewGa
     </>,
     game,
   );
-  fireEvent.click(within(room()).getByRole("button", { name: roomText["room.enter"]! }));
+  fireEvent.click(within(room()).getByRole("button", { name: uiRoomText["room.enter"]! }));
   await after(0);
   return game;
 }
@@ -91,13 +89,13 @@ describe("the interview's close", () => {
     expect(closing).not.toBeNull();
     expect(within(closing!).getByText(text[CLOSE]!)).toBeDefined();
     expect(OFFICER_REACTIONS).toContain(closing!.querySelector("[data-line]")?.getAttribute("data-line"));
-    expect(within(closing!).getAllByRole("button").filter((button) => button.textContent === roomText["room.leave"])).toHaveLength(1);
+    expect(within(closing!).getAllByRole("button").filter((button) => button.textContent === uiRoomText["room.leave"])).toHaveLength(1);
   });
 
   test("[R-INTERVIEW-005] given the closing line on screen, when Leave the room is tapped, then the sheet has nothing more to hold and closes", async () => {
     const game = await open({ supported: false });
     await answerAll(game);
-    fireEvent.click(screen.getByRole("button", { name: roomText["room.leave"]! }));
+    fireEvent.click(screen.getByRole("button", { name: uiRoomText["room.leave"]! }));
     await after(0);
     expect(document.querySelector("[data-room='closing']")).toBeNull();
     expect(document.querySelector("[data-host='empty']")).not.toBeNull();
@@ -109,7 +107,7 @@ describe("the sound notice in the room", () => {
     await open({});
     const here = room().querySelector("[data-notice-here]");
     expect(here?.getAttribute("data-sound-notice")).toBe("on");
-    expect(within(here as HTMLElement).getByRole("button", { name: new RegExp(soundText["sound.notice.on"]!) })).toBeDefined();
+    expect(within(here as HTMLElement).getByRole("button", { name: new RegExp(uiSoundText["sound.notice.on"]!) })).toBeDefined();
     const corner = [...document.querySelectorAll("[data-sound-notice]")].find((region) => !room().contains(region));
     expect(corner?.getAttribute("data-sound-notice")).toBe("none");
     expect(corner?.childElementCount).toBe(0);

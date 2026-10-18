@@ -6,17 +6,10 @@ import { content, text } from "@japacity/content";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { cityText } from "../features/city/city.words";
-import { sceneText } from "../features/city/scene.words";
 import { Map } from "../features/map/Map";
-import { mapText } from "../features/map/map.words";
 import { mapPins } from "../features/map/pins";
 import { OfferView } from "../features/offer/OfferView";
-import { passbookText } from "../features/phone/apps/passbook.words";
-import { phoneText } from "../features/phone/phone.words";
-import { roomText } from "../features/setpiece/room.words";
 import { Results } from "../features/turn/Results";
-import { turnText } from "../features/turn/turn.words";
 import { engineView, recordedGame } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { nameOf } from "../shared/words/text";
@@ -26,7 +19,7 @@ import "../features/map/paper/PaperMap";
 const NEVER = /\b(slots?|banked|days left|chapters?|next turn|end (the )?turn|turns? left|next page|pages? left)\b|\b\d+ days? (left|to go)\b|%|[\u2013\u2014]/i;
 
 /** Every table of words a player can read, by name. */
-const TABLES: Record<string, Record<string, string>> = { content: text, city: cityText, scene: sceneText, map: mapText, turn: turnText, phone: phoneText, passbook: passbookText, room: roomText };
+const TABLES: Record<string, Record<string, string>> = { content: text };
 
 function said(line: string): string | null {
   return NEVER.exec(line.replace(/\{[^}]*\}/g, ""))?.[0] ?? null;

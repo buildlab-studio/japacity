@@ -1,4 +1,4 @@
-import { content, text } from "@japacity/content";
+import { content, text, uiAdviceText } from "@japacity/content";
 import type { Authority, Command, OfferView as Offer, PlayerView, Reply, ReportLine } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -9,7 +9,7 @@ import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, say, words } from "../../shared/words/text";
-import { adviceUiText, adviceWords } from "./advice.words";
+import { adviceWords } from "./advice.words";
 import { AgentSheets } from "./AgentSheet";
 
 const STOP = "offer.agent-stop";
@@ -250,7 +250,7 @@ describe("the sheet a thing's act opens", () => {
 
 describe("the sheet's words", () => {
   test("[R-ADVICE-009] given the sheet's own words and a sheet on screen, then no em-dash or en-dash appears anywhere", async () => {
-    for (const value of Object.values(adviceUiText)) expect(value).not.toMatch(/[–—]/);
+    for (const value of Object.values(uiAdviceText)) expect(value).not.toMatch(/[–—]/);
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only", "no-office", "look-office"])));
     expect(document.body.textContent).not.toMatch(/[–—]/);
   });
