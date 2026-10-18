@@ -241,6 +241,22 @@ export const phoneText: Record<string, string> = {
   "phone.settings.graphics.high": "High",
   "phone.settings.graphics.when": "The city takes it the next time it opens.",
   "phone.settings.about": "About the game",
+  // Japa after the grant and the flight.
+  "phone.japa.next": "Next: {step}",
+  "phone.japa.visa.label": "Your visa",
+  "phone.japa.visa.none": "No visa here",
+  "phone.japa.visa.lets": "What it lets you do",
+  "phone.japa.visa.way-up": "The way up",
+  "phone.japa.chapter.soon": "Starts when this month ends.",
+  // Jobs, for an application out.
+  "phone.jobs.applied": "Applied: {job}. They answer at the month's end.",
+  "phone.jobs.applied-at": "Applied: {job} at {place}. They answer at the month's end.",
+  // The Bank abroad when the month's dues pass the country's money held (docs/rules/world.md R-WORLD-019): the gap,
+  // then the way, change money into the country's own.
+  "phone.bank.dues": "Due this month: {due}. You hold {held}.",
+  "phone.bank.dues.way": "{from} to {to}",
+  // Abroad, one Change money heads the other monies, each with its pair.
+  "phone.bank.pair": "{from} to {to}",
 };
 
 /** Words for a phone key: content's first, then the interface's, then the phone's own drafts. */

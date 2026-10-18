@@ -39,18 +39,6 @@ function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
   return raise.month === null ? phoneWords("phone.jobs.raised.unknown") : phoneWords("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) });
 }
 
-/** Jobs' words for an application out, in the voice of docs/rules/text.md; the phone's table wins. */
-const APPLIED_TEXT: Record<string, string> = {
-  "phone.jobs.applied": "Applied: {job}. They answer at the month's end.",
-  "phone.jobs.applied-at": "Applied: {job} at {place}. They answer at the month's end.",
-};
-
-function appliedWords(key: string, params: Record<string, string>): string {
-  const said = phoneWords(key, params);
-  if (said !== key) return said;
-  return (APPLIED_TEXT[key] ?? key).replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => params[name] ?? whole);
-}
-
 const HUNT = "activity.job-hunt";
 /** The line a job asked for this month leaves, with the job as its `param` (R-ACTIVITY-015). */
 const APPLIED_LINE = "line.activity.job-hunt.now";
@@ -68,7 +56,7 @@ function appliedJobs(view: Pick<PlayerView, "activities" | "job">, monthLines: r
 /** "Applied: Staff nurse at the clinic. They answer at the month's end.": the place that stages the job, where there is one. */
 function appliedLine(job: Id<"activity">): string {
   const place = Object.values(content.place).find((entry) => entry.stages.includes(job));
-  return place === undefined ? appliedWords("phone.jobs.applied", { job: nameOf(job) }) : appliedWords("phone.jobs.applied-at", { job: nameOf(job), place: nameOf(place.id) });
+  return place === undefined ? phoneWords("phone.jobs.applied", { job: nameOf(job) }) : phoneWords("phone.jobs.applied-at", { job: nameOf(job), place: nameOf(place.id) });
 }
 
 /** The job an offer carries, from its terms. */
