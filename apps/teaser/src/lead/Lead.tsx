@@ -515,7 +515,7 @@ function LightsOut() {
             <Wordmark height={160} color={CREAM} />
           </div>
           <div style={{ marginTop: 90, display: "flex", flexDirection: "column", alignItems: "center", gap: 44, transform: `scale(${String(button)})` }}>
-            <PressButton size={66} style={{ borderColor: "#0b1130", boxShadow: `0 13px 0 ${CREAM}` }}>
+            <PressButton size={66} paint={NIGHT}>
               Play it
             </PressButton>
             <div style={{ fontWeight: 700, fontSize: 66, color: CREAM }}>japacity.app</div>
@@ -543,7 +543,7 @@ function LightsOut() {
         </div>
       </div>
       <div style={{ marginTop: 84, display: "flex", alignItems: "center", gap: 48, transform: `scale(${String(button)})` }}>
-        <PressButton size={62} style={{ borderColor: "#0b1130", boxShadow: `0 12px 0 ${CREAM}` }}>
+        <PressButton size={62} paint={NIGHT}>
           Play it
         </PressButton>
         <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 58, color: CREAM }}>japacity.app</div>

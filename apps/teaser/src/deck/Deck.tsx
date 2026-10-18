@@ -250,7 +250,7 @@ function EndRow() {
         <Wordmark height={MARK_HEIGHT} color={CREAM} />
       </div>
       <div style={{ position: "absolute", left: 0, right: 0, top: 690, display: "flex", justifyContent: "center", alignItems: "center", gap: 48, transform: `scale(${String(button)})`, opacity: Math.min(1, button * 2) }}>
-        <PressButton size={58} style={{ borderColor: "#0b1130", boxShadow: `0 12px 0 ${CREAM}` }}>
+        <PressButton size={58} paint={NIGHT}>
           Play it
         </PressButton>
         <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 54, color: CREAM }}>japacity.app</div>
