@@ -23,7 +23,7 @@ import { firstPings, GATE_LINE, landingOf, PLANE_MS } from "./plan";
 import SendOffScene from "./SendOffScene";
 
 // The stickers' pictures are read from the publish manifest; here there is none, and the scene stands without them.
-vi.mock("../../../shared/three/manifest", async (original) => ({ ...(await original<typeof import("../../../shared/three/manifest")>()), loadManifest: () => Promise.resolve({ files: {} }) }));
+vi.mock("../../../shared/three/manifest", async (original) => (await import("../../../shared/testing/manifest")).emptyManifest(original));
 
 afterEach(() => {
   act(() => sendOff.getState().close());

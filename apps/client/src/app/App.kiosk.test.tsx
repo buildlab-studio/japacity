@@ -26,20 +26,7 @@ import { drawOf, onlineLife, tuning } from "../features/lottery/lottery.testing"
 vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../shared/three/manifest", async (original) => (await import("../shared/testing/manifest")).fromDisk(original));
 
 const BODE_THOMAS = "place.bode-thomas";
 const STREET = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "public", "assets", "places", "bode-thomas-front", "place.json"), "utf8")) as PlaceFile;
