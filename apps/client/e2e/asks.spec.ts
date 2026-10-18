@@ -1,5 +1,5 @@
 import type { Command, Id, PlayerView, ReportLine } from "@japacity/sim";
-import { start, type Game } from "@japacity/sim/testing";
+import { FIRST_SESSION_MONTHS, start, type Game } from "@japacity/sim/testing";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -12,7 +12,7 @@ import { expect, test, type Page } from "@playwright/test";
 // month slept in the bed (docs/rules/world.md R-WORLD-025, R-WORLD-030), and
 // every screen before the first good line is searched for an ask.
 import { content, text } from "../../../packages/content/src/index";
-import { chapterNextStep, FIRST_SESSION_TURNS } from "../src/shared/testing/firstSession";
+import { chapterNextStep } from "../src/shared/testing/firstSession";
 import { startReadyLife } from "./support/door";
 import { backFromResults, doAct, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, sleepTheMonth } from "./support/live";
 
@@ -188,7 +188,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] [R-MOMENT-006] a new life played online as the
     await expect(told.locator("[data-share-button]")).toHaveCount(0);
     chapterTold = true;
   };
-  for (let month = 1; month <= FIRST_SESSION_TURNS; month += 1) {
+  for (let month = 1; month <= FIRST_SESSION_MONTHS; month += 1) {
     const game = server.game();
     if (game === null) throw new Error("The faked server holds no game.");
     const before = !won;

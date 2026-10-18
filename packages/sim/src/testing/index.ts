@@ -4,6 +4,8 @@
 export { start, finishPrologue } from "./play";
 export type { Game, StartOptions } from "./play";
 export { miniContent } from "./miniContent";
+export { chapterPicks, FIRST_SESSION_MONTHS, playFirstSession, startingLives } from "./firstSession";
+export type { FirstSession, NextStep, StartingLife, WaysOrder } from "./firstSession";
 export {
   answerFirst,
   applyEffects,

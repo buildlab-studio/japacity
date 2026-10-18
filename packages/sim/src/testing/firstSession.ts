@@ -62,9 +62,14 @@ function activitiesWith(content: Content, types: readonly string[], route?: stri
     .map((activity) => activity.id);
 }
 
-function towards(view: PlayerView, content: Content, requirement: Requirement): SlotPick | null {
+/** Puts the ways of an item met by any one of them in the order they are tried. */
+export type WaysOrder = (ways: readonly Requirement[], view: PlayerView) => Requirement[];
+
+function towards(view: PlayerView, content: Content, requirement: Requirement, order?: WaysOrder): SlotPick | null {
   const first = (ids: readonly string[], param?: string) => ids.map((id) => pick(view, id, param)).find((found) => found !== null) ?? null;
   if (requirement.type === "job/any") return first(activitiesWith(content, ["activity/hunt"]));
+  // Without an order, an item met by any one of several ways is left to rest.
+  if (requirement.type === "any" && order !== undefined) return order(requirement.of, view).map((one) => towards(view, content, one, order)).find((found) => found !== null) ?? null;
   if (requirement.type !== "route/state") return null;
   const route = view.routes.find((entry) => entry.id === requirement.route);
   if (route?.state === "unknown") return first(activitiesWith(content, ["route/hear"], requirement.route));
@@ -72,14 +77,20 @@ function towards(view: PlayerView, content: Content, requirement: Requirement): 
   return null;
 }
 
-/** The month's picks: one for each unmet item of the current chapter an activity can serve, in order, then rest. */
-function nextStep(view: PlayerView, content: Content): SlotPick[] {
+/** What the month's picks are, read from the view. */
+export type NextStep = (view: PlayerView, content: Content) => SlotPick[];
+
+/**
+ * The month's picks: one for each unmet item of the current chapter an activity can serve, in
+ * order, then rest. `order` tries the ways of an item met by any one of them.
+ */
+export function chapterPicks(view: PlayerView, content: Content, order?: WaysOrder): SlotPick[] {
   const chapter = view.chapter.current === null ? undefined : content.chapter[view.chapter.current];
   const picks: SlotPick[] = [];
   for (const item of chapter?.items ?? []) {
     if (picks.length >= view.freeSlots) break;
     if (view.chapter.items.find((entry) => entry.id === item.id)?.met !== false) continue;
-    const next = towards(view, content, item.requirement);
+    const next = towards(view, content, item.requirement, order);
     if (next !== null && !picks.some((held) => held.activity === next.activity)) picks.push(next);
   }
   return picks;
@@ -108,9 +119,10 @@ function closeSetpiece(game: Game): void {
   }
 }
 
-/** Plays a starting life's prologue, then its first three months, and finds its early win. */
-export function playFirstSession(life: StartingLife, content: Content, seed = "first-session", worldSeed = "first-session-world"): FirstSession {
-  const game = start({ scenario: life.scenario, content, seed, worldSeed });
+/** Plays a starting life's prologue, then its first three months as `nextStep` picks them (the chapter's by default), and finds its early win. */
+export function playFirstSession(life: StartingLife, content: Content, options: { seed?: string | undefined; worldSeed?: string; nextStep?: NextStep } = {}): FirstSession {
+  const nextStep = options.nextStep ?? chapterPicks;
+  const game = start({ scenario: life.scenario, content, seed: options.seed ?? "first-session", worldSeed: options.worldSeed ?? "first-session-world" });
   const path = playPrologue(game, life);
   const months: FirstSession["months"] = [];
   let earlyWin: FirstSession["earlyWin"] = null;
