@@ -1,6 +1,6 @@
 import type { Id } from "@japacity/sim";
 import { standInWorld } from "@japacity/sim";
-import { lifeSaves, start } from "@japacity/sim/testing";
+import { start } from "@japacity/sim/testing";
 import { expect, test, type Page } from "@playwright/test";
 
 // The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
@@ -10,6 +10,7 @@ import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startArchetype, startReadyLife } from "./support/door";
 import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./support/live";
+import { adaBeforeFlight, kept, recorded } from "./support/saves";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
@@ -184,13 +185,6 @@ test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on
   await expectNothingBroken(page, "in the world");
 });
 
-/** Ada's recorded life up to the flight: the client loads it as a save through the local authority. */
-function adaBeforeFlight(): string {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
-}
-
 /** The send-off card opens on no screen of its own once the flight's moment is closed (R-SHARE-015): the phone keeps it. */
 async function noSendOffScreen(page: Page): Promise<void> {
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
@@ -222,8 +216,7 @@ async function boardThePlane(page: Page): Promise<void> {
  * recorded seed, says which month that is.
  */
 function monthsToDecember(): number {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
+  const save = recorded("ada-careful");
   const flight = save.commands[save.commands.length - 1]?.tick ?? 0;
   for (let tick = flight; tick < flight + 12; tick += 1) {
     if (standInWorld(save.worldSeed, tick, content).vars["var.season-december"] === 1) return tick - flight + 1;
@@ -366,7 +359,7 @@ function tundeOfferedTutoring(): string {
   }
   if (!offered()) throw new Error("The tutoring was never offered.");
   if (game.state.turn.banked === 0) game.grant(1);
-  return JSON.stringify({ save: game.save, clock: { anchor: 0 } });
+  return kept(game.save);
 }
 
 test.describe("the side job on a 390 px phone", () => {

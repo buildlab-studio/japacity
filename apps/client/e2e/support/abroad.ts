@@ -9,6 +9,7 @@ import type { Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
 import { type CityProbe, passCards } from "./live";
+import { kept } from "./saves";
 
 export interface AbroadLife {
   strategy: StrategyName;
@@ -41,7 +42,7 @@ export function lifeIn(want: AbroadLife): string {
   const begun = lifeStart(game.save);
   if (begun === null) throw new Error("A played life starts from its scenario.");
   const save: FlatSave = { schema: 2, content: lastSegment(game.save).content, ...begun, commands: savedCommands(game.save) };
-  return JSON.stringify({ save, clock: { anchor: 0 } });
+  return kept(save);
 }
 
 /** The money in the band, as whole units of the country's currency. */

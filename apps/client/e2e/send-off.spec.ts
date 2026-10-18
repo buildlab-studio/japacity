@@ -4,23 +4,16 @@
 // Window or aisle, the gate where Board the plane sends the flight once, the plane over the night map, the landing in
 // Peckham with the bus, the top deck with the pings, the card saved and the Phone's badge; Ring the bell and the life
 // stands in the room abroad, the card kept where the phone keeps it.
-import { lifeSaves } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { closeGranted, doAct, LIVED, passCards, placeNow, placeReady, rideTo, seedSave } from "./support/live";
+import { adaBeforeFlight } from "./support/saves";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
 test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch, launchOptions: SOFTWARE_WEBGL });
-
-/** Ada's recorded life up to the month before she flies. */
-function adaBeforeFlight(): string {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
-}
 
 /** How many times the flight is in the save the page keeps: each command played is written there as it lands. */
 async function departures(page: Page): Promise<number> {

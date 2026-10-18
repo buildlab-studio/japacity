@@ -4,7 +4,7 @@
 // played, a recorded life seeded (packages/sim/src/goldens/lives.data.ts), and the development build's hooks
 // (`window.__city`, `__map`, `__sendOff`, `?clock=`). A screen that cannot be reached is written down as not reached,
 // with why, and the test goes on. Nothing here asserts how a screen should look: the look is the review's.
-import { lifeSaves, start } from "@japacity/sim/testing";
+import { start } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
@@ -13,6 +13,7 @@ import { NOT_FAKED, ONLINE, quietSocket, SIGNED_OUT, STANDING, viewReply } from 
 import { type AbroadLife, clear as clearAbroad, lifeIn } from "../support/abroad";
 import { passOpeningWords, passThePage } from "../support/door";
 import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../support/live";
+import { recorded, recordedUpTo } from "../support/saves";
 import { attempt, missed, shot, shotPages } from "./shoot";
 
 /** The day and the night as the development build pins them (`?clock=`), with the sleep cut short and the morning now. */
@@ -325,17 +326,10 @@ for (const start of STARTS) {
 // Recorded lives, seeded as the suite seeds them (live.ts seedSave), cut where the screen wanted stands.
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** A recorded life's save, its commands cut at `upTo` (all of them when null), as the page keeps it. */
-function lifeUpTo(name: string, upTo: number | null): string {
-  const save = lifeSaves[name];
-  if (save === undefined) throw new Error(`No recorded life ${name}.`);
-  return JSON.stringify({ save: { ...save, commands: upTo === null ? save.commands : save.commands.slice(0, upTo) }, clock: { anchor: 0 } });
-}
-
 /** Ada's careful life the month before the visa's answer: the turn that grants it is the next command (index 285). */
 const ADA_BEFORE_ANSWER = 285;
 /** Ada's careful life with the visa granted, the month before she flies: every command but the flight. */
-const ADA_GRANTED = (lifeSaves["ada-careful"]?.commands.length ?? 1) - 1;
+const ADA_GRANTED = recorded("ada-careful").commands.length - 1;
 /** Ada's careful life with the visa interview open: the act that opens it is the command before (index 280). */
 const ADA_INTERVIEW = 281;
 /** Ada's second life a few months into London on a sponsored job (she lands at command 420). */
@@ -361,7 +355,7 @@ async function clearTheWorld(page: Page): Promise<void> {
 
 /** A recorded life opened in the world at `search`, past its opening words and every card. */
 async function openLife(page: Page, life: string, upTo: number | null, search: string): Promise<void> {
-  await seedSave(page, lifeUpTo(life, upTo));
+  await seedSave(page, recordedUpTo(life, upTo));
   await page.goto(`/${search}`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);

@@ -3,7 +3,6 @@
 // opens the world as any address does; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
 // the band and a tap on it opens what is asked. With PREVIEW_DIR set, each step leaves a picture there.
-import { lifeSaves } from "@japacity/sim/testing";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -11,6 +10,7 @@ import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords, startReadyLife } from "./support/door";
 import { backFromResults, LIVED, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./support/live";
 import { shoot } from "./support/preview";
+import { kept, recorded } from "./support/saves";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: SOFTWARE_WEBGL });
 
@@ -46,10 +46,9 @@ async function visibleButtons(page: Page): Promise<string[]> {
 
 /** Ada's recorded life one month in: the acts sent at once before its first month's end, not the end itself, whose turn opens the life's first offer. */
 function adaOneMonthIn(): string {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
+  const save = recorded("ada-careful");
   const firstEnd = save.commands.findIndex((entry) => entry.command.type === "turn/end");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, firstEnd) }, clock: { anchor: 0 } });
+  return kept({ ...save, commands: save.commands.slice(0, firstEnd) });
 }
 
 test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the world with the band, the two buttons and the wide home's round turn button and nothing else, and nothing under the band", async ({ page }, info) => {

@@ -10,6 +10,7 @@ import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { doAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeReady, putPhoneAway, seedSave, sleepTheMonth, bedThing } from "./support/live";
 import { shootAtSize } from "./support/preview";
+import { kept } from "./support/saves";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
@@ -72,7 +73,7 @@ function linkFriend(game: Game): void {
 /** The life handed to the client and opened in the world, past any card over it, its place drawn. */
 async function seed(page: Page, game: Game): Promise<void> {
   if (game.state.turn.banked === 0) game.grant(1);
-  await seedSave(page, JSON.stringify({ save: game.save, clock: { anchor: 0 } }));
+  await seedSave(page, kept(game.save));
   await page.goto(`/${LIVED}`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await passCards(page);
