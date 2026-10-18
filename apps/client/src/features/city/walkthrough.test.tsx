@@ -30,7 +30,7 @@ describe("the first-use labels", () => {
     localStorage.removeItem(WALK_KEY);
     await renderWithView(world(), engineView());
     expect(document.querySelector("[data-walkthrough], [data-walk-card]")).toBeNull();
-    // The first chapter's brief is a person handing a mission over (design page 13 section 4), not a lecture: its card
+    // The first chapter's brief is a person handing a mission over (design page 09 section 4), not a lecture: its card
     // stands over the foot, and the thumbs' words wait for it to be carried.
     expect(document.querySelector("[data-brief]")).not.toBeNull();
     expect(labels()).toEqual([]);

@@ -1,4 +1,4 @@
-// The first chapter's opening as the hand draws it (chapter:first-chapter-mission-card; world:world-fills-the-screen; design page 13
+// The first chapter's opening as the hand draws it (chapter:first-chapter-mission-card; world:world-fills-the-screen; design page 09
 // section 4): the first brief is a mission card handed by a person at the hub, in their voice,
 // with its things, the place of each and one button, Let's go; once carried, its chip stands under the band for a moment,
 // then slides into the Phone thumb, whose Japa app takes a dot. A later chapter's card is the same mission card.

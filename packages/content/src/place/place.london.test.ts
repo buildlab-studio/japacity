@@ -1,4 +1,4 @@
-// The places of London (docs/rules/city.md "Entries: abroad", the London rows; design page 14 section 4):
+// The places of London (docs/rules/city.md "Entries: abroad", the London rows; design page 10 section 4):
 // each with its position, scope, kind of name, scene folder and what it stages, the UK's jobs at their own workplaces,
 // and every staged id staged once for each country (city:places-stage-their-acts).
 import type { Id, PlaceEntry } from "@japacity/sim";
@@ -72,7 +72,7 @@ describe("the places of London", () => {
       const at = places.filter((place) => place.country === "country.uk" && (place.stages as readonly string[]).includes(job)).map((place) => place.id);
       expect({ job, at: at.length }).toEqual({ job, at: 1 });
     }
-    // Every country's jobs are at its own places (design page 15), so there is no country-less workplace.
+    // Every country's jobs are at its own places (design page 11), so there is no country-less workplace.
     expect(content.place["place.workplace-abroad"]).toBeUndefined();
   });
 

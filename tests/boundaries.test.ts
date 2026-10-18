@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { readJson, REPO_ROOT, toPosix } from "../tools/repo";
 
-// Import boundaries from docs/design/04-structure-and-conventions.md section 9.
+// Import boundaries from docs/design/03-structure-and-conventions.md section 9.
 
 interface Exception {
   readonly file: string;

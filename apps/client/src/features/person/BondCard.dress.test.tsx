@@ -1,4 +1,4 @@
-// A bond's parts in the lively dress (person:proposing-a-step, person:view-shows-people; design page 13 section 2): the
+// A bond's parts in the lively dress (person:proposing-a-step, person:view-shows-people; design page 09 section 2): the
 // person's face sticker over what is known of them, the mark and the facts as sticker chips, what waits on a white card,
 // the pressed yellow button for the one action and ghost buttons for the rest. What each part says and sends is
 // PeopleOnPhone.test's; this proves the dress and the face.

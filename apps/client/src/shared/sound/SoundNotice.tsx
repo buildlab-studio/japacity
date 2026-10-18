@@ -1,4 +1,4 @@
-// The game's one small notice (docs/design/06-audio.md, section 7): a corner of the screen,
+// The game's one small notice (docs/design/05-audio.md, section 7): a corner of the screen,
 // never over the question or the answers, never needing to be closed, gone by itself after a few
 // seconds, at most once a scene. Read out to screen readers without taking the focus.
 import { Volume2, VolumeX } from "lucide-react";

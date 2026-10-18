@@ -1,4 +1,4 @@
-// The callout budget (the talk budget, docs/design/13-the-lively-layer.md section 5): at most three
+// The callout budget (the talk budget, docs/design/09-the-lively-layer.md section 5): at most three
 // callouts over the scene at once. The fan the player opened, the road's chip and the marker come first, in that order;
 // a word bubble is the fourth and waits. The band and the thumbs are chrome and never count.
 

@@ -1,7 +1,7 @@
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-// The visa interview, spoken (docs/design/06-audio.md, section 7), inside a faked in-app browser:
+// The visa interview, spoken (docs/design/05-audio.md, section 7), inside a faked in-app browser:
 // most players arrive through one. Ada's recorded life is loaded just as her application went in; the interview waits in
 // the world as an ask, opened from the line under the band.
 import { setpieceVoice, text } from "../../../packages/content/src/index";

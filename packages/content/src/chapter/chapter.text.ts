@@ -335,7 +335,7 @@ export const chapterText: Record<string, string> = {
   "chapter.secure.item.secure": "Settle where you are, come home on your own terms, or win a second visa",
   "chapter.secure.item.secure.nudge": "Settle here, or go home your way",
 
-  // The briefs (docs/design/13-the-lively-layer.md section 4): each chapter handed over as a mission card
+  // The briefs (docs/design/09-the-lively-layer.md section 4): each chapter handed over as a mission card
   // by its person, in their voice. `.brief.title` is the title with a wink, at most three words; `.brief.giver` and
   // `.giver.where` who hands it and where; `.brief.reward.<n>` the rewards as picture chips; `.brief.at.<item>` the
   // two-word place under a thing where the stop's own name would not say it. `chapter.brief.*` serves every chapter:

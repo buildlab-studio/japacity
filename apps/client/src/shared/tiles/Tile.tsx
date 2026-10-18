@@ -1,4 +1,4 @@
-// The picture on a choice (design page 13, the pictures): a model's tile, found through the publish manifest as the
+// The picture on a choice (design page 09, the pictures): a model's tile, found through the publish manifest as the
 // place files are, or the emoji standing in where no model exists. Plain; the sticker's cut wraps it.
 import { useEffect, useState } from "react";
 

@@ -1,4 +1,4 @@
-// London lived by hand with the real content: streets:london-life-by-hand (design page 14 section 6) and
+// London lived by hand with the real content: streets:london-life-by-hand (design page 10 section 6) and
 // abroad-money:arrival-opens-upkeep-and-room. Food is bought and cooked in pounds as it is eaten, the evenings
 // are paid as they are had, and the UK's upkeep is the phone alone.
 import { content, text } from "@japacity/content";

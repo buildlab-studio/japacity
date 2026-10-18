@@ -1,4 +1,4 @@
-// The mission card and the chapter close (docs/design/13-the-lively-layer.md section 4): a
+// The mission card and the chapter close (docs/design/09-the-lively-layer.md section 4): a
 // brief handed by its person in their voice, the things as
 // sticker tiles with the place under each, the reward as picture chips, the next brief faint, one button "Let's go"; and
 // at the close the same card with every tick, the stamp landing with a thud, confetti, and the next briefs as picture cards.

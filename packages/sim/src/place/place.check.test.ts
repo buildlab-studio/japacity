@@ -106,7 +106,7 @@ describe("what happens where", () => {
   });
 
   test("[city:places-stage-their-acts] given an id staged by a place of one country and by a place that serves every country, when checked, then both are allowed", () => {
-    // There is no country-less test centre (city.md, design page 15), so the room, which serves every country, stands in
+    // There is no country-less test centre (city.md, design page 11), so the room, which serves every country, stands in
     // for a country-less place staging the UK test centre's nurse's tests.
     expect(place("place.test-centre-uk").stages).toContain("activity.nmc-tests");
     const room = place("place.the-room");

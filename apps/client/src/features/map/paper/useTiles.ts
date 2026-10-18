@@ -1,4 +1,4 @@
-// The published tiles the painted map stands its stickers on (design page 13, the pictures): read once from the publish
+// The published tiles the painted map stands its stickers on (design page 09, the pictures): read once from the publish
 // manifest, as the Tile component reads its own, and asked for by model name.
 import { useEffect, useMemo, useState } from "react";
 

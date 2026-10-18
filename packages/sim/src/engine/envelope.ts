@@ -1,5 +1,5 @@
 // Envelopes: the one place the real clock shows (clock:envelopes-show-real-waits; decision 0011;
-// docs/design/12-the-lived-month-and-the-files.md). A result real life makes you wait for, the English
+// docs/design/08-the-lived-month.md). A result real life makes you wait for, the English
 // test's band, the endorsing body's answer, a visa decision, is worked out by the simulation as the month
 // turns, as ever, and the authority holds it back until the next morning in Lagos. Nothing here reads a
 // clock: `now` and the morning are given. The simulation's state never changes; only what the view says.

@@ -1,5 +1,5 @@
 // The mute switch: remembered on the device, no volume slider, since phones do not let a page
-// set the volume. Muted, nothing is fetched (docs/design/06-audio.md, section 7).
+// set the volume. Muted, nothing is fetched (docs/design/05-audio.md, section 7).
 import { Volume2, VolumeX } from "lucide-react";
 
 import { setMuted } from "./sound";

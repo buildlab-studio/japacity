@@ -1,5 +1,5 @@
 // The white van the gangmaster sends at dawn (world:ride-abroad-and-workplace, place:employer-shuttle-rides-free;
-// design page 15 section 6): a plain panel van, dusty along the sills, with no name, mark or livery (assets:no-real-brands-on-assets).
+// design page 11 section 6): a plain panel van, dusty along the sills, with no name, mark or livery (assets:no-real-brands-on-assets).
 // The back is built to be ridden in: thin walls with plywood to shoulder height inside, a wooden bench down each
 // side, and a small window cut through the wall over each bench, in the back doors and in the bulkhead, so from a
 // bench the camera sits low and the road shows only in those few panes. Its side door is on the right of its

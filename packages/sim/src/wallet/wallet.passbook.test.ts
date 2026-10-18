@@ -1,5 +1,5 @@
-// The passbook (wallet:passbook-against-plan-cost, wallet:savings-stamps, wallet:saving-pace and wallet:roads-to-the-target; docs/design/12-the-lived-month-and-the-files.md
-// section 2, item 4): the money held for the road against the plan's whole cost, the stamps, the pace and the roads,
+// The passbook (wallet:passbook-against-plan-cost, wallet:savings-stamps, wallet:saving-pace and wallet:roads-to-the-target; docs/design/08-the-lived-month.md
+// section 2, item 3): the money held for the road against the plan's whole cost, the stamps, the pace and the roads,
 // worked by the simulation. The tests also cite the rules it rests on: the Bank's figure (world:phone-holds-what-phones-hold), the months kept
 // (wallet:months-kept-counted), the side job (activity:side-job-holds-a-slot), the circle (luck:savings-circle-holds-pot), the scholarship (luck:japa-luck-in-existing-systems), moments for the
 // systems built on top (moment:new-moments-join-same-way), determinism and the saves (engine:same-inputs-same-result, engine:no-fractions-in-simulation, engine:state-is-plain-data, server:upgrade-state-is-pure).

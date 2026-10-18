@@ -1,4 +1,4 @@
-// The places of Calgary, Dubai and Castel Volturno (docs/rules/city.md "Entries: abroad"; design page 15 section 3):
+// The places of Calgary, Dubai and Castel Volturno (docs/rules/city.md "Entries: abroad"; design page 11 section 3):
 // each with its position, scope, kind of name, scene folder, shuttle and what it stages; every job and test of every
 // country staged at a place of that country, with no country-less workplace or test centre (city:places-stage-their-acts); the room
 // named per country and its spot on each country's map.

@@ -1,6 +1,6 @@
 // Jobs (world:phone-rises-over-scene): the job held and the job offers the view lists. Quitting
 // and taking each open their own card, which sends `activity/quit` or `offer/choose`. In the lively dress
-// (design page 13, section 2): each job a card with its picture, the pay as a green chip and the time to
+// (design page 09, section 2): each job a card with its picture, the pay as a green chip and the time to
 // answer as a word in a pill, the offer picked ringed in yellow, and one yellow button at the foot that repeats the pick.
 import { content } from "@japacity/content";
 import type { Id, OfferView, PlayerView } from "@japacity/sim";

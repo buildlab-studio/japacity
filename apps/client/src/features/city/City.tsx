@@ -145,7 +145,7 @@ const PLACES = Object.values(content.place);
 const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
-// The world mode (docs/design/11-the-world-first.md, docs/rules/world.md).
+// The world mode (docs/design/07-the-world-first.md, docs/rules/world.md).
 /** Sending money home: an act whose sheet is the Bank's, where the money is. */
 const SEND_MONEY = "activity.send-money";
 /** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
@@ -194,7 +194,7 @@ const TEACH_MS = 2000;
 export const RESULTS_BEAT_MS = 300;
 
 /**
- * The giver's words on a chapter's mission card (the brief, design page 13 section 4): the first chapter's opening for this
+ * The giver's words on a chapter's mission card (the brief, design page 09 section 4): the first chapter's opening for this
  * life's path, a later chapter's own opening.
  */
 function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
@@ -658,7 +658,7 @@ export function City({
   // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (world:nothing-roams).
   const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
   const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
-  // While a fan's button is pressed the band's counter shows what would be left (design page 13 section 2).
+  // While a fan's button is pressed the band's counter shows what would be left (design page 09 section 2).
   const [bandPreview, setBandPreview] = useState<number | null>(null);
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // The fan's act last sent and when: the scene may report the walk's arrival twice under load, and the second must not open the act's card over an act already done.
@@ -983,7 +983,7 @@ export function City({
       setPicked(null);
       return;
     }
-    // A fan's button, once the walk has reached its thing: the act is sent as its sheet's button sends it (docs/design/13-the-lively-layer.md section 3).
+    // A fan's button, once the walk has reached its thing: the act is sent as its sheet's button sends it (docs/design/09-the-lively-layer.md section 3).
     if (going !== null && going.thing === thing.id && going.activity === act.stages) {
       setPicked(null);
       fanSent.current = { thing: thing.id, activity: going.activity, at: Date.now() };
@@ -1428,7 +1428,7 @@ export function City({
     const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
-    // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects.
+    // Chips earn their place (design page 09 section 2): the time only past a morning, at most two effects.
     const time = chipTimeOf(activity, option.halfDays);
     const does = chipEffectsLine(activity);
     return {
@@ -1607,7 +1607,7 @@ export function City({
     for (const line of toTell) tell(line);
     setToTell([]);
   }, [toTell, worldFree, homeTeachShown]);
-  // Toasts that answer every tap (design page 13 sections 2 and 7): money in from something done in the world slides in
+  // Toasts that answer every tap (design page 09 sections 2 and 7): money in from something done in the world slides in
   // under the band with a picture and the figure, and a coin flies to the counter. Never at the month's turn, which the
   // results tell, and never from the phone, which tells its own.
   const money = bandMoney(view).money;
@@ -1621,7 +1621,7 @@ export function City({
     const act = said === null ? "" : nowActOf(said);
     setMoneyIn({ at: Date.now(), title: act === "" ? say("ui.toast.money-in") : nameOf(act), amount: `+${bandMoney(view).formatMoney(money - before)}`, picture: act === "" ? "activity.side-gig" : act });
   }, [money]);
-  // The road in the world, only in the moment (design page 13 section 4). The brief of the chapter the life
+  // The road in the world, only in the moment (design page 09 section 4). The brief of the chapter the life
   // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
   const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
   const [handed, setHanded] = useState<string | null>(null);
@@ -1916,7 +1916,7 @@ export function City({
             </div>
           ) : null}
           {/* A sleeper hears nothing: the corner keeps its lines until they wake (world:sleep-ends-the-month), and leaves Wake up clear. */}
-          {/* An open fan keeps the corner clear: the fan's buttons may run down to the thumbs (docs/design/13-the-lively-layer.md section 5). */}
+          {/* An open fan keeps the corner clear: the fan's buttons may run down to the thumbs (docs/design/09-the-lively-layer.md section 5). */}
           <Corner hidden={!worldFree || homeTeachShown || nightTeach !== null || asleep !== null || fanned !== null} />
           {asleep !== null && !asleep.due ? (
             <>
@@ -2011,7 +2011,7 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
-          {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; chapter:first-chapter-mission-card as the hand
+          {/* The chapter's brief is handed as a mission card by its person (design page 09 section 4; chapter:first-chapter-mission-card as the hand
               redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
           {/* The card's wait for the first frame is marked, so the keep-this-life ask (account:guest-secures-the-life) and the suite's helpers wait with it. */}
           {openingUp && brief !== null && !briefUp ? <span data-brief-pending hidden /> : null}

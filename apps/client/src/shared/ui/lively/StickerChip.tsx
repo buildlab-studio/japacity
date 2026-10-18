@@ -1,4 +1,4 @@
-// A sticker chip (docs/design/13-the-lively-layer.md, section 2): cost, time and effect as a tilted pill with the
+// A sticker chip (docs/design/09-the-lively-layer.md, section 2): cost, time and effect as a tilted pill with the
 // sticker's white edge ("₦1,500", "A morning", "+Belly"), in the tint of its kind or white.
 import type { ReactNode } from "react";
 

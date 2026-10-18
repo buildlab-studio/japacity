@@ -619,7 +619,7 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Calgary, Dubai and Castel Volturno on the mold (design page 15): each life is
+// Calgary, Dubai and Castel Volturno on the mold (design page 11): each life is
 // played to its country by the sweep's own player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 

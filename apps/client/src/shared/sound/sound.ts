@@ -1,6 +1,6 @@
 // The game's sound: woken by the first tap, put to sleep when the page is hidden, a mute switch
 // remembered on the device, and spoken lines that never hold anything up. Text is the scene;
-// sound is added when the browser allows it (docs/design/06-audio.md, section 7).
+// sound is added when the browser allows it (docs/design/05-audio.md, section 7).
 import { createStore } from "zustand/vanilla";
 
 import { type ClipFormat, type Playing, type SoundBackend, webAudioBackend } from "./sound.backend";

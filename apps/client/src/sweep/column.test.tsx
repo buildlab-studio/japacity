@@ -1,4 +1,4 @@
-// The centred column on a laptop (docs/design/13-the-lively-layer.md, section 2): the band and its nudge, the thumbs and
+// The centred column on a laptop (docs/design/09-the-lively-layer.md, section 2): the band and its nudge, the thumbs and
 // their first labels, the corner's toasts, the teaching cards and the phone's frame each stand in it, so on a wide
 // screen they sit in the middle with the world around them.
 import { act, render } from "@testing-library/react";

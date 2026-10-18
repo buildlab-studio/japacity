@@ -1,4 +1,4 @@
-// One recorded life per country beyond the UK (design page 15 section 7; sweep/lives.countries.data.ts), replayed through
+// One recorded life per country beyond the UK (design page 11 section 7; sweep/lives.countries.data.ts), replayed through
 // the real content with the checks the golden lives carry, so the three countries are reached by a real life.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";

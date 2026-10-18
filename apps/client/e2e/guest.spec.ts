@@ -25,7 +25,7 @@ async function serve(page: Page, answers: Record<string, Answer>, sent: string[]
 }
 
 /**
- * The second chapter's mission card opens over the world as it loads, handed by its person (design page 13 section 4);
+ * The second chapter's mission card opens over the world as it loads, handed by its person (design page 09 section 4);
  * the asks wait until its Let's go is pressed (account:guest-secures-the-life).
  */
 async function pastTheCard(page: Page): Promise<void> {

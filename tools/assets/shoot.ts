@@ -4,7 +4,7 @@
 // plan for buildings and landmarks, and the phone shot at 360 by 640 CSS pixels, device scale 2,
 // 12 m from the asset in the standard street. Every model but a person also gets the tile: the
 // three-quarter view framed tight in a 256 pixel square at device scale 2 on a clear ground, which
-// the interface cuts as a sticker (design page 13). A look the front door offers also gets its
+// the interface cuts as a sticker (design page 09). A look the front door offers also gets its
 // portraits on the same clear ground: the face (128 square at scale 2), and the whole figure with
 // a hand on the hip and cheering (200 by 400 at scale 2), each from the game's own poses. Writes the pictures and a render manifest
 // beside them in the asset's renders folder, and their hashes into assets-src/manifest.json.

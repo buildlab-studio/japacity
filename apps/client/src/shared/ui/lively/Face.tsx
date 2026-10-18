@@ -1,4 +1,4 @@
-// A person (docs/design/13-the-lively-layer.md, section 2): the name in a pill with a flat round mark carrying the initial,
+// A person (docs/design/09-the-lively-layer.md, section 2): the name in a pill with a flat round mark carrying the initial,
 // never a face render. The mark's colour comes from the name, so a person keeps theirs.
 
 /** How many mark colours there are (index.css --face-1 to --face-6). */

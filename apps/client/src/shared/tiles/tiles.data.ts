@@ -1,4 +1,4 @@
-// The picture on every choice (design page 13, the pictures): each id the interface shows a picture for, mapped to
+// The picture on every choice (design page 09, the pictures): each id the interface shows a picture for, mapped to
 // the model whose tile it shows (tools/assets/shoot.ts, the tile view, published under public/assets/tiles) or to an
 // emoji standing in where no model exists. Each is decided by what the thing is: a meal shows the cooking corner, since
 // no dish is modelled, and an act at a thing in the world shows that thing when the thing is what the act is about. The
@@ -248,7 +248,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "place.church-uk": "prop_pew",
   "place.test-centre-uk": "prop_test-desk",
   "place.deira": "bld_deira-arcade_a",
-  // Calgary's, Dubai's and Castel Volturno's places (design page 15 section 3), each by a model it stands.
+  // Calgary's, Dubai's and Castel Volturno's places (design page 11 section 3), each by a model it stands.
   "place.calgary-north-east": "bld_strip-mall",
   "place.ctrain-station-ca": "prop_platform-shelter",
   "place.big-shop-ca": "prop_trolley-bay",

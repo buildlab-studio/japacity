@@ -1,10 +1,10 @@
-// Castel Volturno's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:castel-volturno-by-hand; design page 15): the names of the
+// Castel Volturno's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:castel-volturno-by-hand; design page 11): the names of the
 // things and acts of its places, the colleague's lines at the fields, the talk overheard there and the ride's lines on the
 // coast road's bus and the gangmaster's van. In the voice of docs/rules/text.md; content's text wins over
 // these. Fetched in a chunk of their own and added to the client's late words once the life is in Italy
 // (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine:first-download-has-budget).
 export const uiCastelText: Readonly<Record<string, string>> = {
-  // The roundabout at the town's hub (design page 15 section 3): where the vans come at dawn, the bar, the African shop,
+  // The roundabout at the town's hub (design page 11 section 3): where the vans come at dawn, the bar, the African shop,
   // the call shop for money home.
   "city.thing.roundabout": "Roundabout",
   "city.thing.bar": "Bar",

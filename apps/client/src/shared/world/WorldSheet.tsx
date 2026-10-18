@@ -56,7 +56,7 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
         <Dialog.Backdrop className="motion-scrim fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
         <Dialog.Popup className="motion-sink fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-world-sheet={mark}>
           <SheetClose.Provider value={onClose}>
-          {/* The lively sheet (docs/design/13-the-lively-layer.md section 2): the sheet's pale sky, a 26 px top, the handle,
+          {/* The lively sheet (docs/design/09-the-lively-layer.md section 2): the sheet's pale sky, a 26 px top, the handle,
               a title of a few words over a small line, in the centred column on a laptop; navy at night. */}
           <div className="rise mx-auto flex max-h-[min(86dvh,700px)] w-full max-w-[430px] flex-col overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
             <div className={`relative shrink-0 px-4 pt-2 pr-12 pb-1 transition-opacity duration-200 ease-out ${covered ? "pointer-events-none opacity-0" : ""}`} aria-hidden={covered || undefined} data-world-sheet-head={covered ? "covered" : "shown"}>

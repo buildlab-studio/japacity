@@ -1,4 +1,4 @@
-// Dubai as a painted city (world:painted-maps-abroad; design page 15 sections 2 and 6): Deira on paper,
+// Dubai as a painted city (world:painted-maps-abroad; design page 11 sections 2 and 6): Deira on paper,
 // the Gulf along the north-west, the creek cutting in from it to the south-east, the metro's lines, the airport to the
 // south-east, the camp to the east, the site among the towers south across the creek, four neighbourhood cards, every
 // built place of the UAE as its sticker and the home sticker at the country's home spot from content (the bed space at
@@ -29,7 +29,7 @@ export const DUBAI_PAPER = { width: 948, height: 798 } as const;
 
 const { at, ring, label, decor } = paperPen(DUBAI_FIT);
 
-/** The home's spot on the map, from content's country table: the bed space at the camp (design page 15 section 3). */
+/** The home's spot on the map, from content's country table: the bed space at the camp (design page 11 section 3). */
 export const DUBAI_HOME_SPOT: Position = content.country[UAE]?.homeSpot ?? { latE3: 25270, lonE3: 55395 };
 
 /**

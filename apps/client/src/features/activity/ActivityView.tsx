@@ -300,7 +300,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
-  // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects, Free only on a meal.
+  // Chips earn their place (design page 09 section 2): the time only past a morning, at most two effects, Free only on a meal.
   const time = chipTimeOf(option.id, option.halfDays);
   const does = chipEffectsLine(option.id);
   // turn:free-slots-per-month: an activity that fills no slot can be planned however full the month is.
@@ -333,7 +333,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
   return (
     <li>
-      {/* The act as a card in the lively dress (design page 13, section 2): the thing's picture
+      {/* The act as a card in the lively dress (design page 09, section 2): the thing's picture
           on its soft tile, the title and one line, the price, the time past a morning and what it does as chips. */}
       <div className={`lively-card flex h-full flex-col gap-2 p-3.5 ${option.allowed ? "" : "opacity-80"}`} data-act-card={option.id}>
         <div className="flex items-start gap-3">
@@ -446,7 +446,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               {say("ui.act.spent")}
             </p>
           ) : (
-          // The card's one yellow action (design page 13, section 2), the verb and the thing, the price on it.
+          // The card's one yellow action (design page 09, section 2), the verb and the thing, the price on it.
           <PressButton
             disabled={!canAdd}
             aria-label={name}
@@ -528,7 +528,7 @@ export function ActivityView() {
   );
 }
 
-/** The world mode's sheet (docs/design/11-the-world-first.md, point 12: one action, one sheet): only the activities `only` names, as the cards above show them. */
+/** The world mode's sheet (docs/design/07-the-world-first.md, section 2 point 4: one action, one sheet): only the activities `only` names, as the cards above show them. */
 export function ActivityPicker({ only }: { only: readonly string[] }) {
   const view = useView();
   // On a long shot the test's sheet carries the study act too, so studying first is one tap away (world:one-action-one-sheet).

@@ -1,4 +1,4 @@
-// Toasts that answer every tap (docs/design/13-the-lively-layer.md sections 2 and 7):
+// Toasts that answer every tap (docs/design/09-the-lively-layer.md sections 2 and 7):
 // money that comes in from something the player did slides in under the band as a toast with a picture, what it was and
 // the figure on a green pill, a coin flies from it to the band's counter and the counter counts; it plays the coin's cue,
 // and goes after a few seconds. Money going out is the price the player tapped and needs no toast.

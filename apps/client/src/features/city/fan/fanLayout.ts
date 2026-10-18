@@ -1,4 +1,4 @@
-// Where the fan's buttons stand (docs/design/13-the-lively-layer.md section 3; world:things-are-tappable-models): the thing
+// Where the fan's buttons stand (docs/design/09-the-lively-layer.md section 3; world:things-are-tappable-models): the thing
 // is the hinge, and its acts sit along a curve that bows out from it into the larger free side of the screen, each with
 // its labels outside the curve. Pure: the thing's point, the screen and the count in; the side, the places and the fold out.
 //

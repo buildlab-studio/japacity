@@ -1,4 +1,4 @@
-// The visa interview, spoken (docs/design/06-audio.md, section 7). The tap that enters the room is also the tap the browser needs before it plays sound. The
+// The visa interview, spoken (docs/design/05-audio.md, section 7). The tap that enters the room is also the tap the browser needs before it plays sound. The
 // officer's lines are heard and shown at once; the answers come when the line ends, when its
 // length and a margin have passed, or on a tap, whichever is first, so the scene never waits on
 // sound. The player's character never speaks: a voice would never match the one they made.
@@ -236,7 +236,7 @@ export function InterviewRoom({ setpiece }: { setpiece: Setpiece }) {
     beginScene(scene);
     return () => endScene(scene);
   }, [inRoom, opened]);
-  // Phones limit loading (docs/design/06-audio.md, section 7): fetched ahead from the moment the application is sent, only while sound is on.
+  // Phones limit loading (docs/design/05-audio.md, section 7): fetched ahead from the moment the application is sent, only while sound is on.
   useEffect(() => {
     const keys = [GREET, ...(first === null ? [] : [`${VOICED}.q.${first}`]), ...OFFICER_REACTIONS, CLOSE];
     preload(keys.flatMap((key) => (setpieceVoice[key] === undefined ? [] : [setpieceVoice[key].clip])));

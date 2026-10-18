@@ -22,7 +22,7 @@ const OUT = fileURLToPath(new URL("../clips", import.meta.url));
 const WORK = join(OUT, ".frames");
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } as const;
 /**
- * A laptop's screen at the teaser's own 1920 by 1080: the world fills it round the centred column (design page 13). The
+ * A laptop's screen at the teaser's own 1920 by 1080: the world fills it round the centred column (design page 09). The
  * screencast hands a frame at the device's pixels only when the browser itself is started at that scale
  * (--force-device-scale-factor); otherwise it sends the CSS size, 1280 by 720, so the wide sessions run in a browser of
  * their own started at 1.5, as the tall ones do at 3.

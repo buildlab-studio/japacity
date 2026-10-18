@@ -687,7 +687,7 @@ export const placeText: Record<string, string> = {
   "place.calgary-airport.overheard.1": "Welcome to Calgary. Have you got gloves?",
   "place.calgary-airport.overheard.2": "The shuttle is outside. Do not wait without a hat.",
   "place.calgary-airport.overheard.3": "Your cousin is in the car park. He said wait here.",
-  // Calgary on the mold (city.md "Entries: abroad", design page 15 section 3). The hub is a strip mall in
+  // Calgary on the mold (city.md "Entries: abroad", design page 11 section 3). The hub is a strip mall in
   // the north-east, shown by description; the rooms it shares with London by plain description.
   "place.calgary-north-east.name": "the strip mall, north-east Calgary",
   "place.calgary-north-east.blurb": "A flat-roofed row by a wide road: a coffee shop, an African store, a barber and the jobs notice by the door. Snow at the kerb.",
@@ -863,7 +863,7 @@ export const placeText: Record<string, string> = {
   "place.warehouse-uk.short": "The warehouse",
   "place.church-uk.short": "The church",
   "place.test-centre-uk.short": "The test centre",
-  // Calgary's, Dubai's and Castel Volturno's own places (design page 15 section 3).
+  // Calgary's, Dubai's and Castel Volturno's own places (design page 11 section 3).
   "place.ctrain-station-ca.short": "The station",
   "place.warehouse-ca.short": "The warehouse",
   "place.office-ca.short": "The office",

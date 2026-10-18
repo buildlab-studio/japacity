@@ -1,4 +1,4 @@
-// Toasts that answer every tap (docs/design/13-the-lively-layer.md sections 2 and 7):
+// Toasts that answer every tap (docs/design/09-the-lively-layer.md sections 2 and 7):
 // money in from an act done in the world slides in under the band with a picture, what
 // it was and the figure, a coin flying to the band's counter; it goes after a few seconds; never at the month's turn.
 import { act } from "@testing-library/react";

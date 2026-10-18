@@ -1,4 +1,4 @@
-// The centred column (docs/design/13-the-lively-layer.md, section 2): on a laptop the band, the nudge, the thumbs, the
+// The centred column (docs/design/09-the-lively-layer.md, section 2): on a laptop the band, the nudge, the thumbs, the
 // toasts, the teaching cards and the phone stand in a column of phone width in the middle, and the world fills the
 // screen around it. On a phone the column is the screen. Fixed along both sides, it centres itself as well.
 import type { ComponentProps } from "react";

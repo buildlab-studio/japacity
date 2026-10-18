@@ -1,4 +1,4 @@
-// The lively layer's pieces (design page 13, section 2; apps/client/src/index.css) at a trailer's scale, about two and a
+// The lively layer's pieces (design page 09, section 2; apps/client/src/index.css) at a trailer's scale, about two and a
 // half times the phone's: the white card with the navy edge, the tilted sticker chip, the sticker cut from a tile, the
 // pressed yellow button, the pill, and the big title whose words spring up one after another.
 import type { CSSProperties, ReactNode } from "react";

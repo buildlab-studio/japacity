@@ -1,4 +1,4 @@
-// The fan's layout (docs/design/13-the-lively-layer.md section 3; world:things-are-tappable-models): the acts of a thing
+// The fan's layout (docs/design/09-the-lively-layer.md section 3; world:things-are-tappable-models): the acts of a thing
 // fanned out of the thing on a curve into the larger free side of the screen, up to six before the fold, the sheet when
 // the free side cannot hold them. Pure: a point, a screen and a count in, places out.
 import { describe, expect, test } from "vitest";

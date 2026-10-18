@@ -374,7 +374,7 @@ describe("settings", () => {
 });
 
 describe("the brief's dot on Japa", () => {
-  test("[world:phone-rises-over-scene] [world:thumb-buttons-carry-dots] given a brief handed (design page 13 section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
+  test("[world:phone-rises-over-scene] [world:thumb-buttons-carry-dots] given a brief handed (design page 09 section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
     const view = engineView();
     expect(waitingOf(marksOf(view), {}).japa).toBe(false);
     handBrief(view.scenario, "chapter.find-your-feet");

@@ -1,5 +1,5 @@
 // Calgary lived by hand: place:country-pass-covers-ways (the transit pass) and streets:calgary-life-by-hand (design
-// page 15 section 5, decision 0017). Each is a priced now-act in Canadian dollars, paid as it is done; when each answers
+// page 11 section 5, decision 0017). Each is a priced now-act in Canadian dollars, paid as it is done; when each answers
 // and the time it spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in
 // activity.data.ts; place.data.ts stages each at its Calgary place.
 import type { ActivityEntry, Effect, Id, Reason, Requirement } from "@japacity/sim";

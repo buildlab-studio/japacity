@@ -1,5 +1,5 @@
 // The room abroad (world:nudge-says-one-thing, world:things-are-tappable-models): the phone by the bed calls home. Money home is not
-// the room's (city:places-stage-their-acts, design page 15), since every country stages it at a counter of its own (Rye Lane's transfer
+// the room's (city:places-stage-their-acts, design page 11), since every country stages it at a counter of its own (Rye Lane's transfer
 // shop, the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop), so the landing's first request from home has a thing to do it at in each country.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";

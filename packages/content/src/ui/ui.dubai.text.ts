@@ -1,10 +1,10 @@
-// Dubai's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:dubai-life-by-hand; design page 15): the names of the things and
+// Dubai's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:dubai-life-by-hand; design page 11): the names of the things and
 // acts of its places, the colleague's lines at the site, the talk overheard there and the ride's lines on the metro, the
 // city bus, the labour bus and the taxi. In the voice of docs/rules/text.md; content's text wins over these.
 // Fetched in a chunk of their own and added to the client's late words once the life is in the UAE
 // (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine:first-download-has-budget).
 export const uiDubaiText: Readonly<Record<string, string>> = {
-  // Deira (design page 15 section 3): the exchange house for money home, the African foods shop, the cafeteria.
+  // Deira (design page 11 section 3): the exchange house for money home, the African foods shop, the cafeteria.
   "city.thing.exchange-house": "Money exchange",
   "city.thing.african-foods": "African foods",
   "city.act.naija-shop": "A taste of home",
@@ -19,7 +19,7 @@ export const uiDubaiText: Readonly<Record<string, string>> = {
   "city.thing.nol-machine": "Nol machine",
   "city.act.transit-pass": "Zone pass",
   "city.thing.platform": "Gates",
-  // The site (design page 15 section 3): the guard's post and the cleaner's trolley where the contract's job is held, the
+  // The site (design page 11 section 3): the guard's post and the cleaner's trolley where the contract's job is held, the
   // rota board for overtime, the water cooler where a colleague says a line.
   "city.thing.guard-post": "Guard's post",
   "city.thing.cleaner-trolley": "Cleaner's trolley",

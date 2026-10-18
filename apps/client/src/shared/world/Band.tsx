@@ -91,7 +91,7 @@ export interface BandProps {
   onMonth?: () => void;
   /** The world's part of the day, for the sky's picture at the band's start. */
   sky?: DayPart;
-  /** While a fan's button is pressed, what the money would be after it (docs/design/13-the-lively-layer.md section 2). */
+  /** While a fan's button is pressed, what the money would be after it (docs/design/09-the-lively-layer.md section 2). */
   preview?: number | null;
   hidden?: boolean;
   /** The second row (the nudge, what is coming), shown while the band is open or peeking; the handle under the band opens it (world:top-band-is-lively-pill). */
@@ -121,7 +121,7 @@ export function bandPlace(name: string): string {
 
 /**
  * The month on the band (world:top-band-is-lively-pill, clock:game-day-on-real-time): the world's part of the day beside the name, "· Morning", as the
- * lively band draws it (docs/design/13-the-lively-layer.md); the month's name rides in it for a
+ * lively band draws it (docs/design/09-the-lively-layer.md); the month's name rides in it for a
  * screen reader and the Calendar it opens shows it whole. A new part of the day fades in, short and on opacity alone.
  */
 function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void) | undefined }) {

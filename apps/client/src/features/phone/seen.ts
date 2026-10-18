@@ -40,7 +40,7 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
     calendar: "",
     bank: "",
     chats,
-    // The brief last handed (design page 13 section 4): the dot until Japa is opened.
+    // The brief last handed (design page 09 section 4): the dot until Japa is opened.
     japa: japaMark(view.scenario),
     // A paper that landed or moved this month (world:month-passes-as-lived): the dot until Papers is opened.
     papers: papersMarkOf(view),

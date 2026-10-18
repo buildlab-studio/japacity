@@ -133,8 +133,8 @@ function unnamed(
 }
 
 /**
- * The day the made-up spots abroad were placed by hand against the public places around them: London's (design page 14
- * section 4), and Calgary's, Dubai's and Castel Volturno's (design page 15 section 3) the same day.
+ * The day the made-up spots abroad were placed by hand against the public places around them: London's (design page 10
+ * section 4), and Calgary's, Dubai's and Castel Volturno's (design page 11 section 3) the same day.
  */
 const ABROAD_SPOTS_PLACED = "2026-10-16";
 
@@ -146,23 +146,23 @@ function london(id: Id<"place">, nameKind: "business" | "institution", area: str
   return madeUp(id, "country.uk", "london", nameKind, area, latE3, lonE3, shape);
 }
 
-/** A place of Calgary with no real name of its own, at a made-up spot (design page 15 section 3). */
+/** A place of Calgary with no real name of its own, at a made-up spot (design page 11 section 3). */
 function calgary(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
   return madeUp(id, "country.canada", "calgary", nameKind, area, latE3, lonE3, shape);
 }
 
-/** A place of Dubai with no real name of its own, at a made-up spot (design page 15 section 3). */
+/** A place of Dubai with no real name of its own, at a made-up spot (design page 11 section 3). */
 function dubai(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
   return madeUp(id, "country.uae", "dubai", nameKind, area, latE3, lonE3, shape);
 }
 
-/** A place of Castel Volturno with no real name of its own, at a made-up spot (design page 15 section 3). */
+/** A place of Castel Volturno with no real name of its own, at a made-up spot (design page 11 section 3). */
 function castel(id: Id<"place">, nameKind: "business" | "institution", area: string, latE3: number, lonE3: number, shape: Shape): PlaceEntry {
   return madeUp(id, "country.italy", "castel-volturno", nameKind, area, latE3, lonE3, shape);
 }
 
 /**
- * A place abroad with no real name of its own (city.md "Entries: abroad", design pages 14 and 15): a business by
+ * A place abroad with no real name of its own (city.md "Entries: abroad", design pages 10 and 11): a business by
  * description or made-up name or an institution by plain description, at a made-up spot in its area, its own source
  * with no licence (city:positions-rough-on-purpose).
  */
@@ -384,7 +384,7 @@ const entries: PlaceEntry[] = [
 
   // Abroad. The design table's shares are for Lagos; abroad uses the hub and office share.
   abroad("place.heathrow", "country.uk", "london", "heathrow", "London Heathrow Airport", 51468, -459, { scope: "interior", crowd: BUSY, traditionalBp: AIRPORT }),
-  // London on the Lagos mold (city.md "Entries: abroad", design page 14 section 4). The hub: the jobs
+  // London on the Lagos mold (city.md "Entries: abroad", design page 10 section 4). The hub: the jobs
   // notice and the agency's stand where the hunt is sent (world:things-are-tappable-models), and the find on the street (streets:street-finds-abroad).
   abroad("place.peckham", "country.uk", "london", "peckham", "Peckham", 51473, -70, {
     hub: true,
@@ -417,7 +417,7 @@ const entries: PlaceEntry[] = [
   // The UK's test centre at Elephant and Castle, on the English test centre's scene (city:places-stage-their-acts: each
   // country's tests at a place of its own).
   london("place.test-centre-uk", "institution", "elephant-and-castle", 51494, -100, { assets: "english-test-centre", stages: ["activity.nmc-tests", "activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
-  // Calgary on the mold (city.md "Entries: abroad", design page 15 section 3). Made-up spots in the
+  // Calgary on the mold (city.md "Entries: abroad", design page 11 section 3). Made-up spots in the
   // north-east, placed against the airport, the CTrain's north-east line and downtown so the paper reads right.
   abroad("place.calgary-airport", "country.canada", "calgary", "north-east", "Calgary International Airport", 51122, -114014, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // The hub, dressed as a strip mall at a made-up spot: the jobs notice, the coffee shop, the
@@ -445,7 +445,7 @@ const entries: PlaceEntry[] = [
   // The registry on the English test centre's scene, for Alberta's licence (city:places-stage-their-acts: each
   // country's tests at a place of its own).
 
-  // Dubai on the mold (design page 15 section 3).
+  // Dubai on the mold (design page 11 section 3).
   abroad("place.dubai-airport", "country.uae", "dubai", "garhoud", "Dubai International Airport", 25252, 55367, { scope: "interior", crowd: PACKED, traditionalBp: AIRPORT }),
   // The hub: the typing centre where the hunt is sent, the exchange house for money home, the cafeteria, the African foods
   // shop, the barber, the corner by the creek and the find. The souq is in Naif and the Gulf's jobs at the site.
@@ -465,7 +465,7 @@ const entries: PlaceEntry[] = [
   // the cleaner's trolley and the rota board.
   dubai("place.site-uae", "business", "towers", 25186, 55263, { scope: "exterior", shuttle: true, stages: ["activity.job-gulf-guard", "activity.job-gulf-cleaner", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
 
-  // Castel Volturno on the mold (design page 15 section 3).
+  // Castel Volturno on the mold (design page 11 section 3).
   // The hub: the roundabout where the vans come at dawn, the bar, the African shop, the call shop for money home and the find.
   abroad("place.castel-volturno", "country.italy", "castel-volturno", "castel-volturno", "Castel Volturno", 41034, 13941, {
     hub: true,

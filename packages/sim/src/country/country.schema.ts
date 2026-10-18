@@ -17,7 +17,7 @@ export const CountryEntrySchema = z.strictObject({
   overstayer: idOf("status").nullable(),
   deceptionBanMonths: CountSchema,
   partnerBarMonths: CountSchema,
-  // The room abroad's spot on the country's painted map (design pages 14 and 15, world:painted-maps-abroad).
+  // The room abroad's spot on the country's painted map (design pages 10 and 11, world:painted-maps-abroad).
   homeSpot: z.strictObject({ latE3: IntSchema, lonE3: IntSchema }).nullable(),
 });
 

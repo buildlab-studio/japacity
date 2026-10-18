@@ -2,7 +2,7 @@
 // fills, shown as a friend will see it, and taken back with the same command.
 // The card carries the character's name and japacity, never the account's,
 // never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the lively layer's cards
-// (docs/design/13-the-lively-layer.md section 2): a white card with the looking line as a sticker chip, the character's
+// (docs/design/09-the-lively-layer.md section 2): a white card with the looking line as a sticker chip, the character's
 // face sticker beside the maker's heading (never on the card, which carries no look to the friend), the pressed yellow
 // button for the one action and a ghost button for taking the card back.
 import { content, text } from "@japacity/content";

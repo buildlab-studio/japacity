@@ -1,5 +1,5 @@
-// The morning on the lock screen (clock:envelopes-show-real-waits; docs/design/12-the-lived-month-and-the-files.md,
-// section 2, point 5): a result real life makes you wait for is sealed until seven the next morning in Lagos. While it
+// The morning on the lock screen (clock:envelopes-show-real-waits; docs/design/08-the-lived-month.md,
+// section 2, point 4): a result real life makes you wait for is sealed until seven the next morning in Lagos. While it
 // is sealed, Papers says when it comes; once its morning has come the store learns it from the authority, and the lock
 // screen tells it first, as a notice from its office, once. Its line joins the month's lines.
 import type { Command, Envelope, Id, PlayerView } from "@japacity/sim";

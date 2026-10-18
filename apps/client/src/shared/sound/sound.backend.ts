@@ -1,6 +1,6 @@
 // What the sound layer asks of the browser, in one place, so tests can stand in for it. Spoken
 // lines go through Web Audio, which stays quiet when an iPhone's silent switch is on
-// (docs/design/06-audio.md, section 7).
+// (docs/design/05-audio.md, section 7).
 
 /** A sound that has started. `ended` settles when it finishes or is stopped. */
 export interface Playing {

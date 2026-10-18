@@ -1,6 +1,6 @@
 // The officer's clips: one per spoken line, keyed by the line's words
 // key. `clip` is the path under the client's public/voice/ without its extension, since each
-// clip ships as Opus and as MP3 (docs/design/06-audio.md, section 7). `ms` is how long it plays,
+// clip ships as Opus and as MP3 (docs/design/05-audio.md, section 7). `ms` is how long it plays,
 // so the answers show when it never ends. A recording by a person replaces a clip by its path.
 // Generated voices: one for every officer, the asset register says which.
 

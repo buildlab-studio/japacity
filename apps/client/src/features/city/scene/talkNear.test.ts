@@ -1,5 +1,5 @@
 // A named speaker who stands as a thing (world:street-talk-budget; the talk budget, design
-// page 13 section 5): a line overheard floats over Mama only while she stands near the player's figure, as every voice
+// page 09 section 5): a line overheard floats over Mama only while she stands near the player's figure, as every voice
 // does; her own words when spoken to, and any act's, are not held by it.
 import { describe, expect, test } from "vitest";
 

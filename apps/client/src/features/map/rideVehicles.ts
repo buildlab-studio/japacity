@@ -1,4 +1,4 @@
-// The vehicles a ride abroad plays in, beyond London's (world:ride-abroad-and-workplace; design page 15 section 6): Calgary's bus,
+// The vehicles a ride abroad plays in, beyond London's (world:ride-abroad-and-workplace; design page 11 section 6): Calgary's bus,
 // the CTrain car and the taxi; Dubai's metro car, its city bus, the labour bus to the site and the taxi; Castel
 // Volturno's coast road bus and the gangmaster's van to the fields. Each with its model, the seat its model's build
 // gives in the turned model's own frame (facing +z, the kerb and the window on -x: these countries drive on the right, so

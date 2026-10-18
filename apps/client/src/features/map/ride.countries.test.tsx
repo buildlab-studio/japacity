@@ -1,5 +1,5 @@
 // The rides of Calgary, Dubai and Castel Volturno (world:ride-abroad-and-workplace; place:rides-between-city-places,
-// place:country-pass-covers-ways and place:employer-shuttle-rides-free; design page 15 sections 4 and 6): the ride sheet lists each country's ways from
+// place:country-pass-covers-ways and place:employer-shuttle-rides-free; design page 11 sections 4 and 6): the ride sheet lists each country's ways from
 // the view, the pass's pill names the country's pass on every way it covers, the shuttle's pill says the employer's bus
 // asks nothing, and the ride plays inside the country's own vehicle from the seat the models give, in the right-hand lane.
 import { content } from "@japacity/content";

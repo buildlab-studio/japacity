@@ -1,7 +1,7 @@
 // One bond: its stage, who it is with and how they are marked, what is known
 // of them, the proposals both ways, the joint and
 // its consents, the stand-in, and ending it with its cost said first
-// (person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:joint-application-proposed, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:leaving-player-ends-bonds, person:gossip-when-two-timing, person:computer-partner-drifts, person:stand-in-after-absence, person:stand-in-acts-narrowly, person:computers-need-no-stand-in, person:view-shows-people). Dressed as the lively layer's cards (design page 13
+// (person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:joint-application-proposed, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:leaving-player-ends-bonds, person:gossip-when-two-timing, person:computer-partner-drifts, person:stand-in-after-absence, person:stand-in-acts-narrowly, person:computers-need-no-stand-in, person:view-shows-people). Dressed as the lively layer's cards (design page 09
 // section 2): the person's face sticker over what is known of them, the mark and the facts as sticker chips, white cards
 // for what waits, the pressed yellow button for the one action and ghost buttons for the rest.
 import { content } from "@japacity/content";

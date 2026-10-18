@@ -1,4 +1,4 @@
-// Soft organic shapes for people (assets:flat-and-smooth-shading, design 07 section 5 rule 3): simple shapes blended
+// Soft organic shapes for people (assets:flat-and-smooth-shading, design 06 section 5 rule 3): simple shapes blended
 // into one surface by a smooth minimum of their distances, turned into triangles on a grid, then
 // thinned (thin.ts) and shown smooth. Build time only: the phone receives the finished triangles.
 export type Vec = [number, number, number];

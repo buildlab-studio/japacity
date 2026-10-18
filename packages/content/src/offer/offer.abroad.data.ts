@@ -222,7 +222,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
   // The kind has no versions of an offer's body, so each country's find has one body.
   "offer.street-find-uk": streetFind("offer.street-find-uk", "country.uk"),
   "offer.street-find-uae": streetFind("offer.street-find-uae", "country.uae"),
-  // Calgary's strip mall and Castel Volturno's roundabout have theirs on the same pattern (city.md "Entries: abroad", design page 15).
+  // Calgary's strip mall and Castel Volturno's roundabout have theirs on the same pattern (city.md "Entries: abroad", design page 11).
   "offer.street-find-ca": streetFind("offer.street-find-ca", "country.canada"),
   "offer.street-find-it": streetFind("offer.street-find-it", "country.italy"),
 

@@ -13,7 +13,7 @@ import { DECEMBER, DecemberScene } from "./DecemberScene";
 import { ClosingLine, InterviewRoom } from "./InterviewRoom";
 import { leaveRoomView, roomStore, VOICED } from "./room.store";
 
-// Sound starts only after a tap (docs/design/06-audio.md, section 7): the first tap anywhere in the game wakes sound.
+// Sound starts only after a tap (docs/design/05-audio.md, section 7): the first tap anywhere in the game wakes sound.
 // Installed here, where the game first loads a scene that speaks, rather than in main.tsx.
 
 function Plain() {

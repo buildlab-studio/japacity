@@ -1,4 +1,4 @@
-// The two paints of the lively layer (docs/design/13-the-lively-layer.md, section 2; decision 0025): one system, the day's
+// The two paints of the lively layer (docs/design/09-the-lively-layer.md, section 2; decision 0025): one system, the day's
 // pale sky and the night's navy, driven by what already drives the sky, the world's clock (clock:game-day-on-real-time). One
 // attribute on <html> switches the role tokens in index.css; nothing is remembered, since the clock says it every time.
 import type { DayPart } from "@japacity/sim";
@@ -31,7 +31,7 @@ export function applyPaint(paint: Paint, root: Pick<HTMLElement, "dataset"> = do
 }
 
 /**
- * Whether the night paint follows the clock for players (design page 13, section 2, "Night"): the
+ * Whether the night paint follows the clock for players (design page 09, section 2, "Night"): the
  * surfaces over the world read in both paints. `?paint=` still stands either paint in, in development.
  */
 export const NIGHT_PAINT_LIVE = true;

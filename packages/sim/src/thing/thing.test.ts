@@ -1,4 +1,4 @@
-// The things a life owns at home (home:things-a-life-owns; design page 12 sections 2 and 4). The market sells a thing
+// The things a life owns at home (home:things-a-life-owns; design page 08 sections 2 and 3). The market sells a thing
 // delivered at once; it stands in the home lived in when that home may hold it; while it stands it lifts acts the
 // simulation already has, lifts each month it is lived with, or lifts once when it lands; some cost to run a month;
 // selling it back or leaving Lagos brings in its resale figure.

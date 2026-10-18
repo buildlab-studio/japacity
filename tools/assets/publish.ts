@@ -4,7 +4,7 @@
 // file for good. The build check skips the hashed copies and the manifest (assets-check.ts).
 // First it copies each model's tile render to tiles/<name>.png, and each look's portraits to
 // tiles/<name>-face.png, -figure.png and -cheer.png, so the interface's pictures are published as
-// the models are (design page 13, the pictures; the front door's faces and figures).
+// the models are (design page 09, the pictures; the front door's faces and figures).
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 

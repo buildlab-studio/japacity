@@ -1,4 +1,4 @@
-// London on the Lagos mold (docs/design/14-london-on-the-lagos-mold.md; world:ride-abroad-and-workplace, streets:london-life-by-hand,
+// London on the Lagos mold (docs/design/10-london-on-the-lagos-mold.md; world:ride-abroad-and-workplace, streets:london-life-by-hand,
 // place:country-pass-covers-ways): Rye Lane's shops, the station, and the workplaces with a door. Each workplace has the thing where
 // its job is got and held, the rota board for overtime, the next rung's door, and a colleague who says a line in turn.
 import { content, text } from "@japacity/content";

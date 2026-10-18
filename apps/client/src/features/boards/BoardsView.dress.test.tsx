@@ -1,4 +1,4 @@
-// The boards in the lively dress on Chats' people page (city:boards-switch-when-and-who, city:board-line-and-ranking; design page 13
+// The boards in the lively dress on Chats' people page (city:boards-switch-when-and-who, city:board-line-and-ranking; design page 09
 // section 2): the two pickers as segmented pills, each line a card with a face sticker, the name and the figure as a
 // chip, this week's rise in green, the player's own line ringed; no look travels on a board, so another player's face
 // is picked from the name the line shows, and the player's own is the look they built at the door.

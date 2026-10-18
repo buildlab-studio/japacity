@@ -64,7 +64,7 @@ describe("the interface's cues", () => {
     }
   });
 
-  test("[world:interface-sounds-made-live] given the lively layer's cues (design page 13, section 7), then a thing done dings bright, a stamp thuds low, and a refusal is a low double note, each over inside 300 ms", () => {
+  test("[world:interface-sounds-made-live] given the lively layer's cues (design page 09, section 7), then a thing done dings bright, a stamp thuds low, and a refusal is a low double note, each over inside 300 ms", () => {
     const end = (name: Cue) => Math.max(...CUES[name].map((tone) => tone.at + tone.long));
     for (const name of ["ding", "thud", "no", "pop"] as const) expect({ name, short: end(name) < 0.3 }).toEqual({ name, short: true });
     expect(Math.min(...CUES.ding.map((tone) => tone.from))).toBeGreaterThanOrEqual(1000);

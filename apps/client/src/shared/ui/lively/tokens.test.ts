@@ -1,4 +1,4 @@
-// The lively layer's tokens (docs/design/13-the-lively-layer.md, section 2; decision 0025; world:colours-are-role-tokens): the day
+// The lively layer's tokens (docs/design/09-the-lively-layer.md, section 2; decision 0025; world:colours-are-role-tokens): the day
 // paint on :root, the night paint under data-paint="night", one type face in three sizes, and the circle pattern kept
 // off every everyday surface.
 import { readFileSync } from "node:fs";

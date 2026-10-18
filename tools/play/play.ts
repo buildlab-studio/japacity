@@ -403,7 +403,7 @@ async function stepByMap(run: Run, month: number): Promise<boolean> {
 async function followNudge(run: Run, month: number): Promise<void> {
   const { page } = run;
   const nudge = page.locator("[data-nudge]");
-  // The step's thing or person carries the marker, a pill with two words and an arrow (design page 13 section 4); its tap
+  // The step's thing or person carries the marker, a pill with two words and an arrow (design page 09 section 4); its tap
   // takes the step's act in one go. The nudge's chip shows only in the moment.
   const marker = page.locator("[data-marker-tap]");
   if (!(await shown(nudge))) {

@@ -124,7 +124,7 @@ function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main
 
 function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMoney: AskSheetProps["formatMoney"]; icon: AskSheetProps["icon"] }) {
   return (
-    // The lively card (docs/design/13-the-lively-layer.md section 2): the sheet's pale sky with its handle, the picture on a
+    // The lively card (docs/design/09-the-lively-layer.md section 2): the sheet's pale sky with its handle, the picture on a
     // soft tile, a small line for who and where, the title of a few words; navy at night.
     <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
       <span aria-hidden className="mx-auto mt-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />

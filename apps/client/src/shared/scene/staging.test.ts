@@ -70,7 +70,7 @@ describe("staging", () => {
   });
 
   // No country-less test centre or workplace is in content: every job and test abroad is staged at a place of its own
-  // country (city:places-stage-their-acts, design page 15).
+  // country (city:places-stage-their-acts, design page 11).
   test("[city:places-stage-their-acts] [world:painted-maps-abroad] given the places serving every country, when each country's map is read, then no country-less test centre or workplace is a place, the room stands everywhere, and each country's own places stand on its map", () => {
     const of = (id: Id<"place">) => {
       const place = content.place[id];

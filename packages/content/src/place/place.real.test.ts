@@ -80,7 +80,7 @@ describe("real names as neutral scenery", () => {
     expect(lender).toMatch(/place\.olokun-office: carries the real name A Real Lender and lends, charges or employs through offer\.held-funds; only an invented name may \(city:invented-names-for-risky-businesses\)/);
     const agent = realNameChecks(withPlace({ ...place("place.agent-office"), realName: "A Real Agent" }), text, realNames).join("\n");
     expect(agent).toMatch(/stages offer\.held-funds-agent, offer\.gulf-agent, which can be a fraud, a mishap or bad news \(city:sponsor-shows-name-only\)/);
-    // Every country's jobs are staged at its own places (city.md, design page 15), so the
+    // Every country's jobs are staged at its own places (city.md, design page 11), so the
     // employer is Calgary's warehouse, which stages Canada's warehouse job.
     const employer = realNameChecks(withPlace({ ...place("place.warehouse-ca"), realName: "A Real Warehouse" }), text, realNames).join("\n");
     expect(employer).toMatch(/A Real Warehouse and employs through activity\.job-ca-warehouse/);

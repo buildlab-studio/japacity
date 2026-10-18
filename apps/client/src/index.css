@@ -2,7 +2,7 @@
 /* The full index, never latin.css alone: the naira sign and Yoruba and Igbo
    letters sit in the latin-ext and vietnamese subsets. Danfo is the display face for titles and figures; the wordmark is drawn to paths. */
 @import "@fontsource/danfo/index.css";
-/* Rubik, the interface's one face (docs/design/13-the-lively-layer.md, section 2), at the two weights the layer uses and
+/* Rubik, the interface's one face (docs/design/09-the-lively-layer.md, section 2), at the two weights the layer uses and
    latin only: Rubik draws neither the naira sign nor the Yoruba letters with a dot below in any subset, so the larger
    ones would buy nothing; those letters fall back to the system's face behind it. */
 @import "@fontsource/rubik/latin-500.css";
@@ -172,7 +172,7 @@
   --font-display: "Danfo", system-ui, sans-serif;
 }
 
-/* The lively layer's three sizes (docs/design/13-the-lively-layer.md, section 2): titles and money, the body, chips. */
+/* The lively layer's three sizes (docs/design/09-the-lively-layer.md, section 2): titles and money, the body, chips. */
 @theme {
   --text-title: 22px;
   --text-title--line-height: 1.15;
@@ -264,7 +264,7 @@ body {
 .google-button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .google-button:disabled { opacity: 0.38; cursor: not-allowed; }
 
-/* The lively layer's primitives (docs/design/13-the-lively-layer.md, section 2; shared/ui/lively). A sticker is a picture
+/* The lively layer's primitives (docs/design/09-the-lively-layer.md, section 2; shared/ui/lively). A sticker is a picture
    cut with a 3 px edge and a soft shadow; a sticker chip is a tilted pill with the same edge; the one action is yellow
    with a 4 px underside that flattens on press; a pill and a card are white with the thin edge. */
 .sticker-cut {
@@ -501,7 +501,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   }
 }
 
-/* The lively band (docs/design/13-the-lively-layer.md, section 2): a white pill by day and navy at
+/* The lively band (docs/design/09-the-lively-layer.md, section 2): a white pill by day and navy at
    night, a thin edge with its underside, the money in green, the part of the day after a dot. No pattern (decision 0025). */
 :root { --money-ink: #13804b; }
 :root[data-paint="night"], [data-paint="night"] { --money-ink: #9be3b9; }
@@ -532,7 +532,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
 }
 
-/* The brief (docs/design/13-the-lively-layer.md, section 4): white with the navy edge and a
+/* The brief (docs/design/09-the-lively-layer.md, section 4): white with the navy edge and a
    deep underside, by night navy with cream; its things as soft tiles, the one to do now on the soft yellow with a ring. */
 :root { --soft: #fff3c4; --soft-ink: #8a6400; --tick: #1fb866; }
 :root[data-paint="night"], [data-paint="night"] { --soft: #4d4220; --soft-ink: #f6d77a; }
@@ -588,7 +588,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   .marker-bounce, .marker-ring { animation: none !important; }
   .brief-chip-tuck { transition: opacity 200ms ease !important; transform: none; }
 }
-/* The talk (the talk budget, design page 13 section 5): the lively bubble with its edge and underside, its tail; the
+/* The talk (the talk budget, design page 09 section 5): the lively bubble with its edge and underside, its tail; the
    corner's pill for the player's own act's answer; and the emotes, a picture in a round bubble over a person. */
 .talk-bubble {
   border-radius: 16px;
@@ -663,7 +663,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
    decision 0025): the band's sky, a chip's picture, the road's dots and tick, the thumbs' first words and an asker's mark. */
 .band-sky, .chip-pic, .brief-dot, .brief-tick, .ask-mark, .first-label { border-radius: 9999px; }
 .first-label { border: 1px solid var(--edge); background: var(--sheet-2); color: var(--text); }
-/* The phone's apps in the lively dress (design page 13, section 2): the wallpaper a plain
+/* The phone's apps in the lively dress (design page 09, section 2): the wallpaper a plain
    navy, the place a soft pill on it, each app's icon cut with a white edge, the app's head a small tile of its colour; in
    an app, white cards with the thin edge, a picture on a soft tile, chips for money and words, and a white button with
    the navy underside for a way out of the app (the one yellow action stays the surface's main act). */
