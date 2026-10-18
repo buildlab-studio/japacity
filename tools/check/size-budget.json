@@ -27,7 +27,7 @@
     }
   },
   "changes": [
-    "18 Oct 2026: budgets at version 1",
+    "18 Oct 2026: budgets at version 1; content-sim raised from 280087 to 326689 for the interface's words, moved out of the client's shared chunk into content's ui tables, which lowered shared from 65037 to 39686",
     "18 Oct 2026: shared raised to 42304 for the account screens' passkey list, sign-out on every phone and the returning player's marks; three and the model loader each pinned to a chunk of their own"
   ]
 }
