@@ -1,5 +1,5 @@
-// Turns: docs/rules/turn.md. A turn is one month. Since decision 0011 the month is lived: now-acts spend its
-// free days (turn:month-lived-in-half-days) and the bank gates nothing (it goes at the online step).
+// Turns: docs/rules/turn.md. A turn is one month, and the month is lived (decision 0011): now-acts spend its
+// free days (turn:month-lived-in-half-days) and the bank, filled by the server's clock, gates nothing.
 import { QUALITY } from "../engine/ids";
 import { bp } from "../engine/int";
 import { reject } from "../engine/reject";

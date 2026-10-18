@@ -57,8 +57,8 @@ const ROAD_SEEDS = 700;
 const roads = roadRuns(ROAD_SEEDS);
 
 /**
- * The first broke return (place:return-shape-decided-at-once) by the spender, each run cut at its first return home. The first fix batch
- * made the far shore's return assisted (road:sea-arrival-in-italy) and the first months abroad survivable, so the borrowers and the
+ * The first broke return (place:return-shape-decided-at-once) by the spender, each run cut at its first return home. The far
+ * shore's return is assisted (road:sea-arrival-in-italy) and the first months abroad are survivable, so the borrowers and the
  * risky come home with their savings; the spender pays its debts and the school ahead from them and keeps only the fare.
  */
 const spent: RunRecord[] = [];
@@ -77,8 +77,11 @@ function brokeReturn(seeds: number): RunRecord | null {
 }
 
 describe("simulated players to an ending on the real content", () => {
+  // An ending is searched over up to 12 seeds of every strategy and life, 120 months each: up to fifteen seconds alone, four
+  // times that or more under the full check's load.
   test.each(ENDINGS.filter((ending) => ending !== "road-lost").map((ending) => [ending] as const))(
     "[place:return-shape-decided-at-once] [status:lawful-months-reach-settlement] [status:removal-sends-home-banned] given the four strategies from every life, when they play up to 120 months, then some strategy on some seed ends %s",
+    { timeout: 180_000 },
     (ending: Ending) => {
       const found = ending === "returned-broke" ? brokeReturn(40) : find((record) => record.ending === ending, 12);
       expect(found?.ending).toBe(ending);

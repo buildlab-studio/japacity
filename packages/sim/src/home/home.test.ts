@@ -139,13 +139,13 @@ describe("the slice", () => {
       place: FAMILY,
       since: 0,
       guest: null,
-      // Decision 0013 (home:living-by-hand): living at home is lived by hand, so no home charges anything a month; what a move takes
-      // at once is unchanged. The charges themselves are read on a copy that charges them whole, below.
+      // Decision 0013 (home:living-by-hand): living at home is lived by hand, so no home charges anything a month, while a move
+      // still takes its charge at once. The charges themselves are read on a copy that charges them whole, below.
       rent: { currency: "NGN", amount: 0 },
       evictionBp: home.evictionBp,
       moved: null,
       moves: [
-        // Decision 0013: both homes' living is by hand; what a move takes at once is unchanged.
+        // Decision 0013: both homes' living is by hand; a move takes its charge at once all the same.
         { to: MAKOKO, monthly: { currency: "NGN", amount: 0 }, now: home.makokoUpkeep, shut: null },
         { to: COMPOUND, monthly: { currency: "NGN", amount: 0 }, now: MOVE_IN, shut: "short" },
         // The hostel's month is its rent, which is never lived by hand.

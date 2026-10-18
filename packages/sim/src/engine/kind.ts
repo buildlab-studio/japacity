@@ -140,12 +140,12 @@ function isEngineCtx(ctx: Ctx): ctx is EngineCtx {
   return "emit" in ctx && "turn" in ctx;
 }
 
-/** The turn being resolved, or null outside `turn/end`. */
 /** What a reader takes: the state, the world and the content, from a step's context or its draft. */
 export function readOf(from: ReadCtx): ReadCtx {
   return { state: from.state, world: from.world, content: from.content };
 }
 
+/** The turn being resolved, or null outside `turn/end`. */
 export function turnInProgress(ctx: Ctx): TurnInProgress | null {
   return isEngineCtx(ctx) ? ctx.turn : null;
 }

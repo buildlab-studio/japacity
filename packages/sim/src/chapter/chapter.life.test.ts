@@ -86,8 +86,8 @@ describe("the send-off card", () => {
   });
 
   test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
-    // With the lives recorded under decision 0013, Ada's careful life meets Landing's last item on her first pay
-    // abroad, whose own card stands before a chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
+    // Ada's careful life meets Landing's last item on her first pay abroad, whose own card stands before a
+    // chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
     const { game, to } = replayedGame("tunde-abroad", content);
     to((now) => now.state.place.where === "abroad");
     const flight = game.state.turn.month;
@@ -190,7 +190,7 @@ describe("after the last chapter", () => {
     applyEffects(game, [{ type: "status/grant", status: "status.uk-settled" }]);
     game.endTurn();
     expect(game.state.chapter.current).toBeNull();
-    // Since decision 0013's re-recording, Ada reaches Secure four months after the flight, so the months abroad are played on to six.
+    // Ada reaches Secure four months after the flight, so the months abroad are played on to six.
     while (game.state.turn.month - game.state.place.movedMonth < 6) monthAbroad(game);
     const view: PlayerView = viewFor(readOf(game));
     expect(view.chapter.current).toBeNull();

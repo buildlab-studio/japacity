@@ -32,7 +32,7 @@ import type { PrologueEvent } from "./prologue.events";
 export const PROLOGUE_SOURCE = "prologue";
 
 /**
- * step 0 is the `draw` card. Its one
+ * Step 0 is the `draw` card (content's prologue/prologue.data.ts). Its one
  * answer makes the draw, since `initial` has no seed to draw with.
  */
 const FIRST_STEP = "draw";

@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { bp } from "../engine/int";
 import type { Accepted, BaseEvent, Currency, FlatSave, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
-import { newLifeSaves } from "../sweep/lives.data";
+import { sweepLifeSaves } from "../sweep/lives.data";
 import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
@@ -15,7 +15,7 @@ import { COOK } from "../testing/ids";
 
 type Closed = Extract<WalletEvent, { type: "wallet/month-closed" }>;
 
-const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...sweepLifeSaves };
 
 function closedOf(result: Accepted): Closed | undefined {
   return result.events.find((event): event is BaseEvent & Closed => event.type === "wallet/month-closed");
@@ -40,12 +40,12 @@ function replay(name: string, commands?: number): Game {
   return game;
 }
 
-/** The commands of a recorded life up to and including its nth `turn/end`. */
 /** The months a recorded life plays. */
 function monthsOf(name: string): number {
   return (SAVES[name]?.commands ?? []).filter((entry) => entry.command.type === "turn/end").length;
 }
 
+/** How many of a recorded life's commands run up to and including its nth `turn/end`. */
 function upToMonth(name: string, month: number): number {
   const commands = SAVES[name]?.commands ?? [];
   let seen = 0;
@@ -102,7 +102,7 @@ describe("the months kept", () => {
     expect(game.view().keptMonths).toBe(0);
     expect(game.state.wallet).not.toHaveProperty("keptMonths");
     expect(game.state.wallet).not.toHaveProperty("monthNet");
-    // Resting months at home: the living costs go out and nothing comes in. Since decision 0013 the living is paid by hand
+    // Resting months at home: the living costs go out and nothing comes in. Under decision 0013 the living is paid by hand
     // as it is lived, so each month eats a meal bought then; no living is charged as the month turns.
     for (let month = 0; month < 3; month += 1) {
       game.accept({ type: "activity/now", activity: COOK, param: null });
@@ -174,7 +174,7 @@ describe("the months kept", () => {
     const earned = Object.entries(game.state.wallet.totals.in).filter(([reason]) => reason !== "opening");
     expect(earned.length).toBeGreaterThan(0);
     expect(game.state.wallet.monthNet ?? {}).toEqual({});
-    // Since decision 0013 nothing is charged as a month at home turns, so the first month moves money by a meal bought then.
+    // Under decision 0013 nothing is charged as a month at home turns, so the first month moves money by a meal bought then.
     game.accept({ type: "activity/now", activity: COOK, param: null });
     const closed = closedOf(game.endTurn());
     expect(closed).toBeDefined();

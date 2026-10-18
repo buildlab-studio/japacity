@@ -536,7 +536,7 @@ describe("the staged December line", () => {
   });
 });
 
-describe("the interview, unchanged", () => {
+describe("the interview's drawn order", () => {
   test("[route:set-piece-draws-questions] [route:answers-score-and-close] given the interview, which has no fixed order and no closing answer, when it opens and is answered, then its order is drawn on visa and it stays open until the last answer", () => {
     expect(entry.order).toBeUndefined();
     expect(entry.questions.flatMap((question) => question.answers).filter((answer) => answer.closes === true || answer.requires !== undefined)).toEqual([]);

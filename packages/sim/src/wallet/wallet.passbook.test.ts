@@ -12,7 +12,7 @@ import type { BaseEvent, Currency, FlatSave, ForeignCurrency, Id, PlayerView, Re
 import { viewFor } from "../engine/view";
 import { lifeSaves } from "../goldens/lives.data";
 import { applyEffects } from "../testing/route.journey";
-import { newLifeSaves } from "../sweep/lives.data";
+import { sweepLifeSaves } from "../sweep/lives.data";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
@@ -22,7 +22,7 @@ import { CARE_ROUTE, GULF_ROUTE, UK_ROUTE } from "../testing/ids";
 const ROAD_FEES: readonly string[] = ["fee-document", "fee-test", "fee-school", "fee-visa", "fee-surcharge", "flight"];
 /** What a month's net leaves out (wallet:months-kept-counted). */
 const NOT_THE_MONTHS: readonly string[] = ["move", "convert", "held-funds", "held-funds-return"];
-const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...sweepLifeSaves };
 
 function official(view: Pick<PlayerView, "rates">): Record<ForeignCurrency, number> {
   return Object.fromEntries(Object.entries(view.rates).map(([currency, rate]) => [currency, rate.official])) as Record<ForeignCurrency, number>;

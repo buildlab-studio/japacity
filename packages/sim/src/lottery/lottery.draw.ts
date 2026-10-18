@@ -310,7 +310,7 @@ export interface TierSpec {
   count: number;
 }
 
-/** The raffle's settings as `tuning.lottery` held them before decision 0016. */
+/** The raffle's settings, which `tuning.lottery` does not hold under decision 0016. */
 export interface RaffleSettings {
   ticket: number;
   burnBp: number;
@@ -322,7 +322,7 @@ export interface RaffleSettings {
   topUpTickets: number;
 }
 
-/** The raffle's working values when it was switched off, for its tests. */
+/** The raffle's working values, for its tests. */
 export const RAFFLE_AT_SWITCH_OFF: RaffleSettings = { ticket: 20000, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50, topUpTickets: 5000 };
 
 const TWO_TO_64 = 1n << 64n;
@@ -356,7 +356,7 @@ function uniform(next: () => bigint, below: number): number {
 }
 
 /**
- * The raffle (lottery:ticket-result-is-public-function before decision 0016): the winning ticket numbers of each tier, in the tiers' order.
+ * The raffle (its form of lottery:ticket-result-is-public-function, which decision 0016 replaced): the winning ticket numbers of each tier, in the tiers' order.
  * "Without replacement by rejection sampling" means: draw a
  * ticket number uniformly, and draw again if it has already won. A tier takes
  * tickets until it is full or none is left; the tiers after an empty pool
@@ -382,7 +382,7 @@ export function drawWinners(seed: Uint8Array, count: number, tiers: TierSpec[]):
 }
 
 /**
- * The raffle (lottery:jackpot-rolls-over before decision 0016): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
+ * The raffle (its form of lottery:jackpot-rolls-over, which decision 0016 replaced): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
  * The page says at least one small place. With few tickets sold, and above all with the house top-up filling the
  * pot, one in fifty sold can make a small prize pay more than a mid one (₦41,250 against ₦16,500), so there are
  * never fewer small places than keep a small share under a mid share.
@@ -416,7 +416,7 @@ function shareBp(tier: Tier, tuning: RaffleSettings): number {
 }
 
 /**
- * The raffle (lottery:fixed-prizes-shared-jackpot before decision 0016): the prize fund and what each winning ticket is paid.
+ * The raffle (its form of lottery:fixed-prizes-shared-jackpot, which decision 0016 replaced): the prize fund and what each winning ticket is paid.
  * The fund is the pot times what is not burnt, rounded down; a tier's
  * share is split over the tickets its spec names, so the shares of places
  * left unfilled are destroyed with the rest.
@@ -439,7 +439,7 @@ export function prizesFor(
 }
 
 /**
- * The raffle's house top-up (lottery:odds-fixed-at-draw-open before decision 0016): the top-up of a draw that sold `count` tickets under its
+ * The raffle's house top-up (its form of lottery:odds-fixed-at-draw-open, which decision 0016 replaced): the top-up of a draw that sold `count` tickets under its
  * declared `topUpTickets`: the pot made up to that many tickets' worth, and 0
  * once sales reach it.
  */
@@ -448,14 +448,14 @@ export function topUpFor(count: number, topUpTickets: number, ticket: number): n
 }
 
 /**
- * The raffle (lottery:expected-return-below-price before decision 0016): the part of a prize credited as `pot-top-up`: the prize times
+ * The raffle (its form of lottery:expected-return-below-price, which decision 0016 replaced): the part of a prize credited as `pot-top-up`: the prize times
  * the top-up over the pot, rounded down. An empty pot pays nothing, so its part is 0.
  */
 export function topUpPart(amount: number, topUp: number, pot: number): number {
   return pot === 0 ? 0 : mulDiv(amount, topUp, pot);
 }
 
-/** The raffle's settings check, as the content check ran it before decision 0016: the three tiers share the whole fund, and the most the house adds is a whole number of kobo. */
+/** The raffle's settings check: the three tiers share the whole fund, and the most the house adds is a whole number of kobo. */
 export function raffleProblems(settings: RaffleSettings): string[] {
   const problems: string[] = [];
   const total = settings.jackpotBp + settings.midBp + settings.smallBp;

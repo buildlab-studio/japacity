@@ -24,7 +24,7 @@ export function isJob(entry: ActivityEntry | undefined): entry is ActivityEntry 
   return entry?.slot === "main" || entry?.slot === "side";
 }
 
-/** a job abroad holds its pay a year, a job at home a month. */
+/** A job abroad's pay is written a year, a job at home's a month. */
 export function paidYearly(entry: ActivityEntry): boolean {
   return entry.where === "abroad";
 }

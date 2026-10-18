@@ -360,8 +360,8 @@ function topUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * The authority's `wallet/top-up` (wallet:top-ups-are-marked, server:apologies-never-currency): the engine refuses it from anyone else. The processor's
- * receipts, the monthly cap and the server route that sends it come with the payment processor.
+ * The authority's `wallet/top-up` (wallet:top-ups-are-marked, server:apologies-never-currency): the engine refuses it from anyone else.
+ * No server route sends it.
  */
 function topUp(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "wallet/top-up") throw new Error(`wallet/top-up cannot handle ${command.type}.`);

@@ -29,7 +29,7 @@ const MOST_COMMANDS = 600;
  * Param names that hold money. Each must carry `{ currency, amount }`
  * wherever it appears, so the client never guesses money from a bare number.
  */
-const OLD_MONEY_NAMES = [
+const MONEY_NAMES = [
   "amount",
   "price",
   "show",
@@ -81,7 +81,7 @@ function playForty(life: Id<"scenario">, seed: string, picks: readonly number[])
 /** The params of a line named like money that are bare numbers. */
 function bareMoney(line: ReportLine): string[] {
   return Object.entries(line.params)
-    .filter(([name, value]) => OLD_MONEY_NAMES.includes(name) && typeof value === "number")
+    .filter(([name, value]) => MONEY_NAMES.includes(name) && typeof value === "number")
     .map(([name]) => `${line.key}: ${name} is a bare number`);
 }
 
@@ -89,7 +89,7 @@ describe("report lines on the real lives", () => {
   for (const life of LIVES) {
     describe(`the life ${life}`, () => {
       test.prop([fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: 50, maxLength: 50 })], { numRuns: 3 })(
-        "[engine:report-money-is-typed] given this life, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from",
+        "[engine:report-money-is-typed] given this life, when 40 months of random legal commands are played, then no line carries money as a bare number under a name that holds money",
         (seed, picks) => {
           const lines = playForty(life, seed, picks);
           expect(lines.length).toBeGreaterThan(0);

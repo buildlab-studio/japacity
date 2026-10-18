@@ -99,7 +99,7 @@ describe("the three real lives as golden scripts", () => {
     },
   );
 
-  // Finding: engine/goldens.test.ts replays every blessed golden against the
+  // engine/goldens.test.ts replays every blessed golden; this ties each life script to its golden.
   test("[engine:state-is-plain-data] given the life scripts, when compared with the blessed goldens, then each has a golden with the same save", () => {
     for (const script of lifeScripts) {
       expect(goldens.find((golden) => golden.name === script.name)?.save).toEqual(script.save);

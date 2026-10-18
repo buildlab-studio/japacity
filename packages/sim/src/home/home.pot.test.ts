@@ -77,7 +77,7 @@ describe("a home of your own's corner", () => {
     expect(taken(eat(game, OWN_POT))).toEqual([{ reason: "food", amount: 7_500_00 }]);
   });
 
-  test("[home:living-by-hand] given the four cooking acts, when their entries are read, then the pot and the big pot are the family house's, at home only, and a meal of your own in naira is had at home only, the room abroad cooking in pounds; each lifts the belly as before", () => {
+  test("[home:living-by-hand] given the four cooking acts, when their entries are read, then the pot and the big pot are the family house's, at home only, and a meal of your own in naira is had at home only, the room abroad cooking in pounds; the house's pot and big pot lift the belly as a meal and a pot of your own do", () => {
     expect(content.activity[POT]?.where).toBe("home");
     expect(content.activity[BIG_POT]?.where).toBe("home");
     // No naira is charged abroad; in the UK the room's meal is activity.cook-own-uk.

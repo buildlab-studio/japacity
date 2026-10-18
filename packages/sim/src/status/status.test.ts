@@ -31,7 +31,7 @@ function statusLines(lines: ReportLine[]): ReportLine[] {
   return lines.filter((line) => line.key.startsWith("line.status."));
 }
 
-/** The real registry with quitting the job also starting the status clock, as the activity kind will (ladders:sponsor-job-ties-status). */
+/** The real registry with quitting a job always starting the status clock (ladders:sponsor-job-ties-status); the activity kind starts it only for a job of the country on a one-employer status. */
 function quitStartsClock(): Registry {
   return registry().map((kind) => {
     const quit = kind.commands?.["activity/quit"];

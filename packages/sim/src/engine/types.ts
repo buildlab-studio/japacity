@@ -265,9 +265,9 @@ export type Requirement =
   | { type: "credit/min"; value: number }
   | { type: "goal/done"; goal: Id<"goal"> }
   | { type: "era/is"; eras: Id<"era">[] }
-  /** An open obligation of this type exists, not in default. The car is `obligation/has` with type `car`. */
   /**
-   * `obligation` narrows the check to one entry (goal.own-door, the repeatable flat); `defaulted` counts only one in default
+   * An open obligation of this type exists, not in default. The car is `obligation/has` with type `car`. `obligation`
+   * narrows the check to one entry (goal.own-door, the repeatable flat); `defaulted` counts only one in default
    * and `localCurrency` only one owed in the currency of the country the character is in (offer.court-date).
    */
   | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation">; defaulted?: boolean; localCurrency?: boolean }
@@ -352,7 +352,6 @@ export type Effect =
   /** The pool entered on the points route, from `activity.enter-pool` (route-gates:entering-the-pool). */
   | { type: "route/enter-pool"; route: Id<"route"> }
   // setpiece
-  /** Opens a set piece for a route (route:set-piece-draws-questions). */
   /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (route:answers-carry-effects). */
   | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> | null }
   /** Closes the open scene unscored (a flight during a road scene, road:road-night-allows-turn-back). */
@@ -484,8 +483,7 @@ export interface ActivityEntry {
   /** A quiz sat as a set piece: `pass` right answers or more apply `effects` when the paper is marked (activity:waiting-months-build-profile). Missing: no quiz. */
   exam?: ActivityExam;
   requires: Requirement[];
-  /** What the player picks along with a free-slot activity. */
-  /** `route` lists routes heard of; `known-route` lists routes known (the sponsor's find). */
+  /** What the player picks along with a free-slot activity. `route` lists routes heard of; `known-route` lists routes known (the sponsor's find). */
   param: "job" | "route" | "known-route" | "school" | null;
   /** Taken when the activity resolves. If it cannot be paid the activity fails and nothing else happens. */
   cost: Cost[];
@@ -573,8 +571,7 @@ export interface RouteEntry {
   interview: Id<"setpiece"> | null;
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
   sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
-  /** Points gate. */
-  /** `spouseTable`: the lead's columns with a spouse and the spouse's factors (person:canada-spouse-points). Null: no spouse counts. */
+  /** Points gate. `spouseTable`: the lead's columns with a spouse and the spouse's factors (person:canada-spouse-points). Null: no spouse counts. */
   points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
@@ -1260,8 +1257,10 @@ export interface Tuning {
   /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
   parcel: { handling: number; laptopMood: number; clothesPrep: number };
   status: { courseMonths: number };
-  /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit). */
-  /** `cleanMonths`: months without a miss before the file drifts up (credit:clean-mark-drifts-up). */
+  /**
+   * `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit).
+   * `cleanMonths`: months without a miss before the file drifts up (credit:clean-mark-drifts-up).
+   */
   credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; judgmentCap: number; returnPenalty: number; cleanMonths: number };
   car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
   remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };
@@ -1301,9 +1300,9 @@ export interface Tuning {
      */
     hometowns: { city: string[]; town: string[]; byHome: Record<string, string> };
   };
-  /** `downUnder`: wellbeing or standing under this is "down" (luck:no-kicking-while-down); `rescueAfterMonths`: months played before the whip-round (luck:whip-round-once-per-life). */
   /** advice.md: the four ways to look into a route, and the agents. */
   advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; chaser: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; chaserFee: [number, number]; fixerMonths: number; chaserMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number };
+  /** `downUnder`: wellbeing or standing under this is "down" (luck:no-kicking-while-down); `rescueAfterMonths`: months played before the whip-round (luck:whip-round-once-per-life). */
   luck: {
     downUnder: number;
     rescueAfterMonths: number;
@@ -1485,7 +1484,7 @@ export interface Content {
   version: string;
   /** The version of the overlay applied at load, if any (engine:numbers-read-from-content). Set by `applyOverlay` alone. */
   overlay?: string;
-  /** Ids this version renamed, old to new, for `upgradeState` (server:build-scanned-for-secrets). */
+  /** Ids this version renamed, old to new, for `upgradeState` (server:upgrade-state-is-pure). */
   renames?: Record<string, string>;
   quality: Record<Id<"quality">, QualityEntry>;
   activity: Record<Id<"activity">, ActivityEntry>;
@@ -1541,8 +1540,10 @@ export interface World {
   news: WorldNews[];
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
-  /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
-  /** `onSale` is false between a draw's close and the next draw's opening (lottery:draw-sells-between-ticks). */
+  /**
+   * The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null.
+   * `onSale` is false between a draw's close and the next draw's opening (lottery:draw-sells-between-ticks).
+   */
   lottery: { draw: number; closesTick: number; onSale: boolean; fingerprint: string; beaconRound: number; salesSoFar: number; jackpot: number; rolledOver: boolean; odds: LotteryOdds; last: LotteryResult | null } | null;
   /** advert:real-name-only-by-agreement: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
   placeNames: Record<string, { name: string; sign: string }>;
@@ -2144,8 +2145,7 @@ export interface Accepted<E extends BaseEvent = BaseEvent> {
 
 export type StepResult<E extends BaseEvent = BaseEvent> = Accepted<E> | Rejection;
 
-/** Who sent a command. A player may not send `turns/grant`. */
-/** Who sent a command: the player, the authority, or the stand-in that plays for an absent partner (person:gossip-when-two-timing). */
+/** Who sent a command: the player, the authority, or the stand-in that plays for an absent partner (person:stand-in-acts-narrowly). A player may not send `turns/grant`. */
 export type Sender = "player" | "authority" | "stand-in";
 
 // ---------------------------------------------------------------------------
@@ -2233,7 +2233,7 @@ export interface Save {
   family?: { from: string; draw: NonNullable<PrologueSlice["draw"]> };
 }
 
-/** A save of schema 1 or 2, before decision 0004: one segment, flat. `loadSave` reads it; nothing writes it as a save. */
+/** A save of schema 1 or 2: one segment, flat, where schema 3 is the save in segments (decision 0004). `loadSave` reads it; nothing writes it as a save. */
 export interface FlatSave {
   schema: 1 | 2;
   content: string;
@@ -2348,12 +2348,12 @@ export interface PlayerView {
   qualities: { id: Id<"quality">; value: number }[];
   /** The run-down warning stands: two months under the wellbeing line (health:low-wellbeing-warns-first, health:view-shows-health-warning). */
   runDown: boolean;
-  /** The job, its tenure, and the side job held if any (activity:side-job-holds-a-slot). */
   /**
+   * The job, its tenure, and the side job held if any (activity:side-job-holds-a-slot).
    * `raise` (activity:waiting-months-build-profile): the held job's pay a month with the raise from being noticed, and the month the raise
-   * landed (null for a raise kept from before the month was recorded). Absent while the job held has no raise.
+   * landed (null for a raise the state holds without its month). Absent while the job held has no raise.
+   * `pay` and `sidePay` (wallet:view-carries-month-pay): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read.
    */
-  /** `pay` and `sidePay` (wallet:view-carries-month-pay): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read. */
   job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; pay: MoneyParam | null; sidePay: MoneyParam | null; raise?: { pay: MoneyParam; month: number | null } };
   freeSlots: number;
   activities: ActivityOption[];
@@ -2361,8 +2361,7 @@ export interface PlayerView {
   pockets: Record<Currency, PocketBalance>;
   queued: QueuedConversion[];
   rates: World["rates"];
-  /** What may still be bought at the bank this month, in US cents. */
-  /** Null abroad, where the Lagos allowance does not bind (wallet:monthly-fx-allowance, wallet:bank-queue-delays-purchases). */
+  /** What may still be bought at the bank this month, in US cents. Null abroad, where the Lagos allowance does not bind (wallet:monthly-fx-allowance, wallet:bank-queue-delays-purchases). */
   bankAllowanceLeft: number | null;
   /** Months ended in which the character kept more than they spent (decision 0024). A count the japa type reads; never shown as a figure. */
   keptMonths: number;
@@ -2397,10 +2396,12 @@ export interface PlayerView {
     ways: { route: Id<"route">; percent: number }[];
   };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
-  /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (place:fare-home-in-local-currency). */
-  /** `wayHome` (place:view-carries-way-home): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
-  /** `ways` (place:rides-between-city-places): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view written by hand before it stays whole. */
-  /** `shuttles` (place:employer-shuttle-rides-free, decision 0017): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`. */
+  /**
+   * `fareHome` is the fare from the country the character is in, December factor applied, or null at home (place:fare-home-in-local-currency).
+   * `wayHome` (place:view-carries-way-home): the way home from where the character is today, as `return/home` would take it; null when not abroad.
+   * `ways` (place:rides-between-city-places): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view a test writes by hand without it stays whole.
+   * `shuttles` (place:employer-shuttle-rides-free, decision 0017): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`.
+   */
   place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[]; shuttles?: Id<"place">[] };
   status: {
     entry: Id<"status">;
@@ -2456,10 +2457,10 @@ export interface PlayerView {
   lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; onSale: boolean; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
   /** advert:no-adverts-on-protected-screens: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
-  /** Where the character lives at home (home:view-carries-home): the monthly charge there, the eviction chance a month in Makoko now, and the month of the last move, so the card shuts the move made this month. */
   /**
-   * `rent` is the month's charge where the character lives as the bill takes it (home:moves-carry-cost-and-reason); `moves` the moves the
-   * card offers at home, each with what it charges a month, what it takes at once, and why it is shut (empty abroad).
+   * Where the character lives at home (home:view-carries-home): the monthly charge there, the eviction chance a month in Makoko now, and the month
+   * of the last move, so the card shuts the move made this month. `rent` is the month's charge where the character lives as the
+   * bill takes it (home:moves-carry-cost-and-reason); `moves` the moves the card offers at home, each with what it charges a month, what it takes at once, and why it is shut (empty abroad).
    */
   home: {
     place: HomePlace | null;

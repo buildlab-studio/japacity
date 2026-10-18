@@ -1,7 +1,7 @@
 // The plot sold to a buyer the game brings (docs/rules/offer.md, the land buyer; wallet:large-deposits-record-lots; route.md
-// route:unexplained-share-of-funds): selling the plot put ₦8,500,000 in the bank "from somewhere a visa officer will ask
-// about". A sale the game itself made is documented money, the deed of sale its paper: it records no lot and adds
-// nothing to the unexplained share. A gift still does. Played through the harness with the real content.
+// route:unexplained-share-of-funds): selling the plot puts ₦8,500,000 in the bank. A sale the game itself makes is
+// documented money, the deed of sale its paper: it records no lot and adds nothing to the unexplained share, where a
+// gift does. Played through the harness with the real content.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

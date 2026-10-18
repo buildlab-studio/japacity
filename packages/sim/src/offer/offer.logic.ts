@@ -705,11 +705,6 @@ function invariants(state: State, content: Content): string[] {
   return problems;
 }
 
-/**
- * An open offer as the player sees it. `allowed` is judged at the
- * smallest amount a choice may take, so a larger amount may still be refused
- * with cannot-afford.
- */
 /** wallet:view-carries-month-pay: what the job an offer names would pay a month as the wallet will book it, or nothing when it names none. */
 function offeredPay(read: ReadCtx, item: OfferState): Pick<OfferView, "pay"> {
   const job = item.terms["job"];
@@ -718,6 +713,11 @@ function offeredPay(read: ReadCtx, item: OfferState): Pick<OfferView, "pay"> {
   return pay === null ? {} : { pay };
 }
 
+/**
+ * An open offer as the player sees it. `allowed` is judged at the
+ * smallest amount a choice may take, so a larger amount may still be refused
+ * with cannot-afford.
+ */
 function offerView(read: ReadCtx, item: OfferState): OfferView {
   const judge: Judge = (requirement, terms) => check(read, requirement, terms);
   return {

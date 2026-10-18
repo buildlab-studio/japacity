@@ -91,7 +91,7 @@ export function newsSchedule(worldSeed: string, content: Content): NewsSchedule 
     return ticks;
   };
 
-  // a story with no count of ticks that
+  // From content (news.dollar-scarcity): a story with no count of ticks that
   // reverts ends on the tick the first story following it comes into force. A
   // follower that waits for this story to end cannot end it, so it is skipped.
   // The content says only that the scarcity ends when the float comes into force;

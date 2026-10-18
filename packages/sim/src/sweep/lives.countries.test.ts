@@ -9,9 +9,9 @@ import { lifeStart, loadSave, replay, savedCommands } from "../engine/replay";
 import { lifeSaves } from "../goldens/lives.data";
 import { standInWorld } from "../world/standIn";
 import { countryLifeSaves } from "./lives.countries.data";
-import { newLifeSaves } from "./lives.data";
+import { sweepLifeSaves } from "./lives.data";
 
-// Italy's life waits on the road's strategy (tools/goldens/record-lives.ts): the Gulf's and Canada's are recorded.
+// The Gulf's life and Canada's are recorded; Italy has none, since the road's journey starts too late for the recording (tools/goldens/record-lives.ts).
 const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
   "tunde-gulf": { country: "country.uae", route: "route.gulf-contract" },
   "zainab-canada": { country: "country.canada", route: "route.canada-points" },
@@ -19,12 +19,12 @@ const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
 const recorded = Object.entries(countryLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
 describe("the lives recorded for the three countries", () => {
-  test("[engine:state-is-plain-data] given the countries' recordings, when listed, then a life lands in each country recorded (the UAE and Canada today), each starts from a life in the content, and none shares a name with another recording", () => {
+  test("[engine:state-is-plain-data] given the countries' recordings, when listed, then a life lands in each country recorded (the UAE and Canada), each starts from a life in the content, and none shares a name with another recording", () => {
     expect(recorded.map((script) => script.name).sort()).toEqual(Object.keys(LANDS).sort());
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
       expect(lifeSaves[script.name]).toBeUndefined();
-      expect(newLifeSaves[script.name]).toBeUndefined();
+      expect(sweepLifeSaves[script.name]).toBeUndefined();
     }
   });
 

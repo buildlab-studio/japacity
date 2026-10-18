@@ -39,7 +39,7 @@ describe("[engine:content-checked-before-play] the content check", () => {
 
   test("[engine:content-checked-before-play] given a fractional amount, when checked, then it is reported", () => {
     const content = copy();
-    // Half a kobo, built without a decimal literal so the lint rule for content stays honest.
+    // Half a kobo, built without a decimal literal, which the lint rules refuse.
     content.activity["activity.study"]!.cost[0]!.amount = 1000000 + Number("0.5");
     expect(checkContent(content).join("\n")).toMatch(/not a whole number/);
   });
