@@ -1,4 +1,4 @@
-// The first session (docs/rules/guides.md R-GUIDE-014), as the simulation's own
+// The first session (docs/rules/guide.md R-GUIDE-014), as the simulation's own
 // tests play it: every starting life, the prologue's paths among them, played
 // for its first three months after the prologue toward the current chapter's
 // unmet items, and the first early win found. Nothing in the simulation

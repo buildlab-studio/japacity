@@ -1,4 +1,4 @@
-// The first session: docs/rules/guides.md R-GUIDE-014.
+// The first session: docs/rules/guide.md R-GUIDE-014.
 // Every starting life sees an early win by its third month; the life's first
 // hunt in those months is sure, at the lowest wage on offer.
 import { content } from "@japacity/content";

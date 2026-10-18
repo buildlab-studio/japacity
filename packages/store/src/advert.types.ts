@@ -1,11 +1,11 @@
-// Adverts on the server (docs/rules/adverts.md, Contract): advertisers,
+// Adverts on the server (docs/rules/advert.md, Contract): advertisers,
 // campaigns, creatives with their reviews, and the daily counts. Nothing here
 // names a player (R-ADVERT-020).
 import type { Id } from "@japacity/sim";
 
 import type { StoreResult } from "./types";
 
-/** An advert region (adverts.md R-ADVERT-008): a country's code, or `default`. */
+/** An advert region (advert.md R-ADVERT-008): a country's code, or `default`. */
 export type RegionCode = string;
 
 /** R-ADVERT-020: the advertiser as a business, with one contact. */

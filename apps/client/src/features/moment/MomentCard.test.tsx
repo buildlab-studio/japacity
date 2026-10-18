@@ -1,4 +1,4 @@
-// The moment card on screen (docs/rules/moments.md): what it shows, how it reads cropped, what it never looks like,
+// The moment card on screen (docs/rules/moment.md): what it shows, how it reads cropped, what it never looks like,
 // when it stands and how it goes, and that it is no share card.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";

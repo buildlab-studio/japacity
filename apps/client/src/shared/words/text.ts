@@ -6,7 +6,7 @@ import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
 import { nowHometown, nowMonth, swapped } from "./now";
-import { peopleParam } from "./people";
+import { peopleParam } from "./person";
 import { lateWord } from "./late";
 import { uiText } from "./tables/ui.words";
 

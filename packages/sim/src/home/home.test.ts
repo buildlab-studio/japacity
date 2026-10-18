@@ -18,7 +18,7 @@ import { standInWorld } from "../world/standIn";
 const MAKOKO = "place.makoko" as const;
 const FAMILY = "place.family-house" as const;
 const COMPOUND = "place.compound-room" as const;
-/** The fourth home, a hostel room by the month (hostel.test.ts). */
+/** The fourth home, a hostel room by the month (home.hostel.test.ts). */
 const HOSTEL = "place.hostel-room" as const;
 const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";

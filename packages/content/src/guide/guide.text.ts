@@ -1,4 +1,4 @@
-// The guides (docs/rules/guides.md). General information with its date and
+// The guides (docs/rules/guide.md). General information with its date and
 // sources, never about one person's case. A blank line inside a section starts a new paragraph.
 export const guideText: Record<string, string> = {
   // The words every guide page shares.
@@ -37,7 +37,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.abroad-money": "Money abroad",
   "guide.page.numbers.name.account": "Accounts and signing in",
   "guide.page.numbers.name.activity": "Jobs and things to do",
-  "guide.page.numbers.name.adverts": "Adverts",
+  "guide.page.numbers.name.advert": "Adverts",
   "guide.page.numbers.name.analytics": "What the game counts about play",
   "guide.page.numbers.name.assets": "The game's models and pictures",
   "guide.page.numbers.name.car": "Cars",
@@ -47,7 +47,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.director": "Eras and the news",
   "guide.page.numbers.name.document": "Documents",
   "guide.page.numbers.name.goal": "Life goals",
-  "guide.page.numbers.name.guides": "These guides",
+  "guide.page.numbers.name.guide": "These guides",
   "guide.page.numbers.name.health": "Health",
   "guide.page.numbers.name.interview": "The relationship interview",
   "guide.page.numbers.name.ladders": "Working life abroad",
@@ -58,7 +58,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.obligation": "Bills and debts",
   "guide.page.numbers.name.offer": "Job offers, sponsors and agents",
   "guide.page.numbers.name.pair": "Playing with a friend",
-  "guide.page.numbers.name.people": "Partners and family",
+  "guide.page.numbers.name.person": "Partners and family",
   "guide.page.numbers.name.place": "Home and abroad",
   "guide.page.numbers.name.prologue": "Growing up, 16 to 22",
   "guide.page.numbers.name.quality": "Skills and standing",

@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { createGameStore } from "../authority/store";
-import { ShareButton } from "../features/card/ShareCard";
+import { ShareButton } from "../features/share/ShareCard";
 import { countAsk } from "../features/notify/ask";
 import { UsageCounts } from "../features/account/Settings";
 import { countInto, countSound } from "../shared/analytics/start";
@@ -23,7 +23,7 @@ import { abroadView, engineView, fakeAuthority } from "../shared/testing/fixture
 import { found, renderWithView } from "../shared/testing/render";
 import { say } from "../shared/words/text";
 
-vi.mock("../shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
+vi.mock("../shared/share/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
 let bodies: string[] = [];
 let counters = makeCounters({ send: (body) => bodies.push(body) });

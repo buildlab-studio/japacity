@@ -20,7 +20,7 @@ import { turnText } from "../features/turn/turn.words";
 import { soundText } from "../shared/sound/sound.words";
 import { jobsUiText } from "../shared/words/tables/jobs.words";
 import { uiText } from "../shared/words/tables/ui.words";
-// The content check on institutions beside wrongdoing (people.md R-PEOPLE-063), run here over the client's tables too.
+// The content check on institutions beside wrongdoing (person.md R-PEOPLE-063), run here over the client's tables too.
 import { institutionProblems } from "../../../../packages/content/src/person/person.names.check";
 
 const clientTables: Record<string, Record<string, string>> = {

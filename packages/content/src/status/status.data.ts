@@ -81,7 +81,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     work: "one-employer",
     // 60 days.
     clockMonths: 2,
-    // docs/rules/people.md R-PEOPLE-020: a partner may join a holder of one of these jobs.
+    // docs/rules/person.md R-PEOPLE-020: a partner may join a holder of one of these jobs.
     dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"],
     tiedTo: null,
     renewMonths: 24,
@@ -203,7 +203,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
   },
 };
 
-// docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-024, 028, 029.
+// docs/rules/person.md "Entries: routes and statuses", R-PEOPLE-024, 028, 029.
 const peopleStatuses: Record<Id<"status">, StatusEntry> = {
   "status.uk-partner": {
     ...BASE,

@@ -38,7 +38,7 @@ function loopFrom(table: Record<Id<"status">, StatusEntry>, start: Id<"status">)
 
 describe("statuses", () => {
   test("[R-ENGINE-014] given every status, when it is checked against its schema, then it parses and its key is its id", () => {
-    // status.md's thirteen, and people.md's partner and dependant visas (R-PEOPLE-024, 028).
+    // status.md's thirteen, and person.md's partner and dependant visas (R-PEOPLE-024, 028).
     expect(statuses).toHaveLength(15);
     for (const [key, status] of Object.entries(content.status)) {
       expect(StatusEntrySchema.safeParse(status).error?.issues ?? []).toEqual([]);
@@ -70,7 +70,7 @@ describe("statuses", () => {
   });
 
   test("[R-ENGINE-014] given every status, when the variables it reads are looked up, then each exists", () => {
-    // people.md R-PEOPLE-024: `lead` is the lead's months left, not a variable.
+    // person.md R-PEOPLE-024: `lead` is the lead's months left, not a variable.
     const vars = statuses.flatMap((status) =>
       [status.renewFeeVar, status.surchargeYearVar, status.settleMonthsVar, status.settleFeeVar, status.citizenFeeVar, typeof status.months === "string" && status.months !== "lead" ? status.months : null].filter(
         (id): id is Id<"var"> => id !== null,
@@ -82,7 +82,7 @@ describe("statuses", () => {
 
   test("[R-ENGINE-014] given every status that counts to settlement, when its settlement step is read, then it names the months, the fee and the status it leads to", () => {
     const counting = statuses.filter((status) => status.countsToSettlement);
-    // people.md "Entries: routes and statuses": the partner and dependant visas count to settlement too (R-PEOPLE-028).
+    // person.md "Entries: routes and statuses": the partner and dependant visas count to settlement too (R-PEOPLE-028).
     expect(counting.map((status) => status.id)).toEqual(["status.uk-sponsored", "status.uk-talent", "status.ca-resident", "status.uk-partner", "status.uk-dependant"]);
     for (const status of counting) {
       expect(status.settleMonthsVar).not.toBeNull();

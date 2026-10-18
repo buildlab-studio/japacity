@@ -1,4 +1,4 @@
-// The screenshot moments (docs/rules/moments.md): every big outcome is one clean card over the scene, with one line in
+// The screenshot moments (docs/rules/moment.md): every big outcome is one clean card over the scene, with one line in
 // the game's voice, the figure that makes it land, and the game's small mark with its address in a corner. This file
 // says which lines are moments and what each card holds; features/moment/MomentCard.tsx draws it. Words come from content only.
 import { content } from "@japacity/content";

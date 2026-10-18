@@ -51,7 +51,7 @@ export type RouteKindEvent =
   | { type: "route/banned"; route: Id<"route">; until: number }
   /**
    * An application resting on a bond was withdrawn, or a dependant's grant not
-   * yet used was voided (docs/rules/people.md R-PEOPLE-036): back to known with
+   * yet used was voided (docs/rules/person.md R-PEOPLE-036): back to known with
    * no application, the fee kept, `refunded` pence of surcharge returned.
    */
   | { type: "route/withdrawn"; route: Id<"route">; refunded: number }

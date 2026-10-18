@@ -249,7 +249,7 @@ export const PROCESS_TAGS: readonly ProcessTag[] = [
   tag("a launch lesson", /\blaunch lesson \d/i, "Every other account plays on. Launch lesson 5.", true),
   tag("a catalog run", /\bcatalog [0-9a-f]{7,}\b/, "Never cut with an ellipsis.", true),
   tag("a dated call", /\(the (?:lead|owner|maintainer)(?:'s call)?,? (?:of )?\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/, "Nobody is met here.", true),
-  tag("a milestone's name", /\bM[0-7] (?:pages?|tables?|stage|milestone|examples)\b/, "The tables (adverts.md, guides.md, analytics.md).", true),
+  tag("a milestone's name", /\bM[0-7] (?:pages?|tables?|stage|milestone|examples)\b/, "The tables (advert.md, guide.md, analytics.md).", true),
 ];
 
 /** Paths where no process tag is looked for: this list itself, which holds the patterns. */

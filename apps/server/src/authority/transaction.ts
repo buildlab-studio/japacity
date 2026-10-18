@@ -8,7 +8,7 @@ import type { CharacterWrite, PairRow, PairWrite, Refusal, Writes } from "@japac
 import { earnTurns } from "../clock/turns";
 import { tickAt, turnClock } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { sellTickets } from "../draw/sell";
+import { sellTickets } from "../lottery/sell";
 import { dialedContents } from "../switches/dials";
 import { heldWorlds, tickRow } from "../world/ticks";
 import type { Diverged, Live } from "./load";

@@ -1,6 +1,6 @@
 // Building a new state and applying one event to a state.
 import { registry } from "../kinds";
-import { familySlots } from "../people/people.family";
+import { familySlots } from "../person/person.family";
 import type { EngineEvent } from "./events";
 import type { IdSource, Registry, SliceKey } from "./kind";
 import { prefixOf, SLICE_KEYS } from "./kind";

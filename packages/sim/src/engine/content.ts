@@ -8,7 +8,7 @@ import { checkLotteryContent } from "../lottery/lottery.draw";
 import { agentProblems } from "../offer/offer.agent";
 import { luckReadsMoney } from "../offer/offer.luck";
 import { bridgeProblems } from "../offer/offer.street";
-import { phraseChecks } from "../pair/phrase.check";
+import { phraseChecks } from "../phrase/phrase.check";
 
 const CONTENT_KINDS = [
   "quality",

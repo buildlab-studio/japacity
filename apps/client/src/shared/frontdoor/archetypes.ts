@@ -1,5 +1,5 @@
 // The archetypes (prologue.md R-PROLOGUE-010, "The archetypes"): each a preset of the prologue's answers, never held
-// by the simulation. The presets themselves are content's (`packages/content/src/prologue/preset.ts`), so the client
+// by the simulation. The presets themselves are content's (`packages/content/src/prologue/prologue.preset.ts`), so the client
 // offline and the server online play one source (server.md R-SERVER-046); a tile here adds the routes its words name.
 // Every step has its answer: the client sends the first of the archetype's answers that is allowed, and where a draw has
 // shut them all, the open answer that suits the archetype best (`doorAnswer`), so no card shows for a new life. The

@@ -176,7 +176,7 @@ export interface PhoneAppsProps {
    * (health.md R-HEALTH-007), above every app whichever is open and on the phone's home above its notices.
    */
   warnings?: ReactNode;
-  /** The phone's one sponsored tile, from the shell, standing among the tiles when the hour fills it (adverts.md R-ADVERT-002). */
+  /** The phone's one sponsored tile, from the shell, standing among the tiles when the hour fills it (advert.md R-ADVERT-002). */
   advert?: ReactNode;
   /** The place the world shows, by id, for the Market. */
   here?: string | null;
@@ -217,7 +217,7 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
               )}
               {keepsake}
               <Notices />
-              {/* The phone's one sponsored tile among its tiles, when the hour fills it online (adverts.md R-ADVERT-002). */}
+              {/* The phone's one sponsored tile among its tiles, when the hour fills it online (advert.md R-ADVERT-002). */}
               {advert === null ? null : (
                 <div className="mt-4 flex justify-center px-4 empty:hidden" data-phone-advert>
                   {advert}

@@ -41,13 +41,13 @@ describe("route gates", () => {
       return [
         ...(route.country === null ? [`${route.id} country`] : []),
         ...(route.status === null ? [`${route.id} status`] : []),
-        // people.md "Entries: routes and statuses": a dependant route has no window of its own (R-PEOPLE-022).
+        // person.md "Entries: routes and statuses": a dependant route has no window of its own (R-PEOPLE-022).
         ...(route.window === null && route.gate !== "dependant" ? [`${route.id} window`] : []),
         ...(hasBlock ? [] : [`${route.id} ${String(block)}`]),
       ];
     });
     expect(missing).toEqual([]);
-    // people.md R-PEOPLE-022 and 026 add the dependant and partner gates.
+    // person.md R-PEOPLE-022 and 026 add the dependant and partner gates.
     expect(new Set(routes.map((route) => route.gate))).toEqual(new Set(["study", "sponsor", "points", "endorsement", "contract", "partner", "dependant"]));
   });
 });

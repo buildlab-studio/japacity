@@ -2,7 +2,7 @@
 // people lines, and the partner's and a friend's messages when the view has a pair. Sending is a
 // preset phrase the pair rules allow (R-PAIR-010), picked from chips: nobody types. Once courting, a
 // bond lives in its thread, whose head carries its stage and choices; the People row at the top opens
-// the slots of this life with the invite card (R-WORLD-020, people.md R-PEOPLE-010). Both are the people
+// the slots of this life with the invite card (R-WORLD-020, person.md R-PEOPLE-010). Both are the people
 // feature's own screens, handed in by the shell.
 import type { ConversationReply, PairReply, SayReply, ServerRejection } from "@japacity/api";
 import { content } from "@japacity/content";
@@ -11,7 +11,7 @@ import { ChevronRight, UserRound, Users } from "lucide-react";
 import { createContext, Fragment, use, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
+import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/person";
 import { hasWords, monthsAgo, say, sayCount, words } from "../../../shared/words/text";
 import { faceMark } from "../../../shared/ui/lively/Face";
 import { PressButton } from "../../../shared/ui/lively/PressButton";
@@ -45,7 +45,7 @@ const PHRASES = conversationPhrases();
 
 /**
  * The people a chat is open with: a player on the other side of a pair, or a computer partner. A bond that ended keeps
- * its thread through the month it ended in, its head saying so, and then it goes (people.md R-PEOPLE-042).
+ * its thread through the month it ended in, its head saying so, and then it goes (person.md R-PEOPLE-042).
  */
 function chatPeople(view: ReturnType<typeof useView>): BondView[] {
   return view.people.bonds.filter((bond) => (bond.stage !== "ended" || endStillTold(view, bond)) && (bond.pair !== null || (bond.role === "partner" && bond.person !== null)));
@@ -324,7 +324,7 @@ export function Chats() {
       <div data-phone-app="chats">
         <h3 className="mb-3 flex items-center gap-2 text-[20px] font-bold">
           {name}
-          {/* The quiet mark a person the game plays carries on every screen (people.md R-PEOPLE-009, R-PEOPLE-054), and a stand-in's (R-PEOPLE-044). */}
+          {/* The quiet mark a person the game plays carries on every screen (person.md R-PEOPLE-009, R-PEOPLE-054), and a stand-in's (R-PEOPLE-044). */}
           {bond !== null && bond.label !== "player" ? (
             <span className="sticker-chip bg-sheet-2 text-text-2" style={{ rotate: "-2deg" }} data-person-mark={bond.label}>
               {say(`ui.people.mark.${bond.label}`)}

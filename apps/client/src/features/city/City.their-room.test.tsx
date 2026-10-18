@@ -1,12 +1,12 @@
 // Their room in the world, dressed for the person whose room it is (docs/rules/world.md R-WORLD-020; city.md R-CITY-011,
-// R-CITY-001; people.md R-PEOPLE-014, R-PEOPLE-054): with Tobi's bond courting, the city draws his room
+// R-CITY-001; person.md R-PEOPLE-014, R-PEOPLE-054): with Tobi's bond courting, the city draws his room
 // with his props and him standing in it, a thing with his name and the computer mark and no act, and the visit stays on
 // the chair. The place file is the one the game ships; the scene is a stand-in that shows what the city hands it.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import theirRoom from "../../../public/assets/places/their-room/place.json";
-import { courted, peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
+import { courted, peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
 import { City } from "./City";

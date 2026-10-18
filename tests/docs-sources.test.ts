@@ -1,4 +1,4 @@
-// The documentation site's sources page (docs/rules/guides.md R-GUIDE-007): the list its data loader
+// The documentation site's sources page (docs/rules/guide.md R-GUIDE-007): the list its data loader
 // builds at every build of the site, read here exactly as the page reads it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -28,7 +28,7 @@ describe("the sources page of the documentation site", () => {
     expect(pages.length).toBeGreaterThan(20);
     expect(list.rules.map((group) => group.name)).toEqual(pages.map((page) => page.name).sort((a, b) => a.localeCompare(b)));
     for (const page of pages) expect(list.rules.find((group) => group.name === page.name)?.sources).toEqual(page.sources);
-    expect(list.rules.find((group) => group.name === "guides")?.sources[0]?.readOn).toBe("2026-10-08");
+    expect(list.rules.find((group) => group.name === "guide")?.sources[0]?.readOn).toBe("2026-10-08");
   });
 
   test("[R-GUIDE-007] given a rule page's sources changed, when the list is built again, then it shows the change: the page never goes stale", () => {

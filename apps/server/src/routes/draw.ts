@@ -9,7 +9,7 @@ import { Hono } from "hono";
 
 import { tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { closesTickOf } from "../draw/draw";
+import { closesTickOf } from "../lottery/draw";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
 import type { EdgeCache } from "./cache";

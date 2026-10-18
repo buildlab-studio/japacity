@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import raw from "../../../../public/assets/places/the-room/place.json";
 import { abroadGame, setPockets } from "../../../shared/testing/fixtures";
-import { renderWithGame } from "../../../shared/testing/people";
+import { renderWithGame } from "../../../shared/testing/person";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { City } from "../City";

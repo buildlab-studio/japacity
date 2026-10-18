@@ -4,8 +4,8 @@
 // Safe to run twice or at once: every step keeps what the first run stored.
 import { tickAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import type { DrawKeys } from "../draw/draw";
-import { closeDraw, drawOn, openDraw, storedBefore } from "../draw/draw";
+import type { DrawKeys } from "../lottery/draw";
+import { closeDraw, drawOn, openDraw, storedBefore } from "../lottery/draw";
 import { TICKS_CRON } from "./ticks";
 
 /** What one run did, for the logs and the tests. */

@@ -104,7 +104,7 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.flight-factor": { id: "var.flight-factor", start: 10000 },
   // Basis points added to the remote job's hire chance.
   "var.remote-hire-bonus": { id: "var.remote-hire-bonus", start: 0 },
-  // people.md and undertaking.md: the partner and dependant routes' figures
+  // person.md and undertaking.md: the partner and dependant routes' figures
   "var.uk-dependant-maintenance": { id: "var.uk-dependant-maintenance", start: 28500 },
   "var.uk-partner-fee": { id: "var.uk-partner-fee", start: 206400 },
   "var.uk-partner-renew-fee": { id: "var.uk-partner-renew-fee", start: 140700 },

@@ -2,7 +2,7 @@
 // Every body a player sends is a few hundred bytes; the counters' batch is at
 // most 16 KB (analytics.md R-ANALYTICS-003) and a beacon at most 64 KiB. The
 // admin pages upload advert images as base64, at most 200 KB before encoding
-// (adverts.md R-ADVERT-004). A larger body is refused before it is read. The
+// (advert.md R-ADVERT-004). A larger body is refused before it is read. The
 // two sizes are `limits.bodyBytes` and `limits.adminBodyBytes` in config.ts.
 import type { ServerRejection } from "@japacity/api";
 import type { MiddlewareHandler } from "hono";

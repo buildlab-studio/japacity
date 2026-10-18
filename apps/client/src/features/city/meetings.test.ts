@@ -1,4 +1,4 @@
-// The computer partners met in a place (docs/rules/world.md R-WORLD-020; people.md R-PEOPLE-009, R-PEOPLE-013,
+// The computer partners met in a place (docs/rules/world.md R-WORLD-020; person.md R-PEOPLE-009, R-PEOPLE-013,
 // R-PEOPLE-014): each stands as a thing only in the place content meets them in,
 // only while the view lists them, one met only in December only in December; the thing's one act opens a card whose
 // button sends `people/court`. Where each is met: the meetup's two at the hub's meetup, after the service
@@ -13,7 +13,7 @@ import { describe, expect, test } from "vitest";
 import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import theirRoom from "../../../public/assets/places/their-room/place.json";
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
-import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/people";
+import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { actsOffered } from "./acts/acts";

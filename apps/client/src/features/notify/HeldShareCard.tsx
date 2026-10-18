@@ -1,4 +1,4 @@
-// What asks something of the player waits for the early win (docs/rules/guides.md
+// What asks something of the player waits for the early win (docs/rules/guide.md
 // R-GUIDE-015): the shell mounts an ask inside one of these, and it shows only
 // once the store's `earlyWin` flag is up.
 import { useEffect, type ReactNode } from "react";

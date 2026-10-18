@@ -290,7 +290,7 @@ export const tuning: Tuning = {
         "country.italy": { ways: { bus: { fare: 160, farePerKm: 0, metresPerMinute: 200 } }, step: 5, pass: null, passWays: [], lonMetresPerE3: 84, walkMetresPerMinute: 80 },
       } } },
 
-  // people.md, pair.md, interview.md, undertaking.md: their Numbers tables
+  // person.md, pair.md, interview.md, undertaking.md: their Numbers tables
   people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, weddingStanding: 8, gossipStanding: -3, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14, computerAfterMonths: 0 },
   pair: { inviteDays: 14, maxOpenInvites: 3, rewardFriends: 10, phrasesPerHour: 30, placePhrasesPerMinute: 6 },
   interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },

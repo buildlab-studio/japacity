@@ -69,7 +69,7 @@ async function devServer(): Promise<() => void> {
 /** One preview drawn by the client's renderer; the page's script is a string so nothing is rewritten on its way in. */
 async function drawPreview(page: Page, face: Record<string, string>): Promise<{ ok: boolean; quality: number; base64: string; reason: string }> {
   return page.evaluate(`(async () => {
-    const { renderPreview } = await import("/src/shared/card/render.ts");
+    const { renderPreview } = await import("/src/shared/share/render.ts");
     const made = await renderPreview(${JSON.stringify(face)});
     if (!made.ok) return { ok: false, quality: 0, base64: "", reason: made.reason };
     const bytes = new Uint8Array(await made.blob.arrayBuffer());

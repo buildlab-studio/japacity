@@ -1,4 +1,4 @@
-// From docs/rules/guides.md, "Entries: the guides". Every source is one in
+// From docs/rules/guide.md, "Entries: the guides". Every source is one in
 // docs/research or a rule page's Sources, with the date it was read there.
 import type { GuideEntry, Id } from "@japacity/sim";
 
@@ -178,7 +178,7 @@ export const guideTable: Record<Id<"guide">, GuideEntry> = {
       DAVIDSON_COSTS,
     ],
   ),
-  // The people routes: joining a partner, and going as a dependant (people.md and undertaking.md, read 8 Oct 2026).
+  // The people routes: joining a partner, and going as a dependant (person.md and undertaking.md, read 8 Oct 2026).
   "guide.uk-family": guide(
     "guide.uk-family",
     ["route.uk-partner", "route.uk-dependant"],

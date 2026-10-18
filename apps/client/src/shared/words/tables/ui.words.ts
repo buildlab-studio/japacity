@@ -8,7 +8,7 @@ import { daysText } from "../../days/days.words";
 import { livelyText } from "./lively.words";
 import { lotteryUiText } from "./lottery.words";
 import { onlineText } from "./online.words";
-import { peopleText } from "./people.words";
+import { peopleText } from "./person.words";
 import { profileText } from "./profile.words";
 import { worldText } from "./world.words";
 
@@ -105,7 +105,7 @@ export const uiText: Record<string, string> = {
   "ui.line.savings-before": "Your savings from before: {amount}.",
   // A move to a home with rent, told once with the rent it paid (home.md R-HOME-002).
   "ui.line.home-moved": "Home is {place} now: {amount} a month.",
-  // The time played on a share card, in years and months (shared/card/face.ts, playedWords).
+  // The time played on a share card, in years and months (shared/share/face.ts, playedWords).
   "ui.card.played.years": "{count} years",
   "ui.card.played.years.one": "1 year",
   "ui.card.played.months": "{count} months",

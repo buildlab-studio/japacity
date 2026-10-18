@@ -2,7 +2,7 @@
 // with it, so the next life starts at the front door filled in as a first visit is, and nothing of the old life
 // (its person, its month, its days, its cards, the place it stood) shows in the new one. The settings of the
 // device (the look, the sound, the graphics) stay.
-import { KEPT_CARDS } from "../shared/card/kept";
+import { KEPT_CARDS } from "../shared/share/kept";
 import { DOOR_KEY } from "../shared/datapage/door";
 import { CITY_LAST_KEY } from "../shared/days/standing";
 import { SEEN_KEY } from "../shared/phone/newsSeen";

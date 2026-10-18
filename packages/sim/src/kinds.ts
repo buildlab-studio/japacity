@@ -8,7 +8,7 @@ import { creditKind } from "./credit/credit.logic";
 import { goalKind } from "./goal/goal.logic";
 import { interviewKind } from "./interview/interview.logic";
 import { lotteryKind } from "./lottery/lottery.logic";
-import { peopleKind } from "./people/people.logic";
+import { peopleKind } from "./person/person.logic";
 import { placeKind } from "./place/place.logic";
 import { prologueKind } from "./prologue/prologue.logic";
 import { statusKind } from "./status/status.logic";

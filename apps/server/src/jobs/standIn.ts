@@ -1,4 +1,4 @@
-// The stand-in's clock (people.md R-PEOPLE-043 to 045), on the daily cron. A
+// The stand-in's clock (person.md R-PEOPLE-043 to 045), on the daily cron. A
 // player side of a pair idle for `warnDays` real days is warned to the other
 // life; at `standInDays` the stand-in is on, and then it answers the absent
 // side's interview and the joint step the absent side allowed. Idle runs from

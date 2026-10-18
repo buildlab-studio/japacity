@@ -1,4 +1,4 @@
-// The screenshot moments' words: docs/rules/moments.md. One card for each big outcome: a kicker, a title, one line in
+// The screenshot moments' words: docs/rules/moment.md. One card for each big outcome: a kicker, a title, one line in
 // the game's voice, the figure's caption, and the sign-off. A loss is said straight (text.md R-TEXT-002); a win may
 // carry a wink. No word here reads as a bank alert, a receipt, a transfer or a government letter (R-MOMENT-004).
 export const momentText: Record<string, string> = {

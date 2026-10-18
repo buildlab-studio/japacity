@@ -3,7 +3,7 @@
 // out to the phone's own browser. The asks that open it: after the first
 // chapter, before the visa decision (the decision-day chapter), and at every
 // `guest-only` refusal; never at the door and never before the early win
-// (guides.md R-GUIDE-015). And the quiet lines, on the settings and on the
+// (guide.md R-GUIDE-015). And the quiet lines, on the settings and on the
 // month results after the first chapter, each saying plainly that the life
 // lives only on this phone; the page at the door says it when the life starts
 // (GuestStart.tsx). Once kept, by the code here or by the trip to Google and back, the sheet says so in its kept

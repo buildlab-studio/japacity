@@ -28,7 +28,7 @@ export interface WorldSheetProps {
 const NOTHING = (): void => undefined;
 
 /**
- * True while a moment card stands over the sheets (moments.md R-MOMENT-006): over the results once they are up, over
+ * True while a moment card stands over the sheets (moment.md R-MOMENT-006): over the results once they are up, over
  * the world once the corner's staged lines have passed. Outside a game, never.
  */
 function useMomentStanding(): boolean {

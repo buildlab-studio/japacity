@@ -1,4 +1,4 @@
-// Invite links (pair.md R-PAIR-007, R-PAIR-008, R-PAIR-018; people.md
+// Invite links (pair.md R-PAIR-007, R-PAIR-008, R-PAIR-018; person.md
 // R-PEOPLE-010, R-PEOPLE-011): a single-use code for the slot a card names,
 // the card read by anyone with the link, and the accept that makes the record.
 import type { InviteAccepted, InviteMade, InviteShown } from "@japacity/api";

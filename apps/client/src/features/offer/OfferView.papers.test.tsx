@@ -3,7 +3,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { openOffer, newGame } from "../../shared/testing/fixtures";
-import { renderWithGame } from "../../shared/testing/people";
+import { renderWithGame } from "../../shared/testing/person";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { OfferView } from "./OfferView";

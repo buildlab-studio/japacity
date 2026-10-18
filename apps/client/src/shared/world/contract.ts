@@ -82,7 +82,7 @@ export interface Thing {
   /** Where the character walks to for it, or the copy's spot when absent. */
   at?: [number, number];
   acts: Act[];
-  /** The quiet mark beside the name of a person the game plays: `computer` (people.md R-PEOPLE-009, R-PEOPLE-054). */
+  /** The quiet mark beside the name of a person the game plays: `computer` (person.md R-PEOPLE-009, R-PEOPLE-054). */
   mark?: "computer";
 }
 

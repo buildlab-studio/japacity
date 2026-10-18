@@ -1,4 +1,4 @@
-// The screenshot moments (docs/rules/moments.md): which lines make a card, and what each card holds, read from the
+// The screenshot moments (docs/rules/moment.md): which lines make a card, and what each card holds, read from the
 // recorded lives played by the real engine wherever a life reaches the moment, and from the line itself where none does.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

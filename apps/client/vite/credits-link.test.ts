@@ -1,4 +1,4 @@
-// The credits link the licences file the build writes beside the page (guides.md R-GUIDE-010). The link takes its path
+// The credits link the licences file the build writes beside the page (guide.md R-GUIDE-010). The link takes its path
 // from content, never from the build's own code, which reads the disk through Node: a page that imported that code would
 // fail to open in development, where Vite refuses Node's modules in the browser, and the front door would never open.
 import { existsSync, readFileSync } from "node:fs";

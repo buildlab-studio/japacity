@@ -236,7 +236,7 @@ describe("the policy cycle", () => {
     const pairs = Object.keys(content.var)
       .filter((id) => id.endsWith("-window"))
       .map((window) => [window, window.replace(/-window$/, "-surge")] as [Id<"var">, Id<"var">]);
-    // Six routes' windows and the two family windows (people.md).
+    // Six routes' windows and the two family windows (person.md).
     expect(pairs).toHaveLength(8);
     for (const seed of SEEDS) {
       const ticks = directorTicks(seed, 300, content);

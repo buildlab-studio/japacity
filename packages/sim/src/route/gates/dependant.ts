@@ -1,4 +1,4 @@
-// The dependant gate: docs/rules/people.md R-PEOPLE-019 to 024. The lead is
+// The dependant gate: docs/rules/person.md R-PEOPLE-019 to 024. The lead is
 // known only by the facts on the bond (R-PEOPLE-001).
 //
 // The people kind holds the bonds and the joint; this module only reads them.

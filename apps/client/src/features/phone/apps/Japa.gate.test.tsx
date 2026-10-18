@@ -6,7 +6,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, richView } from "../../../shared/testing/fixtures";
-import { courted, peopleGame, TOBI } from "../../../shared/testing/people";
+import { courted, peopleGame, TOBI } from "../../../shared/testing/person";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { inMonths, nameOf, say } from "../../../shared/words/text";

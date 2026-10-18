@@ -1,4 +1,4 @@
-// A computer character is never counted (docs/rules/people.md R-PEOPLE-055): every count of players the nightly
+// A computer character is never counted (docs/rules/person.md R-PEOPLE-055): every count of players the nightly
 // job keeps, the online count and the boards are built from lives whose families are computer characters, and
 // each counts only the players.
 import type { State } from "@japacity/sim";

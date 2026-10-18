@@ -1,5 +1,5 @@
 // The entries of the adverts, guides and analytics pages. The simulation never reads them;
-// the content check and the client and server do (docs/rules/adverts.md, guides.md, analytics.md).
+// the content check and the client and server do (docs/rules/advert.md, guide.md, analytics.md).
 import { z } from "zod";
 
 import { CountSchema, idOf } from "./language.schema";

@@ -79,8 +79,8 @@ import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
 export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about.data";
-export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/light";
-export type { Light, LightAsked, LightChecked, LightProblem } from "./about/light";
+export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/about.light";
+export type { Light, LightAsked, LightChecked, LightProblem } from "./about/about.light";
 export { blockedWords, reservedNames } from "./account/account.data";
 export { CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "./analytics/analytics.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
@@ -92,8 +92,8 @@ export { recurringPeople } from "./person/person.recurring.data";
 export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
 export { familyFeed, familyNames, familyPosts, travelKnown } from "./family/family.data";
 export { HOMETOWN_FILL, hometownByHome, hometownCities, hometownRegion, hometownTowns } from "./prologue/prologue.hometown.data";
-export { AGE_CARDS, agedAnswers, answerOf, homedAnswers, HOMES, lowestYear, PRESET_STEPS_OLDER, PRESET_THROUGH, presetAges, presetAnswer, presetHome, presetHomes, presetOf, presetOffered, presetOwnAnswer, PRESETS, startYearOf, suitingFirst } from "./prologue/preset";
-export type { Home, Preset, PresetAnswers, PresetId } from "./prologue/preset";
+export { AGE_CARDS, agedAnswers, answerOf, homedAnswers, HOMES, lowestYear, PRESET_STEPS_OLDER, PRESET_THROUGH, presetAges, presetAnswer, presetHome, presetHomes, presetOf, presetOffered, presetOwnAnswer, PRESETS, startYearOf, suitingFirst } from "./prologue/prologue.preset";
+export type { Home, Preset, PresetAnswers, PresetId } from "./prologue/prologue.preset";
 export type { FamilyPost, FamilyPostKind, FamilySender } from "./family/family.data";
 /** The story tied to the world (world.md R-WORLD-003, R-WORLD-019, R-WORLD-020). */
 export { NUDGE_WORDS, storyStep, storySteps, storyThings } from "./story/story.data";
@@ -148,7 +148,7 @@ export const content: Content = {
   // The market's things for the home.
   thing: thingTable,
   people: { spots: peopleSpots },
-  // The tables of the adverts, guides and analytics pages (adverts.md, guides.md, analytics.md).
+  // The tables of the adverts, guides and analytics pages (advert.md, guide.md, analytics.md).
   advert: advertTable,
   guide: guideTable,
   analytics: { counters: counterTable },

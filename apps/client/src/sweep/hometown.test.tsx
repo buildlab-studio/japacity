@@ -3,8 +3,8 @@
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { PairApiProvider } from "../features/people/pairApi";
-import { PeopleSlots } from "../features/people/PeopleOnPhone";
+import { PairApiProvider } from "../features/person/pairApi";
+import { PeopleSlots } from "../features/person/PeopleOnPhone";
 import { engineView } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { setNow } from "../shared/words/now";

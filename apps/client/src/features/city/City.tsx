@@ -9,7 +9,7 @@ import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, t
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../shared/frontdoor/person";
-import { bandName as characterName } from "../../shared/card/face";
+import { bandName as characterName } from "../../shared/share/face";
 import { FigurePicture } from "../../shared/frontdoor/LookPicture";
 import { lookOf } from "../../shared/frontdoor/looks";
 import { plannedShut, worldVar } from "../../authority/store";

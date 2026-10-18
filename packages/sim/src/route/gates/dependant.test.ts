@@ -9,7 +9,7 @@ import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
 import { pastDecision, slot } from "../../testing/route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
-import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/people.journey";
+import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/person.journey";
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import { pounds, readOf, routeOf } from "../../testing/read";
 

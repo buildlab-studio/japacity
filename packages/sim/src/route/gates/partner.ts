@@ -1,4 +1,4 @@
-// The partner gate: docs/rules/people.md R-PEOPLE-025 to 028, with the sponsor's
+// The partner gate: docs/rules/person.md R-PEOPLE-025 to 028, with the sponsor's
 // side in undertaking.md. The sponsor is known only by the facts on the bond
 // (R-PEOPLE-001), the floor only as `meetsFloor`.
 //

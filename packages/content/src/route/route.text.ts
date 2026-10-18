@@ -198,7 +198,7 @@ export const routeText: Record<string, string> = {
   "road.real-story.link.1": "https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/",
   "road.real-story.link.3": "https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14851",
 
-  // docs/rules/people.md: the partner and dependant routes, their apply activities and the withdrawal.
+  // docs/rules/person.md: the partner and dependant routes, their apply activities and the withdrawal.
   "route.uk-partner.name": "Joining your partner in the UK",
   "route.uk-partner.blurb": "A partner visa, for the husband, wife or long partner of someone settled or British. They must earn above the floor.",
   "route.uk-partner.item.married": "Married, or two years together",

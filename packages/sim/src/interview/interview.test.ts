@@ -9,7 +9,7 @@ import { viewFor } from "../engine/view";
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
 import { draw, drawnQuestions, seedWhere } from "../testing/route.journey";
-import { computerFacts } from "../people/people.facts";
+import { computerFacts } from "../person/person.facts";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";

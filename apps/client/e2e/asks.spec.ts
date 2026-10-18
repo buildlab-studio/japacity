@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
-// Nothing is asked of the player before the early win (docs/rules/guides.md
+// Nothing is asked of the player before the early win (docs/rules/guide.md
 // R-GUIDE-015). A new life is played online against a faked server that runs
 // the simulation itself, month by month as the view's next step suggests
 // (R-GUIDE-014): each step taken at the thing in the world that stages it, the
