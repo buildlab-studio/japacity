@@ -128,6 +128,16 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
         }
       }
 
+      // Decision 0027: the contract names the simulation's and the store's types and runs no code of theirs.
+      if (inside(file, "packages/api/src")) {
+        const name = packageName(specifier);
+        if (isRelative(specifier) ? !inside(target ?? "", "packages/api/src") : !["@japacity/sim", "@japacity/store"].includes(name)) {
+          report("the contract imports only the simulation's and the store's types, and itself");
+        } else if (!isRelative(specifier) && valueImports(file, text).has(specifier)) {
+          report("the contract imports only types from the simulation and the store");
+        }
+      }
+
       // Decision 0006 section 3: the client never reaches the server's side, and the store knows no database.
       if (inside(file, "apps/client/src") && ["@japacity/store", "@japacity/db", "@japacity/server"].includes(packageName(specifier))) {
         report("the client imports nothing from store, db or server");
@@ -175,6 +185,7 @@ describe("import boundaries", () => {
   test("the walk sees the workspace source", () => {
     expect(files).toContain("packages/sim/src/index.ts");
     expect(files).toContain("packages/db/src/index.ts");
+    expect(files).toContain("packages/api/src/index.ts");
     expect(files).toContain("apps/client/src/app/App.tsx");
   });
 
