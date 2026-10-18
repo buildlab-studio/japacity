@@ -561,8 +561,9 @@ describe("the token kept abroad", () => {
   test("[R-RETURN-004] given a return with papers, when it is recorded, then the settled status is kept as a token, and flying back to the UK uses it", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+    const held = game.state.status.current!;
     comeHome(game);
-    expect(game.state.place.heldAbroad).toEqual({ status: SETTLED, sinceMonth: game.state.turn.month });
+    expect(game.state.place.heldAbroad).toEqual({ status: SETTLED, sinceMonth: game.state.turn.month, monthsHeld: held.monthsHeld, lawfulMonths: held.lawfulMonths });
     expect(game.view().place.heldAbroad).toBe(SETTLED);
     playMonths(game, 30);
     expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
@@ -616,6 +617,31 @@ describe("the token kept abroad", () => {
     applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA }, { type: "status/grant", status: RESIDENT }]);
     leave(game, 2 * FLIGHT.amount, 0);
     game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
+  });
+
+  test("[R-RETURN-004] [R-STATUS-007] given the settled status held five months and kept on a return with papers, when a route into the UK is flown, then the status carries on with its five months held and its lawful months, so the months to citizenship do not start again", () => {
+    const game = flown(content);
+    applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+    playMonths(game, 5);
+    const held = game.state.status.current;
+    expect(held?.monthsHeld).toBe(5);
+    comeHome(game);
+    playMonths(game, 2);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.status.current).toMatchObject({ entry: SETTLED, monthsHeld: held?.monthsHeld, lawfulMonths: held?.lawfulMonths });
+  });
+
+  test("[R-RETURN-004] [R-STATUS-007] given the settled status held three months and kept, and the UK study route granted, when that route is flown, then the status carries on with its three months held", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: SETTLED }]);
+    playMonths(game, 3);
+    expect(game.state.status.current?.monthsHeld).toBe(3);
+    comeHome(game);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.status.current).toMatchObject({ entry: SETTLED, monthsHeld: 3 });
   });
 
   test("[R-RETURN-004] given the settled token, when route/depart names a route into Canada, then it is not legal; after a return by choice with no token, the UK route flown before is not legal either", () => {

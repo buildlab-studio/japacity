@@ -387,7 +387,8 @@ export type Effect =
   /** The authority sends the character home with this shape, as `return/home` would (R-PLACE-004, R-ROAD-007, R-STATUS-008). */
   | { type: "place/return"; shape: ReturnShape }
   // status (docs/rules/status.md)
-  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity"> }
+  /** `kept`: a status kept from a return with papers carries on with the months it had (R-RETURN-004). */
+  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity">; kept?: { monthsHeld: number; lawfulMonths: number } }
   | { type: "status/lose" }
   | { type: "status/remove" }
   | { type: "status/clock-start" }
@@ -1905,7 +1906,7 @@ export interface PlaceSlice {
   /** The record of returns. `country` is null for a return from the road (R-ROAD-007). */
   returns: { month: number; shape: ReturnShape; country: Id<"country"> | null }[];
   /** A settled or citizen status kept after a return with papers (R-RETURN-004). */
-  heldAbroad: { status: Id<"status">; sinceMonth: number } | null;
+  heldAbroad: { status: Id<"status">; sinceMonth: number; monthsHeld: number; lawfulMonths: number } | null;
   /** The month the December visit opened, null before (R-PLACE-009). */
   decemberMonth: number | null;
 }

@@ -211,7 +211,7 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   const kept = shape === "with-papers" && current !== null && isKept(ctx.content, current.entry) ? current.entry : null;
   const month = ctx.state.turn.month;
   const events = record(ctx, [
-    { type: "place/returned", shape, country, month, kept },
+    { type: "place/returned", shape, country, month, kept, keptMonths: kept === null || current === null ? null : { monthsHeld: current.monthsHeld, lawfulMonths: current.lawfulMonths } },
     { type: "place/moved", to: "home", country: null, month },
   ]);
   ctx.apply([{ type: "status/lose" }], cause);
@@ -600,7 +600,7 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
       // R-ROAD-007: the return is on record with no country; the road is not one.
       const month = ctx.state.turn.month;
       const events = record(ctx, [
-        { type: "place/returned", shape: effect.shape, country: null, month, kept: null },
+        { type: "place/returned", shape: effect.shape, country: null, month, kept: null, keptMonths: null },
         { type: "place/moved", to: "home", country: null, month },
       ]);
       ctx.apply(fromStartingLife(ctx, HOME_TYPES, 10000), cause);
@@ -702,7 +702,7 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
       return {
         ...slice,
         returns: [...slice.returns, { month: event.month, shape: event.shape, country: event.country }],
-        heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month },
+        heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month, monthsHeld: event.keptMonths?.monthsHeld ?? 0, lawfulMonths: event.keptMonths?.lawfulMonths ?? 0 },
       };
     case "place/token-used":
     case "place/token-lapsed":

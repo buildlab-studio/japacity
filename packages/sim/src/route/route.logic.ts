@@ -493,11 +493,11 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** R-RETURN-004: the status kept from a return with papers, when it is for the route's country; null otherwise. */
-function tokenFor(read: ReadCtx, entry: RouteEntry): Id<"status"> | null {
+/** R-RETURN-004: the status kept from a return with papers, as it is granted again with its months, when it is for the route's country. */
+function tokenFor(read: ReadCtx, entry: RouteEntry): Effect | null {
   const token = read.state.place.heldAbroad;
-  if (token === null || entry.country === null) return null;
-  return read.content.status[token.status]?.country === entry.country ? token.status : null;
+  if (token === null || entry.country === null || read.content.status[token.status]?.country !== entry.country) return null;
+  return { type: "status/grant", status: token.status, kept: { monthsHeld: token.monthsHeld, lawfulMonths: token.lawfulMonths } };
 }
 
 /**
@@ -548,7 +548,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   }
   if (token !== null && entry.country !== null) {
     ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
-    ctx.apply([{ type: "status/grant", status: token }, { type: "activity/end-job", why: "moved" }, { type: "activity/end-job", why: "moved", side: true }], cause);
+    ctx.apply([token, { type: "activity/end-job", why: "moved" }, { type: "activity/end-job", why: "moved", side: true }], cause);
     closeHomeOffers(ctx, cause);
     return endBeforeSettingOff(ctx);
   }
@@ -556,7 +556,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const job = gate.departureJob?.(entry, held) ?? null;
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
-  if (kept !== null) ctx.apply([{ type: "status/grant", status: kept }], cause);
+  if (kept !== null) ctx.apply([kept], cause);
   else if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
   // activity.md is silent on when; it is the moment of the flight, so no job is held that cannot be worked.
