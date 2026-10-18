@@ -1,66 +1,20 @@
-// The client keeps under the server's command limit (server:per-account-rate-limits, prologue:archetype-presets-answers):
-// a new life online that sent its prologue's presets as fast as the replies came would have the eleventh in ten
-// seconds refused 429, and the band would never come.
+// The client keeps under the server's command limit (server:per-account-rate-limits): commands sent as fast as the replies
+// come would have the eleventh in ten seconds refused 429 in the middle of play.
 import { describe, expect, test } from "vitest";
 
 import { remoteAuthority } from "../../authority/remote";
-import { ARCHETYPES, doorAnswer, homesFor, withAge, withHome } from "../frontdoor/archetypes";
-import { engineView, newGame } from "../testing/fixtures";
+import { engineView } from "../testing/fixtures";
 import { BASE, fakeServer } from "../testing/server";
-import { busiestWindow, COMMANDS_PER_WINDOW, pacer, PRESET_STEP_MS, presetWait, waitBefore, WINDOW_MS } from "./pace";
+import { busiestWindow, COMMANDS_PER_WINDOW, pacer, waitBefore, WINDOW_MS } from "./pace";
 
 /** The server's limit: ten commands from an account in any ten seconds (apps/server/src/config.ts `commandsPer10s`, wrangler's COMMANDS_10S). */
 const SERVER_PER_10S = 10;
-const SEEDS = 20;
-/** Years past the youngest each tile can start (the door's age), across the range the door offers. */
-const AGES = [0, 6, 12];
-
-/** The commands one life's prologue sends with its archetype's preset: one `prologue/choose` a step until it closes. */
-function presetLength(archetype: (typeof ARCHETYPES)[number], seed: string): number {
-  const game = newGame("scenario.prologue", seed);
-  let sent = 0;
-  for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
-    const prologue = game.view().prologue!;
-    const answer = doorAnswer(archetype, prologue);
-    if (answer === null) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer });
-    sent += 1;
-  }
-  return sent;
-}
-
-/**
- * When the life and each of `count` presets leave online, with replies that take no time at all (the worst case): Begin
- * makes the life (`POST /api/character`), then the page sends a preset a step (`presetWait`), each through the remote
- * authority's pacer, as both run in the client.
- */
-async function begunTimes(count: number): Promise<number[]> {
-  let now = 0;
-  const pace = pacer(
-    () => now,
-    (ms) => {
-      now += ms;
-      return Promise.resolve();
-    },
-  );
-  await pace.take();
-  const times = [now];
-  let last: number | null = null;
-  for (let step = 0; step < count; step += 1) {
-    now += presetWait(last, now);
-    await pace.take();
-    times.push(now);
-    last = now;
-  }
-  return times;
-}
 
 describe("the client keeps under the command limit", () => {
-  test("[server:per-account-rate-limits] given the pacer, when it is read, then it lets eight leave in any ten seconds, two fewer than the server takes, and the preset's step spreads the eight evenly", () => {
+  test("[server:per-account-rate-limits] given the pacer, when it is read, then it lets eight leave in any ten seconds, two fewer than the server takes", () => {
     expect(COMMANDS_PER_WINDOW).toBe(8);
     expect(WINDOW_MS).toBe(10_000);
     expect(COMMANDS_PER_WINDOW).toBeLessThan(SERVER_PER_10S);
-    expect(PRESET_STEP_MS * COMMANDS_PER_WINDOW).toBe(WINDOW_MS);
     expect(waitBefore([0, 1, 2, 3, 4, 5, 6], 7)).toBe(0);
     expect(waitBefore([0, 1, 2, 3, 4, 5, 6, 7], 8)).toBe(WINDOW_MS - 8);
     expect(waitBefore([0, 1, 2, 3, 4, 5, 6, 7], WINDOW_MS - 1)).toBe(1);
@@ -115,29 +69,5 @@ describe("the client keeps under the command limit", () => {
     }
     expect(posted).toHaveLength(21);
     expect(busiestWindow(posted)).toBeLessThanOrEqual(COMMANDS_PER_WINDOW);
-  });
-
-  // Every tile, home and age played online over many seeds: about five seconds alone, six times that under the full check's load.
-  test("[prologue:archetype-presets-answers] [server:per-account-rate-limits] given every archetype, home and age over many seeds, when its preset is played online as the page plays it, then the longest preset, with the life's own POST before it, never puts more than eight commands in any ten seconds, under the server's ten", { timeout: 90_000 }, async () => {
-    let longest = 0;
-    for (const base of ARCHETYPES) {
-      for (const home of homesFor(base)) {
-        for (const age of AGES) {
-          const archetype = withHome(withAge(base, age), home);
-          for (let at = 0; at < SEEDS; at += 1) longest = Math.max(longest, presetLength(archetype, `${base.id}-${home}-${String(age)}-${String(at)}`));
-        }
-      }
-    }
-    // Seven for the shop worker and the child of the water, fourteen to seventeen for the tiles through school and university.
-    expect(longest).toBeGreaterThanOrEqual(14);
-    expect(longest).toBeLessThanOrEqual(20);
-    const times = await begunTimes(longest);
-    expect(times).toHaveLength(longest + 1);
-    expect(busiestWindow(times)).toBeLessThanOrEqual(COMMANDS_PER_WINDOW);
-    expect(busiestWindow(times)).toBeLessThan(SERVER_PER_10S);
-    // And the page keeps filling: a step every PRESET_STEP_MS, never a pause of more than two.
-    const gaps = times.slice(2).map((time, index) => time - (times[index + 1] ?? 0));
-    expect(Math.min(...gaps)).toBe(PRESET_STEP_MS);
-    expect(Math.max(...gaps)).toBeLessThanOrEqual(2 * PRESET_STEP_MS);
   });
 });

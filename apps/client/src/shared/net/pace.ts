@@ -6,12 +6,6 @@
 /** At most this many command requests leave in any `WINDOW_MS`. */
 export const COMMANDS_PER_WINDOW = 8;
 export const WINDOW_MS = 10_000;
-/**
- * The pace for the prologue's presets sent one at a time online (prologue:archetype-presets-answers): eight in ten seconds. The
- * preset leaves as one request (server:server-plays-prologue-preset) and the page paces its own chips, so nothing in the game reads
- * this or `presetWait`; pace.test.ts holds them to the limit.
- */
-export const PRESET_STEP_MS = WINDOW_MS / COMMANDS_PER_WINDOW;
 
 /**
  * How long the next command must wait, in ms, given when the last ones left (oldest first): nothing while fewer than
@@ -45,9 +39,4 @@ export function pacer(now: () => number, wait: (ms: number) => Promise<void>): P
       while (sent.length > 0 && at - (sent[0] ?? at) >= WINDOW_MS) sent.shift();
     },
   };
-}
-
-/** How long the prologue's next preset waits online, in ms, after the last left at `last` (null before the first). */
-export function presetWait(last: number | null, now: number): number {
-  return last === null ? 0 : Math.max(0, last + PRESET_STEP_MS - now);
 }
