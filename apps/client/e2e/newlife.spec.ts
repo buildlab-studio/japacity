@@ -12,8 +12,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import type { PresetRequest } from "../src/shared/net/contract";
 import { playPresetOn } from "../src/shared/net/preset.testing";
-import { passOpeningWords, startArchetype } from "./door";
-import { passCards } from "./live";
+import { passOpeningWords, startArchetype } from "./support/door";
+import { passCards } from "./support/live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });

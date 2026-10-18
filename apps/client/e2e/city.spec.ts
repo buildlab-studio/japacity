@@ -5,8 +5,8 @@
 import { expect, test } from "@playwright/test";
 
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
-import { startReadyLife } from "./door";
-import { LIVED, openApp, passCards, passHomeTeach, placeReady, rideTo } from "./live";
+import { startReadyLife } from "./support/door";
+import { LIVED, openApp, passCards, passHomeTeach, placeReady, rideTo } from "./support/live";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

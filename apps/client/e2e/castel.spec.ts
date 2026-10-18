@@ -5,9 +5,9 @@
 // road's bus to the discount supermarket asks its flat fare, and the weekly shop takes euros.
 import { expect, test } from "@playwright/test";
 
-import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy, standing } from "./abroad";
-import { passOpeningWords } from "./door";
-import { doAct, LIVED, placeReady, seedSave } from "./live";
+import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy, standing } from "./support/abroad";
+import { passOpeningWords } from "./support/door";
+import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

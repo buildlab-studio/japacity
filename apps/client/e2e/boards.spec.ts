@@ -7,8 +7,8 @@ import { expect, test, type Page } from "@playwright/test";
 // against a server, every /api route faked here in the shapes
 // apps/client/src/features/boards/boards.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
-import { passOpeningWords } from "./door";
-import { openApp, passCards, passHomeTeach, placeReady } from "./live";
+import { passOpeningWords } from "./support/door";
+import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).

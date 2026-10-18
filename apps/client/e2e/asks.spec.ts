@@ -13,8 +13,8 @@ import { expect, test, type Page } from "@playwright/test";
 // every screen before the first good line is searched for an ask.
 import { content, text } from "../../../packages/content/src/index";
 import { chapterNextStep, FIRST_SESSION_TURNS } from "../src/shared/testing/firstSession";
-import { startReadyLife } from "./door";
-import { backFromResults, doAct, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, sleepTheMonth } from "./live";
+import { startReadyLife } from "./support/door";
+import { backFromResults, doAct, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, sleepTheMonth } from "./support/live";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });

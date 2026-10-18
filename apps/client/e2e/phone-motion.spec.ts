@@ -5,8 +5,8 @@
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
-import { startReadyLife } from "./door";
-import { passCards } from "./live";
+import { startReadyLife } from "./support/door";
+import { passCards } from "./support/live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 /** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS, then index.css `.motion-screen`). */

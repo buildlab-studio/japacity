@@ -9,9 +9,9 @@ import { devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
 import { ADMIN_GETS } from "../../src/features/admin/admin.fixtures";
-import { type AbroadLife, clear as clearAbroad, lifeIn } from "../abroad";
-import { passOpeningWords, passThePage } from "../door";
-import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../live";
+import { type AbroadLife, clear as clearAbroad, lifeIn } from "../support/abroad";
+import { passOpeningWords, passThePage } from "../support/door";
+import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../support/live";
 import { attempt, missed, shot, shotPages } from "./shoot";
 
 /** The second dev server, whose every /api route is answered here. */

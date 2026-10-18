@@ -9,7 +9,7 @@ import { devices, expect, test, type Page } from "@playwright/test";
 
 // The recorded lives and the tuning are the simulation's and the content's own data.
 import { content } from "../../../packages/content/src/index";
-import { boardThroughTheScene, closeGranted, doAct, LIVED, placeReady, rideTo } from "./live";
+import { boardThroughTheScene, closeGranted, doAct, LIVED, placeReady, rideTo } from "./support/live";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).

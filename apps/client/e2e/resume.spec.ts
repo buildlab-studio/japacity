@@ -12,7 +12,7 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import type { PresetRequest } from "../src/shared/net/contract";
 import { playPresetOn } from "../src/shared/net/preset.testing";
-import { passOpeningWords } from "./door";
+import { passOpeningWords } from "./support/door";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });

@@ -6,7 +6,7 @@ import { expect, type Page } from "@playwright/test";
 
 import { cardsSettled } from "./door";
 
-import { text } from "../../../packages/content/src/index";
+import { text } from "../../../../packages/content/src/index";
 
 /** The address a test opens: the sleep cut to two seconds and the morning's results opened at once. */
 export const LIVED = "?sleep=2&morning=now";

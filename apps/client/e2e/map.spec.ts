@@ -6,8 +6,8 @@
 import { devices, expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
-import { startReadyLife } from "./door";
-import { passCards } from "./live";
+import { startReadyLife } from "./support/door";
+import { passCards } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

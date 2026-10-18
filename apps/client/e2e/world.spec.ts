@@ -8,8 +8,8 @@ import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
-import { passOpeningWords, startReadyLife } from "./door";
-import { backFromResults, LIVED, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./live";
+import { passOpeningWords, startReadyLife } from "./support/door";
+import { backFromResults, LIVED, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

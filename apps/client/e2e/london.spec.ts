@@ -5,8 +5,8 @@
 import { lifeSaves } from "@japacity/sim/testing";
 import { expect, type Page, test } from "@playwright/test";
 
-import { passOpeningWords } from "./door";
-import { doAct, LIVED, passCards, placeReady, seedSave } from "./live";
+import { passOpeningWords } from "./support/door";
+import { doAct, LIVED, passCards, placeReady, seedSave } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

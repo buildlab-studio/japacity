@@ -7,7 +7,7 @@ import { lastSegment, lifeStart, savedCommands } from "@japacity/sim";
 import { runLife, type StrategyName } from "@japacity/sim/testing";
 import type { Page } from "@playwright/test";
 
-import { content } from "../../../packages/content/src/index";
+import { content } from "../../../../packages/content/src/index";
 import { passCards } from "./live";
 
 /** The city's probe; only its place and readiness are read here. */

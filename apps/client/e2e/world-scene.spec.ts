@@ -8,8 +8,8 @@ import { expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
-import { startReadyLife } from "./door";
-import { doAct, passCards } from "./live";
+import { startReadyLife } from "./support/door";
+import { doAct, passCards } from "./support/live";
 
 /** The cut's hold, Cut.tsx's CUT_MS, and its fade, its `duration-300` (the e2e tsconfig takes no .tsx import). */
 const CUT_MS = 260;

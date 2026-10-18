@@ -7,8 +7,8 @@ import { expect, test, type Page } from "@playwright/test";
 // world (docs/rules/world.md R-WORLD-025, R-WORLD-030): acts on the home's things, the bed's Sleep turning it, the results
 // over the scene.
 import { content } from "../../../packages/content/src/index";
-import { startArchetype, startReadyLife } from "./door";
-import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./live";
+import { startArchetype, startReadyLife } from "./support/door";
+import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./support/live";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

@@ -9,8 +9,8 @@ import { expect, test, type Page } from "@playwright/test";
 // /api route is answered by the page's own route handler, in the shapes
 // apps/client/src/shared/net/contract.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
-import { passOpeningWords } from "./door";
-import { openApp, passCards, passHomeTeach, placeReady } from "./live";
+import { passOpeningWords } from "./support/door";
+import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;

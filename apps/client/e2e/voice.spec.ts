@@ -7,8 +7,8 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 // most players arrive through one. Ada's recorded life is loaded just as her application went in; the interview waits in
 // the world as an ask, opened from the line under the band.
 import { setpieceVoice, text } from "../../../packages/content/src/index";
-import { passOpeningWords } from "./door";
-import { LIVED, passCards, passHomeTeach, placeReady } from "./live";
+import { passOpeningWords } from "./support/door";
+import { LIVED, passCards, passHomeTeach, placeReady } from "./support/live";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });

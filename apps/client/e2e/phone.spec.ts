@@ -4,8 +4,8 @@
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
-import { startReadyLife } from "./door";
-import { passCards } from "./live";
+import { startReadyLife } from "./support/door";
+import { passCards } from "./support/live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 

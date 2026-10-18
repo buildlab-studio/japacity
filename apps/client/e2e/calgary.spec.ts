@@ -5,9 +5,9 @@
 // the clock-in says On shift, and rides home, and the pass covers every ride of the month.
 import { expect, test } from "@playwright/test";
 
-import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./abroad";
-import { passOpeningWords } from "./door";
-import { doAct, LIVED, placeReady, seedSave } from "./live";
+import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./support/abroad";
+import { passOpeningWords } from "./support/door";
+import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 

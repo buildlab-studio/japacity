@@ -8,7 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 // /api route is answered here, in the shapes apps/client/src/shared/net/contract.ts copies from the server, and the
 // auth library's routes as Better Auth answers them.
 import { content } from "../../../packages/content/src/index";
-import { passThePage } from "./door";
+import { passThePage } from "./support/door";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
