@@ -97,6 +97,15 @@ function judgeHere(read: ReadCtx, requirement: EngineRequirement, terms: Terms, 
 }
 
 /** Judge a requirement with a given registry. Tests use this to swap kinds in. */
+/** Every requirement in a list, the ones under `not` and `any` included beside the `not` and `any` themselves. */
+export function requirementsIn(requirements: readonly Requirement[]): Requirement[] {
+  return requirements.flatMap((requirement): Requirement[] => {
+    if (requirement.type === "not") return [requirement, ...requirementsIn([requirement.of])];
+    if (requirement.type === "any") return [requirement, ...requirementsIn(requirement.of)];
+    return [requirement];
+  });
+}
+
 export function checkWith(
   read: ReadCtx,
   requirement: Requirement,

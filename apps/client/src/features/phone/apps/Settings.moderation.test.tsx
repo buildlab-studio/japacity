@@ -1,9 +1,9 @@
 // The team's two rows in the phone's Settings, the game's menu in the world (docs/rules/moderation.md R-MODERATION-016,
 // R-MODERATION-020).
+import type { Standing } from "@japacity/api";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import type { Standing } from "../../../shared/moderation/api";
 import { ModerationProvider } from "../../../shared/moderation/ModerationProvider";
 import { words } from "../../../shared/moderation/moderation.words";
 import { engineView } from "../../../shared/testing/fixtures";

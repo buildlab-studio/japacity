@@ -7,13 +7,14 @@
 // What the illness leaves behind is kept in the hidden `quality.illness-course`,
 // which the choices' own effects move: the chemist and ignoring each mark a
 // relapse to draw, and either answer to the worse turn marks it answered.
-import type { BaseEvent, Ctx, Effect, Id, OfferEntry, ReadCtx, Terms } from "../engine/types";
+import { QUALITY } from "../engine/ids";
+import { readOf } from "../engine/kind";
+import type { BaseEvent, Ctx, Effect, Id, OfferEntry, ReadCtx, State, Terms } from "../engine/types";
 import { FORCED_WAIT, runDownSinceWarning } from "../quality/quality.logic";
 
 const ILLNESS: Id<"offer"> = "offer.illness";
 const ILLNESS_WORSE: Id<"offer"> = "offer.illness-worse";
 export const COURSE: Id<"quality"> = "quality.illness-course";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 
 /** Where the last illness stands, as `quality.illness-course` holds it. */
 export const COURSE_STEP = { none: 0, chemist: 1, ignored: 2, worse: 3, answered: 4 } as const;
@@ -35,8 +36,9 @@ function courseOf(read: ReadCtx): CourseStep {
   return stepOf(read.state.quality[COURSE] ?? COURSE_STEP.none);
 }
 
-function isOpen(read: ReadCtx, entry: Id<"offer">): boolean {
-  return Object.values(read.state.offer.items).some((item) => item.entry === entry);
+/** An offer of this entry stands open now. */
+export function isOpen(state: State, entry: Id<"offer">): boolean {
+  return Object.values(state.offer.items).some((item) => item.entry === entry);
 }
 
 /**
@@ -51,8 +53,6 @@ function illnessTerms(read: ReadCtx): Terms {
 function worseTerms(read: ReadCtx): Terms {
   return { hospital: read.content.tuning.health.hospitalWorse };
 }
-
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
 
 function addQuality(ctx: Ctx, quality: Id<"quality">, amount: number): BaseEvent[] {
   if (amount === 0) return [];
@@ -91,7 +91,7 @@ function lastIllnessClosed(read: ReadCtx): number | null {
 function mayFallIll(read: ReadCtx): boolean {
   const { state, content } = read;
   if (state.place.where === "road" || !runDownSinceWarning(read)) return false;
-  if (isOpen(read, ILLNESS) || isOpen(read, ILLNESS_WORSE) || courseOf(read) !== "none") return false;
+  if (isOpen(read.state, ILLNESS) || isOpen(read.state, ILLNESS_WORSE) || courseOf(read) !== "none") return false;
   if ((state.quality[FORCED_WAIT] ?? 0) > 0) return false;
   const closed = lastIllnessClosed(read);
   return closed === null || state.turn.month - closed >= content.tuning.health.gapMonths;
@@ -120,7 +120,7 @@ function recover(ctx: Ctx, worse: OfferEntry, answered: boolean): BaseEvent[] {
     events.push(...ctx.apply(lapse.effects, { source: `${worse.id}.${lapse.id}`, param: null, terms: worseTerms(readOf(ctx)) }));
   }
   const mark = worse.terms.wellbeing;
-  if (typeof mark === "number") events.push(...addQuality(ctx, WELLBEING, mark - (ctx.state.quality[WELLBEING] ?? 0)));
+  if (typeof mark === "number") events.push(...addQuality(ctx, QUALITY.wellbeing, mark - (ctx.state.quality[QUALITY.wellbeing] ?? 0)));
   return [...events, ...setCourse(ctx, "none")];
 }
 
@@ -132,10 +132,10 @@ function afterIllness(ctx: Ctx, worse: OfferEntry, open: OpenOffer): BaseEvent[]
       return [];
     case "chemist":
     case "ignored":
-      return isOpen(readOf(ctx), ILLNESS) ? [] : relapse(ctx, worse, step, open);
+      return isOpen(ctx.state, ILLNESS) ? [] : relapse(ctx, worse, step, open);
     case "worse":
     case "answered":
-      return isOpen(readOf(ctx), ILLNESS_WORSE) ? [] : recover(ctx, worse, step === "answered");
+      return isOpen(ctx.state, ILLNESS_WORSE) ? [] : recover(ctx, worse, step === "answered");
     default: {
       const never: never = step;
       throw new Error(`Unknown step of an illness ${String(never)}.`);

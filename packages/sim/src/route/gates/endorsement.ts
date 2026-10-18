@@ -2,7 +2,9 @@
 // endorsing body's letter is a document the document kind issues; the gate
 // decides in `clocks`, the month it is issued, whether the body really backs
 // the character, and keeps the month of a refusal for the cooldown.
-import { emit } from "../../engine/kind";
+import { worldVar } from "../../engine/check";
+import { QUALITY, VAR } from "../../engine/ids";
+import { emit, readOf } from "../../engine/kind";
 import type { BaseEvent, Ctx, Id, ReadCtx, RouteEntry, RouteGateState, RouteState } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";
 import type { Gate } from "./gate";
@@ -10,8 +12,6 @@ import type { Gate } from "./gate";
 type EndorsementBlock = NonNullable<RouteEntry["endorsement"]>;
 type EndorsementState = Extract<RouteGateState, { gate: "endorsement" }>;
 
-const PORTFOLIO: Id<"quality"> = "quality.portfolio";
-const NETWORK: Id<"quality"> = "quality.network";
 /** The step `activity.apply-endorsement` needs: no refusal, or its cooldown run (R-ENDORSE-002). */
 export const COOLED = "cooled";
 
@@ -46,8 +46,8 @@ export function endorsementChanceBp(read: ReadCtx, route: Id<"route">): number {
   const entry = read.content.route[route];
   if (entry === undefined) throw new Error(`The content has no route ${route}.`);
   const block = blockOf(entry);
-  const portfolio = Math.max(0, (read.state.quality[PORTFOLIO] ?? 0) - barOf(entry, PORTFOLIO));
-  const network = Math.max(0, (read.state.quality[NETWORK] ?? 0) - barOf(entry, NETWORK));
+  const portfolio = Math.max(0, (read.state.quality[QUALITY.portfolio] ?? 0) - barOf(entry, QUALITY.portfolio));
+  const network = Math.max(0, (read.state.quality[QUALITY.network] ?? 0) - barOf(entry, QUALITY.network));
   return Math.min(block.capBp, block.baseBp + block.perPortfolioBp * portfolio + block.perNetworkBp * network);
 }
 
@@ -70,7 +70,7 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const block = blockOf(entry);
   const held = ctx.state.route[entry.id];
   if (held === undefined || held.state !== "known" || !issuedNow(ctx, block.document)) return [];
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   if (ctx.random.chance("visa", endorsementChanceBp(read, entry.id))) return [];
   const event: RouteKindEvent = {
     type: "route/gate-updated",
@@ -109,7 +109,5 @@ export const endorsementGate: Gate = {
 };
 
 function surchargeYear(read: ReadCtx): number {
-  const value = (read.world.vars as Record<string, number | undefined>)["var.uk-surcharge-year"];
-  if (value === undefined) throw new Error("The world has no variable var.uk-surcharge-year.");
-  return value;
+  return worldVar(read, VAR.ukSurchargeYear);
 }

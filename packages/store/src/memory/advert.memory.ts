@@ -1,5 +1,6 @@
 import type { AdvertCount, AdvertReview, AdvertStore, Advertiser, Campaign, Creative } from "../advert.types";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 function versionKey(id: string, version: number): string {
   return `${id}#${String(version)}`;

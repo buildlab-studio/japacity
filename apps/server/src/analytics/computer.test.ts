@@ -6,14 +6,12 @@ import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal, DayLog, NumbersLog, RegionCount } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../ops/day";
 import type { Live } from "../authority/load";
 import { held, newLife, restMonth, send, testServer, view, type TestServer } from "../authority/authority.testing";
 import { noteFigures } from "../boards/figures";
 import { lagosWeek } from "../boards/week";
 import { countDay } from "../jobs/counters";
 import { onlineAt } from "../jobs/online";
-import { dayName } from "./day";
 
 const LIVES = [
   ["account.ada", "scenario.ada"],
@@ -98,7 +96,7 @@ const sum = (rows: readonly CounterTotal[], day: string, name: string) => rows.f
 describe("a computer character is never counted", () => {
   test("[R-PEOPLE-055] given three players whose lives hold computer characters, when the day's players, the online count and the board are built, then each counts the three players and no computer", async () => {
     const server = testServer();
-    const day = utcDay(server.deps.now());
+    const day = time.utcDay(server.deps.now());
     const characters: string[] = [];
     let computers = 0;
     for (const [account, scenario] of LIVES) {
@@ -122,7 +120,7 @@ describe("a computer character is never counted", () => {
     const logs = knownLogs(server, characters, accounts);
     await countDay(server.deps, logs, day, logs);
     const rows = await server.deps.stores.counters.days("2000-01-01", "2100-01-01");
-    const today = dayName(day);
+    const today = time.dayName(day);
     const counted = ["players/active", "players/new", "players/weekly", "players/monthly", "players/total", "lives/started", "sessions/count"];
     expect(counted.map((name) => [name, sum(rows, today, name)])).toEqual(counted.map((name) => [name, LIVES.length]));
     const online = await onlineAt(logs, server.deps.now());

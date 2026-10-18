@@ -8,8 +8,6 @@ import { ONLINE_MINUTES } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { CounterTotal, NumbersLog, RegionCount } from "@japacity/store";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { WHOLE_GAME } from "../analytics/list";
 import type { ServerDeps } from "../deps";
 import { TICKS_CRON } from "./ticks";
@@ -27,7 +25,7 @@ export function onlineAt(log: Pick<NumbersLog, "players">, now: number): Promise
  * twice, and the tick runs once a cron.
  */
 export async function samplePeak(deps: Pick<ServerDeps, "stores" | "now">, sample: readonly RegionCount[]): Promise<CounterTotal[]> {
-  const day = dayName(utcDay(deps.now()));
+  const day = time.dayName(time.utcDay(deps.now()));
   const held = new Map((await deps.stores.counters.days(day, day)).filter((row) => row.name === PEAK).map((row) => [row.region, row.count]));
   const whole = sample.reduce((sum, each) => sum + each.count, 0);
   const rises = [...sample.filter((each) => each.region !== WHOLE_GAME), { region: WHOLE_GAME, count: whole }].flatMap(({ region, count }) => {

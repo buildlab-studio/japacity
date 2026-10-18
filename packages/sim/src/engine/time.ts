@@ -2,11 +2,66 @@
 // The simulation never reads a clock (R-ENGINE-012), so nothing in the sim
 // uses these. The authorities do: the local one in the tab and the server.
 // They are plain numbers so either can read them without a clock.
+import { divFloor } from "./int";
 
 export const SECOND_MS = 1000;
 export const MINUTE_MS = 60 * SECOND_MS;
 export const HOUR_MS = 60 * MINUTE_MS;
 export const DAY_MS = 24 * HOUR_MS;
+
+/** A day in seconds, as cookies and HTTP caches count it. */
+export const DAY_S = 24 * 60 * 60;
+
+/** R-SERVER-011: a UTC day as a whole number of days since 1970. */
+export function utcDay(ms: number): number {
+  return divFloor(ms, DAY_MS);
+}
+
+/** The first millisecond of a UTC day. */
+export function dayStart(day: number): number {
+  return day * DAY_MS;
+}
+
+/** Days from 0000-03-01 to 1970-01-01 in the proleptic Gregorian calendar; 146097 days make 400 years. */
+const EPOCH_SHIFT = 719_468;
+const ERA_DAYS = 146_097;
+
+const pad = (value: number, width: number) => String(value).padStart(width, "0");
+
+/**
+ * R-ANALYTICS-005: a UTC day number as its date, `YYYY-MM-DD`, for the years 0 to 9999. Whole-number calendar
+ * arithmetic (Howard Hinnant's civil_from_days), so it needs no `Date`.
+ * https://howardhinnant.github.io/date_algorithms.html#civil_from_days
+ */
+export function dayName(day: number): string {
+  const shifted = day + EPOCH_SHIFT;
+  const era = divFloor(shifted, ERA_DAYS);
+  const dayOfEra = shifted - era * ERA_DAYS;
+  const yearOfEra = divFloor(dayOfEra - divFloor(dayOfEra, 1460) + divFloor(dayOfEra, 36_524) - divFloor(dayOfEra, ERA_DAYS - 1), 365);
+  const dayOfYear = dayOfEra - (365 * yearOfEra + divFloor(yearOfEra, 4) - divFloor(yearOfEra, 100));
+  const monthFromMarch = divFloor(5 * dayOfYear + 2, 153);
+  const date = dayOfYear - divFloor(153 * monthFromMarch + 2, 5) + 1;
+  const month = monthFromMarch < 10 ? monthFromMarch + 3 : monthFromMarch - 9;
+  const year = yearOfEra + era * 400 + (month <= 2 ? 1 : 0);
+  return `${pad(year, 4)}-${pad(month, 2)}-${pad(date, 2)}`;
+}
+
+const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** R-ANALYTICS-005: the UTC day number of a date `YYYY-MM-DD`, or null when it is not a real date. */
+export function dayNumber(name: string): number | null {
+  const parts = DATE.exec(name);
+  if (parts === null) return null;
+  const [year, month, date] = [Number(parts[1]), Number(parts[2]), Number(parts[3])];
+  if (month < 1 || month > 12 || date < 1 || date > 31) return null;
+  const marchYear = month <= 2 ? year - 1 : year;
+  const era = divFloor(marchYear, 400);
+  const yearOfEra = marchYear - era * 400;
+  const dayOfYear = divFloor(153 * (month > 2 ? month - 3 : month + 9) + 2, 5) + date - 1;
+  const dayOfEra = yearOfEra * 365 + divFloor(yearOfEra, 4) - divFloor(yearOfEra, 100) + dayOfYear;
+  const day = era * ERA_DAYS + dayOfEra - EPOCH_SHIFT;
+  return dayName(day) === name ? day : null;
+}
 
 /** Lagos keeps UTC+1 all year (R-CLOCK-014). */
 export const LAGOS_OFFSET_MS = HOUR_MS;

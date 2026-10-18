@@ -6,6 +6,7 @@
 import { int, time } from "@japacity/sim";
 import type { PushSubscriptionJson } from "@japacity/store";
 
+import { fromBase64Url, toBase64Url } from "../bytes";
 import type { ServerConfig } from "../config";
 
 export type Fetch = (input: string, init: RequestInit) => Promise<Response>;
@@ -35,18 +36,6 @@ function tokenSeconds(keys: Pick<PushKeys, "numbers">): number {
 }
 
 const encoder = new TextEncoder();
-
-export function fromBase64Url(text: string): Uint8Array<ArrayBuffer> {
-  const base = text.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base + "=".repeat((4 - (base.length % 4)) % 4);
-  return Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
-}
-
-export function toBase64Url(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
 
 export function concat(...parts: Uint8Array[]): Uint8Array<ArrayBuffer> {
   const joined = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0));

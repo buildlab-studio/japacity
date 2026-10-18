@@ -1,10 +1,11 @@
 // The team's corner (docs/rules/moderation.md R-MODERATION-007, 016, 020): the feedback box and the notice. Their two rows in the phone's Settings
 // are features/phone/apps/Settings.moderation.test.tsx.
+import type { Standing } from "@japacity/api";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { setGraphicsMode } from "../graphics/mode";
-import type { ModerationApi, Standing } from "./api";
+import type { ModerationApi } from "./api";
 import { reasonWords, words } from "./moderation.words";
 import { fakeModeration } from "../testing/moderation";
 import "../testing/render";

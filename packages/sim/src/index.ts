@@ -9,6 +9,7 @@ export type { Overlay } from "./engine/overlay";
 export { checkInvariants } from "./engine/invariants";
 export { FIRST_MEETUP_FITS, offerChanceBp } from "./route/route.logic";
 export { topActivities } from "./chapter/chapter.card";
+export { isEarlyWin, earlyWinIn, picksOf } from "./guide/guide.earlyWin";
 export { hashState, stableJson } from "./engine/hash";
 // A bounded sample of the commands a view allows: random play and the load test's Worker read it.
 export { legalCommands } from "./testing/legal";
@@ -30,7 +31,10 @@ export type { RemitChannel } from "./wallet/wallet.events";
 export { ledgerReport } from "./wallet/wallet.report";
 // Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.
 export { pocketFor } from "./wallet/wallet.logic";
-export { rideFare, metresApart, withinMetres } from "./place/place.logic";
+export { CURRENCIES, isCurrency, placeCurrency, spendable } from "./wallet/wallet.rates";
+export { qualityIn } from "./quality/quality.logic";
+export { startYearOf } from "./prologue/prologue.logic";
+export { rideFare, metresApart, PASS_ACT, withinMetres } from "./place/place.logic";
 export type { RideFare } from "./place/place.logic";
 export * as time from "./engine/time";
 // The Friday draw's public method: the server draws with it and the client's draw page checks with it (docs/rules/lottery.md R-LOTTERY-015).

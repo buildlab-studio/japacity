@@ -4,8 +4,9 @@
 // invitation, not a slot, sends the application (R-POINTS-003).
 import { heldBand, tenureAcross } from "../../activity/activity.logic";
 import { check, worldVar } from "../../engine/check";
+import { QUALITY } from "../../engine/ids";
 import { BP_WHOLE, convertMinor, divFloor, mulDiv } from "../../engine/int";
-import { emit } from "../../engine/kind";
+import { emit, readOf } from "../../engine/kind";
 import type {
   BaseEvent,
   Content,
@@ -27,8 +28,6 @@ import { CURRENCIES, officialRates } from "../../wallet/wallet.rates";
 type PointsBlock = NonNullable<RouteEntry["points"]>;
 type PointsState = Extract<RouteGateState, { gate: "points" }>;
 
-const AGE: Id<"quality"> = "quality.age-months";
-const EDUCATION: Id<"quality"> = "quality.edu-level";
 const CARE: Id<"quality"> = "quality.care";
 /** The Canadian line is counted in Canadian cents (R-POINTS-002). */
 const FUNDS_CURRENCY: ForeignCurrency = "CAD";
@@ -80,8 +79,8 @@ export function pointsParts(read: ReadCtx, route: Id<"route">): PointsParts {
 }
 
 function partsFrom(read: ReadCtx, table: PointsEntry): PointsParts {
-  const years = divFloor(read.state.quality[AGE] ?? 0, MONTHS_PER_YEAR);
-  const level = read.state.quality[EDUCATION] ?? 0;
+  const years = divFloor(read.state.quality[QUALITY.age] ?? 0, MONTHS_PER_YEAR);
+  const level = read.state.quality[QUALITY.eduLevel] ?? 0;
   const band = heldBand(read);
   const age = rowAtOrBelow(table.age, (row) => row.years, (row) => row.points, years);
   const education = rowAtOrBelow(table.education, (row) => row.level, (row) => row.points, level);
@@ -195,7 +194,6 @@ export function pointsScore(read: ReadCtx, route: Id<"route">): number {
   return spouse === null || !withSpouse ? pointsScoreAlone(read, route) : pointsScoreWith(read, route, spouse);
 }
 
-
 /**
  * R-POINTS-002 with R-ROUTE-010's reading in Canadian cents: the bank and
  * locked pockets of every currency and any family support, each pocket
@@ -238,8 +236,6 @@ export function invites(read: ReadCtx, route: Id<"route">): boolean {
 function windowClosed(read: ReadCtx, entry: RouteEntry): boolean {
   return entry.window !== null && worldVar(read, entry.window) <= 0;
 }
-
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
 
 function updated(ctx: Ctx, route: Id<"route">, gate: PointsState, note: string | null): BaseEvent[] {
   const event: RouteKindEvent = { type: "route/gate-updated", route, gate, note };

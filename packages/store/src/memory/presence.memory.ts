@@ -1,18 +1,6 @@
 import type { PresenceMember, PresenceStore } from "../types";
+import { xorshift32 } from "../generator";
 import { copy } from "./copy.memory";
-
-/** A small integer generator (xorshift32): the sample is a pure function of the seed. */
-function generator(seed: number): () => number {
-  let state = seed >>> 0 || 0x9e3779b9;
-  return () => {
-    state ^= state << 13;
-    state >>>= 0;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    state >>>= 0;
-    return state;
-  };
-}
 
 /** R-CLOCK-025 to 028: members by place, then by socket, in the order they joined. */
 export function memoryPresenceStore(): PresenceStore {
@@ -38,7 +26,7 @@ export function memoryPresenceStore(): PresenceStore {
         if (member.account !== asker && !byAccount.has(member.account)) byAccount.set(member.account, member);
       }
       const pool = [...byAccount.values()];
-      const next = generator(seed);
+      const next = xorshift32(seed);
       for (let i = pool.length - 1; i > 0; i--) {
         const j = next() % (i + 1);
         const held = pool[i];

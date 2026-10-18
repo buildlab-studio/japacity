@@ -4,22 +4,13 @@
 // a draw has shut them all, the open answer that suits the tile (`presetAnswer`), so no card shows for a new life. The
 // tile's words, pictures and routes stay with the client.
 import type { PrologueStep } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, startYearOf } from "@japacity/sim";
 
 import { tuning } from "../tuning/tuning.data";
 import { prologueTable } from "./prologue.data";
 
 const AGE = "quality.age-months";
 const YEAR = 12;
-/** An age card's answer: the year the life starts at (R-PROLOGUE-004). */
-const START = /^start-(\d+)$/;
-
-/** The year an age card's answer picks, or null for any other answer. */
-export function startYearOf(answer: string): number | null {
-  const found = START.exec(answer);
-  return found === null ? null : Number(found[1]);
-}
-
 /** The age cards (R-PROLOGUE-004, decision 0023): the steps whose answers are all years, one for each path after school. */
 export const AGE_CARDS: readonly string[] = Object.values(prologueTable)
   .filter((step) => step.answers.length > 0 && step.answers.every((answer) => startYearOf(answer.id) !== null))

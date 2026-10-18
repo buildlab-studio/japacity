@@ -3,10 +3,9 @@
 // anyone off `config.admin.accounts` (R-SERVER-012), and the player's own two:
 // their standing and an appeal. The log has no route that changes or removes
 // an entry (R-MODERATION-015).
-import type { ServerCode, ServerRejection } from "@japacity/api";
+import type { StandingReply } from "@japacity/api";
 import { Hono } from "hono";
 import type { Context } from "hono";
-import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 import type { ServerDeps } from "../../deps";
 import type { SessionEnv } from "../../limits/limit";
@@ -16,13 +15,9 @@ import { readQueue } from "../../moderation/queue";
 import { standingOf } from "../../moderation/standing";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
+import { refuse } from "../reply";
 
 const FEEDBACK_PAGE = 200;
-
-function refuse(c: Context, status: ContentfulStatusCode, code: ServerCode, detail: string): Response {
-  const body: ServerRejection = { ok: false, code, detail };
-  return c.json(body, status);
-}
 
 async function readBody(c: Context): Promise<unknown> {
   try {
@@ -62,7 +57,7 @@ export function adminModerationRoutes(deps: ServerDeps, ports: ModerationPorts):
   routes.get("/api/moderation/standing", limit(deps, "reads"), async (c) => {
     const session = c.get("session");
     if (session === null) return refuse(c, 401, "signed-out", "Sign in first.");
-    return c.json({ ok: true, standing: await standingOf(deps, ports.reports, session.account) });
+    return c.json<StandingReply>({ ok: true, standing: await standingOf(deps, ports.reports, session.account) });
   });
 
   routes.post("/api/moderation/appeal", limit(deps, "commands"), async (c) => {

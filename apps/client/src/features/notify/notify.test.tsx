@@ -1,3 +1,4 @@
+import type { PushSubscriptionJson } from "@japacity/api";
 import type { ReportLine } from "@japacity/sim";
 import { time } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -9,7 +10,7 @@ import { engineView, fakeAuthority } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { isGoodMoment, mayAsk } from "./ask";
-import type { DeviceSubscription, NotifyApi, NotifyDevice, NotifyStatus, Permission } from "./notify.api";
+import type { NotifyApi, NotifyDevice, NotifyStatus, Permission } from "./notify.api";
 import { httpNotifyApi } from "./notify.api";
 import { NotifyAsk } from "./NotifyAsk";
 import { NotifySetting } from "./NotifySetting";
@@ -26,7 +27,7 @@ const SALARY = line("good", { big: true });
 
 function fakeServer(over: Partial<NotifyStatus> = {}) {
   const calls: string[] = [];
-  const subscribed: DeviceSubscription[] = [];
+  const subscribed: PushSubscriptionJson[] = [];
   let status: NotifyStatus = { on: false, reaskDays: REASK_DAYS, key: KEY, ...over };
   const api: NotifyApi = {
     status: () => (calls.push("status"), Promise.resolve(status)),
@@ -44,7 +45,7 @@ function fakeServer(over: Partial<NotifyStatus> = {}) {
   return { api, calls, subscribed };
 }
 
-const DEVICE: DeviceSubscription = { endpoint: "https://push.example.test/a", keys: { p256dh: "p", auth: "a" } };
+const DEVICE: PushSubscriptionJson = { endpoint: "https://push.example.test/a", keys: { p256dh: "p", auth: "a" } };
 
 function fakeDevice(permission: Permission = "default", answer: Permission = "granted") {
   const state = { permission, now: START, dismissedAt: null as number | null, asked: 0, unsubscribed: 0 };

@@ -18,6 +18,7 @@ import type { AdminEnv } from "./admin";
 import { placeTargetFits } from "../../switches/dials";
 import { switchGates } from "../../switches/gate";
 import { readSwitches, setDial, setSwitch } from "../../switches/switches";
+import { bodyOf } from "../reply";
 
 /** The longest reason kept in the log. */
 const REASON_MAX = 500;
@@ -44,11 +45,6 @@ function dialChangeOf(deps: ServerDeps, body: Record<string, unknown>): DialChan
     default:
       return "dial is placeTarget or computerAfterMonths.";
   }
-}
-
-async function bodyOf(request: { json: () => Promise<unknown> }): Promise<Record<string, unknown>> {
-  const body: unknown = await request.json().catch(() => null);
-  return typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
 }
 
 export function adminSwitchRoutes(deps: ServerDeps): Hono {

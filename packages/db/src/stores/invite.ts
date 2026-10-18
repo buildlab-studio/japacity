@@ -1,10 +1,10 @@
 import type { InviteRow, InviteStore, RewardRow } from "@japacity/store";
-import { compareIds } from "@japacity/store";
+import { distinctPairKeys, refuse } from "@japacity/store";
 import { and, asc, eq, gt, isNotNull, or } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { inviteRewards, invites } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toInvite(row: typeof invites.$inferSelect): InviteRow {
   const { code, from, account, slot, looking, fill, card, madeAt, expires, used, by, pair, usedAt, before } = row;
@@ -13,10 +13,6 @@ function toInvite(row: typeof invites.$inferSelect): InviteRow {
 
 function toReward(row: typeof inviteRewards.$inferSelect): RewardRow {
   return { from: row.from, friend: row.friend, reached: row.reached, frame: row.frame, line: row.line, at: row.at };
-}
-
-function distinctKeys(rows: { pair: string | null }[]): string[] {
-  return [...new Set(rows.flatMap((row) => (row.pair === null ? [] : [row.pair])))].sort(compareIds);
 }
 
 /** R-PAIR-007 to 009: the links, their single use under the row's own update, and the rewards. */
@@ -72,7 +68,7 @@ export function pgInviteStore(handle: Handle): InviteStore {
 
     pairsOf: (character) =>
       handle.read(async (db) =>
-        distinctKeys(
+        distinctPairKeys(
           await db
             .select({ pair: invites.pair })
             .from(invites)
@@ -80,7 +76,7 @@ export function pgInviteStore(handle: Handle): InviteStore {
         ),
       ),
 
-    pairs: () => handle.read(async (db) => distinctKeys(await db.select({ pair: invites.pair }).from(invites).where(isNotNull(invites.pair)))),
+    pairs: () => handle.read(async (db) => distinctPairKeys(await db.select({ pair: invites.pair }).from(invites).where(isNotNull(invites.pair)))),
 
     linkedBy: (friend) =>
       handle.read(async (db) => {

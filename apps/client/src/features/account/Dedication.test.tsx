@@ -1,11 +1,12 @@
 // The dedication page (docs/rules/account.md R-ACCOUNT-032) and naming a light of the player's
 // own in place (R-ACCOUNT-033); world.md R-WORLD-023 for the stillness. The server is a stand-in handed to the shared
 // lights module, as the shell's would be.
+import type { SharedLight } from "@japacity/api";
 import { DEDICATION_NICKNAME, DEDICATION_SHORT } from "@japacity/content";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { forgetDedication, setDedicationServer, type SharedLight } from "../../shared/dedication/lights";
+import { forgetDedication, setDedicationServer } from "../../shared/dedication/lights";
 import type { Api } from "../../shared/net/http";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";

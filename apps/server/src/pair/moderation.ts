@@ -4,7 +4,7 @@
 // report holds what it cites and changes nothing in either life.
 import { type Blocked, REPORT_REASONS, type ReportCite, type Reported, type ReportSubject } from "@japacity/api";
 import type { Id, PairRecord } from "@japacity/sim";
-import { pairId, time } from "@japacity/sim";
+import { pairId, time, toHex } from "@japacity/sim";
 import type { ReportReason, ReportRow } from "@japacity/store";
 
 import { characterOf } from "../authority/command";
@@ -19,10 +19,6 @@ import { accountOfCharacter } from "./account";
 import { pairStep, sendTo, sideLive, sideOf, unusual } from "./step";
 
 const REPORT_BYTES = 12;
-
-function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
 
 /** The other character a request names: the other side of `pair`, or `character` itself. */
 async function targetOf(deps: ServerDeps, me: string, body: unknown): Promise<string | null> {
@@ -120,11 +116,11 @@ function messagesOf(body: unknown): string[] | null {
 async function overLimit(deps: ServerDeps, account: string): Promise<PairAnswer<Reported> | null> {
   // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
   if ((await deps.stores.moderation.filedSince(account, deps.now() - time.DAY_MS + 1)) < deps.config.moderation.reportsPerDay) return null;
-  return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: 86_400 } };
+  return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: time.DAY_S } };
 }
 
 function reportId(deps: ServerDeps): string {
-  return `report-${hex(deps.randomBytes(REPORT_BYTES))}`;
+  return `report-${toHex(deps.randomBytes(REPORT_BYTES))}`;
 }
 
 /**

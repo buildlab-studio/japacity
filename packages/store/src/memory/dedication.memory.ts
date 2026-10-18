@@ -1,6 +1,7 @@
 import type { DedicationLight, DedicationStore } from "../dedication";
 import { sharedOrder } from "../dedication";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** R-SERVER-045: one light per account, kept in a map. */
 export function memoryDedicationStore(): DedicationStore {

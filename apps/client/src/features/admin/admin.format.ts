@@ -1,30 +1,16 @@
 // Times, days and counts as the admin page shows them: UTC throughout, since
 // the server's days are UTC days.
 import type { Shown } from "@japacity/api";
+import { time } from "@japacity/sim";
 
 import { formatBp, formatNumber } from "../../shared/words/format";
 import { words } from "./admin.words";
 
-const DAY_MS = 86_400_000;
-const HOUR_MS = 3_600_000;
-const MINUTE_MS = 60_000;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const { DAY_MS, HOUR_MS, MINUTE_MS } = time;
 
 /** Milliseconds since 1970 as `2026-10-08 09:00 UTC`. */
 export function utcTime(at: number): string {
   return `${new Date(at).toISOString().slice(0, 16).replace("T", " ")} UTC`;
-}
-
-/** A whole number of UTC days since 1970 as `2026-10-08`. */
-export function utcDate(day: number): string {
-  return new Date(day * DAY_MS).toISOString().slice(0, 10);
-}
-
-/** `2026-10-08` as whole UTC days since 1970, or null for anything else. */
-export function dayOf(date: string): number | null {
-  if (!DATE.test(date)) return null;
-  const at = Date.parse(`${date}T00:00:00Z`);
-  return Number.isNaN(at) ? null : Math.floor(at / DAY_MS);
 }
 
 /** A wait in milliseconds as days, hours and minutes, the largest two that are not zero. */

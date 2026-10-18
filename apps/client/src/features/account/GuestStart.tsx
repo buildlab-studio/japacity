@@ -3,6 +3,7 @@
 // that ran unseen on the page. No email and no sign-in method: those come later, when the player keeps the life.
 // The guest line is said once, on the page. Inside the invite page, where the card makes the life, the same fields
 // stand under the age screen with a button of their own.
+import { USERNAME, USERNAME_LONGEST as LONGEST, USERNAME_SHORTEST as SHORTEST } from "@japacity/api";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import type { AccountApi, GuestFailure } from "../../shared/net/auth";
@@ -12,10 +13,6 @@ import { say } from "../../shared/words/text";
 import type { LoadTurnstile } from "./Turnstile";
 import { useUnseenCheck } from "./useUnseenCheck";
 
-/** R-ACCOUNT-024's shape, as the server holds it (apps/server/src/account/username.ts); the lists stay the server's. */
-const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
-const LONGEST = 20;
-const SHORTEST = 3;
 
 /** How many digits a filled-in username gains when the plain one is taken. */
 const TAKEN_DIGITS = 3;

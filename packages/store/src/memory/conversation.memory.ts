@@ -1,12 +1,7 @@
+import { byTime } from "../keys";
 import type { ConversationRow, ConversationStore } from "../pair.types";
-import { accept, copy, refuse } from "./copy.memory";
-
-/** R-PAIR-011: the order rows are read in. */
-function byTime(x: ConversationRow, y: ConversationRow): number {
-  if (x.sentAt !== y.sentAt) return x.sentAt - y.sentAt;
-  if (x.id === y.id) return 0;
-  return x.id < y.id ? -1 : 1;
-}
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** The conversation id is the pair key, so it names both characters between its tildes. */
 function names(conversation: string, character: string): boolean {

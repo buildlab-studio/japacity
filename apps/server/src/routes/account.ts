@@ -6,18 +6,17 @@
 // every route they guard (account/guest.ts).
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
 // https://better-auth.com/docs/plugins/anonymous
-import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply } from "@japacity/api";
+import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, ServerRejection } from "@japacity/api";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
+import { time, toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
 import { PASS_COOKIE, readCookie } from "../account/age";
 import { deletionStatus, requestDeletion } from "../account/deletion";
 import { DEVICE_COOKIE, countGuest, guestGates, tooManyGuests } from "../account/guest";
-import { rejection } from "../account/reply";
-import type { AccountRejection } from "../account/reply";
 import { GUEST_NAME_HEADER } from "../account/signup";
 import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
@@ -28,9 +27,10 @@ import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
+import { rejection } from "./reply";
 
 /** How long the device cookie of R-ACCOUNT-025 is kept: the longest a browser keeps one. */
-const DEVICE_COOKIE_S = 400 * 86_400;
+const DEVICE_COOKIE_S = 400 * time.DAY_S;
 
 /** A reply's `Set-Cookie` lines. */
 function setCookies(headers: Headers): string[] {
@@ -79,7 +79,7 @@ function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: bool
   };
 }
 
-function nameRefused(name: NameProblem): AccountRejection & { name: NameProblem } {
+function nameRefused(name: NameProblem): ServerRejection & { name: NameProblem } {
   const said: Record<NameProblem, string> = {
     format: "A username is 3 to 20 letters, digits or underscores.",
     reserved: "That username is kept for the game's own people.",
@@ -119,7 +119,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (pass === null || pass === "") return c.json<NameReply>(rejection("expired", "Answer the age question again first."), 403);
 
     const context = await auth.$context;
-    const device = readCookie(request.headers.get("cookie"), DEVICE_COOKIE) ?? [...deps.randomBytes(16)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    const device = readCookie(request.headers.get("cookie"), DEVICE_COOKIE) ?? toHex(deps.randomBytes(16));
     setCookie(c, DEVICE_COOKIE, device, { path: "/api/guest", httpOnly: true, secure: true, sameSite: "Lax", maxAge: DEVICE_COOKIE_S });
     const address = request.headers.get("cf-connecting-ip");
     if (await tooManyGuests(deps, context.adapter, device, address)) return c.json<NameReply>(rejection("too-many", "Too many new lives from here today. Come back tomorrow."), 429);

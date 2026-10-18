@@ -2,6 +2,9 @@
 //
 // This module imports nothing from the route kind or the engine's checker at
 // run time: both import the gate table, and the table imports this file.
+import { heldBand } from "../../activity/activity.logic";
+import { worldVar } from "../../engine/check";
+import { QUALITY, VAR } from "../../engine/ids";
 import { emit, turnSlots } from "../../engine/kind";
 import type { BaseEvent, Cause, Content, Ctx, Effect, Id, OfferEntry, ReadCtx, RouteEntry, RouteState, Tuning } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";
@@ -9,8 +12,6 @@ import { recordAgent, recordedSalary } from "./contract";
 import type { DecisionTerms, Gate } from "./gate";
 
 const FIND: Id<"activity"> = "activity.find-sponsor";
-const NETWORK: Id<"quality"> = "quality.network";
-const SURCHARGE_YEAR: Id<"var"> = "var.uk-surcharge-year";
 
 type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Sponsor = { employer: string; salary: number };
@@ -21,12 +22,6 @@ const SPONSOR_TERMS: DecisionTerms = { strictness: true, unexplained: false, ref
 function settings(entry: RouteEntry): NonNullable<RouteEntry["sponsor"]> {
   if (entry.sponsor === undefined) throw new Error(`${entry.id} is a sponsor route with no sponsor block.`);
   return entry.sponsor;
-}
-
-function varOf(read: ReadCtx, id: Id<"var">): number {
-  const value = (read.world.vars as Record<string, number | undefined>)[id];
-  if (value === undefined) throw new Error(`The world has no variable ${id}.`);
-  return value;
 }
 
 function routeOf(read: ReadCtx, id: Id<"route">): RouteState {
@@ -41,23 +36,12 @@ function sponsorOf(held: RouteState): Sponsor | null {
 
 /** The salary bar, in pence a year, from the route's world variable (R-SPONSOR-003, 006). */
 function salaryBar(read: ReadCtx, entry: RouteEntry): number {
-  return varOf(read, settings(entry).salaryVar);
+  return worldVar(read, settings(entry).salaryVar);
 }
 
 /** R-ROUTE-005 for a looked-for sponsor: the window at 1 or more. */
 function windowOpen(read: ReadCtx, entry: RouteEntry): boolean {
-  return entry.window === null || varOf(read, entry.window) >= 1;
-}
-
-/** The best English band held and in date, as the activity kind reads it. */
-function englishBand(read: ReadCtx): number | null {
-  let best: number | null = null;
-  for (const [id, held] of Object.entries(read.state.document)) {
-    if (read.content.document[id as Id<"document">]?.result !== "english-band") continue;
-    if (held.state !== "held" || held.value === null) continue;
-    best = best === null ? held.value : Math.max(best, held.value);
-  }
-  return best;
+  return entry.window === null || worldVar(read, entry.window) >= 1;
 }
 
 /** R-SPONSOR-007: the job a sponsor route gives on arrival. */
@@ -100,7 +84,7 @@ export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   if (entry?.gate !== "sponsor" || routeOf(ctx, route).state !== "known" || !windowOpen(ctx, entry)) return [];
   // A search that finds nobody says so on the month's results, as a job hunt's "not this time" does.
   const missed: RouteKindEvent = { type: "route/sponsor-missed", route };
-  if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[NETWORK] ?? 0, ctx.content.tuning.quality))) return emit(ctx, "route", [missed]);
+  if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[QUALITY.network] ?? 0, ctx.content.tuning.quality))) return emit(ctx, "route", [missed]);
   const offers = sponsorOffers(ctx.content, route).filter((offer) => offer.when.every((requirement) => ctx.check(requirement).met));
   const picked = offers.length > 1 ? offers[ctx.random.int("job", offers.length)] : offers[0];
   if (picked === undefined) return emit(ctx, "route", [missed]);
@@ -137,7 +121,7 @@ function maintenanceCheck(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const held = routeOf(ctx, entry.id);
   if (line === null || held.state !== "known" || sponsorOf(held) === null) return [];
   const shown = ctx.check({ type: "route/funds", route: entry.id, heldMonths: 0 }).have ?? 0;
-  const required = varOf(ctx, line);
+  const required = worldVar(ctx, line);
   const covered = shown >= required;
   const funds = { heldMonths: covered ? held.funds.heldMonths + 1 : 0, covered, shown, required };
   const event: RouteKindEvent = { type: "route/funds-checked", route: entry.id, funds, was: held.funds.covered };
@@ -211,7 +195,7 @@ export const sponsorGate: Gate = {
     const { documents, bandMin, maintenanceVar } = settings(entry);
     if (!sponsorGate.reached(ctx, entry, held, "salary")) return false;
     if (!documents.every((document) => ctx.check({ type: "document/held", document }).met)) return false;
-    const band = englishBand(ctx);
+    const band = heldBand(ctx);
     if (band === null || band < bandMin) return false;
     return maintenanceVar === null || held.funds.heldMonths >= 1;
   },
@@ -224,14 +208,14 @@ export const sponsorGate: Gate = {
   effects: { "route/record-sponsor": record },
   // R-ROUTE-014 for this gate: the route's own strictness and the surcharge its status needs.
   application: (read, entry) => ({
-    strictness: varOf(read, settings(entry).strictnessVar),
-    surchargePaid: settings(entry).surchargeYears * varOf(read, SURCHARGE_YEAR),
+    strictness: worldVar(read, settings(entry).strictnessVar),
+    surchargePaid: settings(entry).surchargeYears * worldVar(read, VAR.ukSurchargeYear),
     decisionMonths: read.content.tuning.route.decisionMonths,
   }),
   // The maintenance line is the funds this route shows; the care route shows none (R-SPONSOR-003).
   funds: (read, entry) => {
     const line = settings(entry).maintenanceVar;
-    return line === null ? null : { required: varOf(read, line), currency: "GBP" };
+    return line === null ? null : { required: worldVar(read, line), currency: "GBP" };
   },
   departureJob: (entry) => sponsorJob(entry),
   view: (read, entry, held) => {

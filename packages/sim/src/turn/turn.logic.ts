@@ -1,14 +1,13 @@
 // Turns: docs/rules/turn.md. A turn is one month. Since decision 0011 the month is lived: now-acts spend its
 // free days (R-TURN-010) and the bank gates nothing (it goes at the online step).
+import { QUALITY } from "../engine/ids";
 import { bp } from "../engine/int";
 import { reject } from "../engine/reject";
 import type { RegisteredKind } from "../engine/kind";
-import { turnInProgress } from "../engine/kind";
-import type { BaseEvent, Command, Content, Ctx, Id, ReadCtx, Rejection, SlotLock, SlotPick, State, TurnSlice } from "../engine/types";
+import { readOf, turnInProgress } from "../engine/kind";
+import type { BaseEvent, Command, Content, Ctx, Id, Rejection, SlotLock, SlotPick, State, TurnSlice } from "../engine/types";
 import { japacity } from "../japacity/japacity.logic";
 import type { TurnEvent } from "./turn.events";
-
-const WELLBEING = "quality.wellbeing";
 
 /** The locks still holding in `month` (R-TURN-009). */
 export function activeLocks(locks: readonly SlotLock[], month: number): SlotLock[] {
@@ -29,7 +28,7 @@ export function freeSlots(state: State, content: Content): number {
   if (state.place.where === "road") return 0;
   const { turn, quality } = content.tuning;
   const base = state.activity.job === null ? turn.freeSlotsNoJob : turn.freeSlots;
-  const wellbeing = state.quality[WELLBEING];
+  const wellbeing = state.quality[QUALITY.wellbeing];
   const burnt = wellbeing !== undefined && wellbeing < quality.burnoutBelow;
   const locked = activeLocks(state.turn.locks, state.turn.month).reduce((sum, lock) => sum + lock.slots, 0);
   return Math.max(0, (burnt ? base - 1 : base) - locked);
@@ -91,7 +90,7 @@ function close(ctx: Ctx): BaseEvent[] {
   const turn = turnInProgress(ctx);
   if (turn === null) throw new Error("The close phase runs only inside a turn.");
   const lines = turn.lines();
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const event: TurnEvent = {
     type: "turn/ended",
     report: {

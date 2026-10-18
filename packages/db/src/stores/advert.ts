@@ -1,9 +1,10 @@
 import type { AdvertReview, AdvertStore, Advertiser, Campaign, Creative } from "@japacity/store";
+import { refuse } from "@japacity/store";
 import { and, asc, eq, max, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { advertCounts, advertReviews, advertisers, campaigns, creatives } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toAdvertiser(row: typeof advertisers.$inferSelect): Advertiser {
   return {

@@ -3,11 +3,11 @@
 // anyone else, signed in or not, every route here does not exist. An admin
 // whose session was not opened with a passkey is refused (R-MODERATION-012).
 import type { ServerRejection } from "@japacity/api";
+import { time } from "@japacity/sim";
 import { Hono } from "hono";
 import type { MiddlewareHandler } from "hono";
 
 import { listAlarms } from "../../ops/alarm";
-import { utcDay } from "../../ops/day";
 import { rejectionCounts } from "../../ops/rejections";
 import { rollbackCheck } from "../../ops/rollback";
 import type { ServerDeps } from "../../deps";
@@ -41,7 +41,7 @@ export function adminRoutes(deps: ServerDeps): Hono<AdminEnv> {
   admin.get("/report", async (c) => {
     const asked = c.req.query("day");
     if (asked !== undefined && !WHOLE.test(asked)) return c.json({ ok: false, detail: "day is a whole number of UTC days since 1970." }, 400);
-    const day = asked === undefined ? utcDay(deps.now()) - 1 : Number(asked);
+    const day = asked === undefined ? time.utcDay(deps.now()) - 1 : Number(asked);
     return c.json({ ok: true, report: await deps.stores.ledger.day(day) });
   });
 

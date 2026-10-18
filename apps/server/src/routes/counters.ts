@@ -3,21 +3,20 @@
 // dropped, so a failed batch is never something the player sees. Only the
 // day's totals are written: the account, the session and the request's
 // headers go no further than this handler.
+import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { Hono } from "hono";
 
-import { utcDay } from "../ops/day";
 import { advertRegion } from "../advert/campaign";
 import { addAdvertCounters, withinAccountDay } from "../advert/counts";
 import { checkBatch, isDoorRow } from "../analytics/batch";
-import { dayName } from "../analytics/day";
 import type { DropReason } from "../analytics/list";
-import { NO_REGION } from "../analytics/list";
+import { NO_REGION, regionOf, requestRegion } from "../analytics/list";
 import { batchAllowed } from "../analytics/rate";
 import { usageCountsOn } from "../analytics/usage";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
-import { countryOf } from "./place";
+import { countryOf } from "../account/country";
 
 const DROPPED = "analytics/dropped";
 
@@ -30,7 +29,7 @@ export function countersRoute(deps: ServerDeps): Hono {
 
   route.post("/api/counters", async (c) => {
     const done = () => c.body(null, 204);
-    const day = dayName(utcDay(deps.now()));
+    const day = time.dayName(time.utcDay(deps.now()));
     const session = await deps.session(c.req.raw);
     if (session === null) {
       // R-SERVER-026: a batch with no session is looked at only within the address limit.
@@ -41,7 +40,7 @@ export function countersRoute(deps: ServerDeps): Hono {
       const door = checked.rows.filter(isDoorRow);
       const refused = checked.rows.length - door.length;
       const country = countryOf(c.req.raw);
-      const region = country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
+      const region = requestRegion(country);
       const dropped = refused > 0 || door.length === 0 ? { ...checked.dropped, "signed-out": 1 } : checked.dropped;
       await deps.stores.counters.add([...door.map((row) => ({ day, region, name: row.name, key: row.key, count: row.count })), ...droppedRows(day, NO_REGION, dropped)]);
       return done();
@@ -53,7 +52,7 @@ export function countersRoute(deps: ServerDeps): Hono {
     }
     // R-ANALYTICS-006: a player who stopped the counters is not counted at all, not even as dropped.
     if (!usageCountsOn(account)) return done();
-    const region = account.country === "" ? NO_REGION : account.country;
+    const region = regionOf(account);
     if (!batchAllowed(deps.stores.counters, session.account, deps.now(), deps.contents.current.tuning.analytics.batchesPerHour)) {
       await deps.stores.counters.add(droppedRows(day, region, { rate: 1 }));
       return done();

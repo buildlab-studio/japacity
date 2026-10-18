@@ -18,10 +18,10 @@ import {
   presetHomes,
   presetOwnAnswer,
   PRESETS,
-  startYearOf,
   suitingFirst,
 } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
+import { startYearOf } from "@japacity/sim";
 
 import { say } from "../words/text";
 import { browserStorage, FULL_PROLOGUE_KEY } from "../kept/storage";

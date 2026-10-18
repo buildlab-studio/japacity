@@ -1,7 +1,8 @@
 // R-MODERATION-008, R-MODERATION-014 to 019: an admin closes a report or
 // decides an appeal; every action is logged first, a close lifts the hold,
 // and a ban bars the sign-in identities and ends every session.
-import { REPORT_ACTIONS, REPORT_REASONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
+import { ACTION_MAX_DAYS, REPORT_ACTIONS, REPORT_REASONS, TOLD_ACTIONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
+import { toHex } from "@japacity/sim";
 import type { AppealRow, ModerationLogEntry } from "@japacity/store";
 
 import { requestDeletion } from "../account/deletion";
@@ -10,7 +11,6 @@ import { rollbackCheck } from "../ops/rollback";
 import type { ServerDeps } from "../deps";
 import { banIdentities, type Identities } from "./identities";
 import type { Report, ReportQueueStore } from "./reports";
-import { TOLD } from "./standing";
 
 /** What the admin view is given beside the deps: the pair side's report store and the auth library's identities. */
 export interface ModerationPorts {
@@ -28,7 +28,6 @@ const ON_ACCOUNT: readonly ReportAction[] = ["warn", "mute", "suspend", "ban", "
 /** R-MODERATION-017: an upheld `underage` report closes the account; a lesser action does not uphold it. */
 const NOT_FOR_UNDERAGE: readonly ReportAction[] = ["warn", "mute", "suspend", "reset-name"];
 
-const MAX_DAYS = 3650;
 const MAX_NOTE = 1000;
 const MAX_BODY = 200;
 
@@ -41,7 +40,7 @@ function refused(status: 400 | 403 | 404 | 409, code: ServerCode, detail: string
 }
 
 export function newId(deps: Pick<ServerDeps, "randomBytes">, prefix: string): string {
-  return `${prefix}.${[...deps.randomBytes(8)].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+  return `${prefix}.${toHex(deps.randomBytes(8))}`;
 }
 
 interface Common {
@@ -86,7 +85,7 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
   if (account !== null) params.account = account;
   if (report.reason === "underage" && NOT_FOR_UNDERAGE.includes(act)) return refused(400, "not-legal", "An upheld underage report closes the account: ban, refer or dismiss.");
   if (act === "mute" || act === "suspend") {
-    if (!Number.isSafeInteger(sent.days) || (sent.days as number) < 1 || (sent.days as number) > MAX_DAYS) return refused(400, "not-legal", `days is a whole number from 1 to ${String(MAX_DAYS)}.`);
+    if (!Number.isSafeInteger(sent.days) || (sent.days as number) < 1 || (sent.days as number) > ACTION_MAX_DAYS) return refused(400, "not-legal", `days is a whole number from 1 to ${String(ACTION_MAX_DAYS)}.`);
     params.days = sent.days as number;
   }
   if (act === "refer") {
@@ -154,7 +153,7 @@ export async function fileAppeal(deps: ServerDeps, account: string, body: unknow
   const action = asObject(body).action;
   if (typeof action !== "string") return { ok: false, status: 400, code: "not-legal", detail: "action names the action appealed." };
   const entry = await deps.stores.moderationLog.get(action);
-  const mine = entry !== null && entry.params.account === account && (TOLD as readonly string[]).includes(entry.action);
+  const mine = entry !== null && entry.params.account === account && (TOLD_ACTIONS as readonly string[]).includes(entry.action);
   if (!mine) return { ok: false, status: 404, code: "unknown-id", detail: `No action ${action} on this account.` };
   const filed = await deps.stores.appeals.file({ id: newId(deps, "appeal"), account, entry: action, at: deps.now() });
   if (!filed.ok) return { ok: false, status: 409, code: "not-legal", detail: "This action has been appealed already." };

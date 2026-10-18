@@ -5,6 +5,7 @@
 // account in `config.admin.accounts` may reach these routes; to anyone else
 // they do not exist.
 import type { Id } from "@japacity/sim";
+import { toHex } from "@japacity/sim";
 import type { Campaign, NamedPlace } from "@japacity/store";
 import type { Context } from "hono";
 import { Hono } from "hono";
@@ -18,6 +19,7 @@ import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from ".
 import type { ServerDeps } from "../../deps";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
+import { keepNone } from "../reply";
 
 type Body = Record<string, unknown>;
 
@@ -39,10 +41,6 @@ async function bodyOf(c: Context): Promise<Body | null> {
   } catch {
     return null;
   }
-}
-
-function hex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 function fromBase64(value: string): Uint8Array | null {
@@ -76,7 +74,7 @@ const BAD_BODY = { ok: false, code: "bad-body", detail: "The request body is not
 
 export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, init) => fetch(input, init)): Hono<AdminEnv> {
   const admin = new Hono<AdminEnv>();
-  const newId = (prefix: string) => `${prefix}-${hex(deps.randomBytes(8))}`;
+  const newId = (prefix: string) => `${prefix}-${toHex(deps.randomBytes(8))}`;
 
   admin.use("*", adminOnly(deps));
 
@@ -201,7 +199,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     const image = creative === null ? null : await deps.stores.adverts.image(creative.id, creative.version);
     if (creative === null || image === null) return c.notFound();
     c.header("content-type", `image/${creative.file.format}`);
-    c.header("cache-control", "private, no-store");
+    keepNone(c);
     c.header("x-content-type-options", "nosniff");
     return c.body(image.slice().buffer);
   });

@@ -1,40 +1,15 @@
 // R-MODERATION-007, R-MODERATION-014, R-MODERATION-016: what a player is told
 // about actions on their own account and their own reports, and the mute or
 // suspension in force, read from the log so the rest of the server can refuse.
+import { type ActionOnMe, TOLD_ACTIONS, type Standing, type ToldAction } from "@japacity/api";
 import { time } from "@japacity/sim";
-import type { AppealRow, ModerationLogEntry } from "@japacity/store";
+import type { ModerationLogEntry } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import type { ReportQueueStore } from "./reports";
 
-/** R-MODERATION-016: the actions a player is told of. */
-export const TOLD = ["warn", "mute", "suspend", "ban"] as const;
-
-type ToldAction = (typeof TOLD)[number];
-
-interface ActionOnMe {
-  /** The log entry: what an appeal names. */
-  entry: string;
-  action: ToldAction;
-  reason: string;
-  at: number;
-  /** When a mute or suspension ends; null for a warning or a ban. */
-  until: number | null;
-  appeal: { status: AppealRow["status"]; outcome?: AppealRow["outcome"] } | null;
-}
-
-export interface Standing {
-  actions: ActionOnMe[];
-  /** Milliseconds since 1970, or null. */
-  mutedUntil: number | null;
-  suspendedUntil: number | null;
-  banned: boolean;
-  /** R-MODERATION-007: the player's own reports, received and then their outcome, never what was done to whom. */
-  reports: { id: string; at: number; status: "open" | "decided"; outcome?: "acted" | "no-action" }[];
-}
-
 function told(entry: ModerationLogEntry): entry is ModerationLogEntry & { action: ToldAction } {
-  return (TOLD as readonly string[]).includes(entry.action);
+  return (TOLD_ACTIONS as readonly string[]).includes(entry.action);
 }
 
 function untilOf(entry: ModerationLogEntry): number | null {

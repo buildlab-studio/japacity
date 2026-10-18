@@ -1,6 +1,7 @@
 import type { DialChange, SwitchLogRow, SwitchRow, SwitchStore } from "../switches";
 import { DEFAULT_SWITCH_ROW, isDialValue } from "../switches";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 function withDial(row: SwitchRow, change: DialChange): SwitchRow {
   const dials = copy(row.dials);

@@ -1,3 +1,4 @@
+import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { countRejection } from "../../ops/rejections";
@@ -5,7 +6,6 @@ import { asAccount as as, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { productionConfig, testConfig } from "../../config";
 import { TEST_SIGNED_IN_WITH, testSession } from "../../deps";
-import { dayStart, utcDay } from "../../ops/day";
 import { ADMIN_PASSKEY_DETAIL } from "./admin";
 
 const ADMIN = "account.owner";
@@ -59,14 +59,14 @@ describe("the admin routes", () => {
 
   test("[R-SERVER-011] given a day's totals, when the report is fetched, then it is that day's row; with no day it is the day that has just ended; a day that is not a whole number is refused", async () => {
     const deps = admin();
-    const today = utcDay(deps.now());
+    const today = time.utcDay(deps.now());
     await deps.stores.ledger.addDay(today - 1, { salary: { NGN: 5 } }, { rent: { GBP: 2 } });
     await deps.stores.ledger.addDay(today, { gig: { NGN: 1 } }, {});
     const app = makeApp(deps);
 
     expect(await (await app.request(`/api/admin/report?day=${String(today)}`, as(ADMIN))).json()).toEqual({ ok: true, report: { day: today, created: { gig: { NGN: 1 } }, destroyed: {} } });
     expect(await (await app.request("/api/admin/report", as(ADMIN))).json()).toEqual({ ok: true, report: { day: today - 1, created: { salary: { NGN: 5 } }, destroyed: { rent: { GBP: 2 } } } });
-    expect(dayStart(today)).toBeLessThanOrEqual(deps.now());
+    expect(time.dayStart(today)).toBeLessThanOrEqual(deps.now());
     for (const bad of ["-1", "1.5", "x", ""]) expect((await app.request(`/api/admin/report?day=${bad}`, as(ADMIN))).status).toBe(400);
   });
 

@@ -5,6 +5,7 @@
 // when (the birthday month), who did (a computer sibling abroad, else the aunty), and which of
 // the sender's things is in it (one draw on `offer`).
 import { check } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import type { Id, OfferChoice, OfferEntry, OfferState, Random, ReadCtx, State, Terms } from "../engine/types";
 
 export const PARCEL: Id<"offer"> = "offer.parcel-shipped";
@@ -18,7 +19,7 @@ const MONTHS_A_YEAR = 12;
 
 /** The month the character turns a year older: the age, counted in months, is a whole number of years. */
 export function birthdayMonth(state: State): boolean {
-  const age = state.quality["quality.age-months"] ?? 0;
+  const age = state.quality[QUALITY.age] ?? 0;
   return age > 0 && age % MONTHS_A_YEAR === 0;
 }
 

@@ -2,12 +2,11 @@
 // R-PEOPLE-005 and R-PEOPLE-046 to 048. Pure: the server, the kind and the
 // tests all read the same facts, and none of it reads the seed or a secret.
 import { resolveAmount } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import type { Content, Id, PeopleSlice, PersonEntry, PersonFacts, ReadCtx, RouteStateName, State, World } from "../engine/types";
 import { fundsCurrency, fundsShown } from "../route/route.logic";
 import { floorsMet } from "./person.sponsorChecks";
 
-export const AGE: Id<"quality"> = "quality.age-months";
-const EDUCATION: Id<"quality"> = "quality.edu-level";
 const ENGLISH: Id<"document"> = "document.english-test";
 
 /** The route this life holds for its joint: the lead route when leading, else the one it follows on. */
@@ -35,7 +34,7 @@ export function factsOf(state: State, content: Content, world: World): PersonFac
   const funds = joint !== null && joint.countFunds && state.route[joint.route] !== undefined ? { currency: fundsCurrency(read, joint.route), amount: fundsShown(read, joint.route) } : null;
   return {
     label: "player",
-    ageMonths: state.quality[AGE] ?? 0,
+    ageMonths: state.quality[QUALITY.age] ?? 0,
     where: state.place.where,
     country: state.place.country,
     status: current?.entry ?? null,
@@ -43,7 +42,7 @@ export function factsOf(state: State, content: Content, world: World): PersonFac
     monthsInCountry: abroad ? Math.max(0, month - state.place.movedMonth) : 0,
     job: state.activity.job,
     meetsFloor: floorsMet(read),
-    eduLevel: state.quality[EDUCATION] ?? 0,
+    eduLevel: state.quality[QUALITY.eduLevel] ?? 0,
     englishBand: english?.state === "held" ? english.value : null,
     // A fixed life has no family draw, and the fixed lives all start in the city.
     home: state.prologue.draw?.town ?? "city",

@@ -5,11 +5,12 @@
 // routes/account.ts).
 // https://hono.dev/docs/helpers/cookie
 import type { AgeReply, AgeRequest, AgeStatus } from "@japacity/api";
+import { time, toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
 import { PASS_COOKIE, PASS_PREFIX, PASS_TTL_MS, REFUSED_COOKIE, ageOn, parseBirthDate, plausible, readCookie } from "../account/age";
-import { rejection } from "../account/reply";
+import { rejection } from "./reply";
 import type { Accounts } from "../auth/auth";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
@@ -17,11 +18,6 @@ import { limit } from "../limits/limit";
 
 /** The guest start, the one route that reads the pass. */
 export const PASS_PATH = "/api/guest";
-const DAY_S = 86_400;
-
-function hex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
 
 export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
@@ -45,11 +41,11 @@ export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv
     if (ageOn(birth, now) < deps.config.account.minAge) {
       deleteCookie(c, PASS_COOKIE, { path: PASS_PATH, secure: true });
       // Not HttpOnly: the screen reads it to refuse without asking again.
-      setCookie(c, REFUSED_COOKIE, "1", { path: "/", secure: true, sameSite: "Lax", maxAge: deps.config.account.refusedCookieDays * DAY_S });
+      setCookie(c, REFUSED_COOKIE, "1", { path: "/", secure: true, sameSite: "Lax", maxAge: deps.config.account.refusedCookieDays * time.DAY_S });
       return c.json<AgeReply>(rejection("under-age", "This browser cannot sign up."), 403);
     }
 
-    const nonce = hex(deps.randomBytes(16));
+    const nonce = toHex(deps.randomBytes(16));
     const context = await auth.$context;
     await context.internalAdapter.createVerificationValue({ identifier: PASS_PREFIX + nonce, value: String(now), expiresAt: new Date(now + PASS_TTL_MS) });
     setCookie(c, PASS_COOKIE, nonce, { path: PASS_PATH, httpOnly: true, secure: true, sameSite: "Lax", maxAge: Math.floor(PASS_TTL_MS / 1000) });

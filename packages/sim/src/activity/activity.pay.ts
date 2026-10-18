@@ -2,6 +2,7 @@
 // abroad-money.md R-ABROAD-002, car.md R-CAR-002. Pure: the kind's phases, the
 // view and the ledger report all read the same figures.
 import { check, resolveAmount } from "../engine/check";
+import { DOCUMENT } from "../engine/ids";
 import { bp, divFloor, mulDiv } from "../engine/int";
 import type { ActivityEntry, Content, Id, MoneyParam, ReadCtx, State, Terms } from "../engine/types";
 
@@ -17,8 +18,6 @@ const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
  * Tuning has no key for the shop's growth, so it reads `tuning.activity.raiseBp` as the share a full year adds.
  */
 const SHOP: Id<"activity"> = "activity.run-shop";
-const HOME_LICENCE: Id<"document"> = "document.home-licence";
-const UK_LICENCE: Id<"document"> = "document.uk-licence";
 
 /** A job: the main one or a side job (R-ACTIVITY-010). */
 export function isJob(entry: ActivityEntry | undefined): entry is ActivityEntry {
@@ -53,7 +52,7 @@ export function hasCar(state: State, content: Content): boolean {
 
 /** R-CAR-006: a home licence within its months, or the UK one. */
 function licenceInForce(read: ReadCtx): boolean {
-  return check(read, { type: "document/held", document: HOME_LICENCE }).met || check(read, { type: "document/held", document: UK_LICENCE }).met;
+  return check(read, { type: "document/held", document: DOCUMENT.homeLicence }).met || check(read, { type: "document/held", document: DOCUMENT.ukLicence }).met;
 }
 
 /** R-LADDER-004 and R-CAR-006: an activity that needs the car needs it, and a licence in force, now. */

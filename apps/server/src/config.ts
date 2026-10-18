@@ -2,6 +2,7 @@
 // the test switches. The production values are the pages'
 // defaults; a test proves the production config holds no test switch
 // (R-ACCOUNT-005, R-CLOCK-009).
+import { FEEDBACK_MAX_CHARS } from "@japacity/api";
 import { time } from "@japacity/sim";
 
 export interface ServerConfig {
@@ -104,7 +105,7 @@ export const productionConfig: ServerConfig = {
   admin: { accounts: [] },
   lottery: { secretBits: 256, beacon: { genesis: 1692803367, period: 3, url: "https://api.drand.sh" } },
   switches: { cacheMs: 30 * time.SECOND_MS, retryMs: 30 * time.SECOND_MS },
-  feedback: { maxChars: 500, perDay: 5, keepDays: 180 },
+  feedback: { maxChars: FEEDBACK_MAX_CHARS, perDay: 5, keepDays: 180 },
   board: { size: 50 },
   notify: { reaskDays: 14, pushTtlDays: 1, maxDevices: 10, tokenHours: 12 },
   moderation: { reportsPerDay: 20, holdDays: 90, decideHours: 24, logYears: 3 },

@@ -16,6 +16,7 @@ import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { BOARDS_DETAIL, guestOnly } from "../account/guest";
 import { isOn, retryAfterSeconds, switchedOff } from "../switches/switches";
+import { keepNone } from "./reply";
 
 type Reply = { status: 200 | 401 | 403 | 404 | 503; body: BoardReply | ServerRejection };
 
@@ -38,7 +39,7 @@ async function answer(deps: ServerDeps, ports: BoardPorts, c: Context<SessionEnv
 function send(c: Context<SessionEnv>, deps: ServerDeps, reply: Reply): Response {
   if (reply.status === 503) c.header("Retry-After", String(retryAfterSeconds(deps)));
   // A board changes with every commit and differs for each player.
-  c.header("cache-control", "private, no-store");
+  keepNone(c);
   return c.json(reply.body, reply.status);
 }
 

@@ -10,8 +10,6 @@ import type { LightsReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { lightsOf } from "../analytics/lights";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
@@ -25,7 +23,7 @@ const EVER = "2000-01-01";
 
 /** The first day of the UTC month of `now`, `YYYY-MM-DD`. */
 function monthOf(now: number): string {
-  return `${dayName(utcDay(now)).slice(0, 7)}-01`;
+  return `${time.dayName(time.utcDay(now)).slice(0, 7)}-01`;
 }
 
 export function lightsRoute(deps: ServerDeps, edge: EdgeCache | null = edgeCache()): Hono {
@@ -38,7 +36,7 @@ export function lightsRoute(deps: ServerDeps, edge: EdgeCache | null = edgeCache
     const hour = int.divFloor(now, time.HOUR_MS);
     const key = edgeKey(new URL(c.req.url).origin, ["lights", hour]);
     const served = await throughEdge(edge, key, now, async (): Promise<Made> => {
-      const totals = await deps.stores.counters.days(EVER, dayName(utcDay(now)));
+      const totals = await deps.stores.counters.days(EVER, time.dayName(time.utcDay(now)));
       const reply: LightsReply = { ok: true, ...lightsOf({ totals, monthFrom: monthOf(now) }) };
       return { body: JSON.stringify(reply), type: JSON_TYPE, freshUntil: (hour + 1) * time.HOUR_MS };
     });

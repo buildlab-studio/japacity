@@ -1,11 +1,14 @@
 // Block and report (pair.md R-PAIR-014 to 016; moderation.md R-MODERATION-001
 // to 009). The reasons and what a report cites are the store's, named here for
 // the client.
-import type { ReportCite, ReportReason } from "@japacity/store";
+import type { AppealRow, ReportCite, ReportReason } from "@japacity/store";
 
 import type { ServerRejection } from "./reply";
 
 export type { ReportCite, ReportReason };
+
+/** R-MODERATION-020: the longest feedback, in characters (code points). */
+export const FEEDBACK_MAX_CHARS = 500;
 
 /** R-MODERATION-004: the reasons in the order the report sheet lists them. */
 export const REPORT_REASONS = ["scam", "harassment", "impersonation", "underage", "sexual", "hate", "self-harm", "illegal", "cheating", "advert", "other"] as const satisfies readonly ReportReason[];
@@ -44,6 +47,49 @@ export interface CiteReportRequest {
   subject?: ReportSubject;
   reason: ReportReason;
   cites: ReportCite;
+}
+
+/** R-MODERATION-016: the actions a player is told of. */
+export const TOLD_ACTIONS = ["warn", "mute", "suspend", "ban"] as const;
+
+export type ToldAction = (typeof TOLD_ACTIONS)[number];
+
+/** R-MODERATION-007, R-MODERATION-016: one action on the player's own account. */
+export interface ActionOnMe {
+  /** The log entry: what an appeal names. */
+  entry: string;
+  action: ToldAction;
+  reason: string;
+  at: number;
+  /** When a mute or suspension ends; null for a warning or a ban. */
+  until: number | null;
+  appeal: { status: AppealRow["status"]; outcome?: AppealRow["outcome"] } | null;
+}
+
+/** `GET /api/moderation/standing`: what the player is told of actions on their account and of their own reports. */
+export interface Standing {
+  actions: ActionOnMe[];
+  /** Milliseconds since 1970, or null. */
+  mutedUntil: number | null;
+  suspendedUntil: number | null;
+  banned: boolean;
+  /** R-MODERATION-007: the player's own reports, received and then their outcome, never what was done to whom. */
+  reports: { id: string; at: number; status: "open" | "decided"; outcome?: "acted" | "no-action" }[];
+}
+
+export type StandingReply = { ok: true; standing: Standing } | ServerRejection;
+
+/** The body of `POST /api/moderation/appeal`: the log entry appealed. */
+export interface AppealRequest {
+  action: string;
+}
+
+/** R-MODERATION-020: the body of `POST /api/feedback`. */
+export interface FeedbackRequest {
+  text: string;
+  build: string;
+  screen: string;
+  mode: "low" | "high";
 }
 
 export type BlockReply = Blocked | ServerRejection;

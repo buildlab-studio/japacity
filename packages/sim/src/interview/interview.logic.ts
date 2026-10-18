@@ -1,8 +1,9 @@
 // The genuineness interview: docs/rules/interview.md. Both partners answer the
 // same questions about their shared history, one at a time, and the answers are
 // compared with no draw, so both lives reach the same result.
+import { QUALITY } from "../engine/ids";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, ownOf } from "../engine/kind";
+import { emit, ownOf, readOf } from "../engine/kind";
 import { BP_WHOLE, mulDiv } from "../engine/int";
 import { reject } from "../engine/reject";
 import type {
@@ -31,7 +32,6 @@ import type { InterviewEvent } from "./interview.events";
 export const GENUINENESS: Id<"interview"> = "interview.genuineness";
 /** The `partner-job` option for a partner with no job (R-INTERVIEW-003). */
 export const NO_JOB = "no-job";
-const STANDING: Id<"quality"> = "quality.standing";
 
 /**
  * `times-met`: the count of `met` moments each band starts at, highest first.
@@ -261,10 +261,6 @@ function matchedCount(read: ReadCtx, open: Open, bond: Bond, theirs: readonly st
 // Opening
 // ---------------------------------------------------------------------------
 
-function readOf(ctx: Ctx): ReadCtx {
-  return { state: ctx.state, world: ctx.world, content: ctx.content };
-}
-
 /** Up to `count` of `pool` drawn on `visa` without repeats, in the order drawn. */
 function drawSome(ctx: Ctx, pool: readonly string[], count: number): string[] {
   const left = [...pool];
@@ -457,7 +453,7 @@ function score(ctx: Ctx, open: Open, bond: Bond, theirs: readonly string[]): Bas
   const events = emit(ctx, "interview", [scored]);
   if (result === "caught") {
     const cause: Cause = { source: GENUINENESS, param: null, terms: {} };
-    ctx.apply([{ type: "quality/add", quality: STANDING, amount: -numbers.caughtStanding }], cause);
+    ctx.apply([{ type: "quality/add", quality: QUALITY.standing, amount: -numbers.caughtStanding }], cause);
   }
   return events;
 }

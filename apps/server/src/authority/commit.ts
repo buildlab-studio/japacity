@@ -2,9 +2,9 @@
 // the nudge, never inside the transaction, and the queue for the rollback
 // tool when a load diverged.
 import type { Sender } from "@japacity/sim";
+import { time } from "@japacity/sim";
 
 import { noteDiverged } from "../ops/alarm";
-import { utcDay } from "../ops/day";
 import { markAfterCommit } from "../ops/money";
 import type { ServerDeps } from "../deps";
 import { rewardInviters } from "../pair/rewards";
@@ -20,7 +20,7 @@ import type { Diverged, Live } from "./load";
  * loaded with, on the UTC day of the commit. city.md R-CITY-039: its board figure is written.
  */
 export async function afterCommit(deps: ServerDeps, lives: readonly Live[], by: Sender): Promise<void> {
-  const day = utcDay(deps.now());
+  const day = time.utcDay(deps.now());
   for (const live of lives) if (live.rows.length > 0) await markAfterCommit(deps, live.id, live.loaded, day);
   await rewardInviters(deps, lives);
   await noteFills(deps, lives, by);

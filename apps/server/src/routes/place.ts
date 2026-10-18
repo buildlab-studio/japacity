@@ -2,10 +2,10 @@
 // (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
 // every signed-in account: presence is not contact (region.md R-REGION-002),
 // and the socket carries only nudges, never words between players.
-import type { PresenceReply, ServerCode, ServerRejection } from "@japacity/api";
+import type { PresenceReply } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
+import { toHex } from "@japacity/sim";
 import { Hono } from "hono";
-import type { Context } from "hono";
 
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
@@ -16,6 +16,7 @@ import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";
 import type { Rooms } from "../place/place.rooms";
 import { placeTarget } from "../switches/dials";
+import { refuse } from "./reply";
 
 /** The character's display name and look, or null when the account has none. The core provides it. */
 export type ProfileOf = (account: string) => Promise<{ name: string; look: string } | null>;
@@ -27,20 +28,6 @@ export interface PlaceBindings {
   profileOf: ProfileOf;
 }
 
-type Status = 401 | 404 | 409 | 413 | 426 | 503;
-
-function refuse(c: Context, status: Status, code: ServerCode, detail: string): Response {
-  const body: ServerRejection = { ok: false, code, detail };
-  return c.json(body, status);
-}
-
-/** R-ACCOUNT-008: Cloudflare's country for the request, from `request.cf` or the header it sets. */
-export function countryOf(request: Request): string | null {
-  const cf = (request as Request & { cf?: { country?: unknown } }).cf;
-  if (typeof cf?.country === "string") return cf.country;
-  return request.headers.get("cf-ipcountry");
-}
-
 function seedFrom(bytes: Uint8Array): number {
   return bytes.reduce((seed, byte) => ((seed << 8) | byte) >>> 0, 0);
 }
@@ -48,10 +35,6 @@ function seedFrom(bytes: Uint8Array): number {
 /** R-CITY-036: a name and a look, so no account id or position can reach the reply. */
 function shown(member: { name: string; look: string }): { name: string; look: string } {
   return { name: member.name, look: member.look };
-}
-
-function hex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 /** `GET /api/place/:place`: a fresh sample of the other players there (R-CLOCK-028), and of some seen there today (R-CITY-036). */
@@ -101,7 +84,7 @@ export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Ho
     if (where !== place) return refuse(c, 409, "not-legal", `the character is in ${where}`);
 
     const member = { account: session.account, name: profile.name, look: profile.look, place, joinedAt: deps.now() };
-    const response = await openSocket(bindings.rooms, place, { kind: "member", socket: hex(deps.randomBytes(16)), member });
+    const response = await openSocket(bindings.rooms, place, { kind: "member", socket: toHex(deps.randomBytes(16)), member });
     if (response.status === 101) return response;
     const detail = await response.text();
     return refuse(c, response.status === STATUS_TOO_LARGE ? 413 : 503, "not-legal", detail);

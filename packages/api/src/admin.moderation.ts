@@ -13,6 +13,9 @@ export const REPORT_ACTIONS = ["dismiss", "warn", "mute", "suspend", "ban", "res
 
 export type ReportAction = (typeof REPORT_ACTIONS)[number];
 
+/** The longest a mute or a suspension runs, in days. */
+export const ACTION_MAX_DAYS = 3650;
+
 /** R-MODERATION-008: what a report keeps unchanged until it is decided or `until`. */
 export interface Hold {
   report: string;

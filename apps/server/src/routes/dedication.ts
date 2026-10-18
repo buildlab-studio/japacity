@@ -10,7 +10,7 @@
 // at once when a light is lit, put out, approved or refused, so every account sees a new light straight away. A reply
 // with `mine` differs for each account, so nothing here is kept by the browser. The counts route of R-ACCOUNT-031 is
 // `/api/lights` and is not this one.
-import type { LightYears, ServerRejection } from "@japacity/api";
+import type { DedicationReply, LitReply, MyLight, ServerRejection, SharedLight } from "@japacity/api";
 import { checkSentLight, type LightProblem } from "@japacity/content";
 import { int, time } from "@japacity/sim";
 import type { DedicationLight } from "@japacity/store";
@@ -23,6 +23,7 @@ import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import type { EdgeCache } from "./cache";
 import { edgeCache, edgeKey, forgetKept, JSON_TYPE, throughEdge } from "./cache";
+import { keepNone } from "./reply";
 
 export const DEDICATION_LIGHTS_PATH = "/api/dedication/lights";
 export const DEDICATION_LIGHT_PATH = "/api/dedication/light";
@@ -32,28 +33,6 @@ export const DEDICATION_MOST = 240;
 
 /** R-SERVER-045: how long the server's cache keeps the shared part. */
 export const DEDICATION_KEPT_MS = 5 * time.MINUTE_MS;
-
-/** R-SERVER-045: a light as everyone sees it: the name and years only once approved. */
-export interface SharedLight {
-  id: string;
-  name?: string;
-  years?: LightYears;
-}
-
-/** R-SERVER-045: the asker's own light in full. */
-export interface MyLight {
-  id: string;
-  name: string;
-  years: LightYears;
-  approved: boolean;
-}
-
-export interface DedicationReply {
-  ok: true;
-  count: number;
-  lights: SharedLight[];
-  mine?: MyLight;
-}
 
 /** R-SERVER-045: a light refused by the shared check, with what is wrong. */
 export interface BadLight extends ServerRejection {
@@ -104,7 +83,7 @@ async function readShared(deps: ServerDeps, edge: EdgeCache | null, origin: stri
 
 /** A reply that differs for each account: never kept by the browser. */
 function personal(c: Context<SessionEnv>, body: unknown, status: 200 | 400 | 401 = 200): Response {
-  c.header("cache-control", "private, no-store");
+  keepNone(c);
   return c.json(body, status);
 }
 
@@ -137,7 +116,8 @@ export function dedicationRoutes(deps: ServerDeps, edge: EdgeCache | null = edge
     }
     const lit = await deps.stores.dedication.light({ account: session.account, id: newId(deps, "light"), ...checked.light, litAt: now });
     await changed(c);
-    return personal(c, { ok: true, mine: myLight(lit) });
+    const reply: LitReply = { ok: true, mine: myLight(lit) };
+    return personal(c, reply);
   });
 
   route.delete(DEDICATION_LIGHT_PATH, limit(deps, "commands"), async (c) => {

@@ -4,12 +4,11 @@
 // differences between marks.
 import type { Alarm } from "@japacity/api";
 import type { Content, State, WalletSlice } from "@japacity/sim";
-import { int, prizesOwed, ledgerReport } from "@japacity/sim";
+import { int, ledgerReport, prizesOwed, time } from "@japacity/sim";
 import type { ByReason, LogRow, SegmentRow } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import { activeOn, noteActive } from "./active";
-import { dayStart } from "./day";
 import { contentNamed, stateNow } from "./replay";
 
 type MoneyDeps = Pick<ServerDeps, "config" | "contents" | "stores">;
@@ -127,8 +126,8 @@ export async function moneyReport(deps: MoneyDeps, day: number, active: readonly
 export function drawsClosingOn(deps: Pick<ServerDeps, "config">, day: number): number[] {
   const { epoch, worldTickMs } = deps.config.clock;
   const drawMs = TICKS_PER_DRAW * worldTickMs;
-  const from = dayStart(day);
-  const until = dayStart(day + 1);
+  const from = time.dayStart(day);
+  const until = time.dayStart(day + 1);
   const draws: number[] = [];
   for (let draw = Math.max(0, int.divCeil(from - epoch, drawMs) - 1); epoch + (draw + 1) * drawMs < until; draw += 1) {
     if (epoch + (draw + 1) * drawMs >= from) draws.push(draw);

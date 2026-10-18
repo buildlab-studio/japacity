@@ -3,7 +3,7 @@
 // lines, draws and instance numbers alike. The input state is never touched.
 import { checkWith, resolveAmount } from "./check";
 import type { EngineCtx, PrefixOf, Registry, SliceKey, TurnInProgress } from "./kind";
-import { prefixOf } from "./kind";
+import { prefixOf, readOf } from "./kind";
 import { characterRandom } from "./random";
 import { applyEventWith } from "./state";
 import type { BaseEvent, Cause, Content, Effect, EffectType, ReadCtx, ReportLine, State, Stream, World, Sender } from "./types";
@@ -37,10 +37,6 @@ export function openDraft(kinds: Registry, state: State, world: World, content: 
     lines: [],
     turn: null,
   };
-}
-
-export function readOf(draft: Draft): ReadCtx {
-  return { state: draft.state, world: draft.world, content: draft.content };
 }
 
 /** Which kind carries out each effect, by the part before the slash. */

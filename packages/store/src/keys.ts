@@ -1,5 +1,6 @@
 // R-PAIR-001: one record for any two characters. Ids compare by UTF-16 code
 // unit, the same order the transaction locks in, never by a locale's collation.
+import type { ConversationRow } from "./pair.types";
 
 /** The ascending order every store locks and sorts ids in. */
 export function compareIds(x: string, y: string): number {
@@ -20,4 +21,15 @@ export function pairIds(key: string): { a: string; b: string } | null {
   const [a, b] = parts;
   if (a === undefined || b === undefined || a === "" || b === "" || compareIds(a, b) >= 0) return null;
   return { a, b };
+}
+
+/** The distinct pair keys the rows name, in id order. */
+export function distinctPairKeys(rows: readonly { pair: string | null }[]): string[] {
+  return [...new Set(rows.flatMap((row) => (row.pair === null ? [] : [row.pair])))].sort(compareIds);
+}
+
+/** R-PAIR-011: the order a conversation is read in: by time, then by id in UTF-16 code unit order. */
+export function byTime(x: ConversationRow, y: ConversationRow): number {
+  if (x.sentAt !== y.sentAt) return x.sentAt - y.sentAt;
+  return compareIds(x.id, y.id);
 }

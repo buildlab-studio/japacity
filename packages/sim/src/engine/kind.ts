@@ -7,6 +7,7 @@ import type {
   Ctx,
   KindModule,
   Phase,
+  ReadCtx,
   ReportLine,
   ScenarioEntry,
   SlotPick,
@@ -140,6 +141,11 @@ function isEngineCtx(ctx: Ctx): ctx is EngineCtx {
 }
 
 /** The turn being resolved, or null outside `turn/end`. */
+/** What a reader takes: the state, the world and the content, from a step's context or its draft. */
+export function readOf(from: ReadCtx): ReadCtx {
+  return { state: from.state, world: from.world, content: from.content };
+}
+
 export function turnInProgress(ctx: Ctx): TurnInProgress | null {
   return isEngineCtx(ctx) ? ctx.turn : null;
 }

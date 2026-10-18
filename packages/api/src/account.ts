@@ -2,6 +2,13 @@
 // analytics.md R-ANALYTICS-006).
 import type { ServerRejection } from "./reply";
 
+/** R-ACCOUNT-024: a username's length, shortest and longest. */
+export const USERNAME_SHORTEST = 3;
+export const USERNAME_LONGEST = 20;
+
+/** R-ACCOUNT-024: letters, digits and underscore. The reserved and blocked lists stay the server's. */
+export const USERNAME = new RegExp(`^[A-Za-z0-9_]{${String(USERNAME_SHORTEST)},${String(USERNAME_LONGEST)}}$`);
+
 /** The body of `POST /api/age`. */
 export interface AgeRequest {
   dateOfBirth: string;

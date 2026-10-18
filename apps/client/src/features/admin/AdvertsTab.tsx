@@ -4,11 +4,12 @@
 // counts (R-ADVERT-020). Pulling and rechecking a live campaign send it back to
 // review.
 import type { AdminRefusal, CampaignRow, CampaignStatus, ReviewBody, ReviewedCreative } from "@japacity/api";
+import { time } from "@japacity/sim";
 import { useId, useState } from "react";
 
 import { Tag } from "../../shared/ui/Panel";
 import { formatNumber } from "../../shared/words/format";
-import { utcDate, utcTime } from "./admin.format";
+import { utcTime } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi, Outcome } from "./api";
 import { Confirm, Field, Loaded, ReloadButton, Section, Table, useLoad } from "./admin.ui";
@@ -128,7 +129,7 @@ function CampaignCard({ api, row, onDone }: { api: AdminApi; row: CampaignRow; o
       <Table
         caption={words("admin.counts")}
         head={[words("admin.counts.day"), words("admin.counts.slot"), words("admin.counts.region"), words("admin.counts.impressions"), words("admin.counts.taps")]}
-        rows={counts.map((count) => [utcDate(count.day), count.slot, count.region, formatNumber(count.impressions), formatNumber(count.taps)])}
+        rows={counts.map((count) => [time.dayName(count.day), count.slot, count.region, formatNumber(count.impressions), formatNumber(count.taps)])}
       />
     </li>
   );

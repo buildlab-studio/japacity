@@ -3,16 +3,15 @@ import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { dayName, dayNumber } from "./day";
 import { buildStats, statsFrom } from "./stats";
 import type { StatsInput } from "./stats";
 import { STATS_KEYS } from "./stats";
 
 const { minShown } = content.tuning.analytics;
-const TODAY = dayNumber("2026-10-21") ?? 0;
+const TODAY = time.dayNumber("2026-10-21") ?? 0;
 const YESTERDAY = TODAY - 1;
 const NOW = TODAY * time.DAY_MS + 9 * time.HOUR_MS;
-const row = (day: number, name: string, key: string, count: number, region = "NG"): CounterTotal => ({ day: dayName(day), region, name, key, count });
+const row = (day: number, name: string, key: string, count: number, region = "NG"): CounterTotal => ({ day: time.dayName(day), region, name, key, count });
 
 function input(totals: CounterTotal[], over: Partial<StatsInput> = {}): StatsInput {
   return { now: NOW, today: TODAY, totals, online: [], todayPlayers: [], ...over };
@@ -89,10 +88,10 @@ describe("the admin's numbers", () => {
 
   test("[R-ANALYTICS-012] given a day of 9:00, when the numbers are built, then today is the day so far, the 7 and 30 days end yesterday, and the totals are yesterday's", () => {
     const stats = buildStats(content, input([]));
-    expect([stats.today.from, stats.today.to]).toEqual([dayName(TODAY), dayName(TODAY)]);
-    expect([stats.last7.from, stats.last7.to]).toEqual([dayName(YESTERDAY - 6), dayName(YESTERDAY)]);
-    expect([stats.last30.from, stats.last30.to]).toEqual([dayName(YESTERDAY - 29), dayName(YESTERDAY)]);
-    expect(stats.totals.day).toBe(dayName(YESTERDAY));
+    expect([stats.today.from, stats.today.to]).toEqual([time.dayName(TODAY), time.dayName(TODAY)]);
+    expect([stats.last7.from, stats.last7.to]).toEqual([time.dayName(YESTERDAY - 6), time.dayName(YESTERDAY)]);
+    expect([stats.last30.from, stats.last30.to]).toEqual([time.dayName(YESTERDAY - 29), time.dayName(YESTERDAY)]);
+    expect(stats.totals.day).toBe(time.dayName(YESTERDAY));
     expect(stats.now.at).toBe(NOW);
     for (const week of stats.retention.weeks) expect(new Date(`${week.week}T00:00:00Z`).getUTCDay()).toBe(1);
   });

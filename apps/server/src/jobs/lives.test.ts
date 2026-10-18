@@ -3,12 +3,10 @@
 // Postgres (PGlite, the committed migrations).
 import { pgCounterStore } from "@japacity/db";
 import type { State } from "@japacity/sim";
-import { newState } from "@japacity/sim";
+import { newState, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { freshDatabases, postgresStores } from "../postgres.testing";
 import { newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
@@ -101,8 +99,8 @@ for (const [where, make] of [
     test("[R-ACCOUNT-031] [R-ANALYTICS-008] given lives at home, abroad, on the road, ended, and with an account gone or moved on, when the day is counted, then only the lives being played are counted, by where each stands, under its region and the whole game's, once a day, with no name in the result and no log line", async () => {
       const server = await make();
       await world(server);
-      const day = utcDay(server.deps.now());
-      const named = dayName(day);
+      const day = time.utcDay(server.deps.now());
+      const named = time.dayName(day);
       const lines = [vi.spyOn(console, "log"), vi.spyOn(console, "error"), vi.spyOn(console, "warn")];
 
       const first = await countLives(server.deps, day);
@@ -127,8 +125,8 @@ for (const [where, make] of [
 describe("the nightly job of lives", () => {
   test("[R-ACCOUNT-031] given no life at all, when the job runs at 00:00, then the day just ended is counted with the whole game's three keys at 0, so the lights know the count has run", async () => {
     const server = testServer();
-    const today = utcDay(server.deps.now());
-    const yesterday = dayName(today - 1);
+    const today = time.utcDay(server.deps.now());
+    const yesterday = time.dayName(today - 1);
 
     expect(LIVES_CRON).toBe("0 0 * * *");
     expect(await livesJob(server.deps)).toEqual({ day: yesterday, added: true, lives: { home: 0, abroad: 0, road: 0 }, skipped: 0 });
@@ -145,7 +143,7 @@ describe("the nightly job of lives", () => {
     await account(server, "account.tunde", "NG");
     await storedLife(server, "account.tunde", "character-tunde", (each) => each);
 
-    const counted = await countLives(server.deps, utcDay(server.deps.now()));
+    const counted = await countLives(server.deps, time.utcDay(server.deps.now()));
 
     expect(counted.lives).toEqual({ home: 1, abroad: 0, road: 0 });
     expect(counted.skipped).toBe(1);

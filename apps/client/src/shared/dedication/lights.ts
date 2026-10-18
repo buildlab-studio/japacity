@@ -3,35 +3,13 @@
 // among it, and the two writes, lighting one and putting it out. Shared because the dedication page draws the lights
 // and the map's lantern canoe carries a second lantern once the account's own is lit. Offline, in a build with no
 // server, or when the read fails, the water is out of reach and nothing is guessed. Nothing here is counted.
+import type { DedicationReply, LitReply, MyLight, SharedLight } from "@japacity/api";
 import type { LightProblem } from "@japacity/content";
 import { useEffect, useSyncExternalStore } from "react";
 
 import { authorityMode } from "../net/authorityMode";
 import { api, type Api } from "../net/http";
 import type { WallGuard } from "../net/wall";
-
-/** R-SERVER-045: a light as everyone sees it: its name and years only once approved. */
-export interface SharedLight {
-  id: string;
-  name?: string;
-  years?: { from: number | null; to: number | null };
-}
-
-/** R-SERVER-045: the account's own light in full. */
-export interface MyLight {
-  id: string;
-  name: string;
-  years: { from: number | null; to: number | null };
-  approved: boolean;
-}
-
-/** R-SERVER-045: the read's reply. */
-export interface DedicationReply {
-  ok: true;
-  count: number;
-  lights: SharedLight[];
-  mine?: MyLight;
-}
 
 /** What the client knows of the water: not asked yet, being asked, out of reach, or the lights as last read. */
 export type Water = { kind: "unasked" } | { kind: "asking" } | { kind: "out" } | { kind: "read"; count: number; lights: SharedLight[]; mine: MyLight | null };
@@ -112,12 +90,12 @@ export async function readLights(): Promise<Water> {
 }
 
 /** R-ACCOUNT-033: lights the account's light; the reply's own light shows at once and the count takes it in. */
-export async function lightOne(sent: { name: string; from: number | null; to: number | null }): Promise<{ ok: true; mine: MyLight } | LightRefused> {
+export async function lightOne(sent: { name: string; from: number | null; to: number | null }): Promise<LitReply | LightRefused> {
   const asked = serverNow();
   if (asked === null) return { ok: false, out: true };
   try {
     const body = { name: sent.name, ...(sent.from === null ? {} : { from: sent.from }), ...(sent.to === null ? {} : { to: sent.to }) };
-    const reply = await asked.put<{ ok: true; mine: MyLight } | { ok: false; code: string; problems?: LightProblem[] }>("/api/dedication/light", body);
+    const reply = await asked.put<LitReply | { ok: false; code: string; problems?: LightProblem[] }>("/api/dedication/light", body);
     if (!reply.ok) return reply.code === "bad-light" ? { ok: false, problems: reply.problems ?? [] } : { ok: false, out: true };
     const before = water;
     if (before.kind === "read") {

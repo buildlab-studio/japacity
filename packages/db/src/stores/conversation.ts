@@ -1,19 +1,13 @@
 import type { ConversationRow, ConversationStore } from "@japacity/store";
+import { byTime, refuse } from "@japacity/store";
 import { and, eq, gte, inArray, isNull, ne, or, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { conversationRows } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toRow(row: typeof conversationRows.$inferSelect): ConversationRow {
   return { id: row.id, conversation: row.conversation, sender: row.sender, phrase: row.phrase as ConversationRow["phrase"], fill: row.fill, sentAt: row.sentAt, readAt: row.readAt };
-}
-
-/** R-PAIR-011: by time, then by id in UTF-16 code unit order, as the memory store reads them. */
-function byTime(x: ConversationRow, y: ConversationRow): number {
-  if (x.sentAt !== y.sentAt) return x.sentAt - y.sentAt;
-  if (x.id === y.id) return 0;
-  return x.id < y.id ? -1 : 1;
 }
 
 /** R-PAIR-011: the stored phrases; order is worked out in JavaScript so no collation decides it. */

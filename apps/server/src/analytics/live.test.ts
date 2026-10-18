@@ -1,20 +1,18 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../ops/day";
 import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { harness } from "../auth/auth.testing";
 import { testConfig } from "../config";
 import { testSession } from "../deps";
-import { dayName } from "./day";
 
 describe("counted the moment the server acts", () => {
   test("[R-ANALYTICS-008] [R-ACCOUNT-023] given a guest made one day and secured the next, when it secures, then it is counted as secured and as the funnel's last step that day, and on its sign-up day for conversion, by region", async () => {
     // The auth library dates the age pass by the machine's clock, so the test starts there.
     let now = Date.now();
     const h = harness({ now: () => now });
-    const signedUp = utcDay(now);
+    const signedUp = time.utcDay(now);
     const { jar } = await h.guest(undefined, { country: "GB" });
     now += time.DAY_MS;
 
@@ -22,9 +20,9 @@ describe("counted the moment the server acts", () => {
 
     const rows = await h.deps.stores.counters.days("2000-01-01", "2100-01-01");
     expect(rows.filter((row) => row.name !== "command/rejected" && row.name !== "analytics/dropped")).toEqual([
-      { day: dayName(signedUp), region: "GB", name: "players/secured-by-signup", key: "GB", count: 1 },
-      { day: dayName(signedUp + 1), region: "GB", name: "funnel/step", key: "secured", count: 1 },
-      { day: dayName(signedUp + 1), region: "GB", name: "players/secured", key: "GB", count: 1 },
+      { day: time.dayName(signedUp), region: "GB", name: "players/secured-by-signup", key: "GB", count: 1 },
+      { day: time.dayName(signedUp + 1), region: "GB", name: "funnel/step", key: "secured", count: 1 },
+      { day: time.dayName(signedUp + 1), region: "GB", name: "players/secured", key: "GB", count: 1 },
     ]);
   });
 
@@ -39,7 +37,7 @@ describe("counted the moment the server acts", () => {
     expect((await send("account.b", "Love the radio.", "GB")).status).toBe(200);
     expect((await send("account.c", "", "NG")).status).toBe(400);
 
-    const day = dayName(utcDay(deps.now()));
+    const day = time.dayName(time.utcDay(deps.now()));
     const rows = (await deps.stores.counters.days(day, day)).filter((row) => row.name === "feedback/sent");
     expect(rows).toEqual([
       { day, region: "GB", name: "feedback/sent", key: "GB", count: 1 },

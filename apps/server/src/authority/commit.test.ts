@@ -3,7 +3,6 @@ import { describe, expect, test } from "vitest";
 
 import { activeOn } from "../ops/active";
 import { listAlarms } from "../ops/alarm";
-import { utcDay } from "../ops/day";
 import { moneyJob } from "../jobs/money";
 import { accepted, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 
@@ -11,7 +10,7 @@ describe("what follows a commit", () => {
   test("[R-SERVER-011] [R-SERVER-002] given a character that plays a month on one day and another on the next, when each commits, then the mark sits on the commit's day and the first day's month is closed into the first day's totals by the second day's first commit, the second day's own month waiting for its close", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
-    const first = utcDay(server.deps.now());
+    const first = time.utcDay(server.deps.now());
     // Under decision 0013 a month at home charges no living as it turns, so a month rested with no job moves no money and
     // the day's totals would not change; the first day's month eats a meal, paid at once, so money moves that day. The
     // family house's pot is free, so the meal is one of your own, bought.
@@ -37,7 +36,7 @@ describe("what follows a commit", () => {
     const played = testServer();
     const character = await newLife(played, "acc-1");
     accepted((await send(played, "acc-1", restMonth({ v: 0 }))).body);
-    const day = utcDay(played.deps.now());
+    const day = time.utcDay(played.deps.now());
     played.wait(time.DAY_MS);
     // A fresh ledger store stands for another isolate: its in-memory list is empty.
     const elsewhere = { ...played.deps, stores: { ...played.deps.stores, ledger: { ...played.deps.stores.ledger } } };
@@ -65,6 +64,6 @@ describe("what follows a commit", () => {
 
     for (let attempt = 0; attempt < 2; attempt += 1) expect((await view(server, "acc-1")).body).toMatchObject({ ok: false, code: "diverged" });
 
-    expect(await listAlarms(server.deps)).toEqual([{ kind: "diverged", day: utcDay(server.deps.now()), character: broken, v: 2 }]);
+    expect(await listAlarms(server.deps)).toEqual([{ kind: "diverged", day: time.utcDay(server.deps.now()), character: broken, v: 2 }]);
   });
 });

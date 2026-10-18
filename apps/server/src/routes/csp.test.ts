@@ -1,13 +1,12 @@
 // R-SERVER-041: the page's content policy reports to the server, and
 // each report leaves one log line of three fields and one count, nothing of the person who met it.
+import { time } from "@japacity/sim";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { MockInstance } from "vitest";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { NO_REGION } from "../analytics/list";
 import { testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
@@ -64,7 +63,7 @@ async function post(server: ReturnType<typeof testServer>, body: string, content
 }
 
 async function counted(server: ReturnType<typeof testServer>): Promise<{ region: string; key: string; count: number }[]> {
-  const day = dayName(utcDay(server.deps.now()));
+  const day = time.dayName(time.utcDay(server.deps.now()));
   const rows = await server.deps.stores.counters.days(day, day);
   return rows.filter((row) => row.name === CSP_COUNTER).map(({ region, key, count }) => ({ region, key, count }));
 }

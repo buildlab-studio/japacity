@@ -4,6 +4,7 @@
 // unmet items, and the first early win found. Nothing in the simulation
 // imports this file.
 import type { Content, Id, PlayerView, ReportLine, Requirement, SlotPick } from "../engine/types";
+import { earlyWinIn } from "../guide/guide.earlyWin";
 import { legalCommands } from "./legal";
 import type { Game, Loose } from "./play";
 import { start } from "./play";
@@ -25,27 +26,6 @@ export interface FirstSession {
   months: { slots: SlotPick[]; lines: ReportLine[] }[];
   /** The month (1 to 3) and the line of the first early win, or null. */
   earlyWin: { month: number; line: ReportLine } | null;
-}
-
-/** Pay from a job or a gig, or a hunt that lands. */
-const PAY = new Set([
-  "line.activity.salary",
-  "line.activity.salary-first-foreign",
-  "line.activity.salary-first-abroad",
-  "line.activity.side-pay",
-  "line.activity.gig",
-  "line.activity.overtime",
-  "line.activity.hunt-hired",
-]);
-const MET = new Set(["line.chapter.closed", "line.goal.done"]);
-const HEARD = new Set(["line.route.heard", "line.route.looked-into"]);
-const REST: Id<"activity"> = "activity.rest";
-
-/** R-GUIDE-014: a good line that follows from the player's choice. A route heard counts only in a month not left to rest. */
-export function isEarlyWin(line: ReportLine, slots: readonly SlotPick[]): boolean {
-  if (line.tone !== "good") return false;
-  if (PAY.has(line.key) || MET.has(line.key)) return true;
-  return HEARD.has(line.key) && slots.some((slot) => slot.activity !== REST);
 }
 
 function pick(view: PlayerView, activity: string, param?: string): SlotPick | null {
@@ -131,8 +111,8 @@ export function playFirstSession(life: StartingLife, content: Content, options: 
     const slots = nextStep(game.view(), content);
     const { lines } = game.endTurn(slots);
     months.push({ slots, lines });
-    const line = lines.find((found) => isEarlyWin(found, slots));
-    if (earlyWin === null && line !== undefined) earlyWin = { month, line };
+    const line = earlyWinIn(lines, slots);
+    if (earlyWin === null && line !== null) earlyWin = { month, line };
   }
   return { life, path, months, earlyWin };
 }

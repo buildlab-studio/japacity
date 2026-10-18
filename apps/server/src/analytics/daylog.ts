@@ -4,16 +4,16 @@
 // (ops/active.ts, filled by markAfterCommit), and the accounts created on
 // the day are found among their accounts. The Worker's jobs read the
 // Postgres `pgDayLog` from packages/db instead (index.ts).
+import { time } from "@japacity/sim";
 import type { AccountRow, DayLog } from "@japacity/store";
 
 import { activeOn } from "../ops/active";
-import { utcDay } from "../ops/day";
 import type { ServerDeps } from "../deps";
 
 export function isolateDayLog(deps: Pick<ServerDeps, "stores">): DayLog {
   const activeIn = (start: number, end: number): string[] => {
     const found = new Set<string>();
-    for (let day = utcDay(start); day <= utcDay(end - 1); day += 1) for (const character of activeOn(deps, day)) found.add(character);
+    for (let day = time.utcDay(start); day <= time.utcDay(end - 1); day += 1) for (const character of activeOn(deps, day)) found.add(character);
     return [...found].sort();
   };
   return {

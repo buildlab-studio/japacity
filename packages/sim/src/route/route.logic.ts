@@ -3,9 +3,10 @@
 // and its rules are carried out here.
 import { heldBand, takesApplication } from "../activity/activity.logic";
 import { check, worldVar, worldVarOr } from "../engine/check";
+import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, ownOf } from "../engine/kind";
+import { emit, ownOf, readOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -47,7 +48,6 @@ import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
-const GRADE: Id<"quality"> = "quality.edu-grade";
 /** The university's confirmation, granted with the deposit and voided by a refusal. */
 const CAS: Id<"document"> = "document.cas";
 const LIVING_LINE: Id<"var"> = "var.uk-living-line";
@@ -98,8 +98,6 @@ export function unknownRoute(gate: RouteGate = "study"): RouteState {
 // Reading
 // ---------------------------------------------------------------------------
 
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
-
 function entryOf(content: Content, id: Id<"route">): RouteEntry {
   const entry = content.route[id];
   if (entry === undefined) throw new Error(`The content has no route ${id}.`);
@@ -129,9 +127,8 @@ function ukVar(read: ReadCtx, id: Id<"var">): number {
 }
 
 function grade(state: State): number {
-  return state.quality[GRADE] ?? 0;
+  return state.quality[QUALITY.eduGrade] ?? 0;
 }
-
 
 /** R-ROUTE-005: the route's window, from its world variable. 0 closed, 1 narrowing, 2 open. */
 function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {

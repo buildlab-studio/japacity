@@ -3,7 +3,7 @@ import type { Nudge } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
-import { countryOf } from "../routes/place";
+import { countryOf } from "../account/country";
 import { pickRoom, roomName } from "./place.rooms";
 import { NUDGE_EVERY_MS, nudgeText, parseAttachment, parseLimits, tagsFor } from "./place.socket";
 import type { Attachment } from "./place.socket";

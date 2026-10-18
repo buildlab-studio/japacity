@@ -4,7 +4,7 @@
 // lives, and the other side nudged to fetch.
 import type { ConversationRead, PairRead, Said } from "@japacity/api";
 import type { ConversationRow, Id, PairRecord } from "@japacity/sim";
-import { canSay, fillOptions, pairView, saidMoment, time, viewFor } from "@japacity/sim";
+import { canSay, fillOptions, pairView, saidMoment, time, toHex, viewFor } from "@japacity/sim";
 
 import { characterOf } from "../authority/command";
 import type { ServerDeps } from "../deps";
@@ -17,10 +17,6 @@ import { silenced } from "./restricted";
 import { pairStep, sideLive, sideOf, unusual } from "./step";
 
 const MESSAGE_BYTES = 12;
-
-function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
 
 /** The record and the reader's side, or null when the reader is not in it. */
 export async function readable(deps: ServerDeps, account: string, key: string): Promise<{ character: string; record: PairRecord; side: "a" | "b" } | null> {
@@ -59,7 +55,7 @@ export async function say(deps: ServerDeps, account: string, key: string, body: 
   }
   const now = deps.now();
   const sent = await deps.stores.conversation.sentSince(key, character, now - time.HOUR_MS);
-  const message: ConversationRow = { id: `message-${hex(deps.randomBytes(MESSAGE_BYTES))}`, conversation: key, sender: character, phrase: phrase.id, fill, sentAt: now, readAt: null };
+  const message: ConversationRow = { id: `message-${toHex(deps.randomBytes(MESSAGE_BYTES))}`, conversation: key, sender: character, phrase: phrase.id, fill, sentAt: now, readAt: null };
 
   const outcome = await pairStep(deps, key, ({ book, turn, lives, live }) => {
     const speaker = live(character);

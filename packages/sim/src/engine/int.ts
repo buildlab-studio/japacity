@@ -93,6 +93,11 @@ export function bp(amount: number, basisPoints: number): number {
   return mulDiv(amount, basisPoints, BP_WHOLE);
 }
 
+/** True for a safe integer, of any sign; anything else, a fraction or not a number at all, is not whole. */
+export function isWhole(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value);
+}
+
 /** n kept between min and max, both included. No rounding. */
 export function clamp(n: number, min: number, max: number): number {
   assertInt(n, "clamp: n");

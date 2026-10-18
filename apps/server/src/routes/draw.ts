@@ -3,7 +3,7 @@
 // session. The secret leaves only inside the published result (R-SERVER-015).
 // Kept in the server's cache (the Cache API beside the Worker) by the draw's number for as long as a browser may
 // keep it (server.md R-SERVER-039).
-import type { DrawReply, ServerRejection } from "@japacity/api";
+import type { DrawReply } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { Hono } from "hono";
 
@@ -14,10 +14,11 @@ import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
 import type { EdgeCache } from "./cache";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdgeIfAny } from "./cache";
+import { rejection } from "./reply";
 
 /** How long a reply may be cached, in seconds: a published result never changes. */
 const OPEN_MAX_AGE = 60;
-const DRAWN_MAX_AGE = 86400;
+const DRAWN_MAX_AGE = time.DAY_S;
 
 /**
  * The reply for draw `n`, or null when no such draw is stored. The list is the
@@ -32,9 +33,6 @@ async function drawReply(deps: ServerDeps, draw: number): Promise<DrawReply | nu
   return { ...base, list: row.list, count: row.list.length, listHash: row.listHash, result: row.result };
 }
 
-function refused(detail: string): ServerRejection {
-  return { ok: false, code: "not-legal", detail };
-}
 
 /**
  * R-SERVER-039: the limit first, then the cache by the draw's number, then the
@@ -46,7 +44,7 @@ export function drawRoute(deps: ServerDeps, edge: EdgeCache | null = edgeCache()
   route.get("/api/draw/:n", limit(deps, "reads"), async (c) => {
     const asked = c.req.param("n");
     const draw = /^\d{1,9}$/.test(asked) ? Number(asked) : null;
-    if (draw === null) return c.json(refused("A draw is a whole number from 0."), 400);
+    if (draw === null) return c.json(rejection("not-legal", "A draw is a whole number from 0."), 400);
     const now = deps.now();
     const served = await throughEdgeIfAny(edge, edgeKey(new URL(c.req.url).origin, ["draw", draw]), now, async () => {
       const reply = await drawReply(deps, draw);
@@ -54,7 +52,7 @@ export function drawRoute(deps: ServerDeps, edge: EdgeCache | null = edgeCache()
       const maxAge = reply.result === null ? OPEN_MAX_AGE : DRAWN_MAX_AGE;
       return { body: JSON.stringify(reply), type: JSON_TYPE, freshUntil: now + maxAge * time.SECOND_MS };
     });
-    if (served === null) return c.json(refused(`There is no draw ${String(draw)}.`), 404);
+    if (served === null) return c.json(rejection("not-legal", `There is no draw ${String(draw)}.`), 404);
     return sent(c, served);
   });
   return route;

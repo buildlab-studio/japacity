@@ -3,10 +3,9 @@
 // sent. Only the day's totals by region are written; the account is read for
 // its region and its sign-up day and goes no further (R-ANALYTICS-007). A
 // counter that fails to write is never something the player sees.
-import { utcDay } from "../ops/day";
+import { time } from "@japacity/sim";
 import type { ServerDeps } from "../deps";
-import { dayName } from "./day";
-import { NO_REGION } from "./list";
+import { regionOf, requestRegion } from "./list";
 
 type Deps = Pick<ServerDeps, "stores" | "now">;
 
@@ -27,12 +26,12 @@ export function countSecured(deps: Deps, account: string): Promise<void> {
   return quietly(async () => {
     const row = await deps.stores.account.get(account);
     if (row === null) return;
-    const region = row.country === "" ? NO_REGION : row.country;
-    const day = dayName(utcDay(deps.now()));
+    const region = regionOf(row);
+    const day = time.dayName(time.utcDay(deps.now()));
     await deps.stores.counters.add([
       { day, region, name: "players/secured", key: region, count: 1 },
       { day, region, name: "funnel/step", key: "secured", count: 1 },
-      { day: dayName(utcDay(row.createdAt)), region, name: "players/secured-by-signup", key: region, count: 1 },
+      { day: time.dayName(time.utcDay(row.createdAt)), region, name: "players/secured-by-signup", key: region, count: 1 },
     ]);
   });
 }
@@ -40,7 +39,7 @@ export function countSecured(deps: Deps, account: string): Promise<void> {
 /** R-MODERATION-020: one piece of feedback kept, counted by the region it came from. */
 export function countFeedback(deps: Deps, country: string | null): Promise<void> {
   return quietly(async () => {
-    const region = country === null || !/^[A-Z]{2}$/.test(country) ? NO_REGION : country;
-    await deps.stores.counters.add([{ day: dayName(utcDay(deps.now())), region, name: "feedback/sent", key: region, count: 1 }]);
+    const region = requestRegion(country);
+    await deps.stores.counters.add([{ day: time.dayName(time.utcDay(deps.now())), region, name: "feedback/sent", key: region, count: 1 }]);
   });
 }

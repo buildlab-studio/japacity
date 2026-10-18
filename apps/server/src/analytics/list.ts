@@ -8,6 +8,16 @@ export type DropReason = "signed-out" | "size" | "shape" | "rate" | "name" | "ke
 /** The unknown region, as the account's country is stored when Cloudflare gave none. */
 export const NO_REGION = "XX";
 
+/** An account's region: its country, or the unknown region once the account is gone or when it has none. */
+export function regionOf(account: { country: string } | null): string {
+  return account === null || account.country === "" ? NO_REGION : account.country;
+}
+
+/** A request's region: Cloudflare's two-letter country, or the unknown region for anything else. */
+export function requestRegion(country: string | null): string {
+  return country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
+}
+
 /** R-ANALYTICS-013: the region a whole-game figure is kept under, such as the day's online peak; no account's region is ever this. */
 export const WHOLE_GAME = "all";
 
