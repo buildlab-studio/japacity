@@ -9,12 +9,12 @@ import type { Campaign, NamedPlace } from "@japacity/store";
 import type { Context } from "hono";
 import { Hono } from "hono";
 
-import { campaignChecks, campaignRefusals, creativeChecks, creativeFile, statusAt } from "../../adverts/campaign";
-import type { CampaignDraft } from "../../adverts/campaign";
-import type { Fetcher } from "../../adverts/links";
-import { failingLinks } from "../../adverts/links";
-import type { Decided, Decision } from "../../adverts/review";
-import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from "../../adverts/review";
+import { campaignChecks, campaignRefusals, creativeChecks, creativeFile, statusAt } from "../../advert/campaign";
+import type { CampaignDraft } from "../../advert/campaign";
+import type { Fetcher } from "../../advert/links";
+import { failingLinks } from "../../advert/links";
+import type { Decided, Decision } from "../../advert/review";
+import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from "../../advert/review";
 import type { ServerDeps } from "../../deps";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";

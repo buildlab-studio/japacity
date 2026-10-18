@@ -8,7 +8,7 @@ import type { WorldStore, WorldTickRow } from "@japacity/store";
 
 import { tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { placeNamesAt } from "../adverts/names";
+import { placeNamesAt } from "../advert/names";
 import { lotteryFor } from "./lottery.world";
 
 /** R-CLOCK-014: Lagos keeps UTC+1 all year. */

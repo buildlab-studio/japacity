@@ -12,8 +12,8 @@ import type { AdvertsReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
-import { advertRegion, statusAt } from "../adverts/campaign";
-import { emptyReply, hourOf, servedAt } from "../adverts/serve";
+import { advertRegion, statusAt } from "../advert/campaign";
+import { emptyReply, hourOf, servedAt } from "../advert/serve";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";

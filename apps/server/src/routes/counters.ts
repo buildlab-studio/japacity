@@ -7,8 +7,8 @@ import type { CounterTotal } from "@japacity/store";
 import { Hono } from "hono";
 
 import { utcDay } from "../ops/day";
-import { advertRegion } from "../adverts/campaign";
-import { addAdvertCounters, withinAccountDay } from "../adverts/counts";
+import { advertRegion } from "../advert/campaign";
+import { addAdvertCounters, withinAccountDay } from "../advert/counts";
 import { checkBatch, isDoorRow } from "../analytics/batch";
 import { dayName } from "../analytics/day";
 import type { DropReason } from "../analytics/list";

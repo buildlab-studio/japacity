@@ -6,17 +6,17 @@ import { describe, expect, test, vi } from "vitest";
 
 import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
-import { addAdvertCounters, ADVERT_COUNTERS } from "../adverts/counts";
-import { advertLinksJob, recheckWindow } from "../adverts/job";
-import type { Fetcher } from "../adverts/links";
-import { base64, jpegOf, pngOf, webpOf } from "../adverts/adverts.testing";
+import { addAdvertCounters, ADVERT_COUNTERS } from "../advert/counts";
+import { advertLinksJob, recheckWindow } from "../advert/job";
+import type { Fetcher } from "../advert/links";
+import { base64, jpegOf, pngOf, webpOf } from "../advert/advert.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { testSession } from "../deps";
 import { tickPeriodMs, TICKS_CRON } from "../jobs/ticks";
 import { tickRow } from "../world/ticks";
-import { adminAdvertRoutes } from "./admin/adverts";
-import { ADVERT_KEPT_MS, advertRoutes, advertsOnByDefault } from "./adverts";
+import { adminAdvertRoutes } from "./admin/advert";
+import { ADVERT_KEPT_MS, advertRoutes, advertsOnByDefault } from "./advert";
 import { edgeKey } from "./cache";
 import { fakeEdge } from "./cache.testing";
 
