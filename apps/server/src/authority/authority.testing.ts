@@ -8,6 +8,7 @@ import type { Held } from "@japacity/store";
 import type { Hono } from "hono";
 
 import { makeApp } from "../app";
+import { seededBytes } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { memoryStores, openLimiters, testSession } from "../deps";
@@ -24,7 +25,6 @@ export interface TestServer {
 /** A test server at the epoch, with `over` in place of any dependency. */
 export function testServer(over: Partial<ServerDeps> = {}): TestServer {
   let now = over.config?.clock.epoch ?? productionConfig.clock.epoch;
-  let seed = 7;
   const config = over.config ?? testConfig({ testing: { testLogin: true } });
   const deps: ServerDeps = {
     config,
@@ -34,7 +34,7 @@ export function testServer(over: Partial<ServerDeps> = {}): TestServer {
     limits: openLimiters,
     session: testSession(config),
     now: () => now,
-    randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
+    randomBytes: seededBytes(7),
     ...over,
   };
   return {

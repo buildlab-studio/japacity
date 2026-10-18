@@ -10,6 +10,7 @@ import type { Hono } from "hono";
 
 import { TURNSTILE_ACTION, TURNSTILE_TEST } from "../account/turnstile";
 import { makeApp } from "../app";
+import { seededBytes } from "../app.testing";
 import { testConfig } from "../config";
 import type { ServerConfig } from "../config";
 import { memoryStores, openLimiters } from "../deps";
@@ -115,7 +116,6 @@ export function harness(options: HarnessOptions = {}): Harness {
   const notices: AuthNotice[] = [];
   const background: Promise<unknown>[] = [];
   const tables = memoryAuthTables();
-  let seed = 7;
   const base: ServerDeps = {
     config,
     stores: options.stores ?? memoryStores(),
@@ -124,7 +124,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     limits: options.limits ?? openLimiters,
     session: () => Promise.resolve(null),
     now: options.now ?? (() => Date.now()),
-    randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
+    randomBytes: seededBytes(7),
   };
   const keys: AuthKeys = {
     secret: SECRET,
