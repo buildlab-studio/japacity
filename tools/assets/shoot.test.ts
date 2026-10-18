@@ -5,14 +5,14 @@ import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, SOURCE } from "./catalog";
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 import { listFiles, sourceFiles } from "./assets-check";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
 import { FACE_SHOT, FIGURE_SHOT, mergeRecords, PHONE_SHOT, PORTRAIT_POSES, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
 import { signText } from "./stage-browser";
 
-const config = JSON.parse(readFileSync(join(SOURCE, "review.config.json"), "utf8")) as { phoneShot: Record<string, number>; criteria: { key: string }[] };
+const config = readJson<{ phoneShot: Record<string, number>; criteria: { key: string }[] }>(join(SOURCE, "review.config.json"));
 const stage = readFileSync(join(SOURCE, "stage", "stage.ts"), "utf8");
 
 describe("the fixed views", () => {
@@ -45,7 +45,7 @@ describe("the fixed views", () => {
   });
 
   test("[R-ASSET-021] given the examples sheet, when it is read, then it names the six examples the catalog ships, with their round-two totals and the bars 21, 21 and 20 of 35", () => {
-    const examples = JSON.parse(readFileSync(join(SOURCE, "examples.json"), "utf8")) as { bar: Record<string, number>; examples: { name: string; file: string; roundTwo: Record<string, number>; roundTwoTotal: number }[] };
+    const examples = readJson<{ bar: Record<string, number>; examples: { name: string; file: string; roundTwo: Record<string, number>; roundTwoTotal: number }[] }>(join(SOURCE, "examples.json"));
     expect(examples.examples.map((e) => e.name).sort()).toEqual(CATALOG.filter((e) => e.example === true).map((e) => e.name).sort());
     for (const e of examples.examples) {
       expect(Object.values(e.roundTwo).reduce((a, b) => a + b, 0)).toBe(e.roundTwoTotal);
@@ -65,7 +65,7 @@ describe("the fixed views", () => {
     expect(keys.length).toBeGreaterThanOrEqual(12);
     for (const key of keys) expect({ key, said: words[key] }).toEqual({ key, said: text[key] });
     expect(Object.values(words).every((said) => said.trim() !== "")).toBe(true);
-    expect(Object.keys(JSON.parse(readFileSync(join(SOURCE, "signs.json"), "utf8")) as object)).toEqual(["note"]);
+    expect(Object.keys(readJson<object>(join(SOURCE, "signs.json")))).toEqual(["note"]);
   });
 });
 

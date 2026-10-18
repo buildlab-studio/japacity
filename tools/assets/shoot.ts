@@ -16,7 +16,7 @@ import { type PoseName, poseRotations } from "@japacity/assets-src/people/poses"
 import type { Page } from "@playwright/test";
 
 import { type CatalogEntry, findEntries, PUBLIC, type ViewName } from "./catalog";
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 import { readManifest, sha256, writeManifest } from "./manifest";
 import { openStage, signText, type Stage } from "./stage-browser";
 
@@ -127,7 +127,7 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
     await context.close();
   }
   const manifestPath = join(dir, "manifest.json");
-  const kept = only !== null && existsSync(manifestPath) ? (JSON.parse(readFileSync(manifestPath, "utf8")) as { renders: RenderRecord[] }).renders : [];
+  const kept = only !== null && existsSync(manifestPath) ? readJson<{ renders: RenderRecord[] }>(manifestPath).renders : [];
   const glb = readFileSync(join(PUBLIC, entry.file));
   const renderManifest = {
     asset: entry.name,

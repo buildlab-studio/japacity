@@ -8,6 +8,7 @@ import { bakeGroup } from "./bake";
 import { CATALOG, PUBLIC, SOURCE } from "./catalog";
 import { measure, readGlb, toDocument, writeGlb } from "./glb";
 import { checkPalette } from "./palette-check";
+import { readJson } from "../repo";
 
 const entry = (name: string) => {
   const found = CATALOG.find((e) => e.name === name);
@@ -83,7 +84,7 @@ describe("the long landmark", () => {
     expect(girderDepth(1)).toBeCloseTo(6.5, 6);
     expect(girderDepth(-1)).toBeCloseTo(6.5, 6);
     expect(girderDepth(0.5) - girderDepth(0)).toBeLessThan(0.2);
-    const outline = JSON.parse(readFileSync(join(SOURCE, "lm", "third-mainland-span", "outline.json"), "utf8")) as { views: { view: string; modelRange?: number[] }[] };
+    const outline = readJson<{ views: { view: string; modelRange?: number[] }[] }>(join(SOURCE, "lm", "third-mainland-span", "outline.json"));
     const elevation = outline.views.find((v) => v.view === "front");
     expect((elevation?.modelRange?.[1] ?? 0) - (elevation?.modelRange?.[0] ?? 0)).toBe(3 * BRIDGE.bay);
     expect(outline.views.map((v) => v.view)).toContain("plan");

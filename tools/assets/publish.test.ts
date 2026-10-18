@@ -8,7 +8,7 @@ import { CATALOG, isTiled } from "./catalog";
 import { defaultPaths, listFiles } from "./assets-check";
 import { readManifest, sha256 } from "./manifest";
 import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 
 describe("published names", () => {
   test("[R-CITY-018] given a shipped path and its hash, when it is named for publishing, then the hash sits before the extension and can be read back", () => {
@@ -92,7 +92,7 @@ describe("the door's portraits", () => {
 
 describe("the committed publish", () => {
   const folder = defaultPaths(REPO_ROOT).public;
-  const manifest = JSON.parse(readFileSync(join(folder, MANIFEST_FILE), "utf8")) as PublishManifest;
+  const manifest = readJson<PublishManifest>(join(folder, MANIFEST_FILE));
 
   test("[R-CITY-018] given the manifest the loader reads, when each name is checked, then it carries the hash of that file's contents", () => {
     const wrong = Object.entries(manifest.files).filter(([, published]) => {

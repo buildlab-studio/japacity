@@ -6,7 +6,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import ts from "typescript";
 
-import { isMain, REPO_ROOT, toPosix } from "../repo";
+import { isMain, readJson, REPO_ROOT, toPosix } from "../repo";
 
 export const RULE_ID = /R-[A-Z][A-Z0-9]*-\d{3}/;
 
@@ -141,7 +141,7 @@ export function findCitations(root: string, excludes: readonly string[] = DEFAUL
 
 export function readPending(path: string): string[] {
   if (!existsSync(path)) return [];
-  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+  const parsed: unknown = readJson(path);
   if (!Array.isArray(parsed) || !parsed.every((item): item is string => typeof item === "string")) {
     throw new Error(`${path} must be a JSON array of rule id strings.`);
   }

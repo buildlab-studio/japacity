@@ -3,13 +3,13 @@
 // flat black silhouette in each view on the stage, at the frame and scale the rule gives, and
 // compares it with the traced polygon in outline.json. Writes outline-score.json beside the
 // outline, an overlay picture per view into renders/, and the scores into the register row.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import type { Page } from "@playwright/test";
 
 import { type CatalogEntry, findEntries } from "./catalog";
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 import { readManifest, sha256, writeManifest } from "./manifest";
 import { contourDistance, frameFor, type Mask, maskBounds, type OutlineSettings, polygonBounds, rasterise, centre, scoreView, type ViewScore } from "./outline-score";
 import { encodeIndexedPng } from "./png";
@@ -28,7 +28,7 @@ export interface OutlineView {
 }
 
 export function readSettings(): OutlineSettings {
-  return JSON.parse(readFileSync(join(REPO_ROOT, "assets-src", "review.config.json"), "utf8")) as OutlineSettings;
+  return readJson<OutlineSettings>(join(REPO_ROOT, "assets-src", "review.config.json"));
 }
 
 /** The view's picture coordinates from the model's bounds: front [x, y], side [-z, y], plan [x, -z]. */
@@ -63,7 +63,7 @@ function overlay(model: Mask, reference: Mask, shiftBy: [number, number]): Buffe
 
 export async function scoreEntry(page: Page, entry: CatalogEntry, settings: OutlineSettings): Promise<Record<string, ViewScore & { contourDistance?: number }>> {
   const file = join(REPO_ROOT, entry.source, "outline.json");
-  const outline = JSON.parse(readFileSync(file, "utf8")) as { views: OutlineView[] };
+  const outline = readJson<{ views: OutlineView[] }>(file);
   await page.evaluate(async (o) => {
     await (globalThis as unknown as { stage: { load: (x: unknown) => Promise<unknown> } }).stage.load(o);
   }, { url: `/apps/client/public/assets/${entry.file}`, text: signText() });

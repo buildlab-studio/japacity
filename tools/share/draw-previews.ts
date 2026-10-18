@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { content, shareKinds, text, type ShareKind } from "@japacity/content";
 import { chromium, type Page } from "@playwright/test";
 
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 
 const PORT = Number(process.env.PREVIEWS_PORT ?? "5871");
 const BASE = `http://localhost:${String(PORT)}`;
@@ -110,7 +110,7 @@ async function main(): Promise<void> {
       console.log(`${file}: ${String(bytes.byteLength)} bytes at quality ${String(made.quality)}`);
     }
 
-    const register = JSON.parse(readFileSync(REGISTER, "utf8")) as { rows: RegisterRow[] };
+    const register = readJson<{ rows: RegisterRow[] }>(REGISTER);
     for (const row of register.rows) row.bytes = sizes.get(row.file) ?? row.bytes;
     writeFileSync(REGISTER, `${JSON.stringify(register, null, 2)}\n`);
     console.log("assets-src/register.json: the previews' bytes written. Run pnpm check:assets.");

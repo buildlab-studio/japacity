@@ -3,7 +3,7 @@ import { join, posix, relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, test } from "vitest";
 
-import { REPO_ROOT, toPosix } from "../tools/repo";
+import { readJson, REPO_ROOT, toPosix } from "../tools/repo";
 
 // Import boundaries from docs/design/04-structure-and-conventions.md section 9.
 
@@ -45,7 +45,7 @@ function workspacePackages(): Map<string, string> {
     for (const entry of readdirSync(base, { withFileTypes: true })) {
       const manifest = join(base, entry.name, "package.json");
       if (!entry.isDirectory() || !existsSync(manifest)) continue;
-      const { name } = JSON.parse(readFileSync(manifest, "utf8")) as { name: string };
+      const { name } = readJson<{ name: string }>(manifest);
       packages.set(name, `${parent}/${entry.name}`);
     }
   }

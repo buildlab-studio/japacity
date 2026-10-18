@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 
 export const BUDGET_FILE = "tools/check/size-budget.json";
 
@@ -148,7 +148,7 @@ export function buildEnv(report: string): NodeJS.ProcessEnv {
 }
 
 function main(): void {
-  const budgets = JSON.parse(readFileSync(join(REPO_ROOT, BUDGET_FILE), "utf8")) as BudgetFile;
+  const budgets = readJson<BudgetFile>(join(REPO_ROOT, BUDGET_FILE));
   const problems = budgetFileProblems(budgets);
   const work = mkdtempSync(join(tmpdir(), "japacity-size-"));
   try {
@@ -165,7 +165,7 @@ function main(): void {
       process.exit(built.status ?? 1);
     }
     const seconds = Math.round((Date.now() - started) / 1000);
-    const { chunks } = JSON.parse(readFileSync(report, "utf8")) as { chunks: ReportChunk[] };
+    const { chunks } = readJson<{ chunks: ReportChunk[] }>(report);
     const first = firstVisit(chunks);
     const sizes = measure(first, (file) => gzipSync(readFileSync(join(outDir, file))).length);
     console.log(`Built in ${String(seconds)} s. A first visit downloads ${String(first.length)} script files:`);

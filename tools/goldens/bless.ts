@@ -4,11 +4,11 @@ import type { Content } from "@japacity/sim";
 import { lifeStart, loadSave, standInWorld } from "@japacity/sim";
 import type { Golden } from "@japacity/sim/testing";
 import { measure, miniContent, goldenScripts } from "@japacity/sim/testing";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content as realContent } from "../../packages/content/src/index";
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 
 const goldensDir = join(REPO_ROOT, "packages", "sim", "src", "goldens");
 
@@ -33,7 +33,7 @@ for (const script of goldenScripts) {
   const expected = measure(script.save, contents, (tick) => standInWorld(start.worldSeed, tick, worldContent));
   const golden: Golden = { name: script.name, save: script.save, ...expected };
   const path = join(goldensDir, `${script.name}.json`);
-  const before = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as Golden) : null;
+  const before = existsSync(path) ? readJson<Golden>(path) : null;
   const text = `${JSON.stringify(golden, null, 2)}\n`;
   if (before === null) {
     console.log(`${script.name}: new, ${String(expected.months.length)} months, final ${expected.finalHash}`);

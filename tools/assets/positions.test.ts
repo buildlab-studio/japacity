@@ -6,7 +6,7 @@ import { join, relative } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { defaultPaths, mapSources } from "./assets-check";
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 
 const paths = defaultPaths(REPO_ROOT);
 
@@ -30,7 +30,7 @@ describe("positions are not geometry", () => {
   test("[R-CITY-009] given every outline taken from OpenStreetMap, when the shipped credits are read, then each outline's map source is credited there", () => {
     const outlines = mapSources(paths, []);
     expect(outlines.length).toBeGreaterThan(0);
-    const credits = JSON.parse(readFileSync(join(paths.public, "credits.json"), "utf8")) as { mapData: { sources: string[] }[] };
+    const credits = readJson<{ mapData: { sources: string[] }[] }>(join(paths.public, "credits.json"));
     const credited = new Set(credits.mapData.flatMap((line) => line.sources));
     expect(outlines.filter((source) => !credited.has(source))).toEqual([]);
   });

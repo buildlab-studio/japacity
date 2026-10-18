@@ -1,6 +1,5 @@
 // Every shipped asset, where its source is and how it is built (decision 0009 section 4).
 // The export, the shooter, the outline scorer and the check all start here.
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { type BuildingSpec, lowBox, setFootprint, type SignStyle } from "@japacity/assets";
@@ -79,7 +78,7 @@ import * as north from "@japacity/assets-src/prop/north/build";
 import { Group } from "three";
 
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 
 export const SOURCE = join(REPO_ROOT, "assets-src");
 export const PUBLIC = join(REPO_ROOT, "apps", "client", "public", "assets");
@@ -143,10 +142,6 @@ const KIT = "The makers, written as code from the kit";
 const PECKHAM_DISH_YAW = 2.4;
 /** Deira's blocks also stand turned a quarter either way; one yaw for the place's dishes. */
 const DEIRA_DISH_YAW = 1.9;
-
-function readJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, "utf8")) as T;
-}
 
 function staticModel(name: string, group: Group, shipSigns = false): BakedModel {
   return bakeGroup(group, name, { shipSigns });

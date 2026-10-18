@@ -8,14 +8,13 @@
 // Usage: pnpm tsx tools/load/verify.ts [--base http://127.0.0.1:8787] [--concurrency 32]
 import type { Command, Content, Currency, Id, Sender, State, World } from "@japacity/sim";
 import { checkInvariants, hashState, newState, step, ledgerReport, int } from "@japacity/sim";
-import { readFileSync } from "node:fs";
 
 import { content as shipped } from "../../packages/content/src/index";
 import { argument, patient, pool, wholeArgument } from "./http";
 import type { Target } from "./http";
 import type { Manifest } from "./seed";
 import { MANIFEST } from "./seed";
-import { isMain } from "../repo";
+import { isMain, readJson } from "../repo";
 
 /** The rows of one character as the load route hands them over. */
 export interface CharacterRows {
@@ -197,7 +196,7 @@ export function verificationLines(verification: Verification): string[] {
 
 async function main(args: readonly string[]): Promise<void> {
   const target = { base: argument(args, "base", "http://127.0.0.1:8787") };
-  const manifest = JSON.parse(readFileSync(MANIFEST, "utf8")) as Manifest;
+  const manifest = readJson<Manifest>(MANIFEST);
   const verification = await verifyAll(target, manifest, shipped, wholeArgument(args, "concurrency", 32), null);
   for (const line of verificationLines(verification)) console.log(line);
   if (!verification.ok) process.exit(1);

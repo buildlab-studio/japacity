@@ -1,5 +1,5 @@
 // What the tools and the root guard tests share about the repository.
-import { realpathSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { join, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -23,4 +23,8 @@ export function isMain(moduleUrl: string): boolean {
 /** The path with forward slashes, as the repository's files name each other. */
 export function toPosix(path: string): string {
   return path.split(sep).join("/");
+}
+
+export function readJson<T>(path: string): T {
+  return JSON.parse(readFileSync(path, "utf8")) as T;
 }

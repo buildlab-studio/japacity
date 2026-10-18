@@ -1,9 +1,8 @@
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 import { adminInFirstVisit, BUDGET_FILE, budgetFileProblems, budgetFor, type BudgetFile, buildEnv, firstVisit, measure, overBudget, partOf, PARTS, type ReportChunk } from "./size";
 
 const ROOT = "/repo";
@@ -73,7 +72,7 @@ describe("the size check", () => {
   });
 
   test("[R-ENGINE-020] given the committed budget file, then every budget is a whole number at most its measured size plus five percent, and every change is dated", () => {
-    const file = JSON.parse(readFileSync(join(REPO_ROOT, BUDGET_FILE), "utf8")) as BudgetFile;
+    const file = readJson<BudgetFile>(join(REPO_ROOT, BUDGET_FILE));
     expect(budgetFileProblems(file)).toEqual([]);
     expect(Object.keys(file.parts).sort()).toEqual([...PARTS].sort());
   });

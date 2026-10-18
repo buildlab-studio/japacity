@@ -1,13 +1,13 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
 import { type PlaceFile, worldChecks } from "./assets-check";
 import { checkLimits, checkParts, checkThings, type LimitedFile, WORLD_LIMITS } from "./world-check";
-import { REPO_ROOT } from "../repo";
+import { readJson, REPO_ROOT } from "../repo";
 
-const planted = JSON.parse(readFileSync(join(REPO_ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as PlaceFile;
+const planted = readJson<PlaceFile>(join(REPO_ROOT, "tools", "__fixtures__", "stripes", "place.json"));
 const SLAB = "places/stripes/prop_slab.glb";
 /** The slab: its top 4 mm over the ground, under the planted file's slab copy. */
 const slabFloors = new Map([[SLAB, { floors: [{ y: 0.004, corners: [[-2, -1.5], [-2, 1.5], [2, 1.5]] as [number, number][] }] }]]);
@@ -73,7 +73,7 @@ describe("the parts of a place", () => {
     const folder = join(REPO_ROOT, "apps", "client", "public", "assets", "places");
     const files = readdirSync(folder).flatMap((name) => {
       const path = join(folder, name, "place.json");
-      return existsSync(path) ? [JSON.parse(readFileSync(path, "utf8")) as LimitedFile] : [];
+      return existsSync(path) ? [readJson<LimitedFile>(path)] : [];
     });
     expect(files.flatMap(checkParts)).toEqual([]);
     expect(files.flatMap((file) => file.stage?.acts ?? []).filter((act) => act.staff === true).length).toBeGreaterThan(0);

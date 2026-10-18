@@ -13,7 +13,7 @@ import { join } from "node:path";
 import ts from "typescript";
 
 import { content } from "../../packages/content/src/index";
-import { isMain, REPO_ROOT, toPosix } from "../repo";
+import { isMain, readJson, REPO_ROOT, toPosix } from "../repo";
 
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
@@ -130,7 +130,7 @@ export function resealed(now: Sealed, seal: Sealed | null): { ok: true; seal: Se
 
 function readSeal(): Seal | null {
   try {
-    return JSON.parse(readFileSync(join(REPO_ROOT, SEAL_FILE), "utf8")) as Seal;
+    return readJson<Seal>(join(REPO_ROOT, SEAL_FILE));
   } catch {
     return null;
   }

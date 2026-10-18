@@ -15,7 +15,7 @@ import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
 import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -472,10 +472,6 @@ export function expectedCredits(register: Register, mapSources: readonly string[
 export function checkCredits(actual: Credits | null, expected: Credits): string[] {
   if (actual === null) return ["R-CITY-021: public/assets/credits.json is missing"];
   return JSON.stringify(actual) === JSON.stringify(expected) ? [] : ["R-CITY-021: public/assets/credits.json does not match the register and the map data; run pnpm assets:credits"];
-}
-
-function readJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
 /** The map data the game uses: every outline source and every place entry's data source. */

@@ -13,7 +13,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { buildEnv } from "../tools/check/size";
 import { shippedPackages } from "../tools/notices";
-import { REPO_ROOT } from "../tools/repo";
+import { readJson, REPO_ROOT } from "../tools/repo";
 
 const CLIENT = join(REPO_ROOT, "apps/client");
 
@@ -56,7 +56,7 @@ function build(name: string, mode: "production" | "development"): Built {
   const env = mode === "production" ? buildEnv(report) : { ...buildEnv(report), NODE_ENV: "development" };
   const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: REPO_ROOT, encoding: "utf8", env });
   if (built.status !== 0) throw new Error(`The client did not build in ${mode} mode: ${built.stderr}`);
-  const { chunks } = JSON.parse(readFileSync(report, "utf8")) as { chunks: { file: string }[] };
+  const { chunks } = readJson<{ chunks: { file: string }[] }>(report);
   return { out, files: walk(out), chunks: chunks.map((chunk) => chunk.file) };
 }
 

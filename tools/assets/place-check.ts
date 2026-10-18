@@ -5,7 +5,7 @@
 // inside its row of the per-place budget (assets.md R-ASSET-007), the hub's low mode inside the first
 // load's. Frame times are recorded and never gate (R-CITY-038). On the same profile each place's route
 // map is built and 300 taps routed on it, and what that costs is printed (R-CITY-030); it gates nothing.
-import { mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
@@ -14,7 +14,7 @@ import type { Page } from "@playwright/test";
 import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./assets-check";
 import type { CheckMode as Mode, FrameRecord, PlaceInput, RouteRecord } from "./place-check.types";
 import { PHONE_SHOT } from "./shoot";
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 import { openStage, signText } from "./stage-browser";
 
 export const CHEAP_PHONE = { ...PHONE_SHOT, slowdown: 6 } as const;
@@ -131,7 +131,7 @@ export function inputOf(file: StagedFile, mode: Mode, moving: boolean, text: Rec
 export function stagedPlaces(paths: Paths): StagedFile[] {
   return listFiles(paths.public)
     .filter((path) => path.endsWith("/place.json"))
-    .map((path) => JSON.parse(readFileSync(join(paths.public, path), "utf8")) as StagedFile)
+    .map((path) => readJson<StagedFile>(join(paths.public, path)))
     .filter((file) => file.stage !== undefined);
 }
 
@@ -208,7 +208,7 @@ async function main(): Promise<void> {
   const folder = at >= 0 ? args[at + 1] : undefined;
   const only = args.filter((arg, index) => at < 0 || (index !== at && index !== at + 1));
   const paths = defaultPaths(REPO_ROOT);
-  const budgets = JSON.parse(readFileSync(join(paths.source, "budgets.json"), "utf8")) as Budgets;
+  const budgets = readJson<Budgets>(join(paths.source, "budgets.json"));
   const shoot =
     folder === undefined
       ? undefined
