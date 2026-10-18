@@ -6,15 +6,15 @@ import type { Game } from "@japacity/sim/testing";
 import { act, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { newGame } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { nowLineWords } from "../../shared/words/acts";
-import { moneyLines } from "../../shared/words/money";
-import { newsLines } from "../../shared/words/told";
-import { words } from "../../shared/words/text";
-import { latelyLines } from "./apps/Bank";
-import { PhoneApps } from "./PhoneApps";
-import { reloadSeen } from "./seen";
+import { newGame } from "../../../shared/testing/fixtures";
+import { renderWithView } from "../../../shared/testing/render";
+import { nowLineWords } from "../../../shared/words/acts";
+import { moneyLines } from "../../../shared/words/money";
+import { newsLines } from "../../../shared/words/told";
+import { words } from "../../../shared/words/text";
+import { latelyLines } from "./Bank";
+import { PhoneApps } from "../PhoneApps";
+import { reloadSeen } from "../seen";
 
 beforeEach(() => {
   localStorage.clear();

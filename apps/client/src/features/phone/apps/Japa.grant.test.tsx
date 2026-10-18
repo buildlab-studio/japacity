@@ -6,11 +6,11 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { recordedGame, recordedSave } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { hasWords, nameOf, runningName } from "../../shared/words/text";
-import { PhoneApps } from "./PhoneApps";
-import { reloadSeen } from "./seen";
+import { recordedGame, recordedSave } from "../../../shared/testing/fixtures";
+import { renderWithView } from "../../../shared/testing/render";
+import { hasWords, nameOf, runningName } from "../../../shared/words/text";
+import { PhoneApps } from "../PhoneApps";
+import { reloadSeen } from "../seen";
 
 const SKILLED = "route.uk-skilled";
 /** A words key left on screen: a dotted id with no words behind it. */

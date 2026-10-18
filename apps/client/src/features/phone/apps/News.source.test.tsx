@@ -5,12 +5,12 @@ import type { NewsStage } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { abroadView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { newsSource } from "../../shared/ui/NewsSource";
-import { say } from "../../shared/words/text";
-import { PhoneApps } from "./PhoneApps";
-import { reloadSeen } from "./seen";
+import { abroadView } from "../../../shared/testing/fixtures";
+import { renderWithView } from "../../../shared/testing/render";
+import { newsSource } from "../../../shared/ui/NewsSource";
+import { say } from "../../../shared/words/text";
+import { PhoneApps } from "../PhoneApps";
+import { reloadSeen } from "../seen";
 
 beforeEach(() => {
   localStorage.clear();
