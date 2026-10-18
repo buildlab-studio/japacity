@@ -789,6 +789,7 @@ export const uiText: Record<string, string> = {
   "ui.req.not": "Not while this holds: {inner}",
   "ui.req.not-pending": "Your {document} is already on the way",
   "ui.req.not-held": "Only without {document} in hand",
+  "ui.req.not-banned": "No removal ban on {country}",
   "ui.req.not-job": "{job} is open already",
   "ui.req.any": "One of: {inner}",
   // Said as a person would say it, once.
@@ -818,6 +819,7 @@ export const uiText: Record<string, string> = {
   "ui.req.wallet-total-in": "{amount} received as {reason} in all",
   "ui.req.wallet-total-out": "{amount} paid as {reason} in all",
   "ui.req.place-returned": "Back home after living abroad",
+  "ui.req.place-banned": "A removal ban on {country}",
   "ui.req.place-returned-shapes": "Back home from abroad, {shapes}",
   "ui.req.routes-state": "{states} on one of: {routes}",
   "ui.req.place-months-here": "{months} months {where}",

@@ -41,6 +41,7 @@ const REQUIREMENT_TYPES = [
   "wallet/total",
   "place/returned",
   "place/months-here",
+  "place/banned",
   "setpiece/answered-with",
   "world/lottery",
   "people/bond",

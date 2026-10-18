@@ -23,6 +23,7 @@ export const ObligationEntrySchema = z.strictObject({
   prepaid: z.boolean().exactOptional(),
   creditMin: CountSchema.exactOptional(),
   reportsToCredit: z.boolean().exactOptional(),
+  deposit: CountSchema.exactOptional(),
   rateByCredit: z.array(z.strictObject({ min: CountSchema, rateBp: BpSchema })).exactOptional(),
   car: z
     .strictObject({

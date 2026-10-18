@@ -39,7 +39,7 @@ import type {
 } from "../engine/types";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { routePercent } from "../japacity/japacity.logic";
-import { bannedUntil as placeBannedUntil } from "../place/place.logic";
+import { bannedNow } from "../place/place.logic";
 import { GATES } from "./gates";
 import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
@@ -276,9 +276,7 @@ function own(event: RouteKindEvent): RouteKindEvent {
 
 /** R-PLACE-008: a removal's ban holds through the months before its last, and lifts in that month. */
 function banned(read: ReadCtx, country: Id<"country"> | null): boolean {
-  if (country === null) return false;
-  const until = placeBannedUntil(read, country);
-  return until !== null && read.state.turn.month < until;
+  return country !== null && bannedNow(read, country);
 }
 
 function moved(route: Id<"route">, to: RouteStateName, via?: string): RouteKindEvent {
@@ -495,7 +493,28 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** R-ROUTE-020, with R-GATE-003's arrival in place of the ending: the life goes on abroad. */
+/** R-RETURN-004: the status kept from a return with papers, as it is granted again with its months, when it is for the route's country. */
+function tokenFor(read: ReadCtx, entry: RouteEntry): Effect | null {
+  const token = read.state.place.heldAbroad;
+  if (token === null || entry.country === null || read.content.status[token.status]?.country !== entry.country) return null;
+  return { type: "status/grant", status: token.status, kept: { monthsHeld: token.monthsHeld, lawfulMonths: token.lawfulMonths } };
+}
+
+/**
+ * R-OFFER-005: an open ask that belongs at home (the family's send-off, a pitch at the park) cannot be
+ * answered abroad; the plane closes it unanswered, as a lapse with no choice, so nothing waits on the player abroad.
+ */
+function closeHomeOffers(ctx: Ctx, cause: Cause): void {
+  const homeOnly = Object.values(ctx.state.offer.items).filter((item) => ctx.content.offer[item.entry]?.where === "home");
+  if (homeOnly.length > 0) ctx.apply(homeOnly.map((item) => ({ type: "offer/close" as const, offer: item.entry })), cause);
+}
+
+/**
+ * R-ROUTE-020, with R-GATE-003's arrival in place of the ending: the life goes on abroad. R-RETURN-004: a status kept
+ * from a return with papers flies any route into its country, with no gate and no fee but the flight, and the
+ * arrival is on that status; the route itself does not move. A granted route into that country departs as any
+ * granted route does, and the arrival is still on the status kept, since a settled status never expires (R-STATUS-007).
+ */
 function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/depart") throw new Error(`route/depart cannot handle ${command.type}.`);
   // R-PEOPLE-044: a stand-in never spends.
@@ -503,40 +522,49 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const entry = ownOf(ctx.content.route, command.route);
   const held = ownOf(ctx.state.route, command.route);
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
-  if (held.state !== "granted") return reject("not-legal", "Only a granted route can be flown.");
-  // The page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.
+  const kept = tokenFor(readOf(ctx), entry);
+  const token = held.state === "granted" ? null : kept;
+  if (held.state !== "granted" && token === null) return reject("not-legal", "Only a granted route, or a route into the country of a status kept, can be flown.");
+  // R-PLACE-002: the airport's gate is in Lagos, so a flight leaves only from home; R-ROAD-005 makes the chain the month's
+  // only business on the road.
   if (ctx.state.place.where === "road") return reject("not-legal", "No flight leaves from the road.");
+  if (ctx.state.place.where === "abroad") return reject("not-legal", "No flight leaves from abroad. The gate is at the Lagos airport.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
   const flight = ctx.content.tuning.route.flight;
   const amount = ctx.amount(flight.amount);
-  // R-GATE-003: the employer's flight costs nothing.
-  if (!entry.flightPaidByEmployer && !ctx.check({ type: "money/can-pay", currency: flight.currency, amount }).met) {
+  // R-GATE-003: the employer's flight costs nothing. A flight on a kept status is the character's own.
+  const paid = token !== null || !entry.flightPaidByEmployer;
+  if (paid && !ctx.check({ type: "money/can-pay", currency: flight.currency, amount }).met) {
     return reject("cannot-afford", `The flight costs ${String(amount)} and cannot be paid.`);
   }
   const cause: Cause = { source: command.type, param: command.route, terms: {} };
-  if (!entry.flightPaidByEmployer) {
+  if (paid) {
     const pay: Effect =
       flight.currency === "NGN"
         ? { type: "money/take", currency: "NGN", pocket: "transfer", amount, reason: "flight" }
         : { type: "money/pay-fee", currency: flight.currency, amount, reason: "flight" };
     ctx.apply([pay], cause);
   }
+  if (token !== null && entry.country !== null) {
+    ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
+    ctx.apply([token, { type: "activity/end-job", why: "moved" }, { type: "activity/end-job", why: "moved", side: true }], cause);
+    closeHomeOffers(ctx, cause);
+    return endBeforeSettingOff(ctx);
+  }
   const gate = GATES[entry.gate];
   const job = gate.departureJob?.(entry, held) ?? null;
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
-  if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
+  if (kept !== null) ctx.apply([kept], cause);
+  else if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
   // activity.md is silent on when; it is the moment of the flight, so no job is held that cannot be worked.
   ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }, { type: "activity/end-job", why: "moved", side: true }], cause);
   // R-PEOPLE-027: an arrival through a partner is recorded for the bar and the assistance count (R-UNDERTAKING-004, 010).
   if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
-  // R-OFFER-005: an open ask that belongs at home (the family's send-off, a pitch at the park) cannot be
-  // answered abroad; the plane closes it unanswered, as a lapse with no choice, so nothing waits on the player abroad.
-  const homeOnly = Object.values(ctx.state.offer.items).filter((item) => ctx.content.offer[item.entry]?.where === "home");
-  if (homeOnly.length > 0) ctx.apply(homeOnly.map((item) => ({ type: "offer/close" as const, offer: item.entry })), cause);
+  closeHomeOffers(ctx, cause);
   return [...events, ...endBeforeSettingOff(ctx)];
 }
 
@@ -751,6 +779,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "wallet/total":
     case "place/returned":
     case "place/months-here":
+    case "place/banned":
     case "home/host":
     case "not":
     case "any":

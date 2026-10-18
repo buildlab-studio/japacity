@@ -265,9 +265,12 @@ export type Requirement =
   | { type: "credit/min"; value: number }
   | { type: "goal/done"; goal: Id<"goal"> }
   | { type: "era/is"; eras: Id<"era">[] }
-  /** An open obligation of this type exists. The car is `obligation/has` with type `car`. */
-  /** `obligation` narrows the check to one entry (goal.own-door, the repeatable flat). */
-  | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation"> }
+  /** An open obligation of this type exists, not in default. The car is `obligation/has` with type `car`. */
+  /**
+   * `obligation` narrows the check to one entry (goal.own-door, the repeatable flat); `defaulted` counts only one in default
+   * and `localCurrency` only one owed in the currency of the country the character is in (offer.court-date).
+   */
+  | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation">; defaulted?: boolean; localCurrency?: boolean }
   /** A route's gate has reached the named step: docs/rules/route-gates.md. */
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */
@@ -292,6 +295,8 @@ export type Requirement =
   | { type: "place/returned"; shapes: ReturnShape[] }
   /** The character has been where they are, in `where`, for at least this many months. */
   | { type: "place/months-here"; where: Where; months: number }
+  /** A removal's ban holds on the country this month (R-PLACE-008). */
+  | { type: "place/banned"; country: Id<"country"> }
   /** A host of this kind would take the character in now (docs/rules/home.md R-HOME-004). */
   | { type: "home/host"; host: HomeHost }
   | { type: "not"; of: Requirement }
@@ -382,7 +387,8 @@ export type Effect =
   /** The authority sends the character home with this shape, as `return/home` would (R-PLACE-004, R-ROAD-007, R-STATUS-008). */
   | { type: "place/return"; shape: ReturnShape }
   // status (docs/rules/status.md)
-  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity"> }
+  /** `kept`: a status kept from a return with papers carries on with the months it had (R-RETURN-004). */
+  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity">; kept?: { monthsHeld: number; lawfulMonths: number } }
   | { type: "status/lose" }
   | { type: "status/remove" }
   | { type: "status/clock-start" }
@@ -664,6 +670,8 @@ export interface ObligationEntry {
   creditMin?: number;
   /** Paid and missed months move the credit file (R-CREDIT-002). */
   reportsToCredit?: boolean;
+  /** Paid by the activity that opens it, and returned when it closes by any way but its own default (R-ABROAD-003). */
+  deposit?: number;
   /** The monthly rate by credit mark, first rung whose `min` the mark reaches (R-CREDIT-005). */
   rateByCredit?: { min: number; rateBp: number }[];
   /** The car: deposit, final payment, resale and thresholds (docs/rules/car.md). */
@@ -1898,7 +1906,7 @@ export interface PlaceSlice {
   /** The record of returns. `country` is null for a return from the road (R-ROAD-007). */
   returns: { month: number; shape: ReturnShape; country: Id<"country"> | null }[];
   /** A settled or citizen status kept after a return with papers (R-RETURN-004). */
-  heldAbroad: { status: Id<"status">; sinceMonth: number } | null;
+  heldAbroad: { status: Id<"status">; sinceMonth: number; monthsHeld: number; lawfulMonths: number } | null;
   /** The month the December visit opened, null before (R-PLACE-009). */
   decemberMonth: number | null;
 }

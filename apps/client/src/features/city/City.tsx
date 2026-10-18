@@ -111,6 +111,19 @@ const Bag = lazy(() => import("./Bag"));
 // The send-off as a scene (chapter.md R-CHAPTER-012): its own chunk, fetched only when the gate's act is picked (R-ENGINE-020).
 const SendOffScene = lazy(() => import("./sendoff/SendOffScene"));
 /**
+ * The route the airport's gate boards (R-CHAPTER-006): a granted visa's, else a route into the country of a status kept
+ * from a return with papers, the one flown before first (return.md R-RETURN-004).
+ */
+function departRoute(view: Pick<PlayerView, "routes" | "place">): Id<"route"> | null {
+  const granted = view.routes.find((route) => route.state === "granted");
+  if (granted !== undefined) return granted.id;
+  const kept = view.place.heldAbroad;
+  const country = kept === null ? null : (content.status[kept]?.country ?? null);
+  if (country === null) return null;
+  const into = view.routes.filter((route) => content.route[route.id]?.country === country);
+  return (into.find((route) => route.state === "departed") ?? into[0])?.id ?? null;
+}
+/**
  * Who the character is in the send-off scene (R-CHAPTER-012): the band's name (the one given at the door, else the life's
  * own), the first name the stub carries, the look and the figure in their own colours (R-PROLOGUE-015). Read here, where
  * the person kept beside the save is read already, so the scene's own chunk stays apart from the first visit's.
@@ -907,8 +920,9 @@ export function City({
   // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
   // A school's offer waiting makes the deposit payable (R-ROUTE-008): the bank's act shows while one does.
   const depositDue = view.routes.filter((route) => route.school === null && route.depositPaid === 0).flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
-  // A visa granted makes the flight boardable at the airport's gate (R-CHAPTER-006, route/depart).
-  const departDue = view.routes.find((route) => route.state === "granted")?.id ?? null;
+  // A visa granted, or a status kept from a return with papers, makes the flight boardable at the airport's gate
+  // (R-CHAPTER-006, R-RETURN-004, route/depart).
+  const departDue = departRoute(view);
   // R-CHAPTER-012: the gate's act opens the send-off scene in place of the card the flight was; the scene's third beat sends
   // `route/depart`, so picking the act changes nothing in the life.
   useEffect(() => {

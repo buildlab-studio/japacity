@@ -7,7 +7,7 @@ import { heldBand } from "../../activity/activity.logic";
 import { worldVar } from "../../engine/check";
 import { emit } from "../../engine/kind";
 import type { Bond, BondStage, Cause, Ctx, Id, PersonFacts, ReadCtx, RouteEntry, RouteState } from "../../engine/types";
-import { bannedUntil } from "../../place/place.logic";
+import { bannedNow } from "../../place/place.logic";
 import type { RouteKindEvent } from "../route.events";
 import type { Decision, DecisionTerms, Gate } from "./gate";
 
@@ -113,8 +113,8 @@ function mayApply(ctx: Ctx, entry: RouteEntry): boolean {
   const sponsor = sponsorOf(ctx, entry);
   if (sponsor === null || !relationshipHolds(ctx, block, sponsor.bond)) return false;
   if (!sponsorHolds(entry, sponsor.bond.facts) || !floorHolds(entry, sponsor.bond.facts)) return false;
-  // No ban on the country: a deception ban leaves the route refused, a removal's ban is read here.
-  if (entry.country !== null && bannedUntil(ctx, entry.country) !== null) return false;
+  // No ban on the country: a deception ban leaves the route refused, a removal's ban is read here until it lifts.
+  if (entry.country !== null && bannedNow(ctx, entry.country)) return false;
   return bandHolds(ctx, block);
 }
 

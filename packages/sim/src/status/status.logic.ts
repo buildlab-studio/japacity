@@ -162,7 +162,14 @@ function housing(ctx: Ctx, before: Id<"status"> | null, after: Id<"status"> | nu
 }
 
 /** R-STATUS-001: the old status, if any, is replaced. */
-function grant(ctx: Ctx, status: Id<"status">, job: Id<"activity"> | null, why: GrantWhy, fee: MoneyParam | null): BaseEvent[] {
+function grant(
+  ctx: Ctx,
+  status: Id<"status">,
+  job: Id<"activity"> | null,
+  why: GrantWhy,
+  fee: MoneyParam | null,
+  kept: { monthsHeld: number; lawfulMonths: number } | null = null,
+): BaseEvent[] {
   const entry = statusEntry(ctx.content, status);
   const month = ctx.state.turn.month;
   const length = lengthOf(ctx, entry);
@@ -173,7 +180,8 @@ function grant(ctx: Ctx, status: Id<"status">, job: Id<"activity"> | null, why: 
       status,
       month,
       expiresMonth: length === null ? null : month + length,
-      lawfulMonths: entry.countsFromBefore && before !== null ? before.lawfulMonths : 0,
+      lawfulMonths: kept !== null ? kept.lawfulMonths : entry.countsFromBefore && before !== null ? before.lawfulMonths : 0,
+      monthsHeld: kept?.monthsHeld ?? 0,
       job,
       why,
       fee,
@@ -196,7 +204,7 @@ function lapse(ctx: Ctx, why: LapseWhy): BaseEvent[] {
 
 function grantEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "status/grant") throw new Error(`status/grant cannot carry out ${effect.type}.`);
-  return grant(ctx, effect.status, effect.job ?? null, "granted", null);
+  return grant(ctx, effect.status, effect.job ?? null, "granted", null, effect.kept ?? null);
 }
 
 /**
@@ -430,7 +438,7 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
           expiresMonth: event.expiresMonth,
           clock: null,
           lawfulMonths: event.lawfulMonths,
-          monthsHeld: 0,
+          monthsHeld: event.monthsHeld,
           job: event.job,
         },
       };

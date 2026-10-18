@@ -10,7 +10,7 @@ import { applyEffects, readyLife, toDecision, UK as UK_ROUTE } from "../testing/
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
+import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
 
@@ -558,13 +558,100 @@ describe("the token kept abroad", () => {
   test("[R-RETURN-004] given a return with papers, when it is recorded, then the settled status is kept as a token, and flying back to the UK uses it", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+    const held = game.state.status.current!;
     comeHome(game);
-    expect(game.state.place.heldAbroad).toEqual({ status: SETTLED, sinceMonth: game.state.turn.month });
+    expect(game.state.place.heldAbroad).toEqual({ status: SETTLED, sinceMonth: game.state.turn.month, monthsHeld: held.monthsHeld, lawfulMonths: held.lawfulMonths });
     expect(game.view().place.heldAbroad).toBe(SETTLED);
     playMonths(game, 30);
     expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }]);
     expect(game.state.place.heldAbroad).toBeNull();
+  });
+
+  const FLIGHT = ((flight) => {
+    if (typeof flight.amount !== "number") throw new Error("The flight's tuning names no fixed amount.");
+    return { currency: flight.currency, amount: flight.amount };
+  })(tuning.route.flight);
+  const paidFor = (result: { events: { type: string }[] }, reason: string) =>
+    result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === reason).map((event) => (event as unknown as { amount: number }).amount);
+
+  test("[R-RETURN-004] given a return with papers keeping the settled token, when route/depart names the UK route flown before, then the flight alone is paid and the character is in the UK on the settled status, the token used and the route as it was", () => {
+    const game = flown(content);
+    applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+    comeHome(game);
+    playMonths(game, 3);
+    leave(game, 2 * FLIGHT.amount, 0);
+    const route = game.state.route[UK_ROUTE];
+    expect(route?.state).toBe("departed");
+    const result = game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, heldAbroad: null });
+    expect(game.state.status.current?.entry).toBe(SETTLED);
+    expect(paidFor(result, "flight")).toEqual([FLIGHT.amount]);
+    expect(result.events.filter((event) => event.type === "wallet/debited").map((event) => (event as unknown as { reason: string }).reason)).toEqual(["flight"]);
+    expect(game.state.route[UK_ROUTE]).toEqual(route);
+    expect(checkInvariants(game.state, game.content)).toEqual([]);
+  });
+
+  test("[R-RETURN-004] [R-STATUS-007] given the settled token and the UK study route granted, when that route is flown, then the arrival keeps the settled status, the token used, and the route departs as any granted route does", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: SETTLED }]);
+    comeHome(game);
+    expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, heldAbroad: null });
+    expect(game.state.status.current?.entry).toBe(SETTLED);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("departed");
+    expect(checkInvariants(game.state, game.content)).toEqual([]);
+  });
+
+  test("[R-PLACE-002] [R-ROUTE-020] given the UK study route granted and the character already abroad, when route/depart names it, then it is not legal: no flight leaves from abroad", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA }, { type: "status/grant", status: RESIDENT }]);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
+  });
+
+  test("[R-RETURN-004] [R-STATUS-007] given the settled status held five months and kept on a return with papers, when a route into the UK is flown, then the status carries on with its five months held and its lawful months, so the months to citizenship do not start again", () => {
+    const game = flown(content);
+    applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+    playMonths(game, 5);
+    const held = game.state.status.current;
+    expect(held?.monthsHeld).toBe(5);
+    comeHome(game);
+    playMonths(game, 2);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.status.current).toMatchObject({ entry: SETTLED, monthsHeld: held?.monthsHeld, lawfulMonths: held?.lawfulMonths });
+  });
+
+  test("[R-RETURN-004] [R-STATUS-007] given the settled status held three months and kept, and the UK study route granted, when that route is flown, then the status carries on with its three months held", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: SETTLED }]);
+    playMonths(game, 3);
+    expect(game.state.status.current?.monthsHeld).toBe(3);
+    comeHome(game);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.status.current).toMatchObject({ entry: SETTLED, monthsHeld: 3 });
+  });
+
+  test("[R-RETURN-004] given the settled token, when route/depart names a route into Canada, then it is not legal; after a return by choice with no token, the UK route flown before is not legal either", () => {
+    const settled = flown(content);
+    applyEffects(settled, [{ type: "status/grant", status: SETTLED }]);
+    comeHome(settled);
+    leave(settled, 2 * FLIGHT.amount, 0);
+    settled.expectRejected({ type: "route/depart", route: "route.canada-points" }, "not-legal");
+    const student = flown(content);
+    comeHome(student);
+    expect(student.state.place.heldAbroad).toBeNull();
+    leave(student, 2 * FLIGHT.amount, 0);
+    student.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
   test("[R-RETURN-004] given a Canadian resident's token, when 23 and then 24 months pass at home, then it is kept and then lapses", () => {

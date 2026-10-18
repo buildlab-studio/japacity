@@ -289,6 +289,15 @@ function returnSavings(ctx: Ctx, item: ObligationState, entry: ObligationEntry):
   if (item.amount > 0) ctx.apply([{ type: "money/add", currency: entry.currency, pocket: "bank", amount: item.amount, reason: "deposit-return" }], causeOf(item));
 }
 
+/**
+ * R-ABROAD-003: a flat's deposit comes back to the bank of its currency when the tenancy ends. An eviction, the
+ * flat's own default closing it, keeps it: the rent it was missed for is never charged again.
+ */
+function returnDeposit(ctx: Ctx, item: ObligationState, entry: ObligationEntry, cause: Cause): void {
+  if (entry.deposit === undefined || entry.deposit === 0 || cause.source === item.entry) return;
+  ctx.apply([{ type: "money/add", currency: entry.currency, pocket: "bank", amount: entry.deposit, reason: "deposit-return" }], causeOf(item));
+}
+
 function close(ctx: Ctx, item: ObligationState, why: "paid" | "closed" | "ended" | "dropped"): BaseEvent[] {
   return record(ctx, { type: "obligation/closed", id: item.id, entry: item.entry, why });
 }
@@ -615,7 +624,12 @@ function closeEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   for (const item of openItems(ctx.state)) {
     const entry = entryOf(ctx.content, item.entry);
     if (entry.type !== effect.obligationType) continue;
-    events.push(...(entry.type === "car" ? closeCar(ctx, item, entry, cause) : close(ctx, item, "closed")));
+    if (entry.type === "car") {
+      events.push(...closeCar(ctx, item, entry, cause));
+      continue;
+    }
+    returnDeposit(ctx, item, entry, cause);
+    events.push(...close(ctx, item, "closed"));
   }
   return events;
 }
@@ -964,15 +978,24 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
 // Requirements, invariants and the view
 // ---------------------------------------------------------------------------
 
-/** R-CAR-002: an open obligation of the type, not in default; with `obligation` set, only that entry (R-GOAL-004). */
+/**
+ * R-CAR-002: an open obligation of the type, not in default; with `obligation` set, only that entry (R-GOAL-004);
+ * with `defaulted`, only one in default; with `localCurrency`, only one owed in the currency of the country the
+ * character is in, naira at home (R-HEALTH-006).
+ */
 function judgeHas(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "obligation/has") throw new Error(`obligation/has cannot judge ${requirement.type}.`);
-  const met = Object.values(read.state.obligation.items).some(
-    (item) =>
-      item.state !== "defaulted" &&
-      read.content.obligation[item.entry]?.type === requirement.obligationType &&
-      (requirement.obligation === undefined || item.entry === requirement.obligation),
-  );
+  const country = read.state.place.country;
+  const local = country === null ? "NGN" : (read.content.country[country]?.currency ?? "NGN");
+  const met = Object.values(read.state.obligation.items).some((item) => {
+    const entry = read.content.obligation[item.entry];
+    return (
+      (item.state === "defaulted") === (requirement.defaulted === true) &&
+      entry?.type === requirement.obligationType &&
+      (requirement.obligation === undefined || item.entry === requirement.obligation) &&
+      (requirement.localCurrency !== true || entry.currency === local)
+    );
+  });
   return { met };
 }
 

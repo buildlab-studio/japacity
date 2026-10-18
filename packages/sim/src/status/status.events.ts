@@ -14,6 +14,8 @@ export type StatusEvent =
       month: number;
       expiresMonth: number | null;
       lawfulMonths: number;
+      /** 0 for a status granted anew; a status kept from a return with papers carries its months on (R-RETURN-004). */
+      monthsHeld: number;
       job: Id<"activity"> | null;
       why: GrantWhy;
       fee: { currency: Currency; amount: number } | null;

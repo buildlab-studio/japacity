@@ -149,6 +149,12 @@ export function bannedUntil(read: ReadCtx, country: Id<"country">): number | nul
   return Math.max(...removed.map((removal) => removal.month + months));
 }
 
+/** R-PLACE-008: whether a removal's ban holds on the country this month. It lifts in the month `bannedUntil` gives. */
+export function bannedNow(read: ReadCtx, country: Id<"country">): boolean {
+  const until = bannedUntil(read, country);
+  return until !== null && read.state.turn.month < until;
+}
+
 // ---------------------------------------------------------------------------
 // Carrying out
 // ---------------------------------------------------------------------------
@@ -176,8 +182,6 @@ function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], share
 function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const entry = countryEntry(ctx.content, country);
   const month = ctx.state.turn.month;
-  // From Lagos or the road, a room's rent at home is let go too; between two countries only the home's charges close.
-  const left = ctx.state.place.where === "abroad" ? HOME_TYPES : LEFT_TYPES;
   // R-PLACE-002: leaving Lagos, what is owned is sold as the room is let go.
   if (ctx.state.place.where === "home") ctx.apply([{ type: "things/sell-off" }], cause);
   const events = record(ctx, [{ type: "place/moved", to: "abroad", country, month }]);
@@ -185,7 +189,8 @@ function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   if (token !== null && statusEntry(ctx.content, token.status).country === country) {
     events.push(...record(ctx, [{ type: "place/token-used", status: token.status }]));
   }
-  closeObligations(ctx, left, cause);
+  // The move comes only from Lagos or the road (R-PLACE-002: no flight leaves from abroad), so a room's rent is let go.
+  closeObligations(ctx, LEFT_TYPES, cause);
   const opens: Effect[] = [];
   if (entry.upkeep !== null) opens.push({ type: "obligation/open", obligation: entry.upkeep });
   if (entry.rentRoom !== null) opens.push({ type: "obligation/open", obligation: entry.rentRoom });
@@ -206,7 +211,7 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   const kept = shape === "with-papers" && current !== null && isKept(ctx.content, current.entry) ? current.entry : null;
   const month = ctx.state.turn.month;
   const events = record(ctx, [
-    { type: "place/returned", shape, country, month, kept },
+    { type: "place/returned", shape, country, month, kept, keptMonths: kept === null || current === null ? null : { monthsHeld: current.monthsHeld, lawfulMonths: current.lawfulMonths } },
     { type: "place/moved", to: "home", country: null, month },
   ]);
   ctx.apply([{ type: "status/lose" }], cause);
@@ -595,7 +600,7 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
       // R-ROAD-007: the return is on record with no country; the road is not one.
       const month = ctx.state.turn.month;
       const events = record(ctx, [
-        { type: "place/returned", shape: effect.shape, country: null, month, kept: null },
+        { type: "place/returned", shape: effect.shape, country: null, month, kept: null, keptMonths: null },
         { type: "place/moved", to: "home", country: null, month },
       ]);
       ctx.apply(fromStartingLife(ctx, HOME_TYPES, 10000), cause);
@@ -679,6 +684,12 @@ function judgeMonthsHere(read: ReadCtx, requirement: Requirement): RequirementRe
   return { met: here && have >= requirement.months, have, need: requirement.months };
 }
 
+/** R-PLACE-008, R-PEOPLE-026: the ban read as an application's condition, so a partner application is refused before it is paid. */
+function judgeBanned(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "place/banned") throw new Error(`place/banned cannot judge ${requirement.type}.`);
+  return { met: bannedNow(read, requirement.country) };
+}
+
 // ---------------------------------------------------------------------------
 // Evolve, lines, view
 // ---------------------------------------------------------------------------
@@ -691,7 +702,7 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
       return {
         ...slice,
         returns: [...slice.returns, { month: event.month, shape: event.shape, country: event.country }],
-        heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month },
+        heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month, monthsHeld: event.keptMonths?.monthsHeld ?? 0, lawfulMonths: event.keptMonths?.lawfulMonths ?? 0 },
       };
     case "place/token-used":
     case "place/token-lapsed":
@@ -805,7 +816,7 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   phases: { month },
   evolve,
   lines,
-  requirements: { "place/is": judgeIs, "place/returned": judgeReturned, "place/months-here": judgeMonthsHere },
+  requirements: { "place/is": judgeIs, "place/returned": judgeReturned, "place/months-here": judgeMonthsHere, "place/banned": judgeBanned },
   invariants,
   view,
 };

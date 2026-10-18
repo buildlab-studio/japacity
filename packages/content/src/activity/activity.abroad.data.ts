@@ -13,8 +13,9 @@
 // A job reached through a sponsor or an agent (uk-care, uk-skilled, the
 // two Gulf jobs) pays the `salary` term recorded on the route (R-SPONSOR-007,
 // R-CONTRACT-004) and has no hiring chance: it is started by departure, never hunted.
-import type { ActivityEntry, Effect, Id, Money, Requirement } from "@japacity/sim";
+import type { ActivityEntry, Cost, Effect, Id, Money, Requirement } from "@japacity/sim";
 
+import { obligationTable } from "../obligation/obligation.data";
 import { tuning } from "../tuning/tuning.data";
 import { aed, cad, euros, pct, pounds } from "../units";
 import { withWhen } from "./activity.when.data";
@@ -25,6 +26,13 @@ const IN_CANADA: Requirement = { type: "place/is", where: "abroad", country: "co
 const IN_UAE: Requirement = { type: "place/is", where: "abroad", country: "country.uae" };
 const IN_ITALY: Requirement = { type: "place/is", where: "abroad", country: "country.italy" };
 const NO_PHONE_CONTRACT: Requirement = { type: "not", of: { type: "obligation/has", obligationType: "phone" } };
+
+/** R-ABROAD-003: the flat's deposit as the act charges it, read from the entry that pays it back, so the two are one figure. */
+function depositOf(flat: Id<"obligation">): Cost {
+  const entry = obligationTable[flat];
+  if (entry?.deposit === undefined) throw new Error(`${flat} takes no deposit.`);
+  return { currency: entry.currency, amount: entry.deposit, reason: "rent" };
+}
 
 function noFlat(flat: Id<"obligation">): Requirement {
   return { type: "not", of: { type: "obligation/has", obligationType: "rent", obligation: flat } };
@@ -404,7 +412,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   // R-ABROAD-003: credit 20 and one month's rent as the deposit, returned on leaving.
   // It closes the room and opens the flat, and is not offered while the flat is held.
   "activity.rent-flat-uk": free("activity.rent-flat-uk", "country.uk", [IN_UK, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-uk")], {
-    cost: [{ currency: "GBP", amount: pounds(950), reason: "rent" }],
+    cost: [depositOf("obligation.rent-flat-uk")],
     effects: [
       { type: "obligation/close", obligationType: "rent" },
       { type: "obligation/open", obligation: "obligation.rent-flat-uk" },
@@ -456,7 +464,7 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
     effects: [gain("quality.tech", 4), wellbeing(-2)],
   }),
   "activity.rent-flat-ca": free("activity.rent-flat-ca", "country.canada", [IN_CANADA, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-ca")], {
-    cost: [{ currency: "CAD", amount: cad(1700), reason: "rent" }],
+    cost: [depositOf("obligation.rent-flat-ca")],
     effects: [
       { type: "obligation/close", obligationType: "rent" },
       { type: "obligation/open", obligation: "obligation.rent-flat-ca" },

@@ -754,7 +754,8 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
 
 function departures(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
-  const granted = view.routes.filter((item) => item.state === "granted");
+  // R-PLACE-002: a flight leaves only from home.
+  const granted = view.place.where === "home" ? view.routes.filter((item) => item.state === "granted") : [];
   if (granted.length === 0) return commands;
   for (const owed of view.obligations) {
     if (owed.entry.includes("held-funds") && view.pockets.NGN.locked >= owed.outstanding) {

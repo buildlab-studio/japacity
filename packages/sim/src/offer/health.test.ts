@@ -480,6 +480,46 @@ describe("forced months that say so a month ahead", () => {
     expect(quality(game, FORCED_WAIT)).toBe(12);
   });
 
+  /** A quick loan taken at home, then the life flown to the UK; `defaulted` lets it lapse into default first. */
+  function loanAbroad(defaulted: boolean): Game {
+    const game = life();
+    applyEffects(game, [{ type: "obligation/open", obligation: "obligation.quick-loan", principal: 5000000 }]);
+    const loan = (): string | undefined => Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.quick-loan")?.state;
+    if (defaulted) {
+      emptyNaira(game);
+      for (let month = 0; month < 4 && loan() !== "defaulted"; month += 1) game.endTurn();
+      expect(loan()).toBe("defaulted");
+      give(game, PLENTY);
+    }
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
+    expect(loan()).toBe(defaulted ? "defaulted" : "active");
+    return game;
+  }
+
+  test("[R-HEALTH-006] given a loan from home still paid on time and no car shortfall, when the court date is asked for abroad, then it does not open", () => {
+    const game = loanAbroad(false);
+    applyEffects(game, [{ type: "offer/open", offer: COURT }]);
+    expect(openOf(game, COURT)).toBeUndefined();
+  });
+
+  test("[R-HEALTH-006] given a quick loan from home in default, owed in naira, when the court date is asked for in the UK, then it does not open: a loan owed at home brings no court abroad", () => {
+    const game = loanAbroad(true);
+    applyEffects(game, [{ type: "offer/open", offer: COURT }]);
+    expect(openOf(game, COURT)).toBeUndefined();
+  });
+
+  test("[R-HEALTH-006] given the car shortfall owed in pounds and left to fall into default in the UK, when the court date is asked for, then it opens", () => {
+    const game = life();
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }, { type: "obligation/open", obligation: "obligation.car-shortfall", principal: 120000 }]);
+    const shortfall = (): string | undefined => Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.car-shortfall")?.state;
+    // Opened by hand, the shortfall credits its principal (R-OBLIGATION-006); it is taken away so nothing pays it.
+    applyEffects(game, [{ type: "money/take", currency: "GBP", pocket: "bank", amount: game.state.wallet.pockets.GBP.bank, reason: "mishap" }]);
+    for (let month = 0; month < 4 && shortfall() !== "defaulted"; month += 1) game.endTurn();
+    expect(shortfall()).toBe("defaulted");
+    applyEffects(game, [{ type: "offer/open", offer: COURT }]);
+    expect(openOf(game, COURT)).toBeDefined();
+  });
+
   test("[R-HEALTH-006] given each entry that says so a month ahead, when its `lockNext` is read, then a choice locks exactly that and every lock among its choices is that one", () => {
     const ahead = Object.values(content.offer).filter((entry) => entry.lockNext !== undefined);
     expect(ahead.map((entry) => entry.id).sort()).toEqual([COURT, BURIAL]);
