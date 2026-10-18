@@ -2,12 +2,12 @@
 // once, so its draw is on sale. Nothing here starts the stack: `pnpm dev:full` does.
 import { fileURLToPath } from "node:url";
 
-import { request } from "@playwright/test";
+import { request, test } from "@playwright/test";
 
 import { realTarget } from "../../../../tools/local/access";
 import { cronUrl, readLocalStack } from "../../../../tools/local/env";
 
-export default async function stackSetup(): Promise<void> {
+async function stackSetup(): Promise<void> {
   const stack = readLocalStack(fileURLToPath(new URL("../../../..", import.meta.url)));
   const target = realTarget(process.env, stack.siteUrl);
   const http = await request.newContext({ ignoreHTTPSErrors: target.local, extraHTTPHeaders: target.headers });
@@ -28,3 +28,7 @@ export default async function stackSetup(): Promise<void> {
     await http.dispose();
   }
 }
+
+test("before the real tests, the stack answers and the world has ticked", async () => {
+  await stackSetup();
+});
