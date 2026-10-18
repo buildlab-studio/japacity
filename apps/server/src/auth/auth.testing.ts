@@ -146,7 +146,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     },
   };
   const auth = makeAuth(base, options.adapter ?? memoryAuthAdapter(tables), keys);
-  const deps: ServerDeps = { ...base, session: sessionReader(auth) };
+  const deps: ServerDeps = { ...base, session: sessionReader(auth, base) };
   const app = makeApp(deps, { auth, keys });
 
   const call: Harness["call"] = async (path, init = {}) => {

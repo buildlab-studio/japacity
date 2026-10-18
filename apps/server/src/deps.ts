@@ -113,8 +113,8 @@ export interface Limiters {
 }
 
 /**
- * Who sent a request: the signed-in account and whether its session was opened
- * with a passkey (moderation:admin-view-for-admin-list), or null. The auth module provides it;
+ * Who sent a request: the signed-in account and whether its session has shown a
+ * user-verified passkey within the admin window (moderation:admin-view-for-admin-list), or null. The auth module provides it;
  * tests hand in a stand-in.
  */
 export type SessionReader = (request: Request) => Promise<{ account: string; passkey: boolean } | null>;

@@ -8,7 +8,7 @@ describe("the session reader", () => {
     const h = harness();
     const { account } = await h.signUp("ada@example.com");
     const { headers } = await (await h.helpers()).login({ userId: account });
-    const read = sessionReader(h.auth);
+    const read = sessionReader(h.auth, h.deps);
     expect(await read(new Request(`${SITE}/api/view`, { headers }))).toEqual({ account, passkey: false });
     expect(await read(new Request(`${SITE}/api/view`))).toBeNull();
   });

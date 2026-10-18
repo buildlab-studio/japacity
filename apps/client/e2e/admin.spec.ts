@@ -1,7 +1,10 @@
+import { generateKeyPairSync } from "node:crypto";
+
 import { expect, test, type Page, type Route } from "@playwright/test";
 
 // The admin routes are answered in the browser from the page's own fixtures: the dev server has no server behind it.
 import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.testing";
+import { json, ONLINE, quietSocket } from "./support/api";
 import { type Broken, expectNothingBroken, NEVER_SHOWN } from "./support/check";
 import { shootAtSize } from "./support/preview";
 
@@ -78,5 +81,114 @@ test("an account off the admin list that visits /admin sees the ordinary app", a
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible();
   await expect.poll(() => seen.some((each) => each.path === "/api/account")).toBe(true);
   await expect(page.getByRole("tablist", { name: "Admin areas" })).toHaveCount(0);
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/");
   expect(seen.filter((each) => each.path.startsWith("/api/admin/"))).toEqual([]);
+});
+
+/** An account's row as the server answers it online; `listed` adds what the server tells an account on the admin list. */
+function row(over: Record<string, unknown>): object {
+  return { id: "account.ada", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: "ada@example.com", passkeys: 1 }, ...over };
+}
+
+const SIGNED_OUT_ROW = { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in first." } };
+
+/** Online, the server answered in the page: the account's row as given, every other /api route as for no session. The requests the page made, by path. */
+async function onlineServer(page: Page, account: { status: number; body: unknown }): Promise<{ api: string[]; modules: string[] }> {
+  const seen = { api: [] as string[], modules: [] as string[] };
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path.startsWith("/api/")) seen.api.push(`${request.method()} ${path}`);
+    else if (path.includes("/features/admin/")) seen.modules.push(path);
+  });
+  await quietSocket(page);
+  await page.route(
+    (url) => url.pathname.startsWith("/api/"),
+    (route) => {
+      const path = new URL(route.request().url()).pathname;
+      if (path === "/api/account") return route.fulfill(json(account.body, account.status));
+      return route.fulfill(json(SIGNED_OUT_ROW.body, 401));
+    },
+  );
+  return seen;
+}
+
+/** What a visit to `path` online leaves: the address, the /api requests as a set, the admin modules fetched. */
+async function visit(page: Page, path: string, account: { status: number; body: unknown }): Promise<{ at: string; api: string[]; modules: string[] }> {
+  const seen = await onlineServer(page, account);
+  await page.goto(`${ONLINE}${path}`);
+  await expect.poll(() => new URL(page.url()).pathname, { timeout: 30_000 }).toBe("/");
+  await page.waitForLoadState("networkidle");
+  return { at: new URL(page.url()).pathname, api: [...new Set(seen.api)].sort(), modules: seen.modules.filter((module) => !module.endsWith("/adminPath.ts")) };
+}
+
+test("[moderation:admin-view-for-admin-list] [server:unknown-address-becomes-root] online: a signed-out browser, a guest and a kept account off the admin list at /admin see what an unknown address shows, with the same requests, / in the address bar and no admin code fetched", async ({ browser }) => {
+  test.setTimeout(180_000);
+  const accounts = {
+    "signed out": SIGNED_OUT_ROW,
+    guest: { status: 200, body: { ok: true, account: row({ state: "guest", ways: { google: null, email: null, passkeys: 0 } }) } },
+    "kept, off the list": { status: 200, body: { ok: true, account: row({}) } },
+  };
+  for (const [who, account] of Object.entries(accounts)) {
+    const one = await browser.newContext();
+    const unknown = await visit(await one.newPage(), "/somewhere-else", account);
+    await one.close();
+    const other = await browser.newContext();
+    const admin = await visit(await other.newPage(), "/admin", account);
+    await other.close();
+    expect({ who, ...admin }).toEqual({ who, ...unknown });
+    expect({ who, modules: admin.modules, adminApi: admin.api.filter((request) => request.includes("/api/admin")) }).toEqual({ who, modules: [], adminApi: [] });
+  }
+});
+
+/** A passkey in the browser's own virtual authenticator, as a phone would hold it, for the address the online server runs at. */
+async function virtualPasskey(page: Page): Promise<string> {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("WebAuthn.enable");
+  const { authenticatorId } = await cdp.send("WebAuthn.addVirtualAuthenticator", {
+    options: { protocol: "ctap2", transport: "internal", hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true },
+  });
+  const credentialId = Buffer.from("owner-passkey").toString("base64");
+  const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+  await cdp.send("WebAuthn.addCredential", {
+    authenticatorId,
+    credential: { credentialId, isResidentCredential: true, rpId: "localhost", privateKey: privateKey.export({ format: "der", type: "pkcs8" }).toString("base64"), userHandle: Buffer.from("owner").toString("base64"), signCount: 0 },
+  });
+  return Buffer.from("owner-passkey").toString("base64url");
+}
+
+test("[moderation:admin-view-for-admin-list] online: a listed admin whose session has not shown a passkey is asked for it at /admin over the game, shows it from this browser, and the admin page opens at /admin", async ({ page }, info) => {
+  test.setTimeout(120_000);
+  const credential = await virtualPasskey(page);
+  let held = false;
+  const asked: string[] = [];
+  await quietSocket(page);
+  await page.route(
+    (url) => url.pathname.startsWith("/api/"),
+    (route) => {
+      const request = route.request();
+      const path = new URL(request.url()).pathname;
+      if (path === "/api/account") return route.fulfill(json({ ok: true, account: row({ id: "account.owner", admin: held, adminNeedsPasskey: !held }) }));
+      if (path === "/api/auth/passkey/generate-authenticate-options") {
+        asked.push(path);
+        return route.fulfill(json({ challenge: Buffer.from("a challenge of the server's").toString("base64url"), rpId: "localhost", allowCredentials: [{ id: credential, type: "public-key", transports: ["internal"] }], userVerification: "preferred", timeout: 60_000 }));
+      }
+      if (path === "/api/auth/passkey/verify-authentication" && request.method() === "POST") {
+        const body = request.postDataJSON() as { response: { id: string; response: { authenticatorData: string } } };
+        asked.push(`${path} ${body.response.id}`);
+        held = true;
+        return route.fulfill(json({ session: { token: "stepped-up" }, user: { id: "account.owner" } }));
+      }
+      const answer = path.startsWith("/api/admin/") ? ADMIN_GETS[path] : undefined;
+      return route.fulfill(answer === undefined ? json({ ok: false, code: "signed-out", detail: "Sign in first." }, 401) : json(answer));
+    },
+  );
+  await page.goto(`${ONLINE}/admin`);
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByText("The admin view needs your passkey.")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("tablist", { name: "Admin areas" })).toHaveCount(0);
+  await shootAtSize(page, "admin-passkey", info.project.name);
+  await sheet.getByRole("button", { name: "Use my passkey" }).click();
+  await expect(page.getByRole("heading", { name: "Admin", level: 1 })).toBeVisible({ timeout: 30_000 });
+  expect(new URL(page.url()).pathname).toBe("/admin");
+  expect(asked).toEqual(["/api/auth/passkey/generate-authenticate-options", `/api/auth/passkey/verify-authentication ${credential}`]);
 });

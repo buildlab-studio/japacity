@@ -296,7 +296,7 @@ export const STATS: StatsReply = {
 
 /** Every admin GET this page makes, by path without its query. */
 export const ADMIN_GETS: Record<string, unknown> = {
-  "/api/account": { ok: true, account: { id: "account.owner", country: "NG", age: { passed: true, method: "declared" }, createdAt: NOW - 90 * DAY_MS, character: null, admin: true } },
+  "/api/account": { ok: true, account: { id: "account.owner", country: "NG", age: { passed: true, method: "declared" }, createdAt: NOW - 90 * DAY_MS, character: null, admin: true, ways: { google: null, email: "owner@example.com", passkeys: 1 } } },
   "/api/admin/report": REPORT,
   "/api/admin/alarms": ALARMS,
   "/api/admin/rejections": REJECTIONS,

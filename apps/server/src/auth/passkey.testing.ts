@@ -44,8 +44,8 @@ function cborBytes(bytes: Uint8Array): number[] {
   return [...head, ...bytes];
 }
 
-/** User present, user verified; with the attested credential data flag when a credential follows. */
-const FLAGS = { signIn: 0x05, register: 0x45 };
+/** User present, user verified; with the attested credential data flag when a credential follows; user present alone for a passkey that checks no one. */
+const FLAGS = { signIn: 0x05, register: 0x45, presentOnly: 0x01 };
 
 export interface SoftwarePasskey {
   /** The credential id, base64url, as the passkey row stores it. */
@@ -55,10 +55,11 @@ export interface SoftwarePasskey {
   /** Registers the passkey through the library from the jar's session, running `between` after the options are given; the status and body of the verification. */
   register: (h: Harness, jar: Jar, between?: () => Promise<void>) => Promise<{ options: number; status: number; body: Record<string, unknown> }>;
   /** Signs in with the passkey into `jar` (a fresh one unless given), running `between` after the options are given. */
-  signIn: (h: Harness, jar?: Jar, between?: () => Promise<void>) => Promise<{ jar: Jar; status: number }>;
+  signIn: (h: Harness, jar?: Jar, between?: () => Promise<void>) => Promise<{ jar: Jar; status: number; body: Record<string, unknown> }>;
 }
 
-export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<SoftwarePasskey> {
+/** `userVerified`: whether the passkey's sign-ins say the person was checked (a face, a fingerprint, a screen lock); they do unless a test says not. */
+export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ", { userVerified = true }: { userVerified?: boolean } = {}): Promise<SoftwarePasskey> {
   const keys = (await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"])) as CryptoKeyPair;
   const jwk = (await crypto.subtle.exportKey("jwk", keys.publicKey)) as JsonWebKey;
   const publicKey = coseKey(fromBase64Url(jwk.x ?? ""), fromBase64Url(jwk.y ?? ""));
@@ -97,7 +98,7 @@ export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<So
     await between?.();
     const clientData = new TextEncoder().encode(JSON.stringify({ type: "webauthn.get", challenge: options.challenge, origin: SITE, crossOrigin: false }));
     counter += 1;
-    const authenticatorData = Uint8Array.from([...rpIdHash, FLAGS.signIn, 0, 0, 0, counter]);
+    const authenticatorData = Uint8Array.from([...rpIdHash, userVerified ? FLAGS.signIn : FLAGS.presentOnly, 0, 0, 0, counter]);
     const signed = Uint8Array.from([...authenticatorData, ...(await sha256(clientData))]);
     const signature = der(new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, keys.privateKey, signed)));
     const response = {
@@ -108,7 +109,7 @@ export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<So
       clientExtensionResults: {},
     };
     const reply = await h.call("/api/auth/passkey/verify-authentication", { method: "POST", jar, json: { response } });
-    return { jar, status: reply.status };
+    return { jar, status: reply.status, body: await reply.json<Record<string, unknown>>() };
   };
 
   return { id, store, register, signIn };

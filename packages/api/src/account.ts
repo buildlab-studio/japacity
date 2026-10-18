@@ -31,8 +31,13 @@ export interface AccountView {
   character: string | null;
   /** analytics:player-can-stop-usage-counts: the "Send usage counts" setting. */
   sendUsageCounts: boolean;
-  /** moderation:admin-view-for-admin-list: the account is on `config.admin.accounts` and this session was opened with a passkey, so the client mounts the admin page. */
+  /** moderation:admin-view-for-admin-list: the account is on `config.admin.accounts` and this session has shown a passkey recently, so the client mounts the admin page. */
   admin: boolean;
+  /**
+   * moderation:admin-view-for-admin-list: present only for an account on the admin list: true while this session has not shown a
+   * passkey recently, so `/admin` asks for one. Absent for everyone else.
+   */
+  adminNeedsPasskey?: boolean;
   /** account:guest-and-secured-states: a guest's life lives only in this browser until it is secured. */
   state: "guest" | "secured";
   /** account:username-and-unconfirmed-email. */

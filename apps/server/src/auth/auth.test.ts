@@ -255,7 +255,7 @@ describe("signing in", () => {
     expect(line).toContain("SameSite=Lax");
   });
 
-  test("[account:session-is-secure-cookie] given an account signed in twice, when it removes a passkey, then every session ends", async () => {
+  test("[account:session-is-secure-cookie] given an account signed in twice, when it removes a passkey, then the other session ends and the one that removed it stays", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const other = makeJar();
@@ -264,9 +264,10 @@ describe("signing in", () => {
     h.tables.passkey.push({ id: "passkey-1", userId: account, publicKey: "key", credentialID: "credential-1", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: new Date() });
     const removed = await h.call("/api/auth/passkey/delete-passkey", { method: "POST", jar, json: { id: "passkey-1" } });
     expect(removed.status).toBe(200);
-    expect(h.tables.session).toHaveLength(0);
-    expect((await h.call("/api/account", { jar })).status).toBe(401);
+    expect(h.tables.session).toHaveLength(1);
+    expect((await h.call("/api/account", { jar })).status).toBe(200);
     expect((await h.call("/api/account", { jar: other })).status).toBe(401);
+    expect(h.tables.passkey).toEqual([]);
   });
 });
 

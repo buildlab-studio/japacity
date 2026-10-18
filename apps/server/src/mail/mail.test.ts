@@ -51,24 +51,25 @@ function inbox(status = 200): { fetch: MailFetch; sent: { url: string; body: unk
 }
 
 describe("the mail transport", () => {
-  test("[account:sign-in-routes-rate-limited] given MAIL_TRANSPORT=mailpit with Mailpit on this machine, when a code is sent, then it is posted to Mailpit's send API with the reply-to, content's subject and a body naming the code and its minutes", async () => {
+  test("[account:sign-in-routes-rate-limited] given MAIL_TRANSPORT=mailpit with Mailpit on this machine, when a code is sent, then it is posted to Mailpit's send API with the reply-to, a subject that leads with the code and a body naming the code and its minutes", async () => {
     const box = inbox();
     const mail = mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
     await mail.sendOtp({ email: "ada@example.com", otp: "481516", type: "sign-in" });
     expect(box.sent).toEqual([
       {
         url: `${MAILPIT}/api/v1/send`,
-        body: { From: LOCAL_SENDER, ReplyTo: [{ Email: "hello@japacity.app" }], To: [{ Email: "ada@example.com" }], Subject: text["mail.code.subject"], Text: expect.stringContaining("481516") as unknown, HTML: expect.stringContaining("481516") as unknown },
+        body: { From: LOCAL_SENDER, ReplyTo: [{ Email: "hello@japacity.app" }], To: [{ Email: "ada@example.com" }], Subject: "481516 is your Japacity code", Text: expect.stringContaining("481516") as unknown, HTML: expect.stringContaining("481516") as unknown },
       },
     ]);
     expect(codeMail({ email: "ada@example.com", otp: "481516", type: "sign-in" }, WORDS).text).toContain(`${String(productionConfig.auth.otp.expiresIn / 60)} minutes`);
   });
 
-  test("[account:passkey-needs-signed-in-session] [account:sign-in-routes-rate-limited] given the local transport, when a passkey's notice is sent, then Mailpit gets content's notice with the time in UTC", async () => {
+  test("[account:passkey-needs-signed-in-session] [account:sign-in-routes-rate-limited] given the local transport, when a passkey's notice is sent, then Mailpit gets content's notice with the time in UTC and where to remove it", async () => {
     const box = inbox();
     const mail = mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
     await mail.sendNotice({ email: "ada@example.com", kind: "passkey-added", at: Date.UTC(2026, 9, 11, 9, 53) });
     expect(box.sent[0]?.body).toMatchObject({ Subject: text["mail.passkey-added.subject"], Text: expect.stringContaining("Sun, 11 Oct 2026 09:53:00 GMT") as unknown });
+    expect(box.sent[0]?.body).toMatchObject({ Text: expect.stringContaining("to remove it and sign out on every phone") as unknown });
   });
 
   // A deployment sends through its MAIL binding (decision 0007); one without it sends nothing.
@@ -115,14 +116,14 @@ describe("the mail transport", () => {
 });
 
 describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
-  test("[account:sign-in-routes-rate-limited] [account:email-code-is-short-lived] given the MAIL binding and no MAIL_TRANSPORT, as on a deployment, when a code is sent, then the binding gets one mail from the game's one sender, replies to the monitored inbox, to the one address, with content's subject and a text part and an HTML part that both say the code, and nothing is fetched", async () => {
+  test("[account:sign-in-routes-rate-limited] [account:email-code-is-short-lived] given the MAIL binding and no MAIL_TRANSPORT, as on a deployment, when a code is sent, then the binding gets one mail from the game's one sender, replies to the monitored inbox, to the one address, with a subject that leads with the code and a text part and an HTML part that both say the code, and nothing is fetched", async () => {
     const box = inbox();
     for (const MAIL_TRANSPORT of [undefined, "", "smtp"]) {
       const mail = binding();
       const settings = MAIL_TRANSPORT === undefined ? { MAIL: mail } : { MAIL_TRANSPORT, MAIL: mail };
       await mailFor(settings, WORDS, box.fetch).sendOtp({ email: "ada@example.com", otp: "481516", type: "sign-in" });
       const letter = codeMail({ email: "ada@example.com", otp: "481516", type: "sign-in" }, WORDS);
-      expect(mail.given).toEqual([{ from: { email: "game@mail.japacity.app", name: "Japacity" }, replyTo: "hello@japacity.app", to: "ada@example.com", subject: text["mail.code.subject"], text: letter.text, html: letter.html }]);
+      expect(mail.given).toEqual([{ from: { email: "game@mail.japacity.app", name: "Japacity" }, replyTo: "hello@japacity.app", to: "ada@example.com", subject: "481516 is your Japacity code", text: letter.text, html: letter.html }]);
       expect(letter.text).toContain("481516");
       expect(letter.html).toContain("<p>Your code is 481516.");
     }

@@ -1,8 +1,9 @@
 // The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
-// passkey for a guest (account:guest-secures-the-life), the sessions that end when a method is
-// removed (account:session-is-secure-cookie), and who may add a passkey and what each addition
-// leaves behind (account:passkey-needs-signed-in-session).
+// passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
+// removed (account:session-is-secure-cookie), who may add a passkey and what each addition
+// leaves behind (account:passkey-needs-signed-in-session), and the passkey step-up of a signed-in
+// session (moderation:admin-view-for-admin-list).
 // https://better-auth.com/docs/concepts/hooks
 // https://better-auth.com/docs/concepts/rate-limit
 // https://pages.nist.gov/800-63-4/sp800-63b/events/ (4.1.2.1, 4.6)
@@ -12,6 +13,7 @@ import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "b
 import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../deps";
 import type { AuthKeys } from "./auth";
+import { passkeyShown } from "./session";
 import type { SignedInWith } from "./session";
 
 /** The library's rate-limit table, which the `database` store keeps (account:sign-in-routes-rate-limited). */
@@ -26,9 +28,14 @@ export const EMAIL_LIMIT_WINDOW_MS = 60_000;
 const SEND_PATH = "/email-otp/send-verification-otp";
 const UNLINK_PATHS = new Set(["/unlink-account", "/passkey/delete-passkey"]);
 const VERIFY_REGISTRATION_PATH = "/passkey/verify-registration";
+const VERIFY_AUTHENTICATION_PATH = "/passkey/verify-authentication";
 const REGISTER_PATHS = new Set(["/passkey/generate-register-options", VERIFY_REGISTRATION_PATH]);
 
-export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is added only from a session opened with a passkey; sign in with yours first.";
+export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is added only from a session that has shown a passkey; use yours first.";
+
+/** The code and words of a passkey that belongs to another account than the signed-in one (moderation:admin-view-for-admin-list). */
+export const OTHER_ACCOUNT = "other-account";
+export const OTHER_ACCOUNT_DETAIL = "That passkey is for another account. Use the one for this account.";
 
 /**
  * account:passkey-needs-signed-in-session: the audit rows that hold passkey registrations are filed
@@ -139,12 +146,12 @@ async function limitEmailSends(deps: ServerDeps, ctx: HookContext): Promise<void
 /** How the request's session was opened, from the field the session hook set (session.ts). */
 function openedWith(session: { session: Record<string, unknown> }): SignedInWith {
   const method = session.session["signedInWith"];
-  return method === "passkey" || method === "email-code" || method === "google" ? method : "other";
+  return method === "passkey" || method === "passkey-unverified" || method === "email-code" || method === "google" ? method : "other";
 }
 
 /**
  * account:passkey-needs-signed-in-session, moderation:admin-view-for-admin-list: an account on the admin list that already
- * holds a passkey adds another only from a session opened with a passkey.
+ * holds a passkey adds another only from a session that has shown a passkey.
  * Checked when the options are asked for and again at the verification,
  * which is where the passkey is stored.
  */
@@ -152,7 +159,7 @@ async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<v
   if (!REGISTER_PATHS.has(ctx.path ?? "")) return;
   const session = await getSessionFromCtx(ctx);
   if (session === null || !deps.config.admin.accounts.includes(session.user.id)) return;
-  if (openedWith(session) === "passkey") return;
+  if (passkeyShown(session.session, deps.now(), deps.config.admin.passkeyMs)) return;
   const held = await ctx.context.adapter.count({ model: "passkey", where: [{ field: "userId", value: session.user.id }] });
   if (held > 0) throw new APIError("FORBIDDEN", { message: ADMIN_PASSKEY_BIND_DETAIL });
 }
@@ -171,6 +178,28 @@ async function guardGuestPasskeys(ctx: HookContext): Promise<void> {
   }
 }
 
+/** The credential id a passkey assertion names, as the passkey row stores it. */
+function assertedCredential(body: unknown): string | null {
+  const id = (body as { response?: { id?: unknown } } | undefined)?.response?.id;
+  return typeof id === "string" && id !== "" ? id : null;
+}
+
+/**
+ * moderation:admin-view-for-admin-list: a passkey shown from a browser signed in to a kept account steps that account up,
+ * so it must be one of that account's own passkeys; another account's is refused before anything is verified or opened.
+ * A browser signed out, or holding a dead cookie (dropped before the library, stale.ts), signs in as ever, and a guest's
+ * sign-in to another account is refused by the session hook (account:guest-secures-the-life).
+ */
+async function guardStepUp(ctx: HookContext): Promise<void> {
+  if (ctx.path !== VERIFY_AUTHENTICATION_PATH) return;
+  const credential = assertedCredential(ctx.body);
+  if (credential === null) return;
+  const session = await getSessionFromCtx(ctx, { disableRefresh: true });
+  if (session === null || (session.user as { isAnonymous?: unknown }).isAnonymous === true) return;
+  const passkey = await ctx.context.adapter.findOne<{ userId: string }>({ model: "passkey", where: [{ field: "credentialID", value: credential }] });
+  if (passkey !== null && passkey.userId !== session.user.id) throw new APIError("FORBIDDEN", { code: OTHER_ACCOUNT, message: OTHER_ACCOUNT_DETAIL });
+}
+
 /** The hooks run before every library route. */
 export function beforeAuth(deps: ServerDeps) {
   return createAuthMiddleware(async (ctx) => {
@@ -178,6 +207,7 @@ export function beforeAuth(deps: ServerDeps) {
     await guardGuestPasskeys(ctx);
     await limitEmailSends(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
+    await guardStepUp(ctx);
   });
 }
 
@@ -206,19 +236,44 @@ async function notePasskey(deps: ServerDeps, keys: AuthKeys, ctx: HookContext): 
   keys.background(keys.sendNotice({ email: user.email, kind: "passkey-added", at }));
 }
 
-/** account:session-is-secure-cookie: removing a linked Google account or a passkey ends every session of that account. */
+/** account:session-is-secure-cookie: removing a linked Google account or a passkey ends every other session of that account; the one that removed it stays. */
 async function endSessionsOnUnlink(ctx: HookContext): Promise<void> {
   if (!UNLINK_PATHS.has(ctx.path ?? "")) return;
   if (isAPIError(ctx.context.returned)) return;
   const session = await getSessionFromCtx(ctx);
   if (session === null) return;
-  await ctx.context.internalAdapter.deleteUserSessions(session.user.id);
+  const internal = ctx.context.internalAdapter;
+  for (const other of await internal.listSessions(session.user.id)) if (other.token !== session.session.token) await internal.deleteSession(other.token);
+}
+
+/** The session and user a successful passkey sign-in answers with. */
+function openedSession(returned: unknown): { token: string; userId: string } | null {
+  if (typeof returned !== "object" || returned === null || isAPIError(returned)) return null;
+  const { session } = returned as { session?: { token?: unknown; userId?: unknown } };
+  return typeof session?.token === "string" && typeof session.userId === "string" ? { token: session.token, userId: session.userId } : null;
+}
+
+/**
+ * moderation:admin-view-for-admin-list: a step-up opens a new session from the passkey and the browser's cookie moves to it,
+ * so the session it stepped up from is ended (OWASP: a new session id on a change of privilege). Only a session of the same
+ * account is ended; the request's cookie is read as it came, never refreshed.
+ */
+async function endSteppedUpSession(ctx: HookContext): Promise<void> {
+  if (ctx.path !== VERIFY_AUTHENTICATION_PATH) return;
+  const opened = openedSession(ctx.context.returned);
+  if (opened === null) return;
+  const token = await ctx.getSignedCookie(ctx.context.authCookies.sessionToken.name, ctx.context.secret);
+  if (typeof token !== "string" || token === "" || token === opened.token) return;
+  const internal = ctx.context.internalAdapter;
+  const before = await internal.findSession(token);
+  if (before?.session.userId === opened.userId) await internal.deleteSession(token);
 }
 
 /** The hooks run after every library route. */
 export function afterAuth(deps: ServerDeps, keys: AuthKeys) {
   return createAuthMiddleware(async (ctx) => {
     await endSessionsOnUnlink(ctx);
+    await endSteppedUpSession(ctx);
     await notePasskey(deps, keys, ctx);
   });
 }

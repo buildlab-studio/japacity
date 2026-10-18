@@ -205,7 +205,7 @@ describe("the admin's reads (server:ledger-alarm-lists-suspects)", () => {
     await key.store(h, account);
     const { jar, status } = await key.signIn(h);
     expect(status).toBe(200);
-    return { jar, config: { ...productionConfig, admin: { accounts: [account] } } };
+    return { jar, config: { ...productionConfig, admin: { ...productionConfig.admin, accounts: [account] } } };
   }
 
   /** Each statement after the transaction's `begin` that reads or writes runs after the timeout was set in that transaction. */
