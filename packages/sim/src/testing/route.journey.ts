@@ -4,10 +4,11 @@
 import type { Registry } from "../engine/kind";
 import { drawAt, scaleDraw } from "../engine/random";
 import { stepWith } from "../engine/step";
-import type { Cause, Content, Ctx, Effect, Id, Random, RouteState, ScenarioEntry, SlotPick, Stream, Terms, Tuning } from "../engine/types";
+import type { Cause, Content, Ctx, Effect, Id, Random, ReportLine, RouteState, ScenarioEntry, SlotPick, Stream, Terms, Tuning } from "../engine/types";
 import { registry } from "../kinds";
 import type { Game } from "./play";
 import { start } from "./play";
+import { routeOf } from "./read";
 import { standInWorld } from "../world/standIn";
 import { offerChanceBp } from "../route/route.logic";
 
@@ -261,4 +262,17 @@ export function applyEffects(game: Game, effects: Effect[], terms: Terms = {}): 
   const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
   if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
   game.state = result.state;
+}
+
+/** The route's report lines from carrying out effects as an offer's take would. */
+export function linesOf(game: Game, effects: Effect[], terms: Terms): ReportLine[] {
+  const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
+  if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
+  return result.lines.filter((line) => line.key.startsWith("line.route."));
+}
+
+/** Months pass until the application's decision month has come and gone. */
+export function pastDecision(game: Game, route: Id<"route">): void {
+  const decision = routeOf(game, route).visa!.decisionMonth;
+  while (game.state.turn.month < decision) game.endTurn();
 }

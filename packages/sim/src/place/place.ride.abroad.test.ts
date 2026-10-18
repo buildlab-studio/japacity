@@ -5,12 +5,12 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { BP_WHOLE, divCeil, mulDiv } from "../engine/int";
-import type { Accepted, BaseEvent, Currency, Effect, Id } from "../engine/types";
+import type { Currency, Effect, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown } from "../testing/place.journey";
-import { debits } from "../testing/read";
+import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, withinMetres } from "./place.logic";
 
 const UK: Id<"country"> = "country.uk";
@@ -43,10 +43,6 @@ function pounds(game: Game, cash: number, bank = 0): void {
     ...(bank > 0 ? [{ type: "money/add", currency: "GBP", pocket: "bank", amount: bank, reason: "gift" } as const] : []),
   ];
   applyEffects(game, [...takes, ...adds]);
-}
-
-function rode(result: Accepted): BaseEvent | undefined {
-  return result.events.find((event) => event.type === "place/rode");
 }
 
 describe("the fare abroad", () => {

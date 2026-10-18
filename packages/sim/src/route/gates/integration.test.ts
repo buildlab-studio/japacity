@@ -4,9 +4,9 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
-import type { Content, Id, ScenarioEntry, Tuning } from "../../engine/types";
+import type { Content, Id, ScenarioEntry } from "../../engine/types";
 import type { Game } from "../../testing/play";
-import { flown } from "../../testing/place.journey";
+import { ALWAYS_GRANTED, flown } from "../../testing/place.journey";
 import { readOf, routeOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
@@ -16,7 +16,6 @@ const CARE: Id<"route"> = "route.uk-care";
 const GULF: Id<"route"> = "route.gulf-contract";
 const SKILLED: Id<"route"> = "route.uk-skilled";
 const UK: Id<"route"> = "route.uk-masters";
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
 const CARE_BAR = content.var["var.uk-care-salary"]!.start;
 const BAN_MONTHS = 3;
 

@@ -4,12 +4,13 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
-import type { Id, PersonFacts, RouteStateName, Tuning } from "../../engine/types";
+import type { Id, PersonFacts, RouteStateName } from "../../engine/types";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
-import { slot } from "../../testing/route.journey";
+import { pastDecision, slot } from "../../testing/route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
 import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/people.journey";
+import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import { pounds, readOf, routeOf } from "../../testing/read";
 
 const ukDependant = content.route[UK_DEPENDANT]!;
@@ -18,7 +19,6 @@ const APPLY_CA: Id<"activity"> = "activity.apply-ca-accompany";
 const SKILLED_FEE = content.var["var.uk-skilled-visa-fee"]!.start;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const MAINTENANCE = content.var["var.uk-dependant-maintenance"]!.start;
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
 const EXEMPT = ukDependant.dependant!.leadMonthsExempt!;
 
 /** A lead at home whose skilled worker application is in this state. */
@@ -46,11 +46,6 @@ function sent(leadState: RouteStateName = "applying", options: LifeOptions = {})
   game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
   expect(routeOf(game, UK_DEPENDANT).state).toBe("applying");
   return game;
-}
-
-function pastDecision(game: Game, route: Id<"route">): void {
-  const decision = routeOf(game, route).visa!.decisionMonth;
-  while (game.state.turn.month < decision) game.endTurn();
 }
 
 describe("R-PEOPLE-019, 020: who may bring a partner", () => {

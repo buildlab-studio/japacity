@@ -4,12 +4,12 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Id, StepResult } from "../engine/types";
+import type { Id } from "../engine/types";
 import { BOND, joint, SKILLED, UK_DEPENDANT } from "../testing/people.journey";
 import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
-import { eventsOf } from "../testing/read";
+import { closed, eventsOf } from "../testing/read";
 import { grantedRoute, leanRoute } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -21,12 +21,6 @@ const CARE_FILE: Id<"chapter"> = "chapter.build-the-file-care";
 const DECISION: Id<"chapter"> = "chapter.decision-day";
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
 const LANDING: Id<"chapter"> = "chapter.landing";
-
-type Accepted = Extract<StepResult, { ok: true }>;
-
-function closed(result: Accepted): unknown[] {
-  return result.events.filter((event) => event.type === "chapter/closed");
-}
 
 /** Tunde with the master's heard of, the month he looks into it: the first chapter closes on its items at this month's end. */
 function aboutToLookIntoUk(): Game {

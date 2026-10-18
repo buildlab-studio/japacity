@@ -6,12 +6,12 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { divCeil, mulDiv } from "../engine/int";
-import type { Accepted, BaseEvent, CountryRides, Currency, Effect, Id, RideWay } from "../engine/types";
+import type { Accepted, CountryRides, Currency, Effect, Id, RideWay } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown } from "../testing/place.journey";
-import { debits } from "../testing/read";
+import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, shuttleRide, withinMetres } from "./place.logic";
 
 const CANADA: Id<"country"> = "country.canada";
@@ -51,10 +51,6 @@ function money(game: Game, country: Id<"country">, cash: number): void {
   const currency = MONEY[country];
   if (currency === undefined) throw new Error(`No money for ${country}.`);
   applyEffects(game, [...takes, ...(cash > 0 ? [{ type: "money/add", currency, pocket: "cash", amount: cash, reason: "gift" } as const] : [])]);
-}
-
-function rode(result: Accepted): BaseEvent | undefined {
-  return result.events.find((event) => event.type === "place/rode");
 }
 
 /** The fare the country's way asks between two places, by the simulation's own function. */

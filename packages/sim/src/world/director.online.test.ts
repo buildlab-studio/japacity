@@ -8,6 +8,7 @@ import type { Content, EraEntry, Id, NewsEntry, World } from "../engine/types";
 import type { DirectorBook, DirectorTick, WorldCalendar } from "./director";
 import { directorTicks, offlineCalendar, stepWorld } from "./director";
 import { standInWorld, standInWorlds } from "./standIn";
+import { pooled, stageOf, starts } from "../testing/world";
 
 const { director } = content.tuning;
 const SCALE = director.onlineTickScale;
@@ -17,17 +18,6 @@ const DECEMBER: Id<"var"> = "var.season-december";
 
 /** A calendar that is not the offline one: a December of 62 ticks in each year of 730. */
 const realish = (tick: number): WorldCalendar => ({ december: tick % 730 >= 200 && tick % 730 < 262 });
-
-/** A director story for a test pool. It fires on every roll it is allowed and stays in force for good unless told otherwise. */
-function pooled(id: Id<"news">, rules: Partial<NonNullable<NewsEntry["director"]>> = {}, standIn: Partial<NewsEntry["standIn"]> = {}): NewsEntry {
-  return {
-    id,
-    touches: [],
-    hear: [],
-    director: { group: "test", needs: [], cooldown: 0, once: false, shock: false, endedBy: null, adds: [], ...rules },
-    standIn: { chanceBp: 10000, announce: { between: [0, 0] }, rumourLead: 0, forceLag: 2, endsAfter: null, sets: [], revert: false, ...standIn },
-  };
-}
 
 function era(id: Id<"era">, ticks: [number, number], after: Record<string, number>): EraEntry {
   return { id, ticks, weights: {}, after, once: false, story: content.era[id]!.story };
@@ -46,14 +36,6 @@ function withPool(news: NewsEntry[], change: { eras?: Content["era"]; director?:
     var: { ...content.var, ...change.vars },
     tuning: { ...content.tuning, director: { ...director, ...change.director } },
   };
-}
-
-function starts(ticks: DirectorTick[], id: Id<"news">): number[] {
-  return ticks.filter((tick) => tick.started.includes(id)).map((tick) => tick.tick);
-}
-
-function stageOf(world: World | DirectorTick, id: Id<"news">) {
-  return world.news.find((story) => story.id === id) ?? null;
 }
 
 /** Steps `count` ticks from `book`, keeping the book in memory. */

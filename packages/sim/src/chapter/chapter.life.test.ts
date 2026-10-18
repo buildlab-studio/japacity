@@ -12,16 +12,12 @@ import { roadCard } from "../route/gates/road";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { readOf } from "../testing/read";
+import { closed, readOf } from "../testing/read";
 import { sendOffCard, topActivities } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const STANDING: Id<"quality"> = "quality.standing";
 const cap = content.tuning.turn.cap;
-
-function closed(result: { events: { type: string }[] }): unknown[] {
-  return result.events.filter((event) => event.type === "chapter/closed");
-}
 
 type Accepted = Extract<StepResult, { ok: true }>;
 

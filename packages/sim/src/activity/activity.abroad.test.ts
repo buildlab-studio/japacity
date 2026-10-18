@@ -8,14 +8,14 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { bp, divFloor, mulDiv } from "../engine/int";
 import type { Registry } from "../engine/kind";
-import type { Accepted, Content, Id, ReadCtx, Requirement } from "../engine/types";
+import type { Content, Id, ReadCtx, Requirement } from "../engine/types";
 import { registry } from "../kinds";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths } from "../testing/place.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import { applyEffects, draw, readyLife, slot, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { type MoneyEvent, moneyOf, readOf } from "../testing/read";
+import { keys, type MoneyEvent, moneyOf, readOf } from "../testing/read";
 import { activityKind, cashWorkedThisMonth, localTenure, paramsFor, passChanceBp } from "./activity.logic";
 import { drivingAttempts, hasCar, jobTerms, monthlyPay, monthlyTax } from "./activity.pay";
 
@@ -48,10 +48,6 @@ function yearly(id: Id<"activity">): number {
   const amount = entry(id).pay?.amount;
   if (typeof amount !== "number") throw new Error(`${id} pays no fixed figure.`);
   return amount;
-}
-
-function keys(result: Accepted): string[] {
-  return result.lines.map((line) => line.key);
 }
 
 /** The route the character left on, with the sponsor's salary recorded, as the sponsor gate leaves it (R-SPONSOR-007). */

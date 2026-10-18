@@ -5,10 +5,10 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp, mulDiv } from "../engine/int";
-import type { Accepted, BaseEvent, Id, Requirement } from "../engine/types";
+import type { Id, Requirement } from "../engine/types";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { naira } from "../testing/read";
+import { naira, salaries } from "../testing/read";
 
 const OPEN: Id<"activity"> = "activity.open-shop";
 const SHOP: Id<"activity"> = "activity.run-shop";
@@ -50,13 +50,6 @@ function trader(): Game {
 
 function allowed(game: Game, id: Id<"activity">): boolean | undefined {
   return game.view().activities.find((option) => option.id === id)?.allowed;
-}
-
-function salaries(result: Accepted): number[] {
-  return result.events
-    .filter((event): event is BaseEvent & { reason: string; amount: number; currency: string } => event.type === "wallet/credited" && (event as unknown as { reason: string }).reason === "salary")
-    .filter((event) => event.currency === "NGN")
-    .map((event) => event.amount);
 }
 
 describe("the trader's own shop", () => {

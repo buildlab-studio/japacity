@@ -9,12 +9,11 @@ import { newState } from "../engine/state";
 import { registry } from "../kinds";
 import type { RouteEvent } from "../route/route.events";
 import { start } from "../testing/play";
-import { firstTick } from "../testing/world";
+import { firstTick, RANK } from "../testing/world";
 import { standInWorld } from "../world/standIn";
 
 const UK: Id<"route"> = "route.uk-masters";
 const RECRUIT: Id<"news"> = "news.uk-unis-recruit";
-const RANK: Record<NewsStage, number> = { rumour: 0, announced: 1, "in-force": 2, ended: 3 };
 
 /**
  * Five stories whose stand-in schedule the timing tests below read. The
