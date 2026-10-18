@@ -4,6 +4,7 @@
 // so there is no antialiasing and no blending. Shapes near an edge are drawn again across
 // it, so every pattern tiles.
 import { type PaletteName, paletteRgb } from "./palette";
+import { seeded } from "./seeded";
 
 export interface PatternSpec {
   kind: "ankara" | "adire" | "asoOke";
@@ -23,17 +24,6 @@ type Rgb = readonly [number, number, number];
 interface Raster {
   size: number;
   pixels: Uint8Array;
-}
-
-/** The generator, kept so a seed draws the same motif it drew there. */
-function rng(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
 }
 
 function wrapIndex(value: number, size: number): number {
@@ -100,7 +90,7 @@ function colours(cols: readonly PaletteName[] | undefined, fallback: readonly Pa
 
 /** Ankara-style wax print. cols: [background, a, b, c]. Four motif families chosen by the seed. */
 function ankara(seed: number, cols: readonly PaletteName[] | undefined, S: number): Raster {
-  const random = rng(seed);
+  const random = seeded(seed);
   const [bg = [0, 0, 0], c1 = bg, c2 = bg, c3 = bg] = colours(cols, ["indigo", "gold", "orange", "cream"]);
   const r = blank(S, bg);
   const motif = seed % 4;
@@ -169,7 +159,7 @@ function ankara(seed: number, cols: readonly PaletteName[] | undefined, S: numbe
 
 /** Adire-style resist dye: indigo ground, pale dotted rings and lines inside a grid of squares. */
 function adire(seed: number, S: number): Raster {
-  const random = rng(seed);
+  const random = seeded(seed);
   const pale = paletteRgb("cream");
   const mid = paletteRgb("blue");
   const r = blank(S, paletteRgb("indigo"));
@@ -229,7 +219,7 @@ function adire(seed: number, S: number): Raster {
 
 /** Aso oke-style strip weave: vertical stripes of seeded widths. cols: [ground, a, b]. */
 function asoOke(seed: number, cols: readonly PaletteName[] | undefined, S: number): Raster {
-  const random = rng(seed);
+  const random = seeded(seed);
   const [bg = [0, 0, 0], c1 = bg, c2 = bg] = colours(cols, ["wine", "gold", "cream"]);
   const r = blank(S, bg);
   let x = 0;
