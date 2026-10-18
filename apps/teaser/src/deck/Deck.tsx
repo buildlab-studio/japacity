@@ -11,6 +11,7 @@ import { Seal, Wordmark } from "../parts/brand";
 import { Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
 import { loadRubik } from "../parts/fonts";
 import { land, pop, ramp } from "../parts/motion";
+import { naira } from "../parts/naira";
 import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, TINT } from "@japacity/brand";
 
 export const DECK_FRAMES = 300;
@@ -204,7 +205,7 @@ function Passbook() {
         <div style={{ fontWeight: 700, fontSize: 48 }}>Bank</div>
       </div>
       <div style={{ marginTop: 26, fontWeight: 500, fontSize: 30, color: DAY.ink2 }}>Held for the road</div>
-      <div style={{ fontWeight: 700, fontSize: 108, letterSpacing: -2, lineHeight: 1.1, fontVariantNumeric: "tabular-nums" }}>₦{amount.toLocaleString("en-NG")}</div>
+      <div style={{ fontWeight: 700, fontSize: 108, letterSpacing: -2, lineHeight: 1.1, fontVariantNumeric: "tabular-nums" }}>{naira(amount)}</div>
       <div style={{ marginTop: 18, height: 24, borderRadius: 99, background: "#ffffff", overflow: "hidden" }}>
         <div style={{ width: `${String(eased * 88)}%`, height: "100%", borderRadius: 99, background: GREEN }} />
       </div>

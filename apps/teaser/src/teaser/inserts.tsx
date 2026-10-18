@@ -4,6 +4,7 @@ import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remo
 
 import { Card, Chip, Sticker } from "../parts/dress";
 import { land, pop, ramp } from "../parts/motion";
+import { naira } from "../parts/naira";
 import { DAY, FONT, GREEN, TINT } from "@japacity/brand";
 
 function Sky({ children }: { children: React.ReactNode }) {
@@ -58,7 +59,7 @@ export function SaveUp() {
             </div>
           </div>
           <div style={{ marginTop: 40, fontWeight: 500, fontSize: 34, color: DAY.ink2 }}>Held for the road</div>
-          <div style={{ fontWeight: 700, fontSize: 132, letterSpacing: -2, fontVariantNumeric: "tabular-nums", color: DAY.ink }}>₦{amount.toLocaleString("en-NG")}</div>
+          <div style={{ fontWeight: 700, fontSize: 132, letterSpacing: -2, fontVariantNumeric: "tabular-nums", color: DAY.ink }}>{naira(amount)}</div>
           <div style={{ marginTop: 30, height: 30, borderRadius: 99, background: DAY.skyDeep, overflow: "hidden" }}>
             <div style={{ width: `${String(eased * 88)}%`, height: "100%", borderRadius: 99, background: GREEN }} />
           </div>
