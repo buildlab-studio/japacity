@@ -15,7 +15,6 @@ export type Picked =
   | { kind: "thing"; thing: Thing }
   | { kind: "action"; activity: string; more?: string[]; label?: string; param?: string }
   | { kind: "command"; command: "route/pay-deposit" | "route/depart" | "obligation/pay" | "people/court" | "return/home"; with?: string }
-  | { kind: "ride"; vehicle: string }
   | { kind: "enter"; place: string }
   | { kind: "inside" }
   | { kind: "out" };

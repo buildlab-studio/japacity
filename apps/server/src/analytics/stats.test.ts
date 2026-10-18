@@ -53,7 +53,7 @@ function everything(): CounterTotal[] {
     rows.push(row(day, "players/online-peak", "peak", minShown, "all"));
     rows.push(row(day, "wallet/topped-up", "count", minShown), row(day, "wallet/topped-up", "kobo", 1000), row(day, "advert/revenue", "kobo", 5000));
     for (const key of ["under-2", "2-5", "5-15", "15-30", "over-30"]) rows.push(row(day, "sessions/length", key, minShown));
-    for (const name of ["share/pressed", "share/completed", "share/arrival"]) rows.push(row(day, name, "chapter", minShown));
+    for (const name of ["share/pressed", "share/completed"]) rows.push(row(day, name, "chapter", minShown));
     for (const step of ["begin", "world", "month-1", "chapter-1", "secured"]) rows.push(row(day, "funnel/step", step, minShown));
     for (const step of ["door-1", "door-2", "page"]) rows.push(row(day, "screen/opened", step, minShown));
     rows.push(row(day, "advert/impression", "advert.billboard-ikorodu", minShown), row(day, "advert/tap", "advert.billboard-ikorodu", minShown), row(day, "economy/held", "1-3:0", minShown));
@@ -78,7 +78,7 @@ describe("the admin's numbers", () => {
         weeks: [{ week: "string", newPlayers: "number", returned: Object.fromEntries(["d1", "d3", "d7", "d14", "d30"].map((key) => [key, { count: "number", bp: "number" }])), secured: { count: "number", bp: "number" } }],
       },
       sessions: { from: "string", to: "string", count: "number", lengths: { "under-2": "number", "2-5": "number", "5-15": "number", "15-30": "number", "over-30": "number" }, perPlayerBp: "number" },
-      shares: { from: "string", to: "string", kinds: [{ kind: "string", pressed: "number", completed: "number", arrived: "number", arrivedPerShareBp: "number" }] },
+      shares: { from: "string", to: "string", kinds: [{ kind: "string", pressed: "number", completed: "number" }] },
       adverts: { from: "string", to: "string", impressions: "number", taps: "number", revenueKobo: "number", revenuePerPlayerKobo: "number" },
       economy: { day: "string", cells: [{ months: "string", held: "string", lives: "number" }] },
     });
@@ -124,7 +124,6 @@ describe("the admin's numbers", () => {
       row(YESTERDAY, "players/guest", "NG", 200),
       row(YESTERDAY, "players/secured", "NG", 9),
       row(YESTERDAY, "share/completed", "send-off", 40),
-      row(YESTERDAY, "share/arrival", "send-off", 30),
       row(YESTERDAY, "screen/opened", "door-1", 400),
       row(YESTERDAY, "screen/opened", "door-2", 100),
       row(YESTERDAY, "screen/opened", "page", 80),
@@ -135,7 +134,7 @@ describe("the admin's numbers", () => {
     const stats = buildStats(content, input(totals));
     expect(stats.last30.rates).toEqual({ dailyOverPeriodBp: 2000, sessionsPerPlayerBp: 15000, errorsPerThousandSessions: 50, departedPerNewBp: 2500, securedPerGuestBp: null });
     expect(stats.sessions.perPlayerBp).toBe(15000);
-    expect(stats.shares.kinds.find((kind) => kind.kind === "send-off")).toMatchObject({ completed: 40, arrived: 30, arrivedPerShareBp: 7500 });
+    expect(stats.shares.kinds.find((kind) => kind.kind === "send-off")).toMatchObject({ completed: 40 });
     expect(stats.funnel.steps.slice(0, 3).map((step) => [step.step, step.count, step.ofFirstBp])).toEqual([
       ["door-1", 400, 10000],
       ["door-2", 100, 2500],

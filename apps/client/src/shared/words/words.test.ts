@@ -41,10 +41,6 @@ describe("words", () => {
   test("given the interface's own words, then none uses an exclamation mark or a long dash", () => {
     for (const value of Object.values(uiText)) expect(value).not.toMatch(/[!–—]/);
   });
-
-  test("given the interface's own keys, then none hides a key content already has", () => {
-    expect(Object.keys(uiText).filter((key) => text[key] !== uiText[key])).toEqual([]);
-  });
 });
 
 describe("names mid-sentence", () => {

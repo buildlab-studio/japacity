@@ -14,7 +14,6 @@ const LAUNCH = [
   "sessions/count",
   "sessions/length",
   "funnel/step",
-  "share/arrival",
   "lives/started",
   "lives/secured",
   "japa/departed",
@@ -50,7 +49,7 @@ describe("the counter list", () => {
     expect(named("players/online-peak")?.keys).toEqual(["peak"]);
     expect(named("sessions/length")?.keys).toEqual(["under-2", "2-5", "5-15", "15-30", "over-30"]);
     expect(named("funnel/step")?.keys).toEqual(["begin", "world", "month-1", "chapter-1", "secured"]);
-    expect(named("share/arrival")?.keys).toEqual(named("share/pressed")?.keys);
+    expect(named("share/arrival")).toBeUndefined();
     expect(named("wallet/topped-up")?.keys).toEqual(["count", "kobo"]);
     expect(named("advert/revenue")?.keys).toEqual(["kobo"]);
     // The page policy's reports, keyed by directive, `other` for any directive off the list.

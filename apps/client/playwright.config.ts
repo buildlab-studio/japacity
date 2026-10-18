@@ -8,8 +8,8 @@
 //   `--staging` it points at staging instead, with the Access service token's headers from CF_ACCESS_CLIENT_ID and
 //   CF_ACCESS_CLIENT_SECRET (tools/local/access.ts).
 // - "catalog" (`pnpm catalog`): every screen of the game shot as a player sees it on a phone, laid out on one page for
-//   a look against e2e/catalog/CHECKLIST.md. A tool run by hand. The pictures go outside the repository
-//   (e2e/catalog/where.ts); so does Playwright's own output.
+//   a look against e2e/catalog/CHECKLIST.md. A tool run by hand. The pictures go to CATALOG_DIR, else to
+//   `.catalog/<short commit>/` in the main checkout, which git ignores (e2e/catalog/where.ts); so does Playwright's own output.
 //
 // Only the browser suite runs when no project is named. None of them is part of `pnpm check`.
 import { tmpdir } from "node:os";

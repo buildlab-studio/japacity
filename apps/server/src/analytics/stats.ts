@@ -152,11 +152,11 @@ export function buildStats(content: Content, input: StatsInput): Stats {
   const lengths: Record<string, Shown> = {};
   for (const band of SESSION_BANDS) lengths[band.key] = shown(ofMonth.sum("sessions/length", band.key), minShown);
 
-  const kinds: ShareKind[] = (content.analytics.counters.find((def) => def.name === "share/arrival")?.keys as string[] | undefined ?? []).map((kind) => {
-    const completed = ofMonth.sum("share/completed", kind);
-    const arrived = ofMonth.sum("share/arrival", kind);
-    return { kind, pressed: shown(ofMonth.sum("share/pressed", kind), minShown), completed: shown(completed, minShown), arrived: shown(arrived, minShown), arrivedPerShareBp: ratio(arrived, completed, BP, minShown) };
-  });
+  const kinds: ShareKind[] = (content.analytics.counters.find((def) => def.name === "share/completed")?.keys as string[] | undefined ?? []).map((kind) => ({
+    kind,
+    pressed: shown(ofMonth.sum("share/pressed", kind), minShown),
+    completed: shown(ofMonth.sum("share/completed", kind), minShown),
+  }));
 
   const revenueKobo = ofMonth.sum("advert/revenue", "kobo");
   const cells: EconomyCell[] = MONTH_BANDS.flatMap((months) => HELD_BANDS.map((held) => ({ months: months.key, held: held.key, lives: shown(lastDay.sum("economy/held", `${months.key}:${held.key}`), minShown) })));

@@ -254,7 +254,7 @@ describe("the presence fetch's players seen today", () => {
     expect(drawn.size).toBeGreaterThan(1);
   });
 
-  test("[city:players-shown-present-not-tracked] [clock:presence-is-not-contact] given a region whose policy is none, when the presence is fetched, then today holds those seen there today, as anywhere", async () => {
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-not-contact] given a player asking from France, when the presence is fetched, then today holds those seen there today, as anywhere", async () => {
     const setupped = setup({ "account-0": PLACE, "account-1": PLACE });
     await visit(setupped, "account-1");
 

@@ -199,8 +199,6 @@ const adminText = {
   "admin.numbers.kind": "Card",
   "admin.numbers.pressed": "Share pressed",
   "admin.numbers.completed": "Shared",
-  "admin.numbers.arrived": "Opened from the card",
-  "admin.numbers.perShare": "Opened per share",
   "admin.numbers.adverts": "Adverts, {from} to {to}",
   "admin.numbers.impressions": "Impressions",
   "admin.numbers.taps": "Taps",

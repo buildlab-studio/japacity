@@ -282,8 +282,8 @@ export const STATS: StatsReply = {
       from: "2026-09-08",
       to: "2026-10-07",
       kinds: [
-        { kind: "send-off", pressed: 120, completed: 80, arrived: 64, arrivedPerShareBp: 8000 },
-        { kind: "granted", pressed: 30, completed: FEWER, arrived: FEWER, arrivedPerShareBp: null },
+        { kind: "send-off", pressed: 120, completed: 80 },
+        { kind: "granted", pressed: 30, completed: FEWER },
       ],
     },
     adverts: { from: "2026-09-08", to: "2026-10-07", impressions: 41000, taps: 120, revenueKobo: 0, revenuePerPlayerKobo: 0 },

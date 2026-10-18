@@ -4,5 +4,5 @@ The HTTP and socket contract between the client and the server (`docs/decisions/
 
 - One file per area: `reply.ts` (the refusals and the clock), `game.ts` (command, view, world, preset, character, presence), `socket.ts` (the nudges, the ping and `readNudge`), `account.ts`, `pair.ts`, `moderation.ts`, `lottery.ts`, `advert.ts`, `lights.ts`, `analytics.ts`, `boards.ts`, `notify.ts`, and the admin routes in `admin.ts`, `admin.moderation.ts`, `admin.analytics.ts`, `admin.switches.ts`, `admin.advert.ts`.
 - A reply that carries a stored row names the store's type (`Switches`, `ModerationLogEntry`, `Campaign`), so the row and the wire cannot drift apart.
-- Imports only types, from `@japacity/sim` and `@japacity/store` (`tests/boundaries.test.ts`). Its own code is the few lists both sides read (`REPORT_REASONS`, `REPORT_ACTIONS`, `SWITCH_NAMES`, `PING`, `PONG`) and `readNudge`, the one reader of a nudge.
+- Imports only types, from `@japacity/sim` and `@japacity/store` (`tests/boundaries.test.ts`). Its own code is the few lists and limits both sides read (`REPORT_REASONS`, `REPORT_ACTIONS`, `TOLD_ACTIONS`, `SWITCH_NAMES`, `PING`, `PONG`, `USERNAME`, `USERNAME_SHORTEST`, `USERNAME_LONGEST`, `ACTION_MAX_DAYS`, `MAX_DIAL`, `FEEDBACK_MAX_CHARS`) and `readNudge`, the one reader of a nudge.
 - Imports neither app. The client takes every shape the server sends from here.

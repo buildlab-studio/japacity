@@ -247,14 +247,10 @@ export const uiCityText: Record<string, string> = {
   "city.act.joint.shut": "The chairs are stacked. Come back in the evening.",
   "city.inside.name": "Inside {place}",
   "city.inside.out": "Step outside",
-  "city.ride.title": "Where to?",
-  "city.ride.home": "Home",
-  "city.ride.line": "{minutes} minutes by road",
   "city.ride.here": "You are here",
   "city.ride.danfo": "Take the danfo",
   "city.ride.keke": "Take the keke",
   "city.ride.okada": "Take the okada",
-  "city.ride.none": "Nowhere else to go yet.",
   // Turn back on a ride (world:ride-sheet-shows-fares): told in the corner once the character has walked back.
   "city.ride.turned-back": "Turned back at the next stop",
 

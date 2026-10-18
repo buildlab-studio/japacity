@@ -42,7 +42,7 @@ Analytics answers a few questions: are people playing, where do they stop, and i
 | `command/rejected` | code | rejections by code, `bad-light` (server:dedication-routes) among them |
 | `lottery/tickets` | region | tickets bought in the Friday draw (`lottery.md`) |
 
-A second set of counters feeds the admin's numbers (analytics:admin-stats-for-admins-only), since data not collected can never be recovered. Each is a `(day, region, name, key)` total as analytics:rows-stored-as-day-totals stores it and shown through analytics:small-counts-shown-as-fewer. The page's shares (stickiness, sessions per player, errors per 1,000 sessions, departures per new player, conversion by sign-up week, arrivals per share, revenue per player) are divisions made by analytics:admin-stats-for-admins-only and never stored. `players/returned` also carries the keys `d3` and `d14`, so the returns make a curve.
+A second set of counters feeds the admin's numbers (analytics:admin-stats-for-admins-only), since data not collected can never be recovered. Each is a `(day, region, name, key)` total as analytics:rows-stored-as-day-totals stores it and shown through analytics:small-counts-shown-as-fewer. The page's shares (stickiness, sessions per player, errors per 1,000 sessions, departures per new player, conversion by sign-up week, revenue per player) are divisions made by analytics:admin-stats-for-admins-only and never stored. `players/returned` also carries the keys `d3` and `d14`, so the returns make a curve.
 
 | Name | Key | Counts | Source |
 |---|---|---|---|
@@ -56,7 +56,6 @@ A second set of counters feeds the admin's numbers (analytics:admin-stats-for-ad
 | `sessions/count` | region | sessions that day (analytics:session-split-by-command-gaps) | nightly, the command log |
 | `sessions/length` | `under-2`, `2-5`, `5-15`, `15-30`, `over-30` | sessions by length in minutes | nightly, the command log |
 | `funnel/step` | `begin`, `world`, `month-1`, `chapter-1`, `secured` | the onboarding funnel's server steps that day: a life's first accepted command, its years before closed, its first month ended, its first chapter closed (nightly, the command log), and a guest secured (the server) | as said |
-| `share/arrival` | card kind | a page of the game opened with `?card=<kind>`, by kind only | not written: the platform serves the game's pages without running its Worker, and nothing counts an arrival |
 | `lives/started` | region | lives whose first accepted command came that day | nightly, the command log |
 | `lives/secured` | region | lives granted settlement or citizenship that day, once a life (status:lawful-months-reach-settlement) | nightly, the command log |
 | `japa/departed` | region | `route/moved` to `departed` that day | nightly, the command log |

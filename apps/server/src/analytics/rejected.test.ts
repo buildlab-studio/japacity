@@ -47,10 +47,11 @@ const CODES: Record<ServerCode, true> = {
 };
 
 describe("rejections by code", () => {
-  test("[analytics:nightly-game-counters] given every code the server answers with, when the counter list is read, then command/rejected allows each", () => {
+  test("[analytics:nightly-game-counters] given every code the server answers with, when the counter list is read, then command/rejected allows each and no code the server never answers with", () => {
     const def = counterDef(content, "command/rejected");
     if (def === null) throw new Error("command/rejected is not on the list.");
     expect(Object.keys(CODES).filter((code) => !keyAllowed(content, def, code))).toEqual([]);
+    expect(Array.isArray(def.keys) ? [...def.keys].sort() : def.keys).toEqual(Object.keys(CODES).sort());
   });
 
   test("[analytics:nightly-game-counters] [analytics:store-holds-nothing-personal] given a rejection, when it is counted, then the day's total for its code and the account's region rises and no account is stored", async () => {

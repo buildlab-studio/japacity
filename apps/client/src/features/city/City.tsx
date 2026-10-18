@@ -3,7 +3,7 @@
 // sends its command as the act's sheet would. The 3D scene is loaded only where WebGL exists, so nothing else waits
 // for it (city:places-load-on-entry).
 import { content, text } from "@japacity/content";
-import { type Id, metresApart, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
+import { type Id, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -148,10 +148,6 @@ const FALLBACK_OWN = "shared/person/person_tunde.glb";
 // The world mode (docs/design/07-the-world-first.md, docs/rules/world.md).
 /** Sending money home: an act whose sheet is the Bank's, where the money is. */
 const SEND_MONEY = "activity.send-money";
-/** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
-function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
-  return 8 + Math.round(metresApart(from, to, city.ride.lonMetresPerE3) / 120);
-}
 // tuning.city.roam is false, so nothing roams.
 /** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world:nothing-roams). */
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
@@ -884,8 +880,6 @@ export function City({
       }
       case "action":
         return picked.label === undefined ? nameOf(picked.activity) : cityWords(picked.label);
-      case "ride":
-        return cityWords(`city.ride.${picked.vehicle}`);
       case "enter":
         return placeName(picked.place);
       case "inside":
@@ -1125,13 +1119,6 @@ export function City({
   };
   // A new pick, or none, forgets the small sheet: the next thing tapped tries its fan first.
   useEffect(() => setFanSheet(null), [picked]);
-  // A ride plays, then the place opens (world:ride-sheet-shows-fares).
-  const travel = (id: string): void => {
-    cue("whoosh");
-    setPicked(null);
-    setDiveTo(id);
-    setMap(true);
-  };
   useEffect(() => {
     if (picked?.kind === "enter") {
       setPlaceId(picked.place);
@@ -1563,7 +1550,7 @@ export function City({
   // world:interface-sounds-made-live: a sheet, the phone or the map opening over the world, and closing back to it.
   // The kiosk's sheet while the world runs the Friday draw (lottery:draw-runs-online-only, world:things-are-tappable-models).
   const kioskUp = world && picked?.kind === "action" && opensKiosk(picked.activity, view);
-  const covered = world && (asksOpen || ask !== null || kioskUp || picked?.kind === "ride" || phone || map);
+  const covered = world && (asksOpen || ask !== null || kioskUp || phone || map);
   // A share card up over the world (a chapter's card) keeps the street talk away from its foot.
   const cardsTurn = useCardsTurn();
   const cardClosed = useGame((state) => state.cardClosed);
@@ -2095,7 +2082,7 @@ export function City({
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
-            {world || picked === null || picked.kind === "action" || picked.kind === "command" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
+            {world || picked === null || picked.kind === "action" || picked.kind === "command" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
             {world ? null : (
               <p className="pointer-events-auto self-start rounded-md bg-sheet/80 px-2 py-1 text-xs text-text-2">{cityWords("city.hold")}</p>
             )}
@@ -2270,24 +2257,6 @@ export function City({
             inside && insideEntry !== null ? insideEntry.id : placeId,
           )
         : null}
-      <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
-        {picked?.kind === "ride" ? (
-          <ul className="flex flex-col gap-1" aria-label={cityWords("city.ride.title")} data-ride-list>
-            {[...pins.filter((pin) => pin.state === "home"), ...pins.filter((pin) => pin.state !== "home" && pin.state !== "here" && pin.state !== "not")].map((pin) => {
-              const here = pins.find((candidate) => candidate.state === "here");
-              return (
-                <li key={pin.id}>
-                  <button type="button" onClick={() => travel(pin.id)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 text-left hover:bg-sheet-muted">
-                    <span className="font-semibold">{pin.state === "home" ? cityWords("city.ride.home") : pin.name}</span>
-                    <span className="text-xs text-text-2">{here === undefined ? "" : cityWords("city.ride.line", { minutes: minutesBetween(here.position, pin.position) })}</span>
-                  </button>
-                </li>
-              );
-            })}
-            {pins.filter((pin) => pin.state !== "here" && pin.state !== "not").length === 0 ? <li className="px-3 py-2 text-sm text-text-2">{cityWords("city.ride.none")}</li> : null}
-          </ul>
-        ) : null}
-      </Sheet>
     </>
   );
 }

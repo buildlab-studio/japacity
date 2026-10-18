@@ -120,9 +120,6 @@ export interface ShareKind {
   kind: string;
   pressed: Shown;
   completed: Shown;
-  arrived: Shown;
-  /** Arrivals over completed shares. */
-  arrivedPerShareBp: number | null;
 }
 
 export interface EconomyCell {

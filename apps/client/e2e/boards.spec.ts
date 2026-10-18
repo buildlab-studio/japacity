@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 // The boards (city:boards-switch-when-and-who, city:board-line-and-ranking) on the client built
 // against a server, every /api route faked here in the shapes
-// apps/client/src/features/boards/boards.ts copies from the server.
+// apps/client/src/features/boards/boards.ts reads from @japacity/api (packages/api/src/boards.ts).
 import { content } from "../../../packages/content/src/index";
 import { type Answer, clockAt, fakeServer, ONLINE, viewReply } from "./support/api";
 import { SOFTWARE_WEBGL } from "./support/browser";

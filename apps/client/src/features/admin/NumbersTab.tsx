@@ -87,8 +87,8 @@ function Numbers({ stats }: { stats: Stats }) {
       />
       <Table
         caption={words("admin.numbers.shares", { from: stats.shares.from, to: stats.shares.to })}
-        head={[words("admin.numbers.kind"), words("admin.numbers.pressed"), words("admin.numbers.completed"), words("admin.numbers.arrived"), words("admin.numbers.perShare")]}
-        rows={stats.shares.kinds.map((kind) => [kind.kind, shownCount(kind.pressed), shownCount(kind.completed), shownCount(kind.arrived), bp(kind.arrivedPerShareBp)])}
+        head={[words("admin.numbers.kind"), words("admin.numbers.pressed"), words("admin.numbers.completed")]}
+        rows={stats.shares.kinds.map((kind) => [kind.kind, shownCount(kind.pressed), shownCount(kind.completed)])}
       />
       <Table
         caption={words("admin.numbers.adverts", { from: stats.adverts.from, to: stats.adverts.to })}

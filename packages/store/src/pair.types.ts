@@ -20,7 +20,7 @@ export interface NewInvite {
   code: string;
   /** The inviter's character. */
   from: string;
-  /** The inviter's account, for the region check at the other end. */
+  /** The inviter's account: the invitee may not take their own invite, and a block between the two accounts refuses it. */
   account: string;
   slot: string;
   looking: "partner" | "sibling";
