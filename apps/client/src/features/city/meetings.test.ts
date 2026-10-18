@@ -16,12 +16,12 @@ import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
 import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
-import { actsOffered } from "./acts";
+import { actsOffered } from "./acts/acts";
 import { poolOf, sampleCrowd } from "../../shared/scene/crowd";
 import { crowdTuning } from "../../shared/scene/limits";
 import { COURT, courtedTold, makeRoom, meetingThingsAt, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding, type TalkWords } from "./meetings";
 import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
-import { stagedNow, thingSpot, thingsNow, thingsOf } from "./things";
+import { stagedNow, thingSpot, thingsNow, thingsOf } from "./scene/things";
 
 const HUB = "place.yaba";
 const HOUSE = "place.family-house";

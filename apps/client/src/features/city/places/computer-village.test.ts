@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import raw from "../../../../public/assets/places/computer-village/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
-import { thingSpot, vehicleOf } from "../things";
+import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 

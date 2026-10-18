@@ -12,7 +12,7 @@ import { say } from "../../../shared/words/text";
 import type { Thing } from "../../../shared/world/contract";
 import { stageOf } from "../../../shared/scene/placeFile";
 import { builtPlaces } from "../../../shared/scene/placeFile.testing";
-import { thingsOf } from "../things";
+import { thingsOf } from "../scene/things";
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { type FanEntryOf, fanActOf, fanEntriesOf, fanEntry, fanModel, glyphOf, pictureOf, tintOf } from "./fanActs";
 

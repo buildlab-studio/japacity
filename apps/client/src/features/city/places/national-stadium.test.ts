@@ -9,7 +9,7 @@ import { STADIUM } from "@japacity/assets-src/lm/national-stadium/build";
 import raw from "../../../../public/assets/places/national-stadium/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
-import { thingSpot, vehicleOf } from "../things";
+import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged } from "./place.testing";
 

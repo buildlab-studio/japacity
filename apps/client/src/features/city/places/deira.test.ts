@@ -12,7 +12,7 @@ import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
-import { stagedNow, thingsNow } from "../things";
+import { stagedNow, thingsNow } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 

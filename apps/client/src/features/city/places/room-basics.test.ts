@@ -13,11 +13,11 @@ import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import type { Shot } from "../../../shared/world/contract";
 import { abroadView, engineView } from "../../../shared/testing/fixtures";
 import { type PlaceFile, showPlanned, stageOf } from "../../../shared/scene/placeFile";
-import { cameraAt, projected, SCREENS } from "../scene.testing";
+import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
 import { sceneWords } from "../scene.words";
-import { aimShot, shotOf, WHOLE } from "../shot";
+import { aimShot, shotOf, WHOLE } from "../scene/shot";
 import { byHandAt } from "../../../shared/scene/staging";
-import { stagedNow, thingSpot, thingsNow } from "../things";
+import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { instancesOf } from "./place.testing";
 
 const parlour = parlourRaw as unknown as PlaceFile;

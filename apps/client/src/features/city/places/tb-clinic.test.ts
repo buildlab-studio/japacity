@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import raw from "../../../../public/assets/places/tb-clinic/place.json";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { sceneWords } from "../scene.words";
-import { stagedNow, thingSpot, thingsNow } from "../things";
+import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { onGround, staged } from "./place.testing";
 
 const { stage, entry } = staged(raw, "place.tb-clinic");

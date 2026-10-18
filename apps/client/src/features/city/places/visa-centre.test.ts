@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import raw from "../../../../public/assets/places/visa-centre/place.json";
 import type { Act } from "../../../shared/world/contract";
 import { sceneWords } from "../scene.words";
-import { stagedNow, thingSpot, thingsNow } from "../things";
+import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
 import { staged } from "./place.testing";
 

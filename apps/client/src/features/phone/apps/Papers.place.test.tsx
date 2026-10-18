@@ -1,7 +1,7 @@
 // Where the life is in Papers (docs/rules/place.md R-PLACE-009, R-PLACE-004; return.md R-RETURN-001): the country and
 // the months here, the fare home as the view gives it with what it takes, and the times
 // the life came home, newest first, in words with no month number (world.md R-WORLD-002). The way home itself is the
-// bag's Go home (features/city/goHome.place.test.ts).
+// bag's Go home (features/city/acts/goHome.place.test.ts).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, within } from "@testing-library/react";

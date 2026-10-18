@@ -8,7 +8,7 @@ import { ActivityView } from "../features/activity/ActivityView";
 import { Bills } from "../features/phone/apps/Bills";
 import { Japa } from "../features/phone/apps/Japa";
 import { DECEMBER } from "../features/setpiece/DecemberScene";
-import { nudgeOf } from "../features/city/nudge";
+import { nudgeOf } from "../features/city/nudge/nudge";
 import { engineView, richView } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { ReportLines } from "../shared/ui/ReportLines";
@@ -108,7 +108,7 @@ describe("words that mislead", () => {
   });
 
   // There is no month bar; the world says the engine's words where the month would turn, at the bed
-  // (features/city/City.interview.test.tsx holds the December visit and the road's night there).
+  // (app/world.interview.test.tsx holds the December visit and the road's night there).
   test("[R-SETPIECE-002] given the interface's own words, then it says interview only of a refusal", () => {
     const own = Object.entries(uiText).filter(([key, value]) => /interview/i.test(value) && !key.startsWith("ui.refusal."));
     expect(own).toEqual([]);

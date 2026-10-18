@@ -9,7 +9,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { hasWords, nameOf, say } from "../../../shared/words/text";
 import { placeName } from "../city.words";
-import { itemWayOf, STEP_ACTIVITY } from "../nudge";
+import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
 
 /** How long the chip stands under the band after Let's go, before it slides into the Phone thumb. */
 export const TUCK_MS = 2000;

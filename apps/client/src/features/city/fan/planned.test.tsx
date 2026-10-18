@@ -9,7 +9,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import villageRaw from "../../../../public/assets/places/computer-village/place.json";
 import { engineView } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
-import { withPlanned } from "../acts";
+import { withPlanned } from "../acts/acts";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { anchorFan } from "./anchor";
 import { Fan } from "./Fan";

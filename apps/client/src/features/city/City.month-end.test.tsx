@@ -13,12 +13,12 @@ import { newGame } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/people";
 import { plannable } from "../../shared/words/acts";
 import { City, RESULTS_BEAT_MS } from "./City";
-import { SLEEP_MS } from "./sleep";
+import { SLEEP_MS } from "./acts/sleep";
 import { pressFanActNow } from "./fan/fan.testing";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
+vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {

@@ -23,7 +23,7 @@ import { roomPartner, standingAsThemselves, withStanding } from "../meetings";
 import { dressPlace, type Dressing, filesOf, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { personOfLook } from "../../../shared/scene/roster";
 import { sceneWords } from "../scene.words";
-import { thingSpot, thingsNow, thingsOf } from "../things";
+import { thingSpot, thingsNow, thingsOf } from "../scene/things";
 import { groundGeometry } from "../../../shared/scene/world";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";

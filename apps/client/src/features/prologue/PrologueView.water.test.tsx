@@ -1,6 +1,6 @@
 // The child of the water's first minute (prologue.md R-PROLOGUE-010, R-PROLOGUE-012, R-PROLOGUE-014): its family on the page speaks of the lagoon, not of a small town, and its page's first step is the band's nudge
 // at the same moment, the racks beside the room, with the motor park after. The band's nudge says `RACKS_STEP` while `racksAtHand`
-// holds (features/city/nudge.racks.test.ts), so the handover reads the same shared test and words. Real content, real draws.
+// holds (features/city/nudge/nudge.racks.test.ts), so the handover reads the same shared test and words. Real content, real draws.
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -99,7 +99,7 @@ describe("the child of the water's first step", () => {
     expect(view.routes.find((route) => route.id === "route.gulf-contract")?.state).toBe("heard");
     expect(nextStepOf(view)).toBe("known");
     expect(firstStep(view)).toBe(say("prologue.handover.step.known.motor-park"));
-    // The band's nudge for the same step and way has the same words (features/city/nudge.ts reads `<item>.nudge.<way>`).
+    // The band's nudge for the same step and way has the same words (features/city/nudge/nudge.ts reads `<item>.nudge.<way>`).
     expect(say("chapter.find-your-feet.item.known.nudge.motor-park")).toBe(firstStep(view));
     expect(racksAtHand(view)).toBe(false);
   });

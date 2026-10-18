@@ -15,7 +15,7 @@ import { words } from "../../../shared/words/text";
 import { stageOf, type PlaceFile } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
-import { stagedNow, thingSpot, thingsNow } from "../things";
+import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 import { addLateWords } from "../../../shared/words/late";

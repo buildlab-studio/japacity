@@ -12,8 +12,8 @@ import familyRaw from "../../../../public/assets/places/home-family-house/place.
 import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.json";
 import roomRaw from "../../../../public/assets/places/home-room-house/place.json";
 import makokoRaw from "../../../../public/assets/places/makoko/place.json";
-import { misfit } from "../arrange";
-import { liftable, showOwned } from "../owned";
+import { misfit } from "../scene/arrange";
+import { liftable, showOwned } from "../scene/owned";
 import { parkCar, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { measured, totalsOf } from "./place.testing";
 

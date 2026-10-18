@@ -11,7 +11,7 @@ import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 import { sceneWords } from "../scene.words";
 import { offersHere, stagedAt } from "../../../shared/scene/staging";
-import { stagedNow, thingsNow } from "../things";
+import { stagedNow, thingsNow } from "../scene/things";
 import { PARCEL } from "../../../shared/world/parcel.ask";
 
 const { file, stage, entry } = staged(placeFile, "place.bode-thomas");

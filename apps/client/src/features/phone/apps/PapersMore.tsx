@@ -2,7 +2,7 @@
 // R-PLACE-009; return.md R-RETURN-001): the status held abroad with the work it allows, the months left, the lawful months
 // toward settling, the way up and the renewal; where the life is, the months there, the fare home with what it takes and
 // the times it came home, newest first; and the person as content names them. In the phone's cards and chips. The way
-// home itself is the bag's Go home in the room abroad (features/city/goHome.ts): here the fare is only read.
+// home itself is the bag's Go home in the room abroad (features/city/acts/goHome.ts): here the fare is only read.
 import { content } from "@japacity/content";
 import { int, type PlayerView } from "@japacity/sim";
 import { useState } from "react";

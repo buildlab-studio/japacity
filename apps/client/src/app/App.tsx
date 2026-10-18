@@ -23,7 +23,7 @@ import { AgentSheets } from "../features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "../features/account/InvitePage";
 import { GuestReminder, SecureAsk } from "../features/account/Secure";
 import { adminAsked } from "../features/admin/adminPath";
-import { OFFER_PLACES } from "../features/city/nudge";
+import { OFFER_PLACES } from "../features/city/nudge/nudge";
 import { PARCEL } from "../shared/world/parcel.ask";
 import { ParcelWaybill } from "../shared/world/Waybill";
 import { AccountButton } from "../features/account/Settings";

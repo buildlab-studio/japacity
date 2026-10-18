@@ -4,7 +4,7 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { nudgeOf, stepWayOf } from "../features/city/nudge";
+import { nudgeOf, stepWayOf } from "../features/city/nudge/nudge";
 import { answersInOrder, archetypeOf, presetAnswer, type Archetype } from "../shared/frontdoor/archetypes";
 import { newGame } from "../shared/testing/fixtures";
 import { nextStepOf, openingKey, ownWayOf, ownWords, sixteenPath } from "../shared/words/sixteen";

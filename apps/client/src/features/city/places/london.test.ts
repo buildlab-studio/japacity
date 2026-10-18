@@ -15,14 +15,14 @@ import warehouse from "../../../../public/assets/places/warehouse-uk/place.json"
 import type { Thing } from "../../../shared/world/contract";
 import { isLong } from "../../../shared/world/Lines";
 import { abroadView, viewAfter, abroadGame } from "../../../shared/testing/fixtures";
-import { inTurn, plainActLine } from "../actLines";
+import { inTurn, plainActLine } from "../acts/actLines";
 import { cityWords } from "../city.words";
 import { heardHere } from "../overheard";
 import { stageOf, type PlaceFile } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
-import { onShift, SHIFT_ACT, shiftMarks } from "../shift";
+import { onShift, SHIFT_ACT, shiftMarks } from "../acts/shift";
 import { stagedAt } from "../../../shared/scene/staging";
-import { stagedNow, thingsNow, thingSpot } from "../things";
+import { stagedNow, thingsNow, thingSpot } from "../scene/things";
 import { actEntries, frontageTests } from "./frontage.testing";
 import { staged } from "./place.testing";
 import { addLateWords } from "../../../shared/words/late";

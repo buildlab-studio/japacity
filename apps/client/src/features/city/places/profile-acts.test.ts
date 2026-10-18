@@ -9,9 +9,9 @@ import clinicFile from "../../../../public/assets/places/tb-clinic/place.json";
 import hubFile from "../../../../public/assets/places/yaba-hub/place.json";
 import roomFile from "../../../../public/assets/places/inverter-room/place.json";
 import { say } from "../../../shared/words/text";
-import { plannedMarks } from "../actLines";
+import { plannedMarks } from "../acts/actLines";
 import { sceneWords } from "../scene.words";
-import { stagedNow, thingsNow } from "../things";
+import { stagedNow, thingsNow } from "../scene/things";
 import { staged } from "./place.testing";
 
 const CASES: { raw: unknown; place: Id<"place">; thing: string; act: string; entries: string[] }[] = [

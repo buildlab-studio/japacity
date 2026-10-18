@@ -4,7 +4,7 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { markTag } from "../features/city/mark";
+import { markTag } from "../features/city/scene/mark";
 import { say } from "../shared/words/text";
 import { uiText } from "../shared/words/tables/ui.words";
 

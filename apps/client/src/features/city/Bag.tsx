@@ -42,7 +42,7 @@ export interface BagProbe {
   pieces: BagPiece[];
 }
 
-declare module "./scene.types" {
+declare module "./scene/scene.types" {
   interface CityProbe {
     /** The bag by the door, in a room that has one. */
     bag?: BagProbe;

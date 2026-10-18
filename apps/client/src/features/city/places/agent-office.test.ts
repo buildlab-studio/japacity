@@ -7,7 +7,7 @@ import type { Act } from "../../../shared/world/contract";
 import { heardWords } from "../city.words";
 import { placeLines } from "../overheard";
 import { sceneWords } from "../scene.words";
-import { stagedNow, thingSpot, thingsNow } from "../things";
+import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
 import { staged } from "./place.testing";
 

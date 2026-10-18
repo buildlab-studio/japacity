@@ -46,7 +46,7 @@ function StandInScene({ things, actOn = null, onPick }: StandInProps) {
   );
 }
 
-vi.mock("./CityScene", () => ({ default: StandInScene }));
+vi.mock("./scene/CityScene", () => ({ default: StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {

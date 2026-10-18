@@ -16,7 +16,7 @@ import { fanEntriesOf } from "./fan/fanActs";
 import { standingAsThemselves, THEIR_ROOM } from "./meetings";
 import { dressPlace, type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 
-vi.mock("./CityScene", () => ({
+vi.mock("./scene/CityScene", () => ({
   default: ({ file, people, things, onPick }: { file: PlaceFile; people: unknown[]; things?: Thing[]; onPick: (pick: { kind: "thing"; thing: Thing }) => void }) => (
     <div data-stand-in-scene data-crowd={people.length}>
       {(file.stage?.models ?? []).map((model) => (

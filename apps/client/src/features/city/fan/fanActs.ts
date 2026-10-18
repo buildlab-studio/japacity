@@ -13,7 +13,7 @@ import { formatMoney } from "../../../shared/words/format";
 import { needsWords } from "../../../shared/words/requirement";
 import { nameOf, say } from "../../../shared/words/text";
 import type { Act, Thing } from "../../../shared/world/contract";
-import { isPaper } from "../acts";
+import { isPaper } from "../acts/acts";
 import { sceneWords } from "../scene.words";
 
 /** The tint a button takes by what its act is (section 2, "Tints by kind"). */

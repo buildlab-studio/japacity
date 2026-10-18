@@ -17,7 +17,7 @@ import { CAR_FILE, dancerShown, DANCER_SLOT, dressPlace, filesOf, parkCar } from
 import { personOf } from "../../../shared/scene/roster";
 import { sceneWords } from "../scene.words";
 import { offersHere } from "../../../shared/scene/staging";
-import { MAX_ACTS, stagedNow, thingsNow } from "../things";
+import { MAX_ACTS, stagedNow, thingsNow } from "../scene/things";
 import { checkLimits } from "../../../../../../tools/assets/world-check";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";

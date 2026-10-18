@@ -12,10 +12,10 @@ import bodeRaw from "../../../../public/assets/places/bode-thomas-front/place.js
 import ojuelegbaRaw from "../../../../public/assets/places/ojuelegba-front/place.json";
 import tejuoshoRaw from "../../../../public/assets/places/tejuosho-front/place.json";
 import type { Act, Thing } from "../../../shared/world/contract";
-import { plainActLine } from "../actLines";
+import { plainActLine } from "../acts/actLines";
 import type { Stage } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
-import { thingSpot, thingsNow } from "../things";
+import { thingSpot, thingsNow } from "../scene/things";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { actEntries } from "./frontage.testing";

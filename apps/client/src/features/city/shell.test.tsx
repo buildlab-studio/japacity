@@ -14,7 +14,7 @@ import { TUCK_MS, TUCK_SLIDE_MS } from "./brief/brief";
 import { NEAR_SPEAKER } from "../../shared/world/Lines";
 import { ARRIVE_QUIET_MS, City, type CityMapSlot, homeLine, RESULTS_BEAT_MS } from "./City";
 import { cityWords } from "./city.words";
-import { nudgeOf, stepWayOf } from "./nudge";
+import { nudgeOf, stepWayOf } from "./nudge/nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world results={(place) => <p data-results-for={place} />} {...extra} />;
 /** The world with a phone that says which app it opened on (R-WORLD-002: the Calendar is on the phone). */

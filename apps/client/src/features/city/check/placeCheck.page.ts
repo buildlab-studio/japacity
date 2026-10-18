@@ -14,7 +14,7 @@ import type { FrameRecord, RouteRecord } from "../../../../../../tools/assets/pl
 import { advanceClock } from "../../../shared/three/clock";
 import { loadGrids } from "../../../shared/three/motion";
 import { poseFigure } from "../../../shared/three/people";
-import { cameraAim, FOV } from "../camera";
+import { cameraAim, FOV } from "../scene/camera";
 import type { Stage } from "../../../shared/scene/placeFile";
 import { type Point, routeMap } from "../../../shared/scene/walk/map";
 import { findRoute } from "../../../shared/scene/walk/route";

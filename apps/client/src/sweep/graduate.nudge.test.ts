@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { firstJob, huntOrder } from "../features/activity/JobList";
 import { newGame } from "../shared/testing/fixtures";
-import { nudgeOf } from "../features/city/nudge";
+import { nudgeOf } from "../features/city/nudge/nudge";
 
 const HUNT = "activity.job-hunt";
 const SEEDS = 40;

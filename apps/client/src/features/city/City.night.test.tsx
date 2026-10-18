@@ -15,18 +15,18 @@ import { say } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import type { Ask, Thing } from "../../shared/world/contract";
 import { wasTaught } from "../../shared/world/taught";
-import { actsOffered, withSpent } from "./acts";
+import { actsOffered, withSpent } from "./acts/acts";
 import { City, RESULTS_BEAT_MS } from "./City";
 import { anchorFan } from "./fan/anchor";
 import { Fan } from "./fan/Fan";
 import { fanEntriesOf, fanModel } from "./fan/fanActs";
 import { pressFanActNow } from "./fan/fan.testing";
-import { atNight, NIGHT } from "./nudge";
-import { SLEEP_MS } from "./sleep";
+import { atNight, NIGHT } from "./nudge/nudge";
+import { SLEEP_MS } from "./acts/sleep";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
+vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../../shared/three/manifest", async (original) => {

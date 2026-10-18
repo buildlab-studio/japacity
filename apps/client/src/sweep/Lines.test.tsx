@@ -8,9 +8,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import parlourFile from "../../public/assets/places/home-family-house/place.json";
 import { type PlaceFile, stageOf } from "../shared/scene/placeFile";
-import { cameraAt, projected } from "../features/city/scene.testing";
-import { aimShot, roomShot, shotOf } from "../features/city/shot";
-import { thingSpot, thingsOf } from "../features/city/things";
+import { cameraAt, projected } from "../features/city/scene/scene.testing";
+import { aimShot, roomShot, shotOf } from "../features/city/scene/shot";
+import { thingSpot, thingsOf } from "../features/city/scene/things";
 import { standAt } from "../shared/scene/walk";
 import { bubbleRect, bubbleSpot, Corner, CORNER_MAX, isLong, LIFT_MAX, linesNow, murmur, NEAR_SPEAKER, overlap, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TAIL, TAIL_MAX, tailPaths, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "../shared/world/Lines";
 

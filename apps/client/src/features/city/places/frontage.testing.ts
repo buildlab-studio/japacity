@@ -11,12 +11,12 @@ import budgets from "../../../../../../assets-src/budgets.json";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
-import { plainActLine } from "../actLines";
+import { plainActLine } from "../acts/actLines";
 import { crowdSize } from "../../../shared/scene/crowd";
 import { crowdTuning } from "../../../shared/scene/limits";
 import { personOfLook } from "../../../shared/scene/roster";
 import { sceneWords } from "../scene.words";
-import { thingSpot, withMoreAt } from "../things";
+import { thingSpot, withMoreAt } from "../scene/things";
 import { groundGeometry } from "../../../shared/scene/world";
 import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
 

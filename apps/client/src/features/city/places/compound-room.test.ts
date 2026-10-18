@@ -9,12 +9,12 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/home-room-house/place.json";
 import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
-import { cameraAt, projected, SCREENS } from "../scene.testing";
-import { aimRoom, shotOf } from "../shot";
+import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
+import { aimRoom, shotOf } from "../scene/shot";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
 import { byHandAt, homeStagesAt } from "../../../shared/scene/staging";
-import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../things";
+import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../scene/things";
 
 const ID = "place.compound-room";
 const file = raw as unknown as PlaceFile;

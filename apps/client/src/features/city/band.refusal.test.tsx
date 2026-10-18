@@ -13,7 +13,7 @@ import { inMonths } from "../../shared/words/text";
 import { City, chipFolds } from "./City";
 import { cityWords } from "./city.words";
 import { soonest } from "../../shared/words/coming";
-import { nudgeOf } from "./nudge";
+import { nudgeOf } from "./nudge/nudge";
 
 const TALENT: Id<"route"> = "route.uk-talent";
 const FILE = "chapter.build-the-file-talent";

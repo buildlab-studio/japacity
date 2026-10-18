@@ -41,7 +41,7 @@ async function moved(store: GameStore, v: number): Promise<void> {
 
 // The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("../features/city/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
+vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
 vi.mock("../shared/three/manifest", async (original) => {

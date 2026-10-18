@@ -1,7 +1,7 @@
 // The month's end in the world: the month ends as the bed's sleep runs out (R-WORLD-025), sending the plan's
 // commitments as they stand on the view's version; a refusal is said in content's words where the month is kept, the
 // Calendar; and the results tell a split payment and a doubled salary once each. The interview's hold on the month is in
-// features/city/City.interview.test.tsx; the staged wins in features/city/City.staged.test.tsx.
+// app/world.interview.test.tsx; the staged wins in app/world.staged.test.tsx.
 import { text } from "@japacity/content";
 import { act, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

@@ -14,7 +14,7 @@ import { say } from "../../shared/words/text";
 import { BAG_EASE_SECONDS, BAG_EMPTY, BAG_FILE, BAG_FULL, BAG_HEIGHT, bagMatrix, bagPieces, bagScale, bagShare, bagSpot, easeBag, reportBag, tagWords } from "./Bag";
 import { City } from "./City";
 import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
-import type { CityProbe } from "./scene.types";
+import type { CityProbe } from "./scene/scene.types";
 
 const ROOMS = [parlourRaw, roomRaw] as unknown as PlaceFile[];
 const FRAME = 1 / 60;

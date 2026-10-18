@@ -9,7 +9,7 @@ import { BRIDGE, girderDepth } from "@japacity/assets-src/lm/third-mainland-span
 import raw from "../../../../public/assets/places/third-mainland-bridge/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../../../shared/scene/staging";
-import { thingSpot, vehicleOf } from "../things";
+import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged } from "./place.testing";
 

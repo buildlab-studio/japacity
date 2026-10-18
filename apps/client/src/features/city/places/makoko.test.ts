@@ -14,8 +14,8 @@ import { WALKWAY } from "@japacity/assets-src/prop/plank-walkway/build";
 import manifest from "../../../../public/assets/manifest.json";
 import raw from "../../../../public/assets/places/makoko/place.json";
 import { sceneWords } from "../scene.words";
-import { stopReached } from "../stops";
-import { thingSpot, vehicleOf } from "../things";
+import { stopReached } from "../nudge/stops";
+import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 

@@ -25,7 +25,7 @@ function found(selector: string): HTMLElement {
   return one;
 }
 
-// The interview's hold on the month is the world bed's (features/city/City.interview.test.tsx).
+// The interview's hold on the month is the world bed's (app/world.interview.test.tsx).
 
 describe("people in the shell", () => {
   test("[R-PEOPLE-051] given a life at home, when the phone's Chats opens its People row, then the people panel shows", async () => {
