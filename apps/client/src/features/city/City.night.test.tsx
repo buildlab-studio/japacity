@@ -23,6 +23,7 @@ import { fanEntriesOf, fanModel } from "./fan/fanActs";
 import { pressFanActNow } from "./fan/fan.testing";
 import { atNight, NIGHT } from "./nudge/nudge";
 import { SLEEP_MS } from "./acts/sleep";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -32,8 +33,7 @@ vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.te
 vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
 });
 
@@ -41,7 +41,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   window.localStorage.clear();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
 });
 
 function found(selector: string): HTMLElement {

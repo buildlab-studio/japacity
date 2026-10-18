@@ -10,6 +10,7 @@ import { peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import { TOLD_MS } from "../../shared/world/Lines";
 import { City } from "./City";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
@@ -18,8 +19,7 @@ vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.te
 vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   // Inside the family house, where the people met after the service come home with the family.
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
 });
@@ -27,7 +27,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
 

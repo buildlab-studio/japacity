@@ -15,6 +15,7 @@ import { Fan } from "./fan/Fan";
 import { fanEntriesOf } from "./fan/fanActs";
 import { standingAsThemselves, THEIR_ROOM } from "./meetings";
 import { dressPlace, type PlaceFile, stageOf } from "../../shared/scene/placeFile";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 vi.mock("./scene/CityScene", () => ({
   default: ({ file, people, things, onPick }: { file: PlaceFile; people: unknown[]; things?: Thing[]; onPick: (pick: { kind: "thing"; thing: Thing }) => void }) => (
@@ -39,14 +40,13 @@ const ROOM = theirRoom as unknown as PlaceFile;
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify([THEIR_ROOM]));
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
 

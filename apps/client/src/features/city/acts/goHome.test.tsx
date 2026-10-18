@@ -15,6 +15,7 @@ import { City } from "../City";
 import { goHomeAsk, goHomeOffered } from "./goHome";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { pressFanAct } from "../fan/fan.testing";
+import { stubWebGL, unstubWebGL } from "../../../shared/testing/webgl";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -24,14 +25,13 @@ vi.mock("../scene/CityScene", async () => ({ default: (await import("../fan/fan.
 vi.mock("../../../shared/three/manifest", async (original) => (await import("../../../shared/testing/manifest")).fromDisk(original));
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.the-room"]));
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
 

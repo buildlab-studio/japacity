@@ -12,6 +12,7 @@ import { nameOf, say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
+import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
 const PROLOGUE = "scenario.prologue";
 const HUNT = "activity.job-hunt";
@@ -48,13 +49,12 @@ vi.mock("../shared/three/manifest", async (original) => (await import("../shared
 
 /** From the handover on, the world draws its place (City.tsx canDraw); the scene is the stand-in above. */
 function worldDraws(): void {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
 }
 
 afterEach(() => {
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   localStorage.clear();
 });
 

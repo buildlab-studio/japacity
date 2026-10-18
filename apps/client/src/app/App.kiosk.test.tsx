@@ -21,6 +21,7 @@ import { stageOf, type PlaceFile } from "../shared/scene/placeFile";
 import { stagedNow, thingsNow, thingsOf } from "../features/city/scene/things";
 import { KioskSheet } from "../features/lottery/KioskSheet";
 import { drawOf, onlineLife, tuning } from "../features/lottery/lottery.testing";
+import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
@@ -33,14 +34,13 @@ const STREET = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "pu
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify([BODE_THOMAS]));
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
 

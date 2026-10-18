@@ -14,6 +14,7 @@ import type { Thing } from "../../shared/world/contract";
 import { markTaught } from "../../shared/world/taught";
 import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 interface StandInProps {
   things?: Thing[];
@@ -42,8 +43,7 @@ vi.mock("../../shared/three/manifest", async (original) => (await import("../../
 const SCREEN = { width: window.innerWidth, height: window.innerHeight };
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   Object.defineProperty(window, "innerWidth", { value: 390, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: 844, configurable: true });
 });
@@ -52,7 +52,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });

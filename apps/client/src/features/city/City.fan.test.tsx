@@ -18,6 +18,7 @@ import { markTaught } from "../../shared/world/taught";
 import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
 import { sceneWords } from "./scene.words";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
@@ -55,8 +56,7 @@ const SCREEN = { width: window.innerWidth, height: window.innerHeight };
 
 beforeEach(() => {
   handed.length = 0;
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
   // A phone held upright, as the game is built for.
   Object.defineProperty(window, "innerWidth", { value: 390, configurable: true });
@@ -67,7 +67,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });

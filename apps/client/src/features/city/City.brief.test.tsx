@@ -12,6 +12,7 @@ import { resetLines, tell } from "../../shared/world/Lines";
 import { markTaught } from "../../shared/world/taught";
 import { DONE_TOAST_MS, doneToast } from "./brief/brief";
 import { City } from "./City";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
@@ -22,8 +23,7 @@ vi.mock("../../shared/three/manifest", async (original) => (await import("../../
 const SCREEN = { width: window.innerWidth, height: window.innerHeight };
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   
   // A phone held upright, as the game is built for.
   Object.defineProperty(window, "innerWidth", { value: 390, configurable: true });
@@ -34,7 +34,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });

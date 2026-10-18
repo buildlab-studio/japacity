@@ -11,6 +11,7 @@ import { say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
+import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
 function memoryStorage() {
   const items = new Map<string, string>();
@@ -40,8 +41,7 @@ describe("the shell by where the character is", () => {
     const storage = memoryStorage();
     storage.setItem(SAVE_KEY, JSON.stringify({ save: beforeFlight, clock: { anchor: 0 } }));
     // The world draws its place here (City.tsx canDraw); the scene is the stand-in above, at the family house where her bag is.
-    Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+    stubWebGL();
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     try {
       const store = bootGame({ storage, fastClock: true });
@@ -85,7 +85,7 @@ describe("the shell by where the character is", () => {
       expect(await waitFor(() => found(`[data-japa-visa="${status ?? ""}"]`))).toBeDefined();
     } finally {
       vi.restoreAllMocks();
-      Reflect.deleteProperty(window, "WebGL2RenderingContext");
+      unstubWebGL();
       window.localStorage.clear();
     }
   }, 30000);

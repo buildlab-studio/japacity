@@ -11,6 +11,7 @@ import { words } from "../shared/words/text";
 import { linesNow } from "../shared/world/Lines";
 import { Results } from "../features/turn/Results";
 import { City, RESULTS_BEAT_MS } from "../features/city/City";
+import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -21,15 +22,14 @@ vi.mock("../shared/three/manifest", async (original) => (await import("../shared
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
 });
 
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
 
