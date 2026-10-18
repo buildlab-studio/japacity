@@ -2,27 +2,20 @@
 // R-SHARE-009, R-SHARE-011; decision 0024): the player picks which of the two to share, one tap shares
 // the one picked, and the type read at the send-off is kept with the card for the gallery and the data page.
 import { content, text } from "@japacity/content";
-import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { playedWords } from "../../shared/share/face";
 import { fakeCanvas } from "../../shared/share/canvas.testing";
-import { recordedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { japaTypeOf, typeWords } from "../../shared/words/japaType";
 import { say } from "../../shared/words/text";
 import { keptTypeOf } from "../../shared/share/kept";
+import { adaSendOff } from "../../shared/share/share.testing";
 import { gallery } from "./gallery";
 import { CardView } from "./ShareCard";
 
 const tuning = content.tuning.share;
-
-function adaSendOff(): PlayerView {
-  const view = recordedGame("ada-careful").view();
-  if (view.card?.kind !== "send-off") throw new Error("Ada's recorded life does not end at the send-off.");
-  return view;
-}
 
 function phoneShare() {
   const share = vi.fn<(data: ShareData) => Promise<void>>(() => Promise.resolve());

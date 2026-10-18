@@ -7,9 +7,9 @@ import { describe, expect, test } from "vitest";
 import { recordedGame } from "../testing/fixtures";
 import { bandWords } from "../words/text";
 import { cardFace, playedWords, standingWords } from "./face";
-import { cardSteps, previewSteps, type Measure, type TextStep } from "./layout";
+import { cardSteps, previewSteps, type TextStep } from "./layout";
+import { measure } from "./share.testing";
 
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 const SIZE = { width: 1080, height: 1920 };
 
 describe("a card in words", () => {

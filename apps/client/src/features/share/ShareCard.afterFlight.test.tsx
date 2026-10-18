@@ -7,15 +7,14 @@ import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { cardFace, cardWords } from "../../shared/share/face";
-import { cardSteps, type Measure } from "../../shared/share/layout";
+import { cardSteps } from "../../shared/share/layout";
+import { measure } from "../../shared/share/share.testing";
 import { recordedGame, setPockets } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { ShareCardFace } from "./ShareCard";
 
 type Card = NonNullable<PlayerView["card"]>;
-
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 
 /** Ada's careful life to her first pay abroad: two hunts for the shop job, the offer taken, a month worked. */
 function firstPayCard(): Card {

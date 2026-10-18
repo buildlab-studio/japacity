@@ -1,39 +1,25 @@
 import { content, shareChapters, shareKinds, text, type ShareKind } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { recordedGame } from "../testing/fixtures";
 import { ART_IDS, artShapes } from "./art";
 import { encodeUnder, QUALITIES, underLimit } from "./encode";
 import { cardFace, cardLink, playedWords, standingWords, type ShareCard } from "./face";
 import { fakeCanvas } from "./canvas.testing";
-import { cardSteps, previewSteps, wrap, type Measure, type Step, type TextStep } from "./layout";
+import { cardSteps, previewSteps, wrap, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
+import { adaCard, measure, texts } from "./share.testing";
 import { canShareFiles, sendCard, shareData, type Device } from "./travel";
 
 const tuning = content.tuning.share;
 const SIZE = { width: tuning.width, height: tuning.height };
 const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
 
-/** About the width of a system font: wide enough that long words wrap as they would on a phone. */
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
-
 /** Ada's name as the band says it (R-SHARE-004): "Adaeze", never a shorter name the band does not use. */
 const BAND_NAME = (text["scenario.ada.name"] ?? "").split(/\s+/)[0];
-
-/** Ada's send-off card, as the engine makes it. */
-function adaCard(): ShareCard {
-  const card = recordedGame("ada-careful").view().card;
-  if (card === null) throw new Error("Ada's recorded life has no card.");
-  return card;
-}
 
 /** Ada's card as each kind would carry it, with the chapter a chapter card closes. */
 function cardOf(kind: ShareKind): ShareCard {
   return { ...adaCard(), kind, ...(kind === "chapter" ? { chapter: "chapter.build-the-file" as const } : {}) };
-}
-
-function texts(steps: readonly Step[]): TextStep[] {
-  return steps.filter((step): step is TextStep => step.op === "text");
 }
 
 function role(steps: readonly Step[], wanted: TextStep["role"]): TextStep[] {

@@ -4,23 +4,16 @@
 import { content, shareChapters, shareKinds, text, type ShareKind } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { recordedGame } from "../testing/fixtures";
 import { cardFace, type ShareCard } from "./face";
 import { fakeCanvas } from "./canvas.testing";
-import { cardSteps, previewSteps, type MarkStep, type Measure, type Size, type Step, type TextStep } from "./layout";
+import { cardSteps, previewSteps, type MarkStep, type Size, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
+import { adaCard, measure, texts as words } from "./share.testing";
 
 const tuning = content.tuning.share;
 const SIZE = { width: tuning.width, height: tuning.height };
 const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 const NAME = text["share.sender"]!;
-
-function adaCard(): ShareCard {
-  const card = recordedGame("ada-careful").view().card;
-  if (card === null) throw new Error("Ada's recorded life has no card.");
-  return card;
-}
 
 function cardOf(kind: ShareKind, chapter: ShareCard["chapter"] = "chapter.build-the-file"): ShareCard {
   return { ...adaCard(), kind, ...(kind === "chapter" ? { chapter } : {}) };
@@ -28,10 +21,6 @@ function cardOf(kind: ShareKind, chapter: ShareCard["chapter"] = "chapter.build-
 
 function marks(steps: readonly Step[], role: MarkStep["role"]): MarkStep[] {
   return steps.filter((step): step is MarkStep => step.op === "mark" && step.role === role);
-}
-
-function words(steps: readonly Step[]): TextStep[] {
-  return steps.filter((step): step is TextStep => step.op === "text");
 }
 
 type Point = [number, number];

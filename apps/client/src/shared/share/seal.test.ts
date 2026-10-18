@@ -3,22 +3,15 @@
 import { content, shareKinds } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { recordedGame } from "../testing/fixtures";
 import { cardFace } from "./face";
 import { fakeCanvas } from "./canvas.testing";
-import { cardSteps, previewSteps, sealGround, TONES, type Measure, type SealStep, type Step, type TextStep } from "./layout";
+import { cardSteps, previewSteps, sealGround, TONES, type SealStep, type Step, type TextStep } from "./layout";
 import { renderCard } from "./render";
+import { adaCard, measure } from "./share.testing";
 import { stubFace, stubSteps } from "./stub";
 
 const tuning = content.tuning.share;
 const SIZE = { width: tuning.width, height: tuning.height };
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
-
-function adaCard() {
-  const card = recordedGame("ada-careful").view().card;
-  if (card === null) throw new Error("Ada's recorded life has no card.");
-  return card;
-}
 
 const seals = (steps: readonly Step[]) => steps.filter((step): step is SealStep => step.op === "seal");
 const sender = (steps: readonly Step[]) => steps.find((step): step is TextStep => step.op === "text" && step.role === "sender")!;
