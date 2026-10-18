@@ -211,7 +211,7 @@ describe("the bot check at the guest start", () => {
   });
 });
 
-describe("rule B: what only a secured account may do", () => {
+describe("what only a secured account may do", () => {
   const SECURE = /Secure this life with Google or an email code/;
 
   async function guestAndSecured(h: Harness) {
@@ -220,7 +220,7 @@ describe("rule B: what only a secured account may do", () => {
     return { guest, secured };
   }
 
-  /** What a reply says about rule B: its status, its code, and whether its detail names the way to secure. */
+  /** What a reply says about a secured-only refusal: its status, its code, and whether its detail names the way to secure. */
   async function outcome(reply: Response) {
     const said = (await reply.json().catch(() => ({}))) as Record<string, unknown>;
     return { status: reply.status, code: said["code"], secure: SECURE.test(String(said["detail"])) };
@@ -393,7 +393,7 @@ describe("securing a guest", () => {
   });
 });
 
-describe("rule A: an email that was never confirmed", () => {
+describe("an email that was never confirmed", () => {
   test("[account:username-and-unconfirmed-email] given a guest that asked for a code and never typed it, when the address is used elsewhere, then it signs in to nothing, reserves nothing, and is dropped once its owner confirms it", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");

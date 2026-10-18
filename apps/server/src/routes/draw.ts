@@ -37,7 +37,7 @@ async function drawReply(deps: ServerDeps, draw: number): Promise<DrawReply | nu
 /**
  * server:public-replies-cached: the limit first, then the cache by the draw's number, then the
  * database. The number alone makes the reply the same for everyone; an open
- * draw's reply is kept a minute, as the browser was always told.
+ * draw's reply is kept a minute.
  */
 export function drawRoute(deps: ServerDeps, edge: EdgeCache | null = edgeCache()): Hono<SessionEnv> {
   const route = new Hono<SessionEnv>();

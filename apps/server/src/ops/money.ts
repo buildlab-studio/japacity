@@ -140,7 +140,7 @@ function contentAt(deps: Pick<ServerDeps, "contents">, segments: readonly Segmen
   return (segment === undefined ? null : contentNamed(deps, segment.content, segment.overlay)) ?? deps.contents.current;
 }
 
-/** A house part a payout logged before decision 0016 may still carry; nothing logs one now. */
+/** The house part a logged payout carries, 0 when it has none; decision 0016 allows none, so the check raises any other. */
 function housePart(prize: object): number {
   const { topUp } = prize as { topUp?: unknown };
   return typeof topUp === "number" ? topUp : 0;

@@ -34,8 +34,7 @@ async function lastResult(world: WorldStore, tick: number, draw: number): Promis
  * the close. That row, and any made before the draw opens, carries the draw
  * before, closed, so its tickets show as being drawn and a purchase is refused
  * as closed; sales of the new draw start with the next row, Saturday 07:00 in
- * Lagos, with the result and the new jackpot. lottery:draw-sells-between-ticks says sales start
- * with tick 14n, so the code and the page differ here.
+ * Lagos, with the result and the new jackpot, as lottery:draw-sells-between-ticks says.
  * With no draw stored at or before the tick's draw the world runs no draw.
  */
 export async function lotteryFor(tick: number, deps: Pick<ServerDeps, "stores" | "contents">): Promise<World["lottery"]> {

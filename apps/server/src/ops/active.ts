@@ -1,8 +1,7 @@
-// server:daily-money-report: the characters that logged a command on each UTC day, as the
-// money job needs them. No store can list the characters that logged on a
-// day, so the list is kept in the isolate's memory from markAfterCommit and is
-// lost when the isolate restarts. A store query, such as
-// `LedgerStore.active(day)` or the log rows by `at`, would replace it.
+// server:daily-money-report: the characters that logged a command on each UTC day, kept in the
+// isolate's memory from markAfterCommit and lost when the isolate restarts. The Worker's money
+// job reads the day's characters from the command log (`pgDayLog`); this list serves the memory
+// stores, where no log can be read by day.
 import type { LedgerStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";

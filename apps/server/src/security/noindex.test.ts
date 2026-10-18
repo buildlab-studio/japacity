@@ -1,4 +1,4 @@
-// server:production-and-staging: staging stays out of search engines, production is left as it was.
+// server:production-and-staging: staging stays out of search engines, production is left untouched.
 import { describe, expect, test } from "vitest";
 
 import { ROBOTS_TAG, ROBOTS_TXT, served } from "./noindex";

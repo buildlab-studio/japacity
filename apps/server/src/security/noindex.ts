@@ -4,7 +4,7 @@
 // can mark every reply. A page or a file never opens a database client: only
 // `/api/*` goes on to the game.
 
-/** The header the static staging site carried on every response. */
+/** The robots header every staging reply carries. */
 export const ROBOTS_TAG = "noindex, nofollow, noarchive, nosnippet";
 
 /** Every crawler is asked to stay out of the whole site. */
@@ -36,8 +36,8 @@ function marked(response: Response): Response {
 }
 
 /**
- * server:production-and-staging: without `NOINDEX` the request goes to the game as it always
- * did. With it, `/robots.txt` disallows everything, `/api/*` goes to the game
+ * server:production-and-staging: without `NOINDEX` the request goes to the game untouched.
+ * With it, `/robots.txt` disallows everything, `/api/*` goes to the game
  * and every other path to the client's files, and each reply carries the tag.
  */
 export async function served(request: Request, env: NoindexEnv, game: (request: Request) => Promise<Response>): Promise<Response> {

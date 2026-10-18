@@ -1,6 +1,6 @@
 // The Worker's own guards: the headers on every
 // reply, writes only from the game's page, bodies and commands of a bounded
-// size, and the limits on the routes that had none.
+// size, and the limits on the routes beyond the command and the view.
 import type { ServerRejection } from "@japacity/api";
 import { describe, expect, test } from "vitest";
 
@@ -158,7 +158,7 @@ describe("bodies and commands of a bounded size", () => {
   });
 });
 
-describe("the limits on the routes that had none", () => {
+describe("the limits on the other routes", () => {
   test("[server:per-account-rate-limits] given an account at its read limit, when it asks for a place's people, its standing or a socket, then each is answered 429 with a retry in 60 seconds", async () => {
     const server = limitedServer({ readsPer60s: 0 });
     // The socket route is mounted by index.ts with the place objects; nothing past the limit is reached here.

@@ -13,7 +13,7 @@ async function quietly(write: () => Promise<void>): Promise<void> {
   try {
     await write();
   } catch {
-    // analytics:server-checks-every-batch's spirit: counting never fails what was counted.
+    // Counting never fails what was counted: a write that fails is dropped.
   }
 }
 

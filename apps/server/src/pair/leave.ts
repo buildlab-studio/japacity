@@ -10,8 +10,8 @@ import { pairStep, sendTo, sideLive, sideOf } from "./step";
 /**
  * person:leaving-player-ends-bonds, account:player-deletes-account: called when a deletion is asked for
  * (account/deletion.ts) and when a life ends for another (authority/character.ts). The other player is told only that the bond ended.
+ * `why`: `absence` for a deletion, `restart` when the player ended the life to start another (account:start-a-new-life).
  */
-/** `why`: `absence` for a deletion (person:leaving-player-ends-bonds), `restart` when the player ended the life to start another (account:start-a-new-life). */
 export async function leavePairs(deps: ServerDeps, _account: string, character: string | null, why: "absence" | "restart" = "absence"): Promise<void> {
   if (character === null) return;
   for (const key of await deps.stores.invite.pairsOf(character)) {

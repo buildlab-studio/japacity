@@ -41,7 +41,7 @@ export const ADVERT_KEPT_MS = 5 * time.MINUTE_MS;
  * image's the creative, its version and the hour: what makes each the same for
  * everyone. The server's cache keeps each for at most ADVERT_KEPT_MS, so a campaign
  * pulled within the hour leaves new visitors within five minutes; the browser
- * keeps it until the hour ends, as it always was told.
+ * keeps it until the hour ends.
  */
 export function advertRoutes(deps: ServerDeps, on: AdvertsOn = advertsOnByDefault, edge: EdgeCache | null = edgeCache()): Hono<SessionEnv> {
   const route = new Hono<SessionEnv>();

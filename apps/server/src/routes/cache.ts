@@ -62,7 +62,7 @@ export function edgeCache(): EdgeCache | null {
   return (globalThis as Partial<{ caches: CacheStorage }>).caches?.default ?? null;
 }
 
-/** Whole seconds from `now` to `until`, rounded up, as the replies always sent them. */
+/** Whole seconds from `now` to `until`, rounded up. */
 function secondsTo(until: number, now: number): number {
   return int.divCeil(until - now, time.SECOND_MS);
 }

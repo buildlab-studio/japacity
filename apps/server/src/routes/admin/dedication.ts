@@ -6,8 +6,7 @@
 // POST /api/admin/dedication/:account/approve the name shows to everyone from the next read
 // POST /api/admin/dedication/:account/refuse  the light is put out; the account may light again
 //
-// Both decisions are written to the admin log (moderation:admin-actions-logged-append-only) with the reason `dedication`. Planned, not built: a
-// reviewer job approving on the makers' behalf through the same route.
+// Both decisions are written to the admin log (moderation:admin-actions-logged-append-only) with the reason `dedication`.
 import type { PendingLight, ServerRejection } from "@japacity/api";
 import type { DedicationLight } from "@japacity/store";
 import { Hono } from "hono";
