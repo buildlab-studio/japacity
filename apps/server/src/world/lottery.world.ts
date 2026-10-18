@@ -7,7 +7,7 @@ import { jackpotHit } from "@japacity/sim";
 import type { WorldStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import { closesTickOf, drawOn, storedBefore } from "../draw/draw";
+import { closesTickOf, drawOn, storedBefore } from "../lottery/draw";
 
 /**
  * R-LOTTERY-015: the newest result stored for a draw before `draw`. The row

@@ -8,7 +8,7 @@
 import { pgDayLog } from "@japacity/db";
 
 import { productionConfig } from "./config";
-import { quicknet } from "./draw/beacon";
+import { quicknet } from "./lottery/beacon";
 import { advertLinksJob } from "./advert/job";
 import { boardsWeekJob } from "./boards/job";
 import { COUNTERS_CRON, countersJob } from "./jobs/counters";

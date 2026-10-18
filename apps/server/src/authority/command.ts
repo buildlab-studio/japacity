@@ -9,7 +9,7 @@ import { viewFor } from "@japacity/sim";
 
 import { clockView } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { withNumbers } from "../draw/numbers";
+import { withNumbers } from "../lottery/numbers";
 import { bookOf } from "../pair/book";
 import { bondedWith, carry } from "../pair/carry";
 import type { Answer } from "./answer";
