@@ -1,0 +1,40 @@
+{
+  "piece": "places/family-house/prop_parlour-set.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "assets-src/prop/parlour-set/renders/back.png",
+    "assets-src/prop/parlour-set/renders/front.png",
+    "assets-src/prop/parlour-set/renders/left.png",
+    "assets-src/prop/parlour-set/renders/phone.png",
+    "assets-src/prop/parlour-set/renders/plan.png",
+    "assets-src/prop/parlour-set/renders/right.png",
+    "assets-src/prop/parlour-set/renders/threeQuarter.png",
+    "assets-src/prop/parlour-set/renders/manifest.json",
+    "assets-src/register.json, the row for places/family-house/prop_parlour-set.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 27,
+  "mean": 3.86,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A sitting room in one look: the sofa, the TV on its stand, the standing fan.",
+    "silhouette": "Front and back show sofa, chairs, TV and fan; the sides are chairs and the fan.",
+    "proportion": "Seat and back heights, TV and fan agree with the person.",
+    "palette": "Palette only, but the wine sofas stand on a wine rug and run together; the gold and indigo border helps.",
+    "wear": "A standing fan, the TV on its cabinet, a rug, papers on the centre table: a Lagos parlour.",
+    "variety": "Its own; the fan's head is a faceted disc where a round part should be smooth.",
+    "budget": "Read from the register row: triangles 474 of 800 (59%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 4,304 of 25,000 (17%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "In the family house's plain shots the set stands on the open veranda, TV included."
+}

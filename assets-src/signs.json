@@ -1,0 +1,3 @@
+{
+  "note": "The sign words live in packages/content/src/place/place.text.ts (city:place-words-are-text-keys), with the name check of each made-up name above its key. The shooter and the outline tool read them from there; nothing is kept here."
+}

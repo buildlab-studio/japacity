@@ -1,0 +1,181 @@
+{
+  "asset": "prop_bales",
+  "file": "public/assets/places/tejuosho-market/prop_bales.glb",
+  "fileSha256": "888c8a22a37ae7d5a09383c045307049aa7b519e3f18cc5358fbfdaabdae6501",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/bales/renders/front.png",
+      "sha256": "58575a992de23eb4d578d510aff9c31a15dfe17f6660577cd6599958e91c3273",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.7599999904632568,
+          26.15829073573371
+        ],
+        "target": [
+          0,
+          0.7599999904632568,
+          0
+        ],
+        "width": 3.8844586086273196,
+        "height": 2.9133439564704897
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/bales/renders/back.png",
+      "sha256": "ea824308d86f10f61336852b2f2e0da0c05a4ff1551eef8d0ac408f201e538c0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.7599999904632568,
+          -26.15829073573371
+        ],
+        "target": [
+          0,
+          0.7599999904632568,
+          0
+        ],
+        "width": 3.8844586086273196,
+        "height": 2.9133439564704897
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/bales/renders/left.png",
+      "sha256": "45cb0fe01684740743b5ccf74e275df15e482dee07f83b4ee8dc269a0bc3e020",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -26.15829073573371,
+          0.7599999904632568,
+          0
+        ],
+        "target": [
+          0,
+          0.7599999904632568,
+          0
+        ],
+        "width": 2.188868182918632,
+        "height": 1.6416511371889742
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/bales/renders/right.png",
+      "sha256": "778d86750959bb9529c4560635d76c504aa3d7f6793ef31e2c8c7990ec616672",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          26.15829073573371,
+          0.7599999904632568,
+          0
+        ],
+        "target": [
+          0,
+          0.7599999904632568,
+          0
+        ],
+        "width": 2.188868182918632,
+        "height": 1.6416511371889742
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/bales/renders/threeQuarter.png",
+      "sha256": "bbb4d1622dca89d7c0918620fe93b40458878aa648978f8c5e66b53bd3457532",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.666769267449686,
+          4.570401141314514,
+          4.666769267449687
+        ],
+        "target": [
+          0,
+          0.7599999904632568,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/bales/renders/phone.png",
+      "sha256": "58bcf68c2f35564d6c2513359110373647167630687dd3da2ea7229af5a99edc",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.517494456097245
+        ],
+        "target": [
+          0,
+          1.5,
+          0.5174944560972449
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/bales/renders/tile.png",
+      "sha256": "6d2d06901baac7ba88b7c353900c40585ff4cb451d1d1efa4b8ab56cdaaa993e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.981999871941209,
+          3.4978930561669737,
+          3.7144508766240723
+        ],
+        "target": [
+          0.25752571856942325,
+          0.4568726441852237,
+          -0.0100232767477143
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

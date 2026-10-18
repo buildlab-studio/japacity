@@ -1,0 +1,33 @@
+{
+  "asset": "prop_kitchen-shelf",
+  "file": "public/assets/shared/prop/prop_kitchen-shelf.glb",
+  "fileSha256": "ca8bcbe4ea8b6ae742f0cb645eed6f7779831711437209dc555295e997f9ce24",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/kitchen-shelf/renders/tile.png",
+      "sha256": "bd530a2ff939d6661652d48cee4a47a2ba943d93cba2eaae1e026f19ef79ffd1",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.9272563235164375,
+          1.8982464588320902,
+          1.7669545699946596
+        ],
+        "target": [
+          0.18945683006013753,
+          0.47933911408708735,
+          0.0291550765383594
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "piece": "place.airport-lagos, the departures kerb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.airport-lagos"
+  ],
+  "low": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "The canopy, DROP OFF ONLY, INTL AIR on the fascia, trolleys and a family at the doors: a departures kerb in one look. Not 5: the flagpole and its flag cover the name, and the bottom third is bare road.",
+      "silhouette": "The plan shows the kerb, the canopy's columns, a zebra crossing and taxis, but the terminal is a blank roof and half the plan is road: half says the place.",
+      "proportion": "Canopy, doors, columns, trolleys and people agree.",
+      "palette": "In the low mode the glass front turns a pale fog-beige, so the terminal reads as one flat beige mass; the flag is a single green where Nigeria's is green, white, green.",
+      "wear": "Taxis, trolleys with cases and the checked bag, bollards, check-in boards over the doors, litter.",
+      "variety": "Same family; plainly its own place.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 22 and 22,900, check 22 and 22,690 moving: 28% and 29%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 28,
+    "mean": 4.0,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "As low; the glass now reads dark and the family's goodbye shows under the canopy. The same faults: flag over the name, bare lower third.",
+      "silhouette": "As low.",
+      "proportion": "As low; shadows sit people and taxis on the ground.",
+      "palette": "The dark glass, the green board and the yellow taxis read against the cream canopy. The single-colour flag stays.",
+      "wear": "As low, with a porter in a cap and a woman hailing a taxi in the near frame on the desktop.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 53 and 60,516 (66% and 76%), check 46 and 51,680 moving. At or under 80%."
+    }
+  },
+  "figures": "Preview (Pixel 7): low phone 22 draw calls and 22,900 triangles, high phone 53 and 60,516; desktop the same. The place check (pnpm check:assets, cheap phone profile, start camera): low still 18 draw calls and 22,090 triangles, moving 22 and 22,690, script at most 74 us; high still 42 and 50,204, moving 46 and 51,680, script at most 107 us.",
+  "predates": "The shots predate the band word set against the target, the smooth blended smoke, the shipped grids and the real names. The flag is the plain green one, an open question for the makers. Scored as shown.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 4 draw calls (limit 6) and 107 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Meets the bar as far as the check's figures and the pictures show. The look passes the sheet in both modes. The flag needs its three bands before a person's last check."
+  },
+  "notes": "The public name on the fascia goes to a person's last check (assets:acceptance-score-thresholds)."
+}

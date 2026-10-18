@@ -1,0 +1,41 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 3,
+    "variety": 4,
+    "budget": 5
+  },
+  "mean": 3.86,
+  "against": {
+    "file": "assets-src/people/corper/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 4,
+      "budget": 5
+    },
+    "mean": 3.86,
+    "accepted": true
+  },
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A man in a cap, pale shirt and khaki trousers, named in one look; that he is a corper takes a second look.",
+    "silhouette": "The cap brim marks the side views; otherwise a plain standing man, unchanged.",
+    "proportion": "1.71 m; the cap sits right.",
+    "palette": "Khaki trousers and cap still sink into the sand ground.",
+    "wear": "Cap and khaki read as the uniform, but no crest or belt and orange shoes, unchanged.",
+    "variety": "Its own uniform on the plain man's template.",
+    "budget": "Read from the register row: triangles 1,068 of 3,000, drawCalls 1 of 3, materials 1 of 2, bytes 22,912 of 150,000; at or under 80% of every figure."
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose."
+}

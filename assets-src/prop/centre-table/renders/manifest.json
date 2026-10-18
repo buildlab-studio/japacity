@@ -1,0 +1,33 @@
+{
+  "asset": "prop_centre-table",
+  "file": "public/assets/places/family-house-parlour/prop_centre-table.glb",
+  "fileSha256": "95a9b59b21d2160414ca217a9c0ddd5bae1b96e41194dc5ab05c5803b9acba62",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/centre-table/renders/tile.png",
+      "sha256": "7b0650a3df5d1c43cb57ddbbcc6e20725a4094a5911eccf468e3c6cbb5f946fc",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.498159358566617,
+          3.4137906059250254,
+          4.399823023659073
+        ],
+        "target": [
+          0.2034234021049807,
+          -0.0928466185132677,
+          0.10508706719743642
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

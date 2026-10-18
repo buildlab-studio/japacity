@@ -1,0 +1,181 @@
+{
+  "asset": "prop_gazebo-stall",
+  "file": "public/assets/places/rye-lane/prop_gazebo-stall.glb",
+  "fileSha256": "e8eb1663d4fdee28c29535c146dc8ce0e1885bbc67563be9bf14f9c494c92c1d",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/gazebo-stall/renders/front.png",
+      "sha256": "4b4256adeb6ac7a8f8e0b54f81d1b0d0613774c9c28cabac30b3d98c3baf02b0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.3999999737739564,
+          28.746680913513966
+        ],
+        "target": [
+          0,
+          1.3999999737739564,
+          0
+        ],
+        "width": 4.031982286419311,
+        "height": 3.0239867148144834
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/gazebo-stall/renders/back.png",
+      "sha256": "76361b10206f56e2f4dd5562a6aeaaac5eee84161791de0a49136bbb3df3610d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.3999999737739564,
+          -28.746680913513966
+        ],
+        "target": [
+          0,
+          1.3999999737739564,
+          0
+        ],
+        "width": 4.031982286419311,
+        "height": 3.0239867148144834
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/gazebo-stall/renders/left.png",
+      "sha256": "7da653154dca915fe1a69870a40a5b1c54820b1f0f6d1cf72adde67855e7caa7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -28.746680913513966,
+          1.3999999737739564,
+          0
+        ],
+        "target": [
+          0,
+          1.3999999737739564,
+          0
+        ],
+        "width": 4.031982286419311,
+        "height": 3.0239867148144834
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/gazebo-stall/renders/right.png",
+      "sha256": "c58b161bf87e6f4247582a2d90e8d8029ef24207f8e825a1b14359ebc47754a6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          28.746680913513966,
+          1.3999999737739564,
+          0
+        ],
+        "target": [
+          0,
+          1.3999999737739564,
+          0
+        ],
+        "width": 4.031982286419311,
+        "height": 3.0239867148144834
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/gazebo-stall/renders/threeQuarter.png",
+      "sha256": "4cb57ccf7e39ee06f599e778d86ae019ad32205032e5ea17339a1d8a9ed3fcc7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.414337183598153,
+          5.820787772171702,
+          5.414337183598154
+        ],
+        "target": [
+          0,
+          1.3999999737739564,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/gazebo-stall/renders/phone.png",
+      "sha256": "8108b4786912e2cc8ded5ea8cbd6161119f067ddcc051d77bff9cb7e9b4db7ea",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.224994618269756
+        ],
+        "target": [
+          0,
+          1.5,
+          1.224994618269756
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/gazebo-stall/renders/tile.png",
+      "sha256": "b8a986c273b742ea91760a750a5582aec51b8e651898bc9543de60c848bb85e0",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.003461455930436,
+          4.899555045460024,
+          4.9597537024903104
+        ],
+        "target": [
+          0.19574023997267256,
+          0.9740671105768197,
+          0.1520324865325462
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

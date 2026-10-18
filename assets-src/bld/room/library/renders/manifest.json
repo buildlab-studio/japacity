@@ -1,0 +1,182 @@
+{
+  "asset": "bld_room_library",
+  "file": "public/assets/places/library-ca/bld_room_library.glb",
+  "fileSha256": "f88d4a5bc9366234cdc8cf6a1479a380da6933b394d5a57d68851443a89d4890",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/bld/room/library/renders/front.png",
+      "sha256": "3fdc9c427f62f69bd11ed1f92390408454c04c355a5f44a738174c0b808ddb0d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          1.840000033378601,
+          86.10797275060689
+        ],
+        "target": [
+          0.10000038146972656,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/bld/room/library/renders/back.png",
+      "sha256": "6d997ab30116bd59a4b5c5a13c1adfc8be521ab7b4c01e1bdebbcc1f75377a2f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          1.840000033378601,
+          -86.33797276968038
+        ],
+        "target": [
+          0.10000038146972656,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/bld/room/library/renders/left.png",
+      "sha256": "a7b07b6d34a496ed01c7af8173a0c6f270b90fdb0ee3d91ab08bde5e9accf1ca",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -86.12297237867391,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/bld/room/library/renders/right.png",
+      "sha256": "ade816ed820e73afd4b6985ee1c94d6522482f863fce5b64301fa4aa2ce750bc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          86.32297314161336,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/bld/room/library/renders/threeQuarter.png",
+      "sha256": "3e62a3da1765a67b6d3a8036674da0c054847d6b55e10de40bf2dd884179cc34",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.114397359984093,
+          19.81467989752124,
+          21.899396968977626
+        ],
+        "target": [
+          0.10000038146972656,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/bld/room/library/renders/plan.png",
+      "sha256": "0339a1378c4fce47d3b512145daa1f1fa4891380b28090e976fa623fc0756bd3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          88.06297279352223,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.840000033378601,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/bld/room/library/renders/phone.png",
+      "sha256": "fa0ca5fa76208a88d0b7ef75af7afd010a3312ee1ba67ae5545589dc6e8ce79e",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.10000038146972656,
+          1.6,
+          16.499948021366333
+        ],
+        "target": [
+          0.10000038146972656,
+          1.6560219966376069,
+          4.499948021366332
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

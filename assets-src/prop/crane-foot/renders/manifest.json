@@ -1,0 +1,181 @@
+{
+  "asset": "prop_crane-foot",
+  "file": "public/assets/places/site-uae/prop_crane-foot.glb",
+  "fileSha256": "e56de531141c446fa0e61d0b54c2b873176c071cd29f65cd849a7a5250b1993f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/crane-foot/renders/front.png",
+      "sha256": "16c01ad56edc7e6cb048904f18128a668073e8143a6b6e2f2331042a37434e1b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          6.315000051259995,
+          65.82750310088628
+        ],
+        "target": [
+          0,
+          6.315000051259995,
+          0
+        ],
+        "width": 18.18720018196106,
+        "height": 13.640400136470795
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/crane-foot/renders/back.png",
+      "sha256": "ccb8d7dc8f9ba3dd64e669186eb471c0895c0e1a2e3a3f15f0b8ed8eb159f7ea",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          6.315000051259995,
+          -65.82750310088628
+        ],
+        "target": [
+          0,
+          6.315000051259995,
+          0
+        ],
+        "width": 18.18720018196106,
+        "height": 13.640400136470795
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/crane-foot/renders/left.png",
+      "sha256": "1438daac347de474d1669aa82844e03cd38cfc464b1543cf26e69fcda91bfc4b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -65.82750310088628,
+          6.315000051259995,
+          0
+        ],
+        "target": [
+          0,
+          6.315000051259995,
+          0
+        ],
+        "width": 18.18720018196106,
+        "height": 13.640400136470795
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/crane-foot/renders/right.png",
+      "sha256": "338b96338cb39714c927418803397df235cd5385b0fbb69f6f78b100450b5248",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          65.82750310088628,
+          6.315000051259995,
+          0
+        ],
+        "target": [
+          0,
+          6.315000051259995,
+          0
+        ],
+        "width": 18.18720018196106,
+        "height": 13.640400136470795
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/crane-foot/renders/threeQuarter.png",
+      "sha256": "cb5a3040947a2bfc4faee8e41dc3614acc4df1ee54683f712979693c792894c0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          16.123863594897614,
+          19.48007954783893,
+          16.123863594897617
+        ],
+        "target": [
+          0,
+          6.315000051259995,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/crane-foot/renders/phone.png",
+      "sha256": "75ad2d487523feb1ca915a716b0e017c9bc1fb11b159265e8c6d197ff21db7c4",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          14.099924945476221
+        ],
+        "target": [
+          0,
+          4.5,
+          2.099924945476221
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/crane-foot/renders/tile.png",
+      "sha256": "02db055e5069b4539aa26aa4b12ed49788e0f4d48bf52da16b952e151f349e80",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          16.29319791663476,
+          19.493682100719386,
+          16.293197916634764
+        ],
+        "target": [
+          0.03816866621474292,
+          6.221506294871268,
+          0.03816866621474293
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

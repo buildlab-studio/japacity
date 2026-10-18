@@ -1,0 +1,181 @@
+{
+  "asset": "prop_cooking-fire",
+  "file": "public/assets/places/family-house/prop_cooking-fire.glb",
+  "fileSha256": "4fceac15dddd9731f8ff1068f976c14b0c59f5b6acb29ce9534d94d7ddd5ff79",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/cooking-fire/renders/front.png",
+      "sha256": "6e11d1ff19a6c38140fa6b94cf6c21bda24c5ab8f8873bb6fac915c11879c308",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2474411129951477,
+          0.460000005364418,
+          22.84818978397798
+        ],
+        "target": [
+          0.2474411129951477,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "width": 2.932072834968567,
+        "height": 2.1990546262264252
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/cooking-fire/renders/back.png",
+      "sha256": "4fc828d97535a261becbffbc5e288a3735a36d6f5a96c962b8159da5402d2d8b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2474411129951477,
+          0.460000005364418,
+          -22.784734261917585
+        ],
+        "target": [
+          0.2474411129951477,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "width": 2.932072834968567,
+        "height": 2.1990546262264252
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/cooking-fire/renders/left.png",
+      "sha256": "18b6c673af62acc5e1419215147ba4bc88ff21baa1dae07ddeab91c086d5ef7c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -22.569020909952634,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "target": [
+          0.2474411129951477,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "width": 1.5460785071134648,
+        "height": 1.1595588803350987
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/cooking-fire/renders/right.png",
+      "sha256": "f30b44c8d3af0a94f050cc6a67fa374608b00778bb1d4ddd0903ef3146e00537",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          23.06390313594293,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "target": [
+          0.2474411129951477,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "width": 1.5460785071134648,
+        "height": 1.1595588803350987
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/cooking-fire/renders/threeQuarter.png",
+      "sha256": "74e008966e470c170848655730cfea000dd4f4f6ca5fc46e486a9747ebde27ed",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.9490375296171716,
+          3.482340823510623,
+          3.7333241776522215
+        ],
+        "target": [
+          0.2474411129951477,
+          0.460000005364418,
+          0.031727761030197144
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/cooking-fire/renders/phone.png",
+      "sha256": "831385ebc04d2dfb49b25d4a09a8a874e03eeba8eb52d24b44688426843fbc22",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.2474411129951477,
+          1.6,
+          12.747504847656801
+        ],
+        "target": [
+          0.2474411129951477,
+          1.5,
+          0.7475048476568011
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/cooking-fire/renders/tile.png",
+      "sha256": "f35beb4147c38603f710e5383568acc6a3d934d6e88c70d4b2f8252ebabebf7f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.9550310312313863,
+          2.291204341456911,
+          2.826186637970081
+        ],
+        "target": [
+          0.33107320326551015,
+          0.14875174642423117,
+          0.20222881000420465
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

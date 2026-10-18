@@ -1,0 +1,181 @@
+{
+  "asset": "prop_courier-bike",
+  "file": "public/assets/places/peckham-rye-station/prop_courier-bike.glb",
+  "fileSha256": "d051b5c86bb91c6e962821b48a30870c7af15495e6ea4f96a21c6057ab02143a",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/courier-bike/renders/front.png",
+      "sha256": "533e121b0524b848cbd9a9171a7afce8401716aefe89917cd66332005c2f4026",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.658966701477766,
+          18.971000622179723
+        ],
+        "target": [
+          0,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "width": 1.8749954245845535,
+        "height": 1.4062465684384151
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/courier-bike/renders/back.png",
+      "sha256": "98cef8cef9e64f6c403baa79c0ef5ec8dd8689283cc57b2d7a5825196df374d9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.658966701477766,
+          -18.92100066986344
+        ],
+        "target": [
+          0,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "width": 1.8749954245845535,
+        "height": 1.4062465684384151
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/courier-bike/renders/left.png",
+      "sha256": "3e57a9fcaab4ad299c9b22066fa4e88fb03285123f0b1dc92149fa6a08575c83",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -18.94600064602158,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "target": [
+          0,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "width": 1.8749954245845535,
+        "height": 1.4062465684384151
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/courier-bike/renders/right.png",
+      "sha256": "2ff60fea3c32dba0de35def4fcea529be5b23aef8a1f49aecff13a948c6a4af4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          18.94600064602158,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "target": [
+          0,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "width": 1.8749954245845535,
+        "height": 1.4062465684384151
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/courier-bike/renders/threeQuarter.png",
+      "sha256": "b79de569b6b0f9ccb910aed243747b451b9c871bb4b8c5bfb2e4b89c666ce282",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.5837461130162565,
+          2.768586568740841,
+          2.608746089174399
+        ],
+        "target": [
+          0,
+          0.658966701477766,
+          0.02499997615814209
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/courier-bike/renders/phone.png",
+      "sha256": "1019e8d832cac1b420e6d0007a6d626c0a9eea36e0b756633445096c64d86220",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.889999985694885
+        ],
+        "target": [
+          0,
+          1.5,
+          0.8899999856948853
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/courier-bike/renders/tile.png",
+      "sha256": "fa22361ac568be6b9884310066f709373b1660b61d3beb3569447070387ae011",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.000955322237284,
+          2.3093390982103754,
+          2.0408527944487935
+        ],
+        "target": [
+          -0.010669012656818948,
+          0.6668547066583297,
+          0.029228459554690667
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

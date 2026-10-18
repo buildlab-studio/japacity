@@ -1,0 +1,206 @@
+{
+  "asset": "bld_metro-viaduct",
+  "file": "public/assets/places/metro-station-uae/bld_metro-viaduct.glb",
+  "fileSha256": "4f984821ac49789c442f3c98f7a60a7f6f07a8f5b0e772945c4eef6b741f34bc",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/bld/metro-viaduct/renders/front.png",
+      "sha256": "00c33bf23cc2a6a0ae729ce393fe1bd88d5ee91169647a9e3f2977a6fe712589",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          5.300000166893005,
+          133.00305973635938
+        ],
+        "target": [
+          0,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "width": 30.240000000000002,
+        "height": 22.680000000000003
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/bld/metro-viaduct/renders/back.png",
+      "sha256": "808b39ac9ec6fc31e8b603e0f10b29ede1650c92dde0f43267d04fbe44584b30",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          5.300000166893005,
+          -132.99205981837537
+        ],
+        "target": [
+          0,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "width": 30.240000000000002,
+        "height": 22.680000000000003
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/bld/metro-viaduct/renders/left.png",
+      "sha256": "222440db842e01086dd5ceed1b38ed85a6d5204d58c08b85dc79a91c4f31520a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -132.99755977736737,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "target": [
+          0,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "width": 15.264430677205727,
+        "height": 11.448323007904296
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/bld/metro-viaduct/renders/right.png",
+      "sha256": "a3360e1601ba51ec761429135195348d518ed8ec0ed59bb4ad06a2ec1f62a8b9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          132.99755977736737,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "target": [
+          0,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "width": 15.264430677205727,
+        "height": 11.448323007904296
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/bld/metro-viaduct/renders/threeQuarter.png",
+      "sha256": "eb3efd6ca9b5d62a620e9362c864266e63c0e8e6c28756db3dbc382c06dd843f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          35.52363559537473,
+          34.30492717263893,
+          35.52913555436674
+        ],
+        "target": [
+          0,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/bld/metro-viaduct/renders/plan.png",
+      "sha256": "a43325bd52908277213b6ab1aa60ad077e8d6e0b70b10dcb9e276412d52148c2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          138.29755994426037,
+          0.0054999589920043945
+        ],
+        "target": [
+          0,
+          5.300000166893005,
+          0.0054999589920043945
+        ],
+        "width": 30.240000000000002,
+        "height": 22.680000000000003
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/bld/metro-viaduct/renders/phone.png",
+      "sha256": "82f9cf58af806fbfb50dfd5e474a6596d1da1b0e00f0e98349f9923472c13231",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          15.511161142499802
+        ],
+        "target": [
+          0,
+          4.5,
+          3.5111611424998017
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/bld/metro-viaduct/renders/tile.png",
+      "sha256": "f775e7164cfac5a538d3f1907457eef269069782b429da40b450fc643bd20787",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          32.57643223895077,
+          29.201909556403656,
+          30.28198143531634
+        ],
+        "target": [
+          1.6881543604051996,
+          3.9817362778256817,
+          -0.6062964432292389
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

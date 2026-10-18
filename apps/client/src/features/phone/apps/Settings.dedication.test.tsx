@@ -83,7 +83,7 @@ function tap(times: number): void {
   for (let at = 0; at < times; at += 1) fireEvent.click(versionButton());
 }
 
-/** the owner's line on every page open now. */
+/** The owner's line on every page open now. */
 function dedication(): string[] {
   return [...document.querySelectorAll("[data-handed-page] [data-dedication]")].map((line) => line.textContent ?? "");
 }

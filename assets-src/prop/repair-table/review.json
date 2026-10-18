@@ -1,0 +1,39 @@
+{
+  "piece": "places/computer-village/prop_repair-table.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "assets-src/prop/repair-table/renders/back.png",
+    "assets-src/prop/repair-table/renders/front.png",
+    "assets-src/prop/repair-table/renders/left.png",
+    "assets-src/prop/repair-table/renders/phone.png",
+    "assets-src/prop/repair-table/renders/right.png",
+    "assets-src/prop/repair-table/renders/threeQuarter.png",
+    "assets-src/prop/repair-table/renders/manifest.json",
+    "assets-src/register.json, the row for places/computer-village/prop_repair-table.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 28,
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A roadside repairer's pitch in one look: the umbrella over a table with a screen, a laptop and boards.",
+    "silhouette": "The umbrella over a table reads in all four outlines; the trade shows best from the front.",
+    "proportion": "Table, bench and umbrella height agree with the person.",
+    "palette": "The blue and cream umbrella, the blue table cloth and dark devices read against sand.",
+    "wear": "Screens, a laptop, circuit boards, a stool, a red box and a bench: the right things for the pitch.",
+    "variety": "Its own, in the family of the shared stall and umbrellas.",
+    "budget": "Read from the register row: triangles 382 of 800 (47%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 4,212 of 25,000 (16%). Inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

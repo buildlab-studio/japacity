@@ -1,0 +1,40 @@
+{
+  "piece": "places/peckham/bld_rye-lane-terrace_b.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "assets-src/bld/rye-lane-terrace/b/renders/back.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/front.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/left.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/phone.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/plan.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/right.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/threeQuarter.png",
+    "assets-src/bld/rye-lane-terrace/b/renders/manifest.json",
+    "assets-src/register.json, the row for places/peckham/bld_rye-lane-terrace_b.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 3,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 26,
+  "mean": 3.71,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "Sash windows over two shopfronts with MONEY TRANSFER and PHONE REPAIRS boards, cut at the frame's edges: a London shop terrace in one look.",
+    "silhouette": "The front says a terrace; the back and sides are blank brick walls: two of four.",
+    "proportion": "Two storeys, sashes, doors and the person agree.",
+    "palette": "Red-brown brick reads against sand and sky; boards in blue, cream and yellow.",
+    "wear": "A dish, a downpipe, curtains; generic.",
+    "variety": "Its own beside terrace a: lower, red brick, two bays.",
+    "budget": "Read from the register row: triangles 314 of 1,500 (20%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 5,116 of 40,000 (12%). Inside every figure, over 80% on at least one."
+  },
+  "notes": " A kit piece: no outline is scored."
+}

@@ -1,0 +1,33 @@
+{
+  "asset": "prop_small-shelf",
+  "file": "public/assets/shared/prop/prop_small-shelf.glb",
+  "fileSha256": "b3dc004b6f4651e7afd7c6c4f5ca03bd008ab8701c9699d345bcb91f45a606c1",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/small-shelf/renders/tile.png",
+      "sha256": "cfea41a0979e33e4d6eb82175bdfcf6f9335c37840ab781e9f51106e264fa1cd",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.9108059679579767,
+          2.2482693922367356,
+          1.8880846124836077
+        ],
+        "target": [
+          0.01369417502794763,
+          0.6992840996716988,
+          -0.00902718044642183
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

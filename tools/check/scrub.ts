@@ -225,21 +225,21 @@ const tag = (label: string, pattern: RegExp, example: string, enforced: boolean)
 /**
  * Only tags that never mean anything in the game. A bare merge tag (`m60`) is left out, since an SVG path's
  * `m12 5` reads the same, and so are "the lead", "the brief" and "milestone", which are also the game's words. A
- * branch is matched by its numbered or `a branch-` prefix, since `land/` begins ordinary words too.
+ * branch is matched by its numbered or `fun/wave-` prefix, since `land/` begins ordinary words too.
  */
 export const PROCESS_TAGS: readonly ProcessTag[] = [
-  tag("a handoff note", /\bHANDOFF-/, "Read the notes first.", true),
-  tag("the build notes", /\bjapacity-build-notes\b|(?<![\w-])docs\/build\b/, "See the notes", true),
-  tag("the standing orders", /\bthe notes\b/, "As the notes says.", true),
-  tag("the decision", /\bthe notes\b/, "Logged in the notes.", true),
-  tag("a review code", /\bREVIEW-\d/, "For the review", true),
-  tag("the logic review", /\bthe review\b/, "Found by the the review.", true),
+  tag("a handoff note", /\bHANDOFF-/, "Read HANDOFF-17-OCT first.", true),
+  tag("the build notes", /\bjapacity-build-notes\b|(?<![\w-])docs\/build\b/, "See docs/build/STATE.md.", true),
+  tag("the standing orders", /\bSTANDING-ORDERS\b/, "As STANDING-ORDERS says.", true),
+  tag("the owner's notes", /\bFOR-THE-OWNER\b/, "Logged in FOR-THE-OWNER.", true),
+  tag("a review code", /\bREVIEW-\d/, "For REVIEW-9-OCT item 24.", true),
+  tag("the logic review", /\bLOGIC-REVIEW\b/, "Found by the LOGIC-REVIEW.", true),
   tag("the whole-life review", /\bwhole-life review\b/i, "Raised by the whole-life review.", true),
   tag("a reading taken", /\bReading taken\b/, "the bank pocket.", true),
-  tag("a wave's name", /\bwave [A-Z]{1,4}\d?[a-z]?\b/, "Built in.", true),
-  tag("a builder's branch", /(?<![\w./-])(?:m\d{2,3}\/[a-z0-9]|fun\/wave-)/, "On the branch a branch.", true),
-  tag("a comment tag", /(?:\/\/|\/\*|^\s*\*\s|^\s*#\s|<!--).*\b(?:QUESTION|Decided):/, "const rate = 20; // no page gives the rate.", true),
-  tag("a plan file", /\b[A-Z]+-PLAN\b/, "The family house.", true),
+  tag("a wave's name", /\bwave [A-Z]{1,4}\d?[a-z]?\b/, "Built in wave AB2a.", true),
+  tag("a builder's branch", /(?<![\w./-])(?:m\d{2,3}\/[a-z0-9]|fun\/wave-)/, "On the branch m37/logic-review.", true),
+  tag("a comment tag", /(?:\/\/|\/\*|^\s*\*\s|^\s*#\s|<!--).*\b(?:QUESTION|Decided):/, "const rate = 20; // QUESTION: no page gives the rate.", true),
+  tag("a plan file", /\b[A-Z]+-PLAN\b/, "The family house (HOME-the design).", true),
   tag(
     "a numbered review",
     /\bthe (?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth) review(?:'s note|, [A-Z]\d)/i,

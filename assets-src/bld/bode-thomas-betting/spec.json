@@ -1,0 +1,21 @@
+{
+  "spec": {
+    "footprint": [10.5, 8.0],
+    "storeys": 2,
+    "roof": "flat",
+    "wall": "wallSky",
+    "wear": 2,
+    "balconies": 1,
+    "stairs": "side",
+    "gate": false,
+    "clutterSeed": 31,
+    "signs": ["place.bode-thomas.sign.2", "place.bode-thomas.sign.3", "place.bode-thomas.sign.4"]
+  },
+  "options": {
+    "signStyles": [
+      { "board": "black", "ink": "danfoYellow" },
+      { "board": "white", "ink": "green", "border": "green" },
+      { "board": "red", "ink": "white" }
+    ]
+  }
+}

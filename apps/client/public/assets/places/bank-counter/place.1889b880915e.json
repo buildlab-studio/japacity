@@ -1,0 +1,334 @@
+{
+  "place": "place.olokun-office",
+  "scope": "interior",
+  "hub": false,
+  "note": "The bank counter (world:place-is-one-screen). Counts are the most in view from the whole view; two low and four high.",
+  "instances": [
+    {
+      "file": "places/bank-counter/bld_room_bank.glb",
+      "count": 1
+    },
+    {
+      "file": "places/bank-counter/prop_bank-counter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_waiting-chairs.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_office-cabinet.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 2,
+    "high": 4,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "The banking hall's counter (world:place-is-one-screen): the long counter with its glass and two tellers behind it, a customer at one window, the waiting chairs, the door. The clerk at the left window takes back held funds still open; the counter's one copy stands in the middle, so the clerk is a thing of the counter with no copy of its own, and its label stands at the window it names.",
+    "ground": {
+      "size": [
+        12.6,
+        10.6
+      ],
+      "colour": "wallCreamWorn"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            0,
+            2.9,
+            -1.5
+          ],
+          "size": 2,
+          "bulb": true,
+          "light": {
+            "strength": 5,
+            "reach": 8
+          }
+        },
+        {
+          "at": [
+            0,
+            2.9,
+            2.6
+          ],
+          "size": 1.8,
+          "bulb": true,
+          "light": {
+            "strength": 4,
+            "reach": 7
+          }
+        }
+      ]
+    },
+    "start": [
+      4.94,
+      3.6,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -5.7,
+          -4.7
+        ],
+        [
+          5.7,
+          -4.7
+        ],
+        [
+          5.7,
+          4.7
+        ],
+        [
+          -5.7,
+          4.7
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/bank-counter/bld_room_bank.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/bank-counter/prop_bank-counter.glb",
+        "at": [
+          [
+            0,
+            -2.8,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_waiting-chairs.glb",
+        "at": [
+          [
+            -3,
+            2,
+            3.1416
+          ],
+          [
+            3,
+            2,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            5.94,
+            3.6,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_office-cabinet.glb",
+        "at": [
+          [
+            4.6,
+            -4.8,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            -5.4,
+            4.3,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -1.4667,
+        -3.8,
+        0
+      ],
+      [
+        1.4667,
+        -3.8,
+        0
+      ],
+      [
+        -1.47,
+        -1.7,
+        3.1416
+      ],
+      [
+        -2.72,
+        2,
+        3.1416
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 1,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 3,
+        "pose": "sit"
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0,
+        0.6,
+        -0.6
+      ],
+      "far": 30,
+      "near": 9,
+      "farPitch": 68,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 180,
+      "width": 14.5
+    },
+    "things": [
+      {
+        "id": "counter",
+        "file": "places/bank-counter/prop_bank-counter.glb",
+        "copy": 0,
+        "label": "city.thing.counter",
+        "at": [
+          1.4,
+          -1.6
+        ],
+        "acts": [
+          {
+            "id": "deposit",
+            "label": "ui.route.pay-deposit",
+            "kind": "command",
+            "command": "route/pay-deposit"
+          },
+          {
+            "id": "services",
+            "label": "city.act.held-funds",
+            "kind": "sheet",
+            "stages": "offer.held-funds",
+            "more": [
+              "offer.salary-loan"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "clerk",
+        "file": "places/bank-counter/prop_bank-counter.glb",
+        "copy": 1,
+        "label": "city.thing.clerk",
+        "at": [
+          -1.47,
+          -1.1
+        ],
+        "acts": [
+          {
+            "id": "pay-back",
+            "label": "ui.world.pay-back",
+            "kind": "command",
+            "command": "obligation/pay"
+          }
+        ]
+      },
+      {
+        "id": "chairs",
+        "file": "shared/prop/prop_waiting-chairs.glb",
+        "copy": 0,
+        "label": "city.thing.chairs",
+        "at": [
+          -3,
+          1.1
+        ],
+        "acts": [
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              -3,
+              2,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          5.2,
+          3.6
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

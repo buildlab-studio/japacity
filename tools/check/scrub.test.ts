@@ -79,11 +79,11 @@ describe("the scrub check's process tags", () => {
     const words = [
       "The lead applicant's visa ends, and the dependant's with it.",
       "The brief's mission card. The invite's milestone. A wave of refusals. The wave emote.",
-      "The a branch split of the map. A a branch corner.",
+      "The land/sea split of the map. A fun/games corner.",
       '<path d="m12 5 7 7-7 7" />',
       `log(\`${["QUESTION", " pairs are planned."].join(":")}\`);`,
       "The content version m0.4 is stored with every saved life.",
-      "The officer's second review of the file. The market's catalogue. Measured on an Apple M3 Max. the decision to the officer.",
+      "The officer's second review of the file. The market's catalogue. Measured on an Apple M3 Max. The lead's call to the officer.",
     ].join("\n");
     expect(findProcessTags("packages/content/src/news/news.text.ts", words, PROCESS_TAGS)).toEqual([]);
   });

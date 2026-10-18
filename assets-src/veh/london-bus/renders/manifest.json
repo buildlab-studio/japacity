@@ -1,0 +1,181 @@
+{
+  "asset": "veh_london-bus",
+  "file": "public/assets/shared/veh/veh_london-bus.glb",
+  "fileSha256": "71b2642db552b001f3d91c3c54dc317fdba250f08417cb056d42f9ebbcfea9cd",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/veh/london-bus/renders/front.png",
+      "sha256": "e09aa3822f6a3e307af953725964f41563c357ba72f34b2110485bc786c1e3cf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.1050000190734863,
+          58.130081253552795
+        ],
+        "target": [
+          0,
+          2.1050000190734863,
+          0
+        ],
+        "width": 6.062184929881042,
+        "height": 4.546638697410781
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/veh/london-bus/renders/back.png",
+      "sha256": "1a79cb95a4233e3aa849c40051ec763b5ebba208fef80a485593e20e1850e76b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.1050000190734863,
+          -58.130081253552795
+        ],
+        "target": [
+          0,
+          2.1050000190734863,
+          0
+        ],
+        "width": 6.062184929881042,
+        "height": 4.546638697410781
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/veh/london-bus/renders/left.png",
+      "sha256": "17afa268bb1d01c8c575c10496fcadaf3644cf4278ce276a4d7723bbedf14e32",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -58.130081253552795,
+          2.1050000190734863,
+          0
+        ],
+        "target": [
+          0,
+          2.1050000190734863,
+          0
+        ],
+        "width": 11.685599670410157,
+        "height": 8.764199752807619
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/veh/london-bus/renders/right.png",
+      "sha256": "2d931b1ae48926b7274e2e43cda176e39316381286c192cd918a50073cc1af8e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          58.130081253552795,
+          2.1050000190734863,
+          0
+        ],
+        "target": [
+          0,
+          2.1050000190734863,
+          0
+        ],
+        "width": 11.685599670410157,
+        "height": 8.764199752807619
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/veh/london-bus/renders/threeQuarter.png",
+      "sha256": "f13170105d59b4b4ea701c4f7fb57cd5758bd3628597afcc3e9746ba2d4c753c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          13.900726735731515,
+          13.454895871208898,
+          13.900726735731517
+        ],
+        "target": [
+          0,
+          2.1050000190734863,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/veh/london-bus/renders/phone.png",
+      "sha256": "94ee5ec95aec2d5f62b0c9ae97fce98bf966124033be3ccc9b4fa07a89208a04",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          17.40999984741211
+        ],
+        "target": [
+          0,
+          1.8944327905878255,
+          5.409999847412109
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/veh/london-bus/renders/tile.png",
+      "sha256": "01ede2576e6bfe674cacf27dc37aaff6da4e69b3d7fe4a84b1f547161d015b11",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.62745200957513,
+          11.355316198997286,
+          12.50247780126855
+        ],
+        "target": [
+          -0.2535909945193263,
+          1.6544852082988841,
+          0.6214347971740904
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

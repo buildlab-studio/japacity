@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "footprint": [12.8, 8.0],
+    "storeys": 3,
+    "roof": "flat",
+    "wall": "wallPeach",
+    "wear": 2,
+    "balconies": 2,
+    "stairs": "side",
+    "gate": true,
+    "clutterSeed": 11,
+    "signs": ["place.ojuelegba.sign.5", "place.ojuelegba.sign.6", "place.ojuelegba.sign.7", "place.ojuelegba.sign.8"]
+  },
+  "options": {
+    "signStyles": [
+      { "board": "white", "ink": "green", "border": "green" },
+      { "board": "black", "ink": "danfoYellow" },
+      { "board": "blue", "ink": "white" },
+      { "board": "danfoYellow", "ink": "red", "painted": true }
+    ]
+  }
+}

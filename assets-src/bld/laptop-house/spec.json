@@ -1,0 +1,21 @@
+{
+  "spec": {
+    "footprint": [9.9, 7.0],
+    "storeys": 2,
+    "roof": "hip",
+    "wall": "wallMint",
+    "wear": 3,
+    "balconies": 1,
+    "stairs": "side",
+    "gate": false,
+    "clutterSeed": 77,
+    "signs": ["place.computer-village.sign.9", "place.computer-village.sign.10", "place.computer-village.sign.11"]
+  },
+  "options": {
+    "signStyles": [
+      { "board": "blue", "ink": "white" },
+      { "board": "green", "ink": "white", "painted": true },
+      { "board": "orange", "ink": "black" }
+    ]
+  }
+}

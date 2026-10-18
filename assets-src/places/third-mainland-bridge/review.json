@@ -1,0 +1,77 @@
+{
+  "piece": "place.third-mainland-bridge, the shore under the bridge with stilt houses and canoes",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures and the lagoon colour",
+    "pnpm check:assets, its place check lines for place.third-mainland-bridge"
+  ],
+  "low": {
+    "scores": {
+      "phone": 3,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 26,
+    "mean": 3.71,
+    "accepted": false,
+    "failing": [
+      "phone"
+    ],
+    "reasons": {
+      "phone": "Stilt houses, canoes and water: a waterside settlement on a second look. The bridge, which names the place, is a band of fog overhead.",
+      "silhouette": "The plan shows water, stilt houses, canoes, a beach with a palm and an umbrella; the bridge's deck is out of the plan.",
+      "proportion": "Stilt houses, canoes, the stall and people agree.",
+      "palette": "Teal water as shot (since changed) and fog beyond 20 m; the sand beach is flat.",
+      "wear": "Washing on the verandas, canoes with their goods, a stall of tomatoes, a crate, fish smoke.",
+      "variety": "Same family; plainly its own place.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 16 and 20,412, check 14 and 19,212 moving: 20% and 26%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "The deck's underside and a pier overhead, stilt houses and canoes below: life under the Third Mainland Bridge in one look. Not 5: the deck is a flat brown band and the bottom third bare sand.",
+      "silhouette": "As low.",
+      "proportion": "As low.",
+      "palette": "Teal water as shot; the deck's underside is one flat brown band; the crests read white.",
+      "wear": "As low.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 32 and 55,590 (40% and 69%), check 24 and 53,574 moving. At or under 80%."
+    }
+  },
+  "figures": "Preview (Pixel 7): low phone 16 draw calls and 20,412 triangles, high phone 32 and 55,590; desktop the same. The place check (pnpm check:assets, cheap phone profile, start camera): low still 9 draw calls and 13,980 triangles, moving 14 and 19,212, script at most 22 us; high still 19 and 24,918, moving 24 and 53,574, script at most 51 us.",
+  "predates": "The shots predate the water's lagoon colour, the band word set against the target, the smooth blended smoke and the shipped grids. The water in every shot is teal, a cloth colour; scored as shown.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 5 draw calls (limit 6) and 51 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "The working parts meet the bar as far as the figures show. The look passes in the high mode and fails in the low on phone (3): the bridge is lost in fog."
+  },
+  "notes": "The canoes sit still on the moving water (an open question: a bob); city:no-script-loop-per-sheet allows a whole-object bob. A reshoot with the lagoon water is needed before a person's last check."
+}

@@ -1,0 +1,494 @@
+{
+  "place": "place.third-mainland-bridge",
+  "scope": "exterior",
+  "hub": false,
+  "note": "The Third Mainland Bridge's frontage (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the place's quiet figures under the rule's outdoor caps.",
+  "instances": [
+    {
+      "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+      "count": 1
+    },
+    {
+      "file": "places/tejuosho-market/prop_basins.glb",
+      "count": 2
+    },
+    {
+      "file": "places/family-house/prop_cooking-fire.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ojuelegba/shop_provisions.glb",
+      "count": 1
+    },
+    {
+      "file": "places/third-mainland-bridge/prop_canoe.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/veh/veh_danfo.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_iya.glb",
+      "shared/chr/chr_hawker_a.glb",
+      "shared/chr/chr_hawker_c.glb",
+      "shared/chr/chr_rider.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_bayo.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 74
+  },
+  "stage": {
+    "note": "The shore under one span of the Third Mainland Bridge as one frontage of about 24 metres (world:place-is-one-screen): the deck passes overhead from a pier on the left, its girder about four and a half metres up at mid-span, and the lagoon laps in on the right. Under the near edge, mats laid on pallets, people's things in basins beside them, a drum fire, a water seller's kiosk under the deck's edge, and a danfo on the service road along the shore. The whole view looks low and up under the deck, so the space under it shows. No moving sheet; the fire's smoke and the water move.",
+    "ground": {
+      "size": [
+        64,
+        90
+      ],
+      "colour": "sand"
+    },
+    "roads": [
+      {
+        "at": [
+          19,
+          -5,
+          0
+        ],
+        "size": [
+          24,
+          60
+        ],
+        "colour": "lagoon",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          6.6,
+          -15.25,
+          1.5708
+        ],
+        "size": [
+          49.5,
+          0.8
+        ],
+        "colour": "laterite",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          -13,
+          13,
+          0
+        ],
+        "size": [
+          38,
+          6
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          -13,
+          9.85,
+          0
+        ],
+        "size": [
+          38,
+          0.2
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          -7.6,
+          2.4,
+          0.08
+        ],
+        "size": [
+          2,
+          1
+        ],
+        "colour": "wood",
+        "raise": 0.42
+      },
+      {
+        "at": [
+          -7.6,
+          2.4,
+          0.08
+        ],
+        "size": [
+          1.9,
+          0.9
+        ],
+        "colour": "indigo",
+        "raise": 0.44
+      },
+      {
+        "at": [
+          -4.8,
+          2,
+          -0.06
+        ],
+        "size": [
+          2,
+          1
+        ],
+        "colour": "wood",
+        "raise": 0.42
+      },
+      {
+        "at": [
+          -4.8,
+          2,
+          -0.06
+        ],
+        "size": [
+          1.9,
+          0.9
+        ],
+        "colour": "wine",
+        "raise": 0.44
+      },
+      {
+        "at": [
+          -2,
+          2.6,
+          0.12
+        ],
+        "size": [
+          2,
+          1
+        ],
+        "colour": "wood",
+        "raise": 0.42
+      },
+      {
+        "at": [
+          -2,
+          2.6,
+          0.12
+        ],
+        "size": [
+          1.9,
+          0.9
+        ],
+        "colour": "khaki",
+        "raise": 0.44
+      },
+      {
+        "at": [
+          -6.2,
+          -0.6,
+          0
+        ],
+        "size": [
+          2,
+          1
+        ],
+        "colour": "wood",
+        "raise": 0.42
+      },
+      {
+        "at": [
+          -6.2,
+          -0.6,
+          0
+        ],
+        "size": [
+          1.9,
+          0.9
+        ],
+        "colour": "teal",
+        "raise": 0.44
+      }
+    ],
+    "light": {
+      "sun": [
+        -14,
+        30,
+        26
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      4,
+      11.4,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -11,
+          -4
+        ],
+        [
+          5.4,
+          -4
+        ],
+        [
+          5.4,
+          16.5
+        ],
+        [
+          -11,
+          16.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+        "at": [
+          [
+            8.5,
+            -8,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_basins.glb",
+        "at": [
+          [
+            -7.4,
+            4.2,
+            0
+          ],
+          [
+            -1.6,
+            4.4,
+            0.2
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house/prop_cooking-fire.glb",
+        "at": [
+          [
+            -3.6,
+            5.6,
+            0.3
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/shop_provisions.glb",
+        "at": [
+          [
+            2,
+            6.6,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.third-mainland-bridge.sign.1",
+            "place.third-mainland-bridge.sign.2"
+          ]
+        ]
+      },
+      {
+        "file": "places/third-mainland-bridge/prop_canoe.glb",
+        "at": [
+          [
+            9,
+            4,
+            0.5
+          ],
+          [
+            12.5,
+            -1,
+            -0.3
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_danfo.glb",
+        "at": [
+          [
+            -8.6,
+            13.2,
+            1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        2.6,
+        9.7,
+        3.1416
+      ],
+      [
+        -4.8,
+        0.6,
+        0.2
+      ],
+      [
+        -5.2,
+        6.4,
+        -0.8
+      ],
+      [
+        -2,
+        6.6,
+        0.9
+      ],
+      [
+        2.8,
+        2,
+        -1.4
+      ],
+      [
+        5,
+        4,
+        -0.6
+      ],
+      [
+        -9.6,
+        0.4,
+        0.6
+      ]
+    ],
+    "prefer": {
+      "trader": [
+        0
+      ]
+    },
+    "motion": [
+      {
+        "kind": "water",
+        "at": [
+          15,
+          0.12,
+          0
+        ],
+        "size": [
+          16,
+          34
+        ],
+        "colours": [
+          "lagoon"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          -3.6,
+          0.6,
+          5.6
+        ],
+        "count": 18,
+        "colours": [
+          "concrete",
+          "white",
+          "hub",
+          "concrete"
+        ]
+      }
+    ],
+    "shot": {
+      "centre": [
+        -1,
+        0.5,
+        3
+      ],
+      "far": 30,
+      "near": 10,
+      "farPitch": 24,
+      "nearPitch": 18,
+      "turn": 30,
+      "yaw": 180,
+      "width": 22
+    },
+    "things": [
+      {
+        "id": "mats",
+        "file": "places/tejuosho-market/prop_basins.glb",
+        "copy": 0,
+        "label": "city.thing.mats",
+        "at": [
+          -7.6,
+          3.4
+        ],
+        "acts": [
+          {
+            "id": "sleep",
+            "label": "city.act.sleep-rough",
+            "kind": "do",
+            "stages": "activity.sleep-rough",
+            "pose": "lie",
+            "seat": [
+              -7.6,
+              2.4,
+              -1.49
+            ]
+          },
+          {
+            "id": "night",
+            "label": "city.act.bridge-night",
+            "kind": "sheet",
+            "stages": "offer.bridge-night",
+            "more": [
+              "offer.bridge-theft",
+              "offer.bridge-mosquitoes"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "drum-fire",
+        "file": "places/family-house/prop_cooking-fire.glb",
+        "copy": 0,
+        "label": "city.thing.drum-fire",
+        "at": [
+          -3.6,
+          7
+        ],
+        "acts": [
+          {
+            "id": "warm",
+            "label": "city.act.warm-hands",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "danfo",
+        "file": "shared/veh/veh_danfo.glb",
+        "copy": 0,
+        "label": "city.thing.danfo",
+        "at": [
+          -8.6,
+          11
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      }
+    ]
+  }
+}

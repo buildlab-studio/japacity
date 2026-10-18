@@ -1,0 +1,181 @@
+{
+  "asset": "prop_pew",
+  "file": "public/assets/places/church-uk/prop_pew.glb",
+  "fileSha256": "dcd6f15b29d0ddc8de1d5307c9bfd34c1542a0175db7d51f464ecc80311c689e",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/pew/renders/front.png",
+      "sha256": "18596bab8793142a33e4306ab83642372b84691fed0aeafffc2a4c3879284d37",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5199999868869782,
+          23.830325543058308
+        ],
+        "target": [
+          0,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "width": 3.5207999897003175,
+        "height": 2.6405999922752383
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/pew/renders/back.png",
+      "sha256": "948ef27866f98058217766efd50ec21cf12e5003422efcf9ad9355e5928b3a17",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5199999868869782,
+          -23.99032556928435
+        ],
+        "target": [
+          0,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "width": 3.5207999897003175,
+        "height": 2.6405999922752383
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/pew/renders/left.png",
+      "sha256": "0a0d7333c84395187879f098126a61c362e038b8ff0d42a512371e595fb167b3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -23.91032555617133,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "target": [
+          0,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "width": 1.4975604436307839,
+        "height": 1.123170332723088
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/pew/renders/right.png",
+      "sha256": "eda1ed73a49cc2ec1bc95691eddd4773d866a617bdb2dac50a72051f6f19d2b4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          23.91032555617133,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "target": [
+          0,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "width": 1.4975604436307839,
+        "height": 1.123170332723088
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/pew/renders/threeQuarter.png",
+      "sha256": "95b3a62be44a2c09c7900d097b5d4d97acf5c41a63a489ddefb3f92d4767eafd",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.017521461115894,
+          3.8002925236918683,
+          3.9375214480028733
+        ],
+        "target": [
+          0,
+          0.5199999868869782,
+          -0.08000001311302185
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/pew/renders/phone.png",
+      "sha256": "19c484a0a75f9f3a40483380d73916782388ee3ede1ed491f06dd9ccf143969e",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.23001188819877
+        ],
+        "target": [
+          0,
+          1.5,
+          0.23001188819877078
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/pew/renders/tile.png",
+      "sha256": "80d1b6eea028b55af259fa8c469586b30bab6c714705d8629a8670a29c819f2e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.6208128673276274,
+          3.107845678446679,
+          3.269379767686329
+        ],
+        "target": [
+          0.2146279396073696,
+          0.3267073309555353,
+          -0.13680516003392892
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

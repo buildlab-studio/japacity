@@ -1,0 +1,181 @@
+{
+  "asset": "veh_danfo",
+  "file": "public/assets/shared/veh/veh_danfo.glb",
+  "fileSha256": "a70b72398445fc25603ce81cbdd710a970ccce21b9cc4b28c9de88198ffcf1b6",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/veh/danfo/renders/front.png",
+      "sha256": "da5372fb7c79dda4bf8bee0e399ed5ffc9488bc47a21853ef8a6172200322d8c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2156982421875,
+          33.19718489247705
+        ],
+        "target": [
+          0,
+          1.2156982421875,
+          0
+        ],
+        "width": 3.5011474445736632,
+        "height": 2.6258605834302475
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/veh/danfo/renders/back.png",
+      "sha256": "f8f1ab7d1c3dc65e92f4b3163ad8205b09bce981411c7a505e0616b6bc10d1e8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2156982421875,
+          -33.19718489247705
+        ],
+        "target": [
+          0,
+          1.2156982421875,
+          0
+        ],
+        "width": 3.5011474445736632,
+        "height": 2.6258605834302475
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/veh/danfo/renders/left.png",
+      "sha256": "b7b2f7540d439529ded043bfa86955924a55077ee0075a9cb254d5cbd6ba5ddb",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -33.19718489247705,
+          1.2156982421875,
+          0
+        ],
+        "target": [
+          0,
+          1.2156982421875,
+          0
+        ],
+        "width": 5.1408002471923835,
+        "height": 3.855600185394288
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/veh/danfo/renders/right.png",
+      "sha256": "6da2666a43e561d80974818f17d1d2b344cf5a805c511e1d26d99f7da5b6a150",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          33.19718489247705,
+          1.2156982421875,
+          0
+        ],
+        "target": [
+          0,
+          1.2156982421875,
+          0
+        ],
+        "width": 5.1408002471923835,
+        "height": 3.855600185394288
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/veh/danfo/renders/threeQuarter.png",
+      "sha256": "976c899fd46f6b662f02fcb8995ef21f857c796b0253228c863faffbdb0fbf46",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.699712941057214,
+          6.6859909517579545,
+          6.699712941057215
+        ],
+        "target": [
+          0,
+          1.2156982421875,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/veh/danfo/renders/phone.png",
+      "sha256": "cb254920535d4702132ef4fe5179787eb0e43a9809db011798cb83ed53cfeeb4",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          14.380000114440918
+        ],
+        "target": [
+          0,
+          1.5,
+          2.380000114440918
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/veh/danfo/renders/tile.png",
+      "sha256": "11805d179be00002762003432f5e902e4c4e55c29a74a51b5871aae13c3185af",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.444263153291211,
+          5.4126716162261665,
+          5.715268225932558
+        ],
+        "target": [
+          -0.02561651772292951,
+          0.946533566757046,
+          0.24538855491841624
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

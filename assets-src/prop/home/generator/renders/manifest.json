@@ -1,0 +1,33 @@
+{
+  "asset": "prop_generator",
+  "file": "public/assets/shared/prop/prop_generator.glb",
+  "fileSha256": "34c628bde3b11f4d9553a04e6f6f63cb18422a84b4c3aab3835725be85a4bfb8",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/generator/renders/tile.png",
+      "sha256": "3b983e3fcf1f4837a297c932df0abb7f33795533225db71759e25e2fb5ad2062",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.3866278002119252,
+          1.3679538924968306,
+          1.4090977546309313
+        ],
+        "target": [
+          -0.0029512158222468362,
+          0.2333673769760155,
+          0.019518738596759
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

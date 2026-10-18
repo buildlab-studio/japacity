@@ -1,0 +1,33 @@
+{
+  "asset": "prop_tv-stand",
+  "file": "public/assets/places/family-house-parlour/prop_tv-stand.glb",
+  "fileSha256": "bfc2d4f0531e149819238cc99e22f5c6502679f5cccb2261626ad355b0eb6e7a",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/tv-stand/renders/tile.png",
+      "sha256": "0903398672df7f8bf0fffb0e2f15c77d55a8d2fd21970e4fffffe1cc8d485626",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.4410274026797065,
+          2.7041764397916785,
+          2.571791108073286
+        ],
+        "target": [
+          -0.1367624022201339,
+          0.5994198777406093,
+          -0.005998696826554619
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

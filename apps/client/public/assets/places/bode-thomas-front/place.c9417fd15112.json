@@ -1,0 +1,830 @@
+{
+  "place": "place.bode-thomas",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Bode Thomas Street's frontage (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's outdoor figures, six low and ten high.",
+  "instances": [
+    {
+      "file": "places/bode-thomas/bld_bode-thomas-betting.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ojuelegba/bld_shop-row.glb",
+      "count": 1
+    },
+    {
+      "file": "places/bode-thomas/shop_lotto-kiosk.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_stall.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_pole.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/veh/veh_danfo.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/veh/veh_keke.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/veh/veh_okada.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ojuelegba/shop_provisions.glb",
+      "count": 1
+    },
+    {
+      "file": "places/tejuosho-market/prop_bales.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_travel-bag.glb",
+      "count": 2
+    },
+    {
+      "file": "places/bode-thomas/shop_barber-kiosk.glb",
+      "count": 1
+    },
+    {
+      "file": "places/bode-thomas/shop_viewing-centre.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_joint-set.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_poster-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_cooler-stand.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_crates.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 10,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_zainab.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_corper.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_nonso.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_iya.glb",
+      "shared/chr/chr_hawker_a.glb",
+      "shared/chr/chr_hawker_b.glb",
+      "shared/chr/chr_hawker_c.glb",
+      "shared/chr/chr_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 248
+  },
+  "stage": {
+    "note": "Bode Thomas Street as one frontage of about 24 metres (world:place-is-one-screen): the betting shop and a shop row across the road, the lotto kiosk and the suya grill on the near pavement, a danfo, a keke and an okada at the kerb. The pavements are the ground; the carriageway, its line, the kerbs and the drain stand clear of it and of each other (world:faces-never-share-height). With the acts of decision 0012: the barber's container kiosk on the near pavement, the viewing centre across the road between the shop row and the betting shop, and the joint's chairs by the betting shop, open from the evening.",
+    "ground": {
+      "size": [
+        36,
+        32
+      ],
+      "colour": "concreteWorn"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          7
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          0.15
+        ],
+        "colour": "marking",
+        "raise": 0.02,
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          -3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          4.1,
+          0
+        ],
+        "size": [
+          36,
+          0.6
+        ],
+        "colour": "drain",
+        "raise": 0.01,
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        18,
+        34,
+        22
+      ],
+      "sky": "sky",
+      "ground": "sand",
+      "lamps": [
+        {
+          "at": [
+            -1.5,
+            2.6,
+            7.2
+          ],
+          "size": 1.6,
+          "bulb": true,
+          "light": {
+            "strength": 4,
+            "reach": 6
+          }
+        },
+        {
+          "at": [
+            8.1,
+            2.6,
+            7.4
+          ],
+          "size": 1.4,
+          "bulb": true,
+          "light": {
+            "strength": 3.5,
+            "reach": 5
+          }
+        }
+      ]
+    },
+    "start": [
+      -0.4,
+      11,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          15.5
+        ],
+        [
+          -17.5,
+          15.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/bode-thomas/bld_bode-thomas-betting.glb",
+        "at": [
+          [
+            5.5,
+            -11.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/bld_shop-row.glb",
+        "at": [
+          [
+            -11.8,
+            -9.4,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.bode-thomas.sign.6",
+            "place.bode-thomas.sign.7",
+            "place.bode-thomas.sign.8",
+            "place.bode-thomas.sign.18"
+          ]
+        ]
+      },
+      {
+        "file": "places/bode-thomas/shop_lotto-kiosk.glb",
+        "at": [
+          [
+            -1.5,
+            6.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_stall.glb",
+        "at": [
+          [
+            5.2,
+            6.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_pole.glb",
+        "at": [
+          [
+            -6,
+            4.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_danfo.glb",
+        "at": [
+          [
+            -7,
+            -1.7,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_keke.glb",
+        "at": [
+          [
+            6,
+            1.8,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_okada.glb",
+        "at": [
+          [
+            1.4,
+            2.6,
+            1.25
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/shop_provisions.glb",
+        "at": [
+          [
+            -6,
+            7.4,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.bode-thomas.sign.22",
+            "place.bode-thomas.sign.23"
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_bales.glb",
+        "at": [
+          [
+            -8.85,
+            7.6,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_travel-bag.glb",
+        "at": [
+          [
+            -8.15,
+            10.5,
+            0.25
+          ]
+        ]
+      },
+      {
+        "file": "places/bode-thomas/shop_barber-kiosk.glb",
+        "at": [
+          [
+            8.1,
+            6.6,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.bode-thomas.sign.9"
+          ]
+        ]
+      },
+      {
+        "file": "places/bode-thomas/shop_viewing-centre.glb",
+        "at": [
+          [
+            -3.2,
+            -6.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_joint-set.glb",
+        "at": [
+          [
+            7.6,
+            -5.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_poster-board.glb",
+        "at": [
+          [
+            10.6,
+            -5.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_cooler-stand.glb",
+        "at": [
+          [
+            2.1,
+            6.3,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_crates.glb",
+        "at": [
+          [
+            10.4,
+            6.4,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -1.9,
+        8.3,
+        3.1416
+      ],
+      [
+        -1,
+        9,
+        3.4416
+      ],
+      [
+        3.2,
+        9.4,
+        3.1416
+      ],
+      [
+        2.2,
+        3.8,
+        -1.9
+      ],
+      [
+        5.4,
+        8.1,
+        3.1416
+      ],
+      [
+        -3.8,
+        9.4,
+        -1.12
+      ],
+      [
+        -6.2,
+        -5.3,
+        1.5708
+      ],
+      [
+        -1.2,
+        -4.3,
+        -1.5708
+      ],
+      [
+        2.4,
+        -5.4,
+        0.2
+      ],
+      [
+        9.9,
+        9.8,
+        -2.6
+      ]
+    ],
+    "prefer": {
+      "hawker": [
+        2
+      ],
+      "rider": [
+        3
+      ],
+      "trader": [
+        4,
+        5
+      ]
+    },
+    "acts": [
+      {
+        "spot": 3,
+        "sex": "m",
+        "pose": "ride",
+        "staff": true
+      }
+    ],
+    "motion": [
+      {
+        "kind": "smoke",
+        "at": [
+          5.2,
+          1,
+          7.1
+        ],
+        "count": 20,
+        "colours": [
+          "hub",
+          "concrete",
+          "white",
+          "hub"
+        ]
+      }
+    ],
+    "shot": {
+      "centre": [
+        0,
+        0.5,
+        -1.5
+      ],
+      "far": 40,
+      "near": 10,
+      "farPitch": 48,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 22
+    },
+    "things": [
+      {
+        "id": "kiosk",
+        "file": "places/bode-thomas/shop_lotto-kiosk.glb",
+        "copy": 0,
+        "label": "city.thing.lotto",
+        "at": [
+          -0.6,
+          8.3
+        ],
+        "acts": [
+          {
+            "id": "play-lotto",
+            "label": "city.act.play-lotto",
+            "kind": "sheet",
+            "stages": "activity.play-lotto"
+          }
+        ]
+      },
+      {
+        "id": "betting",
+        "file": "places/bode-thomas/bld_bode-thomas-betting.glb",
+        "copy": 0,
+        "label": "city.thing.bets",
+        "at": [
+          4.6,
+          -5.2
+        ],
+        "acts": [
+          {
+            "id": "bet-slip",
+            "label": "city.act.bet-slip",
+            "kind": "sheet",
+            "stages": "activity.bet-slip"
+          }
+        ]
+      },
+      {
+        "id": "danfo",
+        "file": "shared/veh/veh_danfo.glb",
+        "copy": 0,
+        "label": "city.thing.danfo",
+        "at": [
+          -7,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "keke",
+        "file": "shared/veh/veh_keke.glb",
+        "copy": 0,
+        "label": "city.thing.keke",
+        "at": [
+          6,
+          4.6
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "okada",
+        "file": "shared/veh/veh_okada.glb",
+        "copy": 0,
+        "label": "city.thing.okada",
+        "at": [
+          0.6,
+          4.4
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "cargo",
+        "file": "places/ojuelegba/shop_provisions.glb",
+        "copy": 0,
+        "label": "offer.parcel-shipped.booth",
+        "at": [
+          -6.3,
+          10.9
+        ],
+        "acts": [
+          {
+            "id": "collect",
+            "label": "offer.parcel-shipped.act",
+            "kind": "sheet",
+            "stages": "offer.parcel-shipped"
+          }
+        ]
+      },
+      {
+        "id": "barber",
+        "file": "places/bode-thomas/shop_barber-kiosk.glb",
+        "copy": 0,
+        "label": "city.thing.barber",
+        "at": [
+          8.25,
+          9.4
+        ],
+        "acts": [
+          {
+            "id": "cut",
+            "label": "city.act.barber",
+            "kind": "sheet",
+            "stages": "activity.barber"
+          }
+        ]
+      },
+      {
+        "id": "viewing",
+        "file": "places/bode-thomas/shop_viewing-centre.glb",
+        "copy": 0,
+        "label": "city.thing.viewing",
+        "at": [
+          -2.6,
+          -4.2
+        ],
+        "acts": [
+          {
+            "id": "match",
+            "label": "city.act.match",
+            "kind": "sheet",
+            "stages": "activity.viewing-centre",
+            "parts": [
+              "evening",
+              "night"
+            ],
+            "pose": "sit",
+            "seat": [
+              -2.6,
+              -5.45,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "joint",
+        "file": "shared/prop/prop_joint-set.glb",
+        "copy": 0,
+        "label": "city.thing.joint",
+        "at": [
+          6.2,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "drink",
+            "label": "city.act.joint",
+            "kind": "sheet",
+            "stages": "activity.beer-joint",
+            "more": [
+              "activity.night-out"
+            ],
+            "parts": [
+              "evening",
+              "night"
+            ],
+            "pose": "sit",
+            "seat": [
+              6.82,
+              -5.4,
+              1.5708
+            ]
+          }
+        ]
+      }
+    ],
+    "dressings": [
+      {
+        "offer": "offer.parcel-shipped",
+        "models": [
+          {
+            "file": "shared/prop/prop_travel-bag.glb",
+            "at": [
+              [
+                -8.15,
+                10.5,
+                0.25
+              ],
+              [
+                -7,
+                10.35,
+                0.35
+              ]
+            ]
+          }
+        ],
+        "hide": [
+          "shared/prop/prop_travel-bag.glb"
+        ],
+        "people": [
+          [
+            -1.9,
+            8.3,
+            3.1416
+          ],
+          [
+            -1,
+            9,
+            3.4416
+          ],
+          [
+            3.2,
+            9.4,
+            3.1416
+          ],
+          [
+            0.8,
+            5,
+            3.1416
+          ],
+          [
+            5.4,
+            8.1,
+            3.1416
+          ],
+          [
+            -3.8,
+            9.4,
+            -1.12
+          ],
+          [
+            -6.2,
+            -5.3,
+            1.5708
+          ],
+          [
+            -1.2,
+            -4.3,
+            -1.5708
+          ],
+          [
+            2.4,
+            -5.4,
+            0.2
+          ],
+          [
+            9.9,
+            9.8,
+            -2.6
+          ]
+        ],
+        "prefer": {
+          "hawker": [
+            2
+          ],
+          "rider": [
+            3
+          ],
+          "trader": [
+            4,
+            5
+          ]
+        },
+        "motion": [],
+        "dancers": [],
+        "crowd": {
+          "low": 6,
+          "high": 10,
+          "target": 12
+        }
+      }
+    ]
+  }
+}

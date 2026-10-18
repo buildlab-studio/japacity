@@ -1,0 +1,18 @@
+{
+ "asset": "bld_flyover-span",
+ "note": "Polygons in metres, in the piece's own frame. A view's picture coordinates: plan [x, -z] seen from above. No photograph is kept (assets:no-reference-photos-kept). The flyover is a kit piece, not a landmark, so the outline is a reference for its plan and is not scored (assets:landmarks-match-reference-outlines applies to lm_ only).",
+ "views": [
+  {
+   "view": "plan",
+   "polygon": [
+    [-10, -4.5],
+    [10, -4.5],
+    [10, 4.5],
+    [-10, 4.5]
+   ],
+   "source": "https://www.openstreetmap.org/way/133805220 (Western Avenue, bridge=yes, layer 1, oneway, lanes 2) and https://www.openstreetmap.org/way/133805227 (its other carriageway): the section from 6.50972 N 3.36320 E to 6.50994 N 3.36322 E, 25 m long on a bearing of 6 degrees, turned onto the piece's x axis and cut to one 20 m span; the two carriageways' centrelines measured 13.0 to 15.2 m apart, 13.8 m over the junction",
+   "read": "2026-10-08",
+   "scaleFrom": "The ways' own coordinates for the length and the centreline gap; the deck width of 9 m from lanes=2 (two 3.65 m lanes, hard strips and parapets)"
+  }
+ ]
+}

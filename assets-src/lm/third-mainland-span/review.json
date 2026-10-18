@@ -1,0 +1,35 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 1,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 2,
+    "variety": 4,
+    "budget": 5
+  },
+  "mean": 3.29,
+  "outline": {
+    "front": 97,
+    "plan": 99
+  },
+  "outlinePasses": true,
+  "accepted": false,
+  "failing": [
+    "phone",
+    "wear",
+    "mean"
+  ],
+  "reasons": {
+    "phone": "The 12 m phone shot shows bands of girder and deck edge filling the frame over a strip of water with a person in front: not named. The extra far shot (phoneFar) would score 4: a long low arched bridge with lamps over water.",
+    "silhouette": "Front and back are the row of shallow haunched arches with a lamp a span, which is this bridge; the ends are a deck section on short piers under a T lamp.",
+    "proportion": "45 m spans, a 33 m deck level at about 8 m, the girder deeper at the piers, lamps about 11 m; outline 97 and 99, size within 4%.",
+    "palette": "Palette only and the dark deck reads on the water, but the concrete is one flat tone with no worn shade on girders or piers.",
+    "wear": "Lane markings and a few deck patches seen from above; no stains on the girders, no traffic, nothing on or under the water.",
+    "variety": "Same family as the other pieces, plainly its own.",
+    "budget": "Read from the register row: triangles 3,196 of 8,000, drawCalls 1 of 2, materials 1 of 2, bytes 15,000 of 250,000; at or under 80% of every figure."
+  },
+  "notes": "Fails assets:acceptance-score-thresholds on the phone shot and on wear, which pull the mean to 3.29. The 12 m phone shot cannot frame a bridge; see the stadium's note. Outline passes assets:landmarks-match-reference-outlines: front 97, plan 99, width and height within 4%."
+}

@@ -1,0 +1,33 @@
+{
+  "asset": "prop_water-drum",
+  "file": "public/assets/places/family-house-parlour/prop_water-drum.glb",
+  "fileSha256": "a09b04badeedecb05511903540a6025ec6d93b959721ba13c0d2795cc3287d5b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/places/room-basics/water-drum/renders/tile.png",
+      "sha256": "24674caa5f981361d549f153754e4fe2bbf130e1a2c5ea471ef039efd1bbc587",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.5835777569532228,
+          1.640462697252437,
+          1.5288980403161012
+        ],
+        "target": [
+          0.11160632768216533,
+          0.43860305802932054,
+          0.0569266110450434
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

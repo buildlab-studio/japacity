@@ -1,0 +1,181 @@
+{
+  "asset": "prop_canoe",
+  "file": "public/assets/places/third-mainland-bridge/prop_canoe.glb",
+  "fileSha256": "cc6c783647afd94cd5153c5032c6a2758b1ba6b977362466ec16de99236389da",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/canoe/renders/front.png",
+      "sha256": "d8bad9c1ec8091a92eadaffe17f2201db347b421a947b1530ef5a2675a87c847",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.3400000035762787,
+          36.00229969052917
+        ],
+        "target": [
+          0,
+          0.3400000035762787,
+          0
+        ],
+        "width": 0.987006698261121,
+        "height": 0.7402550236958407
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/canoe/renders/back.png",
+      "sha256": "b639845a3f6634183b89d55ab9e534c75368e322fe815753e6ff61e40a6795c9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.3400000035762787,
+          -36.00229969052917
+        ],
+        "target": [
+          0,
+          0.3400000035762787,
+          0
+        ],
+        "width": 0.987006698261121,
+        "height": 0.7402550236958407
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/canoe/renders/left.png",
+      "sha256": "772fb40f2c92ebcd4a38a49981e86c5a230245a3e47591c7bf967cd5d314bb88",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -36.00229969052917,
+          0.3400000035762787,
+          0
+        ],
+        "target": [
+          0,
+          0.3400000035762787,
+          0
+        ],
+        "width": 6.912000102996828,
+        "height": 5.184000077247621
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/canoe/renders/right.png",
+      "sha256": "f47804c8b5883c6c0b2e3870a930259e07fffaaca288f52fb1c4303b1cfb76c8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          36.00229969052917,
+          0.3400000035762787,
+          0
+        ],
+        "target": [
+          0,
+          0.3400000035762787,
+          0
+        ],
+        "width": 6.912000102996828,
+        "height": 5.184000077247621
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/canoe/renders/threeQuarter.png",
+      "sha256": "20567fc7e4face83231bb96f47d7451698ba8b4a3d9fabbd49857178e7385591",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          7.509874346450664,
+          6.471786730650086,
+          7.5098743464506645
+        ],
+        "target": [
+          0,
+          0.3400000035762787,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/canoe/renders/phone.png",
+      "sha256": "89947c53cb76df1a04aa6fcc8e9214aa469598ed259d5125b3423bab331eabbe",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          15.200000047683716
+        ],
+        "target": [
+          0,
+          1.5,
+          3.200000047683716
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/canoe/renders/tile.png",
+      "sha256": "64f8d09957623bc21481f3e547b813e86f6211107b2b1a565ece0b7e395b7dd9",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.352237965063122,
+          4.707900461962132,
+          6.052127706376132
+        ],
+        "target": [
+          -0.26179008301585915,
+          0.12406575547328863,
+          0.43809965829714975
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

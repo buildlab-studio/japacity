@@ -1,0 +1,33 @@
+{
+  "asset": "prop_waiting-chairs",
+  "file": "public/assets/shared/prop/prop_waiting-chairs.glb",
+  "fileSha256": "8228c700e334c05971f01995abfcce4e1f12903a3dd74ef42b7f34bcc90d2c1b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/waiting-chairs/renders/tile.png",
+      "sha256": "f467babf6729b29da5f33fff0df0116e8d8c7625dff90143d098791a26d4b7c8",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.502914740745053,
+          2.2764613198687256,
+          2.272080011836029
+        ],
+        "target": [
+          0.14222810354953233,
+          0.34896875195681154,
+          -0.08860662535949226
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

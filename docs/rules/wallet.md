@@ -1,0 +1,104 @@
+# Money
+
+> Numbers are working values.
+> Kind: `wallet`. One pocket set per currency. Background: `../design/01-concept.md` section 13 and `../research/06-naira-rates-and-currency.md`.
+
+Money is held per currency: naira, pounds, dollars. In each currency there is money **in the bank**, which is documented, **cash**, which is not, and **locked** money, which sits in the bank, counts when funds are shown, and cannot be spent.
+
+## Rules
+
+**wallet:no-pocket-below-zero** No pocket ever goes below zero. A debit that cannot be met in full does not happen at all.
+
+**wallet:ledger-balances-each-currency** Every credit and debit is an event with a reason from the fixed list. For each currency, bank plus cash plus locked equals everything credited minus everything debited. Money waiting in a queued conversion has already been debited from the currency it left, and is credited to the other when it arrives. `top-up` is on the fixed list as money in, credited only by the authority's `wallet/top-up` (wallet:top-ups-are-marked).
+
+**wallet:conversions-are-matched-pairs** A conversion or a move between pockets is a matched pair: a debit and a credit with the same reason, `convert` or `move`.
+
+**wallet:bank-converts-at-official-rate** A conversion at the bank uses the official rate and bank pockets only. A charge of 1.5% is taken from the amount paid in, with the reason `bank-charge`. Converting between two foreign currencies goes through naira at the official rates with one charge. The change tells two plain lines beside the charge's: `line.wallet.convert-paid`, the side paid in after the charge, and `line.wallet.converted`, what came in (the results read the paid side from it, never from the charge alone).
+
+**wallet:monthly-fx-allowance** Buying foreign currency at the bank is limited to the month's allowance, a world variable counted in US cents, across all bank purchases that month. Selling foreign currency for naira has no limit. A purchase over what is left of the allowance is rejected with `bad-amount`. A foreign fee paid from naira (wallet:foreign-fee-payment-order) settles an invoice rather than buying currency, and does not count against the allowance. The view's `bankAllowanceLeft` is null abroad, where the Lagos allowance does not bind.
+
+**wallet:bank-queue-delays-purchases** While the world's bank queue is above zero, a bank purchase of foreign currency is queued: the money leaves at once and the foreign currency arrives that many months later, in the `settle` phase, at the official rate on the day it arrives.
+
+**wallet:aboki-trades-at-street-rate** A conversion at the aboki uses cash pockets only, is instant and has no limit. Buying foreign currency costs the street rate. Selling it earns the street rate less 2%.
+
+**wallet:aboki-short-count** At the aboki there is a 1.5% chance of a short count: the character receives between 3% and 8% less, shown as a debit with the reason `short-count`.
+
+**wallet:foreign-fee-payment-order** A fee in a foreign currency is paid from that currency's bank pocket, then its cash, then from the naira bank pocket at the official rate plus the 1.5% charge. The naira leg is refused while the world's bank queue is above zero. If the whole fee cannot be paid, nothing is paid.
+
+**wallet:locked-money-stays-put** Locked money cannot be spent, moved or converted. Only a debit that names the locked pocket removes it.
+
+**wallet:large-deposits-record-lots** A credit to the bank marked as flagged, or a move of cash into the bank that leaves the month's cash paid in (the slice's `cashIn`, reset each month) above ₦500,000 at the official rate, records a lot: the currency, the amount, the month and the reason. Each such move is a lot of its own amount: the move that crosses the line and every move after it in the month. In the `settle` phase lots older than 3 months are dropped. A sale the game itself makes is documented money, its deed the paper, and is not flagged: the plot sold to the land buyer lands in the bank under `sale` with no lot (`offer.md`), so it adds nothing to the unexplained share (route:unexplained-share-of-funds). A gift with nothing to say where it came from is flagged.
+
+**wallet:amounts-whole-and-positive** A command amount must be a whole number above zero (the one exception is the car's hand-back, `obligation/pay` with 0: car:car-handed-back-after-half), and a conversion must give back at least one unit of the other currency. Otherwise it is rejected with `bad-amount`. An amount larger than the pocket holds is rejected with `cannot-afford`.
+
+**wallet:ledger-total-requirement** The requirement `wallet/total` (`flow` in or out, `reason`, `currency`, `amount`) is met when the ledger's total under that reason in that currency is at least the amount. `have` and `need` are shown. It is how goals read what was sent home or paid under a reason.
+
+**wallet:ledger-report-raises-alarms** A pure `ledgerReport(state, content)` gives, from the totals the ledger already keeps, money created and destroyed by reason and currency, and a list of alarms: a reason whose total in exceeds what that reason can produce in the months played (salary above the best job's pay times the months, gig above its ceiling, opening above the richest starting life) names the account as suspect. The server runs this across every account each day. The report takes the ceiling for `top-up` in naira as an input, the processor's receipts for the account (wallet:top-ups-are-marked), and it is 0 until they feed it, so any top-up names the account; a top-up in any other currency has a ceiling of 0.
+
+**wallet:months-kept-counted** The months kept (decision 0024). As each month closes, the wallet counts it as kept when the month's net in the money of the place where it ended was above zero: the figure the results sheet shows as kept or down (world:month-end-results-sheet), read from the same ledger, so the two never disagree. A change of money counts for nothing either way (decision 0024): the `convert` legs are left out, and the bank's charge and the aboki's short count stay as money out. A move between pockets, held funds locked and given back, money before the prologue closed, and a month not yet ended count nothing. The view's `keptMonths` is the count; it is never shown as a figure. The japa type's careful saver reads it (decision 0024).
+
+**wallet:view-carries-month-pay** The view carries the month's pay as the wallet will book it: `job.pay` for the job held, its pay less the month's tax (abroad-money:salary-abroad-taxed-locally), with the written figure or its tier (activity:side-jobs-pay-by-tier), the raise (activity:waiting-months-build-profile), the car bonus (ladders:car-bonus-needs-car), the courier's account rent and the shop's growth, and for a sponsored or contract job the salary recorded on the route (route-gates:sponsored-status-on-departure, route-gates:employer-flies-and-holds-passport); `job.sidePay` for the side job; and on an open offer whose terms name a job, its `pay` the same way. Null where no pay can be read. A sick month and cash work held back are drawn when the month ends and are not foreseen. The client's dues warning, the card's dues and the line of a hunt that found a job read these and keep no copy.
+
+**wallet:tone-follows-money-direction** A wallet line's tone comes from its event, not its reason: a credit is told `good`, money in, and a debit `bad`, money out; a change and a move between pockets stay `plain`. So the foreign leg of a money transfer home is money out of the money of the place and its naira leg money in, and a refund under a fee's reason is money in. The client reads the tone and keeps no patch of its own.
+
+**wallet:money-lands-as-in-lagos** Money lands where it would in Lagos (decision 0014). A naira credit of work, a gig, a tip, a prize or the prologue's earnings lands in cash at or under `tuning.wallet.cashUpTo` (₦10,000) and in the bank above it; salary is always the bank. A `money/take` with `pocket: "any"` is cash first at or under the line and bank first above it, never locked, all or nothing (wallet:no-pocket-below-zero). A named pocket keeps its name. The one helper `pocketFor` reads the line for the activity kind and the prologue's content alike.
+
+**wallet:cash-pile-warning** Nothing moves by itself; the world warns. When a month closes with more than `tuning.wallet.cashWarnAt` (₦100,000) in naira cash, after the prologue, the wallet tells one line in a person's voice, with attention, once in a life (`line.wallet.cash-warning`: Mama saying in her own words that cash on you is cash at risk and the bank is safer; no figure). The news pool for the first months at home carries one story of a one-chance robbery on a danfo (`news.warning-one-chance`, bad news written straight, no variable moved, in the calm era that opens every world, once), so the warning is heard before it bites (activity:one-chance-bus-robbery). Its id sorts after the UK stories that are certain on the first tick, so under the cap of new stories a tick (director:stories-start-by-roll) it never pushes the recruiting fair a month later. Moving the money stays the player's act in the Bank app.
+
+**wallet:top-ups-are-marked** Marked money (decision 0015). A top-up is naira credited by the authority's command (never the client): it credits the naira bank pocket with the reason `top-up` and adds the amount to the wallet's marked figure, the topped-up naira not yet spent. Every debit but a Friday ticket (`lottery/buy`) or the kiosk's slip (`activity.play-lotto`) takes earned naira first, and the marked share pays only when the earned naira runs out: the topped-up money is kept aside like a savings account and used when the earned money is spent, and it never buys a ticket. A ticket or a slip is paid from earned naira only, the balance less the marked figure, and is rejected with `cannot-afford` when that is short; a prize lands in earned naira. The band shows one balance. A top-up is a lot the visa officer asks about (wallet:large-deposits-record-lots, route:unexplained-share-of-funds), explained as a gift is. The ledger report's ceiling for `top-up` is the processor's receipts (wallet:ledger-report-raises-alarms). The authority command `wallet/top-up` (`amount` in kobo, server:apologies-never-currency) applies the effect of the same name, a flagged credit to the naira bank; no server route sends it. The slice's `marked` is missing while zero, so no state hash moves; after a naira debit it is never above the naira bank and cash left, which spends the earned naira first; a move between pockets spends nothing. A ticket is paid from the naira bank (lottery:ticket-buying-capped), so it needs the bank to cover it as well as the earned share; the slip pays by its size from the earned share. The view's `wallet.marked` carries the figure, 0 while none; the kiosk's sheet and the slip read it for their shut words, "Tickets come from money you earned".
+
+**wallet:passbook-against-plan-cost** The passbook (design page 08 section 2): at home the view carries `passbook`, the money held for the road against the plan's whole cost, null abroad, in the prologue and once the life has ended. `held` is the bank and cash of every money at the official rate, never locked money. `target` shows only once the plan's way (`planOf`) is looked into or further on: `funds`, what the way requires before the application is sent, less locked money and family support, never below zero and zero once applying; `fees`, every priced act at home that sends this way's application or asks for a paper its checklist wants, repeat acts left out, an act dropped once its application is sent or its paper is held or on its way; `flight`, `tuning.route.flight`, unless the employer pays or the way is flown; `total` their sum in kobo. The nurse's care road comes to about ₦2.73m. The Bank's Saved for the move (world:phone-holds-what-phones-hold) keeps its own figure in the way's money; the passbook's is the whole road in naira.
+
+**wallet:savings-stamps** The stamps: `tuning.wallet.stamps` (₦1m, ₦2.5m, ₦5m) and then the target, each stamped once at the close of a month at home that moved money and kept with its month in the wallet (`stamps`); the event `wallet/stamped` tells it with attention under `line.passbook.stamped` and `line.passbook.ready` (the target), lines no money list counts as money moved. The view shows the fixed stamps under the target or already reached, and the target last. A stamp reached is a moment (moment:outcomes-that-are-moments).
+
+**wallet:saving-pace** The pace: through a month `paceNet` adds up money in and out in every money as wallet:months-kept-counted's month net does, leaving out the road's own reasons (`fee-document`, `fee-test`, `fee-school`, `fee-visa`, `fee-surcharge`, `flight`), which the target already counts; at a close that moved money it is valued in kobo (`wallet/paced`) and the last three are kept (`nets`). `pace` is their floor average, null before any month has closed; `months` is 0 when held covers the target, null with no pace above nothing, else the ceiling of the gap over the pace. A month that moved nothing tells nothing. Old states load with no pace and no stamps (server:upgrade-state-is-pure).
+
+**wallet:roads-to-the-target** The roads to it, each an existing thing: the ladder (the next rung by tenure that pays more, else the better-paid job nearest, else the nearest job), a side job (the one held, else the best-paid huntable now), the street's ajo (`offer.join-ajo`, luck:savings-circle-holds-pot: taken while a circle runs, open while its offer stands, else shut with what it asks; it adds nothing a month, since its pot is what was paid in), the family (the family meeting for a master's plan, else Papa's loan, `activity.ask-family-loan` and `offer.family-loan`: a call home, once a month, standing 40, family means 10 and stake 0, which lends family means times ₦50,000 to the bank under `loan`, raises the family's stake by one and so shuts the road, with no repayment and no deadline), and the scholarship where the plan names one. Each road carries its state (taken, open, shut), what it still needs, its monthly and lump figures, and its months: the ceiling of the gap less the lump over the pace plus the monthly; `best` is the soonest road not taken that beats the pace alone. The pace line reads "At this pace: ready in 15 months. With Papa's loan: 4." and never a percentage.
+
+## Pockets
+
+A debit that names the pocket `transfer` takes the bank first, then cash, and never locked money: that is how Lagos pays, by transfer, and how abroad pays, by tap (decision 0014). A debit that names `any` is the street (a fare, the kiosk and the bet slip, the phone stall, an agent at the park who wants it today), and follows its size (decision 0014, wallet:money-lands-as-in-lagos): cash first at or under `tuning.wallet.cashUpTo` (₦10,000), the bank first above it, never locked money. A naira credit of work, a gig, a tip, a prize or the prologue's earnings lands in cash at or under the line and in the bank above it; salary is always the bank. A credit or debit that names its pocket keeps it. Only the aboki (wallet:aboki-trades-at-street-rate), a theft and a robbery take cash alone. Abroad a foreign fee follows wallet:foreign-fee-payment-order, the bank first. It may be recorded as two debits, one per pocket, under the same reason. A credit to the bank marked `locked` goes to the locked pocket.
+
+## Reasons
+
+Every reason in `Reason` (`packages/sim/src/engine/types.ts`). The money-in reasons are the table's; every other reason except the two pairs is money out.
+
+| | Money in | Money out | Pairs |
+|---|---|---|---|
+| Home | `opening`, `salary`, `gig`, `gift`, `sale` (a thing sold at its resale share, home:things-a-life-owns), `loan`, `held-funds`, `refund`, `top-up` (naira bought with real money, marked: wallet:top-ups-are-marked) | `upkeep`, `family`, `goods` (a thing bought from the market) and `running` (its cost a month), `fee-document`, `fee-test`, `fee-school`, `fee-visa`, `fee-surcharge`, `fee-agent`, `fee-advice` (the licensed adviser, advice:licensed-adviser-is-truthful), `bank-charge`, `loan-repay`, `loan-interest`, `held-funds-return`, `held-funds-interest`, `study`, `social`, `mishap`, `flight`, `short-count` | `convert`, `move` |
+| Across the whole life | `deposit-return` (the group loan's savings back, obligation:group-loan-fees-up-front; a flat's deposit back, abroad-money:arrival-opens-upkeep-and-room), `cash-work` (cash pay, ladders:cash-jobs-paid-in-hand), `win` (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds), `remit` (the naira that arrives home, as the code books it: abroad-money:remit-sends-money-home) | `rent`, `phone`, `car-payment`, `car-deposit`, `remit` (the foreign leg sent home), `remit-fee`, `tax` (abroad-money:salary-abroad-taxed-locally), `agent-debt` (road:road-truth-asks-more), `ransom` (road:chain-steps-monthly), `fare` (the fare home, place:fare-home-in-local-currency), `build` (a building project at home, which the game does not have) | |
+
+`remit` is the one reason used both ways: out for the foreign leg, in for the naira leg. `ransom` and `build` are in the list; no entry or code uses them.
+
+## Numbers
+
+| Setting | Value | In content as |
+|---|---|---|
+| Bank charge | 1.5% | `tuning.wallet.bankChargeBp` |
+| Aboki's cut when selling foreign currency | 2% | `tuning.wallet.streetSpreadBp` |
+| Chance of a short count | 1.5% | `tuning.wallet.streetShortBp` |
+| Size of a short count | 3% to 8% | `tuning.wallet.streetShortLossBp` |
+| Cash deposit that gets flagged | Over ₦500,000 | `tuning.wallet.flagDepositAbove` |
+| Months a lot is remembered | 3 | `tuning.wallet.lotMonths` |
+| Largest naira sum that changes hands as cash | ₦10,000 | `tuning.wallet.cashUpTo` |
+| Naira cash at a month's close that draws the warning | Over ₦100,000 | `tuning.wallet.cashWarnAt` |
+
+## Why it is built this way
+
+- **Savings in naira lose value when the naira falls.** Funds are valued in pounds on the day, so a balance can drop under the line without a kobo leaving it.
+- **Dollars and pounds are the hedge, and the bank sells few of them.** The aboki sells any amount, as cash. Cash paid into the bank is a flagged deposit for three months.
+- **A dollar salary is documented from the start.** That is why the remote job matters.
+
+## Effects and requirements this kind handles
+
+The part before the slash names the kind that carries an effect out or judges a requirement (`engine.md` section 5). The types are in `packages/sim/src/engine/types.ts`.
+
+| Type | | What it does |
+|---|---|---|
+| `money/add` | effect | Credits `amount` to a pocket under a reason; `flagged` records a lot (wallet:large-deposits-record-lots), `locked` puts it in the locked pocket |
+| `money/take` | effect | Debits `amount` from `bank`, `cash`, `locked`, `any` (the street: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it, wallet:money-lands-as-in-lagos) or `transfer` (bank first, then cash); all or nothing (wallet:no-pocket-below-zero) |
+| `money/pay-fee` | effect | Pays a foreign-currency fee by wallet:foreign-fee-payment-order |
+| `wallet/top-up` | effect | Credits `amount` to the naira bank as `top-up`, records a lot and raises the marked figure (wallet:top-ups-are-marked); only the authority's command of the same name applies it |
+| `money/min` | requirement | Bank and cash together, or the named pocket, hold at least `amount`; locked money never counts |
+| `money/can-pay` | requirement | The amount could be paid now: naira from cash and bank, a foreign fee by wallet:foreign-fee-payment-order |
+| `wallet/total` | requirement | The ledger's total under a reason, in or out, is at least `amount` (wallet:ledger-total-requirement) |

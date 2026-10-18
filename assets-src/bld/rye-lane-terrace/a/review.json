@@ -1,0 +1,40 @@
+{
+  "piece": "places/peckham/bld_rye-lane-terrace_a.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "assets-src/bld/rye-lane-terrace/a/renders/back.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/front.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/left.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/phone.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/plan.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/right.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/threeQuarter.png",
+    "assets-src/bld/rye-lane-terrace/a/renders/manifest.json",
+    "assets-src/register.json, the row for places/peckham/bld_rye-lane-terrace_a.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 3,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 25,
+  "mean": 3.57,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "NIGERIAN RESTAURANT JOLLOF, SUYA, EGUSI over a glazed shopfront, sash windows above: a London shop terrace in one look.",
+    "silhouette": "The front (three shopfronts, sashes, cornice) says a terrace; the back is a wall of black openings and the sides are blank gables: two of four.",
+    "proportion": "Three storeys, sashes, shop doors and the person agree.",
+    "palette": "The stock-brick ochre is a flat colour close to the stage's sand, with no brick courses; the shop boards and dark glass carry it.",
+    "wear": "A dish, a downpipe, curtains in some windows; no bins, no stains under sills, no shutter, no grime at the shopfronts.",
+    "variety": "Plainly the same family and its own: the first London building.",
+    "budget": "Read from the register row: triangles 446 of 1,500 (29%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 6,948 of 40,000 (17%). Inside every figure, over 80% on at least one."
+  },
+  "notes": " A kit piece: no outline is scored."
+}

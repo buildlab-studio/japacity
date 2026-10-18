@@ -16039,7 +16039,7 @@ interface WorkflowInstanceCreateOptions<PARAMS = unknown> {
     params?: PARAMS;
     /**
      * The retention policy for Workflow instance.
-     * Defaults to the maximum retention period available for the maintainer's account.
+     * Defaults to the maximum retention period available for the owner's account.
      */
     retention?: {
         successRetention?: WorkflowRetentionDuration;

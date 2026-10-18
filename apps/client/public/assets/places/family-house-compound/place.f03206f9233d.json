@@ -1,0 +1,192 @@
+{
+  "place": "place.family-house",
+  "scope": "exterior",
+  "hub": false,
+  "note": "The front behind the door. Counts are the most in view from the door's camera; no one stands in it.",
+  "instances": [
+    {
+      "file": "places/family-house/bld_family-house.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_plastic-chair.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/veh/veh_okada.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 0,
+    "high": 0,
+    "sample": []
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 140
+  },
+  "stage": {
+    "note": "The family house's street front behind the door (prologue:front-door-three-screens): the gate on the street at +Z with an okada waiting outside it, the yard and the veranda under the roof. Only the door's still backdrop: the house itself is played as one wide floor (home-family-house).",
+    "ground": {
+      "size": [
+        30,
+        42
+      ],
+      "colour": "concrete"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          21.0,
+          0
+        ],
+        "size": [
+          30,
+          8.0
+        ],
+        "colour": "laterite",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          17.55,
+          0
+        ],
+        "size": [
+          30,
+          0.6
+        ],
+        "colour": "drain",
+        "raise": 0.04,
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        22,
+        40,
+        26
+      ],
+      "sky": "sky",
+      "ground": "sand",
+      "lamps": [
+        {
+          "at": [
+            -1.0,
+            2.6,
+            -0.8
+          ],
+          "size": 2.4,
+          "bulb": true
+        }
+      ]
+    },
+    "start": [
+      -2.4,
+      7.0,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -8.3,
+          -13.8
+        ],
+        [
+          6.3,
+          -13.8
+        ],
+        [
+          6.3,
+          16.8
+        ],
+        [
+          -8.3,
+          16.8
+        ]
+      ],
+      [
+        [
+          -14.5,
+          18.0
+        ],
+        [
+          14.5,
+          18.0
+        ],
+        [
+          14.5,
+          24.5
+        ],
+        [
+          -14.5,
+          24.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/family-house/bld_family-house.glb",
+        "at": [
+          [
+            -1.0,
+            1.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "at": [
+          [
+            -5.6,
+            -1.0,
+            1.5708
+          ],
+          [
+            -4.0,
+            4.2,
+            2.6
+          ],
+          [
+            2.8,
+            3.4,
+            -2.2
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_okada.glb",
+        "at": [
+          [
+            0.6,
+            19.3,
+            1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [],
+    "motion": [],
+    "shot": {
+      "centre": [
+        -1.0,
+        0.5,
+        5.0
+      ],
+      "far": 34,
+      "near": 10,
+      "farPitch": 44,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 16
+    }
+  }
+}

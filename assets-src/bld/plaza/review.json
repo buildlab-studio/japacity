@@ -1,0 +1,26 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 3.86,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "The phone shot fills with two floors of balconies, doors and AC units over the SURE POS & TRANSFER board: named as shops under flats in one look; the roof and the full height are out of frame.",
+    "silhouette": "The front says a three-storey plaza with shops, balconies and a gate; the left side shows the outside stair to a first-floor door; the right side and the back are near-blank walls.",
+    "proportion": "Storeys, windows, rails and doors agree with the person and each other, and the stair reaches its landing door; the back has a single first-floor window and none above.",
+    "palette": "Palette only, but the peach walls and peach roof slab sit close in tone to the sand in the three-quarter view, and the upper floors carry no worn shade.",
+    "wear": "Roof tanks now seen from above, AC units between windows, generator by the gate, drain with slabs, louvres and barred ground windows; the upper walls and parapet are clean.",
+    "variety": "Same kit, boards and drain as the shop row, plainly its own three-storey type.",
+    "budget": "Read from the register row: triangles 1,436 of 1,500, drawCalls 1 of 1, materials 1 of 1, bytes 14,384 of 40,000; inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

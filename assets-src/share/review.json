@@ -1,0 +1,45 @@
+{
+  "piece": "the share cards' art and the nine link previews, scored as one piece",
+  "against": null,
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "seen": [
+    "the send-off card",
+    "the chapter card",
+    "the granted card",
+    "the first pay abroad card",
+    "the secured card",
+    "the December card",
+    "the draw win card",
+    "the real story card",
+    "the lost card",
+    "the nine link previews, tiled side by side"
+  ],
+  "criteriaScored": ["phone", "silhouette", "palette", "variety"],
+  "criteriaNotApplying": {
+    "proportion": "flat art with no measured sizes",
+    "wear": "flat art, no kit clutter",
+    "budget": "no register row; the byte limits are share:card-drawn-on-device and share:card-link-has-fixed-preview, noted below"
+  },
+  "scores": { "phone": 4, "silhouette": 4, "palette": 4, "variety": 4 },
+  "total": 16,
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "Every card's art reads in one look at phone width: the plane over the lagoon, the desk lamp and the file, the bench by a closed door, the rain street with a suitcase, the lit window, Lagos at night under lights, the bunting, the desert road, the night sea. Not 5: the titles and the wordmark are set in the heavy display face, whose Y reads as a hooked U (STAY, FRIDAY, REALLY, JAPACITY) and whose J is hard to place, so the title is the slow part of every card; at a chat's preview width the titles shrink further.",
+    "silhouette": "Figures are block silhouettes with plain round heads and read as people from behind; the plane, the lamp, the door, the suitcase and the truck read by outline alone. Not 5: on the chapter card the figure stands in front of the desk with its head just above the top, so the desk reads twice a person's size; on the lost card the night sky is the card's own ground, so the art loses its frame at the top and the sea floats as a box.",
+    "palette": "Palette colours throughout (danfoYellow, blue, orange, indigo, wine, teal, purple, laterite and the scene colours), each card with its own ground. Not 5: the lost card's wave lines are dark on dark and vanish; the stat block's black on cream is the same on every light card.",
+    "variety": "One family: the yellow and black kerb band, the rounded art panel, the same type. Each kind has its own art, except that the first pay abroad and December cards share one composition (a row of blocks with window dots, figures standing on a grey band) with only the colours changed, and every card below the art carries the same stat block."
+  },
+  "sumInstitutionFace": {
+    "sum": "None. No card carries money in any currency; the draw card says Won the Friday draw and no figure. The figures shown are the japacity percentage, months played and standing at home.",
+    "realInstitution": "None. No crest, logo, reference number or barcode; the granted card shows a bench and a door. The route name A master's in the UK names a country, not an institution.",
+    "face": "None. Every person is a silhouette with a blank round head; the December card's family and the two people on the decision bench have no features."
+  },
+  "files": {
+    "cardBytes": "card-send-off.jpg is 170,885 bytes against tuning.share.maxBytes of 153,600 (share:card-drawn-on-device): over, if the picture is the encoder's own output. card-draw-win.jpg is 149,461, 97% of the limit. The other seven are under.",
+    "previewBytes": "All nine previews are 37,755 to 59,923 bytes, far under previewMaxBytes of 300,000."
+  },
+  "notes": "share:card-contents is met on the seven life cards: title, first name, figure and route, months, art, the game as sender, the address, and Japacity is a game. at a size no smaller than the address. The real-story card carries no first name and no months, and the lost card no first name, as their index lines intend (no name); share:card-contents lists the first name and months without a condition, so those two cards need checking against it. The lost card has no share button."
+}

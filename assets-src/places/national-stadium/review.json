@@ -1,0 +1,85 @@
+{
+  "piece": "place.national-stadium, the forecourt by a radial ramp",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures, and the open question on the low mode's fog",
+    "pnpm check:assets, its place check lines for place.national-stadium"
+  ],
+  "low": {
+    "scores": {
+      "phone": 1,
+      "silhouette": 2,
+      "proportion": 3,
+      "palette": 2,
+      "wear": 3,
+      "variety": 3,
+      "budget": 5
+    },
+    "total": 19,
+    "mean": 2.71,
+    "accepted": false,
+    "failing": [
+      "phone",
+      "silhouette",
+      "palette",
+      "mean"
+    ],
+    "reasons": {
+      "phone": "A dark forecourt, two umbrella stalls and a hawker in front of a wall of fog; a slab crosses the top. Nothing in the frame says stadium. Not named.",
+      "silhouette": "The plan is dark asphalt with a curved ramp, two umbrellas and a line of jerseys; the bowl does not show.",
+      "proportion": "Stalls, hawker, okada and people agree, but the ramp and the structure have nothing to measure them by.",
+      "palette": "Half the frame is dark asphalt and the other half fog the sky's colour; the umbrellas are the only colour. Below flat or muddy.",
+      "wear": "Umbrella stalls, jerseys on a line, an okada, hawkers: generic for a forecourt. The real ground's weeds, rust and cracked concrete are absent.",
+      "variety": "The umbrella stalls and hawkers are the hub's, and the landmark is the rejected one: near a copy.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 19 and 16,873, check 18 and 16,615 moving: 24% and 21%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 2,
+      "silhouette": 2,
+      "proportion": 3,
+      "palette": 2,
+      "wear": 3,
+      "variety": 3,
+      "budget": 5
+    },
+    "total": 20,
+    "mean": 2.86,
+    "accepted": false,
+    "failing": [
+      "phone",
+      "silhouette",
+      "palette",
+      "mean"
+    ],
+    "reasons": {
+      "phone": "The fog lifts on a dark wall and the ramp's underside: a large concrete structure, not yet a stadium. The jerseys read as bunting.",
+      "silhouette": "As low.",
+      "proportion": "As low.",
+      "palette": "Dark ground under a dark brown wall and the ramp's brown underside: brown on brown.",
+      "wear": "As low.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 36 and 36,609, check 31 and 33,051 moving: 46% and 46%."
+    }
+  },
+  "figures": "Preview (Pixel 7): low phone 19 draw calls and 16,873 triangles, high phone 36 and 36,609; desktop high 37 and 38,241. The place check (pnpm check:assets, cheap phone profile, start camera): low still 13 draw calls and 14,865 triangles, moving 18 and 16,615, script at most 26 us; high still 26 and 29,967, moving 31 and 33,051, script at most 50 us.",
+  "predates": "The shots predate the band word set against the target, the smooth blended smoke, the shipped grids and the real names. The stadium landmark itself is the rejected one, unchanged. Scored as shown.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 5 draw calls (limit 6) and 50 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Inside the bar's working parts as far as the figures show, but the look fails the sheet in both modes: the stadium is not seen from where the player stands."
+  },
+  "notes": "The open question on the low mode's fog is right: the fog ends at 45 m and the street camera never takes in the bowl. A start further out on the approach road with the bowl's rim and floodlight masts in frame, and the fog pushed out at landmark places, would fix phone and silhouette together; it needs the landmark's rework too."
+}

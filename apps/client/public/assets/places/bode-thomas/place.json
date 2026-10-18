@@ -1,0 +1,600 @@
+{
+  "place": "place.bode-thomas",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Which assets the place shows and how many, for the per-place budget (docs/rules/assets.md, assets:assets-and-places-within-budget). The city shell lays them out; counts are the most in view from the place's fixed cameras.",
+  "instances": [
+    {
+      "file": "places/bode-thomas/bld_bode-thomas-betting.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ojuelegba/bld_shop-row.glb",
+      "count": 2
+    },
+    {
+      "file": "places/ojuelegba/bld_plaza.glb",
+      "count": 2
+    },
+    {
+      "file": "places/bode-thomas/shop_lotto-kiosk.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_pole.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/prop/prop_stall.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/veh/veh_danfo.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/veh/veh_keke.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/veh/veh_okada.glb",
+      "count": 2
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 12,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_zainab.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_corper.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_nonso.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_iya.glb",
+      "shared/chr/chr_hawker_a.glb",
+      "shared/chr/chr_hawker_b.glb",
+      "shared/chr/chr_hawker_c.glb",
+      "shared/chr/chr_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 310
+  },
+  "stage": {
+    "note": "Bode Thomas Street, Surulere, runs along x. The north side's shopfronts face the street (+Z) behind a 3.4 m pavement; the betting shop's bay stands across the road from the lotto kiosk, which stands on the south pavement with its back to the kerb. The player starts in the kiosk's queue, looking north across the street. A side street leaves to the south at x 26.",
+    "ground": {
+      "size": [
+        120,
+        80
+      ],
+      "colour": "laterite"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          -0.2,
+          0
+        ],
+        "size": [
+          120,
+          7.0
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          -0.2,
+          0
+        ],
+        "size": [
+          120,
+          0.15
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3.0
+        }
+      },
+      {
+        "at": [
+          0,
+          -3.75,
+          0
+        ],
+        "size": [
+          120,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          0,
+          -5.55,
+          0
+        ],
+        "size": [
+          120,
+          3.4
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          0,
+          3.35,
+          0
+        ],
+        "size": [
+          120,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          0,
+          3.85,
+          0
+        ],
+        "size": [
+          120,
+          0.6
+        ],
+        "colour": "drain",
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      },
+      {
+        "at": [
+          0,
+          9.05,
+          0
+        ],
+        "size": [
+          120,
+          9.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -1.6,
+          7.2,
+          0
+        ],
+        "size": [
+          7.0,
+          3.6
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          0,
+          14.0,
+          0
+        ],
+        "size": [
+          120,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          26,
+          22,
+          1.5708
+        ],
+        "size": [
+          40,
+          7.0
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          26,
+          22,
+          1.5708
+        ],
+        "size": [
+          40,
+          0.15
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3.0
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        26,
+        46,
+        20
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      -1.5,
+      9.4,
+      3.1416
+    ],
+    "walkable": [
+      [[-22, -8.5], [22, -8.5], [22, 13.9], [-22, 13.9]]
+    ],
+    "models": [
+      {
+        "file": "places/bode-thomas/bld_bode-thomas-betting.glb",
+        "at": [
+          [
+            5.4,
+            -13.05,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/bld_shop-row.glb",
+        "at": [
+          [
+            -6.85,
+            -11.3,
+            0
+          ],
+          [
+            37.2,
+            -11.3,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.bode-thomas.sign.6",
+            "place.bode-thomas.sign.7",
+            "place.bode-thomas.sign.8",
+            "place.bode-thomas.sign.9"
+          ],
+          [
+            "place.bode-thomas.sign.10",
+            "place.bode-thomas.sign.11",
+            "place.bode-thomas.sign.12",
+            "place.bode-thomas.sign.13"
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/bld_plaza.glb",
+        "at": [
+          [
+            18.1,
+            -13.05,
+            0
+          ],
+          [
+            -26.3,
+            -13.05,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.bode-thomas.sign.14",
+            "place.bode-thomas.sign.15",
+            "place.bode-thomas.sign.16",
+            "place.bode-thomas.sign.17"
+          ],
+          [
+            "place.bode-thomas.sign.18",
+            "place.bode-thomas.sign.19",
+            "place.bode-thomas.sign.20",
+            "place.bode-thomas.sign.21"
+          ]
+        ]
+      },
+      {
+        "file": "places/bode-thomas/shop_lotto-kiosk.glb",
+        "at": [
+          [
+            -1.6,
+            4.75,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_pole.glb",
+        "at": [
+          [
+            -40,
+            3.75,
+            0
+          ],
+          [
+            -5.5,
+            3.75,
+            0
+          ],
+          [
+            29.5,
+            3.75,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_stall.glb",
+        "at": [
+          [
+            4.6,
+            5.6,
+            0
+          ],
+          [
+            -11.5,
+            -4.9,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_danfo.glb",
+        "at": [
+          [
+            -8.5,
+            -1.9,
+            1.5708
+          ],
+          [
+            13.5,
+            1.5,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_keke.glb",
+        "at": [
+          [
+            6.2,
+            -2.0,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_okada.glb",
+        "at": [
+          [
+            1.6,
+            2.5,
+            1.25
+          ],
+          [
+            2.9,
+            2.6,
+            1.35
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -1.75,
+        6.95,
+        3.1416
+      ],
+      [
+        -1.4,
+        7.75,
+        3.0
+      ],
+      [
+        -2.95,
+        6.55,
+        2.4
+      ],
+      [
+        3.4,
+        -7.4,
+        3.1416
+      ],
+      [
+        0.6,
+        3.05,
+        -0.5
+      ],
+      [
+        2.35,
+        3.25,
+        -0.9
+      ],
+      [
+        2.2,
+        -6.9,
+        0.4
+      ],
+      [
+        4.6,
+        4.75,
+        0
+      ],
+      [
+        -3.9,
+        5.7,
+        1.3
+      ],
+      [
+        6.4,
+        6.6,
+        -2.3
+      ],
+      [
+        -0.6,
+        -5.4,
+        2.7
+      ],
+      [
+        -6.5,
+        -6.0,
+        1.4
+      ],
+      [
+        1.0,
+        7.9,
+        -2.6
+      ],
+      [
+        8.6,
+        -5.6,
+        -0.4
+      ],
+      [
+        -11.5,
+        -4.1,
+        3.1416
+      ],
+      [
+        -4.6,
+        7.4,
+        1.9
+      ]
+    ],
+    "prefer": {
+      "hawker": [
+        4
+      ],
+      "rider": [
+        5
+      ],
+      "trader": [
+        7
+      ]
+    },
+    "motion": [
+      {
+        "kind": "smoke",
+        "at": [
+          4.6,
+          1.0,
+          6.1
+        ],
+        "count": 30,
+        "colours": [
+          "hub",
+          "concrete",
+          "white",
+          "hub"
+        ]
+      },
+      {
+        "kind": "leaves",
+        "at": [
+          0,
+          0,
+          1.2
+        ],
+        "size": [
+          34,
+          6
+        ],
+        "count": 26,
+        "colours": [
+          "khaki"
+        ]
+      },
+      {
+        "kind": "bunting",
+        "at": [
+          0.8,
+          4.6,
+          -8.3
+        ],
+        "to": [
+          9.8,
+          4.6,
+          -8.3
+        ],
+        "count": 18,
+        "colours": [
+          "green",
+          "white",
+          "red",
+          "danfoYellow",
+          "blue"
+        ]
+      },
+      {
+        "kind": "hang",
+        "at": [
+          -9.6,
+          2.9,
+          -7.6
+        ],
+        "to": [
+          -4.4,
+          2.9,
+          -7.6
+        ],
+        "count": 6,
+        "size": [
+          0.6,
+          0.9
+        ],
+        "colours": [
+          "wine",
+          "danfoYellow",
+          "white",
+          "teal",
+          "orange",
+          "blue"
+        ]
+      },
+      {
+        "kind": "frond",
+        "at": [
+          12.6,
+          7.6,
+          7.6
+        ],
+        "count": 10,
+        "size": [
+          3.2,
+          0.9
+        ],
+        "colours": [
+          "roofGreen",
+          "green",
+          "pepper",
+          "wood"
+        ]
+      }
+    ]
+  }
+}

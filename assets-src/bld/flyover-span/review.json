@@ -1,0 +1,26 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "The 12 m phone shot is the view from under it: a pier with posters, the hammerhead, the girders and the deck's underside with a lamp above. Named as a flyover at once. Not 5: the deck reads as flat brown bands and the person for scale shows only head and shoulders at the bottom edge.",
+    "silhouette": "Left and right say a road bridge on its own: a T pier with a tapering hammerhead under four girders, the deck with two parapets, a lamp on its arm. Front and back say a slab on one pier with a lamp; the plan is a two-lane deck. Three of four name it.",
+    "proportion": "Measured from the orthographic frames: a 9 m deck with two lanes, about 5 m clear under the girders, the deck top about 7.2 m up, a pier about 1.5 m wide, 20 m a span; all believable for a city flyover. The lamp stands about 5.3 m above the deck, low for a highway lamp but not visibly wrong.",
+    "palette": "Palette only. Concrete in a lit and a shaded tone, asphalt and markings on the deck, a darker worn band at the pier's foot, the kerb paint in black and white. Reads against the sand and the sky. The deck's underside has no stain or damp shade.",
+    "wear": "The right clutter where it would be: posters on the pier, a drain pipe down it, the black and white paint at its foot, lane lines and edge lines. No stains under the deck or round the drain's outlet; the pipe runs over the face of one poster in the right view.",
+    "variety": "Same family as the Third Mainland span and the kit, plainly its own: a T pier and girders where the long bridge has haunched arches.",
+    "budget": "Read from the register row: triangles 322 of 1,500, drawCalls 1 of 1, materials 1 of 1, bytes 4,000 of 40,000; inside every figure, over 80% on draw calls and materials, as for every bld piece."
+  },
+  "notes": "Scored as a kit piece (bld_), not a landmark: its outline.json is a plan reference from OpenStreetMap and is not scored (assets:landmarks-match-reference-outlines is for lm_ pieces). The span repeats along the hub, so the empty ends of the deck are where the next span joins."
+}

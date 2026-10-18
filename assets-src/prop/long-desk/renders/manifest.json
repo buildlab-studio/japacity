@@ -1,0 +1,33 @@
+{
+  "asset": "prop_long-desk",
+  "file": "public/assets/places/yaba-hub/prop_long-desk.glb",
+  "fileSha256": "6e1a809b1c8df5a9ec2e263d2acf27befead32b3a6c80d08ab1930df0d3a248d",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/long-desk/renders/tile.png",
+      "sha256": "ba5f3589ff335b3a4087d86790a9a58706eb8d34d229245c74222ddc8d38214e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.210263082427267,
+          4.2550366143414475,
+          5.015765884560113
+        ],
+        "target": [
+          0.22341103693185774,
+          0.18328896960200963,
+          0.028913839064703288
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

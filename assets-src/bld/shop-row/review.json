@@ -1,0 +1,26 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "The phone shot shows one whole shop and half the next: closed shutter, the GOD IS GOOD PHONE & ACCESSORIES board legible, a person for scale; named as lock-up shops at once, but the row and its roof are out of frame and the eave reads as a flat grey band.",
+    "silhouette": "The front says four lock-ups under one roof and the gable ends with the tank on its stand say a gabled block; the back is a plain wall with two barred windows.",
+    "proportion": "Boards sit under the eave, awnings over the shutters, the tank stand clears the ridge, the person agrees with the shutters; the generator stands a little apart from the wall.",
+    "palette": "Palette only; zinc roof, rust patches and the coloured boards and awnings read against the sand; the walls are close in tone to the ground, with the worn band low on the wall.",
+    "wear": "Tank on a stand, generator, drain with slabs, dish, meter and cable, rust on the sheets, stains, crates and a cooler, barred back windows, each where it would be; no posters or painted notice.",
+    "variety": "Same kit and board style as the plaza and the shopfronts, plainly its own single-storey gabled row.",
+    "budget": "Read from the register row: triangles 656 of 1,500, drawCalls 1 of 1, materials 1 of 1, bytes 7,468 of 40,000; inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

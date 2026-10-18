@@ -1,0 +1,206 @@
+{
+  "asset": "shop_lotto-kiosk",
+  "file": "public/assets/places/bode-thomas/shop_lotto-kiosk.glb",
+  "fileSha256": "8564bc4b07231337b43778b3c5ff6b7269ed2ee83829b9755eacfc341b907c60",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/shop/lotto-kiosk/renders/front.png",
+      "sha256": "d6607df15cb66cbf26c6c3a71dd41dda28fffd8f540db37ed3012073a7313098",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          32.913769617506276
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "width": 4.968000072956085,
+        "height": 3.7260000547170637
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/shop/lotto-kiosk/renders/back.png",
+      "sha256": "ab890cab0e509e5e6dbf238985ebd5e9c0deeb84c9a36de1d0a075369bae164e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          -32.00376953167559
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "width": 4.968000072956085,
+        "height": 3.7260000547170637
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/shop/lotto-kiosk/renders/left.png",
+      "sha256": "4306cd6f52fffde16220080225a14ef1065f36d2f384064f6c3713c729098773",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -32.633769526907216,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "width": 4.968000072956085,
+        "height": 3.7260000547170637
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/shop/lotto-kiosk/renders/right.png",
+      "sha256": "0d7707183a92e429e1d3b27a6c32504a62e62a6037bdeef4ba27f7ae88176ce6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          32.28376962227465,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "width": 4.968000072956085,
+        "height": 3.7260000547170637
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/shop/lotto-kiosk/renders/threeQuarter.png",
+      "sha256": "d79b79c871ff16dfaf69d1e02eb476b66ca4737b2935bdb87853625ec9b226cc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.311446996162628,
+          7.021161778153855,
+          6.941446991394257
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/shop/lotto-kiosk/renders/plan.png",
+      "sha256": "83f0ea9c68a2ecc71026e62fdad4e809edae6eecc7971c4dd00d3d6d72fe26f8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.17499995231628418,
+          34.183769596942675,
+          0.45500004291534424
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.7250000223517419,
+          0.45500004291534424
+        ],
+        "width": 4.334396987385741,
+        "height": 3.250797740539306
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/shop/lotto-kiosk/renders/phone.png",
+      "sha256": "f4c8841039d16a9799d7f63573afd98528f55c8575db0bf4bef4e497081eb0a9",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.17499995231628418,
+          1.6,
+          13.959998996868727
+        ],
+        "target": [
+          -0.17499995231628418,
+          1.5525000227987766,
+          1.9599989968687264
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/shop/lotto-kiosk/renders/tile.png",
+      "sha256": "97e2f415c4563d14847df9fb98672e395161da10433c564b7e034537136d05ce",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.684934812302315,
+          5.987249825982462,
+          6.03363475808254
+        ],
+        "target": [
+          0.0904291104860091,
+          1.4193550484687805,
+          0.4391290562662329
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,396 @@
+{
+  "place": "place.yaba-hub",
+  "scope": "interior",
+  "hub": false,
+  "note": "The Inverter Room (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the entry's quiet figures under the rule's indoor caps.",
+  "instances": [
+    {
+      "file": "places/yaba-hub/bld_room_hub.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_laptop-desk.glb",
+      "count": 7
+    },
+    {
+      "file": "shared/prop/prop_inverter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_fan.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_plastic-chair.glb",
+      "count": 1
+    },
+    {
+      "file": "places/yaba-hub/prop_jobs-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_office-cabinet.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_corper.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_tolani.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "The Inverter Room (world:place-is-one-screen), desks by the day in Yaba, dressed as its own room and not the hub's: rows of small laptop desks on a grey concrete floor, each with its stool, under the louvre windows; the inverter and its two batteries on the side wall that keep the laptops on when the light goes; a standing fan turning over the desks; a plastic chair by the back wall; the notices board; the door.",
+    "ground": {
+      "size": [
+        12.6,
+        10.6
+      ],
+      "colour": "concrete"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            -1.0,
+            2.9,
+            0.6
+          ],
+          "size": 2,
+          "bulb": true,
+          "light": {
+            "strength": 5,
+            "reach": 8
+          }
+        }
+      ]
+    },
+    "start": [
+      -4.94,
+      3.6,
+      1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -5.7,
+          -4.7
+        ],
+        [
+          5.7,
+          -4.7
+        ],
+        [
+          5.7,
+          4.7
+        ],
+        [
+          -5.7,
+          4.7
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/yaba-hub/bld_room_hub.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_laptop-desk.glb",
+        "at": [
+          [
+            -1.0,
+            0,
+            0
+          ],
+          [
+            -2.4,
+            0,
+            0
+          ],
+          [
+            0.4,
+            0,
+            0
+          ],
+          [
+            -3.6,
+            -4.25,
+            0
+          ],
+          [
+            -2.2,
+            -4.25,
+            0
+          ],
+          [
+            -1.0,
+            2.6,
+            0
+          ],
+          [
+            0.4,
+            2.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_inverter.glb",
+        "at": [
+          [
+            -5.35,
+            -1.6,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_fan.glb",
+        "at": [
+          [
+            2.1,
+            0.3,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "at": [
+          [
+            0.6,
+            -3.9,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "at": [
+          [
+            3.4,
+            -4.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            -5.94,
+            3.6,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_office-cabinet.glb",
+        "at": [
+          [
+            5.75,
+            1.6,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            5.4,
+            4.2,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -3.65,
+        -3.5,
+        3.1416
+      ],
+      [
+        -2.25,
+        -3.5,
+        3.1416
+      ],
+      [
+        -2.45,
+        0.8,
+        3.1416
+      ],
+      [
+        0.35,
+        0.8,
+        3.1416
+      ],
+      [
+        3.0,
+        1.8,
+        -2.4
+      ],
+      [
+        4.2,
+        -1.0,
+        3
+      ]
+    ],
+    "acts": [],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0,
+        0.6,
+        -0.6
+      ],
+      "far": 30,
+      "near": 9,
+      "farPitch": 68,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 180,
+      "width": 14.5
+    },
+    "things": [
+      {
+        "id": "inverter",
+        "file": "shared/prop/prop_inverter.glb",
+        "copy": 0,
+        "label": "city.thing.inverter",
+        "at": [
+          -4.85,
+          -1.6
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-inverter",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "chair",
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "copy": 0,
+        "label": "city.thing.chair",
+        "at": [
+          0.6,
+          -3.1
+        ],
+        "acts": [
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              0.6,
+              -3.9,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "notices",
+        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "copy": 0,
+        "label": "city.thing.notices",
+        "at": [
+          3.4,
+          -3.3
+        ],
+        "acts": [
+          {
+            "id": "read",
+            "label": "city.act.read-notices",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "laptops",
+        "file": "shared/prop/prop_laptop-desk.glb",
+        "copy": 0,
+        "label": "city.thing.laptops",
+        "at": [
+          -1.0,
+          -0.45
+        ],
+        "acts": [
+          {
+            "id": "post",
+            "label": "city.act.post",
+            "kind": "do",
+            "stages": "activity.tech-posts",
+            "pose": "sit",
+            "seat": [
+              -1.05,
+              0.31,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          -5.2,
+          3.6
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

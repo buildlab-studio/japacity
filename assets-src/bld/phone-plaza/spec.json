@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "footprint": [15.2, 8.0],
+    "storeys": 3,
+    "roof": "flat",
+    "wall": "wallSky",
+    "wear": 2,
+    "balconies": 2,
+    "stairs": "side",
+    "gate": false,
+    "clutterSeed": 63,
+    "signs": ["place.computer-village.sign.1", "place.computer-village.sign.2", "place.computer-village.sign.3", "place.computer-village.sign.4"]
+  },
+  "options": {
+    "signStyles": [
+      { "board": "red", "ink": "white", "glyph": "phone" },
+      { "board": "black", "ink": "danfoYellow" },
+      { "board": "white", "ink": "blue", "border": "blue", "glyph": "phone" },
+      { "board": "danfoYellow", "ink": "red", "painted": true }
+    ]
+  }
+}

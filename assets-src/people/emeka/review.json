@@ -1,0 +1,41 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 3,
+    "palette": 4,
+    "wear": 3,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 3.71,
+  "against": {
+    "file": "assets-src/people/emeka/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 3,
+      "palette": 4,
+      "wear": 3,
+      "variety": 4,
+      "budget": 4
+    },
+    "mean": 3.71,
+    "accepted": true
+  },
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A man with locs in a patterned indigo shirt, named in one look; the face now shows eyes and a mouth.",
+    "silhouette": "The locs give a strong outline from every side.",
+    "proportion": "The face inside the locs now reads, and the crown spikes are cut to small hooks, but the strands still hang as a square frame around the face.",
+    "palette": "Indigo with gold dots reads on sand.",
+    "wear": "Patterned shirt and locs; no accessory, unchanged.",
+    "variety": "His own look; tobi shares the locs.",
+    "budget": "Read from the register row: triangles 2,232 of 3,000, drawCalls 2 of 3, materials 2 of 2, bytes 37,344 of 150,000; inside every figure, over 80% on materials."
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose."
+}

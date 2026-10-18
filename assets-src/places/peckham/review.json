@@ -1,0 +1,75 @@
+{
+  "piece": "place.peckham, Rye Lane from the zebra to the railway bridge",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.peckham"
+  ],
+  "low": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "PECKHAM RYE on the girder, bunting across the street, a zebra, a London sky: named in one look. Not 5: the low mode's grey fog fills the passage under the bridge, so Rye Lane beyond is gone, and the bottom third is bare asphalt.",
+      "silhouette": "The plan says a high street: Rye Lane straight between terraces, the zebra, two lines of bunting, the bridge and its stall.",
+      "proportion": "Bridge headroom, terraces, the bus shelter and people agree.",
+      "palette": "The blue-grey sky sets it apart from every Lagos place, but the fog under the bridge is a flat grey wall.",
+      "wear": "Bunting, the bus shelter, a stall at the bridge's foot, litter. No bins, parked cars, buses or bikes, which a Rye Lane view would have.",
+      "variety": "Plainly its own place, in the same family.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 29 and 21,230, check 28 and 19,642 moving: 36% and 27%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 5,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 3,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 29,
+    "mean": 4.14,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "Named in one look with its key part: PECKHAM RYE on the bridge, and through it the terrace with its SUPERMARKET and CASH AND CARRY boards.",
+      "silhouette": "As low.",
+      "proportion": "As low.",
+      "palette": "Brick, the teal girder, the blue sky and the boards read against each other.",
+      "wear": "As low.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 47 and 43,064 (59% and 54%), check 46 and 41,296 moving."
+    }
+  },
+  "figures": "Preview: low phone 29 draw calls and 21,230 triangles, high phone 47 and 43,064; desktop high 50 and 47,378. The place check (pnpm check:assets, cheap phone profile, start camera): low still 23 draw calls and 18,118 triangles, moving 28 and 19,642, script at most 52 us; high still 41 and 38,200, moving 46 and 41,296, script at most 117 us.",
+  "predates": "Shot from a preview with no header. The shots show the band word set against the target and the smooth blended smoke, and predate the shipped grids and the real names.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 5 draw calls (limit 6) and 117 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Meets the bar as far as the check's figures and the pictures show. The look passes the sheet in both modes."
+  },
+  "notes": "PECKHAM RYE and the station's name are public names, for a person's last check (assets:acceptance-score-thresholds)."
+}

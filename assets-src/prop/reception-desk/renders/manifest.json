@@ -1,0 +1,181 @@
+{
+  "asset": "prop_reception-desk",
+  "file": "public/assets/places/care-home-uk/prop_reception-desk.glb",
+  "fileSha256": "48c9f8f6e86c72269638d8376f949c22c3318bfb932c19e46e5f9bd96e0de3eb",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/reception-desk/renders/front.png",
+      "sha256": "e90b61b11d735fd51bd3d3f1a9f4e0c46023c302ce6c8ca86614a826bf3caa26",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.70499998152256,
+          22.487859482719358
+        ],
+        "target": [
+          0,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "width": 2.483999948501587,
+        "height": 1.8629999613761903
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/reception-desk/renders/back.png",
+      "sha256": "f3b894b47db6fea3306632b2d73f6d4aefabf732a1199071471d7253931e08da",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.70499998152256,
+          -23.107859427883085
+        ],
+        "target": [
+          0,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "width": 2.483999948501587,
+        "height": 1.8629999613761903
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/reception-desk/renders/left.png",
+      "sha256": "4ae4bd827bbbf0231c91075e6a8608aa8cd498eaee0bc9141aaebb798fe7c517",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -22.79785945530122,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "target": [
+          0,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "width": 2.0304408282926882,
+        "height": 1.5228306212195162
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/reception-desk/renders/right.png",
+      "sha256": "a23df342f11662875b8bf10f20c88614e009212e9486646d7138299ed44e3fc2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          22.79785945530122,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "target": [
+          0,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "width": 2.0304408282926882,
+        "height": 1.5228306212195162
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/reception-desk/renders/threeQuarter.png",
+      "sha256": "f0d7b4d0899fc2d553430833731dd76ab67743f1bc32c7b1bd8949eeb9edb8ff",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.696223701623361,
+          3.7229539962420577,
+          3.3862237290414985
+        ],
+        "target": [
+          0,
+          0.70499998152256,
+          -0.30999997258186335
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/reception-desk/renders/phone.png",
+      "sha256": "48123280b73b4faf7b813e24cf8d4880ac50746a91065221738a244f68abc482",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.549999399218397
+        ],
+        "target": [
+          0,
+          1.5,
+          0.5499993992183964
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/reception-desk/renders/tile.png",
+      "sha256": "154b158ae47fd03f663cc598b73f1eb28828348a5d5d323b685d582ffffc2868",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.4972300371097362,
+          3.1801007183987013,
+          3.22432404173892
+        ],
+        "target": [
+          0.10255553440664224,
+          0.40836059357909665,
+          -0.17035046096417444
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

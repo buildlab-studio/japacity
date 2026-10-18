@@ -1,0 +1,206 @@
+{
+  "asset": "bld_metro-station",
+  "file": "public/assets/places/metro-station-uae/bld_metro-station.glb",
+  "fileSha256": "9e31ab9565d93116f44878e07efc15350694e1323171957155b4cf33d6d3f525",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/bld/metro-station/renders/front.png",
+      "sha256": "01fbab05edf6141ca9891429289f90e402c14aaac83cb36f6fa0164825130cad",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          3.4500000461935993,
+          87.752427504601
+        ],
+        "target": [
+          0,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "width": 17.28,
+        "height": 12.96
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/bld/metro-station/renders/back.png",
+      "sha256": "e412b290fda3255a61423a2f2fb5ef29f61be4bb01a51c07ccbbd3740b10d5a7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          3.4500000461935993,
+          -86.34242765718889
+        ],
+        "target": [
+          0,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "width": 17.28,
+        "height": 12.96
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/bld/metro-station/renders/left.png",
+      "sha256": "5b2368118839975a042fe4eae8392d57dd1b7baebb26e9cfce98c4ff211520d7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -87.04742758089495,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "target": [
+          0,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "width": 9.936162602618488,
+        "height": 7.452121951963866
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/bld/metro-station/renders/right.png",
+      "sha256": "4c92d8396dfa7dcac7a1f146341d58424147660727fe5a6a9f670b3293a90877",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          87.04742758089495,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "target": [
+          0,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "width": 9.936162602618488,
+        "height": 7.452121951963866
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/bld/metro-station/renders/threeQuarter.png",
+      "sha256": "fa2df251e9fbc86a8bb1d19aacf39103282025b06bd7611255cb46734fc21e36",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.25251253682489,
+          21.61910044956248,
+          22.95751246053095
+        ],
+        "target": [
+          0,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/bld/metro-station/renders/plan.png",
+      "sha256": "56834bea477d7538a8258d5564eec33cacba6f6ea666e31d17094b986d592c50",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          90.49742762708854,
+          0.7049999237060547
+        ],
+        "target": [
+          0,
+          3.4500000461935993,
+          0.7049999237060547
+        ],
+        "width": 17.28,
+        "height": 12.96
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/bld/metro-station/renders/phone.png",
+      "sha256": "104ae2408ca8e535e73f6c01cfa6ad8f5733dae2347ce0801dff2c04187c89d4",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          16.81010567034139
+        ],
+        "target": [
+          0,
+          3.1050508133182775,
+          4.810105670341389
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/bld/metro-station/renders/tile.png",
+      "sha256": "19a2fc2d31c57a4aacd3dc339225167aa0e20af0371350ed81681e41c7577d7d",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.04583808903333,
+          19.88467069319798,
+          21.76270895086183
+        ],
+        "target": [
+          0.8499382734802919,
+          2.578290964112306,
+          0.5668091353087852
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

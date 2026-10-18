@@ -1,0 +1,40 @@
+{
+  "piece": "places/peckham/bld_railway-bridge.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "assets-src/bld/railway-bridge/renders/back.png",
+    "assets-src/bld/railway-bridge/renders/front.png",
+    "assets-src/bld/railway-bridge/renders/left.png",
+    "assets-src/bld/railway-bridge/renders/phone.png",
+    "assets-src/bld/railway-bridge/renders/plan.png",
+    "assets-src/bld/railway-bridge/renders/right.png",
+    "assets-src/bld/railway-bridge/renders/threeQuarter.png",
+    "assets-src/bld/railway-bridge/renders/manifest.json",
+    "assets-src/register.json, the row for places/peckham/bld_railway-bridge.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 28,
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "PECKHAM RYE on the girder over the passage, brick above: the railway bridge over Rye Lane in one look.",
+    "silhouette": "Front and back show the brick arches and the girder span; the sides are the abutments with a gantry; the plan the deck: three of four.",
+    "proportion": "Arches, the girder's headroom and the shops in the arches agree with the person.",
+    "palette": "Brick red-brown and the teal girder read against the sky; the cream name board.",
+    "wear": "Shops in the arches, the station's mouth, lamp posts on the parapet, a gantry.",
+    "variety": "Its own, the same family.",
+    "budget": "Read from the register row: triangles 990 of 1,500 (66%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 7,340 of 40,000 (18%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "The piece shows a place's real name (PECKHAM RYE), for a person's last check (assets:acceptance-score-thresholds)."
+}

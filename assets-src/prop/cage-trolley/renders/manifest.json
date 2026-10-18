@@ -1,0 +1,181 @@
+{
+  "asset": "prop_cage-trolley",
+  "file": "public/assets/places/warehouse-uk/prop_cage-trolley.glb",
+  "fileSha256": "dea2a6822856fc175e9ddbd63f0afec432625c879819967b8d402494a503cab7",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/cage-trolley/renders/front.png",
+      "sha256": "54a46e22d66f1fb8c79b5e2016a36f982e476831b839138c7f4a53b815c39e06",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8799999959021807,
+          18.224419594657142
+        ],
+        "target": [
+          0,
+          0.8799999959021807,
+          0
+        ],
+        "width": 2.5343999843358995,
+        "height": 1.9007999882519246
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/cage-trolley/renders/back.png",
+      "sha256": "0c13f1f9dc7747aa6bbde13f5e4f69922d04945640bad5f3779b694093c1724b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8799999959021807,
+          -18.224419594657142
+        ],
+        "target": [
+          0,
+          0.8799999959021807,
+          0
+        ],
+        "width": 2.5343999843358995,
+        "height": 1.9007999882519246
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/cage-trolley/renders/left.png",
+      "sha256": "781019e9d4d8a6e7bc148800d632ebe2918ce43f49f1359bef115a04ce5f250c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -18.224419594657142,
+          0.8799999959021807,
+          0
+        ],
+        "target": [
+          0,
+          0.8799999959021807,
+          0
+        ],
+        "width": 2.5343999843358995,
+        "height": 1.9007999882519246
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/cage-trolley/renders/right.png",
+      "sha256": "1693eee7a0141e10d51b966351e178c5966bba2ebf51edd6835e2e6326d8838d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          18.224419594657142,
+          0.8799999959021807,
+          0
+        ],
+        "target": [
+          0,
+          0.8799999959021807,
+          0
+        ],
+        "width": 2.5343999843358995,
+        "height": 1.9007999882519246
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/cage-trolley/renders/threeQuarter.png",
+      "sha256": "937ed0ddf32c252b3f8f9feeadc84690d3aa5a5fe4e453bc6d81af03f3e435b6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.3753421221761517,
+          2.8194587171926173,
+          2.375342122176152
+        ],
+        "target": [
+          0,
+          0.8799999959021807,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/cage-trolley/renders/phone.png",
+      "sha256": "3f72f8571bf4c2c8e42ebf4507f6ae2ee0f1436f3b2d45e3081bc9ce96c407dd",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.349991147469098
+        ],
+        "target": [
+          0,
+          1.5,
+          0.3499911474690983
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/cage-trolley/renders/tile.png",
+      "sha256": "63af4b30bd64a76ecf24e70e746278730eb3fef0158dd39dbfb57cad78457190",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.4613890338336035,
+          2.8966461673988197,
+          2.4549732802741997
+        ],
+        "target": [
+          0.00028390205517925406,
+          0.8871622419980563,
+          -0.006131851504224649
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

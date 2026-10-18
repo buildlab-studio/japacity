@@ -1,0 +1,229 @@
+{
+  "asset": "chr_bisi",
+  "file": "public/assets/shared/chr/chr_bisi.glb",
+  "fileSha256": "3ccc4705d9ee1e8d3d150bf80ef6544a9e2b2cf42050417c5864e223f4596dec",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/people/bisi/renders/front.png",
+      "sha256": "f52c00e4d2dd9eabd0b4d192f769037b89b7150e52cca2db8cdabaaa5331d6fb",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          17.308813504023213
+        ],
+        "target": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "width": 2.4683320407821876,
+        "height": 1.851249030586641
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/people/bisi/renders/back.png",
+      "sha256": "7deaff6342fda7763d4623db93cc4a938781dc8377033e408315df9261cd8aa2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          -17.302691138429303
+        ],
+        "target": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "width": 2.4683320407821876,
+        "height": 1.851249030586641
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/people/bisi/renders/left.png",
+      "sha256": "5dafedcc708ebd3a701486cbeb8b019a661af97a71314a47906f7ca30be3bf0f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.308966357346108,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "target": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "width": 2.4683320407821876,
+        "height": 1.851249030586641
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/people/bisi/renders/right.png",
+      "sha256": "b43e4593c87cc3b9687307fb4684c41fdb44f0e7a1e683e07b2222cd9994c67f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.302538285106408,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "target": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "width": 2.4683320407821876,
+        "height": 1.851249030586641
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/people/bisi/renders/threeQuarter.png",
+      "sha256": "fd7f72b88f9839445cf1649fa6645c4896d043671a81cb584a11676303d3667f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.106802485175884,
+          2.579881008974111,
+          2.1130777040926882
+        ],
+        "target": [
+          -0.0032140361198488843,
+          0.8570597336351308,
+          0.0030611827969551086
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/people/bisi/renders/phone.png",
+      "sha256": "96b7573bdc5b9537961833a28c25f7631ff48e10c82ab414b13fd19a40cfe659",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.0032140361198488843,
+          1.6,
+          12.18683453931098
+        ],
+        "target": [
+          -0.0032140361198488843,
+          1.5,
+          0.1868345393109799
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "assets-src/people/bisi/renders/face.png",
+      "sha256": "ef02d8fa06062a3c41e484b930c7781bbec103a2a02ec143852a957a0f721114",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7421476676551468,
+          1.5427075227412939,
+          1.6014945148252289
+        ],
+        "target": [
+          -0.0032140361198488843,
+          1.4741427438306776,
+          0.0030611827969551086
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "assets-src/people/bisi/renders/figure.png",
+      "sha256": "ef2f4abb9b72243a62e43fa164b5c73f5f6e3075cf2f147df36ebd444ca8049e",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8976117374886396,
+          1.0603315261727788,
+          4.034938122701314
+        ],
+        "target": [
+          0.01751664367269587,
+          0.8540194594821728,
+          0.0030611827969551086
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "assets-src/people/bisi/renders/cheer.png",
+      "sha256": "7d4f683484cf5c4b5a6929f5804153affe22c635aaa018f3027c02a7fa47b2bd",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.0223424371026093,
+          1.1501267763507945,
+          4.348255644821401
+        ],
+        "target": [
+          -0.0062297120018416086,
+          0.9275215932994976,
+          -0.002031367686042229
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

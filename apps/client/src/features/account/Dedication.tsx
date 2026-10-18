@@ -193,7 +193,7 @@ function BulbMark() {
   );
 }
 
-/** The unlit light beside the maintainer's while it is being named: dark glass, a quiet filament. */
+/** The unlit light beside the owner's while it is being named: dark glass, a quiet filament. */
 function UnlitBulb({ x, y, r }: { x: number; y: number; r: number }) {
   const f = (n: number) => String(Math.round(n * 100) / 100);
   return (
@@ -355,7 +355,7 @@ function NameIt({ year, onLit }: { year: number; onLit: (mine: MyLight) => void 
   );
 }
 
-/** The account's own light beside the maintainer's: its name and years under it, for this account alone. */
+/** The account's own light beside the owner's: its name and years under it, for this account alone. */
 function OwnName({ mine }: { mine: MyLight }) {
   const years = lightYears(mine.years, say("ui.dedication.between"));
   const top = ropeAt(TOP, OWN_X) + hangOf(7) + 7 + 8;

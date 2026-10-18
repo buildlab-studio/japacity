@@ -1,0 +1,15 @@
+{
+  "name": "bld_rye-lane-terrace_a",
+  "units": 3,
+  "storeys": 3,
+  "brick": "khaki",
+  "soot": "concreteWorn",
+  "fronts": ["black", "green", "wine"],
+  "signs": ["place.peckham.sign.1", "place.peckham.sign.2", "place.peckham.sign.3"],
+  "styles": [
+    { "board": "red", "ink": "white" },
+    { "board": "green", "ink": "white" },
+    { "board": "black", "ink": "danfoYellow" }
+  ],
+  "seed": 1888
+}

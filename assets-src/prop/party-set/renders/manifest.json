@@ -1,0 +1,206 @@
+{
+  "asset": "prop_party-set",
+  "file": "public/assets/places/family-house/prop_party-set.glb",
+  "fileSha256": "6e9c7270af19f78f9ffac5ae553fc86189de3e47dedd4fbc5bab22ed3bb19822",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/party-set/renders/front.png",
+      "sha256": "f22f03d9240b0bb7a83009c54f285cf54deac74e635b5de312719d1076dc7b37",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.25999999046325684,
+          1.6303014636039732,
+          46.95900125134151
+        ],
+        "target": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "width": 8.380799732208253,
+        "height": 6.28559979915619
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/party-set/renders/back.png",
+      "sha256": "5899d75a014ba041a977081af81b481dd9d8a7a3130515ecea3c5368d5ca3db7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -48.189001270415
+        ],
+        "target": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "width": 8.380799732208253,
+        "height": 6.28559979915619
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/party-set/renders/left.png",
+      "sha256": "8e6b6b828122197e57c8ddbaa6b9a9d3dfcf9824cf34b59406124492b1274168",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -47.314001270415,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "target": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "width": 4.695246262521977,
+        "height": 3.521434696891483
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/party-set/renders/right.png",
+      "sha256": "10b16592f0d46efe329f7ed5e8fd07eb49e9c8b7e91db7d091f771ea59d705b8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          47.83400125134151,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "target": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "width": 4.695246262521977,
+        "height": 3.521434696891483
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/party-set/renders/threeQuarter.png",
+      "sha256": "a6860a8a16cf90fcecdf3148f3722546e3622005bbd3082b87589363e70eb05e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.111964298272218,
+          10.490893217279705,
+          10.23696429827222
+        ],
+        "target": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/prop/party-set/renders/plan.png",
+      "sha256": "317712e86f3d3b78496e9da457ee735a64bfbea6d131f4a6bc5b0125dda13ad6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.25999999046325684,
+          49.204302724482226,
+          -0.6150000095367432
+        ],
+        "target": [
+          0.25999999046325684,
+          1.6303014636039732,
+          -0.6150000095367432
+        ],
+        "width": 8.380799732208253,
+        "height": 6.28559979915619
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/party-set/renders/phone.png",
+      "sha256": "01c72e1476dd5ce2096fda83caf4d2a9b15b6fb1dadc2d61dcdb312457a65111",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.25999999046325684,
+          1.6,
+          13.469995193472423
+        ],
+        "target": [
+          0.25999999046325684,
+          1.5,
+          1.469995193472423
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/party-set/renders/tile.png",
+      "sha256": "cd26a37b497d351d905709608b9879f4eaf4700d6889cbaec74b9c095bcad0fe",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          9.513715817770958,
+          7.389197625912601,
+          6.698148935390287
+        ],
+        "target": [
+          1.537846893266886,
+          0.8769279191273264,
+          -1.2777199891137878
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

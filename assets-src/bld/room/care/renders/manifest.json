@@ -1,0 +1,182 @@
+{
+  "asset": "bld_room_care",
+  "file": "public/assets/places/care-home-uk/bld_room_care.glb",
+  "fileSha256": "b3b59fc5b5f530c4b0692c5d1173d53ee19951e0acf59fbb330e41ad8a4cc5a3",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/bld/room/care/renders/front.png",
+      "sha256": "6edd0b1e7ef276cf33946908b398ccef3a4f9d9233a5279840c4822837038370",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          1.5399999570846559,
+          85.68110959960056
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/bld/room/care/renders/back.png",
+      "sha256": "8a1ea1cf562c0267705f4bdfc6a731dec84ae7b7960e9753ef55bd23eb99cc49",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -85.91110961867405
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/bld/room/care/renders/left.png",
+      "sha256": "c1ce54a859d93a4f7f83bc55d27db8ab1b134902c5b32c07585b3bade6960009",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -85.69610922766758,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/bld/room/care/renders/right.png",
+      "sha256": "7d531a66ef8d695145bfd2b28b77775d239252a3240ad8e91491462940a65abf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          85.89610999060703,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/bld/room/care/renders/threeQuarter.png",
+      "sha256": "ee84fd9837a1a7376f260e5ba5d29fca822fd650852c3940cf5f5f9521d6b705",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          21.991112548050513,
+          19.414018193803212,
+          21.776112157044047
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/bld/room/care/renders/plan.png",
+      "sha256": "34d5fa7c9a1d3177f6d8c05c69532dbd9d313b2cd813ae7d3dfe858fdd71a86f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          87.33610956622196,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/bld/room/care/renders/phone.png",
+      "sha256": "7f5fcec18c5f42ab8ac326bba76fb6d2ca466e3f6fb03611a73a913fedcfa871",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.10000038146972656,
+          1.6,
+          16.499948021366333
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5,
+          4.499948021366332
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_plastic-chair",
+  "file": "public/assets/shared/prop/prop_plastic-chair.glb",
+  "fileSha256": "33b7f892651f78c6a6f3b35a6d1ba409696118bbfb566556cb63ba285c91ea44",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/plastic-chair/renders/front.png",
+      "sha256": "08f9426db99967177add16e9f2e70b74e262210bd7a69fbaa7ebdd6047a506cf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.439350200118497,
+          14.497484213925134
+        ],
+        "target": [
+          0,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "width": 1.2524870326370001,
+        "height": 0.9393652744777501
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/plastic-chair/renders/back.png",
+      "sha256": "5d98dea2fdf7b29eceb71d5ee5ddbaffc0eb1c32f98d56527d8bdd0debbc8ada",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.439350200118497,
+          -14.588196552611123
+        ],
+        "target": [
+          0,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "width": 1.2524870326370001,
+        "height": 0.9393652744777501
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/plastic-chair/renders/left.png",
+      "sha256": "a22c3f6c6b115656ef5b7507a0b2de107597169e22a63fed805962b30314e3bc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -14.542840383268128,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "target": [
+          0,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "width": 1.2524870326370001,
+        "height": 0.9393652744777501
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/plastic-chair/renders/right.png",
+      "sha256": "284bd702b51ec52ce7ca1d14a99fd8f20677d9cafb6e4e61bfd4a04599503ad0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          14.542840383268128,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "target": [
+          0,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "width": 1.2524870326370001,
+        "height": 0.9393652744777501
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/plastic-chair/renders/threeQuarter.png",
+      "sha256": "90543cf222fcfb90f0eb8568acf2e5795aec777e9263b99e87042ccf02582021",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.312043967663043,
+          1.5106296137422195,
+          1.2666877983200486
+        ],
+        "target": [
+          0,
+          0.439350200118497,
+          -0.04535616934299469
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/plastic-chair/renders/phone.png",
+      "sha256": "1131293cb664dad1118b384d49c812d4342ccafd69159c8776b91dbfc937fc8e",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.220460157229363
+        ],
+        "target": [
+          0,
+          1.5,
+          0.2204601572293638
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/plastic-chair/renders/tile.png",
+      "sha256": "ce44b4b8ddb0affe6cbbbe07f6a1350741c7132e0458fb4851c73bb4e935988c",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.3077080740137232,
+          1.4869537409237021,
+          1.254613149886742
+        ],
+        "target": [
+          0.009067285584214735,
+          0.42661797731772216,
+          -0.0440276385427667
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

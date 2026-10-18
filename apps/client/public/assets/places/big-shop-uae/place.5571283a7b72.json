@@ -1,0 +1,331 @@
+{
+  "place": "place.big-shop-uae",
+  "scope": "interior",
+  "hub": false,
+  "note": "The hypermarket in Al Rigga (design page 11 section 3), London's big shop room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
+  "instances": [
+    {
+      "file": "places/big-shop-uk/bld_room_bigshop.glb",
+      "count": 1
+    },
+    {
+      "file": "places/big-shop-uk/prop_shop-aisle.glb",
+      "count": 4
+    },
+    {
+      "file": "places/big-shop-uk/prop_tills.glb",
+      "count": 1
+    },
+    {
+      "file": "places/big-shop-uk/prop_trolley-bay.glb",
+      "count": 1
+    },
+    {
+      "file": "places/yaba-hub/prop_jobs-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 4,
+    "high": 6,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "London's big shop scene under the hypermarket's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are big-shop-uk's; the staged acts, the looks and the colleague's lines are the UAE's. The trolleys by the door for the weekly shop; the tills and the staff notice looked at, since no Emirati job is held here.",
+    "ground": {
+      "size": [
+        16.6,
+        9.6
+      ],
+      "colour": "white"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            -3.5,
+            3.2,
+            0
+          ],
+          "size": 2.6,
+          "bulb": true
+        },
+        {
+          "at": [
+            3.5,
+            3.2,
+            0
+          ],
+          "size": 2.6,
+          "bulb": true
+        }
+      ]
+    },
+    "start": [
+      6.94,
+      2.8,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          4.2
+        ],
+        [
+          -7.7,
+          4.2
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/big-shop-uk/bld_room_bigshop.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/big-shop-uk/prop_shop-aisle.glb",
+        "at": [
+          [
+            -6.4,
+            -1.2,
+            1.5708
+          ],
+          [
+            -4.2,
+            -1.2,
+            1.5708
+          ],
+          [
+            -2.0,
+            -1.2,
+            1.5708
+          ],
+          [
+            -0.6,
+            -3.95,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/big-shop-uk/prop_tills.glb",
+        "at": [
+          [
+            2.6,
+            1.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/big-shop-uk/prop_trolley-bay.glb",
+        "at": [
+          [
+            6.0,
+            -2.8,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "at": [
+          [
+            3.8,
+            -4.1,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            7.94,
+            2.8,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        2.35,
+        1.2,
+        -1.5708
+      ],
+      [
+        -3.1,
+        -0.8,
+        3.1416
+      ],
+      [
+        0.4,
+        -2.9,
+        3.1416
+      ],
+      [
+        4.5,
+        -2.2,
+        1.5708
+      ],
+      [
+        4.15,
+        1.2,
+        -1.5708
+      ],
+      [
+        0.7,
+        1.9,
+        1.5708
+      ],
+      [
+        -5.3,
+        1.8,
+        0.4
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 4,
+        "pose": "sit",
+        "staff": true
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0.0,
+        0.6,
+        0.0
+      ],
+      "far": 22,
+      "near": 9,
+      "farPitch": 72,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 90,
+      "width": 11.6
+    },
+    "things": [
+      {
+        "id": "trolley",
+        "file": "places/big-shop-uk/prop_trolley-bay.glb",
+        "copy": 0,
+        "label": "city.thing.trolley",
+        "at": [
+          4.6,
+          -2.8
+        ],
+        "acts": [
+          {
+            "id": "weekly-shop",
+            "label": "city.act.weekly-shop",
+            "kind": "sheet",
+            "stages": "activity.weekly-shop-uae"
+          }
+        ]
+      },
+      {
+        "id": "tills",
+        "file": "places/big-shop-uk/prop_tills.glb",
+        "copy": 0,
+        "label": "city.thing.tills",
+        "at": [
+          0.8,
+          0.9
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-tills",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "notice",
+        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "copy": 0,
+        "label": "city.thing.staff-notice",
+        "at": [
+          3.8,
+          -3.3
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.read-staff-notice",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          7.2,
+          2.8
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "piece": "place.bode-thomas, the lotto kiosk and its queue on the south pavement",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.bode-thomas"
+  ],
+  "low": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 3,
+      "budget": 5
+    },
+    "total": 26,
+    "mean": 3.71,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "FIVE-FIVE LOTTO over the kiosk, a woman at its window, LATE EQUALISER SPORTS BETTING next door, a hawker: a lotto queue on a Lagos street in one look. Not 5: the bottom third is bare dark pavement and the player's diamond sits on the kiosk's green hood, where it reads as part of it.",
+      "silhouette": "The plan shows the road with a danfo, a keke and okadas, the kiosk on its slab, umbrellas and the shop rows; the bottom third and a corner are bare laterite.",
+      "proportion": "Kiosk, danfo, keke, okadas and people agree.",
+      "palette": "Palette only; the kiosk's green and yellow carry the frame, but the pavement is one flat dark khaki over half the desktop view.",
+      "wear": "The queue, crates, bunting from the balcony, a grill with its smoke, okadas, a keke, the results board.",
+      "variety": "The shop rows are the hub's and the betting building is near a copy of Computer Village's plaza; the kiosk is its own.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 28 and 23,148, check 28 and 25,016 moving: 35% and 31%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 3,
+      "budget": 5
+    },
+    "total": 26,
+    "mean": 3.71,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "As low, with a second woman in the queue. The same bare lower frame.",
+      "silhouette": "As low.",
+      "proportion": "As low; shadows sit the queue on the ground.",
+      "palette": "As low.",
+      "wear": "As low; the smoke is the smooth blended puff.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 57 and 54,130 (71% and 68%), check 58 and 55,126 moving (73% and 69%). At or under 80%."
+    }
+  },
+  "figures": "Preview (software renderer, high with the shadow pass): low phone 28 draw calls and 23,148 triangles, high phone 57 and 54,130; desktop high 63 and 58,186. The place check (pnpm check:assets, cheap phone profile, start camera): low still 23 draw calls and 22,978 triangles, moving 28 and 25,016, script at most 58 us; high still 53 and 51,456, moving 58 and 55,126, script at most 121 us.",
+  "predates": "Shot from a preview that draws no header, so the band word is not seen. The shots show the band word set against the target and the smooth blended smoke, and predate the shipped grids and the real names.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 5 draw calls (limit 6) and 121 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Meets the bar as far as the check's figures and the pictures show. The look passes the sheet in both modes, at 26 of 35."
+  },
+  "notes": "FIVE-FIVE LOTTO and LATE EQUALISER are made-up names on signs: for a person's last check (assets:acceptance-score-thresholds)."
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_gas-cooker",
+  "file": "public/assets/shared/prop/prop_gas-cooker.glb",
+  "fileSha256": "0a443077003eeb9755069d2a9ad770e98ddbbef8f1098bbe713a890838fe8022",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/home/gas-cooker/renders/front.png",
+      "sha256": "2e497c016d2a0c0004b9cf316b8083212286a6e0ba7b1bea921530a9e0df70e1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.18132922053337094,
+          0.5235000181198122,
+          15.984238862489232
+        ],
+        "target": [
+          0.18132922053337094,
+          0.5235000181198122,
+          0
+        ],
+        "width": 1.5076800933837886,
+        "height": 1.1307600700378415
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/home/gas-cooker/renders/back.png",
+      "sha256": "d95d33602b8097f4681d5cafef9f5b46a5d5e180448f1ac1395e6c609aad6212",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.18132922053337094,
+          0.5235000181198122,
+          -15.984238862489232
+        ],
+        "target": [
+          0.18132922053337094,
+          0.5235000181198122,
+          0
+        ],
+        "width": 1.5076800933837886,
+        "height": 1.1307600700378415
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/home/gas-cooker/renders/left.png",
+      "sha256": "e76d66c204b3ba2c8d34dc90ab6fb6f6091b850463232fc6cae30593ad1582ec",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -15.80290964195586,
+          0.5235000181198122,
+          0
+        ],
+        "target": [
+          0.18132922053337094,
+          0.5235000181198122,
+          0
+        ],
+        "width": 1.5076800933837886,
+        "height": 1.1307600700378415
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/home/gas-cooker/renders/right.png",
+      "sha256": "b2cbe312eae57c6576d0bb1a0ba67abdd805e59752f7c3d366dce33603cef207",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          16.165568083022603,
+          0.5235000181198122,
+          0
+        ],
+        "target": [
+          0.18132922053337094,
+          0.5235000181198122,
+          0
+        ],
+        "width": 1.5076800933837886,
+        "height": 1.1307600700378415
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/home/gas-cooker/renders/threeQuarter.png",
+      "sha256": "6e8e9ca73138c0b1eeb23979e17105b1fe6f8081d313403368a73d996f7e81df",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.90967180758577,
+          1.9346858311198765,
+          1.7283425870523992
+        ],
+        "target": [
+          0.18132922053337094,
+          0.5235000181198122,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/home/gas-cooker/renders/phone.png",
+      "sha256": "804e765cdfa3bc7c43e0e636b064c4ed7d031c9d5df94cffffa86aa79d258b48",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.18132922053337094,
+          1.6,
+          12.20999433656402
+        ],
+        "target": [
+          0.18132922053337094,
+          1.5,
+          0.20999433656401975
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/gas-cooker/renders/tile.png",
+      "sha256": "c94c596fbcca50a0f4c2c07d2c95dde4fa70ebf6d6fd086cb80c23eb7a05df9f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.712566440921804,
+          1.742453560146525,
+          1.58431358617321
+        ],
+        "target": [
+          0.1710081136957309,
+          0.4837764566657717,
+          0.0427552589471365
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

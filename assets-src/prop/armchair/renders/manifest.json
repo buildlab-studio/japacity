@@ -1,0 +1,33 @@
+{
+  "asset": "prop_armchair",
+  "file": "public/assets/places/family-house-parlour/prop_armchair.glb",
+  "fileSha256": "68a391b3a02435b00c2e4292889c95128a3611e55ff237dec6ecb67210926126",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/armchair/renders/tile.png",
+      "sha256": "4215921e2f59bea0e3c68bf159ad3ff86d9fcf96e6b6baedd3e87131d3e7ba4b",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.7824045074772126,
+          1.8041847113171197,
+          1.7349659965910942
+        ],
+        "target": [
+          0.05181973220652014,
+          0.3911681593030223,
+          0.0043812213204015155
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

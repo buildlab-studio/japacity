@@ -1,0 +1,33 @@
+{
+  "asset": "prop_sofa",
+  "file": "public/assets/places/family-house-parlour/prop_sofa.glb",
+  "fileSha256": "968921819e6e7072cbadb25646c34836eb692fe2a91509746f0a6b360f1d8325",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/sofa/renders/tile.png",
+      "sha256": "1e89765eef765bd762891d861dc9c88d2a24fcba84543e39d29d5d127c0ab4fb",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.7015024481472216,
+          2.4329620014929976,
+          2.5305156928292827
+        ],
+        "target": [
+          0.13540186868835333,
+          0.33774965204817525,
+          -0.03558488662958611
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

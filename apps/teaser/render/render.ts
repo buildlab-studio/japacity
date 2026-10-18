@@ -3,7 +3,7 @@
 // by 1080) to docs/teaser/japacity-teaser.mp4 and the portrait one for a phone's feed (1080 by 1920) to
 // docs/teaser/japacity-teaser-portrait.mp4, 30 frames a second, then says how long each took and how big it is. It stops
 // with an error when a file is 10 MB or more: GitHub plays a linked mp4 from the repository on its own page, and the free
-// plan's cap is 10 MB. With --stills it renders the cut's named moments (src/a branch.ts) as PNG files into the folder
+// plan's cap is 10 MB. With --stills it renders the cut's named moments (src/lead/stills.ts) as PNG files into the folder
 // instead. TEASER_BROWSER names a Chromium headless shell to render with in place of the one Remotion downloads,
 // for a machine where that one does not open the bundle (Playwright's own, under ~/Library/Caches/ms-playwright, does).
 import { mkdirSync, statSync } from "node:fs";
@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 
-import { STILLS } from "../src/a branch";
+import { STILLS } from "../src/lead/stills";
 
 const PACKAGE = fileURLToPath(new URL("..", import.meta.url));
 const ROOT = join(PACKAGE, "..", "..");

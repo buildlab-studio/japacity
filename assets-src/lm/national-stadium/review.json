@@ -1,0 +1,34 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 1,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 3,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 3.43,
+  "outline": {
+    "side": 91,
+    "plan": 96
+  },
+  "outlinePasses": true,
+  "accepted": false,
+  "failing": [
+    "phone",
+    "mean"
+  ],
+  "reasons": {
+    "phone": "The 12 m phone shot shows a dark panel, a column and two beams of the outer frame with a person below: not named. The extra far shot (phoneFar) would score 5: the maroon bowl, track, pitch and masts read at once.",
+    "silhouette": "All four elevations are a long low frame with a mast at each corner and ramps running down at the ends, which says a stadium; the stand roof shows on the long sides only.",
+    "proportion": "Footprint within 2% of the map outline, rim about 22 m, masts about 48 m, ramps radial to round landings; the stand roof's slats run out to the rim's edge in plan.",
+    "palette": "Maroon tiers, the blue long side now seen from above, orange track and green pitch read from far off; the outer frame is a dark muddy brown in the elevations.",
+    "wear": "Missing roof sheets on the stand, bald patches on the pitch and closed dark rooms under the stands; no stains on the frame and no gaps in the seats that read as missing seats.",
+    "variety": "Same flat-shaded palette family as the other pieces, plainly its own.",
+    "budget": "Read from the register row: triangles 3,145 of 8,000, drawCalls 2 of 2, materials 1 of 2, bytes 20,532 of 250,000; inside every figure, over 80% on at least one."
+  },
+  "notes": "Fails assets:acceptance-score-thresholds on the phone shot, which also pulls the mean to 3.43. assets:contributor-renders-fixed-views's phone shot puts the asset 12 m from the camera, which for a 257 m landmark frames one bay of its outer wall; a landmark needs a far phone shot. Outline passes assets:landmarks-match-reference-outlines: side 91, plan 96, width and height within 2%."
+}

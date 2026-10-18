@@ -1,0 +1,39 @@
+{
+  "piece": "places/tejuosho-market/prop_bales.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "assets-src/prop/bales/renders/back.png",
+    "assets-src/prop/bales/renders/front.png",
+    "assets-src/prop/bales/renders/left.png",
+    "assets-src/prop/bales/renders/phone.png",
+    "assets-src/prop/bales/renders/right.png",
+    "assets-src/prop/bales/renders/threeQuarter.png",
+    "assets-src/prop/bales/renders/manifest.json",
+    "assets-src/register.json, the row for places/tejuosho-market/prop_bales.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 4,
+    "variety": 3,
+    "budget": 4
+  },
+  "total": 25,
+  "mean": 3.57,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "Strapped bales and the red, white and blue checked bag read as market goods in one look.",
+    "silhouette": "Front and back say bundles and bags; the sides are a stack of blocks: two of four.",
+    "proportion": "Bales about 1.2 m stacked, the bag at knee height; they agree with the person.",
+    "palette": "Palette only, but the tan bales and sacks sit on the stage's sand in nearly the same value; only the checked bag and the red bundle stand out.",
+    "wear": "Straps, sacks, a handled case and the checked bag: goods as they stand at a stall.",
+    "variety": "The sacks are hard faceted wedges, where cloth sacks are soft shapes that assets:flat-and-smooth-shading has blended and shown smooth: a small break in style.",
+    "budget": "Read from the register row: triangles 292 of 800 (36%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 3,572 of 25,000 (14%). Inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_trolley",
+  "file": "public/assets/places/airport-lagos/prop_trolley.glb",
+  "fileSha256": "a49b48a3248cf5ee28537c0028e2a7bde96fc2153aceb89e01f5075aaecb05da",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/trolley/renders/front.png",
+      "sha256": "da51b88dd9eac614ed56d8349baf213bd275b157c7d51201a9c7337ea63395f2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6550000309944153,
+          17.544577263699797
+        ],
+        "target": [
+          0,
+          0.6550000309944153,
+          0
+        ],
+        "width": 1.886400089263916,
+        "height": 1.414800066947937
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/trolley/renders/back.png",
+      "sha256": "de591cc1eed560ca73bc4502375ea9134b9cd754c36a94240524ccb5f51f3710",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6550000309944153,
+          -17.544577263699797
+        ],
+        "target": [
+          0,
+          0.6550000309944153,
+          0
+        ],
+        "width": 1.886400089263916,
+        "height": 1.414800066947937
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/trolley/renders/left.png",
+      "sha256": "fc28f642dbe5bc26e204f2bce246487cab4300e3e6dac54fe1b185165bbbb62a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.544577263699797,
+          0.6550000309944153,
+          0
+        ],
+        "target": [
+          0,
+          0.6550000309944153,
+          0
+        ],
+        "width": 1.886400089263916,
+        "height": 1.414800066947937
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/trolley/renders/right.png",
+      "sha256": "fab03717d27f1fd9f2b1924d04a3bafe09b38430e1c9b72ea65e35db1ed876d0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.544577263699797,
+          0.6550000309944153,
+          0
+        ],
+        "target": [
+          0,
+          0.6550000309944153,
+          0
+        ],
+        "width": 1.886400089263916,
+        "height": 1.414800066947937
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/trolley/renders/threeQuarter.png",
+      "sha256": "d61dbec1f4911ca99c4cc3354c7d56db188869dce96663b14f5d0002c7fe59e1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1789929322332564,
+          2.4341403100285497,
+          2.178992932233257
+        ],
+        "target": [
+          0,
+          0.6550000309944153,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/trolley/renders/phone.png",
+      "sha256": "6ea05cfab3d1b761d03f740ff88a4a6dcd711126a8b0c8d010415425dd2acce4",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.581258305650673
+        ],
+        "target": [
+          0,
+          1.5,
+          0.5812583056506732
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/trolley/renders/tile.png",
+      "sha256": "9d7f2361402e82e08004f8d663f35f5407ecc402038d08687ed1cfc19147e64f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.046692264896001,
+          2.2374263729555977,
+          2.0129190206933947
+        ],
+        "target": [
+          0.039820896132000086,
+          0.5988227619980453,
+          0.006047651929393171
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

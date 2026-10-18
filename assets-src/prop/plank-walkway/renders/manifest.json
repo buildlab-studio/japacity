@@ -1,0 +1,157 @@
+{
+  "asset": "prop_plank-walkway",
+  "file": "public/assets/places/makoko/prop_plank-walkway.glb",
+  "fileSha256": "44475741bbab1cd01bc61a326d8a5aff61d78324afeef3cb7e3a3115414ed368",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/plank-walkway/renders/front.png",
+      "sha256": "1bd73c1b7017b4bf2abb7af666d0692b33d758b04ae7701407ec2c5399e58204",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          27.072182652588918
+        ],
+        "target": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "width": 1.6002579361816083,
+        "height": 1.2001934521362063
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/plank-walkway/renders/back.png",
+      "sha256": "888c2afa082c4159fb31a97f7edf76bf39c4cf6e3255272c192699e7060746c5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          -27.071232554551198
+        ],
+        "target": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "width": 1.6002579361816083,
+        "height": 1.2001934521362063
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/plank-walkway/renders/left.png",
+      "sha256": "8f1dcfcf5d6c675158d4be50192babdc25f79953719edadd14195d827e64c194",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -27.085854467984273,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "target": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "width": 4.321026105880738,
+        "height": 3.2407695794105535
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/plank-walkway/renders/right.png",
+      "sha256": "e790eb3c48f6a2b74c7d0206e4aca021c3628693bde0680abe3926e674335366",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          27.057560739155843,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "target": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "width": 4.321026105880738,
+        "height": 3.2407695794105535
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/plank-walkway/renders/threeQuarter.png",
+      "sha256": "f9acd3f057a7791c5226399602e58e7d6d705ecc9fc56906c79e9c155f8338c3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.916431603953112,
+          4.08080046108251,
+          4.931053517386188
+        ],
+        "target": [
+          -0.014146864414215088,
+          0.05499999966472387,
+          0.0004750490188598633
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/plank-walkway/renders/phone.png",
+      "sha256": "6dd806377320856d406744c0bf8433a729ef0b21883523fbf4711c58e3924834",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.014146864414215088,
+          1.6,
+          14.00095009803772
+        ],
+        "target": [
+          -0.014146864414215088,
+          1.5,
+          2.0009500980377197
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

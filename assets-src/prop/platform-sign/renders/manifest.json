@@ -1,0 +1,181 @@
+{
+  "asset": "prop_platform-sign",
+  "file": "public/assets/places/peckham-rye-station/prop_platform-sign.glb",
+  "fileSha256": "a0733e03bf357662ba04a41751260c1d821a22174a7f1df046ddd2d29957cef3",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/platform-sign/renders/front.png",
+      "sha256": "3beccabc4f1ecdfb05b7fe9ee9f44ede6ab57c6ab64972e7744bb5a663ca2cb4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.4500000238418576,
+          25.329346954399735
+        ],
+        "target": [
+          0,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "width": 4.176000205993653,
+        "height": 3.1320001544952403
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/platform-sign/renders/back.png",
+      "sha256": "b07f5c62d4790867e9d81be5b65bd95041ff15094cdedfd682c762f6722cada5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.4500000238418576,
+          -25.327199771577508
+        ],
+        "target": [
+          0,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "width": 4.176000205993653,
+        "height": 3.1320001544952403
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/platform-sign/renders/left.png",
+      "sha256": "226df1c402d6bc27f9cda5a3907f8d08898e7afdbf7e06a4c510366e59ea55e0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -25.32827336298862,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "target": [
+          0,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "width": 4.176000205993653,
+        "height": 3.1320001544952403
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/platform-sign/renders/right.png",
+      "sha256": "90ebc366b4d5673e1bc65423c5cefa549873ec5bd9c865104cb66109fa8246d0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          25.32827336298862,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "target": [
+          0,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "width": 4.176000205993653,
+        "height": 3.1320001544952403
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/platform-sign/renders/threeQuarter.png",
+      "sha256": "d0d9e4c6e9b37d07d6613fc665d52e9293a5df4d594d8c2f4f59e4c5aea33604",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.427047156372062,
+          5.064668890625458,
+          4.4281207477831765
+        ],
+        "target": [
+          0,
+          1.4500000238418576,
+          0.001073591411113739
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/platform-sign/renders/phone.png",
+      "sha256": "02f606262589daa78a5aa148d6429b95b626c8e2d1df9649e0c830c8e6ce2322",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.080018875617835
+        ],
+        "target": [
+          0,
+          1.5,
+          0.08001887561783465
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/platform-sign/renders/tile.png",
+      "sha256": "09b55e84749d2dae69003884837747f98b3f88929b562122475e22526e3a96e9",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.16764283022854,
+          4.7767578508479795,
+          3.9882651130578535
+        ],
+        "target": [
+          0.09097255152841635,
+          1.448170506719649,
+          -0.08840516564227067
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

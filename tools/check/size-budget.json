@@ -1,0 +1,32 @@
+{
+  "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; shared is every other chunk the entry imports (the bundler's runtime, React, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a dated line below saying why.",
+  "parts": {
+    "main": {
+      "budget": 334309,
+      "measured": 318390
+    },
+    "three": {
+      "budget": 195779,
+      "measured": 186471
+    },
+    "content-sim": {
+      "budget": 326689,
+      "measured": 311133
+    },
+    "loader": {
+      "budget": 33056,
+      "measured": 31482
+    },
+    "shared": {
+      "budget": 39686,
+      "measured": 37797
+    },
+    "total": {
+      "budget": 896000,
+      "measured": 890466
+    }
+  },
+  "changes": [
+    "18 Oct 2026: budgets at version 1"
+  ]
+}

@@ -257,7 +257,7 @@ describe("light one for yours", () => {
     expect(problems(page)).toEqual([]);
   });
 
-  test("[account:name-a-light-for-yours] given a name and years, when Light it is pressed, then the light is sent, shows at once from the reply beside the maintainer's with its name and years, the count takes it in, and the line says its name shows once looked over", async () => {
+  test("[account:name-a-light-for-yours] given a name and years, when Light it is pressed, then the light is sent, shows at once from the reply beside the owner's with its name and years, the count takes it in, and the line says its name shows once looked over", async () => {
     const sent = server({ count: 2, lights: lights([], 2) });
     const page = await opened();
     fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
@@ -320,7 +320,7 @@ describe("light one for yours", () => {
     expect(page.querySelector("[data-own-light]")).toBeNull();
   });
 
-  test("[account:name-a-light-for-yours] given an approved light of the account's own, then it still hangs beside the maintainer's with its name", async () => {
+  test("[account:name-a-light-for-yours] given an approved light of the account's own, then it still hangs beside the owner's with its name", async () => {
     server({ count: 1, lights: [{ id: "light.mine", name: "Mama Nkechi" }], mine: { ...MINE, approved: true } });
     const page = await opened();
     expect(page.querySelector("[data-own-light]")?.textContent).toBe("Mama Nkechi1951 to 2024");

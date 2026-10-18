@@ -1,0 +1,697 @@
+{
+  "place": "place.ojuelegba",
+  "scope": "exterior",
+  "hub": true,
+  "note": "Ojuelegba's frontage, the hub (city:ojuelegba-is-the-hub, world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's outdoor figures, six low and ten high. Its models are all the hub's own or shared, so the first download is the hub's folder and the shared files.",
+  "instances": [
+    {
+      "file": "places/ojuelegba/bld_plaza.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ojuelegba/bld_shop-row.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ojuelegba/bld_flyover-span.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/prop/prop_bus-shelter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_stall.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/veh/veh_danfo.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/veh/veh_keke.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_suya-grill.glb",
+      "count": 1
+    },
+    {
+      "file": "places/peckham/prop_street-bench.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_poster-board.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_cooler-stand.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_mat.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_pole.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 10,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_zainab.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_corper.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_nonso.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_iya.glb",
+      "shared/chr/chr_hawker_a.glb",
+      "shared/chr/chr_hawker_b.glb",
+      "shared/chr/chr_hawker_c.glb",
+      "shared/chr/chr_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 254
+  },
+  "stage": {
+    "note": "Ojuelegba as one frontage of about 24 metres (world:place-is-one-screen), the hub of the city: across the road the tech hub's building with its board, whose door cuts to the hub's room (`inside`), a shop row, and the flyover behind; on the near side the bus stop with a danfo loading, a roadside stall, and the motor park's patch of laterite where the danfos for the road wait; the suya spot under its umbrella by the motor park, and the mallam's bench left of the stop, where the tea is drunk.",
+    "ground": {
+      "size": [
+        36,
+        44
+      ],
+      "colour": "concreteWorn"
+    },
+    "roads": [
+      {
+        "at": [
+          6.4,
+          10.4,
+          0
+        ],
+        "size": [
+          9,
+          6.6
+        ],
+        "colour": "laterite",
+        "raise": 0.005
+      },
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          7
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          0.15
+        ],
+        "colour": "marking",
+        "raise": 0.02,
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          -3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          4.1,
+          0
+        ],
+        "size": [
+          36,
+          0.6
+        ],
+        "colour": "drain",
+        "raise": 0.01,
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        18,
+        34,
+        22
+      ],
+      "sky": "sky",
+      "ground": "sand",
+      "lamps": [
+        {
+          "at": [
+            -5,
+            2.5,
+            5.6
+          ],
+          "size": 2,
+          "bulb": true,
+          "light": {
+            "strength": 5,
+            "reach": 8
+          }
+        },
+        {
+          "at": [
+            8,
+            1.1,
+            5.6
+          ],
+          "size": 1.2,
+          "light": {
+            "strength": 2.5,
+            "reach": 4
+          }
+        }
+      ]
+    },
+    "start": [
+      0,
+      9.2,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -17.5,
+          -21.5
+        ],
+        [
+          17.5,
+          -21.5
+        ],
+        [
+          17.5,
+          21.5
+        ],
+        [
+          -17.5,
+          21.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/ojuelegba/bld_plaza.glb",
+        "at": [
+          [
+            -6,
+            -10.6,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.yaba.sign.1",
+            "place.ojuelegba.sign.6",
+            "place.ojuelegba.sign.7",
+            "place.yaba.sign.2"
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/bld_shop-row.glb",
+        "at": [
+          [
+            10.6,
+            -9.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/ojuelegba/bld_flyover-span.glb",
+        "at": [
+          [
+            -20,
+            -19.5,
+            0
+          ],
+          [
+            0,
+            -19.5,
+            0
+          ],
+          [
+            20,
+            -19.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bus-shelter.glb",
+        "at": [
+          [
+            -5,
+            5.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_stall.glb",
+        "at": [
+          [
+            0.2,
+            5.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_danfo.glb",
+        "at": [
+          [
+            -5.4,
+            1.9,
+            1.5708
+          ],
+          [
+            4.6,
+            10.4,
+            0.1
+          ],
+          [
+            7.6,
+            10.2,
+            -0.1
+          ]
+        ]
+      },
+      {
+        "file": "shared/veh/veh_keke.glb",
+        "at": [
+          [
+            4.6,
+            1.9,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_suya-grill.glb",
+        "at": [
+          [
+            8,
+            5.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/peckham/prop_street-bench.glb",
+        "at": [
+          [
+            -9.2,
+            6.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_poster-board.glb",
+        "at": [
+          [
+            1.5,
+            -6.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_cooler-stand.glb",
+        "at": [
+          [
+            10.6,
+            5.9,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_mat.glb",
+        "at": [
+          [
+            3.8,
+            -5.3,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_pole.glb",
+        "at": [
+          [
+            -10.5,
+            4.4,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -5.6,
+        3.7,
+        3.1416
+      ],
+      [
+        6.7,
+        2.5,
+        -1.5708
+      ],
+      [
+        -4.2,
+        6.9,
+        3.1416
+      ],
+      [
+        -6,
+        7.1,
+        3.4416
+      ],
+      [
+        0.2,
+        7.2,
+        3.1416
+      ],
+      [
+        -6.4,
+        -5.2,
+        0.1
+      ],
+      [
+        -1.8,
+        -5.6,
+        -0.4
+      ],
+      [
+        6.1,
+        7.6,
+        3.1416
+      ],
+      [
+        -1.6,
+        9,
+        2.6
+      ],
+      [
+        -10,
+        7.8,
+        1.7
+      ]
+    ],
+    "prefer": {
+      "rider": [
+        1
+      ],
+      "hawker": [
+        2,
+        8
+      ],
+      "trader": [
+        4
+      ]
+    },
+    "acts": [
+      {
+        "spot": 0,
+        "sex": "m",
+        "pose": "cheer",
+        "staff": true
+      },
+      {
+        "spot": 1,
+        "sex": "m",
+        "pose": "ride",
+        "staff": true
+      }
+    ],
+    "motion": [
+      {
+        "kind": "smoke",
+        "at": [
+          0.2,
+          1,
+          6.1
+        ],
+        "count": 20,
+        "colours": [
+          "hub",
+          "concrete",
+          "white",
+          "hub"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          8,
+          1,
+          5.6
+        ],
+        "count": 12,
+        "colours": [
+          "hub",
+          "concrete",
+          "white",
+          "hub"
+        ]
+      }
+    ],
+    "shot": {
+      "centre": [
+        0,
+        0.5,
+        0
+      ],
+      "far": 40,
+      "near": 10,
+      "farPitch": 48,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 22
+    },
+    "inside": "yaba-hub",
+    "things": [
+      {
+        "id": "hub",
+        "file": "places/ojuelegba/bld_plaza.glb",
+        "copy": 0,
+        "label": "city.thing.hub",
+        "at": [
+          -6,
+          -5
+        ],
+        "acts": [
+          {
+            "id": "enter",
+            "label": "city.act.go-in",
+            "kind": "enter"
+          },
+          {
+            "id": "find-your-feet",
+            "label": "city.act.find-your-feet",
+            "kind": "sheet",
+            "stages": "chapter.find-your-feet"
+          }
+        ]
+      },
+      {
+        "id": "stop",
+        "file": "shared/prop/prop_bus-shelter.glb",
+        "copy": 0,
+        "label": "city.thing.stop",
+        "at": [
+          -5,
+          6.9
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          },
+          {
+            "id": "agent",
+            "label": "city.act.agent-offer",
+            "kind": "sheet",
+            "stages": "offer.agent-stop",
+            "more": [
+              "offer.agent-promise",
+              "offer.agent-papers"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "danfo",
+        "file": "shared/veh/veh_danfo.glb",
+        "copy": 0,
+        "label": "city.thing.danfo",
+        "at": [
+          -3,
+          4.2
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          },
+          {
+            "id": "fuel",
+            "label": "city.act.fuel",
+            "kind": "sheet",
+            "stages": "offer.fuel-scarcity"
+          }
+        ]
+      },
+      {
+        "id": "keke",
+        "file": "shared/veh/veh_keke.glb",
+        "copy": 0,
+        "label": "city.thing.keke",
+        "at": [
+          4.6,
+          4.2
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "motor-park",
+        "file": "shared/veh/veh_danfo.glb",
+        "copy": 1,
+        "label": "city.thing.motor-park",
+        "at": [
+          4.6,
+          7.4
+        ],
+        "acts": [
+          {
+            "id": "ask-around",
+            "label": "city.act.ask-around",
+            "kind": "sheet",
+            "stages": "activity.ask-around"
+          },
+          {
+            "id": "agents",
+            "label": "city.act.agents",
+            "kind": "sheet",
+            "stages": "activity.see-agent-stop"
+          }
+        ]
+      },
+      {
+        "id": "suya",
+        "file": "shared/prop/prop_suya-grill.glb",
+        "copy": 0,
+        "label": "city.thing.suya",
+        "at": [
+          8,
+          6.8
+        ],
+        "acts": [
+          {
+            "id": "suya",
+            "label": "city.act.suya",
+            "kind": "sheet",
+            "stages": "activity.buy-suya"
+          }
+        ]
+      },
+      {
+        "id": "tea",
+        "file": "places/peckham/prop_street-bench.glb",
+        "copy": 0,
+        "label": "city.thing.tea",
+        "at": [
+          -9.2,
+          7
+        ],
+        "acts": [
+          {
+            "id": "tea",
+            "label": "city.act.tea",
+            "kind": "sheet",
+            "stages": "activity.mallam-tea",
+            "more": [
+              "activity.pure-water"
+            ],
+            "pose": "sit",
+            "seat": [
+              -9.2,
+              6.2,
+              0
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

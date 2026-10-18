@@ -1,0 +1,26 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 5,
+    "budget": 4
+  },
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "The phone shot shows SWIFTLINK PHON cut at the right edge, the door, the glass front and the case of phones; named as a phone shop in one look, but the container shape and the recharge sign are out of frame.",
+    "silhouette": "The front says a phone shop; the ends and back are a plain blue box on blocks with an AC unit, a dish and a pole, which could be any cabin.",
+    "proportion": "A 20-foot box with a 2 m door, the display case at waist height, the recharge sign on its post inside the plot.",
+    "palette": "Palette only; the blue box reads hard against the sand, rust patches in the rust shade, the yellow recharge sign stands out.",
+    "wear": "Rust on the roof and sides, stickers on the end wall, display case on the pavement, bench, drum, AC unit, dish and pole.",
+    "variety": "Same lettering and street parts as the others, and a shape no other piece has.",
+    "budget": "Read from the register row: triangles 344 of 1,200, drawCalls 2 of 2, materials 2 of 2, bytes 5,748 of 30,000; inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

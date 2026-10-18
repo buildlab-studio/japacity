@@ -1,0 +1,181 @@
+{
+  "asset": "prop_radio",
+  "file": "public/assets/shared/prop/prop_radio.glb",
+  "fileSha256": "2fb03920c0cdac80eb1f565df2bfa0502833264e3080f9a3c20d88718eea55d4",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/home/radio/renders/front.png",
+      "sha256": "0120b696e23c43f027bdaec1e5cc89363b294ce873e055a339ee560877563a95",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.016249999403953552,
+          0.39500000804662694,
+          13.736639023915739
+        ],
+        "target": [
+          0.016249999403953552,
+          0.39500000804662694,
+          0
+        ],
+        "width": 1.13760003862381,
+        "height": 0.8532000289678576
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/home/radio/renders/back.png",
+      "sha256": "a00825cb6829c84ae7700b7e7d7b3fe4fec9551a186bac028d50346a25811b90",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.016249999403953552,
+          0.39500000804662694,
+          -13.736639023915739
+        ],
+        "target": [
+          0.016249999403953552,
+          0.39500000804662694,
+          0
+        ],
+        "width": 1.13760003862381,
+        "height": 0.8532000289678576
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/home/radio/renders/left.png",
+      "sha256": "922cc029cd93ae4382c90a649ca7fe9cbd1ada5f8d2a76c51789a6d00b0e53ae",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -13.720389024511785,
+          0.39500000804662694,
+          0
+        ],
+        "target": [
+          0.016249999403953552,
+          0.39500000804662694,
+          0
+        ],
+        "width": 1.13760003862381,
+        "height": 0.8532000289678576
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/home/radio/renders/right.png",
+      "sha256": "dec1f096961a7f5307c3f212d3b62a6f6a792b8ced4312cd7f44569f8b43bc5e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          13.752889023319693,
+          0.39500000804662694,
+          0
+        ],
+        "target": [
+          0.016249999403953552,
+          0.39500000804662694,
+          0
+        ],
+        "width": 1.13760003862381,
+        "height": 0.8532000289678576
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/home/radio/renders/threeQuarter.png",
+      "sha256": "e831c96ab05ca0c6a57c30d1a3a8dabced2e1aebcc930041ddcf0f8bf7af3cc6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.0954502963635404,
+          1.2761633606503162,
+          1.0792002969595869
+        ],
+        "target": [
+          0.016249999403953552,
+          0.39500000804662694,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/home/radio/renders/phone.png",
+      "sha256": "7a71a0e9a1e56da243981412b18c1e5407ef2da78a279f94fc78061fc46677a3",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.016249999403953552,
+          1.6,
+          12.140004582529858
+        ],
+        "target": [
+          0.016249999403953552,
+          1.5,
+          0.14000458252985865
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/radio/renders/tile.png",
+      "sha256": "0afbfdfbd3767b3cd5023461943ff62b09c697948047e3ba54a269b2ba55563b",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.9976131752625851,
+          1.1599160701068683,
+          0.9814536485286246
+        ],
+        "target": [
+          0.027350110104031353,
+          0.3676995948044538,
+          0.011190583370070598
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

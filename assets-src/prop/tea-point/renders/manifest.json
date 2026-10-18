@@ -1,0 +1,206 @@
+{
+  "asset": "prop_tea-point",
+  "file": "public/assets/shared/prop/prop_tea-point.glb",
+  "fileSha256": "d8881fc79d9205d55cdc8e4a240a871cb48c5f7a0b86457d739c85a9321778ec",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/tea-point/renders/front.png",
+      "sha256": "e88336e6abb2c108e9661f3cb09950e1a8cbfd6239dbffad720cd306381cd4c5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.049999945163727,
+          23.621437839804628
+        ],
+        "target": [
+          0,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "width": 3.023999883270263,
+        "height": 2.2679999124526975
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/tea-point/renders/back.png",
+      "sha256": "18e1544997469a4b808f227f461749ad17b5abf455b3811b08c56f4e42b89d0b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.049999945163727,
+          -23.041437796889284
+        ],
+        "target": [
+          0,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "width": 3.023999883270263,
+        "height": 2.2679999124526975
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/tea-point/renders/left.png",
+      "sha256": "3c6c0d0a00484669328b38fa1f9782bd9341126b0d5e4f3bd8229fa58a92ab59",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -23.331437818346956,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "target": [
+          0,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "width": 3.023999883270263,
+        "height": 2.2679999124526975
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/tea-point/renders/right.png",
+      "sha256": "c94a38c88bf2561de8dfdfcbc5d5a4a015726d0fad5f49fa6a062c6f8ac82b52",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          23.331437818346956,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "target": [
+          0,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "width": 3.023999883270263,
+        "height": 2.2679999124526975
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/tea-point/renders/threeQuarter.png",
+      "sha256": "8035d65d91087d0bc78f02851b579d7388572b896aaecdc0d74b402c3f7cc044",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.85032955026558,
+          4.193780858400562,
+          4.140329571723253
+        ],
+        "target": [
+          0,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/prop/tea-point/renders/plan.png",
+      "sha256": "c221c47012409fb93f71815fc087a08e2112ca5ea1b824b794c758c1e4af82b0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          24.381437763510682,
+          0.2900000214576721
+        ],
+        "target": [
+          0,
+          1.049999945163727,
+          0.2900000214576721
+        ],
+        "width": 2.6207937463029554,
+        "height": 1.9655953097272167
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/tea-point/renders/phone.png",
+      "sha256": "c2e1b61ffcbe25d219914834a966ef65533431a62eede9adf91a905498e3406c",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.199997850035087
+        ],
+        "target": [
+          0,
+          1.5,
+          1.1999978500350872
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/tea-point/renders/tile.png",
+      "sha256": "05d16272667512a87973a0c8584104f4363a936d8bae0e3ffe84381b772a6d0e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.7438649222142306,
+          3.9272987815274485,
+          3.86515557013395
+        ],
+        "target": [
+          0.11824299730592608,
+          0.9669908761032178,
+          0.23953364522564524
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

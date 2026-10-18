@@ -1,0 +1,389 @@
+{
+  "place": "place.library-ca",
+  "scope": "interior",
+  "hub": false,
+  "note": "The library (design page 11 section 3), a room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
+  "instances": [
+    {
+      "file": "places/library-ca/bld_room_library.glb",
+      "count": 1
+    },
+    {
+      "file": "places/library-ca/prop_bookshelf.glb",
+      "count": 4
+    },
+    {
+      "file": "places/library-ca/prop_library-table.glb",
+      "count": 2
+    },
+    {
+      "file": "places/library-ca/prop_course-desk.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house-parlour/prop_armchair.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "The library (world:things-are-tappable-models, world:room-seen-down-its-length; design page 11 section 3): tall shelves along the back wall and one across the far end, two long reading tables with their lamps where the readers sit, the course desk near the door with the course's notice on its stand, where the evening course is joined; an armchair in the corner; the door.",
+    "ground": {
+      "size": [
+        16.6,
+        9.6
+      ],
+      "colour": "denim"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "denim",
+      "lamps": [
+        {
+          "at": [
+            -3.4,
+            3.2,
+            0.4
+          ],
+          "size": 2.4,
+          "bulb": true
+        },
+        {
+          "at": [
+            0.6,
+            3.2,
+            0.4
+          ],
+          "size": 2.4,
+          "bulb": true
+        }
+      ]
+    },
+    "start": [
+      6.94,
+      2.8,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          4.2
+        ],
+        [
+          -7.7,
+          4.2
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/library-ca/bld_room_library.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/library-ca/prop_bookshelf.glb",
+        "at": [
+          [
+            -4.4,
+            -4.15,
+            0
+          ],
+          [
+            -0.6,
+            -4.15,
+            0
+          ],
+          [
+            3.2,
+            -4.15,
+            0
+          ],
+          [
+            -7.45,
+            0.6,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/library-ca/prop_library-table.glb",
+        "at": [
+          [
+            -3.4,
+            0.4,
+            0
+          ],
+          [
+            0.6,
+            0.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/library-ca/prop_course-desk.glb",
+        "at": [
+          [
+            4.8,
+            -2.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house-parlour/prop_armchair.glb",
+        "at": [
+          [
+            -5.6,
+            3.5,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            7.2,
+            -3.9,
+            0
+          ],
+          [
+            -7.2,
+            -3.9,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            7.94,
+            2.8,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -4.45,
+        1.25,
+        3.1416
+      ],
+      [
+        -2.35,
+        -0.45,
+        0
+      ],
+      [
+        0.6,
+        1.25,
+        3.1416
+      ],
+      [
+        1.65,
+        -0.45,
+        0
+      ],
+      [
+        4.8,
+        -3.05,
+        0
+      ],
+      [
+        -1.0,
+        -3.4,
+        3.1416
+      ],
+      [
+        -6.7,
+        1.2,
+        -1.5708
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit"
+      },
+      {
+        "spot": 1,
+        "pose": "sit"
+      },
+      {
+        "spot": 2,
+        "pose": "sit"
+      },
+      {
+        "spot": 3,
+        "pose": "sit"
+      },
+      {
+        "spot": 4,
+        "pose": "sit",
+        "staff": true
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0.0,
+        0.6,
+        0.0
+      ],
+      "far": 22,
+      "near": 9,
+      "farPitch": 72,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 90,
+      "width": 11.6
+    },
+    "things": [
+      {
+        "id": "course-desk",
+        "file": "places/library-ca/prop_course-desk.glb",
+        "copy": 0,
+        "label": "city.thing.course-desk",
+        "at": [
+          4.4,
+          -1.0
+        ],
+        "acts": [
+          {
+            "id": "course",
+            "label": "city.act.course",
+            "kind": "sheet",
+            "stages": "activity.learn-tech-ca"
+          }
+        ]
+      },
+      {
+        "id": "notice",
+        "file": "places/library-ca/prop_course-desk.glb",
+        "copy": 0,
+        "label": "city.thing.course-notice",
+        "at": [
+          6.15,
+          -1.6
+        ],
+        "acts": [
+          {
+            "id": "read",
+            "label": "city.act.read-notice",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "shelves",
+        "file": "places/library-ca/prop_bookshelf.glb",
+        "copy": 1,
+        "label": "city.thing.shelves",
+        "at": [
+          -0.6,
+          -3.3
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-shelves",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "table",
+        "file": "places/library-ca/prop_library-table.glb",
+        "copy": 1,
+        "label": "city.thing.reading-table",
+        "at": [
+          1.65,
+          1.9
+        ],
+        "acts": [
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              1.65,
+              1.25,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          7.2,
+          2.8
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 4.0,
+  "against": {
+    "file": "assets-src/people/sade/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 4,
+      "variety": 4,
+      "budget": 4
+    },
+    "mean": 4.0,
+    "accepted": true
+  },
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A woman in sunglasses, an adire top and wide jeans, named in one look.",
+    "silhouette": "Short hair, slim top and flared trousers give a clear outline, unchanged.",
+    "proportion": "1.71 m; sizes agree.",
+    "palette": "Indigo and denim read on sand, if dark.",
+    "wear": "Sunglasses and the adire top, unchanged.",
+    "variety": "Her own look.",
+    "budget": "Read from the register row: triangles 1,270 of 3,000, drawCalls 2 of 3, materials 2 of 2, bytes 34,528 of 150,000; inside every figure, over 80% on materials."
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose."
+}

@@ -1,0 +1,153 @@
+{
+  "note": "The six examples every new building, shopfront and landmark is judged against (docs/rules/assets.md, The review). Each piece's roundTwo scores are a separate reviewer's, on an earlier version of the piece; the version shipped here carries that review's fixes, listed under fixedInThePort. Each is also scored on the page's sheet by a reviewer who did not build it, in the review.json beside it (assets:blind-reviewer-scores-views).",
+  "roundTwoCriteria": [
+    "phone",
+    "silhouette",
+    "proportion",
+    "paletteMaterial",
+    "wear",
+    "lagos",
+    "budget"
+  ],
+  "roundTwoCriteriaNote": "The roundTwo scores use 'Lagos' where the page's sheet scores 'variety against the examples', and 'palette and material' where the page scores 'palette use'. The totals are out of 35 on both.",
+  "bar": {
+    "building": 21,
+    "shopfront": 21,
+    "landmark": 20,
+    "outOf": 35,
+    "rule": "A new piece of a kind reaches the bar when its total on the sheet is at least the bar, and it must still pass assets:acceptance-score-thresholds (and assets:landmarks-match-reference-outlines for a landmark)."
+  },
+  "examples": [
+    {
+      "name": "bld_shop-row",
+      "kind": "building",
+      "file": "places/ojuelegba/bld_shop-row.glb",
+      "source": "assets-src/bld/shop-row",
+      "renders": "assets-src/bld/shop-row/renders",
+      "roundTwo": {
+        "phone": 1,
+        "silhouette": 4,
+        "proportion": 4,
+        "paletteMaterial": 3,
+        "wear": 4,
+        "lagos": 4,
+        "budget": 4
+      },
+      "roundTwoTotal": 24,
+      "fixedInThePort": [
+        "Built from a BuildingSpec through the kit, so the body bakes to one material and one draw call; the four boards are sign anchors drawn at run time",
+        "Fascia boards fit under the eaves; a meter and cable instead of wires ending in the air",
+        "Phone shot at 360 by 640 and 12 m, as assets:contributor-renders-fixed-views asks"
+      ]
+    },
+    {
+      "name": "bld_plaza",
+      "kind": "building",
+      "file": "places/ojuelegba/bld_plaza.glb",
+      "source": "assets-src/bld/plaza",
+      "renders": "assets-src/bld/plaza/renders",
+      "roundTwo": {
+        "phone": 1,
+        "silhouette": 4,
+        "proportion": 4,
+        "paletteMaterial": 3,
+        "wear": 3,
+        "lagos": 3,
+        "budget": 3
+      },
+      "roundTwoTotal": 21,
+      "fixedInThePort": [
+        "Built from a BuildingSpec: 1,436 triangles, inside 1,500 without the 2,200 the review offered",
+        "Louvre windows on every upper window, barred ground windows at the back, AC units hung between windows, roof tanks visible from above, the stair reaching the first floor with a door on its landing"
+      ]
+    },
+    {
+      "name": "shop_provisions",
+      "kind": "shopfront",
+      "file": "places/ojuelegba/shop_provisions.glb",
+      "source": "assets-src/shop/provisions",
+      "renders": "assets-src/shop/provisions/renders",
+      "roundTwo": {
+        "phone": 4,
+        "silhouette": 4,
+        "proportion": 4,
+        "paletteMaterial": 3,
+        "wear": 4,
+        "lagos": 4,
+        "budget": 4
+      },
+      "roundTwoTotal": 27,
+      "fixedInThePort": [
+        "One sign material for both boards (an atlas), so 2 draw calls and 2 materials",
+        "The notice clear of the louvre; the tin drawn as a tin with a lid and one band; the goods on a table in front of the door; sacks shaped as sacks"
+      ]
+    },
+    {
+      "name": "shop_container-phones",
+      "kind": "shopfront",
+      "file": "places/ojuelegba/shop_container-phones.glb",
+      "source": "assets-src/shop/container-phones",
+      "renders": "assets-src/shop/container-phones/renders",
+      "roundTwo": {
+        "phone": 1,
+        "silhouette": 4,
+        "proportion": 4,
+        "paletteMaterial": 3,
+        "wear": 2,
+        "lagos": 4,
+        "budget": 3
+      },
+      "roundTwoTotal": 21,
+      "fixedInThePort": [
+        "No ribs on the back; rust, stickers and a faded roof; the recharge sign on its own post inside the plot; a door cut in the glass front; the display case on the pavement",
+        "340 triangles, 2 draw calls, 2 materials"
+      ]
+    },
+    {
+      "name": "lm_national-stadium",
+      "kind": "landmark",
+      "file": "places/national-stadium/lm_national-stadium.glb",
+      "source": "assets-src/lm/national-stadium",
+      "renders": "assets-src/lm/national-stadium/renders",
+      "roundTwo": {
+        "phone": 3,
+        "silhouette": 3,
+        "proportion": 3,
+        "paletteMaterial": 3,
+        "wear": 1,
+        "lagos": 3,
+        "budget": 5
+      },
+      "roundTwoTotal": 21,
+      "fixedInThePort": [
+        "The footprint is the OpenStreetMap way, 182.4 by 257.2 m on its own axis",
+        "Radial ramps to round landings, a separate node so the outline leaves them out",
+        "Seats coloured on the tiers, one long side's upper tier blue; the main stand's roof on the frame, light, with sheets missing",
+        "Decay: missing seats, stains, the closed rooms under the stands",
+        "Outline: side 91, plan 96 (assets:landmarks-match-reference-outlines)"
+      ]
+    },
+    {
+      "name": "lm_third-mainland-span",
+      "kind": "landmark",
+      "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+      "source": "assets-src/lm/third-mainland-span",
+      "renders": "assets-src/lm/third-mainland-span/renders",
+      "roundTwo": {
+        "phone": 3,
+        "silhouette": 3,
+        "proportion": 4,
+        "paletteMaterial": 3,
+        "wear": 1,
+        "lagos": 2,
+        "budget": 4
+      },
+      "roundTwoTotal": 20,
+      "fixedInThePort": [
+        "Each bay's girder is one haunched profile, flat for most of the span (t to the fourth), stopping 0.3 m under the road",
+        "The plan outline is the straightest 585 m of the OpenStreetMap way; the elevation is three spans",
+        "Outline: front 97, plan 99 (assets:landmarks-match-reference-outlines)"
+      ]
+    }
+  ]
+}

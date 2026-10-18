@@ -1,0 +1,82 @@
+{
+  "piece": "place.family-house, the compound on an ordinary day and dressed for offer.send-off-party",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the ordinary day: the low mode's phone shot",
+    "the ordinary day: the high mode's phone shot",
+    "the ordinary day: the low mode's desktop shot",
+    "the ordinary day: the high mode's desktop shot",
+    "the ordinary day: the plan shot",
+    "the party: the low mode's phone shot",
+    "the party: the high mode's phone shot",
+    "the party: the low mode's desktop shot",
+    "the party: the high mode's desktop shot",
+    "the party: the plan shot",
+    "the dancers, first crop",
+    "the dancers, second crop, 900 ms after the first",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.family-house"
+  ],
+  "low": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "Party: SAFE JOURNEY over the veranda, the chief in his agbada and a woman in gele: a send-off in one look. Ordinary day: the bungalow's veranda, its door and a man by the window: a family house on first look. Not 5 in either: the bottom 40% is bare yard.",
+      "silhouette": "The plan says a walled compound: the blue hip roof, the tank on its stand, the yard, the gate, a palm; at the party the chairs and the cooking fire.",
+      "proportion": "Bungalow, veranda, chairs, the pot and people agree.",
+      "palette": "Palette only; the blue roof and peach walls read, but the yard is one flat khaki across 40% of every view and the fence walls are close to it.",
+      "wear": "Party: stacked plastic chairs, the DJ table and speakers, the cooler, the pot on its fire with smoke, bunting, the banner (4). Ordinary day: two plastic chairs and the parlour set out on the open veranda, TV included, and a bare yard (3): no washing line, generator, bucket or car. The lower of the two counts.",
+      "variety": "Its own place, the same family.",
+      "budget": "Interior row 50 and 40,000. Low: party 28 and 16,872 (56% and 42%), ordinary day 13 and 6,292, check 12 and 7,294 moving. At or under 80%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 4,
+      "budget": 4
+    },
+    "total": 26,
+    "mean": 3.71,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "As low, with more guests at the party.",
+      "silhouette": "As low.",
+      "proportion": "As low.",
+      "palette": "As low.",
+      "wear": "As low; the lower of the two dressings counts.",
+      "variety": "As low.",
+      "budget": "Interior row 50 and 40,000. High: party phone 47 and 35,454 (94% and 89%), ordinary day 21 and 14,118, check 19 and 16,460 moving. Inside, over 80% at the party, so 4. The party's desktop shot with the shadow pass is 52, over 50; city:places-meet-party-room-bar gates the phone profile only."
+    }
+  },
+  "figures": "Preview: ordinary day low phone 13 draw calls and 6,292 triangles, high phone 21 and 14,118; party low phone 28 and 16,872, high phone 47 and 35,454, high desktop 52 and 39,484 with the shadow pass. The place check draws the ordinary day only. The place check (pnpm check:assets, cheap phone profile, start camera): low still 9 draw calls and 6,864 triangles, moving 12 and 7,294, script at most 18 us; high still 16 and 15,276, moving 19 and 16,460, script at most 37 us.",
+  "predates": "Shot from a preview with no header. The shots show the band word set against the target and the smooth blended smoke, and predate the shipped grids and the real names.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "partly: dancers-a and dancers-b, 900 ms apart, differ (the chief's raised hand, Iya's step); the idles of the guests cannot be seen in stills",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 3 draw calls (limit 6) and 37 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Meets the bar as far as the figures show, with two notes: the place check draws only the ordinary day, so the party's phone-profile figure is the preview's; and the dancers move only a little between the two crops 900 ms apart."
+  },
+  "notes": "Scored as a place in both dressings, each criterion at the lower of the two where they differ. This is the compound's exterior, as staged, scored on the interior row. Two plastic chairs on the ordinary day and the stacked chairs at the party are the shared chair."
+}

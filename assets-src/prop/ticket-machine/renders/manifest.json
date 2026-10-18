@@ -1,0 +1,181 @@
+{
+  "asset": "prop_ticket-machine",
+  "file": "public/assets/places/peckham-rye-station/prop_ticket-machine.glb",
+  "fileSha256": "44d92285c444d62e4a27cbe33c2abcc9fa303908f003f222054e665b57fd54a7",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/ticket-machine/renders/front.png",
+      "sha256": "f718960f1e1fe3b3596f196e2cd7b572e17bad642400c0b72b54e38ba3bc7f72",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.94499999307096,
+          18.792722398185767
+        ],
+        "target": [
+          0,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "width": 2.7215999787569047,
+        "height": 2.0411999840676787
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/ticket-machine/renders/back.png",
+      "sha256": "77d2583518c6902a9f2af9c8a49a81a29faa09e7f479481902004b021a78425b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.94499999307096,
+          -18.74272241606716
+        ],
+        "target": [
+          0,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "width": 2.7215999787569047,
+        "height": 2.0411999840676787
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/ticket-machine/renders/left.png",
+      "sha256": "82f2839be3f5943d75691f1072e3d0af99d281cecc6048a5bbcde026f84b59a5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -18.767722407126463,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "target": [
+          0,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "width": 2.7215999787569047,
+        "height": 2.0411999840676787
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/ticket-machine/renders/right.png",
+      "sha256": "99315ece32cb41c2af0b865235967ec2a0d2151bd576b72b365fb10f392e16c8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          18.767722407126463,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "target": [
+          0,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "width": 2.7215999787569047,
+        "height": 2.0411999840676787
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/ticket-machine/renders/threeQuarter.png",
+      "sha256": "453f66987f1680927c7bc9874a35d49f462220d2476ca9b2a807a34df3d1e3b3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.532256545218662,
+          3.0125788042738533,
+          2.557256536277966
+        ],
+        "target": [
+          0,
+          0.94499999307096,
+          0.024999991059303284
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/ticket-machine/renders/phone.png",
+      "sha256": "e2934cab8df674ecafde401d627aa72f59ae01fecb81e512d95ef4759627d29e",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.349997852226911
+        ],
+        "target": [
+          0,
+          1.5,
+          0.3499978522269113
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/ticket-machine/renders/tile.png",
+      "sha256": "86fd493ac7fb3143a452c2b6e73b233563dd6029dd0aab83782a01e647e39608",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.60528836229711,
+          3.0807737895246903,
+          2.630888404816166
+        ],
+        "target": [
+          -0.002847429637942291,
+          0.9512398328144935,
+          0.022752612881113538
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

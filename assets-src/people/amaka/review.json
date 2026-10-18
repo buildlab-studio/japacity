@@ -1,0 +1,44 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 5,
+    "wear": 4,
+    "variety": 5,
+    "budget": 4
+  },
+  "mean": 4.29,
+  "against": {
+    "file": "assets-src/people/amaka/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 5,
+      "silhouette": 5,
+      "proportion": 4,
+      "palette": 5,
+      "wear": 4,
+      "variety": 5,
+      "budget": 4
+    },
+    "mean": 4.57,
+    "accepted": true
+  },
+  "accepted": false,
+  "failing": [
+    "phone",
+    "silhouette"
+  ],
+  "reasons": {
+    "phone": "Still a party guest at phone size, but the gele now reads as a round patterned mass, close to a printed afro; the old fan read in one look. (was 5)",
+    "silhouette": "Front and back are a round scalloped ball instead of a fan; in both sides the gele is a thin upright fin over a round cap. The outline no longer says gele from every side. (was 5)",
+    "proportion": "1.91 m to the top of the gele, body in range; the wrapper is still a straight tube.",
+    "palette": "Indigo with gold and orange rings reads strongly on sand; the print runs round the head mass.",
+    "wear": "Gele, matching buba and wrapper, gold shoes; no bag or jewellery, unchanged.",
+    "variety": "Still plainly her own: no one else has headwear on this scale.",
+    "budget": "Read from the register row: triangles 2,208 of 3,000, drawCalls 2 of 3, materials 2 of 2, bytes 42,232 of 150,000; inside every figure, over 80% on materials."
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose. Lower than the old version on: phone, silhouette."
+}

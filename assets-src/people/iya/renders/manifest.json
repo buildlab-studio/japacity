@@ -1,0 +1,157 @@
+{
+  "asset": "chr_iya",
+  "file": "public/assets/shared/chr/chr_iya.glb",
+  "fileSha256": "1b9707a45c15d1c4a2f3f7b4ee1c4842eaddcb066bd7e40738ab484cae9dd914",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/people/iya/renders/front.png",
+      "sha256": "e14e21928ab345ee22ac58b51faef589aebdc908c34d3a2a49cdd43bf84683b4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8549295134080291,
+          17.342105278021286
+        ],
+        "target": [
+          0,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "width": 2.46219703483126,
+        "height": 1.846647776123445
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/people/iya/renders/back.png",
+      "sha256": "c9d75a845e16251046afa10b430aedb46e643245d47a9d3577e3d90427aa400a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8549295134080291,
+          -17.344521247989128
+        ],
+        "target": [
+          0,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "width": 2.46219703483126,
+        "height": 1.846647776123445
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/people/iya/renders/left.png",
+      "sha256": "5328f9a9d204463dde8041156ea87018ba8df0f342710a5c9ad747b48ff5e349",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.343313263005207,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "target": [
+          0,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "width": 2.46219703483126,
+        "height": 1.846647776123445
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/people/iya/renders/right.png",
+      "sha256": "4d1256d6bae0b269546587438bd72b1769439c303af90834c009490f037be78d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.343313263005207,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "target": [
+          0,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "width": 2.46219703483126,
+        "height": 1.846647776123445
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/people/iya/renders/threeQuarter.png",
+      "sha256": "eb8ac6149460b577713f68541a74ac70ab48ab33c9cb23a9de94eb2e8b7c496d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1208647138191417,
+          2.5866083008516183,
+          2.119656728835221
+        ],
+        "target": [
+          0,
+          0.8549295134080291,
+          -0.001207984983921051
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/people/iya/renders/phone.png",
+      "sha256": "b95696be04f9d7029dbff7be2175147d7ec038b11d7e468af4749e3e883a4462",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.197711127528086
+        ],
+        "target": [
+          0,
+          1.5,
+          0.19771112752808612
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

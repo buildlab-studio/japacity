@@ -1,0 +1,229 @@
+{
+  "asset": "chr_tobi",
+  "file": "public/assets/shared/chr/chr_tobi.glb",
+  "fileSha256": "f7be5e9f0f5ae4062c2ca6d0278ce4d81af1866ed11a5a166acfb967bc05a563",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/people/tobi/renders/front.png",
+      "sha256": "9ccfee15769049621ec0642bbe62db3c0bac192aa8a7348fdb7132581e992945",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8990727553834005,
+          17.706510972614666
+        ],
+        "target": [
+          0,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "width": 2.5893294877004474,
+        "height": 1.9419971157753355
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/people/tobi/renders/back.png",
+      "sha256": "3988e7f15b37dc8d85259f1ca7ac47a33bbdb76864123e493f7e7bf1c75bf43c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8990727553834005,
+          -17.688056614632984
+        ],
+        "target": [
+          0,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "width": 2.5893294877004474,
+        "height": 1.9419971157753355
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/people/tobi/renders/left.png",
+      "sha256": "7be7773c839bf52d3496949dae090fbda251990ef0888d131481d5fdd6a6d74e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.697283793623825,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "target": [
+          0,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "width": 2.5893294877004474,
+        "height": 1.9419971157753355
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/people/tobi/renders/right.png",
+      "sha256": "1d11a4ecb0985404389c80038ba2f591dbea400e4e60c6acff5f30b63a759321",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.697283793623825,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "target": [
+          0,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "width": 2.5893294877004474,
+        "height": 1.9419971157753355
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/people/tobi/renders/threeQuarter.png",
+      "sha256": "faf7751556231f3755c5dcb61a912107c4605f982f2f0685f3efc478b9f916b2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.2230969870768993,
+          2.714223844402418,
+          2.2323241660677406
+        ],
+        "target": [
+          0,
+          0.8990727553834005,
+          0.009227178990840912
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/people/tobi/renders/phone.png",
+      "sha256": "a4e99f6713bad6031acd8f36496dc9b889d5dfaef49a777a7fd700ffec06b84b",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.207579088766277
+        ],
+        "target": [
+          0,
+          1.5,
+          0.20757908876627756
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "assets-src/people/tobi/renders/face.png",
+      "sha256": "13433a257abf195cb26ea6c3238f622f8112fe7fb850a41587ae8d4ecb47521d",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7818992772040709,
+          1.6183309464113025,
+          1.686015590096393
+        ],
+        "target": [
+          0,
+          1.5464051273085122,
+          0.009227178990840912
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "assets-src/people/tobi/renders/figure.png",
+      "sha256": "4448eca85611a5750564e7e34b3a0e8bf6c6a705c6196824d47e33a8c86e3c86",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.997984949542214,
+          1.1124397732026985,
+          4.237581094792761
+        ],
+        "target": [
+          0.026271137214102597,
+          0.8960739346438699,
+          0.009227178990840912
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "assets-src/people/tobi/renders/cheer.png",
+      "sha256": "607eeaffb517557676e5c0694522a3687a708e32405fc9bb470c5a4497a71aa0",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1245099254380277,
+          1.2045200327020957,
+          4.544681063994833
+        ],
+        "target": [
+          0,
+          0.9713871263594688,
+          -0.011345173798264357
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

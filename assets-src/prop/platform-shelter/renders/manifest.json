@@ -1,0 +1,181 @@
+{
+  "asset": "prop_platform-shelter",
+  "file": "public/assets/places/ctrain-station-ca/prop_platform-shelter.glb",
+  "fileSha256": "4306f323e30183f62113df33465e54f214e0ad40e50298c668f95327113457f0",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/platform-shelter/renders/front.png",
+      "sha256": "27363c1392225d197ba8cfd9bfa8f47074c8b96908ebf5e18c6c59641fa0a361",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.3056445121765137,
+          32.27289813004127
+        ],
+        "target": [
+          0,
+          1.3056445121765137,
+          0
+        ],
+        "width": 4.86,
+        "height": 3.6450000000000005
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/platform-shelter/renders/back.png",
+      "sha256": "88eb8b840f9250391a323b9c908e4747178e53f136d585b43dd530a2167eab12",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.3056445121765137,
+          -32.27289813004127
+        ],
+        "target": [
+          0,
+          1.3056445121765137,
+          0
+        ],
+        "width": 4.86,
+        "height": 3.6450000000000005
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/platform-shelter/renders/left.png",
+      "sha256": "869d1f5754ed065dcfe53fe82549ea2ef8ad9586622be934b672ec6abafeb899",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -32.27289813004127,
+          1.3056445121765137,
+          0
+        ],
+        "target": [
+          0,
+          1.3056445121765137,
+          0
+        ],
+        "width": 3.7602075258644376,
+        "height": 2.820155644398328
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/platform-shelter/renders/right.png",
+      "sha256": "d830fc4976c546cc5bd9f9146e8e44e72d5dde4acafda0be9a7a68047e9966f6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          32.27289813004127,
+          1.3056445121765137,
+          0
+        ],
+        "target": [
+          0,
+          1.3056445121765137,
+          0
+        ],
+        "width": 3.7602075258644376,
+        "height": 2.820155644398328
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/platform-shelter/renders/threeQuarter.png",
+      "sha256": "5a661fe5cbfde6521192adc13ddffd673d49a33d82cc8d3385c33cfa0225538a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.432764343102681,
+          6.5579746042336415,
+          6.432764343102682
+        ],
+        "target": [
+          0,
+          1.3056445121765137,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/platform-shelter/renders/phone.png",
+      "sha256": "329820a580fd4b06cb900fd8fda7f4886e224593fb37d15e75a31ee1b41dbdaf",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.992027039399396
+        ],
+        "target": [
+          0,
+          1.5,
+          0.9920270393993957
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/platform-shelter/renders/tile.png",
+      "sha256": "652eb771952be6cc41ebbb5fe40c681f2b471bec2d89a27f5a1ba121222b65bf",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.150513727027663,
+          5.842409444096409,
+          5.875609800005464
+        ],
+        "target": [
+          0.2516225086207142,
+          1.0259849330025483,
+          -0.02328141840148476
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

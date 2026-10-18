@@ -1,0 +1,43 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 4.0,
+  "against": {
+    "file": "assets-src/people/body_plus/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 3,
+      "palette": 4,
+      "wear": 2,
+      "variety": 3,
+      "budget": 5
+    },
+    "mean": 3.43,
+    "accepted": false
+  },
+  "accepted": false,
+  "failing": [
+    "budget"
+  ],
+  "reasons": {
+    "phone": "A plus-size woman with an afro, a green print blouse, navy skirt and gold bag, named in one look.",
+    "silhouette": "The afro now wraps the head and reads as hair in all four outlines; the full figure shows in both sides. (was 3)",
+    "proportion": "1.82 m with hair; the afro, 0.39 m across on 0.49 m shoulders, is large and sits high but wraps the skull, no longer a cap on top. (was 3)",
+    "palette": "Green and ochre lattice over navy reads on sand; the dark face sits close to the afro's black.",
+    "wear": "A print blouse and a gold handbag: right for her, if not much more. (was 2)",
+    "variety": "Her own outfit now; the afro is still ngozi's. (was 3)",
+    "budget": "Read from the register row: triangles 1,906 of 3,000, drawCalls 2 of 3, materials 2 of 2, bytes 41,272 of 150,000; inside every figure, over 80% on materials. (was 5)"
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose. Lower than the old version on: budget. The budget point is lost to the second material the new print or pattern needs (materials 2 of 2); the asset is inside its budget, but assets:rework-never-scores-lower counts any lower criterion."
+}

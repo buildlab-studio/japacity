@@ -1,0 +1,33 @@
+{
+  "asset": "prop_meetup-corner",
+  "file": "public/assets/places/yaba-hub/prop_meetup-corner.glb",
+  "fileSha256": "74a911eb6a2396cd9d63ed561fecad0fc46f48d92b142b34506376b0be1ef9e9",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "assets-src/prop/meetup-corner/renders/tile.png",
+      "sha256": "4a7a1208fc51c1da72edd71c23e7f01ac2a21534205041e66e68d71482646b83",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.9338974488428007,
+          3.998999743659356,
+          3.3542693307053506
+        ],
+        "target": [
+          0.35907871024084476,
+          1.0801724661544927,
+          -0.22054940789660615
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

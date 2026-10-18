@@ -1,0 +1,233 @@
+[
+  {
+    "piece": "the party room: place.family-house dressed for offer.send-off-party",
+    "against": null,
+    "reviewer": "A reviewer who has not seen the code",
+    "date": "2026-10-08",
+    "seen": [
+      "the phone shot",
+      "the hero view",
+      "the hero view after the player walks",
+      "the dancers' still: two code loops and one library loop",
+      "the code loops' still: each dance written in code on all three dancers",
+      "the library loop's still: the library dance on all three dancers",
+      "the recording",
+      "the shots' figures",
+      "the makers' note on the two ways of dancing, read only after the dance judgement"
+    ],
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 2,
+      "variety": 4,
+      "budget": 4
+    },
+    "total": 24,
+    "mean": 3.43,
+    "accepted": false,
+    "failing": [
+      "wear",
+      "mean"
+    ],
+    "reasons": {
+      "phone": "A party in one look: bunting, string lights, an agbada and a gele. But the banner says HAPPY BIRTHDAY at Chidi's send-off to Leeds, its ends are cut by the frame, and the woman in front is cut by the right edge.",
+      "silhouette": "The room is a plain box with a lid: no door, window or furniture shape. The agbada and gele outlines carry it.",
+      "proportion": "Ceiling, bar, speakers and people agree; the red box by the wall is tall for a fridge.",
+      "palette": "Warm walls and palette bunting read; the floor is a dark muddy brown that swallows legs and shoes, and the strips beside the banner sample at #ff3782 and #3bffe8, which are in no palette group. The palette check should look at them; if it refuses them this is 1.",
+      "wear": "Party dressing on a clean box: bunting, lights, banner, two speakers, a bar. No plastic chairs, no coolers or trays of small chops, no drinks crates, no fan, no family photos or sofa for a family house parlour.",
+      "variety": "The same family as the accepted examples and the people sheet, and plainly its own room.",
+      "budget": "Reported 42 draw calls and 12,274 triangles against the interior row's 50 and 40,000: 84% and 31%, so at or under 100% but not 80%."
+    },
+    "rCity037": {
+      "aboutTenPeopleIdling": {
+        "met": true,
+        "seen": "Ten people counted in the hero view and the recording. Phases differ (the chief and the gele dancer are out of step). The idles are small: the man in the orange shirt and the braided woman with her arm up barely move in ten seconds."
+      },
+      "tapToWalk": {
+        "met": true,
+        "seen": "At about 3.4 s Tunde steps off and walks for about 0.8 s, legs stepping, toward the camera, at a believable walking pace. He stops directly behind the woman in maroon and is hidden for the rest of the clip, and the walk covers about a metre, not the floor. No indicator over the player's own character is seen (city:players-carry-name-tags)."
+      },
+      "ambientMotion": {
+        "met": "partly",
+        "seen": "The bunting moves between frames. One clock and wind, the idle slowdown and the two mesh levels cannot be seen in pictures and have no stated figure."
+      },
+      "twoDanceLoopsOnThreeBodies": {
+        "met": true,
+        "seen": "Three dancers: the chief in agbada, Amaka in wrapper and gele, Tunde in T-shirt and jeans; two code loops and one library loop in the dancers' still, and each way on all three in the code loops' still and the library loop's still."
+      },
+      "measuredOnPhoneProfile": {
+        "met": true,
+        "seen": "The shots' figures: 0.198 ms of update and 3.055 ms of render submit a frame at 6 times slower, 8.73 ms software frame; the phone shot at 360 by 640, scale 2."
+      },
+      "recording": {
+        "met": true,
+        "seen": "The recording, 10.24 s at 960 by 600; the first second is black."
+      },
+      "note": {
+        "met": true,
+        "seen": "The makers' note says which way won."
+      }
+    },
+    "rCity038": {
+      "crowdIdlesWithRandomPhase": true,
+      "tapToWalkOnWalkableGround": true,
+      "motionFollowsR025To027": "not shown",
+      "bothMeshLevels": "not shown",
+      "insideBudgetOnPhoneProfile": true,
+      "verdict": "The working parts of the bar are met as far as the pictures show; the mesh levels and the shared clock need the place check's figures. The look does not pass the sheet."
+    },
+    "dances": {
+      "mine": "Written in code wins. In the code loops' still the chief raises one hand as if spraying, the gele dancer tilts her hips with one knee bent, and Tunde reaches out: asymmetric, weight on one leg, a Lagos party move. In the library loop's still all three take the same symmetric crouch with bent elbows at the waist, a generic club bounce, and the agbada sleeves stand out stiffly. In the recording Tunde's library loop after the walk is small enough to read as standing.",
+      "agreeWithNote": true,
+      "beyondTheNote": "The note's plan-view fault is left out of the stills, but the hero view, the hero view after the walk and the recording still have the ceiling slab over about 40% of the frame. A near character's arm cuts into the bottom right of all three dancer stills."
+    },
+    "notes": "A room has no orthographic views, so silhouette is read from the hero view and phone from the phone shot. place.family-house's content crowd target is 8 (FEW) while city:party-room-sets-the-bar says crowd.target 10; the shots show 10. A point to check."
+  },
+  {
+    "piece": "the party room: place.family-house dressed for offer.send-off-party",
+    "round": 2,
+    "against": {
+      "file": "assets-src/places/party-room/review.json, the first entry",
+      "scores": {
+        "phone": 4,
+        "silhouette": 3,
+        "proportion": 4,
+        "palette": 3,
+        "wear": 2,
+        "variety": 4,
+        "budget": 4
+      }
+    },
+    "reviewer": "A reviewer who has not seen the code",
+    "date": "2026-10-08",
+    "seen": [
+      "the phone shot",
+      "the hero view",
+      "the hero view after the player walks",
+      "the dancers' still: two code loops and one library loop",
+      "the code loops' still: each dance written in code on all three dancers",
+      "the library loop's still: the library dance on all three dancers",
+      "the recording (frames at one a second, and two a second from 2 s to 8 s)",
+      "the shots' figures",
+      "the first sheet's pictures, side by side",
+      "the makers' note, read after scoring"
+    ],
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 3,
+      "variety": 4,
+      "budget": 0
+    },
+    "total": 23,
+    "mean": 3.29,
+    "accepted": false,
+    "failing": [
+      "budget",
+      "mean"
+    ],
+    "lowerThanOld": [
+      "budget"
+    ],
+    "reasons": {
+      "phone": "A send-off in one look: SAFE JOURNEY on the banner, bunting, string lights, the agbada and the gele. Not 5, as before: the phone shot is the same framing as the first sheet's, the banner is cut to AFE JOURNE with bunting hung over its letters, the woman in front is still cut by the right edge, and the player's diamond sits on the banner's last letter.",
+      "silhouette": "The hero view now has a room's shape: a window on the side wall, a door, a row of plastic chairs, the small chops table, the cooler in front. The ceiling slab is gone from view. Was 3.",
+      "proportion": "Chairs, table, bar, speakers and people agree. The red box by the wall is still tall for a fridge, and the cooler in front reads large because it is cut by the frame close to the camera.",
+      "palette": "The floor is a lighter brown and legs and shoes read on it; the two strips beside the banner now sample as the palette's teal and gold, shaded (#2a8881 lit from teal #1f7a78), where the first sheet saw #ff3782 and #3bffe8. The bar and the speakers are black slabs on a dark wine wall and merge. Was 3.",
+      "wear": "Now the right things for a send-off in a parlour: plastic chairs along the wall, a cooler, the small chops table with trays, a window, a door. Not 4: no drinks crates, no standing fan, no family photos or calendar on the wall, no sofa pushed back; the window is a black pane with no burglar bars on a ground floor (the kit's rule). Was 2.",
+      "variety": "The same family as the examples and the people sheet, plainly its own room.",
+      "budget": "The shots' figures give 51 draw calls against the interior row's 50: over, so 0 (assets:assets-and-places-within-budget). The first sheet saw 42; the new dressing adds nine. Triangles 12,198 of 40,000. Under assets:rework-never-scores-lower this is a figure that leaves its budget, so it counts as lower than the old."
+    },
+    "faultsFromRoundOne": {
+      "happyBirthdayBanner": "gone: the banner reads SAFE JOURNEY from the text key",
+      "bannerCutAtPhoneSize": "kept: cut at both ends, and the bunting now hangs over its letters",
+      "womanCutByRightEdge": "kept: same framing",
+      "floorMuddySwallowsLegs": "gone",
+      "offPaletteStrips": "gone",
+      "plainBoxNoDoorWindowFurniture": "gone: window, door, chairs, table, cooler",
+      "tallRedFridge": "kept",
+      "noPlasticChairsCoolersSmallChops": "gone",
+      "noDrinksCratesFanPhotosSofa": "kept",
+      "ceilingSlabOver40PercentOfHero": "gone: the camera sits under the ceiling",
+      "noOwnIndicatorSeen": "gone: the gold diamond over Tunde, though it floats at the banner's height and reads as part of it",
+      "nearGuestArmInDancerStills": "kept",
+      "recordingFirstSecondBlack": "kept",
+      "smallIdles": "better: the idles sway more in the recording",
+      "walkCoversAboutAMetre": "kept: Tunde walks a metre or two toward the bar and stops beside the speakers"
+    },
+    "rCity038": {
+      "crowdIdlesWithRandomPhase": true,
+      "tapToWalkOnWalkableGround": true,
+      "motionFollowsR025To027": "not shown: the bunting and the banner's lower edge move in the recording; the shared clock and wind cannot be seen",
+      "bothMeshLevels": "not shown",
+      "insideBudgetOnPhoneProfile": false,
+      "verdict": "Fails the bar on draw calls: 51 of 50. Everything else that pictures can show is met."
+    },
+    "notes": "The look now passes the sheet on every criterion but budget; nine more draw calls from separate furniture pieces is the likely cause, so baking the dressing into one or two meshes should bring it back under 50 and make this an accept at 27 of 35 (mean 3.86) without any other change. The faces and the agbada's sleeves are still faceted in these shots, against assets:flat-and-smooth-shading's rule for round and soft parts; that belongs to the people's models, not to this room."
+  },
+  {
+    "piece": "the party room: place.family-house dressed for offer.send-off-party",
+    "round": 3,
+    "against": {
+      "file": "assets-src/places/party-room/review.json, the second entry",
+      "scores": {
+        "phone": 4,
+        "silhouette": 4,
+        "proportion": 4,
+        "palette": 4,
+        "wear": 3,
+        "variety": 4,
+        "budget": 0
+      }
+    },
+    "reviewer": "A reviewer who has not seen the code",
+    "date": "2026-10-08",
+    "seen": [
+      "the hero view",
+      "the hero view after the player walks",
+      "the phone shot",
+      "the dancers' still: two code loops and one library loop",
+      "the code loops' still: each dance written in code on all three dancers",
+      "the library loop's still: the library dance on all three dancers",
+      "the shots' figures",
+      "the second sheet's stills beside them, compared by PSNR (phone identical; the hero views 89.7 dB; dancer stills 68.1 dB)",
+      "the shots' index line"
+    ],
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 3,
+      "variety": 4,
+      "budget": 4
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "lowerThanOld": [],
+    "reasons": {
+      "phone": "Pixel-identical to the second sheet's. A send-off in one look (SAFE JOURNEY, bunting, lights, the agbada and the gele). Not 5: the banner is cut to AFE JOURNE with bunting hung over its letters, the woman in front is cut by the right edge, and the player's diamond sits on the banner's last letter.",
+      "silhouette": "Unchanged from the second sheet: the window, door, plastic chairs, small chops table and cooler give the hero view a room's shape. The ceiling slab stays out of view.",
+      "proportion": "Unchanged: chairs, table, bar, speakers and people agree. The red fridge is still tall, and the cooler cut by the frame near the camera reads large.",
+      "palette": "Unchanged: palette only, the floor lets legs and shoes read, and the strips beside the banner are the palette's teal and gold. The black bar and speakers still merge on the dark wine wall.",
+      "wear": "Unchanged: the right things for a send-off in a parlour (chairs, cooler, small chops table, window, door). Not 4: no drinks crates, no standing fan, no family photos or calendar, no sofa, and the ground-floor window has no burglar bars.",
+      "variety": "Unchanged: the same family as the examples and the people sheet, and plainly its own room.",
+      "budget": "The shots' figures: 45 draw calls of the interior row's 50 (90%) and 12,978 triangles of 40,000 (32%); bytes are not given. Inside every figure given but over 80% on draw calls, so 4. The second sheet scored 0 at 51 draw calls."
+    },
+    "rCity038": {
+      "crowdIdlesWithRandomPhase": true,
+      "tapToWalkOnWalkableGround": true,
+      "motionFollowsR025To027": "not shown: the recording is the second sheet's; the bunting and the banner's edge move, but the shared clock and wind cannot be seen",
+      "bothMeshLevels": "not shown",
+      "insideBudgetOnPhoneProfile": true,
+      "verdict": "Meets the bar as far as pictures and stats can show; the two mesh levels and the shared clock still need the place check's figures."
+    },
+    "notes": "Only the draw-call count changes (every still box merged into one mesh per colour), which is the one fault the second sheet fails on. The faults kept from the second sheet (banner cut and covered at phone size, the near woman cut, tall fridge, no crates, fan, photos or burglar bars, the near guest's arm in the dancer stills, the recording's black first second) still stand and are worth fixing. The shoot's plan view renders empty for this room and is left out of the shots. Faces and agbada sleeves are still faceted; that belongs to the people's models."
+  }
+]

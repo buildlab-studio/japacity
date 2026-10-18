@@ -1,0 +1,181 @@
+{
+  "asset": "veh_abra",
+  "file": "public/assets/places/deira/veh_abra.glb",
+  "fileSha256": "e18af8608008f57c0b9278af76417386e79a67394ddc1a0d6ff1f1cb0d5d497d",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/veh/abra/renders/front.png",
+      "sha256": "1b5eb724719116d89a5721b8641c467fe39d8c75aa05ceb9c9d2cadd58a653f2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.625,
+          51.034331297433305
+        ],
+        "target": [
+          0,
+          1.625,
+          0.07015228271484375
+        ],
+        "width": 4.679826857914664,
+        "height": 3.5098701434359985
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/veh/abra/renders/back.png",
+      "sha256": "3875a4186f40aabb6ffeecbc4c7890de07f801ee022919d338082b9d03645919",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.625,
+          -50.89402673200362
+        ],
+        "target": [
+          0,
+          1.625,
+          0.07015228271484375
+        ],
+        "width": 4.679826857914664,
+        "height": 3.5098701434359985
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/veh/abra/renders/left.png",
+      "sha256": "7240561a6eff5c374390bdfa8fbc49985669c972d9b8a3912035d5edd78d1ee9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -50.96417901471846,
+          1.625,
+          0.07015228271484375
+        ],
+        "target": [
+          0,
+          1.625,
+          0.07015228271484375
+        ],
+        "width": 10.087528724670412,
+        "height": 7.565646543502809
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/veh/abra/renders/right.png",
+      "sha256": "8e2cd06428e87bc742a0f0cc9b09307abe7bf46297c5647ff4716960ebc2053e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          50.96417901471846,
+          1.625,
+          0.07015228271484375
+        ],
+        "target": [
+          0,
+          1.625,
+          0.07015228271484375
+        ],
+        "width": 10.087528724670412,
+        "height": 7.565646543502809
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/veh/abra/renders/threeQuarter.png",
+      "sha256": "87eacc309000a7ff19bfa826b04484083404938406aa4d1a4dded3516f142420",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.831101124416975,
+          11.285053616696635,
+          11.901253407131822
+        ],
+        "target": [
+          0,
+          1.625,
+          0.07015228271484375
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/veh/abra/renders/phone.png",
+      "sha256": "316ce8b947f67a7f88c685563e6ee7d551ea349f9c50b3815faf89e95ea554c1",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          16.740304470062256
+        ],
+        "target": [
+          0,
+          1.5,
+          4.740304470062256
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/veh/abra/renders/tile.png",
+      "sha256": "c8f43e74b2a085b8b064daf298849a94ab3acb2026e0d970ec93117f0b9573db",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          9.500396687631982,
+          9.073026237890877,
+          9.688197027091382
+        ],
+        "target": [
+          0.050498166417076384,
+          1.3572164052049327,
+          0.23829850587647536
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

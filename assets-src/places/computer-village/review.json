@@ -1,0 +1,75 @@
+{
+  "piece": "place.computer-village, the shops across the street and the repairers' pitches",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.computer-village"
+  ],
+  "low": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "SCREEN CHANGE WHILE YOU WAIT and UK USED LAPTOPS BEST PRICE over dark shops, a repairer's table under an umbrella: Computer Village in one look. Not 5: the camera faces a flat wall, a balcony slab cuts across the top, and the bottom quarter is bare laterite. Packed over 9 people, Busy in the high mode over 13.",
+      "silhouette": "The plan's top half is the street with its umbrellas, okadas and the plaza; the bottom half is a blank roof (the near plaza behind the camera) and bare ground: half says the place.",
+      "proportion": "Shops, tables, umbrellas, okadas and people agree.",
+      "palette": "Palette only, but bare orange laterite fills the bottom of every view and the shop interiors are flat black; the mint walls are dull.",
+      "wear": "Umbrellas, repair tables, phone covers hung at the doors, an okada, bunting, paper litter, boards lettered with the trade.",
+      "variety": "Same family; its own place, though the shop buildings are near copies of the market's block.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 29 and 24,182, check 23 and 17,938 moving: 36% and 30% at most."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 3,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "As low, with a hawker in the near frame. The same bare laterite and flat wall.",
+      "silhouette": "As low.",
+      "proportion": "As low.",
+      "palette": "As low: the high mode changes little here because the camera looks at a wall 10 m away.",
+      "wear": "As low.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 57 and 55,914 (71% and 70%), check 47 and 44,234 moving. At or under 80%."
+    }
+  },
+  "figures": "Preview (Pixel 7): low phone 29 draw calls and 24,182 triangles, high phone 57 and 55,914; desktop high 59 and 55,926. The place check (pnpm check:assets, cheap phone profile, start camera): low still 17 draw calls and 16,706 triangles, moving 23 and 17,938, script at most 71 us; high still 41 and 41,466, moving 47 and 44,234, script at most 110 us.",
+  "predates": "The shots predate the band word set against the target, the smooth blended smoke, the shipped grids and the real names (the band word is the old one). Scored as shown.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 6 draw calls (limit 6) and 110 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Meets the bar as far as the check's figures and the pictures show. The look passes the sheet in both modes, at 27 of 35."
+  },
+  "notes": "The near side of the street (the second plaza, signs 5 to 8) stands behind the camera, which is why the lower frame is bare; a stall or a parked car on the near pavement would fill it."
+}

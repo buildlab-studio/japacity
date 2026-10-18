@@ -1,0 +1,75 @@
+{
+  "piece": "place.tejuosho-market, the market's aisle of stalls",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.tejuosho-market"
+  ],
+  "low": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 28,
+    "mean": 4.0,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "A market aisle in one look: stalls under coloured awnings both sides, bunting, basins on the ground, a hawker with a tray on her head. Not 5: the fog turns the market block at the aisle's end to a ghost, so its boards cannot be read, and the header cuts the name to TEJUOSH... The band says Packed over 9 people where the high mode says Busy over 13, the busier picture with the quieter word.",
+      "silhouette": "The plan says market: two long rows of stall roofs either side of an aisle, umbrellas at the road, the market blocks behind. Not 5: large bare laterite and roof areas.",
+      "proportion": "Stalls, counters, basins, people and the market block's storeys agree.",
+      "palette": "Palette only and the awnings carry the frame, but the fog washes everything beyond about 15 m to the sky's colour, and the aisle floor is one dark flat brown.",
+      "wear": "Awnings, bunting, cloth on shelves, basins of tomatoes and peppers, trays, crates, litter. Not 5: no bales, sacks or puddles in the aisle, nobody seated.",
+      "variety": "Same family as the hub; plainly its own place.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 31 and 35,048, check 28 and 31,602 moving: 39% and 44% at most. At or under 80%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 5,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 4,
+      "variety": 4,
+      "budget": 4
+    },
+    "total": 29,
+    "mean": 4.14,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "Named in one look and the key part shows: the aisle, its awnings, and the market block at the end with its lettered boards and balcony. The diamond sits clear against a board.",
+      "silhouette": "As low.",
+      "proportion": "As low; shadows sit people on the ground.",
+      "palette": "Fuller colour, the market block's peach and its boards read against the sky; the aisle floor still one dark flat brown.",
+      "wear": "As low. The smoke at the desktop's right edge is faceted grey balls (predates the smooth puff).",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 59 and 64,680 (74% and 81%), check 55 and 61,626 moving (69% and 77%). Inside, over 80% on the preview's triangles, so 4."
+    }
+  },
+  "figures": "Preview (Pixel 7, software renderer, high with the shadow pass): low phone 31 draw calls and 35,048 triangles, high phone 59 and 64,680; desktop the same. The place check (pnpm check:assets, cheap phone profile, start camera): low still 22 draw calls and 29,862 triangles, moving 28 and 31,602, script at most 65 us; high still 49 and 57,632, moving 55 and 61,626, script at most 107 us.",
+  "predates": "The shots predate the band word set against the target, the smooth blended smoke, the shipped grids and the real names. The smoke at the desktop's right edge is the old faceted kind and the band words are the old ones; scored as shown.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 6 draw calls (limit 6) and 107 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "Meets the bar as far as the check's figures and the pictures show. The look passes the sheet in both modes."
+  },
+  "notes": "A place has no orthographic views: silhouette is read from the plan, phone from the two phone shots, as the hub's sheets did. The stall pieces repeat down the aisle as a market's do."
+}

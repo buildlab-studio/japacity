@@ -1,0 +1,181 @@
+{
+  "asset": "prop_nol-machine",
+  "file": "public/assets/places/metro-station-uae/prop_nol-machine.glb",
+  "fileSha256": "9d7859839e8cc521fb2aed4168b56e742fd1e9b5322726eddc5a1286ecf90f75",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/nol-machine/renders/front.png",
+      "sha256": "c61649dac2bc9897fbd783cf474c358c3b75972b105ef24eba14aa1b12841d8f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.019999981597066,
+          19.26793653072042
+        ],
+        "target": [
+          0,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "width": 2.937599943137169,
+        "height": 2.2031999573528767
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/nol-machine/renders/back.png",
+      "sha256": "fa8fc818c9f63cb3b8e26c2a1a9256251dff4ec942b5d157b849b3e168c152a5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.019999981597066,
+          -19.245936515938467
+        ],
+        "target": [
+          0,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "width": 2.937599943137169,
+        "height": 2.2031999573528767
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/nol-machine/renders/left.png",
+      "sha256": "2323f22ab9277cf7bb124c7421da60a0384627eb573a384e04eeefb9f537d572",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -19.256936523329443,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "target": [
+          0,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "width": 2.937599943137169,
+        "height": 2.2031999573528767
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/nol-machine/renders/right.png",
+      "sha256": "2b314073b19af7fc9ff4828c88e14bf14ea16824d2329ab17769dce99e6b7fef",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          19.256936523329443,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "target": [
+          0,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "width": 2.937599943137169,
+        "height": 2.2031999573528767
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/nol-machine/renders/threeQuarter.png",
+      "sha256": "450100c8f5423da73f6eeb4e14f19c30c782825b958d9a1b434c07e68a814950",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.673549299510409,
+          3.202943843589032,
+          2.6845493069013853
+        ],
+        "target": [
+          0,
+          1.019999981597066,
+          0.011000007390975952
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/nol-machine/renders/phone.png",
+      "sha256": "11e8a75e85215e65a142459a2c6419d63b2acb708c0d519f79455aa187da452a",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.27198452945482
+        ],
+        "target": [
+          0,
+          1.5,
+          0.27198452945482005
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/nol-machine/renders/tile.png",
+      "sha256": "5c79ce7249770ce5765d18c4d0b4386eec68004ef4831562c686120df94df822",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.760427313922809,
+          3.287014291414674,
+          2.7561104271033177
+        ],
+        "target": [
+          0.0017221264795130786,
+          1.0345409380796415,
+          -0.002594760339978774
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_laptop-desk",
+  "file": "public/assets/shared/prop/prop_laptop-desk.glb",
+  "fileSha256": "330be954b31579d6cc76d9daa117d9d58f6477dca42191b26545ecce2d7acbc0",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/home/laptop-desk/renders/front.png",
+      "sha256": "7e1c488e6be3f078e3054384f6c0382f5a666b1444ad1db2bf45c764529d4d1c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.49135044753551504,
+          16.174500083642137
+        ],
+        "target": [
+          0,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "width": 1.4150892580032342,
+        "height": 1.0613169435024257
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/home/laptop-desk/renders/back.png",
+      "sha256": "128fe859f3f6944baaf2fefb3c3e05a1293c5e63229f4bcb65feecf4b36f6760",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.49135044753551504,
+          -15.952000087218416
+        ],
+        "target": [
+          0,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "width": 1.4150892580032342,
+        "height": 1.0613169435024257
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/home/laptop-desk/renders/left.png",
+      "sha256": "e6336b812a5d1d8d264c02d661bc600f7da224f4e27f1cf533cd15e0aeff3b1f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -16.063250085430276,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "target": [
+          0,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "width": 1.4150892580032342,
+        "height": 1.0613169435024257
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/home/laptop-desk/renders/right.png",
+      "sha256": "6dfbd2cba9e457506e1c81bb1c882ea4e07b393e8c2d1f49ecfbf1126df95f59",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          16.063250085430276,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "target": [
+          0,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "width": 1.4150892580032342,
+        "height": 1.0613169435024257
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/home/laptop-desk/renders/threeQuarter.png",
+      "sha256": "01b6b3d02f1bd4208aba4341287e67d38332a7fed2a6d7a75e1052a1ebfc8748",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.7511622746688278,
+          1.9211684574522323,
+          1.8624122728806887
+        ],
+        "target": [
+          0,
+          0.49135044753551504,
+          0.11124999821186066
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/home/laptop-desk/renders/phone.png",
+      "sha256": "04ed67f8115688bc9dc10a78feded83e8c885dfb24c8ec6ec80bfb2576623ea8",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.472501360042656
+        ],
+        "target": [
+          0,
+          1.5,
+          0.47250136004265664
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/laptop-desk/renders/tile.png",
+      "sha256": "8fc2a387659012053ec01d59e3f177fca548812b754f85fec0178b90e4c20a35",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.5790114069994388,
+          1.6907864489024471,
+          1.5431011835095159
+        ],
+        "target": [
+          0.08268716207888231,
+          0.4690428189655515,
+          0.046776938588959226
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_water-cooler",
+  "file": "public/assets/places/site-uae/prop_water-cooler.glb",
+  "fileSha256": "7d9b537fea8f2bfb59009401032bdd7335854f2727ea6033b21ec2b131c0cfb4",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/water-cooler/renders/front.png",
+      "sha256": "b3a598a0804e70568503420f7591515bc2e8c0522bcc1a8c50fda1947ba4078a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.19499999284744263,
+          0.7499999970197677,
+          17.683032020479843
+        ],
+        "target": [
+          0.19499999284744263,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "width": 2.160000008583069,
+        "height": 1.620000006437302
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/water-cooler/renders/back.png",
+      "sha256": "0c07a2449e50509b25e99c2f4fff0f81b97308bbaf82dc24eb4c6f718f617970",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.19499999284744263,
+          0.7499999970197677,
+          -17.663032009751007
+        ],
+        "target": [
+          0.19499999284744263,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "width": 2.160000008583069,
+        "height": 1.620000006437302
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/water-cooler/renders/left.png",
+      "sha256": "93289eb74ca7f82bca97f13e1df209e250e6d9034259ddd5280955bc44ba606f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.478032022267982,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "target": [
+          0.19499999284744263,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "width": 2.160000008583069,
+        "height": 1.620000006437302
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/water-cooler/renders/right.png",
+      "sha256": "9c6d42d265bdb6eb1cb8a37951ec20d33e3f2a1f3c50b0b2dad2be2215e47188",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.868032007962867,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "target": [
+          0.19499999284744263,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "width": 2.160000008583069,
+        "height": 1.620000006437302
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/water-cooler/renders/threeQuarter.png",
+      "sha256": "3ee4d58f96ce9d5e8c40a4b3ffa8819df0b6483e0d7fba2ae2c17e772991cbc8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.411092683710405,
+          2.5594321021283006,
+          2.226092696227381
+        ],
+        "target": [
+          0.19499999284744263,
+          0.7499999970197677,
+          0.01000000536441803
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/water-cooler/renders/phone.png",
+      "sha256": "a714d7f34164f287c32639c80815b3a17ccda95c4c26ca89a5d4d267cdb929a4",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.19499999284744263,
+          1.6,
+          12.330009467373959
+        ],
+        "target": [
+          0.19499999284744263,
+          1.5,
+          0.3300094673739589
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/water-cooler/renders/tile.png",
+      "sha256": "635f72f2fa3e095609012212dc83ea0d5e5d11aa99667cc8e90a34bd57e06ac7",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.3322150749497594,
+          2.4950269072912583,
+          2.251009666280146
+        ],
+        "target": [
+          0.15607760661916326,
+          0.7182181047706085,
+          0.07487219794954933
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

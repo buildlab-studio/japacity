@@ -1,0 +1,181 @@
+{
+  "asset": "prop_shop-aisle",
+  "file": "public/assets/places/big-shop-uk/prop_shop-aisle.glb",
+  "fileSha256": "64047501de067f90db8c9a51f50e88d49282e9f8ae190f8858513d04c3d7fe85",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/shop-aisle/renders/front.png",
+      "sha256": "5a9cc3fd9f5e8335be95831ed55c785b3530ec9183c35f714e62d2d95ebd248f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2300000187009574,
+          29.204931957184662
+        ],
+        "target": [
+          0,
+          1.2300000187009574,
+          0
+        ],
+        "width": 4.32,
+        "height": 3.24
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/shop-aisle/renders/back.png",
+      "sha256": "2e5998feb1f935285f58c8c4f4fd87e67bd593b276bd031ac35069d5e78e61de",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2300000187009574,
+          -29.204931957184662
+        ],
+        "target": [
+          0,
+          1.2300000187009574,
+          0
+        ],
+        "width": 4.32,
+        "height": 3.24
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/shop-aisle/renders/left.png",
+      "sha256": "61bb25d22b1d2e080b0e3ac1a5162a18e92f9483d2c2c7488156deed2d4abd73",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -29.204931957184662,
+          1.2300000187009574,
+          0
+        ],
+        "target": [
+          0,
+          1.2300000187009574,
+          0
+        ],
+        "width": 3.5424518570513013,
+        "height": 2.656838892788476
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/shop-aisle/renders/right.png",
+      "sha256": "1078d9a2f4454c25fcd08814ba2ef75f5cd35027405060b214ba60edf7811dc9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          29.204931957184662,
+          1.2300000187009574,
+          0
+        ],
+        "target": [
+          0,
+          1.2300000187009574,
+          0
+        ],
+        "width": 3.5424518570513013,
+        "height": 2.656838892788476
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/shop-aisle/renders/threeQuarter.png",
+      "sha256": "27bf8578b85a5407d4c6718011b441282edf5c112ea7dd50959955f799f96f95",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.546687314088737,
+          5.758851246129603,
+          5.546687314088738
+        ],
+        "target": [
+          0,
+          1.2300000187009574,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/shop-aisle/renders/phone.png",
+      "sha256": "93471bb0ecacab348e6f2ebf4a193461ad5bf8745c67716719269933e83fd965",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.500015259254738
+        ],
+        "target": [
+          0,
+          1.5,
+          0.500015259254738
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/shop-aisle/renders/tile.png",
+      "sha256": "a63a1a99b985fef8f4c23072cad254c4cb55a8b81e1d59a851541e15de4d3f77",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.780426101911632,
+          4.504573587273689,
+          4.452655613771594
+        ],
+        "target": [
+          0.31539116250444604,
+          0.8588878255248847,
+          -0.012379325635592957
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

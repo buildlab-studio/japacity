@@ -1,0 +1,229 @@
+{
+  "asset": "chr_kemi",
+  "file": "public/assets/shared/chr/chr_kemi.glb",
+  "fileSha256": "e83a8ec649c034405c06a031144dc3689ca9e96cc88d0b8847fd9f693c1c8148",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/people/kemi/renders/front.png",
+      "sha256": "d6cb6e2cd6206758fd38b9d040e05466b9e9dcc6ebb193f6cfa28e5f804d4d8a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8584749764932037,
+          17.32514021254059
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/people/kemi/renders/back.png",
+      "sha256": "581011582c23000f48c1755e4d961c1d0b095a338a447c988166e9d20e7d39ac",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8584749764932037,
+          -17.268669177656136
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/people/kemi/renders/left.png",
+      "sha256": "ad5c5f16f31dc17b70667bfbdedee2efbb57e4acebce4c5f52f1080544d8df74",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.296904695098362,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/people/kemi/renders/right.png",
+      "sha256": "0bd1d011ee466c92cfc241d22d98f2c14a15391d486a1bafec0d433e01ff78bf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.296904695098362,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/people/kemi/renders/threeQuarter.png",
+      "sha256": "1ea39aad2fd5c3f4ed991c0a3f27572f1002141143ba7e2fd2d5a819c744a7a9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1074611872954447,
+          2.5792098303578204,
+          2.1356967047376716
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/people/kemi/renders/phone.png",
+      "sha256": "35a70c2abe65f5ae6d21a06b80326fc6cb0b8bf7b67f39b7df79dd3eae676557",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.197693084661674
+        ],
+        "target": [
+          0,
+          1.5,
+          0.19769308466167435
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "assets-src/people/kemi/renders/face.png",
+      "sha256": "b00dafeb8edbac831a34d87979cb265cfdd5ebfcb157daf6c2771882458fd0c2",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7465925108100147,
+          1.5452549677478042,
+          1.6293083236749102
+        ],
+        "target": [
+          0,
+          1.4765769686223442,
+          0.02823551744222641
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "assets-src/people/kemi/renders/figure.png",
+      "sha256": "87b622fd8ce79050dad80620b7ab76025f9d8996a8b68b99f571bb029312bc2f",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.900469921077295,
+          1.062140795091681,
+          4.066381733479939
+        ],
+        "target": [
+          0.01745141578928011,
+          0.8555079281050826,
+          0.02823551744222641
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "assets-src/people/kemi/renders/cheer.png",
+      "sha256": "fef0d442fc35d61ddaa6e84ae32ef28dba9814457adf15aef191a83f5f0c929f",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.023367131233317,
+          1.1471757103127145,
+          4.349970474695011
+        ],
+        "target": [
+          0,
+          0.9251416994312123,
+          0.010845659033591207
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

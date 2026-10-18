@@ -1,0 +1,181 @@
+{
+  "asset": "prop_bus-pole",
+  "file": "public/assets/places/castel-volturno/prop_bus-pole.glb",
+  "fileSha256": "352c442129ca8fa0d3bff6f5adf79653d17da6056b42dd9307a964615cf4d075",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/front.png",
+      "sha256": "694268f6462fe4802d519fc06b303c46aee151c53e50da205b68418c6c288f78",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.034999996423721313,
+          1.5,
+          22.37628018733693
+        ],
+        "target": [
+          0.034999996423721313,
+          1.5,
+          -0.04000000283122063
+        ],
+        "width": 4.32,
+        "height": 3.24
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/back.png",
+      "sha256": "eced7226c3ffee3c0f25f6720a6813b94a157011e60caecc2f50c439498ae9b0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.034999996423721313,
+          1.5,
+          -22.456280192999373
+        ],
+        "target": [
+          0.034999996423721313,
+          1.5,
+          -0.04000000283122063
+        ],
+        "width": 4.32,
+        "height": 3.24
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/left.png",
+      "sha256": "6b9ea1b8a43dc46eac0c34fe2169fab5acd35917edf7eae8475cc08fe9444adf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -22.38128019374443,
+          1.5,
+          -0.04000000283122063
+        ],
+        "target": [
+          0.034999996423721313,
+          1.5,
+          -0.04000000283122063
+        ],
+        "width": 4.32,
+        "height": 3.24
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/right.png",
+      "sha256": "49b7537f08807c3f7fe9e7976d81462d3d5566fca299587dbe1c9971ac3718c1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          22.451280186591873,
+          1.5,
+          -0.04000000283122063
+        ],
+        "target": [
+          0.034999996423721313,
+          1.5,
+          -0.04000000283122063
+        ],
+        "width": 4.32,
+        "height": 3.24
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/threeQuarter.png",
+      "sha256": "49dfb7c0f555690e41d7c28d0eecc45ebd5b065a954dabc1867b73585983bde2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.621017586723626,
+          4.4279711016265555,
+          3.546017587468685
+        ],
+        "target": [
+          0.034999996423721313,
+          1.5,
+          -0.04000000283122063
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/phone.png",
+      "sha256": "a0d0b451bf483e282d14f25ef2c0ecd581ce8453998b1964fe1f6c68e560e771",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.034999996423721313,
+          1.6,
+          12.119993283096695
+        ],
+        "target": [
+          0.034999996423721313,
+          1.5,
+          0.11999328309669466
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/places/castel-volturno/bus-pole/renders/tile.png",
+      "sha256": "710fe9ca2d72fd95fdb924ad090f6414da54ba07812e59f2ce34223e422cf2c7",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.15758547540501,
+          4.278489071345312,
+          3.143997069436838
+        ],
+        "target": [
+          -0.05811804140043274,
+          1.652878144596404,
+          -0.07170644736860501
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 5,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "The whole shop is in the phone shot: MAMA NKECHI PROVISIONS STORE legible, goods on a table in the doorway, crates and the NO CREDIT TODAY board; named in one look.",
+    "silhouette": "Only the front says a shop; the sides and back are a plain box under a mono-pitch sheet, with the table and crates showing at one side.",
+    "proportion": "Door, shutter box, window and board agree with the person; the sacks now read as folded A-frame boards rather than sacks.",
+    "palette": "Palette only; the yellow board and coloured goods carry it, the cream walls are lighter than the sand, the worn band sits low.",
+    "wear": "Goods table, crates, sacks, posters on the side wall, the painted notice, drain and slab, worn band; the roof sheet is clean.",
+    "variety": "Same family as the shop row's units (boards, drain), its own lock-up under a lean-to roof.",
+    "budget": "Read from the register row: triangles 316 of 1,200, drawCalls 2 of 2, materials 2 of 2, bytes 5,644 of 30,000; inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

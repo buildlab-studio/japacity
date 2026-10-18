@@ -1,0 +1,77 @@
+{
+  "piece": "place.deira, the street's foot at the creek with the abras",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the shots' figures",
+    "the place's table of figures",
+    "pnpm check:assets, its place check lines for place.deira"
+  ],
+  "low": {
+    "scores": {
+      "phone": 3,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 26,
+    "mean": 3.71,
+    "accepted": false,
+    "failing": [
+      "phone"
+    ],
+    "reasons": {
+      "phone": "The national flag on its mast and the moored abras' canopies; the far bank and the arcades are fog. Named Dubai's creek on a second look. The bottom 40% is bare road.",
+      "silhouette": "The plan says creek and street: four abras moored bow on, the flag, the far bank, the street with its labour bus between the arcades.",
+      "proportion": "Abras, the mast, the bus and people agree.",
+      "palette": "Sand buildings, sand pavement and a sand sky with fog the same colour: palette only, flat. The flag and the green canopies carry it.",
+      "wear": "The typing centre's boards, AC units in the windows, the labour bus, a palm, litter. No hand carts, sacks or crowds of a Deira street.",
+      "variety": "Plainly its own place.",
+      "budget": "Exterior row 80 and 80,000. Low: preview 28 and 19,620, check 27 and 21,256 moving: 35% and 27%."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 4,
+      "budget": 5
+    },
+    "total": 27,
+    "mean": 3.86,
+    "accepted": true,
+    "failing": [],
+    "reasons": {
+      "phone": "The far bank's arcades now show behind the abras and the flag: Deira at the creek in one look. Not 5: the bare road fills the bottom 40%, and the far boards are blank.",
+      "silhouette": "As low.",
+      "proportion": "As low.",
+      "palette": "Better than low, but still sand on sand; the water's lagoon colour reads.",
+      "wear": "As low.",
+      "variety": "As low.",
+      "budget": "Exterior row 80 and 80,000. High: preview 49 and 53,702 (61% and 67%), check 48 and 56,492 moving (60% and 71%)."
+    }
+  },
+  "figures": "Preview: low phone 28 draw calls and 19,620 triangles, high phone 49 and 53,702; desktop high 51 and 53,750. The place check (pnpm check:assets, cheap phone profile, start camera): low still 21 draw calls and 18,874 triangles, moving 27 and 21,256, script at most 73 us; high still 42 and 43,392, moving 48 and 56,492, script at most 110 us.",
+  "predates": "Shot from a preview with no header, with the lagoon water. The shots show the band word set against the target and the smooth blended smoke, and predate the shipped grids and the real names.",
+  "rCity038": {
+    "crowdIdlesWithRandomPhase": "not shown: stills cannot show idle loops or their phase; the place check's moving frames animate the crowd",
+    "tapToWalkOnWalkableGround": "not shown: no shot after a tap",
+    "motionFollowsR025To027": "met by the check's figures: motion adds at most 6 draw calls (limit 6) and 110 us of script a frame (limit 500); one clock and one wind cannot be seen in stills",
+    "bothMeshLevels": "met by the check: it draws the low mode on the coarse grids and the high mode on the fine; the pictures do not show the levels",
+    "insideBudgetOnPhoneProfile": true,
+    "verdict": "The working parts meet the bar as far as the figures show. The look passes in the high mode and fails in the low on phone (3): the fog takes the far bank."
+  },
+  "notes": "The flag is the real national flag; it names no business but goes to a person's last check (assets:acceptance-score-thresholds). The kandura and cap of the man by the arcade are right for the place."
+}

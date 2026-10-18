@@ -1,0 +1,181 @@
+{
+  "asset": "veh_italy-bus",
+  "file": "public/assets/shared/veh/veh_italy-bus.glb",
+  "fileSha256": "15a66e5c03a5bf8fa0a7491037733b70528933255fc43392a5fce577b8a42552",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/veh/italy-bus/renders/front.png",
+      "sha256": "77fc58de9c800d4e72fe3c94dc3060c9e13cbe58a26128b48877003af4b3d195",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.649999976158142,
+          62.3134448290858
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 4.752161827528631,
+        "height": 3.564121370646473
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/veh/italy-bus/renders/back.png",
+      "sha256": "a4ab859292bb1084f1cfcdb7084c0e51d89f2b9e1fe5dbff84d7ad3684bbeb0d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.649999976158142,
+          -62.3134448290858
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 4.752161827528631,
+        "height": 3.564121370646473
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/veh/italy-bus/renders/left.png",
+      "sha256": "96d35328e707302cb7b2d61c7c0ae912abbd9d861e9190ed75e09c3b5b7b70ce",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -62.3134448290858,
+          1.649999976158142,
+          0
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 13.197600288391115,
+        "height": 9.898200216293336
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/veh/italy-bus/renders/right.png",
+      "sha256": "aab04d375c54e17c7069a9c0d8aa80cfdfa10d47a755adb142ae54994a82dc78",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          62.3134448290858,
+          1.649999976158142,
+          0
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 13.197600288391115,
+        "height": 9.898200216293336
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/veh/italy-bus/renders/threeQuarter.png",
+      "sha256": "4b11edd948f4fb41719710f1df9e72f46b4e36bca867a55c78fda6188736ac59",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          15.108948130442013,
+          13.986404466078403,
+          15.108948130442014
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/veh/italy-bus/renders/phone.png",
+      "sha256": "2189c3ca4afa79bef50b4392b700fd40d96705ae396190c470eb7ea85f8515dd",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          18.110000133514404
+        ],
+        "target": [
+          0,
+          1.5,
+          6.110000133514404
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/veh/italy-bus/renders/tile.png",
+      "sha256": "04718a88e21be297a604a3a2f117bd07d5457c57759e18b45ad974a34c887639",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          12.714872344665494,
+          11.68213862563138,
+          13.802137162957292
+        ],
+        "target": [
+          -0.30070881070097244,
+          1.0549611134873185,
+          0.7865560075908224
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

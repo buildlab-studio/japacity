@@ -1,0 +1,593 @@
+{
+  "place": "place.their-room",
+  "scope": "interior",
+  "hub": false,
+  "note": "Their room (world:nobody-picked-from-list, person:time-together-is-an-act): one shared room, on the map once a bond is courting, where time together is a visit, dressed for the person whose room it is. Counts are the most in view from the whole view, of any dressing; the plain room's crowd is the entry's few figures, and a room dressed for a person shows no crowd, only the partner.",
+  "instances": [
+    {
+      "file": "places/compound-room/bld_room_compound.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_bed.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_plastic-chair.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_dining-table.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_cooking-corner.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_lantern.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_travel-bag.glb",
+      "count": 2
+    }
+  ],
+  "people": {
+    "low": 2,
+    "high": 4,
+    "sample": [
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_segun.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "Somebody else's room as they keep it, the size of a room in a compound and built from its shell: the mattress against the back wall, a plastic chair under the window where the two of you spend time (activity.see-someone), and the door, which opens the map. Nobody is met here. One room for every bond, dressed for the person whose room it is (world:nobody-picked-from-list): a prop or two from the shared kit that say who lives here, and the partner standing clear of the chair and the door, the only figure in it, their name with the computer mark on a tap.",
+    "ground": {
+      "size": [
+        4.6,
+        4.1
+      ],
+      "colour": "concrete"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete"
+    },
+    "start": [
+      1.0,
+      0.2,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -1.7,
+          -1.45
+        ],
+        [
+          1.7,
+          -1.45
+        ],
+        [
+          1.7,
+          1.45
+        ],
+        [
+          -1.7,
+          1.45
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/compound-room/bld_room_compound.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bed.glb",
+        "at": [
+          [
+            -1.25,
+            -0.7,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "at": [
+          [
+            0.2,
+            -1.3,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            1.94,
+            0.2,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        0.75,
+        -0.95,
+        0.5
+      ],
+      [
+        1.35,
+        -1.1,
+        -0.8
+      ],
+      [
+        0.55,
+        1.2,
+        2.64
+      ],
+      [
+        1.3,
+        1.15,
+        -2.5
+      ]
+    ],
+    "acts": [],
+    "motion": [],
+    "dressings": [
+      {
+        "person": "person.tobi-bank",
+        "models": [
+          {
+            "file": "shared/prop/prop_dining-table.glb",
+            "at": [
+              [
+                1.2,
+                -0.95,
+                0
+              ]
+            ]
+          }
+        ],
+        "people": [
+          [
+            0.55,
+            1.2,
+            2.64
+          ],
+          [
+            1.3,
+            1.15,
+            -2.5
+          ],
+          [
+            -0.35,
+            -0.25,
+            0.9
+          ],
+          [
+            0.0,
+            0.15,
+            2.2
+          ]
+        ],
+        "motion": [],
+        "dancers": [],
+        "standing": [
+          {
+            "thing": "partner",
+            "person": "person.tobi-bank",
+            "file": "shared/chr/chr_kunle.glb",
+            "at": [
+              -0.45,
+              0.75,
+              -1.9
+            ]
+          }
+        ],
+        "crowd": {
+          "low": 0,
+          "high": 0,
+          "target": 0
+        }
+      },
+      {
+        "person": "person.amaka-nurse",
+        "models": [
+          {
+            "file": "shared/prop/prop_cooking-corner.glb",
+            "at": [
+              [
+                1.1,
+                -1.45,
+                0
+              ]
+            ]
+          },
+          {
+            "file": "shared/prop/prop_lantern.glb",
+            "at": [
+              [
+                -0.3,
+                -1.45,
+                0
+              ]
+            ]
+          }
+        ],
+        "people": [
+          [
+            0.55,
+            1.2,
+            2.64
+          ],
+          [
+            1.3,
+            1.15,
+            -2.5
+          ],
+          [
+            -0.35,
+            -0.25,
+            0.9
+          ],
+          [
+            0.0,
+            0.15,
+            2.2
+          ]
+        ],
+        "motion": [],
+        "dancers": [],
+        "standing": [
+          {
+            "thing": "partner",
+            "person": "person.amaka-nurse",
+            "file": "shared/chr/chr_tolani.glb",
+            "at": [
+              -0.45,
+              0.75,
+              -1.9
+            ]
+          }
+        ],
+        "crowd": {
+          "low": 0,
+          "high": 0,
+          "target": 0
+        }
+      },
+      {
+        "person": "person.kelechi-dev",
+        "models": [
+          {
+            "file": "shared/prop/prop_dining-table.glb",
+            "at": [
+              [
+                1.2,
+                -0.95,
+                0
+              ]
+            ]
+          },
+          {
+            "file": "shared/prop/prop_travel-bag.glb",
+            "at": [
+              [
+                -1.2,
+                0.6,
+                0
+              ]
+            ]
+          }
+        ],
+        "people": [
+          [
+            0.55,
+            1.2,
+            2.64
+          ],
+          [
+            1.3,
+            1.15,
+            -2.5
+          ],
+          [
+            -0.35,
+            -0.25,
+            0.9
+          ],
+          [
+            0.0,
+            0.15,
+            2.2
+          ]
+        ],
+        "motion": [],
+        "dancers": [],
+        "standing": [
+          {
+            "thing": "partner",
+            "person": "person.kelechi-dev",
+            "file": "shared/chr/chr_dayo.glb",
+            "at": [
+              -0.45,
+              0.75,
+              -1.9
+            ]
+          }
+        ],
+        "crowd": {
+          "low": 0,
+          "high": 0,
+          "target": 0
+        }
+      },
+      {
+        "person": "person.funmi-uk",
+        "models": [
+          {
+            "file": "shared/prop/prop_travel-bag.glb",
+            "at": [
+              [
+                -1.2,
+                0.6,
+                0
+              ]
+            ]
+          },
+          {
+            "file": "shared/prop/prop_lantern.glb",
+            "at": [
+              [
+                -0.3,
+                -1.45,
+                0
+              ]
+            ]
+          }
+        ],
+        "people": [
+          [
+            0.55,
+            1.2,
+            2.64
+          ],
+          [
+            1.3,
+            1.15,
+            -2.5
+          ],
+          [
+            -0.35,
+            -0.25,
+            0.9
+          ],
+          [
+            0.0,
+            0.15,
+            2.2
+          ]
+        ],
+        "motion": [],
+        "dancers": [],
+        "standing": [
+          {
+            "thing": "partner",
+            "person": "person.funmi-uk",
+            "file": "shared/chr/chr_sade.glb",
+            "at": [
+              -0.45,
+              0.75,
+              -1.9
+            ]
+          }
+        ],
+        "crowd": {
+          "low": 0,
+          "high": 0,
+          "target": 0
+        }
+      },
+      {
+        "person": "person.ifeoma-ca",
+        "models": [
+          {
+            "file": "shared/prop/prop_travel-bag.glb",
+            "at": [
+              [
+                -1.2,
+                0.6,
+                0
+              ]
+            ]
+          }
+        ],
+        "people": [
+          [
+            0.55,
+            1.2,
+            2.64
+          ],
+          [
+            1.3,
+            1.15,
+            -2.5
+          ],
+          [
+            -0.35,
+            -0.25,
+            0.9
+          ],
+          [
+            0.0,
+            0.15,
+            2.2
+          ]
+        ],
+        "motion": [],
+        "dancers": [],
+        "standing": [
+          {
+            "thing": "partner",
+            "person": "person.ifeoma-ca",
+            "file": "shared/chr/chr_ada.glb",
+            "at": [
+              -0.45,
+              0.75,
+              -1.9
+            ]
+          }
+        ],
+        "crowd": {
+          "low": 0,
+          "high": 0,
+          "target": 0
+        }
+      },
+      {
+        "person": "person.chidi-dubai",
+        "models": [
+          {
+            "file": "shared/prop/prop_travel-bag.glb",
+            "at": [
+              [
+                -1.2,
+                0.6,
+                0
+              ],
+              [
+                -1.2,
+                1.15,
+                0
+              ]
+            ]
+          }
+        ],
+        "people": [
+          [
+            0.55,
+            1.2,
+            2.64
+          ],
+          [
+            1.3,
+            1.15,
+            -2.5
+          ],
+          [
+            -0.35,
+            -0.25,
+            0.9
+          ],
+          [
+            0.0,
+            0.15,
+            2.2
+          ]
+        ],
+        "motion": [],
+        "dancers": [],
+        "standing": [
+          {
+            "thing": "partner",
+            "person": "person.chidi-dubai",
+            "file": "shared/chr/chr_segun.glb",
+            "at": [
+              -0.45,
+              0.75,
+              -1.9
+            ]
+          }
+        ],
+        "crowd": {
+          "low": 0,
+          "high": 0,
+          "target": 0
+        }
+      }
+    ],
+    "shot": {
+      "centre": [
+        0.0,
+        0.6,
+        0.0
+      ],
+      "far": 13,
+      "near": 4,
+      "farPitch": 60,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 90,
+      "width": 4.3
+    },
+    "things": [
+      {
+        "id": "time-together",
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "copy": 0,
+        "label": "city.thing.chair",
+        "at": [
+          0.2,
+          -0.75
+        ],
+        "acts": [
+          {
+            "id": "together",
+            "label": "city.act.spend-time",
+            "kind": "sheet",
+            "stages": "activity.see-someone"
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          1.3,
+          0.2
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

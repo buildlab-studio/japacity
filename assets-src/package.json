@@ -1,0 +1,21 @@
+{
+  "name": "@japacity/assets-src",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "CC-BY-SA-4.0",
+  "description": "The sources of the city's models, never shipped: builders, specs, outlines, reviews, the register and the stage (docs/decisions/0009-models-are-code.md).",
+  "exports": {
+    "./*": "./*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@japacity/assets": "workspace:*",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0"
+  }
+}

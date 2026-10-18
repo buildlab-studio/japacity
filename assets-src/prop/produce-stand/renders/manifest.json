@@ -1,0 +1,181 @@
+{
+  "asset": "prop_produce-stand",
+  "file": "public/assets/places/rye-lane/prop_produce-stand.glb",
+  "fileSha256": "22f8fdb17f952377f81d89f9bfb113605ac7b47a1e28d845ca6fac2da03e92df",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/produce-stand/renders/front.png",
+      "sha256": "c714d8ca92bc806246933aa1b34a722f4db11e8cc30b098ed5d3afa6cc0894a0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2549999952316284,
+          0.5620763826370241,
+          22.325075028232828
+        ],
+        "target": [
+          0.2549999952316284,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "width": 2.9268000411987307,
+        "height": 2.1951000308990483
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/produce-stand/renders/back.png",
+      "sha256": "51eba54e00afe5d3810c89decd2e41a4ca91df4ba772919c3c5f25467f55f9d3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2549999952316284,
+          0.5620763826370241,
+          -22.225233344129816
+        ],
+        "target": [
+          0.2549999952316284,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "width": 2.9268000411987307,
+        "height": 2.1951000308990483
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/produce-stand/renders/left.png",
+      "sha256": "f7a3c0c40106e88394bc3c8fae9b713fe744b60d985c5fd2fad183aa08c74638",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -22.020154190949693,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "target": [
+          0.2549999952316284,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "width": 1.6187451260912153,
+        "height": 1.2140588445684115
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/produce-stand/renders/right.png",
+      "sha256": "25f3f5b078b426286a41d549c8c2393ecf7024d72c9e428478326538655a30df",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          22.53015418141295,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "target": [
+          0.2549999952316284,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "width": 1.6187451260912153,
+        "height": 1.2140588445684115
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/produce-stand/renders/threeQuarter.png",
+      "sha256": "778fc70093e3936ca2fa16059348eeb1c16b475b3d4b4eff1c24d94b1baa956f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.800258169265601,
+          3.4567675602418357,
+          3.5951790160854795
+        ],
+        "target": [
+          0.2549999952316284,
+          0.5620763826370241,
+          0.04992084205150604
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/produce-stand/renders/phone.png",
+      "sha256": "fc72aa6c4df344f7a0d06132ced5f037386aa76e8643fdbf343a734b41c56435",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.2549999952316284,
+          1.6,
+          12.499836922483635
+        ],
+        "target": [
+          0.2549999952316284,
+          1.5,
+          0.4998369224836338
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/produce-stand/renders/tile.png",
+      "sha256": "4cbe6caaceeef67a82b2fd05cef538c972fa333955ca30878f8d9348a81f6325",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.285532674573175,
+          2.823696838668695,
+          2.9417282234490814
+        ],
+        "target": [
+          0.3721781381562305,
+          0.4449528206539795,
+          0.028373687032136354
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "footprint": [14.0, 9.0],
+    "storeys": 3,
+    "roof": "flat",
+    "wall": "wallPeach",
+    "wear": 3,
+    "balconies": 1,
+    "stairs": "side",
+    "gate": false,
+    "clutterSeed": 51,
+    "signs": ["place.tejuosho-market.sign.1", "place.tejuosho-market.sign.2", "place.tejuosho-market.sign.3", "place.tejuosho-market.sign.4"]
+  },
+  "options": {
+    "signStyles": [
+      { "board": "red", "ink": "white" },
+      { "board": "danfoYellow", "ink": "black", "painted": true },
+      { "board": "white", "ink": "green", "border": "green" },
+      { "board": "blue", "ink": "white", "painted": true }
+    ]
+  }
+}

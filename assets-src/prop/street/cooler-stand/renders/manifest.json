@@ -1,0 +1,181 @@
+{
+  "asset": "prop_cooler-stand",
+  "file": "public/assets/shared/prop/prop_cooler-stand.glb",
+  "fileSha256": "6c15f3789649b28b8dee9b68721dd0493d9afc680312b7c843514b56d6741534",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/street/cooler-stand/renders/front.png",
+      "sha256": "175818bcb0b2c61a502f9cbefeee7f4633c0c07d3a68daad51c52cc0a659a784",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2500000298023224,
+          0.6100000154972076,
+          20.033263271071416
+        ],
+        "target": [
+          0.2500000298023224,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "width": 2.05200003862381,
+        "height": 1.5390000289678576
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/street/cooler-stand/renders/back.png",
+      "sha256": "71768d2aa4ad1814de6ca12ddd169028d0e676e037789b21ee35924ec533562d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2500000298023224,
+          0.6100000154972076,
+          -19.533263241269093
+        ],
+        "target": [
+          0.2500000298023224,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "width": 2.05200003862381,
+        "height": 1.5390000289678576
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/street/cooler-stand/renders/left.png",
+      "sha256": "d19da98ed6b113fd201272395542a85f6f5c349a72051c890ca741aeb8aa75a3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -19.533263226367932,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "target": [
+          0.2500000298023224,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "width": 1.7568114591975648,
+        "height": 1.3176085943981737
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/street/cooler-stand/renders/right.png",
+      "sha256": "ccfa933fa68d97b3bfed69350e2b711b3b09a5afe4da378a5ca09408ee15bc6a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          20.033263285972577,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "target": [
+          0.2500000298023224,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "width": 1.7568114591975648,
+        "height": 1.3176085943981737
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/street/cooler-stand/renders/threeQuarter.png",
+      "sha256": "7618f36acc641d9a5d40c7c175d338a6b4397461d049d5782493e62731bfecc9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.075560792754639,
+          2.917060717651311,
+          3.0755607778534784
+        ],
+        "target": [
+          0.2500000298023224,
+          0.6100000154972076,
+          0.2500000149011612
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/street/cooler-stand/renders/phone.png",
+      "sha256": "e9db3c32b71c9256a4d58e89aa0fb03e0ed9be33b476623529f1d00755762fa6",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.2500000298023224,
+          1.6,
+          12.719998803007343
+        ],
+        "target": [
+          0.2500000298023224,
+          1.5,
+          0.7199988030073432
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/street/cooler-stand/renders/tile.png",
+      "sha256": "8719b9695913d5b29e5b7ef18e9f6e20c23268179cfff4d7fc7a2f173df6cb1a",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.5145829939914255,
+          2.2414532773779023,
+          2.1794742520400305
+        ],
+        "target": [
+          0.44228303964257076,
+          0.54942744999538,
+          0.10717429769117578
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

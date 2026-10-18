@@ -1,0 +1,206 @@
+{
+  "asset": "shop_viewing-centre",
+  "file": "public/assets/places/bode-thomas/shop_viewing-centre.glb",
+  "fileSha256": "0f0c8f26bb9e8dd5468a1c568d988c94f330a46b87af6c31635aeba0451e5531",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/shop/viewing-centre/renders/front.png",
+      "sha256": "23b64560211d8b17fdbdeb94ba8ef270a989a568fdfae6493496cb0e600ee4c4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          37.75820814232763
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "width": 4.944206857681275,
+        "height": 3.708155143260956
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/shop/viewing-centre/renders/back.png",
+      "sha256": "dfa7004edb9d834ae8d3cdfce81c771ff8b2a93045e9078791d347c6b2a41faa",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          -37.56384872059759
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "width": 4.944206857681275,
+        "height": 3.708155143260956
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/shop/viewing-centre/renders/left.png",
+      "sha256": "49af40fdf0974c786fb514bb028586d2423cf5975a1a965360ffefba1b7bef52",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -37.8000129924291,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "width": 4.603950304927855,
+        "height": 3.4529627286958915
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/shop/viewing-centre/renders/right.png",
+      "sha256": "30abcfe8095d3611eebb6f48241a2500c948c94eee8cf8d93fd8e4cf7fd247f8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          37.52204387049612,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "width": 4.603950304927855,
+        "height": 3.4529627286958915
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/shop/viewing-centre/renders/threeQuarter.png",
+      "sha256": "29ade13db2777a28bfb807a3475b58e659c6248b512e5e03771f342efd75a54a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          7.849956812920735,
+          8.12153488354382,
+          8.086121084752248
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "assets-src/shop/viewing-centre/renders/plan.png",
+      "sha256": "0b023c59607870cf1aaf6294adb542bd4f5849f16ce0b44122ff0ff8e38a0f40",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.1389845609664917,
+          39.259619997995465,
+          0.09717971086502075
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5985915665328503,
+          0.09717971086502075
+        ],
+        "width": 5.874241435207287,
+        "height": 4.4056810764054655
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/shop/viewing-centre/renders/phone.png",
+      "sha256": "66676afcefa64125210c1170de985942b719c7919e3fb8a39538d324119e1ed9",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.1389845609664917,
+          1.6,
+          14.136846875867551
+        ],
+        "target": [
+          -0.1389845609664917,
+          1.5,
+          2.1368468758675507
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/shop/viewing-centre/renders/tile.png",
+      "sha256": "66d1c07bf1e8594c48012b54009e9ed1d04d7527fe44b1adbb9d85e8436ec4af",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          7.761889816787953,
+          7.407619555713826,
+          7.872674330793464
+        ],
+        "target": [
+          0.10460713327697183,
+          1.1554744254300267,
+          0.21539164728248153
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

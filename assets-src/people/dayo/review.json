@@ -1,0 +1,43 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 3,
+    "variety": 3,
+    "budget": 4
+  },
+  "mean": 3.71,
+  "against": {
+    "file": "assets-src/people/dayo/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 2,
+      "variety": 3,
+      "budget": 5
+    },
+    "mean": 3.71,
+    "accepted": false
+  },
+  "accepted": false,
+  "failing": [
+    "budget"
+  ],
+  "reasons": {
+    "phone": "A person in a blue-striped cream top and black shorts, named in one look.",
+    "silhouette": "A plain standing figure in all four outlines, unchanged.",
+    "proportion": "1.71 m; the torso is still a sharp inverted wedge with puffed sleeves.",
+    "palette": "Cream with blue stripes over black reads on sand.",
+    "wear": "Blue stripes on the top; no accessory. Garment detail, generic. (was 2)",
+    "variety": "The stripes set dayo apart from the plain template, but the striped shirt sits near segun's.",
+    "budget": "Read from the register row: triangles 1,202 of 3,000, drawCalls 2 of 3, materials 2 of 2, bytes 31,916 of 150,000; inside every figure, over 80% on materials. (was 5)"
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose. Lower than the old version on: budget. The budget point is lost to the second material the new print or pattern needs (materials 2 of 2); the asset is inside its budget, but assets:rework-never-scores-lower counts any lower criterion."
+}

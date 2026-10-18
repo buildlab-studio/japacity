@@ -1,0 +1,181 @@
+{
+  "asset": "prop_big-pot",
+  "file": "public/assets/shared/prop/prop_big-pot.glb",
+  "fileSha256": "bd16daf92a4613a343b4cf795fbec28083408b7dd44f42a13c039b41c1700d4f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/prop/home/big-pot/renders/front.png",
+      "sha256": "a3ce66847cb33f54e64ef80860d9324163cd907b2a38366321f24ed93448cae7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.1975000052899122,
+          13.489318905190295
+        ],
+        "target": [
+          0,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "width": 0.6048000025749207,
+        "height": 0.45360000193119054
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/prop/home/big-pot/renders/back.png",
+      "sha256": "e75998d40548b7603afb85c18af8d2f17429700db839e2e2a4270efd834c5507",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.1975000052899122,
+          -13.426367549017733
+        ],
+        "target": [
+          0,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "width": 0.6048000025749207,
+        "height": 0.45360000193119054
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/prop/home/big-pot/renders/left.png",
+      "sha256": "8b677ecbffc4905ccaebf5b380579cf8e1f9a994aa79ae7864ebe52e7dd924ea",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -13.457843227104014,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "target": [
+          0,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "width": 0.5691030145998269,
+        "height": 0.4268272609498702
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/prop/home/big-pot/renders/right.png",
+      "sha256": "303a5d660aa662f57d4ba84f692f8e2e7840754fb80d1852a363487a732cc8c8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          13.457843227104014,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "target": [
+          0,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "width": 0.5691030145998269,
+        "height": 0.4268272609498702
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/prop/home/big-pot/renders/threeQuarter.png",
+      "sha256": "6baf5ce7265e78387b32e8b4eb3711f6c98a5b6d51339d233fbb6cf8e9eda141",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.9986796727342903,
+          1.0129185435194805,
+          1.0301553508205714
+        ],
+        "target": [
+          0,
+          0.1975000052899122,
+          0.03147567808628082
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/prop/home/big-pot/renders/phone.png",
+      "sha256": "2952928dce37fee172e2cd563637e70d13645a77e6f957c45954b6324b17e6c3",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.29494929595657
+        ],
+        "target": [
+          0,
+          1.5,
+          0.29494929595657104
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/prop/home/big-pot/renders/tile.png",
+      "sha256": "d5c43b36b39a0bae146c3982041aa3919d521fad087bb4a2b0549efad23f84a8",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.6776696251242162,
+          0.7169131770704475,
+          0.6586513949164452
+        ],
+        "target": [
+          0.02931546732346128,
+          0.18753422399585581,
+          0.010297237115690092
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

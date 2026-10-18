@@ -1,0 +1,181 @@
+{
+  "asset": "prop_field-crates",
+  "file": "public/assets/places/farm-it/prop_field-crates.glb",
+  "fileSha256": "4e2226b78a8c805bb16cfbb62e3a8d0bb7a13918989e07bb597df6cb8600bd85",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/places/farm-it/field-crates/renders/front.png",
+      "sha256": "2e0e5bb0db82971263fa55658ea6255eec8005a734daada424288e77a948f940",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.375,
+          0.587499975785613,
+          20.11383333582412
+        ],
+        "target": [
+          0.375,
+          0.587499975785613,
+          0
+        ],
+        "width": 2.1060000514984134,
+        "height": 1.57950003862381
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/places/farm-it/field-crates/renders/back.png",
+      "sha256": "c5a4b9890faa0b4826ae1bff9b37232716a4adc2a3e7a133bac345310d3358f5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.375,
+          0.587499975785613,
+          -20.11383333582412
+        ],
+        "target": [
+          0.375,
+          0.587499975785613,
+          0
+        ],
+        "width": 2.1060000514984134,
+        "height": 1.57950003862381
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/places/farm-it/field-crates/renders/left.png",
+      "sha256": "315b501a32b54c10de9b662b24b59195b87a33b952f5e759660d2addb045c20b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -19.73883333582412,
+          0.587499975785613,
+          0
+        ],
+        "target": [
+          0.375,
+          0.587499975785613,
+          0
+        ],
+        "width": 1.691981364046537,
+        "height": 1.2689860230349028
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/places/farm-it/field-crates/renders/right.png",
+      "sha256": "9e6a9f39fdaba6c1ac2cfb2d8ea3abad6a7082a54dadb7761ee3d100793add2a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          20.48883333582412,
+          0.587499975785613,
+          0
+        ],
+        "target": [
+          0.375,
+          0.587499975785613,
+          0
+        ],
+        "width": 1.691981364046537,
+        "height": 1.2689860230349028
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/places/farm-it/field-crates/renders/threeQuarter.png",
+      "sha256": "a2702a30bed40c460159d594aad68ea6dc2a819bf0926663c936d73973538fb7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.2960346168207466,
+          2.9725147531912826,
+          2.921034616820747
+        ],
+        "target": [
+          0.375,
+          0.587499975785613,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/places/farm-it/field-crates/renders/phone.png",
+      "sha256": "80ae0ad9b5cbb4d6f5b7998752f3355865a47151d7bad6a6c4f8e2f4d1f6c905",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.375,
+          1.6,
+          12.550001539374763
+        ],
+        "target": [
+          0.375,
+          1.5,
+          0.5500015393747643
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/places/farm-it/field-crates/renders/tile.png",
+      "sha256": "57128c89e204db3b9f657ee57858efdd80a6816212381eb493b799404f1974e5",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.9010133307839174,
+          2.4216089009713913,
+          2.512000055436542
+        ],
+        "target": [
+          0.4501794360275399,
+          0.420511405481027,
+          0.0611661606801638
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

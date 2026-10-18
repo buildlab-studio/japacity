@@ -1,0 +1,181 @@
+{
+  "asset": "prop_water-tap",
+  "file": "public/assets/places/farm-it/prop_water-tap.glb",
+  "fileSha256": "957e77820441e4167c463cf2263affd3d8d7450ebd22b15352e6f84f0ef2d0a2",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "assets-src/places/farm-it/water-tap/renders/front.png",
+      "sha256": "b819deaf6066388dccd91c795ff925db04e655e9ebe94f63fb03ac7354c4c2dc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          20.94356805111778
+        ],
+        "target": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "width": 2.483999948501587,
+        "height": 1.8629999613761903
+      }
+    },
+    {
+      "view": "back",
+      "file": "assets-src/places/farm-it/water-tap/renders/back.png",
+      "sha256": "65eda0f47fc8351e08b37a9a1094462280579512a43b3b7983fc12c59733f5e3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          -20.473568067211033
+        ],
+        "target": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "width": 2.483999948501587,
+        "height": 1.8629999613761903
+      }
+    },
+    {
+      "view": "left",
+      "file": "assets-src/places/farm-it/water-tap/renders/left.png",
+      "sha256": "76d4d13de790c6e820dabddc69019a4eb494afffcc01d173c071ccb664e7cbf0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -21.35856803532255,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "target": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "width": 1.5696294117163057,
+        "height": 1.1772220587872293
+      }
+    },
+    {
+      "view": "right",
+      "file": "assets-src/places/farm-it/water-tap/renders/right.png",
+      "sha256": "d527c34e8ccea9121e981bc63763ce3c00f3936763729a3caf41018b3ba9107b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          20.058568083006264,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "target": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "width": 1.5696294117163057,
+        "height": 1.1772220587872293
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "assets-src/places/farm-it/water-tap/renders/threeQuarter.png",
+      "sha256": "d76f8fa582a5a381a8f1372aac6fcdc06d6f872a976a085d62cb3dc1933e3094",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.4428034109219308,
+          3.070263403549545,
+          3.3278033790334463
+        ],
+        "target": [
+          -0.6499999761581421,
+          0.5450000125169754,
+          0.23499999195337298
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "assets-src/places/farm-it/water-tap/renders/phone.png",
+      "sha256": "86c891a769691671755ad252f6dbb69b553a27ceafa39261af1b1787a9d80893",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.6499999761581421,
+          1.6,
+          12.650013564086008
+        ],
+        "target": [
+          -0.6499999761581421,
+          1.5,
+          0.6500135640860074
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "assets-src/places/farm-it/water-tap/renders/tile.png",
+      "sha256": "fd42cdb37203112ec4c4b4e81af017b7b660d940c2fb09fa71d89fd769e4049f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.7843496075465355,
+          1.9171250007321095,
+          2.1371413858713413
+        ],
+        "target": [
+          -0.261960269618139,
+          0.2463199825085177,
+          0.09083150870666623
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}
