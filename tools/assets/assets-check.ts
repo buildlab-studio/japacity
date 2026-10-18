@@ -129,7 +129,7 @@ export function sourceFiles(files: readonly string[]): string[] {
 
 /** A row for media made outside public/assets: a path from the repository root, `#<name>` naming one piece in a file of code. */
 export function isMediaRow(row: Pick<RegisterRow, "file">): boolean {
-  return /^(apps|packages|prototypes)\//.test(row.file);
+  return /^(apps|packages)\//.test(row.file);
 }
 
 export function prefixOf(file: string): string {
