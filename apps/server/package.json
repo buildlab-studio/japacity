@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@better-auth/passkey": "~1.7.7",
+    "@japacity/api": "workspace:*",
     "@japacity/content": "workspace:*",
     "@japacity/db": "workspace:*",
     "@japacity/sim": "workspace:*",
