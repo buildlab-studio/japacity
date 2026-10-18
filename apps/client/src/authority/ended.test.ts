@@ -14,31 +14,18 @@ import { localAuthority, SAVE_KEY } from "./local";
 import { keepPerson, PERSON_KEY, readPerson } from "../shared/frontdoor/person";
 import { remoteAuthority } from "./remote";
 import { createGameStore, MONTH_KEY } from "./store";
+import { removableStorage } from "../shared/testing/storage";
 
 afterEach(() => {
   localStorage.clear();
 });
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return {
-    items,
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      items.set(key, value);
-    },
-    removeItem: (key: string) => {
-      items.delete(key);
-    },
-  };
-}
 
 const seeds = () => {
   let n = 0;
   return () => `seed-${String((n += 1))}`;
 };
 
-function seedOf(storage: ReturnType<typeof memoryStorage>): string | null {
+function seedOf(storage: ReturnType<typeof removableStorage>): string | null {
   const raw = storage.items.get(SAVE_KEY);
   if (raw === undefined) return null;
   return lifeStart((JSON.parse(raw) as { save: Save }).save)?.seed ?? null;
@@ -46,7 +33,7 @@ function seedOf(storage: ReturnType<typeof memoryStorage>): string | null {
 
 describe("ending a life on this device", () => {
   test("[R-ACCOUNT-030] given a local life and its kept person, when the life ends, then the save and the person are gone, nothing is written while the door is open, a reload opens the door, and the next life starts on a seed of its own", async () => {
-    const storage = memoryStorage();
+    const storage = removableStorage();
     const makeSeed = seeds();
     const authority = localAuthority({ fastClock: true, storage, makeSeed, now: () => 0 });
     keepPerson({ look: "chr_ada", name: "Bisi", archetype: null }, storage);

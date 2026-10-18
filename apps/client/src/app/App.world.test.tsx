@@ -11,11 +11,7 @@ import { askReadyLives, startReadyLife } from "../shared/frontdoor/frontDoor.tes
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
+import { memoryStorage } from "../shared/testing/storage";
 
 async function startLife(): Promise<void> {
   // Through the front door to the first ready life, on a run Settings asked for (R-PROLOGUE-013).

@@ -15,16 +15,12 @@ import { ScenarioView } from "../features/scenario/ScenarioView";
 import { forgetOwnColours, type OwnColours, reportOwn, SWATCHES } from "../shared/frontdoor/style";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
+import { memoryStorage } from "../shared/testing/storage";
 
 afterEach(() => {
   localStorage.clear();
   act(forgetOwnColours);
 });
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { items, getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
 
 function door(save = memoryStorage()): GameStore {
   const authority = localAuthority({ fastClock: true, storage: save, makeSeed: () => "colours-seed", now: () => 0 });

@@ -3,11 +3,7 @@
 import { describe, expect, test } from "vitest";
 
 import { keepPerson, keptStyleOf, PERSON_KEY, readPerson } from "./person";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
+import { memoryStorage } from "../testing/storage";
 
 const PHOTO = "data:image/webp;base64,UklGRg==";
 

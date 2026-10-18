@@ -12,11 +12,7 @@ import { say, words } from "../shared/words/text";
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
+import { memoryStorage } from "../shared/testing/storage";
 
 
 // The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.

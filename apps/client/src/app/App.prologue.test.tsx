@@ -13,15 +13,11 @@ import { nameOf, say, words } from "../shared/words/text";
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
+import { memoryStorage } from "../shared/testing/storage";
 
 const PROLOGUE = "scenario.prologue";
 const HUNT = "activity.job-hunt";
 const JOB_OFFER = "offer.job";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
 
 /** Seeds handed out in turn, so the life and its world are the same on every run. */
 function seeds(): () => string {

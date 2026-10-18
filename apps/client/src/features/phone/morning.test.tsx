@@ -14,25 +14,13 @@ import { formatBand } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { PhoneApps } from "./PhoneApps";
 import { reloadSeen } from "./seen";
+import { removableStorage } from "../../shared/testing/storage";
 
 const ENGLISH: Id<"document"> = "document.english-test";
 const NOON = () => new Date(2026, 9, 12, 7, 5);
 
 /** A moment in Lagos (UTC+1) on a day of October 2026. */
 const lagos = (day: number, hour: number, minute = 0) => Date.UTC(2026, 9, day, hour - 1, minute);
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return {
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      items.set(key, value);
-    },
-    removeItem: (key: string) => {
-      items.delete(key);
-    },
-  };
-}
 
 const seeds = () => {
   let n = 0;
@@ -43,7 +31,7 @@ type Loose = Command extends infer C ? (C extends unknown ? Omit<C, "basedOn"> :
 
 /** Ngozi, who holds a passport, sits the English test and ends the month at nine in the evening. */
 async function testSat(at: { now: number }) {
-  const authority = localAuthority({ fastClock: true, storage: memoryStorage(), makeSeed: seeds(), now: () => at.now, scenario: "scenario.ngozi" });
+  const authority = localAuthority({ fastClock: true, storage: removableStorage(), makeSeed: seeds(), now: () => at.now, scenario: "scenario.ngozi" });
   await authority.newLife("scenario.ngozi");
   const send = async (command: Loose) => {
     const view = await authority.view();

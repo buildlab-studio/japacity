@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { BASE } from "../testing/server";
 import { api, classify, COMMAND_TIMEOUT_MS, failureOf, type Fetch, isReloading, READ_TIMEOUT_MS } from "./http";
 import { WALL_AGAIN_MS, WALL_KEY, WALL_SETTLE_MS, wallGuard, type WallGuard } from "./wall";
+import { removableStorage } from "../testing/storage";
 
 /** A wall that never reloads: these tests read the kind alone. */
 const noWall: WallGuard = { met: () => false, passed: () => undefined };
@@ -157,8 +158,8 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
 
 /** A tab's session storage, a clock the test moves, and the reloads counted. */
 function tab() {
-  const items = new Map<string, string>();
-  const storage = { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value), removeItem: (key: string) => void items.delete(key) };
+  const storage = removableStorage();
+  const { items } = storage;
   let time = 1_000_000;
   let reloads = 0;
   const guard = wallGuard({ storage: () => storage, now: () => time, reload: () => (reloads += 1) });
