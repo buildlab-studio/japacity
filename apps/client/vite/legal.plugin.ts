@@ -4,10 +4,11 @@
 // pages.ts reads content's operator constant, which is TypeScript, so it is
 // loaded through a Vite server in SSR mode, as the guide pages are. Runs in
 // Node, from vite.config.ts.
-import { createServer, type Plugin, type ViteDevServer } from "vite";
+import type { Plugin, ViteDevServer } from "vite";
 
-import { legalRoute } from "./addresses";
-import type { legalPages as LegalPages } from "./pages";
+import { legalRoute } from "../src/features/legal/addresses";
+import type { legalPages as LegalPages } from "../src/features/legal/pages";
+import { ssrServer } from "./ssr";
 
 const ENTRY = "/src/features/legal/pages.ts";
 
@@ -24,14 +25,7 @@ export function legalPagesPlugin(): Plugin {
       root = config.root;
     },
     async generateBundle() {
-      const server = await createServer({
-        root,
-        configFile: false,
-        logLevel: "error",
-        appType: "custom",
-        server: { middlewareMode: true, hmr: false, ws: false },
-        optimizeDeps: { noDiscovery: true, include: [] },
-      });
+      const server = await ssrServer(root);
       try {
         const legalPages = await loadPages(server);
         for (const page of legalPages(root)) this.emitFile({ type: "asset", fileName: page.file, source: page.html });

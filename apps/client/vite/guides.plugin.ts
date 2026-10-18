@@ -2,10 +2,11 @@
 // loads site.entry.ts through a Vite server in SSR mode, renders every page to plain HTML that
 // links the build's stylesheet, and emits each as `guides/.../index.html` beside the game. The
 // dev server renders the same pages on request. Runs in Node, from vite.config.ts.
-import { createServer, type Plugin, type ViteDevServer } from "vite";
+import type { Plugin, ViteDevServer } from "vite";
 
-import type { buildSite as BuildSite } from "./site.entry";
-import { siteFiles } from "./site.files";
+import type { buildSite as BuildSite } from "../src/features/guides/site.entry";
+import { siteFiles } from "../src/features/guides/site.files";
+import { ssrServer } from "./ssr";
 
 const ENTRY = "/src/features/guides/site.entry.ts";
 const DEV_STYLES = "/src/features/guides/devStyles.ts";
@@ -31,14 +32,7 @@ export function guidePages(): Plugin {
       const styles = Object.values(bundle)
         .filter((output) => output.type === "asset" && output.fileName.endsWith(".css"))
         .map((output) => `/${output.fileName}`);
-      const server = await createServer({
-        root,
-        configFile: false,
-        logLevel: "error",
-        appType: "custom",
-        server: { middlewareMode: true, hmr: false, ws: false },
-        optimizeDeps: { noDiscovery: true, include: [] },
-      });
+      const server = await ssrServer(root);
       try {
         const buildSite = await loadSite(server);
         for (const page of buildSite(siteFiles(root), buildDay(), styles)) {

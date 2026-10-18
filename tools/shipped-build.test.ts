@@ -1,4 +1,4 @@
-// The build for players (vite.config.ts and apps/client/src/shared/shipping/shipping.ts): the client is built twice into folders of its own, once as pnpm check:size
+// The build for players (vite.config.ts and apps/client/vite/shipping.plugin.ts): the client is built twice into folders of its own, once as pnpm check:size
 // builds it (production mode, placeholder settings in a deploy's shape) and once in development mode, and the files
 // are read. A build for players ships no source map and no comment naming one, no console chatter and no debugger
 // statement, none of the development pages' code, and the licences of the libraries it bundles in a file beside the

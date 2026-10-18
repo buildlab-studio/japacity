@@ -7,9 +7,9 @@ import { dirname, join, resolve } from "node:path";
 import { LICENCES_PATH } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { LICENCES_FILE } from "./shipping";
+import { LICENCES_FILE } from "./shipping.plugin";
 
-const SRC = join(import.meta.dirname, "..", "..");
+const SRC = join(import.meta.dirname, "..", "src");
 const SPECIFIER = /(?:^|[\s;])(?:import|export)\s[^'"]*?from\s+["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
 
 /** A relative specifier as the file it names, or null for a package's. */

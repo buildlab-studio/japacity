@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { buildCommit, buildStamp } from "./stamp.plugin";
+import { buildCommit, buildStamp } from "../../../vite/stamp.plugin";
 import { buildOf, sayBuild, STAMP_META } from "./stamp";
 
 const PUBLIC = join(import.meta.dirname, "../../../public");
