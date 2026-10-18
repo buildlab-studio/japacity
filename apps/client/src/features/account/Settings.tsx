@@ -1,7 +1,7 @@
 // The account settings: the username and its change (account:username-and-unconfirmed-email), the
-// reminder and the way to keep a guest life (account:guest-reminded-to-secure), a passkey once
-// the life is kept (account:passkey-needs-signed-in-session, account:guest-secures-the-life), any setting the shell places in it,
-// sign out, and delete the account (account:player-deletes-account) through the server's
+// reminder and the way to keep a guest life (account:guest-reminded-to-secure), the passkeys once
+// the life is kept (PasskeyList, account:passkeys-listed-and-removed, account:guest-secures-the-life), any setting the shell places in it,
+// sign out here or on every phone (account:sign-out-ends-the-session), and delete the account (account:player-deletes-account) through the server's
 // `DELETE /api/account`. Deleting needs a session signed in within the last 10
 // minutes; when the server says it is older, the player signs in again with one of the account's own passkeys or
 // sends the code the server's email carries along with the deletion. A guest
@@ -18,10 +18,11 @@ import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";
-import { say, sayCount } from "../../shared/words/text";
+import { say } from "../../shared/words/text";
 import { counting, setUsageCounts } from "../../shared/analytics/start";
 import { CodeForm, failureWords } from "./CodeForm";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
+import { PasskeyList, usePasskeysWork } from "./PasskeyList";
 import { GuestReminder } from "./Secure";
 import { refreshAccount, useAccountView } from "./standing";
 
@@ -183,6 +184,9 @@ function dayOf(at: number): string {
 
 type Step = "idle" | "warn" | "confirm";
 
+/** account:sign-out-ends-the-session: signing out of every phone asks first. */
+type Leaving = "no" | "guest" | "everywhere";
+
 /** The name given at the door, as its own row beside the username, so the two are never guessed at. */
 function LifeName() {
   const name = useLifeName();
@@ -194,16 +198,12 @@ function LifeName() {
   );
 }
 
-/** The ways in of a kept life (account:guest-reminded-to-secure): the way it is kept with its address, and the passkeys held. */
+/** The ways in of a kept life (account:guest-reminded-to-secure): the way it is kept with its address; the passkeys held follow. */
 function WaysIn({ view }: { view: AccountView }) {
   if (view.state === "guest") return null;
-  const { passkeys } = waysOf(view);
   return (
     <div className="flex flex-col gap-1" data-ways>
       <p>{keptLine(view, true)}</p>
-      <p className="text-sm text-text-2" data-passkeys={passkeys}>
-        {sayCount("ui.account.passkeys", passkeys, { count: passkeys })}
-      </p>
     </div>
   );
 }
@@ -213,7 +213,8 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
   const me = useAccountView();
   const guest = me?.state === "guest";
   const ways = me === null ? NO_WAYS : waysOf(me);
-  const [leaving, setLeaving] = useState(false);
+  const works = usePasskeysWork(account);
+  const [leaving, setLeaving] = useState<Leaving>("no");
   const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -251,18 +252,25 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
       },
     );
 
-  /** account:player-deletes-account: only one of this account's own passkeys confirms. */
+  /** account:sign-out-ends-the-session: the player leaves only once the server has ended the session; otherwise the sheet says so and stays. */
+  const signOut = (everywhere: boolean) =>
+    run(
+      () => (everywhere ? account.signOutEverywhere() : account.signOut()),
+      (result) => {
+        if (result.ok) leave("ui.account.notice.signed-out");
+        else setProblem(failureWords(result));
+      },
+    );
+
+  /** account:player-deletes-account: only one of this account's own passkeys confirms; a cancel says nothing. */
   const confirmWithPasskey = () =>
     run(
       () => account.confirmWithPasskey(),
-      (result) => (result.ok ? remove() : setProblem(failureWords(result))),
+      (result) => {
+        if (result.ok) return remove();
+        if (result.why !== "cancelled") setProblem(failureWords(result));
+      },
     );
-
-  const signOut = async () => {
-    setBusy(true);
-    await account.signOut();
-    leave("ui.account.notice.signed-out");
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -270,40 +278,49 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
       <Username account={account} />
       <LifeName />
       {me === null ? null : <WaysIn view={me} />}
+      {guest ? null : <PasskeyList account={account} ways={ways} known={me !== null} />}
       <div className="flex flex-col gap-2">
-        {guest ? null : (
-        <div>
-        <Button
-          disabled={busy}
-          onClick={() =>
-            void run(
-              () => account.addPasskey(),
-              (result) => {
-                if (!result.ok) return setProblem(failureWords(result));
-                setMessage(say("ui.account.passkey.added"));
-                // The passkeys held are read again, so the row above counts the new one.
-                void refreshAccount(account);
-              },
-            )
-          }
-        >
-          {say("ui.account.passkey.add")}
-        </Button>
-        </div>
-        )}
         {/* account:guest-and-secured-states: a guest's session is its only way back, so signing out of it is said plainly first. */}
-        {guest && !leaving ? (
-          <Button disabled={busy} onClick={() => setLeaving(true)}>
-            {say("ui.account.sign-out")}
-          </Button>
-        ) : (
-          <>
-            {guest ? <p role="alert">{say("ui.guest.sign-out")}</p> : null}
-            <Button disabled={busy} onClick={() => void signOut()}>
-              {say(guest ? "ui.guest.sign-out.go" : "ui.account.sign-out")}
+        {guest && leaving === "no" ? (
+          <div>
+            <Button disabled={busy} onClick={() => setLeaving("guest")}>
+              {say("ui.account.sign-out")}
             </Button>
+          </div>
+        ) : null}
+        {guest && leaving === "guest" ? (
+          <>
+            <p role="alert">{say("ui.guest.sign-out")}</p>
+            <div>
+              <Button disabled={busy} onClick={() => void signOut(false)}>
+                {say("ui.guest.sign-out.go")}
+              </Button>
+            </div>
           </>
-        )}
+        ) : null}
+        {!guest && leaving === "no" ? (
+          <div className="flex flex-wrap gap-2">
+            <Button disabled={busy} onClick={() => void signOut(false)}>
+              {say("ui.account.sign-out")}
+            </Button>
+            <Button variant="quiet" disabled={busy} onClick={() => setLeaving("everywhere")}>
+              {say("ui.account.sign-out.all")}
+            </Button>
+          </div>
+        ) : null}
+        {!guest && leaving === "everywhere" ? (
+          <div className="motion-reveal flex flex-col gap-2" role="group">
+            <p>{say("ui.account.sign-out.all.warn")}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button disabled={busy} onClick={() => void signOut(true)}>
+                {say("ui.account.sign-out.all.go")}
+              </Button>
+              <Button disabled={busy} onClick={() => setLeaving("no")}>
+                {say("ui.account.sign-out.all.keep")}
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <UsageCounts account={account} />
@@ -335,7 +352,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
         {step === "confirm" ? (
           <>
             <p>{say("ui.account.delete.fresh")}</p>
-            {ways.passkeys > 0 ? (
+            {ways.passkeys > 0 && works === true ? (
               <div>
                 <Button disabled={busy} onClick={() => void confirmWithPasskey()}>
                   {say("ui.account.passkey")}

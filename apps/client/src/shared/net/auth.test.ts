@@ -221,7 +221,7 @@ afterEach(() => {
 
 const routes = (server: FakeServer) => server.sent.map((request) => `${request.method} ${request.path}`);
 
-describe("confirming with a passkey (account:player-deletes-account)", () => {
+describe("confirming with a passkey (account:player-deletes-account, account:passkey-added-in-place)", () => {
   test("[account:player-deletes-account] given a phone that answers with a passkey of another account, when the deletion is confirmed with a passkey, then the answer never reaches the server, no session is opened for that account, and other-account is told", async () => {
     const { server, api } = account();
     phone = fakePhone({ signsInWith: OTHERS });
@@ -250,5 +250,114 @@ describe("confirming with a passkey (account:player-deletes-account)", () => {
     expect(await api.confirmWithPasskey()).toEqual({ ok: false, why: "refused" });
     expect(routes(server)).toEqual(["GET /api/auth/passkey/list-user-passkeys"]);
     expect(phone.asked).toEqual([]);
+  });
+});
+
+describe("the passkeys of a kept life (account:passkeys-listed-and-removed, account:passkey-added-in-place)", () => {
+  test("[account:passkey-added-in-place] given a new passkey, then no name is sent with it, so nothing is stored for the name beyond what the library takes from the account", async () => {
+    const { server, api } = account();
+    phone = fakePhone({ createFails: "NotAllowedError" });
+    server.answer("GET /api/auth/passkey/generate-register-options", { body: { challenge: "Y2hhbGxlbmdl", rp: { id: "play.test", name: "Japacity" }, user: { id: "dXNlcg", name: "ada@example.com", displayName: "ada@example.com" }, pubKeyCredParams: [{ type: "public-key", alg: -7 }] } });
+    await api.addPasskey();
+    const asked = server.sent.find((request) => request.path === "/api/auth/passkey/generate-register-options");
+    expect(asked?.search).toBe("");
+  });
+
+  test("[account:passkey-added-in-place] given a session older than the fresh age, when a passkey is added, then the library's freshness refusal is told as not-fresh", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/auth/passkey/generate-register-options", { status: 403, body: { code: "SESSION_NOT_FRESH", message: "Session is not fresh" } });
+    expect(await api.addPasskey()).toEqual({ ok: false, why: "not-fresh" });
+  });
+
+  test("[account:passkeys-listed-and-removed] given the account's passkeys, then each comes by its provider's name from its AAGUID, none where the authenticator gives none, with the day it was added, oldest first", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/auth/passkey/list-user-passkeys", {
+      body: [
+        { ...OWN_ROW, id: "row-2", aaguid: "00000000-0000-0000-0000-000000000000", createdAt: "2026-10-05T09:00:00.000Z" },
+        OWN_ROW,
+        { ...OWN_ROW, id: "row-3", aaguid: null, createdAt: "2026-10-09T09:00:00.000Z" },
+      ],
+    });
+    expect(await api.passkeys()).toEqual([
+      { id: "row-own", provider: "Google Password Manager", addedAt: Date.parse("2026-10-01T09:00:00.000Z") },
+      { id: "row-2", provider: null, addedAt: Date.parse("2026-10-05T09:00:00.000Z") },
+      { id: "row-3", provider: null, addedAt: Date.parse("2026-10-09T09:00:00.000Z") },
+    ]);
+    server.answer("GET /api/auth/passkey/list-user-passkeys", { status: 401, body: { message: "Unauthorized" } });
+    expect(await api.passkeys()).toBeNull();
+  });
+
+  test("[account:passkeys-listed-and-removed] given a passkey removed, then the library's delete route gets its id, and whether this phone's session lived through it is read back", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/passkey/delete-passkey", { body: { status: true } });
+    server.answer("GET /api/account", { body: { ok: true, account: { ...VIEW, state: "secured" } } }, { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in to play." } });
+    expect(await api.removePasskey("row-own")).toEqual({ ok: true, signedIn: true });
+    expect(server.sent.find((request) => request.path === "/api/auth/passkey/delete-passkey")?.body).toEqual({ id: "row-own" });
+    expect(await api.removePasskey("row-own")).toEqual({ ok: true, signedIn: false });
+  });
+});
+
+describe("where a passkey can be made, and its errors (account:passkey-offered-where-it-works, account:passkey-errors-told-apart)", () => {
+  test("[account:passkey-offered-where-it-works] given what the browser says it can do, then a passkey works with its own authenticator or a phone nearby, and not otherwise; without the capabilities call, its own authenticator decides", async () => {
+    const { api } = account();
+    const cases: [Record<string, boolean> | null, boolean, boolean][] = [
+      [{ passkeyPlatformAuthenticator: true, hybridTransport: false }, false, true],
+      [{ passkeyPlatformAuthenticator: false, hybridTransport: true }, false, true],
+      [{ passkeyPlatformAuthenticator: false, hybridTransport: false }, true, false],
+      [null, true, true],
+      [null, false, false],
+    ];
+    for (const [capabilities, platform, works] of cases) {
+      phone = fakePhone({ capabilities, platform });
+      expect(await api.passkeysWork()).toBe(works);
+      phone.restore();
+      phone = null;
+    }
+    expect(await api.passkeysWork()).toBe(false);
+  });
+
+  test("[account:passkey-errors-told-apart] given the phone's own refusals, then a cancel is cancelled and a passkey already on this phone is told apart, never a plain refusal", async () => {
+    const { server, api } = account();
+    const options = { challenge: "Y2hhbGxlbmdl", rp: { id: "play.test", name: "Japacity" }, user: { id: "dXNlcg", name: "ada@example.com", displayName: "ada@example.com" }, pubKeyCredParams: [{ type: "public-key", alg: -7 }] };
+    server.answer("GET /api/auth/passkey/generate-register-options", { body: options });
+    phone = fakePhone({ createFails: "NotAllowedError" });
+    expect(await api.addPasskey()).toEqual({ ok: false, why: "cancelled" });
+    phone.restore();
+    phone = fakePhone({ createFails: "InvalidStateError" });
+    expect(await api.addPasskey()).toEqual({ ok: false, why: "already-here" });
+    phone.restore();
+    phone = fakePhone({ signInFails: "NotAllowedError" });
+    server.answer("GET /api/auth/passkey/generate-authenticate-options", { body: SIGN_IN_OPTIONS });
+    expect(await api.signInWithPasskey()).toEqual({ ok: false, why: "cancelled" });
+  });
+
+  test("[account:passkey-errors-told-apart] given a passkey the server no longer holds, when the phone signs in with it, then passkey-gone is told and the phone is told to stop offering it", async () => {
+    const { server, api } = account();
+    phone = fakePhone({ signsInWith: OWN });
+    server.answer("GET /api/auth/passkey/generate-authenticate-options", { body: { ...SIGN_IN_OPTIONS, allowCredentials: undefined } });
+    server.answer("POST /api/auth/passkey/verify-authentication", { status: 401, body: { code: "PASSKEY_NOT_FOUND", message: "Passkey not found" } });
+    expect(await api.signInWithPasskey()).toEqual({ ok: false, why: "passkey-gone" });
+    await Promise.resolve();
+    expect(phone.signalled).toEqual([{ rpId: location.hostname, credentialId: OWN }]);
+  });
+});
+
+describe("signing out (account:sign-out-ends-the-session)", () => {
+  test("[account:sign-out-ends-the-session] given a sign-out the server answers, then it is done; one that never reaches it is told as sign-out, never as done", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/sign-out", { body: { success: true } });
+    expect(await api.signOut()).toEqual({ ok: true });
+    const offline = betterAuthApi({ baseUrl: BASE, fetch: () => Promise.reject(new TypeError("Failed to fetch")) });
+    expect(await offline.signOut()).toEqual({ ok: false, why: "sign-out" });
+  });
+
+  test("[account:sign-out-ends-the-session] given sign out on every phone, then every session of the account is ended on the server first, then this browser's cookie; a failure to end them sends nothing more and is told", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/revoke-sessions", { body: { status: true } }, { status: 500, body: { message: "Internal Server Error" } });
+    server.answer("POST /api/auth/sign-out", { body: { success: true } });
+    expect(await api.signOutEverywhere()).toEqual({ ok: true });
+    expect(routes(server)).toEqual(["POST /api/auth/revoke-sessions", "POST /api/auth/sign-out"]);
+    expect(await api.signOutEverywhere()).toEqual({ ok: false, why: "sign-out" });
+    expect(routes(server)).toEqual(["POST /api/auth/revoke-sessions", "POST /api/auth/sign-out", "POST /api/auth/revoke-sessions"]);
   });
 });

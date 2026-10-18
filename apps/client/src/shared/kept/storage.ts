@@ -24,6 +24,8 @@ export const CITY_LAST_KEY = "japacity.city.last";
 export const CITY_BEEN_KEY = "japacity.city.been";
 /** What the phone's apps were last seen holding. */
 export const SEEN_KEY = "japacity.phone.seen";
+/** Set once the account sheet has offered a passkey on this device (account:passkey-offered-where-it-works). */
+export const PASSKEY_OFFERED_KEY = "japacity.passkey.offered";
 /** The teaching marks already shown in this life. */
 export const TAUGHT_KEY = "japacity.taught";
 /** Where things stand in each home. */

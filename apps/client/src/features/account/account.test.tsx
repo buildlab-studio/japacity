@@ -61,7 +61,11 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     addPasskey: log("addPasskey"),
     email: () => Promise.resolve("ada@example.test"),
     deleteAccount: log("deleteAccount"),
-    signOut: () => (calls.push("signOut()"), Promise.resolve()),
+    signOut: () => (calls.push("signOut()"), Promise.resolve(OK)),
+    signOutEverywhere: () => (calls.push("signOutEverywhere()"), Promise.resolve(OK)),
+    passkeysWork: () => Promise.resolve(true),
+    passkeys: () => Promise.resolve([]),
+    removePasskey: (id) => (calls.push(`removePasskey(${id})`), Promise.resolve({ ok: true, signedIn: true })),
     confirmWithPasskey: log("confirmWithPasskey"),
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: (on) => (calls.push(`setUsageCounts(${String(on)})`), Promise.resolve(true)),
@@ -613,7 +617,8 @@ describe("adding a passkey", () => {
   test("[account:passkey-needs-signed-in-session] given an admin on a code session, when a passkey is added in the settings, then the server's refusal is told as: sign in with the passkey first", async () => {
     const account = fakeAccount({ addPasskey: () => Promise.resolve({ ok: false, why: "passkey-first" }) });
     cleanUpAndSettings(account);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey.add") }));
+    // The browser is asked first whether it can make a passkey (account:passkey-offered-where-it-works).
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.add") }));
     expect(await screen.findByText(say("ui.account.fail.passkey-first"))).toBeDefined();
     expect(screen.queryByText(say("ui.account.passkey.added"))).toBeNull();
   });

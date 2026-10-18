@@ -198,7 +198,7 @@ test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] a ke
   await shootPhone(page, "settings-account-sheet-phone", info.project.name, PICTURE);
   answers["GET /api/view"] = SIGNED_OUT;
   answers["GET /api/account"] = SIGNED_OUT;
-  await sheet.getByRole("button", { name: "Sign out" }).click();
+  await sheet.getByRole("button", { name: "Sign out", exact: true }).click();
   const notice = page.getByText(uiOnlineText["ui.account.notice.signed-out"] ?? "You have signed out.");
   await expect(notice).toBeVisible({ timeout: 20_000 });
   expect(sent).toContain("POST /api/auth/sign-out");
@@ -208,4 +208,38 @@ test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] a ke
   await page.getByRole("button", { name: uiOnlineText["ui.account.back"] ?? "Back" }).click();
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
   await expect(notice).toHaveCount(0);
+});
+
+test("[account:passkeys-listed-and-removed] [account:sign-out-ends-the-session] a kept life's sheet lists its passkey by provider and day with Remove, and Sign out on every phone asks first, ends every session and says so once on the start screen", async ({ page }, info) => {
+  const sent: string[] = [];
+  const answers: Record<string, Answer> = {
+    "GET /api/view": pastFirstChapter(),
+    "GET /api/account": { body: { ok: true, account: { ...KEPT_WITH_GOOGLE, ways: { ...KEPT_WITH_GOOGLE.ways, passkeys: 1 } } } },
+    "GET /api/moderation/standing": { body: STANDING },
+    "GET /api/auth/passkey/list-user-passkeys": { body: [{ id: "row-1", credentialID: "b3duLWtleQ", userId: "account-guest", aaguid: "ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4", createdAt: "2026-10-01T09:00:00.000Z" }] },
+    "POST /api/auth/revoke-sessions": { body: { status: true } },
+    "POST /api/auth/sign-out": { body: { success: true } },
+    "GET /api/age": { body: { refused: false } },
+  };
+  await serve(page, answers, sent);
+  await page.goto("/");
+  await pastTheCard(page);
+  await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
+  await page.locator('[data-app="settings"]').click();
+  await page.locator("[data-account-row]").click();
+  const sheet = page.getByRole("dialog", { name: uiOnlineText["ui.account.settings"] ?? "Account" });
+  const passkey = sheet.locator('[data-passkey="row-1"]');
+  await expect(passkey).toContainText("Google Password Manager");
+  await expect(passkey).toContainText("Added");
+  await expect(passkey.getByRole("button", { name: /^Remove Google Password Manager, added / })).toBeVisible();
+  await expect(sheet.getByText("1 passkey")).toBeVisible();
+  await shootPhone(page, "settings-passkeys-phone", info.project.name, PICTURE);
+  await sheet.getByRole("button", { name: "Sign out on every phone" }).click();
+  await expect(sheet.getByText("This signs you out everywhere, this phone too.")).toBeVisible();
+  expect(sent).not.toContain("POST /api/auth/revoke-sessions");
+  answers["GET /api/view"] = SIGNED_OUT;
+  answers["GET /api/account"] = SIGNED_OUT;
+  await sheet.getByRole("button", { name: "Sign out everywhere" }).click();
+  await expect(page.getByText(uiOnlineText["ui.account.notice.signed-out"] ?? "You have signed out.")).toBeVisible({ timeout: 20_000 });
+  expect(sent.filter((asked) => asked === "POST /api/auth/revoke-sessions" || asked === "POST /api/auth/sign-out")).toEqual(["POST /api/auth/revoke-sessions", "POST /api/auth/sign-out"]);
 });
