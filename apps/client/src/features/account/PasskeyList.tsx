@@ -66,7 +66,8 @@ function lastWords(ways: AccountView["ways"]): string {
   return say("ui.account.passkey.last.email", { email: ways.email ?? "" });
 }
 
-type Step = { kind: "idle" } | { kind: "confirm"; email: string | null } | { kind: "last"; row: PasskeyRow };
+/** `passkeyOnly`: the server asks for a session that has shown a passkey (an admin's, account:passkey-needs-signed-in-session), which a code does not open. */
+type Step = { kind: "idle" } | { kind: "confirm"; email: string | null; passkeyOnly?: true } | { kind: "last"; row: PasskeyRow };
 
 /** `known`: the account has been read, so `ways` is the server's and not a stand-in while it loads. */
 export function PasskeyList({ account, ways, known }: { account: AccountApi; ways: AccountView["ways"]; known: boolean }) {
@@ -115,6 +116,11 @@ export function PasskeyList({ account, ways, known }: { account: AccountApi; way
       setMessage(say("ui.account.passkey.added"));
       // The passkeys held are read again, so the count and the list show the new one.
       void refreshAccount(account);
+      return;
+    }
+    // An admin's session that has not shown a passkey lately is confirmed in place too, by the account's own passkey (account:passkey-added-in-place).
+    if (result.why === "passkey-first" && held > 0) {
+      setStep({ kind: "confirm", email: null, passkeyOnly: true });
       return;
     }
     if (result.why === "not-fresh") {

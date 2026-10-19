@@ -161,6 +161,20 @@ describe("adding a passkey from an older session (account:passkey-added-in-place
     expect(account.calls).toEqual(["addPasskey()", "confirmWithPasskey()", "addPasskey()"]);
   });
 
+  test("[account:passkey-added-in-place] [account:passkey-needs-signed-in-session] given an admin holding a passkey whose session has not shown one lately, when a passkey is added and the server asks for a passkey session, then the sheet asks to confirm in place with the account's own passkey alone, and the new one is made at once", async () => {
+    const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 1 }), { addPasskey: inTurn<AuthResult>({ ok: false, why: "passkey-first" }, OK), passkeys: () => Promise.resolve([GOOGLE_ROW]) });
+    const store = settings(account);
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.add") }));
+    expect(await screen.findByText(say("ui.account.passkey.fresh"))).toBeDefined();
+    expect(screen.queryByText(say("ui.account.fail.passkey-first"))).toBeNull();
+    // A code opens no passkey session, so it is not offered: only the account's own passkey answers the server.
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey.fresh.code", { email: "ada@example.com" }) })).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.fresh.passkey") }));
+    expect(await screen.findByText(say("ui.account.passkey.added"))).toBeDefined();
+    expect(account.calls.filter((call) => !call.startsWith("passkeys"))).toEqual(["addPasskey()", "confirmWithPasskey()", "addPasskey()"]);
+    expect(store.getState().signedOut).toBe(false);
+  });
+
   test("[account:passkey-added-in-place] given a phone that wants its own tap for the new passkey after the confirmation, then the sheet says to tap Add a passkey to finish", async () => {
     const account = fakeAccount(kept(), { addPasskey: inTurn<AuthResult>(NOT_FRESH, { ok: false, why: "cancelled" }) });
     settings(account);

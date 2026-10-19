@@ -34,7 +34,8 @@ import { pageWall, type WallGuard } from "./wall";
  * `no-life`: a way in with no life behind it; a life starts as a guest (account:guest-and-secured-states, account:start-screen-over-live-city).
  * `taken`: that sign-in already has a life, so securing with it joins nothing (account:guest-secures-the-life).
  * `guest-only`: a passkey waits until the life is secured (account:guest-secures-the-life).
- * `passkey-first`: account:passkey-needs-signed-in-session's refusal of a new passkey on an admin account from a session not opened with a passkey.
+ * `passkey-first`: account:passkey-needs-signed-in-session's refusal of a new passkey on an admin account holding one, from a session that has not
+ * shown a passkey within the admin's window; the account sheet confirms in place with the account's own passkey (account:passkey-added-in-place).
  * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
  * (its `account_not_linked`); the player is pointed to the code (account:guest-secures-the-life).
  * `already-here`: this phone already holds a passkey for the account; `passkey-gone`: the phone offered a passkey the
