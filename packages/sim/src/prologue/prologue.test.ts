@@ -223,6 +223,20 @@ describe("step 0: the draw", () => {
     expect(result.lines.map((line) => line.key)).toContain("line.prologue.drawn");
   });
 
+  test("[prologue:family-draw-on-first-answer] given the shipped content, when the largest family is counted with the two parents and the character, then the house holds 5 at most, a fixed life's too, and 200 seeds draw both edges", () => {
+    const [fewest, most] = content.tuning.prologue.siblings;
+    expect(fewest).toBe(1);
+    expect(most + 3).toBeLessThanOrEqual(5);
+    for (const life of Object.values(content.scenario)) expect(life.siblings + 3).toBeLessThanOrEqual(5);
+    const seen = new Set<number>();
+    for (let run = 0; run < 200; run += 1) {
+      const game = newGame(`house-${String(run)}`, registry());
+      choose(game, "begin");
+      seen.add(game.state.prologue.draw!.siblings);
+    }
+    expect([...seen].sort()).toEqual([fewest, most]);
+  });
+
   test("[prologue:family-draw-on-first-answer] given 200 seeds, when each prologue begins, then every draw is in its range and each side of each coin comes up", () => {
     const { familyMeans, siblings } = withPrologue.tuning.prologue;
     const seen = { city: 0, town: 0, educated: 0, not: 0, low: Number.MAX_SAFE_INTEGER, high: 0 };

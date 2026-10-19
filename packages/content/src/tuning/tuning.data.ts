@@ -161,7 +161,7 @@ export const tuning: Tuning = {
   // prologue.md
   prologue: {
     startAgeMonths: 192,
-    siblings: [1, 6],
+    siblings: [1, 2],
     familyMeans: [10, 80],
     cityBp: pct(55),
     // prologue:family-draw-on-first-answer and prologue:steps-offer-legal-answers.

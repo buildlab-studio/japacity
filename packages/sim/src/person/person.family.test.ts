@@ -16,7 +16,7 @@ const SEED = "family";
 const WORLD_SEED = "world-1";
 
 /** The inviter's family: drawn far from what this seed draws on its own, so a copy shows. */
-const FAMILY: NonNullable<Save["family"]> = { from: "character-inviter", draw: { familyMeans: 77, town: "town", siblings: 3, parentsEducated: true } };
+const FAMILY: NonNullable<Save["family"]> = { from: "character-inviter", draw: { familyMeans: 77, town: "town", siblings: 2, parentsEducated: true } };
 
 const FACTS: PersonFacts = {
   label: "player",
@@ -67,14 +67,14 @@ describe("a sibling made from an invite", () => {
 
   test("[person:real-sibling-shares-family-draw] given a save with the inviter's family, when the life begins, then its sibling slots mirror the family with the inviter's slot waiting for the link and the others drawn as computer lives after the prologue", () => {
     const game = siblingLife();
-    expect(siblingSlots(game)).toEqual(["sibling-1", "sibling-2", "sibling-3"]);
+    expect(siblingSlots(game)).toEqual(["sibling-1", "sibling-2"]);
     expect(game.state.people.slots[INVITER_SLOT]).toEqual({ state: "invited", bond: null, person: null, invite: { looking: "sibling", fill: null } });
     finishPrologue(game);
     game.grant(1);
     game.endTurn();
     expect(siblingSlots(game)).toHaveLength(FAMILY.draw.siblings);
     expect(game.state.people.slots[INVITER_SLOT]?.state).toBe("invited");
-    for (const key of ["sibling-2", "sibling-3"]) {
+    for (const key of ["sibling-2"]) {
       const slot = game.state.people.slots[key]!;
       expect(slot.state).toBe("computer");
       expect(content.person[slot.person!]?.role).toBe("sibling");

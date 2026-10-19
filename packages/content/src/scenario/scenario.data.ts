@@ -216,8 +216,8 @@ export const aniekanScenario: ScenarioEntry = {
   },
   job: "activity.job-teacher",
   tenure: { "activity.job-teacher": 48 },
-  // person:invite-fills-a-slot: the three siblings scenario.md gives.
-  siblings: 3,
+  // person:invite-fills-a-slot: the two siblings scenario.md gives.
+  siblings: 2,
   hometown: "hometown.uyo",
   pockets: { NGN: { bank: naira(350000), cash: naira(20000) } },
   documents: [],
