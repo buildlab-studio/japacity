@@ -69,7 +69,7 @@ export function rideChoices(from: Position, to: Position, country: string | null
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresApart(from, to, lonMetresPerE3);
   // The month's fares (the fuel scarcity doubles them, place:rides-between-city-places): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.
-  // Home is the exception while no fare is in hand: the long walk is the cost (world:ride-sheet-shows-fares, `withHomeWalk`).
+  // To or from home is the exception while no fare is in hand: the long walk is the cost (world:ride-sheet-shows-fares, `withHomeWalk`).
   const far = !withinMetres(from, to, walkMetres, lonMetresPerE3);
   const priced = (where: "from" | "to"): Position | null => (ids === null ? (where === "from" ? from : to) : (content.place[ids[where] as keyof typeof content.place]?.position ?? null));
   const ways: RideChoice[] = WAYS.map((id) => ({
@@ -134,8 +134,8 @@ function pillOf(way: RideWayView, country: string | null, shuttle: boolean): str
  * by the simulation's own `rideFare` from content's positions of the two places, so the sheet says what the ride takes to
  * the penny; the bus asks nothing in a month the pass is bought (place:country-pass-covers-ways). Minutes are the wait plus the straight-line
  * metres at the way's pace as at home, the metres a thousandth of a degree of longitude is worth there read from the way. On foot is
- * shut past the walking limit, as the simulation shuts it, the room measured at the country's home spot (`walkPosition`); to the
- * room, the home there, it is the long walk, which `withHomeWalk` shuts while a fare is in hand.
+ * shut past the walking limit, as the simulation shuts it, the room measured at the country's home spot (`walkPosition`); to or
+ * from the room, the home there, it is the long walk, which `withHomeWalk` shuts while a fare is in hand.
  */
 export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to: string }, at: { from: Position; to: Position }, home = false, fareBp = 10000, context: AbroadContext = { country: null, shuttles: [] }): RideChoice[] {
   const { waitMinutes, walkMetres } = content.tuning.city.ride;
@@ -169,8 +169,8 @@ export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to
 }
 
 /**
- * place:rides-between-city-places, world:ride-sheet-shows-fares: the long walk home is open only while the money held pays no other way
- * there (a way the pass or the shuttle makes free is paid); with a fare in hand it is shut, saying so.
+ * place:rides-between-city-places, world:ride-sheet-shows-fares: the long walk to or from home is open only while the money held pays no
+ * other way (a way the pass or the shuttle makes free is paid); with a fare in hand it is shut, saying so.
  */
 export function withHomeWalk(ways: readonly RideChoice[], have: number): RideChoice[] {
   const payable = ways.some((way) => way.id !== "walk" && way.shut === undefined && way.fare <= have);

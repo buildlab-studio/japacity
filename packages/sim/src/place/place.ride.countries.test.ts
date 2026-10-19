@@ -154,6 +154,40 @@ describe("the three countries' ways", () => {
 const TRANSIT_PASS: Id<"activity"> = "activity.transit-pass-ca";
 const ZONE_PASS: Id<"activity"> = "activity.transit-pass-uae";
 
+describe("the long walk from the room", () => {
+  /** The cheapest fare from the room by the country's ways: the room has no position, so each stands at its flag-down figure. */
+  function cheapestFromRoom(country: Id<"country">, to: Id<"place">): number {
+    const rides = ridesOf(country);
+    return Math.min(...(["bus", "train", "taxi"] as const).flatMap((way) => (rides.ways[way] === undefined ? [] : [rideFare({ ...rides.ways[way], step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, null, content.place[to]?.position ?? null)])));
+  }
+
+  for (const [country, stop] of [
+    [UAE, "place.deira"],
+    [ITALY, "place.via-domitiana"],
+  ] as const) {
+    test(`[place:rides-between-city-places] given a life in the room in ${country} past walking distance of ${stop}, when it walks there with money short of the cheapest fare, then it is walked with no fare; holding the fare it is refused as too far`, () => {
+      const spot = content.country[country]!.homeSpot!;
+      expect(withinMetres(spot, positionOf(content, stop), content.tuning.city.ride.walkMetres, ridesOf(country).lonMetresPerE3)).toBe(false);
+      const cheapest = cheapestFromRoom(country, stop);
+      expect(cheapest).toBeGreaterThan(0);
+      const game = landed(country, 0);
+      const out = ride(game, ROOM, stop, "walk");
+      expect(debits(out)).toEqual([]);
+      expect(rode(out)).toMatchObject({ way: "walk", fare: 0, currency: MONEY[country] });
+      money(game, country, cheapest - 1);
+      expect(rode(ride(game, ROOM, stop, "walk"))).toMatchObject({ way: "walk", fare: 0 });
+      money(game, country, cheapest);
+      game.expectRejected({ type: "place/ride", from: ROOM, to: stop, way: "walk" }, "not-legal");
+    });
+  }
+
+  test("[place:rides-between-city-places] [place:employer-shuttle-rides-free] given a life in Dubai's room with no dirhams, when it walks to the site past walking distance, then it is refused: the shuttle's bus there asks nothing, so the fare is in hand", () => {
+    expect(withinMetres(content.country[UAE]!.homeSpot!, positionOf(content, SITE), content.tuning.city.ride.walkMetres, ridesOf(UAE).lonMetresPerE3)).toBe(false);
+    const game = landed(UAE, 0);
+    game.expectRejected({ type: "place/ride", from: ROOM, to: SITE, way: "walk" }, "not-legal");
+  });
+});
+
 describe("the pass covers the country's ways", () => {
   test("[place:country-pass-covers-ways] given the two new passes, when their entries are read, then each is a now-act once a month in its country at no time, costing the country's pass figure as a fare, staged at its station's machine", () => {
     for (const [act, country, currency, station] of [

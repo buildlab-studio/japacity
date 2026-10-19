@@ -103,14 +103,14 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
-  // Home stays walkable however far (world:ride-sheet-shows-fares).
+  // To or from home a walk stays open however far while no fare is in hand (world:ride-sheet-shows-fares).
   // While the life's car stands at home the sheet offers Drive.
   const drive = view.things.drive;
   const choicesTo = (to: MapPin, at: MapPin): RideChoice[] =>
     withHomeWalk(
       abroadWays.length > 0
-        ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp, { country: placeCountry, shuttles })
-        : rideChoices(at.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: at.id, to: to.id }, drive),
+        ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId || at.id === homeId, view.place.fareBp, { country: placeCountry, shuttles })
+        : rideChoices(at.position, to.position, abroad, view.place.fareBp, to.id === homeId || at.id === homeId, { from: at.id, to: to.id }, drive),
       have,
     );
   const ways = useMemo(() => (pin === null || here === null ? [] : choicesTo(pin, here)), [pin, here, abroad, view.place.fareBp, homeId, drive, abroadWays, have]);

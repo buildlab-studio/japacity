@@ -51,14 +51,19 @@ describe("an offer out of reach", () => {
 });
 
 describe("the free step", () => {
-  // A life may always walk home, however far, so far from
-  // home the free step is the walk home; "end the month" stays only for a life already at home (world:ride-sheet-shows-fares).
-  test("[world:nudge-says-one-thing] [world:ride-sheet-shows-fares] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to walk home, however far, never a ride she cannot pay; at home with nothing near it says to end the month", () => {
+  // A life with no fare may walk to or from home, however far, so far from home the free step is the walk home, and at
+  // home with nothing free near the step itself is named: the long walk out reaches it (world:ride-sheet-shows-fares).
+  test("[world:nudge-says-one-thing] [world:ride-sheet-shows-fares] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to walk home, however far, never a ride she cannot pay; at home with nothing near it names the step, the long walk out reaching it", () => {
     const view = atTheClinicStep(ada(0));
     const reach: Reach = { here: "place.passport-office", home: "place.family-house", stops: [{ id: "place.passport-office", position: FAR }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }, { id: "place.bode-thomas", position: BODE_THOMAS }] };
     expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
     const atHome: Reach = { here: "place.family-house", home: "place.family-house", stops: [{ id: "place.family-house", position: FAR }, { id: "place.tb-clinic", position: HOME_SPOT }] };
-    expect(nudgeOf(view, undefined, [], false, atHome)).toEqual({ key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } });
+    expect(freeStep(view, atHome)).toBeNull();
+    expect(nudgeOf(view, undefined, [], false, atHome).about).toBe("step");
+    expect(nudgeOf(view, undefined, [], false, atHome).key).not.toMatch(/^ui\.nudge\.broke/);
+    // With no home to walk to, nothing free near, the month's end is the step.
+    const homeless: Reach = { here: "place.passport-office", home: null, stops: [{ id: "place.passport-office", position: FAR }, { id: "place.tb-clinic", position: HOME_SPOT }] };
+    expect(nudgeOf(view, undefined, [], false, homeless)).toEqual({ key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } });
     const said = say("ui.nudge.broke.wait");
     expect(said.split(/\s+/).length).toBeLessThanOrEqual(8);
   });
@@ -151,6 +156,12 @@ describe("the free step abroad", () => {
   test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in London with no pounds, when the nudge is read, then a stop 1.9 km away is on foot by London's own measure, and a stop past walking distance gets the walk home to the room", () => {
     expect(freeStep(inLondon(0), reachTo(EAST))).toBeNull();
     expect(freeStep(inLondon(BUS - 1), reachTo(OUT))).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.the-room", at: [] } });
+  });
+
+  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in the room in London with no pounds, the step's stop past walking distance, when the nudge is read, then the step is named, the long walk out of the room reaching it", () => {
+    const inRoom: Reach = { here: "place.the-room", home: "place.the-room", stops: [{ id: "place.the-room", position: ROOM_SPOT }, { id: "place.peckham", position: PECKHAM }, { id: "place.tb-clinic", position: OUT }] };
+    expect(freeStep(inLondon(0), inRoom)).toBeNull();
+    expect(nudgeOf(inLondon(0), undefined, [], false, inRoom).key).not.toMatch(/^ui\.nudge\.broke/);
   });
 
   test("[world:nudge-says-one-thing] [place:country-pass-covers-ways] given Ada in London with no pounds in a month the bus pass is bought, when the nudge is read, then the bus asks nothing and no free step is named", () => {

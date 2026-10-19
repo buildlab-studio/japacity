@@ -834,8 +834,8 @@ function cheapestFare(view: NudgeView, reach: Reach): number {
  * When nothing can be paid, a free step: the step's stop needs a fare the money held (naira at home, the country's money
  * abroad) cannot pay and is too far to walk, so the nudge names what can be done on foot instead: walking home whenever home
  * is not here, however far (with no fare in hand a life may walk home, world:ride-sheet-shows-fares), then the racks for a
- * life in Makoko with no job, a job on a board within reach, and at home the month's end. Null when the step can be
- * reached.
+ * life in Makoko with no job, a job on a board within reach, and with no home the month's end. Null when the step can be
+ * reached, at home by the long walk out (with no fare in hand a life may walk out of home however far).
  */
 export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: string) => boolean = hasWords): (Nudge & { about: NudgeAbout; way: StepWay }) | null {
   if (heldForFare(view) >= cheapestFare(view, reach)) return null;
@@ -847,8 +847,9 @@ export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: st
   if (reach.home !== null && reach.home !== reach.here && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
   if (jobless && board.includes(RACKS) && onFoot(view, reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
   if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(view, reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
-  // At home with nothing free near: the month's end is the step, never a ride that cannot be paid (world:nudge-says-one-thing). Away
-  // from home the walk home comes first, above.
+  // At home with nothing free near, the step itself: with no fare the long walk out of home reaches it, as the long walk
+  // home does (place:rides-between-city-places). Away from home the walk home comes first, above; with no home, the month's end.
+  if (reach.home !== null && reach.home === reach.here) return null;
   if (has("ui.nudge.broke.wait")) return { key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } };
   return null;
 }

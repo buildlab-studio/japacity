@@ -434,8 +434,8 @@ export function walkPosition(content: Pick<Content, "place" | "country">, place:
 }
 
 /**
- * place:rides-between-city-places: a walk to the character's own home past the walking limit is accepted only while the money
- * held, cash and bank, cannot pay `cheapest`, the cheapest fare of the same ride by any other way.
+ * place:rides-between-city-places: a walk to or from the character's own home past the walking limit is accepted only while
+ * the money held, cash and bank, cannot pay `cheapest`, the cheapest fare of the same ride by any other way.
  */
 function longWalkHomeOpen(ctx: Ctx, currency: Currency, cheapest: number): boolean {
   return !ctx.check({ type: "money/min", currency, amount: cheapest }).met;
@@ -556,7 +556,7 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
     const here = walkPosition(ctx.content, from, country);
     const there = walkPosition(ctx.content, to, country);
     if (here !== null && there !== null && !withinMetres(here, there, ctx.content.tuning.city.ride.walkMetres, rides.lonMetresPerE3)) {
-      // The room is the home there: the long walk to it is open only while no fare of the country's ways is in hand.
+      // The room is the home there: the long walk to it or from it is open only while no fare of the country's ways is in hand.
       const cheapest = Math.min(
         ...ABROAD_WAYS.flatMap((other) => {
           const figures = rides.ways[other];
@@ -565,7 +565,7 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
           return [free ? 0 : rideFare({ ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3 }, start.position, end.position)];
         }),
       );
-      if (to !== ROOM || !longWalkHomeOpen(ctx, currency, cheapest)) return reject("not-legal", "Too far to walk.");
+      if ((to !== ROOM && from !== ROOM) || !longWalkHomeOpen(ctx, currency, cheapest)) return reject("not-legal", "Too far to walk.");
     }
     return payRide(ctx, command, 0, currency);
   }
@@ -597,12 +597,12 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   // Drive is a way only while the life's car stands at home.
   if (way === "drive" && !drives(ctx)) return reject("not-legal", "No car stands at home to drive.");
   // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
-  // A life walks home however far only while no fare home is in hand: the long walk is its cost.
+  // A life walks to or from home however far only while no fare of that ride is in hand: the long walk is its cost.
   const home = ctx.state.home.place ?? FAMILY_HOUSE;
   if (way === "walk" && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres, ctx.content.tuning.city.ride.lonMetresPerE3)) {
     const paid: RideWay[] = ["danfo", "keke", "okada", ...(drives(ctx) ? (["drive"] as const) : [])];
     const cheapest = Math.min(...paid.map((other) => rideFare(ctx.content, start.position, end.position, other, fareBpOf(ctx))));
-    if (to !== home || !longWalkHomeOpen(ctx, "NGN", cheapest)) return reject("not-legal", "Too far to walk.");
+    if ((to !== home && from !== home) || !longWalkHomeOpen(ctx, "NGN", cheapest)) return reject("not-legal", "Too far to walk.");
   }
   return payRide(ctx, command, rideFare(ctx.content, start.position, end.position, way, fareBpOf(ctx)), "NGN");
 }

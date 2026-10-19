@@ -291,6 +291,22 @@ describe("coming home", () => {
     expect(game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.tejuosho-market", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
+  test("[place:rides-between-city-places] given a life living in Makoko, when it walks from home to Bode Thomas Street past walking distance, then it is walked with no fare while the naira held cannot pay the cheapest fare there, and refused as too far with that fare in hand", () => {
+    const game = start({ content, scenario: "scenario.ada" });
+    game.accept({ type: "home/move", to: "place.makoko" });
+    const home = content.place["place.makoko"]?.position ?? null;
+    const there = content.place["place.bode-thomas"]?.position ?? null;
+    if (home === null || there === null) throw new Error("A place has no position.");
+    expect(withinMetres(home, there, content.tuning.city.ride.walkMetres)).toBe(false);
+    const cheapest = Math.min(...(["danfo", "keke", "okada"] as const).map((way) => rideFare(content, home, there, way)));
+    setPockets(game, { NGN: { cash: cheapest - 1, bank: 0 } });
+    const out = game.accept({ type: "place/ride", from: "place.makoko", to: "place.bode-thomas", way: "walk" });
+    expect(out.events.filter((event) => event.type === "wallet/debited")).toEqual([]);
+    expect(out.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
+    setPockets(game, { NGN: { cash: cheapest, bank: 0 } });
+    game.expectRejected({ type: "place/ride", from: "place.makoko", to: "place.bode-thomas", way: "walk" }, "not-legal");
+  });
+
   test("[place:rides-between-city-places] given the fuel scarcity's month, when the naira held pays the flat fare but not the month's, then the long walk home is open", () => {
     const game = start({ content, scenario: "scenario.ada" });
     game.accept({ type: "home/move", to: "place.makoko" });

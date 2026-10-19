@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { content } from "@japacity/content";
 import { metresApart, withinMetres } from "@japacity/sim";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { Group, Vector3 } from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
@@ -367,6 +367,25 @@ describe("the ride", () => {
     expect(walk.dataset.shut).toBe("fare");
     expect(walk.textContent).toContain(mapWords("map.way.walk-fare"));
     expect(walk.getAttribute("aria-checked")).toBe("false");
+  });
+
+  test("[world:ride-sheet-shows-fares] [place:rides-between-city-places] given a life standing at home with a stop past walking distance, when its ride sheet shows, then with no fare held Walk is open and chosen as the long walk, and with the fare in hand it is greyed with its reason", async () => {
+    const view = engineView();
+    const places = Object.values(content.place).filter((place) => place.where === view.place.where);
+    const pins = mapPins({ places, here: HOME, home: HOME, homeSpot: HOME_SPOT, been: [], built: BUILT, name: nameOf });
+    const far = { ...HOME_SPOT, latE3: HOME_SPOT.latE3 + Math.ceil((content.tuning.city.ride.walkMetres * 3) / LAT_METRES_PER_E3) };
+    const farPins = pins.map((pin) => (pin.id === "place.bode-thomas" ? { ...pin, position: far } : pin));
+    const walkOn = async (naira: number): Promise<{ disabled: boolean; checked: string | null; shut: string | undefined }> => {
+      const held = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: naira, bank: 0 } } };
+      await renderWithView(<Map pins={farPins} country={LAGOS} countries={COUNTRIES} drawing={false} home={HOME} onGo={() => undefined} onClose={() => undefined} />, held);
+      fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
+      const walk = within(screen.getByRole("dialog")).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
+      const read = { disabled: walk.disabled, checked: walk.getAttribute("aria-checked"), shut: walk.dataset.shut };
+      cleanup();
+      return read;
+    };
+    expect(await walkOn(0)).toEqual({ disabled: false, checked: "true", shut: undefined });
+    expect(await walkOn(1_000_000_00)).toEqual({ disabled: true, checked: "false", shut: "fare" });
   });
 
   test("[world:ride-sheet-shows-fares] [world:painted-maps-abroad] given the room abroad, which has no position, when the ways to and from it are read, then the walk is measured at the country's home spot: long home from Heathrow, a plain walk from Peckham, too far from the room to Heathrow", () => {
