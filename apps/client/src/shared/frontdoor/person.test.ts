@@ -2,7 +2,7 @@
 // player's own colours on the look with the page's photo drawn in them.
 import { describe, expect, test } from "vitest";
 
-import { keepPerson, keptStyleOf, readPerson } from "./person";
+import { keepPerson, keptLookFile, keptStyleOf, playerName, readPerson } from "./person";
 import { PERSON_KEY } from "../kept/storage";
 import { memoryStorage } from "../testing/storage";
 
@@ -37,5 +37,23 @@ describe("the person's own colours, kept", () => {
     expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null, style: { hair: "gold" } });
     storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_ada", name: "Ada", archetype: null, style: { skin: "nothing" }, photo: PHOTO }));
     expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null });
+  });
+});
+
+describe("a kept look the game no longer knows", () => {
+  test("[prologue:front-door-builds-a-person] given a person kept with an old chr_ look, or any look the game does not ship, when it is read back, then only the look is dropped: the name, the archetype, the colours and the photo stand", () => {
+    const storage = memoryStorage();
+    for (const look of ["chr_ada", "person_nobody", ""]) {
+      storage.setItem(PERSON_KEY, JSON.stringify({ look, name: "Bola", archetype: "nurse", style: { top: "wine" }, photo: PHOTO, photoPx: 258 }));
+      expect(readPerson(storage)).toEqual({ name: "Bola", archetype: "nurse", style: { top: "wine" }, photo: PHOTO, photoPx: 258 });
+      expect(keptLookFile(storage)).toBeNull();
+    }
+    storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Bola", archetype: "nurse" }));
+    expect(readPerson(storage)).toEqual({ name: "Bola", archetype: "nurse" });
+    expect(playerName({ scenario: "scenario.ada" }, storage)).toBe("Bola");
+    // A shipped look is kept as it is.
+    storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_tunde", name: "Bola", archetype: "nurse" }));
+    expect(readPerson(storage)?.look).toBe("person_tunde");
+    expect(keptLookFile(storage)).toBe("shared/person/person_tunde.glb");
   });
 });

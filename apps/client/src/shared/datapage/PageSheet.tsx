@@ -75,7 +75,7 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     strip: { district: districtOf(view), years: yearsOf(months), percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
     // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (prologue:player-colours-on-looks).
-    ...(person === null ? {} : { wear: { look: person.look, ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),
+    ...(person === null ? {} : { wear: { look: gateLook(person.look), ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),
     stamps: stampsOf(view),
   };
 }

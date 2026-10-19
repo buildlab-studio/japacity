@@ -7,7 +7,9 @@ import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { keepPerson, readPerson } from "../frontdoor/person";
 import { createGameStore } from "../../authority/store";
+import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
+import { PERSON_KEY } from "../kept/storage";
 import { DataPage } from "./DataPage";
 import { pageOf } from "./PageSheet";
 import { PHOTO_BOX, PHOTO_MIN_PX, photoHeight, photoWidth, sharpEnough } from "./photo.size";
@@ -81,5 +83,16 @@ describe("the photo's size", () => {
     expect(pageOf(store.getState().view!).wear).toEqual({ look: "person_tunde", style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
     keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photoPx: 480 });
     expect(readPerson()?.photoPx).toBeUndefined();
+  });
+
+  test("[prologue:front-door-builds-a-person] given a person kept with an old chr_ look, when the page is made, then it shows the look a person with none would show, with the name, the colours and the photo kept", async () => {
+    localStorage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Bola", archetype: null, style: { top: "wine" }, photo: PHOTO, photoPx: 480 }));
+    const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
+    const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
+    await store.getState().chooseLife("scenario.ada");
+    const page = pageOf(store.getState().view!);
+    expect(page.name).toContain("Bola");
+    expect(page.wear).toEqual({ look: gateLook(undefined), style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
+    expect(page.wear?.look).toMatch(/^person_/);
   });
 });
