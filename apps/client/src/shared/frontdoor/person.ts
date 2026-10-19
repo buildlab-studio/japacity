@@ -4,7 +4,7 @@
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { lookOf } from "./looks";
+import { personOf } from "../scene/roster";
 import { readStyle, type LookStyle } from "./style";
 import { browserStorage, PERSON_KEY } from "../kept/storage";
 
@@ -36,6 +36,11 @@ function isPerson(value: unknown): value is Record<string, unknown> & Pick<KeptP
   return typeof name === "string" && (archetype === null || typeof archetype === "string");
 }
 
+/** A look the front door offers: a shipped person of the roster who is a passer-by, as `looks.ts` lists them. */
+function isLook(id: string): boolean {
+  return personOf(`shared/person/${id}.glb`)?.role === "passer-by";
+}
+
 /** The person kept on this device, or null when none is, or what is kept cannot be read. */
 export function readPerson(storage: Read | null = browserStorage()): KeptPerson | null {
   try {
@@ -45,7 +50,7 @@ export function readPerson(storage: Read | null = browserStorage()): KeptPerson 
     if (!isPerson(parsed)) return null;
     const { name, archetype } = parsed;
     // A look the game no longer ships (an old `chr_` name, any name not of the looks) is dropped, never the person with it.
-    const look = typeof parsed.look === "string" ? lookOf(parsed.look)?.id : undefined;
+    const look = typeof parsed.look === "string" && isLook(parsed.look) ? parsed.look : undefined;
     const style = readStyle(parsed.style);
     // A photo is kept as made too; one drawn in a style that does not read back is not the figure's.
     const drawnAs = style !== undefined || parsed.style === undefined;
