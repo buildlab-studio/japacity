@@ -57,7 +57,7 @@ function hearingRegistry(heard: Effect[]): Registry {
 
 /** A life played through a given registry and world, one tick per turn. */
 function life(kinds: Registry, worldAt: (tick: number) => World, used: Content = content) {
-  let state: State = newState("scenario.ada", "seed-1", used);
+  let state: State = newState("scenario.graduate", "seed-1", used);
   let tick = 0;
   const allLines: ReportLine[] = [];
   return {
@@ -84,7 +84,7 @@ function life(kinds: Registry, worldAt: (tick: number) => World, used: Content =
 
 describe("delivering the news", () => {
   test("[news:changed-stages-delivered-once] given a world whose stories move, when 40 months are played, then each stage of each story is delivered once and the record holds the latest", () => {
-    const game = start({ scenario: "scenario.ada", content, worldSeed: "world-1" });
+    const game = start({ scenario: "scenario.graduate", content, worldSeed: "world-1" });
     const seen: string[] = [];
     for (let month = 0; month < 40; month += 1) {
       if (game.state.turn.banked === 0) game.grant(1);
@@ -100,7 +100,7 @@ describe("delivering the news", () => {
 
   test("[news:changed-stages-delivered-once] given a story reaches a new stage, when the next turn ends, then it is delivered in that turn's news phase, once", () => {
     const announced = firstTick("world-1", firstContent, RECRUIT, "announced")!;
-    const game = start({ scenario: "scenario.ada", content: firstContent, worldSeed: "world-1" });
+    const game = start({ scenario: "scenario.graduate", content: firstContent, worldSeed: "world-1" });
     for (let tick = 0; tick < announced; tick += 1) {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
     }
@@ -112,7 +112,7 @@ describe("delivering the news", () => {
   });
 
   test("[news:changed-stages-delivered-once] given a character away while stories moved on, when they come back, then each story is shown once, at its latest stage only", () => {
-    const game = start({ scenario: "scenario.ada", content, worldAt: (tick) => standInWorld("world-1", tick === 0 ? 0 : 80, content) });
+    const game = start({ scenario: "scenario.graduate", content, worldAt: (tick) => standInWorld("world-1", tick === 0 ? 0 : 80, content) });
     // Tick 0 carries only the opening era's story (director:one-era-at-a-time).
     const opening = standInWorld("world-1", 0, content).news;
     expect(deliveries(game.endTurn().lines).map((line) => line.params.story)).toEqual(opening.map((story) => story.id));
@@ -127,7 +127,7 @@ describe("delivering the news", () => {
   });
 
   test("[director:one-era-at-a-time] given three months played on the stand-in world, when the view is read, then the era's ticks are shown as this player's months", () => {
-    const game = start({ scenario: "scenario.ada", content });
+    const game = start({ scenario: "scenario.graduate", content });
     for (let month = 0; month < 3; month += 1) game.endTurn();
     const era = game.view().era;
     if (era === null) throw new Error("The stand-in world has an era from tick 0.");
@@ -173,7 +173,7 @@ describe("for you", () => {
     // Nobody can hear of the UK route in this copy, so every story stays outside "for you".
     const deaf: Content = JSON.parse(JSON.stringify(content)) as Content;
     for (const route of Object.values(deaf.route)) route.hearIf = [{ type: "quality/min", quality: "quality.edu-level", value: 99 }];
-    const game = start({ scenario: "scenario.ada", content: deaf, worldSeed: "world-1" });
+    const game = start({ scenario: "scenario.graduate", content: deaf, worldSeed: "world-1" });
     for (let month = 0; month < 20; month += 1) game.endTurn();
     const news = game.view().news;
     expect(news.length).toBeGreaterThan(0);
@@ -217,7 +217,7 @@ describe("hearing through the news", () => {
     const rumoured: NewsEntry = { ...recruit, standIn: { ...recruit.standIn, announce: { between: [3, 3] }, rumourLead: 2 } };
     const used: Content = { ...content, news: { [RECRUIT]: rumoured } };
     const play = (where: "abroad" | "home") => {
-      const game = start({ scenario: "scenario.ada", content: used, worldAt: (tick) => standInWorld("w", tick, used) });
+      const game = start({ scenario: "scenario.graduate", content: used, worldAt: (tick) => standInWorld("w", tick, used) });
       const facts = { label: "player" as const, ageMonths: 400, where, country: where === "abroad" ? ("country.uk" as const) : null, status: where === "abroad" ? ("status.uk-settled" as const) : null, statusMonthsLeft: null, monthsInCountry: 0, job: null, meetsFloor: {}, eduLevel: 3, englishBand: null, home: "city" as const, joint: null, funds: null, assistanceTaken: 0, sponsorReady: null };
       const sibling = { with: { kind: "player" as const, pair: "pair-9" }, role: "sibling" as const, stage: "connected" as const, firstMonth: null, partnerMonth: null, marriedMonth: null, lastMomentMonth: null, moments: [], facts, pending: { mine: null, theirs: null }, standIn: null, ended: null, cooldownUntil: null, consent: null };
       // The first turn draws the family's siblings; they are replaced by this one, so the draw cannot decide the test.
@@ -237,7 +237,7 @@ describe("hearing through the news", () => {
   test("[news:announcement-makes-routes-heard] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
     const announced = firstTick("golden-world", content, RECRUIT, "announced")!;
     expect(announced + 1).toBeLessThan(content.route[UK_ROUTE]!.hearBy!);
-    const game = start({ scenario: "scenario.ada", content, worldSeed: "golden-world" });
+    const game = start({ scenario: "scenario.graduate", content, worldSeed: "golden-world" });
     for (let tick = 0; tick < announced; tick += 1) game.endTurn();
     expect(game.state.route[UK_ROUTE]?.state).toBe("unknown");
     const result = game.endTurn();

@@ -13,7 +13,7 @@ const DONE: PlayerView["chapter"]["done"] = ["chapter.find-your-feet", "chapter.
 
 describe("chapters 5 and 6, and after", () => {
   test("[chapter:long-game-after-last-chapter] given Landing from the engine after the flight, then its items are content's words", async () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     game.endTurn();
     const view = game.view();
     expect(view.chapter.current).toBe("chapter.landing");

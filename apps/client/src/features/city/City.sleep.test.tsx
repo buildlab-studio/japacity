@@ -49,10 +49,10 @@ function setPart(store: GameStore, part: DayPart): void {
 
 /** Ada in the parlour by the bed with a month behind her (so no first night's card), the clocks faked from here on. */
 async function byTheBed(part: DayPart = "afternoon") {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   game.endTurn();
   // The home's one small card was read in an earlier sitting, so the corner is not under it.
-  markTaught("home:place.family-house", "scenario.ada");
+  markTaught("home:place.family-house", "scenario.graduate");
   const rendered = await renderWithGame(<City world results={(place) => <p data-results-for={place} />} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} />, game);
   await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
   setPart(rendered.store, part);

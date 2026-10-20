@@ -25,7 +25,7 @@ describe("the local authority", () => {
     const storage = memoryStorage();
     const authority = localAuthority({ fastClock: false, storage, makeSeed: seeds(), now: () => 0 });
     expect(authority.start).toEqual({ kind: "new" });
-    await authority.newLife("scenario.ada");
+    await authority.newLife("scenario.graduate");
 
     const before = await authority.view();
     expect(before.month).toBe(0);
@@ -49,7 +49,7 @@ describe("the local authority", () => {
     expect(storage.items.has(SAVE_KEY)).toBe(false);
     const again = localAuthority({ fastClock: false, storage, makeSeed: seeds(), now: () => 0 });
     expect(again.start).toEqual({ kind: "new" });
-    await again.newLife("scenario.ada");
+    await again.newLife("scenario.graduate");
     expect(storage.items.has(SAVE_KEY)).toBe(true);
     expect(localAuthority({ fastClock: false, storage, makeSeed: seeds(), now: () => 0 }).start).toEqual({ kind: "loaded" });
   });
@@ -57,7 +57,7 @@ describe("the local authority", () => {
   test("given a saved life, when the page reloads, then the same life comes back from the save", async () => {
     const storage = memoryStorage();
     const first = localAuthority({ fastClock: false, storage, makeSeed: seeds(), now: () => 0 });
-    await first.newLife("scenario.ada");
+    await first.newLife("scenario.graduate");
     let view = await first.view();
     for (let month = 0; month < 3; month += 1) {
       const reply = await first.send(endTurn(view.v));
@@ -78,7 +78,7 @@ describe("the local authority", () => {
   test("given a save for another content version, when the page loads, then a new life starts and says why", async () => {
     const storage = memoryStorage();
     const old = localAuthority({ fastClock: false, storage, makeSeed: seeds(), now: () => 0 });
-    await old.newLife("scenario.ada");
+    await old.newLife("scenario.graduate");
     const view = await old.view();
     await old.send(endTurn(view.v));
 
@@ -199,7 +199,7 @@ describe("a life from sixteen through a tile, where a life may be started over",
     await authority.newLife(PROLOGUE);
     expect(seedOf(storage)).toMatch(/^seed-\d+$/);
     keepTile(storage, "trader");
-    await authority.newLife("scenario.ada");
+    await authority.newLife("scenario.graduate");
     expect(seedOf(storage)).toMatch(/^seed-\d+$/);
   });
 });

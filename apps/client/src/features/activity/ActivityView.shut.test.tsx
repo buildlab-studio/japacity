@@ -31,7 +31,7 @@ function cost(option: ActivityOption | undefined): number {
 describe("a shut button's reason", () => {
   test("[world:one-action-one-sheet] given the passport and the transcript on one sheet and the transcript asked for this month, when the passport is short, then its line and its button say the same short figure", async () => {
     // activity:now-acts-and-month-acts: the transcript is asked for at once and paid then, so the passport is short by what is left after it.
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     setPockets(game, { NGN: 8_940_000 });
     const transcript = cost(game.view().activities.find((option) => option.id === TRANSCRIPT));
     game.accept({ type: "activity/now", activity: TRANSCRIPT, param: null });
@@ -52,7 +52,7 @@ describe("a shut button's reason", () => {
   });
 
   test("[world:one-action-one-sheet] given no passport, when the English test's card shows, then its button is shut and says it needs the passport first", async () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     const sitting = view.activities.find((option) => option.id === ENGLISH_TEST);
     expect(sitting?.missing).toEqual([{ type: "document/held", document: "document.passport" }]);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
@@ -66,7 +66,7 @@ describe("a shut button's reason", () => {
   });
 
   test("[world:one-action-one-sheet] given no route heard of, when the adviser's and the official page's cards show, then each card says once that it needs a route you have heard of and its button is shut, never what is left", async () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     await renderWithView(<ActivityPicker only={[ADVISER, OFFICIAL]} />, view);
     for (const id of [ADVISER, OFFICIAL]) {
       expect(addButton(id).disabled).toBe(true);
@@ -82,7 +82,7 @@ describe("a shut button's reason", () => {
   });
 
   test("[world:one-action-one-sheet] given the engine says a cost cannot be paid though the pockets cover it, when the card shows, then the button is shut with no figure left over it", async () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     const adviser: ActivityOption = { id: ADVISER, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount: 8_000_000 }], affordable: false, when: "now", done: false };
     await renderWithView(<ActivityPicker only={[ADVISER]} />, { ...view, activities: [adviser] });
     expect(addButton(ADVISER).disabled).toBe(true);

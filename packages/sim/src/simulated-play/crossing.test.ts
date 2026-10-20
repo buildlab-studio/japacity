@@ -9,7 +9,7 @@ import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
 import { bp, convertMinor, mulDiv } from "../engine/int";
 import type { Accepted, Content, Currency, ForeignCurrency, Id, PlayerView, State } from "../engine/types";
-import { flownAda } from "../testing/goal.journey";
+import { flownGraduate } from "../testing/goal.journey";
 import { abroad, closeTypes, markBy, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
 import { applyEffects, draw, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UNIT } from "../testing/route.journey";
@@ -96,7 +96,7 @@ describe("rules that cross kinds", () => {
     function heldLife(): Game {
       const required = 1700000 - 400000 + 117100 * 9;
       const options = {
-        from: "scenario.tunde" as Id<"scenario">,
+        from: "scenario.banker" as Id<"scenario">,
         pockets: { NGN: { bank: 0, cash: 0 }, GBP: { bank: required + 400000 - SHORT, cash: 0 } },
         vars: () => pinned,
         quiet: true,
@@ -166,7 +166,7 @@ describe("rules that cross kinds", () => {
   });
 
   test("[route:refusal-refunds-and-resets] [chapter:done-chapter-stays-done] [chapter:met-items-close-the-chapter] given chapter 3 open and a visa refused, when the decision is made, then the confirmation is voided, the route's and the chapter's deposit and applied items come undone, chapter 3 stays current and the chapters before it stay done", () => {
-    const options = { from: "scenario.tunde" as Id<"scenario">, tuning: { refusalMinBp: 10000, refusalMaxBp: 10000 } };
+    const options = { from: "scenario.banker" as Id<"scenario">, tuning: { refusalMinBp: 10000, refusalMaxBp: 10000 } };
     const used = readyContent(content, options);
     const game = readyLife(content, { ...options, seed: offerSeed(used, 3) });
     toOffer(game);
@@ -227,11 +227,11 @@ describe("rules that cross kinds", () => {
 
   test("[activity:job-hunt-lands-offer] [offer:effect-opens-named-offer] [activity:one-job-paid-monthly] [wallet:view-carries-month-pay] given Ada with no job, when a month of hunting lands the teaching job, then a job offer opens naming it, accepting starts the job at once, and the next month pays its salary to the bank", () => {
     const seed = seedWhere((candidate) => {
-      const trial = start({ scenario: "scenario.ada", seed: candidate, content });
+      const trial = start({ scenario: "scenario.graduate", seed: candidate, content });
       trial.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
       return offerOf(trial.view(), "offer.job") !== undefined;
     });
-    const game = start({ scenario: "scenario.ada", seed, content });
+    const game = start({ scenario: "scenario.graduate", seed, content });
     game.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
     const offer = offerOf(game.view(), "offer.job");
     expect(offer?.terms.job).toBe("activity.job-teacher");
@@ -258,7 +258,7 @@ describe("rules that cross kinds", () => {
 
 describe("whole-life rules that cross kinds", () => {
   test("[status:lost-job-starts-clock] [ladders:sponsor-job-ties-status] [activity:new-job-replaces-held] given Tunde's recorded life on the sponsored worker's status, when he quits the sponsor's job, then the status clock starts at the entry's months, runs one a month, and at its end the status lapses to the overstayer", () => {
-    const game = replayTo("tunde-abroad", content, (played) => played.state.status.current?.entry === SPONSORED && played.state.activity.job === played.state.status.current.job);
+    const game = replayTo("banker-abroad", content, (played) => played.state.status.current?.entry === SPONSORED && played.state.activity.job === played.state.status.current.job);
     const clock = content.status[SPONSORED]?.clockMonths ?? 0;
     expect(clock).toBeGreaterThan(0);
     const quit = game.accept({ type: "activity/quit" });
@@ -274,7 +274,7 @@ describe("whole-life rules that cross kinds", () => {
   });
 
   test("[status:course-passed-or-withdrawn] [obligation:loan-default-and-recovery] [abroad-money:tuition-paid-in-instalments] given Ada's recorded flight on the student status with no pounds to pay her tuition, when the instalment is missed past its grace, then the tuition defaults and the student is withdrawn the same month: the status lapses at once to the overstayer", () => {
-    const game = replayTo("ada-careful", content, (played) => played.state.place.where === "abroad");
+    const game = replayTo("graduate-careful", content, (played) => played.state.place.where === "abroad");
     expect(game.state.status.current?.entry).toBe(STUDENT);
     const grace = content.obligation[TUITION]?.grace ?? 0;
     let defaulted: Accepted | null = null;
@@ -292,7 +292,7 @@ describe("whole-life rules that cross kinds", () => {
   });
 
   test("[car:car-bought-on-finance] [car:missed-payments-take-the-car] [car:licence-and-driving-test] [credit:judgment-blocks-credit] given Tunde abroad, who drives, and a mark of 30 who buys a car on finance, when three payments in a row are missed under a third of the price, then the car is taken, the shortfall is owed with a judgment, and the judgment holds credit/min above its cap unmet whatever the mark", () => {
-    const game = settledAbroad(content, { from: "scenario.tunde" });
+    const game = settledAbroad(content, { from: "scenario.banker" });
     closeTypes(game, "rent", "upkeep", "phone");
     // car:licence-and-driving-test: the home licence comes with the first month abroad.
     month(game);
@@ -347,7 +347,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.state.wallet.totals.out.remit?.GBP).toBe(sum * 3 - bp(sum, remit.appFeeBp) - bp(sum, remit.bankFeeBp));
   });
   test("[return:december-visit-set-piece] [place:fare-home-in-local-currency] [place:view-shows-place-and-returns] given Ada's recorded flight with December in the first month abroad, when the December scene opens and she goes, then the fare home in the view carries the December factor, the visit takes that fare both ways in pounds as `fare`, and each answer's price leaves the pound pockets", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     const country = content.country["country.uk"]!;
     expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: bp(country.fare, country.decemberFactorBp) });
     setPockets(game, { GBP: 1000000 });
@@ -442,7 +442,7 @@ describe("whole-life rules that cross kinds", () => {
     const quiet = applyOverlay(content, { version: "crossing-quiet", tuning: { offer: { maxNewPerMonth: 0 }, quality: { wellbeingRest: 0 } } });
     const hunt = slot("activity.learn-tech");
     const seed = seedWhere((candidate) => draw(candidate, "health", 0, 10000) < health.illnessBp);
-    const game = start({ content: quiet, scenario: "scenario.ada", seed });
+    const game = start({ content: quiet, scenario: "scenario.graduate", seed });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 5000000 * UNIT, reason: "gift" }]);
     const under = (): Accepted => {
       const wellbeing = game.state.quality["quality.wellbeing"] ?? 0;

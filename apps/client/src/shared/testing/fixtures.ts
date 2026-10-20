@@ -6,7 +6,7 @@ import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
-import { applyEffects, flownAda, type Game, lifeSaves, replayedGame, setPockets, start } from "@japacity/sim/testing";
+import { applyEffects, flownGraduate, type Game, lifeSaves, replayedGame, setPockets, start } from "@japacity/sim/testing";
 
 const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -20,7 +20,7 @@ const ROUTE = "route.uk-masters" as const;
 
 /** A life in the middle of an application: an offer letter, open offers, and the interview open. */
 export function richView(): PlayerView {
-  const base = engineView("scenario.tunde");
+  const base = engineView("scenario.banker");
   const route = base.routes.find((entry) => entry.id === ROUTE);
   if (route === undefined) throw new Error("The content has no UK master's route.");
   const checklist = content.route[ROUTE]?.checklist ?? [];
@@ -181,7 +181,7 @@ export const ABROAD_POCKETS = { GBP: 0, USD: 800_000, NGN: 500_000_000 } as cons
 
 /** Ada's careful life replayed up to and including the flight, with the pockets of `ABROAD_POCKETS`. */
 export function abroadGame(): Game {
-  const game = recordedGame("ada-careful");
+  const game = recordedGame("graduate-careful");
   setPockets(game, ABROAD_POCKETS);
   return game;
 }
@@ -195,7 +195,7 @@ const MONEY_OF: Readonly<Record<string, Currency>> = { "country.uk": "GBP", "cou
  * engine's own in that country.
  */
 export function landedGame(country: Id<"country">, amount = 500_000): Game {
-  const game = start({ content, scenario: "scenario.ada" });
+  const game = start({ content, scenario: "scenario.graduate" });
   applyEffects(game, [{ type: "place/move", to: "abroad", country }]);
   const currency = MONEY_OF[country];
   if (currency === undefined) throw new Error(`No money for ${country}.`);
@@ -218,7 +218,7 @@ export function abroadView(months = 0): PlayerView {
  * tick of the flight, in which the first month abroad is played, is December.
  */
 export function decemberAbroadGame(): Game {
-  const game = flownAda(content);
+  const game = flownGraduate(content);
   setPockets(game, ABROAD_POCKETS);
   return game;
 }
@@ -313,7 +313,7 @@ export function richAbroadView(): PlayerView {
 }
 
 /** A new life as a game handle on the real content, for views a few commands or effects away. */
-export function newGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string): Game {
+export function newGame(scenario: Id<"scenario"> = "scenario.graduate", seed?: string): Game {
   return start(seed === undefined ? { scenario, content } : { scenario, seed, content });
 }
 
@@ -325,7 +325,7 @@ export function newGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string
 export const chargedLivingContent: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
 
 /** A new life on `chargedLivingContent`: its living at home is charged as the month turns. */
-export function chargedLivingGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string): Game {
+export function chargedLivingGame(scenario: Id<"scenario"> = "scenario.graduate", seed?: string): Game {
   return start(seed === undefined ? { scenario, content: chargedLivingContent } : { scenario, seed, content: chargedLivingContent });
 }
 

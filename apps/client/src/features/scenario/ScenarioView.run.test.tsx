@@ -200,16 +200,16 @@ describe("the run through the front door", () => {
     fireEvent.click(next(say("ui.door.next")));
     expect(stage()).toBe("ready");
     expect(document.querySelector("[data-archetypes]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.tunde.kind")}` }));
+    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.banker.kind")}` }));
     expect(stage()).toBe("page");
-    expect(board()).toContain(say("scenario.tunde.kind"));
+    expect(board()).toContain(say("scenario.banker.kind"));
     // A true number: the birthdays passed, 28 and some months.
-    expect(board()).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.tunde")) }));
-    expect(yearsOf(readyMonths("scenario.tunde"))).toBe(28);
+    expect(board()).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.banker")) }));
+    expect(yearsOf(readyMonths("scenario.banker"))).toBe(28);
     fireEvent.click(next(say("ui.door.begin")));
     // Begin stamps nothing: the page takes no stamp before a visa (prologue:printed-page-hands-over).
     expect(document.querySelector("[data-stamp]")).toBeNull();
-    await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"), { timeout: 4000 });
+    await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.banker"), { timeout: 4000 });
     expect(readPerson()?.name).toBe("Bayo");
     expect(readPerson()?.archetype).toBeNull();
   });
@@ -223,7 +223,7 @@ describe("the run through the front door", () => {
     // No path and no age beside the name: neither the first tile's nor any ready life's.
     expect(document.body.textContent).not.toMatch(/years old|\d+ yrs/);
     expect(document.body.textContent).not.toContain(" · ");
-    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.tunde.kind")}` }));
+    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.banker.kind")}` }));
     expect(stage()).toBe("page");
     // Every ready life starts in the family house, so its Where you live shows that home alone and names Surulere.
     expect(document.querySelector("[data-page-home]")?.getAttribute("data-page-home")).toBe("family-house");
@@ -233,7 +233,7 @@ describe("the run through the front door", () => {
     // Back to the ready lives with one picked, the pick's line stands beside the name.
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
     expect(stage()).toBe("ready");
-    expect(board()).toContain(say("scenario.tunde.kind"));
+    expect(board()).toContain(say("scenario.banker.kind"));
     expect(board()).toMatch(/28 yrs/);
   });
 

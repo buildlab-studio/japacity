@@ -131,7 +131,7 @@ describe("tints and pictures", () => {
 });
 
 describe("what a button says", () => {
-  const view = engineView("scenario.ada");
+  const view = engineView("scenario.graduate");
   // A home of your own's corner, whose meal and pot are bought; the family house's pot is free.
   const cooking = fanEntriesOf(thingAt("home-room-house", "cooking"));
 

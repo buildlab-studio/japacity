@@ -48,7 +48,7 @@ describe("the player's words never count the engine", () => {
   });
 
   test("[text:bands-not-figures] [world:month-end-results-sheet] given a lived month's results opened whole, when they are read, then nothing counts the engine", async () => {
-    const view = recordedGame("tunde-borrower").view();
+    const view = recordedGame("banker-borrower").view();
     expect(view.report).not.toBeNull();
     await renderWithView(<Results place="Ojuelegba" />, view);
     const whole = screen.queryByRole("button", { name: /See the whole month/ });
@@ -57,7 +57,7 @@ describe("the player's words never count the engine", () => {
   });
 
   test("[text:bands-not-figures] [world:one-action-one-sheet] given the asks of a life in the middle of its months, when the sheet is read, then nothing counts the engine and no line says a percentage", async () => {
-    const game = recordedGame("ada-careful", 290 - 93);
+    const game = recordedGame("graduate-careful", 290 - 93);
     const view = game.view();
     expect(view.offers.map((offer) => offer.entry)).toContain("offer.salary-loan");
     await renderWithView(<OfferView />, view);

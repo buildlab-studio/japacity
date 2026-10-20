@@ -15,8 +15,8 @@ import { CardView } from "./ShareCard";
 type Shared = NonNullable<PlayerView["card"]>;
 
 /** Ada just flown, with her card swapped for the kind under test. */
-function adaWith(kind: Shared["kind"]): PlayerView {
-  const view = recordedGame("ada-careful").view();
+function graduateWith(kind: Shared["kind"]): PlayerView {
+  const view = recordedGame("graduate-careful").view();
   if (view.card === null) throw new Error("Ada's recorded life has no card.");
   return { ...view, card: { ...view.card, kind, ...(kind === "chapter" ? { chapter: "chapter.landing" as const } : {}) } };
 }
@@ -42,7 +42,7 @@ afterEach(() => {
 describe("a card for every moment", () => {
   test("[share:cards-due-at-set-moments] [share:send-off-card-kept] given each kind of card the view carries, when it is due, then it opens with the kind's title and a tile names it, the send-off from its tile", async () => {
     for (const kind of shareKinds) {
-      const { store } = await renderWithView(<CardView />, adaWith(kind));
+      const { store } = await renderWithView(<CardView />, graduateWith(kind));
       // share:send-off-card-kept: the send-off opens from its tile (that it never opens on its own is ShareCard.keepsake.test.tsx's).
       if (kind === "send-off") fireEvent.click(screen.getByRole("button", { name: say("ui.card.open") }));
       const sheet = await screen.findByRole("dialog");
@@ -57,7 +57,7 @@ describe("a card for every moment", () => {
   });
 
   test("[share:no-card-for-harm] given the ending card, when it shows, then it has no share button and says it is for the player alone", async () => {
-    await renderWithView(<CardView />, adaWith("lost"));
+    await renderWithView(<CardView />, graduateWith("lost"));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).queryByRole("button", { name: say("share.button.share") })).toBeNull();
     expect(within(sheet).queryByRole("button", { name: say("share.button.save") })).toBeNull();
@@ -67,7 +67,7 @@ describe("a card for every moment", () => {
   test("[share:card-offered-never-sent] given a card due on a phone, when it opens, then nothing is shared until the player taps, and one tap shares it once", async () => {
     const share = phoneShare();
     fakeCanvas(() => 1000);
-    await renderWithView(<CardView />, adaWith("granted"));
+    await renderWithView(<CardView />, graduateWith("granted"));
     const sheet = await screen.findByRole("dialog");
     expect(share).not.toHaveBeenCalled();
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.button.share") }));
@@ -82,7 +82,7 @@ describe("a card for every moment", () => {
     fakeCanvas(() => 1000);
     const clicked = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: () => "blob:card" });
-    await renderWithView(<CardView />, adaWith("december"));
+    await renderWithView(<CardView />, graduateWith("december"));
     const sheet = await screen.findByRole("dialog");
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.button.save") }));
     expect(await within(sheet).findByText(say("share.done.saved"))).toBeDefined();
@@ -92,7 +92,7 @@ describe("a card for every moment", () => {
   test("[share:card-drawn-on-device] given a card the renderer refuses, when the player taps, then the card is not sent and a screenshot is suggested", async () => {
     const share = phoneShare();
     fakeCanvas(() => Number.MAX_SAFE_INTEGER);
-    await renderWithView(<CardView />, adaWith("secured"));
+    await renderWithView(<CardView />, graduateWith("secured"));
     const sheet = await screen.findByRole("dialog");
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.button.share") }));
     expect(await within(sheet).findByText(say("share.failed"))).toBeDefined();
@@ -101,7 +101,7 @@ describe("a card for every moment", () => {
 
   test("[share:card-never-stored] given a card closed, when its month has passed, then it is kept on this device in the gallery, nothing is fetched, and it opens again from there", async () => {
     const fetched = vi.spyOn(globalThis, "fetch");
-    const view = adaWith("first-pay-abroad");
+    const view = graduateWith("first-pay-abroad");
     const { store } = await renderWithView(<CardView />, view);
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
     act(() => store.setState({ view: { ...view, v: view.v + 1, month: view.month + 1, card: null } }));
@@ -115,7 +115,7 @@ describe("a card for every moment", () => {
   });
 
   test("[share:card-never-stored] given the same card closed twice, then the gallery keeps it once", async () => {
-    const view = adaWith("send-off");
+    const view = graduateWith("send-off");
     await renderWithView(<CardView />, view);
     // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
@@ -125,7 +125,7 @@ describe("a card for every moment", () => {
   });
 
   test("[share:everything-links-to-official] given any card on screen, then it points to the official accounts page", async () => {
-    await renderWithView(<CardView />, adaWith("draw-win"));
+    await renderWithView(<CardView />, graduateWith("draw-win"));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText("Official accounts: japacity.app/official")).toBeDefined();
   });

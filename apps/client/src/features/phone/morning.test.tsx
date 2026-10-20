@@ -31,8 +31,8 @@ type Loose = Command extends infer C ? (C extends unknown ? Omit<C, "basedOn"> :
 
 /** Ngozi, who holds a passport, sits the English test and ends the month at nine in the evening. */
 async function testSat(at: { now: number }) {
-  const authority = localAuthority({ fastClock: true, storage: removableStorage(), makeSeed: seeds(), now: () => at.now, scenario: "scenario.ngozi" });
-  await authority.newLife("scenario.ngozi");
+  const authority = localAuthority({ fastClock: true, storage: removableStorage(), makeSeed: seeds(), now: () => at.now, scenario: "scenario.nurse" });
+  await authority.newLife("scenario.nurse");
   const send = async (command: Loose) => {
     const view = await authority.view();
     const reply = await authority.send({ ...command, basedOn: view.v });

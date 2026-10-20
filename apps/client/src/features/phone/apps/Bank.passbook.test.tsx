@@ -24,7 +24,7 @@ const CARE = "route.uk-care" as const;
 
 /** Ngozi with health care as her plan, looked into, a month lived so the pace shows. */
 function nurse(months = 1) {
-  const game = newGame("scenario.ngozi");
+  const game = newGame("scenario.nurse");
   const bars = (content.route[CARE]?.hearIf ?? []).flatMap((requirement): Effect[] => (requirement.type === "quality/min" ? [{ type: "quality/add", quality: requirement.quality, amount: requirement.value }] : []));
   viewAfter(game, [...bars, { type: "route/hear", route: CARE, via: "meetup" }]);
   game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });
@@ -62,10 +62,10 @@ describe("the Bank's first page, the passbook", () => {
   });
 
   test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given no plan, or a plan only heard of, when the Bank opens, then the pace line says what sets the road's cost and no target is drawn", async () => {
-    await renderWithView(<Bank />, newGame("scenario.ngozi").view());
+    await renderWithView(<Bank />, newGame("scenario.nurse").view());
     expect(text("[data-pace]")).toBe(say("passbook.pace.no-plan"));
     expect(document.querySelector("[data-passbook-target]")).toBeNull();
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     const heard = viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     await renderWithView(<Bank />, heard);
     expect(document.querySelectorAll("[data-pace]")[1]?.textContent).toBe(say("passbook.pace.unread", { route: runningName(CARE) }));

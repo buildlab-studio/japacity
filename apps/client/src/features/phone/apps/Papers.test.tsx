@@ -43,8 +43,8 @@ async function openPhone(view: PlayerView, start: string | null = null, onMap?: 
 }
 
 /** Ada with the UK master's looked into: the passport, the transcript and the English result asked for, none held. */
-function adaPlanned(): PlayerView {
-  const view = viewAfter(newGame("scenario.ada"), [
+function graduatePlanned(): PlayerView {
+  const view = viewAfter(newGame("scenario.graduate"), [
     { type: "route/hear", route: UK, via: "test" },
     { type: "route/look-into", route: UK },
   ]);
@@ -63,7 +63,7 @@ function withReport(view: PlayerView, lines: ReportLine[]): PlayerView {
 
 describe("the Papers app", () => {
   test("[world:phone-rises-over-scene] [world:phone-holds-what-phones-hold] given the phone, when its apps are read, then Papers sits beside Japa with its own tint, and the papers box's acts are in it", async () => {
-    await openPhone(adaPlanned());
+    await openPhone(graduatePlanned());
     const apps = [...document.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"));
     expect(apps.indexOf("papers")).toBe(apps.indexOf("japa") + 1);
     expect(document.querySelector<HTMLElement>('[data-app="papers"]')?.style.background).toBe("var(--app-papers)");
@@ -71,7 +71,7 @@ describe("the Papers app", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] given Ada with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office", async () => {
-    const view = adaPlanned();
+    const view = graduatePlanned();
     const onMap = vi.fn();
     await openPhone(view, null, onMap);
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
@@ -98,7 +98,7 @@ describe("the Papers app", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] [activity:now-acts-and-month-acts] [world:street-talk-budget] given the transcript's act on the phone, when it is tapped, then its card opens in Papers, and once sent the registry's answer is told in the corner and the list comes back", async () => {
-    const { authority } = await openPhone(adaPlanned());
+    const { authority } = await openPhone(graduatePlanned());
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-paper-act="${GET_TRANSCRIPT}"]`)!);
     expect(document.querySelector("[data-paper-card]")?.getAttribute("data-paper-card")).toBe(GET_TRANSCRIPT);
@@ -112,12 +112,12 @@ describe("the Papers app", () => {
   });
 
   test("[world:nudge-says-one-thing] [world:phone-holds-what-phones-hold] given the phone opened on Papers with an act, as the nudge's step opens it, then that act's card shows at once", async () => {
-    await openPhone(adaPlanned(), `papers:${GET_TRANSCRIPT}`);
+    await openPhone(graduatePlanned(), `papers:${GET_TRANSCRIPT}`);
     expect(document.querySelector("[data-paper-card]")?.getAttribute("data-paper-card")).toBe(GET_TRANSCRIPT);
   });
 
   test("[world:phone-holds-what-phones-hold] given an act not offered, when the phone opens on it, then Papers opens on its list", async () => {
-    await openPhone(adaPlanned(), "papers:activity.renew-licence");
+    await openPhone(graduatePlanned(), "papers:activity.renew-licence");
     expect(document.querySelector("[data-paper-card]")).toBeNull();
     expect(document.querySelector("[data-papers]")).not.toBeNull();
   });
@@ -128,7 +128,7 @@ describe("the Papers app", () => {
     const state = (id: string) => rows.find((row) => row.id === id)?.state;
     expect(state(PASSPORT)).toBe("held");
     expect(state(TRANSCRIPT)).toBe("coming");
-    const renewing = viewAfter(newGame("scenario.tunde"), [{ type: "document/request", document: PASSPORT }]);
+    const renewing = viewAfter(newGame("scenario.banker"), [{ type: "document/request", document: PASSPORT }]);
     expect(papersOf(renewing).find((row) => row.id === PASSPORT)?.state).toBe("coming");
     const lapsed: PlayerView = { ...view, documents: view.documents.map((paper) => (paper.id === PASSPORT ? { ...paper, state: "expired", expiresMonth: null } : paper)) };
     expect(papersOf(lapsed).find((row) => row.id === PASSPORT)?.state).toBe("expired");
@@ -136,7 +136,7 @@ describe("the Papers app", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given a visa granted, when Papers opens, then the visa leads the list, held, named as the status it gives", async () => {
-    const view = recordedGame("ada-careful", 1).view();
+    const view = recordedGame("graduate-careful", 1).view();
     const granted = view.routes.find((route) => route.state === "granted");
     if (granted === undefined) throw new Error("No visa granted.");
     const [first] = papersOf(view);
@@ -158,7 +158,7 @@ describe("the Papers app", () => {
 
 describe("a result sealed until the morning", () => {
   test("[clock:envelopes-show-real-waits] given the English result sealed, pending in the month it was due, when Papers opens, then its card says it comes tomorrow at seven, and a result due later still says when", async () => {
-    const view = adaPlanned();
+    const view = graduatePlanned();
     const pending = (readyMonth: number): PlayerView => ({ ...view, documents: [...view.documents, { id: "document.english-test", state: "pending", readyMonth, expiresMonth: null, value: null, onItsWay: readyMonth }] });
     await openPhone(pending(view.month));
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
@@ -176,7 +176,7 @@ describe("a paper that lands or moves", () => {
   const verified = line("line.document.issued", { document: "document.nmcn-verification" });
 
   test("[world:month-passes-as-lived] [document:paper-on-its-way] given the transcript issued at the month's end, when the phone opens, then the wallpaper tells it, Papers carries the dot, nothing opens by itself, and a tap opens Papers, after which the line and the dot are gone", async () => {
-    const view = withReport(adaPlanned(), [issued]);
+    const view = withReport(graduatePlanned(), [issued]);
     expect(waitingOf(marksOf(view), {}).papers).toBe(true);
     await openPhone(view);
     // Never an interruption: the phone opens on its home screen.
@@ -194,11 +194,11 @@ describe("a paper that lands or moves", () => {
   });
 
   test("[world:month-passes-as-lived] given the council's verification issued, a paper run out, the English result out and a copy on its way, when the notices are read, then each is told in its own words, and a month with no paper line has none and no dot", () => {
-    const view = withReport(adaPlanned(), [
+    const view = withReport(graduatePlanned(), [
       verified,
       line("line.document.expired", { document: PASSPORT }),
       line("line.document.issued-band", { document: "document.english-test", band: 65 }),
-      line("line.document.requested", { document: TRANSCRIPT, month: adaPlanned().month + 2 }),
+      line("line.document.requested", { document: TRANSCRIPT, month: graduatePlanned().month + 2 }),
       line("line.activity.rest", {}),
     ]);
     const notices = paperNotices(view);
@@ -211,13 +211,13 @@ describe("a paper that lands or moves", () => {
     expect(say("phone.papers.notice.issued.document.nmcn-verification")).toBe("The council has verified your licence.");
     expect(say("phone.papers.notice.issued-band", { band: formatBand(65) })).toBe(`Your English result is out: band ${formatBand(65)}.`);
     expect(say("phone.papers.notice.requested", { paper: runningName(TRANSCRIPT), when: inMonths(view.month + 2, view.month) })).toMatch(/^Your degree transcript is on its way, ready in 2 months\.$/);
-    expect(papersMarkOf(withReport(adaPlanned(), [line("line.activity.rest", {})]))).toBe("");
+    expect(papersMarkOf(withReport(graduatePlanned(), [line("line.activity.rest", {})]))).toBe("");
     expect(papersMarkOf({ report: null })).toBe("");
   });
 
   test("[world:month-passes-as-lived] given a paper notice and the character on the street, when the phone opens, then the paper is told all the same, as a message from the office, while the month's own lines wait for home", async () => {
     localStorage.setItem(CITY_LAST_KEY, JSON.stringify(["place.yaba"]));
-    await openPhone(withReport(adaPlanned(), [verified]));
+    await openPhone(withReport(graduatePlanned(), [verified]));
     expect(document.querySelector('[data-paper-notice="issued.document.nmcn-verification"] [data-notice-words]')?.textContent).toBe("The council has verified your licence.");
   });
 });

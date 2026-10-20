@@ -1,7 +1,7 @@
 // The invite link's page against a faked server: the card read before
 // sign-up, then the age screen and sign-in, then the card taken for its slot.
 import type { AccountView } from "@japacity/api";
-import { content } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import type { Id, InviteCard } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
@@ -30,7 +30,7 @@ const CODE = "a1b2c3d4e5f6a1b2c3d4e5f6";
 const CLOCK = { tick: 3, nextTickAt: 2_000_000_000_000, nextTurnAt: null };
 
 const CARD: InviteCard = {
-  name: "scenario.tunde.name",
+  name: "scenario.banker.name",
   japacity: { percent: 42, route: null },
   looking: { key: "card.invite.looking", slot: "partner", fill: "who-codes", slotKey: "card.invite.slot.partner", fillKey: "card.invite.fill.who-codes" },
   game: "card.invite.game",
@@ -125,7 +125,9 @@ describe("the invite link's page", () => {
     const { store } = openLink(server, friend);
 
     const card = await screen.findByRole("figure");
-    expect(within(card).getByText(nameOf("scenario.tunde"))).toBeDefined();
+    // The card names the character by the key the simulation gives; a ready life has no name of its own in content (scenario.md).
+    expect(text[CARD.name]).toBeUndefined();
+    expect(within(card).getByText(say("ui.invite.someone"))).toBeDefined();
     expect(within(card).getByText(words("card.invite.looking", { slot: "a partner", fill: "who codes" }))).toBeDefined();
     expect(within(card).getByText(words("card.invite.game"))).toBeDefined();
     expect(document.querySelector('[data-moderation="invite-card"]')).not.toBeNull();
@@ -135,7 +137,7 @@ describe("the invite link's page", () => {
     expect(friend.declared).toEqual(["1990-05-01"]);
     const scenario = Object.keys(content.scenario).find((id) => id !== "scenario.prologue") as Id<"scenario">;
     server.answer(`POST /api/invite/${CODE}/accept`, { body: { ok: true, pair: "pair-1", character: "c-friend", view: null } });
-    fireEvent.click(await screen.findByRole("button", { name: `${say("ui.invite.take")}: ${nameOf(scenario)}` }));
+    fireEvent.click(await screen.findByRole("button", { name: `${say("ui.invite.take")}: ${say(`${scenario}.kind`)}` }));
     expect(screen.queryByRole("button", { name: `${say("ui.invite.take")}: ${nameOf("scenario.prologue")}` })).toBeNull();
 
     expect(await screen.findByText(say("ui.invite.taken"))).toBeDefined();

@@ -10,7 +10,7 @@ import { words } from "../../shared/words/text";
 import { OfferView } from "./OfferView";
 
 function evictedView() {
-  const game = start({ content: applyOverlay(content, { version: "test-offer-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.ada" });
+  const game = start({ content: applyOverlay(content, { version: "test-offer-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.graduate" });
   setPockets(game, { NGN: 500_000_00 });
   game.accept({ type: "home/move", to: "place.makoko" });
   game.endTurn();

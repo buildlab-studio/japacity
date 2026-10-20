@@ -23,7 +23,7 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 
 describe("the month's story on the results", () => {
   test("[world:month-end-results-sheet] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     // Decision 0013 (home:living-by-hand): no living is charged as the month turns at home, so the money of the month is what was
     // paid at the act: the big pot's foodstuff bought mid-month (the family house's meals from the pot are free),
     // which the results count with the month's own lines.
@@ -55,7 +55,7 @@ describe("the month's story on the results", () => {
   });
 
   test("[world:month-end-results-sheet] given a way out heard of in the month, when the story is read, then it is told, and money and plain news are not", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     game.endTurn();
     // On this seed the news brings the UK master's in the second month.
     const { lines } = game.endTurn();
@@ -84,7 +84,7 @@ describe("the month's story on the results", () => {
     expect(shown).toHaveLength(STORY_MAX);
     expect(shown[0]?.key).toBe("line.offer.opened");
     expect(shown.some((each) => each.key === "line.chapter.closed")).toBe(false);
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const view = game.view();
     const { store } = await renderWithView(<Results place="Home" />, { ...view, report: { month: view.month, lines, japacityBefore: null, japacityAfter: null, attention: false } });
     act(() => store.setState({ reportOpen: true }));
@@ -115,7 +115,7 @@ describe("the adviser's reading and the relative's gift", () => {
   test("[text:show-then-tell] [advice:licensed-adviser-is-truthful] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
     // Ada's recorded life once the master's is known: the adviser is paid now and the month ends. Under decision 0013 the
     // life does its study act by act, so the master's is known after its first 28 commands.
-    const game = recordedGame("ada-careful", lifeSaves["ada-careful"]!.commands.length - 28);
+    const game = recordedGame("graduate-careful", lifeSaves["graduate-careful"]!.commands.length - 28);
     const { lines: now } = game.accept({ type: "activity/now", activity: "activity.see-adviser", param: null });
     game.endTurn();
     const reading = now.find((each) => each.key === "line.activity.adviser-missing");
@@ -142,7 +142,7 @@ describe("the adviser's reading and the relative's gift", () => {
   });
 
   test("[wallet:cash-pile-warning] [world:month-end-results-sheet] given a month that closes with more naira cash than the warning line, when the results are read, then Mama's warning is told among the month's story, in her words with no figure, as no money line, and is not left for News", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const short = content.tuning.wallet.cashWarnAt + 1 - game.view().pockets.NGN.cash;
     game.accept({ type: "wallet/move", currency: "NGN", amount: short, to: "cash" });
     const { lines } = game.endTurn([]);

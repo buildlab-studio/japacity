@@ -14,9 +14,9 @@ import "../../shared/testing/render";
 describe("Coming up", () => {
   test("[text:show-then-tell] [world:top-band-is-lively-pill] given a paper on its way and a birthday ahead, when Coming up opens, then each row's box says the months once, the line beside it never repeats them, and the paper carries its few-word note", () => {
     // Tunde's recorded life at the latest point with a paper on its way (the work medical), found from the end back.
-    const commands = lifeSaves["tunde-borrower"]!.commands.length;
-    let view = recordedGame("tunde-borrower", commands - 1).view();
-    for (let back = 2; back < commands && !comingOf(view).some((item) => item.kind === "paper"); back += 1) view = recordedGame("tunde-borrower", commands - back).view();
+    const commands = lifeSaves["banker-borrower"]!.commands.length;
+    let view = recordedGame("banker-borrower", commands - 1).view();
+    for (let back = 2; back < commands && !comingOf(view).some((item) => item.kind === "paper"); back += 1) view = recordedGame("banker-borrower", commands - back).view();
     const coming = comingOf(view);
     expect(coming.some((item) => item.kind === "paper")).toBe(true);
     const { container } = render(<ComingList view={view} />);

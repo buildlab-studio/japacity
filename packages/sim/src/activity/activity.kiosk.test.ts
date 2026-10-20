@@ -28,7 +28,7 @@ function expectedPrize(value: number): { prize: Prize; amount: number } | null {
 }
 
 function ada(): Game {
-  return start({ content, scenario: "scenario.ada" });
+  return start({ content, scenario: "scenario.graduate" });
 }
 
 describe("the lotto kiosk", () => {

@@ -1,5 +1,5 @@
 // Bank, Lately in the application month (world:phone-holds-what-phones-hold), played on the recorded life
-// ada-careful, whose results list the fare and the salary in dollars. Lately is the month's money whole,
+// graduate-careful, whose results list the fare and the salary in dollars. Lately is the month's money whole,
 // from the results' own money lines, in their order, so it leaves neither out.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -13,14 +13,14 @@ import { words } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
 import { lately } from "../phone.testing";
 
-const LIFE = "ada-careful";
+const LIFE = "graduate-careful";
 /** The visa application, sent at once (activity:now-acts-and-month-acts): found in the recorded life, wherever its cut puts it. */
 function applicationIndex(commands: readonly { command: { type: string; activity?: string } }[]): number {
   return commands.findIndex(({ command }) => command.type === "activity/now" && command.activity === "activity.apply-for-visa");
 }
 
 describe("Bank, Lately in the application month", () => {
-  test("[world:phone-holds-what-phones-hold] given ada-careful riding to the visa centre and sending the application, when Bank opens after the month, then Lately lists the results' money lines whole and in their order, the dollar salary and the fare among them", async () => {
+  test("[world:phone-holds-what-phones-hold] given graduate-careful riding to the visa centre and sending the application, when Bank opens after the month, then Lately lists the results' money lines whole and in their order, the dollar salary and the fare among them", async () => {
     const save = recordedSave(LIFE);
     const APPLICATION = applicationIndex(save.commands);
     if (APPLICATION < 0) throw new Error("The recording no longer applies for the visa at once.");

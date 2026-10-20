@@ -31,7 +31,7 @@ function alone(id: Id<"offer">): Content {
   return { ...content, offer: { ...kept, [id]: content.offer[id]! } };
 }
 
-function life(pool: Content, seed: string, scenario: Id<"scenario"> = "scenario.ada"): Game {
+function life(pool: Content, seed: string, scenario: Id<"scenario"> = "scenario.graduate"): Game {
   return start({ content: pool, scenario, seed });
 }
 
@@ -96,7 +96,7 @@ describe("the bridge's price: when it opens", () => {
 
 describe("the bridge's price: what each does", () => {
   // The bank covers the month's upkeep, which is taken bank first (decision 0014) and would otherwise take the cash too (decision 0013).
-  const BANK = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 4;
+  const BANK = content.scenario["scenario.graduate"]!.obligations[0]!.amount + street.theftNaira * 4;
   /** A life that rests one month and so tells how much cash it holds when the offers come up the month after. */
   function cashAtComeUp(seed: string, cash: number): number {
     const twin = life(alone(BRIDGE_THEFT), seed);
@@ -113,7 +113,7 @@ describe("the bridge's price: what each does", () => {
     ] as const) {
       // The month's own movements before the offers come up are the same whether the night is rough or not.
       // Cash enough for the upkeep (taken cash first, obligation:charges-paid-whole-or-missed) and then some, so the month's movements are linear in the cash.
-      const base = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 2;
+      const base = content.scenario["scenario.graduate"]!.obligations[0]!.amount + street.theftNaira * 2;
       const cash = base + (street.theftNaira - short) - cashAtComeUp(seed, base);
       expect(cashAtComeUp(seed, cash)).toBe(street.theftNaira - short);
       const game = life(alone(BRIDGE_THEFT), seed);
@@ -157,23 +157,26 @@ describe("the bridge's price: what each does", () => {
 });
 
 describe("the bad night by the character's sex", () => {
-  test("[streets:sex-optional-with-neutral-path] [streets:sleeping-under-the-bridge] given a woman, a man and the prologue's life that does not say, when the bad night opens, then its line is harassment, a fight, and trouble in the night, each with words", () => {
-    const pool = alone(BRIDGE_NIGHT);
+  test("[streets:sex-optional-with-neutral-path] [streets:sleeping-under-the-bridge] given a life that says a woman, one that says a man, a ready life and the prologue's life that do not say, when the bad night opens, then its line is harassment, a fight, and trouble in the night for both, each with words", () => {
+    // No life in content says a sex (scenario.md), so the two that do are the graduate's life told as a woman and as a man.
+    const graduate = content.scenario["scenario.graduate"]!;
+    const told: Content = {
+      ...alone(BRIDGE_NIGHT),
+      scenario: { ...content.scenario, "scenario.woman": { ...graduate, id: "scenario.woman", sex: "f" }, "scenario.man": { ...graduate, id: "scenario.man", sex: "m" } },
+    };
     const lines: Record<string, string> = {};
-    for (const scenario of ["scenario.ada", "scenario.tunde", "scenario.prologue"] as const) {
+    for (const scenario of ["scenario.woman", "scenario.man", "scenario.graduate", "scenario.prologue"] as const) {
       // The first night under the bridge, in the first seed whose draw opens it for this life.
       const opened = SEEDS.map((seed) => {
-        const game = life(pool, seed, scenario);
+        const game = life(told, seed, scenario);
         finishPrologue(game);
         setPockets(game, { NGN: { cash: 0, bank: 1 } });
         return openedIn(game.endTurn([slot(SLEEP_ROUGH)]), BRIDGE_NIGHT);
       }).find((item) => item !== undefined);
       lines[scenario] = String(opened?.terms.night);
     }
-    expect(content.scenario["scenario.ada"]?.sex).toBe("f");
-    expect(content.scenario["scenario.tunde"]?.sex).toBe("m");
-    expect(content.scenario["scenario.prologue"]?.sex).toBeUndefined();
-    expect(lines).toEqual({ "scenario.ada": `${BRIDGE_NIGHT}.woman`, "scenario.tunde": `${BRIDGE_NIGHT}.man`, "scenario.prologue": `${BRIDGE_NIGHT}.anyone` });
+    expect(Object.values(content.scenario).filter((entry) => entry.sex !== undefined)).toEqual([]);
+    expect(lines).toEqual({ "scenario.woman": `${BRIDGE_NIGHT}.woman`, "scenario.man": `${BRIDGE_NIGHT}.man`, "scenario.graduate": `${BRIDGE_NIGHT}.anyone`, "scenario.prologue": `${BRIDGE_NIGHT}.anyone` });
     for (const key of Object.values(lines)) expect(text[`${key}.name`]?.length).toBeGreaterThan(0);
     expect(text[`${BRIDGE_NIGHT}.body`]).toBe("{night}");
   });

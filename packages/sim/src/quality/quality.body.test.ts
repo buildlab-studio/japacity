@@ -11,7 +11,7 @@ const COOK = "activity.cook-at-home";
 const NAP = "activity.nap";
 
 function ngozi(): Game {
-  return start({ content, scenario: "scenario.ngozi" });
+  return start({ content, scenario: "scenario.nurse" });
 }
 
 describe("the body", () => {

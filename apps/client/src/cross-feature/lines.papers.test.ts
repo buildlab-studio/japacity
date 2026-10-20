@@ -14,7 +14,7 @@ const PASSPORT = "document.passport";
 /** A passport asked for mid-month on a seed whose wait is one month, and the month's end that issues it. */
 function quickPassport(): { mid: ReportLine[]; end: ReportLine[]; view: PlayerView } {
   for (let at = 0; at < 40; at += 1) {
-    const game = newGame("scenario.ada", `passport-${String(at)}`);
+    const game = newGame("scenario.graduate", `passport-${String(at)}`);
     const month = game.state.turn.month;
     const mid = game.accept({ type: "activity/now", activity: "activity.get-passport", param: null }).lines;
     if (mid.find((line) => line.key === "line.document.requested")?.params["month"] !== month + 1) continue;
@@ -40,7 +40,7 @@ describe("a paper on its way and ready, told once", () => {
   });
 
   test("[world:month-end-results-sheet] given a passport asked for that is not ready by the month's end, when the month's lines are told, then it is on the way", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const mid = game.accept({ type: "activity/now", activity: "activity.get-passport", param: null }).lines;
     const end = game.endTurn().lines;
     expect(about(end, "line.document.issued")).toEqual([]);
@@ -48,7 +48,7 @@ describe("a paper on its way and ready, told once", () => {
   });
 
   test("[world:month-end-results-sheet] given the English test sat mid-month and its band out at that month's end, when the month's lines are told, then the results and News tell the band once and never that the result is on the way", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const ENGLISH = "document.english-test";
     const mid = game.accept({ type: "activity/now", activity: "activity.sit-english-test", param: null }).lines;
     const end = game.endTurn().lines;

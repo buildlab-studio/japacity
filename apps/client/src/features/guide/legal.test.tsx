@@ -9,7 +9,7 @@ import { GuidesMenu } from "./GuidesMenu";
 
 describe("the terms and the privacy notice from the guides menu", () => {
   test("given the guides menu, where how the game was made is, when it is opened, then both pages are linked from it, opened beside the game", async () => {
-    await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
+    await renderWithView(<GuidesMenu />, engineView("scenario.graduate"));
     fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
     const menu = screen.getByRole("navigation", { name: say("guide.page.menu") });
     const links = [say("ui.legal.terms"), say("ui.legal.privacy")].map((name) => {

@@ -10,7 +10,7 @@ describe("the presence fetch at a home", () => {
     const places = [...PRIVATE_PLACES, "place.makoko", "place.ojuelegba"];
     for (const place of places) {
       for (let index = 0; index < 3; index += 1) {
-        await target.deps.stores.presence.join(place, `${place}-${String(index)}`, { account: `acc-${place}-${String(index)}`, name: `N${String(index)}`, look: "scenario.ada", place, joinedAt: 0 });
+        await target.deps.stores.presence.join(place, `${place}-${String(index)}`, { account: `acc-${place}-${String(index)}`, name: `N${String(index)}`, look: "scenario.graduate", place, joinedAt: 0 });
       }
     }
     for (const place of PRIVATE_PLACES) {

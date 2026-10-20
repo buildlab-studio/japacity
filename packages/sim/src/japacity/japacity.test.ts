@@ -34,11 +34,11 @@ function readOf(game: Game, window?: number): ReadCtx {
 }
 
 function ada(used: Content = content): Game {
-  return start({ scenario: "scenario.ada", content: used });
+  return start({ scenario: "scenario.graduate", content: used });
 }
 
 /** Ada with the route heard of and looked into, month by month through the real route kind. */
-function adaKnown(used: Content = content): Game {
+function graduateKnown(used: Content = content): Game {
   const game = ada(used);
   toKnown(game);
   return game;
@@ -50,7 +50,7 @@ function adaKnown(used: Content = content): Game {
 const OFFERED = (() => {
   for (let i = 0; i < 1000; i += 1) {
     const seed = `seed-${String(i)}`;
-    if (offeredWith(seed, content, "school.northgate", content.scenario["scenario.ada"]!.qualities["quality.edu-grade"] ?? 0)) return seed;
+    if (offeredWith(seed, content, "school.northgate", content.scenario["scenario.graduate"]!.qualities["quality.edu-grade"] ?? 0)) return seed;
   }
   throw new Error("No seed gives an offer.");
 })();
@@ -110,7 +110,7 @@ function withTwin(first: boolean): Content {
 
 describe("a route's figure", () => {
   test("[japacity:figure-sums-checklist-items] given Ada with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
-    const game = adaKnown();
+    const game = graduateKnown();
     const read = readOf(game);
     // Her degree and her second upper are met; nothing else on the list is yet.
     expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade"));
@@ -121,7 +121,7 @@ describe("a route's figure", () => {
   });
 
   test("[japacity:figure-sums-checklist-items] given Ada with the route known, when her passport and transcript are issued, then each adds its whole weight", () => {
-    const game = adaKnown();
+    const game = graduateKnown();
     carryOut(game, [{ type: "document/grant", document: "document.passport" }]);
     let read = readOf(game);
     expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport"));
@@ -131,7 +131,7 @@ describe("a route's figure", () => {
   });
 
   test("[japacity:figure-sums-checklist-items] given a slow item, when have moves from 0 to the need, then it earns weight times have over need rounded down, and its whole weight once met", () => {
-    const game = adaKnown(slowEnglish);
+    const game = graduateKnown(slowEnglish);
     const english = weight("english");
     const base = weight("degree") + weight("grade");
     const earnedAt = (value: number): number => {
@@ -151,7 +151,7 @@ describe("a route's figure", () => {
   });
 
   test("[japacity:figure-sums-checklist-items] given a slow item part filled, when the checklist is shown, then it carries have and need and the share it earned", () => {
-    const game = adaKnown(slowEnglish);
+    const game = graduateKnown(slowEnglish);
     setQuality(game, "quality.english", 55);
     const read = readOf(game);
     const item = checklistView(read, UK_ROUTE, judgeWith(read)).find((candidate) => candidate.id === "english");
@@ -184,7 +184,7 @@ describe("a route's figure", () => {
 
 describe("the character's japacity", () => {
   test("[japacity:best-open-route-is-japacity] given a known route, when the window is open, narrowing or closed, then it counts at 2 and 1 and not at 0", () => {
-    const game = adaKnown();
+    const game = graduateKnown();
     const figure = weight("degree") + weight("grade");
     for (const window of [2, 1]) {
       const read = readOf(game, window);

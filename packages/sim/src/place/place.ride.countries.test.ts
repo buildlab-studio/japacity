@@ -27,7 +27,7 @@ function ridesOf(country: Id<"country">): CountryRides {
 
 /** A life landed in the country, every pocket emptied and the country's money left in cash as given. */
 function landed(country: Id<"country">, cash: number): Game {
-  const game = start({ content, scenario: "scenario.ada" });
+  const game = start({ content, scenario: "scenario.graduate" });
   applyEffects(game, [{ type: "place/move", to: "abroad", country }]);
   money(game, country, cash);
   return game;
@@ -262,7 +262,7 @@ describe("the pass covers the country's ways", () => {
   test("[place:country-pass-covers-ways] given a pass act played in a country whose pass covers no way, when the bus is taken, then it still asks its fare", () => {
     const canada = ridesOf(CANADA_COUNTRY);
     const none = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...abroad, [CANADA_COUNTRY]: { ...canada, passWays: [] } } } } } };
-    const game = start({ content: none, scenario: "scenario.ada" });
+    const game = start({ content: none, scenario: "scenario.graduate" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA_COUNTRY }]);
     money(game, CANADA_COUNTRY, 20000);
     game.accept({ type: "activity/now", activity: TRANSIT_PASS, param: null });

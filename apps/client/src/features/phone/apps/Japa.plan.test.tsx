@@ -21,7 +21,7 @@ const CARE: Id<"route"> = "route.uk-care";
 const LOOK = "activity.look-into-route";
 
 function nurseOnCare(): Game {
-  const game = newGame("scenario.ngozi");
+  const game = newGame("scenario.nurse");
   for (let month = 0; month < 8 && game.state.route[CARE]?.state === "unknown"; month += 1) game.endTurn();
   game.endTurn([slot(LOOK, CARE)]);
   return game;
@@ -38,7 +38,7 @@ describe("the plan in Japa's head", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given a life that has heard of no way out, when Japa shows, then its head says there is no plan yet and names no file", async () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     expect(view.plan.route).toBeNull();
     await renderWithView(<Japa />, view);
     expect(document.querySelector("[data-japa-head]")?.textContent).toContain("No plan yet");

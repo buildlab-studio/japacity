@@ -46,9 +46,8 @@ export function cardsAllowed(read: ReadCtx): boolean {
  * it has one, else the route of the character's japacity figure; `chapter` is
  * the chapter a chapter card closes, else the chapter current.
  * `name` is the player's own choice (share:card-shows-only-own-character) and nothing in the state
- * holds one; the first name is words (`share.first-name.<scenario>`),
- * which the simulation does not read, so it stays null and the client names
- * the character, as `apps/client/src/shared/share/face.ts` does.
+ * holds one: the first name is the one given at the door, which the simulation never sees, so it
+ * stays null and the client names the character, as `apps/client/src/shared/share/face.ts` does.
  */
 export function cardOf(read: ReadCtx, kind: CardKind, moment: { route?: Id<"route"> | null; chapter?: Id<"chapter"> | null } = {}): Card {
   const route = moment.route === undefined ? japacity(read).route : moment.route;

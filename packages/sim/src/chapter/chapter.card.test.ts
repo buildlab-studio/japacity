@@ -13,7 +13,7 @@ const LOOK = "activity.look-into-route" as const;
 
 /** Ngozi, months played until health care is heard of, then its page read: the month the first chapter closes. */
 function nurseLooksIntoCare(): Game {
-  const game = start({ scenario: "scenario.ngozi", seed: "nurse-card", content });
+  const game = start({ scenario: "scenario.nurse", seed: "nurse-card", content });
   game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
   for (let month = 0; month < 8 && game.state.route[CARE]?.state === "unknown"; month += 1) {
     game.endTurn();

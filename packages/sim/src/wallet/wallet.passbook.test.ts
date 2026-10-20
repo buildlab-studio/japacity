@@ -47,7 +47,7 @@ function passbook(game: Game): NonNullable<PlayerView["passbook"]> {
 }
 
 function nurse(seed = "passbook-1"): Game {
-  return start({ content, scenario: "scenario.ngozi", seed, worldSeed: "passbook-world" });
+  return start({ content, scenario: "scenario.nurse", seed, worldSeed: "passbook-world" });
 }
 
 /** A life with a way as its plan: heard of, then looked into. */
@@ -132,7 +132,7 @@ describe("[wallet:passbook-against-plan-cost] the money held for the road and th
   });
 
   test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given Ada's master's plan, when the passbook is read, then the funds to show are her checklist's, less the locked money and the family's support", () => {
-    const game = replay("ada-careful", 160);
+    const game = replay("graduate-careful", 160);
     const view = game.view();
     const route = view.routes.find((each) => each.id === UK_ROUTE)!;
     expect(route.state).toBe("known");
@@ -145,7 +145,7 @@ describe("[wallet:passbook-against-plan-cost] the money held for the road and th
 
   test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given a life abroad, or ended, or still in its prologue, when the view is read, then there is no passbook", () => {
     expect(start({ content, scenario: "scenario.prologue", seed: "passbook-prologue" }).view().passbook).toBeNull();
-    const save = SAVES["ada-abroad"]!;
+    const save = SAVES["graduate-abroad"]!;
     const abroad = start({ content, scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed });
     for (const { command, tick, sender } of save.commands) {
       if (abroad.state.place.where === "abroad") break;
@@ -256,7 +256,7 @@ describe("[wallet:saving-pace] the pace", () => {
 
 describe("[wallet:roads-to-the-target] the roads to it", () => {
   test("[wallet:roads-to-the-target] [world:phone-holds-what-phones-hold] given Zainab a junior developer, when her roads are read, then the ladder's next rung is the mid dev job with what it still needs and what it adds a month", () => {
-    const game = planOn(start({ content, scenario: "scenario.zainab", seed: "passbook-z", worldSeed: "passbook-world" }), UK_ROUTE);
+    const game = planOn(start({ content, scenario: "scenario.developer", seed: "passbook-z", worldSeed: "passbook-world" }), UK_ROUTE);
     const view = game.view();
     const ladder = road(game, "ladder")!;
     expect(ladder).toMatchObject({ via: "activity.job-mid-dev", state: "shut", needs: [{ type: "quality/min", quality: "quality.tech", value: 60 }] });
@@ -308,7 +308,7 @@ describe("[wallet:roads-to-the-target] the roads to it", () => {
   });
 
   test("[wallet:roads-to-the-target] [luck:japa-luck-in-existing-systems] given the master's as the plan, when the roads are read, then the family's road is the family meeting and the scholarship round is a road; for health care there is no scholarship", () => {
-    const ada = replay("ada-careful", 160);
+    const ada = replay("graduate-careful", 160);
     expect(road(ada, "family")?.via).toBe("activity.family-meeting");
     expect(road(ada, "scholarship")?.via).toBe("offer.scholarship-round");
     expect(road(planOn(nurse(), CARE_ROUTE), "scholarship")).toBeUndefined();

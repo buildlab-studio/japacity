@@ -51,7 +51,7 @@ export const READY_PAPERS: ScenarioEntry["documents"] = [
  * is the one given, with this life added.
  */
 export function readyContent(base: Content, options: LifeOptions = {}): Content {
-  const from = options.from ?? "scenario.ada";
+  const from = options.from ?? "scenario.graduate";
   const life = base.scenario[from];
   if (life === undefined) throw new Error(`The content has no ${from} to build the ready life from.`);
   const ready: ScenarioEntry = {

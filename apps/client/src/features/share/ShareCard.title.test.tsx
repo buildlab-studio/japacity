@@ -12,8 +12,8 @@ import { CardView } from "./ShareCard";
 
 type Shared = NonNullable<PlayerView["card"]>;
 
-function adaWith(kind: Shared["kind"]): PlayerView {
-  const view = recordedGame("ada-careful").view();
+function graduateWith(kind: Shared["kind"]): PlayerView {
+  const view = recordedGame("graduate-careful").view();
   if (view.card === null) throw new Error("Ada's recorded life has no card.");
   return { ...view, card: { ...view.card, kind, ...(kind === "chapter" ? { chapter: "chapter.landing" as const } : {}) } };
 }
@@ -23,7 +23,7 @@ describe("a card's title", () => {
     ["chapter", "share.chapter.title"],
     ["send-off", "share.send-off.title"],
   ] as const)("[share:card-contents] given the %s card, when it shows, then its title is in the plain face, not the display caps", async (kind, key) => {
-    await renderWithView(<CardView />, adaWith(kind));
+    await renderWithView(<CardView />, graduateWith(kind));
     // share:send-off-card-kept: the send-off opens from its tile; every other card on its own.
     if (kind === "send-off") fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     const title = await screen.findByRole("heading", { name: text[key] ?? key });

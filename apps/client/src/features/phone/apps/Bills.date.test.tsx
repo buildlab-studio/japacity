@@ -17,7 +17,7 @@ const WEEKDAY = /\b(MON|TUE|WED|THU|FRI|SAT|SUN)\b/;
 
 describe("a bill's slip", () => {
   test("[world:phone-holds-what-phones-hold] [world:top-band-is-lively-pill] given a bill to pay now, when its slip opens, then it is dated by the character's age as the band shows it, and carries no day of the real calendar", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     // Held funds are a bill paid by hand from Bills.
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.held-funds", principal: 1_000_000_000 }]);
     const view = game.view();

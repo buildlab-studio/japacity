@@ -12,7 +12,7 @@ import type { StrategyName } from "./players";
 import type { Walk } from "./random-play";
 import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
 
-const LIVES: Id<"scenario">[] = ["scenario.zainab", "scenario.ngozi", "scenario.prologue"];
+const LIVES: Id<"scenario">[] = ["scenario.developer", "scenario.nurse", "scenario.prologue"];
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range]";
 

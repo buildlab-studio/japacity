@@ -20,7 +20,7 @@ function played(name: string): State {
 
 /** Tunde's life at home, three months in. */
 function tunde(): State {
-  const game = start({ content, scenario: "scenario.tunde" });
+  const game = start({ content, scenario: "scenario.banker" });
   for (let month = 0; month < 3; month += 1) game.endTurn();
   return game.state;
 }
@@ -94,7 +94,7 @@ describe("the ledger report", () => {
     ["gig", "NGN"],
     ["salary", "USD"],
   ] as const)("[wallet:ledger-report-raises-alarms] given a played life whose %s total in %s is doctored, when the report is made, then at the ceiling nothing is suspect and one unit over trips the alarm for that reason alone", (reason, currency) => {
-    const state = played("ada-careful");
+    const state = played("graduate-careful");
     const ceiling = ceilingOf(state, reason, currency);
     expect(ceiling).toBeGreaterThan(0);
     expect(ledgerReport(doctored(state, reason, currency, ceiling), content).alarms).toEqual([]);

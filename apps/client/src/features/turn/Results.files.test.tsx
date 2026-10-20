@@ -65,7 +65,7 @@ function results(store: GameStore): { story: string[]; runsOut: string[] } {
 describe("how the talk went", () => {
   /** Zainab meets people until the talk is open to her, gives it, opens with `answer` and ends the month. */
   async function gave(answer: string): Promise<string[]> {
-    const game = newGame("scenario.zainab");
+    const game = newGame("scenario.developer");
     const store = await storeOf(game);
     for (let months = 0; months < 4 && store.getState().view?.activities.find((option) => option.id === TALK)?.allowed !== true; months += 1) {
       await now(store, MEETUP);
@@ -105,7 +105,7 @@ describe("how the talk went", () => {
 
 describe("a paper running out before the application", () => {
   test("[document:one-pending-copy] [world:month-end-results-sheet] given the ready nurse with health care her plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     const store = await storeOf(game);
     for (let months = 0; months < 6 && (game.state.route[CARE]?.state ?? "unknown") === "unknown"; months += 1) {
       await now(store, MEETUP);

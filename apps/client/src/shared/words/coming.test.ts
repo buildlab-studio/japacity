@@ -57,7 +57,7 @@ describe("what is coming", () => {
   });
 
   test("[document:paper-on-its-way] given a held passport with a new copy requested, when the list is read, then the new copy is on it at the month the engine says it is due", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const view = viewAfter(game, [{ type: "document/request", document: "document.passport" }]);
     const passport = view.documents.find((paper) => paper.id === "document.passport");
     expect(passport?.state).toBe("held");

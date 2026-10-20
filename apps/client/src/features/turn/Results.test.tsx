@@ -146,7 +146,7 @@ const DRAWN: ReportLine = { key: "line.lottery.drawn-rolled", params: { draw: 7,
 /** A month at the kiosk on the first seed whose draw makes the tickets lose, or win, as the real engine plays it. */
 function kioskMonth(won: boolean, tickets: number): ReportLine[] {
   for (let seed = 1; seed < 200; seed += 1) {
-    const game = newGame("scenario.ada", `kiosk-${String(seed)}`);
+    const game = newGame("scenario.graduate", `kiosk-${String(seed)}`);
     const lines = game.endTurn([{ activity: "activity.play-lotto", param: String(tickets) }]).lines;
     if (lines.some((line) => line.key === (won ? "line.activity.lotto-won" : "line.activity.lotto-lost"))) return lines;
   }

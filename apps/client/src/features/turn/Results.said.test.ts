@@ -10,7 +10,7 @@ import { storyLines, toldOnResults } from "./month.results";
 
 describe("the recruiter's task on the results", () => {
   test("[world:month-end-results-sheet] given the recruiter's take-home task done, when the month ends, then the results tell what came of it in its own words", () => {
-    const game = newGame("scenario.zainab");
+    const game = newGame("scenario.developer");
     const offer = openOffer(game, "offer.recruiter-message");
     const answered = game.accept({ type: "offer/choose", offer: offer.id, choice: "do-it" });
     game.endTurn();

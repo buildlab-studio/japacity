@@ -62,7 +62,7 @@ function currencyOf(country: Id<"country">): Currency {
 
 /** A life landed in the country with the country's money in cash as given, every other pocket emptied. */
 function landed(country: Id<"country">, cash: number): Game {
-  const game = start({ content, scenario: "scenario.ada" });
+  const game = start({ content, scenario: "scenario.graduate" });
   applyEffects(game, [{ type: "place/move", to: "abroad", country }]);
   money(game, country, cash);
   return game;

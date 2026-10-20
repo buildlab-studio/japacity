@@ -35,7 +35,7 @@ function atTheClinicStep(view: PlayerView): PlayerView {
 
 describe("an offer out of reach", () => {
   test("[world:nudge-says-one-thing] given Ada with no naira at the hub and a parcel waiting at the cargo office a ride away, when the nudge is read, then it does not point at the parcel", () => {
-    const game = newGame("scenario.ada", "seed-3");
+    const game = newGame("scenario.graduate", "seed-3");
     game.endTurn();
     openOffer(game, "offer.parcel-shipped");
     setPockets(game, { NGN: 0 });

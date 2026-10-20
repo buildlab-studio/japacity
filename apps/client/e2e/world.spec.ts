@@ -45,8 +45,8 @@ async function visibleButtons(page: Page): Promise<string[]> {
 }
 
 /** Ada's recorded life one month in: the acts sent at once before its first month's end, not the end itself, whose turn opens the life's first offer. */
-function adaOneMonthIn(): string {
-  const save = recorded("ada-careful");
+function graduateOneMonthIn(): string {
+  const save = recorded("graduate-careful");
   const firstEnd = save.commands.findIndex((entry) => entry.command.type === "turn/end");
   return kept({ ...save, commands: save.commands.slice(0, firstEnd) });
 }
@@ -132,7 +132,7 @@ test("[world:top-band-is-lively-pill] [world:month-acts-carry-on] [world:month-e
 test("[world:nudge-says-one-thing] an ask waiting keeps its line under the band, and a tap on it opens what is asked", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(150_000);
-  await seedSave(page, adaOneMonthIn());
+  await seedSave(page, graduateOneMonthIn());
   await page.goto(`/${LIVED}`);
   // A seeded session has no report yet, so the first chapter's title stands over the world for a moment (chapter:first-chapter-mission-card).
   await passOpeningWords(page);

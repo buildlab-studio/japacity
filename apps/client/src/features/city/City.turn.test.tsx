@@ -61,7 +61,7 @@ afterEach(() => {
 /** Ada at a place, the first brief and the home's card already seen, so nothing stands over the world. */
 async function at(place: string) {
   window.localStorage.setItem("japacity.city.last", JSON.stringify([place]));
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   markTaught("title", game.view().scenario);
   markTaught(`home:${place}`, game.view().scenario);
   const rendered = await renderWithGame(<City world results={(here) => <p data-results-for={here} />} />, game);

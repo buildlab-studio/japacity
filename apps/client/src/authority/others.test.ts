@@ -1,9 +1,10 @@
 // A computer person never carries the player's name (prologue:front-door-builds-a-person, person:one-mixed-name-pool),
 // so "Hauwa, Not a player" never stands beside the player Hauwa in the family house.
-import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
+import { namedPeople, namePool, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { keepPerson } from "../shared/frontdoor/person";
+import { bandName } from "../shared/share/face";
 import { createGameStore } from "./store";
 import { engineView, fakeAuthority } from "../shared/testing/fixtures";
 import { setNow } from "../shared/words/now";
@@ -16,7 +17,7 @@ afterEach(() => {
 });
 
 const FRIEND = "person.amaka-nurse";
-const TAKEN = new Set([...namedPeople, ...Object.values(lifePeople)].map((person) => person.name));
+const TAKEN = new Set(namedPeople.map((person) => person.name));
 
 describe("a computer person never carries the player's name", () => {
   test("[person:one-mixed-name-pool] [prologue:front-door-builds-a-person] given the player named Hauwa, when the friend of the family is named, then she is another Hausa-Fulani woman of the pool, the same every time, and nobody else's name", () => {
@@ -44,9 +45,9 @@ describe("a computer person never carries the player's name", () => {
     // The send-off's ask is in his voice: its name and the ask's name pill carry him.
     expect(say("offer.send-off-party.name")).toContain(otherName("Terna", "Terna"));
     expect(say("offer.send-off-party.who")).toBe(otherName("Terna", "Terna"));
-    // The fixed lives' own names are the player's own words, never swapped.
-    setNow(4, null, swapsFor("Ada"));
-    expect(say("share.first-name.scenario.ada")).toBe(text["share.first-name.scenario.ada"]);
+    // The player's own words keep the player's name: the band says the name given at the door.
+    keepPerson({ look: "person_ada", name: "Terna", archetype: "developer" });
+    expect(bandName()).toBe("Terna");
   });
 
   test("[person:one-mixed-name-pool] given a player of another name, or no life on screen, then every person keeps the name content gives", () => {

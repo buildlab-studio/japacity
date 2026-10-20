@@ -8,7 +8,7 @@ import { TECH } from "../testing/ids";
 
 describe("gains beside a side job", () => {
   test("[activity:side-job-holds-a-slot] given a side job held, when a skill gains, then the gain is halved rounding up, and a quality that is not a skill is not", () => {
-    const game = start({ content, scenario: "scenario.zainab" });
+    const game = start({ content, scenario: "scenario.developer" });
     const before = game.state.quality[TECH] ?? 0;
     applyEffects(game, [{ type: "quality/add", quality: TECH, amount: 4 }]);
     expect((game.state.quality[TECH] ?? 0) - before).toBe(4);

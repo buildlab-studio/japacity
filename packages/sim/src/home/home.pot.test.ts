@@ -43,7 +43,7 @@ function price(activity: Id<"activity">): number {
 
 describe("the family house's pot", () => {
   test("[home:living-by-hand] [obligation:cooking-and-fetching-water] given Ada at the family house, when she eats from the pot, then no money moves and she is fed: the pot is the house's", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.view().home.place).toBe("place.family-house");
     expect(content.activity[POT]?.cost).toEqual([]);
     const before = naira(game);
@@ -55,7 +55,7 @@ describe("the family house's pot", () => {
   });
 
   test("[home:living-by-hand] given Ada at the family house, when she buys the big pot for the house, then ₦7,500 goes out under foodstuff, the house eats and her standing rises", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(price(BIG_POT)).toBe(7_500_00);
     const before = naira(game);
     const standing = quality(game, STANDING);
@@ -68,7 +68,7 @@ describe("the family house's pot", () => {
 
 describe("a home of your own's corner", () => {
   test("[home:living-by-hand] given Ada moved into the room in a compound, when she cooks her own meal and her own pot, then ₦1,500 and ₦7,500 go out under food, as the room's meals always cost", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 5_000_000_00, reason: "gift" }]);
     game.accept({ type: "home/move", to: "place.compound-room" });
     expect(game.view().home.place).toBe("place.compound-room");

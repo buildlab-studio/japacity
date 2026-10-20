@@ -9,7 +9,7 @@ import { CardView } from "./ShareCard";
 
 describe("the send-off card from the engine", () => {
   test("[chapter:send-off-card-on-close] [share:send-off-card-kept] given Ada's recorded life just flown, when its tile is opened, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
-    const view = recordedGame("ada-careful").view();
+    const view = recordedGame("graduate-careful").view();
     const card = view.card!;
     expect(card.kind).toBe("send-off");
     await renderWithView(<CardView />, view);
@@ -25,7 +25,7 @@ describe("the send-off card from the engine", () => {
   });
 
   test("[chapter:send-off-card-on-close] [share:send-off-card-kept] given Ada just flown and her card opened from its tile, when a report opens, then the card waits for it to close", async () => {
-    const { store } = await renderWithView(<CardView />, recordedGame("ada-careful").view());
+    const { store } = await renderWithView(<CardView />, recordedGame("graduate-careful").view());
     // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     await screen.findByRole("dialog");
@@ -36,7 +36,7 @@ describe("the send-off card from the engine", () => {
   });
 
   test("[chapter:send-off-card-on-close] given the card shown from the flight, when the first month abroad ends, then the card and its tile are gone", async () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     expect(game.view().card?.kind).toBe("send-off");
     game.endTurn();
     const view = game.view();

@@ -13,7 +13,7 @@ const EXAM = content.activity["activity.nurse-certification"]?.exam?.setpiece;
 describe("the asks sheet's header", () => {
   test("[world:one-action-one-sheet] given the nurse's exam open, its first question asked, when the asks are counted, then the header counts nothing over it, never three of three, since the exam counts its own questions", () => {
     if (EXAM === undefined) throw new Error("The certification has no exam in content.");
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     applyEffects(game, [{ type: "setpiece/open", setpiece: EXAM, route: null }]);
     const setpiece = game.view().setpiece;
     expect(setpiece).toMatchObject({ entry: EXAM, asked: 0 });

@@ -14,9 +14,9 @@ import { countDay } from "../scheduled/counters";
 import { onlineAt } from "../scheduled/online";
 
 const LIVES = [
-  ["account.ada", "scenario.ada"],
-  ["account.tunde", "scenario.tunde"],
-  ["account.zainab", "scenario.zainab"],
+  ["account.ada", "scenario.graduate"],
+  ["account.tunde", "scenario.banker"],
+  ["account.zainab", "scenario.developer"],
 ] as const;
 const UK = "route.uk-masters";
 

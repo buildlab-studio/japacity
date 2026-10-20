@@ -31,12 +31,12 @@ function done(game: Game, chapter: Id<"chapter">): boolean {
 
 /** Tunde has a job and four years in it; only the route items of chapter 1 are left. */
 function tunde(): Game {
-  return start({ scenario: "scenario.tunde", content });
+  return start({ scenario: "scenario.banker", content });
 }
 
 describe("the first chapter", () => {
   test("[chapter:first-chapter-starts-current] given a new character, when the state is built, then the current chapter is the first by order and none is done", () => {
-    expect(start({ scenario: "scenario.ada", content }).state.chapter).toEqual({ current: FEET, done: [] });
+    expect(start({ scenario: "scenario.graduate", content }).state.chapter).toEqual({ current: FEET, done: [] });
     expect(content.chapter[FEET]?.order).toBe(1);
     expect(start({ content: miniContent }).state.chapter).toEqual({ current: ONE, done: [] });
   });
@@ -113,10 +113,10 @@ describe("closing a chapter", () => {
 describe("a chapter that one item closes", () => {
   const DECISION: Id<"chapter"> = "chapter.decision-day";
   const HELD = content.chapter[DECISION]!.items.find((item) => item.id === "held")!.requirement;
-  const save = lifeSaves["tunde-borrower"]!;
+  const save = lifeSaves["banker-borrower"]!;
 
   /**
-   * Replays the tunde-borrower golden up to the turn that brings the grant,
+   * Replays the banker-borrower golden up to the turn that brings the grant,
    * then, while the visa is pending, takes every banked pound, naira and
    * dollar out to cash and hands back any held funds, so the `held` item
    * lapses; then plays that turn. Returns the turn's result and the state.
@@ -156,7 +156,7 @@ describe("a chapter that one item closes", () => {
     throw new Error("The golden never reaches its grant.");
   }
 
-  test("[chapter:met-items-close-the-chapter] given the tunde-borrower golden with its funds no longer held while the visa is pending, when the grant comes, then decision day closes on `granted` alone", () => {
+  test("[chapter:met-items-close-the-chapter] given the banker-borrower golden with its funds no longer held while the visa is pending, when the grant comes, then decision day closes on `granted` alone", () => {
     expect(content.chapter[DECISION]?.closesOn).toBe("granted");
     const { result, state, world } = grantWithHeldLapsed(content);
     expect(state.route[UK_ROUTE]?.state).toBe("granted");

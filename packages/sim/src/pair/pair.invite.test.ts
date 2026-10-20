@@ -15,8 +15,8 @@ const pair = content.tuning.pair;
  * Ada with an invite open on her partner slot, set straight to what
  * `people/invite` leaves, so the card is tested on its own.
  */
-function adaInviting(looking: string, fill: string | null, slot = "partner"): ReadCtx {
-  const game = start({ scenario: "scenario.ada", content });
+function graduateInviting(looking: string, fill: string | null, slot = "partner"): ReadCtx {
+  const game = start({ scenario: "scenario.graduate", content });
   const state = {
     ...game.state,
     people: { ...game.state.people, slots: { ...game.state.people.slots, [slot]: { state: "invited" as const, bond: null, person: null, invite: { looking, fill } } } },
@@ -26,9 +26,9 @@ function adaInviting(looking: string, fill: string | null, slot = "partner"): Re
 
 describe("the invite card", () => {
   test("[pair:invite-card-contents] given Ada inviting a partner who codes, when the card is made, then it names the character, her japacity and best route, what she is looking for, and that it is a game", () => {
-    const read = adaInviting("partner", "who-codes");
+    const read = graduateInviting("partner", "who-codes");
     expect(inviteCard(read, "partner")).toEqual({
-      name: "scenario.ada.name",
+      name: "scenario.graduate.name",
       japacity: japacity(read),
       looking: { key: "card.invite.looking", slot: "partner", fill: "who-codes", slotKey: "card.invite.slot.partner", fillKey: "card.invite.fill.who-codes" },
       game: "card.invite.game",
@@ -37,25 +37,25 @@ describe("the invite card", () => {
   });
 
   test("[pair:invite-card-contents] given every fill for each slot, when the card is made, then each is accepted, and a fill from the other slot's list is not", () => {
-    for (const fill of INVITE_FILLS.partner) expect(inviteCard(adaInviting("partner", fill), "partner")?.looking.fill).toBe(fill);
-    for (const fill of INVITE_FILLS.sibling) expect(inviteCard(adaInviting("sibling", fill, "sibling-1"), "sibling-1")?.looking.fill).toBe(fill);
-    expect(inviteCard(adaInviting("partner", "to-go-first"), "partner")).toBeNull();
-    expect(inviteCard(adaInviting("partner", "with-money"), "partner")).toBeNull();
-    expect(inviteCard(adaInviting("cousin", null), "partner")).toBeNull();
+    for (const fill of INVITE_FILLS.partner) expect(inviteCard(graduateInviting("partner", fill), "partner")?.looking.fill).toBe(fill);
+    for (const fill of INVITE_FILLS.sibling) expect(inviteCard(graduateInviting("sibling", fill, "sibling-1"), "sibling-1")?.looking.fill).toBe(fill);
+    expect(inviteCard(graduateInviting("partner", "to-go-first"), "partner")).toBeNull();
+    expect(inviteCard(graduateInviting("partner", "with-money"), "partner")).toBeNull();
+    expect(inviteCard(graduateInviting("cousin", null), "partner")).toBeNull();
   });
 
   test("[pair:invite-card-contents] given no invite open on the slot, when the card is asked for, then there is none", () => {
-    const game = start({ scenario: "scenario.ada", content });
+    const game = start({ scenario: "scenario.graduate", content });
     expect(inviteCard({ state: game.state, world: game.world(), content }, "partner")).toBeNull();
   });
 
   test("[pair:invite-card-contents] given any card, when read, then it carries no money, no photo, no contact and no link of its own", () => {
-    const card = JSON.stringify(inviteCard(adaInviting("partner", "already-in-uk"), "partner"));
+    const card = JSON.stringify(inviteCard(graduateInviting("partner", "already-in-uk"), "partner"));
     expect(card).not.toMatch(/amount|currency|photo|phone|http|@/);
   });
 
   test("[pair:block-and-report-one-tap] given an invite card, when read, then it carries block and report", () => {
-    expect(inviteCard(adaInviting("partner", null), "partner")?.controls).toEqual(["block", "report"]);
+    expect(inviteCard(graduateInviting("partner", null), "partner")?.controls).toEqual(["block", "report"]);
   });
 });
 

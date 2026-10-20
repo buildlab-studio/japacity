@@ -25,7 +25,7 @@ function stepsShown(): { words: string; met: string | null }[] {
 
 describe("the chapter's checklist in Japa", () => {
   test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given a nurse on the care file, when Japa shows, then the file's items stand under the chapter's name in their own words, the months on the ward ticked", async () => {
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     lookInto(game, CARE);
     const view = game.view();
     expect(view.chapter.current).toBe("chapter.build-the-file-care");
@@ -40,7 +40,7 @@ describe("the chapter's checklist in Japa", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given a graduate on the master's file, when Japa shows, then the route's steps stand alone", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     lookInto(game, UK);
     expect(game.view().chapter.current).toBe("chapter.build-the-file");
     await renderWithView(<Japa />, game.view());

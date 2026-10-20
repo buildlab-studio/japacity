@@ -57,8 +57,8 @@ describe("the moment card over the results", () => {
 
   // A chapter's close is told once: by the results line and the moment card, never again by its share card.
   test("[moment:card-shows-when-outcome-lands] [share:cards-due-at-set-moments] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
-    const save = recordedSave("ada-careful");
-    const game = recordedGame("ada-careful", save.commands.length - CLOSE);
+    const save = recordedSave("graduate-careful");
+    const game = recordedGame("graduate-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     gallery.getState().clear();
@@ -91,8 +91,8 @@ describe("the moment card over the results", () => {
   });
 
   test("[moment:card-shows-when-outcome-lands] given the same close where no moment card stands, then the chapter's share card opens", async () => {
-    const save = recordedSave("ada-careful");
-    const game = recordedGame("ada-careful", save.commands.length - CLOSE);
+    const save = recordedSave("graduate-careful");
+    const game = recordedGame("graduate-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     render(

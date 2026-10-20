@@ -27,7 +27,7 @@ function thingOf(id: string) {
 
 /** The stall's fan drawn with the plan as it stands, beside the thing's spot on the left of a phone. */
 function fanned(plan: Parameters<typeof withPlanned>[1], id: string) {
-  const view = engineView("scenario.ada");
+  const view = engineView("scenario.graduate");
   const entries = fanModel(fanEntriesOf(withPlanned(thingOf("accessories"), plan, view)), view, []);
   const onAct = vi.fn<(entry: FanEntry) => void>();
   render(<Fan thing={id} title="Accessories" entries={entries} onAct={onAct} onFallback={vi.fn()} />);

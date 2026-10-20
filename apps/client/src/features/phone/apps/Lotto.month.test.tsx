@@ -16,7 +16,7 @@ const { ticket } = content.tuning.luck;
 
 /** Ada buys this many tickets at the kiosk, one at each visit, as the street's slip sells them. */
 function bought(visits: number): { lines: ReportLine[]; game: ReturnType<typeof newGame> } {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   const lines: ReportLine[] = [];
   for (let visit = 0; visit < visits; visit += 1) lines.push(...game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines);
   return { lines, game };
@@ -34,7 +34,7 @@ describe("the month's lotto", () => {
   });
 
   test("[luck:kiosk-sells-lotto-tickets] given no ticket bought this month, when the Lotto app opens, then it says no figure", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     await renderWithView(<Lotto />, game.view());
     expect(document.querySelector("[data-lotto-month]")).toBeNull();
   });

@@ -10,7 +10,7 @@ import { devices, expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { boardThroughTheScene, closeGranted, doAct, LIVED, placeReady, rideTo } from "./support/live";
-import { adaBeforeFlight } from "./support/saves";
+import { graduateBeforeFlight } from "./support/saves";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
@@ -35,7 +35,7 @@ function jpegSize(bytes: Buffer): { width: number; height: number } | null {
  * her to the airport, the gate's act opens the send-off scene whose Board the plane takes the flight (chapter:send-off-scene-in-beats), the
  * landing's moment card is closed, and the send-off card is opened from its tile on the phone's home (share:send-off-card-kept).
  */
-async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
+async function flyGraduate(page: Page, withShareSheet: boolean): Promise<void> {
   await page.addInitScript(
     ({ stored, sheet }) => {
       if (sessionStorage.getItem("seeded") === null) {
@@ -48,7 +48,7 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
         Reflect.deleteProperty(Navigator.prototype, "share");
       }
     },
-    { stored: adaBeforeFlight(), sheet: withShareSheet },
+    { stored: graduateBeforeFlight(), sheet: withShareSheet },
   );
   await page.goto(`/${LIVED}`);
   await closeGranted(page);
@@ -66,7 +66,7 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
 
 test("[share:card-drawn-on-device] [chapter:send-off-card-on-close] a recorded life's send-off card is saved on a phone as a JPEG at the card's size and under its limit", async ({ page }) => {
   test.setTimeout(180_000);
-  await flyAda(page, false);
+  await flyGraduate(page, false);
   const sheet = page.getByRole("dialog");
   const card = sheet.locator("[data-share-card='send-off']");
   await expect(card).toBeVisible();
@@ -106,7 +106,7 @@ test("[share:card-offered-never-sent] a phone with a share sheet gets the card o
       },
     });
   });
-  await flyAda(page, true);
+  await flyGraduate(page, true);
   const sheet = page.getByRole("dialog");
   await expect(sheet.locator("[data-share-card='send-off']")).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { shared: unknown[] }).shared.length)).toBe(0);

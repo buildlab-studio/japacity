@@ -15,7 +15,7 @@ const CARE = "route.uk-care" as const;
 
 /** Ngozi with health care as her plan: heard of with what its hearing asks, looked into, leant on. */
 function carePlan() {
-  const game = newGame("scenario.ngozi");
+  const game = newGame("scenario.nurse");
   const bars = (content.route[CARE]?.hearIf ?? []).flatMap((requirement): Effect[] => (requirement.type === "quality/min" ? [{ type: "quality/add", quality: requirement.quality, amount: requirement.value }] : []));
   viewAfter(game, [...bars, { type: "route/hear", route: CARE, via: "meetup" }]);
   game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });

@@ -127,9 +127,9 @@ describe("world:fan-of-sticker-buttons every thing fans", () => {
 
   test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given someone standing as themselves with no act, when they are tapped, then their name shows alone and nothing hands over to a sheet", () => {
     const onFallback = vi.fn();
-    render(<Fan thing="ada-partner" title="Bola" mark="computer" entries={[]} onAct={vi.fn()} onFallback={onFallback} />);
-    act(() => anchorFan("ada-partner", { x: 195, y: 380 }));
-    expect(document.querySelector('[data-fan="ada-partner"] [data-fan-title]')?.textContent).toContain("Bola");
+    render(<Fan thing="graduate-partner" title="Bola" mark="computer" entries={[]} onAct={vi.fn()} onFallback={onFallback} />);
+    act(() => anchorFan("graduate-partner", { x: 195, y: 380 }));
+    expect(document.querySelector('[data-fan="graduate-partner"] [data-fan-title]')?.textContent).toContain("Bola");
     expect(buttons()).toHaveLength(0);
     expect(onFallback).not.toHaveBeenCalled();
   });

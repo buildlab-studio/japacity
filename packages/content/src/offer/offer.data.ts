@@ -426,7 +426,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   // chapter:family-marks-the-grant: the month the visa is granted, home marks it. Certain while the route is
   // granted, once. Group `money`, though it is no money offer: offer:come-up-rolls-in-order rolls money first and
   // by id, so this one is rolled first of all; in `life` the grant month's loan offers would take both of
-  // the month's places first (ada-careful) and it would never open before the flight. Not `family` either: it is
+  // the month's places first (graduate-careful) and it would never open before the flight. Not `family` either: it is
   // the character's own send-off, so no sibling shares it (person:family-requests-shared). The party is spent as any party is.
   "offer.family-send-off": {
     id: "offer.family-send-off",

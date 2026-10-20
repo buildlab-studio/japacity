@@ -58,7 +58,7 @@ function changes(result: Accepted): QualityEvent[] {
 
 /** Ada has no job, so she has three free slots. Hunting a job changes no quality. */
 function ada(): Game {
-  return start({ content, scenario: "scenario.ada" });
+  return start({ content, scenario: "scenario.graduate" });
 }
 
 const huntTeacher = { activity: "activity.job-hunt" as const, param: "activity.job-teacher" };
@@ -70,8 +70,8 @@ const huntTeacher = { activity: "activity.job-hunt" as const, param: "activity.j
  */
 const restless: Content = { ...content, tuning: { ...content.tuning, quality: { ...tuning, wellbeingRest: 0 } } };
 
-function adaRestless(): Game {
-  return start({ content: restless, scenario: "scenario.ada" });
+function graduateRestless(): Game {
+  return start({ content: restless, scenario: "scenario.graduate" });
 }
 
 describe("ranges", () => {
@@ -190,7 +190,7 @@ describe("wellbeing drift", () => {
   ];
 
   test.each(cases)("[quality:wellbeing-drifts-to-baseline] given wellbeing %s the target, when a month passes with no wellbeing activity, then it moves toward the target and stops there", (_name, start, after) => {
-    const game = adaRestless();
+    const game = graduateRestless();
     applyEffects(game, [add("quality.wellbeing", start - game.state.quality["quality.wellbeing"]!)]);
     expect(game.state.quality["quality.wellbeing"]).toBe(start);
     const result = game.endTurn();
@@ -308,7 +308,7 @@ describe("report lines", () => {
   });
 
   test("[quality:gains-name-their-routes] given a job's monthly loss, when it is reported, then it is one quiet line", () => {
-    const game = start({ content, scenario: "scenario.tunde" });
+    const game = start({ content, scenario: "scenario.banker" });
     const result = game.endTurn([]);
     const worn = result.lines.filter((line) => line.key === "line.quality.worn");
     expect(worn).toEqual([
@@ -319,7 +319,7 @@ describe("report lines", () => {
   test("[quality:gains-name-their-routes] [quality:wellbeing-drifts-to-baseline] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
     const wellbeing = content.quality["quality.wellbeing"]!;
     const counted: Content = { ...restless, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK_ROUTE] } } };
-    const game = start({ content: counted, scenario: "scenario.ada" });
+    const game = start({ content: counted, scenario: "scenario.graduate" });
     applyEffects(game, [add("quality.wellbeing", tuning.wellbeingDriftTo - 10 - game.state.quality["quality.wellbeing"]!)]);
     const result = game.endTurn();
     const drift = result.lines.filter((line) => line.key === "line.quality.drift");
@@ -329,7 +329,7 @@ describe("report lines", () => {
   });
 
   test("[quality:age-moves-monthly] [quality:wellbeing-drifts-to-baseline] given a month, when it is reported, then age has no line and the drift is a plain line", () => {
-    const game = adaRestless();
+    const game = graduateRestless();
     const result = game.endTurn();
     const quality = result.lines.filter((line) => line.key.startsWith("line.quality."));
     expect(quality).toEqual([
@@ -338,7 +338,7 @@ describe("report lines", () => {
   });
 
   test("[text:bands-not-figures] [quality:changes-are-named-events] given a month at the meetup, when its moves are reported, then each line carries the act that caused it, so the words can say what the act did", () => {
-    const game = start({ content, scenario: "scenario.zainab" });
+    const game = start({ content, scenario: "scenario.developer" });
     const result = game.endTurn([{ activity: "activity.meetup", param: null }]);
     const moves = result.lines.filter((line) => line.key.startsWith("line.quality.") && line.params.source === "activity.meetup");
     expect(moves.map((line) => line.params.quality).sort()).toEqual(["quality.network", "quality.wellbeing"]);

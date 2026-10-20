@@ -88,7 +88,7 @@ describe("shopping on the street abroad", () => {
   });
 
   test("[streets:street-shopping-abroad] given a life in Dubai with dirhams in cash, when the month's free slot shops in the souk, then the dirham price is paid and the mood rises; the London shopping is not allowed there", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     applyEffects(game, [
       { type: "place/move", to: "abroad", country: "country.uae" },
       { type: "money/add", currency: "AED", pocket: "cash", amount: street.shoppingAed * 3, reason: "gift" },
@@ -106,7 +106,7 @@ describe("shopping on the street abroad", () => {
   });
 
   test("[streets:street-shopping-abroad] given a life at home in Lagos, when the street shopping abroad is put in a slot, then it is rejected", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.view().activities.filter((option) => (option.id === SHOP_UK || option.id === SHOP_UAE) && option.allowed)).toEqual([]);
     game.expectRejected({ type: "activity/now", activity: SHOP_UK, param: null }, "not-legal");
     game.expectRejected({ type: "activity/now", activity: SHOP_UAE, param: null }, "not-legal");
@@ -117,7 +117,7 @@ describe("something interesting on the street", () => {
   const certain = onlyOffers({ [FIND_UK]: CERTAIN, [FIND_UAE]: CERTAIN });
 
   test("[streets:street-finds-abroad] given both finds made certain, when months come up at home, then neither ever opens", () => {
-    const game = start({ content: certain, scenario: "scenario.ada" });
+    const game = start({ content: certain, scenario: "scenario.graduate" });
     for (let n = 0; n < 4; n += 1) {
       month(game);
       expect(openOffers(game)).toEqual([]);
@@ -125,19 +125,19 @@ describe("something interesting on the street", () => {
   });
 
   test("[streets:street-finds-abroad] given both finds made certain, when a month comes up in London and then in Dubai, then only that country's find opens", () => {
-    const game = start({ content: certain, scenario: "scenario.ada" });
+    const game = start({ content: certain, scenario: "scenario.graduate" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     month(game);
     expect(openOffers(game)).toEqual([FIND_UK]);
 
-    const dubai = start({ content: certain, scenario: "scenario.ada" });
+    const dubai = start({ content: certain, scenario: "scenario.graduate" });
     applyEffects(dubai, [{ type: "place/move", to: "abroad", country: "country.uae" }]);
     month(dubai);
     expect(openOffers(dubai)).toEqual([FIND_UAE]);
   });
 
   test("[streets:street-finds-abroad] given the find open in London, when the player looks, then the mood rises by the street's figure and it cannot come up again inside its cooldown", () => {
-    const game = start({ content: certain, scenario: "scenario.ada" });
+    const game = start({ content: certain, scenario: "scenario.graduate" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     lowMood(game);
     month(game);

@@ -26,7 +26,7 @@ function figures(said: string): string[] {
 
 /** Ada with tech and work enough to hear of the talent route, and it looked into: its file is the one the Japa app shows. */
 function talentKnown(): PlayerView {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   const hearIf = content.route[TALENT]?.hearIf ?? [];
   const lifts = hearIf.flatMap((gate) => (gate.type === "quality/min" ? [{ type: "quality/add" as const, quality: gate.quality, amount: gate.value }] : []));
   viewAfter(game, [...lifts, { type: "route/hear", route: TALENT, via: "test" }]);
@@ -48,7 +48,7 @@ describe("no quality's figure on the screens", () => {
   });
 
   test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given Ada at the hub's board, when its rows are read, then no row says a quality's figure, and weekend tutoring's pay rises once her tech is good", async () => {
-    await renderWithView(<ActivityPicker only={[HUNT]} />, newGame("scenario.ada").view());
+    await renderWithView(<ActivityPicker only={[HUNT]} />, newGame("scenario.graduate").view());
     const rows = [...document.querySelectorAll("[data-job]")];
     expect(rows.length).toBeGreaterThan(1);
     expect(rows.flatMap((row) => figures(row.textContent ?? ""))).toEqual([]);

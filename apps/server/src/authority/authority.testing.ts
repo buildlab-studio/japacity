@@ -86,7 +86,7 @@ export async function call<B>(server: TestServer, method: "GET" | "POST", path: 
 }
 
 /** Signs `account` up and makes its character; returns the character's id. */
-export async function newLife(server: TestServer, account: string, scenario: Id<"scenario"> = "scenario.ada"): Promise<string> {
+export async function newLife(server: TestServer, account: string, scenario: Id<"scenario"> = "scenario.graduate"): Promise<string> {
   await signUp(server, account);
   const made = await call<ViewReply>(server, "POST", "/api/character", account, { scenario });
   if (!made.body.ok) throw new Error(`No character: ${made.body.code} ${made.body.detail}`);

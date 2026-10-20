@@ -1,25 +1,26 @@
 import { content, shareChapters, shareKinds, text, type ShareKind } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { keepPerson } from "../frontdoor/person";
 import { ART_IDS, artShapes } from "./art";
 import { encodeUnder, QUALITIES, underLimit } from "./encode";
 import { cardFace, cardLink, playedWords, standingWords, type ShareCard } from "./face";
 import { fakeCanvas } from "./canvas.testing";
 import { cardSteps, previewSteps, wrap, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
-import { adaCard, measure, texts } from "./share.testing";
+import { graduateCard, measure, texts } from "./share.testing";
 import { canShareFiles, sendCard, shareData, type Device } from "./travel";
 
 const tuning = content.tuning.share;
 const SIZE = { width: tuning.width, height: tuning.height };
 const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
 
-/** Ada's name as the band says it (share:card-contents): "Adaeze", never a shorter name the band does not use. */
-const BAND_NAME = (text["scenario.ada.name"] ?? "").split(/\s+/)[0];
+/** The name a player gave the graduate at the door, as the band says it (share:card-contents): a ready life has none of its own. */
+const BAND_NAME = "Adaeze";
 
 /** Ada's card as each kind would carry it, with the chapter a chapter card closes. */
 function cardOf(kind: ShareKind): ShareCard {
-  return { ...adaCard(), kind, ...(kind === "chapter" ? { chapter: "chapter.build-the-file" as const } : {}) };
+  return { ...graduateCard(), kind, ...(kind === "chapter" ? { chapter: "chapter.build-the-file" as const } : {}) };
 }
 
 function role(steps: readonly Step[], wanted: TextStep["role"]): TextStep[] {
@@ -30,12 +31,13 @@ const MONEY = /[₦£$€]|\bnaira\b|\bpounds?\b|\bdollars?\b|\bkobo\b/i;
 
 afterEach(() => {
   vi.restoreAllMocks();
+  localStorage.clear();
 });
 
 describe("what is on a card", () => {
   test("[share:card-contents] given every kind, when its card is laid out, then it has the kind's title, the game as the sender with its address, and says Japacity is a game no smaller than the address", () => {
     for (const kind of shareKinds) {
-      const steps = cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure);
+      const steps = cardSteps(cardFace(cardOf(kind), "scenario.graduate"), SIZE, measure);
       expect(role(steps, "title").map((step) => step.text).join(" ")).toBe(text[`share.${kind}.title`]);
       expect(role(steps, "sender")[0]?.text).toBe("Japacity");
       const address = role(steps, "address")[0];
@@ -48,9 +50,10 @@ describe("what is on a card", () => {
   });
 
   test("[share:card-contents] [text:bands-not-figures] given Ada's send-off, when laid out, then her first name, the route, the japacity figure, the time played in years and months, the standing as its band and what she did most are drawn", () => {
-    const card = adaCard();
-    const steps = cardSteps(cardFace(card, "scenario.ada"), SIZE, measure);
-    // share:card-contents: the name the band says, the first word of the life's own name.
+    keepPerson({ look: "person_ada", name: BAND_NAME, archetype: null });
+    const card = graduateCard();
+    const steps = cardSteps(cardFace(card, "scenario.graduate"), SIZE, measure);
+    // share:card-contents: the name the band says, the one given at the door.
     expect(role(steps, "name")[0]?.text).toBe(BAND_NAME);
     expect(role(steps, "route")[0]?.text).toBe(text[`${card.route!}.name`]);
     expect(role(steps, "percent")[0]?.text).toBe(String(card.percent));
@@ -62,7 +65,7 @@ describe("what is on a card", () => {
   });
 
   test("[share:card-contents] given a chapter card, when laid out, then it names the chapter it closes and draws that chapter's art", () => {
-    const face = cardFace(cardOf("chapter"), "scenario.ada");
+    const face = cardFace(cardOf("chapter"), "scenario.graduate");
     expect(face.chapter).toBe(text["chapter.build-the-file.name"]);
     expect(face.art).toBe(text["share.chapter.build-the-file.art"]);
   });
@@ -75,7 +78,7 @@ describe("what is on a card", () => {
         [57, 600, 3],
       ] as const) {
         const card = { ...cardOf(kind), percent, months, standing };
-        const steps = cardSteps(cardFace(card, "scenario.ada"), SIZE, measure);
+        const steps = cardSteps(cardFace(card, "scenario.graduate"), SIZE, measure);
         // The lost card's body still counts its months on the road.
         const allowed = new Set([String(percent), String(months), String(Math.floor(months / 12)), String(months % 12)]);
         for (const step of texts(steps)) {
@@ -87,7 +90,7 @@ describe("what is on a card", () => {
   });
 
   test("[share:card-carries-no-money] given a draw win, when the card is laid out, then it says the draw was won and carries no figure of the win", () => {
-    const steps = cardSteps(cardFace(cardOf("draw-win"), "scenario.ada"), SIZE, measure);
+    const steps = cardSteps(cardFace(cardOf("draw-win"), "scenario.graduate"), SIZE, measure);
     expect(role(steps, "title").map((step) => step.text).join(" ")).toBe("Won the Friday draw");
     expect(texts(steps).some((step) => MONEY.test(step.text))).toBe(false);
   });
@@ -95,14 +98,14 @@ describe("what is on a card", () => {
   test("[share:card-never-looks-official] given every kind, when the card is laid out, then nothing reads as a bank alert, a receipt or an official letter, and the art draws no lettering", () => {
     const banned = /alert|credit|debit|transaction|receipt|\bref\b|balance|transfer|embassy|home office|ministry|approved|\bvisa no/i;
     for (const kind of shareKinds) {
-      const steps = cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure);
+      const steps = cardSteps(cardFace(cardOf(kind), "scenario.graduate"), SIZE, measure);
       for (const step of texts(steps)) expect(step.text).not.toMatch(banned);
     }
     for (const id of ART_IDS) expect(artShapes(id, { x: 0, y: 0, w: 900, h: 760 })?.every((shape) => ["rect", "poly", "circle", "line"].includes(shape.op))).toBe(true);
   });
 
   test("[share:card-never-looks-official] given the real-story card, when it is made, then the screen lists the credits for the journalism and the image that travels names no outlet", () => {
-    const face = cardFace(cardOf("real-story"), "scenario.ada");
+    const face = cardFace(cardOf("real-story"), "scenario.graduate");
     const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit.")).map((key) => text[key]);
     expect(credits.length).toBeGreaterThan(0);
     expect(face.credits).toEqual(credits);
@@ -120,29 +123,31 @@ describe("what is on a card", () => {
     expect(artShapes("art.not-there", { x: 0, y: 0, w: 10, h: 10 })).toBeNull();
   });
 
-  test("[share:card-shows-only-own-character] given a card with the player's own name, then that name is drawn and no other; given none, then the character's first name; given no character, then no name", () => {
-    expect(cardFace({ ...adaCard(), name: "Kemi" }, "scenario.ada").name).toBe("Kemi");
-    expect(cardFace({ ...adaCard(), name: null }, "scenario.ada").name).toBe(BAND_NAME);
-    expect(cardFace(adaCard(), null).name).toBeNull();
-    const steps = cardSteps(cardFace({ ...adaCard(), name: "Kemi" }, "scenario.ada"), SIZE, measure);
+  test("[share:card-shows-only-own-character] given a card with the player's own name, then that name is drawn and no other; given none, then the name given at the door, and with none given either, no name; given no character, then no name", () => {
+    expect(cardFace({ ...graduateCard(), name: null }, "scenario.graduate").name).toBeNull();
+    keepPerson({ look: "person_ada", name: BAND_NAME, archetype: null });
+    expect(cardFace({ ...graduateCard(), name: "Kemi" }, "scenario.graduate").name).toBe("Kemi");
+    expect(cardFace({ ...graduateCard(), name: null }, "scenario.graduate").name).toBe(BAND_NAME);
+    expect(cardFace(graduateCard(), null).name).toBeNull();
+    const steps = cardSteps(cardFace({ ...graduateCard(), name: "Kemi" }, "scenario.graduate"), SIZE, measure);
     expect(texts(steps).filter((step) => step.text.includes("Ada"))).toEqual([]);
   });
 
   test("[share:no-card-for-harm] given the ending and the real story, when their cards are laid out, then they show no score, and the ending is not offered to share", () => {
     for (const kind of ["lost", "real-story"] as const) {
-      const face = cardFace(cardOf(kind), "scenario.ada");
+      const face = cardFace(cardOf(kind), "scenario.graduate");
       expect(face.percent).toBeNull();
       expect(face.stats).toBeNull();
       expect(face.most).toEqual([]);
       expect(face.name).toBeNull();
     }
-    expect(cardFace(cardOf("lost"), "scenario.ada").shareable).toBe(false);
-    for (const kind of shareKinds.filter((each) => each !== "lost")) expect(cardFace(cardOf(kind), "scenario.ada").shareable).toBe(true);
+    expect(cardFace(cardOf("lost"), "scenario.graduate").shareable).toBe(false);
+    for (const kind of shareKinds.filter((each) => each !== "lost")) expect(cardFace(cardOf(kind), "scenario.graduate").shareable).toBe(true);
   });
 
   test("[share:everything-links-to-official] given every kind, when the card is laid out, then it points to the official accounts page", () => {
     for (const kind of shareKinds) {
-      expect(role(cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure), "official")[0]?.text).toBe("Official accounts: japacity.app/official");
+      expect(role(cardSteps(cardFace(cardOf(kind), "scenario.graduate"), SIZE, measure), "official")[0]?.text).toBe("Official accounts: japacity.app/official");
     }
   });
 });
@@ -150,7 +155,7 @@ describe("what is on a card", () => {
 describe("the card's size", () => {
   test("[share:card-drawn-on-device] given every kind, when laid out at the tuning's size, then every word sits inside the card and the words end above the footer", () => {
     for (const kind of shareKinds) {
-      const steps = cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure);
+      const steps = cardSteps(cardFace(cardOf(kind), "scenario.graduate"), SIZE, measure);
       const footerTop = SIZE.height - Math.round((300 * SIZE.width) / 1080);
       for (const step of texts(steps)) {
         expect(step.x).toBeGreaterThanOrEqual(0);
@@ -187,7 +192,7 @@ describe("the card's size", () => {
 
   test("[share:card-drawn-on-device] given a canvas whose card is over the limit, when the renderer draws it, then its own check refuses it", async () => {
     const drawn = fakeCanvas(() => tuning.maxBytes + 1);
-    const result = await renderCard(cardFace(adaCard(), "scenario.ada"));
+    const result = await renderCard(cardFace(graduateCard(), "scenario.graduate"));
     expect(result.ok).toBe(false);
     expect(drawn.sizes).toEqual([SIZE]);
     expect(drawn.qualities).toEqual([...QUALITIES]);
@@ -195,7 +200,7 @@ describe("the card's size", () => {
 
   test("[share:card-drawn-on-device] given a canvas whose card fits at a lower quality, when the renderer draws it, then it is a JPEG under the limit at the first quality that fits", async () => {
     const drawn = fakeCanvas((quality) => (quality > QUALITIES[2] ? tuning.maxBytes : tuning.maxBytes - 1));
-    const result = await renderCard(cardFace(adaCard(), "scenario.ada"));
+    const result = await renderCard(cardFace(graduateCard(), "scenario.graduate"));
     expect(result.ok && result.quality).toBe(QUALITIES[2]);
     expect(result.ok && result.blob.type).toBe("image/jpeg");
     expect(result.ok && result.blob.size).toBe(tuning.maxBytes - 1);
@@ -204,12 +209,12 @@ describe("the card's size", () => {
 
   test("[share:card-drawn-on-device] given no canvas in this browser, when the card is drawn, then it is refused, not sent half made", async () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
-    expect(await renderCard(cardFace(adaCard(), "scenario.ada"))).toEqual({ ok: false, reason: "no-image", bytes: 0 });
+    expect(await renderCard(cardFace(graduateCard(), "scenario.graduate"))).toEqual({ ok: false, reason: "no-image", bytes: 0 });
   });
 
   test("[share:card-link-has-fixed-preview] given each kind, when its link preview is laid out and drawn, then it is the preview size, under the preview limit, and carries no player's name or figures", async () => {
     for (const kind of shareKinds) {
-      const face = cardFace({ ...adaCard(), kind, name: "Kemi" }, "scenario.ada");
+      const face = cardFace({ ...graduateCard(), kind, name: "Kemi" }, "scenario.graduate");
       const steps = previewSteps(face, PREVIEW, measure);
       for (const step of texts(steps)) {
         expect(step.text).not.toMatch(/\d|Kemi|Ada/);
@@ -218,11 +223,11 @@ describe("the card's size", () => {
       }
     }
     const drawn = fakeCanvas(() => tuning.previewMaxBytes - 1);
-    const result = await renderPreview(cardFace(adaCard(), null));
+    const result = await renderPreview(cardFace(graduateCard(), null));
     expect(result.ok).toBe(true);
     expect(drawn.sizes).toEqual([PREVIEW]);
     const over = fakeCanvas(() => tuning.previewMaxBytes);
-    expect((await renderPreview(cardFace(adaCard(), null))).ok).toBe(false);
+    expect((await renderPreview(cardFace(graduateCard(), null))).ok).toBe(false);
     expect(over.qualities).toEqual([...QUALITIES]);
   });
 });
@@ -277,7 +282,7 @@ describe("how a card travels", () => {
     const fetched = vi.spyOn(globalThis, "fetch");
     fakeCanvas(() => 1000);
     for (const kind of shareKinds) {
-      const made = await renderCard(cardFace({ ...cardOf(kind), name: "Kemi" }, "scenario.ada"));
+      const made = await renderCard(cardFace({ ...cardOf(kind), name: "Kemi" }, "scenario.graduate"));
       expect(made.ok).toBe(true);
       const data = shareData(new File([blob], "card.jpg"), kind);
       const url = new URL(data.url ?? "");

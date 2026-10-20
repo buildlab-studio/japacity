@@ -10,7 +10,7 @@ const GIST = "activity.family-time";
 const LOTTO = "activity.play-lotto";
 
 function ngozi(): Game {
-  return start({ content, scenario: "scenario.ngozi" });
+  return start({ content, scenario: "scenario.nurse" });
 }
 
 describe("a spent body", () => {

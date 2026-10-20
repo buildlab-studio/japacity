@@ -30,7 +30,7 @@ function thingOf(id: string) {
 
 /** Ada's view living in the room: moved in through the game, so her upkeep is the room's own (home:compound-room-is-a-home). */
 function livingThere(): PlayerView {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   setPockets(game, { NGN: 5_000_000_00 });
   game.accept({ type: "home/move", to: ID });
   return game.view();
@@ -91,7 +91,7 @@ describe("the room in a compound", () => {
     expect(homeStagesAt(ID, "place.family-house", HOME, PLACES)).toEqual([]);
     expect(homeStagesAt("place.family-house", "place.family-house", HOME, PLACES)).toEqual([]);
     expect(homeStagesAt(ID, ID, { where: "abroad", country: "country.uk" }, PLACES)).toEqual([]);
-    const elsewhere = actsNow(engineView("scenario.ada"), "place.family-house");
+    const elsewhere = actsNow(engineView("scenario.graduate"), "place.family-house");
     expect(elsewhere["cooking"]).toBeUndefined();
     expect(elsewhere["drum"]).toBeUndefined();
   });

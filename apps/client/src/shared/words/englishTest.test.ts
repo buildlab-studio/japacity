@@ -13,8 +13,8 @@ import { say, words } from "./text";
 const PAPER = "document.english-test";
 
 /** Ada's new life with this much English, as a view: the same life on each seed. */
-function adaWith(english: number, seed = "probe") {
-  const game = newGame("scenario.ada", seed);
+function graduateWith(english: number, seed = "probe") {
+  const game = newGame("scenario.graduate", seed);
   const have = englishOf(game.view());
   return { game, view: viewAfter(game, [{ type: "quality/add", quality: "quality.english", amount: english - have }]) };
 }
@@ -36,12 +36,12 @@ describe("the English test's chance", () => {
   });
 
   test("[world:one-action-one-sheet] given Ada on twelve seeds, when the engine sits the test for her, then every band it gives is one the chance counts, and Ada's 55 at the start reads a fair chance", () => {
-    const { view } = adaWith(55);
+    const { view } = graduateWith(55);
     expect(englishOf(view)).toBe(55);
     expect(testChance(view).band).toBe("fair");
     const seen = new Set<number>();
     for (let seed = 0; seed < 12; seed += 1) {
-      const { game } = adaWith(55, `seed-${String(seed)}`);
+      const { game } = graduateWith(55, `seed-${String(seed)}`);
       viewAfter(game, [{ type: "document/request", document: PAPER }]);
       for (let month = 0; month < 6 && game.view().documents.find((paper) => paper.id === PAPER)?.state !== "held"; month += 1) game.endTurn([]);
       const held = game.view().documents.find((paper) => paper.id === PAPER);
@@ -54,13 +54,13 @@ describe("the English test's chance", () => {
   });
 
   test("[world:one-action-one-sheet] given English at a long shot, a fair chance and likely, when the card's words are read, then each says the chance of 6.0 in the jobs' words and only the long shot says to study first", () => {
-    const long = testChance(adaWith(40).view);
+    const long = testChance(graduateWith(40).view);
     expect(long.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.long").toLowerCase()}.`);
     expect(long.study).toBe("Study first: a month of study lifts the chance.");
-    const fair = testChance(adaWith(55).view);
+    const fair = testChance(graduateWith(55).view);
     expect(fair.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.fair").toLowerCase()}.`);
     expect(fair.study).toBeNull();
-    const likely = testChance(adaWith(75).view);
+    const likely = testChance(graduateWith(75).view);
     expect(likely.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.likely").toLowerCase()}.`);
     expect(likely.study).toBeNull();
   });
@@ -93,7 +93,7 @@ describe("the English result", () => {
   });
 
   test("[world:month-end-results-sheet] given Ada's careful life, when her result is told by the engine, then it reaches 6.0 and its line says it meets the route's band", () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     expect(game.view().documents.find((paper) => paper.id === PAPER)?.value).toBeGreaterThanOrEqual(bandNeeded());
     // The tidy lines that reach the results say a band that reaches the route's meets it.
     expect(tidyLines([issued(60)]).map((line) => bandResultLine(line).key)).toEqual([ISSUED_BAND_MET]);

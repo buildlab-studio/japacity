@@ -31,10 +31,10 @@ describe("the room's basics on the results", () => {
   test("[obligation:cooking-and-fetching-water] given Ada cooking and fetching water in one month, when the results show, then each saving is its own story line in its own words with its figure, and neither is counted as money in", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so there is nothing for the
     // chores to take off and the results tell no relief.
-    const lived = newGame("scenario.ada").endTurn([slot("activity.cook-at-home"), slot("activity.fetch-water")]).lines;
+    const lived = newGame("scenario.graduate").endTurn([slot("activity.cook-at-home"), slot("activity.fetch-water")]).lines;
     expect(lived.filter((line) => line.key.startsWith("line.obligation.relief."))).toEqual([]);
     // The relief's own lines are tested on the living charged whole, as the simulation's relief tests do.
-    const game = chargedLivingGame("scenario.ada");
+    const game = chargedLivingGame("scenario.graduate");
     const due = game.view().obligations.find((owed) => owed.entry === "obligation.upkeep")?.due ?? 0;
     expect(due).toBeGreaterThan(0);
     const { lines } = game.endTurn([slot("activity.cook-at-home"), slot("activity.fetch-water")]);
@@ -50,7 +50,7 @@ describe("the room's basics on the results", () => {
     // The nurse's 25y 3m: the month's events filled the story and the water's line fell off the end.
     // Decision 0013 (home:living-by-hand): the chores' relief is told only where the living is charged, so the month is played
     // with the living charged whole, as the simulation's relief tests do.
-    const game = chargedLivingGame("scenario.ngozi", "seed-2");
+    const game = chargedLivingGame("scenario.nurse", "seed-2");
     game.endTurn([slot("activity.meetup")]);
     const due = game.view().obligations.find((owed) => owed.entry === "obligation.upkeep")?.due ?? 0;
     const { lines } = game.endTurn([

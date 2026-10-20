@@ -261,7 +261,7 @@ const hunt = (target: Id<"activity">): SlotPick => pick("activity.job-hunt", tar
 
 describe("the job, each month", () => {
   test("[activity:one-job-paid-monthly] given a job, when a month is played, then its pay is credited to the bank as salary, tenure goes up by one, and its effects apply, in that order", () => {
-    const tunde = bench("scenario.tunde");
+    const tunde = bench("scenario.banker");
     const entry = content.activity["activity.job-bank-officer"]!;
     const result = tunde.end([]);
     expect(ledger(result).filter((line) => line.reason === "salary")).toEqual([
@@ -295,7 +295,7 @@ describe("the job, each month", () => {
   });
 
   test("[activity:one-job-paid-monthly] given no job, when a month is played, then nothing is paid and no tenure moves", () => {
-    const ada = bench("scenario.ada");
+    const ada = bench("scenario.graduate");
     const result = ada.end([]);
     expect(ledger(result)).toEqual([]);
     expect(own(result, "activity/month-worked")).toEqual([]);
@@ -303,7 +303,7 @@ describe("the job, each month", () => {
   });
 
   test("[activity:one-job-paid-monthly] given a job, when a month is played, then the report says what the salary was, staged as a big win the first time only", () => {
-    const game = start({ content, scenario: "scenario.tunde" });
+    const game = start({ content, scenario: "scenario.banker" });
     const salary = {
       key: "line.activity.salary",
       params: { job: "activity.job-bank-officer", amount: { currency: "NGN", amount: content.activity["activity.job-bank-officer"]!.pay!.amount as number } },
@@ -316,7 +316,7 @@ describe("the job, each month", () => {
   });
 
   test("[activity:one-job-paid-monthly] given a job held, when another is started, then only one is held", () => {
-    const tunde = bench("scenario.tunde");
+    const tunde = bench("scenario.banker");
     tunde.apply([{ type: "activity/start-job", job: "activity.job-teacher" }]);
     expect(tunde.game.state.activity.job).toBe("activity.job-teacher");
     const result = tunde.end([]);
@@ -326,42 +326,42 @@ describe("the job, each month", () => {
 
 describe("what may fill a slot", () => {
   test("[activity:illegal-slot-rejects-turn] given a job as a slot, when the turn is ended, then it is rejected with not-legal", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.expectRejected({ type: "turn/end", slots: [pick("activity.job-teacher")] }, "not-legal").code).toBe("not-legal");
   });
 
   test("[activity:illegal-slot-rejects-turn] given an activity that is not in content, or a slot that is not a pick, when the turn is ended, then it is rejected with not-legal", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.expectRejected({ type: "turn/end", slots: [pick("activity.nothing")] }, "not-legal").code).toBe("not-legal");
     expect(game.expectRejected({ type: "turn/end", slots: [null as unknown as SlotPick] }, "not-legal").code).toBe("not-legal");
   });
 
   test("[activity:illegal-slot-rejects-turn] given an activity whose requirements do not hold, when the turn is ended, then it is rejected with not-legal", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.state.quality["quality.tech"]).toBeLessThan(40);
     expect(game.expectRejected({ type: "turn/end", slots: [pick("activity.build-portfolio")] }, "not-legal").code).toBe("not-legal");
-    const zainab = start({ content, scenario: "scenario.zainab" });
+    const zainab = start({ content, scenario: "scenario.developer" });
     zainab.endTurn([pick("activity.build-portfolio")]);
   });
 
   test("[activity:illegal-slot-rejects-turn] given a param on an activity that takes none, or none on one that takes one, when the turn is ended, then it is rejected with not-legal", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.expectRejected({ type: "turn/end", slots: [pick("activity.rest", "activity.job-teacher")] }, "not-legal").code).toBe("not-legal");
     expect(game.expectRejected({ type: "turn/end", slots: [pick("activity.job-hunt")] }, "not-legal").code).toBe("not-legal");
   });
 
   test("[activity:illegal-slot-rejects-turn] [activity:job-hunt-lands-offer] given a hunt for a job whose requirements do not hold, the job held, or something that is not a job, when the turn is ended, then it is rejected with not-legal", () => {
-    const ada = start({ content, scenario: "scenario.ada" });
+    const ada = start({ content, scenario: "scenario.graduate" });
     expect(ada.expectRejected({ type: "turn/end", slots: [hunt("activity.job-remote-dev")] }, "not-legal").code).toBe("not-legal");
     expect(ada.expectRejected({ type: "turn/end", slots: [hunt("activity.rest")] }, "not-legal").code).toBe("not-legal");
-    const tunde = start({ content, scenario: "scenario.tunde" });
+    const tunde = start({ content, scenario: "scenario.banker" });
     expect(tunde.expectRejected({ type: "turn/end", slots: [hunt("activity.job-bank-officer")] }, "not-legal").code).toBe("not-legal");
     tunde.endTurn([hunt("activity.job-bank-senior")]);
     ada.endTurn([hunt("activity.job-teacher")]);
   });
 
   test("[activity:illegal-slot-rejects-turn] given one bad slot among good ones, when the turn is ended, then the whole turn is rejected and nothing moves", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.expectRejected({ type: "turn/end", slots: [pick("activity.rest"), pick("activity.build-portfolio")] }, "not-legal").code).toBe("not-legal");
     expect(game.state.turn.month).toBe(0);
   });
@@ -381,12 +381,12 @@ describe("the params a free activity may take now", () => {
   const school = content.activity["activity.apply-to-school"]!;
 
   test("[activity:illegal-slot-rejects-turn] given an activity that takes no param, when its params are listed, then there are none to list", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(paramsFor(readWith(game, (state) => state), content.activity["activity.rest"]!)).toBeNull();
   });
 
   test("[activity:illegal-slot-rejects-turn] [activity:job-hunt-lands-offer] [activity:side-job-holds-a-slot] given a life, when the jobs to hunt are listed, then they are the jobs and side jobs whose requirements hold, less the one held", () => {
-    const ada = start({ content, scenario: "scenario.ada" });
+    const ada = start({ content, scenario: "scenario.graduate" });
     const huntEntry = content.activity["activity.job-hunt"]!;
     expect(paramsFor(readWith(ada, (state) => state), huntEntry)).toEqual([
       "activity.job-teacher",
@@ -399,7 +399,7 @@ describe("the params a free activity may take now", () => {
       // Computer Village's sales job (streets:phone-sales-job).
       "activity.job-phone-sales",
     ]);
-    const tunde = start({ content, scenario: "scenario.tunde" });
+    const tunde = start({ content, scenario: "scenario.banker" });
     expect(paramsFor(readWith(tunde, (state) => state), huntEntry)).toEqual([
       "activity.job-teacher",
       "activity.job-customer-service",
@@ -411,14 +411,14 @@ describe("the params a free activity may take now", () => {
   });
 
   test("[activity:illegal-slot-rejects-turn] given routes in each state, when the routes to look into are listed, then only a heard route is", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     const look = content.activity["activity.look-into-route"]!;
     expect(paramsFor(readWith(game, routeIn("heard")), look)).toEqual([UK_ROUTE]);
     for (const other of ["unknown", "known", "applying"] as const) expect(paramsFor(readWith(game, routeIn(other)), look)).toEqual([]);
   });
 
   test("[activity:illegal-slot-rejects-turn] given a known route, a grade and a band, when the schools are listed, then each school whose minimums are met is listed, each edge included", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.state.quality["quality.edu-grade"]).toBe(4);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(65))), school)).toEqual(["school.northgate", "school.ashby"]);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(70))), school)).toEqual(["school.northgate", "school.ashby", "school.kingsmere"]);
@@ -429,7 +429,7 @@ describe("the params a free activity may take now", () => {
   });
 
   test("[activity:illegal-slot-rejects-turn] given no band held, a route not known, or an application already there, when the schools are listed, then those are left out", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(paramsFor(readWith(game, routeIn("known")), school)).toEqual([]);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(70, "pending"))), school)).toEqual([]);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(null))), school)).toEqual([]);
@@ -606,7 +606,7 @@ describe("hunting for a job", () => {
 
   test("[activity:job-hunt-lands-offer] [director:world-variables-per-route] given the remote-hiring boom's bonus in the world, when a hunt's chance is read, then the remote job's chance gains it, up to the cap, and no other job's does", () => {
     const remote = content.activity["activity.job-remote-dev"]!;
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     const world = game.world();
     const network = game.state.quality["quality.network"] ?? 0;
     const read = (bonus: number) => ({ state: game.state, content, world: { ...world, vars: { ...world.vars, "var.remote-hire-bonus": bonus } } });
@@ -646,7 +646,7 @@ describe("hunting for a job", () => {
   test.prop([fc.string({ minLength: 1, maxLength: 8 })], { numRuns: 30 })(
     "[activity:job-hunt-lands-offer] given any seed, when Ada hunts for the teaching job past the sure first months (guide:early-win-in-three-turns), then it lands exactly when the job stream's first draw falls under her chance",
     (seed) => {
-      const ada = bench("scenario.ada", content, seed);
+      const ada = bench("scenario.graduate", content, seed);
       for (let month = 0; month < 3; month += 1) ada.end([]);
       const chance = hireChanceBp(teacher, ada.game.state.quality["quality.network"]!, hireTuning);
       const expected = characterRandom(seed, {}).chance("job", chance);
@@ -662,7 +662,7 @@ describe("hunting for a job", () => {
 
 describe("starting and leaving a job", () => {
   test("[activity:new-job-replaces-held] given a job held, when another is started, then it replaces the job held at once and the tenure of the job left is kept", () => {
-    const tunde = bench("scenario.tunde");
+    const tunde = bench("scenario.banker");
     const result = tunde.apply([{ type: "activity/start-job", job: "activity.job-teacher" }]);
     expect(own(result, "activity/job-started")).toEqual([{ type: "activity/job-started", job: "activity.job-teacher", previous: "activity.job-bank-officer" }]);
     expect(tunde.game.state.activity.job).toBe("activity.job-teacher");
@@ -672,19 +672,19 @@ describe("starting and leaving a job", () => {
   });
 
   test("[activity:new-job-replaces-held] given a job named by a term, when it is started, then the job is read from the terms in hand", () => {
-    const ada = bench("scenario.ada");
+    const ada = bench("scenario.graduate");
     ada.apply([{ type: "activity/start-job", job: { term: "job" } }], { terms: { job: "activity.job-junior-dev" } });
     expect(ada.game.state.activity.job).toBe("activity.job-junior-dev");
   });
 
   test("[activity:new-job-replaces-held] given the job already held, when it is started again, then nothing happens", () => {
-    const tunde = bench("scenario.tunde");
+    const tunde = bench("scenario.banker");
     const result = tunde.apply([{ type: "activity/start-job", job: "activity.job-bank-officer" }]);
     expect(own(result, "activity/job-started")).toEqual([]);
   });
 
   test("[activity:new-job-replaces-held] given a job, when the player quits, then there is no job, the tenure is kept and the free slots go back to three", () => {
-    const game = start({ content, scenario: "scenario.tunde" });
+    const game = start({ content, scenario: "scenario.banker" });
     const result = game.accept({ type: "activity/quit" });
     expect(game.state.activity.job).toBeNull();
     expect(game.state.activity.tenure["activity.job-bank-officer"]).toBe(48);
@@ -695,7 +695,7 @@ describe("starting and leaving a job", () => {
   });
 
   test("[activity:new-job-replaces-held] given no job, when the player quits, then it is rejected with not-legal", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.expectRejected({ type: "activity/quit" }, "not-legal").code).toBe("not-legal");
   });
 
@@ -715,7 +715,7 @@ describe("starting and leaving a job", () => {
   });
 
   test("[activity:new-job-replaces-held] given tenure in several jobs, when activity/tenure is judged, then the listed jobs add up, and an empty list means every job", () => {
-    const tunde = bench("scenario.tunde");
+    const tunde = bench("scenario.banker");
     tunde.apply([{ type: "activity/start-job", job: "activity.job-teacher" }]);
     tunde.end([]);
     const read = tunde.read();
@@ -748,12 +748,12 @@ describe("requirements stop mattering once the job is held", () => {
     };
     const hunt: SlotPick = { activity: "activity.job-hunt", param: teacher.id };
     const landed = (seed: string): boolean => {
-      const trial = start({ scenario: "scenario.ada", seed, content: once });
+      const trial = start({ scenario: "scenario.graduate", seed, content: once });
       trial.endTurn([hunt]);
       return trial.view().offers.some((offer) => offer.entry === "offer.job");
     };
     const seed = Array.from({ length: 200 }, (_unused, index) => `hunt-${String(index)}`).find(landed)!;
-    const game = start({ scenario: "scenario.ada", seed, content: once });
+    const game = start({ scenario: "scenario.graduate", seed, content: once });
     game.endTurn([hunt]);
     game.endTurn();
     const offer = game.view().offers.find((item) => item.entry === "offer.job")!;
@@ -764,7 +764,7 @@ describe("requirements stop mattering once the job is held", () => {
   });
 
   test("[activity:requirements-judged-at-hunt] given a job whose requirements do not hold, when the jobs to hunt are listed, then it is not among them", () => {
-    const ada = start({ content, scenario: "scenario.ada" });
+    const ada = start({ content, scenario: "scenario.graduate" });
     const listed = paramsFor({ state: ada.state, world: ada.world(), content }, content.activity["activity.job-hunt"]!) ?? [];
     expect(listed).not.toContain("activity.job-mid-dev");
     expect(listed).not.toContain("activity.job-remote-dev");
@@ -819,7 +819,7 @@ describe("side gigs", () => {
   });
 
   test("[activity:side-gig-pays-a-draw] [wallet:money-lands-as-in-lagos] given the real side gig, when it resolves, then the pay lies between its figures plus the tech figure, in the pocket its size takes", () => {
-    const zainab = bench("scenario.zainab");
+    const zainab = bench("scenario.developer");
     const tech = zainab.game.state.quality["quality.tech"]!;
     const gig = content.activity["activity.side-gig"]!.effects[0]!;
     if (gig.type !== "activity/gig") throw new Error("The side gig's first effect is the gig.");
@@ -848,7 +848,7 @@ describe("same again", () => {
 
 describe("months played", () => {
   test("[activity:months-played-counted] given a job and free slots, when months end, then each activity in the slots and the job counts one a month, an activity in two slots counts once, empty slots count nothing, and the view does not show it", () => {
-    const tunde = bench("scenario.tunde");
+    const tunde = bench("scenario.banker");
     const job = tunde.game.state.activity.job!;
     expect(tunde.game.state.activity.played).toEqual({});
     tunde.end([pick("activity.rest"), pick("activity.rest")]);
@@ -861,7 +861,7 @@ describe("months played", () => {
 
 describe("the view of activities", () => {
   test("[activity:illegal-slot-rejects-turn] given a life, when the view is read, then every free activity is listed with why not, its params, its cost and whether it can be paid", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     const read: ReadCtx = { state: game.state, world: game.world(), content };
     const view = game.view();
     const freeIds = Object.values(content.activity).filter((entry) => entry.slot === "free" || entry.slot === "none").map((entry) => entry.id);
@@ -903,8 +903,8 @@ describe("the view of activities", () => {
 
 describe("jobs as requirements", () => {
   test("[activity:one-job-paid-monthly] given a life with and without a job, when the job requirements are judged, then they follow the job held", () => {
-    const tunde = start({ content, scenario: "scenario.tunde" });
-    const ada = start({ content, scenario: "scenario.ada" });
+    const tunde = start({ content, scenario: "scenario.banker" });
+    const ada = start({ content, scenario: "scenario.graduate" });
     const of = (game: Game): ReadCtx => ({ state: game.state, world: game.world(), content });
     expect(check(of(tunde), { type: "job/any" }).met).toBe(true);
     expect(check(of(tunde), { type: "job/none" }).met).toBe(false);
@@ -918,7 +918,7 @@ describe("jobs as requirements", () => {
 
 describe("invariants and random play", () => {
   test("[activity:one-job-paid-monthly] given a free activity or an unknown id held as the job, when the invariants are checked, then it is named", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     const bad = (job: string) => activityKind.invariants?.({ ...game.state, activity: { ...game.state.activity, job: job as Id<"activity"> } }, content) ?? [];
     expect(bad("activity.rest")).toHaveLength(1);
     expect(bad("activity.ghost")).toHaveLength(1);
@@ -947,7 +947,7 @@ describe("invariants and random play", () => {
   );
 
   test("[activity:illegal-slot-rejects-turn] given a life with jobs to hunt, when the legal list is read, then it offers a hunt for each of them", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     const view = game.view();
     // activity:now-acts-and-month-acts: the hunt is an act done at once, so the list offers it as `activity/now`.
     const hunts = legalCommands(view)

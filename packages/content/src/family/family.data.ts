@@ -52,14 +52,14 @@ export const familyPosts: FamilyPost[] = [
 ];
 
 /**
- * Each fixed life's aunt and cousin, from the pool and from the life's own
- * people (lifePeople in person.names.data.ts). The prologue's life has no fixed
+ * Each ready life's aunt and cousin, from the pool and from the family's
+ * people (familyPeople in person.names.data.ts). The prologue's life has no fixed
  * family, so its senders go by relation.
  */
 export const familyNames: Partial<Record<Id<"scenario">, Partial<Record<FamilySender, string>>>> = {
-  "scenario.ada": { aunt: "Nkechi", cousin: "Ebuka" },
-  "scenario.tunde": { aunt: "Ronke", cousin: "Seun" },
-  "scenario.zainab": { aunt: "Halima", cousin: "Sani" },
-  "scenario.ngozi": { aunt: "Chioma", cousin: "Obinna" },
-  "scenario.aniekan": { aunt: "Ekaette", cousin: "Ubong" },
+  "scenario.graduate": { aunt: "Nkechi", cousin: "Ebuka" },
+  "scenario.banker": { aunt: "Ronke", cousin: "Seun" },
+  "scenario.developer": { aunt: "Halima", cousin: "Sani" },
+  "scenario.nurse": { aunt: "Chioma", cousin: "Obinna" },
+  "scenario.teacher": { aunt: "Ekaette", cousin: "Ubong" },
 };

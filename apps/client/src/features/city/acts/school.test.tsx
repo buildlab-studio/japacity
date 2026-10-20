@@ -10,7 +10,7 @@ import { offerChance, SCHOOL_ICON, schoolSheetLine } from "./school";
 const NORTHGATE = "school.northgate";
 
 function withGrade(grade: number) {
-  const view = engineView("scenario.ada");
+  const view = engineView("scenario.graduate");
   return { ...view, qualities: [...view.qualities.filter((quality) => quality.id !== "quality.edu-grade"), { id: "quality.edu-grade" as const, value: grade }] };
 }
 

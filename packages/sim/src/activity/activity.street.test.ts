@@ -29,7 +29,7 @@ interface Moved {
 }
 
 function ada(): Game {
-  return start({ content, scenario: "scenario.ada" });
+  return start({ content, scenario: "scenario.graduate" });
 }
 
 /** The money moved under a reason in a result. */

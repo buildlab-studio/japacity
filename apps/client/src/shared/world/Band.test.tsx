@@ -156,7 +156,7 @@ describe("the band's month", () => {
   test("[world:top-band-is-lively-pill] given a life begun on this device in March, when the store starts it, then the store holds the time it began, read from the authority", async () => {
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "band-month", now: () => MARCH });
     const store = createGameStore(authority, { life: authority, choosingLife: true });
-    await store.getState().chooseLife("scenario.ada");
+    await store.getState().chooseLife("scenario.graduate");
     expect(store.getState().beganAt).toBe(MARCH);
     expect(authority.beganAt()).toBe(MARCH);
   });

@@ -47,7 +47,7 @@ async function intoTheWorld(page: Page): Promise<void> {
 }
 
 function friendGame(): Game {
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
   game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "already-in-uk" });
@@ -102,7 +102,7 @@ test("[pair:invite-link-single-use] [account:start-screen-over-live-city] an inv
         slot: "partner",
         looking: "partner",
         expires: Date.now() + 14 * time.DAY_MS,
-        card: { name: "scenario.tunde.name", japacity: { percent: 47, route: "route.uk-masters" }, looking: { key: "card.invite.looking", slot: "partner", fill: "already-in-uk", slotKey: "card.invite.slot.partner", fillKey: "card.invite.fill.already-in-uk" }, game: "card.invite.game", controls: ["block", "report"] },
+        card: { name: "scenario.banker.name", japacity: { percent: 47, route: "route.uk-masters" }, looking: { key: "card.invite.looking", slot: "partner", fill: "already-in-uk", slotKey: "card.invite.slot.partner", fillKey: "card.invite.fill.already-in-uk" }, game: "card.invite.game", controls: ["block", "report"] },
       },
     },
     "POST /api/age": { body: { ok: true } },
@@ -171,7 +171,7 @@ test("[moderation:report-from-every-surface] a friend's conversation carries blo
 });
 
 test("[advert:slots-capped-per-place] the phone tile shows the hour's sponsored tile with the game's own label, and its card can be reported", async ({ page }, info) => {
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
   await fakeServer(page, {
@@ -221,7 +221,7 @@ function drawGame(): Game {
     odds: content.tuning.lottery.odds,
     last: null,
   };
-  const game = start({ scenario: "scenario.tunde", content, worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery, placeNames: {} }) });
+  const game = start({ scenario: "scenario.banker", content, worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery, placeNames: {} }) });
   game.grant(1);
   return game;
 }
@@ -304,7 +304,7 @@ test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [per
   test.skip(info.project.name !== "Pixel 7", "The world is checked at phone size.");
   test.setTimeout(120_000);
   const TOBI = "person.tobi-bank";
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
   const before = { body: viewReply(game, CLOCK.tick) };

@@ -9,7 +9,7 @@ import { devices, expect, test, type Page } from "@playwright/test";
 import { text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { closeGranted, doAct, LIVED, passCards, placeNow, placeReady, rideTo, seedSave } from "./support/live";
-import { adaBeforeFlight } from "./support/saves";
+import { graduateBeforeFlight } from "./support/saves";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
@@ -23,7 +23,7 @@ async function departures(page: Page): Promise<number> {
 test("[chapter:send-off-scene-in-beats] [world:plane-cut-at-send-off] [share:send-off-card-kept] a granted life boards through the six beats of the send-off and lands in the room abroad with the card kept on the phone", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The send-off is played at phone size");
   test.setTimeout(240_000);
-  await seedSave(page, adaBeforeFlight());
+  await seedSave(page, graduateBeforeFlight());
   await page.goto(`/${LIVED}`);
   await closeGranted(page);
   await placeReady(page);
@@ -101,7 +101,7 @@ test("[chapter:send-off-scene-in-beats] [world:plane-cut-at-send-off] [share:sen
 test("[chapter:send-off-scene-in-beats] leaving the scene before the gate's button leaves the life at the airport, and the act opens it again", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The send-off is played at phone size");
   test.setTimeout(180_000);
-  await seedSave(page, adaBeforeFlight());
+  await seedSave(page, graduateBeforeFlight());
   await page.goto(`/${LIVED}`);
   await closeGranted(page);
   await placeReady(page);

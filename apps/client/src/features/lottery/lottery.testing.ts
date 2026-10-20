@@ -31,7 +31,7 @@ export function onlineLife(lottery: World["lottery"]): OnlineLife {
   const base = standInWorld("world-1", 0, content);
   const live = { lottery };
   const game = start({
-    scenario: "scenario.tunde",
+    scenario: "scenario.banker",
     content,
     worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery: live.lottery, placeNames: {} }),
   });

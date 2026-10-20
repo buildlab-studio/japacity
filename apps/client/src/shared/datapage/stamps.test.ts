@@ -13,7 +13,7 @@ const ROAD = "route.road" as const;
 const FIRST = "chapter.find-your-feet" as const;
 
 function life(change: (view: PlayerView) => Partial<PlayerView>): PlayerView {
-  const view = engineView("scenario.ada");
+  const view = engineView("scenario.graduate");
   return { ...view, ...change(view) };
 }
 
@@ -27,7 +27,7 @@ const visa = { words: say("prologue.page.stamp.granted"), under: say(`prologue.p
 
 describe("the page's stamps", () => {
   test("[prologue:front-door-builds-a-person] given every step before a visa (the way looked into, the plan, the passport held, the file built, the visa applied for), then the page carries no stamp", () => {
-    expect(stampsOf(engineView("scenario.ada"))).toEqual([]);
+    expect(stampsOf(engineView("scenario.graduate"))).toEqual([]);
     const before = life((view) => ({
       documents: [held],
       ...routeIn(view, UK_CARE, "applying"),
@@ -60,6 +60,6 @@ describe("the page's stamps", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given every way out that can be a plan, then each has its few words for the visa's stamp", () => {
-    for (const route of engineView("scenario.ada").routes) expect(say(`prologue.page.way.${route.id}`)).not.toBe(`prologue.page.way.${route.id}`);
+    for (const route of engineView("scenario.graduate").routes) expect(say(`prologue.page.way.${route.id}`)).not.toBe(`prologue.page.way.${route.id}`);
   });
 });

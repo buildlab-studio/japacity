@@ -24,8 +24,8 @@ const IN_APP = {
 } as const;
 
 /** Ada's recorded life up to the interview's first answer: the application has just gone in. */
-function adaAtInterview(): string {
-  const save = recorded("ada-careful");
+function graduateAtInterview(): string {
+  const save = recorded("graduate-careful");
   const first = save.commands.findIndex((entry) => entry.command.type === "setpiece/answer");
   return kept({ ...save, commands: save.commands.slice(0, first) });
 }
@@ -44,7 +44,7 @@ async function seed(page: Page, options: { saveData?: boolean } = {}): Promise<s
       }
       if (saveData) Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true });
     },
-    { stored: adaAtInterview(), saveData: options.saveData === true },
+    { stored: graduateAtInterview(), saveData: options.saveData === true },
   );
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto(`/${LIVED}`);

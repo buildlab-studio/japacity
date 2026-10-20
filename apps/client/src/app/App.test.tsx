@@ -43,7 +43,7 @@ describe("the app", () => {
 
   test("given a save for older content, then the life chooser says the save could not come along", () => {
     const storage = memoryStorage();
-    storage.setItem(SAVE_KEY, JSON.stringify({ save: { schema: 1, content: "0", scenario: "scenario.ada", seed: "a", worldSeed: "b", commands: [] }, clock: { anchor: 0 } }));
+    storage.setItem(SAVE_KEY, JSON.stringify({ save: { schema: 1, content: "0", scenario: "scenario.graduate", seed: "a", worldSeed: "b", commands: [] }, clock: { anchor: 0 } }));
     const store = bootGame({ storage, fastClock: true });
     render(<App store={store} />);
     // The sound notice at the app root is a status region too; the chooser's is the one without the notice mark.

@@ -61,7 +61,7 @@ import { rejectText } from "./reject/reject.text";
 import { routeTable } from "./route/route.data";
 import { routeText } from "./route/route.text";
 import { prologueScenario } from "./prologue/prologue.data";
-import { aniekanScenario, ngoziScenario, scenarioTable } from "./scenario/scenario.data";
+import { teacherScenario, nurseScenario, scenarioTable } from "./scenario/scenario.data";
 import { scenarioText } from "./scenario/scenario.text";
 import { schoolTable } from "./school/school.data";
 import { schoolText } from "./school/school.text";
@@ -108,7 +108,7 @@ export { CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, 
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
 export { OPERATOR, type Operator } from "./legal/legal.operator";
 export { LICENCES_PATH, LICENCES_URL, REGISTER_URL, REPOSITORY_URL } from "./legal/legal.repository";
-export { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
+export { familyPeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
 export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";
 export { recurringPeople } from "./person/person.recurring.data";
 export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
@@ -158,7 +158,7 @@ export const content: Content = {
   chapter: chapterTable,
   var: varTable,
   news: newsTable,
-  scenario: { ...scenarioTable, [ngoziScenario.id]: ngoziScenario, [aniekanScenario.id]: aniekanScenario, [prologueScenario.id]: prologueScenario },
+  scenario: { ...scenarioTable, [nurseScenario.id]: nurseScenario, [teacherScenario.id]: teacherScenario, [prologueScenario.id]: prologueScenario },
   country: countryTable,
   status: statusTable,
   goal: goalTable,

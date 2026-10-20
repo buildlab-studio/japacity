@@ -33,7 +33,7 @@ async function localLife(): Promise<{ store: GameStore; afresh: () => number }> 
   let afresh = 0;
   const store = createGameStore(authority, { life: authority, afterLifeEnded: () => (afresh += 1) });
   keepPerson({ look: "person_ada", name: "Bisi", archetype: null });
-  await store.getState().chooseLife("scenario.ada");
+  await store.getState().chooseLife("scenario.graduate");
   return { store, afresh: () => afresh };
 }
 

@@ -13,8 +13,8 @@ import { simulatedLifeSaves } from "./lives.data";
 
 // The Gulf's life and Canada's are recorded; Italy has none, since the road's journey starts too late for the recording (tools/goldens/record-lives.ts).
 const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
-  "tunde-gulf": { country: "country.uae", route: "route.gulf-contract" },
-  "zainab-canada": { country: "country.canada", route: "route.canada-points" },
+  "banker-gulf": { country: "country.uae", route: "route.gulf-contract" },
+  "developer-canada": { country: "country.canada", route: "route.canada-points" },
 };
 const recorded = Object.entries(countryLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 

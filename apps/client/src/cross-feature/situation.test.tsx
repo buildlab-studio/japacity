@@ -79,7 +79,7 @@ describe("the situation in plain words", () => {
   // No lights hang on the door, so it carries the one hook that
   // stands without them, smaller than the start screen's so the looks stay in view; the steps are a label strip, not chips.
   test("[text:hook-not-explanation] given the first screen offline, then under Who are you? the door opens with the hook that needs no lights, in two smaller rows, and the three steps as a label strip, and no sentence about the game", async () => {
-    await renderWithView(<ScenarioView />, newGame("scenario.ada").view());
+    await renderWithView(<ScenarioView />, newGame("scenario.graduate").view());
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
     const hook = document.querySelector("[data-door-intro] [data-start-hook]");
     const rows = [...(hook?.children ?? [])].map((row) => row.textContent);

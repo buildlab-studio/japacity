@@ -24,7 +24,7 @@ import stiltHouseSheet from "../../models/buildings/stilt-house/review.json";
 import terminalFrontSheet from "../../models/buildings/terminal-front/review.json";
 import nationalStadiumSheet from "../../models/landmarks/national-stadium/review.json";
 import thirdMainlandSpanSheet from "../../models/landmarks/third-mainland-span/review.json";
-import adaSheet from "../../models/people/ada/review.json";
+import graduateSheet from "../../models/people/ada/review.json";
 import amakaSheet from "../../models/people/amaka/review.json";
 import bayoSheet from "../../models/people/bayo/review.json";
 import bisiSheet from "../../models/people/bisi/review.json";
@@ -48,7 +48,7 @@ import iyaSheet from "../../models/people/iya/review.json";
 import kemiSheet from "../../models/people/kemi/review.json";
 import kunleSheet from "../../models/people/kunle/review.json";
 import musaSheet from "../../models/people/musa/review.json";
-import ngoziSheet from "../../models/people/ngozi/review.json";
+import nurseSheet from "../../models/people/ngozi/review.json";
 import nonsoSheet from "../../models/people/nonso/review.json";
 import obiSheet from "../../models/people/obi/review.json";
 import riderSheet from "../../models/people/rider/review.json";
@@ -56,8 +56,8 @@ import sadeSheet from "../../models/people/sade/review.json";
 import segunSheet from "../../models/people/segun/review.json";
 import tobiSheet from "../../models/people/tobi/review.json";
 import tolaniSheet from "../../models/people/tolani/review.json";
-import tundeSheet from "../../models/people/tunde/review.json";
-import zainabSheet from "../../models/people/zainab/review.json";
+import bankerSheet from "../../models/people/tunde/review.json";
+import developerSheet from "../../models/people/zainab/review.json";
 import airportLagosPlaceSheet from "../../models/places/airport-lagos/review.json";
 import bodeThomasPlaceSheet from "../../models/places/bode-thomas/review.json";
 import computerVillagePlaceSheet from "../../models/places/computer-village/review.json";
@@ -112,7 +112,7 @@ const SHEETS: Record<string, ReviewSheet> = {
   "buildings/terminal-front/review.json": terminalFrontSheet satisfies Review,
   "landmarks/national-stadium/review.json": nationalStadiumSheet satisfies Review,
   "landmarks/third-mainland-span/review.json": thirdMainlandSpanSheet satisfies Review,
-  "people/ada/review.json": adaSheet satisfies Review,
+  "people/ada/review.json": graduateSheet satisfies Review,
   "people/amaka/review.json": amakaSheet satisfies Review,
   "people/bayo/review.json": bayoSheet satisfies Review,
   "people/bisi/review.json": bisiSheet satisfies Review,
@@ -136,7 +136,7 @@ const SHEETS: Record<string, ReviewSheet> = {
   "people/kemi/review.json": kemiSheet satisfies Review,
   "people/kunle/review.json": kunleSheet satisfies Review,
   "people/musa/review.json": musaSheet satisfies Review,
-  "people/ngozi/review.json": ngoziSheet satisfies Review,
+  "people/ngozi/review.json": nurseSheet satisfies Review,
   "people/nonso/review.json": nonsoSheet satisfies Review,
   "people/obi/review.json": obiSheet satisfies Review,
   "people/rider/review.json": riderSheet satisfies Review,
@@ -144,8 +144,8 @@ const SHEETS: Record<string, ReviewSheet> = {
   "people/segun/review.json": segunSheet satisfies Review,
   "people/tobi/review.json": tobiSheet satisfies Review,
   "people/tolani/review.json": tolaniSheet satisfies Review,
-  "people/tunde/review.json": tundeSheet satisfies Review,
-  "people/zainab/review.json": zainabSheet satisfies Review,
+  "people/tunde/review.json": bankerSheet satisfies Review,
+  "people/zainab/review.json": developerSheet satisfies Review,
   "places/airport-lagos/review.json": airportLagosPlaceSheet satisfies PlaceReview,
   "places/bode-thomas/review.json": bodeThomasPlaceSheet satisfies PlaceReview,
   "places/computer-village/review.json": computerVillagePlaceSheet satisfies PlaceReview,

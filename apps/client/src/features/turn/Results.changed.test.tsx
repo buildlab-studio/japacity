@@ -38,7 +38,7 @@ function shownChanges(): string[] {
 
 describe("the changed-into lines under Kept", () => {
   test("[world:month-end-results-sheet] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with what went at the rate and what came in, in the order made, Kept counts only the bank's charges, and Kept plus the changes is the band's move", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     setPockets(game, { NGN: 200_000_000 });
     const start = held(game, "NGN");
     const atBank = change(game, "NGN", "GBP", 50_000_000, "bank");
@@ -84,7 +84,7 @@ describe("the changed-into lines under Kept", () => {
   });
 
   test("[world:month-end-results-sheet] given a month with no change of money, when the results show, then no changed-into line shows", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     game.endTurn();
     const { store } = await renderWithView(<Results place="Home" />, game.view());
     act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));

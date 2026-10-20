@@ -17,7 +17,7 @@ const SURE = applyOverlay(content, { version: "test-results-evicted", tuning: { 
 
 /** Ada in Makoko on content where the settlement is sure to be cleared, with cash enough after two months of rent to lose the most. */
 function inMakoko(): Game {
-  const game = start({ content: SURE, scenario: "scenario.ada" });
+  const game = start({ content: SURE, scenario: "scenario.graduate" });
   setPockets(game, { NGN: 500_000_00 });
   game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_00, to: "cash" });
   game.accept({ type: "home/move", to: "place.makoko" });

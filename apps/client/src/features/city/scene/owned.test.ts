@@ -139,50 +139,50 @@ describe("buy mode's floor rule", () => {
 describe("the room's arrangement beside the save", () => {
   test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given a thing set down, when the arrangement is read back for the same life, then it is where it was set down; another life reads nothing, and a new life forgets it", () => {
     const storage = memoryStorage();
-    keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.ada", storage);
-    keepArranged("place.compound-room", "thing.tv", [0, 1, 0], "scenario.ada", storage);
-    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.fan": [1, 2, QUARTER], "thing.tv": [0, 1, 0] });
-    expect(arrangedIn("place.hostel-room", "scenario.ada", storage)).toEqual({});
-    expect(arrangedIn("place.compound-room", "scenario.tunde", storage)).toEqual({});
+    keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.graduate", storage);
+    keepArranged("place.compound-room", "thing.tv", [0, 1, 0], "scenario.graduate", storage);
+    expect(arrangedIn("place.compound-room", "scenario.graduate", storage)).toEqual({ "thing.fan": [1, 2, QUARTER], "thing.tv": [0, 1, 0] });
+    expect(arrangedIn("place.hostel-room", "scenario.graduate", storage)).toEqual({});
+    expect(arrangedIn("place.compound-room", "scenario.banker", storage)).toEqual({});
     forgetArranged(storage);
     expect(storage.data.has(ARRANGED_KEY)).toBe(false);
   });
 
   test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given a kept arrangement that is not well formed, when it is read, then the bad spots are dropped and nothing throws", () => {
     const storage = memoryStorage();
-    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: { "place.compound-room": { "thing.fan": [1, "x", 0], "thing.tv": [0, 1, 0] } } }));
-    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.tv": [0, 1, 0] });
+    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.graduate", homes: { "place.compound-room": { "thing.fan": [1, "x", 0], "thing.tv": [0, 1, 0] } } }));
+    expect(arrangedIn("place.compound-room", "scenario.graduate", storage)).toEqual({ "thing.tv": [0, 1, 0] });
     storage.setItem(ARRANGED_KEY, "not json");
-    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({});
+    expect(arrangedIn("place.compound-room", "scenario.graduate", storage)).toEqual({});
   });
 
   test("[world:camera-always-raised] [world:room-seen-down-its-length] given a wide home's view turned, when the life is reloaded, then the home opens on the quarter it was left on, each home its own, beside the arrangement without disturbing it; another life reads the house unturned, and a new life forgets it", () => {
     const storage = memoryStorage();
-    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
-    keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.ada", storage);
-    expect(keepTurn("place.family-house", 3, "scenario.ada", storage)).toBe(3);
-    expect(keepTurn("place.compound-room", 5, "scenario.ada", storage)).toBe(1);
-    expect(keepTurn("place.hostel-room", -1, "scenario.ada", storage)).toBe(3);
-    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(3);
-    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(1);
-    expect(turnIn("place.hostel-room", "scenario.ada", storage)).toBe(3);
-    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.fan": [1, 2, QUARTER] });
-    keepArranged("place.compound-room", "thing.tv", [0, 1, 0], "scenario.ada", storage);
-    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(1);
-    expect(turnIn("place.family-house", "scenario.tunde", storage)).toBe(0);
+    expect(turnIn("place.family-house", "scenario.graduate", storage)).toBe(0);
+    keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.graduate", storage);
+    expect(keepTurn("place.family-house", 3, "scenario.graduate", storage)).toBe(3);
+    expect(keepTurn("place.compound-room", 5, "scenario.graduate", storage)).toBe(1);
+    expect(keepTurn("place.hostel-room", -1, "scenario.graduate", storage)).toBe(3);
+    expect(turnIn("place.family-house", "scenario.graduate", storage)).toBe(3);
+    expect(turnIn("place.compound-room", "scenario.graduate", storage)).toBe(1);
+    expect(turnIn("place.hostel-room", "scenario.graduate", storage)).toBe(3);
+    expect(arrangedIn("place.compound-room", "scenario.graduate", storage)).toEqual({ "thing.fan": [1, 2, QUARTER] });
+    keepArranged("place.compound-room", "thing.tv", [0, 1, 0], "scenario.graduate", storage);
+    expect(turnIn("place.compound-room", "scenario.graduate", storage)).toBe(1);
+    expect(turnIn("place.family-house", "scenario.banker", storage)).toBe(0);
     forgetArranged(storage);
-    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
+    expect(turnIn("place.family-house", "scenario.graduate", storage)).toBe(0);
   });
 
   test("[world:camera-always-raised] given a kept turn that is not a quarter, when it is read, then it is dropped and the house opens unturned", () => {
     const storage = memoryStorage();
-    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: {}, turns: { "place.family-house": 1.5, "place.hostel-room": "2", "place.compound-room": 2 } }));
-    expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
-    expect(turnIn("place.hostel-room", "scenario.ada", storage)).toBe(0);
-    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(2);
+    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.graduate", homes: {}, turns: { "place.family-house": 1.5, "place.hostel-room": "2", "place.compound-room": 2 } }));
+    expect(turnIn("place.family-house", "scenario.graduate", storage)).toBe(0);
+    expect(turnIn("place.hostel-room", "scenario.graduate", storage)).toBe(0);
+    expect(turnIn("place.compound-room", "scenario.graduate", storage)).toBe(2);
     // An arrangement kept with no turns still reads.
-    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: { "place.compound-room": { "thing.tv": [0, 1, 0] } } }));
-    expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.tv": [0, 1, 0] });
-    expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(0);
+    storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.graduate", homes: { "place.compound-room": { "thing.tv": [0, 1, 0] } } }));
+    expect(arrangedIn("place.compound-room", "scenario.graduate", storage)).toEqual({ "thing.tv": [0, 1, 0] });
+    expect(turnIn("place.compound-room", "scenario.graduate", storage)).toBe(0);
   });
 });

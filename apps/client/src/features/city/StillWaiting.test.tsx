@@ -12,7 +12,7 @@ import { stillWaiting, StillWaiting } from "./StillWaiting";
 describe("what still waits", () => {
   test("[world:one-action-one-sheet] given the send-off answered at the house and the NEPA bill still asking, when the sheet shows, then it names the bill and one button opens the asks", () => {
     // The send-off is answered, so it has left the offers; the NEPA bill is still asking.
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     openOffer(game, "offer.nepa-bill");
     const view = game.view();
     const left = stillWaiting(view.offers, ["offer.family-send-off"]);

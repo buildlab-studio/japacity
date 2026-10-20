@@ -25,7 +25,7 @@ describe("the room's basics at the tap", () => {
   test("[obligation:cooking-and-fetching-water] [activity:now-acts-and-month-acts] [world:things-are-tappable-models] given the parlour, when cooking and water are done, then each answers now and stays at its thing for another time, and the scene shows it: the pot steams and the drum is full", () => {
     expect(answersNow(COOK)).toBe(true);
     expect(answersNow(WATER)).toBe(true);
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const answered = [...game.accept({ type: "activity/now", activity: COOK, param: null }).lines, ...game.accept({ type: "activity/now", activity: WATER, param: null }).lines];
     // Decision 0012 (activity:acts-may-repeat-in-month): a meal and the water repeat within the month, so each stays at its thing for another time.
     const offered = actsOffered(game.view());
@@ -49,7 +49,7 @@ describe("the room's basics at the tap", () => {
       expect(plainActLine(thing, lie)).toBeNull();
     }
     expect(things.flatMap((thing) => thing.acts).some((act) => act.stages === "activity.rest")).toBe(false);
-    expect(actsOffered(engineView("scenario.ada"))).not.toContain("activity.rest");
+    expect(actsOffered(engineView("scenario.graduate"))).not.toContain("activity.rest");
   });
 
   test("[world:things-are-tappable-models] [world:month-acts-carry-on] given time with family started at Mama, when the names are read, then hers says Ongoing; with nothing started none carries a state", () => {

@@ -21,7 +21,7 @@ const FAMILY = offer("offer-8", "offer.mum-shop", ["give", "half"]);
 
 /** A hand-built month on the road, holding just the offers each test needs. */
 function onTheRoad(offers: Offer[]): PlayerView {
-  const base = engineView("scenario.tunde");
+  const base = engineView("scenario.banker");
   return {
     ...base,
     month: 30,

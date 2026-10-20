@@ -15,8 +15,8 @@ import { say } from "../../shared/words/text";
 import { gallery } from "./gallery";
 import { CardView, Keepsake } from "./ShareCard";
 
-function adaFlown(): PlayerView {
-  const view = recordedGame("ada-careful").view();
+function graduateFlown(): PlayerView {
+  const view = recordedGame("graduate-careful").view();
   if (view.card?.kind !== "send-off") throw new Error("Ada's recorded life does not end at the send-off.");
   return view;
 }
@@ -34,14 +34,14 @@ afterEach(() => {
 describe("the keepsake's place", () => {
   test("[share:send-off-card-kept] given Ada just flown with no scene showing, then the card opens on no screen of its own and is kept at once with the seat the counter gave", async () => {
     act(() => sendOff.getState().choose("aisle"));
-    const view = adaFlown();
+    const view = graduateFlown();
     await renderWithView(<CardView />, view);
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(gallery.getState().kept.map((entry) => [entry.card.kind, entry.seat])).toEqual([["send-off", "aisle"]]);
   });
 
   test("[share:send-off-card-kept] given the scene still showing before the first ride, then the card is neither kept nor offered; once the ride says it is saved, it is kept", async () => {
-    const view = adaFlown();
+    const view = graduateFlown();
     act(() => sendOff.getState().open({ route: view.card!.route!, country: "country.uk" }));
     await renderWithView(
       <>
@@ -59,7 +59,7 @@ describe("the keepsake's place", () => {
 
   test("[share:send-off-card-kept] given the card's time, then the phone's tile opens it with the share unchanged and the stub carrying the seat in words; after the first month abroad, no tile", async () => {
     act(() => sendOff.getState().choose("aisle"));
-    const view = adaFlown();
+    const view = graduateFlown();
     const { store } = await renderWithView(<Keepsake />, view);
     const tile = document.querySelector("[data-keepsake]") as HTMLElement;
     expect(tile.textContent).toContain(say("share.send-off.ready"));
@@ -74,11 +74,11 @@ describe("the keepsake's place", () => {
   });
 
   test("[share:send-off-card-kept] [share:card-never-looks-official] given a seat, then the drawn stub keeps its landscape shape and carries the seat in words under the place, never a number, and no word of a ticket's machinery", () => {
-    const card = adaFlown().card!;
+    const card = graduateFlown().card!;
     const measure = (words: string, size: number) => Math.round(words.length * size * 0.55);
     const ticket = /airline|airways|barcode|boarding|\bseat\b|\bgate\b|flight|booking|\d/i;
     for (const seat of ["window", "aisle"] as const) {
-      const face = stubFace(card, "scenario.ada", null, seat)!;
+      const face = stubFace(card, "scenario.graduate", null, seat)!;
       expect(face.seat).toBe(text[`share.stub.seat.${seat}`]);
       const seatSteps = stubSteps(face, { width: 1920, height: 1080 }, measure).flatMap((step) => (step.op === "text" && step.role === "stub-seat" ? [step] : []));
       expect(seatSteps.map((step) => step.text).join(" ")).toBe(text[`share.stub.seat.${seat}`]);
@@ -86,6 +86,6 @@ describe("the keepsake's place", () => {
       const place = stubSteps(face, { width: 1920, height: 1080 }, measure).find((step) => step.op === "text" && step.role === "stub-value" && step.text === face.fields.to);
       expect(place !== undefined && place.op === "text" && seatSteps[0]!.y > place.y).toBe(true);
     }
-    expect(stubFace(card, "scenario.ada", null)?.seat).toBeNull();
+    expect(stubFace(card, "scenario.graduate", null)?.seat).toBeNull();
   });
 });

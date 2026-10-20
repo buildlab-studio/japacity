@@ -143,8 +143,8 @@ describe("report line keys in the source", () => {
 });
 
 describe("staged wins", () => {
-  test("[activity:one-job-paid-monthly] [route:grant-moves-to-granted] [route:departure-pays-flight] [luck:big-wins-are-staged] given the ada-careful golden, when its save is replayed, then the first salary, the first dollar salary, the grant and the send-off each come once as a big line, and nothing else is big", () => {
-    const save = lifeSaves["ada-careful"]!;
+  test("[activity:one-job-paid-monthly] [route:grant-moves-to-granted] [route:departure-pays-flight] [luck:big-wins-are-staged] given the graduate-careful golden, when its save is replayed, then the first salary, the first dollar salary, the grant and the send-off each come once as a big line, and nothing else is big", () => {
+    const save = lifeSaves["graduate-careful"]!;
     let state = newState(save.scenario, save.seed, content);
     const lines: ReportLine[] = [];
     for (const { command, tick, sender } of save.commands) {

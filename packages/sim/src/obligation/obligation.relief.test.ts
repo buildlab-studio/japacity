@@ -27,7 +27,7 @@ const WATER_LINE = "line.obligation.relief.fetch-water";
 const { room } = content.tuning;
 
 function ada(base: Content = content): Game {
-  return start({ content: base, scenario: "scenario.ada" });
+  return start({ content: base, scenario: "scenario.graduate" });
 }
 
 function entry(id: Id<"activity">): ActivityEntry {

@@ -97,7 +97,7 @@ const MONTH_ACTS: readonly string[] = [
 ];
 
 function ada(): Game {
-  return start({ content, scenario: "scenario.ada" });
+  return start({ content, scenario: "scenario.graduate" });
 }
 
 function now(game: Game, activity: Id<"activity">, param: string | null = null): Accepted {

@@ -36,8 +36,8 @@ function sendOff(name: string): PlayerView {
 }
 
 /** Ada at her send-off with her card's things done most swapped, as another life might have done them. */
-function adaDoing(topActivities: Card["topActivities"], change: Partial<PlayerView> = {}): PlayerView {
-  const view = adaPlain();
+function graduateDoing(topActivities: Card["topActivities"], change: Partial<PlayerView> = {}): PlayerView {
+  const view = graduatePlain();
   return { ...view, ...change, card: { ...view.card!, topActivities } };
 }
 
@@ -46,8 +46,8 @@ function adaDoing(topActivities: Card["topActivities"], change: Partial<PlayerVi
  * comes before the one each test sets. Study and time with the family are counted each time they are done (decision
  * 0012), so her things done most lead with them; left as they are, they would read before the test's change.
  */
-function adaPlain(): PlayerView {
-  const view = sendOff("ada-careful");
+function graduatePlain(): PlayerView {
+  const view = sendOff("graduate-careful");
   return { ...view, card: { ...view.card!, standing: 50, topActivities: ["activity.job-junior-dev"] } };
 }
 
@@ -121,24 +121,24 @@ describe("the japa type, read at the send-off", () => {
     // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not
     // lead the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the junior
     // developer's job leads his things done most, and with no reading before it his standing makes him the family anchor.
-    const aniekan = sendOff("aniekan-borrower");
+    const aniekan = sendOff("teacher-borrower");
     expect(aniekan.routes.find((route) => route.id === aniekan.card!.route)?.refusals ?? 0).toBe(0);
     expect(aniekan.card!.topActivities[0]).toBe("activity.job-junior-dev");
     expect(japaTypeOf(aniekan)).toBe("family-anchor");
     // Ada (seed golden-ada-0): her standing ends high, 91 with decision 0012's arrivals, with time with the
     // family first among the things done most, so she is the family anchor before the careful saver her kept months would make her.
-    const ada = sendOff("ada-careful");
+    const ada = sendOff("graduate-careful");
     expect(ada.card).toMatchObject({ months: 28, standing: 91 });
     expect(ada.card!.topActivities[0]).toBe("activity.family-time");
     expect(japaTypeOf(ada)).toBe("family-anchor");
     // Tunde: time with the family leads his things done most under decision 0012 (gist takes no time, so his
     // lived months hold more of it), the senior bank job behind it; no reading before the family anchor holds.
-    const tunde = sendOff("tunde-borrower");
+    const tunde = sendOff("banker-borrower");
     expect(tunde.card!.topActivities[0]).toBe("activity.family-time");
     expect(tunde.card!.topActivities).toContain("activity.job-bank-senior");
     expect(japaTypeOf(tunde)).toBe("family-anchor");
     // Zainab came home once and went again: the long way round, before anything else.
-    const zainab = sendOff("zainab-remote");
+    const zainab = sendOff("developer-remote");
     expect(zainab.place.returns.length).toBeGreaterThan(0);
     expect(japaTypeOf(zainab)).toBe("long-way-round");
   });
@@ -156,16 +156,16 @@ describe("the japa type, read at the send-off", () => {
   });
 
   test("[share:cards-due-at-set-moments] given no send-off due, a chapter card or no card, when the type is read, then there is none", () => {
-    const ada = sendOff("ada-careful");
+    const ada = sendOff("graduate-careful");
     expect(japaTypeOf({ ...ada, card: null })).toBeNull();
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, kind: "chapter" } })).toBeNull();
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     game.endTurn();
     expect(japaTypeOf(game.view())).toBeNull();
   });
 
   test("[share:card-contents] given Ada's send-off with one thing changed at a time, when the type is read, then each of the six types is reached by its own reason", () => {
-    const ada = adaPlain();
+    const ada = graduatePlain();
     // A return in the record and still going: the long way round, before anything else.
     expect(japaTypeOf({ ...ada, place: { ...ada.place, returns: [{ month: 6, shape: "broke", country: "country.uk" }] } })).toBe("long-way-round");
     // The way taken refused once before it was granted.
@@ -181,13 +181,13 @@ describe("the japa type, read at the send-off", () => {
     const topBand = standing.min + Math.ceil((3 * (standing.max - standing.min + 1)) / 4);
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: topBand, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).toBe("family-anchor");
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: topBand - 1, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).not.toBe("family-anchor");
-    expect(japaTypeOf({ ...adaDoing(["activity.family-time", "activity.job-junior-dev"]), card: { ...ada.card!, topActivities: ["activity.family-time"], standing: 50 } })).not.toBe("family-anchor");
+    expect(japaTypeOf({ ...graduateDoing(["activity.family-time", "activity.job-junior-dev"]), card: { ...ada.card!, topActivities: ["activity.family-time"], standing: 50 } })).not.toBe("family-anchor");
     // Two risks: the kiosk and an agent paid. One alone is not enough.
-    expect(japaTypeOf(adaDoing(["activity.play-lotto", "activity.see-agent-office"]))).toBe("gambler");
-    expect(japaTypeOf(adaDoing(["activity.play-lotto", "activity.job-junior-dev"]))).not.toBe("gambler");
+    expect(japaTypeOf(graduateDoing(["activity.play-lotto", "activity.see-agent-office"]))).toBe("gambler");
+    expect(japaTypeOf(graduateDoing(["activity.play-lotto", "activity.job-junior-dev"]))).not.toBe("gambler");
     // Study first.
-    expect(japaTypeOf(adaDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
-    expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
+    expect(japaTypeOf(graduateDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
+    expect(japaTypeOf(graduateDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
     // Ada as she went, plain: her recorded life kept two thirds of her months and more, and none of the
     // readings before holds: the careful saver. One month under two thirds is the hustler, below.
     expect(ada.keptMonths * 3).toBeGreaterThanOrEqual(ada.card!.months * 2);
@@ -197,9 +197,9 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...ada, keptMonths: twoThirds })).toBe("careful-saver");
     expect(japaTypeOf({ ...ada, keptMonths: twoThirds - 1 })).toBe("hustler");
     // The careful saver comes before the hustler: a side job held or side work done most does not undo it.
-    expect(japaTypeOf({ ...adaDoing(["activity.job-junior-dev", "activity.side-gig"]), keptMonths: twoThirds, job: { ...ada.job, side: "activity.weekend-tutoring" } })).toBe("careful-saver");
+    expect(japaTypeOf({ ...graduateDoing(["activity.job-junior-dev", "activity.side-gig"]), keptMonths: twoThirds, job: { ...ada.job, side: "activity.weekend-tutoring" } })).toBe("careful-saver");
     // And after the readings that come first: every month kept is still the night reader who studied first.
-    expect(japaTypeOf({ ...adaDoing(["activity.learn-tech", "activity.job-junior-dev"]), keptMonths: ada.card!.months })).toBe("night-reader");
+    expect(japaTypeOf({ ...graduateDoing(["activity.learn-tech", "activity.job-junior-dev"]), keptMonths: ada.card!.months })).toBe("night-reader");
   });
 
 

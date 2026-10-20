@@ -51,7 +51,7 @@ function everything(): FakeServer {
       slot: "partner",
       looking: "partner",
       expires: 9_000,
-      card: { name: "scenario.tunde.name", japacity: { percent: 40, route: null }, looking: { key: "card.invite.looking", slot: "partner", fill: null, slotKey: "card.invite.slot.partner", fillKey: null }, game: "card.invite.game", controls: ["block", "report"] },
+      card: { name: "scenario.banker.name", japacity: { percent: 40, route: null }, looking: { key: "card.invite.looking", slot: "partner", fill: null, slotKey: "card.invite.slot.partner", fillKey: null }, game: "card.invite.game", controls: ["block", "report"] },
     },
   });
   server.answer("GET /api/account", { body: { ok: true, account: { id: "a-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1" } } });
@@ -99,7 +99,7 @@ async function storeOf(view: PlayerView): Promise<GameStore> {
   return store;
 }
 
-const advertsOn = (): PlayerView => ({ ...engineView("scenario.tunde"), adverts: true });
+const advertsOn = (): PlayerView => ({ ...engineView("scenario.banker"), adverts: true });
 
 /** Each surface of moderation:report-from-every-surface, opened the way a player reaches it. */
 const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) => Promise<void>> = {

@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { checkInvariants } from "../engine/invariants";
 import { start } from "../testing/play";
 
-const LIFE = "scenario.aniekan" as const;
+const LIFE = "scenario.teacher" as const;
 
 describe("Aniekan's life", () => {
   test("[scenario:state-built-from-scenario] given Aniekan, when a new state is built, then every always-true rule holds in it", () => {

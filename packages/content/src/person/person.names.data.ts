@@ -195,7 +195,7 @@ export const namePool: PoolName[] = [
  * `tout`, `runner`, `middleman`: the agents at Ojuelegba's stop; `adviser`: the licensed adviser
  * (advice:advisers-are-invented-people); `chaser`: the chasers a friend puts the player onto (advice:chaser-runs-around-cheaper).
  */
-export type NamedRole = "life" | "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative" | "tout" | "runner" | "middleman" | "adviser" | "chaser";
+export type NamedRole = "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative" | "tout" | "runner" | "middleman" | "adviser" | "chaser";
 
 /** Roles that take the player's money or may cheat them: no people holds two of these (names rule 5). */
 export const takingRoles: NamedRole[] = ["agent", "fx", "landlord", "tout", "runner", "middleman", "adviser", "chaser"];
@@ -208,17 +208,21 @@ export interface NamedPerson {
   keys: string[];
 }
 
-/** The starting lives' people (names rule 3): the three largest and at least one other. Rename nobody here. */
-export const lifePeople: Record<Id<"scenario">, NamedPerson> = {
-  "scenario.ada": { name: "Ada", people: "igbo", role: "life", keys: ["scenario.ada.name", "share.first-name.scenario.ada"] },
-  "scenario.tunde": { name: "Tunde", people: "yoruba", role: "life", keys: ["scenario.tunde.name", "share.first-name.scenario.tunde"] },
-  "scenario.zainab": { name: "Zainab", people: "hausa-fulani", role: "life", keys: ["scenario.zainab.name", "share.first-name.scenario.zainab"] },
-  "scenario.ngozi": { name: "Ngozi", people: "igbo", role: "life", keys: ["scenario.ngozi.name", "share.first-name.scenario.ngozi"] },
-  "scenario.aniekan": { name: "Aniekan", people: "efik-ibibio", role: "life", keys: ["scenario.aniekan.name", "share.first-name.scenario.aniekan"] },
+/**
+ * The people of each ready life's family (names rule 3, scenario.md): the ready lives carry no name of their own, and
+ * their families' names (familyNames in family.data.ts, siblingNames in story.chats.data.ts) are of these peoples, the
+ * three largest and at least one other.
+ */
+export const familyPeople: Record<Id<"scenario">, NamePeople> = {
+  "scenario.graduate": "igbo",
+  "scenario.banker": "yoruba",
+  "scenario.developer": "hausa-fulani",
+  "scenario.nurse": "igbo",
+  "scenario.teacher": "efik-ibibio",
 };
 
 /**
- * Every other named person in the game's own words, drawn from the pool. The
+ * Every named person in the game's own words, drawn from the pool. The
  * place and guide words are scenery kept by their own checks.
  */
 export const namedPeople: NamedPerson[] = [

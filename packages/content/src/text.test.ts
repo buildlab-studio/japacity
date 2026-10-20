@@ -67,12 +67,16 @@ describe("words for every entry", () => {
       ...Object.keys(content.chapter),
       ...Object.keys(content.var),
       ...Object.keys(content.news),
-      ...Object.keys(content.scenario),
       ...Object.keys(content.era),
       ...Object.keys(content.points),
     ];
     expect(ids.length).toBeGreaterThan(80);
     expect(missingWords(ids.map((id) => `${id}.name`))).toEqual([]);
+    // A ready life has no name of its own (scenario.md): its words are its role, and the life from sixteen's its name.
+    const lives = Object.values(content.scenario);
+    expect(lives.length).toBeGreaterThan(1);
+    expect(missingWords(lives.map((life) => (life.prologue === true ? `${life.id}.name` : `${life.id}.kind`)))).toEqual([]);
+    expect(lives.filter((life) => life.prologue !== true && `${life.id}.name` in text).map((life) => life.id)).toEqual([]);
   });
 
   test("[engine:content-checked-before-play] given every offer, when its words are looked up, then it has a title, a body, every choice and every sign", () => {

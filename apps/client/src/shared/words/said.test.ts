@@ -9,8 +9,8 @@ import { nameOf, say, words } from "./text";
 
 /** The lines Ada's recorded life tells when she boards the plane, the last command it holds. */
 function flightLines() {
-  const game = recordedGame("ada-careful", 1);
-  const last = recordedSave("ada-careful").commands.at(-1);
+  const game = recordedGame("graduate-careful", 1);
+  const last = recordedSave("graduate-careful").commands.at(-1);
   if (last === undefined) throw new Error("The recorded life holds no commands.");
   const reply = game.accept(last.command, last.sender);
   return reply.lines;

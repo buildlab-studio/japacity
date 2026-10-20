@@ -19,7 +19,7 @@ import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
 /** Ada with every naira taken, so whatever the month charges cannot be paid. */
-function adaBroke(game: Game = newGame("scenario.ada")): Game {
+function graduateBroke(game: Game = newGame("scenario.graduate")): Game {
   const pocket = game.state.wallet.pockets.NGN;
   applyEffects(game, [
     { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "social" },
@@ -42,9 +42,9 @@ describe("money that was not paid", () => {
   test("[world:month-end-results-sheet] given Ada with nothing to pay her living costs, when the month ends, then the first story line says the living costs went unpaid, in red, with the figure and what it cost", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so a broke month there
     // misses no living costs at all; the unpaid line is tested on the living charged whole, as the simulation's relief tests do.
-    const lived = adaBroke().endTurn().lines;
+    const lived = graduateBroke().endTurn().lines;
     expect(lived.some((line) => line.key === "line.obligation.missed" && line.params["obligation"] === "obligation.upkeep")).toBe(false);
-    const game = adaBroke(chargedLivingGame("scenario.ada"));
+    const game = graduateBroke(chargedLivingGame("scenario.graduate"));
     const due = game.view().obligations.find((owed) => owed.entry === "obligation.upkeep")?.due ?? 0;
     expect(due).toBeGreaterThan(0);
     const { lines } = game.endTurn();
@@ -59,7 +59,7 @@ describe("money that was not paid", () => {
   });
 
   test("[world:month-end-results-sheet] given a month where no money moved, when the results show, then the headline says nothing moved rather than kept +₦0, and the money count is still what moved", async () => {
-    const game = adaBroke();
+    const game = graduateBroke();
     const { lines } = game.endTurn();
     await showResults(game, lines);
     const kept = document.querySelector("[data-results-kept]");
@@ -101,7 +101,7 @@ describe("a hunt's answer on the results", () => {
   test("[world:month-end-results-sheet] given a hunt that found nothing, when the results show, then it says the job and not this time, among the story lines", async () => {
     // On this seed the first draw for a junior developer finds nothing; the hunt is past the
     // sure first months (guide:early-win-in-three-turns), so the draw stands.
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     for (let month = 0; month < 3; month += 1) game.endTurn([]);
     const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-junior-dev")]);
     expect(lines.some((line) => line.key === "line.activity.hunt-missed")).toBe(true);
@@ -111,7 +111,7 @@ describe("a hunt's answer on the results", () => {
   });
 
   test("[world:month-end-results-sheet] given a hunt that found a job, when the results show, then it says an offer with the job and its pay a month, ranked with the offers", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
     await showResults(game, lines);
     // wallet:view-carries-month-pay: the pay a month is the one the view gives the offer, as the wallet will book it.
@@ -134,8 +134,8 @@ describe("a hunt's answer on the results", () => {
 describe("the grant leads", () => {
   test("[world:month-end-results-sheet] given Ada's recorded life in the month of her grant, when the results show, then the grant is the first story line, alone in the lead, and no funds loan opens that month", async () => {
     // The recorded life up to the month's end that brought the grant, found by walking back from the flight.
-    let game = recordedGame("ada-careful", 1);
-    for (let back = 1; back < 16 && !(game.view().report?.lines ?? []).some((line) => line.key === "line.route.granted"); back += 1) game = recordedGame("ada-careful", back);
+    let game = recordedGame("graduate-careful", 1);
+    for (let back = 1; back < 16 && !(game.view().report?.lines ?? []).some((line) => line.key === "line.route.granted"); back += 1) game = recordedGame("graduate-careful", back);
     const lines = game.view().report?.lines ?? [];
     expect(lines.some((line) => line.key === "line.route.granted")).toBe(true);
     await showResults(game, lines);

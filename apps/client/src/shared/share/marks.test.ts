@@ -8,7 +8,7 @@ import { cardFace, type ShareCard } from "./face";
 import { fakeCanvas } from "./canvas.testing";
 import { cardSteps, previewSteps, type MarkStep, type Size, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
-import { adaCard, measure, texts as words } from "./share.testing";
+import { graduateCard, measure, texts as words } from "./share.testing";
 
 const tuning = content.tuning.share;
 const SIZE = { width: tuning.width, height: tuning.height };
@@ -16,7 +16,7 @@ const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
 const NAME = text["share.sender"]!;
 
 function cardOf(kind: ShareKind, chapter: ShareCard["chapter"] = "chapter.build-the-file"): ShareCard {
-  return { ...adaCard(), kind, ...(kind === "chapter" ? { chapter } : {}) };
+  return { ...graduateCard(), kind, ...(kind === "chapter" ? { chapter } : {}) };
 }
 
 function marks(steps: readonly Step[], role: MarkStep["role"]): MarkStep[] {
@@ -56,8 +56,8 @@ function overlaps(first: Point[], second: Point[]): boolean {
 
 /** Every card the game lays out: each kind, and a chapter card for every chapter's art. */
 function everyCard(): { label: string; steps: Step[]; size: Size }[] {
-  const kinds = shareKinds.map((kind) => ({ label: kind, steps: cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure), size: SIZE }));
-  const chapters = shareChapters.map((chapter) => ({ label: chapter, steps: cardSteps(cardFace(cardOf("chapter", chapter), "scenario.ada"), SIZE, measure), size: SIZE }));
+  const kinds = shareKinds.map((kind) => ({ label: kind, steps: cardSteps(cardFace(cardOf(kind), "scenario.graduate"), SIZE, measure), size: SIZE }));
+  const chapters = shareChapters.map((chapter) => ({ label: chapter, steps: cardSteps(cardFace(cardOf("chapter", chapter), "scenario.graduate"), SIZE, measure), size: SIZE }));
   const previews = shareKinds.map((kind) => ({ label: `preview ${kind}`, steps: previewSteps(cardFace(cardOf(kind), null), PREVIEW, measure), size: PREVIEW }));
   return [...kinds, ...chapters, ...previews];
 }
@@ -118,12 +118,12 @@ describe("the marks on every share picture", () => {
 
   test("[share:card-never-looks-official] given a card and a preview drawn on the canvas, when encoded, then the watermark and the badge were painted before the file was made", async () => {
     const drawn = fakeCanvas(() => 1000);
-    expect((await renderCard(cardFace(adaCard(), "scenario.ada"))).ok).toBe(true);
+    expect((await renderCard(cardFace(graduateCard(), "scenario.graduate"))).ok).toBe(true);
     const names = drawn.texts.filter((entry) => entry.text.toLowerCase() === NAME.toLowerCase());
     // The watermark's repeats, the badge and the word mark at the foot.
     expect(names.length).toBeGreaterThanOrEqual(8);
     const preview = fakeCanvas(() => 1000);
-    expect((await renderPreview(cardFace(adaCard(), null))).ok).toBe(true);
+    expect((await renderPreview(cardFace(graduateCard(), null))).ok).toBe(true);
     expect(preview.texts.filter((entry) => entry.text.toLowerCase() === NAME.toLowerCase()).length).toBeGreaterThanOrEqual(8);
   });
 });

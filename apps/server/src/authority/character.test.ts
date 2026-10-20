@@ -22,7 +22,7 @@ describe("a new character", () => {
     });
     server.setNow(epoch + 5);
     await signUp(server, "acc-1");
-    const reply = await call<ViewReply>(server, "POST", "/api/character", "acc-1", { scenario: "scenario.tunde" });
+    const reply = await call<ViewReply>(server, "POST", "/api/character", "acc-1", { scenario: "scenario.banker" });
     expect(reply.status).toBe(200);
     expect(asked[0] === undefined ? 0 : asked[0] * 8).toBe(productionConfig.server.seedBits);
     const id = (await server.deps.stores.account.get("acc-1"))?.character;
@@ -31,9 +31,9 @@ describe("a new character", () => {
     const start = stored.segments[0]?.start;
     if (start === undefined || "base" in start) throw new Error("The first segment starts from a scenario.");
     expect(start.seed).toMatch(/^[0-9a-f]{32}$/);
-    expect(start).toEqual({ scenario: "scenario.tunde", seed: start.seed, worldSeed: "test-world-seed" });
+    expect(start).toEqual({ scenario: "scenario.banker", seed: start.seed, worldSeed: "test-world-seed" });
     expect(stored.character).toMatchObject({ id, account: "acc-1", v: 0, segment: 0, refilledAt: epoch + 5 });
-    expect(stored.snapshot.state).toEqual(newState("scenario.tunde", start.seed, content));
+    expect(stored.snapshot.state).toEqual(newState("scenario.banker", start.seed, content));
     expect(stored.segments[0]?.content).toBe(content.version);
     const world = (await server.deps.stores.world.tick(0))?.world;
     if (world === undefined) throw new Error("No tick 0.");
@@ -44,9 +44,9 @@ describe("a new character", () => {
   test("[account:one-character-per-account] given an account that has a character, when it asks for another, then it is refused one-character and nothing is made", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
-    await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.ada" });
+    await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.graduate" });
     const first = (await server.deps.stores.account.get("acc-1"))?.character;
-    const again = await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.ada" });
+    const again = await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.graduate" });
     expect(again.status).toBe(409);
     expect(again.body).toMatchObject({ ok: false, code: "one-character" });
     expect((await server.deps.stores.account.get("acc-1"))?.character).toBe(first);
@@ -57,7 +57,7 @@ describe("a new character", () => {
     await signUp(server, "acc-1");
     expect((await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.nobody" })).body).toMatchObject({ code: "unknown-id" });
     expect((await call(server, "POST", "/api/character", "acc-1", {})).status).toBe(400);
-    expect((await call(server, "POST", "/api/character", null, { scenario: "scenario.ada" })).status).toBe(401);
+    expect((await call(server, "POST", "/api/character", null, { scenario: "scenario.graduate" })).status).toBe(401);
     expect((await server.deps.stores.account.get("acc-1"))?.character).toBeNull();
   });
 });

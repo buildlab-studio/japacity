@@ -24,11 +24,9 @@ import { DataPage, type PageFields } from "./DataPage";
 import { familyCard, keptDraw } from "./family";
 import { stampsOf } from "./stamps";
 
-/** The character's first name: the one built at the door, else the ready life's own. */
-function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): string {
-  if (person !== null && person.name !== "") return person.name;
-  const own = `${view.scenario}.name`;
-  return hasWords(own) ? (say(own).split(/\s+/)[0] ?? "") : "";
+/** The character's first name: the one built at the door. A ready life has none of its own (scenario.md). */
+function nameOf(person: KeptPerson | null): string {
+  return person?.name ?? "";
 }
 
 /**
@@ -63,7 +61,7 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
   const percent = readyPercent(view) ?? 0;
   return {
     ...(type === null ? {} : { type: typeWords(type) }),
-    name: nameOf(person, view),
+    name: nameOf(person),
     age: pageAgeWords(view.qualities),
     // The path and what it was: the tile's own while the life went its way, the life as lived where it did not.
     path: archetype === null ? (hasWords(kind) ? say(kind) : "") : lived === null ? say(`prologue.archetype.${archetype.id}.name`) : say(`ui.page.lived.${lived}`),
@@ -147,7 +145,7 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
   const view = useStore(store, (state) => state.view);
   const [open, setOpen] = useState(false);
   if (view === null) return <Plain when={when} place={place} body={body} part={part} />;
-  const name = nameOf(readPerson(), view);
+  const name = nameOf(readPerson());
   const show = (): void => setOpen(true);
   return (
     <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,auto)_auto_1fr] items-center gap-x-1.5 leading-none" data-band-person>

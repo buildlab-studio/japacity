@@ -7,7 +7,7 @@ import type { Content, Effect, Id, ReportLine, SlotPick } from "../engine/types"
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { TUNDE } from "../testing/ids";
+import { BANKER } from "../testing/ids";
 
 const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 const PARTNERS = Object.values(content.person).filter((entry) => entry.role === "partner");
@@ -30,7 +30,7 @@ function turn(game: Game, slots: SlotPick[]): ReportLine[] {
 
 /** Tunde's life with computer siblings, every partner that will take a courting courted, and months of meetings. */
 function livedWithComputers(months: number): { game: Game; lines: ReportLine[] } {
-  const game = start({ scenario: TUNDE, content: eager() });
+  const game = start({ scenario: BANKER, content: eager() });
   const lines: ReportLine[] = [];
   for (const entry of PARTNERS) {
     const sent = game.send({ type: "people/court", with: entry.id });

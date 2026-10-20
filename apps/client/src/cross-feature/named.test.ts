@@ -13,7 +13,7 @@ import { words } from "../shared/words/text";
 /** The prize message claimed on the first seed whose draw makes it a fraud, or honest: the answer's lines and the month's. */
 function promoClaimed(fraud: boolean): ReportLine[] {
   for (let seed = 1; seed < 40; seed += 1) {
-    const game = newGame("scenario.ada", `promo-${String(seed)}`);
+    const game = newGame("scenario.graduate", `promo-${String(seed)}`);
     const offer = openOffer(game, "offer.telco-promo");
     const lines = game.accept({ type: "offer/choose", offer: offer.id, choice: "claim" }).lines;
     if (lines.some((line) => line.key === "line.wallet.gift") !== fraud) return [...lines, ...game.endTurn().lines];

@@ -20,10 +20,10 @@ const ROOMS = [parlourRaw, roomRaw] as unknown as PlaceFile[];
 const FRAME = 1 / 60;
 
 /** Ada's careful life played on, command by command, until `held` says the view has what the test needs. */
-function adaUntil(held: (view: PlayerView) => boolean): PlayerView {
-  const save = recordedSave("ada-careful");
+function graduateUntil(held: (view: PlayerView) => boolean): PlayerView {
+  const save = recordedSave("graduate-careful");
   // Played once from the start, a command at a time, rather than replayed from the start for each step, which a life this long makes slow.
-  const game = recordedGame("ada-careful", save.commands.length);
+  const game = recordedGame("graduate-careful", save.commands.length);
   if (held(game.view())) return game.view();
   for (const entry of save.commands) {
     game.tick = entry.tick;
@@ -91,21 +91,21 @@ describe("the bag's size from the figure", () => {
 
 describe("what is packed on top", () => {
   test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given a new life with nothing held, when the pieces are read, then nothing is on top; Tunde, who holds his passport from the start, has it there", () => {
-    expect(bagPieces(engineView("scenario.ada"))).toEqual([]);
-    expect(bagPieces(engineView("scenario.tunde"))).toEqual(["passport"]);
+    expect(bagPieces(engineView("scenario.graduate"))).toEqual([]);
+    expect(bagPieces(engineView("scenario.banker"))).toEqual(["passport"]);
   });
 
   test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given Ada's careful life, when a route is known and then her papers come, then the flyer goes on top first and the passport and the papers join it, three pieces and no more", () => {
-    const known = adaUntil((view) => view.routes.some((route) => route.state === "known"));
+    const known = graduateUntil((view) => view.routes.some((route) => route.state === "known"));
     expect(bagPieces(known)).toEqual(["flyer"]);
-    const papers = adaUntil((view) => view.documents.filter((paper) => paper.state === "held").length >= 2);
+    const papers = graduateUntil((view) => view.documents.filter((paper) => paper.state === "held").length >= 2);
     expect(bagPieces(papers)).toEqual(["passport", "papers", "flyer"]);
-    const later = adaUntil((view) => view.documents.filter((paper) => paper.state === "held").length >= 5);
+    const later = graduateUntil((view) => view.documents.filter((paper) => paper.state === "held").length >= 5);
     expect(bagPieces(later)).toEqual(["passport", "papers", "flyer"]);
   });
 
   test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given a route only heard of, when the pieces are read, then no flyer: only a route known, applied for, granted or flown on puts it on top", () => {
-    const base = engineView("scenario.ada");
+    const base = engineView("scenario.graduate");
     const route = base.routes[0];
     if (route === undefined) throw new Error("No route");
     const as = (state: PlayerView["routes"][number]["state"]) => bagPieces({ ...base, routes: [{ ...route, state }] });
@@ -138,8 +138,8 @@ describe("the tag and the probe", () => {
 describe("the rise in the world", () => {
   /** Ada a few months in with a way out known, and the same life further on with the figure risen. */
   function figures(): { before: PlayerView; after: PlayerView } {
-    const before = adaUntil((view) => view.japacity.percent !== null && view.report !== null);
-    const after = adaUntil((view) => (view.japacity.percent ?? 0) > (before.japacity.percent ?? 0) && view.report !== null);
+    const before = graduateUntil((view) => view.japacity.percent !== null && view.report !== null);
+    const after = graduateUntil((view) => (view.japacity.percent ?? 0) > (before.japacity.percent ?? 0) && view.report !== null);
     return { before, after };
   }
 

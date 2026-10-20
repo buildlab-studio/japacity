@@ -23,7 +23,7 @@ test.use({ baseURL: ONLINE });
 
 /** Every /api route the client calls, answered from the one life the faked account holds; every request is kept. */
 async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"scenario">[] }> {
-  let game: Game | null = start({ scenario: "scenario.tunde", content });
+  let game: Game | null = start({ scenario: "scenario.banker", content });
   const sent: string[] = [];
   const scenarios: Id<"scenario">[] = [];
   await page.route(

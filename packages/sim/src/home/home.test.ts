@@ -29,7 +29,7 @@ const { home } = content.tuning;
 /** home:compound-room-is-a-home: what the room in a compound takes on the move, the year's rent and the fees on it. */
 const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 /** Ada's family upkeep, from her starting life (scenario.data.ts). */
-const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
+const GRADUATE_UPKEEP = content.scenario["scenario.graduate"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
 
 /** The real content with some of the home's numbers changed, as an overlay would. */
 function tuned(change: Partial<Tuning["home"]>, more: Record<string, unknown> = {}): Content {
@@ -46,7 +46,7 @@ const CHARGED = chargedWhole(content);
 const CHARGED_NEVER = chargedWhole(NEVER);
 
 function ada(base: Content = content, seed = "seed-1"): Game {
-  return start({ content: base, scenario: "scenario.ada", seed });
+  return start({ content: base, scenario: "scenario.graduate", seed });
 }
 
 /** What went out under the upkeep's reason this step. */
@@ -245,7 +245,7 @@ describe("moving", () => {
     const standing = game.state.quality[STANDING]!;
     const result = game.accept({ type: "home/move", to: FAMILY });
     expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
-    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(GRADUATE_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
     expect(upkeepPaid(result)).toBe(0);
     expect(game.state.home).toMatchObject({ place: FAMILY, since: 1, moved: 1 });
@@ -269,7 +269,7 @@ describe("moving", () => {
       expect(upkeepPaid(b)).toBe(familyCharge[0]);
       saved += upkeepPaid(b) - upkeepPaid(a);
       // The same inflation lifts both charges (director:december-and-inflation), so the difference is never under the plain one.
-      expect(upkeepPaid(b) - upkeepPaid(a)).toBeGreaterThanOrEqual(ADA_UPKEEP - rent);
+      expect(upkeepPaid(b) - upkeepPaid(a)).toBeGreaterThanOrEqual(GRADUATE_UPKEEP - rent);
     }
     const naira = (game: Game) => game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
     // The first month's rent was paid on the move; every month after, the difference stays.
@@ -450,7 +450,7 @@ describe("taken in", () => {
     choose(game, TAKEN_IN, "family");
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
     expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
-    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(GRADUATE_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
   });
 
@@ -479,7 +479,7 @@ describe("hosting", () => {
     const twin = ada();
     setPockets(twin, { NGN: { cash: 0, bank: 5_000_000_00 } });
     joined(twin);
-    const rise = bp(ADA_UPKEEP, home.hostBp);
+    const rise = bp(GRADUATE_UPKEEP, home.hostBp);
     const extras: number[] = [];
     const told: unknown[] = [];
     for (let i = 0; i < 3; i += 1) {
@@ -565,8 +565,8 @@ describe("the starting life's charges at home", () => {
   });
 
   test("[home:starting-charges-from-one-function] given a fixed life abroad, when it lands, then the family's support opens from its starting obligations at the remit share, and a life from sixteen opens the prologue's support at the same share", () => {
-    const fixed = start({ content, scenario: "scenario.zainab", seed: "seed-1" });
-    const owed = content.scenario["scenario.zainab"]!.obligations.find((each) => content.obligation[each.obligation]?.type === "support");
+    const fixed = start({ content, scenario: "scenario.developer", seed: "seed-1" });
+    const owed = content.scenario["scenario.developer"]!.obligations.find((each) => content.obligation[each.obligation]?.type === "support");
     if (owed === undefined) throw new Error("Zainab's starting life has no support.");
     applyEffects(fixed, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(Object.values(fixed.state.obligation.items).filter((item) => item.entry === owed.obligation).map((item) => item.amount)).toEqual([bp(owed.amount, content.tuning.remit.abroadBp)]);
@@ -597,7 +597,7 @@ describe("the home card's moves", () => {
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     game.accept({ type: "home/move", to: MAKOKO });
     expect(game.view().home.moves).toEqual([
-      { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
+      { to: FAMILY, monthly: { currency: "NGN", amount: GRADUATE_UPKEEP }, now: 0, shut: "moved" },
       { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "moved" },
       { to: HOSTEL, monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: "moved" },
     ]);
@@ -616,10 +616,10 @@ describe("the home card's moves", () => {
       const world = standInWorld("world-1", tick, CHARGED_NEVER);
       return { ...world, vars: { ...world.vars, "var.inflation": inflation } };
     };
-    const game = start({ content: CHARGED_NEVER, scenario: "scenario.ada", seed: "seed-1", worldAt });
+    const game = start({ content: CHARGED_NEVER, scenario: "scenario.graduate", seed: "seed-1", worldAt });
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const bill = game.view().obligations.find((owed) => owed.entry === FAMILY_UPKEEP)?.due;
-    expect(bill).toBe(ADA_UPKEEP + bp(ADA_UPKEEP, inflation));
+    expect(bill).toBe(GRADUATE_UPKEEP + bp(GRADUATE_UPKEEP, inflation));
     expect(game.view().home.rent).toEqual({ currency: "NGN", amount: bill });
     expect(game.view().home.moves[0]?.monthly).toEqual({ currency: "NGN", amount: home.makokoUpkeep + bp(home.makokoUpkeep, inflation) });
     game.accept({ type: "home/move", to: MAKOKO });

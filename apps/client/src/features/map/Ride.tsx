@@ -19,9 +19,9 @@ const RIDE_SLACK_MS = 3500;
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
 const FALLBACK_OWN = "shared/person/person_tunde.glb";
 
-/** The life's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the life's person, shipped or not; `shownOwn` settles it. */
-export function ownLook(scenario: string, kept: string | null = keptLookFile()): string {
-  return kept ?? `shared/person/person_${scenario.slice("scenario.".length)}.glb`;
+/** The player's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the city's own, since a ready life has no person of its own (scenario.md); `shownOwn` settles it. */
+export function ownLook(kept: string | null = keptLookFile()): string {
+  return kept ?? FALLBACK_OWN;
 }
 
 /** The character the ride shows: the life's own person where it is shipped, else the city's fallback. */

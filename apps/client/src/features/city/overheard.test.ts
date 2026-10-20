@@ -101,7 +101,7 @@ describe("who says a line overheard", () => {
   const said = (key: string): string => text[key] ?? key;
 
   test("[world:street-talk-budget] given the family house, when its own lines are heard, then each carries who says it, read from content beside the line, and a compound's rota, said by nobody in particular, carries no one", () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     const family = heardHere(view, "place.family-house").filter((line) => line.key.startsWith("place.family-house.overheard."));
     expect(family.map((line) => [line.key, line.by === undefined ? null : said(line.by)])).toEqual([
       ["place.family-house.overheard.1", "Your brother"],

@@ -239,11 +239,11 @@ describe("spot checks against the rule pages", () => {
       { currency: "GBP", amount: { var: "var.uk-surcharge" }, reason: "fee-surcharge" },
     ]);
     // scenario.md: Ada ₦355,000 in the bank (four months of living), Tunde's passport 22 months, Zainab sends ₦60,000 home.
-    expect(content.scenario["scenario.ada"]?.pockets.NGN).toEqual({ bank: 35500000, cash: 2500000 });
-    expect(content.scenario["scenario.tunde"]?.documents).toEqual([
+    expect(content.scenario["scenario.graduate"]?.pockets.NGN).toEqual({ bank: 35500000, cash: 2500000 });
+    expect(content.scenario["scenario.banker"]?.documents).toEqual([
       { document: "document.passport", monthsLeft: 22, value: null },
     ]);
-    expect(content.scenario["scenario.zainab"]?.obligations).toContainEqual({
+    expect(content.scenario["scenario.developer"]?.obligations).toContainEqual({
       obligation: "obligation.home-support",
       amount: 6000000,
     });

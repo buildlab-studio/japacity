@@ -14,7 +14,7 @@ import { standInWorld } from "../world/standIn";
 import { ledgerReport } from "./wallet.report";
 import { EARNED_ONLY, earnedNaira } from "./wallet.logic";
 import { rideFare } from "../place/place.logic";
-import { LOTTO, TUNDE } from "../testing/ids";
+import { LOTTO, BANKER } from "../testing/ids";
 
 const lottery = content.tuning.lottery;
 const luck = content.tuning.luck;
@@ -28,7 +28,7 @@ const ON_SALE: NonNullable<World["lottery"]> = { draw: 7, closesTick: 1000, onSa
 function tunde(online: boolean): Game {
   const base = standInWorld("world-1", 0, content);
   return start({
-    scenario: TUNDE,
+    scenario: BANKER,
     content,
     worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery: online ? ON_SALE : null, placeNames: {} }),
   });

@@ -9,7 +9,7 @@ A life starts in one of two ways.
 | Start | Scenario | How it goes |
 |---|---|---|
 | From sixteen | `scenario.prologue` | Every quality at its minimum, age sixteen, no money, no job, no papers. The prologue is open, and the years to the start are played as answers (prologue:prologue-life-starts-empty) |
-| A ready life | `scenario.ada`, `scenario.tunde`, `scenario.zainab`, `scenario.ngozi`, `scenario.aniekan` | A fixed starting life with the prologue already closed and no steps recorded (prologue:fixed-life-skips-prologue). Offered behind Settings, never on the door |
+| A ready life | `scenario.graduate`, `scenario.banker`, `scenario.developer`, `scenario.nurse`, `scenario.teacher` | A fixed starting life with the prologue already closed and no steps recorded (prologue:fixed-life-skips-prologue). Offered behind Settings, never on the door |
 
 The front door's three screens build the person and start a life from sixteen. The ready lives are reached through Settings' "Start from a ready life", which asks the next door to open on them. See [The front door](../plays/front-door.md) and [The ready lives](../plays/ready-lives.md) for how each looks.
 

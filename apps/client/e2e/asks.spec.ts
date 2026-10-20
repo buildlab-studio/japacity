@@ -20,7 +20,7 @@ import { backFromResults, doAct, LIVED, openApp, passCards, passHomeTeach, place
 
 test.use({ baseURL: ONLINE });
 
-const SCENARIO: Id<"scenario"> = "scenario.tunde";
+const SCENARIO: Id<"scenario"> = "scenario.banker";
 /** A public key in the shape the browser takes; the faked server never pushes. */
 const PUSH_KEY = "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U";
 

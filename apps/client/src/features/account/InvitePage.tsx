@@ -18,7 +18,7 @@ import { BlockReport } from "../../shared/moderation/BlockReport";
 import { api, type Api } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { Wordmark } from "../../shared/ui/Wordmark";
-import { nameOf, runningName, say, words } from "../../shared/words/text";
+import { runningName, say, words } from "../../shared/words/text";
 import { AccountGate, type AccountGateProps } from "./AccountGate";
 import { SecureSheet } from "./Secure";
 import { useGuest } from "./standing";
@@ -99,8 +99,8 @@ function Accept({ server, code, shown, onTaken }: { server: Api; code: string; s
           <ul className="flex flex-col gap-2">
             {GROWN_UP.map((id) => (
               <li key={id}>
-                <Button className="w-full justify-start" disabled={busy} aria-label={`${say("ui.invite.take")}: ${nameOf(id)}`} onClick={() => void take(id)}>
-                  {nameOf(id)}
+                <Button className="w-full justify-start" disabled={busy} aria-label={`${say("ui.invite.take")}: ${say(`${id}.kind`)}`} onClick={() => void take(id)}>
+                  {say(`${id}.kind`)}
                 </Button>
               </li>
             ))}

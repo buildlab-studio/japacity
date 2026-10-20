@@ -9,7 +9,7 @@ import { registry } from "../kinds";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { answerOpen, flownAda, monthAbroad, playUntil } from "../testing/goal.journey";
+import { answerOpen, flownGraduate, monthAbroad, playUntil } from "../testing/goal.journey";
 import { goalKind } from "./goal.logic";
 import { SECURE, STANDING, WELLBEING } from "../testing/ids";
 
@@ -51,7 +51,7 @@ function monthsAbroad(game: Game): number {
  * first answer (staying) or its last (going).
  */
 function landed(pick: "first" | "last" = "first"): Game {
-  const game = flownAda(content);
+  const game = flownGraduate(content);
   applyEffects(game, [
     { type: "money/add", currency: "GBP", pocket: "bank", amount: 2000000 * POUNDS, reason: "gift" },
     { type: "quality/add", quality: STANDING, amount: -40 },
@@ -259,12 +259,12 @@ describe("goals open and are done in the chapter phase", () => {
   });
 
   test("[goal:goals-open-and-complete] given the effects, when goal/open and goal/done are applied, then the first opens whatever its conditions say and the second finishes with its reward, once", () => {
-    const game = start({ scenario: "scenario.ada", content });
+    const game = start({ scenario: "scenario.graduate", content });
     applyEffects(game, [{ type: "goal/open", goal: "goal.settled" }]);
     expect(isOpen(game, "goal.settled")).toBe(true);
     applyEffects(game, [{ type: "goal/done", goal: "goal.clean-file" }]);
     expect(isDone(game, "goal.clean-file")).toBe(true);
-    expect(game.state.quality[WELLBEING]).toBe(start({ scenario: "scenario.ada", content }).state.quality[WELLBEING]! + 3);
+    expect(game.state.quality[WELLBEING]).toBe(start({ scenario: "scenario.graduate", content }).state.quality[WELLBEING]! + 3);
     const before = game.state.quality[WELLBEING];
     applyEffects(game, [
       { type: "goal/done", goal: "goal.clean-file" },
@@ -277,7 +277,7 @@ describe("goals open and are done in the chapter phase", () => {
 
 describe("the December visit", () => {
   test("[return:december-visit-set-piece] given Ada's first month abroad in the December tick, when she goes and spends on everything, then the fare and each answer's price leave her pounds as each is given and the page's standing comes", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     applyEffects(game, [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 10000 * POUNDS, reason: "gift" },
       { type: "quality/add", quality: STANDING, amount: -40 },
@@ -359,7 +359,7 @@ describe("the goals in the view", () => {
   });
 
   test("[goal:view-shows-goal-items] given a new life, when the view is read, then no goal is open or done, and every goal has a name and words for its lines", () => {
-    expect(start({ scenario: "scenario.ada", content }).view().goals).toEqual({ open: [], done: [] });
+    expect(start({ scenario: "scenario.graduate", content }).view().goals).toEqual({ open: [], done: [] });
     for (const key of ["line.goal.opened", "line.goal.done"]) expect(text[key]).toContain("{goal}");
   });
 });

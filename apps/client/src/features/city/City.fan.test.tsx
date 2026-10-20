@@ -79,7 +79,7 @@ const JOLLOF = "activity.cook-jollof";
 
 /** Ada in the parlour: a new life, its pockets set first when asked. */
 async function inTheParlour(before: (game: ReturnType<typeof newGame>) => void = () => undefined) {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   before(game);
   // The first brief was handed in an earlier visit (design page 09 section 4), so its card does not stand over the room.
   markTaught("title", game.view().scenario);

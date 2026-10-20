@@ -27,8 +27,8 @@ const NOON = () => new Date(2026, 9, 8, 12, 5);
 /** Every command the store sends, in order. */
 let sent: Command["type"][] = [];
 
-async function adaStore(): Promise<GameStore> {
-  const authority = localAuthority({ fastClock: true, storage: null, scenario: "scenario.ada", makeSeed: () => "month-signals", now: () => 0 });
+async function graduateStore(): Promise<GameStore> {
+  const authority = localAuthority({ fastClock: true, storage: null, scenario: "scenario.graduate", makeSeed: () => "month-signals", now: () => 0 });
   const store = createGameStore({
     view: () => authority.view(),
     send: (command) => {
@@ -55,7 +55,7 @@ function stand(place: string): void {
 
 /** Ada plans a master's course, rides out and naps through a day, so its first line is due, with the phone put away. */
 async function courseDue(): Promise<{ store: GameStore; open: () => void; close: () => void }> {
-  const store = await adaStore();
+  const store = await graduateStore();
   let shown = false;
   const ui = () => (
     <GameProvider store={store}>
@@ -140,7 +140,7 @@ describe("the month's lines on the phone", () => {
   });
 
   test("[world:month-passes-as-lived] given nothing planned and no job, when the phone opens at home, then no notification shows and no dot is lit for them", async () => {
-    const store = await adaStore();
+    const store = await graduateStore();
     render(
       <GameProvider store={store}>
         <Dot />

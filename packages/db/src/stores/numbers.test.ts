@@ -13,7 +13,7 @@ const DAY = 86_400_000;
 const START = 20_370 * DAY;
 
 function character(id: string, account: string): NewCharacter {
-  return { id, account, refilledAt: 0, content: "content-1", start: { scenario: "scenario.ada", seed: id, worldSeed: "world" }, state: { v: 0 } as unknown as State };
+  return { id, account, refilledAt: 0, content: "content-1", start: { scenario: "scenario.graduate", seed: id, worldSeed: "world" }, state: { v: 0 } as unknown as State };
 }
 
 function logAt(id: string, v: number, at: number, sender: Sender = "player"): LogRow {

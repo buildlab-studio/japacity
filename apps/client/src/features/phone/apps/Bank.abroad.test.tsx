@@ -19,7 +19,7 @@ import { sent } from "../phone.testing";
 
 /** Ada's careful life, replayed to the flight: the first morning abroad. */
 function landed(): PlayerView {
-  return recordedGame("ada-careful").view();
+  return recordedGame("graduate-careful").view();
 }
 
 function dueOf(view: PlayerView): number {
@@ -38,7 +38,7 @@ describe("the month's dues abroad", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given the pounds held equal to the month's dues, when the dues are read, then there is no gap; a penny less and the gap shows", () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     const due = dueOf(game.view());
     setPockets(game, { GBP: due });
     expect(duesGap(game.view())).toBeNull();
@@ -47,13 +47,13 @@ describe("the month's dues abroad", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given Ada changes all her dollars into pounds at the bank, when the dues are read, then the gap is closed", () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: game.view().pockets.USD.bank, via: "bank" });
     expect(duesGap(game.view())).toBeNull();
   });
 
   test("[world:phone-holds-what-phones-hold] given a life at home, when the dues are read, then there is no gap to show: the naira's dues are the Bills app's", () => {
-    const game = recordedGame("ada-careful", 1);
+    const game = recordedGame("graduate-careful", 1);
     expect(game.view().place.where).toBe("home");
     expect(duesGap(game.view())).toBeNull();
   });
@@ -90,7 +90,7 @@ describe("the Bank abroad", () => {
   test("[world:phone-holds-what-phones-hold] given Ada abroad, when the Bank opens, then the pounds stand first as the balance, and the naira and the dollars follow under Change money, each with its pair", async () => {
     // Decision 0013: the recorded life flies with no naira cash on her, so a little is put in her pocket by the
     // wallet's own effect, and the row is still read as bank and cash together.
-    const view = viewAfter(recordedGame("ada-careful"), [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 500_000, reason: "gift" }]);
+    const view = viewAfter(recordedGame("graduate-careful"), [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 500_000, reason: "gift" }]);
     await renderWithView(<Bank />, view);
     const balance = document.querySelector<HTMLElement>("[data-bank-balance]");
     expect(balance?.getAttribute("data-bank-balance")).toBe("GBP");
@@ -141,7 +141,7 @@ describe("the Bank abroad", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given the pounds held cover the month, when the Bank opens abroad, then no gap is shown", async () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     setPockets(game, { GBP: dueOf(game.view()) });
     await renderWithView(<Bank />, game.view());
     expect(document.querySelector("[data-dues-gap]")).toBeNull();

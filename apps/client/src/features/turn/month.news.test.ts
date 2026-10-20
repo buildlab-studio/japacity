@@ -74,7 +74,7 @@ function neverEndorsed(used: Content): Content {
 
 /** A developer: pieces built and open source from nothing, the talent route looked into, the endorsement asked for and refused. */
 function developerMonths(): Month[] {
-  const game = readyLife(content, { from: "scenario.zainab", quiet: true, change: neverEndorsed, qualities: { "quality.tech": 85, "quality.portfolio": 0, "quality.network": 70 } });
+  const game = readyLife(content, { from: "scenario.developer", quiet: true, change: neverEndorsed, qualities: { "quality.tech": 85, "quality.portfolio": 0, "quality.network": 70 } });
   return monthsOf(game, (send, end) => {
     for (let month = 0; month < 6 && (game.state.quality["quality.portfolio"] ?? 0) < 3; month += 1) end(() => game.endTurn([slot("activity.build-portfolio"), slot("activity.open-source")]));
     applyEffects(game, [{ type: "route/hear", route: TALENT, via: "meetup" }]);

@@ -61,7 +61,7 @@ function working(job: Id<"activity"> | null, tenure: Record<Id<"activity">, numb
 
 /** Ngozi with the care route's papers in hand and the care window opened by the world (route-gates:care-route-needs-verification). */
 function ngozi(options: LifeOptions = {}): Game {
-  return readyLife(content, { from: "scenario.ngozi", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), ...options });
+  return readyLife(content, { from: "scenario.nurse", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), ...options });
 }
 
 /** Ada with 24 months of work behind her and the skilled route's papers in hand. */
@@ -432,7 +432,7 @@ describe("route-gates:care-route-needs-verification: the care route's papers and
   });
 
   test("[route-gates:care-route-needs-verification] given the care window closed, when Ngozi meets the care bar, then she still hears of the route", () => {
-    const game = readyLife(content, { from: "scenario.ngozi", quiet: true });
+    const game = readyLife(content, { from: "scenario.nurse", quiet: true });
     for (let month = 0; month < care.hearBy! + 1 && routeOf(game, CARE_ROUTE).state === "unknown"; month += 1) game.endTurn();
     expect(routeOf(game, CARE_ROUTE).state).toBe("heard");
   });

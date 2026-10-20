@@ -12,12 +12,12 @@ import { recordedUpTo } from "./support/saves";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-/** Ada's second life a few months into London on a sponsored job (she lands at command 420), as the catalog opens it. */
-const ADA_IN_LONDON = 440;
+/** The graduate's second life a few months into London on a sponsored job (it lands at command 374), as the catalog opens it. */
+const GRADUATE_IN_LONDON = 392;
 
 test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [streets:london-life-by-hand] given Ada landed in London, when she buys the bus pass, rides the bus to the big shop, does the weekly shop, takes the train to the office and goes home, then the bus asks nothing, the shop and the train take pounds, the long walk home is greyed while the bus is free, and she ends in the room", async ({ page }) => {
   test.setTimeout(420_000);
-  await seedSave(page, recordedUpTo("ada-abroad", ADA_IN_LONDON));
+  await seedSave(page, recordedUpTo("graduate-abroad", GRADUATE_IN_LONDON));
   await page.goto(`/${LIVED}&clock=afternoon`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);
@@ -80,7 +80,7 @@ async function cardUnderTheSheet(page: Page, stop: string): Promise<{ card: stri
 
 test("[world:painted-maps-abroad] [world:map-is-painted-lagos] given London's map folded on Peckham, when the office at London Bridge is picked across the city, then the card under the open sheet is its district's, drawn with the office ringed, from the moment the sheet is up", async ({ page }) => {
   test.setTimeout(180_000);
-  await seedSave(page, recordedUpTo("ada-abroad", ADA_IN_LONDON));
+  await seedSave(page, recordedUpTo("graduate-abroad", GRADUATE_IN_LONDON));
   await page.goto(`/${LIVED}&clock=afternoon`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);

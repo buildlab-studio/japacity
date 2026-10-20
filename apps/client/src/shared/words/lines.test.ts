@@ -140,7 +140,7 @@ describe("what needs the player", () => {
 
 describe("a paper's fee", () => {
   test("[world:month-end-results-sheet] given Ada asking for her transcript and her passport in one month, when the month's lines are tidied, then each fee is said as that paper's, never as money paid at some office", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const lines = game.endTurn([slot("activity.get-transcript", null), slot("activity.get-passport", null)]).lines;
     const shown = read(lines);
     const fees = lines.filter((each) => each.key === "line.wallet.fee-document");
@@ -188,7 +188,7 @@ describe("a route heard of", () => {
   });
 
   test("[text:voice-by-surface] given Ada's first month at the meetup, when the line is told, then it says the meetup was the source", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const heard = game.endTurn([slot("activity.meetup", null)]).lines.filter((each) => each.key === "line.route.heard");
     expect(heard.length).toBeGreaterThan(0);
     for (const each of heard) expect(words(each.key, each.params)).toMatch(/^At the meetup: /);

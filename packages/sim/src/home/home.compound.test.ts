@@ -25,14 +25,14 @@ const UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
 const { home } = content.tuning;
 const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 /** Ada's family upkeep, from her starting life (scenario.data.ts). */
-const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
+const GRADUATE_UPKEEP = content.scenario["scenario.graduate"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
 /** No eviction from Makoko, so a draw on the water never muddies a month. */
 const QUIET: Content = applyOverlay(content, { version: "test-compound-quiet", tuning: { home: { evictionBp: 0 } } });
 /** Decision 0013 lives the living by hand at home; the tests that read the room's upkeep charge itself charge it whole. */
 const CHARGED: Content = { ...QUIET, tuning: { ...QUIET.tuning, home: { ...QUIET.tuning.home, livingByHandBp: 0 } } };
 
 function ada(base: Content = QUIET): Game {
-  return start({ content: base, scenario: "scenario.ada", seed: "seed-1" });
+  return start({ content: base, scenario: "scenario.graduate", seed: "seed-1" });
 }
 
 function charged(result: { events: BaseEvent[] }, entry: Id<"obligation">): number[] {
@@ -139,7 +139,7 @@ describe("moving into the room", () => {
   test("[home:moves-carry-cost-and-reason] [home:compound-room-is-a-home] given Ada in the room, when the card is read, then it offers the family house at no cost now and Makoko at its first month, and shuts both the month she moved", () => {
     const game = inTheRoom(CHARGED);
     expect(game.view().home.moves).toEqual([
-      { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
+      { to: FAMILY, monthly: { currency: "NGN", amount: GRADUATE_UPKEEP }, now: 0, shut: "moved" },
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: "moved" },
       // The fourth home, a hostel room by the month.
       { to: "place.hostel-room", monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: "moved" },
@@ -180,7 +180,7 @@ describe("moving back", () => {
     const before = naira(game);
     const result = game.accept({ type: "home/move", to: FAMILY });
     expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
-    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(GRADUATE_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
     expect(naira(game)).toBe(before);
     expect(eventsOf(result, "wallet/credited")).toEqual([]);

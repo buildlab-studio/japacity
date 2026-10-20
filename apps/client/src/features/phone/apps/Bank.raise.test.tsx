@@ -24,7 +24,7 @@ function raisingSeed(): string {
 
 describe("the raise in the Bank", () => {
   test("[activity:waiting-months-build-profile] [world:phone-holds-what-phones-hold] given the manager noticed this month, when the next month ends, then Lately lists the salary at the raised pay", () => {
-    const game = newGame("scenario.tunde", raisingSeed());
+    const game = newGame("scenario.banker", raisingSeed());
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");

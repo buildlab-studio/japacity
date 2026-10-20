@@ -26,7 +26,7 @@ const LEARN = "activity.learn-tech" as Id<"activity">;
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 
 async function played(): Promise<{ store: GameStore; sent: ReturnType<typeof gameAuthority>["sent"]; game: ReturnType<typeof newGame> }> {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   const authority = gameAuthority(game);
   const store = createGameStore(authority);
   await store.getState().refresh();

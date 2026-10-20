@@ -138,10 +138,10 @@ describe("checkOverlay: new players are left alone", () => {
   });
 
   test("[server:overlays-never-multiply-prices] given an overlay that adds money to a scenario's pockets, when checked, then it is refused, and one that takes some away may be applied", () => {
-    const bank = content.scenario["scenario.ada"]!.pockets.NGN!.bank;
-    const more = overlayAt(content, "dials-gift", [[["scenario", "scenario.ada", "pockets", "NGN", "bank"], bank + 1]]);
-    expect(checkOverlay(content, more)).toEqual([`scenario.scenario.ada.pockets.NGN.bank rises from ${String(bank)} to ${String(bank + 1)}: an overlay adds no money to a scenario (server:overlays-never-multiply-prices).`]);
-    expect(checkOverlay(content, overlayAt(content, "dials-less", [[["scenario", "scenario.ada", "pockets", "NGN", "bank"], bank - 1]]))).toEqual([]);
+    const bank = content.scenario["scenario.graduate"]!.pockets.NGN!.bank;
+    const more = overlayAt(content, "dials-gift", [[["scenario", "scenario.graduate", "pockets", "NGN", "bank"], bank + 1]]);
+    expect(checkOverlay(content, more)).toEqual([`scenario.scenario.graduate.pockets.NGN.bank rises from ${String(bank)} to ${String(bank + 1)}: an overlay adds no money to a scenario (server:overlays-never-multiply-prices).`]);
+    expect(checkOverlay(content, overlayAt(content, "dials-less", [[["scenario", "scenario.graduate", "pockets", "NGN", "bank"], bank - 1]]))).toEqual([]);
   });
 
   test("[server:overlays-never-multiply-prices] given an overlay that adds money to the prologue, the opening of a life, when checked, then it is refused", () => {

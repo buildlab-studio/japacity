@@ -152,7 +152,7 @@ describe("the notice's words", () => {
 describe("the bank's fill", () => {
   const clock = turnClock(productionConfig, cap);
   const state = (banked: number, ended = false) => {
-    const start = newState("scenario.ada", "fill-seed", content);
+    const start = newState("scenario.graduate", "fill-seed", content);
     return { ...start, turn: { ...start.turn, banked, ended } };
   };
 

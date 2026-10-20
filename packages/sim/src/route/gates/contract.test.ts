@@ -220,7 +220,7 @@ describe("route-gates:gulf-application-needs: applying and the decision", () => 
 
   test("[route-gates:gulf-application-needs] given an age of 539 months on the day, when the papers are sent, then they go in; at 540 the turn is rejected", () => {
     const months = monthsToApply();
-    const start = (life().state.quality[AGE] ?? 0) - (content.scenario["scenario.ada"]!.qualities[AGE] ?? 0);
+    const start = (life().state.quality[AGE] ?? 0) - (content.scenario["scenario.graduate"]!.qualities[AGE] ?? 0);
     const young = ready({ qualities: { [AGE]: MAX_AGE - 1 - months - start } });
     expect(young.state.quality[AGE]).toBe(MAX_AGE - 1);
     young.accept({ type: "activity/now", activity: APPLY, param: null });

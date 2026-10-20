@@ -72,13 +72,6 @@ export const shareText: Record<string, string> = {
   "share.lost.ready": "This life has ended",
   "share.lost.art": "art.night-sea",
 
-  // The character's first name, for a card whose view carries no name of the player's own choosing.
-  "share.first-name.scenario.ada": "Ada",
-  "share.first-name.scenario.tunde": "Tunde",
-  "share.first-name.scenario.zainab": "Zainab",
-  "share.first-name.scenario.ngozi": "Ngozi",
-  "share.first-name.scenario.aniekan": "Aniekan",
-
   // The japa type (decision 0024): a name and one line in the character's own voice. Flattering, never mocking;
   // the long way round says the hard part straight.
   "share.type.careful-saver.name": "The Careful Saver",

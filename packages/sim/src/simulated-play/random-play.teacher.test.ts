@@ -11,7 +11,7 @@ import type { StrategyName } from "./players";
 import type { Walk } from "./random-play";
 import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
 
-const LIFE: Id<"scenario"> = "scenario.aniekan";
+const LIFE: Id<"scenario"> = "scenario.teacher";
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range] [scenario:state-built-from-scenario]";
 

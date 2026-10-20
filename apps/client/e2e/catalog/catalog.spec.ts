@@ -337,13 +337,13 @@ for (const start of STARTS) {
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** Ada's careful life the month before the visa's answer: the turn that grants it is the next command (index 285). */
-const ADA_BEFORE_ANSWER = 285;
+const GRADUATE_BEFORE_ANSWER = 285;
 /** Ada's careful life with the visa granted, the month before she flies: every command but the flight. */
-const ADA_GRANTED = recorded("ada-careful").commands.length - 1;
+const GRADUATE_GRANTED = recorded("graduate-careful").commands.length - 1;
 /** Ada's careful life with the visa interview open: the act that opens it is the command before (index 280). */
-const ADA_INTERVIEW = 281;
-/** Ada's second life a few months into London on a sponsored job (she lands at command 420). */
-const ADA_IN_LONDON = 440;
+const GRADUATE_INTERVIEW = 281;
+/** The graduate's second life a few months into London on a sponsored job (it lands at command 374). */
+const GRADUATE_IN_LONDON = 392;
 
 /** Where the city keeps the place the life stands in, read when the world opens (City.tsx, `lastPlace`). */
 const LAST_KEY = "japacity.city.last";
@@ -507,7 +507,7 @@ async function roomAt(page: Page, paint: "day" | "night"): Promise<void> {
 }
 
 test("room: the family house lived in, its things, an ask and the data page, by day and by night", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_BEFORE_ANSWER, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_BEFORE_ANSWER, DAY);
   await roomAt(page, "day");
   await page.goto(`/${NIGHT}`);
   await placeReady(page);
@@ -517,7 +517,7 @@ test("room: the family house lived in, its things, an ask and the data page, by 
 
 test("room: the visa interview", async ({ page }) => {
   await attempt(page, "room-interview", async () => {
-    await openLife(page, "ada-careful", ADA_INTERVIEW, DAY);
+    await openLife(page, "graduate-careful", GRADUATE_INTERVIEW, DAY);
     // The interview opens over the world as the asks sheet with the officer's question (interview:answers-taken-in-order).
     const asked = page.locator("[data-world-sheet='asks'], [data-setpiece], [data-interview]").first();
     if (!(await asked.isVisible().catch(() => false))) await page.locator("[data-nudge] button").first().click({ timeout: 10_000 });
@@ -570,17 +570,17 @@ async function shootPlaces(page: Page, places: readonly { id: string; inside?: b
 }
 
 test("places: Lagos, the first half", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_GRANTED, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_GRANTED, DAY);
   await shootPlaces(page, LAGOS_PLACES.slice(0, 9));
 });
 
 test("places: Lagos, the second half", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_GRANTED, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_GRANTED, DAY);
   await shootPlaces(page, LAGOS_PLACES.slice(9));
 });
 
 test("places: abroad", async ({ page }) => {
-  await openLife(page, "ada-abroad", ADA_IN_LONDON, DAY);
+  await openLife(page, "graduate-abroad", GRADUATE_IN_LONDON, DAY);
   await shootPlaces(page, [
     { id: "place.the-room", key: "place-the-room", night: true },
     { id: "place.peckham", key: "place-peckham", night: true },
@@ -588,7 +588,7 @@ test("places: abroad", async ({ page }) => {
 });
 
 test("places: London on the Lagos mold, its things, a colleague and the bus pass", async ({ page }) => {
-  await openLife(page, "ada-abroad", ADA_IN_LONDON, DAY);
+  await openLife(page, "graduate-abroad", GRADUATE_IN_LONDON, DAY);
   await shootPlaces(page, [
     { id: "place.rye-lane", key: "place-rye-lane", night: true },
     { id: "place.peckham-rye-station", key: "place-peckham-rye-station", night: true },
@@ -634,9 +634,9 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** The simulated borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
-const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
-/** The simulated canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
-const POINTS: AbroadLife = { strategy: "canada", life: "scenario.zainab", seed: "golden-zainab-canada-0", country: "country.canada", money: "CAD", holding: 60_000 };
+const GULF: AbroadLife = { strategy: "borrower", life: "scenario.graduate", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
+/** The simulated canada player on the developer's life, the recorded developer-canada: lands in Calgary in month 42, the warehouse job its own in month 46. */
+const POINTS: AbroadLife = { strategy: "canada", life: "scenario.developer", seed: "golden-developer-canada-1", country: "country.canada", money: "CAD", holding: 60_000 };
 /** The simulated risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
 
@@ -804,7 +804,7 @@ test("abroad on the mold: Calgary, its places, its map and its rides", async ({ 
 });
 
 test("street: a thing's fan and sheet, the paper slip and a person, at Bode Thomas", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_BEFORE_ANSWER, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_BEFORE_ANSWER, DAY);
   await standIn(page, "place.bode-thomas", false, DAY);
   await attempt(page, "street-fan", async () => {
     const barber = await markNamed(page, "Barber");
@@ -891,7 +891,7 @@ async function mapAt(page: Page, paint: "day" | "night"): Promise<void> {
 }
 
 test("map: folded, open, the ride sheet and the country menu, by day and by night, and a danfo ride", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_GRANTED, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_GRANTED, DAY);
   await mapAt(page, "day");
   // The ride: the danfo picked on the sheet, each of its four angles shot as it comes (world:ride-cuts-between-angles).
   const angles = ["outside", "above", "window", "seat"];
@@ -1025,7 +1025,7 @@ async function phoneAt(page: Page, paint: "day" | "night"): Promise<void> {
 }
 
 test("phone: its home and every app, by day and by night", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_BEFORE_ANSWER, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_BEFORE_ANSWER, DAY);
   await phoneAt(page, "day");
   missed("phone-me", "The phone has no Me app: the player's own page is the data page, opened from the band's name (room-datapage).");
   await page.goto(`/${NIGHT}`);
@@ -1078,7 +1078,7 @@ async function leaveResults(page: Page): Promise<void> {
 }
 
 test("month: the visa's answer, its moment, the results, the share card and the morning", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_BEFORE_ANSWER, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_BEFORE_ANSWER, DAY);
   const slept = await attempt(page, "month-moment", async () => {
     await sleepNow(page);
     await toResults(page, "month-moment");
@@ -1104,12 +1104,12 @@ test("month: the visa's answer, its moment, the results, the share card and the 
 });
 
 /** Ada's careful life the month her English test's band comes: the turn that brings it is the next command (index 222). */
-const ADA_BEFORE_BAND = 222;
+const GRADUATE_BEFORE_BAND = 222;
 
 test("month: the morning's envelope on the phone's lock screen", async ({ page }) => {
   await attempt(page, "month-morning", async () => {
     // The result sealed until the morning (clock:envelopes-show-real-waits): the month slept with the morning switch off, then on.
-    await openLife(page, "ada-careful", ADA_BEFORE_BAND, "?sleep=2&morning=off&clock=afternoon");
+    await openLife(page, "graduate-careful", GRADUATE_BEFORE_BAND, "?sleep=2&morning=off&clock=afternoon");
     await sleepNow(page);
     await toResults(page, null);
     await leaveResults(page);
@@ -1127,7 +1127,7 @@ test("month: the morning's envelope on the phone's lock screen", async ({ page }
 // ---------------------------------------------------------------------------------------------------------------------
 
 test("abroad: the map's list, the phone, the Bank's Send money, a month, and the status clock", async ({ page }) => {
-  await openLife(page, "ada-abroad", ADA_IN_LONDON, DAY);
+  await openLife(page, "graduate-abroad", GRADUATE_IN_LONDON, DAY);
   // world:painted-maps-abroad: London is a painted map as Lagos is, folded on Peckham's card, the stops list kept for a screen reader.
   await attempt(page, "map-abroad", async () => {
     await mapReady(page);
@@ -1209,7 +1209,7 @@ const LANDINGS: readonly { route: string; country: string; name: string }[] = [
 ];
 
 test("send-off: the six beats of Ada's flight, the landing abroad, the other landings, and the card kept", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_GRANTED, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_GRANTED, DAY);
   const scene = page.locator("[data-send-off]");
   const opened = await attempt(page, "sendoff-departures", async () => {
     await mapReady(page);
@@ -1317,7 +1317,7 @@ async function openTheWholeMap(page: Page): Promise<void> {
 }
 
 test("dedication: the canoe by day and night, the page offline, and Settings' five taps", async ({ page }) => {
-  await openLife(page, "ada-careful", ADA_GRANTED, DAY);
+  await openLife(page, "graduate-careful", GRADUATE_GRANTED, DAY);
   const canoe = page.getByRole("button", { name: "A canoe with a lantern" });
   await attempt(page, "dedication-canoe-day", async () => {
     await openTheWholeMap(page);
@@ -1361,7 +1361,7 @@ function water(): { account: string; id: string; name: string; approved: boolean
 test("dedication: the page online over a faked server, a light named and lit, and the admin's lights list", async ({ page, browser }) => {
   const kept = water();
   const account = "account.ada";
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
   game.grant(1);

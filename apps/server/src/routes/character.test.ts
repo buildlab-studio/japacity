@@ -12,11 +12,11 @@ const STANDING = "quality.standing";
 describe("ending a life", () => {
   test("[account:start-a-new-life] [account:one-character-per-account] given an account with a life, when it ends the life, then the account names no character, the life's rows are gone, the account keeps its age pass and username, and a new life starts on a seed of its own", async () => {
     const server = pairServer();
-    const first = await newLife(server, INVITER, "scenario.ada");
+    const first = await newLife(server, INVITER, "scenario.graduate");
     const firstSeed = (await held(server, first)).segments[0]?.start;
     const before = await server.deps.stores.account.get(INVITER);
 
-    const again = await call(server, "POST", "/api/character", INVITER, { scenario: "scenario.ada" });
+    const again = await call(server, "POST", "/api/character", INVITER, { scenario: "scenario.graduate" });
     expect(again.body).toMatchObject({ ok: false, code: "one-character" });
 
     const ended = await call(server, "POST", "/api/character/end", INVITER);
@@ -28,7 +28,7 @@ describe("ending a life", () => {
     expect(await server.deps.stores.player.load(first)).toBeNull();
     expect((await view(server, INVITER)).body).toMatchObject({ ok: false, code: "no-character" });
 
-    const made = await call<ViewReply>(server, "POST", "/api/character", INVITER, { scenario: "scenario.ada" });
+    const made = await call<ViewReply>(server, "POST", "/api/character", INVITER, { scenario: "scenario.graduate" });
     expect(made.body.ok).toBe(true);
     const second = (await server.deps.stores.account.get(INVITER))?.character ?? null;
     expect(second).not.toBeNull();
@@ -59,7 +59,7 @@ describe("ending a life", () => {
 
   test("[account:start-a-new-life] given a real sibling joined to the life, when the life ends, then the bond ends in the other life", async () => {
     const server = pairServer();
-    const a = await newLife(server, INVITER, "scenario.ada");
+    const a = await newLife(server, INVITER, "scenario.graduate");
     const code = await cardOut(server, INVITER, "sibling-1", "sibling");
     await signUp(server, FRIEND);
     const taken = await call<{ ok: boolean }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "sibling-1" });
@@ -77,7 +77,7 @@ describe("ending a life", () => {
   test("[account:start-a-new-life] given no session, or an account with no life, when the end is asked for, then it is refused signed-out or no-character", async () => {
     const server = pairServer();
     expect((await call(server, "POST", "/api/character/end", null)).status).toBe(401);
-    await newLife(server, INVITER, "scenario.ada");
+    await newLife(server, INVITER, "scenario.graduate");
     await call(server, "POST", "/api/character/end", INVITER);
     const twice = await call(server, "POST", "/api/character/end", INVITER);
     expect(twice.status).toBe(404);
@@ -87,7 +87,7 @@ describe("ending a life", () => {
   test("[account:start-a-new-life] [account:bot-check-on-guest-creation] given a guest with a life, when the life ends and a new one starts, then it is the same guest account with the same username, and the new life asks for no bot check", async () => {
     const h = harness();
     const { jar, account } = await h.guest(undefined, { username: "ada_lagos" });
-    const first = await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } });
+    const first = await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.graduate" } });
     expect(first.status).toBe(200);
     const firstCharacter = (await h.deps.stores.account.get(account))?.character ?? null;
 
@@ -95,7 +95,7 @@ describe("ending a life", () => {
     expect(ended.status).toBe(200);
 
     // No `x-captcha-response` header: the bot check ran once, when the guest was made.
-    const again = await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } });
+    const again = await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.graduate" } });
     expect(again.status).toBe(200);
     const row = await h.deps.stores.account.get(account);
     expect(row).toMatchObject({ id: account, state: "guest", username: "ada_lagos" });

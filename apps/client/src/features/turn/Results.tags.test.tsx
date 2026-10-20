@@ -17,7 +17,7 @@ const TICKET = content.tuning.luck.ticket;
 
 describe("the tags under what was kept", () => {
   test("[text:show-then-tell] [world:month-end-results-sheet] [luck:kiosk-sells-lotto-tickets] given three tickets bought on three visits, when the month's results show, then the lotto is said once, as a down tag with the three tickets' money, and what was kept still counts each", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const now: ReportLine[] = [];
     for (let visit = 0; visit < 3; visit += 1) now.push(...game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines);
     game.endTurn();
@@ -36,7 +36,7 @@ describe("the tags under what was kept", () => {
   });
 
   test("[text:show-then-tell] [world:month-end-results-sheet] given naira changed into pounds at the bank, when the tags are read, then no tag says the change, since its own line under Kept says it once with both sides, and no lotto tag", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 20_000_000, via: "bank" }).lines;
     const lines = moneyLines(told);
     expect(monthTags(lines)).toEqual([]);

@@ -8,7 +8,7 @@ describe("a real name on a place", () => {
     const play = (named: boolean) => {
       const game = start({
         content,
-        scenario: "scenario.tunde",
+        scenario: "scenario.banker",
         worldAt: (tick) => {
           const world = standInWorld("world-1", tick, content);
           return named ? { ...world, placeNames: { "place.yaba-hub": { name: "Realname Hub", sign: "REALNAME HUB" } } } : world;

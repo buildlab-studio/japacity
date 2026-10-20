@@ -7,12 +7,12 @@ import { recordedGame } from "../../../shared/testing/fixtures";
 
 /** The recorded life before its last two commands: the held funds still open, then the flight. */
 export function heldFundsOpen(): PlayerView {
-  return recordedGame("ada-careful", 2).view();
+  return recordedGame("graduate-careful", 2).view();
 }
 
 /** The recorded life before its last command: the held funds paid back, only the flight left. */
 export function heldFundsPaid(): PlayerView {
-  return recordedGame("ada-careful", 1).view();
+  return recordedGame("graduate-careful", 1).view();
 }
 
 /**

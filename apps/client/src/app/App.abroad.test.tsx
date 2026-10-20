@@ -31,7 +31,7 @@ async function showing(view: PlayerView) {
 
 describe("the shell by where the character is", () => {
   test("[route-gates:departure-grants-status] [chapter:send-off-card-on-close] [chapter:send-off-scene-in-beats] [share:send-off-card-kept] given Ada's recorded life up to the flight, when she boards through the send-off scene, then the flight is a moment of its own after it, the send-off card is kept on the phone, and the world turns to life abroad", async () => {
-    const save = recordedSave("ada-careful");
+    const save = recordedSave("graduate-careful");
     const beforeFlight = { ...save, commands: save.commands.slice(0, -1) };
     expect(save.commands.at(-1)?.command.type).toBe("route/depart");
     const storage = memoryStorage();

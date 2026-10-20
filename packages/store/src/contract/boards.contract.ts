@@ -17,7 +17,7 @@ function write(character: string, over: Partial<FigureWrite> = {}): FigureWrite 
   return {
     character,
     account: `account-of-${character}`,
-    scenario: "scenario.ada",
+    scenario: "scenario.graduate",
     joinedAt: 1_000,
     joinedWeek: WEEK,
     listed: true,
@@ -47,7 +47,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.get("c1")).toEqual({
         character: "c1",
         account: "account-of-c1",
-        scenario: "scenario.ada",
+        scenario: "scenario.graduate",
         joinedAt: 1_000,
         joinedWeek: WEEK,
         listed: true,
@@ -56,7 +56,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
         week: WEEK,
         weekStart: 20,
       });
-      expect(await boards.top(thisWeek, 10)).toEqual([{ rank: 1, character: "c1", account: "account-of-c1", scenario: "scenario.ada", joinedAt: 1_000, score: 15 }]);
+      expect(await boards.top(thisWeek, 10)).toEqual([{ rank: 1, character: "c1", account: "account-of-c1", scenario: "scenario.graduate", joinedAt: 1_000, score: 15 }]);
       expect(await boards.get("nobody")).toBeNull();
     });
 

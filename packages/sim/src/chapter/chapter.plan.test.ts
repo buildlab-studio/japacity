@@ -27,7 +27,7 @@ function untilHeard(game: Game, route: Id<"route">, most = 8): void {
 
 /** The nurse who has heard of the master's and of health care, and has read the care page. */
 function nurseOnCare(): Game {
-  const game = life("scenario.ngozi");
+  const game = life("scenario.nurse");
   untilHeard(game, CARE_ROUTE);
   expect(game.state.route[UK_ROUTE]?.state).toBe("heard");
   game.endTurn([slot(LOOK, CARE_ROUTE)]);
@@ -46,7 +46,7 @@ describe("the chapter ahead in the view", () => {
   test("[chapter:view-says-closes-and-next] given a chapter that closes on one item, when that item alone is met, then the view says it closes though other items are open, and the month's end closes it into the chapter the view named", () => {
     const feet = content.chapter[FEET]!;
     const one: Content = { ...content, version: "test-closes-on", chapter: { ...content.chapter, [FEET]: { ...feet, closesOn: "job" } } };
-    const game = start({ scenario: "scenario.ada", content: one });
+    const game = start({ scenario: "scenario.graduate", content: one });
     expect(game.view().chapter).toMatchObject({ current: FEET, closes: false });
     applyEffects(game, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
     const view = game.view().chapter;
@@ -56,13 +56,13 @@ describe("the chapter ahead in the view", () => {
     game.endTurn();
     expect(game.state.chapter.current).toBe(view.next);
     // Without `closesOn`, the same job leaves it open.
-    const plain = start({ scenario: "scenario.ada", content });
+    const plain = start({ scenario: "scenario.graduate", content });
     applyEffects(plain, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
     expect(plain.view().chapter.closes).toBe(false);
   });
 
   test("[chapter:view-says-closes-and-next] given no chapter left, when the view is read, then nothing closes and nothing follows", () => {
-    const game = life("scenario.ada");
+    const game = life("scenario.graduate");
     game.state = { ...game.state, chapter: { ...game.state.chapter, current: null } };
     expect(game.view().chapter).toMatchObject({ current: null, closes: false, next: null });
   });
@@ -70,7 +70,7 @@ describe("the chapter ahead in the view", () => {
 
 describe("the plan in the view", () => {
   test("[chapter:chapters-follow-lean-route] given a life that has heard of no way out, when the view is read, then it names no plan", () => {
-    const game = life("scenario.ada");
+    const game = life("scenario.graduate");
     expect(Object.values(game.state.route).every((held) => held.state === "unknown")).toBe(true);
     expect(game.view().plan.route).toBeNull();
     expect(game.view().plan.ways).toEqual([]);
@@ -82,7 +82,7 @@ describe("the plan in the view", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given a route only heard of, when the view is read, then the plan is the route heard of first", () => {
-    const game = life("scenario.ngozi");
+    const game = life("scenario.nurse");
     untilHeard(game, UK_ROUTE);
     expect(game.view().plan.route).toBe(UK_ROUTE);
   });
@@ -118,7 +118,7 @@ describe("making another way the plan", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given the nurse who heard of both, when she makes the master's the plan and reads both pages in the month, then the first chapter closes to the master's file, not the care file", () => {
-    const game = life("scenario.ngozi");
+    const game = life("scenario.nurse");
     untilHeard(game, CARE_ROUTE);
     game.accept({ type: "chapter/lean", route: UK_ROUTE });
     const result = game.endTurn([slot(LOOK, CARE_ROUTE), slot(LOOK, UK_ROUTE)]);

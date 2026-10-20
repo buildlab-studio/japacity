@@ -14,7 +14,7 @@ const recorded = Object.entries(simulatedLifeSaves).map(([name, save]) => ({ nam
 
 describe("the simulated lives played beside the goldens", () => {
   test("[engine:state-is-plain-data] given the simulated recordings, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
-    expect(recorded.map((script) => lifeStart(script.save)?.scenario)).toEqual(["scenario.aniekan"]);
+    expect(recorded.map((script) => lifeStart(script.save)?.scenario)).toEqual(["scenario.teacher"]);
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
       expect(lifeSaves[script.name]).toBeUndefined();

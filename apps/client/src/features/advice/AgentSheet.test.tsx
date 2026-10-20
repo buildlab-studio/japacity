@@ -40,7 +40,7 @@ function stopOffer(signs: string[], choices: Offer["choices"] = allowed("take", 
 }
 
 function withOffers(...offers: Offer[]): PlayerView {
-  return { ...engineView("scenario.tunde"), offers };
+  return { ...engineView("scenario.banker"), offers };
 }
 
 const sheet = (ids: string[] = [STOP]) => <AgentSheets ids={ids} others={() => <p data-others />} />;

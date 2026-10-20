@@ -11,7 +11,7 @@ import { SOFTWARE_WEBGL } from "./support/browser";
 import { type Broken, expectNothingBroken, NEVER_SHOWN, NO_WORDS } from "./support/check";
 import { startArchetype, startReadyLife } from "./support/door";
 import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./support/live";
-import { adaBeforeFlight, kept, recorded } from "./support/saves";
+import { graduateBeforeFlight, kept, recorded } from "./support/saves";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
@@ -207,7 +207,7 @@ async function boardThePlane(page: Page): Promise<void> {
  * recorded seed, says which month that is.
  */
 function monthsToDecember(): number {
-  const save = recorded("ada-careful");
+  const save = recorded("graduate-careful");
   const flight = save.commands[save.commands.length - 1]?.tick ?? 0;
   for (let tick = flight; tick < flight + 12; tick += 1) {
     if (standInWorld(save.worldSeed, tick, content).vars["var.season-december"] === 1) return tick - flight + 1;
@@ -226,7 +226,7 @@ async function liveMonthAndRead(page: Page, when: string): Promise<void> {
 test("a recorded life boards the plane, the landing gets the whole screen, and life abroad has its own money, room and visa", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The world is lived at phone size");
   test.setTimeout(240_000);
-  await seedSave(page, adaBeforeFlight());
+  await seedSave(page, graduateBeforeFlight());
   await page.goto(`/${LIVED}`);
   await boardThePlane(page);
 
@@ -260,7 +260,7 @@ test("a recorded life boards the plane, the landing gets the whole screen, and l
 test("a life abroad answers the December visit and changes money", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The world is lived at phone size");
   test.setTimeout(420_000);
-  await seedSave(page, adaBeforeFlight());
+  await seedSave(page, graduateBeforeFlight());
   await page.goto(`/${LIVED}`);
   await boardThePlane(page);
 
@@ -324,7 +324,7 @@ for (const [where, viewport] of [["a 390 px phone", { width: 390, height: 844 }]
 
     test("the japacity figure is set in the body face, large enough to read, and the game's name is said once", async ({ page }) => {
       test.setTimeout(120_000);
-      await seedSave(page, adaBeforeFlight());
+      await seedSave(page, graduateBeforeFlight());
       await page.goto(`/${LIVED}`);
       await closeGranted(page);
       const { family, size } = await japaFigure(page);
@@ -340,8 +340,8 @@ for (const [where, viewport] of [["a 390 px phone", { width: 390, height: 844 }]
 }
 
 /** Tunde's life played by the simulation until the tutoring is offered: the job hunt asked for it each month, at most twelve. */
-function tundeOfferedTutoring(): string {
-  const game = start({ scenario: "scenario.tunde", content });
+function bankerOfferedTutoring(): string {
+  const game = start({ scenario: "scenario.banker", content });
   const tutoring = "activity.weekend-tutoring" as Id<"activity">;
   const offered = () => game.view().offers.some((offer) => offer.terms.job === tutoring);
   for (let month = 0; month < 12 && !offered(); month += 1) {
@@ -358,7 +358,7 @@ test.describe("the side job on a 390 px phone", () => {
 
   test("a side job taken in Jobs keeps its words whole across the row, with the quit button beside them inside the screen", async ({ page }) => {
     test.setTimeout(120_000);
-    await seedSave(page, tundeOfferedTutoring());
+    await seedSave(page, bankerOfferedTutoring());
     await page.goto(`/${LIVED}`);
     await passCards(page);
     await placeReady(page);

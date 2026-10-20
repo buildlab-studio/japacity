@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { badNews } from "../comedy/comedy.check";
 import { versionedLines } from "../comedy/comedy.data";
-import { lifePeople, namePool } from "../person/person.names.data";
+import { familyPeople, namePool } from "../person/person.names.data";
 import { content as realContent, text } from "../index";
 import { chatLines, chatsDue, siblingNames } from "./story.chats.data";
 import { chatProblems, nudgeProblems, signalProblems, stepProblems, wordCount } from "./story.check";
@@ -14,7 +14,7 @@ import { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from
 /** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
-const ADA: Id<"scenario"> = "scenario.ada";
+const GRADUATE: Id<"scenario"> = "scenario.graduate";
 const WORLD = "world-1";
 
 /** A life and its view, played with the engine's own `step`. */
@@ -82,7 +82,7 @@ describe("the step table", () => {
   });
 
   test("[world:nudge-says-one-thing] given a new life, when the first chapter's next step is looked up, then its row points at a thing in a built place and its nudge has words", () => {
-    const view = viewOf(begin(ADA));
+    const view = viewOf(begin(GRADUATE));
     const next = view.chapter.items.find((item) => !item.met);
     expect(view.chapter.current).toBe("chapter.find-your-feet");
     const row = storyStep(view.chapter.current!, next!.id);
@@ -147,7 +147,7 @@ describe("Chats", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given a new life with no partner, when the chats due are read from its view, then no partner line shows and every line due names the current chapter or none", () => {
-    const view = viewOf(begin(ADA));
+    const view = viewOf(begin(GRADUATE));
     const due = chatsDue(view, content);
     expect(due.filter((line) => line.thread === "partner")).toEqual([]);
     expect(due.every((line) => line.chapter === null || line.chapter === view.chapter.current)).toBe(true);
@@ -156,7 +156,7 @@ describe("Chats", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given a life that starts the passport, when the month ends, then the reminder of the passport's month shows, and Papa's line on the passport that has come waits until it comes", () => {
-    const life = begin(ADA);
+    const life = begin(GRADUATE);
     expect(remindersDue(viewOf(life), content).some((reminder) => reminder.key === "document.passport.reminder.due")).toBe(false);
     // activity:now-acts-and-month-acts: the passport is asked for at once, then the month ends.
     const after = endMonth(actNow(life, "activity.get-passport"), []);
@@ -169,7 +169,7 @@ describe("Chats", () => {
 
   test("[world:phone-holds-what-phones-hold] given a passport on the way, when the month it is issued ends, then Papa's line on keeping it in the box shows that month only", () => {
     // activity:now-acts-and-month-acts: the passport is asked for at once, then the month ends.
-    let life = endMonth(actNow(begin(ADA), "activity.get-passport"), []);
+    let life = endMonth(actNow(begin(GRADUATE), "activity.get-passport"), []);
     const shown: boolean[] = [];
     for (let month = 0; month < 4 && viewOf(life).documents.find((held) => held.id === "document.passport")?.state !== "held"; month += 1) {
       life = endMonth(life, []);
@@ -183,18 +183,18 @@ describe("Chats", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given a life with siblings and the prologue's life with none yet, when the sibling's lines are read, then they can show only where a sibling fills a slot", () => {
-    const withSiblings = viewOf(begin(ADA));
+    const withSiblings = viewOf(begin(GRADUATE));
     const prologue = viewOf(begin("scenario.prologue"));
     expect(Object.keys(withSiblings.people.slots).some((slot) => slot.startsWith("sibling-"))).toBe(true);
     expect(chatsDue(prologue, content).filter((line) => line.from === "sibling")).toEqual([]);
     expect(chatLines.filter((line) => line.from === "sibling").every((line) => line.when.some((signal) => signal.on === "sibling"))).toBe(true);
   });
 
-  test("[world:phone-holds-what-phones-hold] given each fixed life's sibling, when the name is looked up, then it is a pool name from the life's own people and not the life's own name", () => {
+  test("[world:phone-holds-what-phones-hold] given each ready life's sibling, when the name is looked up, then it is a pool name from the family's own people", () => {
+    expect(Object.keys(siblingNames).sort()).toEqual(Object.keys(familyPeople).sort());
     for (const [life, name] of Object.entries(siblingNames)) {
       const entry = namePool.find((pooled) => nameOf(pooled.n) === name);
-      expect(entry?.people).toBe(lifePeople[life as Id<"scenario">]?.people);
-      expect(name).not.toBe(lifePeople[life as Id<"scenario">]?.name);
+      expect(entry?.people).toBe(familyPeople[life as Id<"scenario">]);
     }
     expect(text["chats.from.sibling"]).toContain("{name}");
     expect(text["chats.from.sibling.plain"]).not.toContain("{");
@@ -219,7 +219,7 @@ describe("bill notices and reminders", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given a new life with its upkeep open, when the notices are read from its view, then each open bill with a charge gives one notice with its entry and its amount as money", () => {
-    const view = viewOf(begin(ADA));
+    const view = viewOf(begin(GRADUATE));
     const notices = noticesDue(view, content);
     const charged = view.obligations.filter((open) => open.due > 0);
     expect(charged.length).toBeGreaterThan(0);

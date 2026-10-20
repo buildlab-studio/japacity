@@ -7,7 +7,7 @@ import { cardFace } from "./face";
 import { fakeCanvas } from "./canvas.testing";
 import { cardSteps, previewSteps, sealGround, TONES, type SealStep, type Step, type TextStep } from "./layout";
 import { renderCard } from "./render";
-import { adaCard, measure } from "./share.testing";
+import { graduateCard, measure } from "./share.testing";
 import { stubFace, stubSteps } from "./stub";
 
 const tuning = content.tuning.share;
@@ -21,7 +21,7 @@ afterEach(() => vi.restoreAllMocks());
 describe("the seal on a picture", () => {
   test("[share:card-never-looks-official] given every kind of card, then one seal stands at the foot before the game's name, clear of it and inside the card, light on white and on the send-off's yellow, dark on black", () => {
     for (const kind of shareKinds) {
-      const steps = cardSteps(cardFace({ ...adaCard(), kind }, "scenario.ada"), SIZE, measure);
+      const steps = cardSteps(cardFace({ ...graduateCard(), kind }, "scenario.graduate"), SIZE, measure);
       const [seal, ...rest] = seals(steps);
       expect(rest).toEqual([]);
       expect(seal).toBeDefined();
@@ -38,10 +38,10 @@ describe("the seal on a picture", () => {
   });
 
   test("[share:card-never-looks-official] given the link preview and the ticket stub, then each carries one seal before the game's name, clear of it", () => {
-    const card = adaCard();
-    const face = cardFace(card, "scenario.ada");
+    const card = graduateCard();
+    const face = cardFace(card, "scenario.graduate");
     const preview = previewSteps(face, { width: tuning.previewWidth, height: tuning.previewHeight }, measure);
-    const stub = stubSteps(stubFace({ ...card, kind: "send-off" }, "scenario.ada", null)!, { width: 1920, height: 1080 }, measure);
+    const stub = stubSteps(stubFace({ ...card, kind: "send-off" }, "scenario.graduate", null)!, { width: 1920, height: 1080 }, measure);
     for (const steps of [preview, stub]) {
       expect(seals(steps)).toHaveLength(1);
       expect(seals(steps)[0]!.x + seals(steps)[0]!.size).toBeLessThanOrEqual(sender(steps).x);
@@ -50,7 +50,7 @@ describe("the seal on a picture", () => {
 
   test("[share:card-never-looks-official] given a card drawn to the canvas, then the seal is painted with the canvas's own shapes, and the card still comes out", async () => {
     const drawn = fakeCanvas(() => 100);
-    const result = await renderCard(cardFace(adaCard(), "scenario.ada"));
+    const result = await renderCard(cardFace(graduateCard(), "scenario.graduate"));
     expect(result.ok).toBe(true);
     expect(drawn.sizes[0]).toEqual(SIZE);
   });

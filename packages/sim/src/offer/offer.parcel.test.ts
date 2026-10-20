@@ -14,7 +14,7 @@ import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { cash } from "../testing/read";
 import { PARCEL, parcelSender } from "./offer.parcel";
-import { ADA } from "../testing/ids";
+import { GRADUATE } from "../testing/ids";
 
 const { parcel, street, room } = content.tuning;
 const MONTHS_A_YEAR = 12;
@@ -24,7 +24,7 @@ const SIBLING_ABROAD = "seed-3";
 /** Decision 0013 lives the living by hand at home; the foodstuff test reads the charge itself, so it charges it whole. */
 const CHARGED: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
 
-function life(seed: string, scenario: Id<"scenario"> = ADA, base: Content = content): Game {
+function life(seed: string, scenario: Id<"scenario"> = GRADUATE, base: Content = content): Game {
   return start({ content: base, scenario, seed });
 }
 
@@ -184,7 +184,7 @@ describe("the parcel: collecting it", () => {
 
 describe("the parcel: what each thing gives", () => {
   function collect(holds: string, base: Content = content): { game: Game; before: State; result: Accepted } {
-    const game = life(SIBLING_ABROAD, ADA, base);
+    const game = life(SIBLING_ABROAD, GRADUATE, base);
     game.endTurn();
     setPockets(game, { NGN: { cash: parcel.handling * 10, bank: PLENTY } });
     // Room under the top of every quality, so each gift shows whole.
@@ -220,7 +220,7 @@ describe("the parcel: what each thing gives", () => {
   test("[obligation:cooking-and-fetching-water] given foodstuff in the parcel, when it is collected, then the next month's living costs fall by what cooking gives, once", () => {
     const { game } = collect("sibling-food", CHARGED);
     const twinOf = (): Game => {
-      const twin = life(SIBLING_ABROAD, ADA, CHARGED);
+      const twin = life(SIBLING_ABROAD, GRADUATE, CHARGED);
       twin.endTurn();
       setPockets(twin, { NGN: { cash: parcel.handling * 10, bank: PLENTY } });
       return twin;

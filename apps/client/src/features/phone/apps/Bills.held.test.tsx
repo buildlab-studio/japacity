@@ -17,8 +17,8 @@ import { PhoneApps } from "../PhoneApps";
 
 const HELD = 1_119_311_000;
 
-async function adaHolding() {
-  const game = newGame("scenario.ada");
+async function graduateHolding() {
+  const game = newGame("scenario.graduate");
   applyEffects(game, [{ type: "obligation/open", obligation: "obligation.held-funds", principal: HELD }]);
   const held = game.view().obligations.find((owed) => owed.entry === "obligation.held-funds");
   if (held === undefined) throw new Error("No held funds opened.");
@@ -36,7 +36,7 @@ async function adaHolding() {
 
 describe("Bills, the held funds paid back", () => {
   test("[world:one-action-one-sheet] [world:phone-holds-what-phones-hold] given held funds open, when Pay now's slip opens, then what is left after is the naira the character keeps, not nothing", async () => {
-    const { game, held } = await adaHolding();
+    const { game, held } = await graduateHolding();
     fireEvent.click(document.querySelector<HTMLElement>(`[data-pay="${held.id}"]`)!);
     const naira = game.view().pockets.NGN;
     const after = document.querySelector("[data-ask-after]")?.textContent ?? "";
@@ -46,7 +46,7 @@ describe("Bills, the held funds paid back", () => {
   });
 
   test("[world:one-action-one-sheet] [world:phone-holds-what-phones-hold] given the held funds paid back, when the reply comes, then the view counts after the payment: nothing locked, the bill gone, and the band reads the new pockets", async () => {
-    const { game, store, held } = await adaHolding();
+    const { game, store, held } = await graduateHolding();
     fireEvent.click(document.querySelector<HTMLElement>(`[data-pay="${held.id}"]`)!);
     fireEvent.click(document.querySelector<HTMLElement>("[data-ask-main]")!);
     await waitFor(() => expect(store.getState().view?.pockets.NGN.locked).toBe(0));

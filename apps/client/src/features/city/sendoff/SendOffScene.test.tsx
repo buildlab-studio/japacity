@@ -39,7 +39,7 @@ function Harness() {
   const send = useGame((state) => state.send);
   return (
     <SendOffScene
-      you={{ name: text[`${view.scenario}.name`] ?? "Ada", first: "Ada", look: "person_ada", figure: <img alt="" data-figure="person_ada" /> }}
+      you={{ name: "Ada", first: "Ada", look: "person_ada", figure: <img alt="" data-figure="person_ada" /> }}
       game={{ view, busy, send: (command) => send(command).then((reply) => reply?.ok === true), rejection: <Rejection /> }}
       planeCut={(slot) => <div data-cut={slot.city} data-cut-ms={slot.ms} data-cut-country={slot.country} />}
     />
@@ -64,8 +64,8 @@ async function openScene(authority: Parameters<typeof createGameStore>[0]) {
 }
 
 /** Ada's life one command before the flight, on the real engine. */
-async function adaAtTheGate() {
-  const game = recordedGame("ada-careful", 1);
+async function graduateAtTheGate() {
+  const game = recordedGame("graduate-careful", 1);
   const authority = gameAuthority(game);
   const opened = await openScene(authority);
   return { ...opened, authority, game };
@@ -85,7 +85,7 @@ async function toTheGate(): Promise<void> {
 
 describe("the send-off as a scene", () => {
   test("[chapter:send-off-scene-in-beats] given a granted life, when the scene opens, then Departures has two ahead and Mama's line, each of three taps moves the queue a place and a line of the airport's own is said, the character's last, then the counter, and nothing is sent", async () => {
-    const { authority } = await adaAtTheGate();
+    const { authority } = await graduateAtTheGate();
     expect(beat()).toBe("departures");
     expect(found("[data-so-marker]").textContent).toBe(sendOffWords("sendoff.queue.ahead", { count: 2 }));
     expect(said("mum")).toContain(text[`${AIRPORT}.overheard.1`]);
@@ -108,7 +108,7 @@ describe("the send-off as a scene", () => {
   });
 
   test("[chapter:send-off-scene-in-beats] given the counter, then the passport and the stub slide across, the flight chip shows the tuning's flight figure, Window or aisle changes the stub's seat and nothing else, and nothing is sent", async () => {
-    const { authority, store } = await adaAtTheGate();
+    const { authority, store } = await graduateAtTheGate();
     for (let tap = 0; tap < 3; tap += 1) fireEvent.click(found("[data-so-go='step']"));
     await waitFor(() => expect(beat()).toBe("counter"), { timeout: 4000 });
     expect(found("[data-so-passport]")).toBeDefined();
@@ -127,7 +127,7 @@ describe("the send-off as a scene", () => {
   });
 
   test("[chapter:send-off-scene-in-beats] given the scene left before the gate's button, then it closes, nothing was sent, and the life is still at the airport", async () => {
-    const { authority, store } = await adaAtTheGate();
+    const { authority, store } = await graduateAtTheGate();
     const before = store.getState().view;
     fireEvent.click(found("[data-so-go='step']"));
     fireEvent.click(found("[data-so-leave]"));
@@ -138,7 +138,7 @@ describe("the send-off as a scene", () => {
   });
 
   test("[chapter:send-off-scene-in-beats] given the gate, then Papa says the airport's sixth line named as content names him, Board the plane sends route/depart once however often it is tapped, and the plane follows", async () => {
-    const { authority, route } = await adaAtTheGate();
+    const { authority, route } = await graduateAtTheGate();
     await toTheGate();
     expect(text[`${GATE_LINE}.by`]).toBe("Papa");
     expect(said("dad")).toContain(text[GATE_LINE]);
@@ -153,7 +153,7 @@ describe("the send-off as a scene", () => {
   });
 
   test("[chapter:send-off-scene-in-beats] given held funds still open, then the gate says what stops the flight and Board the plane is shut", async () => {
-    const view = recordedGame("ada-careful", 1).view();
+    const view = recordedGame("graduate-careful", 1).view();
     const owed = view.obligations[0];
     if (owed === undefined) throw new Error("Ada's life owes nothing to copy.");
     const held: PlayerView = { ...view, obligations: [...view.obligations, { ...owed, id: "held-1", entry: "obligation.held-funds", outstanding: 100 }] };
@@ -167,7 +167,7 @@ describe("the send-off as a scene", () => {
   });
 
   test("[chapter:send-off-scene-in-beats] [world:plane-cut-at-send-off] given the plane boarded, then the map's cut shows for about three seconds with the hub's city, then the landing", async () => {
-    await adaAtTheGate();
+    await graduateAtTheGate();
     await toTheGate();
     fireEvent.click(found("[data-so-go='board']"));
     await waitFor(() => expect(beat()).toBe("plane"));
@@ -185,7 +185,7 @@ describe("the send-off as a scene", () => {
   }, 15_000);
 
   test("[chapter:send-off-scene-in-beats] given a granted life played through every beat, when the bell is rung, then the scene closes, the flight was sent once, and the life stands abroad", async () => {
-    const { authority, store } = await adaAtTheGate();
+    const { authority, store } = await graduateAtTheGate();
     await toTheGate();
     fireEvent.click(found("[data-so-go='board']"));
     await waitFor(() => expect(beat()).toBe("landing"), { timeout: 6000 });
@@ -200,7 +200,7 @@ describe("the send-off as a scene", () => {
   }, 15_000);
 
   test.each(["country.uk", "country.canada", "country.uae", "country.italy"] as const)("[chapter:send-off-scene-in-beats] given a landing in %s, then it is the country's hub in content with its staple, its weather, the hub's first overheard line at the stop and the staple's button", async (country) => {
-    await adaAtTheGate();
+    await graduateAtTheGate();
     const landing = landingOf(country)!;
     act(() => {
       sendOff.getState().open({ route: "route.uk-masters", country });
@@ -225,7 +225,7 @@ describe("the send-off as a scene", () => {
   });
 
   test("[chapter:send-off-scene-in-beats] [share:send-off-card-kept] given the first ride, then So this is it., the family's first messages in content from the senders the game has, the card saved with a tick, and the Phone's badge counting the messages", async () => {
-    const { store } = await adaAtTheGate();
+    const { store } = await graduateAtTheGate();
     act(() => {
       sendOff.getState().to("ride");
     });

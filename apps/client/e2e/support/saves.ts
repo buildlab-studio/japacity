@@ -22,6 +22,6 @@ export function recordedUpTo(name: string, upTo: number | null): string {
 }
 
 /** Ada's recorded life up to the month before she flies: every command but the flight. */
-export function adaBeforeFlight(): string {
-  return recordedUpTo("ada-careful", -1);
+export function graduateBeforeFlight(): string {
+  return recordedUpTo("graduate-careful", -1);
 }

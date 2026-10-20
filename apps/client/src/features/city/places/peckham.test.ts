@@ -145,7 +145,7 @@ describe("Peckham's jobs", () => {
 
   test("[world:things-are-tappable-models] given Ada in London on a graduate visa, when the hunt's jobs are read, then the warehouse job is among them, a tap at the warehouse's clock-in names it on the hunt's card, and the agency still opens the hunt", () => {
     // A student's hunt asks for none of the agency's jobs; open work brings them.
-    const view = viewAfter(recordedGame("ada-careful"), [{ type: "status/grant", status: "status.uk-graduate" }]);
+    const view = viewAfter(recordedGame("graduate-careful"), [{ type: "status/grant", status: "status.uk-graduate" }]);
     const jobs = view.activities.find((option) => option.id === "activity.job-hunt")?.params ?? [];
     expect(jobs).toContain("activity.job-uk-warehouse");
     // The care job asks for care work done before (two years in it), so on open work alone it is not yet asked for.

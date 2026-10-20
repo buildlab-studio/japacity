@@ -84,7 +84,7 @@ interface LifeOptions {
 
 /** The real content, with the chosen life's English, papers or band numbers changed where a test needs it. */
 function contentFor(options: LifeOptions): Content {
-  const id = options.scenario ?? "scenario.ada";
+  const id = options.scenario ?? "scenario.graduate";
   const life = content.scenario[id];
   if (life === undefined) throw new Error(`No scenario ${id}.`);
   const qualities = options.english === undefined ? life.qualities : { ...life.qualities, "quality.english": options.english };
@@ -97,7 +97,7 @@ function contentFor(options: LifeOptions): Content {
 }
 
 function life(options: LifeOptions = {}): Game {
-  return start({ content: contentFor(options), scenario: options.scenario ?? "scenario.ada", seed: options.seed ?? SEED_SHORT });
+  return start({ content: contentFor(options), scenario: options.scenario ?? "scenario.graduate", seed: options.seed ?? SEED_SHORT });
 }
 
 /** Carries out effects through a command, outside any turn. */
@@ -337,7 +337,7 @@ describe("expiry", () => {
   });
 
   test("[document:expired-document-not-held] given a passport with 22 months left at the start, when month 22 is played, then it runs out on that month", () => {
-    const game = life({ scenario: "scenario.tunde" });
+    const game = life({ scenario: "scenario.banker" });
     expect(paper(game, PASSPORT)?.expiresMonth).toBe(22);
     endTurns(game, 21);
     expect(held(game, PASSPORT)).toBe(true);
@@ -348,7 +348,7 @@ describe("expiry", () => {
   });
 
   test("[document:expired-document-not-held] given a document whose expiry month has come, when a slot reads it before the papers phase, then it no longer counts as held", () => {
-    const game = life({ scenario: "scenario.tunde", documents: [{ document: PASSPORT, monthsLeft: 1, value: null }] });
+    const game = life({ scenario: "scenario.banker", documents: [{ document: PASSPORT, monthsLeft: 1, value: null }] });
     let seen: { held: boolean; absent: boolean } | null = null;
     endTurnWith(game, [], (ctx) => {
       seen = {
@@ -381,7 +381,7 @@ describe("one copy at a time", () => {
   });
 
   test("[document:one-pending-copy] given a held passport, when a new one is requested, then the old one stays in force until the new one is issued and replaces it", () => {
-    const game = life({ scenario: "scenario.tunde", seed: SEED_LONG });
+    const game = life({ scenario: "scenario.banker", seed: SEED_LONG });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
     const ready = 1 + entries[PASSPORT]!.wait[1];
@@ -398,7 +398,7 @@ describe("one copy at a time", () => {
   });
 
   test("[document:paper-on-its-way] given a held passport, when a new one is requested, then the view says it is on its way with the month it is due, and once issued nothing is on its way", () => {
-    const game = life({ scenario: "scenario.tunde", seed: SEED_LONG });
+    const game = life({ scenario: "scenario.banker", seed: SEED_LONG });
     game.endTurn();
     const viewed = () => game.view().documents.find((doc) => doc.id === PASSPORT);
     expect(viewed()?.onItsWay).toBeNull();
@@ -419,7 +419,7 @@ describe("one copy at a time", () => {
   });
 
   test("[document:one-pending-copy] given a held passport with a new one being made, when it is requested a third time, then nothing changes", () => {
-    const game = life({ scenario: "scenario.tunde" });
+    const game = life({ scenario: "scenario.banker" });
     applyNow(game, [request(PASSPORT)]);
     const before = game.state.document;
     const result = applyNow(game, [request(PASSPORT)]);
@@ -428,7 +428,7 @@ describe("one copy at a time", () => {
   });
 
   test("[document:one-pending-copy] [document:expired-document-not-held] given a held passport that runs out while the new one is being made, when it runs out, then it is pending and not held", () => {
-    const game = life({ scenario: "scenario.tunde", seed: SEED_LONG, documents: [{ document: PASSPORT, monthsLeft: 2, value: null }] });
+    const game = life({ scenario: "scenario.banker", seed: SEED_LONG, documents: [{ document: PASSPORT, monthsLeft: 2, value: null }] });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
     const ready = 1 + entries[PASSPORT]!.wait[1];
@@ -442,7 +442,7 @@ describe("one copy at a time", () => {
   });
 
   test("[document:one-pending-copy] given an expired document, when it is requested, then a fresh copy is pending", () => {
-    const game = life({ scenario: "scenario.tunde", documents: [{ document: PASSPORT, monthsLeft: 1, value: null }] });
+    const game = life({ scenario: "scenario.banker", documents: [{ document: PASSPORT, monthsLeft: 1, value: null }] });
     game.endTurn();
     expect(paper(game, PASSPORT)?.state).toBe("expired");
     applyNow(game, [request(PASSPORT)]);
@@ -590,7 +590,7 @@ describe("granting and voiding", () => {
 
 describe("what always holds", () => {
   test("[document:request-starts-pending] [document:due-document-issued] [document:english-test-band-value] given papers requested, issued, expired and voided, when the invariants are checked, then nothing is wrong", () => {
-    const game = life({ scenario: "scenario.tunde", documents: [{ document: PASSPORT, monthsLeft: 2, value: null }] });
+    const game = life({ scenario: "scenario.banker", documents: [{ document: PASSPORT, monthsLeft: 2, value: null }] });
     applyNow(game, [request(TRANSCRIPT), request(ENGLISH), grant(CAS)]);
     endTurnWith(game, [request(TB)]);
     expect(checkInvariants(game.state, game.content)).toEqual([]);

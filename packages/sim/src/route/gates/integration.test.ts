@@ -39,7 +39,7 @@ function toKnown(game: Game, route: Id<"route">): void {
 }
 
 function ngozi(used: Content, options: LifeOptions = {}): Game {
-  return readyLife(used, { from: "scenario.ngozi", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), tuning: ALWAYS_GRANTED, ...options });
+  return readyLife(used, { from: "scenario.nurse", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), tuning: ALWAYS_GRANTED, ...options });
 }
 
 describe("the gates through the dispatcher", () => {

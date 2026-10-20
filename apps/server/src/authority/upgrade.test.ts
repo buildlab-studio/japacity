@@ -133,7 +133,7 @@ describe("old saves", () => {
     server.setNow(epoch);
     await signUp(server, "acc-1");
     const id = "character-schema-3";
-    const fresh = newState("scenario.tunde", "seed-3", previous);
+    const fresh = newState("scenario.banker", "seed-3", previous);
     const turn = without(fresh.turn, ["spent"]);
     const offer = without(fresh.offer, ["rolled", "rolledMonth"]);
     const quality = without(fresh.quality, ["quality.belly", "quality.energy"]);
@@ -150,7 +150,7 @@ describe("old saves", () => {
     expect(base.schema).toBe(4);
     expect(base.turn.spent).toBe(0);
     expect([base.offer.rolled, base.offer.rolledMonth]).toEqual([0, 0]);
-    const now = newState("scenario.tunde", "seed-3", content);
+    const now = newState("scenario.banker", "seed-3", content);
     expect([base.quality["quality.belly"], base.quality["quality.energy"]]).toEqual([now.quality["quality.belly"], now.quality["quality.energy"]]);
     expect(base).toEqual(now);
     expect(checkInvariants(base, content)).toEqual([]);

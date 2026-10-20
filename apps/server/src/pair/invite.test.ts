@@ -53,7 +53,7 @@ describe("invite links", () => {
   test("[pair:invite-link-single-use] given a link taken once, when another account takes it, then it is refused as used with 409 and the record does not move", async () => {
     const { server, key, code } = await linkedPair();
     expect((await call<Reply<InvitesListed>>(server, "GET", "/api/invite", INVITER)).body).toMatchObject({ ok: true, open: [] });
-    await newLife(server, "account-c", "scenario.zainab");
+    await newLife(server, "account-c", "scenario.developer");
 
     const again = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, "account-c", { slot: "partner" });
     const shown = await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null);
@@ -69,8 +69,8 @@ describe("invite links", () => {
   test("[pair:invite-link-single-use] given a link, when it is taken a millisecond before it runs out, then it works, and at the moment it runs out it is refused as expired with 403", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
-    await newLife(server, FRIEND, "scenario.tunde");
-    await newLife(server, "account-c", "scenario.zainab");
+    await newLife(server, FRIEND, "scenario.banker");
+    await newLife(server, "account-c", "scenario.developer");
     const code = await cardOut(server);
     const made = await server.deps.stores.invite.get(code);
     if (made === null) throw new Error("No link.");
@@ -92,7 +92,7 @@ describe("invite links", () => {
   test("[pair:invite-link-single-use] given a partner link, when it is taken for another slot, then it is refused as wrong-slot and no record is made", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER);
-    const b = await newLife(server, FRIEND, "scenario.tunde");
+    const b = await newLife(server, FRIEND, "scenario.banker");
     const code = await cardOut(server);
 
     expect(await accept(server, FRIEND, code, { slot: "sibling-1" })).toMatchObject({ ok: false, code: "wrong-slot" });
@@ -102,7 +102,7 @@ describe("invite links", () => {
   test("[pair:invite-link-single-use] given a card taken back after its link was made, when the link is taken, then it is refused as wrong-slot and the link stays unused", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER);
-    const b = await newLife(server, FRIEND, "scenario.tunde");
+    const b = await newLife(server, FRIEND, "scenario.banker");
     const code = await cardOut(server);
     await must(server, INVITER, { type: "people/invite", slot: "partner" });
 
@@ -143,18 +143,18 @@ describe("invite links", () => {
     const code = await cardOut(server);
     await accountIn(server, FRIEND, "NG", false);
 
-    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: false, code: "under-age" });
+    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.banker" })).toMatchObject({ ok: false, code: "under-age" });
     expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false });
   });
 
   test("[pair:everyone-meets-by-invite] [region:same-contact-everywhere] given two players who signed up in France and Germany, when one asks for a link and the other takes it, then the pair is made as anywhere else", async () => {
     const server = pairServer();
     await accountIn(server, "account-fr", "FR");
-    await call(server, "POST", "/api/character", "account-fr", { scenario: "scenario.ada" });
+    await call(server, "POST", "/api/character", "account-fr", { scenario: "scenario.graduate" });
     const code = await cardOut(server, "account-fr");
     await accountIn(server, "account-de", "DE");
 
-    expect(await accept(server, "account-de", code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: true, view: { stage: "connected" } });
+    expect(await accept(server, "account-de", code, { slot: "partner", scenario: "scenario.banker" })).toMatchObject({ ok: true, view: { stage: "connected" } });
     expect(await server.deps.stores.invite.pairs()).toHaveLength(1);
   });
 
@@ -165,7 +165,7 @@ describe("invite links", () => {
     await signUp(server, FRIEND);
     await server.deps.stores.account.remove(INVITER);
 
-    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: false, code: "not-possible" });
+    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.banker" })).toMatchObject({ ok: false, code: "not-possible" });
     expect(await server.deps.stores.invite.pairs()).toEqual([]);
   });
 
@@ -175,18 +175,18 @@ describe("invite links", () => {
     const code = await cardOut(server);
     await signUp(server, FRIEND);
 
-    const taken = await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.zainab" });
+    const taken = await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.developer" });
 
     expect(taken).toMatchObject({ ok: true, view: { stage: "connected", invitedBy: "them", controls: ["block", "report"] } });
     const b = (taken as InviteAccepted).character;
-    expect((await view(server, FRIEND)).body).toMatchObject({ ok: true, view: { scenario: "scenario.zainab" } });
+    expect((await view(server, FRIEND)).body).toMatchObject({ ok: true, view: { scenario: "scenario.developer" } });
     expect((taken as InviteAccepted).pair).toBe(pairId(a, b));
   });
 
   test("[person:real-sibling-shares-family-draw] given a friend who already has a character, when a sibling link is taken, then it is refused, because an existing character never becomes anyone's sibling", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
-    await newLife(server, FRIEND, "scenario.tunde");
+    await newLife(server, FRIEND, "scenario.banker");
     const code = await cardOut(server, INVITER, "sibling-1", "sibling");
 
     expect(await accept(server, FRIEND, code, { slot: "sibling-1" })).toMatchObject({ ok: false, code: "one-character" });
@@ -260,7 +260,7 @@ describe("invite links", () => {
   test("[pair:block-ends-every-bond] [moderation:block-refuses-both-ways] given the friend's account blocked by the inviter, when the friend takes the card, then it is refused as not possible", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
-    await newLife(server, FRIEND, "scenario.tunde");
+    await newLife(server, FRIEND, "scenario.banker");
     const code = await cardOut(server);
     await server.deps.stores.moderation.block({ from: INVITER, to: FRIEND, at: server.deps.now() });
 

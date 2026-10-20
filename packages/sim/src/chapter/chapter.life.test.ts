@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import type { Id, PlayerView } from "../engine/types";
 import { viewFor } from "../engine/view";
-import { flownAda, monthAbroad, playUntil } from "../testing/goal.journey";
+import { flownGraduate, monthAbroad, playUntil } from "../testing/goal.journey";
 import { roadCard } from "../route/gates/road";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
@@ -19,14 +19,14 @@ const cap = content.tuning.turn.cap;
 
 /** Ada flown and on through Landing, so Secure is the chapter in hand. */
 function atSecure(): Game {
-  const game = flownAda(content);
+  const game = flownGraduate(content);
   playUntil(game, SECURE);
   return game;
 }
 
 describe("the send-off closes on the first month abroad", () => {
   test("[chapter:met-items-close-the-chapter] given Ada's recorded life up to the flight, when the first month abroad ends, then the send-off closes, Landing opens and the bank is refilled", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     expect(game.state.route[UK_ROUTE]?.state).toBe("departed");
     // The flight is a command between turns: nothing closes until a month is played.
     expect(game.state.chapter.current).toBe(SEND_OFF);
@@ -39,7 +39,7 @@ describe("the send-off closes on the first month abroad", () => {
 
 describe("the send-off card", () => {
   test("[chapter:send-off-card-on-close] given Ada's recorded life just flown, when the view is read before any month abroad, then the card carries the route flown, its figure, the flight month, that month's standing and the three activities played most up to it", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     const card = game.view().card;
     expect(card).toEqual({
       kind: "send-off",
@@ -57,7 +57,7 @@ describe("the send-off card", () => {
   });
 
   test("[chapter:send-off-card-on-close] [activity:months-played-counted] given the months each activity was played, when the most played are counted, then the most come first, ties by id, three at most, and nothing played abroad is among them", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     const expected = (Object.entries(game.state.activity.played) as [Id<"activity">, number][])
       .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : 1))
       .slice(0, 3)
@@ -70,13 +70,13 @@ describe("the send-off card", () => {
 
   test("[chapter:send-off-card-on-close] [engine:numbers-read-from-content] given the card's lines set to 2 in the tuning, when the card is read at the flight, then it names the two played most", () => {
     const moved = { ...content, tuning: { ...content.tuning, chapter: { ...content.tuning.chapter, cardLines: 2 } } };
-    const game = flownAda(moved);
+    const game = flownGraduate(moved);
     const shown = game.view().card?.topActivities ?? [];
-    expect(shown).toEqual(topActivities(flownAda(content).state, content).slice(0, 2));
+    expect(shown).toEqual(topActivities(flownGraduate(content).state, content).slice(0, 2));
   });
 
   test("[chapter:send-off-card-on-close] given the card shown at the flight, when the first month abroad ends and the send-off closes, then the card is gone and the view's card is the road's, which is none", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     expect(game.view().card?.kind).toBe("send-off");
     const result = game.endTurn();
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: SEND_OFF, next: LANDING }]);
@@ -88,7 +88,7 @@ describe("the send-off card", () => {
   test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
     // Ada's careful life meets Landing's last item on her first pay abroad, whose own card stands before a
     // chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
-    const { game, to } = replayedGame("tunde-abroad", content);
+    const { game, to } = replayedGame("banker-abroad", content);
     to((now) => now.state.place.where === "abroad");
     const flight = game.state.turn.month;
     const after = to((now) => now.state.turn.month > flight);
@@ -106,7 +106,7 @@ describe("the send-off card", () => {
 
 describe("landing", () => {
   test("[chapter:met-items-close-the-chapter] given Ada landed with a room, a status and naira at home, when she finds work and pays her first rent, then Landing closes on the month every item is met", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     game.endTurn();
     const met = (id: string) => game.view().chapter.items.find((item) => item.id === id)?.met;
     expect(game.state.chapter.current).toBe(LANDING);
@@ -213,7 +213,7 @@ describe("after the last chapter", () => {
 
 describe("months abroad", () => {
   test("[chapter:items-are-live-requirements] given Landing in hand, when the view is read each month, then each item shows met or not as the state is", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     game.endTurn();
     for (let month = 0; month < 3; month += 1) {
       const items = game.view().chapter.items;

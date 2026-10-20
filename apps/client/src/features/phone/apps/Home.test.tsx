@@ -20,7 +20,7 @@ const RISK = say("phone.home.risk");
 // Decision 0013 (home:living-by-hand): nothing of the living is charged as the month turns at home, so the card says it is bought as you go.
 const BY_HAND = say("phone.home.charge.by-hand");
 const RENT = content.tuning.home.makokoUpkeep;
-const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === "obligation.upkeep")!.amount;
+const GRADUATE_UPKEEP = content.scenario["scenario.graduate"]!.obligations.find((owed) => owed.obligation === "obligation.upkeep")!.amount;
 
 async function openBills(game: Game): Promise<{ card: () => HTMLElement | null; unmount: () => void }> {
   const store = createGameStore(gameAuthority(game));
@@ -52,7 +52,7 @@ describe("the home card", () => {
     // Decision 0013: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
     // house says it as your share for the house, with Papa paying the rest (decision 0018).
     expect(said).toContain(say("phone.home.charge.by-hand.place.family-house"));
-    expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
+    expect(said).not.toContain(formatMoney(GRADUATE_UPKEEP, "NGN"));
     expect(moveButton("place.makoko")?.disabled).toBe(false);
     expect(moveButton("place.makoko")?.textContent).toContain(formatMoney(RENT, "NGN"));
     expect(moveButton("place.family-house")).toBeNull();
@@ -95,7 +95,7 @@ describe("the home card", () => {
   });
 
   test("[home:view-carries-home] given Ada taken in after the settlement was cleared, when Bills opens, then the card says who took her in and for how long, and that no rent is charged", async () => {
-    const game = start({ content: applyOverlay(content, { version: "test-card-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.ada" });
+    const game = start({ content: applyOverlay(content, { version: "test-card-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.graduate" });
     setPockets(game, { NGN: 500_000_00 });
     game.accept({ type: "home/move", to: "place.makoko" });
     game.endTurn();
@@ -196,7 +196,7 @@ describe("the home card", () => {
     // Decision 0013: back home the living is bought as you go, so the move names no figure a month for it; the house says
     // it as your share, with Papa paying the rest (decision 0018).
     expect(said).toContain("Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest.");
-    expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
+    expect(said).not.toContain(formatMoney(GRADUATE_UPKEEP, "NGN"));
     unmount();
   });
 
@@ -257,10 +257,10 @@ describe("the room in a compound on the card (home:compound-room-is-a-home)", ()
 
 describe("the home says what it is", () => {
   test("[home:moves-carry-cost-and-reason] given a life at the family house and one in the room in a compound, when Bills opens, then the home card opens with the place's own blurb", async () => {
-    const family = await openBills(newGame("scenario.ada"));
+    const family = await openBills(newGame("scenario.graduate"));
     expect(family.card()?.querySelector("[data-home-blurb]")?.textContent).toBe(text["place.family-house.blurb"] ?? "");
     family.unmount();
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });
     const room = await openBills(game);

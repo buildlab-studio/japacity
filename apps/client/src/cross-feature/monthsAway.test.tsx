@@ -51,7 +51,7 @@ describe("months away in the words", () => {
   test("[world:top-band-is-lively-pill] [world:month-end-results-sheet] given a passport requested, when the month ends and News opens, then its line says when it is ready as months away, with no month number", async () => {
     localStorage.clear();
     reloadSeen();
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     // activity:now-acts-and-month-acts: the passport is asked for at once; its lines are the month's mid-month lines, which
     // the store hands News with the month's report once the month ends.
     const asked = game.accept({ type: "activity/now", activity: "activity.get-passport", param: null }).lines;

@@ -10,7 +10,7 @@ const WATER = "activity.fetch-water";
 
 describe("a spent body on the picker", () => {
   test("[activity:spent-body-refuses-acts] given a spent act on a sheet of several, when the sheet shows, then its card says You are spent. Sleep. in place of its button", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     while (game.view().activities.find((option) => option.id === WATER)?.spent !== true) game.accept({ type: "activity/now", activity: WATER, param: null });
     await renderWithView(<ActivityPicker only={[WATER]} />, game.view());
     expect(document.querySelector(`[data-act-spent="${WATER}"]`)?.textContent).toBe("You are spent. Sleep.");

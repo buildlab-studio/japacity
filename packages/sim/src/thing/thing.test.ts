@@ -48,7 +48,7 @@ const CATALOGUE = [
 ];
 
 function ada(): Game {
-  return start({ content, scenario: "scenario.ada", seed: "seed-1" });
+  return start({ content, scenario: "scenario.graduate", seed: "seed-1" });
 }
 
 function setQuality(game: Game, id: Id<"quality">, value: number): void {

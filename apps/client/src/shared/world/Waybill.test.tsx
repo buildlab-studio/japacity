@@ -25,7 +25,7 @@ const { handling } = content.tuning.parcel;
 const SIBLING_ABROAD = "seed-3";
 
 function ada(): { game: ReturnType<typeof newGame>; view: PlayerView } {
-  const game = newGame("scenario.ada", SIBLING_ABROAD);
+  const game = newGame("scenario.graduate", SIBLING_ABROAD);
   game.endTurn();
   openOffer(game, PARCEL);
   return { game, view: game.view() };
@@ -69,7 +69,7 @@ describe("the slip's rows", () => {
 });
 
 describe("the waybill", () => {
-  test("[world:one-action-one-sheet] given a parcel from Ada's sibling in the UK, when its waybill is built, then it is a slip naming the sender, Ada, the thing and the charge, with the sender's note and one button that collects it", () => {
+  test("[world:one-action-one-sheet] given a parcel from Ada's sibling in the UK, when its waybill is built, then it is a slip naming the sender, You (a ready life has no name of its own), the thing and the charge, with the sender's note and one button that collects it", () => {
     const { view } = ada();
     const offer = view.offers.find((item) => item.entry === PARCEL)!;
     const holds = offer.choices[0]!.id;
@@ -79,7 +79,7 @@ describe("the waybill", () => {
     expect(ask.title).toBe(words(`${PARCEL}.title`));
     expect(ask.rows).toEqual([
       { label: words(`${PARCEL}.waybill.from`), value: nameOf("person.sib-uk-settled") },
-      { label: words(`${PARCEL}.waybill.to`), value: say("share.first-name.scenario.ada") },
+      { label: words(`${PARCEL}.waybill.to`), value: words(`${PARCEL}.waybill.you`) },
       { label: words(`${PARCEL}.waybill.contents`), value: words(`${PARCEL}.contents.${thing}`) },
       { label: words(`${PARCEL}.waybill.handling`), value: money(handling, "NGN"), strong: true },
     ]);
@@ -90,7 +90,7 @@ describe("the waybill", () => {
   });
 
   test("[world:one-action-one-sheet] given no parcel waiting, when the waybill is built, then there is none", () => {
-    const game = newGame("scenario.ada", SIBLING_ABROAD);
+    const game = newGame("scenario.graduate", SIBLING_ABROAD);
     expect(parcelAsk(game.view(), { send: () => undefined, done: () => undefined, formatMoney: money })).toBeNull();
   });
 

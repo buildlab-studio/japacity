@@ -389,7 +389,7 @@ describe("the world's variables", () => {
 
 describe("the front page", () => {
   test("[director:story-touches-and-hearing] given a character who has heard of a route, when an era's story is shown, then it is for them", () => {
-    const game = start({ scenario: "scenario.ada", content, worldSeed: "director-1" });
+    const game = start({ scenario: "scenario.graduate", content, worldSeed: "director-1" });
     for (let month = 0; month < 8; month += 1) {
       if (game.state.turn.banked === 0) game.grant(1);
       game.endTurn();

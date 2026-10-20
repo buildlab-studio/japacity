@@ -40,7 +40,7 @@ const UNDER = health.runDownBelow - 1;
 const PLENTY = 5000000 * 100;
 
 function life(seed = "seed-1"): Game {
-  const game = start({ content: quiet, scenario: "scenario.ada", seed });
+  const game = start({ content: quiet, scenario: "scenario.graduate", seed });
   give(game, PLENTY);
   return game;
 }

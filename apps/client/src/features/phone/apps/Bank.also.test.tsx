@@ -10,7 +10,7 @@ import { say } from "../../../shared/words/text";
 
 describe("other money held, and where", () => {
   test("[world:phone-holds-what-phones-hold] given pounds in the bank and dollars both in the bank and in cash, when the Bank opens at home, then each figure says where it is held", async () => {
-    const view = viewAfter(newGame("scenario.tunde"), [
+    const view = viewAfter(newGame("scenario.banker"), [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 8_100, reason: "gift" },
       { type: "money/add", currency: "USD", pocket: "bank", amount: 50_000, reason: "gift" },
       { type: "money/add", currency: "USD", pocket: "cash", amount: 2_000, reason: "gift" },
@@ -24,7 +24,7 @@ describe("other money held, and where", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given pounds in the bank and dollars both in the bank and in cash, when the Bank opens at home, then each other money is its own chip, so the row wraps inside the card one money at a time", async () => {
-    const view = viewAfter(newGame("scenario.tunde"), [
+    const view = viewAfter(newGame("scenario.banker"), [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 8_100, reason: "gift" },
       { type: "money/add", currency: "USD", pocket: "bank", amount: 50_000, reason: "gift" },
       { type: "money/add", currency: "USD", pocket: "cash", amount: 2_000, reason: "gift" },

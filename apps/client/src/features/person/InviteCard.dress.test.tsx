@@ -9,7 +9,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { keepPerson } from "../../shared/frontdoor/person";
 import { LOOKS, lookForName } from "../../shared/frontdoor/looks";
 import { peopleGame, renderWithGame } from "../../shared/testing/person";
-import { nameOf, say } from "../../shared/words/text";
+import { say } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";
 import { PeopleSlots } from "./PeopleOnPhone";
 
@@ -38,8 +38,8 @@ describe("the invite card in the lively dress", () => {
     expect(card?.querySelector("[data-face-sticker]")).toBeNull();
     const heading = within(form).getByRole("heading", { name: say("ui.people.invite.title") });
     // No look kept on this device: the face is one of the door's looks, picked from the character's name.
-    expect(heading.parentElement?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe(lookForName(nameOf("scenario.tunde")));
-    expect(LOOKS.map((look) => look.id)).toContain(lookForName(nameOf("scenario.tunde")));
+    expect(heading.parentElement?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe(lookForName(say("ui.invite.someone")));
+    expect(LOOKS.map((look) => look.id)).toContain(lookForName(say("ui.invite.someone")));
     expect(card?.querySelector("[data-invite-looking]")?.closest("[data-sticker-chip]")).not.toBeNull();
     const yellow = form.querySelectorAll("[data-press-button]");
     expect(yellow).toHaveLength(1);

@@ -42,7 +42,7 @@ describe("one count for months", () => {
   });
 
   test("[offer:lapsed-offer-removed] given an offer that lapses when this month ends, then it says to answer this month, with no month number, and after the month it is gone", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const offer = openOffer(game, "offer.nepa-bill");
     const view = game.view();
     await renderWithView(<OfferView />, view);
@@ -53,7 +53,7 @@ describe("one count for months", () => {
   });
 
   test("[document:due-document-issued] given a passport applied for, then the month it is said to be ready is the month whose report brings it", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     game.endTurn([{ activity: "activity.get-passport", param: null }]);
     const pending = game.view().documents.find((paper) => paper.id === PASSPORT && paper.state === "pending");
     if (pending?.readyMonth === null || pending === undefined) throw new Error("The passport is not on its way.");

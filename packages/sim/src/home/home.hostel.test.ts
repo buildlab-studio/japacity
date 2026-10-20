@@ -22,7 +22,7 @@ const { home } = content.tuning;
 const MONTH = home.hostelRentKobo;
 
 function ada(): Game {
-  return start({ content, scenario: "scenario.ada", seed: "seed-1" });
+  return start({ content, scenario: "scenario.graduate", seed: "seed-1" });
 }
 
 /** Ada moved into the hostel with exactly a month's rent and `spare` more. */

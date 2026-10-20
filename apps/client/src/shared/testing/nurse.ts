@@ -59,7 +59,7 @@ export function tileNurse(seed: string, open = false): Game {
 
 /** The ready nurse: thirty months on the ward, the licence and the passport held. `open`: health care open from abroad. */
 export function readyNurse(seed = "ready-nurse", open = false): Game {
-  return begin("scenario.ngozi", seed, open);
+  return begin("scenario.nurse", seed, open);
 }
 
 /** Health care heard of at the meetup: the ready nurse's first step. */

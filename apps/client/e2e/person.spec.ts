@@ -23,7 +23,7 @@ const PAIR = "pair-1";
 const BROKEN: readonly Broken[] = [...NEVER_SHOWN, NO_WORDS, ["a raw people id", /\b(?:person|phrase|people)\.[a-z]+-[a-z-]+/]];
 
 function tunde(): Game {
-  return start({ scenario: "scenario.tunde", content });
+  return start({ scenario: "scenario.banker", content });
 }
 
 function month(game: Game, slots: { activity: string; param: null }[] = []): void {

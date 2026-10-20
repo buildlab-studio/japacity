@@ -43,7 +43,7 @@ describe("Jobs abroad", () => {
 
 describe("a side job's level in Jobs", () => {
   test("[activity:side-jobs-pay-by-tier] given weekend tutoring held under its tech tier, when Jobs opens, then the side job's row says its pay now and what lifts it", async () => {
-    const view = viewAfter(newGame("scenario.ada"), [{ type: "activity/start-job", job: "activity.weekend-tutoring" }]);
+    const view = viewAfter(newGame("scenario.graduate"), [{ type: "activity/start-job", job: "activity.weekend-tutoring" }]);
     await renderWithView(<Jobs />, view);
     expect(document.querySelector("[data-phone-app=jobs]")?.textContent).toContain("Pays ₦60,000 a month; ₦90,000 once your tech is good");
   });
@@ -62,7 +62,7 @@ describe("the raise in Jobs", () => {
   }
 
   test("[activity:waiting-months-build-profile] given the manager noticed and the pay rose, when Jobs opens, then the job's row says the pay with the raise and when it landed, and a month on, that it was last month", async () => {
-    const game = newGame("scenario.tunde", noticeSeed(true));
+    const game = newGame("scenario.banker", noticeSeed(true));
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
@@ -81,7 +81,7 @@ describe("the raise in Jobs", () => {
   });
 
   test("[activity:waiting-months-build-profile] given the draw missed, when Jobs opens, then the row says the pay as it was and no raise", async () => {
-    const game = newGame("scenario.tunde", noticeSeed(false));
+    const game = newGame("scenario.banker", noticeSeed(false));
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
@@ -95,7 +95,7 @@ describe("the raise in Jobs", () => {
 
 describe("the pay Jobs says", () => {
   test("[wallet:view-carries-month-pay] given a job held whose month the wallet books at another figure than content's, when Jobs opens, then the row says the view's pay and never the written one", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const job = game.state.activity.job!;
     const written = content.activity[job]!.pay!;
     if (typeof written.amount !== "number") throw new Error("A fixed pay was expected.");

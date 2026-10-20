@@ -98,23 +98,18 @@ function artOf(card: ShareCard): string {
 
 /**
  * The character's name as the band says it (share:card-contents), the one source for the card, the
- * stub, the image that travels and the send-off scene: the name given at the door, else the first
- * word of the life's own name ("Adaeze"), else the scenario's `share.first-name`. Null with no life.
+ * stub, the image that travels and the send-off scene: the name given at the door. A ready life has
+ * no name of its own (scenario.md), so with none given there is none.
  */
-export function bandName(scenario: string | null): string | null {
+export function bandName(): string | null {
   const given = readPerson()?.name.trim() ?? "";
-  if (given !== "") return given;
-  if (scenario === null) return null;
-  const first = hasWords(`${scenario}.name`) ? (words(`${scenario}.name`).trim().split(/\s+/)[0] ?? "") : "";
-  if (first !== "") return first;
-  const key = `share.first-name.${scenario}`;
-  return hasWords(key) ? say(key) : null;
+  return given !== "" ? given : null;
 }
 
-/** The name the player chose when the view carries one, else the name the band says. */
+/** The name the player chose when the view carries one, else the name the band says; none without a life. */
 function nameFor(card: ShareCard, scenario: Id<"scenario"> | null): string | null {
   if (card.name !== undefined && card.name !== null && card.name.trim() !== "") return card.name.trim();
-  return bandName(scenario);
+  return scenario === null ? null : bandName();
 }
 
 function bodyOf(card: ShareCard): string | null {

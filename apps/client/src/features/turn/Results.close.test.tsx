@@ -31,7 +31,7 @@ function sheetText(): string {
 
 describe("the month's close", () => {
   test("[world:month-end-results-sheet] given the nurse's lived month (meals, water, gist and study bought by hand) and her salary, when the results open after Sleep, then payday leads, then the moments, then Kept, in up to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     const mid: ReportLine[] = [];
     for (const activity of ["activity.cook-at-home", "activity.cook-at-home", "activity.fetch-water", "activity.family-time", "activity.study-english"] as const) mid.push(...game.accept({ type: "activity/now", activity, param: null }).lines);
     const { lines } = game.endTurn();

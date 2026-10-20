@@ -10,7 +10,7 @@ const line = (key: string): ReportLine => ({ key, params: {}, tone: "good", atte
 
 describe("the early win", () => {
   test("[guide:early-win-in-three-turns] given a new life whose months end with no pick, when a route is heard in the third, then no month holds an early win", () => {
-    const game = start({ scenario: "scenario.ada", content, seed: "s", worldSeed: "w" });
+    const game = start({ scenario: "scenario.graduate", content, seed: "s", worldSeed: "w" });
     const months = [1, 2, 3].map(() => game.endTurn([]).lines);
     expect(months[2]?.some((found) => found.key === "line.route.heard" && found.tone === "good")).toBe(true);
     for (const lines of months) expect(earlyWinIn(lines, [])).toBeNull();

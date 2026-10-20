@@ -7,7 +7,7 @@ import { blurbOf, say } from "../../shared/words/text";
 
 describe("a free card", () => {
   test("[text:bands-not-figures] given every activity the card tags as costing nothing, when its line is read, then the line does not say free again", () => {
-    const view = viewAfter(newGame("scenario.ada"), [{ type: "route/hear", route: "route.uk-masters", via: "test" }]);
+    const view = viewAfter(newGame("scenario.graduate"), [{ type: "route/hear", route: "route.uk-masters", via: "test" }]);
     const free = view.activities.filter((option) => option.cost.length === 0).map((option) => option.id);
     expect(free).toContain("activity.look-into-route");
     expect(say("ui.activity.free")).toBe("No cost");

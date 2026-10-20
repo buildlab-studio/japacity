@@ -252,11 +252,11 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
 
 /**
  * The card named as the band names the character (share:card-contents), read from the card's face (`bandName`), the
- * one source the send-off scene reads too, so the band and the card never name her two ways ("Adaeze" and "Ada").
+ * one source the send-off scene reads too, so the band and the card never name the character two ways.
  */
-function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
+function bandNamed(card: ShareCard): ShareCard {
   if ((card.name ?? "").trim() !== "") return card;
-  const name = bandName(scenario);
+  const name = bandName();
   return name === null ? card : { ...card, name };
 }
 
@@ -268,7 +268,7 @@ function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
  */
 function CardToShare({ card: due, scenario, type, seat = null, foot = null, note = null }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat?: Seat | null; foot?: ReactNode; note?: ReactNode }) {
   const [picked, setPicked] = useState<"card" | "stub">("card");
-  const card = bandNamed(due, scenario);
+  const card = bandNamed(due);
   const stub = stubFace(card, scenario, type, seat);
   const share = <ShareButton card={card} scenario={scenario} stub={stub !== null && picked === "stub" ? stub : null} />;
   const footed =

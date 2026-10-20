@@ -9,15 +9,15 @@ import type { Measure, Step, TextStep } from "./layout";
 export const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 
 /** Ada's send-off card, as the engine makes it. */
-export function adaCard(): ShareCard {
-  const card = recordedGame("ada-careful").view().card;
+export function graduateCard(): ShareCard {
+  const card = recordedGame("graduate-careful").view().card;
   if (card === null) throw new Error("Ada's recorded life has no card.");
   return card;
 }
 
 /** Ada's careful recorded life, which ends at the send-off's card. */
-export function adaSendOff(): PlayerView {
-  const view = recordedGame("ada-careful").view();
+export function graduateSendOff(): PlayerView {
+  const view = recordedGame("graduate-careful").view();
   if (view.card?.kind !== "send-off") throw new Error("Ada's recorded life does not end at the send-off.");
   return view;
 }
