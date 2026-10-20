@@ -11,14 +11,16 @@
 
 **scenario:first-turn-always-endable** From every scenario, a turn can be ended at once with every slot resting.
 
-## Ada, Tunde and Zainab
+## The graduate, the banker and the developer
 
-| | `scenario.ada` | `scenario.tunde` | `scenario.zainab` |
+A ready life has no name and no sex of its own: the player gives the name and the look at the door (prologue:front-door-builds-a-person), and a line told by sex takes its neutral form (streets:sex-optional-with-neutral-path). Each one's family is of one people, so the family's names are (person:one-mixed-name-pool).
+
+| | `scenario.graduate` | `scenario.banker` | `scenario.developer` |
 |---|---|---|---|
-| Name | Adaeze Okafor, "Ada" | Babatunde Adeyemi, "Tunde" | Zainab Bello |
-| In one line | Fresh from her service year, a good degree, no job yet, a family with a little behind it | A bank officer four years in, a lower grade, savings, a plot of land, and everyone leaning on him | A developer on the rise, from a family with nothing spare, who sends money home every month |
+| In one line | Fresh from the service year, a good degree, no job yet, a family with a little behind it | A bank officer four years in, a lower grade, savings, a plot of land, and everyone leaning on you | A developer on the rise, from a family with nothing spare, who sends money home every month |
+| Family's people | Igbo | Yoruba | Hausa-Fulani |
 | Age | 23 years 2 months (278) | 28 years 6 months (342) | 25 years (300) |
-| Lives | Family house, Surulere | Family house, Ogba | With her aunt, Yaba |
+| Lives | Family house, Surulere | Family house, Ogba | With an aunt, Yaba |
 | Education | Bachelor's, second upper | Bachelor's, second lower | Bachelor's, second upper |
 | English | 55 | 50 | 62 |
 | Tech | 35 | 10 | 58 |
@@ -38,12 +40,12 @@
 | Upkeep a month | ₦95,000 | ₦140,000 | ₦130,000 |
 | Sent home a month | | | ₦60,000 |
 
-## Aniekan
+## The teacher
 
-`scenario.aniekan`: Aniekan Etim, 26, Efik-Ibibio, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank, upkeep ₦80,000 and ₦25,000 sent home; he cannot drive. Picked by the name pool's rules (person:one-mixed-name-pool): the largest share outside the big three, and a person, not a tribe. Recorded as `aniekan-borrower` in `simulated-play/lives.data.ts` (a master's flight in month 33). Ngozi's life, `scenario.ngozi`, is in `route-gates.md`.
+`scenario.teacher`: 26, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank, upkeep ₦80,000 and ₦25,000 sent home; cannot drive. Its family is Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool). Recorded as `teacher-borrower` in `simulated-play/lives.data.ts` (a master's flight in month 33). The nurse, `scenario.nurse`, is in `route-gates.md`; its family is Igbo.
 
 ## What each one tests
 
-- **Ada** has nothing built yet: everything has to be built, and the family can carry part of the weight.
-- **Tunde** has money and a job on day one and a harder file: a lower grade, an older face, land that the family thinks of as theirs.
-- **Zainab** is closest to the dollar salary that makes the funds easy, and furthest from any help.
+- **The graduate** has nothing built yet: everything has to be built, and the family can carry part of the weight.
+- **The banker** has money and a job on day one and a harder file: a lower grade, an older face, land that the family thinks of as theirs.
+- **The developer** is closest to the dollar salary that makes the funds easy, and furthest from any help.

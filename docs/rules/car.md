@@ -31,7 +31,7 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 | `activity.driving-test` | abroad, UK; cost `tuning.car.testFee` and, the first time, `tuning.car.lessons`; effect the pass draw |
 | `document.home-licence` | valid 12 months from arrival, never requested |
 | `document.uk-licence` | never expires, granted by the test |
-| `quality.driving` | self, 0 to 1, hidden; 1 for the lives that can drive (Tunde, Ngozi) |
+| `quality.driving` | self, 0 to 1, hidden; 1 for the lives that can drive (the banker, the nurse) |
 
 ## Numbers
 

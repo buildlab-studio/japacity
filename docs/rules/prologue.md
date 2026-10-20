@@ -20,7 +20,7 @@ Background is drawn and then played: a dozen choices from secondary school to th
 
 **prologue:closing-opens-home-charges** When the last step is answered the prologue closes: the home the last step chose opens its charges (the family house's `obligation.upkeep` at its amount; the room's `obligation.rent-compound` and `obligation.upkeep-compound` with the year and fees taken, home:compound-room-is-a-home; Makoko's `obligation.upkeep-makoko`, prologue:makoko-start-never-a-trap), the turn bank is at `tuning.turn.start`, and the state is a legal starting life in the year its age card picked: scenario:state-built-from-scenario, scenario:new-state-starts-clean and scenario:first-turn-always-endable hold for it, the age it prints in whole years is the age picked (decision 0023), and a test proves both for 200 random prologues.
 
-**prologue:fixed-life-skips-prologue** A fixed life (`scenario.ada` and the others) has the prologue closed from the start and no steps recorded.
+**prologue:fixed-life-skips-prologue** A fixed life (`scenario.graduate` and the other ready lives) has the prologue closed from the start and no steps recorded.
 
 **prologue:view-shows-step-card** The view shows the current step's card: its text key, its answers with `allowed`, the draw just made in words, and the life so far (qualities and money as they stand). It never shows a draw before it is made.
 

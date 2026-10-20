@@ -65,7 +65,7 @@ Two clocks run online. A character's life moves when the player plays, one banke
 
 **clock:presence-held-in-memory** Who is in a place is held only in memory, by one small stateful object per place, and is never written to the database. The one thing the object keeps in its own storage is the day's seen list of city:players-shown-present-not-tracked (names and looks, no positions, no account ids), because it must survive the object sleeping; live presence never goes there.
 
-**clock:attachments-rebuild-presence** Each socket carries an attachment of at most 1 KB: the account id, the character's display name and look, the place, and when it joined. After the object wakes from hibernation it rebuilds the list from the attachments of the sockets still open (`getWebSockets()`), never from memory it held before.
+**clock:attachments-rebuild-presence** Each socket carries an attachment of at most 1 KB: the account id, the account's username and the character's look, the place, and when it joined. After the object wakes from hibernation it rebuilds the list from the attachments of the sockets still open (`getWebSockets()`), never from memory it held before.
 
 **clock:moving-switches-place-socket** Moving to another place closes the socket to the old place's object and opens one to the new place's. A closed or failed socket leaves the list at once.
 

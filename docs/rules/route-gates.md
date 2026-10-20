@@ -106,7 +106,7 @@ Sign words: `pays-for-cos` "They want you to pay for the certificate." `licensed
 | Transferability, 36 months or more of work with band 60 or 65 | 25 |
 | Transferability, 36 months or more of work with band 70 or more | 50 |
 
-Worked example: Zainab at 25 with a bachelor's, band 7.0 and 18 months in a job scores 110 + 120 + 124 + 25 + 25 = 404. The world's general cut-off starts at 405 and the care cut-off at 370, so she is one point short: three years of work (110 + 120 + 124 + 25 + 50 = 429) clears it, even after the general draws pause (+20). A points overhaul (+15) asks a better band or a master's too. A diploma, band 6.0 and no work (289) reaches neither. Ada at 23 with band 6.5 and no job yet scores 110 + 120 + 92 + 13 = 335.
+Worked example: the developer at 25 with a bachelor's, band 7.0 and 18 months in a job scores 110 + 120 + 124 + 25 + 25 = 404. The world's general cut-off starts at 405 and the care cut-off at 370, so the life is one point short: three years of work (110 + 120 + 124 + 25 + 50 = 429) clears it, even after the general draws pause (+20). A points overhaul (+15) asks a better band or a master's too. A diploma, band 6.0 and no work (289) reaches neither. Ada at 23 with band 6.5 and no job yet scores 110 + 120 + 92 + 13 = 335.
 
 ### Entry: `route.canada-points`
 
@@ -198,7 +198,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | `document.nursing-licence` | document | Never requested: a starting life holds it. Valid 36 months, renewed by `activity.renew-licence` at ₦25,000 |
 | `document.nmcn-verification` | document | wait [6, 12], valid 24, requested by `activity.request-verification` at ₦150,000 (reason `fee-document`), needs 24 months of nursing tenure |
 | `document.eca`, `document.endorsement`, `document.medical` | document | As above |
-| `scenario.ngozi` | scenario | Ngozi Eze, 27 (324), a staff nurse 30 months in (`activity.job-nurse`, ₦180,000), second upper, English 58, care 60, network 25, family means 30, standing 65, wellbeing 50, ₦650,000 bank, ₦30,000 cash, passport 40 months left, nursing licence 30 months left, upkeep ₦120,000, home support ₦40,000 |
+| `scenario.nurse` | scenario | The nurse, 27 (324), a staff nurse 30 months in (`activity.job-nurse`, ₦180,000), second upper, English 58, care 60, network 25, family means 30, standing 65, wellbeing 50, ₦650,000 bank, ₦30,000 cash, passport 40 months left, nursing licence 30 months left, upkeep ₦120,000, home support ₦40,000 |
 
 ## Sources
 
