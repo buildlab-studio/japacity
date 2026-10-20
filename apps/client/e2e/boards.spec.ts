@@ -51,7 +51,7 @@ const BOARDS: Record<string, Answer> = {
 
 test("[city:boards-switch-when-and-who] the four boards behind the two pickers, each with the player's own line, and the joined-week board unseen while it is off", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "pictures at phone size only");
-  const game = start({ scenario: "scenario.ada", content });
+  const game = start({ scenario: "scenario.graduate", content });
   game.grant(1);
   await fakeServer(page, { "GET /api/view": { body: viewReply(game, CLOCK.tick) }, ...BOARDS });
   test.setTimeout(150_000);

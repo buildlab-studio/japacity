@@ -25,9 +25,9 @@ function said(lines: readonly ReportLine[]): string[] {
   return moneyLines(lines).map(({ line, sign }) => `${sign > 0 ? "+" : "-"} ${words(line.key, line.params)}`);
 }
 
-/** Tunde with naira in hand as cash, as the FX man takes it. */
+/** The banker with naira in hand as cash, as the FX man takes it. */
 function withCash(naira: number): Game {
-  const game = newGame("scenario.tunde");
+  const game = newGame("scenario.banker");
   const moved = game.accept({ type: "wallet/move", currency: "NGN", amount: naira, to: "cash" });
   if (!moved.ok) throw new Error("The move to cash was refused.");
   return game;
@@ -91,7 +91,7 @@ describe("the money that changes hands", () => {
   });
 
   test("[world:month-end-results-sheet] [wallet:bank-queue-delays-purchases] [wallet:months-kept-counted] given naira paid in at the bank while its queue holds foreign money back, when each month's money is read, then the naira are told the month they leave and the pounds the month they land, and only the bank's charge counts, as gone the month it is taken, as the wallet counts it", () => {
-    const game = start({ scenario: "scenario.tunde", content, worldAt: queuedWorld });
+    const game = start({ scenario: "scenario.banker", content, worldAt: queuedWorld });
     const paid = 10_000_000;
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: paid, via: "bank" });
     expect(told.ok).toBe(true);
@@ -139,7 +139,7 @@ describe("the money that changes hands", () => {
   });
 
   test("[world:month-end-results-sheet] [activity:now-acts-and-month-acts] given one lotto ticket bought at the kiosk, then three, when the month's money is read, then each is told as lotto tickets, never as going out", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const one = game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" });
     const ticket = content.tuning.luck.ticket;
     expect(said(one.lines)).toEqual([`- A lotto ticket: ${formatMoney(ticket, "NGN")}.`]);
@@ -148,7 +148,7 @@ describe("the money that changes hands", () => {
   });
 
   test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given pounds changed into naira at the bank for a charge that rounds to nothing, when the sheet before it and the month's money tell it, then no charge of £0 is said; a charge of a pound or more still is", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 16_617_500, via: "bank" });
     const nothing = formatMoney(0, "GBP");
     // The confirm sheet before the change.

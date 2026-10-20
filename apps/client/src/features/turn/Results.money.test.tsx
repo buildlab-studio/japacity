@@ -45,7 +45,7 @@ describe("what the results count", () => {
   test("[world:month-end-results-sheet] given a life with no money for its upkeep, when the month ends, then the missed bill is told but what was kept is what really moved", () => {
     // Decision 0013 (home:living-by-hand): at home the living is charged nothing as the month turns, so a bill to miss is made by
     // charging it whole, as the simulation's relief tests do.
-    const game = chargedLivingGame("scenario.ada");
+    const game = chargedLivingGame("scenario.graduate");
     const pocket = game.state.wallet.pockets.NGN;
     applyEffects(game, [
       { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "social" },
@@ -103,7 +103,7 @@ describe("money that never moved the naira", () => {
   });
 
   test("[world:month-end-results-sheet] [obligation:missed-interest-recalls-held-funds] given held funds taken and returned in one month, when the month ends, then neither the locked money nor its return is counted, and what was kept is what really moved", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const before = naira(game);
     const taken = effectLines(game, [{ type: "obligation/open", obligation: "obligation.held-funds", principal: 1_119_311_000 }]);
     expect(taken.some((line) => line.key === "line.wallet.held-funds")).toBe(true);
@@ -118,7 +118,7 @@ describe("money that never moved the naira", () => {
   });
 
   test("[world:month-end-results-sheet] given the NEPA bill paid, when the month's lines are read, then its line says the bill, not money sent to family, and it is counted as money out", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     applyEffects(game, [{ type: "offer/open", offer: "offer.nepa-bill" }]);
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.nepa-bill");
     if (offer === undefined) throw new Error("The NEPA bill did not open.");
@@ -133,10 +133,10 @@ describe("money that never moved the naira", () => {
   });
 });
 
-/** Ada in a world where every month is December, holding a job, so the thirteenth month can open. */
+/** The graduate in a world where every month is December, holding a job, so the thirteenth month can open. */
 function decemberAtHome(): Game {
   const game = start({
-    scenario: "scenario.ada",
+    scenario: "scenario.graduate",
     content,
     worldAt: (tick) => {
       const world = standInWorld("world-1", tick, content);
@@ -166,7 +166,7 @@ describe("money named for what it was", () => {
   });
 
   test("[world:month-end-results-sheet] [world:phone-holds-what-phones-hold] given the savings circle joined, when its months end, then each share reads as the circle, the pot as the circle paying you, and what was kept is what moved", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const circle = openOffer(game, "offer.join-ajo");
     game.accept({ type: "offer/choose", offer: circle.id, choice: "join" });
     const share = content.obligation["obligation.ajo"]?.amount ?? 0;

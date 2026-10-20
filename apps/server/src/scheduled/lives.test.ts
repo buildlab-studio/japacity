@@ -45,7 +45,7 @@ async function account(server: TestServer, id: string, country: string): Promise
 /** A stored life made from a fresh one by `change`, as the store keeps any state it is given; named by its account when `named`. */
 async function storedLife(server: TestServer, owner: string, id: string, change: (state: State) => State, named = true): Promise<void> {
   const current = server.deps.contents.current;
-  const state = change(newState("scenario.tunde", `seed-${id}`, current));
+  const state = change(newState("scenario.banker", `seed-${id}`, current));
   const made = await server.deps.stores.player.create({ id, account: owner, refilledAt: server.deps.now(), content: current.version, start: { base: state }, state });
   if (!made.ok) throw new Error(made.detail);
   if (!named) return;
@@ -137,7 +137,7 @@ describe("the nightly job of lives", () => {
     const server = testServer();
     await account(server, "account.old", "NG");
     const current = server.deps.contents.current;
-    const state = newState("scenario.tunde", "seed-old", current);
+    const state = newState("scenario.banker", "seed-old", current);
     must(await server.deps.stores.player.create({ id: "character-old", account: "account.old", refilledAt: server.deps.now(), content: "m-gone", start: { base: state }, state }));
     must(await server.deps.stores.account.setCharacter("account.old", "character-old"));
     await account(server, "account.tunde", "NG");

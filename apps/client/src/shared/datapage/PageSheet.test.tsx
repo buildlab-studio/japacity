@@ -30,7 +30,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-async function life(scenario: "scenario.ada" | "scenario.prologue", person: Parameters<typeof keepPerson>[0] | null): Promise<GameStore> {
+async function life(scenario: "scenario.graduate" | "scenario.prologue", person: Parameters<typeof keepPerson>[0] | null): Promise<GameStore> {
   if (person !== null) keepPerson(person);
   const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "page-seed", now: () => 0 });
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
@@ -50,14 +50,14 @@ const opener = () => screen.getByRole("button", { name: say("prologue.page.open"
 
 describe("the page from the band", () => {
   test("[prologue:front-door-builds-a-person] given a send-off card kept with its japa type, when the page opens, then the type stands on it by its name; before the send-off there is no such row (decision 0024)", async () => {
-    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.graduate", { look: "person_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
     fireEvent.click(opener());
     expect(document.querySelector("[data-page] [data-field='type']")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("prologue.page.close") }));
     // The gallery keeps the send-off card with the type read at the send-off (decision 0024).
-    localStorage.setItem("japacity.cards", JSON.stringify([{ key: "send-off:1", scenario: "scenario.ada", card: { kind: "send-off", months: 1 }, type: "careful-saver" }]));
+    localStorage.setItem("japacity.cards", JSON.stringify([{ key: "send-off:1", scenario: "scenario.graduate", card: { kind: "send-off", months: 1 }, type: "careful-saver" }]));
     fireEvent.click(opener());
     const field = document.querySelector("[data-page] [data-field='type']");
     expect(field?.textContent).toContain(say("prologue.page.type"));
@@ -66,7 +66,7 @@ describe("the page from the band", () => {
 
 
   test("[prologue:front-door-builds-a-person] given a life with its person kept, then the band shows the name over the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
-    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.graduate", { look: "person_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
     // The name over the age.
@@ -83,7 +83,7 @@ describe("the page from the band", () => {
     // The page's age is the years with their word; the band keeps years and months.
     expect(page.querySelector("[data-field='age']")?.textContent).toBe(`${say("prologue.page.age")}${say("prologue.page.age.years", { years: yearsOf(ageOf(view)) })}`);
     expect(page.querySelector("[data-field='age']")?.textContent).not.toContain(clockWords(view.qualities));
-    expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.ada.kind"));
+    expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.graduate.kind"));
     expect(page.querySelector("[data-field='ready']")?.textContent).toContain(readyWords(view.japacity.percent ?? 0));
     expect(page.querySelector("[data-field='ready']")?.textContent).not.toContain("%");
     expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(lookOf("person_kemi")!.picture);
@@ -95,7 +95,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given the view moving on, then the open page keeps the age current, takes no stamp for the passport, and the visa's round stamp once it is granted", async () => {
-    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.graduate", { look: "person_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
     const view = store.getState().view!;
@@ -129,7 +129,7 @@ describe("the page from the band", () => {
 
   test("[prologue:front-door-builds-a-person] given the family the prologue drew kept on the device, then the band's page prints its means on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
     localStorage.setItem(TRAIL_KEY, JSON.stringify({ draw: { familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, steps: [] }));
-    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.graduate", { look: "person_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
     const view = store.getState().view!;
@@ -144,7 +144,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] [prologue:family-draw-on-first-answer] given a ready life from Enugu, when its page opens from the band, then FROM prints Enugu before FAMILY, as a passport names a place of birth", async () => {
-    const store = await life("scenario.ada", { look: "person_kemi", name: "Morenike", archetype: null });
+    const store = await life("scenario.graduate", { look: "person_kemi", name: "Morenike", archetype: null });
     expect(store.getState().view?.hometown).toBe("hometown.enugu");
     band(store);
     fireEvent.click(opener());

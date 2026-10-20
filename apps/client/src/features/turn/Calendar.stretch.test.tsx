@@ -23,9 +23,9 @@ const CLASS = "activity.learn-tech" as Id<"activity">;
 const PROJECT = "activity.build-portfolio" as Id<"activity">;
 const REST = "activity.rest" as Id<"activity">;
 
-/** Ada with the jobs named held, through the activity kind's own effect. */
-function adaWorking(jobs: Id<"activity">[]): PlayerView {
-  const game = newGame("scenario.ada");
+/** The graduate with the jobs named held, through the activity kind's own effect. */
+function graduateWorking(jobs: Id<"activity">[]): PlayerView {
+  const game = newGame("scenario.graduate");
   applyEffects(
     game,
     jobs.map((job) => ({ type: "activity/start-job", job })),
@@ -40,7 +40,7 @@ function stretchedLine(): string | null {
 describe("the stretched line", () => {
   test("[world:month-passes-as-lived] given work, a side job and a master's course carrying on, when the Calendar shows, then its foot says the day runs work, the reading, then the tutoring", async () => {
     // Decision 0012: the line reads the commitments that carry on; the class done act by act is not one, so it is never planned.
-    const view = adaWorking([TEACHER, TUTORING]);
+    const view = graduateWorking([TEACHER, TUTORING]);
     expect(view.job).toMatchObject({ id: TEACHER, side: TUTORING });
     const { store } = await renderWithView(<Calendar />, view);
     expect(stretchedLine()).toBeNull();
@@ -58,7 +58,7 @@ describe("the stretched line", () => {
   });
 
   test("[world:month-passes-as-lived] given work and two month-acts beside it, when the plan is read, then it stretches; with one, or with rest as the second, it does not", () => {
-    const view = adaWorking([TEACHER]);
+    const view = graduateWorking([TEACHER]);
     // Decision 0012: two commitments that carry on stretch the day; the class and the project done act by act do not.
     expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: PORTFOLIO, param: null }])).toBe("Work, then the reading, then open source. You will be tired.");
     expect(stretchedWords(view, [{ activity: CLASS, param: null }, { activity: PROJECT, param: null }])).toBeNull();
@@ -68,13 +68,13 @@ describe("the stretched line", () => {
   });
 
   test("[world:month-passes-as-lived] given no job, when a side job and two classes are planned, then nothing is said: the stretch is work and two things beside it", () => {
-    const view = adaWorking([TUTORING]);
+    const view = graduateWorking([TUTORING]);
     expect(view.job.id).toBeNull();
     expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: PORTFOLIO, param: null }])).toBeNull();
   });
 
   test("[world:month-passes-as-lived] given a job and a side job and nothing else planned, when the plan is read, then it does not stretch", () => {
-    expect(stretchedWords(adaWorking([TEACHER, TUTORING]), [null])).toBeNull();
+    expect(stretchedWords(graduateWorking([TEACHER, TUTORING]), [null])).toBeNull();
   });
 
   test("[world:month-passes-as-lived] given every month-act that tires, when the stretched line names it, then it has a short name of its own", () => {

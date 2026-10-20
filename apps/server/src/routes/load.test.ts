@@ -24,7 +24,7 @@ function loadServer(config = testConfig({ testing: { testLogin: true, fastClock:
 
 async function warmed(server: TestServer, account: string, months: number): Promise<{ character: string; played: number; v: number }> {
   await call(server, "POST", "/api/load/account", account);
-  await call(server, "POST", "/api/character", account, { scenario: "scenario.tunde" });
+  await call(server, "POST", "/api/character", account, { scenario: "scenario.banker" });
   const named = await call<{ character: string }>(server, "POST", "/api/load/account", account);
   const warm = await call<{ ok: boolean; played: number; v: number }>(server, "POST", `/api/load/warm/${named.body.character}`, null, { months, seed: 3 });
   return { character: named.body.character, played: warm.body.played, v: warm.body.v };
@@ -135,7 +135,7 @@ describe("the load test's routes", () => {
     const { server, counts } = loadServer();
     const made = await warmed(server, "acc-1", 2);
     const before = { ...counts };
-    const refused = await server.deps.stores.player.transact([made.character], () => ({ writes: { characters: [{ id: made.character, append: [], snapshots: [{ character: made.character, v: 0, segment: 0, content: content.version, state: newState("scenario.tunde", "x", content) }] }] }, result: null }));
+    const refused = await server.deps.stores.player.transact([made.character], () => ({ writes: { characters: [{ id: made.character, append: [], snapshots: [{ character: made.character, v: 0, segment: 0, content: content.version, state: newState("scenario.banker", "x", content) }] }] }, result: null }));
     expect(refused.ok).toBe(false);
     expect(counts).toEqual(before);
   });

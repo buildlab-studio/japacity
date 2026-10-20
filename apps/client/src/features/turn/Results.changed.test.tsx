@@ -3,7 +3,7 @@
 // whose band fell by the change could read as money hidden. So each change in the month is said under Kept on its own line, both sides
 // as they were: "Changed ₦806,930 into £561". The side paid in at the bank is what went at the
 // rate, the bank's charge told once on its own line, so Kept plus the changes is the band's move. Played on the real
-// engine, Tunde at home.
+// engine, the banker at home.
 import { content } from "@japacity/content";
 import { int, type Currency, type ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -38,7 +38,7 @@ function shownChanges(): string[] {
 
 describe("the changed-into lines under Kept", () => {
   test("[world:month-end-results-sheet] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with what went at the rate and what came in, in the order made, Kept counts only the bank's charges, and Kept plus the changes is the band's move", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     setPockets(game, { NGN: 200_000_000 });
     const start = held(game, "NGN");
     const atBank = change(game, "NGN", "GBP", 50_000_000, "bank");
@@ -84,7 +84,7 @@ describe("the changed-into lines under Kept", () => {
   });
 
   test("[world:month-end-results-sheet] given a month with no change of money, when the results show, then no changed-into line shows", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     game.endTurn();
     const { store } = await renderWithView(<Results place="Home" />, game.view());
     act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));

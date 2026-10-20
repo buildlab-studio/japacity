@@ -40,7 +40,7 @@ async function pastTheCard(page: Page): Promise<void> {
 
 /** A guest's life past its first chapter, so the early win is in and the first ask is due. */
 function pastFirstChapter(): Answer {
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   const view = game.view();
   // The file's own items, none met yet: the first chapter's items under the file's id would name steps it does not have.

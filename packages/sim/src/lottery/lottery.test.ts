@@ -8,7 +8,7 @@ import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-import { LOTTO, TUNDE } from "../testing/ids";
+import { LOTTO, BANKER } from "../testing/ids";
 
 const tuning = content.tuning.lottery;
 const { odds } = tuning;
@@ -53,7 +53,7 @@ function play(lottery: World["lottery"] = drawOf(7, 1000)): { game: Game; live: 
   const base = standInWorld("world-1", 0, content);
   const live: Live = { lottery };
   const game = start({
-    scenario: TUNDE,
+    scenario: BANKER,
     content,
     worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery: live.lottery, placeNames: {} }),
   });

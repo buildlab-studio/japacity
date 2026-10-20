@@ -17,7 +17,7 @@ describe("Bank, Lately", () => {
   test("[world:phone-holds-what-phones-hold] given a month that paid the living costs and then a danfo fare, when Bank opens, then the living costs show once and the fare shows", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so a month at the family
     // house moves no money for it at all.
-    const byHand = createGameStore(gameAuthority(newGame("scenario.ada")));
+    const byHand = createGameStore(gameAuthority(newGame("scenario.graduate")));
     await byHand.getState().refresh();
     await act(async () => {
       await byHand.getState().endMonth();
@@ -25,7 +25,7 @@ describe("Bank, Lately", () => {
     const lived = byHand.getState().view?.report?.lines ?? [];
     expect(lived.some((line) => line.key === "line.wallet.upkeep" || (line.key === "line.obligation.charged" && line.params.obligation === "obligation.upkeep"))).toBe(false);
     // The once-only listing is tested on a charge that is made: the living charged whole, as the simulation's relief tests do.
-    const game = chargedLivingGame("scenario.ada");
+    const game = chargedLivingGame("scenario.graduate");
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     await act(async () => {

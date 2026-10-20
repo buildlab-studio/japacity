@@ -15,7 +15,7 @@ const ASSISTANCE = content.var["var.ca-assistance"]!.start;
 const MONTHS = content.tuning.undertaking.months;
 
 /**
- * Ada settled in Canada as a resident, sponsoring her spouse: the bond's facts
+ * The graduate settled in Canada as a resident, sponsoring its spouse: the bond's facts
  * hold what the partner's life reports. Upkeep and rent are closed, so only the
  * undertaking asks for Canadian money.
  */

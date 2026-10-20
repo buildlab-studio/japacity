@@ -12,7 +12,7 @@ import { ActivityPicker } from "./ActivityView";
 import { studyMonths, studyWords } from "./study";
 
 function gameWith(english: number) {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   viewAfter(game, [
     { type: "quality/add", quality: "quality.english", amount: english - englishOf(game.view()) },
     { type: "document/grant", document: "document.passport" },

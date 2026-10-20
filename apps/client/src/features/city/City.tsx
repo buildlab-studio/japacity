@@ -73,7 +73,7 @@ import { overheard, speakerOf } from "./overheard";
 import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageFilePath, stageOf } from "../../shared/scene/placeFile";
 import { shotOf, turnsRound } from "./scene/shot";
 import { HOUSE, insideOf, roomOf } from "./acts/room";
-import { personOf, personOfLook } from "../../shared/scene/roster";
+import { personOf } from "../../shared/scene/roster";
 import type { Picked, ScenePick } from "./scene/scene.types";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./acts/school";
 import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, type ViewPlace } from "../../shared/scene/staging";
@@ -124,15 +124,16 @@ function departRoute(view: Pick<PlayerView, "routes" | "place">): Id<"route"> | 
   return (into.find((route) => route.state === "departed") ?? into[0])?.id ?? null;
 }
 /**
- * Who the character is in the send-off scene (chapter:send-off-scene-in-beats): the band's name (the one given at the door, else the life's
- * own), the first name the stub carries, the look and the figure in their own colours (prologue:player-colours-on-looks). Read here, where
+ * Who the character is in the send-off scene (chapter:send-off-scene-in-beats): the band's name (the one given at the door), the first name
+ * the stub carries, the look and the figure in their own colours (prologue:player-colours-on-looks). Read here, where
  * the person kept beside the save is read already, so the scene's own chunk stays apart from the first visit's.
  */
-function sendOffYou(view: { scenario: string }) {
+function sendOffYou() {
   const kept = readPerson();
-  const look = lookOf(kept?.look)?.id ?? lookOf(`person_${view.scenario.slice("scenario.".length)}`)?.id ?? "person_ada";
+  // A ready life has no look of its own (scenario.md): the one built at the door, else the scene's own.
+  const look = lookOf(kept?.look)?.id ?? "person_ada";
   // One name everywhere, the band's (share:card-contents), read from the card's own source.
-  const name = characterName(view.scenario) ?? "";
+  const name = characterName() ?? "";
   return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
 }
 
@@ -355,9 +356,9 @@ function device(): Device {
   };
 }
 
-/** The player's own look: the one built at the front door (prologue:front-door-builds-a-person), else the starting life's person where one is shipped. */
-export function ownFile(scenario: string, kept: string | null = keptLookFile()): string {
-  return (kept === null ? null : personOf(kept)?.file) ?? personOfLook(`person_${scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
+/** The player's own look: the one built at the front door (prologue:front-door-builds-a-person), else the city's own, since a ready life has no person of its own (scenario.md). */
+export function ownFile(kept: string | null = keptLookFile()): string {
+  return (kept === null ? null : personOf(kept)?.file) ?? FALLBACK_OWN;
 }
 
 function entryOf(id: string): PlaceEntry | null {
@@ -830,8 +831,8 @@ export function City({
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
-  // The look is read once a life, not on every frame of the city (prologue:front-door-builds-a-person).
-  const own = useMemo(() => ownFile(view.scenario), [view.scenario]);
+  // The look is read once a life, not on every frame of the city (prologue:front-door-builds-a-person): a new life reads it again.
+  const own = useMemo(() => ownFile(), [view.scenario]);
   // No resident wears the player's own outfit or a dancer's.
   // In the world a place shows at most the crowd its scope allows in the mode; the party keeps its ten (world:place-is-one-screen).
   const crowdEntry = inside && insideEntry !== null ? insideEntry : entry;
@@ -1789,7 +1790,7 @@ export function City({
 
       {world && sendOffShowing ? (
         <Suspense fallback={null}>
-          <SendOffScene you={sendOffYou(view)} game={{ view, busy, send: (command) => send(command).then((reply) => reply?.ok === true), rejection: <Rejection /> }} {...(planeCut === undefined ? {} : { planeCut })} />
+          <SendOffScene you={sendOffYou()} game={{ view, busy, send: (command) => send(command).then((reply) => reply?.ok === true), rejection: <Rejection /> }} {...(planeCut === undefined ? {} : { planeCut })} />
         </Suspense>
       ) : null}
 

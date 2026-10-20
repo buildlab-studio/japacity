@@ -14,7 +14,7 @@ import { standInWorld } from "../world/standIn";
 import { ledgerReport } from "./wallet.report";
 import { EARNED_ONLY, earnedNaira } from "./wallet.logic";
 import { rideFare } from "../place/place.logic";
-import { LOTTO, TUNDE } from "../testing/ids";
+import { LOTTO, BANKER } from "../testing/ids";
 
 const lottery = content.tuning.lottery;
 const luck = content.tuning.luck;
@@ -24,11 +24,11 @@ const TOP_UP = 5_000_000;
 
 const ON_SALE: NonNullable<World["lottery"]> = { draw: 7, closesTick: 1000, onSale: true, fingerprint: "ab".repeat(32), beaconRound: 1007, salesSoFar: 0, jackpot: lottery.odds.jackpotStart, rolledOver: false, odds: lottery.odds, last: null };
 
-/** Tunde at home; with `online` the world runs the Friday draw, without it the kiosk sells its slip. */
-function tunde(online: boolean): Game {
+/** The banker at home; with `online` the world runs the Friday draw, without it the kiosk sells its slip. */
+function banker(online: boolean): Game {
   const base = standInWorld("world-1", 0, content);
   return start({
-    scenario: TUNDE,
+    scenario: BANKER,
     content,
     worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery: online ? ON_SALE : null, placeNames: {} }),
   });
@@ -63,13 +63,13 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] given a life at its start, when the view is read, then nothing is marked and the key is absent", () => {
-    const game = tunde(false);
+    const game = banker(false);
     expect("marked" in game.state.wallet).toBe(false);
     expect(game.view().wallet).toEqual({ marked: 0 });
   });
 
   test("[wallet:top-ups-are-marked] [wallet:large-deposits-record-lots] [wallet:ledger-balances-each-currency] given the authority's top-up, when it lands, then the naira bank is credited under top-up, a lot is recorded for the visa officer, the marked figure rises by the amount and the ledger holds", () => {
-    const game = tunde(false);
+    const game = banker(false);
     const before = game.state.wallet.pockets.NGN;
     const result = game.accept({ type: "wallet/top-up", amount: TOP_UP }, "authority");
     expect(result.events).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: TOP_UP, reason: "top-up" });
@@ -84,7 +84,7 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] given a top-up of 0, below 0 or from a player, when it is sent, then it is refused and nothing moves", () => {
-    const game = tunde(false);
+    const game = banker(false);
     game.expectRejected({ type: "wallet/top-up", amount: 0 }, "bad-amount", "authority");
     game.expectRejected({ type: "wallet/top-up", amount: -1 }, "bad-amount", "authority");
     // server:apologies-never-currency: the engine refuses every authority command from a player as not theirs, before the wallet sees it.
@@ -94,7 +94,7 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] given topped-up naira and earned naira enough for a fare, when the fare is paid, then it comes from the earned share and the marked figure stands", () => {
-    const game = tunde(false);
+    const game = banker(false);
     topUp(game);
     const earned = earnedNaira(game.state.wallet);
     expect(earned).toBeGreaterThan(FARE);
@@ -104,7 +104,7 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] given earned naira short of a fare and topped-up naira beside it, when the fare is paid, then the earned share goes first and the marked figure falls by the difference", () => {
-    const game = tunde(false);
+    const game = banker(false);
     const earned = FARE - 1;
     nairaLeft(game, earned, "cash");
     topUp(game);
@@ -115,7 +115,7 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] given only topped-up naira, when it is all spent, then the marked figure falls to zero and its key is gone", () => {
-    const game = tunde(false);
+    const game = banker(false);
     nairaLeft(game, 0, "cash");
     topUp(game, FARE);
     expect(game.state.wallet.marked).toBe(FARE);
@@ -126,7 +126,7 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] given topped-up naira, when it is moved between the bank and cash and back, then it is the same money: the marked figure stands", () => {
-    const game = tunde(false);
+    const game = banker(false);
     nairaLeft(game, 0, "cash");
     topUp(game);
     game.accept({ type: "wallet/move", currency: "NGN", amount: TOP_UP, to: "cash" });
@@ -135,7 +135,7 @@ describe("the marked figure", () => {
   });
 
   test("[wallet:top-ups-are-marked] [lottery:prizes-never-leave-game] given topped-up naira, when the authority pays a prize, then the prize lands as earned naira and the marked figure stands", () => {
-    const game = tunde(true);
+    const game = banker(true);
     topUp(game);
     const earned = earnedNaira(game.state.wallet);
     game.accept({ type: "lottery/pay", draw: ON_SALE.draw, prizes: [{ tier: "small", amount: lottery.odds.small }] }, "authority");
@@ -150,7 +150,7 @@ describe("the marked figure", () => {
 
 describe("a ticket is bought with earned naira", () => {
   test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given topped-up naira and earned naira enough for a ticket, when a Friday ticket is bought, then it is paid from the earned share and the marked figure is unchanged", () => {
-    const game = tunde(true);
+    const game = banker(true);
     topUp(game);
     const bank = game.state.wallet.pockets.NGN.bank;
     const earned = earnedNaira(game.state.wallet);
@@ -161,7 +161,7 @@ describe("a ticket is bought with earned naira", () => {
   });
 
   test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given earned naira one kobo short of a ticket and topped-up naira that would cover it, when a Friday ticket is bought, then it is refused with cannot-afford and the detail says tickets come from money earned; at the price it sells", () => {
-    const game = tunde(true);
+    const game = banker(true);
     nairaLeft(game, lottery.ticket - 1, "bank");
     topUp(game);
     const naira = game.state.wallet.pockets.NGN;
@@ -178,7 +178,7 @@ describe("a ticket is bought with earned naira", () => {
   });
 
   test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given the whole balance marked, when a Friday ticket is bought, then it is refused with the earned-only detail and none is offered", () => {
-    const game = tunde(true);
+    const game = banker(true);
     nairaLeft(game, 0, "bank");
     topUp(game);
     expect(earnedNaira(game.state.wallet)).toBe(0);
@@ -187,7 +187,7 @@ describe("a ticket is bought with earned naira", () => {
   });
 
   test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] [luck:kiosk-sells-lotto-tickets] given the whole balance marked, when the kiosk's slip is bought, then it is refused with the earned-only detail, the view shows it unaffordable and nothing is paid", () => {
-    const game = tunde(false);
+    const game = banker(false);
     nairaLeft(game, 0, "cash");
     topUp(game);
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ affordable: false });
@@ -197,7 +197,7 @@ describe("a ticket is bought with earned naira", () => {
   });
 
   test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] [luck:kiosk-sells-lotto-tickets] given topped-up naira and earned naira enough for a slip, when the kiosk's slip is bought, then it is paid from the earned share and the marked figure is unchanged", () => {
-    const game = tunde(false);
+    const game = banker(false);
     topUp(game);
     const earned = earnedNaira(game.state.wallet);
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ affordable: true });
@@ -209,7 +209,7 @@ describe("a ticket is bought with earned naira", () => {
 
 describe("the ledger report and the top-up", () => {
   test("[wallet:top-ups-are-marked] [wallet:ledger-report-raises-alarms] given a top-up, when the report is made with no receipts, then the top-up names the account; with receipts that match it, nothing does; one kobo under them names it again", () => {
-    const game = tunde(false);
+    const game = banker(false);
     expect(ledgerReport(game.state, content).suspect).toBe(false);
     topUp(game);
     const alone = ledgerReport(game.state, content);

@@ -35,7 +35,7 @@ export function roleProblems(people: readonly NamedPerson[]): string[] {
   const held = new Map<string, number>();
   for (const person of people) {
     if (takingRoles.includes(person.role)) taking.set(person.people, [...(taking.get(person.people) ?? []), `${person.name} (${person.role})`]);
-    if (person.role === "life" || person.role === "relative") continue;
+    if (person.role === "relative") continue;
     byRole.set(person.role, (byRole.get(person.role) ?? new Set()).add(person.people));
     held.set(person.role, (held.get(person.role) ?? 0) + 1);
   }

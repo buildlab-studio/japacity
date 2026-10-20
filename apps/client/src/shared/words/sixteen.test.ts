@@ -44,7 +44,7 @@ describe("the path the life from sixteen took", () => {
   });
 
   test("[prologue:view-shows-step-card] given a fixed life, when its path is read, then it has none", () => {
-    expect(sixteenPath(newGame("scenario.ada").view())).toBeNull();
+    expect(sixteenPath(newGame("scenario.graduate").view())).toBeNull();
   });
 });
 

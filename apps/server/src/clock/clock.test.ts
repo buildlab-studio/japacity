@@ -15,7 +15,7 @@ const clock = turnClock(productionConfig, cap);
 
 /** A state with `banked` turns in the bank. */
 function banked(count: number) {
-  const state = newState("scenario.ada", "clock-seed", content);
+  const state = newState("scenario.graduate", "clock-seed", content);
   return { ...state, turn: { ...state.turn, banked: count } };
 }
 

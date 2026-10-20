@@ -1,6 +1,6 @@
 // The world after the flight (world:top-band-is-lively-pill, world:map-is-painted-lagos, world:one-country-at-a-time, world:street-talk-budget): the band in the
 // country's money, the talk of the places abroad, and the map abroad as its list of stops. The scene
-// itself needs WebGL and is not drawn here; Ada's recorded life is flown and landed in London.
+// itself needs WebGL and is not drawn here; the graduate's recorded life is flown and landed in London.
 import { fireEvent, screen } from "@testing-library/react";
 import type { PlayerView } from "@japacity/sim";
 import { setPockets } from "@japacity/sim/testing";
@@ -12,7 +12,7 @@ import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { City, type CityMapSlot } from "./City";
 
-/** Ada in the room abroad, with pounds in the bank and the naira still at home. */
+/** The graduate in the room abroad, with pounds in the bank and the naira still at home. */
 function landed(): PlayerView {
   const game = abroadGame();
   setPockets(game, { GBP: 74_600 });
@@ -28,7 +28,7 @@ function band(): HTMLElement {
 }
 
 describe("the band abroad", () => {
-  test("[world:top-band-is-lively-pill] given Ada landed in London with pounds and naira, when the world shows, then the band counts her pounds and not the naira", async () => {
+  test("[world:top-band-is-lively-pill] given the graduate landed in London with pounds and naira, when the world shows, then the band counts its pounds and not the naira", async () => {
     const view = landed();
     expect(view.pockets.NGN.bank).toBeGreaterThan(0);
     await renderWithView(world(), view);
@@ -40,7 +40,7 @@ describe("the band abroad", () => {
 });
 
 describe("the map abroad", () => {
-  test("[world:map-is-painted-lagos] [world:one-country-at-a-time] given Ada in London, when the map opens, then it lists the country's stops with the room as home, the other countries are shut for want of a visa, and only Lagos is not in this life yet", async () => {
+  test("[world:map-is-painted-lagos] [world:one-country-at-a-time] given the graduate in London, when the map opens, then it lists the country's stops with the room as home, the other countries are shut for want of a visa, and only Lagos is not in this life yet", async () => {
     let handed: CityMapSlot | null = null;
     await renderWithView(
       world({

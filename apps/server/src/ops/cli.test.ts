@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { rollbackCli } from "./cli";
 import { life } from "./ops.testing";
 
-const SAVE = life("tunde-borrower");
+const SAVE = life("banker-borrower");
 const read = (text: string) => () => Promise.resolve(text);
 
 describe("the rollback command line", () => {

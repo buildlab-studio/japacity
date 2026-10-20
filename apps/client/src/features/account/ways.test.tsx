@@ -4,11 +4,12 @@
 import type { AccountView } from "@japacity/api";
 import type { PlayerView } from "@japacity/sim";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { pageOf } from "../../shared/datapage/PageSheet";
+import { keepPerson } from "../../shared/frontdoor/person";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
@@ -72,6 +73,10 @@ async function mount(account: AccountApi, ui: React.ReactElement, view: PlayerVi
 }
 
 const toast = () => document.querySelector<HTMLElement>("[data-way-toast]");
+
+afterEach(() => {
+  localStorage.clear();
+});
 
 describe("the kept life says so (account:guest-secures-the-life)", () => {
   test("[account:guest-secures-the-life] given the trip to Google came back having kept the guest's life, then the keeping sheet opens in its kept state, the account is read again, and as it closes the world says Kept with Google", async () => {
@@ -144,6 +149,7 @@ describe("Settings names the ways in (account:guest-reminded-to-secure, account:
   });
 
   test("[account:username-and-unconfirmed-email] given a life with a name, then the account's sheet shows the username and the name as two labelled rows", async () => {
+    keepPerson({ look: "person_ada", name: "Adaeze", archetype: null });
     const view = engineView();
     const name = pageOf(view).name;
     expect(name).not.toBe("");
@@ -169,8 +175,10 @@ describe("Settings names the ways in (account:guest-reminded-to-secure, account:
 
 describe("the account's row at the head of Settings", () => {
   test("[account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given a kept life, then the account is one button whose name holds the name, the username and the way it is kept, and a tap opens the account's sheet", async () => {
+    keepPerson({ look: "person_ada", name: "Adaeze", archetype: null });
     const view = engineView();
     const name = pageOf(view).name;
+    expect(name).toBe("Adaeze");
     const account = fakeAccount(me("secured", { google: "ada.g@example.com", email: "ada.g@example.com", passkeys: 0 }));
     await mount(account, <AccountButton />, view);
     const row = await screen.findByRole("button", { name: new RegExp(`${name}.*@ada_lagos.*Kept with Google as ada.g@example\\.com`) });

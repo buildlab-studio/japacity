@@ -18,9 +18,9 @@ import { PhoneApps } from "../PhoneApps";
 import { Bank, bankLimit, latelyMoney } from "./Bank";
 import { sent } from "../phone.testing";
 
-/** Tunde at home with ₦2,110,450 in the bank. */
+/** The banker at home with ₦2,110,450 in the bank. */
 function heldAtHome() {
-  const game = newGame("scenario.tunde");
+  const game = newGame("scenario.banker");
   setPockets(game, { NGN: 211_045_000 });
   return game;
 }
@@ -74,7 +74,7 @@ describe("the Bank's change at home, within the month's limit", () => {
   });
 
   test("[wallet:monthly-fx-allowance] given a pocket whose quarter fits the limit, when the change opens, then the limit comes first, the quarter stays the one picked, and only shares under the limit are offered", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const limit = bankLimit(game.view(), "NGN", "GBP")!;
     // A pocket three times the limit: a quarter fits, a half and all of it do not.
     setPockets(game, { NGN: limit * 3 });
@@ -84,7 +84,7 @@ describe("the Bank's change at home, within the month's limit", () => {
   });
 
   test("[wallet:aboki-trades-at-street-rate] given the FX man, when the change opens, then no limit is said and every share is offered", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     setPockets(game, { NGN: 211_045_000 });
     game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_000, to: "cash" });
     await renderWithView(<Bank opening="change" />, game.view());

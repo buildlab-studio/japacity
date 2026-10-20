@@ -6,7 +6,7 @@
 // Two recordings per life: the first ends on the flight; the second, named
 // `<life>-abroad`, is a careful player's own life that carries on 36 months
 // abroad on a status it renews, and ends with a return home by choice.
-// Names given on the command line (`pnpm record:lives ada-abroad`)
+// Names given on the command line (`pnpm record:lives graduate-abroad`)
 // record only those and keep every other recording as it is.
 //
 // The simulated lives played beside the goldens (SIMULATED) are recorded into
@@ -23,26 +23,26 @@ import { REPO_ROOT } from "../repo";
 
 const WORLD = "golden-world";
 const WANTED: { name: string; life: Id<"scenario">; strategy: StrategyName; refusedFirst: boolean }[] = [
-  { name: "ada-careful", life: "scenario.ada", strategy: "careful", refusedFirst: false },
-  { name: "tunde-borrower", life: "scenario.tunde", strategy: "borrower", refusedFirst: true },
-  { name: "zainab-remote", life: "scenario.zainab", strategy: "risky", refusedFirst: false },
+  { name: "graduate-careful", life: "scenario.graduate", strategy: "careful", refusedFirst: false },
+  { name: "banker-borrower", life: "scenario.banker", strategy: "borrower", refusedFirst: true },
+  { name: "developer-remote", life: "scenario.developer", strategy: "risky", refusedFirst: false },
 ];
 /** The simulated lives played beside the goldens. */
-const SIMULATED: (typeof WANTED)[number][] = [{ name: "aniekan-borrower", life: "scenario.aniekan", strategy: "borrower", refusedFirst: false }];
+const SIMULATED: (typeof WANTED)[number][] = [{ name: "teacher-borrower", life: "scenario.teacher", strategy: "borrower", refusedFirst: false }];
 const ABROAD: { name: string; life: Id<"scenario"> }[] = [
-  { name: "ada-abroad", life: "scenario.ada" },
-  { name: "tunde-abroad", life: "scenario.tunde" },
-  { name: "zainab-abroad", life: "scenario.zainab" },
+  { name: "graduate-abroad", life: "scenario.graduate" },
+  { name: "banker-abroad", life: "scenario.banker" },
+  { name: "developer-abroad", life: "scenario.developer" },
 ];
 
 /**
- * One life per country beyond the UK (design page 11 section 7; `pnpm record:lives zainab-canada tunde-gulf`):
+ * One life per country beyond the UK (design page 11 section 7; `pnpm record:lives developer-canada banker-gulf`):
  * the strategy that takes that route, played on until some months after the landing, and cut there; no return. They go to
  * packages/sim/src/simulated-play/lives.countries.data.ts and are replayed by their own test, never blessed into the goldens.
  */
 const COUNTRIES: { name: string; life: Id<"scenario">; strategy: StrategyName; country: Id<"country">; route: Id<"route"> }[] = [
-  { name: "tunde-gulf", life: "scenario.tunde", strategy: "borrower", country: "country.uae", route: "route.gulf-contract" },
-  { name: "zainab-canada", life: "scenario.zainab", strategy: "canada", country: "country.canada", route: "route.canada-points" },
+  { name: "banker-gulf", life: "scenario.banker", strategy: "borrower", country: "country.uae", route: "route.gulf-contract" },
+  { name: "developer-canada", life: "scenario.developer", strategy: "canada", country: "country.canada", route: "route.canada-points" },
   // Italy has no life here: the `road` strategy's journey starts too late to land within the recording.
 ];
 /** The months a country's life carries on after the landing before its save is cut. */
@@ -80,7 +80,7 @@ function pick(want: (typeof WANTED)[number]): { seed: string; save: FlatSave; de
  * `return/home` added.
  */
 function pickAbroad(want: (typeof ABROAD)[number]): { seed: string; save: FlatSave; departed: number } {
-  for (let n = 0; n < 200; n += 1) {
+  for (let n = FROM; n < FROM + 200; n += 1) {
     const seed = `golden-${want.life.slice("scenario.".length)}-abroad-${String(n)}`;
     const { record, game } = runLife("careful", want.life, seed, content, { months: 100, worldSeed: WORLD, keepSave: true });
     if (record.departed === null || record.months < record.departed + MONTHS_ABROAD) continue;
@@ -109,7 +109,7 @@ function pickAbroad(want: (typeof ABROAD)[number]): { seed: string; save: FlatSa
 }
 
 function pickCountry(want: (typeof COUNTRIES)[number]): { seed: string; save: FlatSave; departed: number } {
-  for (let n = 0; n < 300; n += 1) {
+  for (let n = FROM; n < FROM + 300; n += 1) {
     const seed = `golden-${want.life.slice("scenario.".length)}-${want.country.slice("country.".length)}-${String(n)}`;
     const { record, game } = runLife(want.strategy, want.life, seed, content, { months: 100, worldSeed: WORLD, keepSave: true });
     if (record.departed === null || record.flown !== want.route || record.months < record.departed + MONTHS_IN_COUNTRY) continue;

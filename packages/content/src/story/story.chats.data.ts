@@ -135,13 +135,13 @@ export function chatsDue(view: StoryView, content: Content): ChatLine[] {
 }
 
 /**
- * Each fixed life's sibling, named from the pool and the life's own people. The prologue's
+ * Each ready life's sibling, named from the pool and the family's people (familyPeople in person.names.data.ts). The prologue's
  * life has no fixed family, so its sibling goes by relation (`chats.from.sibling.plain`).
  */
 export const siblingNames: Partial<Record<Id<"scenario">, string>> = {
-  "scenario.ada": "Uche",
-  "scenario.tunde": "Tolu",
-  "scenario.zainab": "Amina",
-  "scenario.ngozi": "Emeka",
-  "scenario.aniekan": "Mfon",
+  "scenario.graduate": "Uche",
+  "scenario.banker": "Tolu",
+  "scenario.developer": "Amina",
+  "scenario.nurse": "Emeka",
+  "scenario.teacher": "Mfon",
 };

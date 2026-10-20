@@ -64,7 +64,7 @@ describe("the ask card's money", () => {
   });
 
   test("[world:one-action-one-sheet] given a game with naira in the bank and only a little cash, when the world's ask opens with only cash passed, then what is left counts the bank and the cash", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const cost = view.pockets.NGN.cash + 100_000;
     await renderWithView(<AskSheet ask={askOf("card", cost)} have={view.pockets.NGN.cash} formatMoney={money} />, view);
     expect(main().disabled).toBe(false);
@@ -72,7 +72,7 @@ describe("the ask card's money", () => {
   });
 
   test("[world:one-action-one-sheet] given a plan that already pays for something, when an ask opens, then what is left is after the plan, and a cost the plan leaves too little for is shut as short", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const planned = paidOption(view);
     const tooMuch = naira(view) - planned.amount + 1;
     const { store } = await renderWithView(<AskSheet ask={askOf("card", tooMuch)} formatMoney={money} />, view);
@@ -86,7 +86,7 @@ describe("the ask card's money", () => {
   });
 
   test("[world:one-action-one-sheet] given a phone ask whose money the app counted itself (held funds), when it opens inside a game, then that figure is the one used", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     await renderWithView(<AskSheet ask={askOf("slip", 1_000)} from={500} formatMoney={money} />, view);
     expect(main().disabled).toBe(true);
     expect(document.querySelector("[data-ask-after]")?.textContent).toContain(money(500, "NGN"));

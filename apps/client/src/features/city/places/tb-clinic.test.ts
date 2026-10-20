@@ -22,7 +22,7 @@ function noticeActs(view: PlayerView): string[] {
 
 describe("the clinic's jobs notice", () => {
   test("[prologue:archetype-presets-answers] given a life with the care a staff nurse needs, when the clinic's things are read, then the jobs notice offers the staff nurse's job, standing on the floor by the back wall", () => {
-    const view = viewAfter(newGame("scenario.ada"), [{ type: "quality/add", quality: "quality.care", amount: 60 }]);
+    const view = viewAfter(newGame("scenario.graduate"), [{ type: "quality/add", quality: "quality.care", amount: 60 }]);
     expect(noticeActs(view)).toEqual([NURSE_JOB]);
     const notice = (stage.things ?? []).find((thing) => thing.id === "jobs-notice")!;
     expect(cityWords(notice.label)).toBe("Jobs notice");
@@ -31,6 +31,6 @@ describe("the clinic's jobs notice", () => {
   });
 
   test("[prologue:archetype-presets-answers] given a life without that care, when the clinic's things are read, then the notice offers nothing", () => {
-    expect(noticeActs(newGame("scenario.ada").view())).toEqual([]);
+    expect(noticeActs(newGame("scenario.graduate").view())).toEqual([]);
   });
 });

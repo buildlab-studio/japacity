@@ -57,7 +57,7 @@ describe("what is coming", () => {
   });
 
   test("[document:paper-on-its-way] given a held passport with a new copy requested, when the list is read, then the new copy is on it at the month the engine says it is due", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const view = viewAfter(game, [{ type: "document/request", document: "document.passport" }]);
     const passport = view.documents.find((paper) => paper.id === "document.passport");
     expect(passport?.state).toBe("held");
@@ -80,7 +80,7 @@ describe("what is coming", () => {
     expect(comingOf(aged(6, "unknown")).find((item) => item.kind === "age-limit")).toBeUndefined();
   });
 
-  test("[home:compound-room-is-a-home] given Ada in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
+  test("[home:compound-room-is-a-home] given the graduate in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });

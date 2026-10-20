@@ -48,7 +48,7 @@ function main(): HTMLElement {
   return found;
 }
 
-/** Tunde's rich view with a job offer open, a job held and the Friday draw with a result. */
+/** The banker's rich view with a job offer open, a job held and the Friday draw with a result. */
 function busyView(): PlayerView {
   const base = richView();
   const odds = content.tuning.lottery.odds;

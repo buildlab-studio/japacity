@@ -32,7 +32,7 @@ function developer(): ReturnType<typeof newGame> {
 }
 
 describe("Saved for the move on the results and the Bank", () => {
-  test("[world:phone-holds-what-phones-hold] given the developer who hears of the talent visa at the meetup in his first month, when the month's results and the Bank are read before the official page, then both say the same figure toward the move", async () => {
+  test("[world:phone-holds-what-phones-hold] given the developer who hears of the talent visa at the meetup in its first month, when the month's results and the Bank are read before the official page, then both say the same figure toward the move", async () => {
     const game = developer();
     game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
     game.endTurn([]);

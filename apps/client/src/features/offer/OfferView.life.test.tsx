@@ -10,19 +10,19 @@ import { OfferView } from "./OfferView";
 import { moneyTerms, offerParams } from "./terms";
 
 /**
- * How far back in Ada's recorded life a school's offer is held while the study window is open. With its
+ * How far back in the graduate's recorded life a school's offer is held while the study window is open. With its
  * now-acts sent at once (activity:now-acts-and-month-acts), the offer is held 103 to 121 commands back; the middle is taken.
  */
 /** The first cut of the recording, counted from its end, at which the scholarship round can open with a school's offer held: found, since the recording moves as content does. */
 function scholarshipDrop(): number {
-  const save = recordedSave("ada-careful");
+  const save = recordedSave("graduate-careful");
   for (let drop = 1; drop < save.commands.length; drop += 1) {
-    const game = recordedGame("ada-careful", drop);
+    const game = recordedGame("graduate-careful", drop);
     if (!game.view().routes.some((route) => route.schools.some((school) => school.state === "offer"))) continue;
     const opened = viewAfter(game, [{ type: "offer/open", offer: "offer.scholarship-round" }]).offers.some((item) => item.entry === "offer.scholarship-round");
     if (opened) return drop;
   }
-  throw new Error("No cut of Ada's life opens the scholarship round with a school's offer held.");
+  throw new Error("No cut of the graduate's life opens the scholarship round with a school's offer held.");
 }
 const SCHOLARSHIP_DROP = scholarshipDrop();
 
@@ -39,7 +39,7 @@ function expectClean(card: HTMLElement): void {
 }
 
 describe("the luck offers and the offers abroad, from the engine", () => {
-  test("[luck:whip-round-once-per-life] given the whip-round opened for Ada, then its words and both choices show, and what it pays is money in naira", async () => {
+  test("[luck:whip-round-once-per-life] given the whip-round opened for the graduate, then its words and both choices show, and what it pays is money in naira", async () => {
     const game = newGame();
     const offer = openOffer(game, "offer.whip-round");
     expect(moneyTerms("offer.whip-round").get("rescue")).toBe("NGN");
@@ -82,8 +82,8 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     expect(within(cardOf("offer.roof")).getAllByRole("button")[0]!.hasAttribute("data-reply-main")).toBe(true);
   });
 
-  test("[luck:japa-luck-in-existing-systems] given the scholarship round on Ada's life with a school's offer held, then it shows in content's words with nothing to pay", async () => {
-    const game = recordedGame("ada-careful", SCHOLARSHIP_DROP);
+  test("[luck:japa-luck-in-existing-systems] given the scholarship round on the graduate's life with a school's offer held, then it shows in content's words with nothing to pay", async () => {
+    const game = recordedGame("graduate-careful", SCHOLARSHIP_DROP);
     const offer = openOffer(game, "offer.scholarship-round");
     await renderWithView(<OfferView />, game.view());
     const card = cardOf("offer.scholarship-round");
@@ -93,7 +93,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
   });
 
   test("[abroad-money:family-asks-more-abroad] given a family request opened abroad, then {cost} fills from the item's own terms, scaled for a relative abroad, in naira", async () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     const offer = openOffer(game, "offer.roof");
     const home = content.offer["offer.roof"]!.terms.cost as number;
     expect(offer.terms.cost).toBeGreaterThan(home);

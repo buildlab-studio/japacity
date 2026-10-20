@@ -21,14 +21,14 @@ const CARE: Id<"route"> = "route.uk-care";
 const LOOK = "activity.look-into-route";
 
 function nurseOnCare(): Game {
-  const game = newGame("scenario.ngozi");
+  const game = newGame("scenario.nurse");
   for (let month = 0; month < 8 && game.state.route[CARE]?.state === "unknown"; month += 1) game.endTurn();
   game.endTurn([slot(LOOK, CARE)]);
   return game;
 }
 
 describe("the plan in Japa's head", () => {
-  test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given the nurse who heard of care and the master's, when she has read the care page, then Japa's head says her plan is health care with the care file beneath", async () => {
+  test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given the nurse who heard of care and the master's, when it has read the care page, then Japa's head says its plan is health care with the care file beneath", async () => {
     const game = nurseOnCare();
     await renderWithView(<Japa />, game.view());
     const head = document.querySelector<HTMLElement>("[data-japa-head]");
@@ -38,7 +38,7 @@ describe("the plan in Japa's head", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given a life that has heard of no way out, when Japa shows, then its head says there is no plan yet and names no file", async () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     expect(view.plan.route).toBeNull();
     await renderWithView(<Japa />, view);
     expect(document.querySelector("[data-japa-head]")?.textContent).toContain("No plan yet");
@@ -63,7 +63,7 @@ describe("the other ways in Japa", () => {
     expect(document.querySelector("[data-japa-head]")).not.toBeNull();
   });
 
-  test("[chapter:chapters-follow-lean-route] given the nurse on care, when she makes the master's the plan from its page, then Japa's head names the master's and its file, and the file after care's is the master's decision day", async () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse on care, when it makes the master's the plan from its page, then Japa's head names the master's and its file, and the file after care's is the master's decision day", async () => {
     const game = nurseOnCare();
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
@@ -115,7 +115,7 @@ describe("the official page follows the plan", () => {
 
 describe("the plan's marks", () => {
   test("[chapter:chapters-follow-lean-route] [world:top-band-is-lively-pill] given the master's the plan with a school's answer due, when the marks are read, then the answer is one with its month, and Japa's Coming up says it as months away", async () => {
-    // Ada with her papers in hand, so the application goes in the month after she reads the page.
+    // The graduate with its papers in hand, so the application goes in the month after it reads the page.
     const game = readyLife(content);
     toKnown(game);
     // The application goes in at once (activity:now-acts-and-month-acts) and the school's answer is due with the month, so the marks are read before it ends.

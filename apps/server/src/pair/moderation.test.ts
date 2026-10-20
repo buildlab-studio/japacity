@@ -208,7 +208,7 @@ describe("the cite form of a report", () => {
 
   test("[moderation:report-from-every-surface] [moderation:report-carries-subject-and-reason] given an invite card, when a player who saw it reports it citing only the card, then the report names the inviter's account, found from the code, and holds no pair", async () => {
     const server = pairServer();
-    await newLife(server, INVITER, "scenario.ada");
+    await newLife(server, INVITER, "scenario.graduate");
     const code = await cardOut(server);
     await signUp(server, REPORTER);
 
@@ -219,7 +219,7 @@ describe("the cite form of a report", () => {
 
   test("[moderation:report-carries-subject-and-reason] given a card report, when the code is unknown, the inviter reports their own card, or the body names another subject, then an unknown or own card is refused and the inviter is still the subject", async () => {
     const server = pairServer();
-    await newLife(server, INVITER, "scenario.ada");
+    await newLife(server, INVITER, "scenario.graduate");
     const code = await cardOut(server);
     await signUp(server, REPORTER);
 

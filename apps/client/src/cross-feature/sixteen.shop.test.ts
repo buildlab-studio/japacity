@@ -86,9 +86,9 @@ describe("the trader's way to her own shop", () => {
     expect(text[ownWords(view, `${FIRST_CHAPTER}.item.job`)]).toBe("Open the shop with the settlement");
     expect(text[`${FIRST_CHAPTER}.item.job.nudge.shop`]).toBeDefined();
 
-    const graduate = newGame("scenario.ada").view();
+    const graduate = newGame("scenario.graduate").view();
     expect(ownWords(graduate, `${FIRST_CHAPTER}.item.job`)).toBe(`${FIRST_CHAPTER}.item.job`);
-    expect(openingKey(graduate)).toBe(`${FIRST_CHAPTER}.open.ada`);
+    expect(openingKey(graduate)).toBe(`${FIRST_CHAPTER}.open.graduate`);
   });
 
   test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] given a shop worker from the tile, with no settlement, when her first chapter is read, then it never says the service year and never offers a shop", () => {

@@ -64,8 +64,8 @@ describe("the socket on the production readers", () => {
   test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given two characters at home, when one opens the socket on the hub the client sends, then it is let in and the other's presence fetch shows it by name and look; a socket on another place is refused", async () => {
     const rooms = freshRooms();
     const server = testServer({ stores: { ...memoryStores(), presence: placePresenceStore(rooms) } });
-    await newLife(server, "account-a", "scenario.ada");
-    await newLife(server, "account-b", "scenario.tunde");
+    await newLife(server, "account-a", "scenario.graduate");
+    await newLife(server, "account-b", "scenario.banker");
     const app = makeApp(server.deps).route("/", placeSocketRoutes(server.deps, { rooms, placeOf: placeOfIn(server.deps), profileOf: profileOfIn(server.deps, text) }));
     const headers = (account: string, upgrade: boolean): Record<string, string> => ({ "x-test-account": account, "cf-ipcountry": "NG", ...(upgrade ? { upgrade: "websocket" } : {}) });
 
@@ -82,7 +82,8 @@ describe("the socket on the production readers", () => {
     await until(async () => ((await roomCounts(rooms, "place.ojuelegba"))[0] ?? 0) === 1, "the socket to join the room");
 
     const fetched = await (await app.request("/api/place/place.ojuelegba", { headers: headers("account-b", false) })).json<PresenceReply>();
-    expect(fetched.others).toEqual([{ name: text["share.first-name.scenario.ada"], look: "scenario.ada" }]);
+    // A ready life has no name of its own in content (scenario.md), so the scenario's stand-in name is empty.
+    expect(fetched.others).toEqual([{ name: "", look: "scenario.graduate" }]);
     end.close();
   });
 });

@@ -1,5 +1,5 @@
-// A change of money on the results (world:month-end-results-sheet, wallet:bank-converts-at-official-rate): in Ada's second month
-// abroad the dollars she changes into pounds are on the results, and the pounds that come in never read as money kept.
+// A change of money on the results (world:month-end-results-sheet, wallet:bank-converts-at-official-rate): in the graduate's second month
+// abroad the dollars it changes into pounds are on the results, and the pounds that come in never read as money kept.
 // The change is one line with both sides in its words. A change counts for nothing in what was kept, either way
 // (decision 0024): changing money is a move, not spending, and only the bank's charge stays money out, as the wallet
 // counts the month (wallet:months-kept-counted). The charge is told once, on its own line, and the change's paid side is what went at the rate, so Kept plus the change
@@ -16,9 +16,9 @@ import { CHANGED, CHANGED_OUT, changesInto, kept, moneyLines } from "./month.res
 
 const CHARGE = content.tuning.wallet.bankChargeBp;
 
-/** Ada landed in London, a change made at the bank, then the month ended: the lines the results read. */
+/** The graduate landed in London, a change made at the bank, then the month ended: the lines the results read. */
 function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine[]; paid: number; charge: number; received: number; band: { changed: number; ended: number } } {
-  const game = recordedGame("ada-careful");
+  const game = recordedGame("graduate-careful");
   const pounds = (): number => game.view().pockets.GBP.bank + game.view().pockets.GBP.cash;
   const paid = amount(game.view().pockets.USD.bank);
   const poundsBefore = game.view().pockets.GBP.bank;
@@ -31,7 +31,7 @@ function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine
 }
 
 describe("a change of money on the results", () => {
-  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given a quarter of the graduate's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
     const { lines, paid, charge, received } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const money = moneyLines(lines);
     const changes = money.filter((entry) => entry.line.key === CHANGED);
@@ -80,7 +80,7 @@ describe("a change of money on the results", () => {
   });
 
   test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] [wallet:months-kept-counted] given naira changed into pounds at the bank at home, when what was kept is counted, then the naira count only the bank's charge as gone, and the pounds that came in are told on their own line and kept as nothing", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const naira = (): number => game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
     const before = naira();
     const paid = 10_000_000;
@@ -129,9 +129,9 @@ describe("a change of money on the results", () => {
   });
 
   test("[wallet:months-kept-counted] [world:month-end-results-sheet] given a month abroad with a change at the bank, and a month at home with one, when each month closes, then the results' kept figure in the money of the place is the net the wallet counts the month by", () => {
-    const abroad = recordedGame("ada-careful");
+    const abroad = recordedGame("graduate-careful");
     const local = (game: ReturnType<typeof newGame>): "GBP" | "NGN" => (game.state.place.where === "abroad" ? "GBP" : "NGN");
-    const home = newGame("scenario.tunde");
+    const home = newGame("scenario.banker");
     for (const [game, change] of [
       [abroad, { type: "wallet/convert", from: "USD", to: "GBP", amount: Math.floor(abroad.view().pockets.USD.bank / 4 / 100) * 100, via: "bank" }],
       [home, { type: "wallet/convert", from: "NGN", to: "GBP", amount: 10_000_000, via: "bank" }],
@@ -148,7 +148,7 @@ describe("a change of money on the results", () => {
   });
 
   test("[world:month-end-results-sheet] [abroad-money:remit-sends-money-home] given pounds sent home by app, when the month's money is read, then the pounds count as money out and the naira as landed at home, never both as sent", () => {
-    const game = recordedGame("ada-careful");
+    const game = recordedGame("graduate-careful");
     const pounds = game.view().pockets.GBP.bank;
     const sent = Math.floor(pounds / 2 / 100) * 100;
     const nairaBefore = game.view().pockets.NGN.bank;

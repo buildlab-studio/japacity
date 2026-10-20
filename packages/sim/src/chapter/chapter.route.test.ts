@@ -27,15 +27,15 @@ function closedTo(result: { events: { type: string }[] }): unknown {
 }
 
 describe("the file follows the lean", () => {
-  test("[chapter:chapters-follow-lean-route] given a nurse who has heard of the master's and of health care, when she reads the care page first and the first chapter closes, then the care file stands in for the file, with its own items and the months on the ward already ticked", () => {
-    const game = life("scenario.ngozi");
+  test("[chapter:chapters-follow-lean-route] given a nurse who has heard of the master's and of health care, when the life reads the care page first and the first chapter closes, then the care file stands in for the file, with its own items and the months on the ward already ticked", () => {
+    const game = life("scenario.nurse");
     untilHeard(game, CARE_ROUTE);
     // The master's was heard of first: hearing alone does not decide the lean.
     expect(game.state.route[UK_ROUTE]?.heardMonth).toBeLessThan(game.state.route[CARE_ROUTE]!.heardMonth!);
     const result = game.endTurn([slot(LOOK, CARE_ROUTE)]);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: "chapter.build-the-file-care" });
     expect(game.state.chapter).toEqual({ current: "chapter.build-the-file-care", done: [FEET] });
-    // Ngozi has thirty months as a staff nurse: the twenty-four are in.
+    // The nurse has thirty months as a staff nurse: the twenty-four are in.
     expect(game.view().chapter.items).toEqual([
       { id: "tenure", met: true },
       { id: "verification", met: false },
@@ -46,7 +46,7 @@ describe("the file follows the lean", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given a developer whose first meetup hears of the talent visa, when the talent page is read first and the first chapter closes, then the talent file stands in", () => {
-    const game = life("scenario.zainab");
+    const game = life("scenario.developer");
     game.endTurn([slot("activity.meetup")]);
     expect(game.state.route[TALENT]?.state).toBe("heard");
     const result = game.endTurn([slot(LOOK, TALENT)]);
@@ -55,7 +55,7 @@ describe("the file follows the lean", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given a life that asks around at the motor park and looks into the Gulf contract first, when the first chapter closes, then the Gulf file stands in", () => {
-    const game = life("scenario.tunde");
+    const game = life("scenario.banker");
     game.endTurn([slot("activity.ask-around")]);
     expect(game.state.route[GULF_ROUTE]?.state).toBe("heard");
     const result = game.endTurn([slot(LOOK, GULF_ROUTE)]);
@@ -64,7 +64,7 @@ describe("the file follows the lean", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given a graduate who looks into Canada's points before the master's, when the first chapter closes, then the points file stands in", () => {
-    const game = life("scenario.tunde");
+    const game = life("scenario.banker");
     untilHeard(game, CANADA_ROUTE);
     expect(game.state.route[UK_ROUTE]?.state).toBe("heard");
     const result = game.endTurn([slot(LOOK, CANADA_ROUTE)]);
@@ -73,7 +73,7 @@ describe("the file follows the lean", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given a graduate on the master's, when the master's is looked into and the first chapter closes, then the file stays the master's, and looking into Canada later does not move the lean", () => {
-    const game = life("scenario.tunde");
+    const game = life("scenario.banker");
     untilHeard(game, UK_ROUTE);
     const result = game.endTurn([slot(LOOK, UK_ROUTE)]);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: FILE });
@@ -84,14 +84,14 @@ describe("the file follows the lean", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given a nurse who looks into the master's before health care, when the first chapter closes, then the file is the master's: the route looked into first leads", () => {
-    const game = life("scenario.ngozi");
+    const game = life("scenario.nurse");
     untilHeard(game, UK_ROUTE);
     const result = game.endTurn([slot(LOOK, UK_ROUTE)]);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: FILE });
   });
 
   test("[chapter:chapters-follow-lean-route] given a nurse who looks into the master's and health care in the same month, when the first chapter closes, then the page's order breaks the tie and care leads", () => {
-    const game = life("scenario.ngozi");
+    const game = life("scenario.nurse");
     untilHeard(game, CARE_ROUTE);
     untilHeard(game, UK_ROUTE);
     // activity:now-acts-and-month-acts: reading the official page runs once a month, so the two routes are looked into in
@@ -102,7 +102,7 @@ describe("the file follows the lean", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given no way out heard of, when the lean is read, then it is the master's; given only a route with no variant looked into, then the first heard of leads", () => {
-    const game = life("scenario.ngozi");
+    const game = life("scenario.nurse");
     expect(leanRoute(game.state.route, content)).toBe(UK_ROUTE);
     untilHeard(game, SKILLED);
     game.endTurn([slot(LOOK, SKILLED)]);
@@ -122,8 +122,8 @@ describe("the lean is read again at each close", () => {
     return { ...used, chapter: chapters };
   }
 
-  test("[chapter:chapters-follow-lean-route] given a nurse whose first close leaned to the master's, when she looks into health care in the file's month and the file closes, then care's decision day stands in", () => {
-    const game = life("scenario.ngozi", quickFile(content));
+  test("[chapter:chapters-follow-lean-route] given a nurse whose first close leaned to the master's, when the life looks into health care in the file's month and the file closes, then care's decision day stands in", () => {
+    const game = life("scenario.nurse", quickFile(content));
     untilHeard(game, SKILLED);
     game.endTurn([slot(LOOK, SKILLED)]);
     expect(game.state.chapter.current).toBe(FILE);
@@ -133,7 +133,7 @@ describe("the lean is read again at each close", () => {
   });
 
   test("[chapter:chapters-follow-lean-route] given the care file done, when a base chapter's turn is asked after, then the base counts as done and the next base's variant follows", () => {
-    const game = life("scenario.ngozi", quickFile(content));
+    const game = life("scenario.nurse", quickFile(content));
     untilHeard(game, CARE_ROUTE);
     game.endTurn([slot(LOOK, CARE_ROUTE)]);
     expect(game.state.chapter.current).toBe("chapter.build-the-file-care");

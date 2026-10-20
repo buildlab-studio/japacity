@@ -26,8 +26,8 @@ describe("illness and the days lost, before the choice", () => {
   });
 
   test("[health:forced-months-warned-ahead] given a court date abroad, then its one choice says it holds a slot this month", async () => {
-    // Ada's long life abroad, a year before its end: sponsored in the UK, where a court date can come (her careful life's cut ends a student month with a parcel of offers waiting, and lapses soon after).
-    const game = recordedGame("ada-abroad", 12);
+    // The graduate's long life abroad, a year before its end: sponsored in the UK, where a court date can come (its careful life's cut ends a student month with a parcel of offers waiting, and lapses soon after).
+    const game = recordedGame("graduate-abroad", 12);
     expect(game.view().place.where).toBe("abroad");
     // The court date comes over a loan still owed abroad: what a repossessed car leaves behind.
     viewAfter(game, [{ type: "obligation/open", obligation: "obligation.car-shortfall", principal: 120_000 }]);

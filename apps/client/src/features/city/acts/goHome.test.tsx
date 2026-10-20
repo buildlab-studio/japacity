@@ -42,7 +42,7 @@ const hands = { who: "The shared room", go: () => undefined, dismiss: () => unde
 function withWay(way: Partial<NonNullable<PlayerView["place"]["wayHome"]>>): PlayerView {
   const view = abroadGame().view();
   const home = view.place.wayHome;
-  if (home === null) throw new Error("Ada abroad has no way home");
+  if (home === null) throw new Error("The graduate abroad has no way home");
   return { ...view, place: { ...view.place, wayHome: { ...home, ...way } } };
 }
 
@@ -58,11 +58,11 @@ describe("the bag's Go home", () => {
     expect(others).toEqual(["bag"]);
   });
 
-  test("[return:standing-by-return-shape] [return:return-reopens-home-charges] given Ada landed in London with the fare in pounds, when the bag's Go home is tapped, then the card says the return in one line, what ends and what waits as chips, the fare on the one button, and the button sends return/home", async () => {
+  test("[return:standing-by-return-shape] [return:return-reopens-home-charges] given the graduate landed in London with the fare in pounds, when the bag's Go home is tapped, then the card says the return in one line, what ends and what waits as chips, the fare on the one button, and the button sends return/home", async () => {
     const game = abroadGame();
     setPockets(game, { GBP: 400_000 });
     const way = game.view().place.wayHome;
-    if (way === null || way.shape === null) throw new Error("Ada abroad has no way home today");
+    if (way === null || way.shape === null) throw new Error("The graduate abroad has no way home today");
     const { authority } = await renderWithGame(<City world />, game);
     await pressFanAct("bag", "go-home");
     const card = await screen.findByRole("dialog");

@@ -82,7 +82,7 @@ function all(...changes: Change[]): Change {
   return (used) => changes.reduce((acc, change) => change(acc), used);
 }
 
-/** Ada with her papers, ₦3,000,000 in cash and nothing in the naira bank, at home in month 0. */
+/** The graduate with its papers, ₦3,000,000 in cash and nothing in the naira bank, at home in month 0. */
 function life(options: LifeOptions = {}): Game {
   return readyLife(content, { quiet: true, pockets: { NGN: { bank: 0, cash: CASH } }, ...options });
 }
@@ -1033,7 +1033,7 @@ describe("on the road", () => {
 // ---------------------------------------------------------------------------
 
 describe("a formal flight and the road", () => {
-  /** Ada granted the UK study visa and not yet flown, with naira for the flight and cash for a deposit. */
+  /** The graduate granted the UK study visa and not yet flown, with naira for the flight and cash for a deposit. */
   function granted(): Game {
     const game = readyLife(content, {
       seed: offeredSeed(content),

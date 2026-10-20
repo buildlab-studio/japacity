@@ -1,5 +1,5 @@
 // MoneyEvent abroad and home again: abroad-money:foreign-currencies-join-wallet, abroad-money:remit-sends-money-home and abroad-money:remit-quote-is-shared, and wallet:large-deposits-record-lots for cash paid in over a month. Abroad is
-// reached by replaying the ada-careful golden, which ends on her departure.
+// reached by replaying the graduate-careful golden, which ends on the departure.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -32,10 +32,10 @@ function remitted(result: Accepted): Extract<WalletEvent, { type: "wallet/remitt
   return result.events.find((event): event is BaseEvent & Extract<WalletEvent, { type: "wallet/remitted" }> => event.type === "wallet/remitted");
 }
 
-/** Ada at the end of the ada-careful golden: just arrived in the UK as a student, with her remote job's dollars in the bank. */
-function adaAbroad(change: (used: Content) => Content = (used) => used): Game {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("The goldens have no ada-careful.");
+/** The graduate at the end of the graduate-careful golden: just arrived in the UK as a student, with its remote job's dollars in the bank. */
+function graduateAbroad(change: (used: Content) => Content = (used) => used): Game {
+  const save = lifeSaves["graduate-careful"];
+  if (save === undefined) throw new Error("The goldens have no graduate-careful.");
   const game = start({ content: change(content), scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed });
   for (const { command, tick, sender } of save.commands) {
     game.tick = tick;
@@ -52,7 +52,7 @@ function official(world: World): Record<ForeignCurrency, number> {
 
 describe("the other currencies", () => {
   test("[abroad-money:foreign-currencies-join-wallet] [abroad-money:remit-quote-is-shared] given a life abroad, when the view is read, then it carries a pocket and a rate for every currency the wallet keeps", () => {
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const view = game.view();
     expect(Object.keys(view.pockets).sort()).toEqual(["AED", "CAD", "EUR", "GBP", "NGN", "USD"]);
     expect(Object.keys(view.rates).sort()).toEqual([...FOREIGN].sort());
@@ -60,7 +60,7 @@ describe("the other currencies", () => {
   });
 
   test("[abroad-money:foreign-currencies-join-wallet] given Canadian dollars, dirhams and euros in cash, when they are moved and changed, then every wallet rule holds for them as for the pound", () => {
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const amounts: [ForeignCurrency, number][] = [
       ["CAD", 50000],
       ["AED", 120000],
@@ -88,10 +88,10 @@ describe("the other currencies", () => {
 
 describe("sending money home", () => {
   test("[abroad-money:remit-sends-money-home] given $100 sent home by app, when it is sent, then the dollars leave the bank as remit, the fee as remit-fee, and the official rate less the margin arrives at once in the naira bank under remit", () => {
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const rate = game.world().rates.USD.official;
     const before = game.state.wallet.pockets.NGN.bank;
-    // The recorded Ada lands with a lot of her own (her held funds' naira, month 26); the remit adds none.
+    // The graduate's recorded life lands with a lot of its own (its held funds' naira, month 26); the remit adds none.
     const lots = game.state.wallet.lots;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
     const fee = bp(HUNDRED_DOLLARS, remit.appFeeBp);
@@ -112,7 +112,7 @@ describe("sending money home", () => {
   });
 
   test("[wallet:tone-follows-money-direction] given $100 sent home by app, when its lines are read, then the dollars leaving are told as money out and the naira landing as money in: a line's tone is its event's", () => {
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
     const remits = result.lines.filter((line) => line.key === "line.wallet.remit");
     const told = remits.map((line) => ({ currency: (line.params["amount"] as { currency: string }).currency, tone: line.tone }));
@@ -123,7 +123,7 @@ describe("sending money home", () => {
   });
 
   test("[wallet:tone-follows-money-direction] given money credited under a reason that is mostly spent and debited under one that is mostly earned, when the lines are read, then the credit is told as money in and the debit as money out", () => {
-    const state = adaAbroad().state;
+    const state = graduateAbroad().state;
     const tones = (event: WalletEvent) => (walletKind.lines?.(event, state, content) ?? []).map((line) => line.tone);
     expect(tones({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 1000, reason: "fee-visa" })).toEqual(["good"]);
     expect(tones({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 1000, reason: "gift" })).toEqual(["bad"]);
@@ -132,7 +132,7 @@ describe("sending money home", () => {
   });
 
   test("[abroad-money:remit-sends-money-home] given $100 sent home through the bank, when it is sent and the month ends, then the fee is kept at once and the rest arrives in the naira bank next month at that month's official rate", () => {
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const fee = bp(HUNDRED_DOLLARS, remit.bankFeeBp);
     const sent = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "bank" });
     expect(debitsOf(sent, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS - fee, reason: "remit" }]);
@@ -152,7 +152,7 @@ describe("sending money home", () => {
   });
 
   test("[abroad-money:remit-sends-money-home] given $100 handed to the informal channel and a draw on `street` over the loss chance, when it is sent, then no fee is kept and the street rate arrives as naira cash", () => {
-    const game = adaAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: 0 } } }));
+    const game = graduateAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: 0 } } }));
     const street = game.world().rates.USD.street;
     const draws = game.state.draws.street ?? 0;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "informal" });
@@ -163,7 +163,7 @@ describe("sending money home", () => {
   });
 
   test("[abroad-money:remit-sends-money-home] given the informal channel, when money is sent until both happen, then a draw on `street` under the loss chance loses it all, with a line that asks for attention, and one over it arrives", () => {
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const sent = 1000;
     let lost = 0;
     let arrived = 0;
@@ -191,7 +191,7 @@ describe("sending money home", () => {
       [0, true],
       [10000, false],
     ] as const) {
-      const game = adaAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: lossBp } } }));
+      const game = graduateAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: lossBp } } }));
       for (let tries = 0; tries < 20; tries += 1) {
         const result = game.accept({ type: "wallet/remit", currency: "USD", amount: 1000, channel: "informal" });
         expect(creditsOf(result, "remit").length === 1).toBe(arrives);
@@ -200,11 +200,11 @@ describe("sending money home", () => {
   });
 
   test("[abroad-money:remit-sends-money-home] given a remit asked for at home, in naira, for more than the bank pocket holds or for nothing, when it is sent, then it is rejected and nothing moves", () => {
-    const home = start({ content, scenario: "scenario.zainab" });
+    const home = start({ content, scenario: "scenario.developer" });
     applyEffects(home, [{ type: "money/add", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS, reason: "salary" }]);
     home.expectRejected({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" }, "not-legal");
 
-    const game = adaAbroad();
+    const game = graduateAbroad();
     const bank = game.state.wallet.pockets.USD.bank;
     game.expectRejected({ type: "wallet/remit", currency: "NGN" as ForeignCurrency, amount: HUNDRED_DOLLARS, channel: "app" }, "unknown-id");
     game.expectRejected({ type: "wallet/remit", currency: "USD", amount: 0, channel: "app" }, "bad-amount");
@@ -236,7 +236,7 @@ describe("the remit quote", () => {
 
   test("[abroad-money:remit-quote-is-shared] given the view's rates abroad, when each channel is quoted and then used, then the app and informal quotes are what arrives, and the bank's is what today's rate would give", () => {
     for (const channel of ["app", "bank", "informal"] as const) {
-      const game = adaAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: 0 } } }));
+      const game = graduateAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: 0 } } }));
       const quote = remitQuote(game.view().rates, remit, "USD", HUNDRED_DOLLARS)[channel];
       const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel });
       expect(remitted(result)).toMatchObject({ channel, fee: quote.fee, naira: quote.naira });
@@ -249,7 +249,7 @@ describe("cash paid in over a month", () => {
   const line = content.tuning.wallet.flagDepositAbove;
 
   test("[wallet:large-deposits-record-lots] given naira cash paid into the bank in three moves in one month, when they add up to exactly ₦500,000 and then one kobo more, then only the move that takes the month past the line records a lot; next month the count starts again", () => {
-    const game = start({ content, scenario: "scenario.tunde" });
+    const game = start({ content, scenario: "scenario.banker" });
     expect(line).toBe(50000000);
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 2 * line, reason: "gift" }]);
     game.accept({ type: "wallet/move", currency: "NGN", amount: 30000000, to: "bank" });
@@ -269,7 +269,7 @@ describe("cash paid in over a month", () => {
   test("[wallet:large-deposits-record-lots] given naira and then pound cash paid in the same month, when the pounds are valued at the official rate, then the two add up against the line", () => {
     /** Pays ₦400,000 of cash in, then `pence` of pound cash, and gives the lots recorded. */
     function paidIn(pence: number): Game["state"]["wallet"] {
-      const game = start({ content, scenario: "scenario.tunde" });
+      const game = start({ content, scenario: "scenario.banker" });
       applyEffects(game, [
         { type: "money/add", currency: "NGN", pocket: "cash", amount: 40000000, reason: "gift" },
         { type: "money/add", currency: "GBP", pocket: "cash", amount: pence, reason: "gift" },
@@ -278,7 +278,7 @@ describe("cash paid in over a month", () => {
       game.accept({ type: "wallet/move", currency: "GBP", amount: pence, to: "bank" });
       return game.state.wallet;
     }
-    const world = start({ content, scenario: "scenario.tunde" }).world();
+    const world = start({ content, scenario: "scenario.banker" }).world();
     const rates = official(world);
     // The most pence worth ₦100,000 or less at the official rate.
     const under = divFloor(10000000 * 100, world.rates.GBP.official);
@@ -295,10 +295,10 @@ describe("the bank abroad", () => {
   /** Enough dollars for the first month's bills, and more than a month of the Lagos allowance. */
   const DOLLARS = 800000;
 
-  test("[wallet:monthly-fx-allowance] [abroad-money:tuition-paid-in-instalments] given the recorded Ada just landed with dollars and no pounds, when she changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and her rent, tuition and living are paid", () => {
-    const game = adaAbroad();
+  test("[wallet:monthly-fx-allowance] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded life just landed with dollars and no pounds, when it changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and its rent, tuition and living are paid", () => {
+    const game = graduateAbroad();
     const { GBP, USD } = game.state.wallet.pockets;
-    // Whatever the recording carried over, she lands here with the dollars and no pounds.
+    // Whatever the recording carried over, the life lands here with the dollars and no pounds.
     applyEffects(game, [
       ...(GBP.bank > 0 ? [{ type: "money/take", currency: "GBP", pocket: "bank", amount: GBP.bank, reason: "social" } as const] : []),
       ...(GBP.cash > 0 ? [{ type: "money/take", currency: "GBP", pocket: "cash", amount: GBP.cash, reason: "social" } as const] : []),
@@ -317,9 +317,9 @@ describe("the bank abroad", () => {
     expect(Object.values(game.state.obligation.items).map((owed) => owed.missed)).toEqual([0, 0, 0]);
   });
 
-  test("[wallet:bank-queue-delays-purchases] given a bank queue in the world, when Ada changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
-    const game = adaAbroad();
-    // The recorded Ada lands with fewer dollars than this; the change needs them held, as above.
+  test("[wallet:bank-queue-delays-purchases] given a bank queue in the world, when the graduate changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
+    const game = graduateAbroad();
+    // The graduate's recorded life lands with fewer dollars than this; the change needs them held, as above.
     const { USD } = game.state.wallet.pockets;
     if (USD.bank < DOLLARS) applyEffects(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: DOLLARS - USD.bank, reason: "gift" }]);
     const landed = game.world();

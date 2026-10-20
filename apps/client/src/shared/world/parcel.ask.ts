@@ -5,7 +5,7 @@
 // hands in how to send and how to close.
 import type { OfferView, PlayerView, ReportLine } from "@japacity/sim";
 
-import { hasWords, nameOf, say, words } from "../words/text";
+import { nameOf, words } from "../words/text";
 import type { Ask } from "./contract";
 
 export const PARCEL = "offer.parcel-shipped";
@@ -23,10 +23,9 @@ function waitingParcel(view: Pick<PlayerView, "offers">): OfferView | undefined 
   return view.offers.find((offer) => offer.entry === PARCEL);
 }
 
-/** The character's first name for the slip's To line; the prologue's life, with none in content, reads "You". */
-function addressee(view: Pick<PlayerView, "scenario">): string {
-  const key = `share.first-name.${view.scenario}`;
-  return hasWords(key) ? say(key) : words(`${PARCEL}.waybill.you`);
+/** The slip's To line: "You", since no life carries a name of its own in content (scenario.md). */
+function addressee(): string {
+  return words(`${PARCEL}.waybill.you`);
 }
 
 /** The waybill's number: the parcel's own instance number, never a month. */
@@ -36,7 +35,7 @@ function numberOf(offer: OfferView): string {
 }
 
 /** The slip for the parcel waiting, or null when none waits. */
-export function parcelAsk(view: Pick<PlayerView, "offers" | "scenario">, deps: WaybillDeps): Ask | null {
+export function parcelAsk(view: Pick<PlayerView, "offers">, deps: WaybillDeps): Ask | null {
   const offer = waitingParcel(view);
   // The view shows only the thing the parcel holds (the offer kind shuts the rest).
   const held = offer?.choices[0];
@@ -52,7 +51,7 @@ export function parcelAsk(view: Pick<PlayerView, "offers" | "scenario">, deps: W
     title: words(`${PARCEL}.title`),
     rows: [
       { label: words(`${PARCEL}.waybill.from`), value: from },
-      { label: words(`${PARCEL}.waybill.to`), value: addressee(view) },
+      { label: words(`${PARCEL}.waybill.to`), value: addressee() },
       { label: words(`${PARCEL}.waybill.contents`), value: words(`${PARCEL}.contents.${thing}`) },
       { label: words(`${PARCEL}.waybill.handling`), value: deps.formatMoney(handling, "NGN"), strong: true },
     ],

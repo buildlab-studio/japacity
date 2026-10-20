@@ -134,19 +134,19 @@ describe("the basics at home", () => {
     expect(Math.hypot(bag[0] - door[0], bag[1] - door[1])).toBeLessThan(2);
   });
 
-  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given Ada at home, when the parlour's acts are read for now, then cooking and water are both there, and the bag packs only once the route is granted", () => {
-    const now = actsNow(parlour, "place.family-house", engineView("scenario.ada"));
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given the graduate at home, when the parlour's acts are read for now, then cooking and water are both there, and the bag packs only once the route is granted", () => {
+    const now = actsNow(parlour, "place.family-house", engineView("scenario.graduate"));
     expect(now["cooking"]).toEqual(["cook"]);
     expect(now["drum"]).toEqual(["fetch-water"]);
     expect(now["bag"]).toBeUndefined();
-    const granted = actsNow(parlour, "place.family-house", engineView("scenario.ada"), ["command:route/depart"]);
+    const granted = actsNow(parlour, "place.family-house", engineView("scenario.graduate"), ["command:route/depart"]);
     expect(granted["bag"]).toEqual(["pack"]);
   });
 });
 
 describe("the acts lived by hand at home", () => {
-  test("[activity:acts-may-repeat-in-month] [world:things-are-tappable-models] given Ada at home, when the parlour's acts are read with the acts that repeat staged at home, then the bed naps, the television plays, the drum's sheet holds the bath, Mama's her shop and the table's the study and the course; jollof only once it can be had", () => {
-    const view = engineView("scenario.ada");
+  test("[activity:acts-may-repeat-in-month] [world:things-are-tappable-models] given the graduate at home, when the parlour's acts are read with the acts that repeat staged at home, then the bed naps, the television plays, the drum's sheet holds the bath, Mama's her shop and the table's the study and the course; jollof only once it can be had", () => {
+    const view = engineView("scenario.graduate");
     const offered = new Set(view.activities.filter((option) => option.allowed).map((option) => option.id));
     const staged = new Set<string>([...(content.place["place.family-house"]?.stages ?? []), ...byHandAt("place.family-house", "place.family-house", HOME, content.activity)]);
     const now = thingsNow(stageOf(parlour).things ?? [], stagedNow(offered, staged, new Set(), null));

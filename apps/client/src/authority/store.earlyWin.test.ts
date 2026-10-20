@@ -16,14 +16,14 @@ const ledgerPay: ReportLine = { key: "line.wallet.salary", params: {}, tone: "go
 
 describe("asks wait for the early win", () => {
   test("[guide:nothing-asked-before-early-win] given a new life, when the store first holds its view, then the early win has not shown", async () => {
-    const store = createGameStore({ view: () => Promise.resolve(engineView("scenario.ada")), send: () => Promise.reject(new Error("unused")) });
+    const store = createGameStore({ view: () => Promise.resolve(engineView("scenario.graduate")), send: () => Promise.reject(new Error("unused")) });
     await store.getState().refresh();
     expect(store.getState().view?.chapter.done).toEqual([]);
     expect(store.getState().earlyWin).toBe(false);
   });
 
   test("[guide:nothing-asked-before-early-win] given a month whose report holds no early win, when it ends, then the flag stays down; given one that does, then it goes up and stays", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const replies = [[gain], [salary], [gain]];
     let month = 0;
     const store = createGameStore({
@@ -40,7 +40,7 @@ describe("asks wait for the early win", () => {
   });
 
   test("[guide:nothing-asked-before-early-win] [guide:early-win-in-three-turns] given the prologue's preset whose lines hear of a route, when its reply lands, then the flag goes up, its picks being unknown", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const clock: ClockView = { tick: 1, nextTickAt: 1_000_000, nextTurnAt: 500_000, morningAt: 0, world: worldClockAt(0) };
     const store = createGameStore({
       view: () => Promise.resolve(view),
@@ -53,7 +53,7 @@ describe("asks wait for the early win", () => {
   });
 
   test("[guide:nothing-asked-before-early-win] [guide:early-win-in-three-turns] given a command that is not a month or a now-act whose lines hold a route heard, or the ledger's pay line, when it lands, then the flag goes up", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     for (const lines of [[heard], [ledgerPay]]) {
       const store = createGameStore({
         view: () => Promise.resolve(view),
@@ -66,7 +66,7 @@ describe("asks wait for the early win", () => {
   });
 
   test("[guide:nothing-asked-before-early-win] given a new life played through the local authority as the next step suggests, when months end, then the flag goes up with the first early win", async () => {
-    const authority = localAuthority({ fastClock: true, storage: null, scenario: "scenario.ada", makeSeed: () => "first-session", now: () => 0 });
+    const authority = localAuthority({ fastClock: true, storage: null, scenario: "scenario.graduate", makeSeed: () => "first-session", now: () => 0 });
     const store = createGameStore(authority);
     await store.getState().refresh();
     let raisedAt: number | null = null;

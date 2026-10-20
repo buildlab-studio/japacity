@@ -623,7 +623,7 @@ describe("one lottery for everyone", () => {
         lastPlayedAt: server.deps.now(),
       });
       expect(made.ok).toBe(true);
-      expect((await call<ViewReply>(server, "POST", "/api/character", account, { scenario: "scenario.ada" })).body.ok).toBe(true);
+      expect((await call<ViewReply>(server, "POST", "/api/character", account, { scenario: "scenario.graduate" })).body.ok).toBe(true);
       const character = (await server.deps.stores.account.get(account))?.character;
       if (character === null || character === undefined) throw new Error(`${account} names no character.`);
       accepted(await buy(server, account, character, 1));

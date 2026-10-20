@@ -5,7 +5,7 @@ import type { InviteStore, NewInvite } from "../pair.types";
 import { must } from "./contract.testing";
 
 function link(code: string, from = "character-a", madeAt = time.DAY_MS): NewInvite {
-  return { code, from, account: `account-of-${from}`, slot: "partner", looking: "partner", fill: "who-codes", card: { name: "scenario.ada.name" }, madeAt, expires: madeAt + 14 * time.DAY_MS };
+  return { code, from, account: `account-of-${from}`, slot: "partner", looking: "partner", fill: "who-codes", card: { name: "scenario.graduate.name" }, madeAt, expires: madeAt + 14 * time.DAY_MS };
 }
 
 /** The contract every InviteStore keeps. `make` returns an empty store each time it is called. */

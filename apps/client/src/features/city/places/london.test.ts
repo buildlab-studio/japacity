@@ -166,7 +166,7 @@ describe("the workplaces with a door", () => {
 });
 
 describe("a job held at its door", () => {
-  test("[world:ride-abroad-and-workplace] given Ada in London who took the shop job, when the big shop's things are read, then the tills stand with the shift's act and say On shift, while the trolley still offers the weekly shop", () => {
+  test("[world:ride-abroad-and-workplace] given the graduate in London who took the shop job, when the big shop's things are read, then the tills stand with the shift's act and say On shift, while the trolley still offers the weekly shop", () => {
     const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);
     const { stage, entry } = staged(bigShop, "place.big-shop-uk");
     const offered = new Set(view.activities.filter((option) => option.allowed).map((option) => option.id));

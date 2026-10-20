@@ -14,7 +14,7 @@ const CARE = "route.uk-care";
 
 describe("one figure for how ready", () => {
   test("[world:phone-holds-what-phones-hold] given the ready nurse whose plan is health care, its page read, with no japacity figure, when the page and Japa are read, then the page's READY is the figure Japa shows, not 0%", async () => {
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });
     const view = game.view();
@@ -28,7 +28,7 @@ describe("one figure for how ready", () => {
   });
 
   test("[world:phone-holds-what-phones-hold] given a life with no plan, when the page is read, then READY is 0%, as Japa shows no figure", async () => {
-    const view = newGame("scenario.ngozi").view();
+    const view = newGame("scenario.nurse").view();
     expect(view.plan.route).toBeNull();
     await renderWithView(<Japa />, view);
     expect(document.querySelector("[data-japa-percent]")).toBeNull();

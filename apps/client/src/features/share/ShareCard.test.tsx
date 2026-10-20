@@ -1,9 +1,9 @@
-import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test } from "vitest";
 
 import { playedWords, standingWords } from "../../shared/share/face";
+import { keepPerson } from "../../shared/frontdoor/person";
 import { abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say, words } from "../../shared/words/text";
@@ -11,6 +11,10 @@ import { EndingView } from "./EndingView";
 import { CardView, ShareCardFace } from "./ShareCard";
 
 type Shared = NonNullable<PlayerView["card"]>;
+
+afterEach(() => {
+  localStorage.clear();
+});
 
 const SEND_OFF: Shared = {
   kind: "send-off",
@@ -66,11 +70,11 @@ describe("the share cards", () => {
   test("[share:card-contents] [share:card-offered-never-sent] given a card opened over the world, then it names the character as the band does, and its share, the screenshot's hint and Close stand together on a ground of their own at the foot of a sheet that scrolls within the screen", async () => {
     // The card says the name the band says, it scrolls within the screen, and the hint and Close stand on a ground of
     // their own, never printed bare over the phone's icons.
+    const band = "Adaeze";
+    keepPerson({ look: "person_ada", name: band, archetype: null });
     const view = withCard({ ...SEND_OFF, kind: "granted" });
     await renderWithView(<CardView />, view);
     const sheet = await screen.findByRole("dialog");
-    const band = (text[`${view.scenario}.name`] ?? "").split(/\s+/)[0]!;
-    expect(band).not.toBe("");
     expect(within(sheet).getByText(band, { selector: "[data-card-name]" })).toBeDefined();
     const foot = sheet.querySelector<HTMLElement>("[data-card-foot]")!;
     expect(foot.className).toContain("bg-sheet");

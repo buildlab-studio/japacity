@@ -24,7 +24,7 @@ const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const SETTLED = facts({ where: "abroad", country: "country.uk", status: "status.uk-settled", meetsFloor: { [UK_PARTNER]: true } });
 const CA_RESIDENT = facts({ where: "abroad", country: "country.canada", status: "status.ca-resident" });
 
-/** Ada married to a sponsor whose facts are `sponsor`, the joint agreed with the sponsor leading on `route`. */
+/** The graduate married to a sponsor whose facts are `sponsor`, the joint agreed with the sponsor leading on `route`. */
 function married(route: Id<"route">, sponsor = SETTLED, options: LifeOptions = {}): Game {
   const game = life(content, options);
   joint(game, route, "them", { stage: "married", facts: sponsor });

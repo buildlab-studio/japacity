@@ -4,7 +4,7 @@ import type { Id } from "../engine/types";
 import type { RunRecord } from "./players";
 
 /** The five fixed lives and the prologue's. */
-export const LIVES: Id<"scenario">[] = ["scenario.ada", "scenario.tunde", "scenario.zainab", "scenario.ngozi", "scenario.aniekan", "scenario.prologue"];
+export const LIVES: Id<"scenario">[] = ["scenario.graduate", "scenario.banker", "scenario.developer", "scenario.nurse", "scenario.teacher", "scenario.prologue"];
 
 /** A decision with no earlier refusal and an unexplained share of 20% or less. */
 export function cleanFile(decision: RunRecord["decisions"][number]): boolean {

@@ -13,7 +13,7 @@ export type BoardWho = "everyone" | "friends";
 export interface FigureRow {
   character: string;
   account: string;
-  /** The scenario the life began in: its first name is the content's `share.first-name.<scenario>`. */
+  /** The scenario the life began in. */
   scenario: string;
   /** When the account was made: the tie-break of city:board-line-and-ranking ("the earlier account"). */
   joinedAt: number;

@@ -21,7 +21,7 @@ function cardOf(id: string): HTMLElement {
 
 describe("what each act counts toward", () => {
   test("[activity:waiting-months-build-profile] [world:things-are-tappable-models] [world:one-action-one-sheet] given each of the waiting months' acts on the sheet its thing opens, when its card is read, then it says in words the route it counts toward", async () => {
-    const view = viewAfter(newGame("scenario.zainab"), [{ type: "quality/add", quality: "quality.network", amount: 10 }]);
+    const view = viewAfter(newGame("scenario.developer"), [{ type: "quality/add", quality: "quality.network", amount: 10 }]);
     await renderWithView(<ActivityPicker only={[...ACTS]} />, view);
     for (const id of ACTS) {
       const routes = content.activity[id as Id<"activity">]?.counts ?? [];
@@ -42,7 +42,7 @@ describe("what each act counts toward", () => {
 
   test("[activity:waiting-months-build-profile] given an act that counts toward no route, when its card is read, then it says nothing about counting", async () => {
     // Rest is in no picker (turn:free-slots-per-month), so time with family stands for an act that counts toward nothing.
-    await renderWithView(<ActivityPicker only={["activity.family-time"]} />, newGame("scenario.ada").view());
+    await renderWithView(<ActivityPicker only={["activity.family-time"]} />, newGame("scenario.graduate").view());
     expect(countsWords("activity.family-time")).toBeNull();
     expect(cardOf("activity.family-time").querySelector("[data-counts]")).toBeNull();
   });

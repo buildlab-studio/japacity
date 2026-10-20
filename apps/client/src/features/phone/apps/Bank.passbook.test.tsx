@@ -22,9 +22,9 @@ import { passbookCount, shortNaira } from "./passbook.words";
 
 const CARE = "route.uk-care" as const;
 
-/** Ngozi with health care as her plan, looked into, a month lived so the pace shows. */
+/** The nurse with health care as its plan, looked into, a month lived so the pace shows. */
 function nurse(months = 1) {
-  const game = newGame("scenario.ngozi");
+  const game = newGame("scenario.nurse");
   const bars = (content.route[CARE]?.hearIf ?? []).flatMap((requirement): Effect[] => (requirement.type === "quality/min" ? [{ type: "quality/add", quality: requirement.quality, amount: requirement.value }] : []));
   viewAfter(game, [...bars, { type: "route/hear", route: CARE, via: "meetup" }]);
   game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });
@@ -42,7 +42,7 @@ function text(selector: string): string {
 }
 
 describe("the Bank's first page, the passbook", () => {
-  test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given the nurse a month into her care plan, when the Bank opens, then it leads with what is held against the road's whole cost, the bar and the pace line the view gives, the best road beside it", async () => {
+  test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given the nurse a month into its care plan, when the Bank opens, then it leads with what is held against the road's whole cost, the bar and the pace line the view gives, the best road beside it", async () => {
     const view = nurse().view();
     const book = passbookOf(view);
     expect(book.months).toBeGreaterThan(1);
@@ -62,10 +62,10 @@ describe("the Bank's first page, the passbook", () => {
   });
 
   test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given no plan, or a plan only heard of, when the Bank opens, then the pace line says what sets the road's cost and no target is drawn", async () => {
-    await renderWithView(<Bank />, newGame("scenario.ngozi").view());
+    await renderWithView(<Bank />, newGame("scenario.nurse").view());
     expect(text("[data-pace]")).toBe(say("passbook.pace.no-plan"));
     expect(document.querySelector("[data-passbook-target]")).toBeNull();
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     const heard = viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     await renderWithView(<Bank />, heard);
     expect(document.querySelectorAll("[data-pace]")[1]?.textContent).toBe(say("passbook.pace.unread", { route: runningName(CARE) }));
@@ -92,7 +92,7 @@ describe("the Bank's first page, the passbook", () => {
     const money = moneyLines(view.report!.lines);
     const sum = (sign: 1 | -1) => money.filter((each) => each.sign === sign && each.currency === "NGN").reduce((total, each) => total + each.amount, 0);
     const chips = [...document.querySelectorAll<HTMLElement>("[data-last-month-chip]")];
-    // The nurse's month paid her salary in and her share for home out.
+    // The nurse's month paid its salary in and its share for home out.
     expect(sum(1)).toBeGreaterThan(0);
     expect(sum(-1)).toBeGreaterThan(0);
     expect(chips.map((chip) => chip.dataset.lastMonthChip)).toEqual(["in", "out"]);

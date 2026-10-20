@@ -36,7 +36,7 @@ describe("ending a life on this device", () => {
     const makeSeed = seeds();
     const authority = localAuthority({ fastClock: true, storage, makeSeed, now: () => 0 });
     keepPerson({ look: "person_ada", name: "Bisi", archetype: null }, storage);
-    await authority.newLife("scenario.ada");
+    await authority.newLife("scenario.graduate");
     const old = seedOf(storage);
     expect(old).not.toBeNull();
 
@@ -48,7 +48,7 @@ describe("ending a life on this device", () => {
     expect(storage.items.has(SAVE_KEY)).toBe(false);
     expect(localAuthority({ fastClock: true, storage, makeSeed, now: () => 0 }).start).toEqual({ kind: "new" });
 
-    await authority.newLife("scenario.ada");
+    await authority.newLife("scenario.graduate");
     expect(seedOf(storage)).not.toBeNull();
     expect(seedOf(storage)).not.toBe(old);
   });
@@ -71,7 +71,7 @@ describe("ending a life on this device", () => {
     let afresh = 0;
     const store = createGameStore(authority, { life: authority, afterLifeEnded: () => (afresh += 1) });
     keepPerson({ look: "person_ada", name: "Bisi", archetype: null });
-    await store.getState().chooseLife("scenario.ada");
+    await store.getState().chooseLife("scenario.graduate");
     localStorage.setItem(MONTH_KEY, "{}");
     expect(localStorage.getItem(SAVE_KEY)).not.toBeNull();
 
@@ -103,7 +103,7 @@ describe("ending a life online", () => {
   test("[account:start-a-new-life] given a character, when the life is ended, then it posts to /api/character/end and forgets the version it held", async () => {
     const { server, remote } = setUp();
     server.answer("POST /api/character", { body: { ok: true, view: engineView(), lines: [], clock: { tick: 0, nextTickAt: 1, nextTurnAt: null } } });
-    await remote.newLife("scenario.ada");
+    await remote.newLife("scenario.graduate");
     expect(remote.held()).not.toBeNull();
     server.answer("POST /api/character/end", { body: { ok: true } });
 

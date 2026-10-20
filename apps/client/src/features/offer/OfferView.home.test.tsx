@@ -10,7 +10,7 @@ import { words } from "../../shared/words/text";
 import { OfferView } from "./OfferView";
 
 function evictedView() {
-  const game = start({ content: applyOverlay(content, { version: "test-offer-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.ada" });
+  const game = start({ content: applyOverlay(content, { version: "test-offer-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.graduate" });
   setPockets(game, { NGN: 500_000_00 });
   game.accept({ type: "home/move", to: "place.makoko" });
   game.endTurn();
@@ -18,7 +18,7 @@ function evictedView() {
 }
 
 describe("somewhere to sleep", () => {
-  test("[home:taken-in-after-eviction] given Ada evicted with no friend at home, when the offer shows, then its three answers are there, friend shut with its reason beneath it and the other two open", async () => {
+  test("[home:taken-in-after-eviction] given the graduate evicted with no friend at home, when the offer shows, then its three answers are there, friend shut with its reason beneath it and the other two open", async () => {
     await renderWithView(<OfferView />, evictedView());
     const buttons = [...document.querySelectorAll<HTMLButtonElement>("button")].filter((button) => ["friend", "someone", "family"].some((id) => button.textContent?.startsWith(words(`offer.taken-in.choice.${id}`, { months: content.tuning.home.guestMonths }).slice(0, 12)) === true));
     expect(buttons.map((button) => button.disabled)).toEqual([true, false, false]);

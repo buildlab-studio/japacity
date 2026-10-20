@@ -156,7 +156,9 @@ describe("the invite card behind a tap", () => {
     const maker = screen.getByRole("form", { name: say("ui.people.invite.title") });
     fireEvent.change(within(maker).getByLabelText(say("ui.people.invite.fill")), { target: { value: "who-codes" } });
     const face = maker.querySelector<HTMLElement>("[data-invite-card]")!;
-    expect(face.textContent).toContain(nameOf("scenario.tunde"));
+    // The card names the life by its scenario's words, and a ready life has none of its own (scenario.md).
+    expect(text["scenario.banker.name"]).toBeUndefined();
+    expect(face.textContent).toContain(say("ui.invite.someone"));
     expect(face.textContent).toContain(`Looking for: ${text["card.invite.slot.partner"]!} ${text["card.invite.fill.who-codes"]!}`);
     expect(face.textContent).toContain(text["card.invite.game"]!);
     expect(face.textContent).not.toMatch(/[₦£$]|@|\d{6,}/);

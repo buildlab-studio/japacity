@@ -55,13 +55,13 @@ describe("the first-use labels", () => {
     await renderWithView(world(), engineView());
     tapThumb("phone");
     document.body.innerHTML = "";
-    await renderWithView(world(), engineView("scenario.tunde"));
+    await renderWithView(world(), engineView("scenario.banker"));
     // The new life's first brief is carried first; its card stands over the thumbs until then.
     fireEvent.click(document.querySelector<HTMLElement>("[data-brief-go]")!);
     expect(labels()).toEqual(["map"]);
     tapThumb("map");
     document.body.innerHTML = "";
-    await renderWithView(world(), engineView("scenario.ngozi"));
+    await renderWithView(world(), engineView("scenario.nurse"));
     expect(labels()).toEqual([]);
   });
 

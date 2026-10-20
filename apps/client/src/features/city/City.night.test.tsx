@@ -57,9 +57,9 @@ function setPart(store: GameStore, part: DayPart): void {
   act(() => store.setState({ clock: clockAt(part) }));
 }
 
-/** Ada in the parlour by the bed: a new life, or one with `months` behind it. */
+/** The graduate in the parlour by the bed: a new life, or one with `months` behind it. */
 async function inTheParlour(months = 0, before: (game: ReturnType<typeof newGame>) => void = () => undefined) {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   for (let month = 0; month < months; month += 1) game.endTurn();
   before(game);
   const rendered = await renderWithGame(<City world results={(place) => <p data-results-for={place} />} />, game);
@@ -96,7 +96,7 @@ describe("sleep, the way the month turns", () => {
     await sleepThrough();
     expect(turns(authority.sent)).toBe(1);
     expect(document.querySelector("[data-night-teach]")).toBeNull();
-    expect(wasTaught("night", "scenario.ada")).toBe(true);
+    expect(wasTaught("night", "scenario.graduate")).toBe(true);
     await act(async () => {
       await vi.advanceTimersByTimeAsync(RESULTS_BEAT_MS + 1500);
     });
@@ -223,7 +223,7 @@ describe("the first night's card as drawn", () => {
     expect(document.querySelector("[data-night-teach]")).toBeNull();
     expect(document.querySelector("[data-asleep]")).toBeNull();
     expect(turns(authority.sent)).toBe(0);
-    expect(wasTaught("night", "scenario.ada")).toBe(false);
+    expect(wasTaught("night", "scenario.graduate")).toBe(false);
     pressFanActNow("mattress", "end-month");
     expect(found("[data-night-teach]")).toBeTruthy();
   });

@@ -23,7 +23,7 @@ describe("an answer told with what was chosen", () => {
   });
 
   test("[world:month-end-results-sheet] given a guest's where-next answered with the family house, when News tells the month, then the answer names the family house", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     applyEffects(game, [{ type: "offer/open", offer: "offer.where-next" }]);
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.where-next")!;
     const lines = game.accept({ type: "offer/choose", offer: offer.id, choice: "family" }).lines;

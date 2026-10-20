@@ -78,8 +78,8 @@ describe("lines from home", () => {
     }
   });
 
-  test("[prologue:family-draw-on-first-answer] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, and no brace shows", async () => {
-    const view = engineView("scenario.ada");
+  test("[prologue:family-draw-on-first-answer] given the graduate's life, from Enugu, on the People screen, then the mother and father are at home in Lagos, and no brace shows", async () => {
+    const view = engineView("scenario.graduate");
     expect(view.hometown).toBe("hometown.enugu");
     // Chats' People row, the slots.
     await renderWithView(

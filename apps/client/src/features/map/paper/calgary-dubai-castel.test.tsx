@@ -286,7 +286,7 @@ describe.each(COUNTRIES)("the map in $name", (country) => {
   test(`[world:painted-maps-abroad] given a life at ${country.name}'s hub, when the map opens there, then it is the country's painted map folded on the hub's card with the strip and the home, the stops kept as a list for a screen reader alone, and no hint`, async () => {
     const choice: CountryChoice = { id: country.id, name: country.name, locked: null };
     const { hub, card, title } = HUBS[country.id];
-    await renderWithView(<Map pins={pinsOf(country, hub)} country={choice} countries={[choice]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.ada"));
+    await renderWithView(<Map pins={pinsOf(country, hub)} country={choice} countries={[choice]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.graduate"));
     await settle("[data-paper-map]");
     expect(document.querySelector("[data-paper-map]")).not.toBeNull();
     expect(document.querySelector('[data-card][data-current="true"]')?.getAttribute("data-card")).toBe(card);
@@ -308,7 +308,7 @@ describe("Naples on the open map", () => {
     const italy = COUNTRIES[2];
     if (italy === undefined) throw new Error("No Italy");
     const choice: CountryChoice = { id: italy.id, name: italy.name, locked: null };
-    await renderWithView(<Map pins={pinsOf(italy, "place.castel-volturno")} country={choice} countries={[choice]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.ada"));
+    await renderWithView(<Map pins={pinsOf(italy, "place.castel-volturno")} country={choice} countries={[choice]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.graduate"));
     await settle("[data-paper-map]");
     fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
     await settle("[data-open-map]");

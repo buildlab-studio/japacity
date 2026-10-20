@@ -11,7 +11,8 @@ import { renderWithView } from "../../shared/testing/render";
 import { japaTypeOf, typeWords } from "../../shared/words/japaType";
 import { say } from "../../shared/words/text";
 import { keptTypeOf } from "../../shared/share/kept";
-import { adaSendOff } from "../../shared/share/share.testing";
+import { keepPerson } from "../../shared/frontdoor/person";
+import { graduateSendOff } from "../../shared/share/share.testing";
 import { gallery } from "./gallery";
 import { CardView } from "./ShareCard";
 
@@ -30,13 +31,15 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  localStorage.clear();
   Reflect.deleteProperty(navigator, "canShare");
   Reflect.deleteProperty(navigator, "share");
 });
 
 describe("the ticket stub beside the send-off card", () => {
-  test("[share:cards-due-at-set-moments] [share:card-contents] [share:send-off-card-kept] given Ada just flown, when her send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, her type and her name as the band says it", async () => {
-    const view = adaSendOff();
+  test("[share:cards-due-at-set-moments] [share:card-contents] [share:send-off-card-kept] given the graduate just flown, when its send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, its type and its name as the band says it", async () => {
+    keepPerson({ look: "person_ada", name: "Adaeze", archetype: null });
+    const view = graduateSendOff();
     await renderWithView(<CardView />, view);
     // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
@@ -48,8 +51,8 @@ describe("the ticket stub beside the send-off card", () => {
     expect(pickStub.getAttribute("aria-pressed")).toBe("true");
     const stub = sheet.querySelector("[data-share-card='stub']") as HTMLElement;
     expect(sheet.querySelector("[data-share-card='send-off']")).toBeNull();
-    // Her name as the band says it, the first word of the life's own name (share:card-contents).
-    const band = (text["scenario.ada.name"] ?? "").split(/\s+/)[0]!;
+    // The name as the band says it, the one given at the door (share:card-contents).
+    const band = "Adaeze";
     for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, typeWords(japaTypeOf(view)!).name, typeWords(japaTypeOf(view)!).line, band, "Japacity is a game.", "japacity.app"]) {
       expect(within(stub).getByText(words)).toBeDefined();
     }
@@ -58,7 +61,7 @@ describe("the ticket stub beside the send-off card", () => {
   });
 
   test("[share:cards-due-at-set-moments] given any card but the send-off, when it opens, then no stub is offered", async () => {
-    const view = adaSendOff();
+    const view = graduateSendOff();
     await renderWithView(<CardView />, { ...view, card: { ...view.card!, kind: "granted" } });
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).queryByRole("button", { name: say("share.stub.pick.stub") })).toBeNull();
@@ -68,7 +71,7 @@ describe("the ticket stub beside the send-off card", () => {
   test("[share:card-offered-never-sent] [share:card-drawn-on-device] given the stub picked on a phone, when the player taps share once, then one landscape picture goes to the share sheet; given the card picked, then the portrait one", async () => {
     const share = phoneShare();
     const drawn = fakeCanvas(() => 1000);
-    await renderWithView(<CardView />, adaSendOff());
+    await renderWithView(<CardView />, graduateSendOff());
     // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     const sheet = await screen.findByRole("dialog");
@@ -85,7 +88,7 @@ describe("the ticket stub beside the send-off card", () => {
   });
 
   test("[share:card-never-stored] given the send-off closed, then its type is kept with it on this device, the data page can read it, and the gallery offers the stub again with the type", async () => {
-    const view = adaSendOff();
+    const view = graduateSendOff();
     const { store } = await renderWithView(<CardView />, view);
     // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
@@ -103,7 +106,7 @@ describe("the ticket stub beside the send-off card", () => {
   });
 
   test("[share:card-never-stored] given no send-off closed yet, or only other cards kept, then the data page reads no type", () => {
-    const view = adaSendOff();
+    const view = graduateSendOff();
     expect(keptTypeOf(view.scenario)).toBeNull();
     gallery.getState().keep(view.scenario, { ...view.card!, kind: "granted" });
     expect(keptTypeOf(view.scenario)).toBeNull();

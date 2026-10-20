@@ -20,7 +20,7 @@ const RISK = say("phone.home.risk");
 // Decision 0013 (home:living-by-hand): nothing of the living is charged as the month turns at home, so the card says it is bought as you go.
 const BY_HAND = say("phone.home.charge.by-hand");
 const RENT = content.tuning.home.makokoUpkeep;
-const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === "obligation.upkeep")!.amount;
+const GRADUATE_UPKEEP = content.scenario["scenario.graduate"]!.obligations.find((owed) => owed.obligation === "obligation.upkeep")!.amount;
 
 async function openBills(game: Game): Promise<{ card: () => HTMLElement | null; unmount: () => void }> {
   const store = createGameStore(gameAuthority(game));
@@ -43,7 +43,7 @@ function times(haystack: string, needle: string): number {
 }
 
 describe("the home card", () => {
-  test("[home:view-carries-home] given Ada at the family house with money, when Bills opens, then the card says where she lives and its charge, offers the move to Makoko with its first month's rent, and says the risk once", async () => {
+  test("[home:view-carries-home] given the graduate at the family house with money, when Bills opens, then the card says where it lives and its charge, offers the move to Makoko with its first month's rent, and says the risk once", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { card, unmount } = await openBills(game);
@@ -52,7 +52,7 @@ describe("the home card", () => {
     // Decision 0013: the family's living is bought as you go, so its scenario figure is no charge on the card; the family
     // house says it as your share for the house, with Papa paying the rest (decision 0018).
     expect(said).toContain(say("phone.home.charge.by-hand.place.family-house"));
-    expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
+    expect(said).not.toContain(formatMoney(GRADUATE_UPKEEP, "NGN"));
     expect(moveButton("place.makoko")?.disabled).toBe(false);
     expect(moveButton("place.makoko")?.textContent).toContain(formatMoney(RENT, "NGN"));
     expect(moveButton("place.family-house")).toBeNull();
@@ -60,7 +60,7 @@ describe("the home card", () => {
     unmount();
   });
 
-  test("[home:view-carries-home] given Ada moving to Makoko from the card, when she confirms, then she lives there, the card shows Makoko's charge and the risk once, and the move back is shut for this month with its reason", async () => {
+  test("[home:view-carries-home] given the graduate moving to Makoko from the card, when it confirms, then it lives there, the card shows Makoko's charge and the risk once, and the move back is shut for this month with its reason", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { card, unmount } = await openBills(game);
@@ -85,7 +85,7 @@ describe("the home card", () => {
     unmount();
   });
 
-  test("[home:view-carries-home] given Ada short of the first month's rent, when Bills opens, then the move to Makoko is shut and says what it needs", async () => {
+  test("[home:view-carries-home] given the graduate short of the first month's rent, when Bills opens, then the move to Makoko is shut and says what it needs", async () => {
     const game = newGame();
     setPockets(game, { NGN: RENT - 100 });
     const { card, unmount } = await openBills(game);
@@ -94,8 +94,8 @@ describe("the home card", () => {
     unmount();
   });
 
-  test("[home:view-carries-home] given Ada taken in after the settlement was cleared, when Bills opens, then the card says who took her in and for how long, and that no rent is charged", async () => {
-    const game = start({ content: applyOverlay(content, { version: "test-card-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.ada" });
+  test("[home:view-carries-home] given the graduate taken in after the settlement was cleared, when Bills opens, then the card says who took it in and for how long, and that no rent is charged", async () => {
+    const game = start({ content: applyOverlay(content, { version: "test-card-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.graduate" });
     setPockets(game, { NGN: 500_000_00 });
     game.accept({ type: "home/move", to: "place.makoko" });
     game.endTurn();
@@ -130,7 +130,7 @@ describe("the home card", () => {
     unmount();
   });
 
-  test("[home:compound-room-is-a-home] given Ada in the room in a compound, when Bills opens month by month, then the card says the year's rent and when it is next taken, with the living costs on their own line, counting down to this month", async () => {
+  test("[home:compound-room-is-a-home] given the graduate in the room in a compound, when Bills opens month by month, then the card says the year's rent and when it is next taken, with the living costs on their own line, counting down to this month", async () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });
@@ -157,7 +157,7 @@ describe("the home card", () => {
     now.unmount();
   });
 
-  test("[home:view-carries-home] [home:moves-carry-cost-and-reason] given Ada at the family house with a month's hostel rent, when she takes the hostel room from the card, then the button says the first month, the ask says the month by month rent and no year's rent, and once moved the card says the rent a month", async () => {
+  test("[home:view-carries-home] [home:moves-carry-cost-and-reason] given the graduate at the family house with a month's hostel rent, when it takes the hostel room from the card, then the button says the first month, the ask says the month by month rent and no year's rent, and once moved the card says the rent a month", async () => {
     const month = content.tuning.home.hostelRentKobo;
     const game = newGame();
     setPockets(game, { NGN: month });
@@ -175,7 +175,7 @@ describe("the home card", () => {
     after.unmount();
   });
 
-  test("[home:compound-room-is-a-home] [home:view-carries-home] given Ada at the family house, when Bills opens, then no yearly rent shows and her charge reads as her share for the house, Papa paying the rest", async () => {
+  test("[home:compound-room-is-a-home] [home:view-carries-home] given the graduate at the family house, when Bills opens, then no yearly rent shows and its charge reads as its share for the house, Papa paying the rest", async () => {
     const game = newGame();
     const { unmount } = await openBills(game);
     expect(document.querySelector("[data-home-rent-year]")).toBeNull();
@@ -184,7 +184,7 @@ describe("the home card", () => {
     unmount();
   });
 
-  test("[home:compound-room-is-a-home] given Ada in the room a month on, when the move back is asked, then it says the family house's charge is living costs with food and light, and that the year's rent stays with the landlord", async () => {
+  test("[home:compound-room-is-a-home] given the graduate in the room a month on, when the move back is asked, then it says the family house's charge is living costs with food and light, and that the year's rent stays with the landlord", async () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });
@@ -196,11 +196,11 @@ describe("the home card", () => {
     // Decision 0013: back home the living is bought as you go, so the move names no figure a month for it; the house says
     // it as your share, with Papa paying the rest (decision 0018).
     expect(said).toContain("Back home: a free roof and Mama's pot. Your share for the house is what you buy as you go, and Papa pays the rest.");
-    expect(said).not.toContain(formatMoney(ADA_UPKEEP, "NGN"));
+    expect(said).not.toContain(formatMoney(GRADUATE_UPKEEP, "NGN"));
     unmount();
   });
 
-  test("[home:view-carries-home] given Ada abroad, when Bills opens, then no home card shows: the home is Lagos", async () => {
+  test("[home:view-carries-home] given the graduate abroad, when Bills opens, then no home card shows: the home is Lagos", async () => {
     const game = newGame();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     const { card, unmount } = await openBills(game);
@@ -213,7 +213,7 @@ describe("the room in a compound on the card (home:compound-room-is-a-home)", ()
   const MOVE_IN = content.tuning.home.compound.rentYear + int.bp(content.tuning.home.compound.rentYear, content.tuning.home.compound.feesBp);
   const LIVING = content.tuning.home.compound.upkeep;
 
-  test("[home:compound-room-is-a-home] [home:moves-carry-cost-and-reason] given Ada with the year's rent and fees, when she rents the room from the card, then the button says what it takes now, the ask says the year and fees and the month's living, and once confirmed she lives there at the room's charge", async () => {
+  test("[home:compound-room-is-a-home] [home:moves-carry-cost-and-reason] given the graduate with the year's rent and fees, when it rents the room from the card, then the button says what it takes now, the ask says the year and fees and the month's living, and once confirmed it lives there at the room's charge", async () => {
     const game = newGame();
     setPockets(game, { NGN: 1_000_000_00 });
     const { card, unmount } = await openBills(game);
@@ -243,7 +243,7 @@ describe("the room in a compound on the card (home:compound-room-is-a-home)", ()
     unmount();
   });
 
-  test("[home:compound-room-is-a-home] [home:moves-carry-cost-and-reason] given Ada short of the year's rent and fees, when Bills opens, then the move to the room is shut and says it needs the year's rent and fees, not a month's", async () => {
+  test("[home:compound-room-is-a-home] [home:moves-carry-cost-and-reason] given the graduate short of the year's rent and fees, when Bills opens, then the move to the room is shut and says it needs the year's rent and fees, not a month's", async () => {
     const game = newGame();
     setPockets(game, { NGN: MOVE_IN - 100 });
     const { unmount } = await openBills(game);
@@ -257,10 +257,10 @@ describe("the room in a compound on the card (home:compound-room-is-a-home)", ()
 
 describe("the home says what it is", () => {
   test("[home:moves-carry-cost-and-reason] given a life at the family house and one in the room in a compound, when Bills opens, then the home card opens with the place's own blurb", async () => {
-    const family = await openBills(newGame("scenario.ada"));
+    const family = await openBills(newGame("scenario.graduate"));
     expect(family.card()?.querySelector("[data-home-blurb]")?.textContent).toBe(text["place.family-house.blurb"] ?? "");
     family.unmount();
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });
     const room = await openBills(game);
@@ -268,7 +268,7 @@ describe("the home says what it is", () => {
     room.unmount();
   });
 
-  test("[home:view-carries-home] given Ada at the family house with money and three moves open, when Bills opens, then each move is its own row with its picture beside a button as wide as the row, never a narrow pill in a two-column grid", async () => {
+  test("[home:view-carries-home] given the graduate at the family house with money and three moves open, when Bills opens, then each move is its own row with its picture beside a button as wide as the row, never a narrow pill in a two-column grid", async () => {
     // The trap: the moves' words broken over three or four short lines, the hostel alone in a wide row.
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });

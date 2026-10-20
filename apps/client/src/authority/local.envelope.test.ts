@@ -28,10 +28,10 @@ async function send(authority: ReturnType<typeof localAuthority>, command: Loose
   return reply;
 }
 
-/** Ngozi, who holds a passport, sits the English test and ends the month at nine in the evening. */
+/** The nurse, who holds a passport, sits the English test and ends the month at nine in the evening. */
 async function testSat(storage: ReturnType<typeof removableStorage>, at: { now: number }) {
-  const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => at.now, scenario: "scenario.ngozi" });
-  await authority.newLife("scenario.ngozi");
+  const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => at.now, scenario: "scenario.nurse" });
+  await authority.newLife("scenario.nurse");
   await send(authority, { type: "activity/now", activity: "activity.sit-english-test", param: null });
   expect(english(await authority.view())?.state).toBe("pending");
   const turned = await send(authority, { type: "turn/end", slots: [] });

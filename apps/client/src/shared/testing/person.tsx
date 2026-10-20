@@ -13,7 +13,7 @@ import { createGameStore, type GameStore } from "../../authority/store";
 import { gameAuthority } from "./fixtures";
 import "./render";
 
-const TUNDE: Id<"scenario"> = "scenario.tunde";
+const BANKER: Id<"scenario"> = "scenario.banker";
 export const TOBI: Id<"person"> = "person.tobi-bank";
 export const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 export const PAIR = "pair-1";
@@ -29,9 +29,9 @@ export function eagerContent(): Content {
   return copy;
 }
 
-/** Tunde's life on the real content, or on the content given. */
+/** The banker's life on the real content, or on the content given. */
 export function peopleGame(given: Content = content): Game {
-  return start({ scenario: TUNDE, content: given });
+  return start({ scenario: BANKER, content: given });
 }
 
 /** Ends a month with these slots, granting a month first when none is banked. */

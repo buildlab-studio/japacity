@@ -1,5 +1,5 @@
 // Layer 3 of docs/design/02-quality-and-testing.md: long
-// random lives from Aniekan, every always-true rule
+// random lives from the teacher, every always-true rule
 // checked after every command, in a file of its own to stay inside engine:limits-tested-through-step's minute.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
@@ -11,11 +11,11 @@ import type { StrategyName } from "./players";
 import type { Walk } from "./random-play";
 import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
 
-const LIFE: Id<"scenario"> = "scenario.aniekan";
+const LIFE: Id<"scenario"> = "scenario.teacher";
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range] [scenario:state-built-from-scenario]";
 
-describe("random play on Aniekan's life", () => {
+describe("random play on the teacher's life", () => {
   test.prop([fc.string({ minLength: 1, maxLength: 10 }), fc.array(fc.nat(), { minLength: COMMANDS, maxLength: COMMANDS })], { numRuns: SEEDS_PER_LIFE, endOnFailure: true })(
     `${RULES} given ${LIFE}, when ${String(COMMANDS)} random legal commands are played, then each is accepted and after each the invariants hold, the view is whole and hides nothing, the books balance, every quality is in range, the state is plain data and the save replays`,
     (seed, picks) => {

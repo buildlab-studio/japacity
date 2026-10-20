@@ -15,10 +15,10 @@ const WELLBEING = "quality.wellbeing";
 const health = content.tuning.health;
 
 /**
- * Ada with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts her over the
- * line until her four months of living run out and the unpaid upkeep pulls her under. Decision
- * 0013 (home:living-by-hand): at home the living is not charged as the month turns, so her months are played with it
- * charged whole, as the simulation's relief tests charge it, for the unpaid months to pull her under.
+ * The graduate with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts the life over the
+ * line until its four months of living run out and the unpaid upkeep pulls it under. Decision
+ * 0013 (home:living-by-hand): at home the living is not charged as the month turns, so its months are played with it
+ * charged whole, as the simulation's relief tests charge it, for the unpaid months to pull it under.
  */
 function runDownView(): PlayerView {
   const game = chargedLivingGame();

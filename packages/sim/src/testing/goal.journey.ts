@@ -1,4 +1,4 @@
-// Test support for the goal and chapter rule tests of the whole life: Ada's
+// Test support for the goal and chapter rule tests of the whole life: the graduate's
 // recorded life up to the flight, then months abroad played through `step`.
 // Nothing in the simulation imports this file.
 import type { Accepted, Content, Id, SlotPick, World } from "../engine/types";
@@ -11,15 +11,15 @@ import { HUNT } from "./ids";
 const JOB_OFFER: Id<"offer"> = "offer.job";
 
 /**
- * Ada's careful life, replayed command by command up to and including the
+ * The graduate's careful life, replayed command by command up to and including the
  * flight. The world is the stand-in with one change: the tick of the flight,
  * in which the first month abroad is played, is a December tick, and every
  * twelfth after it, whatever month the recorded life flies in, so the tests
  * of the visit do not move with it.
  */
-export function flownAda(content: Content): Game {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("The ada-careful life is not recorded.");
+export function flownGraduate(content: Content): Game {
+  const save = lifeSaves["graduate-careful"];
+  if (save === undefined) throw new Error("The graduate-careful life is not recorded.");
   const flight = save.commands[save.commands.length - 1]?.tick ?? 0;
   const worldAt = (tick: number): World => {
     const world = standInWorld(save.worldSeed, tick, content);
@@ -28,13 +28,13 @@ export function flownAda(content: Content): Game {
     const december = (tick - flight) % 12 === 0 ? 1 : 0;
     return { ...world, vars: { ...world.vars, "var.season-december": december } };
   };
-  const { game, commands } = replayedGame("ada-careful", content, worldAt);
+  const { game, commands } = replayedGame("graduate-careful", content, worldAt);
   for (const { command, tick, sender } of commands) {
     if (game.tick !== tick) throw new Error(`The replay is at tick ${String(game.tick)}, the save at ${String(tick)}.`);
     // The handle fills `basedOn` from the state.
     game.accept(command, sender);
   }
-  if (game.state.place.where !== "abroad") throw new Error("Ada's recorded life ends before she is abroad.");
+  if (game.state.place.where !== "abroad") throw new Error("The graduate's recorded life ends before it is abroad.");
   return game;
 }
 

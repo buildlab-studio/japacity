@@ -80,7 +80,7 @@ describe("conversations in preset phrases", () => {
   test("[pair:everyone-meets-by-invite] [region:same-contact-everywhere] given a pair linked by an invite between accounts that signed up in France and Australia, when either says a phrase, then it is stored", async () => {
     const server = pairServer();
     const characters: string[] = [];
-    for (const [id, country, scenario] of [[INVITER, "FR", "scenario.ada"], [FRIEND, "AU", "scenario.tunde"]] as const) {
+    for (const [id, country, scenario] of [[INVITER, "FR", "scenario.graduate"], [FRIEND, "AU", "scenario.banker"]] as const) {
       const made = await server.deps.stores.account.create({ id, country, age: { passed: true, at: server.deps.now(), method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: id.replaceAll(/\W/g, "_"), usernameChangedAt: null, lastPlayedAt: server.deps.now() });
       if (!made.ok) throw new Error(made.detail);
       await call(server, "POST", "/api/character", id, { scenario });
@@ -97,8 +97,8 @@ describe("conversations in preset phrases", () => {
 
   test("[pair:phrase-checks-before-send] [region:same-contact-everywhere] given two players never connected by an invite, when one says a phrase to a pair key of the two, then it is refused and nothing is stored", async () => {
     const server = pairServer();
-    const a = await newLife(server, INVITER, "scenario.ada");
-    const b = await newLife(server, FRIEND, "scenario.tunde");
+    const a = await newLife(server, INVITER, "scenario.graduate");
+    const b = await newLife(server, FRIEND, "scenario.banker");
     const key = pairId(a, b);
 
     expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: false, code: "unknown-id" });
@@ -107,7 +107,7 @@ describe("conversations in preset phrases", () => {
 
   test("[pair:who-may-read-a-record] given a record, when each side reads it, then each sees it in its own terms, and a third account finds no such pair", async () => {
     const { server, key } = await linkedPair();
-    await newLife(server, "account-c", "scenario.zainab");
+    await newLife(server, "account-c", "scenario.developer");
 
     const inviter = await call<PairRead | PairRejection>(server, "GET", `/api/pair/${key}`, INVITER);
     const friend = await call<PairRead | PairRejection>(server, "GET", `/api/pair/${key}`, FRIEND);

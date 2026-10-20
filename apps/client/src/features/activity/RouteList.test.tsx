@@ -24,9 +24,9 @@ function addButton(id: string): HTMLButtonElement {
   return within(card(id)).getByRole("button", { name: nameOf(id) });
 }
 
-/** Tunde with two routes heard of: the hub desk's "Ask about routes" sheet. */
+/** The banker with two routes heard of: the hub desk's "Ask about routes" sheet. */
 function twoRoutesHeard() {
-  return viewAfter(newGame("scenario.tunde"), [
+  return viewAfter(newGame("scenario.banker"), [
     { type: "route/hear", route: UK, via: "test" },
     { type: "route/hear", route: CANADA, via: "test" },
   ]);
@@ -63,7 +63,7 @@ describe("the routes list", () => {
   });
 
   test("[world:one-action-one-sheet] given one route heard of, when someone who went shows, then it stays a card whose one row is picked, and the adviser stays a card with no list", async () => {
-    const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
+    const view = viewAfter(newGame("scenario.banker"), [{ type: "route/hear", route: UK, via: "test" }]);
     await renderWithView(<ActivityPicker only={[FRIEND, ADVISER]} />, view);
     const rows = within(card(FRIEND)).getAllByRole("radio");
     expect(rows.map((row) => [row.getAttribute("data-route"), row.getAttribute("aria-checked")])).toEqual([[UK, "true"]]);
@@ -74,7 +74,7 @@ describe("the routes list", () => {
   test("[world:one-action-one-sheet] given a sponsor's route looked into, when finding a sponsor shows, then its row says looked into", async () => {
     const SKILLED = "route.uk-skilled" as Id<"route">;
     const SPONSOR = "activity.find-sponsor";
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     viewAfter(game, [{ type: "route/hear", route: SKILLED, via: "test" }]);
     game.endTurn([{ activity: OFFICIAL, param: SKILLED }]);
     const view = game.view();

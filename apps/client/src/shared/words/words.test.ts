@@ -176,7 +176,7 @@ describe("the words the world's sheets borrow", () => {
   });
 
   test("[world:things-are-tappable-models] given the night shift beside a day job, when its card words are read, then they carry its pay a month and its chance, as the board's do", () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     const said = jobCardWords(view, "activity.night-support");
     const pay = content.activity["activity.night-support"]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The night shift has no pay.");

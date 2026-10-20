@@ -10,13 +10,13 @@ const WELLBEING = "quality.wellbeing";
 const COOK = "activity.cook-at-home";
 const NAP = "activity.nap";
 
-function ngozi(): Game {
-  return start({ content, scenario: "scenario.ngozi" });
+function nurse(): Game {
+  return start({ content, scenario: "scenario.nurse" });
 }
 
 describe("the body", () => {
   test("[quality:body-belly-and-energy] given a new life, when its body is read, then the belly and the energy start where the scenario says, hidden from the profile and said in words only", () => {
-    const game = ngozi();
+    const game = nurse();
     expect(game.state.quality[BELLY]).toBe(60);
     expect(game.state.quality[ENERGY]).toBe(70);
     expect(content.quality[BELLY]).toMatchObject({ shown: false, start: 60 });
@@ -24,7 +24,7 @@ describe("the body", () => {
   });
 
   test("[quality:body-belly-and-energy] given a new life, when its view is read, then it carries the belly and the energy for the screen to say in words, and no other hidden quality", () => {
-    const qualities = ngozi().view().qualities;
+    const qualities = nurse().view().qualities;
     expect(qualities.find((quality) => quality.id === BELLY)?.value).toBe(60);
     expect(qualities.find((quality) => quality.id === ENERGY)?.value).toBe(70);
     const hidden = qualities.filter((quality) => content.quality[quality.id]?.shown === false).map((quality) => quality.id);
@@ -32,7 +32,7 @@ describe("the body", () => {
   });
 
   test("[quality:body-belly-and-energy] [activity:acts-may-repeat-in-month] given a meal and a nap, when each is done now, then the belly and the energy move at once, less the time the act takes", () => {
-    const game = ngozi();
+    const game = nurse();
     const { body } = content.tuning.turn;
     const meal = content.activity[COOK]!;
     game.accept({ type: "activity/now", activity: COOK, param: null });
@@ -46,7 +46,7 @@ describe("the body", () => {
   });
 
   test("[quality:body-belly-and-energy] given a hungry and spent life, when the month turns, then wellbeing pays for both and the body rests back toward sixty", () => {
-    const game = ngozi();
+    const game = nurse();
     const { body } = content.tuning.turn;
     // Nollywood until the belly is low (the time lived takes it down), then water, which tires, until the body is spent:
     // an act that takes effort then waits for sleep (activity:spent-body-refuses-acts).

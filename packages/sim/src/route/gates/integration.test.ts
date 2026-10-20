@@ -38,13 +38,13 @@ function toKnown(game: Game, route: Id<"route">): void {
   expect(routeOf(game, route).state).toBe("known");
 }
 
-function ngozi(used: Content, options: LifeOptions = {}): Game {
-  return readyLife(used, { from: "scenario.ngozi", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), tuning: ALWAYS_GRANTED, ...options });
+function nurse(used: Content, options: LifeOptions = {}): Game {
+  return readyLife(used, { from: "scenario.nurse", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), tuning: ALWAYS_GRANTED, ...options });
 }
 
 describe("the gates through the dispatcher", () => {
   test("[route-gates:taking-sponsor-records-it] [route-gates:deception-bans-country] given a fraud sponsor taken through the offer's effect, when the application is decided, then the fraud rode on the route's secret, the refusal names sponsor, every known route into the country is refused with the ban, and the ban lifts on its month with the routes known again", () => {
-    const game = ngozi(shortBan);
+    const game = nurse(shortBan);
     toKnown(game, CARE_ROUTE);
     // A second route into the same country, known before the decision, is banned too.
     toKnown(game, SKILLED);
@@ -72,10 +72,10 @@ describe("the gates through the dispatcher", () => {
   test("[route-gates:sponsored-status-on-departure] [route-gates:employer-flies-and-holds-passport] given the sponsor and contract gates, when the job on arrival is asked for, then each names the job its block or its agent's role gives, and the study gate names none", () => {
     const care = content.route[CARE_ROUTE]!;
     const held = { ...GATES.sponsor.initial() };
-    expect(GATES.sponsor.departureJob?.(care, { ...routeOf(ngozi(content), CARE_ROUTE), gate: held })).toBe("activity.job-uk-care");
+    expect(GATES.sponsor.departureJob?.(care, { ...routeOf(nurse(content), CARE_ROUTE), gate: held })).toBe("activity.job-uk-care");
     const gulf = content.route[GULF_ROUTE]!;
     const agent = { gate: "contract" as const, agent: { employer: "agent", salary: 180000, role: "cleaner" } };
-    expect(GATES.contract.departureJob?.(gulf, { ...routeOf(ngozi(content), GULF_ROUTE), gate: agent })).toBe("activity.job-gulf-cleaner");
+    expect(GATES.contract.departureJob?.(gulf, { ...routeOf(nurse(content), GULF_ROUTE), gate: agent })).toBe("activity.job-gulf-cleaner");
     expect("departureJob" in GATES.study).toBe(false);
   });
 

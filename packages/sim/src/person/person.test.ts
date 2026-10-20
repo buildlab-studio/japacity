@@ -15,7 +15,7 @@ import { bondWith } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { computerFacts } from "./person.facts";
 import { factsOf, WEDDING_SPOTS } from "./person.logic";
-import { PROLOGUE, TUNDE, UK_DEPENDANT } from "../testing/ids";
+import { PROLOGUE, BANKER, UK_DEPENDANT } from "../testing/ids";
 
 const TOBI: Id<"person"> = "person.tobi-bank";
 const AMAKA: Id<"person"> = "person.amaka-nurse";
@@ -49,7 +49,7 @@ function eager(copy: Content): void {
 }
 
 function life(options: StartOptions = {}): Game {
-  return start({ scenario: TUNDE, content, ...options });
+  return start({ scenario: BANKER, content, ...options });
 }
 
 function turn(game: Game, slots: SlotPick[] = []) {
@@ -211,7 +211,7 @@ describe("filling a slot", () => {
     [252, true],
   ])("[person:computer-candidates-labelled] given a character aged %i months, when the candidates are read, then Tobi (21 or more) is listed: %s", (age, listed) => {
     const young = tuned((copy) => {
-      copy.scenario[TUNDE]!.qualities["quality.age-months"] = age;
+      copy.scenario[BANKER]!.qualities["quality.age-months"] = age;
     });
     const game = life({ content: young });
     expect(game.view().people.candidates.some((candidate) => candidate.person === TOBI)).toBe(listed);
@@ -775,14 +775,14 @@ describe("what an end undoes", () => {
     expect(game.state.status.current?.clock).toBe(2);
   });
 
-  /** Tunde with Kelechi, who leads a joint on the skilled route from her sponsored job in the UK, and his dependant application in. */
+  /** The banker with Kelechi, who leads a joint on the skilled route from her sponsored job in the UK, and the banker's dependant application in. */
   function dependantApplying(kinds?: StartOptions["kinds"]): { game: Game; bond: string } {
     const game = life({ content: tuned(eager), ...(kinds === undefined ? {} : { kinds }) });
     const bond = court(game, KELECHI);
     for (let index = 0; index < numbers.partnerMoments; index += 1) turn(game, [CALL]);
     game.accept({ type: "people/propose", bond, step: "partner" });
     game.accept({ type: "people/propose", bond, step: "joint", route: "route.uk-skilled", lead: "them" });
-    // Tunde holds none of the papers the dependant route asks for, so the test puts his application in place.
+    // The banker holds none of the papers the dependant route asks for, so the test puts its application in place.
     const held = game.state.route[UK_DEPENDANT]!;
     const month = game.state.turn.month;
     const visa = { submittedMonth: month, decisionMonth: month + 1, rules: { livingLine: 0, livingMonths: 0, strictness: 0 }, unexplainedBp: 0, interviewScore: null, surchargePaid: 0 };
@@ -963,7 +963,7 @@ describe("computer characters from offers", () => {
     const offered = tuned((copy) => {
       copy.offer[PAPERS_OFFER]!.fraudBp = fraudBp;
       // Enough cash for the largest fee the offer can ask.
-      copy.scenario[TUNDE]!.pockets.NGN = { bank: 0, cash: 1500000000 };
+      copy.scenario[BANKER]!.pockets.NGN = { bank: 0, cash: 1500000000 };
     });
     const game = life({ content: offered });
     applyEffects(game, [{ type: "offer/open", offer: PAPERS_OFFER }]);

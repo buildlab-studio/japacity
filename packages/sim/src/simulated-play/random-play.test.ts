@@ -1,5 +1,5 @@
 // Layer 3 of docs/design/02-quality-and-testing.md on the real content: long
-// random lives from Ada and Tunde, every always-true rule checked after every
+// random lives from the graduate and the banker, every always-true rule checked after every
 // command. The other lives and life abroad have files of their own, so each
 // file stays inside engine:limits-tested-through-step's minute.
 import { content } from "@japacity/content";
@@ -12,7 +12,7 @@ import type { StrategyName } from "./players";
 import type { Walk } from "./random-play";
 import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
 
-const LIVES: Id<"scenario">[] = ["scenario.ada", "scenario.tunde"];
+const LIVES: Id<"scenario">[] = ["scenario.graduate", "scenario.banker"];
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range]";
 

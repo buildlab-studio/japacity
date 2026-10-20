@@ -26,7 +26,7 @@ const LEARN = "activity.learn-tech" as Id<"activity">;
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 
 async function played(): Promise<{ store: GameStore; sent: ReturnType<typeof gameAuthority>["sent"]; game: ReturnType<typeof newGame> }> {
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   const authority = gameAuthority(game);
   const store = createGameStore(authority);
   await store.getState().refresh();
@@ -127,7 +127,7 @@ describe("the thing's chip", () => {
   test("[activity:now-acts-and-month-acts] given a now-act done this month, when the acts the place offers are read, then it is gone this month and back the next; a purchase stays", async () => {
     const { store } = await played();
     const job = store.getState().view!.activities.find((option) => option.id === HUNT)?.params?.[0];
-    if (job === undefined) throw new Error("Ada has no job to hunt.");
+    if (job === undefined) throw new Error("The graduate has no job to hunt.");
     expect(actsOffered(store.getState().view!)).toEqual(expect.arrayContaining([MEETUP, HUNT, job, LOTTO]));
     await act(async () => {
       await actOnCard({ activity: MEETUP, param: null }, store.getState());

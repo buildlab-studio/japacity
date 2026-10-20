@@ -21,7 +21,7 @@ const LOOK = "activity.look-into-route";
 
 /** The nurse who has heard of the master's and of health care, and has read the care page. */
 function nurseOnCare(): Game {
-  const game = newGame("scenario.ngozi");
+  const game = newGame("scenario.nurse");
   for (let month = 0; month < 8 && game.state.route[CARE]?.state === "unknown"; month += 1) game.endTurn();
   game.endTurn([slot(LOOK, CARE)]);
   if (game.state.route[UK]?.state !== "heard") throw new Error("The nurse has not heard of the master's.");

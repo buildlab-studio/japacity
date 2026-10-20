@@ -12,8 +12,8 @@ import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-/** The simulated canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
-const POINTS: AbroadLife = { strategy: "canada", life: "scenario.zainab", seed: "golden-zainab-canada-0", country: "country.canada", money: "CAD", holding: 60_000 };
+/** The simulated canada player on the developer's life, the recorded developer-canada: lands in Calgary in month 42, the warehouse job its own in month 46. */
+const POINTS: AbroadLife = { strategy: "canada", life: "scenario.developer", seed: "golden-developer-canada-1", country: "country.canada", money: "CAD", holding: 60_000 };
 
 test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [streets:calgary-life-by-hand] [streets:dubai-life-by-hand] given a points life landed in Calgary, when it buys the transit pass, rides the bus to the superstore for the weekly shop, takes the CTrain to the warehouse and rides home, then no ride asks anything in the pass month, the shop takes dollars and the warehouse says On shift", async ({ page }) => {
   test.setTimeout(480_000);

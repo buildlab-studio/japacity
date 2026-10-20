@@ -16,7 +16,7 @@ import { judged } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import type { WalletEvent } from "./wallet.events";
 import { pocketFor, REASON_LINE } from "./wallet.logic";
-import { TUNDE } from "../testing/ids";
+import { BANKER } from "../testing/ids";
 
 const tuning = content.tuning.wallet;
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
@@ -48,7 +48,7 @@ function play(options: { scenario?: Id<"scenario">; content?: Content; vars?: Li
   const base = standInWorld("world-1", 0, used);
   const live: Live = { rates: ROUND_RATES, vars: options.vars ?? {} };
   const game = start({
-    scenario: options.scenario ?? TUNDE,
+    scenario: options.scenario ?? BANKER,
     content: used,
     ...(options.seed === undefined ? {} : { seed: options.seed }),
     worldAt: (tick) => ({ tick, rates: live.rates, vars: { ...base.vars, ...live.vars } as World["vars"], news: [], era: null, lottery: null, placeNames: {} }),
@@ -269,7 +269,7 @@ describe("the ledger", () => {
     for (const currency of ["NGN", "USD"] as const) expect(ledger(game, currency).held).toBe(ledger(game, currency).booked);
   });
 
-  test.prop([fc.constantFrom<Id<"scenario">>("scenario.ada", "scenario.tunde", "scenario.zainab"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
+  test.prop([fc.constantFrom<Id<"scenario">>("scenario.graduate", "scenario.banker", "scenario.developer"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
     numRuns: 20,
   })("[wallet:ledger-balances-each-currency] [wallet:no-pocket-below-zero] given random legal commands, when played, then for each currency bank plus cash plus locked equals credits less debits", (scenario, seed, picks) => {
     const game = start({ scenario, seed, content });
@@ -628,7 +628,7 @@ describe("foreign fees", () => {
   });
 
   test("[wallet:foreign-fee-payment-order] given not enough money anywhere, when the fee is paid, then nothing is paid", () => {
-    const { game } = play({ scenario: "scenario.ada" });
+    const { game } = play({ scenario: "scenario.graduate" });
     const { bank } = game.state.wallet.pockets.NGN;
     const tooBig = mulDiv(bank, 100, ROUND_RATES.GBP.official) + 1;
     expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: tooBig }).met).toBe(false);
@@ -638,7 +638,7 @@ describe("foreign fees", () => {
   });
 
   test("[wallet:foreign-fee-payment-order] given the naira bank holds exactly the fee and its charge, when it is paid, then it is accepted; a kobo less and it is not", () => {
-    const { game } = play({ scenario: "scenario.ada" });
+    const { game } = play({ scenario: "scenario.graduate" });
     const naira = mulDivCeil(10000, ROUND_RATES.GBP.official, 100);
     const needed = naira + bp(naira, tuning.bankChargeBp);
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: needed, reason: "gift" }]);
@@ -654,7 +654,7 @@ describe("foreign fees", () => {
 
 describe("locked money", () => {
   test("[wallet:locked-money-stays-put] given a locked credit, when it lands, then it is in the locked pocket and cannot be moved, converted or spent from any pocket", () => {
-    const { game } = play({ scenario: "scenario.ada" });
+    const { game } = play({ scenario: "scenario.graduate" });
     const { bank } = game.state.wallet.pockets.NGN;
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500000000, reason: "held-funds", locked: true }]);
     expect(game.state.wallet.pockets.NGN).toMatchObject({ bank, locked: 500000000 });
@@ -667,7 +667,7 @@ describe("locked money", () => {
   });
 
   test("[wallet:locked-money-stays-put] given locked money, when a debit names the locked pocket, then it is removed", () => {
-    const { game } = play({ scenario: "scenario.ada" });
+    const { game } = play({ scenario: "scenario.graduate" });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500000000, reason: "held-funds", locked: true }]);
     const result = apply(game, [{ type: "money/take", currency: "NGN", pocket: "locked", amount: 500000000, reason: "held-funds-return" }]);
     expect(walletEvents(result)).toEqual([{ type: "wallet/debited", currency: "NGN", pocket: "locked", amount: 500000000, reason: "held-funds-return" }]);
@@ -755,7 +755,7 @@ describe("command amounts", () => {
 
 describe("requirements and view", () => {
   test("[wallet:locked-money-stays-put] given bank, cash and locked money, when money/min is judged, then bank and cash count, a named pocket counts alone, locked never", () => {
-    const { game } = play({ scenario: "scenario.ada" });
+    const { game } = play({ scenario: "scenario.graduate" });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 900000000, reason: "held-funds", locked: true }]);
     const { bank, cash } = game.state.wallet.pockets.NGN;
     expect(judged(game, { type: "money/min", currency: "NGN", amount: bank + cash })).toEqual({ met: true, have: bank + cash, need: bank + cash });
@@ -793,7 +793,7 @@ describe("lines", () => {
 
 describe("totals as a requirement", () => {
   test("[wallet:ledger-total-requirement] given money that came in under a reason, when wallet/total is judged, then it reads the ledger's total for that reason and currency, in or out, with have and need", () => {
-    const { game } = play({ scenario: TUNDE });
+    const { game } = play({ scenario: BANKER });
     const opening = game.state.wallet.totals.in.opening?.NGN ?? 0;
     expect(opening).toBeGreaterThan(0);
     expect(judged(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening })).toEqual({ met: true, have: opening, need: opening });

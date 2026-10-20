@@ -68,7 +68,7 @@ describe("the official page", () => {
 
 describe("asking around at the park", () => {
   test("[advice:four-ways-to-learn-route] given the Gulf heard of, when the player asks around at the motor park, then the Gulf is known and the line says the drivers told it, never that a page was read", () => {
-    const game = start({ content, scenario: "scenario.ada", seed: "seed-1" });
+    const game = start({ content, scenario: "scenario.graduate", seed: "seed-1" });
     applyEffects(game, [{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
     const result = game.endTurn([slot("activity.ask-around")]);
     expect(game.state.route["route.gulf-contract"]?.state).toBe("known");

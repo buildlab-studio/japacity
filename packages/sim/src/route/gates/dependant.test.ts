@@ -28,7 +28,7 @@ function leadOn(route: Id<"route">, state: RouteStateName, over: Partial<PersonF
 }
 
 /**
- * Ada married to a lead on `lead`, the joint agreed with the lead leading, and
+ * The graduate married to a lead on `lead`, the joint agreed with the lead leading, and
  * the dependant route known at once as person:joint-application-proposed makes it: the people kind's
  * hearing and looking into, played here as effects and a slot.
  */

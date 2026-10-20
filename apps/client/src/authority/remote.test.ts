@@ -155,8 +155,8 @@ describe("the remote authority", () => {
   test("[account:one-character-per-account] given a life chosen, then it posts the scenario to /api/character and takes the view it answers", async () => {
     const { server, remote } = setUp();
     server.answer("POST /api/character", viewReply(0));
-    const view = await remote.newLife("scenario.ada");
-    expect(server.sent[0]).toMatchObject({ method: "POST", path: "/api/character", body: { scenario: "scenario.ada" } });
+    const view = await remote.newLife("scenario.graduate");
+    expect(server.sent[0]).toMatchObject({ method: "POST", path: "/api/character", body: { scenario: "scenario.graduate" } });
     expect(view.v).toBe(0);
     expect(remote.held()).toBe(0);
   });
@@ -165,7 +165,7 @@ describe("the remote authority", () => {
     const { server, remote } = setUp();
     server.answer("POST /api/character", { status: 409, body: { ok: false, code: "one-character", detail: "has one" } });
     server.answer("GET /api/view", viewReply(12));
-    expect((await remote.newLife("scenario.ada")).v).toBe(12);
+    expect((await remote.newLife("scenario.graduate")).v).toBe(12);
   });
 
   test("given the world asked for, then it comes from GET /api/world and holds only what the server sent", async () => {

@@ -132,7 +132,7 @@ describe("activities abroad", () => {
     expect(activity["activity.december-home-uk"]?.cost).toEqual([{ currency: "GBP", amount: 310000, reason: "fare" }]);
     expect(activity["activity.december-home-ca"]?.cost).toEqual([{ currency: "CAD", amount: 594000, reason: "fare" }]);
     expect(activity["activity.december-home-uae"]?.cost).toEqual([{ currency: "AED", amount: 684000, reason: "fare" }]);
-    // Ngozi's pay: a staff nurse at ₦180,000 a month (route-gates.md).
+    // The nurse's pay: a staff nurse at ₦180,000 a month (route-gates.md).
     expect(activity["activity.job-nurse"]?.pay).toEqual({ currency: "NGN", amount: 18000000 });
   });
 

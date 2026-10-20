@@ -25,7 +25,7 @@ const SHARING: GoogleRoundTrip = { callbackURL: "/", answer: GOOGLE_PROFILE };
 
 /** A character for the jar's account, and one month played. Returns the view after it. */
 async function playAMonth(h: Harness, jar: Jar): Promise<Extract<ViewReply, { ok: true }>> {
-  expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } })).status).toBe(200);
+  expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.graduate" } })).status).toBe(200);
   const first = await (await h.call("/api/view", { jar })).json<ViewReply>();
   if (!first.ok) throw new Error(first.detail);
   const sent = await (await h.call("/api/command", { method: "POST", jar, json: { command: { type: "turn/end", slots: [], basedOn: first.view.v }, basedOn: first.view.v } })).json<ServerReply>();
@@ -510,7 +510,7 @@ describe("the last time a life was played", () => {
     const { jar, account } = await h.guest();
     expect((await h.deps.stores.account.get(account))?.lastPlayedAt).toBe(start);
     vi.setSystemTime(start + 60_000);
-    await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } });
+    await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.graduate" } });
     expect((await h.deps.stores.account.get(account))?.lastPlayedAt).toBe(start + 60_000);
     vi.setSystemTime(start + 120_000);
     const view = await (await h.call("/api/view", { jar })).json<ViewReply>();

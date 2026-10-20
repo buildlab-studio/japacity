@@ -35,7 +35,7 @@ const TO_OFFICE: Id<"activity"> = "activity.see-agent-office";
 const advice = content.tuning.advice;
 const stop = content.offer[STOP]!;
 
-/** Ada with her papers, past the first chapter (a job, a month's pay, the UK route known), and the Gulf route heard. */
+/** The graduate with its papers, past the first chapter (a job, a month's pay, the UK route known), and the Gulf route heard. */
 function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: number): Game {
   const alone = (base: Content): Content => (siblings === undefined ? base : { ...base, scenario: { ...base.scenario, [READY]: { ...base.scenario[READY]!, siblings } } });
   const game = readyLife(content, { quiet: true, seed, qualities: { [NETWORK]: network }, change: alone });

@@ -35,9 +35,9 @@ function slots(state: "planned"): Element[] {
   return [...document.querySelectorAll(`[data-month-plan] [data-slot="${state}"]`)];
 }
 
-/** Ada after a month's hunt that found the teacher's job, and the job taken. */
-function adaTeaching() {
-  const game = newGame("scenario.ada");
+/** The graduate after a month's hunt that found the teacher's job, and the job taken. */
+function graduateTeaching() {
+  const game = newGame("scenario.graduate");
   game.endTurn([slot("activity.job-hunt", TEACHER)]);
   const offer = game.view().offers.find((candidate) => candidate.entry === "offer.job");
   if (offer === undefined) throw new Error("The hunt found no job on this seed.");
@@ -110,7 +110,7 @@ describe("the Calendar's month", () => {
   });
 
   test("[world:month-acts-carry-on] given a job held, when the Calendar shows, then the job is its first line and no line says the month is empty or quiet", async () => {
-    const view = adaTeaching();
+    const view = graduateTeaching();
     expect(view.job.id).toBe(TEACHER);
     await renderWithView(<Calendar />, view);
     const rows = [...document.querySelectorAll("[data-calendar-app] li")];
@@ -132,7 +132,7 @@ describe("the Calendar's month", () => {
 
 describe("commitments carry on", () => {
   test("[world:month-acts-carry-on] given a course started, when the month ends, then it is still planned for the next month without being picked again, and stopping it from the Calendar takes it out", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const authority = gameAuthority(game);
     const store = createGameStore(authority);
     await store.getState().refresh();
@@ -161,7 +161,7 @@ describe("commitments carry on", () => {
     const view = engineView();
     const allowed = view.activities.filter((option) => option.allowed && option.affordable && option.params === null && plannable(option.id)).map((option) => option.id);
     const [first, second] = allowed;
-    if (first === undefined || second === undefined) throw new Error("Two month-acts are open to Ada.");
+    if (first === undefined || second === undefined) throw new Error("Two month-acts are open to the graduate.");
     const shut = { ...view, activities: view.activities.map((option) => (option.id === second ? { ...option, allowed: false } : option)) };
     expect(carriedPlan([{ activity: first, param: null }, { activity: second, param: null }, null], shut)).toEqual([{ activity: first, param: null }]);
     expect(carriedPlan([{ activity: MEETUP, param: null }, { activity: REST, param: null }, { activity: first, param: null }], view)).toEqual([{ activity: first, param: null }]);
@@ -171,7 +171,7 @@ describe("commitments carry on", () => {
   });
 
   test("[activity:now-acts-and-month-acts] [world:month-acts-carry-on] given a month kept on the device from before holding a now-act and cooking, when the game loads, then the plan holds only what takes the month and Next month is accepted", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const authority = gameAuthority(game);
     // Decision 0012 (activity:acts-may-repeat-in-month): a month kept on the device may hold the coding course in its plan; the course
     // answers at once, so it is dropped with the other now-acts, and the commitment that carries on stays.
@@ -190,28 +190,28 @@ describe("commitments carry on", () => {
 });
 
 describe("the Calendar's other sections", () => {
-  test("[obligation:cooking-and-fetching-water] given Ada cooking and fetching water now, when the Calendar shows, then the chores done say what they took off this month, from the relief held on the upkeep", async () => {
+  test("[obligation:cooking-and-fetching-water] given the graduate cooking and fetching water now, when the Calendar shows, then the chores done say what they took off this month, from the relief held on the upkeep", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so the chores take nothing
     // off and the Calendar says no saving.
-    const lived = newGame("scenario.ada");
+    const lived = newGame("scenario.graduate");
     lived.accept({ type: "activity/now", activity: COOK, param: null });
     lived.accept({ type: "activity/now", activity: WATER, param: null });
     expect(choresWords(lived.view())).toBeNull();
     // The saving's words are tested on the living charged whole, as the simulation's relief tests charge it.
-    const game = chargedLivingGame("scenario.ada");
+    const game = chargedLivingGame("scenario.graduate");
     const before = game.view();
     expect(choresWords(before)).toBeNull();
     game.accept({ type: "activity/now", activity: COOK, param: null });
     game.accept({ type: "activity/now", activity: WATER, param: null });
     const view = game.view();
     const upkeep = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "upkeep");
-    if (upkeep === undefined) throw new Error("Ada pays an upkeep at home.");
+    if (upkeep === undefined) throw new Error("The graduate pays an upkeep at home.");
     const share = content.tuning.room.cookedBp + content.tuning.room.waterBp;
     await renderWithView(<Calendar />, view);
     expect(document.querySelector("[data-month-chores]")?.textContent).toBe(`Cooked and fetched water: ${formatMoney(Math.floor((upkeep.due * share) / 10000), "NGN")} less this month`);
   });
 
-  test("[place:country-pass-covers-ways] [world:ride-abroad-and-workplace] given Ada in London, when she buys the month's bus pass, then the Calendar says the bus is free till the month ends, and before it says nothing of a pass", async () => {
+  test("[place:country-pass-covers-ways] [world:ride-abroad-and-workplace] given the graduate in London, when it buys the month's bus pass, then the Calendar says the bus is free till the month ends, and before it says nothing of a pass", async () => {
     const game = abroadGame();
     expect(passWords(game.view())).toBeNull();
     const bought = game.accept({ type: "activity/now", activity: "activity.bus-pass-uk", param: null });
@@ -219,7 +219,7 @@ describe("the Calendar's other sections", () => {
     expect(passWords(game.view())).toBe("Bus pass bought: the bus is free till the month ends");
     await renderWithView(<Calendar />, game.view());
     expect(document.querySelector("[data-month-pass]")?.textContent).toBe("Bus pass bought: the bus is free till the month ends");
-    expect(passWords(engineView("scenario.ada"))).toBeNull();
+    expect(passWords(engineView("scenario.graduate"))).toBeNull();
   });
 
   test("[world:top-band-is-lively-pill] [world:phone-holds-what-phones-hold] given what is coming, when a paper on its way or the room's rent is tapped in the Calendar, then Papers or Bills opens; an ask names where it is answered", async () => {

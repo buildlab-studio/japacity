@@ -87,7 +87,7 @@ describe("a person met in a place", () => {
     expect(name?.textContent).toContain("Tobi");
     expect(name?.querySelector("[data-person-mark]")?.textContent).toBe(cityWords("ui.people.mark.computer"));
     // His fan, which a tap opens (world:fan-of-sticker-buttons), carries the same tag beside his name.
-    render(<Fan thing={tobi!.id} title={cityWords(tobi!.label)} mark={tobi!.mark} entries={fanModel(fanEntriesOf(tobi!), engineView("scenario.ada"), [])} onAct={vi.fn()} onFallback={vi.fn()} />);
+    render(<Fan thing={tobi!.id} title={cityWords(tobi!.label)} mark={tobi!.mark} entries={fanModel(fanEntriesOf(tobi!), engineView("scenario.graduate"), [])} onAct={vi.fn()} onFallback={vi.fn()} />);
     act(() => anchorFan(tobi!.id, { x: 90, y: 420 }));
     const title = document.querySelector(`[data-fan="${tobi!.id}"] [data-fan-title]`);
     expect(title?.textContent).toContain("Tobi");

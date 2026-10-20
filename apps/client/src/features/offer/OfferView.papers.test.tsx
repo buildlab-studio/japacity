@@ -12,7 +12,7 @@ const PAPERS = "offer.papers-marriage";
 
 describe("the papers offer", () => {
   test("[person:papers-marriage-offer] given the papers offer open, then it reads as any offer, with its fee in naira on the take button and its warning signs from content", async () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     const offer = openOffer(game, PAPERS);
     const fee = offer.terms.fee as number;
     const { authority } = await renderWithGame(<OfferView />, game);

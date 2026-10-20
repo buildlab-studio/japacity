@@ -135,7 +135,7 @@ describe("the preset played by the server", () => {
 
   test("[server:server-plays-prologue-preset] given a character past its prologue, when the preset is sent, then it is refused not-legal and nothing is written", async () => {
     const server = testServer();
-    const fixed = await newLife(server, "acc-1", "scenario.ada");
+    const fixed = await newLife(server, "acc-1", "scenario.graduate");
     const before = await held(server, fixed);
     expect(await preset(server, "acc-1", { ...DEVELOPER, basedOn: 0 })).toMatchObject({ status: 200, body: { ok: false, code: "not-legal" } });
     expect(await held(server, fixed)).toEqual(before);

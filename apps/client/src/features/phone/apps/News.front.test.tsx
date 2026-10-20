@@ -31,7 +31,7 @@ const RESULT: LotteryResult = {
 };
 
 function online(last: LotteryResult | null): PlayerView {
-  const view = engineView("scenario.tunde");
+  const view = engineView("scenario.banker");
   return {
     ...view,
     lottery: {

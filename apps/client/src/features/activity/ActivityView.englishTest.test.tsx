@@ -10,8 +10,8 @@ import { englishOf, ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared
 import { nameOf } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
-function adaWith(english: number) {
-  const game = newGame("scenario.ada");
+function graduateWith(english: number) {
+  const game = newGame("scenario.graduate");
   return viewAfter(game, [
     { type: "quality/add", quality: "quality.english", amount: english - englishOf(game.view()) },
     { type: "document/grant", document: "document.passport" },
@@ -19,8 +19,8 @@ function adaWith(english: number) {
 }
 
 describe("the sit-the-test sheet", () => {
-  test("[world:one-action-one-sheet] given Ada's English a long shot from 6.0, when the test's sheet opens from the desk, then it says the chance and to study first, and the study act is on the same sheet after the test", async () => {
-    const view = adaWith(40);
+  test("[world:one-action-one-sheet] given the graduate's English a long shot from 6.0, when the test's sheet opens from the desk, then it says the chance and to study first, and the study act is on the same sheet after the test", async () => {
+    const view = graduateWith(40);
     expect(view.activities.find((option) => option.id === ENGLISH_TEST)?.allowed).toBe(true);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     const chance = testChance(view);
@@ -30,8 +30,8 @@ describe("the sit-the-test sheet", () => {
     expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([nameOf(ENGLISH_TEST), nameOf(STUDY_ENGLISH)]);
   });
 
-  test("[world:one-action-one-sheet] given Ada's English likely to reach 6.0, when the test's sheet opens, then it says so and holds the test alone", async () => {
-    const view = adaWith(75);
+  test("[world:one-action-one-sheet] given the graduate's English likely to reach 6.0, when the test's sheet opens, then it says so and holds the test alone", async () => {
+    const view = graduateWith(75);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     expect(screen.getByText("Band 6.0 this sitting: likely.")).toBeDefined();
     expect(screen.queryByText("Study first: a month of study lifts the chance.")).toBeNull();

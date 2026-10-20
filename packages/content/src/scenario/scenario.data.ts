@@ -1,4 +1,5 @@
-// From docs/rules/scenario.md, "The three lives". Grades and levels are
+// From docs/rules/scenario.md, "The graduate, the banker and the developer": ready lives with no name or sex of their
+// own (streets:sex-optional-with-neutral-path). Grades and levels are
 // numbered as in docs/rules/quality.md: a bachelor's is 3, a second upper 4,
 // a second lower 3.
 import type { Id, ScenarioEntry } from "@japacity/sim";
@@ -6,9 +7,8 @@ import type { Id, ScenarioEntry } from "@japacity/sim";
 import { naira } from "../units";
 
 export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
-  "scenario.ada": {
-    id: "scenario.ada",
-    sex: "f",
+  "scenario.graduate": {
+    id: "scenario.graduate",
     qualities: {
       // 23 years 2 months.
       "quality.age-months": 278,
@@ -45,9 +45,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     documents: [],
     obligations: [{ obligation: "obligation.upkeep", amount: naira(95000) }],
   },
-  "scenario.tunde": {
-    id: "scenario.tunde",
-    sex: "m",
+  "scenario.banker": {
+    id: "scenario.banker",
     qualities: {
       // 28 years 6 months.
       "quality.age-months": 342,
@@ -67,7 +66,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.energy": 70,
       "quality.credit-mark": 0,
       "quality.care": 0,
-      // car.md: Tunde can drive.
+      // car.md: the banker can drive.
       "quality.driving": 1,
       // health.md: the hidden health counters start at nothing.
       "quality.run-down-months": 0,
@@ -83,9 +82,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     documents: [{ document: "document.passport", monthsLeft: 22, value: null }],
     obligations: [{ obligation: "obligation.upkeep", amount: naira(140000) }],
   },
-  "scenario.zainab": {
-    id: "scenario.zainab",
-    sex: "f",
+  "scenario.developer": {
+    id: "scenario.developer",
     qualities: {
       // 25 years.
       "quality.age-months": 300,
@@ -126,14 +124,13 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
 };
 
 /**
- * Ngozi, from route-gates.md's last table: a staff nurse 30 months in, the life
+ * The nurse, from route-gates.md's last table: a staff nurse 30 months in, the life
  * the care route is built for.
  *
- * She is joined to the table in index.ts, after the documents the route gates bring.
+ * It is joined to the table in index.ts, after the documents the route gates bring.
  */
-export const ngoziScenario: ScenarioEntry = {
-  id: "scenario.ngozi",
-  sex: "f",
+export const nurseScenario: ScenarioEntry = {
+  id: "scenario.nurse",
   qualities: {
     // 27 years.
     "quality.age-months": 324,
@@ -155,7 +152,7 @@ export const ngoziScenario: ScenarioEntry = {
     "quality.energy": 70,
     "quality.credit-mark": 0,
     "quality.care": 60,
-    // car.md: Ngozi can drive.
+    // car.md: the nurse can drive.
     "quality.driving": 1,
     // health.md: the hidden health counters start at nothing.
     "quality.run-down-months": 0,
@@ -179,15 +176,14 @@ export const ngoziScenario: ScenarioEntry = {
 };
 
 /**
- * Aniekan, the fifth life: a maths teacher four years
- * in, who codes after marking. Picked by the name pool's rules (person.names.data.ts):
- * the starting lives cover the three largest peoples and at least one other.
+ * The teacher, the fifth life: a maths teacher four years
+ * in, who codes after marking. Its family is Efik-Ibibio (scenario.md), so the ready lives' families
+ * cover the three largest peoples and at least one other (familyPeople in person.names.data.ts).
  *
- * He is joined to the table in index.ts.
+ * It is joined to the table in index.ts.
  */
-export const aniekanScenario: ScenarioEntry = {
-  id: "scenario.aniekan",
-  sex: "m",
+export const teacherScenario: ScenarioEntry = {
+  id: "scenario.teacher",
   qualities: {
     // 26 years.
     "quality.age-months": 312,

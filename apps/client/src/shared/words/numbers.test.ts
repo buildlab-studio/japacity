@@ -80,7 +80,7 @@ describe("qualities in words, never numbers", () => {
   });
 
   test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given weekend tutoring under its tech tier, when the board says its pay, then the tier's pay is said with the band it opens at", () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     expect(liftWords(view, "activity.weekend-tutoring")).toBe(`${say("ui.tier.lift", { next: "₦90,000", band: "your tech is good" })}`);
     expect(payLiftWords("activity.weekend-tutoring", view)).toBe("₦60,000 a month; ₦90,000 once your tech is good");
   });

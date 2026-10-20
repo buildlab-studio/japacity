@@ -27,22 +27,22 @@ function expectedPrize(value: number): { prize: Prize; amount: number } | null {
   return null;
 }
 
-function ada(): Game {
-  return start({ content, scenario: "scenario.ada" });
+function graduate(): Game {
+  return start({ content, scenario: "scenario.graduate" });
 }
 
 describe("the lotto kiosk", () => {
   test("[luck:kiosk-sells-lotto-tickets] [engine:limits-tested-through-step] given the kiosk, when tickets are picked, then 1 to the cap are sold and 0, one over the cap or none are rejected with not-legal", () => {
     expect(ticketParams(luck)).toEqual(["1", "2", "3", "4", "5"]);
     expect(luck.maxTickets).toBe(5);
-    const game = ada();
+    const game = graduate();
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2", "3", "4", "5"], cost: [{ currency: "NGN", amount: luck.ticket }] });
     for (const bad of ["0", "6", "two", null]) game.expectRejected({ type: "activity/now", activity: LOTTO, param: bad }, "not-legal");
     game.endTurn([slot(LOTTO, String(luck.maxTickets))]);
   });
 
   test("[luck:kiosk-sells-lotto-tickets] [activity:illegal-slot-rejects-turn] given tickets bought this month, when the view is read, then it offers only the counts still under the month's ceiling, and none once it is reached, so it never offers a slip the kiosk refuses; the next month sells to the cap again", () => {
-    const game = ada();
+    const game = graduate();
     game.accept({ type: "activity/now", activity: LOTTO, param: "3" });
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2"] });
     game.accept({ type: "activity/now", activity: LOTTO, param: "2" });
@@ -53,7 +53,7 @@ describe("the lotto kiosk", () => {
   });
 
   test("[luck:kiosk-sells-lotto-tickets] [wallet:money-lands-as-in-lagos] given tickets bought, when they are drawn, then each costs the ticket price from cash under social, each is one draw on `lotto`, and winnings go as a win that is never a lot to the pocket their size takes: cash at or under the line, the bank over it", () => {
-    const game = ada();
+    const game = graduate();
     let won = 0;
     for (let month = 0; month < 20 && won === 0; month += 1) {
       // The stake is put in hand each month, so the tickets, a street price under the line, are paid from cash.
@@ -75,7 +75,7 @@ describe("the lotto kiosk", () => {
   });
 
   test("[luck:kiosk-sells-lotto-tickets] given naira only in the bank, when tickets are played, then the kiosk is paid from the bank: cash first, the bank for the rest (decision 0014)", () => {
-    const game = ada();
+    const game = graduate();
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
     const result = game.endTurn([slot(LOTTO, "1")]);
     expect(result.events.some((event) => event.type === "activity/slot-failed")).toBe(false);
@@ -107,7 +107,7 @@ describe("the lotto kiosk", () => {
   });
 
   test("[luck:big-wins-are-staged] given a month at the kiosk, when its line is read, then a jackpot or a mid prize is staged and a small win or nothing is not", () => {
-    const state = ada().state;
+    const state = graduate().state;
     const naira = (amount: number): MoneyParam => ({ currency: "NGN", amount });
     const lineOf = (prizes: Prize[], won: number): ReportLine[] =>
       activityKind.lines?.({ type: "activity/lotto-played", tickets: 2, stake: naira(luck.ticket * 2), prizes, won: naira(won) }, state, content) ?? [];
@@ -118,7 +118,7 @@ describe("the lotto kiosk", () => {
   });
 
   test("[luck:kiosk-sells-lotto-tickets] [place:entries-legal-by-where] given a life abroad, when the kiosk is asked for, then it is not legal there", () => {
-    const game = ada();
+    const game = graduate();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(game.expectRejected({ type: "activity/now", activity: LOTTO, param: "1" }, "not-legal").code).toBe("not-legal");
     expect(game.expectRejected({ type: "activity/now", activity: BET, param: null }, "not-legal").code).toBe("not-legal");
@@ -127,7 +127,7 @@ describe("the lotto kiosk", () => {
 
 describe("the bet slip", () => {
   test("[luck:bet-slip-stake-and-odds] [wallet:money-lands-as-in-lagos] given a bet slip, when it is played, then the stake leaves cash, the draw on `lotto` decides, a win pays the odds on the stake, a sum under the line, to cash as a win with wellbeing +2, and a loss costs wellbeing 2", () => {
-    const game = ada();
+    const game = graduate();
     const outcomes = new Set<boolean>();
     for (let month = 0; month < 20 && outcomes.size < 2; month += 1) {
       if (game.state.wallet.pockets.NGN.cash < luck.stake) applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: luck.stake, reason: "gift" }]);

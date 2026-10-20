@@ -1,5 +1,5 @@
 // The card warns when the month's dues are more than what is left after (docs/rules/world.md
-// world:one-action-one-sheet), played on the real engine: Ada with ₦99,700 and ₦95,000 of living costs due takes a
+// world:one-action-one-sheet), played on the real engine: the graduate with ₦99,700 and ₦95,000 of living costs due takes a
 // ₦15,000 course, and the card says more than "₦84,700 left". The button stays
 // open; only a cost that cannot be paid at all shuts it.
 import type { Currency } from "@japacity/sim";
@@ -23,8 +23,8 @@ function course(): Ask {
   return { form: "card", icon: "hand", who: "The hub, Yaba", title: "Take a coding course", line: "You pay for a course.", cost: { amount: COURSE, currency: "NGN" }, button: "Take a coding course", act: () => undefined, dismiss: () => undefined };
 }
 
-/** Ada's game holding exactly `naira`, all in the bank, with no job: whatever she owes falls due at the month's end. */
-function adaGame(naira: number, game = newGame("scenario.ada")) {
+/** The graduate's game holding exactly `naira`, all in the bank, with no job: whatever the life owes falls due at the month's end. */
+function graduateGame(naira: number, game = newGame("scenario.graduate")) {
   const pocket = game.state.wallet.pockets.NGN;
   applyEffects(game, [
     { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "social" },
@@ -33,8 +33,8 @@ function adaGame(naira: number, game = newGame("scenario.ada")) {
   return game;
 }
 
-function adaHolding(naira: number) {
-  return adaGame(naira).view();
+function graduateHolding(naira: number) {
+  return graduateGame(naira).view();
 }
 
 function main(): HTMLButtonElement {
@@ -44,17 +44,17 @@ function main(): HTMLButtonElement {
 }
 
 describe("the month's dues on the card", () => {
-  test("[world:one-action-one-sheet] given Ada with ₦99,700 and ₦95,000 of living costs due, when the coding course's card opens, then it says what is left and what falls due, in warning tone, and the button stays open", async () => {
+  test("[world:one-action-one-sheet] given the graduate with ₦99,700 and ₦95,000 of living costs due, when the coding course's card opens, then it says what is left and what falls due, in warning tone, and the button stays open", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living falls due at the month's end, so the card says only what
     // is left, with no warning.
-    const lived = adaHolding(9_970_000);
+    const lived = graduateHolding(9_970_000);
     expect(lived.obligations.find((owed) => owed.entry === "obligation.upkeep")?.due).toBe(0);
     await renderWithView(<AskSheet ask={course()} formatMoney={money} />, lived);
     expect(main().querySelector("[data-ask-warn]")).toBeNull();
     expect(main().textContent).toContain(say("ui.world.left", { amount: money(9_970_000 - COURSE, "NGN") }));
     cleanup();
     // The warning is tested on the living charged whole, as the simulation's relief tests charge it.
-    const view = adaGame(9_970_000, chargedLivingGame("scenario.ada")).view();
+    const view = graduateGame(9_970_000, chargedLivingGame("scenario.graduate")).view();
     const due = view.obligations.find((owed) => owed.entry === "obligation.upkeep")?.due ?? 0;
     expect(due).toBe(9_500_000);
     await renderWithView(<AskSheet ask={course()} formatMoney={money} />, view);
@@ -65,14 +65,14 @@ describe("the month's dues on the card", () => {
   });
 
   test("[world:one-action-one-sheet] given enough left after for the month's dues, when the card opens, then it says only what is left, with no warning", async () => {
-    const view = adaHolding(9_500_000 + COURSE);
+    const view = graduateHolding(9_500_000 + COURSE);
     await renderWithView(<AskSheet ask={course()} formatMoney={money} />, view);
     expect(main().querySelector("[data-ask-warn]")).toBeNull();
     expect(main().textContent).toContain(say("ui.world.left", { amount: money(9_500_000, "NGN") }));
   });
 
   test("[world:one-action-one-sheet] given a cost that cannot be paid at all, when the card opens, then it is shut as short, and the dues do not change the figure short", async () => {
-    const view = adaHolding(COURSE - 100);
+    const view = graduateHolding(COURSE - 100);
     await renderWithView(<AskSheet ask={course()} formatMoney={money} />, view);
     expect(main().disabled).toBe(true);
     expect(main().textContent).toContain(say("ui.world.short", { amount: money(100, "NGN") }));
@@ -80,7 +80,7 @@ describe("the month's dues on the card", () => {
 
   test("[world:one-action-one-sheet] given a job whose pay arrives before the dues are taken, when what is left after is counted, then the pay counts toward the dues", () => {
     // wallet:view-carries-month-pay: the job is started through the engine, so its month's pay is the view's.
-    const view = viewAfter(adaGame(9_970_000), [{ type: "activity/start-job", job: "activity.job-teacher" }]);
+    const view = viewAfter(graduateGame(9_970_000), [{ type: "activity/start-job", job: "activity.job-teacher" }]);
     const dues = monthDues(view);
     const paying = afterPaying(view, [], [{ currency: "NGN", amount: COURSE }], dues);
     expect(paying.short).toBeNull();

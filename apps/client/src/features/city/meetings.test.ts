@@ -44,8 +44,8 @@ const WORDS: TalkWords = {
   partnered: (partner, name) => say("ui.people.court.partnered", { partner: partner === null ? say("ui.people.who.player") : nameOf(partner), name }),
 };
 
-/** Tunde's life one month in: the computer partners the view lists for a grown man at home. */
-function tunde(): ReturnType<typeof peopleGame> {
+/** The banker's life one month in: the computer partners the view lists for a grown-up at home. */
+function banker(): ReturnType<typeof peopleGame> {
   const game = peopleGame();
   game.grant(1);
   game.endTurn([]);
@@ -68,8 +68,8 @@ function talks(acts: Record<string, string[]>): [string, string][] {
 }
 
 describe("a person standing where content meets them", () => {
-  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given Tunde's first month, when the family house is read, then Tobi after the service and Hauwa, a friend of the family, stand as things named by them with the computer mark, each act courts them, and nobody stands where content meets nobody", () => {
-    const view = tunde().view();
+  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given the banker's first month, when the family house is read, then Tobi after the service and Hauwa, a friend of the family, stand as things named by them with the computer mark, each act courts them, and nobody stands where content meets nobody", () => {
+    const view = banker().view();
     const listed = view.people.candidates.map((candidate) => candidate.person);
     expect(listed).toEqual(expect.arrayContaining([TOBI, HAUWA]));
     const standing = standingAt(HOUSE, view.people.candidates, false);
@@ -89,7 +89,7 @@ describe("a person standing where content meets them", () => {
   });
 
   test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given Tobi courted, when the view no longer lists him, then he stands nowhere: his thing and his figure are gone from the parlour, and Hauwa still stands", () => {
-    const game = tunde();
+    const game = banker();
     courted(game, TOBI);
     const view = game.view();
     expect(view.people.candidates.map((candidate) => candidate.person)).not.toContain(TOBI);
@@ -101,7 +101,7 @@ describe("a person standing where content meets them", () => {
   });
 
   test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] given people met only in December, when it is not December they stand nowhere, and in December the meetup's two stand at the hub's meetup and the one met only then takes a thing two share", () => {
-    const view = tunde().view();
+    const view = banker().view();
     expect(view.people.candidates.map((candidate) => candidate.person)).toEqual(expect.arrayContaining([KELECHI, EJIRO, UDUAK, TONYE]));
     expect(talks(actsHere(hub, HUB, view, false))).toEqual([]);
     expect(talks(actsHere(hub, HUB, view, true))).toEqual(expect.arrayContaining([["meetup-speaker", KELECHI], ["meetup-guest", UDUAK]]));
@@ -110,7 +110,7 @@ describe("a person standing where content meets them", () => {
     const standers = stageOf(withStanding(parlour, standingAt(HOUSE, view.people.candidates, true))).standing ?? [];
     expect(standers.map((one) => one.person).sort()).toEqual([EJIRO, TONYE].sort());
     // Once Ejiro is courted, Tobi has the place after the service again.
-    const game = tunde();
+    const game = banker();
     courted(game, EJIRO);
     expect(standingAt(HOUSE, game.view().people.candidates, true).find((one) => one.thing === "after-service")?.person).toBe(TOBI);
   });
@@ -211,7 +211,7 @@ describe("a person standing where content meets them", () => {
 
 describe("the talk sheet", () => {
   test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] [world:one-action-one-sheet] given Tobi standing in the parlour, when he is talked to, then the card carries the computer mark, his meeting line and one button that courts him, and its button sends people/court with him", () => {
-    const game = tunde();
+    const game = banker();
     const sent: string[] = [];
     const ask = talkAsk(TOBI, game.view(), maxCourting, WORDS, { send: (person) => sent.push(person), dismiss: () => undefined });
     expect(ask.who).toBe(say("ui.people.mark.computer"));
@@ -228,7 +228,7 @@ describe("the talk sheet", () => {
   });
 
   test("[person:courting-opens-a-bond] given the most bonds a life may court already courting, when another is talked to, then the card's button is shut, says Not yet, and the reason stands on it", () => {
-    const game = tunde();
+    const game = banker();
     const others = game.view().people.candidates.map((candidate) => candidate.person).filter((person) => person !== TOBI);
     expect(others.length).toBeGreaterThanOrEqual(maxCourting);
     for (const person of others.slice(0, maxCourting)) game.accept({ type: COURT, with: person });
@@ -245,7 +245,7 @@ describe("seeing someone beside someone else", () => {
   // maxCourting), and courting beside courting costs nothing, so then the card says nothing more; beside a partner, gossip
   // follows (person:one-partner-at-a-time, person:gossip-when-two-timing), and the card says what it costs before the tap.
   test("[person:gossip-when-two-timing] [person:courting-opens-a-bond] given Tobi only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {
-    const game = tunde();
+    const game = banker();
     courted(game, TOBI);
     const ask = talkAsk(HAUWA, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
     expect(ask.blocked).toBeUndefined();
@@ -284,7 +284,7 @@ describe("the answer once courted", () => {
 
 describe("their room", () => {
   test("[world:nobody-picked-from-list] given no bond courting, their room is not open; once Tobi is courted it is, near his home in content", () => {
-    const game = tunde();
+    const game = banker();
     expect(roomOpen(game.view())).toBe(false);
     courted(game, TOBI);
     expect(roomOpen(game.view())).toBe(true);
@@ -292,7 +292,7 @@ describe("their room", () => {
   });
 
   test("[person:time-together-is-an-act] [world:nobody-picked-from-list] given Tobi courted, when their room is entered, then the visit is staged there on its chair, and nobody stands there to be met", () => {
-    const game = tunde();
+    const game = banker();
     courted(game, TOBI);
     const view = game.view();
     expect(content.place[THEIR_ROOM]?.stages).toContain("activity.see-someone");

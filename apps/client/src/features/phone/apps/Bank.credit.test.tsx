@@ -15,7 +15,7 @@ function nextTen(): HTMLElement {
 }
 
 describe("the credit file in the Bank", () => {
-  test("[credit:view-shows-credit-file] given Ada just landed with an empty file, then the mark is a meter at nothing and the phone contract is what the next ten points buy", async () => {
+  test("[credit:view-shows-credit-file] given the graduate just landed with an empty file, then the mark is a meter at nothing and the phone contract is what the next ten points buy", async () => {
     const view = abroadView();
     const file = view.credit!;
     expect(file.mark).toBe(0);

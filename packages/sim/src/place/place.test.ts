@@ -105,7 +105,7 @@ describe("a new character", () => {
 });
 
 describe("leaving", () => {
-  test("[place:departure-moves-abroad] [route-gates:departure-grants-status] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
+  test("[place:departure-moves-abroad] [route-gates:departure-grants-status] given the graduate with a granted visa, when it departs, then it is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
     const closed: ObligationType[] = [];
     const game = flown(content, { kinds: recordingCloses(closed) });
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY, movedMonth: game.state.turn.month });
@@ -118,7 +118,7 @@ describe("leaving", () => {
   });
 
   test("[place:departure-moves-abroad] given a life with family support, when it departs, then the support opens again abroad at the remit factor", () => {
-    const game = flown(content, { from: "scenario.zainab" });
+    const game = flown(content, { from: "scenario.developer" });
     expect(openedThisMonth(game)).toContain(`obligation.home-support ${String(bp(60000 * 100, tuning.remit.abroadBp))}`);
   });
 
@@ -257,7 +257,7 @@ describe("coming home", () => {
   });
 
   test("[place:rides-between-city-places] given a life living in Makoko standing at Bode Thomas Street, past walking distance of home, with naira short of the cheapest fare home, when a walk home is sent, then it is accepted with no fare, while a walk to another stop that far is still refused", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     game.accept({ type: "home/move", to: "place.makoko" });
     const cheapest = rideFare(content, content.place["place.bode-thomas"]?.position ?? null, content.place["place.makoko"]?.position ?? null, "danfo");
     setPockets(game, { NGN: { cash: cheapest - 1, bank: 0 } });
@@ -275,7 +275,7 @@ describe("coming home", () => {
   });
 
   test("[place:rides-between-city-places] [world:ride-sheet-shows-fares] given a life past walking distance of home with naira for the cheapest fare home, when a walk home is sent, then it is refused as too far; a kobo short, cash and bank together, it is walked", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     game.accept({ type: "home/move", to: "place.makoko" });
     const from = content.place["place.bode-thomas"]?.position ?? null;
     const home = content.place["place.makoko"]?.position ?? null;
@@ -292,7 +292,7 @@ describe("coming home", () => {
   });
 
   test("[place:rides-between-city-places] given a life living in Makoko, when it walks from home to Bode Thomas Street past walking distance, then it is walked with no fare while the naira held cannot pay the cheapest fare there, and refused as too far with that fare in hand", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     game.accept({ type: "home/move", to: "place.makoko" });
     const home = content.place["place.makoko"]?.position ?? null;
     const there = content.place["place.bode-thomas"]?.position ?? null;
@@ -308,7 +308,7 @@ describe("coming home", () => {
   });
 
   test("[place:rides-between-city-places] given the fuel scarcity's month, when the naira held pays the flat fare but not the month's, then the long walk home is open", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     game.accept({ type: "home/move", to: "place.makoko" });
     const month = game.state.turn.month;
     game.state = { ...game.state, offer: { ...game.state.offer, lastOpened: { ...game.state.offer.lastOpened, "offer.fuel-scarcity": month } } };
@@ -338,7 +338,7 @@ describe("coming home", () => {
     expect(game.state.status.current).toBeNull();
   });
 
-  test("[place:return-home-paid-or-assisted] [place:return-shape-decided-at-once] given a student with money, when she comes home, then the fare is paid, every status closes and the return is recorded by choice", () => {
+  test("[place:return-home-paid-or-assisted] [place:return-shape-decided-at-once] given a student with money, when the life comes home, then the fare is paid, every status closes and the return is recorded by choice", () => {
     const game = flown(content);
     leave(game, brokeLine, ukFare);
     const month = game.state.turn.month;
@@ -461,7 +461,7 @@ describe("coming home", () => {
 
   test("[place:family-takes-you-back] [return:return-reopens-home-charges] given a return, when it is made, then everything abroad closes and the home upkeep and support reopen at the starting life's amounts", () => {
     const closed: ObligationType[] = [];
-    const game = flown(content, { from: "scenario.zainab", kinds: recordingCloses(closed) });
+    const game = flown(content, { from: "scenario.developer", kinds: recordingCloses(closed) });
     closed.length = 0;
     comeHome(game);
     expect(closed).toEqual(["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"]);

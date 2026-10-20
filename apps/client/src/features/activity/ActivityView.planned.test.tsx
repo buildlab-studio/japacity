@@ -24,7 +24,7 @@ const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButton
 
 describe("a thing started is ongoing", () => {
   test("[world:month-acts-carry-on] [turn:free-slots-per-month] given a course started this month, when the sheet shows it, then its button says Ongoing and is shut while time with family stays open", async () => {
-    const { store } = await renderWithView(<ActivityPicker only={[LEARN, FAMILY]} />, engineView("scenario.ada"));
+    const { store } = await renderWithView(<ActivityPicker only={[LEARN, FAMILY]} />, engineView("scenario.graduate"));
     expect(addButton(LEARN).disabled).toBe(false);
     act(() => {
       store.getState().addToPlan({ activity: LEARN, param: null });
@@ -44,7 +44,7 @@ describe("a thing started is ongoing", () => {
   });
 
   test("[activity:acts-may-repeat-in-month] [activity:now-acts-spend-half-days] given the coding class, an act that repeats, when its card is pressed twice, then each press does it now at its price, the card says the time in words, and it is never Ongoing nor counted at the month's end", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const authority = gameAuthority(game);
     const store = createGameStore(authority);
     await store.getState().refresh();

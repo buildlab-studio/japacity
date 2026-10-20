@@ -77,9 +77,9 @@ function results(store: GameStore): string[] {
 }
 
 describe("the certification exam on the results", () => {
-  /** Ngozi sits the exam, answers each question right or wrong as given, and ends the month. */
+  /** The nurse sits the exam, answers each question right or wrong as given, and ends the month. */
   async function sat(right: boolean[]): Promise<string[]> {
-    const game = newGame("scenario.ngozi");
+    const game = newGame("scenario.nurse");
     const store = await storeOf(game);
     await month(store, game, [CERTIFY]);
     const exam = content.setpiece[EXAM]!;
@@ -96,14 +96,14 @@ describe("the certification exam on the results", () => {
     return results(store);
   }
 
-  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the nurse gets one of three right, when the month's results open, then they say her score and what a pass needs, not only that the exam is over", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the nurse gets one of three right, when the month's results open, then they say its score and what a pass needs, not only that the exam is over", async () => {
     const pass = content.activity[CERTIFY]!.exam!.pass;
     const rows = await sat([true, false, false]);
     expect(rows).toContain(words("line.activity.exam-failed", { right: countWords(1), asked: countWords(3), pass: countWords(pass) }));
     expect(rows).not.toContain(words("line.setpiece.closed", { setpiece: EXAM }));
   });
 
-  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the nurse gets two of three right, when the month's results open, then they say she passed, with her score", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the nurse gets two of three right, when the month's results open, then they say it passed, with its score", async () => {
     const rows = await sat([true, false, true]);
     expect(rows).toContain(words("line.activity.exam-passed", { right: countWords(2), asked: countWords(3) }));
     expect(rows).not.toContain(words("line.setpiece.closed", { setpiece: EXAM }));
@@ -111,8 +111,8 @@ describe("the certification exam on the results", () => {
 });
 
 describe("the developer's months on the results", () => {
-  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a developer one piece short of what a route asks, when she builds something and then builds again, then each month's results tell the piece, the first how many of what is asked", async () => {
-    const game = newGame("scenario.zainab");
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a developer one piece short of what a route asks, when it builds something and then builds again, then each month's results tell the piece, the first how many of what is asked", async () => {
+    const game = newGame("scenario.developer");
     const need = piecesAsked();
     expect(game.state.quality[PORTFOLIO]).toBe(need - 1);
     const store = await storeOf(game);
@@ -127,7 +127,7 @@ describe("the developer's months on the results", () => {
   });
 
   test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a developer on open source, when three months are played, then the results tell the first merge, then the piece, then the quiet month of fixes", async () => {
-    const game = newGame("scenario.zainab");
+    const game = newGame("scenario.developer");
     const need = piecesAsked();
     const store = await storeOf(game);
     await month(store, game, [OPEN_SOURCE]);
@@ -155,7 +155,7 @@ describe("the developer's months on the results", () => {
 
 describe("being noticed at work on the results", () => {
   test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the raise lands, when the month's results open, then they say the manager noticed and what it adds a month", async () => {
-    const game = newGame("scenario.tunde", raiseSeed(content, true));
+    const game = newGame("scenario.banker", raiseSeed(content, true));
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
@@ -168,7 +168,7 @@ describe("being noticed at work on the results", () => {
   });
 
   test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a month at work tried without the raise, when the month's results open, then they say nobody has said anything yet", async () => {
-    const game = newGame("scenario.tunde", raiseSeed(content, false));
+    const game = newGame("scenario.banker", raiseSeed(content, false));
     const job = game.state.activity.job!;
     const store = await storeOf(game);
     await month(store, game, [NOTICED]);

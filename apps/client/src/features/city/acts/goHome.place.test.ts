@@ -17,7 +17,7 @@ function hands() {
 }
 
 describe("the bag's Go home on the engine's forecast", () => {
-  test("[place:return-home-paid-or-assisted] given Ada abroad with no pounds and naira enough, then the card asks the naira the fare takes, and its button goes home", () => {
+  test("[place:return-home-paid-or-assisted] given the graduate abroad with no pounds and naira enough, then the card asks the naira the fare takes, and its button goes home", () => {
     const game = abroadGame();
     setPockets(game, { NGN: 500_000_000 });
     const view = game.view();
@@ -30,7 +30,7 @@ describe("the bag's Go home on the engine's forecast", () => {
     expect(hand.go).toHaveBeenCalledTimes(1);
   });
 
-  test("[place:return-shape-decided-at-once] given Ada on a student visa with pounds for the fare and savings besides, and naira at home no more than the broke line, then the return she would make today reads by choice, before it happens, with the standing it brings", () => {
+  test("[place:return-shape-decided-at-once] given the graduate on a student visa with pounds for the fare and savings besides, and naira at home no more than the broke line, then the return it would make today reads by choice, before it happens, with the standing it brings", () => {
     const game = abroadGame();
     setPockets(game, { GBP: 200_000, NGN: content.tuning.place.brokeLine });
     const view = game.view();

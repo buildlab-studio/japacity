@@ -126,7 +126,7 @@ describe("GET /api/lights", () => {
         usernameChangedAt: null,
         lastPlayedAt: epoch,
       });
-      const fresh = newState("scenario.ada", `seed-${character}`, server.deps.contents.current);
+      const fresh = newState("scenario.graduate", `seed-${character}`, server.deps.contents.current);
       const state = at < 15 ? fresh : { ...fresh, place: { ...fresh.place, where: "abroad" as const, country: "country.uk" as const } };
       await server.deps.stores.player.create({ id: character, account, refilledAt: epoch, content: server.deps.contents.current.version, start: { base: state }, state });
       await server.deps.stores.account.setCharacter(account, character);

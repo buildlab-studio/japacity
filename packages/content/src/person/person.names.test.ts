@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { familyNames } from "../family/family.data";
 import { content, text, textTables } from "../index";
 import type { NamedPerson, NamePeople } from "./person.names.data";
-import { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion } from "./person.names.data";
+import { familyPeople, nameMix, namedMix, namedPeople, namePool, peopleRegion } from "./person.names.data";
 import { faithProblems, institutionProblems, namedMixProblems, nameShaped, namesUsed, roleProblems } from "./person.names.check";
 import { recurringPeople } from "./person.recurring.data";
 
@@ -18,7 +18,7 @@ function everyNamed(): NamedPerson[] {
   const family = Object.values(familyNames).flatMap((names) =>
     Object.values(names ?? {}).map((name): NamedPerson => ({ name, people: poolByName.get(name)?.people ?? "yoruba", role: "relative", keys: [] })),
   );
-  return [...Object.values(lifePeople), ...namedPeople, ...recurringPeople, ...family];
+  return [...namedPeople, ...recurringPeople, ...family];
 }
 
 describe("the name pool", () => {
@@ -60,9 +60,10 @@ describe("the name pool", () => {
     expect(faithProblems(namePool.filter((entry) => !(entry.faith === "muslim" && peopleRegion[entry.people] === "south")))).toEqual(["no muslim name in the south"]);
   });
 
-  test("[person:computer-names-generated] given the starting lives, when their first names are looked up in the pool, then none is there, so no resident shares the character's name", () => {
-    const firsts = Object.keys(lifePeople).map((life) => text[`share.first-name.${life}`]);
-    expect(firsts.filter((name) => name !== undefined && poolByName.has(name))).toEqual([]);
+  test("[person:one-mixed-name-pool] given the ready lives, when their words are looked up, then none has a name or a first name of its own, so the only first name a life goes by is the one the player gives at the door", () => {
+    const lives = Object.keys(content.scenario).filter((id) => id !== "scenario.prologue");
+    expect(lives.length).toBeGreaterThan(0);
+    expect(lives.flatMap((life) => [`${life}.name`, `share.first-name.${life}`]).filter((key) => key in text)).toEqual([]);
   });
 });
 
@@ -81,20 +82,20 @@ describe("who is named in the game's words", () => {
     expect(partners.filter((person) => !poolByName.has(text[`${person.id}.name`] ?? "")).map((person) => person.id)).toEqual([]);
   });
 
-  test("[person:computer-names-generated] given the game's words outside the places and the guides, when they are searched for a name from the pool or a life, then each use belongs to a named person listed for that key", () => {
+  test("[person:computer-names-generated] given the game's words outside the places and the guides, when they are searched for a name from the pool, then each use belongs to a named person listed for that key", () => {
     const listed = new Set(everyNamed().flatMap((person) => person.keys.map((key) => `${key} ${person.name}`)));
     const scanned = Object.fromEntries(
       Object.entries(textTables)
         .filter(([file]) => !["place", "guide", "personNames"].includes(file))
         .flatMap(([, table]) => Object.entries(table)),
     );
-    const names = [...namePool.map((entry) => nameOf(entry.n)).filter((name) => !ALSO_WORDS.includes(name)), ...Object.values(lifePeople).map((life) => life.name)];
+    const names = namePool.map((entry) => nameOf(entry.n)).filter((name) => !ALSO_WORDS.includes(name));
     expect(namesUsed(scanned, names).filter((use) => !listed.has(use))).toEqual([]);
   });
 
-  test("[person:computer-names-generated] [text:family-group-feed] given the family names, when each is looked up, then it is a pool name from the life's own people", () => {
+  test("[person:computer-names-generated] [text:family-group-feed] given the family names, when each is looked up, then it is a pool name from the family's own people", () => {
     const wrong = Object.entries(familyNames).flatMap(([life, names]) =>
-      Object.values(names ?? {}).filter((name) => poolByName.get(name)?.people !== lifePeople[life as keyof typeof lifePeople]?.people).map((name) => `${life} ${name}`),
+      Object.values(names ?? {}).filter((name) => poolByName.get(name)?.people !== familyPeople[life as keyof typeof familyPeople]).map((name) => `${life} ${name}`),
     );
     expect(wrong).toEqual([]);
   });
@@ -119,11 +120,11 @@ describe("who is named in the game's words", () => {
     expect(namedMixProblems(spread(2, 2, 6, others.slice(0, namedMix.minPeoples - 3)), namedMix)).toEqual([`the named people come from ${String(namedMix.minPeoples - 1)} peoples, fewer than ${String(namedMix.minPeoples)}`]);
   });
 
-  test("[person:computer-names-generated] given the starting lives, when their peoples are read, then they cover the three largest peoples and at least one other (names rule 3)", () => {
-    const peoples = new Set(Object.values(lifePeople).map((life) => life.people));
+  test("[person:computer-names-generated] given the ready lives' families, when their peoples are read, then they cover the three largest peoples and at least one other (names rule 3)", () => {
+    const peoples = new Set(Object.values(familyPeople));
     expect([...peoples].filter((people) => ["yoruba", "igbo", "hausa-fulani"].includes(people)).sort()).toEqual(["hausa-fulani", "igbo", "yoruba"]);
     expect(peoples.size).toBeGreaterThanOrEqual(4);
-    expect(Object.keys(lifePeople).sort()).toEqual(Object.keys(content.scenario).filter((id) => id !== "scenario.prologue").sort());
+    expect(Object.keys(familyPeople).sort()).toEqual(Object.keys(content.scenario).filter((id) => id !== "scenario.prologue").sort());
   });
 
   test("[person:computer-names-generated] [person:names-predict-nothing] given who holds which role, when they are read by people, then no people holds two roles that take money and no role is held only by one people (names rule 5)", () => {

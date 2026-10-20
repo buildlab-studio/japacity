@@ -14,7 +14,7 @@ import { setPockets } from "../testing/wallet";
 import { debits, restMonth } from "../testing/read";
 import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
-import { ADA, FAMILY_UPKEEP, NETWORK, PORTFOLIO, STANDING, TECH, TUNDE, WELLBEING } from "../testing/ids";
+import { GRADUATE, FAMILY_UPKEEP, NETWORK, PORTFOLIO, STANDING, TECH, BANKER, WELLBEING } from "../testing/ids";
 
 /** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
@@ -31,8 +31,8 @@ function entryOf(id: Id<"obligation">): ObligationEntry {
   return entry;
 }
 
-/** Ada's upkeep a month, from the scenario. */
-const ADA_UPKEEP = content.scenario[ADA]!.obligations[0]!.amount;
+/** The graduate's upkeep a month, from the scenario. */
+const GRADUATE_UPKEEP = content.scenario[GRADUATE]!.obligations[0]!.amount;
 
 /**
  * Carries out effects through the engine: a test registry swaps the route
@@ -88,18 +88,18 @@ function upkeepOf(game: Game): ObligationState {
 }
 
 describe("the monthly charge", () => {
-  test("[obligation:due-phase-charges-oldest-first] given Ada and her upkeep, when a month ends, then the upkeep amount is charged", () => {
-    const game = start({ scenario: ADA, content });
+  test("[obligation:due-phase-charges-oldest-first] given the graduate and its upkeep, when a month ends, then the upkeep amount is charged", () => {
+    const game = start({ scenario: GRADUATE, content });
     const upkeep = upkeepOf(game);
-    expect(upkeep.amount).toBe(ADA_UPKEEP);
+    expect(upkeep.amount).toBe(GRADUATE_UPKEEP);
     const result = game.endTurn();
     expect(ofType(result, "obligation/charged")).toEqual([
-      { type: "obligation/charged", id: upkeep.id, entry: FAMILY_UPKEEP, total: ADA_UPKEEP, interest: 0, principal: 0 },
+      { type: "obligation/charged", id: upkeep.id, entry: FAMILY_UPKEEP, total: GRADUATE_UPKEEP, interest: 0, principal: 0 },
     ]);
   });
 
   test("[obligation:due-phase-charges-oldest-first] given a twelve month loan, when it is charged, then interest on the opening principal and the principal over the term rounded up are added, and the last part stops at what is owed", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     const entry = entryOf(SALARY_LOAN);
     const principal = 100000000;
     const loan = open(game, SALARY_LOAN, principal);
@@ -128,7 +128,7 @@ describe("the monthly charge", () => {
   });
 
   test("[obligation:due-phase-charges-oldest-first] given two obligations and money for only the older one, when the month ends, then the older is charged first and paid", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const upkeep = upkeepOf(game);
     const support = open(game, SUPPORT, undefined, 6000000);
     expect(support.amount).toBeLessThan(upkeep.amount);
@@ -144,36 +144,36 @@ describe("the monthly charge", () => {
 
 describe("paid in full or missed", () => {
   test("[obligation:charges-paid-whole-or-missed] given exactly the charge, when the month ends, then it is paid; one kobo less and what is held goes toward it, the shortfall the miss", () => {
-    const exact = start({ scenario: ADA, content });
-    setPockets(exact, { NGN: { cash: 0, bank: ADA_UPKEEP } });
+    const exact = start({ scenario: GRADUATE, content });
+    setPockets(exact, { NGN: { cash: 0, bank: GRADUATE_UPKEEP } });
     expect(ofType(exact.endTurn(), "obligation/charged")).toHaveLength(1);
     expect(exact.state.wallet.pockets.NGN.bank).toBe(0);
 
     // One kobo less: the upkeep takes what is held and the shortfall is the miss (decision 0013).
-    const short = start({ scenario: ADA, content });
-    setPockets(short, { NGN: { cash: 0, bank: ADA_UPKEEP - 1 } });
+    const short = start({ scenario: GRADUATE, content });
+    setPockets(short, { NGN: { cash: 0, bank: GRADUATE_UPKEEP - 1 } });
     const result = short.endTurn();
     expect(ofType(result, "obligation/charged")).toEqual([]);
-    expect(ofType(result, "obligation/missed")).toMatchObject([{ paid: ADA_UPKEEP - 1, total: ADA_UPKEEP }]);
-    expect(debits(result)).toMatchObject([{ currency: "NGN", amount: ADA_UPKEEP - 1, reason: "upkeep" }]);
+    expect(ofType(result, "obligation/missed")).toMatchObject([{ paid: GRADUATE_UPKEEP - 1, total: GRADUATE_UPKEEP }]);
+    expect(debits(result)).toMatchObject([{ currency: "NGN", amount: GRADUATE_UPKEEP - 1, reason: "upkeep" }]);
     expect(short.state.wallet.pockets.NGN.bank).toBe(0);
     expect(result.lines.find((line) => line.key === "line.obligation.missed-part")).toMatchObject({ tone: "bad", attention: true });
   });
 
   test("[obligation:charges-paid-whole-or-missed] [wallet:money-lands-as-in-lagos] given cash and bank, when a loan is charged, then naira is taken as the street pays by its size, each charge over the line for cash the bank first then cash, the principal part under its sink and interest under its interest sink", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const entry = entryOf(SALARY_LOAN);
     const principal = 100000000;
     const loan = open(game, SALARY_LOAN, principal);
     const part = divCeil(principal, entry.term!);
     const interest = bp(principal, entry.rateBp);
     // Enough in the bank for the upkeep and most of the loan's principal part; each charge is over the line for cash.
-    for (const charge of [ADA_UPKEEP, part, interest]) expect(charge).toBeGreaterThan(content.tuning.wallet.cashUpTo);
-    const bank = ADA_UPKEEP + part - 333334;
+    for (const charge of [GRADUATE_UPKEEP, part, interest]) expect(charge).toBeGreaterThan(content.tuning.wallet.cashUpTo);
+    const bank = GRADUATE_UPKEEP + part - 333334;
     setPockets(game, { NGN: { cash: 50000000, bank } });
     const result = game.endTurn();
     expect(debits(result)).toEqual([
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: ADA_UPKEEP, reason: "upkeep" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: GRADUATE_UPKEEP, reason: "upkeep" },
       { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: part - 333334, reason: entry.sink },
       { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 333334, reason: entry.sink },
       { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: interest, reason: entry.interestSink },
@@ -184,7 +184,7 @@ describe("paid in full or missed", () => {
   });
 
   test("[obligation:charges-paid-whole-or-missed] [obligation:closed-obligation-removed] given a loan whose last part is paid, when the month ends, then it closes and is removed", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     const principal = 5000000;
     const loan = open(game, QUICK_LOAN, principal);
     const result = game.endTurn();
@@ -197,24 +197,24 @@ describe("paid in full or missed", () => {
 
 describe("misses", () => {
   test("[obligation:miss-applies-its-effects] given no money, when upkeep is missed, then its onMiss effects apply and the misses count up; a paid month puts them back to zero", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const upkeep = upkeepOf(game);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const first = game.endTurn();
-    expect(ofType(first, "obligation/missed")).toEqual([{ type: "obligation/missed", id: upkeep.id, entry: FAMILY_UPKEEP, total: ADA_UPKEEP, missed: 1 }]);
+    expect(ofType(first, "obligation/missed")).toEqual([{ type: "obligation/missed", id: upkeep.id, entry: FAMILY_UPKEEP, total: GRADUATE_UPKEEP, missed: 1 }]);
     expect(qualityChanges(first, FAMILY_UPKEEP).map((event) => [event.quality, event.amount])).toEqual([
       [STANDING, -3],
       [WELLBEING, -5],
     ]);
     game.endTurn();
     expect(item(game, upkeep.id)?.missed).toBe(2);
-    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP } });
+    setPockets(game, { NGN: { cash: 0, bank: GRADUATE_UPKEEP } });
     game.endTurn();
     expect(item(game, upkeep.id)?.missed).toBe(0);
   });
 
   test("[obligation:upkeep-never-defaults] given upkeep and support missed month after month, when the months pass, then neither defaults and no arrears build up", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const upkeep = upkeepOf(game);
     const support = open(game, SUPPORT, undefined, 6000000);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
@@ -227,17 +227,17 @@ describe("misses", () => {
       }
     }
     const view = game.view().obligations;
-    expect(view.find((owed) => owed.id === upkeep.id)?.due).toBe(ADA_UPKEEP);
+    expect(view.find((owed) => owed.id === upkeep.id)?.due).toBe(GRADUATE_UPKEEP);
     expect(view.find((owed) => owed.id === support.id)?.due).toBe(6000000);
-    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + 6000000 } });
+    setPockets(game, { NGN: { cash: 0, bank: GRADUATE_UPKEEP + 6000000 } });
     const paid = game.endTurn();
-    expect(ofType(paid, "obligation/charged").map((event) => event.total)).toEqual([ADA_UPKEEP, 6000000]);
+    expect(ofType(paid, "obligation/charged").map((event) => event.total)).toEqual([GRADUATE_UPKEEP, 6000000]);
   });
 });
 
 describe("default", () => {
   test("[obligation:loan-default-and-recovery] given a loan with grace 1, when one charge is missed it is in grace; when the second is missed it defaults once, and onDefault applies once", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const entry = entryOf(SALARY_LOAN);
     expect(entry.grace).toBe(1);
     const loan = open(game, SALARY_LOAN, 10000000);
@@ -265,7 +265,7 @@ describe("default", () => {
   });
 
   test("[obligation:loan-default-and-recovery] [obligation:miss-applies-its-effects] given a loan with grace 1, when a charge is missed, the next paid, and the next missed, then the paid month puts the count back to zero and the loan never defaults", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     expect(entryOf(SALARY_LOAN).grace).toBe(1);
     const loan = open(game, SALARY_LOAN, 10000000);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
@@ -285,7 +285,7 @@ describe("default", () => {
   });
 
   test("[obligation:loan-default-and-recovery] given a defaulted loan, when months pass, then the lender takes whatever is in the naira bank up to what is owed, never cash, until nothing is owed", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const principal = 10000000;
     const loan = open(game, SALARY_LOAN, principal);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
@@ -303,7 +303,7 @@ describe("default", () => {
     expect(game.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: 0 });
     expect(item(game, loan.id)?.outstanding).toBe(principal);
 
-    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + 50000000 } });
+    setPockets(game, { NGN: { cash: 0, bank: GRADUATE_UPKEEP + 50000000 } });
     const rest = game.endTurn();
     expect(ofType(rest, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: SALARY_LOAN, amount: principal }]);
     expect(ofType(rest, "obligation/closed")).toEqual([{ type: "obligation/closed", id: loan.id, entry: SALARY_LOAN, why: "paid" }]);
@@ -314,7 +314,7 @@ describe("default", () => {
 
 describe("opening", () => {
   test("[obligation:loan-opening-credits-principal] given the effect, when a loan opens, then its principal is credited to the naira bank as a flagged loan", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     game.endTurn();
     const bank = game.state.wallet.pockets.NGN.bank;
     const result = apply(game, [{ type: "obligation/open", obligation: SALARY_LOAN, principal: { term: "amount" } }], { amount: 25000000 });
@@ -338,7 +338,7 @@ describe("opening", () => {
   });
 
   test("[obligation:loan-opening-credits-principal] given the effect, when held funds open, then the principal is credited to the locked pocket as flagged held funds", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const { bank, cash } = game.state.wallet.pockets.NGN;
     const held = open(game, HELD, 200000000);
     expect(held).toMatchObject({ principal: 200000000, outstanding: 200000000, monthsLeft: null, state: "active" });
@@ -347,7 +347,7 @@ describe("opening", () => {
   });
 
   test("[obligation:loan-opening-credits-principal] given an amount on the effect, when support opens, then it overrides the entry's fixed charge", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     expect(entryOf(SUPPORT).amount).toBe(0);
     expect(open(game, SUPPORT, undefined, 4500000)).toMatchObject({ amount: 4500000, principal: 0, outstanding: 0 });
   });
@@ -355,12 +355,12 @@ describe("opening", () => {
 
 describe("held funds", () => {
   test("[obligation:missed-interest-recalls-held-funds] given held funds, when the interest is paid, then it is taken under its interest sink and the principal stays locked", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const principal = 200000000;
     const held = open(game, HELD, principal);
     const interest = bp(principal, entryOf(HELD).rateBp);
     expect(game.view().obligations.find((owed) => owed.id === held.id)?.due).toBe(interest);
-    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + interest } });
+    setPockets(game, { NGN: { cash: 0, bank: GRADUATE_UPKEEP + interest } });
     const result = game.endTurn();
     expect(debits(result)).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: interest, reason: "held-funds-interest" });
     expect(game.state.wallet.pockets.NGN.locked).toBe(principal);
@@ -368,7 +368,7 @@ describe("held funds", () => {
   });
 
   test("[obligation:missed-interest-recalls-held-funds] given held funds, when a month's interest is missed, then the lender takes the locked principal back at once, it closes and onMiss applies", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const principal = 200000000;
     const held = open(game, HELD, principal);
     setPockets(game, { NGN: { cash: 0, bank: 1000000 } });
@@ -386,7 +386,7 @@ describe("held funds", () => {
 
 describe("paying early", () => {
   test("[obligation:paying-down-obligations] [wallet:money-lands-as-in-lagos] given a loan, when any whole amount up to what is owed is paid, then it is taken under loan-repay as the street pays by its size, a sum over the line for cash the bank first then cash, and the outstanding falls", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const loan = open(game, SALARY_LOAN, 10000000);
     setPockets(game, { NGN: { cash: 20000000, bank: 1000000 } });
     expect(1500000).toBeGreaterThan(content.tuning.wallet.cashUpTo);
@@ -399,7 +399,7 @@ describe("paying early", () => {
   });
 
   test("[obligation:paying-down-obligations] [obligation:closed-obligation-removed] given a loan, when exactly what is owed is paid, then it closes and is removed; one kobo more is a bad amount", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const loan = open(game, SALARY_LOAN, 10000000);
     game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 10000001 }, "bad-amount");
     const result = game.accept({ type: "obligation/pay", obligation: loan.id, amount: 10000000 });
@@ -409,7 +409,7 @@ describe("paying early", () => {
   });
 
   test("[obligation:paying-down-obligations] given a loan, when the amount is zero, a fraction or more than can be paid, then it is rejected", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const loan = open(game, SALARY_LOAN, 10000000);
     expect(game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 0 }, "bad-amount").code).toBe("bad-amount");
     expect(game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: Number("2.5") }, "bad-amount").code).toBe("bad-amount");
@@ -419,7 +419,7 @@ describe("paying early", () => {
   });
 
   test("[obligation:paying-down-obligations] given held funds, when the whole principal is paid, then the locked money goes back and it closes; part of it is a bad amount", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const held = open(game, HELD, 200000000);
     const { bank, cash } = game.state.wallet.pockets.NGN;
     game.expectRejected({ type: "obligation/pay", obligation: held.id, amount: 199999999 }, "bad-amount");
@@ -431,7 +431,7 @@ describe("paying early", () => {
   });
 
   test("[obligation:paying-down-obligations] given upkeep or an unknown id, when paid, then it is rejected with not-legal or unknown-id", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     expect(game.expectRejected({ type: "obligation/pay", obligation: upkeepOf(game).id, amount: 100 }, "not-legal").code).toBe("not-legal");
     expect(game.expectRejected({ type: "obligation/pay", obligation: "obligation-999", amount: 100 }, "unknown-id").code).toBe("unknown-id");
   });
@@ -439,7 +439,7 @@ describe("paying early", () => {
 
 describe("closing", () => {
   test("[obligation:closed-obligation-removed] given obligations that close, when they close, then none is left in the state or the view and the invariants hold", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     const loan = open(game, QUICK_LOAN, 5000000);
     const held = open(game, HELD, 200000000);
     game.accept({ type: "obligation/pay", obligation: held.id, amount: 200000000 });
@@ -455,31 +455,31 @@ describe("lines and the view", () => {
   test("[obligation:miss-applies-its-effects] [obligation:loan-default-and-recovery] given each kind of line, when it is shown, then it has words, and misses and defaults call for attention", () => {
     const keys = ["charged", "missed", "defaulted", "seized", "closed", "taken-back"].map((what) => `line.obligation.${what}`);
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     open(game, SALARY_LOAN, 10000000);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
     game.endTurn();
     const result = game.endTurn();
     expect(result.lines.find((line) => line.key === "line.obligation.missed")).toMatchObject({ tone: "bad", attention: true });
     expect(result.lines.find((line) => line.key === "line.obligation.defaulted")).toMatchObject({ tone: "bad", attention: true });
-    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP } });
+    setPockets(game, { NGN: { cash: 0, bank: GRADUATE_UPKEEP } });
     const quiet = game.endTurn();
     expect(quiet.lines.find((line) => line.key === "line.obligation.charged")).toMatchObject({ tone: "plain", attention: false });
   });
 
   test("[obligation:due-phase-charges-oldest-first] given open obligations, when the view is read, then each shows its fields and what this month's charge would be", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const loan = open(game, SALARY_LOAN, 12000000);
     const view = game.view().obligations;
     expect(view).toEqual([
-      { ...upkeepOf(game), due: ADA_UPKEEP, car: null },
+      { ...upkeepOf(game), due: GRADUATE_UPKEEP, car: null },
       { ...loan, car: null, due: bp(12000000, entryOf(SALARY_LOAN).rateBp) + 1000000 },
     ]);
   });
 });
 
 describe("random play", () => {
-  test.prop([fc.constantFrom<Id<"scenario">>("scenario.ada", "scenario.tunde", "scenario.zainab"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
+  test.prop([fc.constantFrom<Id<"scenario">>("scenario.graduate", "scenario.banker", "scenario.developer"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
     numRuns: 20,
   })("[obligation:paying-down-obligations] given random legal commands with a loan and held funds open, when played, then every one is accepted and the invariants hold", (scenario, seed, picks) => {
     const game = start({ scenario, seed, content });
@@ -499,13 +499,13 @@ describe("random play", () => {
   });
 
   test("[obligation:paying-down-obligations] given a loan and held funds, when the legal list is read, then it offers to pay each and every offer is accepted", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     open(game, SALARY_LOAN, 30000000);
     open(game, HELD, 200000000);
     const pays = legalCommands(game.view()).filter((command) => command.type === "obligation/pay");
     expect(pays.length).toBeGreaterThanOrEqual(3);
     for (const command of pays) {
-      const copy = start({ scenario: TUNDE, content });
+      const copy = start({ scenario: BANKER, content });
       copy.state = game.state;
       copy.accept(command);
     }
@@ -547,7 +547,7 @@ function credits(result: { events: BaseEvent[] }) {
 
 describe("the group loan", () => {
   test("[obligation:group-loan-fees-up-front] given ₦100,000 taken through the offer, when it opens, then ₦90,000 is credited as a flagged loan, the 15% fee is paid and 10% is held as savings", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     const result = choose(game, "offer.group-loan", "take", HUNDRED_THOUSAND);
     const fee = bp(HUNDRED_THOUSAND, GROUP.feeBp);
     const savings = bp(HUNDRED_THOUSAND, GROUP.savingsBp);
@@ -561,19 +561,19 @@ describe("the group loan", () => {
 
   test("[obligation:group-loan-fees-up-front] given the offer's range, when an amount is picked, then ₦50,000 and ₦300,000 are taken and a kobo outside either is a bad amount", () => {
     for (const amount of [5000000, 30000000]) {
-      const game = start({ scenario: TUNDE, content });
+      const game = start({ scenario: BANKER, content });
       choose(game, "offer.group-loan", "take", amount);
       expect(groupLoanOf(game).principal).toBe(amount);
     }
     for (const amount of [4999999, 30000001]) {
-      const game = start({ scenario: TUNDE, content });
+      const game = start({ scenario: BANKER, content });
       const id = offerOf(game, "offer.group-loan")!;
       expect(game.expectRejected({ type: "offer/choose", offer: id, choice: "take", amount }, "bad-amount").code).toBe("bad-amount");
     }
   });
 
   test("[obligation:group-loan-fees-up-front] given a group loan repaid month by month, when the ninth charge is paid, then it closes and the savings held back come back to the bank", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     const entry = entryOf(GROUP_LOAN);
     const part = divCeil(HUNDRED_THOUSAND, entry.term!);
@@ -594,7 +594,7 @@ describe("the group loan", () => {
   });
 
   test("[obligation:group-covers-misses-at-cost] given a group loan missed three months in a row, when each month ends, then the group covers the first, visits on the second, and on the third it defaults and the laptop is seized", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     apply(game, [{ type: "quality/add", quality: PORTFOLIO, amount: 2 }]);
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     const part = divCeil(HUNDRED_THOUSAND, 9);
@@ -628,7 +628,7 @@ describe("the group loan", () => {
     expect(third.lines.find((line) => line.key === "line.obligation.group-default")).toMatchObject({ tone: "bad", attention: true });
 
     // From then on the lender takes from the bank, as any defaulted loan (the upkeep, charged first, is paid in full here).
-    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + 5000000 } });
+    setPockets(game, { NGN: { cash: 0, bank: GRADUATE_UPKEEP + 5000000 } });
     const taken = restMonth(game);
     expect(ofType(taken, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: GROUP_LOAN, amount: 5000000 }]);
     // The credit mark now keeps every group loan closed.
@@ -639,35 +639,35 @@ describe("the group loan", () => {
 
 describe("how the group loan reaches you", () => {
   test("[obligation:three-roads-to-group-loan] given network one short of 20, and then at 20, when the group loan offer is opened, then it opens only from 20; standing 39 and a credit mark keep it shut", () => {
-    const ada = start({ scenario: ADA, content });
-    const network = ada.state.quality[NETWORK]!;
+    const graduate = start({ scenario: GRADUATE, content });
+    const network = graduate.state.quality[NETWORK]!;
     expect(network).toBeLessThan(20);
-    apply(ada, [{ type: "quality/add", quality: NETWORK, amount: 19 - network }]);
-    expect(ada.state.quality[NETWORK]).toBe(19);
-    expect(offerOf(ada, "offer.group-loan")).toBeNull();
-    apply(ada, [{ type: "quality/add", quality: NETWORK, amount: 1 }]);
-    expect(offerOf(ada, "offer.group-loan")).not.toBeNull();
+    apply(graduate, [{ type: "quality/add", quality: NETWORK, amount: 19 - network }]);
+    expect(graduate.state.quality[NETWORK]).toBe(19);
+    expect(offerOf(graduate, "offer.group-loan")).toBeNull();
+    apply(graduate, [{ type: "quality/add", quality: NETWORK, amount: 1 }]);
+    expect(offerOf(graduate, "offer.group-loan")).not.toBeNull();
 
-    const low = start({ scenario: TUNDE, content });
+    const low = start({ scenario: BANKER, content });
     apply(low, [{ type: "quality/add", quality: STANDING, amount: 39 - low.state.quality[STANDING]! }]);
     expect(low.state.quality[STANDING]).toBe(39);
     expect(offerOf(low, "offer.group-loan")).toBeNull();
     apply(low, [{ type: "quality/add", quality: STANDING, amount: 1 }]);
     expect(offerOf(low, "offer.group-loan")).not.toBeNull();
 
-    const marked = start({ scenario: TUNDE, content });
+    const marked = start({ scenario: BANKER, content });
     apply(marked, [{ type: "quality/add", quality: CREDIT, amount: 1 }]);
     expect(offerOf(marked, "offer.group-loan")).toBeNull();
   });
 
   test("[obligation:three-roads-to-group-loan] given the group at the door over a parent's shop loan, when it is paid, ₦120,000 goes as family money; refused or left, standing falls 15", () => {
-    const paid = start({ scenario: TUNDE, content });
+    const paid = start({ scenario: BANKER, content });
     const result = choose(paid, "offer.parents-group-debt", "pay");
     const taken = debits(result) as (BaseEvent & { amount: number; reason: string })[];
     expect(taken.every((event) => event.reason === "family")).toBe(true);
     expect(taken.reduce((sum, event) => sum + event.amount, 0)).toBe(12000000);
 
-    const refused = start({ scenario: TUNDE, content });
+    const refused = start({ scenario: BANKER, content });
     const no = choose(refused, "offer.parents-group-debt", "no");
     expect(no.events.filter((event) => event.type === "quality/changed").map((event) => (event as unknown as { amount: number }).amount)).toEqual([-15]);
     expect(entryOf(GROUP_LOAN).type).toBe("group-loan");
@@ -676,7 +676,7 @@ describe("how the group loan reaches you", () => {
 
   test("[obligation:three-roads-to-group-loan] given a relative's guarantee accepted, when three months pass and the relative is gone, then the group loan opens on you for the balance, with nothing lent and no savings held", () => {
     const always = { ...content, tuning: { ...content.tuning, groupLoan: { ...GROUP, vanishBp: 10000 } } };
-    const game = start({ scenario: TUNDE, content: always });
+    const game = start({ scenario: BANKER, content: always });
     const accepted = choose(game, "offer.stand-guarantor", "accept");
     expect(accepted.events.filter((event) => event.type === "quality/changed").map((event) => (event as unknown as { amount: number }).amount)).toEqual([4]);
     const guarantee = Object.values(game.state.obligation.items).find((owed) => owed.entry === GUARANTEE)!;
@@ -694,14 +694,14 @@ describe("how the group loan reaches you", () => {
 
   test("[obligation:three-roads-to-group-loan] given a guarantee accepted and the relative still there, when three months pass, then the guarantee ends and nothing is owed; refusing costs standing 4", () => {
     const never = { ...content, tuning: { ...content.tuning, groupLoan: { ...GROUP, vanishBp: 0 } } };
-    const game = start({ scenario: TUNDE, content: never });
+    const game = start({ scenario: BANKER, content: never });
     choose(game, "offer.stand-guarantor", "accept");
     restMonth(game);
     restMonth(game);
     const ended = restMonth(game);
     expect(Object.values(game.state.obligation.items).some((owed) => owed.entry === GUARANTEE || owed.entry === GROUP_LOAN)).toBe(false);
     expect(ended.lines.find((line) => line.key === "line.obligation.ended")).toBeDefined();
-    const refused = start({ scenario: TUNDE, content });
+    const refused = start({ scenario: BANKER, content });
     const no = choose(refused, "offer.stand-guarantor", "refuse");
     expect(no.events.filter((event) => event.type === "quality/changed").map((event) => (event as unknown as { amount: number }).amount)).toEqual([-4]);
   });
@@ -709,7 +709,7 @@ describe("how the group loan reaches you", () => {
 
 describe("the way out", () => {
   test("[obligation:way-out-at-every-stage] given a group loan the group has covered, when it is paid ahead whole, then it closes and the savings come back", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
     restMonth(game);
@@ -721,7 +721,7 @@ describe("the way out", () => {
   });
 
   test("[obligation:way-out-at-every-stage] given a group loan in default, when what is owed is paid ahead, then it closes; the savings are lost with the default", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
     restMonth(game);
@@ -736,12 +736,12 @@ describe("the way out", () => {
   });
 
   test("[obligation:way-out-at-every-stage] given a group loan, when the legal list is read, then paying it ahead is offered and accepted", () => {
-    const game = start({ scenario: TUNDE, content });
+    const game = start({ scenario: BANKER, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     const pays = legalCommands(game.view()).filter((command) => command.type === "obligation/pay" && command.obligation === loan.id);
     expect(pays.length).toBeGreaterThanOrEqual(1);
     for (const command of pays) {
-      const copy = start({ scenario: TUNDE, content });
+      const copy = start({ scenario: BANKER, content });
       copy.state = game.state;
       copy.accept(command);
     }
@@ -754,7 +754,7 @@ describe("the savings circle", () => {
   const POT = 20000000;
 
   function joined(seed: string): { game: Game; circle: ObligationState } {
-    const game = start({ scenario: TUNDE, content, seed });
+    const game = start({ scenario: BANKER, content, seed });
     choose(game, "offer.join-ajo", "join");
     const circle = Object.values(game.state.obligation.items).find((owed) => owed.entry === AJO);
     if (circle === undefined) throw new Error("The circle did not open.");
@@ -765,8 +765,8 @@ describe("the savings circle", () => {
     const { circle } = joined("seed-1");
     expect(circle).toMatchObject({ amount: 2000000, monthsLeft: 10, principal: POT, outstanding: POT });
     expect(entryOf(AJO)).toMatchObject({ rateBp: 0, term: 10, grace: 0 });
-    const ada = start({ scenario: ADA, content });
-    expect(offerOf(ada, "offer.join-ajo")).toBeNull();
+    const graduate = start({ scenario: GRADUATE, content });
+    expect(offerOf(graduate, "offer.join-ajo")).toBeNull();
   });
 
   test("[luck:savings-circle-holds-pot] given a seed whose first lotto draw in ten is 0, when the first month is paid, then the pot comes as a gift; a seed whose first is not waits", () => {
@@ -806,8 +806,8 @@ describe("the savings circle", () => {
 
   test("[luck:savings-circle-holds-pot] given a circle, when a month's share is missed, then it closes with standing -6 and no pot", () => {
     const unlucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) !== 0);
-    // Ada has no pay coming in, so a month with nothing is a missed share.
-    const game = start({ scenario: ADA, content, seed: unlucky });
+    // The graduate has no pay coming in, so a month with nothing is a missed share.
+    const game = start({ scenario: GRADUATE, content, seed: unlucky });
     const circle = open(game, AJO);
     setPockets(game, { NGN: { cash: 0, bank: 100000000 } });
     restMonth(game);

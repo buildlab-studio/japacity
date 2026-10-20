@@ -17,7 +17,7 @@ import { storeSave } from "./memory";
 
 const ID = "character.tunde";
 const OTHER = "character.zainab";
-const SAVE = life("tunde-borrower");
+const SAVE = life("banker-borrower");
 const at = (index: number) => productionConfig.clock.epoch + index;
 /** Rules other than the deployed ones: the wellbeing drifts back faster each month. */
 const otherRules = applyOverlay(content, { version: "other-rules", tuning: { quality: { wellbeingDrift: 5 } } });
@@ -107,7 +107,7 @@ describe("the rollback tool on the database", () => {
     const head = await stored(deps, 30);
     await appendRejected(deps, head, 31);
     const played = await playRows(deps, ID, head, SAVE.commands.slice(30), { at, shift: 1 });
-    const zainab = life("zainab-remote");
+    const zainab = life("developer-remote");
     await storeWorlds(deps, zainab);
     const start = await createLife(deps, OTHER, zainab);
     await playRows(deps, OTHER, start, zainab.commands.slice(0, 10), { at, tamper: (row, index) => (index === 2 ? { ...row, hash: "fault" } : row) });

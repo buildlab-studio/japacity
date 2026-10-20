@@ -158,7 +158,7 @@ const CLOCK = clockAt(3);
 
 /** A page signed in as `account`: the game played through the simulation, the dedication's routes on the shared store. */
 async function online(page: Page, account: string, kept: Kept[]): Promise<void> {
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
   game.grant(1);

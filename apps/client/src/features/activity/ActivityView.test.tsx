@@ -95,7 +95,7 @@ describe("the month plan", () => {
   });
 
   test("given a job, when it is quit and confirmed, then activity/quit is sent", async () => {
-    const view = engineView("scenario.tunde");
+    const view = engineView("scenario.banker");
     const { authority } = await renderWithView(<ActivityView />, view);
     expect(screen.getByText(text[`${view.job.id ?? ""}.name`]!)).toBeDefined();
     expect(content.activity[view.job.id ?? "activity.rest"]?.slot).toBe("main");
@@ -162,7 +162,7 @@ describe("the month plan", () => {
   });
 
   test("[wallet:view-carries-month-pay] given a job held one month, then the card shows the view's pay, never content's written figure, and says one month", async () => {
-    const base = engineView("scenario.tunde");
+    const base = engineView("scenario.banker");
     const job = base.job.id ?? "activity.rest";
     const written = content.activity[job]?.pay;
     if (written === null || written === undefined || typeof written.amount !== "number") throw new Error("The job has no pay.");

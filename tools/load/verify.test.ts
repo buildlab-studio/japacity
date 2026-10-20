@@ -8,7 +8,7 @@ import { latestSnapshotV, ledgerProblems, snapshotShare, verifyCharacter, versio
 import type { CharacterRows, Counts } from "./verify";
 
 const EVERY = 20;
-const SCENARIO = "scenario.ada" as Id<"scenario">;
+const SCENARIO = "scenario.graduate" as Id<"scenario">;
 
 /** A life played the way the server plays it, kept as the rows the load route hands over. */
 function played(commands: number): { rows: CharacterRows; worlds: Map<number, World> } {

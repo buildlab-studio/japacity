@@ -82,8 +82,8 @@ export interface Linked {
 
 /** Two players with characters, the inviter's partner card taken by the friend. */
 export async function linkedPair(server: TestServer = pairServer()): Promise<Linked> {
-  const a = await newLife(server, INVITER, "scenario.ada");
-  const b = await newLife(server, FRIEND, "scenario.tunde");
+  const a = await newLife(server, INVITER, "scenario.graduate");
+  const b = await newLife(server, FRIEND, "scenario.banker");
   const code = await cardOut(server);
   const taken = await call<{ ok: boolean; detail?: string }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" });
   if (!taken.body.ok) throw new Error(`The link was not taken: ${JSON.stringify(taken.body)}`);

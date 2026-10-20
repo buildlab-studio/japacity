@@ -63,9 +63,9 @@ function results(store: GameStore): { story: string[]; runsOut: string[] } {
 }
 
 describe("how the talk went", () => {
-  /** Zainab meets people until the talk is open to her, gives it, opens with `answer` and ends the month. */
+  /** The developer meets people until the talk is open to it, gives it, opens with `answer` and ends the month. */
   async function gave(answer: string): Promise<string[]> {
-    const game = newGame("scenario.zainab");
+    const game = newGame("scenario.developer");
     const store = await storeOf(game);
     for (let months = 0; months < 4 && store.getState().view?.activities.find((option) => option.id === TALK)?.allowed !== true; months += 1) {
       await now(store, MEETUP);
@@ -104,8 +104,8 @@ describe("how the talk went", () => {
 });
 
 describe("a paper running out before the application", () => {
-  test("[document:one-pending-copy] [world:month-end-results-sheet] given the ready nurse with health care her plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
-    const game = newGame("scenario.ngozi");
+  test("[document:one-pending-copy] [world:month-end-results-sheet] given the ready nurse with health care its plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
+    const game = newGame("scenario.nurse");
     const store = await storeOf(game);
     for (let months = 0; months < 6 && (game.state.route[CARE]?.state ?? "unknown") === "unknown"; months += 1) {
       await now(store, MEETUP);
@@ -127,7 +127,7 @@ describe("a paper running out before the application", () => {
     await month(store, game);
     expect(results(store).runsOut).toEqual(["Your TB test certificate runs out next month."]);
     expect(validity).toBe(6);
-    // Her plan sent, nothing is warned of; a paper no step of her plan reads is never warned of.
+    // Its plan sent, nothing is warned of; a paper no step of its plan reads is never warned of.
     const view = store.getState().view!;
     expect(runningOut({ ...view, routes: view.routes.map((route) => (route.id === CARE ? { ...route, state: "applying" as const } : route)) })).toEqual([]);
     expect(runningOut({ ...view, plan: { ...view.plan, route: "route.gulf-contract" }, routes: view.routes.map((route) => (route.id === "route.gulf-contract" ? { ...route, state: "known" as const } : route)) })).toEqual([]);

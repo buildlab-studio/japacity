@@ -24,7 +24,7 @@ const MARCH = Date.UTC(2026, 2, 15, 11);
 
 const ABROAD = ["country.uk", "country.uae", "country.canada", "country.italy"] as const;
 
-/** Ada landed in London, with pounds in the bank and in her hand. */
+/** The graduate landed in London, with pounds in the bank and in hand. */
 function landed(): PlayerView {
   const game = abroadGame();
   setPockets(game, { GBP: 70_000 });
@@ -39,7 +39,7 @@ describe("the band's money", () => {
     expect(money.formatMoney(15_000_000)).toBe(formatMoney(15_000_000, "NGN"));
   });
 
-  test("[world:top-band-is-lively-pill] given Ada landed in London with naira still at home, when the band's money is read, then it is her pounds, bank and cash together, and the naira is left to the Bank app", () => {
+  test("[world:top-band-is-lively-pill] given the graduate landed in London with naira still at home, when the band's money is read, then it is the life's pounds, bank and cash together, and the naira is left to the Bank app", () => {
     const view = landed();
     expect(view.place).toMatchObject({ where: "abroad", country: "country.uk" });
     expect(view.pockets.NGN.bank).toBeGreaterThan(0);
@@ -156,7 +156,7 @@ describe("the band's month", () => {
   test("[world:top-band-is-lively-pill] given a life begun on this device in March, when the store starts it, then the store holds the time it began, read from the authority", async () => {
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "band-month", now: () => MARCH });
     const store = createGameStore(authority, { life: authority, choosingLife: true });
-    await store.getState().chooseLife("scenario.ada");
+    await store.getState().chooseLife("scenario.graduate");
     expect(store.getState().beganAt).toBe(MARCH);
     expect(authority.beganAt()).toBe(MARCH);
   });

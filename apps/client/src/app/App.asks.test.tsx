@@ -43,7 +43,7 @@ function sent(): CounterRow[] {
 const DRAW_WIN: NonNullable<PlayerView["card"]> = { kind: "draw-win", route: null, percent: null, months: 2, standing: 0, topActivities: [], chapter: null, name: null };
 
 function withCard(): PlayerView {
-  return { ...engineView("scenario.tunde"), card: DRAW_WIN };
+  return { ...engineView("scenario.banker"), card: DRAW_WIN };
 }
 
 async function playing(view: PlayerView, earlyWin: boolean): Promise<GameStore> {

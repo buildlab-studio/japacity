@@ -16,7 +16,7 @@ describe("the room's move-in on the door", () => {
     const door = homeFigures("compound-room");
     expect(door.now).toBe(movein);
     expect(door.rentYear).toBe(rentYear);
-    const bills = newGame("scenario.ada").view().home.moves.find((move) => move.to === "place.compound-room");
+    const bills = newGame("scenario.graduate").view().home.moves.find((move) => move.to === "place.compound-room");
     expect(bills?.now).toBe(movein);
     const line = say("ui.door.home.costs.compound-room", { amount: formatMoney(door.monthly, "NGN"), rent: formatMoney(rentYear, "NGN"), movein: formatMoney(door.now, "NGN") });
     expect(line).toBe(`${formatMoney(movein, "NGN")} to move in, then ${formatMoney(rentYear, "NGN")} a year · living ${formatMoney(upkeep, "NGN")} a month`);

@@ -12,7 +12,7 @@ import { kioskDrawLine, kioskStreet, Lotto } from "./Lotto";
 
 describe("the Lotto app offline", () => {
   test("[world:phone-rises-over-scene] given a life offline with no ticket yet, when the Lotto app opens, then it names the kiosk's street, Bode Thomas Street, and says no ticket this month, more than one bare line", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     expect(game.view().lottery).toBeNull();
     expect(content.place["place.bode-thomas"]?.stages).toContain("activity.play-lotto");
     expect(kioskStreet()).toBe(nameOf("place.bode-thomas"));
@@ -26,7 +26,7 @@ describe("the Lotto app offline", () => {
   });
 
   test("[world:phone-rises-over-scene] [luck:kiosk-sells-lotto-tickets] given a ticket bought at the kiosk this month, when the Lotto app opens, then it says the month's ticket and no longer says none", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const lines = game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines;
     const { store } = await renderWithView(<Lotto />, game.view());
     act(() => store.setState({ monthLines: lines }));
@@ -36,7 +36,7 @@ describe("the Lotto app offline", () => {
   });
 
   test("[world:phone-rises-over-scene] given last month's results with the kiosk's draw in them, when the Lotto app opens, then it shows the last draw's result in the results' own words", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" });
     game.endTurn();
     const view = game.view();

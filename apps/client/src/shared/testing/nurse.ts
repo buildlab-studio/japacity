@@ -59,7 +59,7 @@ export function tileNurse(seed: string, open = false): Game {
 
 /** The ready nurse: thirty months on the ward, the licence and the passport held. `open`: health care open from abroad. */
 export function readyNurse(seed = "ready-nurse", open = false): Game {
-  return begin("scenario.ngozi", seed, open);
+  return begin("scenario.nurse", seed, open);
 }
 
 /** Health care heard of at the meetup: the ready nurse's first step. */
@@ -74,7 +74,7 @@ export function settle(game: Game, take: (entry: string) => boolean = (entry) =>
     const view = game.view();
     const question = view.setpiece?.question ?? null;
     if (question !== null) {
-      // She knows her work: the answer that scores most, from content, else the first allowed.
+      // The nurse knows the work: the answer that scores most, from content, else the first allowed.
       const asked = view.setpiece === null ? undefined : content.setpiece[view.setpiece.entry];
       const answers = [...(asked?.questions ?? []), ...(asked?.followUps ?? [])].find((one) => one.id === question.id)?.answers ?? [];
       const best = [...answers].filter((one) => question.allowed.includes(one.id)).sort((a, b) => b.score - a.score)[0]?.id;
@@ -109,7 +109,7 @@ export function month(game: Game, slots: SlotPick[] = []): void {
 /** The staff nurse's job, asked for until it is taken. */
 export function hire(game: Game, months = 8): void {
   for (let guard = 0; guard < months && game.state.activity.job !== NURSE_JOB; guard += 1) month(game, [{ activity: HUNT, param: NURSE_JOB }]);
-  if (game.state.activity.job !== NURSE_JOB) throw new Error("The clinic never took her.");
+  if (game.state.activity.job !== NURSE_JOB) throw new Error("The clinic never took the nurse.");
 }
 
 /** Health care heard of (the send-off's nurses, or the meetup) and its page read. */

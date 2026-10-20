@@ -25,8 +25,8 @@ describe("one band for the route", () => {
     expect(routeBand(CARE)).toBe(40);
   });
 
-  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is health care, when the centre's sheet and her result are read, then both say the care route's band, never the master's 6.0", () => {
-    const game = newGame("scenario.ngozi");
+  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is health care, when the centre's sheet and its result are read, then both say the care route's band, never the master's 6.0", () => {
+    const game = newGame("scenario.nurse");
     viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     const view = game.view();
     expect(view.plan.route).toBe(CARE);
@@ -39,7 +39,7 @@ describe("one band for the route", () => {
     expect(words(told.key, told.params)).toMatch(/Band 5\.0\. That meets the route's 4\.0\.$/);
     expect(told.tone).toBe("good");
     // With no plan, the chapter's own 6.0 stands.
-    const none = toldOnResults(tidy!, newGame("scenario.ngozi").view());
+    const none = toldOnResults(tidy!, newGame("scenario.nurse").view());
     expect(words(none.key, none.params)).toBe("Band 5.0. The route needs 6.0: study and sit again.");
   });
 });

@@ -38,7 +38,7 @@ function offered(id: ActivityOption["id"], amount: number, affordable = true): A
 
 describe("the picker's cards and money", () => {
   test("[world:one-action-one-sheet] given an activity that costs money, when its card shows, then the button says the act and its price, and under it the balance before, struck, and after, counting the bank and the cash", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const cost = content.activity[TB]?.cost[0]?.amount;
     if (typeof cost !== "number") throw new Error("The TB test has no fixed fee.");
     await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(TB, cost)] });
@@ -51,7 +51,7 @@ describe("the picker's cards and money", () => {
   });
 
   test("[world:one-action-one-sheet] given an activity that costs one kobo more than the player has, when its card shows, then the button is shut and says how much is short, and nothing is planned", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(TB, naira(view) + 1, false)] });
     const button = addButton(TB);
     expect(button.disabled).toBe(true);
@@ -61,7 +61,7 @@ describe("the picker's cards and money", () => {
   });
 
   test("[world:one-action-one-sheet] given a plan that already pays for one activity, when another card shows, then the balance after is after both, and one the plan leaves too little for is shut as short", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const first = 2_500_000;
     const second = naira(view) - first;
     // Only month-acts are planned, each once (activity:now-acts-and-month-acts, world:month-acts-carry-on), so the plan
@@ -83,7 +83,7 @@ describe("the picker's cards and money", () => {
   });
 
   test("[world:one-action-one-sheet] given a free activity, when its card shows, then the button carries no money line", async () => {
-    const view = engineView("scenario.ada");
+    const view = engineView("scenario.graduate");
     const family: ActivityOption = { id: "activity.family-time", allowed: true, missing: [], params: null, cost: [], affordable: true, when: "month", done: false };
     await renderWithView(<ActivityPicker only={["activity.family-time"]} />, { ...view, activities: [family] });
     expect(addButton("activity.family-time").disabled).toBe(false);
@@ -95,7 +95,7 @@ describe("the picker and a pick that fills no slot", () => {
   test("[turn:free-slots-per-month] [advice:someone-who-went-answers-free] given every slot planned, when the picker shows someone who went, then it can still be added", async () => {
     const FRIEND = "activity.ask-someone-who-went";
     const UK = "route.uk-masters";
-    const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
+    const view = viewAfter(newGame("scenario.banker"), [{ type: "route/hear", route: UK, via: "test" }]);
     const { store, authority } = await renderWithView(<ActivityPicker only={[FRIEND]} />, view);
     // Rest is never planned (turn:free-slots-per-month), so the free time is filled with month-acts.
     const month = view.activities.filter((option) => option.allowed && option.params === null && plannable(option.id)).map((option) => option.id);

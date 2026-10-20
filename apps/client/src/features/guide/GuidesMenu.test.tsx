@@ -16,7 +16,7 @@ function openMenu() {
 
 describe("the guides from the game", () => {
   test("[guide:guides-are-open-pages] given a life in play, when the menu is opened, then every guide links to its page, opened beside the game", async () => {
-    await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
+    await renderWithView(<GuidesMenu />, engineView("scenario.graduate"));
     openMenu();
     for (const id of Object.keys(content.guide)) {
       const link = screen.getByRole("link", { name: say(`${id}.title`) });
@@ -34,7 +34,7 @@ describe("the guides from the game", () => {
   });
 
   test("[guide:generated-media-named-plainly] given the menu, when it is opened, then how the game was made is reachable, and no link leads to a credits or sources page", async () => {
-    await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
+    await renderWithView(<GuidesMenu />, engineView("scenario.graduate"));
     openMenu();
     expect(screen.getByRole("link", { name: say("guide.page.made") }).getAttribute("href")).toBe(MADE_PATH);
     const hrefs = screen.getAllByRole("link").map((link) => link.getAttribute("href") ?? "");
@@ -42,7 +42,7 @@ describe("the guides from the game", () => {
   });
 
   test("[guide:guides-are-open-pages] given a life in play in the world, when the phone's Settings opens, then the guides menu is under About the game, beside the credits, and opens every guide", async () => {
-    const store = createGameStore(fakeAuthority(engineView("scenario.ada")));
+    const store = createGameStore(fakeAuthority(engineView("scenario.graduate")));
     await store.getState().refresh();
     render(<App store={store} />);
     // The world is the game (world:world-fills-the-screen): no page header, and the guides sit in the phone's Settings.

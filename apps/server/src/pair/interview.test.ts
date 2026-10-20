@@ -44,7 +44,7 @@ function interviewContent(): Content {
 async function sponsorAbroad(server: TestServer, account: string): Promise<string> {
   await signUp(server, account);
   const current = server.deps.contents.current;
-  const base = newState("scenario.tunde", "sponsor-seed", current);
+  const base = newState("scenario.banker", "sponsor-seed", current);
   const month = base.turn.month;
   const state: State = {
     ...base,
@@ -62,7 +62,7 @@ async function sponsorAbroad(server: TestServer, account: string): Promise<strin
 /** The applicant at home married to the sponsor abroad, the joint agreed with the sponsor leading, and the application sent: the interview open in both lives. */
 async function applied(): Promise<Linked> {
   const server = pairServer(interviewContent());
-  const a = await newLife(server, INVITER, "scenario.ada");
+  const a = await newLife(server, INVITER, "scenario.graduate");
   const b = await sponsorAbroad(server, FRIEND);
   const code = await cardOut(server);
   const taken = await call<{ ok: boolean; detail?: string }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" });

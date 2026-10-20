@@ -43,7 +43,7 @@ const COOK = "activity.cook-at-home";
 describe("an act that repeats, at its thing", () => {
   test("[activity:acts-may-repeat-in-month] [activity:now-acts-spend-half-days] [world:things-are-tappable-models] given time with Mama, when her sheet opens twice, then each time its card's button does it now, the card names no time taken, it never counts at the month's end nor says Ongoing, each press is sent at once, and her words land over her head", async () => {
     resetLines();
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const { authority, store } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
     await waitFor(() => found('[data-stand-in-thing="mama"]'), { timeout: 3000 });
     for (let time = 1; time <= 2; time += 1) {
@@ -74,7 +74,7 @@ describe("an act that repeats, at its thing", () => {
 
 describe("an act the scene shows, from its sheet", () => {
   test("[world:things-are-tappable-models] [activity:acts-may-repeat-in-month] given the family house's cooking corner's sheet with the pot and the big pot, when food from the pot is had from its card, then it is sent at once, no card answers it, the sheet closes so the pot is seen, and the scene is handed the act to show where it was done", async () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const { authority } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
     // The corner's meals are the simulation's own fan buttons; with no room beside the corner they open as their sheet
     // (world:fan-of-sticker-buttons), which is the sheet this test reads.

@@ -23,7 +23,7 @@ function queuedWorld(tick: number): World {
 
 /** The endorsement's card as the engine prices it, with the naira the developer held and the pounds given. */
 function endorsement(pounds: number): { view: PlayerView; option: ActivityOption } {
-  const game = start({ scenario: "scenario.ada", content, worldAt: queuedWorld });
+  const game = start({ scenario: "scenario.graduate", content, worldAt: queuedWorld });
   setPockets(game, { NGN: 211_045_000, GBP: pounds });
   const view = game.view();
   const option = view.activities.find((entry) => entry.id === ENDORSE);

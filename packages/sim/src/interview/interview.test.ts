@@ -14,7 +14,7 @@ import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { GENUINENESS, NO_JOB, interviewKind, isThin, listOf, needsMet, resultOf, truthOf } from "./interview.logic";
-import { ADA } from "../testing/ids";
+import { GRADUATE } from "../testing/ids";
 
 // A bond reaches the state by hand here, so a test need not play a courtship
 // first. The application goes in through the partner or dependant gate, which
@@ -171,7 +171,7 @@ function setBond(game: Game, id: string, bond: Bond): void {
 }
 
 function life(options: { seed?: string; content?: Content; kinds?: Registry } = {}): Game {
-  return start({ scenario: ADA, content: options.content ?? testContent(), seed: options.seed ?? "seed-1", ...(options.kinds === undefined ? {} : { kinds: options.kinds }) });
+  return start({ scenario: GRADUATE, content: options.content ?? testContent(), seed: options.seed ?? "seed-1", ...(options.kinds === undefined ? {} : { kinds: options.kinds }) });
 }
 
 type Over = Partial<Bond> | ((month: number) => Partial<Bond>);

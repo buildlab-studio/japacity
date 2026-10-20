@@ -24,7 +24,7 @@ function takes(offer: string, choice: string): number {
 
 describe("an answer's money, named for it", () => {
   test("[world:month-end-results-sheet] [world:one-country-at-a-time] given fuel scarcity, when the fares are paid, then the line says fuel scarcity and fares, never living costs", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const fuel = openOffer(game, "offer.fuel-scarcity");
     const result = game.accept({ type: "offer/choose", offer: fuel.id, choice: "pay" });
     const shown = read(result.lines);
@@ -36,7 +36,7 @@ describe("an answer's money, named for it", () => {
   test("[text:bands-not-figures] given any offer answered, when its line is read, then the offer's name never runs into the middle of a sentence", () => {
     expect(words("line.offer.taken", { offer: "offer.nepa-bill" })).toBe(`Answered: ${words("offer.nepa-bill.name")}.`);
     for (const choice of ["pay", "leave"]) {
-      const fresh = newGame("scenario.ada");
+      const fresh = newGame("scenario.graduate");
       applyEffects(fresh, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 50_000_000, reason: "gift" }]);
       const bill = openOffer(fresh, "offer.nepa-bill");
       const shown = read(fresh.accept({ type: "offer/choose", offer: bill.id, choice }).lines);
@@ -45,7 +45,7 @@ describe("an answer's money, named for it", () => {
   });
 
   test("[world:month-end-results-sheet] [text:bands-not-figures] given a meetup played, when the month's lines are read, then its spending is named the meetup, not going out", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     // activity:now-acts-and-month-acts: the meetup is an act done at once, so its spending is in its own lines, which the
     // month's results show with the month's (world:month-end-results-sheet).
     const shown = read(game.accept({ type: "activity/now", activity: "activity.meetup", param: null }).lines);
@@ -81,11 +81,11 @@ describe("one line for one thing", () => {
   });
 });
 
-/** Ada's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
+/** The graduate's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
 function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before: string[] } {
   // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
   // since the one-chance story joined the pool and moved every world's draws, wallet:cash-pile-warning).
-  const game = start({ scenario: "scenario.ada", seed: "s", worldSeed: "w-1", content: on });
+  const game = start({ scenario: "scenario.graduate", seed: "s", worldSeed: "w-1", content: on });
   applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500_000_000, reason: "gift" }]);
   let risen: ReportLine[] | null = null;
   let before: string[] = [];

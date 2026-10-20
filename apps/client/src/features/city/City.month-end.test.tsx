@@ -38,11 +38,11 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-/** Ada at home with a month behind her and something planned. */
-async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
+/** The graduate at home with a month behind it and something planned. */
+async function graduateAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
   // At the family house unless the test opens elsewhere (world:opens-where-last-stopped: the game opens where the player last stopped).
   if (goIn) window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
-  const game = newGame("scenario.ada");
+  const game = newGame("scenario.graduate");
   game.endTurn();
   const rendered = await renderWithGame(
     <City world results={(place) => <p data-results-for={place} />} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} {...extra} />,
@@ -51,7 +51,7 @@ async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn =
   // The house opens whole, the bed in your corner.
   await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
   const pick = game.view().activities.find((option) => option.allowed && option.affordable && option.id !== "activity.job-hunt" && option.params === null && plannable(option.id));
-  if (pick === undefined) throw new Error("Nothing Ada can plan.");
+  if (pick === undefined) throw new Error("Nothing the graduate can plan.");
   act(() => {
     rendered.store.getState().addToPlan({ activity: pick.id, param: null });
   });
@@ -65,7 +65,7 @@ describe("the bed's month end", () => {
   // The bed never opens the phone before the turn (world:sleep-ends-the-month). On the timed sleep nothing is sent at the tap, then
   // turn/end goes once with the plan as it stands, and the results open in the room.
   test("[world:sleep-ends-the-month] [world:month-end-results-sheet] given something planned at home, when the bed's Sleep is tapped, then the phone stays shut and nothing is sent until the sleep runs out; then the month ends with the plan's commitments and the results sheet opens over the place", async () => {
-    const bed = await adaAtHome();
+    const bed = await graduateAtHome();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     pressFanActNow("mattress", "end-month");
     expect(document.querySelector("[data-stand-in-phone]")).toBeNull();
@@ -87,7 +87,7 @@ describe("the bed's month end", () => {
 
 describe("the player's own figure", () => {
   test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given the world, when the player's own figure is tapped, then nothing opens, no card and no dialog, nothing is sent and the nudge stays", async () => {
-    const { authority } = await adaAtHome();
+    const { authority } = await graduateAtHome();
     expect(nudge()).not.toBeNull();
     const before = authority.sent.length;
     fireEvent.click(found("[data-stand-in-own]"));
@@ -98,7 +98,7 @@ describe("the player's own figure", () => {
   });
 
   test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given a thing's fan open, when the player's own figure is tapped, then the fan goes and the nudge comes back", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
     expect(nudge()).toBeNull();
     fireEvent.click(found("[data-stand-in-own]"));
@@ -108,7 +108,7 @@ describe("the player's own figure", () => {
 
 describe("a thing's fan and the nudge", () => {
   test("[world:nudge-says-one-thing] given a thing's fan open, when a tap lands anywhere outside it, then the fan goes and the nudge comes back by itself, with no tap on the floor", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     expect(nudge()).not.toBeNull();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
     // The nudge hides while the fan is open.
@@ -119,7 +119,7 @@ describe("a thing's fan and the nudge", () => {
   });
 
   test("[world:nudge-says-one-thing] [world:fan-of-sticker-buttons] given a thing's fan open, when Escape (Back) is pressed, then the fan goes and the nudge comes back; a tap inside the fan keeps it", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
     expect(nudge()).toBeNull();
     // A tap on the fan itself keeps it open.
@@ -131,7 +131,7 @@ describe("a thing's fan and the nudge", () => {
   });
 
   test("[world:nudge-says-one-thing] [world:fan-of-sticker-buttons] given a thing's act that opens its sheet, when the sheet is closed, then the nudge comes back by itself", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     fireEvent.click(found('[data-stand-in-thing="mama"]'));
     const mama = document.querySelector<HTMLElement>('[data-fan="mama"] [data-fan-act] button');
     if (mama === null) throw new Error("Mama has no act.");
@@ -146,7 +146,7 @@ describe("a thing's fan and the nudge", () => {
 
 describe("a person's or a shopfront's card", () => {
   test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given a shopfront's card open, when it shows, then it sits at the foot of the screen as the sheets do, never under the band; a tap anywhere outside it closes it and the nudge comes back", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     fireEvent.click(found("[data-stand-in-shopfront]"));
     const card = found("[data-card]");
     expect(card.closest("[data-card-dock]")).not.toBeNull();
@@ -162,7 +162,7 @@ describe("a person's or a shopfront's card", () => {
   });
 
   test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given a person's card open, when Escape (Back) is pressed, then it closes and the nudge comes back", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     fireEvent.click(found("[data-stand-in-person]"));
     expect(found("[data-card]").closest("[data-card-dock]")).not.toBeNull();
     expect(nudge()).toBeNull();
@@ -177,7 +177,7 @@ describe("where the game opens", () => {
   // Ojuelegba, and the family house opens whole.
   test("[world:opens-where-last-stopped] given the player last stopped inside the hub's room at Ojuelegba, when the world opens again, then it opens inside, at the desks, not on the street", async () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.ojuelegba", "inside"]));
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     game.endTurn();
     await renderWithGame(<City world results={() => <p />} />, game);
     await waitFor(() => found('[data-stand-in-thing="desk"]'), { timeout: 3000 });
@@ -187,7 +187,7 @@ describe("where the game opens", () => {
 
   test("[world:opens-where-last-stopped] given the player last stopped on Ojuelegba's street, when the world opens again, then it opens on the street", async () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.ojuelegba"]));
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     game.endTurn();
     await renderWithGame(<City world results={() => <p />} />, game);
     await waitFor(() => found('[data-stand-in-thing="hub"]'), { timeout: 3000 });
@@ -195,7 +195,7 @@ describe("where the game opens", () => {
   });
 
   test("[world:opens-where-last-stopped] given the player last stopped at the family house, when the world opens again, then the house opens whole, its bed and Mama there at once, with no door to go in by", async () => {
-    await adaAtHome();
+    await graduateAtHome();
     expect(document.querySelector('[data-stand-in-thing="mama"]')).not.toBeNull();
     expect(document.querySelector('[data-stand-in-thing="house"]')).toBeNull();
   });

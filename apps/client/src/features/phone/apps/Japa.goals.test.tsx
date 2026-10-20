@@ -33,7 +33,7 @@ describe("life goals in Japa", () => {
     expect(document.querySelector("[data-goals]")?.textContent).not.toMatch(/month \d+/i);
   });
 
-  test("given Ada just landed and no goal open or done (set on the view), then the goals say so", async () => {
+  test("given the graduate just landed and no goal open or done (set on the view), then the goals say so", async () => {
     await renderWithView(<Japa />, { ...abroadView(), goals: { open: [], done: [] } });
     expect(screen.getByText(say("ui.goal.none"))).toBeDefined();
   });

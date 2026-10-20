@@ -39,9 +39,9 @@ describe("the trader's chapter sheet", () => {
   });
 
   test("[activity:trader-opens-own-shop] [chapter:items-are-live-requirements] given a fixed life, when its chapter sheet opens, then it opens on the life's own line", async () => {
-    const view = newGame("scenario.tunde").view();
+    const view = newGame("scenario.banker").view();
     await renderWithView(<ChapterView />, view);
-    expect(screen.getByText(text[`${FIRST_CHAPTER}.open.tunde`]!)).toBeDefined();
+    expect(screen.getByText(text[`${FIRST_CHAPTER}.open.banker`]!)).toBeDefined();
     expect(screen.getByText(text[`${FIRST_CHAPTER}.item.job`]!)).toBeDefined();
   });
 });

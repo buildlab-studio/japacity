@@ -39,10 +39,10 @@ describe("the rise of the figure", () => {
     expect(riseOf(10, null)).toBe(0);
   });
 
-  test("[world:japacity-bag-by-door] [japacity:best-open-route-is-japacity] given Tunde the borrower's life, when every month's figure is read in turn, then each rise is its gain and every fall is no rise", () => {
-    const commands = recordedSave("tunde-borrower").commands.length;
+  test("[world:japacity-bag-by-door] [japacity:best-open-route-is-japacity] given the banker's borrower life, when every month's figure is read in turn, then each rise is its gain and every fall is no rise", () => {
+    const commands = recordedSave("banker-borrower").commands.length;
     const figures: (number | null)[] = [];
-    for (let played = 0; played <= commands; played += 1) figures.push(recordedGame("tunde-borrower", commands - played).view().japacity.percent);
+    for (let played = 0; played <= commands; played += 1) figures.push(recordedGame("banker-borrower", commands - played).view().japacity.percent);
     const changes = figures.slice(1).map((now, index) => ({ before: figures[index] ?? null, now })).filter(({ before, now }) => before !== now);
     const gains = changes.filter(({ before, now }) => now !== null && now > (before ?? 0));
     const falls = changes.filter(({ before, now }) => now === null || (before !== null && now < before));

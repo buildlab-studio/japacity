@@ -11,7 +11,7 @@ import { Calendar } from "./Calendar";
 
 const YEAR = content.tuning.home.compound.rentYear;
 
-/** Ada in the room from month 0, played to the month whose end takes the year's rent, then left holding `held`. */
+/** The graduate in the room from month 0, played to the month whose end takes the year's rent, then left holding `held`. */
 function roomAtRent(held: number) {
   const game = newGame();
   setPockets(game, { NGN: 5_000_000_00 });

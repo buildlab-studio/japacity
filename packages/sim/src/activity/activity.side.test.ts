@@ -31,7 +31,7 @@ function sideJob(scenario: Id<"scenario">, side: Id<"activity">): Game {
 
 describe("side jobs", () => {
   test("[activity:side-job-holds-a-slot] [activity:job-hunt-lands-offer] given a hunt for a side job, when it lands and the offer is accepted, then the side job is held beside no job, one slot is locked for it and the month's free slots drop by one", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     expect(game.view().freeSlots).toBe(tuning.turn.freeSlotsNoJob);
     let offer: string | undefined;
     for (let month = 0; month < 30 && offer === undefined; month += 1) {
@@ -52,7 +52,7 @@ describe("side jobs", () => {
   });
 
   test("[wallet:view-carries-month-pay] given a hunt for a side job that lands, when the offer is read, then it says the month's pay; once the side job is held the view's side pay is the same, and the month books exactly it", () => {
-    const game = start({ content, scenario: "scenario.ada" });
+    const game = start({ content, scenario: "scenario.graduate" });
     let offer: { id: string; pay?: { currency: string; amount: number } } | undefined;
     for (let month = 0; month < 30 && offer === undefined; month += 1) {
       game.endTurn([slot(HUNT, NIGHT_SUPPORT)]);
@@ -66,7 +66,7 @@ describe("side jobs", () => {
   });
 
   test("[activity:side-job-holds-a-slot] [wallet:money-lands-as-in-lagos] given a side job paid in dollars and one paid in naira, when a month is played, then the dollars go to the bank and the naira, a month's pay over the line for cash, to the bank as well, its toll applies, and the slot stays locked for the next month", () => {
-    const night = sideJob("scenario.ada", NIGHT_SUPPORT);
+    const night = sideJob("scenario.graduate", NIGHT_SUPPORT);
     const month = night.endTurn();
     expect(moneyOf(month, "salary")).toEqual([{ type: "wallet/credited", currency: "USD", pocket: "bank", amount: payOf(NIGHT_SUPPORT), reason: "salary" }]);
     expect(month.events).toContainEqual({ type: "quality/changed", quality: "quality.wellbeing", amount: -6, source: NIGHT_SUPPORT });
@@ -75,45 +75,45 @@ describe("side jobs", () => {
     expect(freeSlots(night.state, content)).toBe(tuning.turn.freeSlotsNoJob - 1);
     night.expectRejected({ type: "turn/end", slots: [slot("activity.rest"), slot("activity.rest"), slot("activity.rest")] }, "not-legal");
 
-    const tutoring = sideJob("scenario.ada", TUTORING);
+    const tutoring = sideJob("scenario.graduate", TUTORING);
     expect(payOf(TUTORING)).toBeGreaterThan(tuning.wallet.cashUpTo);
     expect(moneyOf(tutoring.endTurn(), "gig")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: payOf(TUTORING), reason: "gig" }]);
   });
 
   test("[activity:side-job-holds-a-slot] given a job and a side job, when the side job is quit, then only it ends; with none held, quitting a side job is not legal; one side job at a time", () => {
-    const tunde = sideJob("scenario.tunde", TUTORING);
-    applyEffects(tunde, [{ type: "activity/start-job", job: RIDE }]);
-    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: RIDE });
-    const quit = tunde.accept({ type: "activity/quit", side: true });
+    const banker = sideJob("scenario.banker", TUTORING);
+    applyEffects(banker, [{ type: "activity/start-job", job: RIDE }]);
+    expect(banker.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: RIDE });
+    const quit = banker.accept({ type: "activity/quit", side: true });
     expect(quit.events).toContainEqual({ type: "activity/side-ended", side: RIDE, why: "quit" });
     expect(quit.lines.map((line) => line.key)).toEqual(["line.activity.side-quit"]);
-    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
-    expect(sideJobHeld(readOf(tunde))).toBe(false);
-    tunde.expectRejected({ type: "activity/quit", side: true }, "not-legal");
+    expect(banker.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
+    expect(sideJobHeld(readOf(banker))).toBe(false);
+    banker.expectRejected({ type: "activity/quit", side: true }, "not-legal");
     // The plain quit is still the job's.
-    tunde.accept({ type: "activity/quit" });
-    expect(tunde.state.activity.job).toBeNull();
+    banker.accept({ type: "activity/quit" });
+    expect(banker.state.activity.job).toBeNull();
   });
 
   test("[activity:side-job-holds-a-slot] given a job and a side job, when `activity/end-job` names the side slot, then only the side job ends, with the effect's why; with no side job held it ends nothing", () => {
-    const tunde = sideJob("scenario.tunde", RIDE);
-    applyEffects(tunde, [{ type: "activity/end-job", why: "moved", side: true }]);
-    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
-    const before = tunde.state.activity;
-    applyEffects(tunde, [{ type: "activity/end-job", why: "moved", side: true }]);
-    expect(tunde.state.activity).toEqual(before);
+    const banker = sideJob("scenario.banker", RIDE);
+    applyEffects(banker, [{ type: "activity/end-job", why: "moved", side: true }]);
+    expect(banker.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
+    const before = banker.state.activity;
+    applyEffects(banker, [{ type: "activity/end-job", why: "moved", side: true }]);
+    expect(banker.state.activity).toEqual(before);
   });
 
   test("[activity:side-job-holds-a-slot] given a job and a side job, when `activity/end-job` names no slot, then only the main job ends, whatever its why", () => {
     for (const why of ["moved", "side-moved"]) {
-      const tunde = sideJob("scenario.tunde", RIDE);
-      applyEffects(tunde, [{ type: "activity/end-job", why }]);
-      expect(tunde.state.activity).toMatchObject({ job: null, side: RIDE });
+      const banker = sideJob("scenario.banker", RIDE);
+      applyEffects(banker, [{ type: "activity/end-job", why }]);
+      expect(banker.state.activity).toMatchObject({ job: null, side: RIDE });
     }
   });
 
   test("[activity:side-job-holds-a-slot] [place:entries-legal-by-where] given a side job at home, when the character arrives abroad, then it ends in the first month", () => {
-    const game = sideJob("scenario.ada", TUTORING);
+    const game = sideJob("scenario.graduate", TUTORING);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     const month = game.endTurn();
     expect(month.events).toContainEqual({ type: "activity/side-ended", side: TUTORING, why: "moved" });
@@ -147,7 +147,7 @@ describe("side jobs", () => {
   });
 
   test("[health:sick-pay-unless-sick-leave] given a side job and a slot locked for illness, when the month is played, then it pays the sick share", () => {
-    const game = sideJob("scenario.ada", TUTORING);
+    const game = sideJob("scenario.graduate", TUTORING);
     applyEffects(game, [{ type: "turn/lock", slots: 1, months: 1, why: "illness" }]);
     expect(moneyOf(game.endTurn(), "gig")[0]?.amount).toBe(bp(payOf(TUTORING), tuning.health.sickPayBp));
   });
@@ -155,7 +155,7 @@ describe("side jobs", () => {
 
 describe("the one chance", () => {
   test("[activity:one-chance-bus-robbery] [wallet:money-lands-as-in-lagos] given a side job at home, when the draw on `street` falls under the chance, then the cash goes, the phone is paid from the bank, wellbeing drops 12 and the line asks for attention; the rest of the bank, the month's pay in it, is not touched", () => {
-    const game = sideJob("scenario.tunde", RIDE);
+    const game = sideJob("scenario.banker", RIDE);
     let robbed = 0;
     for (let month = 0; month < 400 && robbed === 0; month += 1) {
       if (game.state.turn.banked < 1) game.grant(tuning.turn.cap);
@@ -182,18 +182,18 @@ describe("the one chance", () => {
 
   test("[activity:one-chance-bus-robbery] given a month with a safe ride or a night at the office, or no side job, when the month is played, then there is no draw on `street`", () => {
     for (const counter of ["activity.safe-ride", "activity.sleep-at-office"] as const) {
-      const game = sideJob("scenario.tunde", RIDE);
+      const game = sideJob("scenario.banker", RIDE);
       const n = game.state.draws.street ?? 0;
       game.endTurn([slot(counter)]);
       expect(game.state.draws.street ?? 0).toBe(n);
     }
-    const plain = start({ content, scenario: "scenario.tunde" });
+    const plain = start({ content, scenario: "scenario.banker" });
     plain.endTurn();
     expect(plain.state.draws.street ?? 0).toBe(0);
   });
 
   test("[activity:one-chance-bus-robbery] given the safe ride, when it is played, then it costs ₦25,000 under upkeep", () => {
-    const game = sideJob("scenario.tunde", RIDE);
+    const game = sideJob("scenario.banker", RIDE);
     const result = game.endTurn([slot("activity.safe-ride")]);
     expect(moneyOf(result, "upkeep").filter((event) => event.amount === 2500000)).toHaveLength(1);
   });

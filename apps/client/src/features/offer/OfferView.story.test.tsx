@@ -5,7 +5,7 @@
 import { content, text } from "@japacity/content";
 import type { Effect, Id, ReportLine } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
-import { flownAda, ALWAYS_GRANTED, offeredSeed, answerFirst, applyEffects, readyLife, toApplied, toKnown } from "@japacity/sim/testing";
+import { flownGraduate, ALWAYS_GRANTED, offeredSeed, answerFirst, applyEffects, readyLife, toApplied, toKnown } from "@japacity/sim/testing";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -42,14 +42,14 @@ function answer(game: Game, entry: Id<"offer">, choice: string): ReportLine[] {
 
 /** A life at home with the family's standing high enough for the burial to come. */
 function homeLife(): Game {
-  const game = newGame("scenario.tunde");
+  const game = newGame("scenario.banker");
   applyEffects(game, [{ type: "quality/add", quality: "quality.standing", amount: 30 }]);
   return game;
 }
 
 /** A life with the UK route known, so the aunty abroad hears of it. */
 function knownLife(): Game {
-  const game = newGame("scenario.tunde");
+  const game = newGame("scenario.banker");
   applyEffects(game, [{ type: "route/hear", route: UK, via: "test" }]);
   toKnown(game);
   return game;
@@ -152,7 +152,7 @@ describe("the savings circle and a life on its way out", () => {
   }
 
   test("[world:nudge-says-one-thing] given a life at home with no route granted, when the savings circle comes up, then it asks", () => {
-    expect(circleOpens(newGame("scenario.tunde"))).toBe(true);
+    expect(circleOpens(newGame("scenario.banker"))).toBe(true);
   });
 
   test("[world:nudge-says-one-thing] given the visa granted, when the savings circle comes up, then it does not ask: ten months of shares have no place in a life leaving", () => {
@@ -162,7 +162,7 @@ describe("the savings circle and a life on its way out", () => {
   });
 
   test("[world:nudge-says-one-thing] given a life that has flown, when the savings circle comes up, then it does not ask", () => {
-    const game = flownAda(content);
+    const game = flownGraduate(content);
     expect(Object.values(game.state.route).some((route) => route.state === "departed")).toBe(true);
     expect(circleOpens(game)).toBe(false);
   });
@@ -177,7 +177,7 @@ describe("the adviser's reading and the loan's charge", () => {
   });
 
   test("[world:month-end-results-sheet] given proof of funds held from the microfinance bank, when the month's charge is paid, then the results name it as the loan's charge", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     applyEffects(game, [
       { type: "money/add", currency: "NGN", pocket: "bank", amount: 50_000_000, reason: "gift" },
       { type: "obligation/open", obligation: "obligation.held-funds", principal: 1_000_000_000 },

@@ -44,7 +44,7 @@ function sent(): CounterRow[] {
   return bodies.flatMap((body) => (JSON.parse(body) as { rows: CounterRow[] }).rows);
 }
 
-async function playing(view: PlayerView = engineView("scenario.tunde")) {
+async function playing(view: PlayerView = engineView("scenario.banker")) {
   const store = createGameStore(fakeAuthority(view));
   await store.getState().refresh();
   render(<App store={store} />);
@@ -79,7 +79,7 @@ describe("the interface counters", () => {
   test("[analytics:client-sends-interface-counts] given a card to share, when the share button is pressed and the card goes, then share/pressed and share/completed count for its kind", async () => {
     const card = { kind: "send-off" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
     const saved: File[] = [];
-    render(<ShareButton card={card} scenario="scenario.tunde" device={{ canShare: undefined, share: undefined, save: (file) => saved.push(file) }} />);
+    render(<ShareButton card={card} scenario="scenario.banker" device={{ canShare: undefined, share: undefined, save: (file) => saved.push(file) }} />);
     fireEvent.click(screen.getByRole("button", { name: say("share.button.save") }));
     await waitFor(() => expect(saved).toHaveLength(1));
     expect(sent()).toEqual([
@@ -123,7 +123,7 @@ describe("the interface counters", () => {
 
 describe("the settings and error counters", () => {
   test("[analytics:client-sends-interface-counts] [analytics:client-batches-counters] given the city's settings, when the player chooses low, then high, then auto, then settings/graphics counts each choice by its key", async () => {
-    await renderWithView(<City />, engineView("scenario.tunde"));
+    await renderWithView(<City />, engineView("scenario.banker"));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.menu") }));
     for (const option of ["low", "high", "auto"] as const) fireEvent.click(screen.getByRole("radio", { name: cityWords(`city.graphics.${option}`) }));
@@ -135,7 +135,7 @@ describe("the settings and error counters", () => {
   });
 
   test("[analytics:client-sends-interface-counts] given the city on screen, when it picks its own starting mode, then nothing is counted as a setting changed", async () => {
-    await renderWithView(<City />, engineView("scenario.tunde"));
+    await renderWithView(<City />, engineView("scenario.banker"));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     expect(sent().filter((row) => row.name === "settings/graphics")).toEqual([]);
   });
@@ -155,7 +155,7 @@ describe("the settings and error counters", () => {
   test("[analytics:client-sends-interface-counts] [analytics:client-batches-counters] given a screen that throws while it draws, when the app's boundary catches it, then the player sees a way to reload and client/error counts render once", async () => {
     const quiet = vi.spyOn(console, "error").mockImplementation(() => undefined);
     try {
-      const broken = { ...engineView("scenario.tunde"), qualities: null } as unknown as PlayerView;
+      const broken = { ...engineView("scenario.banker"), qualities: null } as unknown as PlayerView;
       await playing(broken);
       expect(await screen.findByRole("button", { name: say("ui.broken.reload") })).toBeDefined();
       expect(screen.getByText(say("ui.broken"))).toBeDefined();
@@ -180,7 +180,7 @@ describe("the graphics mode", () => {
 
 describe("the city behind the road", () => {
   test("[city:enterable-places-follow-view] given the character on the road, when the shell shows the road screen, then the city stands behind its panel at a stylised place", async () => {
-    const base = engineView("scenario.tunde");
+    const base = engineView("scenario.banker");
     await playing({ ...base, place: { ...base.place, where: "road" } });
     const city = document.querySelector<HTMLElement>("[data-road] [data-city]");
     if (city === null) throw new Error("No city on the road screen.");

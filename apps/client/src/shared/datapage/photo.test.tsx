@@ -28,7 +28,7 @@ describe("the page's photo", () => {
     keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO });
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
     const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
-    await store.getState().chooseLife("scenario.ada");
+    await store.getState().chooseLife("scenario.graduate");
     const page = pageOf(store.getState().view!);
     expect(page.wear).toEqual({ look: "person_tunde", style: { top: "wine" }, photo: PHOTO });
     render(
@@ -79,7 +79,7 @@ describe("the photo's size", () => {
     expect(readPerson()?.photoPx).toBe(480);
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
     const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
-    await store.getState().chooseLife("scenario.ada");
+    await store.getState().chooseLife("scenario.graduate");
     expect(pageOf(store.getState().view!).wear).toEqual({ look: "person_tunde", style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
     keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photoPx: 480 });
     expect(readPerson()?.photoPx).toBeUndefined();
@@ -89,7 +89,7 @@ describe("the photo's size", () => {
     localStorage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Bola", archetype: null, style: { top: "wine" }, photo: PHOTO, photoPx: 480 }));
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
     const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
-    await store.getState().chooseLife("scenario.ada");
+    await store.getState().chooseLife("scenario.graduate");
     const page = pageOf(store.getState().view!);
     expect(page.name).toContain("Bola");
     expect(page.wear).toEqual({ look: gateLook(undefined), style: { top: "wine" }, photo: PHOTO, photoPx: 480 });

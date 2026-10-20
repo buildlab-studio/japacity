@@ -28,7 +28,7 @@ function withJobs(base: Content): Content {
 
 const used = withJobs(content);
 
-/** Ada moved abroad with a status and a job, each through its own kind's effect. */
+/** The graduate moved abroad with a status and a job, each through its own kind's effect. */
 function abroad(country: Id<"country">, status: Id<"status">, held: Id<"activity"> | null, vars: Record<Id<"var">, number> = {}): Game {
   const game = life(used, { vars: () => vars });
   applyAs(game, [{ type: "place/move", to: "abroad", country }, { type: "status/grant", status }]);

@@ -13,7 +13,7 @@ import { createLife, life, playRows, storeWorlds } from "./ops.testing";
 import { drawAlarms, drawsClosingOn, markAfterCommit, moneyReport, TICKS_PER_DRAW } from "./money";
 
 const ID = "character.tunde";
-const SAVE = life("tunde-borrower");
+const SAVE = life("banker-borrower");
 const HALF = 40;
 const DAY = time.utcDay(productionConfig.clock.epoch) + 1;
 const TRANSFERS = ["convert", "move", "remit"];

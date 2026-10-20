@@ -17,7 +17,7 @@ describe("an exam leaves the plan the month it runs", () => {
     const game = readyNurse("exam-once");
     const plan: SlotPick[] = [{ activity: CERTIFY, param: null }];
     game.endTurn(plan);
-    // She answers every question wrong: the exam is failed.
+    // The nurse answers every question wrong: the exam is failed.
     for (let guard = 0; guard < 6 && game.view().setpiece !== null; guard += 1) {
       const question = game.view().setpiece!.question!;
       const asked = content.setpiece[game.view().setpiece!.entry]!;
@@ -28,7 +28,7 @@ describe("an exam leaves the plan the month it runs", () => {
     const view = game.view();
     expect(view.setpiece).toBeNull();
     expect(view.documents.some((paper) => paper.id === "document.nurse-certificate")).toBe(false);
-    // Still open to her and paid for: only the exam's one sitting takes it out of the plan.
+    // Still open to the life and paid for: only the exam's one sitting takes it out of the plan.
     expect(view.activities.find((option) => option.id === CERTIFY)).toMatchObject({ allowed: true, affordable: true });
     const carried = carriedPlan(plan, view);
     expect(carried).toEqual([]);

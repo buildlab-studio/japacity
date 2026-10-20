@@ -5,7 +5,7 @@ import { finishPrologue, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 function played(of: Content) {
-  const game = start({ content: of, scenario: "scenario.tunde" });
+  const game = start({ content: of, scenario: "scenario.banker" });
   finishPrologue(game);
   return game;
 }

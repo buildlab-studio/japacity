@@ -87,7 +87,7 @@ describe("the life on the front door", () => {
   test("given the game's words, when the lives are read, then the developer has a tile and a ready life, under the names the door shows", () => {
     const lives = livesFrom(text);
     expect(doorButton(lives, "developer", false)).toEqual({ ok: true, name: text["prologue.archetype.developer.name"] });
-    expect(doorButton(lives, "developer", true)).toEqual({ ok: true, name: `Pick: ${text["scenario.zainab.kind"] ?? ""}` });
+    expect(doorButton(lives, "developer", true)).toEqual({ ok: true, name: `Pick: ${text["scenario.developer.kind"] ?? ""}` });
   });
 
   test("given a short name with no life, when looked up, then the known names are listed", () => {

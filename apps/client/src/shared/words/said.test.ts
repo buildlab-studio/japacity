@@ -7,17 +7,17 @@ import { describe, expect, test } from "vitest";
 import { recordedGame, recordedSave } from "../testing/fixtures";
 import { nameOf, say, words } from "./text";
 
-/** The lines Ada's recorded life tells when she boards the plane, the last command it holds. */
+/** The lines the graduate's recorded life tells when it boards the plane, the last command it holds. */
 function flightLines() {
-  const game = recordedGame("ada-careful", 1);
-  const last = recordedSave("ada-careful").commands.at(-1);
+  const game = recordedGame("graduate-careful", 1);
+  const last = recordedSave("graduate-careful").commands.at(-1);
   if (last === undefined) throw new Error("The recorded life holds no commands.");
   const reply = game.accept(last.command, last.sender);
   return reply.lines;
 }
 
 describe("words that fit", () => {
-  test("[world:month-end-results-sheet] given Ada's flight, when the status granted and the landing are told, then the status reads as its own name after a colon and the country takes no bare article", () => {
+  test("[world:month-end-results-sheet] given the graduate's flight, when the status granted and the landing are told, then the status reads as its own name after a colon and the country takes no bare article", () => {
     const lines = flightLines();
     const granted = lines.find((line) => line.key === "line.status.granted");
     const arrived = lines.find((line) => line.key === "line.place.arrived");

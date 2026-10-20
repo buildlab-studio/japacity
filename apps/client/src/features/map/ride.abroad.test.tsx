@@ -33,7 +33,7 @@ const PASS: Id<"activity"> = "activity.bus-pass-uk";
 /** A words key left unsaid, or an en or em dash (docs/rules/text.md), built from their codes so no dash stands in this file. */
 const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
 
-/** Ada landed in London with pounds in hand, and, when asked, this month's bus pass bought. */
+/** The graduate landed in London with pounds in hand, and, when asked, this month's bus pass bought. */
 function londonView(pass = false): PlayerView {
   const game = abroadGame();
   setPockets(game, { GBP: 30_000 });
@@ -50,7 +50,7 @@ function from(view: PlayerView, to: string) {
 const pin = (id: string, state: MapPin["state"]): MapPin => ({ id, name: nameOf(id), state, position: id === ROOM ? HOME_SPOT : positionOf(content, id), things: 2 });
 
 describe("the ways in London", () => {
-  test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given Ada landed in London, when the ways from Peckham are read, then they are the bus at its flat £1.75, the train by distance (£3.20 to the office) and on foot, priced by the simulation's own fare, all in pounds", () => {
+  test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given the graduate landed in London, when the ways from Peckham are read, then they are the bus at its flat £1.75, the train by distance (£3.20 to the office) and on foot, priced by the simulation's own fare, all in pounds", () => {
     const view = londonView();
     expect(view.place.ways?.map((way) => [way.way, way.currency])).toEqual([
       ["bus", "GBP"],
@@ -116,7 +116,7 @@ describe("the ways in London", () => {
 });
 
 describe("the ride sheet in London", () => {
-  test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] given Ada in London in a pass month, when she picks the office on the map, then the sheet offers the bus at £0, bus pass, the train at £3.20 and the walk too far, the money held in pounds, and Go says the bus", async () => {
+  test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] given the graduate in London in a pass month, when it picks the office on the map, then the sheet offers the bus at £0, bus pass, the train at £3.20 and the walk too far, the money held in pounds, and Go says the bus", async () => {
     const view = londonView(true);
     const pins = [pin(PECKHAM, "here"), pin("place.office-uk", "can"), pin(ROOM, "home")];
     await renderWithView(<Map pins={pins} country={UK} countries={[UK]} drawing={false} home={ROOM} onGo={() => undefined} onClose={() => undefined} />, view);

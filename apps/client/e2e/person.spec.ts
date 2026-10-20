@@ -22,8 +22,8 @@ const PAIR = "pair-1";
 /** Text that must never reach the player, as the smoke spec holds it. */
 const BROKEN: readonly Broken[] = [...NEVER_SHOWN, NO_WORDS, ["a raw people id", /\b(?:person|phrase|people)\.[a-z]+-[a-z-]+/]];
 
-function tunde(): Game {
-  return start({ scenario: "scenario.tunde", content });
+function banker(): Game {
+  return start({ scenario: "scenario.banker", content });
 }
 
 function month(game: Game, slots: { activity: string; param: null }[] = []): void {
@@ -90,7 +90,7 @@ async function openBond(page: Page, name: string) {
 
 test("[world:nobody-picked-from-list] the slots in Chats show the family, and a computer partner courted in the parlour is said to live in the game", async ({ page }, info) => {
   test.setTimeout(120_000);
-  const game = tunde();
+  const game = banker();
   month(game);
   await seed(page, game);
   const slots = await openChat(page, "people");
@@ -114,7 +114,7 @@ test("[world:nobody-picked-from-list] the slots in Chats show the family, and a 
 
 test("[world:nobody-picked-from-list] a bond carries its time together, and a visit at their room counts with it", async ({ page }, info) => {
   test.setTimeout(180_000);
-  const game = tunde();
+  const game = banker();
   game.accept({ type: "people/court", with: TOBI });
   for (let index = 0; index < 3; index += 1) month(game, [SEE]);
   await seed(page, game);
@@ -152,7 +152,7 @@ test("[world:nobody-picked-from-list] a bond carries its time together, and a vi
 
 test("[world:nobody-picked-from-list] a friend's proposal waits for an answer in their thread, and yes makes them partners", async ({ page }, info) => {
   test.setTimeout(120_000);
-  const game = tunde();
+  const game = banker();
   month(game);
   linkFriend(game);
   game.accept({ type: "people/court", with: PAIR });
@@ -172,7 +172,7 @@ test("[world:nobody-picked-from-list] a friend's proposal waits for an answer in
 
 test("[world:one-action-one-sheet] [interview:answers-taken-in-order] the interview asks one question at a time and holds the month until the last answer", async ({ page }, info) => {
   test.setTimeout(150_000);
-  const game = tunde();
+  const game = banker();
   month(game);
   linkFriend(game);
   game.accept(

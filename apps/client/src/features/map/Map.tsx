@@ -159,7 +159,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   };
 
   // The character as the city shows them (City.tsx), and a seed so the same ride says the same line.
-  const own = ownLook(view.scenario);
+  const own = ownLook();
   useEffect(() => {
     if (drawing) preloadRide(own);
   }, [drawing, own]);

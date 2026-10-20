@@ -11,7 +11,7 @@ import type { RunRecord, StrategyName } from "./players";
 import { runLife } from "./players";
 import { cleanFile } from "./report";
 
-const FIXED: Id<"scenario">[] = ["scenario.ada", "scenario.tunde", "scenario.zainab", "scenario.ngozi"];
+const FIXED: Id<"scenario">[] = ["scenario.graduate", "scenario.banker", "scenario.developer", "scenario.nurse"];
 // Thirty-two careful seeds: under decision 0014 the risky players can pay for an agent's papers from the bank, so their files are not clean, and the clean study decisions come from the careful seeds alone.
 const CAREFUL_SEEDS = 32;
 const OTHER_SEEDS = 8;

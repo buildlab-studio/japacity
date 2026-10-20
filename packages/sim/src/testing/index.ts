@@ -24,7 +24,7 @@ export {
   uk,
   withEffects,
 } from "./route.journey";
-export { flownAda } from "./goal.journey";
+export { flownGraduate } from "./goal.journey";
 export { ALWAYS_GRANTED, offeredSeed, positionOf } from "./place.journey";
 export { bondWith } from "./read";
 export { setPockets } from "./wallet";

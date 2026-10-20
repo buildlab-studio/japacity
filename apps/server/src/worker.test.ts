@@ -133,7 +133,7 @@ async function playerWithLife(): Promise<{ jar: Jar; v: number }> {
   const db = database();
   const h = harness({ stores: postgresStores(db), adapter: drizzleAuthAdapter(db.db) });
   const { jar } = await h.signUp("ada@example.com");
-  expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } })).status).toBe(200);
+  expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.graduate" } })).status).toBe(200);
   const view = await (await h.call("/api/view", { jar })).json<ViewReply>();
   if (!view.ok) throw new Error(view.detail);
   return { jar, v: view.view.v };

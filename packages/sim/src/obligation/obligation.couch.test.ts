@@ -11,7 +11,7 @@ const UPKEEP: Id<"obligation"> = "obligation.upkeep-ca";
 const COUCH = content.tuning.people.couchMonths;
 const IN_CANADA: Partial<PersonFacts> = { where: "abroad", country: "country.canada", status: "status.ca-resident" };
 
-/** Ada with Canadian money for rent and upkeep, a sibling with these facts, then the move to Canada. */
+/** The graduate with Canadian money for rent and upkeep, a sibling with these facts, then the move to Canada. */
 function arrives(siblingFacts: Partial<PersonFacts> | null): Game {
   const game = life(used, { pockets: { NGN: { bank: 200000000, cash: 150000000 }, CAD: { bank: 2000000, cash: 0 } } });
   if (siblingFacts !== null) sibling(game, "sib-1", siblingFacts);
@@ -28,7 +28,7 @@ function rentPaid(game: Game): number {
 }
 
 describe("person:sibling-couch-delays-rent: the couch", () => {
-  test("[person:sibling-couch-delays-rent] given a sibling living in Canada, when Ada arrives, then upkeep opens at once and the room only after the couch's months, none of them charged rent", () => {
+  test("[person:sibling-couch-delays-rent] given a sibling living in Canada, when the graduate arrives, then upkeep opens at once and the room only after the couch's months, none of them charged rent", () => {
     const game = arrives(IN_CANADA);
     expect(holds(game, UPKEEP)).toBe(true);
     expect(holds(game, ROOM)).toBe(false);
@@ -43,7 +43,7 @@ describe("person:sibling-couch-delays-rent: the couch", () => {
     expect(rentPaid(game)).toBe(content.obligation[ROOM]!.amount);
   });
 
-  test("[person:sibling-couch-delays-rent] given no sibling, a sibling in the UK, or one still at home, when Ada arrives in Canada, then the room opens at once", () => {
+  test("[person:sibling-couch-delays-rent] given no sibling, a sibling in the UK, or one still at home, when the graduate arrives in Canada, then the room opens at once", () => {
     for (const facts of [null, { where: "abroad", country: "country.uk", status: "status.uk-settled" }, { where: "home" }] as (Partial<PersonFacts> | null)[]) {
       const game = arrives(facts);
       expect(holds(game, ROOM)).toBe(true);

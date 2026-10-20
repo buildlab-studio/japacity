@@ -31,9 +31,11 @@ describe("the place a character's socket is for", () => {
 
   test("[clock:presence-is-a-sample] [city:players-shown-present-not-tracked] given a character at home and an account with none, when the production readers are asked, then the place is the home hub with the profile's name and look, and null for the account with none", async () => {
     const server = testServer();
-    await newLife(server, "account-a", "scenario.ada");
+    await newLife(server, "account-a", "scenario.graduate");
     expect(await placeOfIn(server.deps)("account-a")).toBe("place.ojuelegba");
-    expect(await profileOfIn(server.deps, text)("account-a")).toEqual({ name: text["share.first-name.scenario.ada"], look: "scenario.ada" });
+    // A ready life has no name of its own in content (scenario.md), so the scenario's stand-in name is empty.
+    expect(text["share.first-name.scenario.graduate"]).toBeUndefined();
+    expect(await profileOfIn(server.deps, text)("account-a")).toEqual({ name: "", look: "scenario.graduate" });
     expect(await placeOfIn(server.deps)("account-z")).toBeNull();
   });
 });

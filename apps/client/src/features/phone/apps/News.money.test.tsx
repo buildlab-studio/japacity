@@ -21,9 +21,9 @@ beforeEach(() => {
   reloadSeen();
 });
 
-/** Tunde's month of changes both ways, at the bank and with the FX man; then the month ends. */
+/** The banker's month of changes both ways, at the bank and with the FX man; then the month ends. */
 function moneyMonth(): { game: Game; mid: ReportLine[]; end: ReportLine[] } {
-  const game = newGame("scenario.tunde");
+  const game = newGame("scenario.banker");
   const mid: ReportLine[] = [];
   const play = (command: Parameters<Game["accept"]>[0]): void => {
     mid.push(...game.accept(command).lines);

@@ -31,7 +31,7 @@ import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { openOffers } from "../testing/read";
 import type { OfferEvent } from "./offer.events";
-import { ADA, STANDING, TUNDE, WELLBEING } from "../testing/ids";
+import { GRADUATE, STANDING, BANKER, WELLBEING } from "../testing/ids";
 
 const tuning = content.tuning.offer;
 
@@ -79,7 +79,7 @@ interface Lab {
 
 function lab(options: { scenario?: Id<"scenario">; content?: Content; seed?: string; routeHolds?: boolean; from?: Game } = {}): Lab {
   const used = options.content ?? content;
-  const game = options.from ?? start({ scenario: options.scenario ?? ADA, content: used, seed: options.seed ?? "seed-1" });
+  const game = options.from ?? start({ scenario: options.scenario ?? GRADUATE, content: used, seed: options.seed ?? "seed-1" });
   let pending: { effects: Effect[]; terms: Terms } = { effects: [], terms: {} };
   const holds = (): RequirementResult => ({ met: true });
   const kinds: Registry = registry().map((kind) =>
@@ -212,7 +212,7 @@ describe("coming up", () => {
 
   test("[offer:come-up-rolls-in-order] given only life and family offers certain, when a month comes up, then life comes before family, and family in id order", () => {
     const subject = lab({
-      scenario: TUNDE,
+      scenario: BANKER,
       content: variant(
         {
           "offer.harvest": { chanceBp: CERTAIN },
@@ -318,11 +318,11 @@ describe("opening", () => {
   });
 
   test("[offer:opening-fixes-terms-and-fraud] given a pay term, when the offer opens, then it is the monthly pay of the job held times its figure, up to its cap", () => {
-    const tunde = lab({ scenario: TUNDE });
+    const banker = lab({ scenario: BANKER });
     const pay = content.activity["activity.job-bank-officer"]!.pay!.amount as number;
-    expect(tunde.open("offer.salary-loan")!.terms.max).toBe(4 * pay);
+    expect(banker.open("offer.salary-loan")!.terms.max).toBe(4 * pay);
 
-    const senior = lab({ scenario: TUNDE });
+    const senior = lab({ scenario: BANKER });
     senior.apply([{ type: "activity/start-job", job: "activity.job-mid-dev" }]);
     const midPay = content.activity["activity.job-mid-dev"]!.pay!.amount as number;
     expect(4 * midPay).toBeGreaterThan(300000000);
@@ -331,7 +331,7 @@ describe("opening", () => {
 
   test("[offer:opening-fixes-terms-and-fraud] given a job paid in dollars, when a pay term is fixed, then the pay is valued in naira at the official rate", () => {
     const wide = variant({ "offer.salary-loan": { terms: { min: 10000000, max: { from: "pay", times: 4, cap: 100000000000 } } } });
-    const subject = lab({ scenario: TUNDE, content: wide });
+    const subject = lab({ scenario: BANKER, content: wide });
     subject.apply([{ type: "activity/start-job", job: "activity.job-remote-dev" }]);
     const pay = content.activity["activity.job-remote-dev"]!.pay!;
     expect(pay.currency).toBe("USD");
@@ -342,14 +342,14 @@ describe("opening", () => {
   });
 
   test("[offer:opening-fixes-terms-and-fraud] given a job held whose pay reads a salary no route has recorded, when a pay term is fixed, then the job pays nothing and the term is zero", () => {
-    const subject = lab({ scenario: TUNDE, content: variant({ "offer.salary-loan": { when: [] } }) });
+    const subject = lab({ scenario: BANKER, content: variant({ "offer.salary-loan": { when: [] } }) });
     subject.apply([{ type: "activity/start-job", job: "activity.job-gulf-cleaner" }]);
     expect(content.activity["activity.job-gulf-cleaner"]!.pay!.amount).toMatchObject({ term: "salary" });
     expect(subject.open("offer.salary-loan")!.terms.max).toBe(0);
   });
 
   test("[offer:opening-fixes-terms-and-fraud] given a sponsor's job abroad paid a year, when a pay term is fixed, then it is the month's pay from the recorded salary, valued in naira at the official rate", () => {
-    const abroad = replayTo("tunde-abroad", content, (game) => content.activity[game.state.activity.job ?? "activity.rest"]?.where === "abroad");
+    const abroad = replayTo("banker-abroad", content, (game) => content.activity[game.state.activity.job ?? "activity.rest"]?.where === "abroad");
     // The bonus is a home offer; placed anywhere here so the term is fixed on a job paid a year.
     const subject = lab({ from: abroad, content: variant({ "offer.december-bonus": { when: [], where: "any" } }) });
     const sponsor = subject.game.state.route["route.uk-skilled"]?.gate;
@@ -369,8 +369,8 @@ describe("opening", () => {
   });
 
   test("[offer:opening-fixes-terms-and-fraud] given an offer opening in a month, when it opens, then its month, its expiry and the entry's record are kept", () => {
-    // Tunde, so two months of upkeep leave enough for a family request to hold.
-    const subject = lab({ scenario: TUNDE, content: variant({}, true) });
+    // The banker, so two months of upkeep leave enough for a family request to hold.
+    const subject = lab({ scenario: BANKER, content: variant({}, true) });
     subject.end();
     subject.end();
     const item = subject.open("offer.nepa-bill")!;
@@ -415,7 +415,7 @@ describe("choosing", () => {
 
   test("[offer:choice-needs-conditions-and-funds] given an offer that asks for an amount, when one between its terms is picked, then it is the term amount for the effects; each end is allowed", () => {
     for (const pick of ["min", "max"] as const) {
-      const subject = lab({ scenario: TUNDE });
+      const subject = lab({ scenario: BANKER });
       const item = subject.open("offer.salary-loan")!;
       const amount = item.terms[pick] as number;
       const bank = subject.game.state.wallet.pockets.NGN.bank;
@@ -427,7 +427,7 @@ describe("choosing", () => {
   });
 
   test("[offer:choice-needs-conditions-and-funds] given an offer that asks for an amount, when it is outside the terms, a fraction or missing, then it is rejected with bad-amount", () => {
-    const subject = lab({ scenario: TUNDE });
+    const subject = lab({ scenario: BANKER });
     const item = subject.open("offer.salary-loan")!;
     const min = item.terms.min as number;
     const max = item.terms.max as number;
@@ -477,7 +477,7 @@ describe("choosing", () => {
   });
 
   test("[offer:choice-needs-conditions-and-funds] [wallet:money-lands-as-in-lagos] given an agent's fee with the naira short in cash and bank together, when the offer is taken, then it is rejected with cannot-afford; with the bank short and cash holding the rest, the fee being over the line for cash, the bank goes first and cash pays the rest", () => {
-    const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
+    const subject = lab({ scenario: BANKER, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
     const fee = bp(amount, 400);
@@ -497,7 +497,7 @@ describe("choosing", () => {
 
 describe("fraud", () => {
   test("[offer:fraud-effects-replace-ordinary] given an agent who is a fraud, when his offer is taken, then the fee is paid and nothing else happens", () => {
-    const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
+    const subject = lab({ scenario: BANKER, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
     setPockets(subject.game, { NGN: { cash: bp(amount, 400), bank: 0 } }, { apply: subject.apply });
@@ -510,7 +510,7 @@ describe("fraud", () => {
   });
 
   test("[offer:fraud-effects-replace-ordinary] given an honest agent, when his offer is taken, then the fee is paid and the held funds open", () => {
-    const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
+    const subject = lab({ scenario: BANKER, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
     setPockets(subject.game, { NGN: { cash: bp(amount, 400), bank: 0 } }, { apply: subject.apply });
@@ -544,7 +544,7 @@ describe("lapsing", () => {
   });
 
   test("[offer:lapsed-offer-removed] given an offer that lapses after two months and names no choice, when one month passes it is still open; after two it is removed and nothing happens", () => {
-    const subject = lab({ scenario: TUNDE, content: variant({}, true) });
+    const subject = lab({ scenario: BANKER, content: variant({}, true) });
     const item = subject.open("offer.salary-loan")!;
     expect(entryOf(content, "offer.salary-loan")).toMatchObject({ expiresAfter: 2, onExpire: null });
     subject.end();
@@ -557,7 +557,7 @@ describe("lapsing", () => {
 
 describe("the view", () => {
   test("[offer:fraud-hidden-signs-shown] given a fraud offer open, when the view is read, then nothing hidden shows and its signs, terms and choices do", () => {
-    const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
+    const subject = lab({ scenario: BANKER, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
     const item = subject.open("offer.held-funds-agent")!;
     // Enough cash for the agent's fee at the smallest amount.
     setPockets(subject.game, { NGN: { cash: 100000000, bank: 0 } }, { apply: subject.apply });
@@ -739,7 +739,7 @@ describe("lines and invariants", () => {
     expect(lapsed.lines.find((line) => line.key === "line.offer.lapsed")).toMatchObject({ params: { offer: "offer.fuel-scarcity", choice: "trek" } });
   });
 
-  test.prop([fc.constantFrom<Id<"scenario">>("scenario.ada", "scenario.tunde", "scenario.zainab"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
+  test.prop([fc.constantFrom<Id<"scenario">>("scenario.graduate", "scenario.banker", "scenario.developer"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
     numRuns: 20,
   })("[offer:choice-needs-conditions-and-funds] [offer:fraud-hidden-signs-shown] given offers coming up often, when random legal commands are played, then each is accepted, the invariants hold and nothing hidden shows", (scenario, seed, picks) => {
     const often = variant(Object.fromEntries(rolled.map((entry) => [entry.id, { chanceBp: 5000 }])));

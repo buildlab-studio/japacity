@@ -14,7 +14,7 @@ import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
-import { GRADUATE, JUNIOR_DEV, OVERSTAYER, SETTLED, SPONSORED, STUDENT, UK_COUNTRY } from "../testing/ids";
+import { UK_GRADUATE, JUNIOR_DEV, OVERSTAYER, SETTLED, SPONSORED, STUDENT, UK_COUNTRY } from "../testing/ids";
 
 const CITIZEN: Id<"status"> = "status.uk-citizen";
 const GULF: Id<"status"> = "status.gulf-worker";
@@ -51,9 +51,9 @@ function quitStartsClock(): Registry {
   });
 }
 
-/** Zainab, flown on the study route and then given a sponsored worker's status for her old job, which she holds again. */
+/** The developer, flown on the study route and then given a sponsored worker's status for its old job, which it holds again. */
 function sponsored(options: LifeOptions = {}): Game {
-  const game = flown(content, { from: "scenario.zainab", ...options });
+  const game = flown(content, { from: "scenario.developer", ...options });
   applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SPONSORED, job: JUNIOR_DEV }, { type: "activity/start-job", job: JUNIOR_DEV }]);
   return game;
 }
@@ -82,7 +82,7 @@ describe("granting a status", () => {
 
   test("[status:granting-a-status] given a status whose months are a world variable, when it is granted, then it runs for the variable's value that day", () => {
     const game = flown(content, { vars: () => ({ "var.uk-graduate-months": 18 }) });
-    applyEffects(game, [{ type: "status/grant", status: GRADUATE }]);
+    applyEffects(game, [{ type: "status/grant", status: UK_GRADUATE }]);
     expect(current(game).expiresMonth).toBe(game.state.turn.month + 18);
   });
 });
@@ -101,12 +101,12 @@ describe("what a status lets you work at", () => {
     const cash = job({ cash: true });
     const named = job({ id: JUNIOR_DEV });
     const sponsorJob = job({ sponsor: true });
-    expect([plain, part, cash].map((entry) => workAllows(read(GRADUATE), entry))).toEqual([true, true, true]);
+    expect([plain, part, cash].map((entry) => workAllows(read(UK_GRADUATE), entry))).toEqual([true, true, true]);
     expect([plain, part, cash].map((entry) => workAllows(read(STUDENT), entry))).toEqual([false, true, false]);
     expect([plain, part, cash].map((entry) => workAllows(read(OVERSTAYER), entry))).toEqual([false, false, true]);
     expect([plain, named, sponsorJob].map((entry) => workAllows(read(SPONSORED, JUNIOR_DEV), entry))).toEqual([false, true, true]);
-    const none: Content = { ...content, status: { ...content.status, [GRADUATE]: { ...entryOf(GRADUATE), work: "none" } } };
-    expect(workAllows({ ...read(GRADUATE), content: none }, part)).toBe(false);
+    const none: Content = { ...content, status: { ...content.status, [UK_GRADUATE]: { ...entryOf(UK_GRADUATE), work: "none" } } };
+    expect(workAllows({ ...read(UK_GRADUATE), content: none }, part)).toBe(false);
     // At home there is no status and nothing to obey.
     expect(workAllows({ ...readOf(game), state: { ...game.state, status: { ...game.state.status, current: null } } }, plain)).toBe(true);
   });
@@ -153,7 +153,7 @@ describe("expiry and the next status", () => {
     expect(current(game).entry).toBe(STUDENT);
     playMonths(game, 1);
     // The graduate months are the world's var on the day (a story may have shortened them).
-    expect(current(game)).toMatchObject({ entry: GRADUATE, grantedMonth: start + 16, expiresMonth: start + 16 + game.world().vars["var.uk-graduate-months"]! });
+    expect(current(game)).toMatchObject({ entry: UK_GRADUATE, grantedMonth: start + 16, expiresMonth: start + 16 + game.world().vars["var.uk-graduate-months"]! });
   });
 
   test("[status:expiry-lapses-or-moves-on] given the graduate route closed (its months at 0), when the student status runs out, then it lapses instead", () => {
@@ -164,9 +164,9 @@ describe("expiry and the next status", () => {
 
   test("[status:expiry-lapses-or-moves-on] given a graduate with no next status, when the months run out, then the status lapses", () => {
     const game = flown(content, { vars: () => ({ "var.uk-graduate-months": 2 }) });
-    applyEffects(game, [{ type: "status/grant", status: GRADUATE }]);
+    applyEffects(game, [{ type: "status/grant", status: UK_GRADUATE }]);
     playMonths(game, 1);
-    expect(current(game).entry).toBe(GRADUATE);
+    expect(current(game).entry).toBe(UK_GRADUATE);
     playMonths(game, 1);
     expect(current(game).entry).toBe(OVERSTAYER);
   });
@@ -377,7 +377,7 @@ describe("the view", () => {
     expect(nextStepOf(content, entryOf(SETTLED))).toBe("status.next.citizen");
     expect(nextStepOf(content, entryOf(CITIZEN))).toBeNull();
     expect(nextStepOf(content, entryOf(OVERSTAYER))).toBe("status.next.home");
-    expect(nextStepOf(content, entryOf(GRADUATE))).toBe("status.next.stay");
+    expect(nextStepOf(content, entryOf(UK_GRADUATE))).toBe("status.next.stay");
     expect(isKept(content, SETTLED) && isKept(content, CITIZEN) && isKept(content, "status.ca-resident")).toBe(true);
     expect(isKept(content, OVERSTAYER) || isKept(content, STUDENT)).toBe(false);
     applyEffects(game, [{ type: "status/remove" }]);
@@ -411,8 +411,8 @@ describe("the course", () => {
 describe("requirements", () => {
   test("[status:view-shows-status] given a status held or none, when status/is is judged, then it holds only for a listed status", () => {
     const game = flown(content);
-    expect(check(readOf(game), { type: "status/is", statuses: [STUDENT, GRADUATE] }).met).toBe(true);
-    expect(check(readOf(game), { type: "status/is", statuses: [GRADUATE] }).met).toBe(false);
+    expect(check(readOf(game), { type: "status/is", statuses: [STUDENT, UK_GRADUATE] }).met).toBe(true);
+    expect(check(readOf(game), { type: "status/is", statuses: [UK_GRADUATE] }).met).toBe(false);
     expect(check(readOf(game), { type: "status/clock-under", months: 5 }).met).toBe(false);
     applyEffects(game, [{ type: "status/remove" }]);
     expect(check(readOf(game), { type: "status/is", statuses: [STUDENT] }).met).toBe(false);

@@ -34,7 +34,7 @@ describe("the server on Postgres", () => {
     expect(user).toMatchObject({ id: account, name: "", email: "ada@example.com" });
     expect(await stores.account.get(account)).toMatchObject({ id: account, country: "NG", character: null, sendUsageCounts: true });
 
-    expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } })).status).toBe(200);
+    expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.graduate" } })).status).toBe(200);
     const first = await (await h.call("/api/view", { jar })).json<ViewReply>();
     if (!first.ok) throw new Error(first.detail);
     const sent = await (await h.call("/api/command", { method: "POST", jar, json: { command: { type: "turn/end", slots: [], basedOn: first.view.v }, basedOn: first.view.v } })).json<ServerReply>();

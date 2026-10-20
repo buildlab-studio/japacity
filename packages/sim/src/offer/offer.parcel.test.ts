@@ -14,17 +14,17 @@ import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { cash } from "../testing/read";
 import { PARCEL, parcelSender } from "./offer.parcel";
-import { ADA } from "../testing/ids";
+import { GRADUATE } from "../testing/ids";
 
 const { parcel, street, room } = content.tuning;
 const MONTHS_A_YEAR = 12;
-/** Ada's draw with no sibling abroad, and one with an older sibling settled in the UK (the people kind's draw). */
+/** The graduate's draw with no sibling abroad, and one with an older sibling settled in the UK (the people kind's draw). */
 const NO_ONE_ABROAD = "seed-1";
 const SIBLING_ABROAD = "seed-3";
 /** Decision 0013 lives the living by hand at home; the foodstuff test reads the charge itself, so it charges it whole. */
 const CHARGED: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
 
-function life(seed: string, scenario: Id<"scenario"> = ADA, base: Content = content): Game {
+function life(seed: string, scenario: Id<"scenario"> = GRADUATE, base: Content = content): Game {
   return start({ content: base, scenario, seed });
 }
 
@@ -70,7 +70,7 @@ function bank(game: Game): number {
 const PLENTY = 50_000_000;
 
 describe("the parcel: when it is shipped", () => {
-  test("[streets:parcels-shipped-home] [offer:opening-fixes-terms-and-fraud] given Ada with a sibling settled in the UK, when her months are played to her birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
+  test("[streets:parcels-shipped-home] [offer:opening-fixes-terms-and-fraud] given the graduate with a sibling settled in the UK, when its months are played to its birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
     const game = life(SIBLING_ABROAD);
     const { opened, result } = toBirthday(game);
     expect(age(game.state) % MONTHS_A_YEAR).toBe(0);
@@ -81,7 +81,7 @@ describe("the parcel: when it is shipped", () => {
     expect(item?.expiresMonth).toBe(game.state.turn.month + 3);
   });
 
-  test("[offer:opening-fixes-terms-and-fraud] given Ada with no relative abroad in her story, when her months are played past her birthday, then no parcel opens", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given the graduate with no relative abroad in its story, when its months are played past its birthday, then no parcel opens", () => {
     const game = life(NO_ONE_ABROAD);
     expect(parcelSender({ state: game.state, world: game.world(), content })).toBeNull();
     const { opened } = toBirthday(game);
@@ -91,7 +91,7 @@ describe("the parcel: when it is shipped", () => {
     expect(parcelOf(game.state)).toBeUndefined();
   });
 
-  test("[offer:opening-fixes-terms-and-fraud] given Ada with no sibling abroad but the UK route looked into, so her aunty abroad has heard she is travelling, when her birthday comes, then the parcel opens from the aunty", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given the graduate with no sibling abroad but the UK route looked into, so its aunty abroad has heard it is travelling, when its birthday comes, then the parcel opens from the aunty", () => {
     const game = life(NO_ONE_ABROAD);
     toKnown(game);
     expect(age(game.state) % MONTHS_A_YEAR).not.toBe(0);
@@ -184,7 +184,7 @@ describe("the parcel: collecting it", () => {
 
 describe("the parcel: what each thing gives", () => {
   function collect(holds: string, base: Content = content): { game: Game; before: State; result: Accepted } {
-    const game = life(SIBLING_ABROAD, ADA, base);
+    const game = life(SIBLING_ABROAD, GRADUATE, base);
     game.endTurn();
     setPockets(game, { NGN: { cash: parcel.handling * 10, bank: PLENTY } });
     // Room under the top of every quality, so each gift shows whole.
@@ -220,7 +220,7 @@ describe("the parcel: what each thing gives", () => {
   test("[obligation:cooking-and-fetching-water] given foodstuff in the parcel, when it is collected, then the next month's living costs fall by what cooking gives, once", () => {
     const { game } = collect("sibling-food", CHARGED);
     const twinOf = (): Game => {
-      const twin = life(SIBLING_ABROAD, ADA, CHARGED);
+      const twin = life(SIBLING_ABROAD, GRADUATE, CHARGED);
       twin.endTurn();
       setPockets(twin, { NGN: { cash: parcel.handling * 10, bank: PLENTY } });
       return twin;

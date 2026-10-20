@@ -39,7 +39,7 @@ describe("the first session", () => {
   }, 120000);
 
   test("[guide:early-win-in-three-turns] [text:voice-by-surface] given a life whose months are all left to rest, when its first three are played, then a route heard on the radio says the radio as its source and is not an early win", () => {
-    const session = playFirstSession({ name: "resting", scenario: "scenario.ada", answers: {} }, content, { nextStep: () => [] });
+    const session = playFirstSession({ name: "resting", scenario: "scenario.graduate", answers: {} }, content, { nextStep: () => [] });
     const heard = session.months.flatMap((month) => month.lines).filter((found) => found.key === "line.route.heard");
     expect(heard.length).toBeGreaterThan(0);
     for (const found of heard) expect(words(found.key, found.params)).toMatch(/^On the radio: /);
@@ -47,7 +47,7 @@ describe("the first session", () => {
   });
 
   test("[guide:early-win-in-three-turns] given a new life at home, when the next step is read, then it works toward the chapter's first unmet items", () => {
-    const session = playFirstSession({ name: "ada", scenario: "scenario.ada", answers: {} }, content, { nextStep: chapterNextStep });
+    const session = playFirstSession({ name: "graduate", scenario: "scenario.graduate", answers: {} }, content, { nextStep: chapterNextStep });
     expect(session.months[0]?.slots.map((slot) => slot.activity)).toEqual(["activity.job-hunt", "activity.meetup"]);
     expect(chapterNextStep).toBeTypeOf("function");
   });

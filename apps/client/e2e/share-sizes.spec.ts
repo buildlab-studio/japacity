@@ -42,12 +42,12 @@ test("[share:card-drawn-on-device] [share:card-never-looks-official] every card 
       const out: Drawn[] = [];
       for (const { kind, chapter } of cards) {
         const card = { kind, chapter, route: "route.uk-masters", percent: 100, months: 120, standing: 100, topActivities: most, name: null, shareable: kind !== "lost" } as Parameters<typeof face.cardFace>[0];
-        const made = await render.renderCard(face.cardFace(card, "scenario.ada"));
+        const made = await render.renderCard(face.cardFace(card, "scenario.graduate"));
         out.push({ card: chapter ?? kind, bytes: made.ok ? made.blob.size : made.bytes, quality: made.ok ? made.quality : 0 });
       }
       for (const { route, type, months } of stubs) {
         const card = { kind: "send-off", chapter: "chapter.send-off", route, percent: 100, months, standing: 100, topActivities: most, name: null } as Parameters<typeof face.cardFace>[0];
-        const made = await render.renderStub(stub.stubFace(card, "scenario.aniekan", type)!);
+        const made = await render.renderStub(stub.stubFace(card, "scenario.teacher", type)!);
         out.push({ card: `stub ${route} ${type}`, bytes: made.ok ? made.blob.size : made.bytes, quality: made.ok ? made.quality : 0 });
       }
       return { out, first: encode.QUALITIES[0] };

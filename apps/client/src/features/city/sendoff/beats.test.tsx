@@ -123,7 +123,7 @@ describe("the send-off's beats, laid out", () => {
 
   test.each(["country.uk", "country.canada", "country.uae", "country.italy"] as const)("[chapter:send-off-scene-in-beats] given the first ride in %s, then the inside is the staple's own, the friend's ping fits it, the pings and the card saved stand clear of the character, and every ping is whole", (country) => {
     const landing = landingOf(country)!;
-    const pings = firstPings("scenario.ada", landing.staple).map((ping) => ({ from: ping.from, words: sendOffWords(ping.key) }));
+    const pings = firstPings("scenario.graduate", landing.staple).map((ping) => ({ from: ping.from, words: sendOffWords(ping.key) }));
     render(<Ride dress={dress} landing={landing} place="Rye Lane, London" marker="Rye Lane" pings={pings} saved="Send-off card saved" onRing={none} />);
     const inside: Record<string, string> = { "double-decker": ".so-pole", pickup: ".so-wheel", taxi: ".so-headrest", "domitiana-bus": ".so-rail" };
     expect(document.querySelector("[data-so-beat='ride']")?.getAttribute("data-staple")).toBe(landing.staple);

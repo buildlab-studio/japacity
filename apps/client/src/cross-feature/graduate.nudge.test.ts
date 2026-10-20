@@ -38,14 +38,14 @@ function naira(view: PlayerView): number {
 }
 
 describe("the graduate who follows the nudge", () => {
-  test("[world:nudge-says-one-thing] given Ada, the ready life, on forty seeds, when the nudge is followed for three months, then she never reaches ₦0 and holds a job that covers her living costs by the third month's end on at least thirty", () => {
-    const upkeep = content.scenario["scenario.ada"]?.obligations.find((owed) => owed.obligation === "obligation.upkeep")?.amount ?? 0;
+  test("[world:nudge-says-one-thing] given the graduate, the ready life, on forty seeds, when the nudge is followed for three months, then it never reaches ₦0 and holds a job that covers its living costs by the third month's end on at least thirty", () => {
+    const upkeep = content.scenario["scenario.graduate"]?.obligations.find((owed) => owed.obligation === "obligation.upkeep")?.amount ?? 0;
     expect(upkeep).toBeGreaterThan(0);
     let hired = 0;
     const dry: string[] = [];
     for (let at = 0; at < SEEDS; at += 1) {
       const seed = `graduate-${String(at)}`;
-      const game = newGame("scenario.ada", seed);
+      const game = newGame("scenario.graduate", seed);
       for (let month = 0; month < MONTHS; month += 1) {
         const offer = game.view().offers.find((open) => open.entry === "offer.job");
         if (offer !== undefined) game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });

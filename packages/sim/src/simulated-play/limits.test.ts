@@ -24,15 +24,15 @@ function centsOf(rates: Record<ForeignCurrency, number>, naira: number): number 
 }
 
 /**
- * Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. Under decision 0013 nothing of
- * her living is charged as a month turns at home, so resting alone never brings her under the line: each month she eats
+ * The graduate, rested until the quick loan opens: under ₦100,000 and nothing on its credit mark. Under decision 0013 nothing of
+ * its living is charged as a month turns at home, so resting alone never brings it under the line: each month it eats
  * by hand as the month's time allows (home:living-by-hand), the meals spending about what the month's living charge took.
  */
 function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
   // A meal bought: the family house's pot is free, so the meal bought is one of your own.
   const meal = { type: "activity/now", activity: "activity.cook-own", param: null } as const;
   const play = (seed: string): Game => {
-    const game = start({ scenario: "scenario.ada", seed, content });
+    const game = start({ scenario: "scenario.graduate", seed, content });
     for (let month = 0; month < 8 && !game.view().offers.some((offer) => offer.entry === "offer.quick-loan"); month += 1) {
       // A meal a morning until the month's free time is spent (turn:month-lived-in-half-days), or the money for one is gone.
       for (let fed = true; fed && game.view().halfDays.spent < game.view().halfDays.free; ) fed = game.send(meal).ok;
@@ -48,21 +48,21 @@ function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
 
 describe("[engine:limits-tested-through-step] limits the player can meet", () => {
   test("[engine:limits-tested-through-step] [turn:free-slots-per-month] given three free slots, when a fourth slot is filled, then the turn is rejected with not-legal, and three are accepted", () => {
-    const game = start({ scenario: "scenario.ada", content });
+    const game = start({ scenario: "scenario.graduate", content });
     expect(game.view().freeSlots).toBe(content.tuning.turn.freeSlotsNoJob);
     game.expectRejected({ type: "turn/end", slots: [rest, rest, rest, rest] }, "not-legal");
     game.endTurn([rest, rest, rest]);
   });
 
   test("[engine:limits-tested-through-step] [turn:free-slots-per-month] given a job and two free slots, when a third slot is filled, then the turn is rejected with not-legal", () => {
-    const game = start({ scenario: "scenario.tunde", content });
+    const game = start({ scenario: "scenario.banker", content });
     expect(game.view().freeSlots).toBe(content.tuning.turn.freeSlots);
     game.expectRejected({ type: "turn/end", slots: [rest, rest, rest] }, "not-legal");
     game.endTurn([rest, rest]);
   });
 
   test("[engine:limits-tested-through-step] [wallet:monthly-fx-allowance] given the month's bank allowance, when a purchase is one US cent over what is left, then it is rejected with bad-amount, and a purchase of exactly what is left is accepted", () => {
-    const game = start({ scenario: "scenario.tunde", content });
+    const game = start({ scenario: "scenario.banker", content });
     // At home the view shows the allowance (wallet:monthly-fx-allowance); a null here fails the test below.
     const left = game.view().bankAllowanceLeft ?? -1;
     expect(left).toBeGreaterThan(0);
@@ -110,7 +110,7 @@ describe("[engine:limits-tested-through-step] limits the player can meet", () =>
   });
 
   test("[engine:limits-tested-through-step] [obligation:paying-down-obligations] given upkeep, when it is paid ahead, then it is rejected with not-legal", () => {
-    const game = start({ scenario: "scenario.ada", content });
+    const game = start({ scenario: "scenario.graduate", content });
     const upkeep = game.view().obligations.find((item) => item.entry === "obligation.upkeep");
     expect(upkeep).toBeDefined();
     game.expectRejected({ type: "obligation/pay", obligation: upkeep!.id, amount: 100 }, "not-legal");
@@ -123,13 +123,13 @@ describe("[engine:limits-tested-through-step] limits the player can meet", () =>
   });
 
   test("[engine:limits-tested-through-step] [route:departure-pays-flight] given no grant, when the character departs, then it is rejected with not-legal", () => {
-    const game = start({ scenario: "scenario.tunde", content });
+    const game = start({ scenario: "scenario.banker", content });
     expect(game.state.wallet.pockets.NGN.bank).toBeGreaterThan(160000000);
     game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
   test("[engine:limits-tested-through-step] [route:set-piece-answers-in-order] given the interview open, when a later question is answered first, then it is rejected with not-legal, and with no set piece open any answer is", () => {
-    const quiet = start({ scenario: "scenario.ada", content });
+    const quiet = start({ scenario: "scenario.graduate", content });
     quiet.expectRejected({ type: "setpiece/answer", question: "why-uk", answer: "course" }, "not-legal");
 
     const used = readyContent(content);
@@ -149,7 +149,7 @@ describe("[engine:limits-tested-through-step] limits the player can meet", () =>
   });
 
   test("[engine:limits-tested-through-step] [turn:only-authority-grants-turns] given a player, when it sends turns/grant, then it is rejected with not-yours", () => {
-    const game = start({ scenario: "scenario.zainab", content });
+    const game = start({ scenario: "scenario.developer", content });
     game.expectRejected({ type: "turns/grant", count: 1 }, "not-yours", "player");
     const banked = game.state.turn.banked;
     game.grant(1);

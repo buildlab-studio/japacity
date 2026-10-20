@@ -16,7 +16,7 @@ describe("the kiosk's ceiling", () => {
     // The kiosk's words name the ceiling as five: the tuning and the words move together.
     expect(maxTickets).toBe(5);
     expect(text[KIOSK_CAP]).toMatch(/^The kiosk man says: .*five this month/);
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const lines: ReportLine[] = [];
     for (let visit = 0; visit < maxTickets; visit += 1) lines.push(...game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines);
     const answers = lines.filter((line) => line.key === "line.activity.play-lotto.now");
@@ -32,7 +32,7 @@ describe("the kiosk's ceiling", () => {
 
 describe("tickets come from money earned", () => {
   test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given a view, when the kiosk reads the marked figure, then it is shut with its words only when the naira held would pay and the earned share would not; a new life holds nothing marked", () => {
-    const game = newGame("scenario.ada");
+    const game = newGame("scenario.graduate");
     const view = game.view();
     expect(view.wallet.marked).toBe(0);
     const held = view.pockets.NGN.bank + view.pockets.NGN.cash;

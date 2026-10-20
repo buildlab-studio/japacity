@@ -10,7 +10,7 @@ import { createLife, life, playRows, storeWorlds } from "./ops.testing";
 import { rollbackApply, rollbackCheck } from "./rollback";
 
 const ID = "character.tunde";
-const SAVE = life("tunde-borrower");
+const SAVE = life("banker-borrower");
 const at = (index: number) => productionConfig.clock.epoch + index;
 
 async function stored(deps: ServerDeps, options: Partial<Parameters<typeof playRows>[4]> = {}, upTo = SAVE.commands.length): Promise<State> {
@@ -182,7 +182,7 @@ describe("the rollback correction", () => {
     const deps = testDeps();
     await stored(deps, { tamper: (row, index) => (index === 3 ? { ...row, hash: "fault" } : row) });
     const other = "character.zainab";
-    const zainab = life("zainab-remote");
+    const zainab = life("developer-remote");
     await storeWorlds(deps, zainab);
     const start = await createLife(deps, other, zainab);
     await playRows(deps, other, start, zainab.commands.slice(0, 10), { at, tamper: (row, index) => (index === 2 ? { ...row, hash: "fault" } : row) });

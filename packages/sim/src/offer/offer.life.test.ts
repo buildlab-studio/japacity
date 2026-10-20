@@ -17,7 +17,7 @@ import { openOffers, readOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
-import { ADA, STANDING, UK_COUNTRY, WELLBEING } from "../testing/ids";
+import { GRADUATE, STANDING, UK_COUNTRY, WELLBEING } from "../testing/ids";
 
 const CERTAIN = 10000;
 const POUNDS = 100;
@@ -87,14 +87,14 @@ describe("where an offer applies", () => {
   const both = variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN }, "offer.nepa-bill": { chanceBp: CERTAIN } });
 
   test("[place:entries-legal-by-where] given a home offer and an offer of any place both certain, when a month comes up at home, then both open", () => {
-    const game = start({ scenario: ADA, content: both });
+    const game = start({ scenario: GRADUATE, content: both });
     // The family asks only of someone not broke.
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 100000000, reason: "gift" }]);
     expect(openedIn(game.endTurn()).map((item) => item.entry)).toEqual(["offer.fuel-scarcity", "offer.nepa-bill"]);
   });
 
   test("[place:entries-legal-by-where] given the same two abroad, when a month comes up, then only the one of any place opens, and an effect cannot open the home one there", () => {
-    const game = start({ scenario: ADA, content: both });
+    const game = start({ scenario: GRADUATE, content: both });
     flyToUk(game);
     expect(openedIn(game.endTurn()).map((item) => item.entry)).toEqual(["offer.nepa-bill"]);
     applyEffects(game, [{ type: "offer/open", offer: "offer.fuel-scarcity" }]);
@@ -103,7 +103,7 @@ describe("where an offer applies", () => {
 
   test("[place:entries-legal-by-where] given an offer of abroad that always holds, when a month comes up at home and then abroad, then it opens only abroad", () => {
     const abroad = variant({ "offer.sponsor-licence-lost": { chanceBp: CERTAIN, when: [] } });
-    const game = start({ scenario: ADA, content: abroad });
+    const game = start({ scenario: GRADUATE, content: abroad });
     expect(openedIn(game.endTurn())).toEqual([]);
     flyToUk(game);
     expect(openedIn(game.endTurn()).map((item) => item.entry)).toEqual(["offer.sponsor-licence-lost"]);
@@ -119,10 +119,10 @@ describe("the family's asking abroad", () => {
 
   test("[abroad-money:family-asks-more-abroad] given the NEPA bill at home and then abroad, when each opens, then abroad it asks three times the home amount in its terms", () => {
     expect(factor).toBe(30000);
-    const home = start({ scenario: ADA, content });
+    const home = start({ scenario: GRADUATE, content });
     const atHome = openOne(home, "offer.nepa-bill");
     expect(atHome.terms).toEqual({ cost: 2500000 });
-    const away = start({ scenario: ADA, content });
+    const away = start({ scenario: GRADUATE, content });
     flyToUk(away);
     const abroad = openOne(away, "offer.nepa-bill");
     expect(abroad.terms).toEqual({ cost: bp(2500000, factor) });
@@ -130,7 +130,7 @@ describe("the family's asking abroad", () => {
   });
 
   test("[abroad-money:family-asks-more-abroad] given a request with two amounts opened abroad, when each choice is paid, then each debit is the home amount times the factor, from the naira pockets", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     flyToUk(game);
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 100000000, reason: "gift" }]);
     const fees = openOne(game, "offer.brother-fees");
@@ -142,7 +142,7 @@ describe("the family's asking abroad", () => {
   });
 
   test("[abroad-money:family-asks-more-abroad] given a request abroad asking more than the naira at home holds, when the view is read and the choice is sent, then it is not allowed and is refused with cannot-afford", () => {
-    const game = start({ scenario: ADA, content });
+    const game = start({ scenario: GRADUATE, content });
     flyToUk(game);
     const bill = openOne(game, "offer.nepa-bill");
     // Enough for the home amount, short of three times it.
@@ -160,7 +160,7 @@ describe("the family's asking abroad", () => {
 describe("coming home", () => {
   /** A life flown to the UK and home again by choice, its fare paid from a gift of pounds. */
   function returned(used: Content): Game {
-    const game = start({ scenario: ADA, content: used });
+    const game = start({ scenario: GRADUATE, content: used });
     flyToUk(game);
     applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 10000 * POUNDS, reason: "gift" }]);
     game.accept({ type: "return/home" });
@@ -183,7 +183,7 @@ describe("coming home", () => {
 
   test("[return:returnee-offers-for-a-year] given no return on record, when months come up at home, then no returnee offer comes up", () => {
     const every = variant({ "offer.returnee-question": { chanceBp: CERTAIN, cooldown: 0 } });
-    const game = start({ scenario: ADA, content: every });
+    const game = start({ scenario: GRADUATE, content: every });
     for (let turn = 0; turn < 3; turn += 1) expect(openedIn(restMonth(game))).toEqual([]);
   });
 
@@ -250,7 +250,7 @@ describe("no kicking while down", () => {
 
   /** A life whose luck offer opened this month, so no dry spell adds to the chances read. */
   function lifeAt(wellbeing: number, standing: number): Game {
-    const game = start({ scenario: ADA, content: variant({ "offer.relative-sends": { when: [], chanceBp: 0 } }) });
+    const game = start({ scenario: GRADUATE, content: variant({ "offer.relative-sends": { when: [], chanceBp: 0 } }) });
     setQuality(game, WELLBEING, wellbeing);
     setQuality(game, STANDING, standing);
     openOne(game, "offer.relative-sends");
@@ -293,7 +293,7 @@ describe("a dry spell ends", () => {
   const dry = variant({ "offer.relative-sends": { when: [], chanceBp: 0 }, "offer.whip-round": { when: [{ type: "month/min", value: 1000 }] } });
 
   test("[luck:dry-spell-raises-luck] given no luck offer opened, when months pass, then nothing is added up to the dry spell's months, then the step for each further month, up to the cap", () => {
-    const game = start({ scenario: ADA, content: dry });
+    const game = start({ scenario: GRADUATE, content: dry });
     const added: number[] = [];
     for (let turn = 0; turn < 20; turn += 1) {
       restMonth(game);
@@ -309,7 +309,7 @@ describe("a dry spell ends", () => {
   });
 
   test("[luck:dry-spell-raises-luck] given a dry spell, when a luck offer opens, then the count starts again; the spell adds to luck entries only and is never doubled", () => {
-    const game = start({ scenario: ADA, content: dry });
+    const game = start({ scenario: GRADUATE, content: dry });
     for (let turn = 0; turn < luck.drySpellMonths + 3; turn += 1) restMonth(game);
     const read = readOf(game);
     const added = drySpellBp(read);
@@ -333,9 +333,9 @@ describe("the whip-round", () => {
     expect(content.offer[WHIP]).toMatchObject({ chanceBp: 0, maxTimes: 1, luck: true, where: "home" });
   });
 
-  /** Ada at home with nothing in any pocket, played to the month before the rescue may come. */
+  /** The graduate at home with nothing in any pocket, played to the month before the rescue may come. */
   function brokeAt(months: number, used: Content = content): Game {
-    const game = start({ scenario: ADA, content: used });
+    const game = start({ scenario: GRADUATE, content: used });
     emptyPockets(game);
     while (game.state.turn.month < months) {
       restMonth(game);
@@ -344,7 +344,7 @@ describe("the whip-round", () => {
     return game;
   }
 
-  test("[luck:whip-round-once-per-life] given Ada at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
+  test("[luck:whip-round-once-per-life] given the graduate at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
     const game = brokeAt(10);
     expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
     expect(game.state.turn.month).toBe(11);
@@ -385,7 +385,7 @@ describe("the whip-round", () => {
     }
   });
 
-  test("[luck:whip-round-once-per-life] given Ada abroad with nothing, when month 12 ends, then the whip-round does not come: it is the rescue at home", () => {
+  test("[luck:whip-round-once-per-life] given the graduate abroad with nothing, when month 12 ends, then the whip-round does not come: it is the rescue at home", () => {
     const game = brokeAt(11);
     flyToUk(game);
     emptyPockets(game);
@@ -422,7 +422,7 @@ describe("the telco promo", () => {
 
   test("[luck:telco-promo-may-be-fraud] given the promo as a fraud, when it is claimed, then the fee goes and nothing follows; honest, the fee goes and the promo is paid", () => {
     for (const fraud of [true, false]) {
-      const game = start({ scenario: ADA, content: variant({ [PROMO]: { fraudBp: fraud ? CERTAIN : 0 } }, false) });
+      const game = start({ scenario: GRADUATE, content: variant({ [PROMO]: { fraudBp: fraud ? CERTAIN : 0 } }, false) });
       const item = openOne(game, PROMO);
       expect(item.terms).toEqual({ promo: luck.promo });
       const bank = game.state.wallet.pockets.NGN;
@@ -456,9 +456,9 @@ describe("luck native to japa", () => {
   });
 
   test("[luck:japa-luck-in-existing-systems] given a route known, when the relative's gift is taken, then $500 reaches the dollar bank as a flagged gift", () => {
-    const game = start({ scenario: "scenario.tunde", content });
+    const game = start({ scenario: "scenario.banker", content });
     const used = variant({ "offer.relative-sends": { when: [] } }, false);
-    const lucky = start({ scenario: "scenario.tunde", content: used });
+    const lucky = start({ scenario: "scenario.banker", content: used });
     const item = openOne(lucky, "offer.relative-sends");
     const result = lucky.accept({ type: "offer/choose", offer: item.id, choice: "thank" });
     expect(result.events).toContainEqual({ type: "wallet/credited", currency: "USD", pocket: "bank", amount: 50000, reason: "gift" });
@@ -483,7 +483,7 @@ describe("an offer that locks a slot", () => {
   })();
 
   test("[health:forced-months-warned-ahead] given a choice that carries a lock, when it is taken, then one slot is locked for the month that follows and freed after it", () => {
-    const game = start({ scenario: ADA, content: locking });
+    const game = start({ scenario: GRADUATE, content: locking });
     const slots = game.view().freeSlots;
     const item = openOne(game, "offer.nepa-bill");
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "pay" });
@@ -496,7 +496,7 @@ describe("an offer that locks a slot", () => {
   });
 
   test("[health:forced-months-warned-ahead] given a locking offer left to lapse, when its month comes, then nothing is locked: only a choice taken locks", () => {
-    const game = start({ scenario: ADA, content: locking });
+    const game = start({ scenario: GRADUATE, content: locking });
     openOne(game, "offer.nepa-bill");
     const result = game.endTurn();
     expect(result.events.filter((event) => event.type === "offer/lapsed")).toHaveLength(1);
@@ -504,7 +504,7 @@ describe("an offer that locks a slot", () => {
   });
 
   test("[health:forced-months-warned-ahead] given a choice with no lock among its effects, when it is taken, then nothing is locked, whatever the entry says a month ahead", () => {
-    const game = start({ scenario: ADA, content: locking });
+    const game = start({ scenario: GRADUATE, content: locking });
     const item = openOne(game, "offer.nepa-bill");
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "leave" });
     expect(result.events.filter((event) => event.type === "turn/locked")).toEqual([]);
@@ -529,7 +529,7 @@ describe("content that plays", () => {
       [10000, true],
     ] as const) {
       const game = start({
-        scenario: ADA,
+        scenario: GRADUATE,
         content: onlyLoss,
         worldAt: (tick) => {
           const world = standInWorld("world-1", tick, onlyLoss);

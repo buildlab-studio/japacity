@@ -1,7 +1,6 @@
 // The person built at the front door (prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:player-colours-on-looks): a look, a first name, an
 // archetype, and the player's own colours on the look with the page's photo in them. The simulation holds none of them: they are kept on the device beside the save, under one
 // key of their own, and the city and the rides draw the character in the look.
-import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
 import { personOf } from "../scene/roster";
@@ -85,12 +84,12 @@ export function keptStyleOf(file: string, storage: Read | null = browserStorage(
 }
 
 /**
- * The player's first name for the life on screen (prologue:front-door-builds-a-person): the one given at the door, kept beside the save, else
- * a ready life's own. No computer person carries it (person:one-mixed-name-pool).
+ * The player's first name for the life on screen (prologue:front-door-builds-a-person): the one given at the door, kept beside the save.
+ * A ready life has no name of its own (scenario.md), so with none given there is none. No computer person carries it
+ * (person:one-mixed-name-pool).
  */
 export function playerName(view: Pick<PlayerView, "scenario"> | null, storage: Read | null = browserStorage()): string | null {
   if (view === null) return null;
   const given = readPerson(storage)?.name.trim() ?? "";
-  if (given !== "") return given;
-  return text[`share.first-name.${view.scenario}`] ?? null;
+  return given !== "" ? given : null;
 }

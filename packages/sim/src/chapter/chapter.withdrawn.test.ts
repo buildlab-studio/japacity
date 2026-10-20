@@ -15,15 +15,15 @@ import { CARE_ROUTE, DECISION, FEET, FILE, LANDING, SEND_OFF, SKILLED, UK_DEPEND
 
 const CARE_FILE: Id<"chapter"> = "chapter.build-the-file-care";
 
-/** Tunde with the master's heard of, the month he looks into it: the first chapter closes on its items at this month's end. */
+/** The banker with the master's heard of, the month the life looks into it: the first chapter closes on its items at this month's end. */
 function aboutToLookIntoUk(): Game {
-  const game = start({ scenario: "scenario.tunde", content });
+  const game = start({ scenario: "scenario.banker", content });
   for (let month = 0; month < 8 && game.state.route[UK_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
   expect(game.state.chapter.current).toBe(FEET);
   return game;
 }
 
-/** Tunde leaning to the master's, in the master's file. */
+/** The banker leaning to the master's, in the master's file. */
 function inTheFile(): Game {
   const game = aboutToLookIntoUk();
   game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
@@ -90,7 +90,7 @@ describe("a dependant grant withdrawn before the flight", () => {
   });
 
   test("[chapter:done-chapter-stays-done] [chapter:chapters-follow-lean-route] given the nurse in the care file whose dependant grant closed it as the master's file, when the grant is withdrawn, then the chapter that comes back is the care file, the variant standing in under the lean as it is now", () => {
-    const game = start({ scenario: "scenario.ngozi", content });
+    const game = start({ scenario: "scenario.nurse", content });
     for (let month = 0; month < 8 && game.state.route[CARE_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
     game.endTurn([slot("activity.look-into-route", CARE_ROUTE)]);
     expect(game.state.chapter.current).toBe(CARE_FILE);

@@ -18,9 +18,9 @@ const abroad = lifeScripts.filter((script) => script.name.endsWith("-abroad"));
 
 describe("the three real lives as golden scripts", () => {
   test("[engine:state-is-plain-data] given the scripts, when listed, then there is one to the flight and one abroad for each starting life", () => {
-    // The three recorded lives. Ngozi, a scenario as well, has none.
-    expect(flights.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
-    expect(abroad.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
+    // The three recorded lives. The nurse, a scenario as well, has none.
+    expect(flights.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.banker", "scenario.developer", "scenario.graduate"]);
+    expect(abroad.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.banker", "scenario.developer", "scenario.graduate"]);
     for (const script of lifeScripts) expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
   });
 

@@ -17,7 +17,7 @@ function heardAllDay(view: ReturnType<typeof abroadView>, place: string): string
 }
 
 describe("talk overheard abroad", () => {
-  test("[world:street-talk-budget] [city:overheard-talk-from-view] given Ada in the room abroad with stories delivered and routes heard, when talk is overheard all day, then every line is the room's own and none is the talk of Lagos", () => {
+  test("[world:street-talk-budget] [city:overheard-talk-from-view] given the graduate in the room abroad with stories delivered and routes heard, when talk is overheard all day, then every line is the room's own and none is the talk of Lagos", () => {
     const view = abroadView();
     expect(view.news.length).toBeGreaterThan(0);
     expect(view.routes.some((route) => route.state !== "unknown")).toBe(true);
@@ -101,7 +101,7 @@ describe("who says a line overheard", () => {
   const said = (key: string): string => text[key] ?? key;
 
   test("[world:street-talk-budget] given the family house, when its own lines are heard, then each carries who says it, read from content beside the line, and a compound's rota, said by nobody in particular, carries no one", () => {
-    const view = newGame("scenario.ada").view();
+    const view = newGame("scenario.graduate").view();
     const family = heardHere(view, "place.family-house").filter((line) => line.key.startsWith("place.family-house.overheard."));
     expect(family.map((line) => [line.key, line.by === undefined ? null : said(line.by)])).toEqual([
       ["place.family-house.overheard.1", "Your brother"],

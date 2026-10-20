@@ -50,16 +50,16 @@ export const ITALY: Id<"country"> = "country.italy";
 export const UAE: Id<"country"> = "country.uae";
 export const UK_COUNTRY: Id<"country"> = "country.uk";
 
-export const GRADUATE: Id<"status"> = "status.uk-graduate";
+export const UK_GRADUATE: Id<"status"> = "status.uk-graduate";
 export const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
 export const SETTLED: Id<"status"> = "status.uk-settled";
 export const SPONSORED: Id<"status"> = "status.uk-sponsored";
 export const STUDENT: Id<"status"> = "status.uk-student";
 
-export const ADA: Id<"scenario"> = "scenario.ada";
+export const GRADUATE: Id<"scenario"> = "scenario.graduate";
 export const PROLOGUE: Id<"scenario"> = "scenario.prologue";
 export const READY: Id<"scenario"> = "scenario.ready";
-export const TUNDE: Id<"scenario"> = "scenario.tunde";
+export const BANKER: Id<"scenario"> = "scenario.banker";
 
 export const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
 export const CAR: Id<"obligation"> = "obligation.car";

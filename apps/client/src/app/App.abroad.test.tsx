@@ -30,13 +30,13 @@ async function showing(view: PlayerView) {
 }
 
 describe("the shell by where the character is", () => {
-  test("[route-gates:departure-grants-status] [chapter:send-off-card-on-close] [chapter:send-off-scene-in-beats] [share:send-off-card-kept] given Ada's recorded life up to the flight, when she boards through the send-off scene, then the flight is a moment of its own after it, the send-off card is kept on the phone, and the world turns to life abroad", async () => {
-    const save = recordedSave("ada-careful");
+  test("[route-gates:departure-grants-status] [chapter:send-off-card-on-close] [chapter:send-off-scene-in-beats] [share:send-off-card-kept] given the graduate's recorded life up to the flight, when it boards through the send-off scene, then the flight is a moment of its own after it, the send-off card is kept on the phone, and the world turns to life abroad", async () => {
+    const save = recordedSave("graduate-careful");
     const beforeFlight = { ...save, commands: save.commands.slice(0, -1) };
     expect(save.commands.at(-1)?.command.type).toBe("route/depart");
     const storage = memoryStorage();
     storage.setItem(SAVE_KEY, JSON.stringify({ save: beforeFlight, clock: { anchor: 0 } }));
-    // The world draws its place here (City.tsx canDraw); the scene is the stand-in above, at the family house where her bag is.
+    // The world draws its place here (City.tsx canDraw); the scene is the stand-in above, at the family house where the life's bag is.
     stubWebGL();
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     try {
@@ -48,7 +48,7 @@ describe("the shell by where the character is", () => {
       expect(granted.querySelector("[data-share-card='granted']")).not.toBeNull();
       fireEvent.click(within(granted).getByRole("button", { name: say("ui.report.close") }));
 
-      // The world is the game (world:world-fills-the-screen): the band, the two thumbs, no tabs; she boards from her packed bag.
+      // The world is the game (world:world-fills-the-screen): the band, the two thumbs, no tabs; the life boards from its packed bag.
       await waitFor(() => expect(document.querySelector("[data-band]")).not.toBeNull());
       expect(document.querySelector("[data-tab]")).toBeNull();
       await pressFanAct("bag", "pack", 5000);
@@ -70,7 +70,7 @@ describe("the shell by where the character is", () => {
       // share:send-off-card-kept: the send-off card opens on no screen of its own; the phone keeps it, below.
       expect(screen.queryByRole("dialog", { name: words("chapter.send-off.title") })).toBeNull();
 
-      // Life abroad: the world opens abroad, and the phone's Japa holds the status she lives on.
+      // Life abroad: the world opens abroad, and the phone's Japa holds the status the life lives on.
       await waitFor(() => expect(store.getState().view?.place.where).toBe("abroad"));
       const status = store.getState().view?.status?.entry ?? null;
       expect(status).not.toBeNull();

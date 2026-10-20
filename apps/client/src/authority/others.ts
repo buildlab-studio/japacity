@@ -5,7 +5,7 @@
 // nobody else's: deterministic, whole numbers only, and nothing of it reaches the simulation. Worked out here, once for a
 // name, and handed to the words as the lines to say otherwise (`shared/words/now.ts`), so the pool is never in the words
 // every screen loads.
-import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
+import { namedPeople, namePool, text } from "@japacity/content";
 
 import type { NameSwaps } from "../shared/words/now";
 
@@ -30,11 +30,11 @@ const POOL: readonly Pooled[] = namePool.flatMap((entry) => {
   return name === undefined ? [] : [{ name, people: entry.people, sex: entry.sex }];
 });
 
-/** Every name a person in the game's own words carries, and the fixed lives' own: none is given out again. */
-const TAKEN: ReadonlySet<string> = new Set([...namedPeople, ...Object.values(lifePeople)].map((person) => same(person.name)));
+/** Every name a person in the game's own words carries: none is given out again. */
+const TAKEN: ReadonlySet<string> = new Set(namedPeople.map((person) => same(person.name)));
 
-/** The player's own words for their character: the keys that keep the player's name. */
-const PLAYERS_OWN = ["scenario.", "share.first-name.", "person.name."];
+/** The pool's own words, which name nobody and so are never said otherwise. */
+const PLAYERS_OWN = ["person.name."];
 
 /**
  * The other name a person whose name is the player's goes by: of their own people and sex where the pool has one (a

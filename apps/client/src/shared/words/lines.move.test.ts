@@ -23,8 +23,8 @@ function told(lines: readonly ReportLine[]): string[] {
 }
 
 describe("the move to Makoko, told once", () => {
-  test("[home:move-home-once-a-month] [world:month-end-results-sheet] given Tunde moves to Makoko from the phone, when the month ends, then the results' money says the move once with its rent, no living costs come again at the month's end, and News says the same line once", () => {
-    const game = newGame("scenario.tunde");
+  test("[home:move-home-once-a-month] [world:month-end-results-sheet] given the banker moves to Makoko from the phone, when the month ends, then the results' money says the move once with its rent, no living costs come again at the month's end, and News says the same line once", () => {
+    const game = newGame("scenario.banker");
     const mid = game.accept({ type: "home/move", to: MAKOKO }).lines;
     const end = game.endTurn().lines;
     const money = told([...mid, ...end]);
@@ -36,7 +36,7 @@ describe("the move to Makoko, told once", () => {
   });
 
   test("[home:move-home-once-a-month] [home:taken-in-after-eviction] given a guest's where-next answered makoko, when the month's lines are told, then the rent the answer paid is the move's line", () => {
-    const game = newGame("scenario.tunde");
+    const game = newGame("scenario.banker");
     applyEffects(game, [{ type: "offer/open", offer: "offer.where-next" }]);
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.where-next");
     if (offer === undefined) throw new Error("Where next did not open.");
@@ -44,8 +44,8 @@ describe("the move to Makoko, told once", () => {
     expect(told(mid)).toEqual([`- ${MOVED}`]);
   });
 
-  test("[home:move-home-once-a-month] given Tunde in Makoko moving back to the family house, when the lines are told, then the move says only where home is: no money moved", () => {
-    const game = newGame("scenario.tunde");
+  test("[home:move-home-once-a-month] given the banker in Makoko moving back to the family house, when the lines are told, then the move says only where home is: no money moved", () => {
+    const game = newGame("scenario.banker");
     game.accept({ type: "home/move", to: MAKOKO });
     game.endTurn();
     const back = game.accept({ type: "home/move", to: "place.family-house" }).lines;

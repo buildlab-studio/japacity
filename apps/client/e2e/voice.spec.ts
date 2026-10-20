@@ -2,7 +2,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 // The visa interview, spoken (docs/design/05-audio.md, section 7), inside a faked in-app browser:
-// most players arrive through one. Ada's recorded life is loaded just as her application went in; the interview waits in
+// most players arrive through one. The graduate's recorded life is loaded just as its application went in; the interview waits in
 // the world as an ask, opened from the line under the band.
 import { setpieceVoice, text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
@@ -23,9 +23,9 @@ const IN_APP = {
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/470.0.0.40.104;FBBV/612345678;FBDV/iPhone15,2;FBMD/iPhone;FBSN/iOS;FBSV/17.5;FBSS/3;FBID/phone;FBLC/en_US;FBOP/5]",
 } as const;
 
-/** Ada's recorded life up to the interview's first answer: the application has just gone in. */
-function adaAtInterview(): string {
-  const save = recorded("ada-careful");
+/** The graduate's recorded life up to the interview's first answer: the application has just gone in. */
+function graduateAtInterview(): string {
+  const save = recorded("graduate-careful");
   const first = save.commands.findIndex((entry) => entry.command.type === "setpiece/answer");
   return kept({ ...save, commands: save.commands.slice(0, first) });
 }
@@ -44,7 +44,7 @@ async function seed(page: Page, options: { saveData?: boolean } = {}): Promise<s
       }
       if (saveData) Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true });
     },
-    { stored: adaAtInterview(), saveData: options.saveData === true },
+    { stored: graduateAtInterview(), saveData: options.saveData === true },
   );
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto(`/${LIVED}`);

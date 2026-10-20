@@ -30,10 +30,10 @@ describe("a card in words", () => {
     }
   });
 
-  test("[share:card-contents] given Ada's send-off, when the card and its preview are laid out, then the word mark is drawn in the plain face", () => {
-    const card = recordedGame("ada-careful").view().card;
-    if (card === null) throw new Error("Ada's recorded life has no card.");
-    const face = cardFace(card, "scenario.ada");
+  test("[share:card-contents] given the graduate's send-off, when the card and its preview are laid out, then the word mark is drawn in the plain face", () => {
+    const card = recordedGame("graduate-careful").view().card;
+    if (card === null) throw new Error("The graduate's recorded life has no card.");
+    const face = cardFace(card, "scenario.graduate");
     for (const steps of [cardSteps(face, SIZE, measure), previewSteps(face, SIZE, measure)]) {
       const mark = steps.find((step): step is TextStep => step.op === "text" && step.role === "sender");
       expect(mark?.family).toBe("sans");
@@ -41,9 +41,9 @@ describe("a card in words", () => {
   });
 
   test("[share:card-contents] given every kind of card the recorded lives reach, when the card and its preview are laid out, then the title is drawn in the plain face, not the display caps", () => {
-    const card = recordedGame("ada-careful").view().card;
-    if (card === null) throw new Error("Ada's recorded life has no card.");
-    const face = cardFace(card, "scenario.ada");
+    const card = recordedGame("graduate-careful").view().card;
+    if (card === null) throw new Error("The graduate's recorded life has no card.");
+    const face = cardFace(card, "scenario.graduate");
     for (const steps of [cardSteps(face, SIZE, measure), previewSteps(face, SIZE, measure)]) {
       const titles = steps.filter((step): step is TextStep => step.op === "text" && step.role === "title");
       expect(titles.length).toBeGreaterThan(0);

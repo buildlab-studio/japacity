@@ -118,8 +118,8 @@ describe("the phrases in content", () => {
 });
 
 describe("fill-ins", () => {
-  test("[pair:preset-phrases-only] given Ada's view, when the fill-ins are asked for, then spots, heard routes, delivered news and options come from their lists only", () => {
-    const view = start({ scenario: "scenario.ada", content }).view();
+  test("[pair:preset-phrases-only] given the graduate's view, when the fill-ins are asked for, then spots, heard routes, delivered news and options come from their lists only", () => {
+    const view = start({ scenario: "scenario.graduate", content }).view();
     const routes: PlayerView["routes"] = [
       { ...(view.routes[0] as PlayerView["routes"][number]), id: "route.uk-masters", state: "heard" },
       { ...(view.routes[0] as PlayerView["routes"][number]), id: "route.uk-care", state: "unknown" },
@@ -134,7 +134,7 @@ describe("fill-ins", () => {
   });
 
   test("[pair:preset-phrases-only] given a fill-in off the list, a fill-in where none is wanted, or none where one is, when the phrase is checked, then it is refused", () => {
-    const fills = fillOptions(MEET_AT, withSpots, start({ scenario: "scenario.ada", content }).view());
+    const fills = fillOptions(MEET_AT, withSpots, start({ scenario: "scenario.graduate", content }).view());
     expect(canSay(connected(), "a", MEET_AT, "my-house", policy({ fills }))).toEqual({ ok: false, failed: "bad-fill" });
     expect(canSay(connected(), "a", MEET_AT, null, policy({ fills }))).toEqual({ ok: false, failed: "bad-fill" });
     expect(canSay(connected(), "a", HELLO, "beach", policy())).toEqual({ ok: false, failed: "bad-fill" });
@@ -212,9 +212,9 @@ describe("the checks before a phrase goes", () => {
 
 describe("a block and the phrases", () => {
   test("[pair:block-ends-every-bond] given a block from either side, when the blocked side sends, then it is not possible, and the blocker learns its own block", () => {
-    const blockedByTunde = writeEvent(connected(), "b", { type: "pair/blocked", tick: 3 });
-    expect(canSay(blockedByTunde, "a", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
-    expect(canSay(blockedByTunde, "b", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
+    const blockedByBanker = writeEvent(connected(), "b", { type: "pair/blocked", tick: 3 });
+    expect(canSay(blockedByBanker, "a", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
+    expect(canSay(blockedByBanker, "b", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
     const live = { ...connected(), blocked: { a: false, b: true } };
     expect(canSay(live, "a", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
     expect(canSay(live, "b", HELLO, null, policy())).toEqual({ ok: false, failed: "blocked" });

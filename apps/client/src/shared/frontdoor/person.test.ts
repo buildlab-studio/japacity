@@ -50,7 +50,7 @@ describe("a kept look the game no longer knows", () => {
     }
     storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Bola", archetype: "nurse" }));
     expect(readPerson(storage)).toEqual({ name: "Bola", archetype: "nurse" });
-    expect(playerName({ scenario: "scenario.ada" }, storage)).toBe("Bola");
+    expect(playerName({ scenario: "scenario.graduate" }, storage)).toBe("Bola");
     // A shipped look is kept as it is.
     storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_tunde", name: "Bola", archetype: "nurse" }));
     expect(readPerson(storage)?.look).toBe("person_tunde");
