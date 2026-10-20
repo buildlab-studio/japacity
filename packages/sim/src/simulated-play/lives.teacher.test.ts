@@ -13,7 +13,7 @@ import { FLIGHT_WINDOW } from "./lives.window";
 const recorded = Object.entries(simulatedLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
 describe("the simulated lives played beside the goldens", () => {
-  test("[engine:state-is-plain-data] given the simulated recordings, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
+  test("[engine:state-is-plain-data] given the simulated recordings, when listed, then they are the teacher's, each starts from a life in the content, and none shares a name with a golden life", () => {
     expect(recorded.map((script) => lifeStart(script.save)?.scenario)).toEqual(["scenario.teacher"]);
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();

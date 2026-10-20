@@ -15,7 +15,7 @@ import { Results } from "./Results";
 
 const SURE = applyOverlay(content, { version: "test-results-evicted", tuning: { home: { evictionBp: 10000 } } });
 
-/** Ada in Makoko on content where the settlement is sure to be cleared, with cash enough after two months of rent to lose the most. */
+/** The graduate in Makoko on content where the settlement is sure to be cleared, with cash enough after two months of rent to lose the most. */
 function inMakoko(): Game {
   const game = start({ content: SURE, scenario: "scenario.graduate" });
   setPockets(game, { NGN: 500_000_00 });
@@ -31,7 +31,7 @@ async function showResults(game: Game, lines: ReportLine[]) {
 }
 
 describe("the eviction month's results", () => {
-  test("[home:makoko-eviction-draw] given Ada in Makoko the month the settlement is cleared, when the results show, then the first story line is the eviction with the cash lost, in red", async () => {
+  test("[home:makoko-eviction-draw] given the graduate in Makoko the month the settlement is cleared, when the results show, then the first story line is the eviction with the cash lost, in red", async () => {
     const game = inMakoko();
     const { lines } = game.endTurn();
     expect(storyLines(lines)[0]?.key).toBe("line.home.evicted");

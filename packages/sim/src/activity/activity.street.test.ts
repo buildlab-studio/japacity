@@ -28,7 +28,7 @@ interface Moved {
   reason: Reason;
 }
 
-function ada(): Game {
+function graduate(): Game {
   return start({ content, scenario: "scenario.graduate" });
 }
 
@@ -52,8 +52,8 @@ function setQuality(game: Game, quality: Id<"quality">, value: number): void {
 
 /** A month with this slot beside the same month left to rest, in two copies of one life: what the slot alone moved shows as the difference. */
 function againstRest(prepare: (game: Game) => void, pick: Id<"activity">): { played: Accepted; rested: Accepted } {
-  const played = ada();
-  const rested = ada();
+  const played = graduate();
+  const rested = graduate();
   prepare(played);
   prepare(rested);
   return { played: played.endTurn([slot(pick)]), rested: rested.endTurn([]) };
@@ -65,7 +65,7 @@ function option(game: Game, id: Id<"activity">) {
 
 describe("Computer Village: a phone", () => {
   test("[streets:buy-phone-at-computer-village] given a phone bought, when the month resolves, then it rides with the month in no slot, takes the tuning's price from cash under phone, and lifts wellbeing and network by the tuning's figures", () => {
-    const game = ada();
+    const game = graduate();
     expect(content.activity[BUY_PHONE]?.slot).toBe("none");
     setPockets(game, { NGN: { cash: street.phonePrice, bank: 0 } });
     expect(option(game, BUY_PHONE)).toMatchObject({ allowed: true, cost: [{ currency: "NGN", amount: street.phonePrice }], affordable: true });
@@ -79,7 +79,7 @@ describe("Computer Village: a phone", () => {
   });
 
   test("[streets:buy-phone-at-computer-village] [wallet:money-lands-as-in-lagos] given the bank one kobo short of the price and the rest in cash, when the phone is bought, then, the price being over the line for cash, the bank goes first and cash pays the kobo; with the naira short in both, the slot fails for its cost and nothing is paid", () => {
-    const game = ada();
+    const game = graduate();
     expect(street.phonePrice).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     setPockets(game, { NGN: { cash: street.phonePrice * 2, bank: street.phonePrice - 1 } });
     expect(option(game, BUY_PHONE)).toMatchObject({ allowed: true, affordable: true });
@@ -96,7 +96,7 @@ describe("Computer Village: a phone", () => {
   });
 
   test("[streets:buy-phone-at-computer-village] given a phone bought, when another is bought the next month, then it is a new phone: paid and lifted again", () => {
-    const game = ada();
+    const game = graduate();
     for (let month = 0; month < 2; month += 1) {
       setPockets(game, { NGN: { cash: street.phonePrice, bank: 0 } });
       const result = game.endTurn([slot(BUY_PHONE)]);
@@ -117,7 +117,7 @@ describe("Computer Village: selling phones", () => {
   });
 
   test("[streets:phone-sales-job] given school to level 2, when the jobs to hunt are listed, then the sales job is among them; at level 1 it is not", () => {
-    const game = ada();
+    const game = graduate();
     const hunt = content.activity["activity.job-hunt"]!;
     const listed = (): string[] => paramsFor({ state: game.state, world: game.world(), content }, hunt) ?? [];
     setQuality(game, EDU, 2);
@@ -127,7 +127,7 @@ describe("Computer Village: selling phones", () => {
   });
 
   test("[streets:phone-sales-job] given the sales job hunted, landed and taken, when each month is worked, then it pays the tuning's naira, raises tech by 1 and lowers wellbeing by 1", () => {
-    const game = ada();
+    const game = graduate();
     const hunted = game.endTurn([slot("activity.job-hunt", SALES)]);
     expect(hunted.events.find((event): event is BaseEvent & ActivityEvent => event.type === "activity/hunted")).toMatchObject({ job: SALES });
     const offer = game.view().offers.find((item) => item.entry === "offer.job");
@@ -145,7 +145,7 @@ describe("Computer Village: selling phones", () => {
 
 describe("Computer Village: the apprentice", () => {
   test("[streets:apprentice-learns-repair] given tech under the bar, when the apprenticeship is played, then it costs nothing, raises tech by the tuning's figure and lowers wellbeing by 1", () => {
-    expect(option(ada(), APPRENTICE)).toMatchObject({ allowed: true, cost: [] });
+    expect(option(graduate(), APPRENTICE)).toMatchObject({ allowed: true, cost: [] });
     const { played, rested } = againstRest(() => undefined, APPRENTICE);
     expect(changed(played, TECH, APPRENTICE)).toEqual([street.apprenticeTech]);
     expect(changed(played, WELLBEING, APPRENTICE)).toEqual([-1]);
@@ -153,7 +153,7 @@ describe("Computer Village: the apprentice", () => {
   });
 
   test("[streets:apprentice-learns-repair] given tech one under the bar, when the apprenticeship is sent, then it is allowed; at the bar it is not and the turn is rejected with not-legal", () => {
-    const game = ada();
+    const game = graduate();
     setQuality(game, TECH, street.apprenticeUntil - 1);
     expect(option(game, APPRENTICE)?.allowed).toBe(true);
     setQuality(game, TECH, street.apprenticeUntil);
@@ -164,7 +164,7 @@ describe("Computer Village: the apprentice", () => {
 
 describe("the bridge: sleeping rough", () => {
   test("[streets:sleeping-under-the-bridge] given naira cash and bank together one kobo under the broke line, when sleeping rough is sent, then it is allowed; at the line it is rejected with not-legal", () => {
-    const game = ada();
+    const game = graduate();
     setPockets(game, { NGN: { cash: 1, bank: brokeLine - 2 } });
     expect(option(game, ROUGH)).toMatchObject({ allowed: true, cost: [] });
     setPockets(game, { NGN: { cash: 1, bank: brokeLine - 1 } });
@@ -173,14 +173,14 @@ describe("the bridge: sleeping rough", () => {
   });
 
   test("[streets:sleeping-under-the-bridge] given money locked as shown funds, when the broke line is read, then the locked money does not count", () => {
-    const game = ada();
+    const game = graduate();
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: brokeLine * 2, reason: "gift", locked: true }]);
     expect(option(game, ROUGH)?.allowed).toBe(true);
   });
 
   test("[streets:sleeping-under-the-bridge] given a night under the bridge, when the month resolves, then it costs nothing and gives the rest an empty slot gives", () => {
-    const slots = ada().view().freeSlots;
+    const slots = graduate().view().freeSlots;
     // The naira held kept in the bank, so the theft the night may draw (its own price, tested in offer.street.test.ts)
     // finds no cash on either side: the living costs do not empty the cash first (wallet:money-lands-as-in-lagos).
     const inBank = (game: Game): void => {
@@ -199,7 +199,7 @@ describe("the bridge: sleeping rough", () => {
 
 describe("the stadium", () => {
   test("[streets:stadium-morning-run] given a morning run, when the month resolves, then it costs nothing and lifts wellbeing by the tuning's figure", () => {
-    expect(option(ada(), RUN)).toMatchObject({ allowed: true, cost: [] });
+    expect(option(graduate(), RUN)).toMatchObject({ allowed: true, cost: [] });
     const { played, rested } = againstRest((game) => setQuality(game, WELLBEING, 40), RUN);
     expect(changed(played, WELLBEING, RUN)).toEqual([street.runMood]);
     expect(debits(played)).toEqual(debits(rested));

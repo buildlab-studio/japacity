@@ -8,7 +8,7 @@ import { nameOf, say } from "../../shared/words/text";
 import { CardView } from "./ShareCard";
 
 describe("the send-off card from the engine", () => {
-  test("[chapter:send-off-card-on-close] [share:send-off-card-kept] given Ada's recorded life just flown, when its tile is opened, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
+  test("[chapter:send-off-card-on-close] [share:send-off-card-kept] given the graduate's recorded life just flown, when its tile is opened, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
     const view = recordedGame("graduate-careful").view();
     const card = view.card!;
     expect(card.kind).toBe("send-off");
@@ -24,7 +24,7 @@ describe("the send-off card from the engine", () => {
     expect(within(face).getByText(say("ui.card.is-a-game"))).toBeDefined();
   });
 
-  test("[chapter:send-off-card-on-close] [share:send-off-card-kept] given Ada just flown and her card opened from its tile, when a report opens, then the card waits for it to close", async () => {
+  test("[chapter:send-off-card-on-close] [share:send-off-card-kept] given the graduate just flown and its card opened from its tile, when a report opens, then the card waits for it to close", async () => {
     const { store } = await renderWithView(<CardView />, recordedGame("graduate-careful").view());
     // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));

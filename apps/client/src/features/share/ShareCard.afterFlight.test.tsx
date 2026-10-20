@@ -1,5 +1,5 @@
 // The cards after the flight (share:card-contents): the japacity
-// figure is how ready the move is, so once flown no card carries it. Ada's recorded life, landed in
+// figure is how ready the move is, so once flown no card carries it. The graduate's recorded life, landed in
 // London, hunts the shop job twice, takes it and works a month: the first pay card abroad comes with
 // no "100% Ready to go", and speaks of the landing instead.
 import type { PlayerView } from "@japacity/sim";
@@ -17,7 +17,7 @@ import { ShareCardFace } from "./ShareCard";
 
 type Card = NonNullable<PlayerView["card"]>;
 
-/** Ada's careful life to her first pay abroad: two hunts for the shop job, the offer taken, a month worked. */
+/** The graduate's careful life to its first pay abroad: two hunts for the shop job, the offer taken, a month worked. */
 function firstPayCard(): Card {
   const game = recordedGame("graduate-careful");
   // Pounds enough that the landing's bills are paid and nothing but the work moves the story.
@@ -28,12 +28,12 @@ function firstPayCard(): Card {
     game.endTurn(game.view().job.id === null ? [{ activity: "activity.job-hunt", param: "activity.job-uk-retail-part" }] : []);
   }
   const card = game.view().card;
-  if (card?.kind !== "first-pay-abroad") throw new Error("Ada's first pay abroad did not come within four months.");
+  if (card?.kind !== "first-pay-abroad") throw new Error("The graduate's first pay abroad did not come within four months.");
   return card;
 }
 
 describe("the cards after the flight", () => {
-  test("[share:card-contents] given Ada's first pay abroad, when its card is read, then the japacity figure is gone though the view still carries it, and the card speaks of the landing", () => {
+  test("[share:card-contents] given the graduate's first pay abroad, when its card is read, then the japacity figure is gone though the view still carries it, and the card speaks of the landing", () => {
     const card = firstPayCard();
     expect(card.percent).toBe(100);
     const face = cardFace(card, "scenario.graduate");

@@ -17,7 +17,7 @@ import { LANDING, SECURE, SEND_OFF, STANDING, UK_ROUTE } from "../testing/ids";
 
 const cap = content.tuning.turn.cap;
 
-/** Ada flown and on through Landing, so Secure is the chapter in hand. */
+/** The graduate flown and on through Landing, so Secure is the chapter in hand. */
 function atSecure(): Game {
   const game = flownGraduate(content);
   playUntil(game, SECURE);
@@ -25,7 +25,7 @@ function atSecure(): Game {
 }
 
 describe("the send-off closes on the first month abroad", () => {
-  test("[chapter:met-items-close-the-chapter] given Ada's recorded life up to the flight, when the first month abroad ends, then the send-off closes, Landing opens and the bank is refilled", () => {
+  test("[chapter:met-items-close-the-chapter] given the graduate's recorded life up to the flight, when the first month abroad ends, then the send-off closes, Landing opens and the bank is refilled", () => {
     const game = flownGraduate(content);
     expect(game.state.route[UK_ROUTE]?.state).toBe("departed");
     // The flight is a command between turns: nothing closes until a month is played.
@@ -38,7 +38,7 @@ describe("the send-off closes on the first month abroad", () => {
 });
 
 describe("the send-off card", () => {
-  test("[chapter:send-off-card-on-close] given Ada's recorded life just flown, when the view is read before any month abroad, then the card carries the route flown, its figure, the flight month, that month's standing and the three activities played most up to it", () => {
+  test("[chapter:send-off-card-on-close] given the graduate's recorded life just flown, when the view is read before any month abroad, then the card carries the route flown, its figure, the flight month, that month's standing and the three activities played most up to it", () => {
     const game = flownGraduate(content);
     const card = game.view().card;
     expect(card).toEqual({
@@ -86,8 +86,8 @@ describe("the send-off card", () => {
   });
 
   test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
-    // Ada's careful life meets Landing's last item on her first pay abroad, whose own card stands before a
-    // chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
+    // The graduate's careful life meets Landing's last item on its first pay abroad, whose own card stands before a
+    // chapter's; the banker's recorded life abroad closes Landing in a month of its own.
     const { game, to } = replayedGame("banker-abroad", content);
     to((now) => now.state.place.where === "abroad");
     const flight = game.state.turn.month;
@@ -105,7 +105,7 @@ describe("the send-off card", () => {
 });
 
 describe("landing", () => {
-  test("[chapter:met-items-close-the-chapter] given Ada landed with a room, a status and naira at home, when she finds work and pays her first rent, then Landing closes on the month every item is met", () => {
+  test("[chapter:met-items-close-the-chapter] given the graduate landed with a room, a status and naira at home, when it finds work and pays its first rent, then Landing closes on the month every item is met", () => {
     const game = flownGraduate(content);
     game.endTurn();
     const met = (id: string) => game.view().chapter.items.find((item) => item.id === id)?.met;
@@ -139,7 +139,7 @@ describe("secure, by each of its paths", () => {
     expect(game.view().chapter).toMatchObject({ current: null, items: [] });
   });
 
-  test("[chapter:met-items-close-the-chapter] [chapter:long-game-after-last-chapter] given Secure in hand, when Ada comes home by choice with the fare paid, then Secure closes", () => {
+  test("[chapter:met-items-close-the-chapter] [chapter:long-game-after-last-chapter] given Secure in hand, when the graduate comes home by choice with the fare paid, then Secure closes", () => {
     const game = atSecure();
     applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 500000, reason: "gift" }]);
     game.accept({ type: "return/home" });
@@ -148,7 +148,7 @@ describe("secure, by each of its paths", () => {
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: SECURE, next: null }]);
   });
 
-  test("[chapter:met-items-close-the-chapter] given Secure in hand, when Ada comes home broke, then Secure stays open: the home path needs papers or a choice", () => {
+  test("[chapter:met-items-close-the-chapter] given Secure in hand, when the graduate comes home broke, then Secure stays open: the home path needs papers or a choice", () => {
     const game = atSecure();
     // The fare is paid and leaves nothing: broke (place:return-shape-decided-at-once).
     const pockets = game.state.wallet.pockets;
@@ -190,7 +190,7 @@ describe("after the last chapter", () => {
     applyEffects(game, [{ type: "status/grant", status: "status.uk-settled" }]);
     game.endTurn();
     expect(game.state.chapter.current).toBeNull();
-    // Ada reaches Secure four months after the flight, so the months abroad are played on to six.
+    // The graduate reaches Secure four months after the flight, so the months abroad are played on to six.
     while (game.state.turn.month - game.state.place.movedMonth < 6) monthAbroad(game);
     const view: PlayerView = viewFor(readOf(game));
     expect(view.chapter.current).toBeNull();

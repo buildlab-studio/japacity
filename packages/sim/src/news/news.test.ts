@@ -105,7 +105,7 @@ describe("delivering the news", () => {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
     }
     const lines = deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT);
-    // The story tells Ada of the route, and is judged for her after that (news:for-you-when-touching-route). Announced, it does not yet ask for attention.
+    // The story tells the graduate of the route, and is judged for the life after that (news:for-you-when-touching-route). Announced, it does not yet ask for attention.
     expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 1 }, tone: "plain", attention: false, counts: [] }]);
     expect(game.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
     expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);

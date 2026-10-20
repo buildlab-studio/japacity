@@ -1,4 +1,4 @@
-// The share card in a real browser on a phone (docs/rules/share.md): Ada's
+// The share card in a real browser on a phone (docs/rules/share.md): the graduate's
 // recorded life boards the plane through the send-off scene, the send-off card
 // is opened from the phone (share:send-off-card-kept), and the player saves it as a file
 // where the browser has no share sheet.
@@ -31,8 +31,8 @@ function jpegSize(bytes: Buffer): { width: number; height: number } | null {
 }
 
 /**
- * Ada boards the plane in the world (chapter:send-off-card-on-close, route/depart): the granted card owed on load is closed, the map rides
- * her to the airport, the gate's act opens the send-off scene whose Board the plane takes the flight (chapter:send-off-scene-in-beats), the
+ * The graduate boards the plane in the world (chapter:send-off-card-on-close, route/depart): the granted card owed on load is closed, the map rides
+ * the life to the airport, the gate's act opens the send-off scene whose Board the plane takes the flight (chapter:send-off-scene-in-beats), the
  * landing's moment card is closed, and the send-off card is opened from its tile on the phone's home (share:send-off-card-kept).
  */
 async function flyGraduate(page: Page, withShareSheet: boolean): Promise<void> {
@@ -43,6 +43,8 @@ async function flyGraduate(page: Page, withShareSheet: boolean): Promise<void> {
         sessionStorage.setItem("seeded", "1");
       }
       localStorage.setItem("japacity.walkthrough", "1");
+      // A ready life has no name of its own (scenario.md): the player named the graduate Adaeze at the door.
+      localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Adaeze", archetype: null }));
       if (!sheet) {
         Reflect.deleteProperty(Navigator.prototype, "canShare");
         Reflect.deleteProperty(Navigator.prototype, "share");
@@ -71,7 +73,7 @@ test("[share:card-drawn-on-device] [chapter:send-off-card-on-close] a recorded l
   const card = sheet.locator("[data-share-card='send-off']");
   await expect(card).toBeVisible();
   await expect(card.getByText("Japacity is a game.")).toBeVisible();
-  // The card names her as the band does: the first word of the life's own name (share:card-contents).
+  // The card names the character as the band does: the name given at the door (share:card-contents).
   await expect(card.getByText("Adaeze", { exact: true })).toBeVisible();
 
   const download = page.waitForEvent("download");

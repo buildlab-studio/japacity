@@ -1,5 +1,5 @@
 // The money sheets say what you get (world:one-action-one-sheet),
-// on Ada's recorded life just landed in London: Change money says the pounds that come before the
+// on the graduate's recorded life just landed in London: Change money says the pounds that come before the
 // change is confirmed, and what is held in both monies after; Send money home lists the channels
 // with their cost and speed, an amount with its rate and the naira that lands, and a card whose
 // button says the amount, sends at once and says what is left in pounds.
@@ -16,7 +16,7 @@ import { Bank } from "./Bank";
 import { askCard as card, sent } from "../phone.testing";
 
 describe("Change money says what you get", () => {
-  test("[world:one-action-one-sheet] [wallet:bank-converts-at-official-rate] given Ada just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds she gets, the figure the engine gives, and what she holds in both monies after: the pounds in the bank on the line, the dollars left on the button", async () => {
+  test("[world:one-action-one-sheet] [wallet:bank-converts-at-official-rate] given the graduate just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds it gets, the figure the engine gives, and what it holds in both monies after: the pounds in the bank on the line, the dollars left on the button", async () => {
     const game = recordedGame("graduate-careful");
     const view = game.view();
     await renderWithView(<Bank />, view);
@@ -40,7 +40,7 @@ describe("Change money says what you get", () => {
 });
 
 describe("Send money home", () => {
-  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given Ada just landed, when Send money home opens in the Bank, then each channel says what it costs and how fast it lands, and the amount says its rate and the naira that lands", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given the graduate just landed, when Send money home opens in the Bank, then each channel says what it costs and how fast it lands, and the amount says its rate and the naira that lands", async () => {
     const view = recordedGame("graduate-careful").view();
     await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);

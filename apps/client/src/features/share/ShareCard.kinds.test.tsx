@@ -14,10 +14,10 @@ import { CardView } from "./ShareCard";
 
 type Shared = NonNullable<PlayerView["card"]>;
 
-/** Ada just flown, with her card swapped for the kind under test. */
+/** The graduate just flown, with its card swapped for the kind under test. */
 function graduateWith(kind: Shared["kind"]): PlayerView {
   const view = recordedGame("graduate-careful").view();
-  if (view.card === null) throw new Error("Ada's recorded life has no card.");
+  if (view.card === null) throw new Error("The graduate's recorded life has no card.");
   return { ...view, card: { ...view.card, kind, ...(kind === "chapter" ? { chapter: "chapter.landing" as const } : {}) } };
 }
 

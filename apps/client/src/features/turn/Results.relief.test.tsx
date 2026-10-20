@@ -28,7 +28,7 @@ function storyTexts(): string[] {
 }
 
 describe("the room's basics on the results", () => {
-  test("[obligation:cooking-and-fetching-water] given Ada cooking and fetching water in one month, when the results show, then each saving is its own story line in its own words with its figure, and neither is counted as money in", async () => {
+  test("[obligation:cooking-and-fetching-water] given the graduate cooking and fetching water in one month, when the results show, then each saving is its own story line in its own words with its figure, and neither is counted as money in", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so there is nothing for the
     // chores to take off and the results tell no relief.
     const lived = newGame("scenario.graduate").endTurn([slot("activity.cook-at-home"), slot("activity.fetch-water")]).lines;

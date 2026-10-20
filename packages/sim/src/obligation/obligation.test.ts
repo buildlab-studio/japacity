@@ -31,7 +31,7 @@ function entryOf(id: Id<"obligation">): ObligationEntry {
   return entry;
 }
 
-/** Ada's upkeep a month, from the scenario. */
+/** The graduate's upkeep a month, from the scenario. */
 const GRADUATE_UPKEEP = content.scenario[GRADUATE]!.obligations[0]!.amount;
 
 /**
@@ -88,7 +88,7 @@ function upkeepOf(game: Game): ObligationState {
 }
 
 describe("the monthly charge", () => {
-  test("[obligation:due-phase-charges-oldest-first] given Ada and her upkeep, when a month ends, then the upkeep amount is charged", () => {
+  test("[obligation:due-phase-charges-oldest-first] given the graduate and its upkeep, when a month ends, then the upkeep amount is charged", () => {
     const game = start({ scenario: GRADUATE, content });
     const upkeep = upkeepOf(game);
     expect(upkeep.amount).toBe(GRADUATE_UPKEEP);
@@ -639,14 +639,14 @@ describe("the group loan", () => {
 
 describe("how the group loan reaches you", () => {
   test("[obligation:three-roads-to-group-loan] given network one short of 20, and then at 20, when the group loan offer is opened, then it opens only from 20; standing 39 and a credit mark keep it shut", () => {
-    const ada = start({ scenario: GRADUATE, content });
-    const network = ada.state.quality[NETWORK]!;
+    const graduate = start({ scenario: GRADUATE, content });
+    const network = graduate.state.quality[NETWORK]!;
     expect(network).toBeLessThan(20);
-    apply(ada, [{ type: "quality/add", quality: NETWORK, amount: 19 - network }]);
-    expect(ada.state.quality[NETWORK]).toBe(19);
-    expect(offerOf(ada, "offer.group-loan")).toBeNull();
-    apply(ada, [{ type: "quality/add", quality: NETWORK, amount: 1 }]);
-    expect(offerOf(ada, "offer.group-loan")).not.toBeNull();
+    apply(graduate, [{ type: "quality/add", quality: NETWORK, amount: 19 - network }]);
+    expect(graduate.state.quality[NETWORK]).toBe(19);
+    expect(offerOf(graduate, "offer.group-loan")).toBeNull();
+    apply(graduate, [{ type: "quality/add", quality: NETWORK, amount: 1 }]);
+    expect(offerOf(graduate, "offer.group-loan")).not.toBeNull();
 
     const low = start({ scenario: BANKER, content });
     apply(low, [{ type: "quality/add", quality: STANDING, amount: 39 - low.state.quality[STANDING]! }]);
@@ -765,8 +765,8 @@ describe("the savings circle", () => {
     const { circle } = joined("seed-1");
     expect(circle).toMatchObject({ amount: 2000000, monthsLeft: 10, principal: POT, outstanding: POT });
     expect(entryOf(AJO)).toMatchObject({ rateBp: 0, term: 10, grace: 0 });
-    const ada = start({ scenario: GRADUATE, content });
-    expect(offerOf(ada, "offer.join-ajo")).toBeNull();
+    const graduate = start({ scenario: GRADUATE, content });
+    expect(offerOf(graduate, "offer.join-ajo")).toBeNull();
   });
 
   test("[luck:savings-circle-holds-pot] given a seed whose first lotto draw in ten is 0, when the first month is paid, then the pot comes as a gift; a seed whose first is not waits", () => {
@@ -806,7 +806,7 @@ describe("the savings circle", () => {
 
   test("[luck:savings-circle-holds-pot] given a circle, when a month's share is missed, then it closes with standing -6 and no pot", () => {
     const unlucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) !== 0);
-    // Ada has no pay coming in, so a month with nothing is a missed share.
+    // The graduate has no pay coming in, so a month with nothing is a missed share.
     const game = start({ scenario: GRADUATE, content, seed: unlucky });
     const circle = open(game, AJO);
     setPockets(game, { NGN: { cash: 0, bank: 100000000 } });

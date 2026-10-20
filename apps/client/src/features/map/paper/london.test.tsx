@@ -169,7 +169,7 @@ async function settle(selector: string): Promise<void> {
 }
 
 describe("the map abroad", () => {
-  test("[world:painted-maps-abroad] given Ada in Peckham, when the map opens in the UK, then it is London's painted map folded on Peckham's card with the strip, the stops kept as a list for a screen reader, and the probe names London's cards", async () => {
+  test("[world:painted-maps-abroad] given the graduate in Peckham, when the map opens in the UK, then it is London's painted map folded on Peckham's card with the strip, the stops kept as a list for a screen reader, and the probe names London's cards", async () => {
     await renderWithView(<Map pins={ukPins("place.peckham")} country={UK_CHOICE} countries={[UK_CHOICE, CANADA]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.graduate"));
     await settle("[data-paper-map]");
     expect(document.querySelector("[data-paper-map]")).not.toBeNull();

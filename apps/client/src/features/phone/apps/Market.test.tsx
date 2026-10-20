@@ -34,7 +34,7 @@ async function openMarket(game: Game, here: string | null): Promise<{ unmount: (
 const card = (thing: string): HTMLButtonElement | null => document.querySelector<HTMLButtonElement>(`[data-market-thing="${thing}"]`);
 
 describe("the Market", () => {
-  test("[home:things-a-life-owns] [home:home-is-the-home-point] [world:phone-holds-what-phones-hold] given Ada at the family house, when the Market opens, then every thing stands as a sticker of its model, its price on the yellow pill, and what has no place at Mama's says so after the rest", async () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] [world:phone-holds-what-phones-hold] given the graduate at the family house, when the Market opens, then every thing stands as a sticker of its model, its price on the yellow pill, and what has no place at Mama's says so after the rest", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, FAMILY);
@@ -112,7 +112,7 @@ describe("the Market", () => {
     unmount();
   });
 
-  test("[home:things-a-life-owns] [home:home-is-the-home-point] given Ada away from home in Lagos, when the Market opens, then it says the rider brings it to the gate, a pick shakes and nothing is offered to buy", async () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given the graduate away from home in Lagos, when the Market opens, then it says the rider brings it to the gate, a pick shakes and nothing is offered to buy", async () => {
     const game = newGame();
     setPockets(game, { NGN: 500_000_00 });
     const { unmount } = await openMarket(game, "place.yaba");

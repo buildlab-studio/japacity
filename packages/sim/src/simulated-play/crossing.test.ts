@@ -61,7 +61,7 @@ function offerSeed(used: Content, grade: number): string {
 }
 
 describe("rules that cross kinds", () => {
-  test("[offer:choice-needs-conditions-and-funds] [route:funds-shown-exclude-cash] given Ada with a school's offer, when the family meeting's pledge is accepted, then its support sits on the route and counts toward the funds shown, valued at the official rate", () => {
+  test("[offer:choice-needs-conditions-and-funds] [route:funds-shown-exclude-cash] given the graduate with a school's offer, when the family meeting's pledge is accepted, then its support sits on the route and counts toward the funds shown, valued at the official rate", () => {
     const used = readyContent(content);
     const game = readyLife(content, { seed: offerSeed(used, 4) });
     toOffer(game);
@@ -88,9 +88,9 @@ describe("rules that cross kinds", () => {
   });
 
   describe("held funds", () => {
-    // Tunde, papers in hand. His pounds leave him £1,500 short of the funds once the Northgate deposit is paid, and his naira is next to nothing.
-    // Decision 0013: no living is charged at home as the month turns, so his salary gathers in the bank while he waits for the
-    // school's answer; a start £1,000 short would be covered by the month the offer opens, so he starts £1,500 short.
+    // The banker, papers in hand. Its pounds leave it £1,500 short of the funds once the Northgate deposit is paid, and its naira is next to nothing.
+    // Decision 0013: no living is charged at home as the month turns, so its salary gathers in the bank while it waits for the
+    // school's answer; a start £1,000 short would be covered by the month the offer opens, so it starts £1,500 short.
     const SHORT = 150000;
     const pinned = { "var.uk-living-line": 117100, "var.uk-living-months": 9, "var.fx-bank-queue": 0 } as Record<Id<"var">, number>;
     function heldLife(): Game {
@@ -225,7 +225,7 @@ describe("rules that cross kinds", () => {
     expect(uk(game).funds.shown).toBeLessThan(before);
   });
 
-  test("[activity:job-hunt-lands-offer] [offer:effect-opens-named-offer] [activity:one-job-paid-monthly] [wallet:view-carries-month-pay] given Ada with no job, when a month of hunting lands the teaching job, then a job offer opens naming it, accepting starts the job at once, and the next month pays its salary to the bank", () => {
+  test("[activity:job-hunt-lands-offer] [offer:effect-opens-named-offer] [activity:one-job-paid-monthly] [wallet:view-carries-month-pay] given the graduate with no job, when a month of hunting lands the teaching job, then a job offer opens naming it, accepting starts the job at once, and the next month pays its salary to the bank", () => {
     const seed = seedWhere((candidate) => {
       const trial = start({ scenario: "scenario.graduate", seed: candidate, content });
       trial.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
@@ -257,7 +257,7 @@ describe("rules that cross kinds", () => {
 // ---------------------------------------------------------------------------
 
 describe("whole-life rules that cross kinds", () => {
-  test("[status:lost-job-starts-clock] [ladders:sponsor-job-ties-status] [activity:new-job-replaces-held] given Tunde's recorded life on the sponsored worker's status, when he quits the sponsor's job, then the status clock starts at the entry's months, runs one a month, and at its end the status lapses to the overstayer", () => {
+  test("[status:lost-job-starts-clock] [ladders:sponsor-job-ties-status] [activity:new-job-replaces-held] given the banker's recorded life on the sponsored worker's status, when it quits the sponsor's job, then the status clock starts at the entry's months, runs one a month, and at its end the status lapses to the overstayer", () => {
     const game = replayTo("banker-abroad", content, (played) => played.state.status.current?.entry === SPONSORED && played.state.activity.job === played.state.status.current.job);
     const clock = content.status[SPONSORED]?.clockMonths ?? 0;
     expect(clock).toBeGreaterThan(0);
@@ -273,7 +273,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.state.status.current).toMatchObject({ entry: OVERSTAYER, clock: null, expiresMonth: null });
   });
 
-  test("[status:course-passed-or-withdrawn] [obligation:loan-default-and-recovery] [abroad-money:tuition-paid-in-instalments] given Ada's recorded flight on the student status with no pounds to pay her tuition, when the instalment is missed past its grace, then the tuition defaults and the student is withdrawn the same month: the status lapses at once to the overstayer", () => {
+  test("[status:course-passed-or-withdrawn] [obligation:loan-default-and-recovery] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded flight on the student status with no pounds to pay its tuition, when the instalment is missed past its grace, then the tuition defaults and the student is withdrawn the same month: the status lapses at once to the overstayer", () => {
     const game = replayTo("graduate-careful", content, (played) => played.state.place.where === "abroad");
     expect(game.state.status.current?.entry).toBe(STUDENT);
     const grace = content.obligation[TUITION]?.grace ?? 0;
@@ -291,7 +291,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.state.status.current?.entry).toBe(OVERSTAYER);
   });
 
-  test("[car:car-bought-on-finance] [car:missed-payments-take-the-car] [car:licence-and-driving-test] [credit:judgment-blocks-credit] given Tunde abroad, who drives, and a mark of 30 who buys a car on finance, when three payments in a row are missed under a third of the price, then the car is taken, the shortfall is owed with a judgment, and the judgment holds credit/min above its cap unmet whatever the mark", () => {
+  test("[car:car-bought-on-finance] [car:missed-payments-take-the-car] [car:licence-and-driving-test] [credit:judgment-blocks-credit] given the banker abroad, who drives, and a mark of 30 who buys a car on finance, when three payments in a row are missed under a third of the price, then the car is taken, the shortfall is owed with a judgment, and the judgment holds credit/min above its cap unmet whatever the mark", () => {
     const game = settledAbroad(content, { from: "scenario.banker" });
     closeTypes(game, "rent", "upkeep", "phone");
     // car:licence-and-driving-test: the home licence comes with the first month abroad.
@@ -346,7 +346,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.state.wallet.pockets.NGN.bank - before.bank).toBe(app + bankNaira);
     expect(game.state.wallet.totals.out.remit?.GBP).toBe(sum * 3 - bp(sum, remit.appFeeBp) - bp(sum, remit.bankFeeBp));
   });
-  test("[return:december-visit-set-piece] [place:fare-home-in-local-currency] [place:view-shows-place-and-returns] given Ada's recorded flight with December in the first month abroad, when the December scene opens and she goes, then the fare home in the view carries the December factor, the visit takes that fare both ways in pounds as `fare`, and each answer's price leaves the pound pockets", () => {
+  test("[return:december-visit-set-piece] [place:fare-home-in-local-currency] [place:view-shows-place-and-returns] given the graduate's recorded flight with December in the first month abroad, when the December scene opens and it goes, then the fare home in the view carries the December factor, the visit takes that fare both ways in pounds as `fare`, and each answer's price leaves the pound pockets", () => {
     const game = flownGraduate(content);
     const country = content.country["country.uk"]!;
     expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: bp(country.fare, country.decemberFactorBp) });
@@ -375,7 +375,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: country.fare });
   });
 
-  test("[return:returnee-offers-for-a-year] [place:return-home-paid-or-assisted] given a student abroad with pounds for the fare, when she comes home by choice, then the returnee offers come up within the window in some life and never after it", () => {
+  test("[return:returnee-offers-for-a-year] [place:return-home-paid-or-assisted] given a student abroad with pounds for the fare, when the life comes home by choice, then the returnee offers come up within the window in some life and never after it", () => {
     const window = content.tuning.return.offerMonths;
     const returnees = Object.values(content.offer).filter((entry) => entry.group === "return").map((entry) => entry.id);
     expect(returnees.length).toBeGreaterThan(0);
@@ -399,7 +399,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(inside).toBeGreaterThan(0);
     expect(after).toEqual([]);
   });
-  test("[road:road-truth-asks-more] [road:chain-steps-monthly] [road:exit-is-assisted-return] [place:new-character-at-home] [return:standing-by-return-shape] given a character at home who takes a pitch that is the road, pays at the truth and is held at the compound, when the authorities turn her back and the exit comes, then the return is on record as assisted with no country, the standing falls by the shape, and the agent's debt is still owed in naira at home", () => {
+  test("[road:road-truth-asks-more] [road:chain-steps-monthly] [road:exit-is-assisted-return] [place:new-character-at-home] [return:standing-by-return-shape] given a character at home who takes a pitch that is the road, pays at the truth and is held at the compound, when the authorities turn the life back and the exit comes, then the return is on record as assisted with no country, the standing falls by the shape, and the agent's debt is still owed in naira at home", () => {
     const debtEntry: Id<"obligation"> = "obligation.agent-debt";
     const play = (seed: string): Game | null => {
       const game = readyLife(content, { seed, quiet: true, pockets: { NGN: { bank: 0, cash: 3000000 * UNIT } } });
@@ -435,7 +435,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.view().place.returns[0]?.country).toBeNull();
   });
 
-  test("[health:low-wellbeing-warns-first] [health:illness-rolls-when-run-down] [health:forced-months-spaced-apart] [turn:slots-can-be-locked] [engine:limits-tested-through-step] given Ada run down two months in a row, when the warning is given, the illness opens the month after and she goes to hospital, then a slot is locked for the next month, the turn refuses a slot past the ones left free, and the lock lifts the month after", () => {
+  test("[health:low-wellbeing-warns-first] [health:illness-rolls-when-run-down] [health:forced-months-spaced-apart] [turn:slots-can-be-locked] [engine:limits-tested-through-step] given the graduate run down two months in a row, when the warning is given, the illness opens the month after and it goes to hospital, then a slot is locked for the next month, the turn refuses a slot past the ones left free, and the lock lifts the month after", () => {
     const health = content.tuning.health;
     // activity:now-acts-and-month-acts: the hunt moves no quality and is an act done at once, so
     // the month's slots rest, at nothing under this content, and the lock is counted with a month-act.

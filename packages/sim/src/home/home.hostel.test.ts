@@ -21,13 +21,13 @@ const RENT: Id<"obligation"> = "obligation.upkeep-hostel";
 const { home } = content.tuning;
 const MONTH = home.hostelRentKobo;
 
-function ada(): Game {
+function graduate(): Game {
   return start({ content, scenario: "scenario.graduate", seed: "seed-1" });
 }
 
-/** Ada moved into the hostel with exactly a month's rent and `spare` more. */
+/** The graduate moved into the hostel with exactly a month's rent and `spare` more. */
 function inTheHostel(spare = 0): Game {
-  const game = ada();
+  const game = graduate();
   setPockets(game, { NGN: MONTH + spare });
   const result = game.accept({ type: "home/move", to: HOSTEL });
   if (!("events" in result)) throw new Error(`The move was refused: ${JSON.stringify(result)}`);
@@ -50,8 +50,8 @@ describe("the hostel as a home", () => {
     expect(MONTH).toBeLessThanOrEqual(half + bp(half, 1500));
   });
 
-  test("[home:move-home-once-a-month] [home:moves-carry-cost-and-reason] given Ada at the family house, when the home card's moves are read, then the hostel is offered at its rent a month with its first month taken now, shut short until a month's rent is held", () => {
-    const game = ada();
+  test("[home:move-home-once-a-month] [home:moves-carry-cost-and-reason] given the graduate at the family house, when the home card's moves are read, then the hostel is offered at its rent a month with its first month taken now, shut short until a month's rent is held", () => {
+    const game = graduate();
     setPockets(game, { NGN: MONTH - 1 });
     const shut = game.view().home.moves.find((move) => move.to === HOSTEL);
     expect(shut).toEqual({ to: HOSTEL, monthly: { currency: "NGN", amount: MONTH }, now: MONTH, shut: "short" });
@@ -60,8 +60,8 @@ describe("the hostel as a home", () => {
     expect(game.view().home.moves.find((move) => move.to === HOSTEL)?.shut).toBeNull();
   });
 
-  test("[home:move-home-once-a-month] given Ada with exactly a month's rent, when she moves to the hostel, then the month is taken under rent, the hostel's rent opens by the month with no year's lump and the family's upkeep closes, and the card says the rent a month", () => {
-    const game = ada();
+  test("[home:move-home-once-a-month] given the graduate with exactly a month's rent, when it moves to the hostel, then the month is taken under rent, the hostel's rent opens by the month with no year's lump and the family's upkeep closes, and the card says the rent a month", () => {
+    const game = graduate();
     setPockets(game, { NGN: MONTH });
     const result = game.accept({ type: "home/move", to: HOSTEL });
     if (!("events" in result)) throw new Error("Refused");
@@ -75,7 +75,7 @@ describe("the hostel as a home", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[home:move-home-once-a-month] given Ada in the hostel, when months end, then each month's end pays the month to come at the hostel's rent, never more", () => {
+  test("[home:move-home-once-a-month] given the graduate in the hostel, when months end, then each month's end pays the month to come at the hostel's rent, never more", () => {
     const game = inTheHostel();
     for (let at = 0; at < 3; at += 1) {
       setPockets(game, { NGN: 5_000_000_00 });
@@ -86,7 +86,7 @@ describe("the hostel as a home", () => {
     }
   });
 
-  test("[home:rent-default-returns-to-family] given Ada in the hostel with nothing at the months' ends, when the rent is missed past its grace, then in the same month's clocks she is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
+  test("[home:rent-default-returns-to-family] given the graduate in the hostel with nothing at the months' ends, when the rent is missed past its grace, then in the same month's clocks the life is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
     const game = inTheHostel();
     const grace = content.obligation[RENT]!.grace;
     let last: Accepted | null = null;
@@ -105,7 +105,7 @@ describe("the hostel as a home", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[home:rent-default-returns-to-family] given Ada's hostel rent missed but not yet past its grace, when the month ends, then she still lives in the hostel", () => {
+  test("[home:rent-default-returns-to-family] given the graduate's hostel rent missed but not yet past its grace, when the month ends, then the life still lives in the hostel", () => {
     const game = inTheHostel();
     setPockets(game, { NGN: 0 });
     restMonth(game);
@@ -113,7 +113,7 @@ describe("the hostel as a home", () => {
     expect(openObligations(game)).toEqual([RENT]);
   });
 
-  test("[obligation:cooking-and-fetching-water] given Ada in the hostel, when the water acts are read, then the drum is filled free from the tap and no water is bought", () => {
+  test("[obligation:cooking-and-fetching-water] given the graduate in the hostel, when the water acts are read, then the drum is filled free from the tap and no water is bought", () => {
     const game = inTheHostel(1_000_000_00);
     const allowed = (id: string): boolean => game.view().activities.find((option) => option.id === id)?.allowed ?? false;
     expect([allowed("activity.fill-drum"), allowed("activity.fetch-water"), allowed("activity.cook-own")]).toEqual([true, false, true]);

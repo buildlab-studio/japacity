@@ -3,7 +3,7 @@
 // whose band fell by the change could read as money hidden. So each change in the month is said under Kept on its own line, both sides
 // as they were: "Changed ₦806,930 into £561". The side paid in at the bank is what went at the
 // rate, the bank's charge told once on its own line, so Kept plus the changes is the band's move. Played on the real
-// engine, Tunde at home.
+// engine, the banker at home.
 import { content } from "@japacity/content";
 import { int, type Currency, type ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";

@@ -357,7 +357,7 @@ describe("schools", () => {
     game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE }, "not-legal");
   });
 
-  test("[route:applying-to-a-school] given Tunde refused by Northgate on seed-0, when months pass, then the view names the month it will take him again, and six months after its answer it is offered and takes a new application", () => {
+  test("[route:applying-to-a-school] given the banker refused by Northgate on seed-0, when months pass, then the view names the month Northgate will take the life again, and six months after its answer it is offered and takes a new application", () => {
     const game = life({ from: "scenario.banker", seed: "seed-0" });
     expect(game.state.quality[GRADE]).toBe(school(NORTHGATE).minGrade);
     toAnswer(game, NORTHGATE);
@@ -958,7 +958,7 @@ describe("decision day", () => {
     game.endTurn();
   });
 
-  test("[place:entries-legal-by-where] [route-gates:departure-grants-status] given Ada teaching at home with the study visa granted, when she flies, then the home job ends that moment with its months kept, and there is no job left to quit", () => {
+  test("[place:entries-legal-by-where] [route-gates:departure-grants-status] given the graduate teaching at home with the study visa granted, when it flies, then the home job ends that moment with its months kept, and there is no job left to quit", () => {
     const teaching = (used: Content): Content => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, job: "activity.job-teacher", tenure: { "activity.job-teacher": 12 } } } });
     const game = life({ tuning: ALWAYS_GRANTED, change: teaching });
     toDecision(game);

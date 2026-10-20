@@ -1,5 +1,5 @@
 // Layer 3 of docs/design/02-quality-and-testing.md on the real content: long
-// random lives from Ada and Tunde, every always-true rule checked after every
+// random lives from the graduate and the banker, every always-true rule checked after every
 // command. The other lives and life abroad have files of their own, so each
 // file stays inside engine:limits-tested-through-step's minute.
 import { content } from "@japacity/content";

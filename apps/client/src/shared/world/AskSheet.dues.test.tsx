@@ -1,5 +1,5 @@
 // The card warns when the month's dues are more than what is left after (docs/rules/world.md
-// world:one-action-one-sheet), played on the real engine: Ada with ₦99,700 and ₦95,000 of living costs due takes a
+// world:one-action-one-sheet), played on the real engine: the graduate with ₦99,700 and ₦95,000 of living costs due takes a
 // ₦15,000 course, and the card says more than "₦84,700 left". The button stays
 // open; only a cost that cannot be paid at all shuts it.
 import type { Currency } from "@japacity/sim";
@@ -23,7 +23,7 @@ function course(): Ask {
   return { form: "card", icon: "hand", who: "The hub, Yaba", title: "Take a coding course", line: "You pay for a course.", cost: { amount: COURSE, currency: "NGN" }, button: "Take a coding course", act: () => undefined, dismiss: () => undefined };
 }
 
-/** Ada's game holding exactly `naira`, all in the bank, with no job: whatever she owes falls due at the month's end. */
+/** The graduate's game holding exactly `naira`, all in the bank, with no job: whatever the life owes falls due at the month's end. */
 function graduateGame(naira: number, game = newGame("scenario.graduate")) {
   const pocket = game.state.wallet.pockets.NGN;
   applyEffects(game, [
@@ -44,7 +44,7 @@ function main(): HTMLButtonElement {
 }
 
 describe("the month's dues on the card", () => {
-  test("[world:one-action-one-sheet] given Ada with ₦99,700 and ₦95,000 of living costs due, when the coding course's card opens, then it says what is left and what falls due, in warning tone, and the button stays open", async () => {
+  test("[world:one-action-one-sheet] given the graduate with ₦99,700 and ₦95,000 of living costs due, when the coding course's card opens, then it says what is left and what falls due, in warning tone, and the button stays open", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living falls due at the month's end, so the card says only what
     // is left, with no warning.
     const lived = graduateHolding(9_970_000);

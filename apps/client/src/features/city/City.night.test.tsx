@@ -57,7 +57,7 @@ function setPart(store: GameStore, part: DayPart): void {
   act(() => store.setState({ clock: clockAt(part) }));
 }
 
-/** Ada in the parlour by the bed: a new life, or one with `months` behind it. */
+/** The graduate in the parlour by the bed: a new life, or one with `months` behind it. */
 async function inTheParlour(months = 0, before: (game: ReturnType<typeof newGame>) => void = () => undefined) {
   const game = newGame("scenario.graduate");
   for (let month = 0; month < months; month += 1) game.endTurn();

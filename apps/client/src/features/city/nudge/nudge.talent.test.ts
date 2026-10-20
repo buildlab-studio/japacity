@@ -61,7 +61,7 @@ interface Paid {
 }
 
 /**
- * The ready developer played as the play driver plays her: each month the asks answered (a job taken), the nudge read
+ * The ready developer played as the play driver plays it: each month the asks answered (a job taken), the nudge read
  * and its act taken when it can be, a now-act at once and a month-act in the month's plan, then the month ended.
  */
 function followTheNudge(game: Game, months: number): { paid: Paid[]; refused: number; ranOut: number; passportMonth: number | null } {
@@ -112,7 +112,7 @@ function inTheFile(view: PlayerView, met: { portfolio: boolean; endorsement: boo
   return { ...view, offers: [], setpiece: null, interview: null, chapter: { current: FILE, items: [{ id: "portfolio", met: met.portfolio }, { id: "endorsement", met: met.endorsement }, { id: "applied", met: false }], done: [], closes: false, next: null } };
 }
 
-/** A developer at the endorsement's bars with the talent page read: `documents` her papers, `vars` the world's over the stand-in's. */
+/** A developer at the endorsement's bars with the talent page read: `documents` its papers, `vars` the world's over the stand-in's. */
 function talentLife(options: { documents?: { document: Id<"document">; monthsLeft: number | null; value: number | null }[]; vars?: (tick: number) => Record<Id<"var">, number>; pockets?: { NGN: { bank: number; cash: number } } } = {}): Game {
   const game = readyLife(content, {
     quiet: true,

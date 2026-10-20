@@ -38,7 +38,7 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-/** Ada at home with a month behind her and something planned. */
+/** The graduate at home with a month behind it and something planned. */
 async function graduateAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
   // At the family house unless the test opens elsewhere (world:opens-where-last-stopped: the game opens where the player last stopped).
   if (goIn) window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
@@ -51,7 +51,7 @@ async function graduateAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, g
   // The house opens whole, the bed in your corner.
   await waitFor(() => found('[data-stand-in-thing="mattress"]'), { timeout: 3000 });
   const pick = game.view().activities.find((option) => option.allowed && option.affordable && option.id !== "activity.job-hunt" && option.params === null && plannable(option.id));
-  if (pick === undefined) throw new Error("Nothing Ada can plan.");
+  if (pick === undefined) throw new Error("Nothing the graduate can plan.");
   act(() => {
     rendered.store.getState().addToPlan({ activity: pick.id, param: null });
   });

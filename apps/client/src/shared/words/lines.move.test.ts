@@ -23,7 +23,7 @@ function told(lines: readonly ReportLine[]): string[] {
 }
 
 describe("the move to Makoko, told once", () => {
-  test("[home:move-home-once-a-month] [world:month-end-results-sheet] given Tunde moves to Makoko from the phone, when the month ends, then the results' money says the move once with its rent, no living costs come again at the month's end, and News says the same line once", () => {
+  test("[home:move-home-once-a-month] [world:month-end-results-sheet] given the banker moves to Makoko from the phone, when the month ends, then the results' money says the move once with its rent, no living costs come again at the month's end, and News says the same line once", () => {
     const game = newGame("scenario.banker");
     const mid = game.accept({ type: "home/move", to: MAKOKO }).lines;
     const end = game.endTurn().lines;
@@ -44,7 +44,7 @@ describe("the move to Makoko, told once", () => {
     expect(told(mid)).toEqual([`- ${MOVED}`]);
   });
 
-  test("[home:move-home-once-a-month] given Tunde in Makoko moving back to the family house, when the lines are told, then the move says only where home is: no money moved", () => {
+  test("[home:move-home-once-a-month] given the banker in Makoko moving back to the family house, when the lines are told, then the move says only where home is: no money moved", () => {
     const game = newGame("scenario.banker");
     game.accept({ type: "home/move", to: MAKOKO });
     game.endTurn();

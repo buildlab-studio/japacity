@@ -53,7 +53,7 @@ function leftOnSponsor(game: Game, salary: number): void {
   game.state = { ...game.state, route: { ...game.state.route, "route.uk-care": { ...route, state: "departed", gate: { gate: "sponsor", sponsor: { employer: "A care home", salary } } } } };
 }
 
-/** Ada flown on the study route, then a sponsored care worker for a care home paying `salary` a year. */
+/** The graduate flown on the study route, then a sponsored care worker for a care home paying `salary` a year. */
 function careWorker(options: LifeOptions = {}, salary = CARE_SALARY): Game {
   const game = flown(content, options);
   leftOnSponsor(game, salary);
@@ -61,7 +61,7 @@ function careWorker(options: LifeOptions = {}, salary = CARE_SALARY): Game {
   return game;
 }
 
-/** Ada flown, then holding a status and, when given, a job it allows. */
+/** The graduate flown, then holding a status and, when given, a job it allows. */
 function holding(status: Id<"status">, job: Id<"activity"> | null = null, options: LifeOptions = {}): Game {
   const game = flown(content, options);
   applyEffects(game, [{ type: "status/grant", status }]);
@@ -114,7 +114,7 @@ describe("what may be done abroad", () => {
     expect(hunts(game)).toEqual([NURSE]);
   });
 
-  test("[ladders:student-holds-one-part-job] [place:entries-legal-by-where] given Zainab's developer job at home, when she arrives as a student, then the job ends with the flight, no pay comes from it and no clock starts", () => {
+  test("[ladders:student-holds-one-part-job] [place:entries-legal-by-where] given the developer's job at home, when the life arrives as a student, then the job ends with the flight, no pay comes from it and no clock starts", () => {
     const game = readyLife(content, { from: "scenario.developer", seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(game.state.activity.job).toBe("activity.job-junior-dev");
@@ -366,7 +366,7 @@ describe("the car as a work tool", () => {
     expect(allowed()).toBe(false);
     game.expectRejected({ type: "activity/now", activity: "activity.call-home", param: null }, "not-legal");
     withCar(game);
-    // Tunde drives, but the home licence comes with the first month abroad.
+    // The banker drives, but the home licence comes with the first month abroad.
     expect(allowed()).toBe(false);
     game.endTurn();
     expect(allowed()).toBe(true);
@@ -474,22 +474,22 @@ describe("buying the car and the driving test", () => {
   }
 
   test("[car:car-bought-on-finance] [car:licence-and-driving-test] given a driver a month into the UK with the credit the lender asks, when the car is bought, then the deposit is paid as car-deposit and the car opens for the price less the deposit; without a licence it may not be", () => {
-    const tunde = flown(content, { from: "scenario.banker", kinds: creditMet() });
-    tunde.endTurn();
-    expect(check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met).toBe(true);
-    const result = tunde.endTurn([slot("activity.buy-car-finance")]);
+    const banker = flown(content, { from: "scenario.banker", kinds: creditMet() });
+    banker.endTurn();
+    expect(check(readOf(banker), { type: "document/held", document: HOME_LICENCE }).met).toBe(true);
+    const result = banker.endTurn([slot("activity.buy-car-finance")]);
     const car = content.obligation["obligation.car"]!.car!;
     const deposit = bp(car.price, car.depositBp);
     expect(moneyOf(result, "car-deposit")).toEqual([{ type: "wallet/debited", currency: "GBP", pocket: "bank", amount: deposit, reason: "car-deposit" }]);
-    const opened = Object.values(tunde.state.obligation.items).find((item) => item.entry === "obligation.car");
+    const opened = Object.values(banker.state.obligation.items).find((item) => item.entry === "obligation.car");
     // The obligation kind takes the first payment in the same month, so only the principal is pinned here.
     expect(opened).toMatchObject({ principal: car.price - deposit });
     expect(opened?.outstanding).toBeLessThanOrEqual(car.price - deposit);
-    expect(hasCar(tunde.state, content)).toBe(true);
+    expect(hasCar(banker.state, content)).toBe(true);
 
-    const ada = flown(content, { kinds: creditMet() });
-    ada.endTurn();
-    ada.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
+    const graduate = flown(content, { kinds: creditMet() });
+    graduate.endTurn();
+    graduate.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
   });
 
   test("[car:licence-and-driving-test] given the tuning, when the driving test's fee is read, then it is the practical test's £62, as the page says", () => {
@@ -497,46 +497,46 @@ describe("buying the car and the driving test", () => {
   });
 
   test("[car:licence-and-driving-test] given a driver who arrives, when months pass, then the home licence holds for the 12 months from the first month abroad and not the 13th, and a non-driver never holds it", () => {
-    const tunde = flown(content, { from: "scenario.banker" });
-    const held = () => check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met;
+    const banker = flown(content, { from: "scenario.banker" });
+    const held = () => check(readOf(banker), { type: "document/held", document: HOME_LICENCE }).met;
     expect(held()).toBe(false);
-    tunde.endTurn();
-    const first = tunde.state.turn.month;
-    expect(tunde.state.document[HOME_LICENCE]).toMatchObject({ state: "held", expiresMonth: first + 12 });
-    playMonths(tunde, 11);
+    banker.endTurn();
+    const first = banker.state.turn.month;
+    expect(banker.state.document[HOME_LICENCE]).toMatchObject({ state: "held", expiresMonth: first + 12 });
+    playMonths(banker, 11);
     expect(held()).toBe(true);
-    playMonths(tunde, 1);
+    playMonths(banker, 1);
     expect(held()).toBe(false);
 
-    const ada = flown(content);
-    ada.endTurn();
-    expect(check(readOf(ada), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
+    const graduate = flown(content);
+    graduate.endTurn();
+    expect(check(readOf(graduate), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
   });
 
   test("[car:licence-and-driving-test] [car:open-finance-gives-the-car] [ladders:car-bonus-needs-car] given a driver with a car, when the home licence runs out after 12 months, then the car's activities close and the car cannot be bought, until the UK test is passed", () => {
     const needing = (used: Content): Content => ({ ...used, activity: { ...used.activity, "activity.call-home": { ...used.activity["activity.call-home"]!, needsCar: true } } });
-    const tunde = flown(content, { from: "scenario.banker", kinds: creditMet(), change: needing });
-    applyEffects(tunde, [
+    const banker = flown(content, { from: "scenario.banker", kinds: creditMet(), change: needing });
+    applyEffects(banker, [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 3000000, reason: "gift" },
       { type: "obligation/open", obligation: "obligation.car", principal: 855000 },
     ]);
-    const allowed = (id: Id<"activity">) => tunde.view().activities.find((option) => option.id === id)?.allowed;
-    tunde.endTurn();
-    playMonths(tunde, 11);
-    expect(hasCar(tunde.state, tunde.content)).toBe(true);
+    const allowed = (id: Id<"activity">) => banker.view().activities.find((option) => option.id === id)?.allowed;
+    banker.endTurn();
+    playMonths(banker, 11);
+    expect(hasCar(banker.state, banker.content)).toBe(true);
     expect(allowed("activity.call-home")).toBe(true);
-    playMonths(tunde, 1);
-    expect(check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
+    playMonths(banker, 1);
+    expect(check(readOf(banker), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
     expect(allowed("activity.call-home")).toBe(false);
     // The credit file is judged by the registry in play, so the purchase is judged through a turn.
-    tunde.expectRejected({ type: "activity/now", activity: "activity.call-home", param: null }, "not-legal");
-    tunde.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
-    for (let month = 0; month < 12 && !check(readOf(tunde), { type: "document/held", document: UK_LICENCE }).met; month += 1) {
-      if (tunde.state.turn.banked < 1) tunde.grant(tuning.turn.cap);
-      tunde.endTurn([slot("activity.driving-test")]);
+    banker.expectRejected({ type: "activity/now", activity: "activity.call-home", param: null }, "not-legal");
+    banker.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
+    for (let month = 0; month < 12 && !check(readOf(banker), { type: "document/held", document: UK_LICENCE }).met; month += 1) {
+      if (banker.state.turn.banked < 1) banker.grant(tuning.turn.cap);
+      banker.endTurn([slot("activity.driving-test")]);
     }
     expect(allowed("activity.call-home")).toBe(true);
-    tunde.endTurn([slot("activity.call-home")]);
+    banker.endTurn([slot("activity.call-home")]);
   });
 
   test("[car:licence-and-driving-test] given earlier attempts, when the pass chance is worked out, then it is 5500 plus 500 for each, capped at 9000", () => {
@@ -569,8 +569,8 @@ describe("buying the car and the driving test", () => {
 
 describe("requirements the activity kind judges", () => {
   test("[ladders:local-tenure-counted] given the local tenure requirement, when it is judged at home with no job months, then it is not met and shows what is needed", () => {
-    const ada = start({ content, scenario: "scenario.graduate" });
+    const graduate = start({ content, scenario: "scenario.graduate" });
     const requirement: Requirement = { type: "activity/local-tenure", months: 1 };
-    expect(check({ state: ada.state, world: ada.world(), content }, requirement)).toEqual({ met: false, have: 0, need: 1 });
+    expect(check({ state: graduate.state, world: graduate.world(), content }, requirement)).toEqual({ met: false, have: 0, need: 1 });
   });
 });

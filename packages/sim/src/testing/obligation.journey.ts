@@ -10,7 +10,7 @@ import type { LifeOptions } from "./route.journey";
 import type { Game } from "./play";
 import { SETTLED } from "./ids";
 
-/** Ada flown to the UK on the student status: her room and upkeep are open, and her file is empty. */
+/** The graduate flown to the UK on the student status: its room and upkeep are open, and its file is empty. */
 export function abroad(content: Content, options: LifeOptions = {}): Game {
   return flown(content, options);
 }

@@ -29,7 +29,7 @@ export function eagerContent(): Content {
   return copy;
 }
 
-/** Tunde's life on the real content, or on the content given. */
+/** The banker's life on the real content, or on the content given. */
 export function peopleGame(given: Content = content): Game {
   return start({ scenario: BANKER, content: given });
 }

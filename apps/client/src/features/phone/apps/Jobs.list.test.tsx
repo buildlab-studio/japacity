@@ -16,12 +16,12 @@ const SHOP = "activity.job-uk-retail-part" as Id<"activity">;
 const HUNT = "activity.job-hunt" as Id<"activity">;
 const OTHER = "activity.job-teacher" as Id<"activity">;
 
-/** Ada in the UK with the shop job offered, and a second offer beside it. */
+/** The graduate in the UK with the shop job offered, and a second offer beside it. */
 function twoOffers() {
   const game = abroadGame();
   // Decision 0013: in the recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
-  // would take her student status, and the shop job with it, before an offer comes. So each month's pound dues are
-  // covered before she hunts, and she stays a student who may work part time.
+  // would take its student status, and the shop job with it, before an offer comes. So each month's pound dues are
+  // covered before it hunts, and it stays a student who may work part time.
   for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) {
     setPockets(game, { GBP: game.view().obligations.reduce((sum, owed) => sum + owed.due, 0) });
     game.endTurn([{ activity: HUNT, param: SHOP }]);

@@ -160,7 +160,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [],
   },
 
-  // Ngozi's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
+  // The nurse's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
   // A nurse starts at care 60, so that is what it needs, and its month is a care job's:
   // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue:archetype-presets-answers).
   // Its hiring chance is 50%, between the teacher's 70% and the junior developer's 35%:

@@ -339,7 +339,7 @@ for (const [where, viewport] of [["a 390 px phone", { width: 390, height: 844 }]
   });
 }
 
-/** Tunde's life played by the simulation until the tutoring is offered: the job hunt asked for it each month, at most twelve. */
+/** The banker's life played by the simulation until the tutoring is offered: the job hunt asked for it each month, at most twelve. */
 function bankerOfferedTutoring(): string {
   const game = start({ scenario: "scenario.banker", content });
   const tutoring = "activity.weekend-tutoring" as Id<"activity">;

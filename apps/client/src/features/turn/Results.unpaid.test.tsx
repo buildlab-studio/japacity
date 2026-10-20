@@ -18,7 +18,7 @@ import { storyLines, toldOnResults } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
-/** Ada with every naira taken, so whatever the month charges cannot be paid. */
+/** The graduate with every naira taken, so whatever the month charges cannot be paid. */
 function graduateBroke(game: Game = newGame("scenario.graduate")): Game {
   const pocket = game.state.wallet.pockets.NGN;
   applyEffects(game, [
@@ -39,7 +39,7 @@ function storyRows(): HTMLElement[] {
 }
 
 describe("money that was not paid", () => {
-  test("[world:month-end-results-sheet] given Ada with nothing to pay her living costs, when the month ends, then the first story line says the living costs went unpaid, in red, with the figure and what it cost", async () => {
+  test("[world:month-end-results-sheet] given the graduate with nothing to pay its living costs, when the month ends, then the first story line says the living costs went unpaid, in red, with the figure and what it cost", async () => {
     // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so a broke month there
     // misses no living costs at all; the unpaid line is tested on the living charged whole, as the simulation's relief tests do.
     const lived = graduateBroke().endTurn().lines;
@@ -68,11 +68,11 @@ describe("money that was not paid", () => {
     expect(kept?.textContent).not.toContain("+");
   });
 
-  test("[world:month-end-results-sheet] [credit:payments-move-the-mark] given Ada abroad holding no pounds, when her first month's rent goes unpaid, then the results lead with it and the mark on her credit file", () => {
+  test("[world:month-end-results-sheet] [credit:payments-move-the-mark] given the graduate abroad holding no pounds, when its first month's rent goes unpaid, then the results lead with it and the mark on its credit file", () => {
     const game = abroadGame();
     expect(game.view().pockets.GBP.bank + game.view().pockets.GBP.cash).toBe(0);
     const rent = game.view().obligations.find((owed) => content.obligation[owed.entry]?.type === "rent");
-    if (rent === undefined) throw new Error("Ada abroad holds no rent.");
+    if (rent === undefined) throw new Error("The graduate abroad holds no rent.");
     const { lines } = game.endTurn();
     const told = storyLines(lines).map((line) => toldOnResults(line, game.view()));
     const rentLine = told.find((line) => line.params.obligation === rent.entry);
@@ -82,10 +82,10 @@ describe("money that was not paid", () => {
     expect(words(rentLine?.key ?? "", rentLine?.params)).toContain(formatMoney(rent.due, "GBP"));
   });
 
-  test("[world:month-end-results-sheet] [status:course-passed-or-withdrawn] given Ada abroad holding no pounds, when a tuition instalment goes unpaid, then the results say what it costs: one more missed and the university withdraws her, and her visa with it", () => {
+  test("[world:month-end-results-sheet] [status:course-passed-or-withdrawn] given the graduate abroad holding no pounds, when a tuition instalment goes unpaid, then the results say what it costs: one more missed and the university withdraws it, and its visa with it", () => {
     const game = abroadGame();
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
-    if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
+    if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
     const { lines } = game.endTurn();
     const told = storyLines(lines).map((line) => toldOnResults(line, game.view()));
     const missed = told.find((line) => line.params.obligation === "obligation.tuition");
@@ -132,7 +132,7 @@ describe("a hunt's answer on the results", () => {
 });
 
 describe("the grant leads", () => {
-  test("[world:month-end-results-sheet] given Ada's recorded life in the month of her grant, when the results show, then the grant is the first story line, alone in the lead, and no funds loan opens that month", async () => {
+  test("[world:month-end-results-sheet] given the graduate's recorded life in the month of its grant, when the results show, then the grant is the first story line, alone in the lead, and no funds loan opens that month", async () => {
     // The recorded life up to the month's end that brought the grant, found by walking back from the flight.
     let game = recordedGame("graduate-careful", 1);
     for (let back = 1; back < 16 && !(game.view().report?.lines ?? []).some((line) => line.key === "line.route.granted"); back += 1) game = recordedGame("graduate-careful", back);

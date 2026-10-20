@@ -23,7 +23,7 @@ const CLASS = "activity.learn-tech" as Id<"activity">;
 const PROJECT = "activity.build-portfolio" as Id<"activity">;
 const REST = "activity.rest" as Id<"activity">;
 
-/** Ada with the jobs named held, through the activity kind's own effect. */
+/** The graduate with the jobs named held, through the activity kind's own effect. */
 function graduateWorking(jobs: Id<"activity">[]): PlayerView {
   const game = newGame("scenario.graduate");
   applyEffects(

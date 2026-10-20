@@ -39,7 +39,7 @@ describe("the rise of the figure", () => {
     expect(riseOf(10, null)).toBe(0);
   });
 
-  test("[world:japacity-bag-by-door] [japacity:best-open-route-is-japacity] given Tunde the borrower's life, when every month's figure is read in turn, then each rise is its gain and every fall is no rise", () => {
+  test("[world:japacity-bag-by-door] [japacity:best-open-route-is-japacity] given the banker's borrower life, when every month's figure is read in turn, then each rise is its gain and every fall is no rise", () => {
     const commands = recordedSave("banker-borrower").commands.length;
     const figures: (number | null)[] = [];
     for (let played = 0; played <= commands; played += 1) figures.push(recordedGame("banker-borrower", commands - played).view().japacity.percent);

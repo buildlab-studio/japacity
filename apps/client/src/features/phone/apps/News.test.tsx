@@ -63,10 +63,10 @@ describe("News keeps the month's lines", () => {
 });
 
 describe("a bill missed, as News tells it", () => {
-  test("[world:month-end-results-sheet] [status:course-passed-or-withdrawn] given Ada abroad holding no pounds, when a tuition instalment goes unpaid, then News says what the miss costs, not the generic hit to standing and mood", async () => {
+  test("[world:month-end-results-sheet] [status:course-passed-or-withdrawn] given the graduate abroad holding no pounds, when a tuition instalment goes unpaid, then News says what the miss costs, not the generic hit to standing and mood", async () => {
     const game = abroadGame();
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
-    if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
+    if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
     game.endTurn();
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, game.view());
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);
@@ -86,7 +86,7 @@ describe("for you in News", () => {
   }
   const refusals = { id: "news.uk-refusals-up" as const, stage: "in-force" as const, since: 0, forYou: true };
 
-  test("[world:phone-holds-what-phones-hold] given Ada landed on the route a story names, when News opens, then the story is not marked for you: her visa is behind her", async () => {
+  test("[world:phone-holds-what-phones-hold] given the graduate landed on the route a story names, when News opens, then the story is not marked for you: its visa is behind it", async () => {
     const view = abroadView();
     expect(view.routes.find((route) => route.id === "route.uk-masters")?.state).toBe("departed");
     const [story] = await storiesShown({ ...view, news: [{ ...refusals, since: view.month }] });
@@ -105,7 +105,7 @@ describe("the order of the month's lines in News", () => {
   test("[world:month-end-results-sheet] given a missed instalment told after the month's wellbeing lines, when News shows the report, then the miss comes first", async () => {
     const game = abroadGame();
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
-    if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
+    if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
     game.endTurn();
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, game.view());
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);

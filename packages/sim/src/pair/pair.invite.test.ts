@@ -12,7 +12,7 @@ import { DAY_MS } from "../engine/time";
 const pair = content.tuning.pair;
 
 /**
- * Ada with an invite open on her partner slot, set straight to what
+ * The graduate with an invite open on its partner slot, set straight to what
  * `people/invite` leaves, so the card is tested on its own.
  */
 function graduateInviting(looking: string, fill: string | null, slot = "partner"): ReadCtx {
@@ -25,7 +25,7 @@ function graduateInviting(looking: string, fill: string | null, slot = "partner"
 }
 
 describe("the invite card", () => {
-  test("[pair:invite-card-contents] given Ada inviting a partner who codes, when the card is made, then it names the character, her japacity and best route, what she is looking for, and that it is a game", () => {
+  test("[pair:invite-card-contents] given the graduate inviting a partner who codes, when the card is made, then it names the character, its japacity and best route, what it is looking for, and that it is a game", () => {
     const read = graduateInviting("partner", "who-codes");
     expect(inviteCard(read, "partner")).toEqual({
       name: "scenario.graduate.name",

@@ -80,7 +80,7 @@ describe("what is coming", () => {
     expect(comingOf(aged(6, "unknown")).find((item) => item.kind === "age-limit")).toBeUndefined();
   });
 
-  test("[home:compound-room-is-a-home] given Ada in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
+  test("[home:compound-room-is-a-home] given the graduate in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });

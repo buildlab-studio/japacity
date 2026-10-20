@@ -318,9 +318,9 @@ describe("opening", () => {
   });
 
   test("[offer:opening-fixes-terms-and-fraud] given a pay term, when the offer opens, then it is the monthly pay of the job held times its figure, up to its cap", () => {
-    const tunde = lab({ scenario: BANKER });
+    const banker = lab({ scenario: BANKER });
     const pay = content.activity["activity.job-bank-officer"]!.pay!.amount as number;
-    expect(tunde.open("offer.salary-loan")!.terms.max).toBe(4 * pay);
+    expect(banker.open("offer.salary-loan")!.terms.max).toBe(4 * pay);
 
     const senior = lab({ scenario: BANKER });
     senior.apply([{ type: "activity/start-job", job: "activity.job-mid-dev" }]);
@@ -369,7 +369,7 @@ describe("opening", () => {
   });
 
   test("[offer:opening-fixes-terms-and-fraud] given an offer opening in a month, when it opens, then its month, its expiry and the entry's record are kept", () => {
-    // Tunde, so two months of upkeep leave enough for a family request to hold.
+    // The banker, so two months of upkeep leave enough for a family request to hold.
     const subject = lab({ scenario: BANKER, content: variant({}, true) });
     subject.end();
     subject.end();

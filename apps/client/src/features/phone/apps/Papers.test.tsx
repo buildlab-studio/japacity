@@ -42,13 +42,13 @@ async function openPhone(view: PlayerView, start: string | null = null, onMap?: 
   return renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={NOON} talk={null} start={start} cards={(ids) => <StandInCard id={ids[0] ?? ""} />} {...(onMap === undefined ? {} : { onMap })} />, view);
 }
 
-/** Ada with the UK master's looked into: the passport, the transcript and the English result asked for, none held. */
+/** The graduate with the UK master's looked into: the passport, the transcript and the English result asked for, none held. */
 function graduatePlanned(): PlayerView {
   const view = viewAfter(newGame("scenario.graduate"), [
     { type: "route/hear", route: UK, via: "test" },
     { type: "route/look-into", route: UK },
   ]);
-  if (view.routes.find((route) => route.id === UK)?.state !== "known") throw new Error("Ada has not looked into the master's.");
+  if (view.routes.find((route) => route.id === UK)?.state !== "known") throw new Error("The graduate has not looked into the master's.");
   return view;
 }
 
@@ -70,7 +70,7 @@ describe("the Papers app", () => {
     expect(PHONE_ACTS).toEqual(new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence"]));
   });
 
-  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] given Ada with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office", async () => {
+  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office", async () => {
     const view = graduatePlanned();
     const onMap = vi.fn();
     await openPhone(view, null, onMap);

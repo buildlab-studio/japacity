@@ -77,7 +77,7 @@ afterEach(() => {
 const COOK = "activity.cook-at-home";
 const JOLLOF = "activity.cook-jollof";
 
-/** Ada in the parlour: a new life, its pockets set first when asked. */
+/** The graduate in the parlour: a new life, its pockets set first when asked. */
 async function inTheParlour(before: (game: ReturnType<typeof newGame>) => void = () => undefined) {
   const game = newGame("scenario.graduate");
   before(game);
@@ -102,7 +102,7 @@ function fanTheCookingCorner(at: { x: number; y: number } | null = { x: 90, y: 5
 }
 
 describe("the cooking corner's fan", () => {
-  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] [world:one-action-one-sheet] [home:living-by-hand] given Ada at the family house, when the cooking corner is tapped, then its two acts fan out of it, the pot free and the big pot with its price alone, no chip is asked of the scene, the nudge steps back, and while the big pot is pressed the band's counter shows what would be left", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] [world:one-action-one-sheet] [home:living-by-hand] given the graduate at the family house, when the cooking corner is tapped, then its two acts fan out of it, the pot free and the big pot with its price alone, no chip is asked of the scene, the nudge steps back, and while the big pot is pressed the band's counter shows what would be left", async () => {
     const { game } = await inTheParlour();
     fanTheCookingCorner();
     const fan = found('[data-fan="cooking"]');

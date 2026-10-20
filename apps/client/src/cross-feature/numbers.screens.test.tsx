@@ -24,7 +24,7 @@ function figures(said: string): string[] {
   });
 }
 
-/** Ada with tech and work enough to hear of the talent route, and it looked into: its file is the one the Japa app shows. */
+/** The graduate with tech and work enough to hear of the talent route, and it looked into: its file is the one the Japa app shows. */
 function talentKnown(): PlayerView {
   const game = newGame("scenario.graduate");
   const hearIf = content.route[TALENT]?.hearIf ?? [];
@@ -47,7 +47,7 @@ describe("no quality's figure on the screens", () => {
     expect(steps.flatMap(figures)).toEqual([]);
   });
 
-  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given Ada at the hub's board, when its rows are read, then no row says a quality's figure, and weekend tutoring's pay rises once her tech is good", async () => {
+  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given the graduate at the hub's board, when its rows are read, then no row says a quality's figure, and weekend tutoring's pay rises once the life's tech is good", async () => {
     await renderWithView(<ActivityPicker only={[HUNT]} />, newGame("scenario.graduate").view());
     const rows = [...document.querySelectorAll("[data-job]")];
     expect(rows.length).toBeGreaterThan(1);

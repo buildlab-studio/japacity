@@ -29,8 +29,8 @@ function playTo(game: Game, commands: SavedCommand[], from: number, until: (game
 const routeIs = (route: Id<"route">, state: string) => (game: Game) => game.state.route[route]?.state === state;
 
 describe("a grant on a route with no file of its own", () => {
-  test("[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] given Tunde's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
-    // Tunde's abroad life is the one granted at decision day (month 19); Ada's is granted while still building the
+  test("[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] given the banker's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
+    // The banker's abroad life is the one granted at decision day (month 19); the graduate's is granted while still building the
     // file and flies with decision day open, read below.
     // A first pass finds the command whose turn brings the grant; the second stops just before it.
     const granting = playTo(replayedGame("banker-abroad", content).game, replayedGame("banker-abroad", content).commands, 0, routeIs(SKILLED, "granted")).next - 1;
@@ -50,8 +50,8 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.state.route[UK_ROUTE]?.state).toBe("known");
   });
 
-  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given Tunde granted the skilled worker's visa, when he flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
-    // Tunde's abroad life reaches the send-off on the grant and flies from it.
+  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given the banker granted the skilled worker's visa, when it flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
+    // The banker's abroad life reaches the send-off on the grant and flies from it.
     const { game, commands } = replayedGame("banker-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     expect(game.state.chapter.current).toBe(SEND_OFF);
@@ -65,8 +65,8 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card?.kind).not.toBe("send-off");
   });
 
-  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given Ada's abroad life flying with decision day still open, when she flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
-    // Ada's abroad life is granted while building the file (month 40) and flies that month.
+  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given the graduate's abroad life flying with decision day still open, when it flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
+    // The graduate's abroad life is granted while building the file (month 40) and flies that month.
     const { game, commands } = replayedGame("graduate-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     // The grant's turn closed the file: one close a turn until the flight.
@@ -88,7 +88,7 @@ describe("a grant on a route with no file of its own", () => {
 });
 
 describe("the plan follows the grant", () => {
-  test("[chapter:chapters-follow-lean-route] given Ada's abroad life leaning to the master's, when the skilled worker's visa is granted, then the view's plan names the skilled route and its ways carry it, though it has no file of its own", () => {
+  test("[chapter:chapters-follow-lean-route] given the graduate's abroad life leaning to the master's, when the skilled worker's visa is granted, then the view's plan names the skilled route and its ways carry it, though it has no file of its own", () => {
     const { game, commands } = replayedGame("graduate-abroad", content);
     playTo(game, commands, 0, routeIs(SKILLED, "known"));
     expect(game.view().plan.route).toBe(UK_ROUTE);
@@ -103,8 +103,8 @@ describe("the plan follows the grant", () => {
 });
 
 describe("the flight's report has one card", () => {
-  test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given Ada's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
-    // Ada's abroad life is the one whose flight turn closes both.
+  test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given the graduate's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
+    // The graduate's abroad life is the one whose flight turn closes both.
     const { game, commands } = replayedGame("graduate-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     const month = game.state.turn.month;
@@ -117,7 +117,7 @@ describe("the flight's report has one card", () => {
 });
 
 describe("a grant on a route with a file of its own", () => {
-  /** Ada's careful life at decision day on the master's, the month before her grant. */
+  /** The graduate's careful life at decision day on the master's, the month before its grant. */
   function atDecision(): Game {
     const { game, commands } = replayedGame("graduate-careful", content);
     playTo(game, commands, 0, (now) => now.state.chapter.current === DECISION);

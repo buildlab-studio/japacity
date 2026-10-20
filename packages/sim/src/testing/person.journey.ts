@@ -13,7 +13,7 @@ import { readyLife } from "./route.journey";
 
 export const BOND = "bond-1";
 
-/** Ada with her papers. */
+/** The graduate with its papers. */
 export function life(base: Content, options: LifeOptions = {}): Game {
   return readyLife(base, { quiet: true, ...options });
 }

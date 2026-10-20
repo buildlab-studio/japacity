@@ -1,5 +1,5 @@
-// A change of money on the results (world:month-end-results-sheet, wallet:bank-converts-at-official-rate): in Ada's second month
-// abroad the dollars she changes into pounds are on the results, and the pounds that come in never read as money kept.
+// A change of money on the results (world:month-end-results-sheet, wallet:bank-converts-at-official-rate): in the graduate's second month
+// abroad the dollars it changes into pounds are on the results, and the pounds that come in never read as money kept.
 // The change is one line with both sides in its words. A change counts for nothing in what was kept, either way
 // (decision 0024): changing money is a move, not spending, and only the bank's charge stays money out, as the wallet
 // counts the month (wallet:months-kept-counted). The charge is told once, on its own line, and the change's paid side is what went at the rate, so Kept plus the change
@@ -16,7 +16,7 @@ import { CHANGED, CHANGED_OUT, changesInto, kept, moneyLines } from "./month.res
 
 const CHARGE = content.tuning.wallet.bankChargeBp;
 
-/** Ada landed in London, a change made at the bank, then the month ended: the lines the results read. */
+/** The graduate landed in London, a change made at the bank, then the month ended: the lines the results read. */
 function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine[]; paid: number; charge: number; received: number; band: { changed: number; ended: number } } {
   const game = recordedGame("graduate-careful");
   const pounds = (): number => game.view().pockets.GBP.bank + game.view().pockets.GBP.cash;
@@ -31,7 +31,7 @@ function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine
 }
 
 describe("a change of money on the results", () => {
-  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given a quarter of the graduate's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
     const { lines, paid, charge, received } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const money = moneyLines(lines);
     const changes = money.filter((entry) => entry.line.key === CHANGED);

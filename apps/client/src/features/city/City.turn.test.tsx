@@ -58,7 +58,7 @@ afterEach(() => {
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });
 
-/** Ada at a place, the first brief and the home's card already seen, so nothing stands over the world. */
+/** The graduate at a place, the first brief and the home's card already seen, so nothing stands over the world. */
 async function at(place: string) {
   window.localStorage.setItem("japacity.city.last", JSON.stringify([place]));
   const game = newGame("scenario.graduate");
@@ -74,7 +74,7 @@ const turnButton = (): HTMLElement => found("[data-turn-house]");
 const stepsBack = (): boolean => turnButton().getAttribute("aria-hidden") === "true";
 
 describe("turning the house", () => {
-  test("[world:camera-always-raised] [world:room-seen-down-its-length] given Ada at the family house, when the round button is tapped, then the scene is asked for the next quarter each tap, round the circle and back, and each is kept beside the save", async () => {
+  test("[world:camera-always-raised] [world:room-seen-down-its-length] given the graduate at the family house, when the round button is tapped, then the scene is asked for the next quarter each tap, round the circle and back, and each is kept beside the save", async () => {
     const { game } = await at("place.family-house");
     await waitFor(() => turnButton(), { timeout: 3000 });
     expect(turnButton().getAttribute("aria-label")).toBe(say("ui.world.other-side"));

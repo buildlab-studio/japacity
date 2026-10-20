@@ -47,7 +47,7 @@ const CATALOGUE = [
   "thing.car",
 ];
 
-function ada(): Game {
+function graduate(): Game {
   return start({ content, scenario: "scenario.graduate", seed: "seed-1" });
 }
 
@@ -72,9 +72,9 @@ function moved(result: { events: BaseEvent[] }): { type: string; reason: string;
     .map((event) => ({ type: event.type, reason: event.reason, amount: event.amount }));
 }
 
-/** Ada moved into the room in a compound with `spare` naira left. */
+/** The graduate moved into the room in a compound with `spare` naira left. */
 function inTheRoom(spare: number): Game {
-  const game = ada();
+  const game = graduate();
   setPockets(game, { NGN: compoundMoveIn(content.tuning.home) + spare });
   game.accept({ type: "home/move", to: COMPOUND });
   expect(naira(game)).toBe(spare);
@@ -130,8 +130,8 @@ describe("the market's catalogue", () => {
 });
 
 describe("buying and selling", () => {
-  test("[home:things-a-life-owns] [home:home-is-the-home-point] given Ada at the family house, when she buys a fan, then its price goes out under goods at once, it is hers and the market says so", () => {
-    const game = ada();
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given the graduate at the family house, when it buys a fan, then its price goes out under goods at once, the fan is the life's own and the market says so", () => {
+    const game = graduate();
     const before = naira(game);
     const result = buy(game, "thing.fan");
     expect(moved(result)).toEqual([{ type: "wallet/debited", reason: "goods", amount: price("thing.fan") }]);
@@ -143,8 +143,8 @@ describe("buying and selling", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[home:things-a-life-owns] [home:home-is-the-home-point] given Ada at the family house, when she tries a TV, a fridge or a generator, then each is refused: the parlour is Mama's and Papa's, and the market says why", () => {
-    const game = ada();
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given the graduate at the family house, when it tries a TV, a fridge or a generator, then each is refused: the parlour is Mama's and Papa's, and the market says why", () => {
+    const game = graduate();
     setPockets(game, { NGN: 5_000_000_00 });
     for (const thing of ["thing.tv", "thing.fridge", "thing.generator", "thing.solar"] as const) {
       game.expectRejected({ type: "thing/buy", thing }, "not-legal");
@@ -170,7 +170,7 @@ describe("buying and selling", () => {
   });
 
   test("[home:things-a-life-owns] [home:home-is-the-home-point] given a thing owned, when it is sold back, then its resale share of what was paid comes in under sale and it is gone; one not owned is refused", () => {
-    const game = ada();
+    const game = graduate();
     buy(game, "thing.speaker");
     const before = naira(game);
     const result = game.accept({ type: "thing/sell", thing: "thing.speaker" });
@@ -182,7 +182,7 @@ describe("buying and selling", () => {
   });
 
   test("[home:things-a-life-owns] [home:home-is-the-home-point] given a mirror and a car bought, when they land, then each lifts standing once, as its entry says", () => {
-    const game = ada();
+    const game = graduate();
     setPockets(game, { NGN: price("thing.car") + price("thing.mirror") });
     setQuality(game, STANDING, 40);
     buy(game, "thing.mirror");
@@ -193,7 +193,7 @@ describe("buying and selling", () => {
   });
 
   test("[home:things-a-life-owns] [place:departure-moves-abroad] given things owned in Lagos, when the life flies out, then all are sold at once at their resale figures in one line, and nothing is owned abroad", () => {
-    const game = ada();
+    const game = graduate();
     buy(game, "thing.fan");
     buy(game, "thing.radio");
     const before = naira(game);
@@ -209,14 +209,14 @@ describe("buying and selling", () => {
 });
 
 describe("what a thing does in life", () => {
-  test("[home:things-a-life-owns] [home:living-by-hand] [world:things-are-tappable-models] given a fan at the family house, when Ada naps, then the nap gives its own energy and the fan's more", () => {
-    const plain = ada();
-    const withFan = ada();
+  test("[home:things-a-life-owns] [home:living-by-hand] [world:things-are-tappable-models] given a fan at the family house, when the graduate naps, then the nap gives its own energy and the fan's more", () => {
+    const plain = graduate();
+    const withFan = graduate();
     buy(withFan, "thing.fan");
     expect(napGives(withFan) - napGives(plain)).toBe(10);
   });
 
-  test("[home:things-a-life-owns] [home:living-by-hand] given a fan and a standing AC in the room, when Ada naps, then only the dearer cools: the AC's lift alone counts", () => {
+  test("[home:things-a-life-owns] [home:living-by-hand] given a fan and a standing AC in the room, when the graduate naps, then only the dearer cools: the AC's lift alone counts", () => {
     const plain = inTheRoom(0);
     const game = inTheRoom(price("thing.fan") + price("thing.ac"));
     buy(game, "thing.fan");
@@ -238,7 +238,7 @@ describe("what a thing does in life", () => {
   });
 
   test("[home:things-a-life-owns] [home:living-by-hand] given a data router, then a phone too, when the month closes, then the plan's month is taken under running, halved with the phone, and a course online costs less", () => {
-    const game = ada();
+    const game = graduate();
     setPockets(game, { NGN: price("thing.data") + price("thing.phone") + 100_000_00 });
     buy(game, "thing.data");
     const course = content.activity["activity.learn-tech"]!.cost[0]!.amount as number;
@@ -266,7 +266,7 @@ describe("what a thing does in life", () => {
     expect(result.events.some((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === WELLBEING)).toBe(true);
   });
 
-  test("[home:things-a-life-owns] [home:move-home-once-a-month] [home:living-by-hand] given a TV and a laptop in the room, when Ada moves back to the family house, then the TV is kept but stored and does nothing, the laptop stands in her corner and still works", () => {
+  test("[home:things-a-life-owns] [home:move-home-once-a-month] [home:living-by-hand] given a TV and a laptop in the room, when the graduate moves back to the family house, then the TV is kept but stored and does nothing, the laptop stands in its corner and still works", () => {
     const game = inTheRoom(price("thing.tv") + price("thing.laptop"));
     buy(game, "thing.tv");
     buy(game, "thing.laptop");
@@ -284,7 +284,7 @@ describe("what a thing does in life", () => {
   });
 
   test("[home:things-a-life-owns] [home:home-slice-fields] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as if there were no market", () => {
-    const game = ada();
+    const game = graduate();
     const result = restMonth(game);
     expect(result.events.filter((event) => event.type.startsWith("things/"))).toEqual([]);
     expect(game.view().things).toMatchObject({ owned: [], drive: false, running: 0 });
@@ -310,7 +310,7 @@ describe("the car on the map (place:rides-between-city-places and world:ride-she
     expect(naira(game)).toBe(before - fare);
   });
 
-  test("[home:things-a-life-owns] [place:rides-between-city-places] given a car bought at the room, when Ada moves to the hostel, which has no car spot, then the car is stored there and Drive is not offered", () => {
+  test("[home:things-a-life-owns] [place:rides-between-city-places] given a car bought at the room, when the graduate moves to the hostel, which has no car spot, then the car is stored there and Drive is not offered", () => {
     const game = inTheRoom(price("thing.car") + content.tuning.home.hostelRentKobo);
     buy(game, "thing.car");
     restMonth(game);

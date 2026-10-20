@@ -17,7 +17,7 @@ import { NORTHGATE, READY, UK_ROUTE } from "./ids";
 export const UNIT = 100;
 
 export interface LifeOptions {
-  /** The starting life the ready life is built from. Ada by default. */
+  /** The starting life the ready life is built from. The graduate by default. */
   from?: Id<"scenario">;
   /** Qualities over the ready life's. */
   qualities?: Partial<Record<Id<"quality">, number>>;
@@ -45,9 +45,9 @@ export const READY_PAPERS: ScenarioEntry["documents"] = [
 ];
 
 /**
- * Ada, with her papers in hand and £40,000 and ₦2,000,000 in the bank, so a
+ * The graduate, with its papers in hand and £40,000 and ₦2,000,000 in the bank, so a
  * test reaches the visa in a few turns, and ₦1,500,000 in cash, which with decision 0014
- * is a float above the line: her upkeep is taken from the bank first on the way. The content
+ * is a float above the line: its upkeep is taken from the bank first on the way. The content
  * is the one given, with this life added.
  */
 export function readyContent(base: Content, options: LifeOptions = {}): Content {

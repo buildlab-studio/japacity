@@ -24,7 +24,7 @@ function addButton(id: string): HTMLButtonElement {
   return within(card(id)).getByRole("button", { name: nameOf(id) });
 }
 
-/** Tunde with two routes heard of: the hub desk's "Ask about routes" sheet. */
+/** The banker with two routes heard of: the hub desk's "Ask about routes" sheet. */
 function twoRoutesHeard() {
   return viewAfter(newGame("scenario.banker"), [
     { type: "route/hear", route: UK, via: "test" },

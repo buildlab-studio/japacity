@@ -28,7 +28,7 @@ const WHERE_NEXT: Id<"offer"> = "offer.where-next";
 const { home } = content.tuning;
 /** home:compound-room-is-a-home: what the room in a compound takes on the move, the year's rent and the fees on it. */
 const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
-/** Ada's family upkeep, from her starting life (scenario.data.ts). */
+/** The graduate's family upkeep, from its starting life (scenario.data.ts). */
 const GRADUATE_UPKEEP = content.scenario["scenario.graduate"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
 
 /** The real content with some of the home's numbers changed, as an overlay would. */
@@ -45,7 +45,7 @@ function chargedWhole(base: Content): Content {
 const CHARGED = chargedWhole(content);
 const CHARGED_NEVER = chargedWhole(NEVER);
 
-function ada(base: Content = content, seed = "seed-1"): Game {
+function graduate(base: Content = content, seed = "seed-1"): Game {
   return start({ content: base, scenario: "scenario.graduate", seed });
 }
 
@@ -66,15 +66,15 @@ function choose(game: Game, entry: Id<"offer">, choice: string): Accepted {
   return game.accept({ type: "offer/choose", offer: offer.id, choice });
 }
 
-/** Ada in Makoko with plenty of naira, on content whose eviction chance is `base`'s. */
+/** The graduate in Makoko with plenty of naira, on content whose eviction chance is `base`'s. */
 function inMakoko(base: Content, seed = "seed-1"): Game {
-  const game = ada(base, seed);
+  const game = graduate(base, seed);
   setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
   game.accept({ type: "home/move", to: MAKOKO });
   return game;
 }
 
-/** Ada evicted in her first month in Makoko, holding `cash` in cash and plenty in the bank. */
+/** The graduate evicted in its first month in Makoko, holding `cash` in cash and plenty in the bank. */
 function evicted(cash = 50_000_00): { game: Game; result: Accepted } {
   const game = inMakoko(ALWAYS);
   setPockets(game, { NGN: { cash, bank: 5_000_000_00 } });
@@ -132,7 +132,7 @@ describe("the numbers", () => {
 
 describe("the slice", () => {
   test("[home:home-slice-fields] given a new life, when it starts, then the character lives at the family house with no guest and no move made", () => {
-    const game = ada();
+    const game = graduate();
     expect(game.state.home).toEqual({ place: FAMILY, since: 0, guest: null, moved: null, evicted: null, hosting: null });
     // home:moves-carry-cost-and-reason: the view carries the card's moves too.
     expect(game.view().home).toEqual({
@@ -188,8 +188,8 @@ describe("coming back", () => {
 });
 
 describe("moving", () => {
-  test("[home:move-home-once-a-month] [wallet:money-lands-as-in-lagos] given Ada at the family house with the rent split across bank and cash, when she moves to Makoko, then the first month's rent, over the line for cash, comes out of the bank first then cash, the family's upkeep closes and Makoko's opens at the tuning's charge", () => {
-    const game = ada(CHARGED);
+  test("[home:move-home-once-a-month] [wallet:money-lands-as-in-lagos] given the graduate at the family house with the rent split across bank and cash, when it moves to Makoko, then the first month's rent, over the line for cash, comes out of the bank first then cash, the family's upkeep closes and Makoko's opens at the tuning's charge", () => {
+    const game = graduate(CHARGED);
     const bank = 10_000_00;
     expect(home.makokoUpkeep).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     setPockets(game, { NGN: { cash: 1_000_000_00, bank } });
@@ -207,24 +207,24 @@ describe("moving", () => {
     expect(checkInvariants(game.state, CHARGED)).toEqual([]);
   });
 
-  test("[home:move-home-once-a-month] given Ada one naira short of the rent, when she moves to Makoko, then it is refused with cannot-afford; with the rent exactly held it is accepted", () => {
-    const short = ada();
+  test("[home:move-home-once-a-month] given the graduate one naira short of the rent, when the life moves to Makoko, then it is refused with cannot-afford; with the rent exactly held it is accepted", () => {
+    const short = graduate();
     setPockets(short, { NGN: { cash: home.makokoUpkeep - 100, bank: 0 } });
     short.expectRejected({ type: "home/move", to: MAKOKO }, "cannot-afford");
-    const exact = ada();
+    const exact = graduate();
     setPockets(exact, { NGN: { cash: home.makokoUpkeep - 100, bank: 100 } });
     exact.accept({ type: "home/move", to: MAKOKO });
     expect(exact.state.wallet.pockets.NGN).toMatchObject({ cash: 0, bank: 0 });
   });
 
-  test("[home:move-home-once-a-month] given Ada at the family house, when she asks to move to where she lives or to a place that is no home, then each is refused", () => {
-    const game = ada();
+  test("[home:move-home-once-a-month] given the graduate at the family house, when the life asks to move to where it lives or to a place that is no home, then each is refused", () => {
+    const game = graduate();
     expect(game.expectRejected({ type: "home/move", to: FAMILY }, "not-legal").code).toBe("not-legal");
     expect(game.expectRejected({ type: "home/move", to: "place.ojuelegba" as typeof MAKOKO }, "unknown-id").code).toBe("unknown-id");
     expect(game.state.home.place).toBe(FAMILY);
   });
 
-  test("[home:move-home-once-a-month] given Ada moved to Makoko this month, when she moves back the same month, then it is refused; the next month it is accepted", () => {
+  test("[home:move-home-once-a-month] given the graduate moved to Makoko this month, when the life moves back the same month, then it is refused; the next month it is accepted", () => {
     const game = inMakoko(NEVER);
     game.expectRejected({ type: "home/move", to: FAMILY }, "not-legal");
     restMonth(game);
@@ -232,14 +232,14 @@ describe("moving", () => {
     expect(game.state.home.place).toBe(FAMILY);
   });
 
-  test("[home:move-home-once-a-month] given Ada abroad, when she asks to move to Makoko, then it is refused: the home is Lagos", () => {
-    const game = ada();
+  test("[home:move-home-once-a-month] given the graduate abroad, when the life asks to move to Makoko, then it is refused: the home is Lagos", () => {
+    const game = graduate();
     setPockets(game, { NGN: { cash: 0, bank: 1_000_000_00 } });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(game.expectRejected({ type: "home/move", to: MAKOKO }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[home:move-home-once-a-month] given Ada in Makoko, when she moves back to the family house, then Makoko's upkeep closes, the family's reopens at her starting life's charge, and standing falls by the tuning's figure", () => {
+  test("[home:move-home-once-a-month] given the graduate in Makoko, when it moves back to the family house, then Makoko's upkeep closes, the family's reopens at its starting life's charge, and standing falls by the tuning's figure", () => {
     const game = inMakoko(NEVER);
     restMonth(game);
     const standing = game.state.quality[STANDING]!;
@@ -253,7 +253,7 @@ describe("moving", () => {
 
   test("[home:move-home-once-a-month] given two lives on one seed, one moved to Makoko, when each plays four months, then each month the one in Makoko pays Makoko's charge where the other pays the family's, and keeps the difference", () => {
     const there = inMakoko(CHARGED_NEVER);
-    const twin = ada(CHARGED_NEVER);
+    const twin = graduate(CHARGED_NEVER);
     setPockets(twin, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const rent = home.makokoUpkeep;
     let saved = 0;
@@ -278,8 +278,8 @@ describe("moving", () => {
 });
 
 describe("the first month's rent", () => {
-  test("[home:move-home-once-a-month] given Ada moved to Makoko this month, paying the first month's rent on the move, when the month ends, then the room is not charged again that month; the next month charges Makoko's rent once", () => {
-    const game = ada(CHARGED_NEVER);
+  test("[home:move-home-once-a-month] given the graduate moved to Makoko this month, paying the first month's rent on the move, when the month ends, then the room is not charged again that month; the next month charges Makoko's rent once", () => {
+    const game = graduate(CHARGED_NEVER);
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const moved = game.accept({ type: "home/move", to: MAKOKO });
     expect(upkeepPaid(moved)).toBe(home.makokoUpkeep);
@@ -296,7 +296,7 @@ describe("the first month's rent", () => {
   });
 
   test("[home:move-home-once-a-month] [home:taken-in-after-eviction] given a guest whose stay ends, when where-next is answered makoko and the month ends, then the rent the answer paid is the month's: it is not charged again that month", () => {
-    const game = ada(CHARGED_NEVER);
+    const game = graduate(CHARGED_NEVER);
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     applyEffects(game, [{ type: "offer/open", offer: WHERE_NEXT }]);
     const answered = choose(game, WHERE_NEXT, "makoko");
@@ -308,7 +308,7 @@ describe("the first month's rent", () => {
 });
 
 describe("the home point", () => {
-  test("[home:home-is-the-home-point] given Ada in Makoko, when she cooks and fetches water in a month, then the reliefs come off Makoko's upkeep, the one open", () => {
+  test("[home:home-is-the-home-point] given the graduate in Makoko, when it cooks and fetches water in a month, then the reliefs come off Makoko's upkeep, the one open", () => {
     const there = inMakoko(CHARGED_NEVER);
     const twin = inMakoko(CHARGED_NEVER);
     // The move month's rent was paid on the move, so the reliefs are read in the month after.
@@ -328,7 +328,7 @@ describe("the home point", () => {
 });
 
 describe("eviction", () => {
-  test("[home:makoko-eviction-draw] given Ada in Makoko at a sure eviction chance, when the month ends, then the room is gone, the rent closes with nothing owed, standing does not fall, and the line is told straight", () => {
+  test("[home:makoko-eviction-draw] given the graduate in Makoko at a sure eviction chance, when the month ends, then the room is gone, the rent closes with nothing owed, standing does not fall, and the line is told straight", () => {
     const { game, result } = evicted();
     expect(game.state.home).toMatchObject({ place: null, guest: null, evicted: 1, since: 1 });
     expect(openObligations(game)).toEqual([]);
@@ -339,7 +339,7 @@ describe("eviction", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[home:makoko-eviction-draw] given Ada in Makoko at no eviction chance, when a year passes, then she is never evicted", () => {
+  test("[home:makoko-eviction-draw] given the graduate in Makoko at no eviction chance, when a year passes, then the life is never evicted", () => {
     const game = inMakoko(NEVER);
     for (let i = 0; i < 12; i += 1) expect(eventsOf(restMonth(game), "home/evicted")).toEqual([]);
     expect(game.state.home.place).toBe(MAKOKO);
@@ -365,7 +365,7 @@ describe("eviction", () => {
     expect(result.lines.find((line) => line.key.startsWith("line.home.evicted"))?.key).toBe("line.home.evicted-no-cash");
   });
 
-  test("[home:makoko-eviction-draw] given Ada down (wellbeing under the line), when the view tells the eviction chance, then it is halved as luck:no-kicking-while-down halves a bad offer", () => {
+  test("[home:makoko-eviction-draw] given the graduate down (wellbeing under the line), when the view tells the eviction chance, then it is halved as luck:no-kicking-while-down halves a bad offer", () => {
     const game = inMakoko(content);
     expect(game.view().home.evictionBp).toBe(home.evictionBp);
     const wellbeing = game.state.quality[WELLBEING]!;
@@ -382,14 +382,14 @@ describe("eviction", () => {
     const opened = eventsOf(result, "offer/opened").map((event) => (event["item"] as { entry: Id<"offer"> }).entry);
     expect(opened).toContain(TAKEN_IN);
     expect(opened.filter((entry) => content.offer[entry]?.bad === true)).toEqual([]);
-    const twin = ada(base);
+    const twin = graduate(base);
     const plain = eventsOf(restMonth(twin), "offer/opened").map((event) => (event["item"] as { entry: Id<"offer"> }).entry);
     expect(plain).toContain("offer.fuel-scarcity");
   });
 });
 
 describe("taken in", () => {
-  test("[home:taken-in-after-eviction] given Ada evicted with no joined player at home, when the taken-in offer is read, then friend is shut and refused, someone and family are open", () => {
+  test("[home:taken-in-after-eviction] given the graduate evicted with no joined player at home, when the taken-in offer is read, then friend is shut and refused, someone and family are open", () => {
     const { game } = evicted();
     const offer = offerOf(game, TAKEN_IN)!;
     expect(offer.choices.map((choice) => [choice.id, choice.allowed])).toEqual([
@@ -400,7 +400,7 @@ describe("taken in", () => {
     game.expectRejected({ type: "offer/choose", offer: offer.id, choice: "friend" }, "not-legal");
   });
 
-  test("[home:taken-in-after-eviction] given a joined player abroad, when the offer is read, then friend is still shut; with the player at home it is open and taking it makes Ada their guest for the tuning's months", () => {
+  test("[home:taken-in-after-eviction] given a joined player abroad, when the offer is read, then friend is still shut; with the player at home it is open and taking it makes the graduate their guest for the tuning's months", () => {
     const { game } = evicted();
     joined(game, { ...FRIEND_FACTS, where: "abroad", country: "country.uk" });
     expect(offerOf(game, TAKEN_IN)!.choices.find((choice) => choice.id === "friend")?.allowed).toBe(false);
@@ -412,7 +412,7 @@ describe("taken in", () => {
     expect(result.lines.find((line) => line.key === "line.home.taken-in")?.params).toEqual({ who: "home.friend", months: home.guestMonths });
   });
 
-  test("[home:taken-in-after-eviction] given Ada taken in by someone of the story, when the stay runs, then no upkeep is charged and the month it ends the where-next offer opens with makoko and family", () => {
+  test("[home:taken-in-after-eviction] given the graduate taken in by someone of the story, when the stay runs, then no upkeep is charged and the month it ends the where-next offer opens with makoko and family", () => {
     const { game } = evicted();
     choose(game, TAKEN_IN, "someone");
     expect(game.state.home.guest).toEqual({ host: "someone", by: "person.sib-lagos-hustle", until: 1 + home.guestMonths });
@@ -444,7 +444,7 @@ describe("taken in", () => {
     ]);
   });
 
-  test("[home:taken-in-after-eviction] given Ada evicted, when she takes family, then she is back at the family house at its full charge with the standing cost", () => {
+  test("[home:taken-in-after-eviction] given the graduate evicted, when it takes family, then the life is back at the family house at its full charge with the standing cost", () => {
     const { game } = evicted();
     const standing = game.state.quality[STANDING]!;
     choose(game, TAKEN_IN, "family");
@@ -454,7 +454,7 @@ describe("taken in", () => {
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
   });
 
-  test("[home:taken-in-after-eviction] given Ada evicted, when the offer is left unanswered to the month's end, then it takes family", () => {
+  test("[home:taken-in-after-eviction] given the graduate evicted, when the offer is left unanswered to the month's end, then it takes family", () => {
     const { game } = evicted();
     const result = restMonth(game);
     expect(eventsOf(result, "offer/lapsed").find((event) => event["entry"] === TAKEN_IN)?.["choice"]).toBe("family");
@@ -465,18 +465,18 @@ describe("taken in", () => {
 
 describe("hosting", () => {
   test("[home:hosting-costs-the-host] given a player, when they send home/host, then it is refused as not theirs; from the authority with no such pair it is unknown", () => {
-    const game = ada();
+    const game = graduate();
     expect(game.expectRejected({ type: "home/host", pair: "pair-1", until: 3 }, "not-yours").code).toBe("not-yours");
     expect(game.expectRejected({ type: "home/host", pair: "pair-9", until: 3 }, "unknown-id", "authority").code).toBe("unknown-id");
     expect(game.state.home.hosting).toBeNull();
   });
 
-  test("[home:hosting-costs-the-host] given the authority says a joined player stays with Ada until month 2, when the months pass, then her upkeep rises by the tuning's share for those months and falls back after, with no money credited to anyone", () => {
-    const game = ada();
+  test("[home:hosting-costs-the-host] given the authority says a joined player stays with the graduate until month 2, when the months pass, then its upkeep rises by the tuning's share for those months and falls back after, with no money credited to anyone", () => {
+    const game = graduate();
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     joined(game);
     game.accept({ type: "home/host", pair: "pair-1", until: 2 }, "authority");
-    const twin = ada();
+    const twin = graduate();
     setPockets(twin, { NGN: { cash: 0, bank: 5_000_000_00 } });
     joined(twin);
     const rise = bp(GRADUATE_UPKEEP, home.hostBp);
@@ -567,7 +567,7 @@ describe("the starting life's charges at home", () => {
   test("[home:starting-charges-from-one-function] given a fixed life abroad, when it lands, then the family's support opens from its starting obligations at the remit share, and a life from sixteen opens the prologue's support at the same share", () => {
     const fixed = start({ content, scenario: "scenario.developer", seed: "seed-1" });
     const owed = content.scenario["scenario.developer"]!.obligations.find((each) => content.obligation[each.obligation]?.type === "support");
-    if (owed === undefined) throw new Error("Zainab's starting life has no support.");
+    if (owed === undefined) throw new Error("The developer's starting life has no support.");
     applyEffects(fixed, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(Object.values(fixed.state.obligation.items).filter((item) => item.entry === owed.obligation).map((item) => item.amount)).toEqual([bp(owed.amount, content.tuning.remit.abroadBp)]);
     const sixteen = fromSixteen("family-house", NEVER);
@@ -578,8 +578,8 @@ describe("the starting life's charges at home", () => {
 });
 
 describe("the home card's moves", () => {
-  test("[home:moves-carry-cost-and-reason] [home:compound-room-is-a-home] given Ada at the family house with the rent held, when the view is read, then the moves are to Makoko, with its rent a month and the first month's rent taken on the move, and to the room in a compound, with its upkeep a month and the year's rent and fees taken on the move, both open", () => {
-    const game = ada(CHARGED_NEVER);
+  test("[home:moves-carry-cost-and-reason] [home:compound-room-is-a-home] given the graduate at the family house with the rent held, when the view is read, then the moves are to Makoko, with its rent a month and the first month's rent taken on the move, and to the room in a compound, with its upkeep a month and the year's rent and fees taken on the move, both open", () => {
+    const game = graduate(CHARGED_NEVER);
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     expect(game.view().home.moves).toEqual([
       { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
@@ -588,8 +588,8 @@ describe("the home card's moves", () => {
     ]);
   });
 
-  test("[home:moves-carry-cost-and-reason] given Ada short of the first month's rent, when the view is read, then the move is shut as short and the command refuses it the same way; once moved, the move back is shut as moved and refused", () => {
-    const game = ada(CHARGED_NEVER);
+  test("[home:moves-carry-cost-and-reason] given the graduate short of the first month's rent, when the view is read, then the move is shut as short and the command refuses it the same way; once moved, the move back is shut as moved and refused", () => {
+    const game = graduate(CHARGED_NEVER);
     setPockets(game, { NGN: { cash: 0, bank: home.makokoUpkeep - 1 } });
     // The hostel's first month is less than Makoko's, so it alone stays open.
     expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short", "short", null]);
@@ -604,13 +604,13 @@ describe("the home card's moves", () => {
     game.expectRejected({ type: "home/move", to: FAMILY }, "not-legal");
   });
 
-  test("[home:moves-carry-cost-and-reason] given Ada abroad, when the view is read, then the card offers no move", () => {
-    const game = ada(NEVER);
+  test("[home:moves-carry-cost-and-reason] given the graduate abroad, when the view is read, then the card offers no move", () => {
+    const game = graduate(NEVER);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(game.view().home.moves).toEqual([]);
   });
 
-  test("[home:moves-carry-cost-and-reason] given inflation above nothing, when the view is read, then the charge where Ada lives and each move's charge a month are the bill's, inflation included", () => {
+  test("[home:moves-carry-cost-and-reason] given inflation above nothing, when the view is read, then the charge where the graduate lives and each move's charge a month are the bill's, inflation included", () => {
     const inflation = 1500;
     const worldAt = (tick: number): World => {
       const world = standInWorld("world-1", tick, CHARGED_NEVER);

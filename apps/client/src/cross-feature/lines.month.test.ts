@@ -81,7 +81,7 @@ describe("one line for one thing", () => {
   });
 });
 
-/** Ada's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
+/** The graduate's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
 function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before: string[] } {
   // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
   // since the one-chance story joined the pool and moved every world's draws, wallet:cash-pile-warning).

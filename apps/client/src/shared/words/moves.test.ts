@@ -46,7 +46,7 @@ describe("a quality's move in a person's words", () => {
     expect(drift(rest + 4)).toBe(say("line.quality.told.quality.wellbeing.drift.above"));
   });
 
-  test("[text:bands-not-figures] given a developer's month at the meetup and on her project, when News tells it, then each act's moves are one line in its own words, and no move says a quality or a direction", () => {
+  test("[text:bands-not-figures] given a developer's month at the meetup and on its project, when News tells it, then each act's moves are one line in its own words, and no move says a quality or a direction", () => {
     const game = newGame("scenario.developer");
     const met = game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
     const month = game.endTurn([slot("activity.build-portfolio")]);

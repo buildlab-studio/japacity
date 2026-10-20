@@ -18,7 +18,7 @@ const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
 /** The name a player gave the graduate at the door, as the band says it (share:card-contents): a ready life has none of its own. */
 const BAND_NAME = "Adaeze";
 
-/** Ada's card as each kind would carry it, with the chapter a chapter card closes. */
+/** The graduate's card as each kind would carry it, with the chapter a chapter card closes. */
 function cardOf(kind: ShareKind): ShareCard {
   return { ...graduateCard(), kind, ...(kind === "chapter" ? { chapter: "chapter.build-the-file" as const } : {}) };
 }
@@ -49,7 +49,7 @@ describe("what is on a card", () => {
     }
   });
 
-  test("[share:card-contents] [text:bands-not-figures] given Ada's send-off, when laid out, then her first name, the route, the japacity figure, the time played in years and months, the standing as its band and what she did most are drawn", () => {
+  test("[share:card-contents] [text:bands-not-figures] given the graduate's send-off, when laid out, then the first name, the route, the japacity figure, the time played in years and months, the standing as its band and what the life did most are drawn", () => {
     keepPerson({ look: "person_ada", name: BAND_NAME, archetype: null });
     const card = graduateCard();
     const steps = cardSteps(cardFace(card, "scenario.graduate"), SIZE, measure);

@@ -73,7 +73,7 @@ describe("the first session", () => {
 });
 
 describe("the sure first hunt", () => {
-  test("[guide:early-win-in-three-turns] given Ada's first hunt in her first month, when the job it lands is read, then it is the main job with the lowest month's pay that covers her month's dues of those she may hunt, whichever she names", () => {
+  test("[guide:early-win-in-three-turns] given the graduate's first hunt in its first month, when the job it lands is read, then it is the main job with the lowest month's pay that covers the life's month's dues of those it may hunt, whichever it names", () => {
     const game = start({ scenario: "scenario.graduate", content });
     const wages = byWage(game, "main");
     expect(wages.length).toBeGreaterThan(1);
@@ -83,7 +83,7 @@ describe("the sure first hunt", () => {
       return pay !== null && pay.currency === "NGN" && typeof pay.amount === "number" && pay.amount >= dues;
     });
     expect(covering).toBeDefined();
-    // Ada's upkeep is above the teacher's pay, so the smallest job that pays her month is not the smallest job.
+    // The graduate's upkeep is above the teacher's pay, so the smallest job that pays the life's month is not the smallest job.
     expect(covering).not.toBe(wages[0]);
     for (const named of wages) expect(sureHuntJob(readOf(game), entryOf(named), 1, false)?.id).toBe(covering);
   });
@@ -139,7 +139,7 @@ describe("the sure hunt that lands another job", () => {
     { activity: "activity.study-english", param: null },
   ];
 
-  test("[activity:job-hunt-lands-offer] [guide:early-win-in-three-turns] given Ada's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
+  test("[activity:job-hunt-lands-offer] [guide:early-win-in-three-turns] given the graduate's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
     const asked = "activity.job-junior-dev";
     const sure = sureHuntJob(readOf(start({ scenario: "scenario.graduate", content })), entryOf(asked), 1, false)?.id;
     expect(sure).not.toBe(asked);

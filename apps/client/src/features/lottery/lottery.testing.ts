@@ -26,7 +26,7 @@ export interface OnlineLife {
   authority: StoreAuthority & { sent: Command[] };
 }
 
-/** Tunde, online, with ₦4.2m in the bank: every command goes through the real engine. */
+/** The banker, online, with ₦4.2m in the bank: every command goes through the real engine. */
 export function onlineLife(lottery: World["lottery"]): OnlineLife {
   const base = standInWorld("world-1", 0, content);
   const live = { lottery };

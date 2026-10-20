@@ -32,7 +32,7 @@ function drawnWords(steps: readonly Step[]): string[] {
   return steps.flatMap((step) => (step.op === "text" || step.op === "mark" ? [step.text] : []));
 }
 
-/** Ada's stub with each type in turn, and with her card sent to each country a way out goes to. */
+/** The graduate's stub with each type in turn, and with its card sent to each country a way out goes to. */
 function everyStub(): { label: string; steps: Step[] }[] {
   const card = graduateSendOff().card!;
   const ways = Object.values(content.route).filter((route) => route.country !== null);
@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 describe("the ticket stub's face", () => {
-  test("[share:card-contents] given Ada's send-off, when her stub is laid out, then it shows FROM Lagos, TO the country, MONTHS as the cards say them, JAPACITY, her type and her first name", () => {
+  test("[share:card-contents] given the graduate's send-off, when its stub is laid out, then it shows FROM Lagos, TO the country, MONTHS as the cards say them, JAPACITY, the type and the first name", () => {
     keepPerson({ look: "person_ada", name: "Adaeze", archetype: null });
     const view = graduateSendOff();
     const card = view.card!;

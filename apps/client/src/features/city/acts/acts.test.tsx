@@ -127,7 +127,7 @@ describe("the thing's chip", () => {
   test("[activity:now-acts-and-month-acts] given a now-act done this month, when the acts the place offers are read, then it is gone this month and back the next; a purchase stays", async () => {
     const { store } = await played();
     const job = store.getState().view!.activities.find((option) => option.id === HUNT)?.params?.[0];
-    if (job === undefined) throw new Error("Ada has no job to hunt.");
+    if (job === undefined) throw new Error("The graduate has no job to hunt.");
     expect(actsOffered(store.getState().view!)).toEqual(expect.arrayContaining([MEETUP, HUNT, job, LOTTO]));
     await act(async () => {
       await actOnCard({ activity: MEETUP, param: null }, store.getState());

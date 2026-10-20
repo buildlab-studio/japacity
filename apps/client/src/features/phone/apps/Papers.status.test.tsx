@@ -16,7 +16,7 @@ function statusCard(): HTMLElement {
 }
 
 describe("the status abroad, in Papers", () => {
-  test("[status:view-shows-status] given Ada on her student visa, then its name, the work it allows, the months left and the way up show", async () => {
+  test("[status:view-shows-status] given the graduate on its student visa, then its name, the work it allows, the months left and the way up show", async () => {
     const view = abroadView();
     const held = view.status!;
     await openPapers(view, "London");

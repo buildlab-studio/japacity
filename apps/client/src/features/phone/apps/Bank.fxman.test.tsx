@@ -15,7 +15,7 @@ import { say } from "../../../shared/words/text";
 import { Bank } from "./Bank";
 import { askCard as card } from "../phone.testing";
 
-/** Tunde at home with naira in the bank and in cash, and a few pounds in hand. */
+/** The banker at home with naira in the bank and in cash, and a few pounds in hand. */
 function heldAtHome(): PlayerView {
   const game = newGame("scenario.banker");
   setPockets(game, { NGN: 120_000_000 });

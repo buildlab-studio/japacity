@@ -23,7 +23,7 @@ async function openNews(view: Parameters<typeof renderWithView>[1]): Promise<voi
 }
 
 describe("News the month of the clearing", () => {
-  test("[home:makoko-eviction-draw] given Ada evicted from Makoko this month, when News opens, then the eviction leads the month's lines and the story of the clearing is there", async () => {
+  test("[home:makoko-eviction-draw] given the graduate evicted from Makoko this month, when News opens, then the eviction leads the month's lines and the story of the clearing is there", async () => {
     const game = start({ content: applyOverlay(content, { version: "test-news-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.graduate" });
     setPockets(game, { NGN: 500_000_00 });
     game.accept({ type: "home/move", to: "place.makoko" });

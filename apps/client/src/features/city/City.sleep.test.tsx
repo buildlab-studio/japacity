@@ -47,7 +47,7 @@ function setPart(store: GameStore, part: DayPart): void {
   act(() => store.setState({ clock: clockAt(part) }));
 }
 
-/** Ada in the parlour by the bed with a month behind her (so no first night's card), the clocks faked from here on. */
+/** The graduate in the parlour by the bed with a month behind it (so no first night's card), the clocks faked from here on. */
 async function byTheBed(part: DayPart = "afternoon") {
   const game = newGame("scenario.graduate");
   game.endTurn();

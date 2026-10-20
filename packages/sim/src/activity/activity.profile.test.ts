@@ -132,12 +132,12 @@ describe("the developer's acts", () => {
     expect(gained(second, PORTFOLIO, OPEN_SOURCE)).toBe(1);
     expect(gained(month(game, [slot(OPEN_SOURCE)]), PORTFOLIO, OPEN_SOURCE)).toBe(0);
 
-    const ada = start({ content, scenario: "scenario.graduate" });
-    raiseTo(ada, TECH, 39);
-    expect(allowed(ada, OPEN_SOURCE)).toBe(false);
-    ada.expectRejected({ type: "turn/end", slots: [slot(OPEN_SOURCE)] }, "not-legal");
-    raiseTo(ada, TECH, 40);
-    expect(allowed(ada, OPEN_SOURCE)).toBe(true);
+    const graduate = start({ content, scenario: "scenario.graduate" });
+    raiseTo(graduate, TECH, 39);
+    expect(allowed(graduate, OPEN_SOURCE)).toBe(false);
+    graduate.expectRejected({ type: "turn/end", slots: [slot(OPEN_SOURCE)] }, "not-legal");
+    raiseTo(graduate, TECH, 40);
+    expect(allowed(graduate, OPEN_SOURCE)).toBe(true);
   });
 
   test("[activity:waiting-months-build-profile] given tech 30, when tech posts ride with the month, then they fill no slot and add network and standing; a second in one month fails, and under tech 30 they are not offered", () => {
@@ -153,11 +153,11 @@ describe("the developer's acts", () => {
     expect(game.expectRejected({ type: "activity/now", activity: POSTS, param: null }, "not-legal").code).toBe("not-legal");
     month(game, []);
 
-    const tunde = start({ content, scenario: "scenario.banker" });
-    raiseTo(tunde, TECH, 29);
-    expect(allowed(tunde, POSTS)).toBe(false);
-    raiseTo(tunde, TECH, 30);
-    expect(allowed(tunde, POSTS)).toBe(true);
+    const banker = start({ content, scenario: "scenario.banker" });
+    raiseTo(banker, TECH, 29);
+    expect(allowed(banker, POSTS)).toBe(false);
+    raiseTo(banker, TECH, 30);
+    expect(allowed(banker, POSTS)).toBe(true);
   });
 
   test("[activity:waiting-months-build-profile] given portfolio 2 and network 40, when the talk is given, then its one question opens, portfolio, standing and network rise, and once answered it is never offered again", () => {
@@ -286,7 +286,7 @@ describe("the raise in the view", () => {
 });
 
 describe("the nurse's certification", () => {
-  /** Ngozi sits the exam and answers the three questions right or wrong as given. */
+  /** The nurse sits the exam and answers the three questions right or wrong as given. */
   function sit(answers: boolean[], seed?: string): { game: Game; marked: Accepted; paid: Accepted } {
     const game = start({ content, scenario: "scenario.nurse", ...(seed === undefined ? {} : { seed }) });
     const paid = month(game, [slot(CERTIFY)]);
@@ -304,7 +304,7 @@ describe("the nurse's certification", () => {
     return { game, marked, paid };
   }
 
-  test("[activity:waiting-months-build-profile] given the nurse with her licence and care 50, when she sits the exam, then the fee is taken and three questions open in order at the clinic's set piece", () => {
+  test("[activity:waiting-months-build-profile] given the nurse with its licence and care 50, when the life sits the exam, then the fee is taken and three questions open in order at the clinic's set piece", () => {
     const { game, paid } = sit([true, true, true]);
     const fee = figure(entryOf(CERTIFY).cost[0]!);
     expect(paid.events).toContainEqual(expect.objectContaining({ type: "wallet/debited", currency: "NGN", reason: "fee-test" }));
@@ -345,7 +345,7 @@ describe("the nurse's certification", () => {
   });
 });
 
-/** Ada with her papers, enough naira for a year of fees at home and the flight, and the pounds the visa asks for. */
+/** The graduate with its papers, enough naira for a year of fees at home and the flight, and the pounds the visa asks for. */
 function studentWithFees(): Game {
   const naira = 100;
   const pockets = { NGN: { bank: 6000000 * naira, cash: 1500000 * naira }, GBP: { bank: 40000 * naira, cash: 0 } };

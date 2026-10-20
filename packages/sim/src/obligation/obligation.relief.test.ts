@@ -26,7 +26,7 @@ const COOKED_LINE = "line.obligation.relief.cook-own";
 const WATER_LINE = "line.obligation.relief.fetch-water";
 const { room } = content.tuning;
 
-function ada(base: Content = content): Game {
+function graduate(base: Content = content): Game {
   return start({ content: base, scenario: "scenario.graduate" });
 }
 
@@ -45,8 +45,8 @@ function upkeepPaid(result: Accepted): number {
 
 /** The month played with these slots, beside the same month in a twin life with none: the upkeep each paid. */
 function againstNone(slots: Id<"activity">[], prepare: (game: Game) => void = () => undefined, base: Content = content): { played: Accepted; plain: Accepted; game: Game } {
-  const game = ada(base);
-  const twin = ada(base);
+  const game = graduate(base);
+  const twin = graduate(base);
   prepare(game);
   prepare(twin);
   return { played: game.endTurn(slots.map((id) => slot(id))), plain: twin.endTurn([]), game };
@@ -93,8 +93,8 @@ describe("the two activities", () => {
     expect([room.cookedBp, room.waterBp]).toEqual([1500, 400]);
   });
 
-  test("[obligation:cooking-and-fetching-water] given Ada at home, when the month's choices are listed, then cooking and water are both offered and allowed", () => {
-    const options = ada().view().activities.filter((option) => option.id === COOK || option.id === WATER || option.id === DRUM);
+  test("[obligation:cooking-and-fetching-water] given the graduate at home, when the month's choices are listed, then cooking and water are both offered and allowed", () => {
+    const options = graduate().view().activities.filter((option) => option.id === COOK || option.id === WATER || option.id === DRUM);
     expect(options.map((option) => [option.id, option.allowed])).toEqual([
       [COOK, true],
       [WATER, true],
@@ -104,8 +104,8 @@ describe("the two activities", () => {
 });
 
 describe("cooking at home", () => {
-  test("[obligation:cooking-and-fetching-water] [activity:acts-may-repeat-in-month] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and she may cook again this month (decision 0012)", () => {
-    const game = ada();
+  test("[obligation:cooking-and-fetching-water] [activity:acts-may-repeat-in-month] given the graduate at home, when the life cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and the life may cook again this month (decision 0012)", () => {
+    const game = graduate();
     expect(entry(COOK).when).toBe("now");
     expect(entry(WATER).when).toBe("now");
     expect(entry(DRUM).when).toBe("now");
@@ -150,8 +150,8 @@ describe("cooking at home", () => {
   });
 
   test("[obligation:cooking-and-fetching-water] given cooking in two months running, when each month ends, then each month's charge falls by the share once", () => {
-    const game = ada();
-    const twin = ada();
+    const game = graduate();
+    const twin = graduate();
     for (let month = 0; month < 2; month += 1) {
       const played = game.endTurn([slot(COOK)]);
       const full = upkeepPaid(twin.endTurn([]));

@@ -15,7 +15,7 @@ import { CARE_ROUTE, DECISION, FEET, FILE, LANDING, SEND_OFF, SKILLED, UK_DEPEND
 
 const CARE_FILE: Id<"chapter"> = "chapter.build-the-file-care";
 
-/** Tunde with the master's heard of, the month he looks into it: the first chapter closes on its items at this month's end. */
+/** The banker with the master's heard of, the month the life looks into it: the first chapter closes on its items at this month's end. */
 function aboutToLookIntoUk(): Game {
   const game = start({ scenario: "scenario.banker", content });
   for (let month = 0; month < 8 && game.state.route[UK_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
@@ -23,7 +23,7 @@ function aboutToLookIntoUk(): Game {
   return game;
 }
 
-/** Tunde leaning to the master's, in the master's file. */
+/** The banker leaning to the master's, in the master's file. */
 function inTheFile(): Game {
   const game = aboutToLookIntoUk();
   game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);

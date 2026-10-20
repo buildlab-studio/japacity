@@ -151,7 +151,7 @@ describe("Chats", () => {
     const due = chatsDue(view, content);
     expect(due.filter((line) => line.thread === "partner")).toEqual([]);
     expect(due.every((line) => line.chapter === null || line.chapter === view.chapter.current)).toBe(true);
-    // Ada can look for work from the first month, so Mama asks about it.
+    // The graduate can look for work from the first month, so Mama asks about it.
     expect(due.map((line) => line.id)).toContain("chats.mum.find-work");
   });
 

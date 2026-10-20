@@ -12,7 +12,7 @@ import { CANADA_ROUTE } from "../../testing/ids";
 const BONUS = content.points["points.canada"]!.siblingBonus;
 const YEAR = 12;
 
-/** Ada at 25 with a bachelor's and band 7.0. */
+/** The graduate at 25 with a bachelor's and band 7.0. */
 const GRADUATE: LifeOptions = { qualities: { "quality.age-months": 25 * YEAR, "quality.edu-level": 3 } };
 
 /** A spouse with a bachelor's and band 7.0 who has not worked in Canada. */
@@ -31,7 +31,7 @@ function score(game: Game): number | null {
 }
 
 describe("person:canada-spouse-points: the lead's score with a spouse", () => {
-  test("[person:canada-spouse-points] given Ada leading the points route with a spouse who has a bachelor's and band 7.0, when the score is read, then it uses the with-spouse columns and adds the spouse's 28", () => {
+  test("[person:canada-spouse-points] given the graduate leading the points route with a spouse who has a bachelor's and band 7.0, when the score is read, then it uses the with-spouse columns and adds the spouse's 28", () => {
     const game = leading();
     const { transfer } = pointsParts(readOf(game), CANADA_ROUTE);
     // Alone: 110 for 25, 120 for a bachelor's, 31 for each ability at band 7.0.
@@ -66,7 +66,7 @@ describe("person:canada-spouse-points: the lead's score with a spouse", () => {
     expect(skilled.view().people.joint).toMatchObject({ myScore: null, theirScore: null });
   });
 
-  test("[person:canada-spouse-points] given no joint, a joint the partner leads, or a bond that has ended, when the score is read, then Ada scores alone", () => {
+  test("[person:canada-spouse-points] given no joint, a joint the partner leads, or a bond that has ended, when the score is read, then the graduate scores alone", () => {
     const alone = life(content, GRADUATE);
     const theirs = life(content, GRADUATE);
     joint(theirs, CANADA_ROUTE, "them", { stage: "married", facts: SPOUSE });
@@ -125,7 +125,7 @@ describe("person:canada-sibling-bonus: a sibling in Canada", () => {
     expect(siblingPoints(readOf(elsewhere), CANADA_ROUTE)).toBe(0);
   });
 
-  test("[person:canada-sibling-bonus] given a cut-off exactly the bonus above Ada's score, when the world's draw looks, then she is invited with the sibling and not without", () => {
+  test("[person:canada-sibling-bonus] given a cut-off exactly the bonus above the graduate's score, when the world's draw looks, then the life is invited with the sibling and not without", () => {
     const probe = life(content, GRADUATE);
     const cutoff = pointsScore(readOf(probe), CANADA_ROUTE) + BONUS;
     const vars = (): Record<Id<"var">, number> => ({ "var.ca-cutoff": cutoff });

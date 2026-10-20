@@ -61,7 +61,7 @@ describe("the chance in words", () => {
 });
 
 describe("the jobs list on the hunt's card", () => {
-  test("[world:one-action-one-sheet] given Ada's first month, when the hunt's card shows, then every job the hunt can ask for is a row with its name, its pay a month and its chance in words, with no bare select", async () => {
+  test("[world:one-action-one-sheet] given the graduate's first month, when the hunt's card shows, then every job the hunt can ask for is a row with its name, its pay a month and its chance in words, with no bare select", async () => {
     const view = engineView();
     const jobs = huntOf(view);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
@@ -77,8 +77,8 @@ describe("the jobs list on the hunt's card", () => {
     }
   });
 
-  // activity:job-hunt-lands-offer: the list keeps its order, and the row chosen is the life's own trade, Ada's code, not the first row.
-  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is her own trade's, the junior developer's", async () => {
+  // activity:job-hunt-lands-offer: the list keeps its order, and the row chosen is the life's own trade, the graduate's code, not the first row.
+  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given the teacher's pay under the graduate's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is its own trade's, the junior developer's", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     const bands = ordered.map((job) => chanceBand(jobChanceBp(entryOf(job), networkOf(view))));

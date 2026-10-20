@@ -775,14 +775,14 @@ describe("what an end undoes", () => {
     expect(game.state.status.current?.clock).toBe(2);
   });
 
-  /** Tunde with Kelechi, who leads a joint on the skilled route from her sponsored job in the UK, and his dependant application in. */
+  /** The banker with Kelechi, who leads a joint on the skilled route from her sponsored job in the UK, and the banker's dependant application in. */
   function dependantApplying(kinds?: StartOptions["kinds"]): { game: Game; bond: string } {
     const game = life({ content: tuned(eager), ...(kinds === undefined ? {} : { kinds }) });
     const bond = court(game, KELECHI);
     for (let index = 0; index < numbers.partnerMoments; index += 1) turn(game, [CALL]);
     game.accept({ type: "people/propose", bond, step: "partner" });
     game.accept({ type: "people/propose", bond, step: "joint", route: "route.uk-skilled", lead: "them" });
-    // Tunde holds none of the papers the dependant route asks for, so the test puts his application in place.
+    // The banker holds none of the papers the dependant route asks for, so the test puts its application in place.
     const held = game.state.route[UK_DEPENDANT]!;
     const month = game.state.turn.month;
     const visa = { submittedMonth: month, decisionMonth: month + 1, rules: { livingLine: 0, livingMonths: 0, strictness: 0 }, unexplainedBp: 0, interviewScore: null, surchargePaid: 0 };

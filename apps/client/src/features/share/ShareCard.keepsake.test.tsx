@@ -17,7 +17,7 @@ import { CardView, Keepsake } from "./ShareCard";
 
 function graduateFlown(): PlayerView {
   const view = recordedGame("graduate-careful").view();
-  if (view.card?.kind !== "send-off") throw new Error("Ada's recorded life does not end at the send-off.");
+  if (view.card?.kind !== "send-off") throw new Error("The graduate's recorded life does not end at the send-off.");
   return view;
 }
 
@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 describe("the keepsake's place", () => {
-  test("[share:send-off-card-kept] given Ada just flown with no scene showing, then the card opens on no screen of its own and is kept at once with the seat the counter gave", async () => {
+  test("[share:send-off-card-kept] given the graduate just flown with no scene showing, then the card opens on no screen of its own and is kept at once with the seat the counter gave", async () => {
     act(() => sendOff.getState().choose("aisle"));
     const view = graduateFlown();
     await renderWithView(<CardView />, view);

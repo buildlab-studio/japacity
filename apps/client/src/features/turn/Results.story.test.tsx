@@ -22,7 +22,7 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 }
 
 describe("the month's story on the results", () => {
-  test("[world:month-end-results-sheet] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
+  test("[world:month-end-results-sheet] given the graduate's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
     const game = newGame("scenario.graduate");
     // Decision 0013 (home:living-by-hand): no living is charged as the month turns at home, so the money of the month is what was
     // paid at the act: the big pot's foodstuff bought mid-month (the family house's meals from the pot are free),
@@ -113,7 +113,7 @@ describe("the adviser's reading and the relative's gift", () => {
   });
 
   test("[text:show-then-tell] [advice:licensed-adviser-is-truthful] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
-    // Ada's recorded life once the master's is known: the adviser is paid now and the month ends. Under decision 0013 the
+    // The graduate's recorded life once the master's is known: the adviser is paid now and the month ends. Under decision 0013 the
     // life does its study act by act, so the master's is known after its first 28 commands.
     const game = recordedGame("graduate-careful", lifeSaves["graduate-careful"]!.commands.length - 28);
     const { lines: now } = game.accept({ type: "activity/now", activity: "activity.see-adviser", param: null });

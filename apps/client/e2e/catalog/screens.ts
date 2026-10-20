@@ -55,7 +55,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "night-teach", what: "The first night's card at the bed" },
   { key: "night-sleeping", what: "Asleep: the chip and Wake up while the month turns" },
   { key: "night-results-first", what: "The first month's results" },
-  // The room lived in (Ada's recorded life, the month before her visa's answer).
+  // The room lived in (the graduate's recorded life, the month before its visa's answer).
   { key: "room-day", what: "The family house lived in, by day" },
   { key: "room-fan-day", what: "A thing's fan open (the cooking corner), by day" },
   { key: "room-act-day", what: "An act's sheet (study at the table), by day" },
@@ -73,7 +73,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "room-band-more", what: "The band opened: Show more" },
   { key: "room-interview", what: "The visa interview waiting: Enter the interview room" },
   { key: "room-interview-question", what: "The visa interview: the officer's first question" },
-  // Every drawn place with the character standing in it (Ada granted, the month before she flies).
+  // Every drawn place with the character standing in it (the graduate granted, the month before the flight).
   { key: "place-ojuelegba-day", what: "Ojuelegba, the hub's street, by day" },
   { key: "place-ojuelegba-night", what: "Ojuelegba by night" },
   { key: "place-hub-room-day", what: "The hub's room through Ojuelegba's door, by day" },
@@ -147,7 +147,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "place-church-italy-day", what: "The church in Castel Volturno" },
   { key: "place-the-room-italy-day", what: "The room in a shared flat on the Domitiana" },
   { key: "castel-colleague", what: "A day labourer at the fields' tap says a line" },
-  // Calgary on the mold: the canada player's Zainab, landed and on the warehouse job.
+  // Calgary on the mold: the canada player's developer, landed and on the warehouse job.
   { key: "place-calgary-north-east-day", what: "The strip mall in north-east Calgary: the coffee shop, the African store and its counter, the barber" },
   { key: "place-ctrain-station-canada-day", what: "The CTrain station: the ticket machine, the platform" },
   { key: "place-library-canada-day", what: "The library: the course desk, the shelves" },
@@ -206,7 +206,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "map-calgary-ride-sheet", what: "A stop picked in Calgary: the bus, the CTrain and the taxi in dollars" },
   ...rideScreens("calgary-bus", "Calgary's bus"),
   ...rideScreens("ctrain", "The CTrain"),
-  // The phone, Ada at home by day.
+  // The phone, the graduate at home by day.
   { key: "phone-home-day", what: "The phone's home, by day" },
   { key: "phone-big-day", what: "The phone made bigger" },
   { key: "phone-calendar-day", what: "Calendar" },
@@ -239,13 +239,13 @@ export const SCREENS: readonly Screen[] = [
   { key: "phone-bills-night", what: "Bills, by night" },
   { key: "phone-news-night", what: "News, by night" },
   { key: "phone-settings-night", what: "Settings, by night" },
-  // The month turned in Ada's life: the visa's answer.
+  // The month turned in the graduate's life: the visa's answer.
   { key: "month-moment", what: "A moment card before the results: the visa granted" },
   { key: "month-results", what: "The month's results" },
   { key: "month-share-granted", what: "The share card on decision day" },
   { key: "month-chapter-close", what: "A chapter closed: the brief's card stamped Done, the next briefs" },
   { key: "month-morning", what: "The morning: the envelope on the phone's lock screen" },
-  // Abroad (Ada's second recorded life, working in London).
+  // Abroad (the graduate's second recorded life, working in London).
   { key: "abroad-phone-home", what: "The phone's home abroad" },
   { key: "abroad-bank", what: "Bank abroad" },
   { key: "abroad-bank-send", what: "Bank abroad: Send money home" },
@@ -254,7 +254,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "warning-clock-home", what: "The status clock on the phone's home, after the job is quit" },
   { key: "warning-clock-app", what: "The status clock above an app" },
   { key: "warning-run-down", what: "The run down warning" },
-  // The send-off: Ada's real flight to London, then the three other landings through the hook.
+  // The send-off: the graduate's real flight to London, then the three other landings through the hook.
   { key: "sendoff-departures", what: "Beat 1: Departures, the queue" },
   { key: "sendoff-departures-step", what: "Beat 1 after a Step forward" },
   { key: "sendoff-departures-front", what: "Beat 1 at the front" },

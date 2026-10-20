@@ -1,6 +1,6 @@
 // Layer 3 of docs/design/02-quality-and-testing.md on the real content: long
-// random lives from Zainab, Ngozi and the prologue, every always-true rule checked after every
-// command. Ada, Tunde and life abroad have files of their own, so each
+// random lives from the developer, the nurse and the prologue, every always-true rule checked after every
+// command. The graduate, the banker and life abroad have files of their own, so each
 // file stays inside engine:limits-tested-through-step's minute.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";

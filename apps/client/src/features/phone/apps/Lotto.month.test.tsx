@@ -14,7 +14,7 @@ import { say } from "../../../shared/words/text";
 
 const { ticket } = content.tuning.luck;
 
-/** Ada buys this many tickets at the kiosk, one at each visit, as the street's slip sells them. */
+/** The graduate buys this many tickets at the kiosk, one at each visit, as the street's slip sells them. */
 function bought(visits: number): { lines: ReportLine[]; game: ReturnType<typeof newGame> } {
   const game = newGame("scenario.graduate");
   const lines: ReportLine[] = [];

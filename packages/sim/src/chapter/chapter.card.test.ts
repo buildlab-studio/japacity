@@ -1,4 +1,4 @@
-// The nurse's chapter card (share:card-contents, chapter:chapters-follow-lean-route): her
+// The nurse's chapter card (share:card-contents, chapter:chapters-follow-lean-route): its
 // first chapter closes on health care, which is shut to applicants from abroad (route-gates:care-route-needs-verification) and so
 // gives no japacity figure (japacity:best-open-route-is-japacity). The card names the way out the chapters follow and its own
 // figure, never two empty bands.
@@ -11,7 +11,7 @@ import { start, type Game } from "../testing/play";
 const CARE = "route.uk-care" as const;
 const LOOK = "activity.look-into-route" as const;
 
-/** Ngozi, months played until health care is heard of, then its page read: the month the first chapter closes. */
+/** The nurse, months played until health care is heard of, then its page read: the month the first chapter closes. */
 function nurseLooksIntoCare(): Game {
   const game = start({ scenario: "scenario.nurse", seed: "nurse-card", content });
   game.accept({ type: "activity/now", activity: "activity.meetup", param: null });

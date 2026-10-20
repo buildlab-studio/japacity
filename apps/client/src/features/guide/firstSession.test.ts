@@ -47,7 +47,7 @@ describe("the first session", () => {
   });
 
   test("[guide:early-win-in-three-turns] given a new life at home, when the next step is read, then it works toward the chapter's first unmet items", () => {
-    const session = playFirstSession({ name: "ada", scenario: "scenario.graduate", answers: {} }, content, { nextStep: chapterNextStep });
+    const session = playFirstSession({ name: "graduate", scenario: "scenario.graduate", answers: {} }, content, { nextStep: chapterNextStep });
     expect(session.months[0]?.slots.map((slot) => slot.activity)).toEqual(["activity.job-hunt", "activity.meetup"]);
     expect(chapterNextStep).toBeTypeOf("function");
   });

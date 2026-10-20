@@ -20,7 +20,7 @@ const stage = stageOf(raw as unknown as PlaceFile);
 const entry = content.place["place.the-room"];
 
 describe("the room abroad", () => {
-  test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given the phone by the bed, when its acts are read, then it calls home, staged in the room and open to Ada just landed, and sends no money, which the room does not stage", () => {
+  test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given the phone by the bed, when its acts are read, then it calls home, staged in the room and open to the graduate just landed, and sends no money, which the room does not stage", () => {
     const phone = (stage.things ?? []).find((thing) => thing.id === "phone");
     expect(phone?.acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.call-home", "Call home"]]);
     expect(entry?.stages).not.toContain("activity.send-money");

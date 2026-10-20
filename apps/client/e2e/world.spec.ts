@@ -44,7 +44,7 @@ async function visibleButtons(page: Page): Promise<string[]> {
   );
 }
 
-/** Ada's recorded life one month in: the acts sent at once before its first month's end, not the end itself, whose turn opens the life's first offer. */
+/** The graduate's recorded life one month in: the acts sent at once before its first month's end, not the end itself, whose turn opens the life's first offer. */
 function graduateOneMonthIn(): string {
   const save = recorded("graduate-careful");
   const firstEnd = save.commands.findIndex((entry) => entry.command.type === "turn/end");

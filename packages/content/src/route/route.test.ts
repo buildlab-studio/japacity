@@ -198,7 +198,7 @@ describe("spot checks against route-gates.md and road.md", () => {
     expect(offer("offer.road-park").pressure).toEqual({ refusalBp: 200, defaultBp: 300, lowStandingBp: 200, perYearOver30Bp: 100, strongRouteBp: 400 });
   });
 
-  test("[engine:content-checked-before-play] given the points table, when the page's worked examples are scored from it, then Zainab has 404 and Ada 335", () => {
+  test("[engine:content-checked-before-play] given the points table, when the page's worked examples are scored from it, then the developer has 404 and the graduate 335", () => {
     const table = content.points["points.canada"]!;
     expect(table.age.find((row) => row.years === 20)?.points).toBe(110);
     expect(table.age.find((row) => row.years === 35)?.points).toBe(77);
@@ -211,9 +211,9 @@ describe("spot checks against route-gates.md and road.md", () => {
       { band: 70, points: 31 },
       { band: 80, points: 34 },
     ]);
-    // Zainab at 25, a bachelor's, band 7.0, 18 months in a job.
+    // The developer at 25, a bachelor's, band 7.0, 18 months in a job.
     expect(score(25, 3, 70, 18)).toBe(404);
-    // Ada at 23, a bachelor's, band 6.5, no job yet.
+    // The graduate at 23, a bachelor's, band 6.5, no job yet.
     expect(score(23, 3, 65, 0)).toBe(335);
     // Three years of work and band 7.0 at 28: the transferability cap is not reached.
     expect(score(28, 3, 70, 36)).toBe(110 + 120 + 124 + 25 + 50);

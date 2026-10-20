@@ -29,8 +29,8 @@ function done(game: Game, chapter: Id<"chapter">): boolean {
   return check(readOf(game), { type: "chapter/done", chapter }).met;
 }
 
-/** Tunde has a job and four years in it; only the route items of chapter 1 are left. */
-function tunde(): Game {
+/** The banker has a job and four years in it; only the route items of chapter 1 are left. */
+function banker(): Game {
   return start({ scenario: "scenario.banker", content });
 }
 
@@ -51,7 +51,7 @@ describe("the first chapter", () => {
 
 describe("closing a chapter", () => {
   test("[chapter:met-items-close-the-chapter] given every item of the current chapter met, when the turn ends, then it is done, the next by order opens and the bank is refilled", () => {
-    const game = tunde();
+    const game = banker();
     // The route is heard of by month 3 (route:friend-tells-by-month), but not yet looked into.
     for (let month = 0; month < 3; month += 1) {
       const result = game.endTurn();
@@ -98,7 +98,7 @@ describe("closing a chapter", () => {
   });
 
   test("[chapter:met-items-close-the-chapter] given a chapter closing, when its lines are read, then the close asks for attention and the opening is quiet, and both have words", () => {
-    const game = tunde();
+    const game = banker();
     toHeard(game);
     const result = game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
     expect(chapterLines(result.lines)).toEqual([
@@ -217,7 +217,7 @@ describe("done stays done", () => {
   });
 
   test("[chapter:done-chapter-stays-done] given chapter 1 done, when the route slips back to heard, then chapter 1 stays done and chapter 2 stays current", () => {
-    const game = tunde();
+    const game = banker();
     toKnown(game);
     // No event takes a route back along an arrow (route:routes-move-along-arrows), so the slip is written into the state.
     writeRoute(game, UK_ROUTE, "heard");
@@ -253,7 +253,7 @@ describe("the last chapter", () => {
 
 describe("the chapter in the view", () => {
   test("[chapter:items-are-live-requirements] given a current chapter, when the view is read, then each item is shown met or not as the state is now", () => {
-    const game = tunde();
+    const game = banker();
     expect(game.view().chapter).toEqual({
       current: FEET,
       items: [

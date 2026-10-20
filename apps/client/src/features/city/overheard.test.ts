@@ -17,7 +17,7 @@ function heardAllDay(view: ReturnType<typeof abroadView>, place: string): string
 }
 
 describe("talk overheard abroad", () => {
-  test("[world:street-talk-budget] [city:overheard-talk-from-view] given Ada in the room abroad with stories delivered and routes heard, when talk is overheard all day, then every line is the room's own and none is the talk of Lagos", () => {
+  test("[world:street-talk-budget] [city:overheard-talk-from-view] given the graduate in the room abroad with stories delivered and routes heard, when talk is overheard all day, then every line is the room's own and none is the talk of Lagos", () => {
     const view = abroadView();
     expect(view.news.length).toBeGreaterThan(0);
     expect(view.routes.some((route) => route.state !== "unknown")).toBe(true);

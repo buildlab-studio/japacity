@@ -1,5 +1,5 @@
 // What a computer character may never do (person:computers-never-handle-money, person:computers-never-free-text): hold, take or give
-// money, or say anything that is not a line or a word from content. Played on Tunde's real life and the real content.
+// money, or say anything that is not a line or a word from content. Played on the banker's real life and the real content.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -28,7 +28,7 @@ function turn(game: Game, slots: SlotPick[]): ReportLine[] {
   return game.endTurn(slots).lines;
 }
 
-/** Tunde's life with computer siblings, every partner that will take a courting courted, and months of meetings. */
+/** The banker's life with computer siblings, every partner that will take a courting courted, and months of meetings. */
 function livedWithComputers(months: number): { game: Game; lines: ReportLine[] } {
   const game = start({ scenario: BANKER, content: eager() });
   const lines: ReportLine[] = [];

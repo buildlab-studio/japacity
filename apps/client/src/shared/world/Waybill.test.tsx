@@ -21,10 +21,10 @@ import { WorldSheet } from "./WorldSheet";
 
 const money = (amount: number, currency: string): string => formatMoney(amount, currency as Currency);
 const { handling } = content.tuning.parcel;
-/** Ada's draw with an older sibling settled in the UK. */
+/** The graduate's draw with an older sibling settled in the UK. */
 const SIBLING_ABROAD = "seed-3";
 
-function ada(): { game: ReturnType<typeof newGame>; view: PlayerView } {
+function graduate(): { game: ReturnType<typeof newGame>; view: PlayerView } {
   const game = newGame("scenario.graduate", SIBLING_ABROAD);
   game.endTurn();
   openOffer(game, PARCEL);
@@ -69,8 +69,8 @@ describe("the slip's rows", () => {
 });
 
 describe("the waybill", () => {
-  test("[world:one-action-one-sheet] given a parcel from Ada's sibling in the UK, when its waybill is built, then it is a slip naming the sender, You (a ready life has no name of its own), the thing and the charge, with the sender's note and one button that collects it", () => {
-    const { view } = ada();
+  test("[world:one-action-one-sheet] given a parcel from the graduate's sibling in the UK, when its waybill is built, then it is a slip naming the sender, You (a ready life has no name of its own), the thing and the charge, with the sender's note and one button that collects it", () => {
+    const { view } = graduate();
     const offer = view.offers.find((item) => item.entry === PARCEL)!;
     const holds = offer.choices[0]!.id;
     const thing = holds.slice(holds.indexOf("-") + 1);
@@ -95,7 +95,7 @@ describe("the waybill", () => {
   });
 
   test("[world:things-are-tappable-models] given the waybill open in a game, when Collect it is tapped, then the parcel's own choice is sent, the charge leaves the naira, and the sheet closes", async () => {
-    const { game } = ada();
+    const { game } = graduate();
     setPockets(game, { NGN: handling * 3 });
     const authority = gameAuthority(game);
     const store = createGameStore(authority);
@@ -118,7 +118,7 @@ describe("the waybill", () => {
   });
 
   test("[world:one-action-one-sheet] given less naira than the charge, when the waybill opens, then the button is shut and says how much is short", async () => {
-    const { game } = ada();
+    const { game } = graduate();
     setPockets(game, { NGN: handling - 100 });
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
@@ -132,7 +132,7 @@ describe("the waybill", () => {
   });
 
   test("[world:one-action-one-sheet] given the waybill standing in the asks sheet with less naira than the charge, when Not now is tapped, then the sheet it stands in lowers and the parcel waits on", async () => {
-    const { game } = ada();
+    const { game } = graduate();
     setPockets(game, { NGN: handling - 100 });
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();

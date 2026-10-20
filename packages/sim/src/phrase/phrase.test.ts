@@ -118,7 +118,7 @@ describe("the phrases in content", () => {
 });
 
 describe("fill-ins", () => {
-  test("[pair:preset-phrases-only] given Ada's view, when the fill-ins are asked for, then spots, heard routes, delivered news and options come from their lists only", () => {
+  test("[pair:preset-phrases-only] given the graduate's view, when the fill-ins are asked for, then spots, heard routes, delivered news and options come from their lists only", () => {
     const view = start({ scenario: "scenario.graduate", content }).view();
     const routes: PlayerView["routes"] = [
       { ...(view.routes[0] as PlayerView["routes"][number]), id: "route.uk-masters", state: "heard" },

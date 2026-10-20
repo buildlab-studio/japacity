@@ -25,7 +25,7 @@ function said(lines: readonly ReportLine[]): string[] {
   return moneyLines(lines).map(({ line, sign }) => `${sign > 0 ? "+" : "-"} ${words(line.key, line.params)}`);
 }
 
-/** Tunde with naira in hand as cash, as the FX man takes it. */
+/** The banker with naira in hand as cash, as the FX man takes it. */
 function withCash(naira: number): Game {
   const game = newGame("scenario.banker");
   const moved = game.accept({ type: "wallet/move", currency: "NGN", amount: naira, to: "cash" });

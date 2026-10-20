@@ -179,7 +179,7 @@ export function recordedSave(name: string): FlatSave {
  */
 export const ABROAD_POCKETS = { GBP: 0, USD: 800_000, NGN: 500_000_000 } as const satisfies Partial<Record<Currency, number>>;
 
-/** Ada's careful life replayed up to and including the flight, with the pockets of `ABROAD_POCKETS`. */
+/** The graduate's careful life replayed up to and including the flight, with the pockets of `ABROAD_POCKETS`. */
 export function abroadGame(): Game {
   const game = recordedGame("graduate-careful");
   setPockets(game, ABROAD_POCKETS);
@@ -204,7 +204,7 @@ export function landedGame(country: Id<"country">, amount = 500_000): Game {
 }
 
 /**
- * Ada's careful life, replayed up to the flight and then `months` months
+ * The graduate's careful life, replayed up to the flight and then `months` months
  * abroad with the slots left empty, so the screens abroad are the engine's own.
  */
 export function abroadView(months = 0): PlayerView {
@@ -214,7 +214,7 @@ export function abroadView(months = 0): PlayerView {
 }
 
 /**
- * Ada flown as `abroadGame` flies her, on the goal journey's calendar: the
+ * The graduate flown as `abroadGame` flies it, on the goal journey's calendar: the
  * tick of the flight, in which the first month abroad is played, is December.
  */
 export function decemberAbroadGame(): Game {
@@ -352,7 +352,7 @@ export function openOffer(game: Game, offer: Id<"offer">): PlayerView["offers"][
   return opened;
 }
 
-/** Ada flown into a December month and played on with empty slots until the December visit opens. */
+/** The graduate flown into a December month and played on with empty slots until the December visit opens. */
 export function decemberGame(): Game {
   const game = decemberAbroadGame();
   for (let month = 0; month < 12 && game.state.setpiece.open === null; month += 1) game.endTurn();

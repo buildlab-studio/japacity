@@ -21,8 +21,8 @@ const BODE_THOMAS = content.place["place.bode-thomas"]!.position!;
 const YABA = content.place["place.yaba"]!.position!;
 const MAKOKO = content.place["place.makoko"]!.position!;
 
-/** Ada with this much naira, cash and bank together. */
-function ada(naira: number): PlayerView {
+/** The graduate with this much naira, cash and bank together. */
+function graduate(naira: number): PlayerView {
   const game = newGame();
   setPockets(game, { NGN: naira });
   return { ...game.view(), offers: [] };
@@ -34,7 +34,7 @@ function atTheClinicStep(view: PlayerView): PlayerView {
 }
 
 describe("an offer out of reach", () => {
-  test("[world:nudge-says-one-thing] given Ada with no naira at the hub and a parcel waiting at the cargo office a ride away, when the nudge is read, then it does not point at the parcel", () => {
+  test("[world:nudge-says-one-thing] given the graduate with no naira at the hub and a parcel waiting at the cargo office a ride away, when the nudge is read, then it does not point at the parcel", () => {
     const game = newGame("scenario.graduate", "seed-3");
     game.endTurn();
     openOffer(game, "offer.parcel-shipped");
@@ -53,8 +53,8 @@ describe("an offer out of reach", () => {
 describe("the free step", () => {
   // A life with no fare may walk to or from home, however far, so far from home the free step is the walk home, and at
   // home with nothing free near the step itself is named: the long walk out reaches it (world:ride-sheet-shows-fares).
-  test("[world:nudge-says-one-thing] [world:ride-sheet-shows-fares] given Ada with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to walk home, however far, never a ride she cannot pay; at home with nothing near it names the step, the long walk out reaching it", () => {
-    const view = atTheClinicStep(ada(0));
+  test("[world:nudge-says-one-thing] [world:ride-sheet-shows-fares] given the graduate with no naira somewhere far from home with nothing on foot, when the nudge is read, then it says to walk home, however far, never a ride it cannot pay; at home with nothing near it names the step, the long walk out reaching it", () => {
+    const view = atTheClinicStep(graduate(0));
     const reach: Reach = { here: "place.passport-office", home: "place.family-house", stops: [{ id: "place.passport-office", position: FAR }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }, { id: "place.bode-thomas", position: BODE_THOMAS }] };
     expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
     const atHome: Reach = { here: "place.family-house", home: "place.family-house", stops: [{ id: "place.family-house", position: FAR }, { id: "place.tb-clinic", position: HOME_SPOT }] };
@@ -69,15 +69,15 @@ describe("the free step", () => {
   });
 
   test("[world:nudge-says-one-thing] [world:ride-sheet-shows-fares] given a life with no naira away from home, when the free step is read, then it is the walk home whether home is near or a long way off, before the racks and the board", () => {
-    const view = atTheClinicStep(ada(0));
+    const view = atTheClinicStep(graduate(0));
     for (const homeAt of [HOME_SPOT, FAR]) {
       const reach: Reach = { here: "place.akoka", home: "place.family-house", stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.family-house", position: homeAt }, { id: "place.tb-clinic", position: FAR }] };
       expect(freeStep(view, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
     }
   });
 
-  test("[world:nudge-says-one-thing] given Ada with no naira at Bode Thomas and the hub a ride away, when the nudge is read, then it says to walk home, home being near enough, and its way is home", () => {
-    const view = ada(0);
+  test("[world:nudge-says-one-thing] given the graduate with no naira at Bode Thomas and the hub a ride away, when the nudge is read, then it says to walk home, home being near enough, and its way is home", () => {
+    const view = graduate(0);
     const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
     expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
     const said = say("ui.nudge.broke.home");
@@ -85,28 +85,28 @@ describe("the free step", () => {
     expect(said.split(". ")).toHaveLength(1);
   });
 
-  test("[world:nudge-says-one-thing] given Ada at Bode Thomas with the danfo's fare held, when the nudge is read, then it keeps the chapter's step; a kobo short, the free step comes", () => {
+  test("[world:nudge-says-one-thing] given the graduate at Bode Thomas with the danfo's fare held, when the nudge is read, then it keeps the chapter's step; a kobo short, the free step comes", () => {
     const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
-    expect(freeStep(ada(FARE), reach)).toBeNull();
-    expect(nudgeOf(ada(FARE), undefined, [], false, reach).key).not.toMatch(/^ui\.nudge\.broke/);
-    expect(freeStep(ada(FARE - 1), reach)?.key).toBe("ui.nudge.broke.home");
+    expect(freeStep(graduate(FARE), reach)).toBeNull();
+    expect(nudgeOf(graduate(FARE), undefined, [], false, reach).key).not.toMatch(/^ui\.nudge\.broke/);
+    expect(freeStep(graduate(FARE - 1), reach)?.key).toBe("ui.nudge.broke.home");
   });
 
   test("[world:nudge-says-one-thing] given the fares doubled this month, when the naira held covers the usual fare but not the month's, then the free step comes", () => {
-    const view = ada(FARE);
+    const view = graduate(FARE);
     const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
     expect(freeStep({ ...view, place: { ...view.place, fareBp: 20_000 } }, reach)?.key).toBe("ui.nudge.broke.home");
   });
 
-  test("[world:nudge-says-one-thing] given Ada with no naira standing where the step is, or with the step's stop on foot, when the nudge is read, then no free step is named", () => {
-    const view = ada(0);
+  test("[world:nudge-says-one-thing] given the graduate with no naira standing where the step is, or with the step's stop on foot, when the nudge is read, then no free step is named", () => {
+    const view = graduate(0);
     expect(freeStep(view, { here: "place.yaba", home: "place.family-house", stops: [{ id: "place.yaba", position: YABA }, { id: "place.family-house", position: HOME_SPOT }] })).toBeNull();
     expect(freeStep(view, { here: "place.akoka", home: null, stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }] })).toBeNull();
   });
 
   // Away from home the walk home comes first, so the board is named from home.
-  test("[world:nudge-says-one-thing] given Ada with no naira and no job at home near the hub's board, the step's stop a ride away, when the nudge is read, then it names work nearby and its way is the board", () => {
-    const view = atTheClinicStep(ada(0));
+  test("[world:nudge-says-one-thing] given the graduate with no naira and no job at home near the hub's board, the step's stop a ride away, when the nudge is read, then it names work nearby and its way is the board", () => {
+    const view = atTheClinicStep(graduate(0));
     const reach: Reach = { here: "place.family-house", home: "place.family-house", stops: [{ id: "place.family-house", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.tb-clinic", position: FAR }] };
     expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY });
   });
@@ -134,7 +134,7 @@ describe("the free step abroad", () => {
   const OUT = { latE3: PECKHAM.latE3 + 40, lonE3: PECKHAM.lonE3 };
   const BUS = content.tuning.city.ride.abroad["country.uk"]!.ways.bus!.fare;
 
-  /** Ada landed in London with this many pence and no naira, the chapter's step at the clinic. */
+  /** The graduate landed in London with this many pence and no naira, the chapter's step at the clinic. */
   function inLondon(pence: number): PlayerView {
     return atTheClinicStep({ ...landedGame("country.uk", pence).view(), offers: [] });
   }
@@ -144,7 +144,7 @@ describe("the free step abroad", () => {
     stops: [{ id: "place.peckham", position: PECKHAM }, { id: "place.the-room", position: ROOM_SPOT }, { id: "place.tb-clinic", position: clinic }],
   });
 
-  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in London with pounds and no naira, the step's stop 1.9 km away, when the nudge is read, then the step is named, never the walk home", () => {
+  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given the graduate in London with pounds and no naira, the step's stop 1.9 km away, when the nudge is read, then the step is named, never the walk home", () => {
     const view = inLondon(1000);
     expect(view.pockets.NGN.cash + view.pockets.NGN.bank).toBe(0);
     expect(freeStep(view, reachTo(EAST))).toBeNull();
@@ -153,18 +153,18 @@ describe("the free step abroad", () => {
     expect(freeStep(inLondon(BUS), reachTo(OUT))).toBeNull();
   });
 
-  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in London with no pounds, when the nudge is read, then a stop 1.9 km away is on foot by London's own measure, and a stop past walking distance gets the walk home to the room", () => {
+  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given the graduate in London with no pounds, when the nudge is read, then a stop 1.9 km away is on foot by London's own measure, and a stop past walking distance gets the walk home to the room", () => {
     expect(freeStep(inLondon(0), reachTo(EAST))).toBeNull();
     expect(freeStep(inLondon(BUS - 1), reachTo(OUT))).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.the-room", at: [] } });
   });
 
-  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in the room in London with no pounds, the step's stop past walking distance, when the nudge is read, then the step is named, the long walk out of the room reaching it", () => {
+  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given the graduate in the room in London with no pounds, the step's stop past walking distance, when the nudge is read, then the step is named, the long walk out of the room reaching it", () => {
     const inRoom: Reach = { here: "place.the-room", home: "place.the-room", stops: [{ id: "place.the-room", position: ROOM_SPOT }, { id: "place.peckham", position: PECKHAM }, { id: "place.tb-clinic", position: OUT }] };
     expect(freeStep(inLondon(0), inRoom)).toBeNull();
     expect(nudgeOf(inLondon(0), undefined, [], false, inRoom).key).not.toMatch(/^ui\.nudge\.broke/);
   });
 
-  test("[world:nudge-says-one-thing] [place:country-pass-covers-ways] given Ada in London with no pounds in a month the bus pass is bought, when the nudge is read, then the bus asks nothing and no free step is named", () => {
+  test("[world:nudge-says-one-thing] [place:country-pass-covers-ways] given the graduate in London with no pounds in a month the bus pass is bought, when the nudge is read, then the bus asks nothing and no free step is named", () => {
     const view = inLondon(0);
     const ways = (view.place.ways ?? []).map((way) => (way.way === "bus" ? { ...way, passed: true } : way));
     expect(freeStep({ ...view, place: { ...view.place, ways } }, reachTo(OUT))).toBeNull();

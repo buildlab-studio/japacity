@@ -18,7 +18,7 @@ import { PhoneApps } from "../PhoneApps";
 import { Bank, bankLimit, latelyMoney } from "./Bank";
 import { sent } from "../phone.testing";
 
-/** Tunde at home with ₦2,110,450 in the bank. */
+/** The banker at home with ₦2,110,450 in the bank. */
 function heldAtHome() {
   const game = newGame("scenario.banker");
   setPockets(game, { NGN: 211_045_000 });

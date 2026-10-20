@@ -19,7 +19,7 @@ const stop = content.offer[STOP]!;
 /** The ready life's papers with the transcript left out, so it can be requested and wait. */
 const NO_TRANSCRIPT = READY_PAPERS.filter((paper) => paper.document !== TRANSCRIPT);
 
-/** Ada past the first chapter with the Gulf route heard; cash as given, or the ready life's. */
+/** The graduate past the first chapter with the Gulf route heard; cash as given, or the ready life's. */
 function pastChapterOne(seed: string, cash?: number): Game {
   const withCash = (base: Content): Content =>
     cash === undefined ? base : { ...base, scenario: { ...base.scenario, [READY]: { ...base.scenario[READY]!, pockets: { ...base.scenario[READY]!.pockets, NGN: { bank: 0, cash } } } } };

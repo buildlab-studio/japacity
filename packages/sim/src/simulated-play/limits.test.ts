@@ -24,8 +24,8 @@ function centsOf(rates: Record<ForeignCurrency, number>, naira: number): number 
 }
 
 /**
- * Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. Under decision 0013 nothing of
- * her living is charged as a month turns at home, so resting alone never brings her under the line: each month she eats
+ * The graduate, rested until the quick loan opens: under ₦100,000 and nothing on its credit mark. Under decision 0013 nothing of
+ * its living is charged as a month turns at home, so resting alone never brings it under the line: each month it eats
  * by hand as the month's time allows (home:living-by-hand), the meals spending about what the month's living charge took.
  */
 function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {

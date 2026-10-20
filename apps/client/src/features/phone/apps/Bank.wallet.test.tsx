@@ -81,7 +81,7 @@ describe("money in the Bank", () => {
 });
 
 describe("sending money home from the Bank", () => {
-  test("[abroad-money:remit-quote-is-shared] given Ada abroad with money in a bank there, when an amount is set, then every channel shows what arrives in naira by the wallet's own quote", async () => {
+  test("[abroad-money:remit-quote-is-shared] given the graduate abroad with money in a bank there, when an amount is set, then every channel shows what arrives in naira by the wallet's own quote", async () => {
     const view = abroadView();
     await renderWithView(<Bank opening="send" />, view);
     const currency = sentFirst(view);
@@ -120,7 +120,7 @@ describe("sending money home from the Bank", () => {
     expect(document.querySelector('[data-go="send"]')).toBeNull();
   });
 
-  test("[abroad-money:foreign-currencies-join-wallet] given Ada in the UK, then the Bank offers to send money home and money abroad formats in its own currency", async () => {
+  test("[abroad-money:foreign-currencies-join-wallet] given the graduate in the UK, then the Bank offers to send money home and money abroad formats in its own currency", async () => {
     await renderWithView(<Bank />, abroadView());
     expect(screen.getByRole("button", { name: say("ui.remit.title") })).toBeDefined();
     expect(formatMoney(150_000, "CAD")).toBe("CA$1,500");
@@ -134,7 +134,7 @@ describe("sending money home from the Bank", () => {
 });
 
 describe("the family from abroad, in the Bank", () => {
-  test("[abroad-money:remit-sends-money-home] given Ada abroad, then the naira at home that requests are paid from shows, with the way to send more", async () => {
+  test("[abroad-money:remit-sends-money-home] given the graduate abroad, then the naira at home that requests are paid from shows, with the way to send more", async () => {
     const view = abroadView();
     await renderWithView(<Bank />, view);
     const family = document.querySelector<HTMLElement>("[data-family]")!;

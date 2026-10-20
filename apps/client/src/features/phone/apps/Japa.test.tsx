@@ -22,12 +22,12 @@ beforeEach(() => {
   reloadSeen();
 });
 
-/** Ada at the start, with the UK master's only heard of: no plan yet, and the official page open to her. */
+/** The graduate at the start, with the UK master's only heard of: no plan yet, and the official page open to it. */
 function graduateHeard(): PlayerView {
   const view = viewAfter(newGame("scenario.graduate"), [{ type: "route/hear", route: UK, via: "test" }]);
   const official = view.activities.find((option) => option.id === OFFICIAL);
-  if (official?.allowed !== true || official.params?.includes(UK) !== true) throw new Error("Ada cannot read the official page.");
-  if (view.japacity.route !== null) throw new Error("Ada already has a plan.");
+  if (official?.allowed !== true || official.params?.includes(UK) !== true) throw new Error("The graduate cannot read the official page.");
+  if (view.japacity.route !== null) throw new Error("The graduate already has a plan.");
   return view;
 }
 
@@ -104,7 +104,7 @@ describe("a paper being renewed in Japa", () => {
   test("[document:paper-on-its-way] given a held passport with a new copy requested, when Japa opens, then the reminders say when it comes and the Papers app says it is on its way, with no warning that it runs out", async () => {
     const view = viewAfter(newGame("scenario.banker"), [{ type: "document/request", document: "document.passport" }]);
     const passport = view.documents.find((paper) => paper.id === "document.passport");
-    if (passport?.state !== "held" || passport.onItsWay === null) throw new Error("Tunde's passport is not being renewed.");
+    if (passport?.state !== "held" || passport.onItsWay === null) throw new Error("The banker's passport is not being renewed.");
     await openJapa(view);
     expect(document.querySelector("[data-reminders]")?.textContent).toContain(nameOf("document.passport"));
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
@@ -121,7 +121,7 @@ describe("a paper being renewed in Japa", () => {
 describe("Japa after the grant and the flight", () => {
   const LANDING = "chapter.landing";
 
-  test("[world:phone-holds-what-phones-hold] given Ada's visa granted and the plane not yet boarded, when Japa opens, then the plan still stands at its percent and the next step is to board the plane", async () => {
+  test("[world:phone-holds-what-phones-hold] given the graduate's visa granted and the plane not yet boarded, when Japa opens, then the plan still stands at its percent and the next step is to board the plane", async () => {
     const view = recordedGame("graduate-careful", 1).view();
     expect(view.routes.find((route) => route.id === UK)?.state).toBe("granted");
     await openJapa(view);
@@ -131,10 +131,10 @@ describe("Japa after the grant and the flight", () => {
     expect(app?.querySelector("[data-japa-visa]")).toBeNull();
   });
 
-  test("[world:phone-holds-what-phones-hold] given Ada just landed in London, when Japa opens, then it shows the visa she holds, what it lets her do, the months left and the way up, with the landing's steps to come, and no percent or Ready to go", async () => {
+  test("[world:phone-holds-what-phones-hold] given the graduate just landed in London, when Japa opens, then it shows the visa it holds, what it lets it do, the months left and the way up, with the landing's steps to come, and no percent or Ready to go", async () => {
     const view = abroadView();
     const held = view.status;
-    if (held === null) throw new Error("Ada landed with no status.");
+    if (held === null) throw new Error("The graduate landed with no status.");
     expect(view.chapter.current).not.toBe(LANDING);
     await openJapa(view);
     const app = document.querySelector<HTMLElement>('[data-phone-app="japa"]');
@@ -152,7 +152,7 @@ describe("Japa after the grant and the flight", () => {
     expect(app?.querySelector("[data-japa-next]")).toBeNull();
   });
 
-  test("[world:phone-holds-what-phones-hold] given Ada a month into life abroad, when Japa opens, then the landing's steps carry what is done, and the next is its first step not done", async () => {
+  test("[world:phone-holds-what-phones-hold] given the graduate a month into life abroad, when Japa opens, then the landing's steps carry what is done, and the next is its first step not done", async () => {
     const view = abroadView(1);
     expect(view.chapter.current).toBe(LANDING);
     const next = view.chapter.items.find((item) => !item.met);

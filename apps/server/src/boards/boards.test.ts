@@ -35,7 +35,7 @@ function reply(body: BoardReply | ServerRejection): BoardReply {
   return body;
 }
 
-/** The state with the UK route known: Ada's degree and grade then earn their weight. */
+/** The state with the UK route known: the life's degree and grade then earn their weight. */
 function knowing(state: State): State {
   const known = structuredClone(state);
   const route = known.route[UK];

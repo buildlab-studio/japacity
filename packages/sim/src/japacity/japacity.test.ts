@@ -33,20 +33,20 @@ function readOf(game: Game, window?: number): ReadCtx {
   };
 }
 
-function ada(used: Content = content): Game {
+function graduate(used: Content = content): Game {
   return start({ scenario: "scenario.graduate", content: used });
 }
 
-/** Ada with the route heard of and looked into, month by month through the real route kind. */
+/** The graduate with the route heard of and looked into, month by month through the real route kind. */
 function graduateKnown(used: Content = content): Game {
-  const game = ada(used);
+  const game = graduate(used);
   toKnown(game);
   return game;
 }
 
 /** Never refused: the floor and the ceiling of route:visa-refusal-chance pinned together. */
 
-/** The first seed whose first Northgate answer is an offer for Ada's grade. */
+/** The first seed whose first Northgate answer is an offer for the graduate's grade. */
 const OFFERED = (() => {
   for (let i = 0; i < 1000; i += 1) {
     const seed = `seed-${String(i)}`;
@@ -56,7 +56,7 @@ const OFFERED = (() => {
 })();
 
 /**
- * Ada with her papers and money in hand, played through the real route kind
+ * The graduate with its papers and money in hand, played through the real route kind
  * to the visa application, the grant, or the flight.
  */
 function readyAt(to: "applying" | "granted" | "departed"): Game {
@@ -109,10 +109,10 @@ function withTwin(first: boolean): Content {
 }
 
 describe("a route's figure", () => {
-  test("[japacity:figure-sums-checklist-items] given Ada with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
+  test("[japacity:figure-sums-checklist-items] given the graduate with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
     const game = graduateKnown();
     const read = readOf(game);
-    // Her degree and her second upper are met; nothing else on the list is yet.
+    // Its degree and its second upper are met; nothing else on the list is yet.
     expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade"));
     const items = checklistView(read, UK_ROUTE, judgeWith(read));
     expect(items.map((item) => item.id)).toEqual(uk.checklist.map((item) => item.id));
@@ -120,7 +120,7 @@ describe("a route's figure", () => {
     expect(items.find((item) => item.id === "passport")).toEqual({ id: "passport", weight: weight("passport"), met: false, have: null, need: null, earned: 0 });
   });
 
-  test("[japacity:figure-sums-checklist-items] given Ada with the route known, when her passport and transcript are issued, then each adds its whole weight", () => {
+  test("[japacity:figure-sums-checklist-items] given the graduate with the route known, when its passport and transcript are issued, then each adds its whole weight", () => {
     const game = graduateKnown();
     carryOut(game, [{ type: "document/grant", document: "document.passport" }]);
     let read = readOf(game);
@@ -173,7 +173,7 @@ describe("a route's figure", () => {
   });
 
   test("[japacity:heard-routes-have-no-figure] given a route only heard of, or unknown, when the figure is asked for, then there is none", () => {
-    const game = ada();
+    const game = graduate();
     expect(routePercent(readOf(game), UK_ROUTE)).toBeNull();
     toHeard(game);
     expect(routePercent(readOf(game), UK_ROUTE)).toBeNull();
@@ -215,7 +215,7 @@ describe("the character's japacity", () => {
   test("[japacity:best-open-route-is-japacity] given no route that counts, when japacity is asked for, then it is empty", () => {
     const states: RouteStateName[] = ["unknown", "heard", "refused"];
     for (const to of states) {
-      const game = ada();
+      const game = graduate();
       if (to === "heard") toHeard(game);
       if (to === "refused") {
         toKnown(game);
@@ -225,7 +225,7 @@ describe("the character's japacity", () => {
       const read = readOf(game);
       expect(japacity(read, judgeWith(read))).toEqual({ percent: null, route: null });
     }
-    expect(japacity(readOf(ada()))).toEqual({ percent: null, route: null });
+    expect(japacity(readOf(graduate()))).toEqual({ percent: null, route: null });
   });
 
   test("[japacity:best-open-route-is-japacity] given two routes, when one is higher, then japacity is the higher whatever the order", () => {
@@ -246,7 +246,7 @@ describe("the character's japacity", () => {
 
   test("[japacity:best-open-route-is-japacity] given two routes with the same figure, when japacity is asked for, then the route first in content order is named", () => {
     for (const first of [true, false]) {
-      const game = ada(withTwin(first));
+      const game = graduate(withTwin(first));
       bothHeard(game);
       game.endTurn([{ activity: "activity.look-into-route", param: TWIN }]);
       toKnown(game);
@@ -259,7 +259,7 @@ describe("the character's japacity", () => {
   });
 
   test("[japacity:best-open-route-is-japacity] given the view, when a route is not yet known, then it shows no route yet", () => {
-    const view = ada().view();
+    const view = graduate().view();
     expect(view.japacity).toEqual({ percent: null, route: null });
     expect(start({ content: miniContent }).view().japacity).toEqual({ percent: null, route: null });
   });

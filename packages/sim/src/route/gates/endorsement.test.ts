@@ -41,7 +41,7 @@ function withCooldownStep(used: Content): Content {
 }
 
 /**
- * Ada, who holds no job, so her tech and network stay where they are set. The talent route's window is held open
+ * The graduate, who holds no job, so its tech and network stay where they are set. The talent route's window is held open
  * unless a test sets it: the world's own pool may close it in any world (`news.uk-talent-body-closes`, director:stories-start-by-roll),
  * and with the one-chance story in the pool (wallet:cash-pile-warning) it does so in the test world's first months.
  */

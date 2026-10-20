@@ -29,7 +29,7 @@ const seeds = () => {
 
 type Loose = Command extends infer C ? (C extends unknown ? Omit<C, "basedOn"> : never) : never;
 
-/** Ngozi, who holds a passport, sits the English test and ends the month at nine in the evening. */
+/** The nurse, who holds a passport, sits the English test and ends the month at nine in the evening. */
 async function testSat(at: { now: number }) {
   const authority = localAuthority({ fastClock: true, storage: removableStorage(), makeSeed: seeds(), now: () => at.now, scenario: "scenario.nurse" });
   await authority.newLife("scenario.nurse");

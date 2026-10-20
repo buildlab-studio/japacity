@@ -53,7 +53,7 @@ function stand(place: string): void {
   localStorage.setItem(CITY_LAST_KEY, JSON.stringify([place]));
 }
 
-/** Ada plans a master's course, rides out and naps through a day, so its first line is due, with the phone put away. */
+/** The graduate plans a master's course, rides out and naps through a day, so its first line is due, with the phone put away. */
 async function courseDue(): Promise<{ store: GameStore; open: () => void; close: () => void }> {
   const store = await graduateStore();
   let shown = false;

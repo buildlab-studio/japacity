@@ -1,5 +1,5 @@
 // London on the Lagos mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
-// place:rides-between-city-places, place:country-pass-covers-ways; streets:london-life-by-hand): Ada's recorded life lands in London, she walks to Peckham Rye,
+// place:rides-between-city-places, place:country-pass-covers-ways; streets:london-life-by-hand): the graduate's recorded life lands in London, walks to Peckham Rye,
 // buys the month's bus pass at the ticket machine, rides the bus free to the big shop, does the weekly shop, takes the
 // train to the office at London Bridge for its fare, and rides the bus home to the room, the long walk greyed with the pass in hand.
 import { expect, type Page, test } from "@playwright/test";
@@ -15,7 +15,7 @@ test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile
 /** The graduate's second life a few months into London on a sponsored job (it lands at command 374), as the catalog opens it. */
 const GRADUATE_IN_LONDON = 392;
 
-test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [streets:london-life-by-hand] given Ada landed in London, when she buys the bus pass, rides the bus to the big shop, does the weekly shop, takes the train to the office and goes home, then the bus asks nothing, the shop and the train take pounds, the long walk home is greyed while the bus is free, and she ends in the room", async ({ page }) => {
+test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [streets:london-life-by-hand] given the graduate landed in London, when the life buys the bus pass, rides the bus to the big shop, does the weekly shop, takes the train to the office and goes home, then the bus asks nothing, the shop and the train take pounds, the long walk home is greyed while the bus is free, and the life ends in the room", async ({ page }) => {
   test.setTimeout(420_000);
   await seedSave(page, recordedUpTo("graduate-abroad", GRADUATE_IN_LONDON));
   await page.goto(`/${LIVED}&clock=afternoon`);
@@ -58,7 +58,7 @@ test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [street
   await expect.poll(() => pounds(page), { timeout: 20_000 }).toBeLessThan(beforeTrain);
 
   // The room is past walking distance and the pass makes the bus free, so the long walk home is greyed with its reason
-  // (place:rides-between-city-places, world:ride-sheet-shows-fares) and the bus takes her home for nothing.
+  // (place:rides-between-city-places, world:ride-sheet-shows-fares) and the bus takes the life home for nothing.
   await pickStop(page, "place.the-room");
   await expect(page.locator('[data-ride-sheet="place.the-room"] [data-way="walk"]')).toHaveAttribute("data-shut", "fare");
   const beforeHome = await pounds(page);

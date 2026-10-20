@@ -23,7 +23,7 @@ function placeCard(): HTMLElement {
 }
 
 describe("where you are, in Papers", () => {
-  test("[place:view-shows-place-and-returns] given Ada just landed, then the country and the months here show and no return is on record", async () => {
+  test("[place:view-shows-place-and-returns] given the graduate just landed, then the country and the months here show and no return is on record", async () => {
     const view = abroadView();
     await openPapers(view, "London");
     const card = within(placeCard());
@@ -38,7 +38,7 @@ describe("where you are, in Papers", () => {
     expect(document.querySelector("[data-papers-place]")).toBeNull();
   });
 
-  test("[place:return-home-paid-or-assisted] given Ada abroad with no pounds and naira enough, then the fare shows with what it takes from naira", async () => {
+  test("[place:return-home-paid-or-assisted] given the graduate abroad with no pounds and naira enough, then the fare shows with what it takes from naira", async () => {
     const game = abroadGame();
     setPockets(game, { NGN: 500_000_000 });
     const view = game.view();
@@ -49,7 +49,7 @@ describe("where you are, in Papers", () => {
     expect(fare.getByText(say("ui.place.fare-naira", { naira: formatMoney(nairaForFee(view, "GBP", UK.fare), "NGN") }))).toBeDefined();
   });
 
-  test("[place:return-home-paid-or-assisted] given Ada landed with dollars but neither pounds nor naira enough for the fare, then she is told to change money first", async () => {
+  test("[place:return-home-paid-or-assisted] given the graduate landed with dollars but neither pounds nor naira enough for the fare, then it is told to change money first", async () => {
     const game = abroadGame();
     setPockets(game, { NGN: 0, GBP: 0, USD: 500000 });
     const view = game.view();

@@ -14,7 +14,7 @@ type Shared = NonNullable<PlayerView["card"]>;
 
 function graduateWith(kind: Shared["kind"]): PlayerView {
   const view = recordedGame("graduate-careful").view();
-  if (view.card === null) throw new Error("Ada's recorded life has no card.");
+  if (view.card === null) throw new Error("The graduate's recorded life has no card.");
   return { ...view, card: { ...view.card, kind, ...(kind === "chapter" ? { chapter: "chapter.landing" as const } : {}) } };
 }
 

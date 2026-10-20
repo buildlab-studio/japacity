@@ -81,34 +81,34 @@ describe("side jobs", () => {
   });
 
   test("[activity:side-job-holds-a-slot] given a job and a side job, when the side job is quit, then only it ends; with none held, quitting a side job is not legal; one side job at a time", () => {
-    const tunde = sideJob("scenario.banker", TUTORING);
-    applyEffects(tunde, [{ type: "activity/start-job", job: RIDE }]);
-    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: RIDE });
-    const quit = tunde.accept({ type: "activity/quit", side: true });
+    const banker = sideJob("scenario.banker", TUTORING);
+    applyEffects(banker, [{ type: "activity/start-job", job: RIDE }]);
+    expect(banker.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: RIDE });
+    const quit = banker.accept({ type: "activity/quit", side: true });
     expect(quit.events).toContainEqual({ type: "activity/side-ended", side: RIDE, why: "quit" });
     expect(quit.lines.map((line) => line.key)).toEqual(["line.activity.side-quit"]);
-    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
-    expect(sideJobHeld(readOf(tunde))).toBe(false);
-    tunde.expectRejected({ type: "activity/quit", side: true }, "not-legal");
+    expect(banker.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
+    expect(sideJobHeld(readOf(banker))).toBe(false);
+    banker.expectRejected({ type: "activity/quit", side: true }, "not-legal");
     // The plain quit is still the job's.
-    tunde.accept({ type: "activity/quit" });
-    expect(tunde.state.activity.job).toBeNull();
+    banker.accept({ type: "activity/quit" });
+    expect(banker.state.activity.job).toBeNull();
   });
 
   test("[activity:side-job-holds-a-slot] given a job and a side job, when `activity/end-job` names the side slot, then only the side job ends, with the effect's why; with no side job held it ends nothing", () => {
-    const tunde = sideJob("scenario.banker", RIDE);
-    applyEffects(tunde, [{ type: "activity/end-job", why: "moved", side: true }]);
-    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
-    const before = tunde.state.activity;
-    applyEffects(tunde, [{ type: "activity/end-job", why: "moved", side: true }]);
-    expect(tunde.state.activity).toEqual(before);
+    const banker = sideJob("scenario.banker", RIDE);
+    applyEffects(banker, [{ type: "activity/end-job", why: "moved", side: true }]);
+    expect(banker.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
+    const before = banker.state.activity;
+    applyEffects(banker, [{ type: "activity/end-job", why: "moved", side: true }]);
+    expect(banker.state.activity).toEqual(before);
   });
 
   test("[activity:side-job-holds-a-slot] given a job and a side job, when `activity/end-job` names no slot, then only the main job ends, whatever its why", () => {
     for (const why of ["moved", "side-moved"]) {
-      const tunde = sideJob("scenario.banker", RIDE);
-      applyEffects(tunde, [{ type: "activity/end-job", why }]);
-      expect(tunde.state.activity).toMatchObject({ job: null, side: RIDE });
+      const banker = sideJob("scenario.banker", RIDE);
+      applyEffects(banker, [{ type: "activity/end-job", why }]);
+      expect(banker.state.activity).toMatchObject({ job: null, side: RIDE });
     }
   });
 

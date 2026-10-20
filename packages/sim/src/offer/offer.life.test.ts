@@ -333,7 +333,7 @@ describe("the whip-round", () => {
     expect(content.offer[WHIP]).toMatchObject({ chanceBp: 0, maxTimes: 1, luck: true, where: "home" });
   });
 
-  /** Ada at home with nothing in any pocket, played to the month before the rescue may come. */
+  /** The graduate at home with nothing in any pocket, played to the month before the rescue may come. */
   function brokeAt(months: number, used: Content = content): Game {
     const game = start({ scenario: GRADUATE, content: used });
     emptyPockets(game);
@@ -344,7 +344,7 @@ describe("the whip-round", () => {
     return game;
   }
 
-  test("[luck:whip-round-once-per-life] given Ada at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
+  test("[luck:whip-round-once-per-life] given the graduate at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
     const game = brokeAt(10);
     expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
     expect(game.state.turn.month).toBe(11);
@@ -385,7 +385,7 @@ describe("the whip-round", () => {
     }
   });
 
-  test("[luck:whip-round-once-per-life] given Ada abroad with nothing, when month 12 ends, then the whip-round does not come: it is the rescue at home", () => {
+  test("[luck:whip-round-once-per-life] given the graduate abroad with nothing, when month 12 ends, then the whip-round does not come: it is the rescue at home", () => {
     const game = brokeAt(11);
     flyToUk(game);
     emptyPockets(game);

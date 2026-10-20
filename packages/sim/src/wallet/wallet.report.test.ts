@@ -18,8 +18,8 @@ function played(name: string): State {
   return replay(save, content, (tick) => standInWorld(save.worldSeed, tick, content)).state;
 }
 
-/** Tunde's life at home, three months in. */
-function tunde(): State {
+/** The banker's life at home, three months in. */
+function banker(): State {
   const game = start({ content, scenario: "scenario.banker" });
   for (let month = 0; month < 3; month += 1) game.endTurn();
   return game.state;
@@ -54,7 +54,7 @@ describe("the ledger report", () => {
   });
 
   test("[wallet:ledger-report-raises-alarms] given months played at home, when the salary ceiling in naira is read, then it is the best naira job's month with overtime in every free slot, times the months; at it nothing is suspect and one kobo over names the account", () => {
-    const state = tunde();
+    const state = banker();
     const months = state.turn.month;
     expect(months).toBe(3);
     let best = 0;
@@ -74,7 +74,7 @@ describe("the ledger report", () => {
   });
 
   test("[wallet:ledger-report-raises-alarms] given the opening money, when it is read, then the ceiling is the richest starting life's; at it nothing is suspect and one kobo over names the account", () => {
-    const state = tunde();
+    const state = banker();
     const richest = Math.max(...Object.values(content.scenario).map((life) => (life.pockets.NGN?.bank ?? 0) + (life.pockets.NGN?.cash ?? 0)));
     expect(ceilingOf(state, "opening", "NGN")).toBe(richest);
     expect(ledgerReport(doctored(state, "opening", "NGN", richest), content).alarms).toEqual([]);
@@ -82,7 +82,7 @@ describe("the ledger report", () => {
   });
 
   test("[wallet:ledger-report-raises-alarms] given decision 0016, under which pot-top-up is never credited, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
-    const state = tunde();
+    const state = banker();
     expect(ceilingOf(state, "pot-top-up", "NGN")).toBe(0);
     expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 0), content).alarms).toEqual([]);
     expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 1), content).alarms).toEqual([{ reason: "pot-top-up", currency: "NGN", total: 1, ceiling: 0 }]);

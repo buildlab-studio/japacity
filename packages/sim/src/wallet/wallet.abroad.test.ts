@@ -1,5 +1,5 @@
 // MoneyEvent abroad and home again: abroad-money:foreign-currencies-join-wallet, abroad-money:remit-sends-money-home and abroad-money:remit-quote-is-shared, and wallet:large-deposits-record-lots for cash paid in over a month. Abroad is
-// reached by replaying the graduate-careful golden, which ends on her departure.
+// reached by replaying the graduate-careful golden, which ends on the departure.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -32,7 +32,7 @@ function remitted(result: Accepted): Extract<WalletEvent, { type: "wallet/remitt
   return result.events.find((event): event is BaseEvent & Extract<WalletEvent, { type: "wallet/remitted" }> => event.type === "wallet/remitted");
 }
 
-/** Ada at the end of the graduate-careful golden: just arrived in the UK as a student, with her remote job's dollars in the bank. */
+/** The graduate at the end of the graduate-careful golden: just arrived in the UK as a student, with its remote job's dollars in the bank. */
 function graduateAbroad(change: (used: Content) => Content = (used) => used): Game {
   const save = lifeSaves["graduate-careful"];
   if (save === undefined) throw new Error("The goldens have no graduate-careful.");
@@ -91,7 +91,7 @@ describe("sending money home", () => {
     const game = graduateAbroad();
     const rate = game.world().rates.USD.official;
     const before = game.state.wallet.pockets.NGN.bank;
-    // The recorded Ada lands with a lot of her own (her held funds' naira, month 26); the remit adds none.
+    // The graduate's recorded life lands with a lot of its own (its held funds' naira, month 26); the remit adds none.
     const lots = game.state.wallet.lots;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
     const fee = bp(HUNDRED_DOLLARS, remit.appFeeBp);
@@ -295,10 +295,10 @@ describe("the bank abroad", () => {
   /** Enough dollars for the first month's bills, and more than a month of the Lagos allowance. */
   const DOLLARS = 800000;
 
-  test("[wallet:monthly-fx-allowance] [abroad-money:tuition-paid-in-instalments] given the recorded Ada just landed with dollars and no pounds, when she changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and her rent, tuition and living are paid", () => {
+  test("[wallet:monthly-fx-allowance] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded life just landed with dollars and no pounds, when it changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and its rent, tuition and living are paid", () => {
     const game = graduateAbroad();
     const { GBP, USD } = game.state.wallet.pockets;
-    // Whatever the recording carried over, she lands here with the dollars and no pounds.
+    // Whatever the recording carried over, the life lands here with the dollars and no pounds.
     applyEffects(game, [
       ...(GBP.bank > 0 ? [{ type: "money/take", currency: "GBP", pocket: "bank", amount: GBP.bank, reason: "social" } as const] : []),
       ...(GBP.cash > 0 ? [{ type: "money/take", currency: "GBP", pocket: "cash", amount: GBP.cash, reason: "social" } as const] : []),
@@ -317,9 +317,9 @@ describe("the bank abroad", () => {
     expect(Object.values(game.state.obligation.items).map((owed) => owed.missed)).toEqual([0, 0, 0]);
   });
 
-  test("[wallet:bank-queue-delays-purchases] given a bank queue in the world, when Ada changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
+  test("[wallet:bank-queue-delays-purchases] given a bank queue in the world, when the graduate changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
     const game = graduateAbroad();
-    // The recorded Ada lands with fewer dollars than this; the change needs them held, as above.
+    // The graduate's recorded life lands with fewer dollars than this; the change needs them held, as above.
     const { USD } = game.state.wallet.pockets;
     if (USD.bank < DOLLARS) applyEffects(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: DOLLARS - USD.bank, reason: "gift" }]);
     const landed = game.world();

@@ -37,7 +37,7 @@ afterEach(() => {
 });
 
 describe("the ticket stub beside the send-off card", () => {
-  test("[share:cards-due-at-set-moments] [share:card-contents] [share:send-off-card-kept] given Ada just flown, when her send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, her type and her name as the band says it", async () => {
+  test("[share:cards-due-at-set-moments] [share:card-contents] [share:send-off-card-kept] given the graduate just flown, when its send-off opens from its tile, then the card shows first, and the stub beside it carries FROM Lagos, TO the country, the months, the figure, its type and its name as the band says it", async () => {
     keepPerson({ look: "person_ada", name: "Adaeze", archetype: null });
     const view = graduateSendOff();
     await renderWithView(<CardView />, view);

@@ -20,12 +20,12 @@ beforeEach(() => {
   reloadSeen();
 });
 
-/** Ada's abroad life granted the skilled worker's visa, at home in the month she flies, before the flight. */
+/** The graduate's abroad life granted the skilled worker's visa, at home in the month it flies, before the flight. */
 function grantedSkilled(): PlayerView {
   const commands = recordedSave("graduate-abroad").commands;
   const flight = commands.findIndex((entry) => entry.command.type === "route/depart");
   const view = recordedGame("graduate-abroad", commands.length - flight).view();
-  if (view.place.where !== "home" || view.routes.find((route) => route.id === SKILLED)?.state !== "granted") throw new Error("Ada is not granted the skilled visa at home.");
+  if (view.place.where !== "home" || view.routes.find((route) => route.id === SKILLED)?.state !== "granted") throw new Error("The graduate is not granted the skilled visa at home.");
   return view;
 }
 

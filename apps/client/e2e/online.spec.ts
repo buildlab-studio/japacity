@@ -206,7 +206,7 @@ test("[advert:slots-capped-per-place] the phone tile shows the hour's sponsored 
   await shootAtSize(page, "advert-card", info.project.name);
 });
 
-/** Tunde, online, in a world whose Friday draw is on sale: draw 7, closing at tick 14, with nothing sold to him yet. */
+/** The banker, online, in a world whose Friday draw is on sale: draw 7, closing at tick 14, with nothing sold to the life yet. */
 function drawGame(): Game {
   const base = standInWorld("world-1", 0, content);
   const lottery: World["lottery"] = {

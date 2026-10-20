@@ -16,7 +16,7 @@ import { renderWithView } from "../shared/testing/render";
 import { cardKey } from "../shared/ui/stage";
 import { say } from "../shared/words/text";
 
-// Ada's month that closes her chapter on building the file is her 228th command.
+// The graduate's month that closes its chapter on building the file is its 228th command.
 const CLOSE = 227;
 
 const REFUSED: ReportLine = { key: "line.route.refused", params: { route: "route.uk-masters", reason: "interview" }, tone: "bad", attention: true, counts: [] };
@@ -56,7 +56,7 @@ describe("the moment card over the results", () => {
 
 
   // A chapter's close is told once: by the results line and the moment card, never again by its share card.
-  test("[moment:card-shows-when-outcome-lands] [share:cards-due-at-set-moments] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
+  test("[moment:card-shows-when-outcome-lands] [share:cards-due-at-set-moments] given the graduate's month that closes a chapter (its recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
     const save = recordedSave("graduate-careful");
     const game = recordedGame("graduate-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));

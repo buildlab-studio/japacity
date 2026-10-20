@@ -27,7 +27,7 @@ function closedTo(result: { events: { type: string }[] }): unknown {
 }
 
 describe("the file follows the lean", () => {
-  test("[chapter:chapters-follow-lean-route] given a nurse who has heard of the master's and of health care, when she reads the care page first and the first chapter closes, then the care file stands in for the file, with its own items and the months on the ward already ticked", () => {
+  test("[chapter:chapters-follow-lean-route] given a nurse who has heard of the master's and of health care, when the life reads the care page first and the first chapter closes, then the care file stands in for the file, with its own items and the months on the ward already ticked", () => {
     const game = life("scenario.nurse");
     untilHeard(game, CARE_ROUTE);
     // The master's was heard of first: hearing alone does not decide the lean.
@@ -35,7 +35,7 @@ describe("the file follows the lean", () => {
     const result = game.endTurn([slot(LOOK, CARE_ROUTE)]);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: "chapter.build-the-file-care" });
     expect(game.state.chapter).toEqual({ current: "chapter.build-the-file-care", done: [FEET] });
-    // Ngozi has thirty months as a staff nurse: the twenty-four are in.
+    // The nurse has thirty months as a staff nurse: the twenty-four are in.
     expect(game.view().chapter.items).toEqual([
       { id: "tenure", met: true },
       { id: "verification", met: false },
@@ -122,7 +122,7 @@ describe("the lean is read again at each close", () => {
     return { ...used, chapter: chapters };
   }
 
-  test("[chapter:chapters-follow-lean-route] given a nurse whose first close leaned to the master's, when she looks into health care in the file's month and the file closes, then care's decision day stands in", () => {
+  test("[chapter:chapters-follow-lean-route] given a nurse whose first close leaned to the master's, when the life looks into health care in the file's month and the file closes, then care's decision day stands in", () => {
     const game = life("scenario.nurse", quickFile(content));
     untilHeard(game, SKILLED);
     game.endTurn([slot(LOOK, SKILLED)]);

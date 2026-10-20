@@ -336,11 +336,11 @@ for (const start of STARTS) {
 // Recorded lives, seeded as the suite seeds them (live.ts seedSave), cut where the screen wanted stands.
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** Ada's careful life the month before the visa's answer: the turn that grants it is the next command (index 285). */
+/** The graduate's careful life the month before the visa's answer: the turn that grants it is the next command (index 285). */
 const GRADUATE_BEFORE_ANSWER = 285;
-/** Ada's careful life with the visa granted, the month before she flies: every command but the flight. */
+/** The graduate's careful life with the visa granted, the month before the flight: every command but the flight. */
 const GRADUATE_GRANTED = recorded("graduate-careful").commands.length - 1;
-/** Ada's careful life with the visa interview open: the act that opens it is the command before (index 280). */
+/** The graduate's careful life with the visa interview open: the act that opens it is the command before (index 280). */
 const GRADUATE_INTERVIEW = 281;
 /** The graduate's second life a few months into London on a sponsored job (it lands at command 374). */
 const GRADUATE_IN_LONDON = 392;
@@ -633,7 +633,7 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 // played to its country by a simulated player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The simulated borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
+/** The simulated borrower on the graduate's life takes the Gulf contract and lands in Dubai in month 10, the guard's job its own. */
 const GULF: AbroadLife = { strategy: "borrower", life: "scenario.graduate", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
 /** The simulated canada player on the developer's life, the recorded developer-canada: lands in Calgary in month 42, the warehouse job its own in month 46. */
 const POINTS: AbroadLife = { strategy: "canada", life: "scenario.developer", seed: "golden-developer-canada-1", country: "country.canada", money: "CAD", holding: 60_000 };
@@ -1103,7 +1103,7 @@ test("month: the visa's answer, its moment, the results, the share card and the 
   });
 });
 
-/** Ada's careful life the month her English test's band comes: the turn that brings it is the next command (index 222). */
+/** The graduate's careful life the month its English test's band comes: the turn that brings it is the next command (index 222). */
 const GRADUATE_BEFORE_BAND = 222;
 
 test("month: the morning's envelope on the phone's lock screen", async ({ page }) => {
@@ -1195,7 +1195,7 @@ test("abroad: the map's list, the phone, the Bank's Send money, a month, and the
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-// The send-off: Ada's own flight through the six beats, the landing, then the other three landings through the hook.
+// The send-off: the graduate's own flight through the six beats, the landing, then the other three landings through the hook.
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** The send-off's store, as the development build hangs it on the window (City.tsx). */
@@ -1208,7 +1208,7 @@ const LANDINGS: readonly { route: string; country: string; name: string }[] = [
   { route: "route.road", country: "country.italy", name: "naples" },
 ];
 
-test("send-off: the six beats of Ada's flight, the landing abroad, the other landings, and the card kept", async ({ page }) => {
+test("send-off: the six beats of the graduate's flight, the landing abroad, the other landings, and the card kept", async ({ page }) => {
   await openLife(page, "graduate-careful", GRADUATE_GRANTED, DAY);
   const scene = page.locator("[data-send-off]");
   const opened = await attempt(page, "sendoff-departures", async () => {

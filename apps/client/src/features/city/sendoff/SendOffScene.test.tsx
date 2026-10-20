@@ -1,4 +1,4 @@
-// The send-off as a scene on the real engine (chapter:send-off-scene-in-beats): Ada's recorded life one command
+// The send-off as a scene on the real engine (chapter:send-off-scene-in-beats): the graduate's recorded life one command
 // before the flight, granted, and the six beats played by their buttons. Beats 1 and 2 send nothing; Board the plane
 // sends `route/depart` once; the plane's cut, the landing at each country's hub, the first ride with the family's first
 // messages, and Ring the bell into the room abroad. The map's own cut is a stand-in here (world:plane-cut-at-send-off is
@@ -63,7 +63,7 @@ async function openScene(authority: Parameters<typeof createGameStore>[0]) {
   return { store, route, country };
 }
 
-/** Ada's life one command before the flight, on the real engine. */
+/** The graduate's life one command before the flight, on the real engine. */
 async function graduateAtTheGate() {
   const game = recordedGame("graduate-careful", 1);
   const authority = gameAuthority(game);
@@ -155,7 +155,7 @@ describe("the send-off as a scene", () => {
   test("[chapter:send-off-scene-in-beats] given held funds still open, then the gate says what stops the flight and Board the plane is shut", async () => {
     const view = recordedGame("graduate-careful", 1).view();
     const owed = view.obligations[0];
-    if (owed === undefined) throw new Error("Ada's life owes nothing to copy.");
+    if (owed === undefined) throw new Error("The graduate's life owes nothing to copy.");
     const held: PlayerView = { ...view, obligations: [...view.obligations, { ...owed, id: "held-1", entry: "obligation.held-funds", outstanding: 100 }] };
     const authority = fakeAuthority(held);
     await openScene(authority);

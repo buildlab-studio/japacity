@@ -131,7 +131,7 @@ describe("Peckham's jobs", () => {
     expect(cityWords(thing("agency").label)).toBe("Job agency");
   });
 
-  test("[world:things-are-tappable-models] given Ada landed in London on a student visa, when Peckham's things are read, then the notice and the agency open the hunt, whose card asks for the shop job, and the agency's question stays", () => {
+  test("[world:things-are-tappable-models] given the graduate landed in London on a student visa, when Peckham's things are read, then the notice and the agency open the hunt, whose card asks for the shop job, and the agency's question stays", () => {
     const view = abroadView();
     const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
     expect(hunt?.allowed).toBe(true);
@@ -143,7 +143,7 @@ describe("Peckham's jobs", () => {
     expect(now.find((candidate) => candidate.id === "jobs-notice-read")).toBeUndefined();
   });
 
-  test("[world:things-are-tappable-models] given Ada in London on a graduate visa, when the hunt's jobs are read, then the warehouse job is among them, a tap at the warehouse's clock-in names it on the hunt's card, and the agency still opens the hunt", () => {
+  test("[world:things-are-tappable-models] given the graduate in London on a graduate visa, when the hunt's jobs are read, then the warehouse job is among them, a tap at the warehouse's clock-in names it on the hunt's card, and the agency still opens the hunt", () => {
     // A student's hunt asks for none of the agency's jobs; open work brings them.
     const view = viewAfter(recordedGame("graduate-careful"), [{ type: "status/grant", status: "status.uk-graduate" }]);
     const jobs = view.activities.find((option) => option.id === "activity.job-hunt")?.params ?? [];
@@ -175,7 +175,7 @@ describe("Peckham's notice once hired", () => {
     return thingsNow(stage.things ?? [], stagedNow(offered, new Set(entry.stages), new Set(), null)).filter((candidate) => candidate.file === thing("jobs-notice").file && candidate.copy === thing("jobs-notice").copy);
   };
 
-  test("[world:things-are-tappable-models] given Ada in London who took the shop job, when Peckham's things are read, then the jobs notice still stands with one act to read it, and its line says nothing new on it is open to her", () => {
+  test("[world:things-are-tappable-models] given the graduate in London who took the shop job, when Peckham's things are read, then the jobs notice still stands with one act to read it, and its line says nothing new on it is open to it", () => {
     const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);
     expect(view.job.id).toBe("activity.job-uk-retail-part");
     const notice = read(view);
@@ -184,7 +184,7 @@ describe("Peckham's notice once hired", () => {
     expect(cityWords(`${notice[0]?.acts[0]?.label ?? ""}.done`)).toBe("Shops, kitchens, care homes, warehouses. Nothing new on it is open to you this month.");
   });
 
-  test("[world:things-are-tappable-models] given Ada just landed with the shop job open, when the notice is read, then its hunt shows and the reader is gone, the reader standing in only while the hunt cannot open", () => {
+  test("[world:things-are-tappable-models] given the graduate just landed with the shop job open, when the notice is read, then its hunt shows and the reader is gone, the reader standing in only while the hunt cannot open", () => {
     const notice = read(abroadView());
     expect(notice.map((candidate) => candidate.id)).toEqual(["jobs-notice"]);
     const reader = (stage.things ?? []).find((candidate) => candidate.id === "jobs-notice-read");
@@ -195,7 +195,7 @@ describe("Peckham's notice once hired", () => {
 
 // The market behind the station: an answer that is followed by a line in the find's own words.
 describe("the market's find in London", () => {
-  test("[world:one-action-one-sheet] given the find open, when Ada has a look, then the line the engine tells is said in the find's own words for that answer", () => {
+  test("[world:one-action-one-sheet] given the find open, when the graduate has a look, then the line the engine tells is said in the find's own words for that answer", () => {
     const game = abroadGame();
     const offer = openOffer(game, "offer.street-find-uk");
     expect(offer.choices.map((choice) => choice.id)).toContain("look");

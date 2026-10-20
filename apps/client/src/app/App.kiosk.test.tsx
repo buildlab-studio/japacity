@@ -44,7 +44,7 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-/** Tunde on Bode Thomas Street in the world, with the world running `lottery` (null: no draw, offline play). */
+/** The banker on Bode Thomas Street in the world, with the world running `lottery` (null: no draw, offline play). */
 async function onTheStreet(lottery: World["lottery"]): Promise<{ store: GameStore; life: ReturnType<typeof onlineLife> }> {
   const life = onlineLife(lottery);
   const store = createGameStore(life.authority);

@@ -133,7 +133,7 @@ describe("money that never moved the naira", () => {
   });
 });
 
-/** Ada in a world where every month is December, holding a job, so the thirteenth month can open. */
+/** The graduate in a world where every month is December, holding a job, so the thirteenth month can open. */
 function decemberAtHome(): Game {
   const game = start({
     scenario: "scenario.graduate",

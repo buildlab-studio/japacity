@@ -27,7 +27,7 @@ describe("a computer character is never shown as a player", () => {
     expect(computers).toBeGreaterThan(0);
     expect(COMPUTER_NAMES.length).toBeGreaterThan(3);
     const card = game.view().card;
-    if (card === null) throw new Error("Ada's recorded life has no card.");
+    if (card === null) throw new Error("The graduate's recorded life has no card.");
     for (const kind of shareKinds as readonly ShareKind[]) {
       const shown: ShareCard = { ...card, kind, ...(kind === "chapter" ? { chapter: "chapter.build-the-file" as const } : {}) };
       const face = cardFace(shown, "scenario.graduate");

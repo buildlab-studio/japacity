@@ -105,7 +105,7 @@ describe("a new character", () => {
 });
 
 describe("leaving", () => {
-  test("[place:departure-moves-abroad] [route-gates:departure-grants-status] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
+  test("[place:departure-moves-abroad] [route-gates:departure-grants-status] given the graduate with a granted visa, when it departs, then it is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
     const closed: ObligationType[] = [];
     const game = flown(content, { kinds: recordingCloses(closed) });
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY, movedMonth: game.state.turn.month });
@@ -338,7 +338,7 @@ describe("coming home", () => {
     expect(game.state.status.current).toBeNull();
   });
 
-  test("[place:return-home-paid-or-assisted] [place:return-shape-decided-at-once] given a student with money, when she comes home, then the fare is paid, every status closes and the return is recorded by choice", () => {
+  test("[place:return-home-paid-or-assisted] [place:return-shape-decided-at-once] given a student with money, when the life comes home, then the fare is paid, every status closes and the return is recorded by choice", () => {
     const game = flown(content);
     leave(game, brokeLine, ukFare);
     const month = game.state.turn.month;

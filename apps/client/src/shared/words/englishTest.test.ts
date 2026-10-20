@@ -12,7 +12,7 @@ import { say, words } from "./text";
 
 const PAPER = "document.english-test";
 
-/** Ada's new life with this much English, as a view: the same life on each seed. */
+/** The graduate's new life with this much English, as a view: the same life on each seed. */
 function graduateWith(english: number, seed = "probe") {
   const game = newGame("scenario.graduate", seed);
   const have = englishOf(game.view());
@@ -35,7 +35,7 @@ describe("the English test's chance", () => {
     expect(bandChanceBp(72)).toBe(10_000);
   });
 
-  test("[world:one-action-one-sheet] given Ada on twelve seeds, when the engine sits the test for her, then every band it gives is one the chance counts, and Ada's 55 at the start reads a fair chance", () => {
+  test("[world:one-action-one-sheet] given the graduate on twelve seeds, when the engine sits the test for the life, then every band it gives is one the chance counts, and the graduate's 55 at the start reads a fair chance", () => {
     const { view } = graduateWith(55);
     expect(englishOf(view)).toBe(55);
     expect(testChance(view).band).toBe("fair");
@@ -92,7 +92,7 @@ describe("the English result", () => {
     expect(bandResultLine(issued(55)).key).toBe(ISSUED_BAND_SHORT);
   });
 
-  test("[world:month-end-results-sheet] given Ada's careful life, when her result is told by the engine, then it reaches 6.0 and its line says it meets the route's band", () => {
+  test("[world:month-end-results-sheet] given the graduate's careful life, when its result is told by the engine, then it reaches 6.0 and its line says it meets the route's band", () => {
     const game = recordedGame("graduate-careful");
     expect(game.view().documents.find((paper) => paper.id === PAPER)?.value).toBeGreaterThanOrEqual(bandNeeded());
     // The tidy lines that reach the results say a band that reaches the route's meets it.

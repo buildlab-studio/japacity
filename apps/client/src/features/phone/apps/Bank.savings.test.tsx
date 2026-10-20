@@ -38,7 +38,7 @@ function planOn(game: ReturnType<typeof newGame>, route: string) {
   return game;
 }
 
-/** The developer with the talent visa as his plan. */
+/** The developer with the talent visa as its plan. */
 function talentPlan() {
   return planOn(developer(), TALENT);
 }
@@ -49,7 +49,7 @@ function poundsOf(view: ReturnType<ReturnType<typeof newGame>["view"]>, activity
 }
 
 describe("Saved for the move, on the plan's own way", () => {
-  test("[world:phone-holds-what-phones-hold] given the developer whose plan is the talent visa, when the Bank opens, then the figure is the endorsement's fee and the visa's fee and surcharge, in pounds, against the funds he shows", async () => {
+  test("[world:phone-holds-what-phones-hold] given the developer whose plan is the talent visa, when the Bank opens, then the figure is the endorsement's fee and the visa's fee and surcharge, in pounds, against the funds it shows", async () => {
     const view = talentPlan().view();
     const endorsement = poundsOf(view, "activity.apply-endorsement");
     const visa = poundsOf(view, "activity.apply-uk-talent");
@@ -58,7 +58,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(visa).toBe(content.var["var.uk-talent-visa-fee"]!.start + 5 * content.var["var.uk-surcharge-year"]!.start);
     const savings = savingsOf(view);
     expect(savings).toMatchObject({ currency: "GBP", required: endorsement + visa });
-    // He holds his naira in cash at the handover: all of it is money to pay the fees with, at the bank's rate.
+    // It holds its naira in cash at the handover: all of it is money to pay the fees with, at the bank's rate.
     expect(savings!.shown).toBeGreaterThan(0);
     expect(savings!.shown).toBe(savedFor(view, "GBP"));
     expect(savedFor(view, "GBP")).toBe(Math.floor(((view.pockets.NGN.bank + view.pockets.NGN.cash) * 100) / view.rates.GBP.official));
@@ -77,7 +77,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(savingsOf(view)?.required).toBe(before.required - poundsOf(view, "activity.apply-endorsement"));
   });
 
-  test("[world:phone-holds-what-phones-hold] given Ada's master's plan, when the Bank opens, then the figure is still the funds her checklist counts", () => {
+  test("[world:phone-holds-what-phones-hold] given the graduate's master's plan, when the Bank opens, then the figure is still the funds its checklist counts", () => {
     const view = recordedGame("graduate-careful", 40).view();
     const route = view.routes.find((each) => each.id === "route.uk-masters")!;
     const funds = route.checklist.find((item) => item.id === "funds");
@@ -108,7 +108,7 @@ describe("Saved for the move, on the plan's own way", () => {
     // The results read the same shared figure (shared/words/savings.ts; the results' side is in App.oneFigure.test.tsx).
     const figure = savingsOf(heard)!;
     await renderWithView(<Bank />, heard);
-    // Ngozi already holds the care visa's fee: the line says it is enough, with the figure.
+    // The nurse already holds the care visa's fee: the line says it is enough, with the figure.
     expect(document.querySelector("[data-savings]")?.textContent).toContain(formatMoney(figure.required, figure.currency));
     expect(document.querySelector("[data-savings-none]")).toBeNull();
     game.accept({ type: "activity/now", activity: "activity.look-into-route", param: "route.uk-care" });

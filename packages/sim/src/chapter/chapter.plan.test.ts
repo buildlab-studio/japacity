@@ -35,7 +35,7 @@ function nurseOnCare(): Game {
 }
 
 describe("the chapter ahead in the view", () => {
-  test("[chapter:view-says-closes-and-next] given the nurse on care's file, when the view is read, then the chapter that follows is care's decision day; once she makes the master's the plan it is the master's", () => {
+  test("[chapter:view-says-closes-and-next] given the nurse on care's file, when the view is read, then the chapter that follows is care's decision day; once the life makes the master's the plan it is the master's", () => {
     const game = nurseOnCare();
     expect(game.view().chapter.current).toBe("chapter.build-the-file-care");
     expect(game.view().chapter.next).toBe("chapter.decision-day-care");
@@ -76,7 +76,7 @@ describe("the plan in the view", () => {
     expect(game.view().plan.ways).toEqual([]);
   });
 
-  test("[chapter:chapters-follow-lean-route] given the nurse who heard of care and the master's, when she reads the care page, then the view's plan is health care", () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse who heard of care and the master's, when the life reads the care page, then the view's plan is health care", () => {
     const game = nurseOnCare();
     expect(game.view().plan.route).toBe(CARE_ROUTE);
   });
@@ -107,7 +107,7 @@ describe("the plan in the view", () => {
 });
 
 describe("making another way the plan", () => {
-  test("[chapter:chapters-follow-lean-route] given the nurse on care, when she makes the master's the plan, then the choice is kept and the lean is the master's, read before the route looked into first", () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse on care, when the life makes the master's the plan, then the choice is kept and the lean is the master's, read before the route looked into first", () => {
     const game = nurseOnCare();
     const result = game.accept({ type: "chapter/lean", route: UK_ROUTE });
     expect(result.events).toContainEqual({ type: "chapter/leaned", route: UK_ROUTE });
@@ -117,7 +117,7 @@ describe("making another way the plan", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[chapter:chapters-follow-lean-route] given the nurse who heard of both, when she makes the master's the plan and reads both pages in the month, then the first chapter closes to the master's file, not the care file", () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse who heard of both, when the life makes the master's the plan and reads both pages in the month, then the first chapter closes to the master's file, not the care file", () => {
     const game = life("scenario.nurse");
     untilHeard(game, CARE_ROUTE);
     game.accept({ type: "chapter/lean", route: UK_ROUTE });

@@ -21,7 +21,7 @@ export function recordedUpTo(name: string, upTo: number | null): string {
   return kept({ ...save, commands: upTo === null ? save.commands : save.commands.slice(0, upTo) });
 }
 
-/** Ada's recorded life up to the month before she flies: every command but the flight. */
+/** The graduate's recorded life up to the month before the flight: every command but the flight. */
 export function graduateBeforeFlight(): string {
   return recordedUpTo("graduate-careful", -1);
 }
