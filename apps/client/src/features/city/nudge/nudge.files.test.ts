@@ -27,7 +27,7 @@ function wordCount(said: string): number {
   return said.split(/\s+/).filter(Boolean).length;
 }
 
-/** The ready nurse in her care file: health care heard of at the meetup and its page read, the first chapter closed. */
+/** The ready nurse with the care file open: health care heard of at the meetup and its page read, the first chapter closed. */
 function readyInTheFile(): Game {
   const game = readyNurse("nudge-files");
   hearCare(game);
@@ -94,9 +94,9 @@ describe("a step the naira cannot pay names the gap", () => {
     expect(nudgeOf(broke)).toEqual({ key: `${FILE}.item.verification.short`, params: { amount: formatMoney(1_730_000, "NGN") }, about: "step" });
   });
 
-  // The care checklist counts the certificate (route-gates:care-route-needs-verification), so the waiting months name it while she can pay it,
-  // and its gap while she cannot.
-  test("[world:nudge-says-one-thing] [activity:waiting-months-build-profile] [route-gates:care-route-needs-verification] given the ready nurse on the ward while the council works, with the certification open to her and paid for, when the nudge is read each month and followed, then it names the certification, its tap opens the certification's card at the clinic, and once she has sat it it is never named again", () => {
+  // The care checklist counts the certificate (route-gates:care-route-needs-verification), so the waiting months name it while the life can pay it,
+  // and its gap while it cannot.
+  test("[world:nudge-says-one-thing] [activity:waiting-months-build-profile] [route-gates:care-route-needs-verification] given the ready nurse on the ward while the council works, with the certification open and paid for, when the nudge is read each month and followed, then it names the certification, its tap opens the certification's card at the clinic, and once she has sat it it is never named again", () => {
     const care = content.route["route.uk-care"]!;
     expect(care.checklist.some((item) => item.requirement.type === "document/held" && item.requirement.document === "document.nurse-certificate")).toBe(true);
     const game = readyInTheFile();
@@ -109,7 +109,7 @@ describe("a step the naira cannot pay names the gap", () => {
       if (said.at(-1) === CERTIFY_NUDGE) named.push(view);
       month(game, followed(view));
     }
-    // Named once, in a month she could sit it and pay it, and never again once sat.
+    // Named once, in a month the life could sit it and pay it, and never again once sat.
     expect(named.length).toBe(1);
     const view = named[0]!;
     expect(view.activities.find((option) => option.id === CERTIFY)).toMatchObject({ allowed: true, affordable: true });
@@ -129,7 +129,7 @@ describe("a step the naira cannot pay names the gap", () => {
       return { ...held, activities: held.activities.map((option) => (option.id === CERTIFY ? { ...option, affordable: false } : option)) };
     };
     expect(nudgeOf(short(fee - 1_730_000))).toEqual({ key: `${CERTIFY_NUDGE}.short`, params: { amount: formatMoney(1_730_000, "NGN") }, about: "step" });
-    // With her pay coming in and the gap under what the month leaves, it says to wait for payday, and the tap ends the month.
+    // With the pay coming in and the gap under what the month leaves, it says to wait for payday, and the tap ends the month.
     const nearly = { ...short(fee - 100), job: view.job, obligations: [] };
     expect(nudgeOf(nearly)).toEqual({ key: `${CERTIFY_NUDGE}.saving`, about: "step", way: { go: null, at: [] } });
     for (const key of [`${CERTIFY_NUDGE}.short`, `${CERTIFY_NUDGE}.saving`]) expect(wordCount(say(key, { amount: formatMoney(1_730_000, "NGN") }))).toBeLessThan(NUDGE_WORDS);
@@ -137,7 +137,7 @@ describe("a step the naira cannot pay names the gap", () => {
 });
 
 describe("the TB test comes last", () => {
-  test("[world:nudge-says-one-thing] [document:one-pending-copy] given the ready nurse at the decision day's TB step with her police paper still to get, when the nudge is read, then it names the police paper and its way, never the TB test", () => {
+  test("[world:nudge-says-one-thing] [document:one-pending-copy] given the ready nurse at the decision day's TB step with the police paper still to get, when the nudge is read, then it names the police paper and its way, never the TB test", () => {
     const view = readyInTheFile().view();
     const care = view.routes.find((route) => route.id === "route.uk-care")!;
     const atDay: PlayerView = {

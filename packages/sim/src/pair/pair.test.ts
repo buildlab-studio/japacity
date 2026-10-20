@@ -12,7 +12,7 @@ const TUNDE = "life-tunde";
 const RECORD_KEYS = ["a", "b", "blocked", "consent", "ended", "held", "id", "interview", "invitedBy", "joint", "moments", "pending", "role", "since", "stage", "standIn"];
 const MOMENT_KEYS = ["by", "kind", "n", "spot", "tick", "what"];
 
-/** A partner record Ada opened from Tunde's invite at tick 1. */
+/** A partner record one player opened from another's invite at tick 1. */
 function linked(role: PairRecord["role"] = "partner"): PairRecord {
   return newRecord(TUNDE, ADA, role, TUNDE, 1);
 }

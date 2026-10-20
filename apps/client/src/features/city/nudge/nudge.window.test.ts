@@ -20,7 +20,7 @@ const ENGLISH = "activity.sit-english-test";
 const NUDGE_WORDS = 8;
 const MONTH_END = { go: null, at: [] };
 
-/** The ready nurse at her care file's sponsor step: health care heard of and read, the council asked and answered. */
+/** The ready nurse at the care file's sponsor step: health care heard of and read, the council asked and answered. */
 function atTheSponsor(open = false): PlayerView {
   const game = readyNurse("sponsor-window", open);
   hearCare(game);

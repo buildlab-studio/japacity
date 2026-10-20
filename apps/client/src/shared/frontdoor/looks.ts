@@ -26,6 +26,9 @@ function pictureOf(id: string): string {
 /** The game's first people come first, so the strip opens on them. */
 const FIRST = ["person_ada", "person_tunde", "person_zainab", "person_tobi", "person_ngozi", "person_femi", "person_kemi", "person_bisi"];
 
+/** The look a life wears where none was kept at the door: one for the city, the ride and the send-off alike. */
+export const DEFAULT_LOOK = "person_tunde";
+
 /** A shipped person's name from its file: `shared/person/person_ada.glb` is `person_ada`. */
 export const idOf = (file: string): string => file.slice("shared/person/".length, -".glb".length);
 

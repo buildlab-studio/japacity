@@ -29,8 +29,6 @@ import { FULL_PROLOGUE_KEY, PERSON_KEY, SAVE_KEY } from "../shared/kept/storage"
 import { memoryStorage } from "../shared/testing/storage";
 
 const FIXED = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
-/** The words a ready life's person would be named by: a ready life has none (scenario.md), so the door has none to offer. */
-const NAMED = FIXED.flatMap((id) => [`${id}.name`, `share.first-name.${id}`]).filter((key) => key in text);
 
 function seeds(): () => string {
   let next = 0;
@@ -93,23 +91,19 @@ describe("the front door", () => {
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
     for (const id of ["person_ada", "person_tunde", "person_zainab", "person_ngozi", "person_tobi", "person_femi", "person_kemi", "person_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
     for (const id of ["person_hawker_a", "person_corper", "person_chief", "person_rider", "person_iya"]) expect(LOOKS.some((look) => look.id === id)).toBe(false);
-    // The name and the look share the first screen; the name is filled already, and no ready life has a person to offer.
+    // The name and the look share the first screen; the name is filled already. A ready life has no name to offer (person.names.test).
     const box = screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     expect(box.value.length).toBeGreaterThan(1);
-    expect(NAMED).toEqual([]);
 
     const said: string[] = [sheet().textContent];
     await toTheArchetypes();
     said.push(sheet().textContent);
     // The lives carry your face beside each life's thing.
     expect(document.querySelector("[data-gate] [data-archetype] [data-face-sticker]")).not.toBeNull();
-    // No ready life's person is offered: none has one, and each is shown by its role alone.
-    expect(NAMED).toEqual([]);
     expect(said.join(" ")).not.toContain(say("ui.life.start"));
   });
 
   test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a look tapped, then the character at the gate wears it, and the name filled, and each name the dice gives, comes from the pool for that look's sex, with no ready life's person to give", async () => {
-    expect(NAMED).toEqual([]);
     door();
     const box = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
@@ -178,8 +172,6 @@ describe("the front door", () => {
       expect(within(life).getByRole("button", { name: `${say("prologue.door.pick")}: ${say(`${id}.kind`)}` })).toBeDefined();
       for (const word of [" he ", " she ", " his ", " her ", " him "]) expect(` ${text[`${id}.blurb`] ?? ""} `.toLowerCase()).not.toContain(word);
     }
-    // No ready life's person is named on the list: each has its role and no name of its own.
-    expect(NAMED).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.banker.kind")}` }));
     await begin();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.banker"));

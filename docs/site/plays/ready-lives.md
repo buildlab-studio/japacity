@@ -4,7 +4,7 @@ A ready life skips the years before and starts at work: a graduate fresh from th
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/nurse-01-ready-lives.webp" alt="A ready life: Skip the years before. Start at work. The graduate, the banker, the developer, the nurse and the teacher, each with a line and Pick" width="240">
-  <img src="/pictures/nurse-02-your-page.webp" alt="Where you live for a ready life: the nurse at 27 in the strip, the family house she starts in, and Begin" width="240">
+  <img src="/pictures/nurse-02-your-page.webp" alt="Where you live for a ready life: the nurse at 27 in the strip, the family house it starts in, and Begin" width="240">
 </div>
 
 ## How a player reaches one
@@ -21,7 +21,7 @@ flowchart LR
 Settings asks the next front door to open on the ready lives, once. The door opens on their list in place of the archetype tiles, with the look and the name a screen back. Pick a kind, and Where you live opens with that path and the life's own age in its strip, and the home the life starts in. Begin goes straight to the world: there are no years before to fill, so no page fills after it.
 
 ::: info A person, not a named character
-The ready lives are kept in content as fixed scenarios with people's names, but the door shows only their kind ("The nurse") and a line. The player still builds the person: the look and the name are the player's own, and a line says no he or she, since the look carries that.
+The ready lives are kept in content as fixed scenarios with no name and no sex of their own, and the door shows only their kind ("The nurse") and a line. The player still builds the person: the look and the name are the player's own, and a line says no he or she, since the look carries that.
 :::
 
 ## The five lives

@@ -2,6 +2,7 @@
 // the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
+import { DEFAULT_LOOK } from "../../shared/frontdoor/looks";
 import { keptLookFile, keptStyleOf } from "../../shared/frontdoor/person";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
@@ -17,7 +18,7 @@ export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
 const RIDE_SLACK_MS = 3500;
 
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
-const FALLBACK_OWN = "shared/person/person_tunde.glb";
+const FALLBACK_OWN = `shared/person/${DEFAULT_LOOK}.glb`;
 
 /** The player's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the city's own, since a ready life has no person of its own (scenario.md); `shownOwn` settles it. */
 export function ownLook(kept: string | null = keptLookFile()): string {

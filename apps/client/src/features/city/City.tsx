@@ -11,7 +11,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../shared/frontdoor/person";
 import { bandName as characterName } from "../../shared/share/face";
 import { FigurePicture } from "../../shared/frontdoor/LookPicture";
-import { lookOf } from "../../shared/frontdoor/looks";
+import { DEFAULT_LOOK, lookOf } from "../../shared/frontdoor/looks";
 import { plannedShut, worldVar } from "../../authority/store";
 import { keptLookFile } from "../../shared/frontdoor/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
@@ -131,7 +131,7 @@ function departRoute(view: Pick<PlayerView, "routes" | "place">): Id<"route"> | 
 function sendOffYou() {
   const kept = readPerson();
   // A ready life has no look of its own (scenario.md): the one built at the door, else the scene's own.
-  const look = lookOf(kept?.look)?.id ?? "person_ada";
+  const look = lookOf(kept?.look)?.id ?? DEFAULT_LOOK;
   // One name everywhere, the band's (share:card-contents), read from the card's own source.
   const name = characterName() ?? "";
   return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
@@ -144,7 +144,7 @@ const city = content.tuning.city;
 const PLACES = Object.values(content.place);
 /** How long a line overheard stays before the next is heard, off the world (the road's city behind its panel). */
 const HEARD_MS = 9000;
-const FALLBACK_OWN = "shared/person/person_tunde.glb";
+const FALLBACK_OWN = `shared/person/${DEFAULT_LOOK}.glb`;
 
 // The world mode (docs/design/07-the-world-first.md, docs/rules/world.md).
 /** Sending money home: an act whose sheet is the Bank's, where the money is. */

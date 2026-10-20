@@ -44,7 +44,7 @@ function opensAt(view: PlayerView, here: string): ReturnType<typeof stepOpen> | 
   return stepOpen(way, stepThingHere(way, here, things), view.activities.filter((option) => option.allowed).map((option) => option.id), here);
 }
 
-/** The ready nurse in her care file: health care heard of at the meetup and its page read, the first chapter closed. */
+/** The ready nurse with the care file open: health care heard of at the meetup and its page read, the first chapter closed. */
 function readyInTheFile(open = false): Game {
   const game = readyNurse("ready-nurse", open);
   hearCare(game);
@@ -92,7 +92,7 @@ function followedButLicence(view: PlayerView): SlotPick[] {
 }
 
 describe("the nurse's way never opens a shut place", () => {
-  test("[world:map-is-painted-lagos] [world:nudge-says-one-thing] [world:phone-holds-what-phones-hold] given the ready nurse in her care file, when the nudge asks for the council's verification, then the clinic stays open on the map every month until it is asked, and wherever she stands the tap opens the verification's card in the phone's Papers", () => {
+  test("[world:map-is-painted-lagos] [world:nudge-says-one-thing] [world:phone-holds-what-phones-hold] given the ready nurse with the care file open, when the nudge asks for the council's verification, then the clinic stays open on the map every month until it is asked, and wherever she stands the tap opens the verification's card in the phone's Papers", () => {
     // The council is asked by a call, from the phone, not at the clinic's notice.
     const game = readyInTheFile();
     for (let months = 0; months < 7; months += 1) {
@@ -107,7 +107,7 @@ describe("the nurse's way never opens a shut place", () => {
     }
   });
 
-  test("[world:map-is-painted-lagos] given the ready nurse before she hears of health care, when the stops are read, then the clinic is not yet; once health care is her plan it is open", () => {
+  test("[world:map-is-painted-lagos] given the ready nurse before health care is heard of, when the stops are read, then the clinic is not yet; once health care is the plan it is open", () => {
     const game = readyNurse();
     expect(reached(game.view(), CLINIC)).toBe(false);
     hearCare(game);
@@ -128,7 +128,7 @@ describe("the nurse's way never opens a shut place", () => {
       },
       90,
       (view) => {
-        // Every month the nudge names a step whose stop the map lets her ride to.
+        // Every month the nudge names a step whose stop the map lets the life ride to.
         shut.push(...[shutStop(view)].filter((stop) => stop !== null));
         return followed(view);
       },
