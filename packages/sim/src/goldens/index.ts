@@ -3,11 +3,11 @@ import type { Golden } from "../engine/golden";
 
 import miniPlainResting from "./mini-plain-resting.json";
 import miniWorkerStudying from "./mini-worker-studying.json";
-import adaCareful from "./ada-careful.json";
-import tundeBorrower from "./tunde-borrower.json";
-import zainabRemote from "./zainab-remote.json";
-import adaAbroad from "./ada-abroad.json";
-import tundeAbroad from "./tunde-abroad.json";
-import zainabAbroad from "./zainab-abroad.json";
+import graduateCareful from "./graduate-careful.json";
+import bankerBorrower from "./banker-borrower.json";
+import developerRemote from "./developer-remote.json";
+import graduateAbroad from "./graduate-abroad.json";
+import bankerAbroad from "./banker-abroad.json";
+import developerAbroad from "./developer-abroad.json";
 
-export const goldens: Golden[] = [miniPlainResting as Golden, miniWorkerStudying as Golden, adaCareful as Golden, tundeBorrower as Golden, zainabRemote as Golden, adaAbroad as Golden, tundeAbroad as Golden, zainabAbroad as Golden];
+export const goldens: Golden[] = [miniPlainResting as Golden, miniWorkerStudying as Golden, graduateCareful as Golden, bankerBorrower as Golden, developerRemote as Golden, graduateAbroad as Golden, bankerAbroad as Golden, developerAbroad as Golden];
