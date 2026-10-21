@@ -14,6 +14,7 @@ import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
+import { readPerson } from "../../shared/frontdoor/person";
 import { playPresetOn } from "../../shared/net/preset.testing";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
@@ -85,7 +86,10 @@ describe("the front door online", () => {
       { timeout: 15_000, interval: 5 },
     );
 
-    expect(server.sent.filter((request) => request.path === "/api/character").map((request) => request.body)).toEqual([{ scenario: "scenario.prologue" }]);
+    // account:person-kept-with-character: the person the door kept goes with the new life, all but its photo.
+    const kept = readPerson();
+    expect(kept?.look).toBeDefined();
+    expect(server.sent.filter((request) => request.path === "/api/character").map((request) => request.body)).toEqual([{ scenario: "scenario.prologue", person: { name: kept?.name, look: kept?.look, archetype: "nurse" } }]);
     const chosen = held.sent.flatMap((command) => (command.type === "prologue/choose" ? [command] : []));
     expect(chosen.find((command) => command.step === "age-degree")?.answer).toBe("start-26");
     const nurse = archetypeOf("nurse");
