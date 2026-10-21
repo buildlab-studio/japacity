@@ -24,9 +24,13 @@ import { DataPage, type PageFields } from "./DataPage";
 import { familyCard, keptDraw } from "./family";
 import { stampsOf } from "./stamps";
 
-/** The character's first name: the one built at the door. A ready life has none of its own (scenario.md). */
+/**
+ * The character's first name: the one built at the door, kept on the phone and online with the character
+ * (account:person-kept-with-character). A ready life has none of its own (scenario.md): until a person is read, "You".
+ */
 function nameOf(person: KeptPerson | null): string {
-  return person?.name ?? "";
+  const given = person?.name.trim() ?? "";
+  return given !== "" ? given : say("prologue.page.you");
 }
 
 /**
@@ -152,11 +156,9 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
       {/* The lively band: the name with the part of the day beside it, the age and the place small under it. The name and the
           age open the page; the place's name does nothing (world:top-band-is-lively-pill, prologue:front-door-builds-a-person). The age comes before the part of
           the day to a screen reader and the keyboard; the grid lays them out. */}
-      {name === "" ? null : (
-        <button type="button" tabIndex={-1} aria-hidden className="col-start-1 row-start-1 min-w-0 truncate text-left text-[16px] leading-tight font-bold" onClick={show}>
-          {name}
-        </button>
-      )}
+      <button type="button" tabIndex={-1} aria-hidden className="col-start-1 row-start-1 min-w-0 truncate text-left text-[16px] leading-tight font-bold" onClick={show}>
+        {name}
+      </button>
       <div className="col-span-3 col-start-1 row-start-2 min-w-0">
         <Under
           age={
@@ -167,7 +169,7 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
           place={place}
         />
       </div>
-      <div className={`${name === "" ? "col-start-1" : "col-start-2"} row-start-1 flex min-w-0 items-center gap-1.5`}>
+      <div className="col-start-2 row-start-1 flex min-w-0 items-center gap-1.5">
         {part}
         <Body body={body} />
       </div>

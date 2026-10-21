@@ -123,13 +123,12 @@ export function gameReply(request: Request, env: Env, waitUntil: (promise: Promi
     waitUntil,
     async ({ deps, handle, unavailable }, auth, keys) => {
       const rooms = (plumbing.isolate ?? isolateOf(env)).rooms;
-      const words = (plumbing.isolate ?? isolateOf(env)).text;
       const app = makeApp(deps, { auth, keys })
         // analytics:admin-stats-for-admins-only: the admin's numbers read the command log by its time.
         .route("/api/admin", adminStatsRoutes(deps, pgDayLog(handle)))
         .route("/", drawRoute(deps))
         .route("/", notifyKeyRoute(pushKeys(env)))
-        .route("/", placeSocketRoutes(deps, { rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, words) }));
+        .route("/", placeSocketRoutes(deps, { rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps) }));
       // server:no-platform-error-page: `onError` asks the request's connection whether the database answered (security/fail.ts).
       const bindings: FailureBindings = { databaseUnavailable: unavailable };
       return app.fetch(request, bindings);

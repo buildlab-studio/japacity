@@ -20,7 +20,7 @@ import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { AfterEarlyWin } from "../../shared/ui/stage";
-import { hasWords, nameOf, runningName, say, words } from "../../shared/words/text";
+import { runningName, say, words } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
 import { troubleWords } from "../../shared/words/trouble";
 
@@ -44,18 +44,20 @@ function cardLook(name: string): string {
 }
 
 /**
- * The character's name as the friend's card says it (pair:invite-card-contents): the card names the life by its
- * scenario's words, and a ready life has none of its own (scenario.md), so the friend reads "Someone".
+ * The character's name as the friend's card says it (pair:invite-card-contents): the first name built at the door, kept on
+ * this phone and with the character (account:person-kept-with-character), as the server names the card; "Someone" where none
+ * is kept, since a ready life has no name of its own (scenario.md).
  */
-function cardName(scenario: string): string {
-  return hasWords(`${scenario}.name`) ? nameOf(scenario) : say("ui.invite.someone");
+function cardName(): string {
+  const name = readPerson()?.name.trim() ?? "";
+  return name !== "" ? name : say("ui.invite.someone");
 }
 
 /** The card as the friend will see it. */
 function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) {
   const view = useView();
   const { percent, route } = view.japacity;
-  const name = cardName(view.scenario);
+  const name = cardName();
   return (
     <figure className="lively-card flex flex-col gap-1.5 p-4" data-invite-card>
       <p className="text-[22px] leading-tight font-bold">{name}</p>
@@ -155,7 +157,7 @@ export function InviteMaker({ slot }: { slot: string }) {
       }}
     >
       <div className="flex items-center gap-3">
-        <FaceSticker look={cardLook(cardName(view.scenario))} size={48} tilt={-4} tint="people" />
+        <FaceSticker look={cardLook(cardName())} size={48} tilt={-4} tint="people" />
         <h4 className="text-[22px] leading-tight font-bold">{say("ui.people.invite.title")}</h4>
       </div>
       <p className="text-[16px] leading-snug text-text-2">{say("ui.people.invite.intro")}</p>

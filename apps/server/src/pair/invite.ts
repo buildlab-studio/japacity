@@ -42,6 +42,15 @@ export function field(body: unknown, name: string): string | null {
   return typeof value === "string" && value !== "" ? value : null;
 }
 
+/**
+ * pair:invite-card-contents, account:person-kept-with-character: the character's name for its card, read from the person kept
+ * with it when the reply is built, so a reset name is the one shown; null with none kept, and the card says "Someone". The card
+ * is the player's own to send, as the share card is, so it carries the character's name where the crowd carries the username.
+ */
+async function cardName(deps: ServerDeps, character: string): Promise<string | null> {
+  return (await deps.stores.player.person(character))?.name ?? null;
+}
+
 /** The character's state as it stands now, after the same load and grant a view makes. */
 async function stateOf(deps: ServerDeps, character: string): Promise<ReadCtx | null> {
   const outcome = await transact(deps, [character], (lives) => {
@@ -70,7 +79,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   const now = deps.now();
   const open = await deps.stores.invite.open(row.character, now);
   const out = open.find((each) => each.slot === slot);
-  if (out !== undefined) return { status: 200, body: { ok: true, code: out.code, slot, expires: out.expires, card: out.card as InviteCard } };
+  if (out !== undefined) return { status: 200, body: { ok: true, code: out.code, slot, expires: out.expires, card: out.card as InviteCard, name: await cardName(deps, row.character) } };
   const tuning = read.content.tuning.pair;
   // As the guest sign-up's too-many and the reports' limit: 429.
   if (!mayOpenInvite(open.length, tuning)) return refused(429, "too-many", `At most ${String(tuning.maxOpenInvites)} cards may be out at once.`);
@@ -80,7 +89,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   const expires = inviteExpires(now, tuning);
   const made = await deps.stores.invite.create({ code, from: row.character, account, slot, looking: held.invite.looking, fill: held.invite.fill, card, madeAt: now, expires });
   if (!made.ok) throw new Error(`A new link code was refused: ${made.detail}`);
-  return { status: 200, body: { ok: true, code, slot, expires, card } };
+  return { status: 200, body: { ok: true, code, slot, expires, card, name: await cardName(deps, row.character) } };
 }
 
 /** pair:invite-card-contents: what anyone holding the link sees: the card, never a photo, a sum or a contact. */
@@ -89,7 +98,7 @@ export async function showInvite(deps: ServerDeps, code: string): Promise<PairAn
   if (row === null) return refused(404, "bad-code", "There is no such link.");
   const usable = useInvite(row, row.slot, deps.now());
   if (!usable.ok) return unusable(usable.failed, usable.failed === "used" ? "This link has been used." : "This link has run out.");
-  return { status: 200, body: { ok: true, slot: row.slot, looking: row.looking, expires: row.expires, card: row.card as InviteCard } };
+  return { status: 200, body: { ok: true, slot: row.slot, looking: row.looking, expires: row.expires, card: row.card as InviteCard, name: await cardName(deps, row.from) } };
 }
 
 /** person:three-ways-to-fill-slots: a partner must be an adult whose prologue is over. */

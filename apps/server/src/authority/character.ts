@@ -2,7 +2,7 @@
 // account:one-character-per-account): a 128-bit seed made once, the state at version
 // 0, the account pointed at it. The reply is the first view. And the end of
 // one (account:start-a-new-life), so the account may start another.
-import type { ViewReply } from "@japacity/api";
+import type { KeptPersonWire, ViewReply } from "@japacity/api";
 import type { Id, Save } from "@japacity/sim";
 import { int, newState, toHex, viewFor } from "@japacity/sim";
 
@@ -25,9 +25,10 @@ function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): string {
  * server:hidden-values-made-once, account:one-character-per-account: makes the account's one character in `scenario`.
  * person:real-sibling-shares-family-draw, decision 0020: a sibling made from an invite starts from the
  * inviter's family draw; its first segment starts from that state, so every
- * replay begins where the life did.
+ * replay begins where the life did. account:person-kept-with-character: the person built at the door is kept beside it
+ * and answered with the first view.
  */
-export async function newCharacter(deps: ServerDeps, account: string, scenario: Id<"scenario">, family?: Save["family"]): Promise<Answer<ViewReply>> {
+export async function newCharacter(deps: ServerDeps, account: string, scenario: Id<"scenario">, family?: Save["family"], person: KeptPersonWire | null = null): Promise<Answer<ViewReply>> {
   const row = await deps.stores.account.get(account);
   // A session without an account row has no code of its own; sign-up makes the row (account/signup.ts).
   if (row === null) return refusal(401, "signed-out", "Sign in again to make a character.");
@@ -49,6 +50,7 @@ export async function newCharacter(deps: ServerDeps, account: string, scenario: 
     ...overlay,
     start: family === undefined ? { scenario, seed, worldSeed: deps.secrets.worldSeed } : { base: state },
     state,
+    person,
   });
   if (!created.ok) throw new Error(`A new character id was refused: ${created.detail}`);
   const pointed = await deps.stores.account.setCharacter(account, id);
@@ -57,7 +59,7 @@ export async function newCharacter(deps: ServerDeps, account: string, scenario: 
     return refusal(409, "one-character", "This account already has a character.");
   }
   const clock = clockView(deps.config, at, state, at, content.tuning.turn.cap);
-  return { status: 200, body: { ok: true, view: viewFor({ state, world, content }), lines: [], clock } };
+  return { status: 200, body: { ok: true, view: viewFor({ state, world, content }), lines: [], clock, ...(person === null ? {} : { person }) } };
 }
 
 /** The reply of `POST /api/character/end`: the life is gone and the account has room for another. */

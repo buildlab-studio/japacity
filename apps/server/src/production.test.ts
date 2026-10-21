@@ -29,14 +29,15 @@ describe("the place a character's socket is for", () => {
     expect(hubFor("road", null, [])).toBe("place.road-night");
   });
 
-  test("[clock:presence-is-a-sample] [city:players-shown-present-not-tracked] given a character at home and an account with none, when the production readers are asked, then the place is the home hub with the profile's name and look, and null for the account with none", async () => {
+  test("[clock:presence-is-a-sample] [city:players-shown-present-not-tracked] [account:person-kept-with-character] given a character at home with a person kept, one without, and an account with none, when the production readers are asked, then the place is the home hub, the profile is the account's username with the kept look (empty with none kept), never the character's name, and null for the account with none", async () => {
     const server = testServer();
-    await newLife(server, "account-a", "scenario.graduate");
+    await newLife(server, "account-a", "scenario.graduate", { name: "Adaeze", look: "person_ada", archetype: null });
+    await newLife(server, "account-b", "scenario.graduate");
     expect(await placeOfIn(server.deps)("account-a")).toBe("place.ojuelegba");
-    // A ready life has no name of its own in content (scenario.md), so the scenario's stand-in name is empty.
-    expect(text["share.first-name.scenario.graduate"]).toBeUndefined();
-    expect(await profileOfIn(server.deps, text)("account-a")).toEqual({ name: "", look: "scenario.graduate" });
+    expect(await profileOfIn(server.deps)("account-a")).toEqual({ name: "account-a", look: "person_ada" });
+    expect(await profileOfIn(server.deps)("account-b")).toEqual({ name: "account-b", look: "" });
     expect(await placeOfIn(server.deps)("account-z")).toBeNull();
+    expect(await profileOfIn(server.deps)("account-z")).toBeNull();
   });
 });
 

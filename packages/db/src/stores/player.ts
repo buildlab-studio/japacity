@@ -291,7 +291,11 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
     create: (input) =>
       handle.transaction(async (tx): Promise<StoreResult<Held>> => {
         const row: CharacterRow = { id: input.id, account: input.account, v: 0, refilledAt: input.refilledAt, segment: 0, fullAt: null, fullNotifiedAt: null };
-        const made = await tx.insert(characters).values(row).onConflictDoNothing().returning({ id: characters.id });
+        const made = await tx
+          .insert(characters)
+          .values({ ...row, person: input.person ?? null })
+          .onConflictDoNothing()
+          .returning({ id: characters.id });
         if (made.length === 0) return refuse("exists", `Character ${input.id} already exists.`);
         const overlay = input.overlay ?? null;
         await tx.insert(segments).values({ character: input.id, segment: 0, fromV: 0, content: input.content, overlay, start: input.start });
@@ -369,6 +373,18 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
           .orderBy(asc(sql`${characters.id} collate "C"`))
           .limit(Math.max(0, limit));
         return rows;
+      }),
+
+    person: (id) =>
+      handle.read(async (db) => {
+        const [row] = await db.select({ person: characters.person }).from(characters).where(eq(characters.id, id));
+        return row?.person ?? null;
+      }),
+
+    setPerson: (id, person) =>
+      handle.read(async (db) => {
+        const updated = await db.update(characters).set({ person }).where(eq(characters.id, id)).returning({ id: characters.id });
+        return updated.length > 0;
       }),
   };
 

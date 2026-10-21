@@ -2,6 +2,7 @@
 // new character and the presence sample. Every route is under /api, answers
 // JSON, and needs a signed-in session unless it says otherwise.
 import type { Command, Id, PlayerView, PrologueSlice, Rejection, ReportLine, World } from "@japacity/sim";
+import type { KeptPerson } from "@japacity/store";
 
 import type { ClockView, ServerRejection } from "./reply";
 
@@ -34,8 +35,18 @@ export interface PresetStep {
  */
 export type PresetReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView; stepped: number; trail: PresetStep[]; refusal?: Rejection } | (Rejection & { clock: ClockView }) | ServerRejection;
 
-/** `GET /api/view`, with `?since=<version>` for the authority's lines after it: the view, the lines since the client's last fetch are not kept (server:client-never-predicts), and the clock. */
-export type ViewReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView } | ServerRejection;
+/**
+ * account:person-kept-with-character: the person built at the door as it travels with `POST /api/character` and back with the
+ * view: its first name, its look, the archetype it started as and its colours, never the page's photo, at most 1 KB as JSON
+ * (content's `readKeptPerson`). The stored row's own declaration (decision 0027).
+ */
+export type KeptPersonWire = KeptPerson;
+
+/**
+ * `GET /api/view`, with `?since=<version>` for the authority's lines after it: the view, the lines since the client's last fetch are not kept (server:client-never-predicts), and the clock.
+ * `person` is the one kept with the character (account:person-kept-with-character), left out when the life was made without one.
+ */
+export type ViewReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView; person?: KeptPersonWire | null } | ServerRejection;
 
 /** clock:client-gets-current-world-only, clock:world-fetch-is-jittered: `GET /api/world`, the same for everyone, kept in the server's cache by its tick until the next tick (server:public-replies-cached). Needs no session. */
 export interface WorldReply {
@@ -47,6 +58,8 @@ export interface WorldReply {
 /** `POST /api/character`: a new character for the account (account:one-character-per-account, server:hidden-values-made-once). */
 export interface NewCharacterRequest {
   scenario: Id<"scenario">;
+  /** account:person-kept-with-character: the person built at the door, kept with the character. */
+  person?: KeptPersonWire;
 }
 
 /** `POST /api/character` answers as `GET /api/view`. */

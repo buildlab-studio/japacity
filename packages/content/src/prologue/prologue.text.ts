@@ -246,6 +246,8 @@ const words: Record<string, string> = {
   "prologue.page.empty": "· · ·",
   "prologue.page.photo": "Your photo",
   "prologue.page.open": "Your page",
+  // account:person-kept-with-character: the band's name until a person is read; a ready life has none of its own.
+  "prologue.page.you": "You",
   "prologue.page.close": "Close",
   "prologue.page.stamp.granted": "Visa granted",
   "prologue.page.way.route.uk-masters": "a UK master's",

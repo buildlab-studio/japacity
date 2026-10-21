@@ -16,6 +16,8 @@ export interface InviteMade {
   slot: string;
   expires: number;
   card: InviteCard;
+  /** pair:invite-card-contents: the character's name, read from the person kept with it (account:person-kept-with-character); null with none kept. */
+  name: string | null;
 }
 
 /** `GET /api/invite/:code`: what the link shows, before sign-up. */
@@ -25,6 +27,8 @@ export interface InviteShown {
   looking: "partner" | "sibling";
   expires: number;
   card: InviteCard;
+  /** pair:invite-card-contents: the inviter's character's name, read from the person kept with it (account:person-kept-with-character); null with none kept. */
+  name: string | null;
 }
 
 /** `POST /api/invite/:code/accept`: the pair made, as the friend sees it. */

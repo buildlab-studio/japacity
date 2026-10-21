@@ -61,12 +61,12 @@ describe("the Worker on Postgres", () => {
 });
 
 describe("the socket on the production readers", () => {
-  test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given two characters at home, when one opens the socket on the hub the client sends, then it is let in and the other's presence fetch shows it by name and look; a socket on another place is refused", async () => {
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] [city:players-fill-the-crowd] [account:person-kept-with-character] given two characters at home, when one opens the socket on the hub the client sends, then it is let in and the other's presence fetch shows it by its account's username and its kept look, never its character's name; a socket on another place is refused", async () => {
     const rooms = freshRooms();
     const server = testServer({ stores: { ...memoryStores(), presence: placePresenceStore(rooms) } });
-    await newLife(server, "account-a", "scenario.graduate");
+    await newLife(server, "account-a", "scenario.graduate", { name: "Adaeze", look: "person_kemi", archetype: null });
     await newLife(server, "account-b", "scenario.banker");
-    const app = makeApp(server.deps).route("/", placeSocketRoutes(server.deps, { rooms, placeOf: placeOfIn(server.deps), profileOf: profileOfIn(server.deps, text) }));
+    const app = makeApp(server.deps).route("/", placeSocketRoutes(server.deps, { rooms, placeOf: placeOfIn(server.deps), profileOf: profileOfIn(server.deps) }));
     const headers = (account: string, upgrade: boolean): Record<string, string> => ({ "x-test-account": account, "cf-ipcountry": "NG", ...(upgrade ? { upgrade: "websocket" } : {}) });
 
     const elsewhere = await app.request("/api/place/place.family-house/socket", { headers: headers("account-a", true) });
@@ -82,8 +82,9 @@ describe("the socket on the production readers", () => {
     await until(async () => ((await roomCounts(rooms, "place.ojuelegba"))[0] ?? 0) === 1, "the socket to join the room");
 
     const fetched = await (await app.request("/api/place/place.ojuelegba", { headers: headers("account-b", false) })).json<PresenceReply>();
-    // A ready life has no name of its own in content (scenario.md), so the scenario's stand-in name is empty.
-    expect(fetched.others).toEqual([{ name: "", look: "scenario.graduate" }]);
+    // The socket's attachment and the sample carry the username the account signed up with and the look kept at the door.
+    expect(fetched.others).toEqual([{ name: "account-a", look: "person_kemi" }]);
+    expect(JSON.stringify(fetched)).not.toContain("Adaeze");
     end.close();
   });
 });

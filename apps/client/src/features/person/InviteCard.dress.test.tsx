@@ -46,6 +46,14 @@ describe("the invite card in the lively dress", () => {
     expect(yellow[0]?.textContent).toBe(say("ui.people.invite.make"));
   });
 
+  test("[pair:invite-card-contents] [account:person-kept-with-character] given the person built at the door kept on this phone, when the card maker shows, then the card names the character by its first name", async () => {
+    keepPerson({ look: "person_kemi", name: "Kemi", archetype: "developer" });
+    const { form } = await maker();
+    const card = form.querySelector<HTMLElement>("[data-invite-card]");
+    expect(card?.textContent).toContain("Kemi");
+    expect(card?.textContent).not.toContain(say("ui.invite.someone"));
+  });
+
   test("[pair:invite-card-contents] [person:invite-fills-a-slot] given a look kept from the door and the card out, then the maker wears that look's face, the card out carries none, the slot says it is out once, and Take the card back is a ghost button", async () => {
     keepPerson({ look: "person_kemi", name: "Kemi", archetype: "developer" });
     const { form, authority } = await maker();

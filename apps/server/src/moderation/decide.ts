@@ -6,6 +6,7 @@ import { toHex } from "@japacity/sim";
 import type { AppealRow, ModerationLogEntry } from "@japacity/store";
 
 import { requestDeletion } from "../account/deletion";
+import { generatedFirstName } from "../account/person";
 import { generatedUsername } from "../account/username";
 import { rollbackCheck } from "../ops/rollback";
 import type { ServerDeps } from "../deps";
@@ -118,14 +119,26 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
 
 /**
  * Draws a generated name until one is free; an account already gone needs none (moderation:fixed-admin-actions `reset-name`).
- * The change time is cleared, so the reset never costs the player their own rename.
+ * The change time is cleared, so the reset never costs the player their own rename. The character's kept name is reset with
+ * it to a first name from the pool (account:person-kept-with-character), its look and colours left as they are.
  */
 async function resetName(deps: ServerDeps, account: string): Promise<void> {
   for (let draw = 0; draw < NAME_DRAWS; draw += 1) {
     const changed = await deps.stores.account.setUsername(account, generatedUsername(deps.randomBytes), null);
-    if (changed.ok || changed.code === "missing") return;
+    if (changed.ok) {
+      await resetPersonName(deps, changed.value.character);
+      return;
+    }
+    if (changed.code === "missing") return;
   }
   throw new Error(`No free generated name for ${account} after ${String(NAME_DRAWS)} draws.`);
+}
+
+/** account:person-kept-with-character: the kept person's first name drawn again; a life with no person kept has no name to reset. */
+async function resetPersonName(deps: ServerDeps, character: string | null): Promise<void> {
+  const person = character === null ? null : await deps.stores.player.person(character);
+  if (character === null || person === null) return;
+  await deps.stores.player.setPerson(character, { ...person, name: generatedFirstName(deps.randomBytes, person.look) });
 }
 
 /** moderation:actioned-player-told-and-appeals: decides an appeal, by an admin other than the one who acted when there is more than one. */

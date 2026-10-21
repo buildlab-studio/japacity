@@ -117,6 +117,16 @@ describe("the invite link's page", () => {
     expect(inviteCodeOf("/invite/")).toBeNull();
   });
 
+  test("[pair:invite-card-contents] [account:person-kept-with-character] given a link whose inviter keeps the person built at the door, when it is opened, then the card names the character by that first name", async () => {
+    const server = fakeServer();
+    server.answer(`GET /api/invite/${CODE}`, { body: { ok: true, slot: "partner", looking: "partner", expires: 9_000, card: CARD, name: "Adaeze" } });
+    server.answer("GET /api/view", SIGNED_OUT);
+    openLink(server, account());
+    const card = await screen.findByRole("figure");
+    expect(within(card).getByText("Adaeze")).toBeDefined();
+    expect(within(card).queryByText(say("ui.invite.someone"))).toBeNull();
+  });
+
   test("[pair:invite-card-contents] [pair:invite-link-single-use] [moderation:report-from-every-surface] given a partner link, when it is opened signed out, then the card shows before sign-up with its report control, then the age screen, sign-in, a grown-up life and the card taken for its slot", async () => {
     const server = cardServer();
     const friend = account("passed", () => {
