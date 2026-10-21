@@ -1,10 +1,12 @@
 // The person built at the front door (prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:player-colours-on-looks): a look, a first name, an
 // archetype, and the player's own colours on the look with the page's photo in them. The simulation holds none of them: they are kept on the device beside the save, under one
-// key of their own, and the city and the rides draw the character in the look.
+// key of their own, and the city and the rides draw the character in the look. Online the server keeps them with the character too, all but the photo, and its copy
+// wins on this phone (account:person-kept-with-character).
+import type { KeptPersonWire } from "@japacity/api";
+import { doorLookOf } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { personOf } from "../scene/roster";
-import { readStyle, type LookStyle } from "./style";
+import { readStyle, styleKey, type LookStyle } from "./style";
 import { browserStorage, PERSON_KEY } from "../kept/storage";
 
 export interface KeptPerson {
@@ -35,30 +37,33 @@ function isPerson(value: unknown): value is Record<string, unknown> & Pick<KeptP
   return typeof name === "string" && (archetype === null || typeof archetype === "string");
 }
 
-/** A look the front door offers: a shipped person of the roster who is a passer-by, as `looks.ts` lists them. */
+/** A look the front door offers: a shipped person who is a passer-by, from content's one list, which the server reads too. */
 function isLook(id: string): boolean {
-  return personOf(`shared/person/${id}.glb`)?.role === "passer-by";
+  return doorLookOf(id) !== null;
 }
 
 /** The person kept on this device, or null when none is, or what is kept cannot be read. */
 export function readPerson(storage: Read | null = browserStorage()): KeptPerson | null {
   try {
     const raw = storage?.getItem(PERSON_KEY) ?? null;
-    if (raw === null) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (!isPerson(parsed)) return null;
-    const { name, archetype } = parsed;
-    // A look the game no longer ships (an old `chr_` name, any name not of the looks) is dropped, never the person with it.
-    const look = typeof parsed.look === "string" && isLook(parsed.look) ? parsed.look : undefined;
-    const style = readStyle(parsed.style);
-    // A photo is kept as made too; one drawn in a style that does not read back is not the figure's.
-    const drawnAs = style !== undefined || parsed.style === undefined;
-    const photo = drawnAs && typeof parsed.photo === "string" && PHOTO.test(parsed.photo) ? parsed.photo : undefined;
-    const photoPx = photo !== undefined && typeof parsed.photoPx === "number" && Number.isInteger(parsed.photoPx) && parsed.photoPx > 0 ? parsed.photoPx : undefined;
-    return { ...(look === undefined ? {} : { look }), name, archetype, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }), ...(photoPx === undefined ? {} : { photoPx }) };
+    return raw === null ? null : personFrom(JSON.parse(raw));
   } catch {
     return null;
   }
+}
+
+/** A person read from what was kept or sent; a look the game no longer ships drops alone. */
+function personFrom(parsed: unknown): KeptPerson | null {
+  if (!isPerson(parsed)) return null;
+  const { name, archetype } = parsed;
+  // A look the game no longer ships (an old `chr_` name, any name not of the looks) is dropped, never the person with it.
+  const look = typeof parsed.look === "string" && isLook(parsed.look) ? parsed.look : undefined;
+  const style = readStyle(parsed.style);
+  // A photo is kept as made too; one drawn in a style that does not read back is not the figure's.
+  const drawnAs = style !== undefined || parsed.style === undefined;
+  const photo = drawnAs && typeof parsed.photo === "string" && PHOTO.test(parsed.photo) ? parsed.photo : undefined;
+  const photoPx = photo !== undefined && typeof parsed.photoPx === "number" && Number.isInteger(parsed.photoPx) && parsed.photoPx > 0 ? parsed.photoPx : undefined;
+  return { ...(look === undefined ? {} : { look }), name, archetype, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }), ...(photoPx === undefined ? {} : { photoPx }) };
 }
 
 /** False when a private window refused storage: the person then lasts the visit only. */
@@ -69,6 +74,33 @@ export function keepPerson(person: KeptPerson, storage: Write | null = browserSt
   } catch {
     return false;
   }
+}
+
+/**
+ * account:person-kept-with-character: the person to keep with a new character, as it travels: never the photo, which each phone
+ * draws again; none where no look the game ships is kept, since the server keeps only a whole person.
+ */
+export function personToSend(storage: Read | null = browserStorage()): KeptPersonWire | null {
+  const kept = readPerson(storage);
+  if (kept?.look === undefined) return null;
+  return { name: kept.name, look: kept.look, archetype: kept.archetype, ...(kept.style === undefined ? {} : { style: kept.style }) };
+}
+
+/**
+ * account:person-kept-with-character: the person the server keeps with the character, taken onto this phone. It fills a phone
+ * that keeps none and wins on any difference; the photo stays only while it was drawn of the same look in the same colours,
+ * else the page draws it again. False when what was sent is not a person.
+ */
+export function adoptPerson(sent: unknown, storage: (Read & Write) | null = browserStorage()): boolean {
+  const read = personFrom(sent);
+  if (read === null) return false;
+  const wire: KeptPerson = { ...(read.look === undefined ? {} : { look: read.look }), name: read.name, archetype: read.archetype, ...(read.style === undefined ? {} : { style: read.style }) };
+  const kept = readPerson(storage);
+  const drawnAlike = kept !== null && kept.look === wire.look && styleKey(kept.style) === styleKey(wire.style);
+  if (drawnAlike && kept.name === wire.name && kept.archetype === wire.archetype) return true;
+  const photo = drawnAlike && kept.photo !== undefined ? { photo: kept.photo, ...(kept.photoPx === undefined ? {} : { photoPx: kept.photoPx }) } : {};
+  keepPerson({ ...wire, ...photo }, storage);
+  return true;
 }
 
 /** The kept look as a shipped file, `shared/person/person_ada.glb`, or null when no look is kept. */

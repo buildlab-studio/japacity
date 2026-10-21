@@ -1,8 +1,9 @@
 import type { ClockView } from "@japacity/api";
 import type { PlayerView } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 
+import { keepPerson, readPerson } from "../shared/frontdoor/person";
 import { failureOf, isReported } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
@@ -198,5 +199,53 @@ describe("the remote authority", () => {
     server.answer("GET /api/view", { body: { ok: true, view: at(5), lines: [{ key: "line.lottery.letter", params: {}, tone: "good", big: true, attention: true, counts: [] }], clock: CLOCK } });
     await remote.view();
     expect(events.some((event) => event.kind === "lines")).toBe(false);
+  });
+});
+
+describe("the person kept with the character, online", () => {
+  const PHOTO = "data:image/webp;base64,AAAA";
+  const ADAEZE = { name: "Adaeze", look: "person_ada", archetype: "developer", style: { skin: "skin3" as const } };
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  test("[account:person-kept-with-character] given the person the door kept, when a life is chosen, then it goes with the scenario to /api/character, all but the photo", async () => {
+    const { server, remote } = setUp();
+    keepPerson({ ...ADAEZE, photo: PHOTO, photoPx: 640 });
+    server.answer("POST /api/character", viewReply(0));
+    await remote.newLife("scenario.graduate");
+    expect(server.sent[0]?.body).toEqual({ scenario: "scenario.graduate", person: ADAEZE });
+  });
+
+  test("[account:person-kept-with-character] given a phone that keeps no person, when the view comes with the one the server keeps, then the phone keeps it before the view is handed on", async () => {
+    const { server, remote } = setUp();
+    server.answer("GET /api/view", { body: { ok: true, view: at(3), lines: [], clock: CLOCK, person: ADAEZE } });
+    await remote.view();
+    expect(readPerson()).toEqual(ADAEZE);
+  });
+
+  test("[account:person-kept-with-character] given a phone that keeps another name, when the view comes with the server's person, then the server's wins and the photo, drawn of the same look in the same colours, stays", async () => {
+    const { server, remote } = setUp();
+    keepPerson({ ...ADAEZE, name: "Bola", photo: PHOTO, photoPx: 640 });
+    server.answer("GET /api/view", { body: { ok: true, view: at(3), lines: [], clock: CLOCK, person: ADAEZE } });
+    await remote.view();
+    expect(readPerson()).toEqual({ ...ADAEZE, photo: PHOTO, photoPx: 640 });
+  });
+
+  test("[account:person-kept-with-character] given a phone that keeps another look, when the view comes with the server's person, then the server's look wins and the old photo goes, to be drawn again", async () => {
+    const { server, remote } = setUp();
+    keepPerson({ ...ADAEZE, look: "person_kemi", photo: PHOTO, photoPx: 640 });
+    server.answer("POST /api/character", { body: { ok: true, view: at(0), lines: [], clock: CLOCK, person: ADAEZE } });
+    await remote.newLife("scenario.graduate");
+    expect(readPerson()).toEqual(ADAEZE);
+  });
+
+  test("[account:person-kept-with-character] given a view with no person kept on the server, when it comes, then the phone keeps its own", async () => {
+    const { server, remote } = setUp();
+    keepPerson({ ...ADAEZE, photo: PHOTO });
+    server.answer("GET /api/view", viewReply(3));
+    await remote.view();
+    expect(readPerson()).toEqual({ ...ADAEZE, photo: PHOTO });
   });
 });

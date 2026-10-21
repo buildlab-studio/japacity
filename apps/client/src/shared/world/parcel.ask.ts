@@ -5,6 +5,7 @@
 // hands in how to send and how to close.
 import type { OfferView, PlayerView, ReportLine } from "@japacity/sim";
 
+import { readPerson } from "../frontdoor/person";
 import { nameOf, words } from "../words/text";
 import type { Ask } from "./contract";
 
@@ -23,9 +24,10 @@ function waitingParcel(view: Pick<PlayerView, "offers">): OfferView | undefined 
   return view.offers.find((offer) => offer.entry === PARCEL);
 }
 
-/** The slip's To line: "You", since no life carries a name of its own in content (scenario.md). */
+/** The slip's To line: the kept person's first name (account:person-kept-with-character); "You" with none, since no life carries a name of its own in content (scenario.md). */
 function addressee(): string {
-  return words(`${PARCEL}.waybill.you`);
+  const given = readPerson()?.name.trim() ?? "";
+  return given !== "" ? given : words(`${PARCEL}.waybill.you`);
 }
 
 /** The waybill's number: the parcel's own instance number, never a month. */

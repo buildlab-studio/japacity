@@ -2,7 +2,7 @@
 // player's own colours on the look with the page's photo drawn in them.
 import { describe, expect, test } from "vitest";
 
-import { keepPerson, keptLookFile, keptStyleOf, playerName, readPerson } from "./person";
+import { adoptPerson, keepPerson, keptLookFile, keptStyleOf, personToSend, playerName, readPerson } from "./person";
 import { PERSON_KEY } from "../kept/storage";
 import { memoryStorage } from "../testing/storage";
 
@@ -55,5 +55,26 @@ describe("a kept look the game no longer knows", () => {
     storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_tunde", name: "Bola", archetype: "nurse" }));
     expect(readPerson(storage)?.look).toBe("person_tunde");
     expect(keptLookFile(storage)).toBe("shared/person/person_tunde.glb");
+  });
+});
+
+describe("the person kept with the character", () => {
+  test("[account:person-kept-with-character] given a person kept with its photo, when it is sent, then it goes without the photo; a person with no look the game ships, or none, sends nothing", () => {
+    const storage = memoryStorage();
+    expect(personToSend(storage)).toBeNull();
+    keepPerson({ look: "person_ada", name: "Ada", archetype: null, style: { skin: "skin2" }, photo: PHOTO, photoPx: 258 }, storage);
+    expect(personToSend(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null, style: { skin: "skin2" } });
+    storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype: null }));
+    expect(personToSend(storage)).toBeNull();
+  });
+
+  test("[account:person-kept-with-character] given what the server sends, when it is taken onto the phone, then anything not a person is refused, a photo it carries is never kept, and a look the game no longer ships drops alone", () => {
+    const storage = memoryStorage();
+    expect(adoptPerson({ look: "person_ada" }, storage)).toBe(false);
+    expect(readPerson(storage)).toBeNull();
+    expect(adoptPerson({ look: "person_ada", name: "Ada", archetype: null, photo: PHOTO }, storage)).toBe(true);
+    expect(readPerson(storage)).toEqual({ look: "person_ada", name: "Ada", archetype: null });
+    expect(adoptPerson({ look: "chr_ada", name: "Ada", archetype: "nurse" }, storage)).toBe(true);
+    expect(readPerson(storage)).toEqual({ name: "Ada", archetype: "nurse" });
   });
 });

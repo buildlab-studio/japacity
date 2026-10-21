@@ -17,6 +17,7 @@ import type {
 } from "@japacity/api";
 import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
+import { adoptPerson, personToSend } from "../shared/frontdoor/person";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
 import { pacer } from "../shared/net/pace";
 import type { WallGuard } from "../shared/net/wall";
@@ -134,7 +135,13 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     return version === null ? "/api/view" : `/api/view?since=${String(version)}`;
   }
 
-  function keepWithLines(reply: { view: PlayerView; lines: ReportLine[]; clock: ClockView }, asked: number | null): PlayerView {
+  /** account:person-kept-with-character: the person the server keeps comes onto this phone before the view is handed on, so the first screen of it reads the name. */
+  function takePerson(reply: { person?: unknown }): void {
+    if (reply.person !== undefined && reply.person !== null) adoptPerson(reply.person);
+  }
+
+  function keepWithLines(reply: { view: PlayerView; lines: ReportLine[]; clock: ClockView; person?: unknown }, asked: number | null): PlayerView {
+    takePerson(reply);
     const view = keep(reply);
     const lines = asked === null ? [] : reply.lines;
     if (lines.length > 0) tell({ kind: "lines", lines });
@@ -209,10 +216,15 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     },
 
     async newLife(scenario) {
-      const request: NewCharacterRequest = { scenario };
+      // account:person-kept-with-character: the person the door just kept goes with the new character.
+      const person = personToSend();
+      const request: NewCharacterRequest = person === null ? { scenario } : { scenario, person };
       await pace.take();
       const reply = await http.post<NewCharacterReply>("/api/character", request);
-      if (reply.ok) return keep(reply);
+      if (reply.ok) {
+        takePerson(reply);
+        return keep(reply);
+      }
       // The account already has its one character: carry on with it.
       if (reply.code === "one-character") return fetchView();
       return refuse(reply);

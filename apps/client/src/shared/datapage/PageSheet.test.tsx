@@ -94,6 +94,20 @@ describe("the page from the band", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
+  test("[account:person-kept-with-character] given a ready life with no person kept on this phone, then the band says You over the age, and the page's name says You", async () => {
+    const store = await life("scenario.graduate", null);
+    const view = store.getState().view!;
+    band(store, clockWords(view.qualities));
+    const person = document.querySelector<HTMLElement>("[data-band-person]")!;
+    const you = say("prologue.page.you");
+    expect(you).toBe("You");
+    expect(person.textContent.indexOf(you)).toBe(0);
+    expect(person.textContent.indexOf(you)).toBeLessThan(person.textContent.indexOf(clockWords(view.qualities)));
+    fireEvent.click(opener());
+    const page = screen.getByRole("dialog", { name: say("prologue.door.page.title") }).querySelector<HTMLElement>("[data-page]")!;
+    expect(page.querySelector("[data-field='name']")?.textContent).toContain(you);
+  });
+
   test("[prologue:front-door-builds-a-person] given the view moving on, then the open page keeps the age current, takes no stamp for the passport, and the visa's round stamp once it is granted", async () => {
     const store = await life("scenario.graduate", { look: "person_kemi", name: "Morenike", archetype: null });
     band(store);

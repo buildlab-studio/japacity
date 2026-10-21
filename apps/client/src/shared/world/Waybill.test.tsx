@@ -5,10 +5,11 @@ import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
 import { setPockets } from "@japacity/sim/testing";
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
+import { keepPerson } from "../frontdoor/person";
 import { gameAuthority, newGame, openOffer } from "../testing/fixtures";
 import "../testing/render";
 import { formatMoney } from "../words/format";
@@ -40,6 +41,10 @@ function main(): HTMLButtonElement {
   if (found === null) throw new Error("No sheet is open.");
   return found;
 }
+
+afterEach(() => {
+  localStorage.clear();
+});
 
 describe("the slip's rows", () => {
   test("[world:one-action-one-sheet] given a slip with rows, when it opens, then each row shows its label and value on the paper, the strong one bold, in place of the one big figure", () => {
@@ -87,6 +92,13 @@ describe("the waybill", () => {
     expect(ask.cost).toEqual({ amount: handling, currency: "NGN" });
     expect(ask.button).toBe(words(`${PARCEL}.choice.${holds}`));
     expect(ask.when).toBe("now");
+  });
+
+  test("[account:person-kept-with-character] given the person built at the door kept on this phone, when the parcel's waybill is built, then its To line is that first name", () => {
+    keepPerson({ name: "Adaeze", look: "person_ada", archetype: null });
+    const { view } = graduate();
+    const ask = parcelAsk(view, { send: () => undefined, done: () => undefined, formatMoney: money })!;
+    expect(ask.rows).toContainEqual({ label: words(`${PARCEL}.waybill.to`), value: "Adaeze" });
   });
 
   test("[world:one-action-one-sheet] given no parcel waiting, when the waybill is built, then there is none", () => {
