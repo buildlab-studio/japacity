@@ -7,6 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./private-places": "./src/place/place.private.ts",
+    "./shipped-people": "./src/person/person.shipped.data.ts",
     "./ui/london": "./src/ui/ui.london.text.ts",
     "./ui/calgary": "./src/ui/ui.calgary.text.ts",
     "./ui/dubai": "./src/ui/ui.dubai.text.ts",

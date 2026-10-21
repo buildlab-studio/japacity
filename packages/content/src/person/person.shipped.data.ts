@@ -3,7 +3,8 @@
 // they stand. One row per shipped `person_` file; the body tests (`person_body_*`, `person_control`) are not people of the
 // city. The passers-by are the looks the front door offers (prologue:front-door-builds-a-person), and the server keeps
 // only one of them with a character (account:person-kept-with-character): the client's crowd, the door and the server
-// read this one list.
+// read this one list. It imports nothing, so the place check's page loads it by its own path
+// (`@japacity/content/shipped-people`) without the rest of content.
 
 export type Dress = "traditional" | "modern";
 /** A special dress: the Friday jalamia and cap, or aso ebi, gele and agbada on a Saturday. */

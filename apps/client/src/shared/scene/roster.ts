@@ -1,7 +1,7 @@
 // The shipped people as the crowd sees them (city:dress-mix-by-place), by their files: content's one list of who is a man
 // or a woman, who is in traditional cloth, who wears the Friday jalamia or the Saturday occasion dress, the part each plays
 // when a card is opened on them and how they stand.
-import { SHIPPED_PEOPLE, type Dress, type Role, type Wear } from "@japacity/content";
+import { SHIPPED_PEOPLE, type Dress, type Role, type Wear } from "@japacity/content/shipped-people";
 import type { PoseName } from "@japacity/models/people/poses";
 
 export type { Dress, Role };
