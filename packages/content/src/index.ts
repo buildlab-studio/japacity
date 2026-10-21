@@ -111,6 +111,10 @@ export { LICENCES_PATH, LICENCES_URL, REGISTER_URL, REPOSITORY_URL } from "./leg
 export { familyPeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
 export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";
 export { recurringPeople } from "./person/person.recurring.data";
+export { doorLookOf, SHIPPED_PEOPLE } from "./person/person.shipped.data";
+export type { Dress, IdlePose, Role, ShippedPerson, Wear } from "./person/person.shipped.data";
+export { KEPT_PERSON_MOST_BYTES, keptPersonSchema, PERSON_NAME_LONGEST, PERSON_NAME_SHORTEST, personNameShape, readKeptPerson } from "./person/person.kept";
+export type { KeptPersonProblem, KeptPersonShape, PersonNameShape } from "./person/person.kept";
 export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
 export { familyFeed, familyNames, familyPosts, travelKnown } from "./family/family.data";
 export { HOMETOWN_FILL, hometownByHome, hometownCities, hometownRegion, hometownTowns } from "./prologue/prologue.hometown.data";
