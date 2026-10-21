@@ -3,7 +3,7 @@
 // Ids are ordered in JavaScript by UTF-16 code unit (compareIds), never by a
 // collation, so no id column needs COLLATE "C".
 import type { Command, Sender, State } from "@japacity/sim";
-import type { PairRecord, SegmentStart } from "@japacity/store";
+import type { KeptPerson, PairRecord, SegmentStart } from "@japacity/store";
 import { sql } from "drizzle-orm";
 import { bigint, index, integer, jsonb, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
@@ -19,6 +19,8 @@ export const characters = pgTable(
     /** clock:full-bank-push-notification. */
     fullAt: bigint("full_at", { mode: "number" }),
     fullNotifiedAt: bigint("full_notified_at", { mode: "number" }),
+    /** account:person-kept-with-character: the person built at the door; null for a life made without one. */
+    person: jsonb("person").$type<KeptPerson>(),
   },
   (table) => [
     index("characters_account_idx").on(table.account),

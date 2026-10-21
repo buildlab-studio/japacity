@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { CharacterWrite, Held, PlayerStore, StoreResult, Writes } from "../types";
+import type { CharacterWrite, Held, KeptPerson, PlayerStore, StoreResult, Writes } from "../types";
 import { DRAW_ODDS, logRow, logRows, must, newCharacter, snapshot, stateAt, world } from "./contract.testing";
 
 /** `server.snapshotEvery` in server.md's Numbers. The store keeps what it is given; the server decides when. */
@@ -558,6 +558,35 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       const again = await store.load("char-a");
       expect(again?.character).toMatchObject({ v: 0, account: "account-of-char-a" });
       expect(again?.tail).toEqual([]);
+    });
+
+    test("[account:person-kept-with-character] given a character made with the person built at the door, when the person is read, then it is the one kept, and a character made without one, or none at all, reads null", async () => {
+      const store = await make();
+      const person: KeptPerson = { name: "Adaeze", look: "person_ada", archetype: "developer", style: { skin: "skin3", fabric: "adire" } };
+      must(await store.create({ ...newCharacter("char-a"), person }));
+      must(await store.create(newCharacter("char-b")));
+
+      expect(await store.person("char-a")).toEqual(person);
+      expect(await store.person("char-b")).toBeNull();
+      expect(await store.person("char-unknown")).toBeNull();
+      // The person stands beside the rows a load reads, never inside them.
+      expect((await store.load("char-a"))?.character).toEqual({ id: "char-a", account: "account-of-char-a", v: 0, refilledAt: 1_000, segment: 0, fullAt: null, fullNotifiedAt: null });
+    });
+
+    test("[account:person-kept-with-character] given a kept person, when it is replaced, a command is written and the caller changes what it was given, then the replacement stands alone, and an unknown character is refused", async () => {
+      const store = await make();
+      must(await store.create({ ...newCharacter("char-a"), person: { name: "Adaeze", look: "person_ada", archetype: null } }));
+      const renamed: KeptPerson = { name: "Bola", look: "person_ada", archetype: null };
+
+      expect(await store.setPerson("char-a", renamed)).toBe(true);
+      await appendTo(store, "char-a", 1, 1);
+      renamed.name = "changed";
+
+      expect(await store.person("char-a")).toEqual({ name: "Bola", look: "person_ada", archetype: null });
+      expect(await store.setPerson("char-unknown", renamed)).toBe(false);
+      expect(await store.person("char-unknown")).toBeNull();
+      await store.remove("char-a");
+      expect(await store.person("char-a")).toBeNull();
     });
   });
 }

@@ -3,6 +3,7 @@ import type {
   CharacterRow,
   CharacterWrite,
   Held,
+  KeptPerson,
   LogRow,
   PairRow,
   PairStore,
@@ -25,6 +26,8 @@ interface Stored {
   segments: SegmentRow[];
   snapshots: SnapshotRow[];
   log: LogRow[];
+  /** account:person-kept-with-character. */
+  person: KeptPerson | null;
 }
 
 const byV = (x: { v: number }, y: { v: number }) => x.v - y.v;
@@ -182,6 +185,7 @@ export function memoryPlayerStores(stores: TxStores): { player: PlayerStore; pai
           segments: [{ character: input.id, segment: 0, fromV: 0, content: input.content, ...overlay, start: input.start }],
           snapshots: [{ character: input.id, v: 0, segment: 0, content: input.content, ...overlay, state: input.state }],
           log: [],
+          person: input.person ?? null,
         });
         characters = new Map(characters).set(input.id, stored);
         return Promise.resolve(accept(held(stored)));
@@ -241,6 +245,16 @@ export function memoryPlayerStores(stores: TxStores): { player: PlayerStore; pai
             .slice(0, Math.max(0, limit)),
         ),
       ),
+
+    person: (id) => Promise.resolve(copy(characters.get(id)?.person ?? null)),
+
+    setPerson: (id, person) =>
+      locked(() => {
+        const found = characters.get(id);
+        if (found === undefined) return Promise.resolve(false);
+        characters = new Map(characters).set(id, { ...found, person: copy(person) });
+        return Promise.resolve(true);
+      }),
   };
 
   const pair: PairStore = {

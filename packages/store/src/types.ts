@@ -91,6 +91,20 @@ export interface NewCharacter {
   start: SegmentStart;
   /** The state at version 0, stored as segment 0's first snapshot. */
   state: State;
+  /** account:person-kept-with-character: the person built at the door, kept with the character; none when the life was made without one. */
+  person?: KeptPerson | null;
+}
+
+/**
+ * account:person-kept-with-character: the person built at the door as the server keeps it beside the character: the first
+ * name, the look, the archetype it started as (null for a ready life) and the player's own colours on the look. Never the
+ * page's photo, which each phone draws again. The row and the wire are one declaration (decision 0027).
+ */
+export interface KeptPerson {
+  name: string;
+  look: string;
+  archetype: string | null;
+  style?: { skin?: string; hair?: string; top?: string; fabric?: string };
 }
 
 /** server:snapshots-bound-replay: a character as a load sees it: the latest snapshot of its segment and the log rows after it, in version order. */
@@ -187,6 +201,10 @@ export interface PlayerStore {
    * order, so the nightly count of lives reads every character a page at a time.
    */
   page: (after: string | null, limit: number) => Promise<CharacterRow[]>;
+  /** account:person-kept-with-character: the person kept with the character, or null when none is kept or there is no such character. */
+  person: (id: string) => Promise<KeptPerson | null>;
+  /** account:person-kept-with-character, moderation:fixed-admin-actions: replaces the kept person, as `reset-name` does. False when there is no such character. */
+  setPerson: (id: string, person: KeptPerson) => Promise<boolean>;
 }
 
 /** The pair record of pair:record-fields. Typed `unknown` here; the simulation's own `PairRecord` is in packages/sim/src/engine/types.ts. */
