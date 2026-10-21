@@ -23,6 +23,14 @@ describe("the person kept with the character", () => {
     expect(readKeptPerson({ ...ADAEZE, name: 7 })).toEqual({ ok: false, problem: "name" });
   });
 
+  test("[account:person-kept-with-character] given a name in letters of another alphabet or with marks piled on a letter, when it is read, then it is refused for its name, and a Yoruba or Igbo name with its marks is kept", () => {
+    const named = (name: string) => readKeptPerson({ ...ADAEZE, name });
+    for (const name of ["Adébáyọ̀", "Ọlá", "Ngozi", "Chídìnmá", "Ụ́chẹ́"]) expect(named(name)).toMatchObject({ ok: true });
+    for (const name of ["\u0410dmin", "\u0408apacity", "Αda", "アダ", "Ada\u0301\u0301\u0301", "\u0301Ada"]) {
+      expect(named(name)).toEqual({ ok: false, problem: "name" });
+    }
+  });
+
   test("[account:person-kept-with-character] given a look the door does not offer, when it is read, then it is refused for its look", () => {
     const notOffered = SHIPPED_PEOPLE.filter((row) => row.role !== "passer-by").map((row) => row.id);
     expect(notOffered.length).toBeGreaterThan(0);
@@ -40,7 +48,7 @@ describe("the person kept with the character", () => {
     expect(readKeptPerson({ ...ADAEZE, archetype: "astronaut" })).toEqual({ ok: false, problem: "shape" });
     expect(readKeptPerson(null)).toEqual({ ok: false, problem: "shape" });
     expect(readKeptPerson(undefined)).toEqual({ ok: false, problem: "shape" });
-    // The cap is on the whole person as JSON: a name of two letters under a pile of marks is a legal shape and still too large.
+    // The cap is on the whole person as JSON and is read first: a name of two letters under a pile of marks is too large before its shape is read.
     const marked = `Ad${"\u0301".repeat(KEPT_PERSON_MOST_BYTES)}`;
     expect(readKeptPerson({ ...ADAEZE, name: marked.slice(0, 2) })).toMatchObject({ ok: true });
     expect(readKeptPerson({ ...ADAEZE, name: marked })).toEqual({ ok: false, problem: "size" });

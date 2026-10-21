@@ -13,8 +13,12 @@ export const PERSON_NAME_LONGEST = 20;
 /** What is wrong with a name's shape: too short, too long, or holding something other than letters. */
 export type PersonNameShape = "short" | "long" | "letters";
 
-/** A letter and the marks over and under it (Adébáyọ̀, Ọlá), and nothing else. */
-const LETTERS = /^[\p{L}\p{M}]+$/u;
+/**
+ * Latin letters, each with at most two marks over and under it once taken apart (Adébáyọ̀, Ọlá): a letter of another
+ * alphabet can pass for a Latin one and slip a reserved word by the username's checks ("Аdmin" with a Cyrillic A), and
+ * a pile of marks hides the letters it sits on, and the name is shown to strangers on the invite page.
+ */
+const LETTERS = /^(?:\p{Script=Latin}\p{M}{0,2})+$/u;
 
 /** The problem with a first name's shape once trimmed, or null when it may be the character's. Letters only, counted without their marks. */
 export function personNameShape(typed: string): PersonNameShape | null {
@@ -22,7 +26,7 @@ export function personNameShape(typed: string): PersonNameShape | null {
   const length = [...name.normalize("NFC")].filter((each) => !/\p{M}/u.test(each)).length;
   if (length < PERSON_NAME_SHORTEST) return "short";
   if (length > PERSON_NAME_LONGEST) return "long";
-  if (!LETTERS.test(name)) return "letters";
+  if (!LETTERS.test(name.normalize("NFD"))) return "letters";
   return null;
 }
 
