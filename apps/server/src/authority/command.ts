@@ -212,9 +212,10 @@ export async function readView(deps: ServerDeps, account: string, since: number 
     case "done": {
       const live = onlyLive(outcome.lives);
       await afterCommit(deps, outcome.lives, "player");
-      const view = await withNumbers(deps, live.id, live.state, viewFor({ state: live.state, world: outcome.world, content: live.content }));
+      // account:person-kept-with-character: the person built at the door comes back with the view, so another phone has its name and face; a life made without one carries none.
+      const [view, person] = await Promise.all([withNumbers(deps, live.id, live.state, viewFor({ state: live.state, world: outcome.world, content: live.content })), deps.stores.player.person(live.id)]);
       const lines = since === null ? [] : live.sentFor.filter((sent) => sent.v > since).flatMap((sent) => sent.lines);
-      return { status: 200, body: { ok: true, view, lines, clock: clockOf(deps, live, outcome.at) } };
+      return { status: 200, body: { ok: true, view, lines, clock: clockOf(deps, live, outcome.at), ...(person === null ? {} : { person }) } };
     }
     case "rejected":
       throw new Error("A view steps nothing and cannot be rejected.");

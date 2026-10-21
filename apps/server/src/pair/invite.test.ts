@@ -50,6 +50,29 @@ describe("invite links", () => {
     expect(shown.text).not.toMatch(/kobo|naira|photo|phone|http|@/i);
   });
 
+  test("[pair:invite-card-contents] [account:person-kept-with-character] given a card out from a life that keeps the person built at the door, when the link is made and opened, then both name the character by its kept first name, never the account's username, and read it as it stands when asked", async () => {
+    const server = pairServer();
+    const character = await newLife(server, INVITER, "scenario.graduate", { name: "Adaeze", look: "person_ada", archetype: null });
+    await must(server, INVITER, { type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
+
+    const made = await call<Reply<InviteMade>>(server, "POST", "/api/invite", INVITER, { slot: "partner" });
+    expect(made.body).toMatchObject({ ok: true, name: "Adaeze" });
+    const code = (made.body as InviteMade).code;
+    const shown = await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null);
+    expect(shown.body).toMatchObject({ ok: true, name: "Adaeze" });
+    expect(shown.text).not.toContain(INVITER);
+
+    await server.deps.stores.player.setPerson(character, { name: "Bola", look: "person_ada", archetype: null });
+    expect((await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null)).body).toMatchObject({ ok: true, name: "Bola" });
+  });
+
+  test("[pair:invite-card-contents] [account:person-kept-with-character] given a card out from a life with no person kept, when the link is opened, then the reply names nobody, so the card says Someone", async () => {
+    const server = pairServer();
+    await newLife(server, INVITER);
+    const code = await cardOut(server);
+    expect((await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null)).body).toMatchObject({ ok: true, name: null });
+  });
+
   test("[pair:invite-link-single-use] given a link taken once, when another account takes it, then it is refused as used with 409 and the record does not move", async () => {
     const { server, key, code } = await linkedPair();
     expect((await call<Reply<InvitesListed>>(server, "GET", "/api/invite", INVITER)).body).toMatchObject({ ok: true, open: [] });

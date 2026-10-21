@@ -7,7 +7,7 @@
 // isolate instead, each opening a client per call: the switch row, whose cache
 // is kept per store (server:four-off-switches), and the counters, whose hourly batch count
 // is (analytics:server-checks-every-batch).
-import type { Content, Id, PlaceEntry, Where, World } from "@japacity/sim";
+import type { Id, PlaceEntry, Where, World } from "@japacity/sim";
 import { boundedHandle, connect, connectOnFirstUse, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
 import type { Connection, Handle, Queries } from "@japacity/db";
 import type { CounterStore, SwitchStore } from "@japacity/store";
@@ -127,16 +127,16 @@ export function placeOfIn(deps: ServerDeps): PlaceOf {
 }
 
 /**
- * city:players-shown-present-not-tracked: the name and look other players see.
- * The state holds neither, so the scenario's share-card first name and the
- * scenario id stand in for them.
+ * city:players-fill-the-crowd, city:players-shown-present-not-tracked, account:person-kept-with-character: the name and look other
+ * players see: the account's username and the look kept with the character, never the character's own name. With no look kept
+ * the look is empty, and the crowd draws a resident's in its place. Null for an account with no character.
  */
-export function profileOfIn(deps: ServerDeps, text: Record<string, string>): ProfileOf {
+export function profileOfIn(deps: ServerDeps): ProfileOf {
   return async (account) => {
-    const read = await stateOfAccount(deps, account);
-    if (read === null) return null;
-    const scenario: Content["scenario"][keyof Content["scenario"]]["id"] = read.state.scenario;
-    return { name: text[`share.first-name.${scenario}`] ?? "", look: scenario };
+    const row = await deps.stores.account.get(account);
+    if (row === null || row.character === null) return null;
+    const person = await deps.stores.player.person(row.character);
+    return { name: row.username, look: person?.look ?? "" };
   };
 }
 

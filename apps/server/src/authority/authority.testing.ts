@@ -1,7 +1,7 @@
 // A server for tests: in-memory stores, a clock a test moves, open limits and
 // the test session, with helpers to sign in, make a character and send
 // requests through the app as a client would. Never imported by the Worker.
-import type { ServerReply, ViewReply } from "@japacity/api";
+import type { KeptPersonWire, ServerReply, ViewReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Id } from "@japacity/sim";
 import type { Held } from "@japacity/store";
@@ -85,10 +85,10 @@ export async function call<B>(server: TestServer, method: "GET" | "POST", path: 
   return { status: reply.status, body: JSON.parse(text) as B, headers: reply.headers, text };
 }
 
-/** Signs `account` up and makes its character; returns the character's id. */
-export async function newLife(server: TestServer, account: string, scenario: Id<"scenario"> = "scenario.graduate"): Promise<string> {
+/** Signs `account` up and makes its character, with the person built at the door when one is given; returns the character's id. */
+export async function newLife(server: TestServer, account: string, scenario: Id<"scenario"> = "scenario.graduate", person?: KeptPersonWire): Promise<string> {
   await signUp(server, account);
-  const made = await call<ViewReply>(server, "POST", "/api/character", account, { scenario });
+  const made = await call<ViewReply>(server, "POST", "/api/character", account, person === undefined ? { scenario } : { scenario, person });
   if (!made.body.ok) throw new Error(`No character: ${made.body.code} ${made.body.detail}`);
   const row = await server.deps.stores.account.get(account);
   if (row === null || row.character === null) throw new Error("The account names no character.");

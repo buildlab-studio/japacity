@@ -4,7 +4,7 @@
 // then a wait of `account.renameDays` between changes. A handle only: never the
 // character's name and never a way in.
 import { USERNAME, type NameProblem } from "@japacity/api";
-import { blockedWords, reservedNames } from "@japacity/content";
+import { blockedWords, personNameShape, reservedNames } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { AccountRow } from "@japacity/store";
 
@@ -27,13 +27,27 @@ function foldings(name: string): string[] {
 const RESERVED = reservedNames.flatMap(foldings);
 const BLOCKED = blockedWords.flatMap(foldings);
 
-/** The problem with a username's text, or null when it may be held. Uniqueness is the store's to judge. */
-export function nameProblem(name: unknown): Exclude<NameProblem, "taken" | "wait"> | null {
-  if (typeof name !== "string" || !USERNAME.test(name)) return "format";
-  const folded = foldings(name);
+/** Whether a name in any of its foldings holds a reserved or a blocked word. */
+function wordProblem(folded: readonly string[]): "reserved" | "blocked" | null {
   if (RESERVED.some((word) => folded.some((form) => form.includes(word)))) return "reserved";
   if (BLOCKED.some((word) => folded.some((form) => form.includes(word)))) return "blocked";
   return null;
+}
+
+/** The problem with a username's text, or null when it may be held. Uniqueness is the store's to judge. */
+export function nameProblem(name: unknown): Exclude<NameProblem, "taken" | "wait"> | null {
+  if (typeof name !== "string" || !USERNAME.test(name)) return "format";
+  return wordProblem(foldings(name));
+}
+
+/**
+ * account:person-kept-with-character: the problem with a character's first name, or null when it may be kept. Its shape is
+ * the door's (content's `personNameShape`: letters only); its words pass the username's own checks, folded the same way
+ * once the marks over and under its letters are taken off, so "Ádmín" is "admin" as a username would be.
+ */
+export function characterNameProblem(name: string): "format" | "reserved" | "blocked" | null {
+  if (personNameShape(name) !== null) return "format";
+  return wordProblem(foldings(name.trim().normalize("NFD").replace(/\p{M}/gu, "")));
 }
 
 /** When the account may next change its username: at once while the free change is unused, else `renameDays` after the last. */

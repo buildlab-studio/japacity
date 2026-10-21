@@ -45,7 +45,28 @@ export const keptPersonSchema = z.strictObject({
   style: z.strictObject({ skin: PAINT.optional(), hair: PAINT.optional(), top: PAINT.optional(), fabric: PAINT.optional() }).optional(),
 });
 
-export type KeptPersonShape = z.infer<typeof keptPersonSchema>;
+/** The person as read: the schema's shape with every part it was not sent left out. */
+export interface KeptPersonShape {
+  name: string;
+  look: string;
+  archetype: string | null;
+  style?: { skin?: string; hair?: string; top?: string; fabric?: string };
+}
+
+/** The parts of a style that were sent, and no key for the rest. */
+function sentParts(style: Partial<Record<"skin" | "hair" | "top" | "fabric", string | undefined>>): NonNullable<KeptPersonShape["style"]> {
+  return Object.fromEntries(Object.entries(style).filter(([, value]) => value !== undefined));
+}
+
+/** A text's length in UTF-8 bytes, as it travels. */
+function utf8Bytes(text: string): number {
+  let bytes = 0;
+  for (const each of text) {
+    const point = each.codePointAt(0) ?? 0;
+    bytes += point < 0x80 ? 1 : point < 0x800 ? 2 : point < 0x10000 ? 3 : 4;
+  }
+  return bytes;
+}
 
 /** Why a person sent is not kept: too large, a name or a look the game refuses, or any other shape. */
 export type KeptPersonProblem = "size" | "name" | "look" | "shape";
@@ -53,9 +74,12 @@ export type KeptPersonProblem = "size" | "name" | "look" | "shape";
 /** The person as sent, read against the shape and the size, or the first reason it is refused. */
 export function readKeptPerson(sent: unknown): { ok: true; person: KeptPersonShape } | { ok: false; problem: KeptPersonProblem } {
   const json = JSON.stringify(sent) as string | undefined;
-  if (json === undefined || new TextEncoder().encode(json).length > KEPT_PERSON_MOST_BYTES) return { ok: false, problem: json === undefined ? "shape" : "size" };
+  if (json === undefined || utf8Bytes(json) > KEPT_PERSON_MOST_BYTES) return { ok: false, problem: json === undefined ? "shape" : "size" };
   const read = keptPersonSchema.safeParse(sent);
-  if (read.success) return { ok: true, person: read.data };
+  if (read.success) {
+    const { style, ...rest } = read.data;
+    return { ok: true, person: style === undefined ? rest : { ...rest, style: sentParts(style) } };
+  }
   const at = read.error.issues[0]?.path[0];
   return { ok: false, problem: at === "name" ? "name" : at === "look" ? "look" : "shape" };
 }

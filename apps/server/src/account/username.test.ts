@@ -4,7 +4,8 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar } from "../auth/auth.testing";
 import { productionConfig } from "../config";
-import { generatedUsername, nameProblem, renameFrom } from "./username";
+import { generatedFirstName } from "./person";
+import { characterNameProblem, generatedUsername, nameProblem, renameFrom } from "./username";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -46,6 +47,35 @@ describe("the username's text", () => {
     let seed = 3;
     const bytes = (count: number) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255);
     for (let round = 0; round < 50; round += 1) expect(nameProblem(generatedUsername(bytes))).toBeNull();
+  });
+});
+
+describe("the character's first name on the server", () => {
+  test("[account:person-kept-with-character] given first names the door allows, when each is judged, then each passes, marks and all", () => {
+    for (const name of ["Adaeze", "Ọlá", "Adébáyọ̀", "Bo", "Chukwuemekaobinna"]) expect(characterNameProblem(name)).toBeNull();
+  });
+
+  test("[account:person-kept-with-character] given names the door refuses for their shape, when each is judged, then each is refused as the wrong format", () => {
+    for (const name of ["A", "Ada Eze", "Ada_", "Ada9", "A".repeat(21), ""]) expect(characterNameProblem(name)).toBe("format");
+  });
+
+  test("[account:person-kept-with-character] [account:username-and-unconfirmed-email] given the username's reserved and blocked words as first names, in any capitals and under marks, when each is judged, then the username's own checks refuse them", () => {
+    for (const word of reservedNames) {
+      expect(characterNameProblem(word)).toBe("reserved");
+      expect(characterNameProblem(`${word.toUpperCase()}a`)).toBe("reserved");
+    }
+    expect(characterNameProblem("Ádmín")).toBe("reserved");
+    expect(characterNameProblem("Aadmin")).toBe("reserved");
+    for (const word of blockedWords) expect(characterNameProblem(word)).toBe("blocked");
+    expect(characterNameProblem("Shìt")).toBe("blocked");
+  });
+
+  test("[account:person-kept-with-character] [moderation:fixed-admin-actions] given random bytes and a look of either sex, when a first name is drawn for a reset, then it is a pool name the checks pass", () => {
+    let seed = 5;
+    const bytes = (count: number) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255);
+    for (const look of ["person_ada", "person_tunde", "not-a-look"]) {
+      for (let round = 0; round < 30; round += 1) expect(characterNameProblem(generatedFirstName(bytes, look))).toBeNull();
+    }
   });
 });
 

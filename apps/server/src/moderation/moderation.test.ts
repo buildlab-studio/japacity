@@ -1,6 +1,6 @@
 import { type QueueView, REPORT_REASONS, type Standing } from "@japacity/api";
-import { text } from "@japacity/content";
-import { time } from "@japacity/sim";
+import { content, text } from "@japacity/content";
+import { newState, time } from "@japacity/sim";
 import type { ModerationLogEntry } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
@@ -8,7 +8,7 @@ import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
 import { testSession } from "../deps";
-import { renameFrom } from "../account/username";
+import { characterNameProblem, renameFrom } from "../account/username";
 import { identityHash, isBanned } from "./identities";
 import { readReport } from "./reports";
 import { ADMIN, as, DAY, HOUR, message, moderationHarness, post, report, SECOND_ADMIN } from "./moderation.testing";
@@ -271,6 +271,28 @@ describe("closing a report", () => {
     expect(row?.username).toMatch(/^player_[0-9a-z]{11}$/);
     expect(row?.usernameChangedAt).toBeNull();
     expect(row === null ? null : renameFrom(row, h.deps.config)).toBeLessThanOrEqual(h.deps.now());
+  });
+
+  test("[moderation:fixed-admin-actions] [account:person-kept-with-character] given a report on a player's name whose life keeps the person built at the door, when the name is reset, then the character's first name is a generated one from the pool too, its look and colours as they were; a life with no person kept keeps none", async () => {
+    const h = moderationHarness({ reports: [report("report.1"), report("report.2", { subject: { account: "account.plain" } })] });
+    const made = (id: string) => ({ id, account: `account.${id}`, refilledAt: 0, content: content.version, start: { scenario: "scenario.graduate" as const, seed: id, worldSeed: "w" }, state: newState("scenario.graduate", id, content) });
+    const kept = { name: "Rudename", look: "person_ada", archetype: "developer", style: { skin: "skin3" } };
+    await h.deps.stores.player.create({ ...made("character.reported"), person: kept });
+    await h.deps.stores.player.create(made("character.plain"));
+    for (const [account, character] of [["account.reported", "character.reported"], ["account.plain", "character.plain"]] as const) {
+      await h.deps.stores.account.create({ id: account, country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: `${account.slice(8)}_name`, usernameChangedAt: 0, lastPlayedAt: 0 });
+    }
+
+    expect((await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("reset-name")))).status).toBe(200);
+    expect((await h.app.request("/api/admin/moderation/report.2/close", post(ADMIN, close("reset-name")))).status).toBe(200);
+
+    const reset = await h.deps.stores.player.person("character.reported");
+    expect(reset).toMatchObject({ look: "person_ada", archetype: "developer", style: { skin: "skin3" } });
+    expect(reset?.name).not.toBe("Rudename");
+    expect(characterNameProblem(reset?.name ?? "")).toBeNull();
+    expect(Object.values(text)).toContain(reset?.name);
+    expect(await h.deps.stores.player.person("character.plain")).toBeNull();
+    expect((await h.deps.stores.account.get("account.plain"))?.username).toMatch(/^player_[0-9a-z]{11}$/);
   });
 
   test("[moderation:upheld-underage-closes-account] given an underage report, when an admin upholds it with less than a ban, then it is refused; a ban closes the account and bars the same identity from a new date of birth", async () => {

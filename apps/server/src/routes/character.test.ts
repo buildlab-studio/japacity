@@ -1,5 +1,6 @@
 // `POST /api/character/end` (account:start-a-new-life): the life ends for good, a real
-// partner or sibling joined to it is told, and the account stays to start another.
+// partner or sibling joined to it is told, and the account stays to start another. `POST /api/character` with the person
+// built at the door (account:person-kept-with-character): kept with the character and read back with the view.
 import type { ViewReply } from "@japacity/api";
 import { describe, expect, test } from "vitest";
 
@@ -101,5 +102,61 @@ describe("ending a life", () => {
     expect(row).toMatchObject({ id: account, state: "guest", username: "ada_lagos" });
     expect(row?.character).not.toBeNull();
     expect(row?.character).not.toBe(firstCharacter);
+  });
+});
+
+describe("the person kept with the character", () => {
+  const ADAEZE = { name: "Adaeze", look: "person_ada", archetype: "developer", style: { skin: "skin3", fabric: "adire" } };
+
+  /** Asks for a character with `person` and answers the reply, after the account is signed up. */
+  async function begin(person: unknown): Promise<{ server: ReturnType<typeof pairServer>; made: { status: number; body: ViewReply } }> {
+    const server = pairServer();
+    await signUp(server, INVITER);
+    const made = await call<ViewReply>(server, "POST", "/api/character", INVITER, { scenario: "scenario.graduate", person });
+    return { server, made };
+  }
+
+  test("[account:person-kept-with-character] given the person built at the door, when the character is made, then the person is kept with it and answered with the first view", async () => {
+    const { server, made } = await begin(ADAEZE);
+    expect(made.status).toBe(200);
+    expect(made.body).toMatchObject({ ok: true, person: ADAEZE });
+    const character = (await server.deps.stores.account.get(INVITER))?.character ?? "";
+    expect(await server.deps.stores.player.person(character)).toEqual(ADAEZE);
+  });
+
+  test("[account:person-kept-with-character] given a life made with a person, when it is read on a second session that holds nothing of it, then the view comes with its name, look, archetype and colours, and a life made without one reads none", async () => {
+    const { server } = await begin(ADAEZE);
+    const read = await view(server, INVITER);
+    expect(read.status).toBe(200);
+    expect(read.body).toMatchObject({ ok: true, person: ADAEZE });
+
+    await newLife(server, FRIEND, "scenario.graduate");
+    const none = await view(server, FRIEND);
+    expect(none.body.ok).toBe(true);
+    expect(none.body).not.toHaveProperty("person");
+  });
+
+  test("[account:person-kept-with-character] [account:username-and-unconfirmed-email] given a name the door refuses or one holding a reserved or blocked word, when the character is asked for, then it is refused and no character is made", async () => {
+    for (const name of ["A", "Ada Eze", "Ada9", "Japacity", "Ádmín", "Shìt"]) {
+      const { server, made } = await begin({ ...ADAEZE, name });
+      expect([name, made.status, made.body]).toMatchObject([name, 400, { ok: false, code: "not-legal" }]);
+      expect((await server.deps.stores.account.get(INVITER))?.character).toBeNull();
+    }
+  });
+
+  test("[account:person-kept-with-character] given a look the game does not ship at the door, when the character is asked for, then it is refused and no character is made", async () => {
+    for (const look of ["person_rider", "person_chief", "scenario.graduate", "person_nobody"]) {
+      const { server, made } = await begin({ ...ADAEZE, look });
+      expect([look, made.status, made.body]).toMatchObject([look, 400, { ok: false, code: "not-legal" }]);
+      expect((await server.deps.stores.account.get(INVITER))?.character).toBeNull();
+    }
+  });
+
+  test("[account:person-kept-with-character] given a person past 1 KB, or carrying the page's photo, when the character is asked for, then it is refused and no character is made", async () => {
+    for (const person of [{ ...ADAEZE, name: `Ad${"́".repeat(1100)}` }, { ...ADAEZE, photo: "data:image/webp;base64,AAAA" }]) {
+      const { server, made } = await begin(person);
+      expect([made.status, made.body]).toMatchObject([400, { ok: false, code: "not-legal" }]);
+      expect((await server.deps.stores.account.get(INVITER))?.character).toBeNull();
+    }
   });
 });
