@@ -7,7 +7,7 @@ import { storable } from "./storable";
 const open = freshDatabases();
 
 describe("text Postgres can store", () => {
-  test("[server:no-platform-error-page] given text with U+0000, a lone high or low surrogate, a whole pair and plain words, as values and as keys at any depth, when each is judged, then only the first three are refused", () => {
+  test("[server:text-the-database-can-store] [server:no-platform-error-page] given text with U+0000, a lone high or low surrogate, a whole pair and plain words, as values and as keys at any depth, when each is judged, then only the first three are refused", () => {
     for (const bad of ["\u0000", "a\u0000b", "a\ud800", "\ud800b", "a\udc00", "\udfffb", "\udc00\ud800"]) {
       expect(storable(bad)).toBe(false);
       expect(storable({ type: "x", deep: [{ text: bad }] })).toBe(false);
@@ -19,7 +19,7 @@ describe("text Postgres can store", () => {
     }
   });
 
-  test("[server:no-platform-error-page] given an id in the path holding U+0000, signed out, when it is asked of the database's stores and of memory, then each answers 404 before any query and writes no failure line", async () => {
+  test("[server:text-the-database-can-store] [server:no-platform-error-page] given an id in the path holding U+0000, signed out, when it is asked of the database's stores and of memory, then each answers 404 before any query and writes no failure line", async () => {
     const connection = await open();
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     for (const server of [testServer({ stores: postgresStores(connection) }), testServer()]) {
