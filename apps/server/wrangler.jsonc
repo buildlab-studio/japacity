@@ -16,14 +16,15 @@
   // the player: one command makes several queries in a row, each a round trip. A placement hint, checked
   // against wrangler 4.149's schema and Cloudflare's placement page on 11 Oct 2026.
   "placement": { "region": "aws:eu-west-2" },
-  // server:shared-observability-block: Workers Logs keep every request (head
-  // sampling 1) with its invocation log and every console line, 7 days on the paid plan; traces keep one request in
+  // server:shared-observability-block: Workers Logs keep every console line (head sampling 1), 7 days on the paid
+  // plan, and no invocation log: Cloudflare's own line per request would record the full address with its invite and
+  // sign-in codes, the client's IP and place, the user agent and the cookie header. Traces keep one request in
   // twenty (automatic tracing is in beta; stored traces count toward Cloudflare's observability pricing from
   // 1 Dec 2026); Issues groups the failures. Every key was checked against wrangler 4.149's config-schema.json and
   // the Workers Logs, traces, Issues and configuration pages on 11 Oct 2026.
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "head_sampling_rate": 1, "invocation_logs": true },
+    "logs": { "enabled": true, "head_sampling_rate": 1, "invocation_logs": false },
     "traces": { "enabled": true, "head_sampling_rate": 0.05 },
     "issues": { "enabled": true }
   },
