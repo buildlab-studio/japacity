@@ -1,7 +1,7 @@
 // The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
 // passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
-// removed (account:session-is-secure-cookie), who may add a passkey and what each addition
+// removed (account:session-is-secure-cookie), who may add or remove a passkey and what each addition
 // leaves behind (account:passkey-needs-signed-in-session), and the passkey step-up of a signed-in
 // session (moderation:admin-view-for-admin-list).
 // https://better-auth.com/docs/concepts/hooks
@@ -32,6 +32,7 @@ const VERIFY_AUTHENTICATION_PATH = "/passkey/verify-authentication";
 const REGISTER_PATHS = new Set(["/passkey/generate-register-options", VERIFY_REGISTRATION_PATH]);
 
 export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is added only from a session that has shown a passkey; use yours first.";
+export const ADMIN_REMOVAL_DETAIL = "A passkey or a linked sign-in on an admin account is removed only from a session that has shown a passkey; use yours first.";
 
 /** The code and words of a passkey that belongs to another account than the signed-in one (moderation:admin-view-for-admin-list). */
 export const OTHER_ACCOUNT = "other-account";
@@ -153,15 +154,18 @@ function openedWith(session: { session: Record<string, unknown> }): SignedInWith
  * account:passkey-needs-signed-in-session, moderation:admin-view-for-admin-list: an account on the admin list that already
  * holds a passkey adds another only from a session that has shown a passkey.
  * Checked when the options are asked for and again at the verification,
- * which is where the passkey is stored.
+ * which is where the passkey is stored. Removing one of its passkeys or a linked sign-in needs the same session, or
+ * whoever got into the admin's email would remove the admin's passkey and then add their own as the first.
  */
 async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<void> {
-  if (!REGISTER_PATHS.has(ctx.path ?? "")) return;
+  const path = ctx.path ?? "";
+  const adding = REGISTER_PATHS.has(path);
+  if (!adding && !UNLINK_PATHS.has(path)) return;
   const session = await getSessionFromCtx(ctx);
   if (session === null || !deps.config.admin.accounts.includes(session.user.id)) return;
   if (passkeyShown(session.session, deps.now(), deps.config.admin.passkeyMs)) return;
   const held = await ctx.context.adapter.count({ model: "passkey", where: [{ field: "userId", value: session.user.id }] });
-  if (held > 0) throw new APIError("FORBIDDEN", { message: ADMIN_PASSKEY_BIND_DETAIL });
+  if (held > 0) throw new APIError("FORBIDDEN", { message: adding ? ADMIN_PASSKEY_BIND_DETAIL : ADMIN_REMOVAL_DETAIL });
 }
 
 /** account:bot-check-on-guest-creation, account:guest-floods-are-capped: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
