@@ -12,17 +12,19 @@ import { withNumbers } from "../lottery/numbers";
 import { bookOf } from "../pair/book";
 import { bondedWith, carry } from "../pair/carry";
 import type { Answer } from "./answer";
+import { storable } from "../security/storable";
 import { refusal } from "./answer";
 import { afterCommit, queueDiverged } from "./commit";
 import type { Live } from "./load";
 import type { Act, TxResult } from "./transaction";
+import { ownKeys } from "./keys";
 import { transact } from "./transaction";
 
 const ENCODER = new TextEncoder();
 
 /**
  * server:commands-only-through-route: a request body that holds a command and the version it was
- * based on, and nothing else is read. server:command-size-limit: a command over
+ * based on, and nothing else is read: of the command, only its type's own keys. server:command-size-limit: a command over
  * `commandBytes` of JSON is refused before it is read. The largest a player
  * sends, a month's slots, is a few hundred bytes; an accepted command is
  * logged as it came, so anything bigger would only fill the log.
@@ -34,7 +36,10 @@ export function readRequest(body: unknown, commandBytes: number): { command: Com
   if (typeof (command as { type?: unknown }).type !== "string") return null;
   if (ENCODER.encode(JSON.stringify(command)).length > commandBytes) return null;
   if (typeof basedOn !== "number" || !Number.isSafeInteger(basedOn)) return null;
-  return { command: command as Command, basedOn };
+  // Only the command's own keys go on, and only text the log can store (server:rejections-write-nothing): the rest is refused before any query.
+  const own = ownKeys(command as Record<string, unknown>);
+  if (!storable(own)) return null;
+  return { command: own as Command, basedOn };
 }
 
 /** The account's character, or null. */

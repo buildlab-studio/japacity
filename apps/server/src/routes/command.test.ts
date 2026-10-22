@@ -2,11 +2,14 @@
 // the command's kind does not know is never read by the simulation. So a body that also carries a state, a wallet,
 // a result or events is not refused: what it carries is ignored, and the stored state is the one the plain command
 // makes.
-import type { ServerReply } from "@japacity/api";
+import type { ServerRejection, ServerReply } from "@japacity/api";
 import type { Command } from "@japacity/sim";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { accepted, call, held, newLife, restMonth, testServer } from "../authority/authority.testing";
+import { freshDatabases, postgresStores } from "../postgres.testing";
+
+const open = freshDatabases();
 
 /** What a forged client might add, inside the command and beside it. */
 const FORGED = {
@@ -40,4 +43,27 @@ describe("the command route", () => {
     expect(forgedReply.view.v).toBe(1);
     expect(JSON.stringify(forgedReply.view)).not.toContain(String(10 ** 12));
   });
+
+  test("[server:commands-only-through-route] [server:rejections-write-nothing] given commands whose own keys hold U+0000 or a lone surrogate, and one with such text only in keys it does not know, when each is sent to the database's stores, then the first are refused with 400 and write nothing, and the last is played with only its own keys logged; no failure line is written", async () => {
+    const server = testServer({ stores: postgresStores(await open()) });
+    const character = await newLife(server, "acc-1");
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const before = await held(server, character);
+
+    for (const bad of ["bad\u0000", "bad\ud800", "\udc00bad"]) {
+      const sent = await call<ServerRejection>(server, "POST", "/api/command", "acc-1", { command: { type: "activity/now", activity: "activity.ask-around", param: bad, basedOn: 0 }, basedOn: 0 });
+      expect({ status: sent.status, code: sent.body.code }).toEqual({ status: 400, code: "not-legal" });
+    }
+    expect(await held(server, character)).toEqual(before);
+
+    const command = restMonth({ v: 0 });
+    const played = await call<ServerReply>(server, "POST", "/api/command", "acc-1", { command: { ...command, note: "x\u0000", "key\ud800": 1 }, basedOn: 0 });
+    expect(played.status).toBe(200);
+    accepted(played.body);
+    const [row] = (await held(server, character)).tail;
+    expect(Object.keys(row?.command ?? {}).sort()).toEqual(Object.keys(command).sort());
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
 });
+

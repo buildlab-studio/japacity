@@ -1,19 +1,22 @@
 import { time } from "@japacity/sim";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
 import { testSession } from "../dependencies";
 import { dropOldFeedback } from "../moderation/feedback";
+import { freshDatabases, postgresStores } from "../postgres.testing";
+
+const open = freshDatabases();
 
 const ADMIN = "account.admin";
 const NOON = Date.UTC(2026, 9, 8, 12, 0, 0);
 
-function setup() {
+function setup(stores?: ReturnType<typeof postgresStores>) {
   const config = testConfig({ testing: { testLogin: true }, admin: { accounts: [ADMIN] } });
   let now = NOON;
-  const deps = testDeps({ config, session: testSession(config), now: () => now });
+  const deps = testDeps({ config, session: testSession(config), now: () => now, ...(stores === undefined ? {} : { stores }) });
   const app = makeApp(deps);
   const send = (account: string | null, body: unknown, country = "NG") =>
     app.request("/api/feedback", {
@@ -34,6 +37,22 @@ function setup() {
 const feedback = (text: string) => ({ text, build: "b-41.a1b2c3d", screen: "month", mode: "high" });
 
 describe("feedback", () => {
+  test("[moderation:feedback-box-in-settings] given a text holding U+0000 or a lone surrogate, when it is sent to the database's stores, then it is refused with 400 before any query, uses none of the day's sends and writes no failure line", async () => {
+    const { send, deps } = setup(postgresStores(await open()));
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    for (const text of ["bad\u0000", "bad\ud800", "\udc00bad"]) {
+      const refused = await send("account.a", feedback(text));
+      expect(refused.status).toBe(400);
+      expect(await refused.json()).toMatchObject({ ok: false, code: "not-legal" });
+    }
+    for (let sent = 0; sent < deps.config.feedback.perDay; sent += 1) expect((await send("account.a", feedback(`fine ${String(sent)}`))).status).toBe(200);
+
+    expect(await deps.stores.feedback.list(20)).toHaveLength(deps.config.feedback.perDay);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
+
   test("[moderation:feedback-box-in-settings] given a text at the longest allowed and one character over, when each is sent, then the first is kept and the second refused; characters are counted as code points", async () => {
     const { send, deps } = setup();
     const max = deps.config.feedback.maxChars;

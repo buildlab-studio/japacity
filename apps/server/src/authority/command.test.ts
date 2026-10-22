@@ -14,9 +14,10 @@ import { transact } from "./transaction";
 const { epoch, worldTickMs } = productionConfig.clock;
 
 /** A command whose JSON is exactly `bytes` long, padded in a field the simulation ignores. */
+/** A command of exactly `bytes` of JSON, padded in a key of its own, since a key its type lacks never reaches the log (server:commands-only-through-route). */
 function commandOf(bytes: number): Command {
-  const bare = JSON.stringify({ ...restMonth({ v: 0 }), pad: "" }).length;
-  return Object.assign(restMonth({ v: 0 }), { pad: "x".repeat(bytes - bare) });
+  const padded = (param: string): Command => ({ type: "activity/now", activity: "activity.ask-around", param, basedOn: 0 });
+  return padded("x".repeat(bytes - JSON.stringify(padded("")).length));
 }
 
 describe("every command through the server", () => {
