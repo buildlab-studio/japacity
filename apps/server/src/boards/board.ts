@@ -47,24 +47,38 @@ function pickers(board: BoardName): { when: BoardWhen; who: BoardWho } {
   }
 }
 
-/** city:board-line-and-ranking: the player's friends, accounts joined to theirs by an invite or a pair record, and the player. */
-async function friendsOf(deps: ServerDeps, character: string): Promise<string[]> {
+/** The characters of every account with a block between it and `account`, whichever side blocked (moderation:blocks-off-friends-board). */
+async function blockedCharacters(deps: ServerDeps, account: string): Promise<Set<string>> {
+  const characters = new Set<string>();
+  for (const other of await deps.stores.moderation.blockedWith(account)) {
+    const character = (await deps.stores.account.get(other))?.character ?? null;
+    if (character !== null) characters.add(character);
+  }
+  return characters;
+}
+
+/**
+ * city:board-line-and-ranking, moderation:blocks-off-friends-board: the player's friends, accounts joined to theirs
+ * by an invite or a pair record less any with a block between the two, and the player.
+ */
+async function friendsOf(deps: ServerDeps, account: string, character: string): Promise<string[]> {
   const friends = [character];
+  const blocked = await blockedCharacters(deps, account);
   for (const key of await deps.stores.invite.pairsOf(character)) {
     const ids = pairIds(key);
     if (ids === null) continue;
     const other = ids.a === character ? ids.b : ids.a;
-    if (!friends.includes(other)) friends.push(other);
+    if (!friends.includes(other) && !blocked.has(other)) friends.push(other);
   }
   return friends;
 }
 
-/** city:boards-switch-when-and-who, city:board-line-and-ranking: the board for the player whose character is `character`. */
-export async function readBoard(deps: ServerDeps, character: string, board: BoardName): Promise<BoardReply> {
+/** city:boards-switch-when-and-who, city:board-line-and-ranking: the board for the player of `account`, whose character is `character`. */
+export async function readBoard(deps: ServerDeps, account: string, character: string, board: BoardName): Promise<BoardReply> {
   const { when, who } = pickers(board);
   const week = lagosWeek(deps.now());
   const query: BoardQuery = { when, week };
-  if (who === "friends") query.among = await friendsOf(deps, character);
+  if (who === "friends") query.among = await friendsOf(deps, account, character);
   if (board === "joined-week") {
     const mine = await deps.stores.boards.get(character);
     query.joinedWeek = mine?.joinedWeek ?? week;

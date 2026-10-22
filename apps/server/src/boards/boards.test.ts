@@ -317,6 +317,49 @@ describe("the boards", () => {
     expect(week.rows.map((row) => row.username)).toEqual(["tunde_k", "account.ada"]);
   });
 
+  /** Two lives joined by an invite, each with a figure, and a stranger on the everyone board. */
+  async function invitedFriends(server: TestServer): Promise<void> {
+    const mine = await newLife(server, "account.ada", "scenario.graduate");
+    const friend = await newLife(server, "account.tunde", "scenario.banker");
+    await figure(server, mine, 30, { account: "account.ada", scenario: "scenario.graduate" });
+    await figure(server, friend, 40, { account: "account.tunde", scenario: "scenario.banker" });
+    await figure(server, "stranger", 99, { scenario: "scenario.developer" });
+    const made = await server.deps.stores.invite.create({ code: "code-1", from: mine, account: "account.ada", slot: "partner", looking: "partner", fill: null, card: {}, madeAt: EPOCH, expires: EPOCH + time.DAY_MS });
+    expect(made.ok).toBe(true);
+    const pair = mine < friend ? `${mine}~${friend}` : `${friend}~${mine}`;
+    await server.deps.stores.invite.use("code-1", { by: friend, pair, at: EPOCH, before: [] });
+  }
+
+  test("[moderation:blocks-off-friends-board] given two accounts joined by an invite, when either blocks the other, then neither is on the other's friends boards, and both stay on the everyone boards", async () => {
+    for (const [from, to] of [
+      ["account.ada", "account.tunde"],
+      ["account.tunde", "account.ada"],
+    ] as const) {
+      const server = testServer();
+      await invitedFriends(server);
+      const before = reply((await board(server, "account.ada", "all-time.friends")).body);
+      expect(before.rows.map((row) => row.username)).toEqual(["account.tunde", "account.ada"]);
+
+      await server.deps.stores.moderation.block({ from, to, at: EPOCH });
+
+      for (const reader of ["account.ada", "account.tunde"] as const) {
+        for (const name of ["all-time.friends", "this-week.friends"] as const) {
+          const friends = reply((await board(server, reader, name)).body);
+          expect(friends.rows.map((row) => row.username)).toEqual([reader]);
+        }
+        for (const name of ["all-time.everyone", "this-week.everyone"] as const) {
+          const everyone = reply((await board(server, reader, name)).body);
+          expect([...everyone.rows.map((row) => row.username)].sort()).toEqual(["account.ada", "account.tunde", "player_stranger"]);
+        }
+      }
+
+      // A lifted block brings the friend back: the invite still joins them.
+      await server.deps.stores.moderation.unblock(from, to);
+      const after = reply((await board(server, "account.ada", "all-time.friends")).body);
+      expect(after.rows.map((row) => row.username)).toEqual(["account.tunde", "account.ada"]);
+    }
+  });
+
   test("[city:board-line-and-ranking] given a player who changed their username, when the everyone and friends boards and the player's own line are read, then each line names the username as it stands now and nothing else about the player travels", async () => {
     const server = testServer({ config: testConfig({ testing: { testLogin: true }, board: { size: 1 } }) });
     await figure(server, "leader", 90, { scenario: "scenario.developer" });
