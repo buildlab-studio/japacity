@@ -34,12 +34,12 @@ Group `family`. Money paid has the reason `family`.
 | Id | Chance a month | Cooldown | Title | Body | Choices |
 |---|---|---|---|---|---|
 | `offer.nepa-bill` | 12% | 3 | NEPA has brought the bill at home | "They are threatening to cut the light. ₦25,000. Your father says he will handle it. He will not." | `pay` ₦25,000: standing +3. `leave`: standing -4, wellbeing -3 |
-| `offer.brother-fees` | 6% | 4 | Emeka's school fees | "Resumption is Monday. ₦120,000. He has been sent home once already this year." | `pay` ₦120,000: standing +8. `half` ₦60,000: standing +2. `no`: standing -9 |
+| `offer.brother-fees` | 6% | 4 | Your brother's school fees | "Resumption is Monday. ₦120,000. He has been sent home once already this year." | `pay` ₦120,000: standing +8. `half` ₦60,000: standing +2. `no`: standing -9 |
 | `offer.mum-shop` | 5% | 6 | Mama's shop | "The supplier has stopped giving on credit. ₦80,000 would restock the provisions before the month ends." | `give` ₦80,000: standing +6. `half` ₦40,000: standing +2. `no`: standing -6 |
-| `offer.aso-ebi` | 5% | 6 | Aso ebi for the wedding | "Cousin Bisi is getting married. The cloth is ₦60,000. Everybody is buying." | `buy` ₦60,000: standing +4, network +3, wellbeing +3. `plain`: standing -2, network +1. `absent`: standing -5 |
+| `offer.aso-ebi` | 5% | 6 | Aso ebi for the wedding | "Your cousin is getting married. The cloth is ₦60,000. Everybody is buying." | `buy` ₦60,000: standing +4, network +3, wellbeing +3. `plain`: standing -2, network +1. `absent`: standing -5 |
 | `offer.roof` | 2.5% | 12 | The roof | "Rain entered the parlour again. The carpenter wants ₦200,000 for zinc and labour." | `pay` ₦200,000: standing +10. `half` ₦100,000: standing +3. `no`: standing -8 |
 | `offer.harvest` | 6% | 12 | Harvest pledge | "They are calling families by name. ₦30,000 would cover yours." | `give` ₦30,000: standing +3, wellbeing +2. `no`: standing -1 |
-| `offer.uncle-burial` | 2.5% | 12 | Uncle Dele's burial | "The family is contributing. Your share is ₦100,000. People will remember who gave." | `send` ₦100,000: standing +7. `token` ₦20,000: standing +1. `nothing`: standing -7 |
+| `offer.uncle-burial` | 2.5% | 12 | Your uncle's burial | "The family is contributing. Your share is ₦100,000. People will remember who gave." | `send` ₦100,000: standing +7. `token` ₦20,000: standing +1. `nothing`: standing -7 |
 
 All are "not when broke". Abroad the family expects more: the same requests come with `abroadBp` applied to their amounts (abroad-money:family-asks-more-abroad).
 
@@ -49,7 +49,7 @@ Group `life`. Each lapses after one month into its last choice.
 
 | Id | Comes up when | Chance | Cooldown | Title | Body | Choices |
 |---|---|---|---|---|---|---|
-| `offer.send-off-party` | Bachelor's degree; once a life (`maxTimes` 1) | 5% | 5 | Chidi's send-off | "He leaves for Leeds on Sunday. Small chops at his sister's place, Saturday. 'Come o, you never know who you will meet.'" | `go` ₦20,000, social: network +4, wellbeing +4, hear of the UK master's route. `message`: nothing |
+| `offer.send-off-party` | Bachelor's degree; once a life (`maxTimes` 1) | 5% | 5 | Terna's send-off | "He leaves for Leeds on Sunday. Small chops at his sister's place, Saturday. 'Come o, you never know who you will meet.'" | `go` ₦20,000, social: network +4, wellbeing +4, hear of the UK master's route. `message`: nothing |
 | `offer.laptop-fault` | Tech 25 | 3% | 8 | The laptop | "The screen flickers, then nothing. The repairer at Computer Village says ₦85,000 and three days." | `repair` ₦85,000, mishap. `manage`: tech -2, wellbeing -6 |
 | `offer.fuel-scarcity` | Always | 4% | 6 | Fuel scarcity | "Queues at every station. Bus fare has doubled this week." | `pay` ₦30,000, upkeep. `trek`: wellbeing -7 |
 | `offer.recruiter-message` | Tech 50, has a job | 3% | 6 | A message from a recruiter | "'Saw your work. We have a take-home task, no promises.' It would eat your weekends this month." | `do-it`: portfolio +1, network +3, wellbeing -3. `ignore`: nothing |
