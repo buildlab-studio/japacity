@@ -92,9 +92,19 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   return { status: 200, body: { ok: true, code, slot, expires, card, name: await cardName(deps, row.character) } };
 }
 
+/**
+ * moderation:fixed-admin-actions: a link whose maker is muted or suspended now, or null when there is none. Its links are answered
+ * as no link at all while the restriction runs, so whoever holds one learns nothing of the restriction and no pair is made in it.
+ */
+async function liveInvite(deps: ServerDeps, code: string): Promise<InviteRow | null> {
+  const row = await deps.stores.invite.get(code);
+  if (row === null || (await silenced(deps, row.account)) !== null) return null;
+  return row;
+}
+
 /** pair:invite-card-contents: what anyone holding the link sees: the card, never a photo, a sum or a contact. */
 export async function showInvite(deps: ServerDeps, code: string): Promise<PairAnswer<InviteShown>> {
-  const row = await deps.stores.invite.get(code);
+  const row = await liveInvite(deps, code);
   if (row === null) return refused(404, "bad-code", "There is no such link.");
   const usable = useInvite(row, row.slot, deps.now());
   if (!usable.ok) return unusable(usable.failed, usable.failed === "used" ? "This link has been used." : "This link has run out.");
@@ -150,7 +160,7 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
   if (slot === null) return refused(400, "not-legal", "Name the slot the card offers.");
   const paused = await silenced(deps, account);
   if (paused !== null) return paused;
-  const invite = await deps.stores.invite.get(code);
+  const invite = await liveInvite(deps, code);
   if (invite === null) return refused(404, "bad-code", "There is no such link.");
   const usable = useInvite(invite, slot, deps.now());
   if (!usable.ok) return unusable(usable.failed, `The link cannot be used: ${usable.failed}.`);
