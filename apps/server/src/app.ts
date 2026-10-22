@@ -12,7 +12,6 @@ import { authRoutes } from "./routes/auth";
 import { characterRoute } from "./routes/character";
 import { commandRoute } from "./routes/command";
 import { notifyRoutes } from "./routes/notify";
-import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
 import { lightsRoute } from "./routes/lights";
@@ -67,7 +66,6 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", dedicationRoutes(deps));
   app.route("/", adminDedicationRoutes(deps));
   app.route("/", characterRoute(deps));
-  app.route("/", placeRoutes(deps));
   app.route("/", notifyRoutes(deps));
   app.route("/", advertRoutes(deps, () => isOn(deps, "adverts")));
   app.route("/api/admin/adverts", adminAdvertRoutes(deps));
