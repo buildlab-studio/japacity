@@ -17,6 +17,7 @@ export function fakeModeration(over: Partial<ModerationApi> = {}): ModerationApi
     report: log("report", { ok: true, report: "report-1" } as const),
     appeal: log("appeal", { ok: true } as const),
     feedback: log("feedback", { ok: true } as const),
+    blocked: () => Promise.resolve({ ok: true, blocked: [] }),
     standing: () => Promise.resolve({ ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } }),
     ...over,
   };

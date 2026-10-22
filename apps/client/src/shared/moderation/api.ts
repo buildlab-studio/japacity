@@ -1,7 +1,7 @@
-// The moderation calls: block, unblock and report (the pair side's routes),
+// The moderation calls: block, unblock, the blocked list and report (the pair side's routes),
 // the player's standing and appeal, and feedback. Null when the game runs
 // without a server, where there is no one to block and no team to tell.
-import type { AppealRequest, BlockReply, BlockRequest, CiteReportRequest, FeedbackRequest, PairReportRequest, ReportReply, ServerRejection, StandingReply } from "@japacity/api";
+import type { AppealRequest, BlockedListReply, BlockReply, BlockRequest, CiteReportRequest, FeedbackRequest, PairReportRequest, ReportReply, ServerRejection, StandingReply, UnblockRequest } from "@japacity/api";
 
 import { authorityMode } from "../net/authorityMode";
 import { api, type Api } from "../net/http";
@@ -12,7 +12,9 @@ type Done = { ok: true } | ServerRejection;
 
 export interface ModerationApi {
   block: (target: BlockRequest) => Promise<BlockReply>;
-  unblock: (target: BlockRequest) => Promise<BlockReply>;
+  unblock: (target: UnblockRequest) => Promise<BlockReply>;
+  /** moderation:blocked-list-in-settings: every account the player blocked, newest first. */
+  blocked: () => Promise<BlockedListReply>;
   report: (report: ReportRequest) => Promise<ReportReply>;
   standing: () => Promise<StandingReply>;
   appeal: (entry: string) => Promise<Done>;
@@ -32,6 +34,7 @@ export function moderationApi(server: Api): ModerationApi {
   return {
     block: (target) => settle(server.post("/api/moderation/block", target)),
     unblock: (target) => settle(server.post("/api/moderation/unblock", target)),
+    blocked: () => settle(server.get("/api/moderation/blocked")),
     report: (report) => settle(server.post("/api/moderation/report", report)),
     standing: () => settle(server.get("/api/moderation/standing")),
     appeal: (entry) => settle(server.post("/api/moderation/appeal", { action: entry } satisfies AppealRequest)),

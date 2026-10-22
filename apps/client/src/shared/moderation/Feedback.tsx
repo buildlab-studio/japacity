@@ -3,8 +3,8 @@
 // moderation:actioned-player-told-and-appeals). In the world they are two rows in the phone's Settings, the game's menu; the broken screen's
 // Tell us opens the same box (analytics:client-sends-interface-counts).
 import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
-import { BellDot, MessageSquareText } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Ban, BellDot, MessageSquareText } from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
@@ -13,6 +13,9 @@ import { graphicsMode } from "../graphics/mode";
 import { buildNumber, type ModerationApi } from "./api";
 import { useModeration } from "./ModerationProvider";
 import { anyReasonWords, words } from "./moderation.words";
+
+// moderation:blocked-list-in-settings: the list rides a chunk of its own, fetched when its sheet first opens.
+const BlockedList = lazy(() => import("./BlockedList"));
 
 /** The screen feedback is sent from, as the game's own state names it. */
 function useScreenName(): string {
@@ -161,10 +164,11 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
  * The team's two rows in the phone's Settings: Feedback always, and the team's notice once the team has decided
  * something. Nothing when the game runs without a server.
  */
-export function ModerationRows() {
+/** `blocked`: the Blocked row (moderation:blocked-list-in-settings), for a secured account only; a guest blocks no one it could list. */
+export function ModerationRows({ blocked = false }: { blocked?: boolean }) {
   const moderation = useModeration();
   const screen = useScreenName();
-  const [open, setOpen] = useState<"feedback" | "notice" | null>(null);
+  const [open, setOpen] = useState<"feedback" | "notice" | "blocked" | null>(null);
   const [standing, setStanding] = useState<Standing | null>(null);
   const [asked, setAsked] = useState(0);
 
@@ -194,9 +198,22 @@ export function ModerationRows() {
         <MessageSquareText size={18} aria-hidden />
         {words("ui.feedback")}
       </button>
+      {blocked ? (
+        <button type="button" className="phone-ghost w-full" onClick={() => setOpen("blocked")}>
+          <Ban size={18} aria-hidden />
+          {words("ui.blocked")}
+        </button>
+      ) : null}
       <Sheet open={open === "feedback"} onOpenChange={(next) => setOpen(next ? "feedback" : null)} title={words("ui.feedback.title")} description={words("ui.feedback.intro")}>
         <FeedbackForm moderation={moderation} screen={screen} max={FEEDBACK_MAX_CHARS} />
       </Sheet>
+      {blocked ? (
+        <Sheet open={open === "blocked"} onOpenChange={(next) => setOpen(next ? "blocked" : null)} title={words("ui.blocked")} description={words("ui.blocked.intro")}>
+          <Suspense fallback={null}>
+            <BlockedList moderation={moderation} />
+          </Suspense>
+        </Sheet>
+      ) : null}
       {standing === null ? null : (
         <Sheet open={open === "notice"} onOpenChange={(next) => setOpen(next ? "notice" : null)} title={words("ui.notice.title")}>
           <NoticeView moderation={moderation} standing={standing} onChange={() => setAsked((count) => count + 1)} />

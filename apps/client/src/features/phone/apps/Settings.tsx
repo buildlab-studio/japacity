@@ -47,7 +47,8 @@ function keepGraphics(choice: GraphicsChoice): void {
 /** The dedication page as the shell hands it in: drawn open or closed, with the way to close it (account:dedication-page-and-its-doors). */
 export type DedicationScreen = (open: boolean, onClose: () => void) => ReactNode;
 
-export function Settings({ account = null, about = null, dedication = null }: { account?: ReactNode; about?: ReactNode; dedication?: DedicationScreen | null }) {
+/** `secured`: the shell says the account is a secured one, which alone has a Blocked list (moderation:blocked-list-in-settings). */
+export function Settings({ account = null, about = null, dedication = null, secured = false }: { account?: ReactNode; about?: ReactNode; dedication?: DedicationScreen | null; secured?: boolean }) {
   const [graphics, setGraphics] = useState<GraphicsChoice>(readGraphics);
   const muted = useSound((state) => state.muted);
   return (
@@ -90,8 +91,9 @@ export function Settings({ account = null, about = null, dedication = null }: { 
       <p className="text-[13px] text-text-2">{say("phone.settings.graphics.when")}</p>
       </div>
 
-      {/* moderation:feedback-box-in-settings, moderation:actioned-player-told-and-appeals: the feedback box and the team's notice, in the game's menu. */}
-      <ModerationRows />
+      {/* moderation:feedback-box-in-settings, moderation:actioned-player-told-and-appeals, moderation:blocked-list-in-settings: the feedback box, the
+          team's notice and the Blocked list, in the game's menu. */}
+      <ModerationRows blocked={secured} />
       {about === null ? null : (
         <>
           <Head>{say("phone.settings.about")}</Head>

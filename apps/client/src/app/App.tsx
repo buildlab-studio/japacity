@@ -28,6 +28,7 @@ import { OFFER_PLACES } from "../features/city/nudge/nudge";
 import { PARCEL } from "../shared/world/parcel.ask";
 import { ParcelWaybill } from "../shared/world/Waybill";
 import { AccountButton } from "../features/account/Settings";
+import { useAccountView } from "../features/account/standing";
 import { ActivityPicker } from "../features/activity/ActivityView";
 import { PhoneTile, PlaceAdverts } from "../features/advert/placed";
 import { BoardsView } from "../features/boards/BoardsView";
@@ -149,6 +150,8 @@ const MAP_DEDICATION: MapDedication = { page: (open, onClose) => <DedicationLate
 /** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
 function WorldPlaying() {
   const view = useView();
+  // moderation:blocked-list-in-settings: only a secured account has a Blocked list in Settings; unknown or a guest's, none.
+  const secured = useAccountView()?.state === "secured";
   const talk = usePairApi();
   const phoneWaiting = usePhoneWaiting();
   const reportOpen = useGame((state) => state.reportOpen);
@@ -194,7 +197,7 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} keepsake={<Keepsake />} {...(toMap === undefined ? {} : { onMap: toMap })} />}
+        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} keepsake={<Keepsake />} secured={secured} {...(toMap === undefined ? {} : { onMap: toMap })} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} dedication={MAP_DEDICATION} />}
