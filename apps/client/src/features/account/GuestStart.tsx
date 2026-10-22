@@ -1,45 +1,32 @@
-// The guest start (account:guest-and-secured-states, account:bot-check-on-guest-creation, account:username-and-unconfirmed-email, account:guest-reminded-to-secure, account:start-screen-over-live-city). Online, Begin on the page makes the guest life: the username,
-// filled in from the name on the page and changed there, goes to `POST /api/guest` with the token of the bot check
-// that ran unseen on the page. No email and no sign-in method: those come later, when the player keeps the life.
+// The guest start (account:guest-and-secured-states, account:bot-check-on-guest-creation, account:username-and-unconfirmed-email, account:guest-reminded-to-secure, account:start-screen-over-live-city,
+// account:username-typed-and-checked). Online, Begin on the page makes the guest life: the username the player typed in a box
+// that starts empty, checked with the server while they type, goes to `POST /api/guest` with the token of the bot check
+// that ran unseen on the page; Begin's answer is the one that counts. No email and no sign-in method: those come later, when the player keeps the life.
 // The guest line is said once, on the page. Inside the invite page, where the card makes the life, the same fields
 // stand under the age screen with a button of their own. A bot check that could not load, or that failed in this
 // browser, is said as that and not as "try again"; a session lost a second time in a row, or cookies off, is said as a
 // browser that keeps no sign-in (account:bot-check-on-guest-creation).
-import { USERNAME, USERNAME_LONGEST as LONGEST, USERNAME_SHORTEST as SHORTEST } from "@japacity/api";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { USERNAME, USERNAME_LONGEST as LONGEST } from "@japacity/api";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
-import type { AccountApi, GuestFailure } from "../../shared/net/auth";
+import type { AccountApi, FreeAnswer, GuestFailure } from "../../shared/net/auth";
 import { isReported } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { say } from "../../shared/words/text";
 import type { LoadTurnstile } from "./Turnstile";
 import { useUnseenCheck } from "./useUnseenCheck";
 
+/** account:username-typed-and-checked: how long the typing rests before the box asks the server whether the name is free. */
+export const CHECK_AFTER_MS = 350;
 
-/** How many digits a filled-in username gains when the plain one is taken. */
-const TAKEN_DIGITS = 3;
-
-/** The username a name on the page fills in: its letters and digits, the words joined by underscores. */
-export function usernameFrom(name: string): string {
-  const plain = name
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/[^A-Za-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, LONGEST)
-    .replace(/_+$/, "");
-  if (plain.length >= SHORTEST) return plain;
-  return plain === "" ? "player" : `${plain}_${"0".repeat(SHORTEST - 1)}`;
-}
-
-/** A filled-in username with digits after it, cut so the whole stays within the longest. */
-export function withDigits(username: string, digits: string): string {
-  return `${username.slice(0, LONGEST - digits.length - 1).replace(/_+$/, "")}_${digits}`;
-}
-
-function someDigits(): string {
-  return String(Math.floor(Math.random() * 10 ** TAKEN_DIGITS)).padStart(TAKEN_DIGITS, "0");
-}
+/** What the box says under it for each answer of the check. */
+const FREE_WORDS: Record<FreeAnswer, string> = {
+  free: "ui.account.name.available",
+  taken: "ui.account.name.taken",
+  format: "ui.account.name.format",
+  reserved: "ui.account.name.reserved",
+  blocked: "ui.account.name.blocked",
+};
 
 /** How many lost sessions or age answers in a row tell that the browser keeps no sign-in. */
 export const LAPSES_TOLD = 2;
@@ -72,17 +59,14 @@ function usernameProblem(username: string): string | null {
 
 /** The guest start as the page uses it; the door holds the username's text and Begin, the rest is here. */
 export interface GuestDoor {
-  /** The username a name fills in. */
-  fill: (name: string) => string;
   /** Why the username cannot be sent as typed, or null. */
   check: (username: string) => string | null;
-  /** The username field, its rule's words, the guest line and the unseen check, for the page. */
+  /** The username field, empty until typed and checked as it is typed, its rule's words, the guest line and the unseen check, for the page. */
   fields: (value: string, onChange: (username: string) => void, problem: string | null) => ReactNode;
-  /**
-   * Makes the guest life with this username. `filled`: the page filled it in, so a taken one may gain digits
-   * once. Resolves to null once the life is made (or was made already), else to what to say.
-   */
-  start: (username: string, filled: boolean) => Promise<string | null>;
+  /** Makes the guest life with this username, as typed. Resolves to null once the life is made (or was made already), else to what to say. */
+  start: (username: string) => Promise<string | null>;
+  /** account:username-typed-and-checked: whether a name is free, as the box asks while the player types. */
+  ask: (username: string) => Promise<FreeAnswer | null>;
   /** The unseen check's widget, mounted on the page. */
   widget: ReactNode;
   /** After Begin started the character: the game opens onto it. */
@@ -130,10 +114,9 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     return answer.ok ? null : answer.why;
   }
 
-  const start = async (username: string, filled: boolean): Promise<string | null> => {
+  const start = async (username: string): Promise<string | null> => {
     if (made.current) return null;
-    let why = await once(username.trim());
-    if (why === "taken" && filled) why = await once(withDigits(username.trim(), someDigits()));
+    const why = await once(username.trim());
     if (why === null) {
       made.current = true;
       return null;
@@ -145,11 +128,13 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     return say(GUEST_WORDS[why]);
   };
 
+  // Kept the same across renders, so a render while the typing rests does not put the check off again.
+  const ask = useCallback((username: string) => account.usernameFree(username), [account]);
   return {
-    fill: usernameFrom,
     check: usernameProblem,
-    fields: (value, onChange, problem) => <GuestFields value={value} onChange={onChange} problem={problem} widget={check.widget} />,
+    fields: (value, onChange, problem) => <GuestFields value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} />,
     start,
+    ask,
     widget: check.widget,
     started: onStarted,
     lost: (error) => {
@@ -163,8 +148,36 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
 
 const FIELD = "h-12 w-full min-w-0 rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[17px] font-bold text-text outline-none focus:border-action";
 
-/** The username on the page, its rule, and the guest line said once (account:username-and-unconfirmed-email, account:guest-reminded-to-secure). */
-function GuestFields({ value, onChange, problem, widget }: { value: string; onChange: (username: string) => void; problem: string | null; widget: ReactNode }) {
+/**
+ * account:username-typed-and-checked: what the box says of the name being typed. Nothing while it is empty; the shape's words for a
+ * name not of the rule's shape, with nothing asked; otherwise the server's answer once the typing rests, for the name
+ * still in the box. An answer the server could not give says nothing.
+ */
+function useFreeCheck(value: string, ask: (username: string) => Promise<FreeAnswer | null>): FreeAnswer | null {
+  const name = value.trim();
+  const shaped = USERNAME.test(name);
+  const [heard, setHeard] = useState<{ name: string; answer: FreeAnswer | null } | null>(null);
+  useEffect(() => {
+    if (!shaped) return;
+    let current = true;
+    const timer = setTimeout(() => {
+      void ask(name).then((answer) => {
+        if (current) setHeard({ name, answer });
+      });
+    }, CHECK_AFTER_MS);
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
+  }, [name, shaped, ask]);
+  if (name === "") return null;
+  if (!shaped) return "format";
+  return heard?.name === name ? heard.answer : null;
+}
+
+/** The username on the page, its rule, the check as it is typed, and the guest line said once (account:username-and-unconfirmed-email, account:username-typed-and-checked, account:guest-reminded-to-secure). */
+function GuestFields({ value, onChange, problem, ask, widget }: { value: string; onChange: (username: string) => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode }) {
+  const free = useFreeCheck(value, ask);
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
       <label className="label block text-text-2" htmlFor="guest-username">
@@ -178,10 +191,14 @@ function GuestFields({ value, onChange, problem, widget }: { value: string; onCh
         autoComplete="off"
         autoCapitalize="off"
         spellCheck={false}
-        aria-invalid={problem !== null}
-        aria-describedby="guest-username-said"
+        aria-invalid={problem !== null || (free !== null && free !== "free")}
+        aria-describedby="guest-username-check guest-username-said"
         onChange={(event) => onChange(event.target.value)}
       />
+      {/* Polite, so the answer is heard as the player types; Begin's own refusal below is the alert. */}
+      <p id="guest-username-check" role="status" className={`text-[13px] font-bold ${free === null || problem !== null ? "" : "mt-1.5"} ${free === "free" ? "text-action" : "text-text"}`} data-username-check={free ?? ""}>
+        {free === null || problem !== null ? null : say(FREE_WORDS[free])}
+      </p>
       {problem === null ? (
         <p id="guest-username-said" className="mt-1 text-[12px] text-text-2">
           {say("ui.account.name.intro")}
@@ -220,7 +237,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
     }
     setBusy(true);
     setProblem(null);
-    const said = await door.start(username, false);
+    const said = await door.start(username);
     setBusy(false);
     if (said === null) await door.started();
     else setProblem(said);
@@ -228,7 +245,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={(event) => void start(event)} noValidate data-guest-form>
-      <GuestFields value={username} onChange={setUsername} problem={problem} widget={door.widget} />
+      <GuestFields value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} />
       <div>
         <Button type="submit" variant="primary" disabled={busy}>
           {say("ui.account.name.go")}

@@ -8,7 +8,10 @@ function toAudit(row: typeof audit.$inferSelect): AuditRow {
   return { character: row.character, why: row.why, at: row.at, note: row.note, segments: row.segments, log: row.log, snapshots: row.snapshots, n: row.n };
 }
 
-/** server:rollback-apply-one-account: insert only; `n` comes from an identity column and rises with every entry. */
+/**
+ * server:rollback-apply-one-account: nothing is changed; `n` comes from an identity column and rises with every entry.
+ * account:deleted-data-removed-within-month: `forget` removes a deleted account's character's rows, so the table carries no insert-only trigger.
+ */
 export function pgAuditStore(handle: Handle): AuditStore {
   return {
     retire: (entry) =>
@@ -23,6 +26,11 @@ export function pgAuditStore(handle: Handle): AuditStore {
       handle.read(async (db) => {
         const rows = await db.select().from(audit).where(eq(audit.character, character)).orderBy(asc(audit.n));
         return rows.map(toAudit);
+      }),
+
+    forget: (character) =>
+      handle.read(async (db) => {
+        await db.delete(audit).where(eq(audit.character, character));
       }),
   };
 }

@@ -54,6 +54,7 @@ function signUpRoutes(made: Answer): Record<string, Answer | ((faked: Faked) => 
   return {
     "GET /api/age": { body: { refused: false } },
     "POST /api/age": { body: { ok: true } },
+    "GET /api/username/available": { body: { ok: true, free: true } },
     "POST /api/guest": (faked) => {
       faked.phase = "no-character";
       return { body: { ok: true, account: GUEST } };
@@ -79,7 +80,7 @@ async function pickBirth(page: Page, day: string, month: string, year: string): 
   await page.getByRole("combobox", { name: "Year" }).selectOption(year);
 }
 
-test("[account:start-screen-over-live-city] [account:guest-and-secured-states] Play leads to the age screen, the three-screen door, Begin making the guest life with the bot check unseen, and the world", async ({ page }, info) => {
+test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [account:username-typed-and-checked] Play leads to the age screen, the three-screen door, the username typed into an empty box, Begin making the guest life with the bot check unseen, and the world", async ({ page }, info) => {
   const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
   await page.goto("/");
 
@@ -120,8 +121,12 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] P
   // The door: three screens with everything chosen, so Next, Next, Begin starts a life.
   await page.getByRole("button", { name: /^Next/ }).first().click();
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
-  // The page: the username filled in from the name, and the guest line said once.
-  await expect(page.getByLabel("Username")).toHaveValue("Olamide");
+  // The page: the username box empty, never filled from the name (account:username-typed-and-checked); the player types
+  // their own and the box says it is free; the guest line said once.
+  const username = page.getByLabel("Username");
+  await expect(username).toHaveValue("");
+  await username.fill("Olamide");
+  await expect(page.getByText("That name is free.")).toBeVisible();
   await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
   await expect(page.getByText("Check passed")).toHaveCount(0);
   // The sheet rises into place before its picture.

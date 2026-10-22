@@ -55,6 +55,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     bots,
     ageStatus: () => Promise.resolve("unasked"),
     declareAge: (birth) => (calls.push(`declareAge(${birth})`), Promise.resolve(serverAge(new Date())(birth))),
+    usernameFree: () => Promise.resolve(null),
     startGuest: (username, bot) => (calls.push(`startGuest(${JSON.stringify(username)})`), bots.push(bot), Promise.resolve({ ok: true })),
     view: () => Promise.resolve(null),
     rename: (username) => (calls.push(`rename(${JSON.stringify(username)})`), Promise.resolve({ ok: true })),
@@ -524,6 +525,18 @@ describe("the guest start inside the invite page", () => {
       expect(await screen.findByText(say(key))).toBeDefined();
     }
     expect(store.getState().signedOut).toBe(true);
+  });
+
+  test("[account:username-typed-and-checked] given the age screen passed inside the invite page, then the username box starts empty and, as a name is typed, says whether it is free", async () => {
+    const asked: string[] = [];
+    inside(passed({ usernameFree: (name) => (asked.push(name), Promise.resolve(name === "ada_lagos" ? "taken" : "free")) }));
+    const box = await screen.findByLabelText<HTMLInputElement>(say("ui.account.name.label"));
+    expect(box.value).toBe("");
+    fireEvent.change(box, { target: { value: "ada_lagos" } });
+    expect(await screen.findByText(say("ui.account.name.taken"))).toBeDefined();
+    fireEvent.change(box, { target: { value: "ada_ikeja" } });
+    expect(await screen.findByText(say("ui.account.name.available"))).toBeDefined();
+    expect(asked).toEqual(["ada_lagos", "ada_ikeja"]);
   });
 
   test("[account:age-screen-refuses-minors] given an age answer that ran out, when the username is sent, then the age screen asks again", async () => {

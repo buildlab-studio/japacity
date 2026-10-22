@@ -1,9 +1,11 @@
-import type { AccountReply } from "@japacity/api";
+import type { AccountReply, UsernameFreeReply } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar, withGoogle } from "../auth/auth.testing";
 import type { Harness, Jar } from "../auth/auth.testing";
+import type { Limiter } from "../dependencies";
+import { openLimiters } from "../dependencies";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -200,5 +202,70 @@ describe("DELETE /api/account", () => {
     expect(reply.status).toBe(200);
     expect(h.tables.user).toHaveLength(0);
     expect(h.tables.session).toHaveLength(0);
+  });
+});
+
+/** `GET /api/username/available` for one name, as the door's box asks it. */
+async function availability(h: Harness, name: string | null, over: { jar?: Jar; ip?: string } = {}): Promise<{ status: number; reply: UsernameFreeReply }> {
+  const query = name === null ? "" : `?name=${encodeURIComponent(name)}`;
+  const reply = await h.call(`/api/username/available${query}`, { ...(over.jar === undefined ? {} : { jar: over.jar }), ...(over.ip === undefined ? {} : { ip: over.ip }) });
+  return { status: reply.status, reply: await reply.json<UsernameFreeReply>() };
+}
+
+describe("GET /api/username/available", () => {
+  test("[account:username-typed-and-checked] given a username a guest holds, when it is checked signed out in any capitals, then it answers taken; one no one holds answers free", async () => {
+    const h = harness();
+    await h.guest(makeJar(), { username: "Ada_Lagos" });
+    expect(await availability(h, "ada_lagos")).toEqual({ status: 200, reply: { ok: true, free: false } });
+    expect(await availability(h, "ADA_LAGOS")).toEqual({ status: 200, reply: { ok: true, free: false } });
+    expect(await availability(h, "Bola_Lagos")).toEqual({ status: 200, reply: { ok: true, free: true } });
+  });
+
+  test("[account:username-typed-and-checked] [account:username-and-unconfirmed-email] given names the username's own checks refuse, when each is checked, then it answers its problem and never free, though no one holds it", async () => {
+    const h = harness();
+    const refused = async (name: string | null) => {
+      const { status, reply } = await availability(h, name);
+      expect(status).toBe(400);
+      expect(reply).not.toHaveProperty("free");
+      return reply.ok ? null : (reply.name ?? null);
+    };
+    expect(await refused("ab")).toBe("format");
+    expect(await refused("ada lagos")).toBe("format");
+    expect(await refused("a".repeat(21))).toBe("format");
+    expect(await refused(null)).toBe("format");
+    expect(await refused("staff_ada")).toBe("reserved");
+    expect(await refused("Adm1n")).toBe("reserved");
+    expect(await refused("big_ashawo")).toBe("blocked");
+  });
+
+  test("[account:username-typed-and-checked] [server:anonymous-limit-by-address] [server:per-account-rate-limits] given the limits counted, when the name is checked signed out and signed in, then every check counts against its address and a signed-in one against its session too; one over either limit is refused rate-limited", async () => {
+    const counted: string[] = [];
+    const refused = new Set<string>();
+    const counting = (limit: string): Limiter => ({
+      limit: ({ key }) => {
+        counted.push(`${limit} ${key}`);
+        return Promise.resolve({ success: !refused.has(key) });
+      },
+    });
+    const h = harness({ limits: { ...openLimiters, anon60s: counting("address"), reads60s: counting("session") } });
+    const { jar, account } = await h.guest(makeJar(), { ip: "198.51.100.1" });
+
+    counted.length = 0;
+    expect((await availability(h, "ada_lagos", { ip: "198.51.100.2" })).status).toBe(200);
+    expect(counted).toEqual(["address 198.51.100.2"]);
+
+    counted.length = 0;
+    expect((await availability(h, "ada_lagos", { jar, ip: "198.51.100.3" })).status).toBe(200);
+    expect(counted).toEqual(["address 198.51.100.3", `session ${account}`]);
+
+    refused.add("198.51.100.4");
+    const overAddress = await availability(h, "ada_lagos", { ip: "198.51.100.4" });
+    expect(overAddress.status).toBe(429);
+    expect(overAddress.reply).toMatchObject({ ok: false, code: "rate-limited", retryAfter: 60 });
+
+    refused.add(account);
+    const overSession = await availability(h, "ada_lagos", { jar, ip: "198.51.100.5" });
+    expect(overSession.status).toBe(429);
+    expect(overSession.reply).toMatchObject({ ok: false, code: "rate-limited", retryAfter: 60 });
   });
 });

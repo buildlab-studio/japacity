@@ -18,7 +18,9 @@ async function removeAuthUser(auth: Auth, account: string): Promise<void> {
 
 /**
  * Runs every deletion due at `deps.now()` and returns how many completed.
- * Never touches the audit store, the day totals or the draws. moderation:reports-hold-cited-records:
+ * The character's audit rows go with the rest; never the day totals, the draws, the admin log or the switch log,
+ * which name no player's life. Characters the account ended before took their audit rows with them
+ * (account:start-a-new-life, authority/character.ts), so the one it holds is the last. moderation:reports-hold-cited-records:
  * what a report holds (its messages, its pair record) is kept past the removal.
  */
 export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number> {
@@ -37,6 +39,7 @@ export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number
     await deps.stores.account.remove(account);
     await removeAuthUser(auth, account);
     if (character !== null) await deps.stores.ledger.dropMark(character);
+    if (character !== null) await deps.stores.audit.forget(character);
     const done = await deps.stores.deletion.complete(account, now);
     if (done.ok) completed += 1;
   }

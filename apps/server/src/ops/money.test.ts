@@ -177,7 +177,7 @@ describe("the alarm", () => {
     expect(await deps.stores.player.load(ID)).toEqual(before);
     expect(await deps.stores.audit.list(ID)).toEqual([]);
     const audit = deps.stores.audit;
-    const restarted: AuditStore = { retire: (entry) => audit.retire(entry), list: (character) => audit.list(character) };
+    const restarted: AuditStore = { retire: (entry) => audit.retire(entry), list: (character) => audit.list(character), forget: (character) => audit.forget(character) };
     const listed = await listAlarms({ stores: { ...deps.stores, audit: restarted } });
     expect(listed).toEqual(await listAlarms(deps));
     expect(listed[0]).toMatchObject({ kind: "suspect", character: ID });

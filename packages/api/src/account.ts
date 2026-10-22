@@ -76,6 +76,16 @@ export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
 /** `POST /api/guest` and `PUT /api/account/username`: a refused username says why, so the screen can say it plainly. */
 export type NameReply = { ok: true; account: AccountView } | (ServerRejection & { name?: NameProblem });
 
+/** account:username-typed-and-checked: the read the username box asks while the player types, the name in the query. */
+export const USERNAME_FREE_PATH = "/api/username/available";
+
+/**
+ * account:username-typed-and-checked: `GET /api/username/available?name=...`, signed in or out. `free` only for a name that
+ * passed the username's own format and word checks; a refused one answers its problem (400) and never `free`. Rate-limited
+ * per address, and per session when signed in (`rate-limited`, 429). Taking the name at Begin is the check that counts.
+ */
+export type UsernameFreeReply = { ok: true; free: boolean } | (ServerRejection & { name?: NameProblem });
+
 /** The body of `DELETE /api/account`; `code` is an email code sent with type `sign-in`, needed once the session is not fresh. */
 export interface DeleteRequest {
   code?: string;

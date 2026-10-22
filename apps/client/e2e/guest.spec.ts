@@ -48,13 +48,14 @@ function pastFirstChapter(): Answer {
   return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file", items } }, lines: [], clock: CLOCK } };
 }
 
-test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email] [guide:nothing-asked-before-early-win] a new visitor passes the age screen and changes the username on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {
+test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email] [account:username-typed-and-checked] [guide:nothing-asked-before-early-win] a new visitor passes the age screen and types a username into the empty box on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {
   const sent: string[] = [];
   const bodies: unknown[] = [];
   const answers: Record<string, Answer> = {
     "GET /api/view": SIGNED_OUT,
     "GET /api/age": { body: { refused: false } },
     "POST /api/age": { body: { ok: true } },
+    "GET /api/username/available": { body: { ok: true, free: true } },
     "POST /api/guest": { body: { ok: true, account: GUEST } },
     "POST /api/character": { status: 404, body: NO_CHARACTER },
     "GET /api/account": { body: { ok: true, account: GUEST } },
@@ -74,8 +75,10 @@ test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByLabel("Email")).toHaveCount(0);
   const username = page.getByLabel("Username");
-  await expect(username).not.toHaveValue("");
+  // account:username-typed-and-checked: the box starts empty; the player types their own and hears it is free.
+  await expect(username).toHaveValue("");
   await username.fill("ada_lagos");
+  await expect(page.getByText("That name is free.")).toBeVisible();
   await shootPhone(page, "username-phone", info.project.name, PICTURE);
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect.poll(() => sent.includes("POST /api/character")).toBe(true);

@@ -20,8 +20,10 @@ import type {
   NameReply,
   ServerCode,
   ServerRejection,
+  UsernameFreeReply,
   UsernameRequest,
 } from "@japacity/api";
+import { USERNAME_FREE_PATH } from "@japacity/api";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
@@ -99,6 +101,9 @@ export type GuestFailure = NameProblem | "bot-check" | "too-many" | "expired" | 
 
 export type GuestAnswer = { ok: true } | { ok: false; why: GuestFailure };
 
+/** account:username-typed-and-checked: what the box hears while the player types: free, taken, or the name's own problem. */
+export type FreeAnswer = "free" | "taken" | "format" | "reserved" | "blocked";
+
 /** Why a username change was refused (account:username-and-unconfirmed-email). */
 type NameAnswer = { ok: true } | { ok: false; why: NameProblem | "unreachable" | "refused" };
 
@@ -112,6 +117,8 @@ export interface AccountApi {
   signInWithCode(email: string, code: string, bot: string | null): Promise<AuthResult>;
   /** account:guest-and-secured-states, account:bot-check-on-guest-creation: `POST /api/guest` with the username and the bot check's token, after the age screen. */
   startGuest(username: string, bot: string | null): Promise<GuestAnswer>;
+  /** account:username-typed-and-checked: `GET /api/username/available`, signed out at the door; null when the server could not say. */
+  usernameFree(username: string): Promise<FreeAnswer | null>;
   /** The account as the server says it now, or null when it cannot say. */
   view(): Promise<AccountView | null>;
   /** account:username-and-unconfirmed-email: `PUT /api/account/username`. */
@@ -399,6 +406,16 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
         return guestAnswer(reply);
       } catch {
         return { ok: false, why: "unreachable" };
+      }
+    },
+    async usernameFree(username) {
+      try {
+        const reply = await server.get<UsernameFreeReply>(`${USERNAME_FREE_PATH}?name=${encodeURIComponent(username)}`);
+        if (reply.ok) return reply.free ? "free" : "taken";
+        return reply.name === "format" || reply.name === "reserved" || reply.name === "blocked" ? reply.name : null;
+      } catch {
+        // The check only helps the typing: Begin is the one that counts, and says its own failure.
+        return null;
       }
     },
     async view() {

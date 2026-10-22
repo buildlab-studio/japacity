@@ -36,6 +36,8 @@ export interface DoorDraft {
   age: number;
   /** The player's own colours on the look (prologue:player-colours-on-looks); absent as made. */
   style?: LookStyle | undefined;
+  /** account:username-typed-and-checked: the username as the player typed it online, absent until they do; never filled from the name. */
+  username?: string;
 }
 
 type Read = Pick<Storage, "getItem">;
@@ -43,7 +45,7 @@ type Write = Pick<Storage, "setItem">;
 
 function isDraft(value: unknown): value is DoorDraft {
   if (typeof value !== "object" || value === null) return false;
-  const { stage, look, archetype, ready, name, roll, age, typed, asked, home, homePicked } = value as Record<string, unknown>;
+  const { stage, look, archetype, ready, name, roll, age, typed, asked, home, homePicked, username } = value as Record<string, unknown>;
   return (
     typeof stage === "string" &&
     (DOOR_STAGES as readonly string[]).includes(stage) &&
@@ -58,7 +60,8 @@ function isDraft(value: unknown): value is DoorDraft {
     (typed === undefined || typeof typed === "boolean") &&
     (asked === undefined || typeof asked === "boolean") &&
     (home === undefined || typeof home === "string") &&
-    (homePicked === undefined || typeof homePicked === "boolean")
+    (homePicked === undefined || typeof homePicked === "boolean") &&
+    (username === undefined || typeof username === "string")
   );
 }
 

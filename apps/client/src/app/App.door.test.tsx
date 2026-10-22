@@ -1,6 +1,7 @@
 // The shell's composition online (App.tsx): signed out, the door after the age screen holds the guest start (account:start-screen-over-live-city): the page
-// has the username, filled in from the name and changed there, and the guest line once; Begin makes the guest life
-// with the unseen bot check's token, then the character, then the game opens on it.
+// has the username box, empty for the player to type their own and checked with the server as they type
+// (account:username-typed-and-checked), and the guest line once; Begin makes the guest life with the unseen bot check's
+// token, then the character, then the game opens on it.
 import type { Id } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
@@ -9,10 +10,9 @@ import { GameProvider } from "../authority/GameProvider";
 import { createGameStore, type GameStore } from "../authority/store";
 import { AccountGate } from "../features/account/AccountGate";
 import { answerAge } from "../features/account/age.testing";
-import { usernameFrom, withDigits } from "../features/account/GuestStart";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "../features/account/Turnstile";
 import { FrontDoor } from "../features/front-door/FrontDoor";
-import type { AccountApi, GuestAnswer } from "../shared/net/auth";
+import type { AccountApi, FreeAnswer, GuestAnswer } from "../shared/net/auth";
 import { reportedError } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
 import { say } from "../shared/words/text";
@@ -25,7 +25,7 @@ afterEach(() => {
 
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
 
-function fakeAccount(startGuest: (username: string) => GuestAnswer = () => ({ ok: true })): AccountApi & { calls: string[]; bots: (string | null)[] } {
+function fakeAccount(startGuest: (username: string) => GuestAnswer = () => ({ ok: true }), usernameFree: (username: string) => FreeAnswer | null = () => null): AccountApi & { calls: string[]; bots: (string | null)[] } {
   const calls: string[] = [];
   const bots: (string | null)[] = [];
   const ok = () => Promise.resolve({ ok: true } as const);
@@ -35,6 +35,7 @@ function fakeAccount(startGuest: (username: string) => GuestAnswer = () => ({ ok
     ageStatus: () => Promise.resolve("unasked"),
     declareAge: (birth) => (calls.push(`declareAge(${birth})`), Promise.resolve("passed")),
     startGuest: (username, bot) => (calls.push(`startGuest(${username})`), bots.push(bot), Promise.resolve(startGuest(username))),
+    usernameFree: (username) => (calls.push(`usernameFree(${username})`), Promise.resolve(usernameFree(username))),
     view: () => Promise.resolve(null),
     rename: ok,
     returnedFromGoogle: () => null,
@@ -100,7 +101,7 @@ const stage = (): string | null => document.querySelector("[data-gate]")?.getAtt
 const next = (label: string) => screen.getByRole("button", { name: new RegExp(`^${label}`) });
 const usernameBox = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("ui.account.name.label") });
 
-/** Play, the age screen passed, and the door's name as it was filled in. */
+/** Play, the age screen passed, and the door's name as it was filled in from the pool. */
 async function toTheDoor(): Promise<string> {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
   await answerAge("1990-05-17");
@@ -114,25 +115,89 @@ function toThePage(): void {
   fireEvent.click(next(say("ui.door.next")));
 }
 
-describe("the username a name fills in", () => {
-  test("[account:username-and-unconfirmed-email] given names from the door, then the username keeps their letters and digits, joins the words with underscores, drops the marks, and stays 3 to 20 long", () => {
-    expect(usernameFrom("Adaeze Okafor")).toBe("Adaeze_Okafor");
-    expect(usernameFrom("Ọlámídé")).toBe("Olamide");
-    expect(usernameFrom("Chi-Chi O'Neil")).toBe("Chi_Chi_O_Neil");
-    expect(usernameFrom("Al")).toBe("Al_00");
-    expect(usernameFrom("Oluwadamilare Babatunde")).toBe("Oluwadamilare_Babatu");
-    for (const name of ["Adaeze Okafor", "Ọlámídé", "Al", "Oluwadamilare Babatunde", "Ẹ"]) expect(usernameFrom(name)).toMatch(/^[A-Za-z0-9_]{3,20}$/);
-    expect(withDigits("Oluwadamilare_Babatu", "042")).toBe("Oluwadamilare_Ba_042");
-    expect(withDigits("Oluwadamilare_Babatu", "042").length).toBe(20);
+/** The player types their own username on the page. */
+function typeUsername(username = "ada_lagos"): void {
+  fireEvent.change(usernameBox(), { target: { value: username } });
+}
+
+/** The account's calls but the box's checks, which follow the typing. */
+const sent = (account: { calls: string[] }): string[] => account.calls.filter((call) => !call.startsWith("usernameFree"));
+
+describe("the username box (account:username-typed-and-checked)", () => {
+  test("[account:username-typed-and-checked] [account:start-screen-over-live-city] given Play and the age passed, when the page shows, then the username box is empty whatever the name on the door, with no suggestion and no dice or reroll beside it", async () => {
+    const account = fakeAccount();
+    online(account);
+    const name = await toTheDoor();
+    expect(name).not.toBe("");
+    toThePage();
+    expect(usernameBox().value).toBe("");
+    expect(usernameBox().placeholder).toBe("");
+    const fields = document.querySelector("[data-guest-fields]");
+    expect(fields?.querySelectorAll("button")).toHaveLength(0);
+    // A new name rolled on the door leaves the box as the player left it.
+    typeUsername("my_own_name");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.edit.you") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.door.reroll") }));
+    toThePage();
+    expect(usernameBox().value).toBe("my_own_name");
+  });
+
+  test("[account:username-typed-and-checked] given a name typed in pieces, when the typing pauses, then the server is asked once, for the last, and the box says it is free; a held one is said taken", async () => {
+    const account = fakeAccount(undefined, (username) => (username === "ada_lagos" ? "taken" : "free"));
+    online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada");
+    typeUsername("ada_l");
+    typeUsername("ada_lag");
+    expect(await screen.findByText(say("ui.account.name.available"))).toBeDefined();
+    expect(account.calls.filter((call) => call.startsWith("usernameFree"))).toEqual(["usernameFree(ada_lag)"]);
+    typeUsername("ada_lagos");
+    expect(await screen.findByText(say("ui.account.name.taken"))).toBeDefined();
+    expect(screen.queryByText(say("ui.account.name.available"))).toBeNull();
+    expect(account.calls.filter((call) => call.startsWith("usernameFree"))).toEqual(["usernameFree(ada_lag)", "usernameFree(ada_lagos)"]);
+    // Said where a screen reader hears it, as the player types.
+    expect(screen.getByText(say("ui.account.name.taken")).closest("[role=status]")).not.toBeNull();
+  });
+
+  test("[account:username-typed-and-checked] [account:username-and-unconfirmed-email] given a name not of the rule's shape, when it is typed, then the box says the shape and asks the server nothing; a name the server's word checks refuse is said by its problem, never free", async () => {
+    const account = fakeAccount(undefined, (username) => (username.startsWith("staff") ? "reserved" : "blocked"));
+    online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada lagos");
+    expect(await screen.findByText(say("ui.account.name.format"))).toBeDefined();
+    typeUsername("ab");
+    await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+    expect(account.calls.filter((call) => call.startsWith("usernameFree"))).toEqual([]);
+    typeUsername("staff_ada");
+    expect(await screen.findByText(say("ui.account.name.reserved"))).toBeDefined();
+    typeUsername("big_ashawo");
+    expect(await screen.findByText(say("ui.account.name.blocked"))).toBeDefined();
+    expect(screen.queryByText(say("ui.account.name.available"))).toBeNull();
+  });
+
+  test("[account:username-typed-and-checked] given a check the server could not answer, when the typing pauses, then the box says nothing of it and Begin still sends the name", async () => {
+    const account = fakeAccount();
+    const { store } = online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada_lagos");
+    await waitFor(() => expect(account.calls).toContain("usernameFree(ada_lagos)"));
+    expect(screen.queryByText(say("ui.account.name.available"))).toBeNull();
+    expect(screen.queryByText(say("ui.account.name.taken"))).toBeNull();
+    fireEvent.click(next(say("ui.door.begin")));
+    await waitFor(() => expect(store.getState().signedOut).toBe(false));
+    expect(sent(account)).toEqual(["declareAge(1990-05-17)", "startGuest(ada_lagos)"]);
   });
 });
 
 describe("the guest start at Begin", () => {
-  test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [account:guest-reminded-to-secure] given Play and the age passed, then the door follows with no way in; the page holds the username filled from the name and the guest line once; Begin makes the guest with the token, then the life, and the game opens", async () => {
+  test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [account:guest-reminded-to-secure] [account:username-typed-and-checked] given Play and the age passed, then the door follows with no way in; the page holds the username box, empty, and the guest line once; Begin makes the guest with the token and the name typed, then the life, and the game opens", async () => {
     const account = fakeAccount();
     const turnstile = fakeTurnstile();
     const { store, lives } = online(account, turnstile);
-    const name = await toTheDoor();
+    await toTheDoor();
     expect(stage()).toBe("you");
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     expect(screen.queryByLabelText(say("ui.account.email.label"))).toBeNull();
@@ -140,14 +205,15 @@ describe("the guest start at Begin", () => {
     expect(screen.queryByRole("textbox", { name: say("ui.account.name.label") })).toBeNull();
     toThePage();
     expect(stage()).toBe("page");
-    expect(usernameBox().value).toBe(usernameFrom(name));
+    expect(usernameBox().value).toBe("");
     expect(screen.getAllByText(say("ui.guest.reminder"))).toHaveLength(1);
     expect(account.calls).toEqual(["declareAge(1990-05-17)"]);
     // The unseen check is up by the time the page is read.
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
+    typeUsername("ada_lagos");
     fireEvent.click(next(say("ui.door.begin")));
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
-    expect(account.calls).toEqual(["declareAge(1990-05-17)", `startGuest(${usernameFrom(name)})`]);
+    expect(sent(account)).toEqual(["declareAge(1990-05-17)", "startGuest(ada_lagos)"]);
     expect(account.bots).toEqual([TOKEN]);
     expect(lives).toHaveLength(1);
   });
@@ -177,17 +243,17 @@ describe("the guest start at Begin", () => {
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual(["startGuest(staff_ada)", "startGuest(Ada_Lagos)"]);
   });
 
-  test("[account:username-and-unconfirmed-email] given a filled username someone holds, then Begin tries once more with digits after it; a typed one someone holds is said, never changed", async () => {
-    const filled = fakeAccount((username) => (/_\d{3}$/.test(username) ? { ok: true } : { ok: false, why: "taken" }));
-    const { store } = online(filled);
-    const name = await toTheDoor();
+  test("[account:username-typed-and-checked] given a name the box said was free, when someone takes it before Begin, then Begin says taken and sends no other name", async () => {
+    const account = fakeAccount(() => ({ ok: false, why: "taken" }), () => "free");
+    online(account);
+    await toTheDoor();
     toThePage();
+    typeUsername("ada_lagos");
+    expect(await screen.findByText(say("ui.account.name.available"))).toBeDefined();
     fireEvent.click(next(say("ui.door.begin")));
-    await waitFor(() => expect(store.getState().signedOut).toBe(false));
-    const asked = filled.calls.filter((call) => call.startsWith("startGuest"));
-    expect(asked).toHaveLength(2);
-    expect(asked[0]).toBe(`startGuest(${usernameFrom(name)})`);
-    expect(asked[1]).toMatch(/^startGuest\([A-Za-z0-9_]{3,16}_\d{3}\)$/);
+    expect(await screen.findByText(say("ui.account.name.taken"))).toBeDefined();
+    expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual(["startGuest(ada_lagos)"]);
+    expect(usernameBox().value).toBe("ada_lagos");
   });
 
   test("[account:username-and-unconfirmed-email] given a typed username someone holds, then the page says so and sends no other", async () => {
@@ -212,6 +278,7 @@ describe("the guest start at Begin", () => {
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
     expect(turnstile.rendered[0]?.appearance).toBe("interaction-only");
     expect(document.body.textContent).not.toMatch(/check|person|robot/i);
+    typeUsername();
     fireEvent.click(next(say("ui.door.begin")));
     await act(() => Promise.resolve());
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual([]);
@@ -234,6 +301,7 @@ describe("the guest start at Begin", () => {
     const { store } = online(account, { load: () => new Promise(() => undefined) });
     await toTheDoor();
     toThePage();
+    typeUsername();
     fireEvent.click(next(say("ui.door.begin")));
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     expect(account.bots).toEqual([null]);
@@ -245,11 +313,13 @@ describe("the guest start at Begin", () => {
     const { store } = online(account);
     await toTheDoor();
     toThePage();
+    typeUsername();
     fireEvent.click(next(say("ui.door.begin")));
     expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
     await answerAge("1990-05-17");
     expect(await screen.findByRole("textbox", { name: say("ui.account.name.label") })).toBeDefined();
     expect(stage()).toBe("page");
+    expect(usernameBox().value).toBe("ada_lagos");
     fireEvent.click(next(say("ui.door.begin")));
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
   });
@@ -259,6 +329,7 @@ describe("the guest start at Begin", () => {
     const { store, lives } = online(account, fakeTurnstile(), { failFirstLife: true });
     await toTheDoor();
     toThePage();
+    typeUsername();
     fireEvent.click(next(say("ui.door.begin")));
     await waitFor(() => expect(lives).toHaveLength(1));
     await waitFor(() => expect(next(say("ui.door.begin")).hasAttribute("disabled")).toBe(false));
@@ -273,6 +344,7 @@ describe("the guest start at Begin", () => {
     const { store, lives } = online(account, fakeTurnstile(), { failFirstLife: reportedError({ ok: false, code: "signed-out", detail: "Sign in first." }) });
     await toTheDoor();
     toThePage();
+    typeUsername();
     fireEvent.click(next(say("ui.door.begin")));
     expect(await screen.findByText(say("ui.account.guest.lost"))).toBeDefined();
     expect(lives).toHaveLength(1);

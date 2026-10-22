@@ -9,7 +9,8 @@
 // before Begin, and the run is marked begun only once the authority has answered it (engine:browser-authority-for-dev-only). For a tile,
 // Begin starts the life at once and the page fills as the years go by (prologue:printed-page-hands-over).
 // Online and signed out, the gate hands in the guest start (account:start-screen-over-live-city): Where you live holds the
-// username, filled in from the name and changed there, and the guest line; Begin makes the guest life before the character.
+// username box, empty for the player to type their own and checked as they type (account:username-typed-and-checked), and
+// the guest line; Begin makes the guest life before the character.
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
 import { type ReactNode, useState } from "react";
@@ -119,11 +120,10 @@ function captionOf(draft: DoorDraft): string {
 
 /** The guest start the gate hands in online (account:guest-and-secured-states, account:username-and-unconfirmed-email, account:start-screen-over-live-city); the account feature's GuestDoor. */
 export interface DoorGuest {
-  fill: (name: string) => string;
   check: (username: string) => string | null;
   fields: (value: string, onChange: (username: string) => void, problem: string | null) => ReactNode;
   /** Null once the guest life is made; otherwise what to say by the username. */
-  start: (username: string, filled: boolean) => Promise<string | null>;
+  start: (username: string) => Promise<string | null>;
   started: () => Promise<void>;
   /** After a failed character start: what to say when the guest must be made again by the next Begin, or null. */
   lost: (error: unknown) => string | null;
@@ -170,8 +170,6 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
   // Offline the door is the first screen, so it carries the start screen's hook (text:hook-not-explanation).
   const [offline] = useState(() => authorityMode().authority === "local");
   useScreenCount(doorScreen(draft.stage));
-  // The username as typed on Where you live; null while the name fills it in.
-  const [typedUsername, setTypedUsername] = useState<string | null>(null);
   const [usernameSaid, setUsernameSaid] = useState<string | null>(null);
 
   // Kept as it changes, outside the state's updater, so the step is on the device even when the door closes at once.
@@ -181,7 +179,9 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
     setDraft(next);
   };
   const problem = nameProblem(draft.name);
-  const username = typedUsername ?? guest?.fill(draft.name.trim()) ?? "";
+  // account:username-typed-and-checked: the username as the player types it on Where you live, empty until they do and never filled from
+  // the name; kept with the run, so the age screen asked again or a reload gives it back as typed.
+  const username = draft.username ?? "";
   // Every way on checks the name first: a name that fails sends the run back to it, saying why.
   const go = (stage: DoorStage): void => {
     setTried(true);
@@ -258,7 +258,7 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
     if (typed !== null) return;
     setPressed(true);
     // account:guest-and-secured-states: the guest life first; the character is the account's one (account:one-character-per-account).
-    void guest.start(username, typedUsername === null).then((said) => {
+    void guest.start(username).then((said) => {
       setUsernameSaid(said);
       if (said === null) start();
       else setPressed(false);
@@ -289,7 +289,7 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
             {guest.fields(
               username,
               (next) => {
-                setTypedUsername(next);
+                change({ username: next });
                 setUsernameSaid(null);
               },
               usernameSaid,

@@ -198,6 +198,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.name.reserved": "That name is kept for the game's own people. Pick another.",
   "ui.account.name.blocked": "That name is not allowed. Pick another.",
   "ui.account.name.taken": "Someone has that name. Pick another.",
+  "ui.account.name.available": "That name is free.",
   "ui.account.name.wait": "You changed it not long ago. You can change it again from {date}.",
   "ui.account.name.current": "@{name}",
   "ui.account.name.change": "Change it",

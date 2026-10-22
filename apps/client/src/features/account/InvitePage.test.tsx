@@ -55,6 +55,7 @@ function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => unde
   const ok = () => Promise.resolve({ ok: true } as const);
   return {
     declared,
+    usernameFree: () => Promise.resolve(null),
     startGuest: () => {
       afterSignIn();
       return ok();
