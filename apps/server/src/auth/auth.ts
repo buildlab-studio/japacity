@@ -66,6 +66,12 @@ export interface AuthKeys {
 /** account:guest-and-secured-states: the longest a browser keeps a cookie. */
 const SESSION_DAYS = 400;
 
+/**
+ * account:only-needed-data-kept: a sign-in method's row keeps none of Google's tokens, on its first sign-in or any later one.
+ * Nothing in the game calls Google on the player's behalf, and an id token can carry the person's name and photo.
+ */
+const NO_TOKENS = { idToken: null, accessToken: null, refreshToken: null, accessTokenExpiresAt: null, refreshTokenExpiresAt: null };
+
 /** account:session-is-secure-cookie: the session cookie's attributes, whatever the library's defaults become. */
 const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
@@ -139,6 +145,10 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       google: {
         clientId: keys.google.clientId,
         clientSecret: keys.google.clientSecret,
+        // account:only-needed-data-kept: Google is asked for the id and the email alone, never a scope granted to the game before.
+        disableDefaultScope: true,
+        scope: ["openid", "email"],
+        includeGrantedScopes: false,
         // account:only-needed-data-kept: no name and no photo are kept.
         mapProfileToUser: () => ({ name: "", image: "" }),
       },
@@ -167,8 +177,10 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
         create: {
           before: async (account, endpoint) => {
             await admitMethod(deps, endpoint, linking, account);
+            return { data: { ...account, ...NO_TOKENS } };
           },
         },
+        update: { before: (account) => Promise.resolve({ data: { ...account, ...NO_TOKENS } }) },
       },
       session: {
         create: {

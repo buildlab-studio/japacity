@@ -7,7 +7,7 @@ import { setSwitch } from "../switches/switches";
 import { makeAuth, relyingPartyOf } from "./auth";
 import { EMAIL_DAY_WINDOW_MS, EMAIL_LIMIT_WINDOW_MS, pruneLimitRows } from "./hooks";
 import { memoryAuthAdapter } from "./memory";
-import { GOOGLE_PROFILE, SITE, harness, makeJar, stubGoogle } from "./auth.testing";
+import { GOOGLE_PROFILE, GOOGLE_TOKENS, SITE, harness, makeJar, stubGoogle, withGoogle } from "./auth.testing";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -424,5 +424,49 @@ describe("the library routes the game never calls", () => {
     expect(h.tables.user.map((row) => row["id"])).toEqual([account]);
     expect((await h.call("/api/account", { method: "DELETE", jar, json: {} })).status).toBe(200);
     expect(h.tables.user).toEqual([]);
+  });
+});
+
+describe("what Google leaves behind", () => {
+  const TOKENS = ["idToken", "accessToken", "refreshToken"] as const;
+
+  function tokensOf(h: ReturnType<typeof harness>, account: string): Record<string, unknown>[] {
+    return h.tables.account.filter((row) => row["userId"] === account).map((row) => Object.fromEntries(TOKENS.map((name) => [name, row[name] ?? null])));
+  }
+
+  test("[account:only-needed-data-kept] given Google's sign-in, when it is started, then Google is asked only for the id and the email, with no scope granted before", async () => {
+    const h = harness();
+    const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar: makeJar(), json: { provider: "google", callbackURL: "/" } });
+    const url = new URL(String((await json(start))["url"]));
+    expect(url.searchParams.get("scope")?.split(" ").sort()).toEqual(["email", "openid"]);
+    expect(url.searchParams.get("include_granted_scopes")).toBeNull();
+  });
+
+  test("[account:only-needed-data-kept] given a guest, when Google secures it with an id token, an access token and a refresh token, and later signs in again from another browser, then the account row keeps none of the three", async () => {
+    const h = harness();
+    const { jar, account } = await h.guest();
+    const identity = { sub: "google-subject-1", email: "ada@example.com" };
+    await withGoogle(h, jar, identity, { answer: GOOGLE_TOKENS });
+    expect(tokensOf(h, account)).toEqual([{ idToken: null, accessToken: null, refreshToken: null }]);
+    const later = makeJar();
+    await withGoogle(h, later, identity, { answer: { claims: GOOGLE_PROFILE.claims, tokens: { access_token: "google-access-token-2", refresh_token: "google-refresh-token-2" } } });
+    expect((await h.call("/api/account", { jar: later })).status).toBe(200);
+    expect(tokensOf(h, account)).toEqual([{ idToken: null, accessToken: null, refreshToken: null }]);
+  });
+
+  test("[account:only-needed-data-kept] given an account secured by Google, when the routes that hand back or refresh Google's tokens are called, then each answers 404", async () => {
+    const h = harness();
+    const { jar } = await h.guest();
+    await withGoogle(h, jar, { sub: "google-subject-1", email: "ada@example.com" });
+    const account = h.tables.account[0]?.["id"];
+    const statuses: number[] = [];
+    for (const [method, path, body] of [
+      ["GET", `/account-info?accountId=${String(account)}`, undefined],
+      ["POST", "/get-access-token", { providerId: "google", accountId: account }],
+      ["POST", "/refresh-token", { providerId: "google", accountId: account }],
+    ] as const) {
+      statuses.push((await h.call(`/api/auth${path}`, { method, jar, ...(body === undefined ? {} : { json: body }) })).status);
+    }
+    expect(statuses).toEqual([404, 404, 404]);
   });
 });
