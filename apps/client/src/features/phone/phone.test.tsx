@@ -15,7 +15,7 @@ import { inMonths, nameOf, say } from "../../shared/words/text";
 import { resetLines, tell } from "../../shared/world/Lines";
 import { TOLD_LANE } from "./Phone";
 import { handBrief } from "../../shared/world/briefHanded";
-import { GRAPHICS_KEY, SEEN_KEY } from "../../shared/kept/storage";
+import { GRAPHICS_KEY, SEEN_KEY } from "../../shared/storage/storage";
 import { sent } from "./phone.testing";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);

@@ -6,7 +6,7 @@ import { content } from "@japacity/content";
 import type { Effect } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { ARCHETYPES, answersInOrder, presetAnswer } from "../../../shared/frontdoor/archetypes";
+import { ARCHETYPES, answersInOrder, presetAnswer } from "../../../shared/front-door/archetypes";
 import { newGame, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";

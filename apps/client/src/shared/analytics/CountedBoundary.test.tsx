@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ModerationProvider } from "../moderation/ModerationProvider";
 import { words } from "../moderation/moderation.words";
-import { STAMP_META } from "../stamp/stamp";
+import { STAMP_META } from "../build-stamp/stamp";
 import { fakeModeration } from "../testing/moderation";
 import { say } from "../words/text";
 import { CountedBoundary, nameOf } from "./CountedBoundary";

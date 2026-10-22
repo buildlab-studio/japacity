@@ -18,8 +18,8 @@ import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
 import { Calendar, calendarOpening, choresWords, passWords } from "./Calendar";
 import { turnWords } from "./turn.words";
-import { carriedPlan } from "../../shared/sim/carried";
-import { MONTH_KEY } from "../../shared/kept/storage";
+import { carriedPlan } from "../../shared/view/carried";
+import { MONTH_KEY } from "../../shared/storage/storage";
 
 const LEARN = "activity.learn-tech" as Id<"activity">;
 // Decision 0012 (activity:acts-may-repeat-in-month): the coding course and the portfolio answer at once and repeat, so they are never

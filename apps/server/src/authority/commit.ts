@@ -6,7 +6,7 @@ import { time } from "@japacity/sim";
 
 import { noteDiverged } from "../ops/alarm";
 import { markAfterCommit } from "../ops/money";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { rewardInviters } from "../pair/rewards";
 import { noteFills } from "../notify/fill";
 import { noteFigures } from "../boards/figures";

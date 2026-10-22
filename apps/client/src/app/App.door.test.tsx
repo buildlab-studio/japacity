@@ -11,7 +11,7 @@ import { AccountGate } from "../features/account/AccountGate";
 import { answerAge } from "../features/account/age.testing";
 import { usernameFrom, withDigits } from "../features/account/GuestStart";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "../features/account/Turnstile";
-import { ScenarioView } from "../features/scenario/ScenarioView";
+import { FrontDoor } from "../features/front-door/FrontDoor";
 import type { AccountApi, GuestAnswer } from "../shared/net/auth";
 import { reportedError } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
@@ -90,7 +90,7 @@ function online(account: AccountApi, turnstile: { load: LoadTurnstile } = fakeTu
   store.getState().leave(null);
   render(
     <GameProvider store={store}>
-      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} door={(guest) => <ScenarioView guest={guest} />} {...(botWaitMs === undefined ? {} : { botWaitMs })} />
+      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} door={(guest) => <FrontDoor guest={guest} />} {...(botWaitMs === undefined ? {} : { botWaitMs })} />
     </GameProvider>,
   );
   return { store, lives };

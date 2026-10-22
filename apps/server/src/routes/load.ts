@@ -14,7 +14,7 @@ import { apply, load } from "../authority/load";
 import { transact } from "../authority/transaction";
 import { earnTurns } from "../clock/turns";
 import { tickAt, turnClock } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { storedWorlds, tickRow } from "../world/ticks";
 
 /** load:correctness-checked-after-run, load:run-summary-recorded: what the stores accepted since the Worker started. Bytes are JSON characters. */

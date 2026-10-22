@@ -5,7 +5,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { answersInOrder, archetypeOf, presetAnswer } from "../frontdoor/archetypes";
+import { answersInOrder, archetypeOf, presetAnswer } from "../front-door/archetypes";
 import { newGame } from "../testing/fixtures";
 import { needsWords, requirementSentence } from "./requirement";
 

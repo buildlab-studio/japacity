@@ -9,7 +9,7 @@ import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
 
 import { RATE_LIMIT_MODEL, sha256Hex } from "../auth/hooks";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 
 const SECURE = "Secure this life with Google or an email code";

@@ -5,11 +5,11 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { keepPerson, readPerson } from "../frontdoor/person";
+import { keepPerson, readPerson } from "../front-door/person";
 import { createGameStore } from "../../authority/store";
-import { gateLook } from "../frontdoor/Gate";
-import { lookOf } from "../frontdoor/looks";
-import { PERSON_KEY } from "../kept/storage";
+import { gateLook } from "../front-door/Gate";
+import { lookOf } from "../front-door/looks";
+import { PERSON_KEY } from "../storage/storage";
 import { DataPage } from "./DataPage";
 import { pageOf } from "./PageSheet";
 import { PHOTO_BOX, PHOTO_MIN_PX, photoHeight, photoWidth, sharpEnough } from "./photo.size";

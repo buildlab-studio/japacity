@@ -6,7 +6,7 @@ import type { FlatSave, SavedCommand, State } from "@japacity/sim";
 import { hashState, newState, step, standInWorlds } from "@japacity/sim";
 import type { LogRow, SnapshotRow } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 type MemoryDeps = Pick<ServerDeps, "config" | "contents" | "stores">;
 

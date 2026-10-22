@@ -5,8 +5,8 @@ import { connectPglite } from "@japacity/db/pglite";
 import type { PgliteConnection } from "@japacity/db/pglite";
 import { afterEach } from "vitest";
 
-import { memoryStores } from "./deps";
-import type { Stores } from "./deps";
+import { memoryStores } from "./dependencies";
+import type { Stores } from "./dependencies";
 
 /** The production wiring on `connection`: every store the database holds, presence and nudges in memory as the place objects stand in for them. */
 export function postgresStores(connection: PgliteConnection): Stores {

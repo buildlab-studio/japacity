@@ -12,7 +12,7 @@ import { moderationApi } from "../shared/moderation/api";
 import { reasonWords, words } from "../shared/moderation/moderation.words";
 import { ModerationProvider } from "../shared/moderation/ModerationProvider";
 import { api } from "../shared/net/http";
-import { bondName, momentWords, phraseWords } from "../shared/sim/person";
+import { bondName, momentWords, phraseWords } from "../shared/view/person";
 import { courted, linkedFriend, PAIR, peopleGame, renderWithGame, TOBI } from "../shared/testing/person";
 import { BASE, fakeServer, type FakeServer } from "../shared/testing/server";
 import { nameOf, say, sayCount } from "../shared/words/text";

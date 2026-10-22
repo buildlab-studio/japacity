@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { nextGameMorning } from "@japacity/sim";
 
 import { localAuthority } from "./local";
-import { MORNING_KEY, SAVE_KEY } from "../shared/kept/storage";
+import { MORNING_KEY, SAVE_KEY } from "../shared/storage/storage";
 import { removableStorage } from "../shared/testing/storage";
 
 const ENGLISH: Id<"document"> = "document.english-test";

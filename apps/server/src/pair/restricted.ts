@@ -3,7 +3,7 @@
 // player's standing reads them, an overturned appeal undoing the action.
 import { time } from "@japacity/sim";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { PairRejection } from "./codes";
 
 export type Restriction = "mute" | "suspend";

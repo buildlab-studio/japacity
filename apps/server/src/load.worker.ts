@@ -8,8 +8,8 @@ import { content } from "@japacity/content";
 import { makeApp } from "./app";
 import { contentsFor, withContentBefore } from "./authority/overlay";
 import { testConfig } from "./config";
-import { memoryStores, testSession, webRandomBytes } from "./deps";
-import type { ServerDeps } from "./deps";
+import { memoryStores, testSession, webRandomBytes } from "./dependencies";
+import type { ServerDeps } from "./dependencies";
 import { countingPlayerStore, emptyCounts, loadRoutes } from "./routes/load";
 
 export interface LoadEnv {

@@ -2,7 +2,7 @@
 // is pressed, the brief is carried, and the phone's Japa app takes a dot until it is next opened (the app's seen mark,
 // features/phone/seen.ts). Kept on the device with the life's scenario, so another life's brief is never read as this one's.
 import { useSyncExternalStore } from "react";
-import { BRIEF_KEY, browserStorage } from "../kept/storage";
+import { BRIEF_KEY, browserStorage } from "../storage/storage";
 import { listeners } from "../listeners/listeners";
 
 interface Kept {

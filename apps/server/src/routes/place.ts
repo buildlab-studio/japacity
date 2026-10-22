@@ -7,7 +7,7 @@ import { PRIVATE_PLACES } from "@japacity/content";
 import { toHex } from "@japacity/sim";
 import { Hono } from "hono";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import type { PlaceOf } from "../place/place.nudge";

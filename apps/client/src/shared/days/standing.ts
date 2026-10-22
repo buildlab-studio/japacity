@@ -3,7 +3,7 @@
 // player stopped on the device (features/city/City.tsx, CITY_LAST_KEY; world:opens-where-last-stopped):
 // the place's id, with "inside" when in its room. The simulation keeps no place of the city.
 import type { PlayerView } from "@japacity/sim";
-import { CITY_LAST_KEY } from "../kept/storage";
+import { CITY_LAST_KEY } from "../storage/storage";
 
 /** The home at home (where the character lives, home:home-is-the-home-point) and the room abroad. */
 export function homeOf(view: Pick<PlayerView, "place" | "home">): string {

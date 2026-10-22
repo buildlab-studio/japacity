@@ -9,7 +9,7 @@ import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, RouteGateView, RouteView } from "@japacity/sim";
 import { Check, Circle } from "lucide-react";
 
-import { bondName } from "../../../shared/sim/person";
+import { bondName } from "../../../shared/view/person";
 import { atBankRate, shortfall } from "../../../shared/words/cost";
 import { formatBand, formatMoney, formatNumber } from "../../../shared/words/format";
 import { anyOptions, requirementSentence } from "../../../shared/words/requirement";

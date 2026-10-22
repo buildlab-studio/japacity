@@ -2,7 +2,7 @@
 // the gallery's own storage so the data page, which is shared code, needs nothing from the card feature. The
 // gallery writes the entries; this reads only the one field the page shows, and never trusts the shape.
 import { type JapaType, japaTypes } from "@japacity/content";
-import { browserStorage, CARDS_KEY } from "../kept/storage";
+import { browserStorage, CARDS_KEY } from "../storage/storage";
 
 interface Read {
   getItem: (key: string) => string | null;

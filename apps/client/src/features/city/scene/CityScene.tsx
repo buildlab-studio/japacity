@@ -12,8 +12,8 @@ import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useS
 import type { WorldClock } from "@japacity/sim";
 import { Box3, type Camera, Color, type DirectionalLight, Fog, type HemisphereLight, type Mesh, type Object3D, PerspectiveCamera, PointLight, Vector3 } from "three";
 
-import { keptStyleOf } from "../../../shared/frontdoor/person";
-import { wear } from "../../../shared/frontdoor/colours";
+import { keptStyleOf } from "../../../shared/front-door/person";
+import { wear } from "../../../shared/front-door/colours";
 import type { Act, Shot, Thing } from "../../../shared/world/contract";
 import { useMotionReduced } from "../../../shared/ui/motion";
 import { type BubbleSpot, bubbleSpot, drawTail, NEAR_SPEAKER, type Rect } from "../../../shared/world/Lines";

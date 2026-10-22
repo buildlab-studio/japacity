@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { playedWords, standingWords } from "../../shared/share/face";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import { abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say, words } from "../../shared/words/text";

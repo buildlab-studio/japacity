@@ -6,7 +6,7 @@ import type { ServerCode } from "@japacity/api";
 import type { MiddlewareHandler } from "hono";
 
 import { countRejection } from "../ops/rejections";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { countRejected } from "./rejected";
 import { counterDef, keyAllowed } from "./list";
 

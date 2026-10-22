@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 
 import { recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
-import { bandMoney } from "../../../shared/world/Band";
+import { bandMoney } from "../../../shared/world/TopBand";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";

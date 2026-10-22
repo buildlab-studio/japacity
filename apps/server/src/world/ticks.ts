@@ -7,7 +7,7 @@ import { hashState, stepWorld, time } from "@japacity/sim";
 import type { WorldStore, WorldTickRow } from "@japacity/store";
 
 import { tickStartsAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { placeNamesAt } from "../advert/names";
 import { lotteryFor } from "./lottery.world";
 

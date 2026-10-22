@@ -9,7 +9,7 @@ import { arrangedIn, forgetArranged, keepArranged, keepTurn, turnIn } from "../.
 import { boxesOverlap, misfit, QUARTER, turned } from "./arrange";
 import { buyModeAt, liftable, ownedThingId, showOwned } from "./owned";
 import type { PlaceFile, Stage } from "../../../shared/scene/placeFile";
-import { ARRANGED_KEY } from "../../../shared/kept/storage";
+import { ARRANGED_KEY } from "../../../shared/storage/storage";
 
 const SHELL = "places/x/building_x.glb";
 const BED = "shared/prop/prop_bed.glb";

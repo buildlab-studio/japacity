@@ -6,8 +6,8 @@ import { fireEvent, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { useView } from "../../authority/GameProvider";
-import { lookForName } from "../../shared/frontdoor/looks";
-import { bondName } from "../../shared/sim/person";
+import { lookForName } from "../../shared/front-door/looks";
+import { bondName } from "../../shared/view/person";
 import { courted, eagerContent, linkedFriend, partnered, peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
 import { say } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";

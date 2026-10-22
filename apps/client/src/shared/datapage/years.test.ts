@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { ARCHETYPES } from "../frontdoor/archetypes";
+import { ARCHETYPES } from "../front-door/archetypes";
 import { say } from "../words/text";
 import { startYearFor } from "./age";
 import { readyMonths, yearsOf } from "./years";

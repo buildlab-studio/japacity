@@ -11,7 +11,7 @@ import type { Context } from "hono";
 import { BOARD_SWITCH, boardNamed, readBoard } from "../boards/board";
 import type { BoardPorts } from "../boards/ports";
 import { accountPorts } from "../boards/ports";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { BOARDS_DETAIL, guestOnly } from "../account/guest";

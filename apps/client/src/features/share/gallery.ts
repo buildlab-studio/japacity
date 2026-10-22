@@ -9,7 +9,7 @@ import { createStore } from "zustand/vanilla";
 import type { ShareCard } from "../../shared/share/face";
 import { cardKey } from "../../shared/ui/stage";
 import type { Seat } from "../../shared/world/sendOff";
-import { CARDS_KEY } from "../../shared/kept/storage";
+import { CARDS_KEY } from "../../shared/storage/storage";
 
 export interface Kept {
   key: string;

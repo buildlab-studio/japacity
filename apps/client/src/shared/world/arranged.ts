@@ -4,7 +4,7 @@
 // one key of its own that goes when the life ends, with the life's scenario so another life's arrangement is never read.
 // The way a wide home's view is turned is kept under the same key, by home, as a quarter from 0 to
 // 3, so a reload opens the house as it was left.
-import { ARRANGED_KEY, browserStorage } from "../kept/storage";
+import { ARRANGED_KEY, browserStorage } from "../storage/storage";
 
 export type Arranged = Record<string, [number, number, number]>;
 

@@ -17,7 +17,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 import { useGame } from "../../authority/GameProvider";
 import { counting } from "../../shared/analytics/start";
-import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
+import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { AccountApi, AgeStanding, Full as FullStanding } from "../../shared/net/auth";
 import { say } from "../../shared/words/text";
 import { AgeScreen } from "./AgeScreen";

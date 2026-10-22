@@ -8,8 +8,8 @@ import { connect, pgStores } from "@japacity/db";
 
 import { productionConfig } from "../config";
 import { contentsFor, withContentBefore } from "../authority/overlay";
-import type { Contents, ServerDeps, Stores } from "../deps";
-import { memoryStores } from "../deps";
+import type { Contents, ServerDeps, Stores } from "../dependencies";
+import { memoryStores } from "../dependencies";
 
 /** The variable both tools read, the one the migration step is given. */
 export const DATABASE_ENV = "DATABASE_URL_UNPOOLED";

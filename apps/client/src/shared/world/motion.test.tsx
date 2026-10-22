@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { COUNT_MS, Counter } from "./Band";
+import { COUNT_MS, Counter } from "./TopBand";
 import { CUT_MS } from "./Cut";
 
 afterEach(() => {

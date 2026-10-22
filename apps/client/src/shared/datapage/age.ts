@@ -5,7 +5,7 @@
 import { content, PRESET_STEPS_OLDER, presetAges } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 
-import { AGE_CARDS, type Archetype, lowestYear, startYearOf } from "../frontdoor/archetypes";
+import { AGE_CARDS, type Archetype, lowestYear, startYearOf } from "../front-door/archetypes";
 import { formatMoney } from "../words/format";
 import { say, sayCount } from "../words/text";
 

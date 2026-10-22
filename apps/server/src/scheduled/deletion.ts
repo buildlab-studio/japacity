@@ -2,7 +2,7 @@
 // names, then keeps only the hash and the dates. Runs from the daily cron.
 import type { Auth } from "../auth/auth";
 import { pruneLimitRows } from "../auth/hooks";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { forgetPairs } from "../pair/leave";
 
 const PASSKEY_MODEL = "passkey";

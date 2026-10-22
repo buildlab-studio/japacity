@@ -7,19 +7,19 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { keepPerson } from "../frontdoor/person";
+import { keepPerson } from "../front-door/person";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { lookOf } from "../frontdoor/looks";
+import { lookOf } from "../front-door/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";
 import { readyWords } from "../words/ready";
 import { say } from "../words/text";
-import { Band } from "../world/Band";
+import { TopBand } from "../world/TopBand";
 import { stripLines } from "./DataPage";
 import { familyCard } from "./family";
 import { stampsOf } from "./stamps";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
-import { TRAIL_KEY } from "../kept/storage";
+import { TRAIL_KEY } from "../storage/storage";
 
 /** The age in months the view holds. */
 function ageOf(view: Pick<PlayerView, "qualities">): number {
@@ -41,7 +41,7 @@ async function life(scenario: "scenario.graduate" | "scenario.prologue", person:
 function band(store: GameStore, when = "23 yrs 4 mo") {
   render(
     <GameProvider store={store}>
-      <Band when={when} name="The family house" money={0} formatMoney={String} />
+      <TopBand when={when} name="The family house" money={0} formatMoney={String} />
     </GameProvider>,
   );
 }
@@ -168,7 +168,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given no game around the band, then it shows the age alone, with nothing to open", () => {
-    render(<Band when="Month 6" name="Home" money={0} formatMoney={String} />);
+    render(<TopBand when="Month 6" name="Home" money={0} formatMoney={String} />);
     expect(screen.getByText("Month 6")).toBeDefined();
     expect(screen.queryByRole("button", { name: say("prologue.page.open") })).toBeNull();
   });

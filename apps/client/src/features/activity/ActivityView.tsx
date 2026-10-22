@@ -9,7 +9,7 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
-import { bondName, timeWith } from "../../shared/sim/person";
+import { bondName, timeWith } from "../../shared/view/person";
 import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf, freeShown } from "../../shared/words/chips";
 import { Balance, pricedLabel } from "../../shared/world/Balance";

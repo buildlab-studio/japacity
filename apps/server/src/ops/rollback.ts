@@ -5,7 +5,7 @@ import type { LoadFailure, RollbackCheck, RollbackReport } from "@japacity/api";
 import type { State } from "@japacity/sim";
 import type { Held, LogRow, Writes } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { Loaded } from "./replay";
 import { replaySegments, worldsFor } from "./replay";
 

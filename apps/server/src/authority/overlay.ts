@@ -6,7 +6,7 @@ import { olderContents } from "@japacity/content";
 import type { Content, Overlay } from "@japacity/sim";
 import { applyOverlay, checkOverlay } from "@japacity/sim";
 
-import type { Contents } from "../deps";
+import type { Contents } from "../dependencies";
 
 /**
  * server:hidden-values-made-once, server:public-defaults-run-the-game: the contents for an overlay given as JSON, or

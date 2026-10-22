@@ -9,7 +9,7 @@ import { Component, useState, type ErrorInfo, type ReactNode } from "react";
 import { FeedbackForm } from "../moderation/Feedback";
 import { useModeration } from "../moderation/ModerationProvider";
 import { words } from "../moderation/moderation.words";
-import { buildOf } from "../stamp/stamp";
+import { buildOf } from "../build-stamp/stamp";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
 import { say } from "../words/text";

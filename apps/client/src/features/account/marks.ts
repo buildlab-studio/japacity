@@ -3,7 +3,7 @@
 // puts the passkey first on the ways back in (account:passkey-in-email-autofill). The game never clears either: a
 // signed-out player is the one most likely to come back. And the hand-over from a guest life to the ways back in, when
 // the guest chose to open the life it kept before (account:guest-secures-the-life).
-import { browserStorage, KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/kept/storage";
+import { browserStorage, KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
 
 function marked(key: string): boolean {
   try {

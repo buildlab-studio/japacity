@@ -11,7 +11,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { japaTypeOf, typeWords } from "../../shared/words/japaType";
 import { say } from "../../shared/words/text";
 import { keptTypeOf } from "../../shared/share/kept";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import { graduateSendOff } from "../../shared/share/share.testing";
 import { gallery } from "./gallery";
 import { CardView } from "./ShareCard";

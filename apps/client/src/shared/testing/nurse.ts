@@ -6,7 +6,7 @@ import type { Id, PlayerView, SlotPick, World } from "@japacity/sim";
 import { standInWorlds } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
-import { answersInOrder, archetypeOf, presetAnswer } from "../frontdoor/archetypes";
+import { answersInOrder, archetypeOf, presetAnswer } from "../front-door/archetypes";
 
 export const CARE: Id<"route"> = "route.uk-care";
 const NURSE_JOB = "activity.job-nurse";

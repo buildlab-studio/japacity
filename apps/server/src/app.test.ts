@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { currentTick, makeApp } from "./app";
 import { testDeps } from "./app.testing";
 import { productionConfig, testConfig } from "./config";
-import { TEST_SIGNED_IN_WITH, testSession } from "./deps";
+import { TEST_SIGNED_IN_WITH, testSession } from "./dependencies";
 
 describe("the server shell", () => {
   test("[clock:server-owns-the-clock] given the server's clock, when the tick is read, then it is the floor of the time since the epoch over a tick", () => {

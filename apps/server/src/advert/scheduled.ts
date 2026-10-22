@@ -2,7 +2,7 @@
 // starts before the next run has its links rechecked; one that fails is pulled.
 import { int } from "@japacity/sim";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { TICKS_CRON } from "../scheduled/ticks";
 import type { Fetcher } from "./links";
 import { failingLinks } from "./links";

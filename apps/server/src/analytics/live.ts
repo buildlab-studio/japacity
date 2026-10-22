@@ -4,7 +4,7 @@
 // its region and its sign-up day and goes no further (analytics:store-holds-nothing-personal). A
 // counter that fails to write is never something the player sees.
 import { time } from "@japacity/sim";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { regionOf, requestRegion } from "./list";
 
 type Deps = Pick<ServerDeps, "stores" | "now">;

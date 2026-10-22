@@ -12,7 +12,7 @@ import type { DialChange, SwitchName } from "@japacity/store";
 import { isDialValue } from "@japacity/store";
 import { Hono } from "hono";
 
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 import { placeTargetFits } from "../../switches/dials";

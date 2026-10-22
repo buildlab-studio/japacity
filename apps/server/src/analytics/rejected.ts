@@ -5,7 +5,7 @@
 import type { ServerCode } from "@japacity/api";
 import { time } from "@japacity/sim";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { regionOf } from "./list";
 
 export async function countRejected(deps: Pick<ServerDeps, "stores" | "now">, account: string | null, code: ServerCode): Promise<void> {

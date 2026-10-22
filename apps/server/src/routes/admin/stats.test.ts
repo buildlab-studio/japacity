@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { testConfig } from "../../config";
-import { testSession } from "../../deps";
+import { testSession } from "../../dependencies";
 import { STATS_KEYS } from "../../analytics/stats";
 import { adminStatsRoutes } from "./stats";
 

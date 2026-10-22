@@ -3,7 +3,7 @@
 import { describe, expect, test } from "vitest";
 
 import { startYearFor } from "../../shared/datapage/age";
-import { archetypeOf, doorAnswer, withAge } from "../../shared/frontdoor/archetypes";
+import { archetypeOf, doorAnswer, withAge } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { say } from "../../shared/words/text";
 import { type TrailStep, yearChips } from "./years";

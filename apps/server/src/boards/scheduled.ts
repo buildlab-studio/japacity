@@ -1,7 +1,7 @@
 // The week's turn (city:boards-switch-when-and-who): on the five-minute cron, every row
 // whose week is behind the Lagos week saves its figure as the week's start.
 // Idempotent: a second run in the same week moves nothing.
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { TICKS_CRON } from "../scheduled/ticks";
 import { lagosWeek } from "./week";
 

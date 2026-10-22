@@ -4,13 +4,13 @@ import { act } from "@testing-library/react";
 import { content } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson } from "../../shared/frontdoor/person";
-import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
+import { keepPerson } from "../../shared/front-door/person";
+import { archetypeOf, doorAnswer } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { hometownWords, say } from "../../shared/words/text";
 import { PageHandover, TURN_MS } from "./PrologueView";
-import { TRAIL_KEY } from "../../shared/kept/storage";
+import { TRAIL_KEY } from "../../shared/storage/storage";
 
 const PROLOGUE = "scenario.prologue";
 

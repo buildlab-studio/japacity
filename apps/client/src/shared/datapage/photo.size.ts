@@ -12,7 +12,7 @@ const RATIO_MAX = 3;
 export const PHOTO_MIN_PX = PHOTO_BOX.width * RATIO_MIN;
 /**
  * The most a photo's data address may hold, in characters (about 190 KB). The person is kept in the device's storage
- * beside the save (shared/frontdoor/person.ts), which holds a few megabytes for the whole site; a photo stays a small share of it.
+ * beside the save (shared/front-door/person.ts), which holds a few megabytes for the whole site; a photo stays a small share of it.
  */
 export const PHOTO_MAX_CHARS = 256_000;
 

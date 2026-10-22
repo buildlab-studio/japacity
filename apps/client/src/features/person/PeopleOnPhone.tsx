@@ -10,7 +10,7 @@ import { useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { BlockReport } from "../../shared/moderation/BlockReport";
-import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/sim/person";
+import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/view/person";
 import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { AfterEarlyWin } from "../../shared/ui/stage";

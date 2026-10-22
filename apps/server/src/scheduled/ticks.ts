@@ -3,7 +3,7 @@
 import { time } from "@japacity/sim";
 
 import { tickAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { catchUp } from "../world/ticks";
 
 /** The cron of the world's ticks in `wrangler.jsonc`. */

@@ -1,4 +1,4 @@
-import { sameDraw } from "../draw";
+import { sameDraw } from "../lottery";
 import type { DrawRow, TicketRow, WorldStore, WorldTickRow } from "../types";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";

@@ -3,7 +3,7 @@
 // Each falls back to the content's number, overlay applied, when the dial is unset.
 import type { Content, LotteryOdds } from "@japacity/sim";
 
-import type { Contents, ServerDeps } from "../deps";
+import type { Contents, ServerDeps } from "../dependencies";
 import { readSwitches } from "./switches";
 
 type Reads = Pick<ServerDeps, "config" | "stores" | "now" | "contents">;

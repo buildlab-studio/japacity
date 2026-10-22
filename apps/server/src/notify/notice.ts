@@ -1,7 +1,7 @@
 // clock:full-bank-push-notification: the bank-full notices. Every fill whose time has come is
 // claimed once, and only then sent, to every device of an account whose
 // setting is on: a second run, or two at once, never sends a fill twice.
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { NOTICE_TITLE, notifyText } from "./notify.text";
 import type { PushKeys } from "./webpush";
 import { sendPush } from "./webpush";

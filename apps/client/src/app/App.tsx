@@ -15,12 +15,12 @@ import { Splash } from "../shared/ui/Splash";
 import { Waiting } from "../shared/ui/Loader";
 import { GameProvider, useGame, useView } from "../authority/GameProvider";
 import type { GameStore } from "../authority/store";
-import { readPerson } from "../shared/frontdoor/person";
+import { readPerson } from "../shared/front-door/person";
 import { AccountGate } from "../features/account/AccountGate";
 import { DedicationLater } from "../features/account/DedicationLater";
 import { glowFill } from "../features/account/TwoLights";
 import { StartTrouble } from "../features/account/StartTrouble";
-import { canDraw } from "../shared/frontdoor/Gate";
+import { canDraw } from "../shared/front-door/Gate";
 import { AgentSheets } from "../features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "../features/account/InvitePage";
 import { GuestReminder, SecureAsk } from "../features/account/Secure";
@@ -55,8 +55,8 @@ import { RunDownBanner } from "../features/health/RunDownBanner";
 import { ClockBanner } from "../features/status/ClockBanner";
 import { PageHandover, prologueJustClosed, PrologueView } from "../features/prologue/PrologueView";
 import { RoadView } from "../features/road/RoadView";
-import { ScenarioView } from "../features/scenario/ScenarioView";
-import { ReadyEntry } from "../shared/frontdoor/ReadyEntry";
+import { FrontDoor } from "../features/front-door/FrontDoor";
+import { ReadyEntry } from "../shared/front-door/ReadyEntry";
 import { SetpieceView, useClosingOpen } from "../features/setpiece/SetpieceView";
 import { Calendar, calendarOpening } from "../features/turn/Calendar";
 import { BriefLog } from "../features/city/brief/BriefLog";
@@ -296,8 +296,8 @@ function Screen() {
     );
   // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (account:start-screen-over-live-city).
   // The live city stands behind it where WebGL draws; the compound comes back at the door.
-  if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
-  if (choosingLife) return <ScenarioView />;
+  if (signedOut) return <AccountGate door={(guest) => <FrontDoor guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
+  if (choosingLife) return <FrontDoor />;
   if (view === null) return <Opening />;
   if (view.prologue !== null) return <PrologueView />;
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PageHandover onDone={() => setHandedOver(view.v)} />;

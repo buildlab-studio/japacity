@@ -6,7 +6,7 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
 import type { NotifyKeyReply, NotifyReply, NotifySettingRequest, PushSubscriptionJson, SubscribeRequest } from "@japacity/api";
 
-import { browserStorage, NOTIFY_DISMISSED_KEY } from "../../shared/kept/storage";
+import { browserStorage, NOTIFY_DISMISSED_KEY } from "../../shared/storage/storage";
 import { authorityMode } from "../../shared/net/authorityMode";
 import { api, pageFetch, type Fetch } from "../../shared/net/http";
 import { pageWall, type WallGuard } from "../../shared/net/wall";

@@ -6,7 +6,7 @@
 import type { Id } from "@japacity/sim";
 import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
-import { SEAT_KEY } from "../kept/storage";
+import { SEAT_KEY } from "../storage/storage";
 
 /** The six beats, in order (chapter:send-off-scene-in-beats). */
 export const BEATS = ["departures", "counter", "gate", "plane", "landing", "ride"] as const;

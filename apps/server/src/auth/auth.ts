@@ -26,7 +26,7 @@ import type { Linking } from "../account/link";
 import { admitAccount, admitMethod, admitSession } from "../account/signup";
 import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { logFailure } from "../log";
 import { afterAuth, beforeAuth } from "./hooks";
 import { signedInWith } from "./session";

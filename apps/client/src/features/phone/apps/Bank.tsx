@@ -28,7 +28,7 @@ import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/m
 import { hasWords, inMonths, lowerFirst, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { savedFor, savingsOf, savingsRoute } from "../../../shared/words/savings";
 import { localCurrency } from "../../../shared/words/wayHome";
-import { Counter } from "../../../shared/world/Band";
+import { Counter } from "../../../shared/world/TopBand";
 import { Chips, useAsk } from "../act";
 import { changeFirst, currencyList } from "./abroad";
 import { passbookCount, shortNaira } from "./passbook.words";

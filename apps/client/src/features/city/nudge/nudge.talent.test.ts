@@ -7,8 +7,8 @@ import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { applyEffects, readyLife, slot, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { archetypeOf } from "../../../shared/frontdoor/archetypes";
-import { playTile } from "../../../shared/frontdoor/archetypes.testing";
+import { archetypeOf } from "../../../shared/front-door/archetypes";
+import { playTile } from "../../../shared/front-door/archetypes.testing";
 import { shortfall } from "../../../shared/words/cost";
 import { settle } from "../../../shared/testing/nurse";
 import { formatMoney } from "../../../shared/words/format";

@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { testDeps } from "../app.testing";
 import { productionConfig } from "../config";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { createLife, life, playRows, storeWorlds } from "./ops.testing";
 import { rollbackApply, rollbackCheck } from "./rollback";
 

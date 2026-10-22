@@ -22,7 +22,7 @@ import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
 import type { Accounts, Auth } from "../auth/auth";
 import { headersWithoutSession } from "../auth/stale";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { switchedOff } from "../switches/switches";

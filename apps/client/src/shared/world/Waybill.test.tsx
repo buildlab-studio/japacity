@@ -9,7 +9,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
-import { keepPerson } from "../frontdoor/person";
+import { keepPerson } from "../front-door/person";
 import { gameAuthority, newGame, openOffer } from "../testing/fixtures";
 import "../testing/render";
 import { formatMoney } from "../words/format";

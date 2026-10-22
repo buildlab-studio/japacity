@@ -4,7 +4,7 @@
 import { describe, expect, test } from "vitest";
 
 import { ActivityPicker } from "./ActivityView";
-import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { requirementSentence } from "../../shared/words/requirement";

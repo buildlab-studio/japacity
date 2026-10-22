@@ -1,7 +1,7 @@
 import { content, shareChapters, shareKinds, text, type ShareKind } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson } from "../frontdoor/person";
+import { keepPerson } from "../front-door/person";
 import { ART_IDS, artShapes } from "./art";
 import { encodeUnder, QUALITIES, underLimit } from "./encode";
 import { cardFace, cardLink, playedWords, standingWords, type ShareCard } from "./face";

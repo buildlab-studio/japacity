@@ -10,8 +10,8 @@ import { paletteCss } from "@japacity/model-kit";
 import { loadModel } from "../three/load";
 import { loadManifest } from "../three/manifest";
 import { figureOf, poseFigure } from "../three/people";
-import { readLook, wear } from "../frontdoor/colours";
-import type { LookStyle, OwnColours } from "../frontdoor/style";
+import { readLook, wear } from "../front-door/colours";
+import type { LookStyle, OwnColours } from "../front-door/style";
 import { PHOTO_MAX_CHARS, photoHeight } from "./photo.size";
 
 /** How much of the figure the photo holds, from the top of the head down, in metres. */

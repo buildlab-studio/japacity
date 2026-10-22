@@ -5,7 +5,7 @@ import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { harness } from "../auth/auth.testing";
 import { testConfig } from "../config";
-import { testSession } from "../deps";
+import { testSession } from "../dependencies";
 
 describe("counted the moment the server acts", () => {
   test("[analytics:nightly-game-counters] [account:guest-secures-the-life] given a guest made one day and secured the next, when it secures, then it is counted as secured and as the funnel's last step that day, and on its sign-up day for conversion, by region", async () => {

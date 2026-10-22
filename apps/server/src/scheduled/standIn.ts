@@ -9,7 +9,7 @@ import { flip, time } from "@japacity/sim";
 
 import type { Live } from "../authority/load";
 import type { Turn } from "../authority/transaction";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { Book } from "../pair/book";
 import { carry } from "../pair/carry";
 import { openBond, pairStep, sendTo, sideLive } from "../pair/step";

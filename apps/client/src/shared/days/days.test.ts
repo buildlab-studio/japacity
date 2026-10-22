@@ -10,7 +10,7 @@ import { createGameStore, type GameStore } from "../../authority/store";
 import { DAYS_IN_MONTH, dayOfView, dueSignals, isMonthAct, monthActs, signalsOf, waitingSignals } from "./days";
 import { atHome } from "./standing";
 import { currentDays, forgetDays, tellSignals, watchDays } from "./days.store";
-import { CITY_LAST_KEY } from "../kept/storage";
+import { CITY_LAST_KEY } from "../storage/storage";
 
 /** The month-acts of activity:now-acts-and-month-acts beside every job and side job. */
 const MONTH_ACTS_FREE = [

@@ -8,7 +8,7 @@ import { time } from "@japacity/sim";
 import type { AccountRow, DayLog } from "@japacity/store";
 
 import { activeOn } from "../ops/active";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 export function isolateDayLog(deps: Pick<ServerDeps, "stores">): DayLog {
   const activeIn = (start: number, end: number): string[] => {

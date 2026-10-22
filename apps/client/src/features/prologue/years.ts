@@ -13,7 +13,7 @@ import { formatMoney } from "../../shared/words/format";
 import { nextMonthWords } from "../../shared/words/living";
 import { gradeShort, sixteenPath } from "../../shared/words/sixteen";
 import { hasWords, say, sayCount, words } from "../../shared/words/text";
-import { browserStorage, TRAIL_KEY } from "../../shared/kept/storage";
+import { browserStorage, TRAIL_KEY } from "../../shared/storage/storage";
 
 type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
 

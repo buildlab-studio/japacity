@@ -11,7 +11,7 @@ import type { GenericEndpointContext } from "better-auth";
 import { APIError, getSessionFromCtx } from "better-auth/api";
 
 import { countSecured } from "../analytics/live";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** The code a refused link answers with, in the library's error and in the Google callback's `?error=`. */
 export const METHOD_TAKEN = "method-taken";

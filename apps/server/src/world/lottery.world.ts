@@ -6,7 +6,7 @@ import type { LotteryResult, World } from "@japacity/sim";
 import { jackpotHit } from "@japacity/sim";
 import type { WorldStore } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { closesTickOf, drawOn, storedBefore } from "../lottery/draw";
 
 /**

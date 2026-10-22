@@ -7,7 +7,7 @@ import type { LogRow } from "@japacity/store";
 
 import { contentNamed, rowsBySegment, worldsFor } from "../ops/replay";
 import type { Loaded } from "../ops/replay";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** One accepted command as the replay saw it. */
 export interface Played {

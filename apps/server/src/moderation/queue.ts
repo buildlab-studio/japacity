@@ -5,7 +5,7 @@ import { text } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { AppealRow } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { Report, ReportQueueStore } from "./reports";
 
 /** moderation:one-queue-by-reason-weight: lower goes first. Appeals carry no reason and sit with the rest. */

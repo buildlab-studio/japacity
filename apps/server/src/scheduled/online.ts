@@ -9,7 +9,7 @@ import { time } from "@japacity/sim";
 import type { CounterTotal, NumbersLog, RegionCount } from "@japacity/store";
 
 import { WHOLE_GAME } from "../analytics/list";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { TICKS_CRON } from "./ticks";
 
 const PEAK = "players/online-peak";

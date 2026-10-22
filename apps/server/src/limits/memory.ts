@@ -1,7 +1,7 @@
 // A counting limiter in memory with the shape of Cloudflare's rate-limit
 // binding (server:limits-are-approximate), for tests and local runs.
 import type { ServerConfig } from "../config";
-import type { Limiter, Limiters } from "../deps";
+import type { Limiter, Limiters } from "../dependencies";
 
 const SECONDS_10 = 10_000;
 const SECONDS_60 = 60_000;

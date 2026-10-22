@@ -1,5 +1,5 @@
 import type { InviteRow, InviteStore, RewardRow } from "../pair.types";
-import { distinctPairKeys } from "../keys";
+import { distinctPairKeys } from "../pairKeys";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 

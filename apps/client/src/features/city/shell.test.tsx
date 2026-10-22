@@ -9,7 +9,7 @@ import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, say, words } from "../../shared/words/text";
-import { bandMonth } from "../../shared/world/Band";
+import { bandMonth } from "../../shared/world/TopBand";
 import { forgetTaught, wasTaught } from "../../shared/world/taught";
 import { TUCK_MS, TUCK_SLIDE_MS } from "./brief/brief";
 import { NEAR_SPEAKER } from "../../shared/world/Lines";

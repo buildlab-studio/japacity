@@ -5,7 +5,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { AGE_CARDS, answersInOrder, ARCHETYPES, type Archetype, lowestYear, presetAnswer, withAge } from "../frontdoor/archetypes";
+import { AGE_CARDS, answersInOrder, ARCHETYPES, type Archetype, lowestYear, presetAnswer, withAge } from "../front-door/archetypes";
 import { newGame } from "../testing/fixtures";
 import { formatMoney } from "../words/format";
 import { say } from "../words/text";

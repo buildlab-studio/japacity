@@ -9,7 +9,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { pageOf } from "../../shared/datapage/PageSheet";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";

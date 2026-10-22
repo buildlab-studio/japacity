@@ -10,7 +10,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "../../app/App";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { playPresetOn } from "../../shared/net/preset.testing";
@@ -20,7 +20,7 @@ import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 import { PageHandover, REVEAL_MS, TURN_MS } from "./PrologueView";
 import { noteSteps, readTrail, yearChips } from "./years";
-import { DOOR_KEY, TRAIL_KEY } from "../../shared/kept/storage";
+import { DOOR_KEY, TRAIL_KEY } from "../../shared/storage/storage";
 
 const PROLOGUE = "scenario.prologue" as Id<"scenario">;
 const CLOCK: ClockView = { tick: 0, nextTickAt: 3_600_000, nextTurnAt: null, morningAt: 0, world: worldClockAt(0) };

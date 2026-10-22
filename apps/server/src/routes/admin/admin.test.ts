@@ -5,7 +5,7 @@ import { countRejection } from "../../ops/rejections";
 import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { productionConfig, testConfig } from "../../config";
-import { TEST_SIGNED_IN_WITH, testSession } from "../../deps";
+import { TEST_SIGNED_IN_WITH, testSession } from "../../dependencies";
 import { ADMIN_PASSKEY_DETAIL } from "./admin";
 
 const ADMIN = "account.owner";

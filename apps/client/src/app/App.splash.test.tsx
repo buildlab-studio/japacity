@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App, SLOW_MS } from "./App";
-import { keepPerson } from "../shared/frontdoor/person";
+import { keepPerson } from "../shared/front-door/person";
 import { createGameStore } from "../authority/store";
 import type { AccountApi } from "../shared/net/auth";
 import { requestFailure } from "../shared/net/http";

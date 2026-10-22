@@ -7,7 +7,7 @@ import { time } from "@japacity/sim";
 import type { AccountRow } from "@japacity/store";
 
 import type { Auth } from "../auth/auth";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { runDeletions } from "../scheduled/deletion";
 import { requestDeletion } from "./deletion";
 

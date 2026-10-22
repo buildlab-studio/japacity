@@ -13,7 +13,7 @@ import { pageOf } from "../../../shared/datapage/PageSheet";
 import { ModerationRows } from "../../../shared/moderation/Feedback";
 import { chooseGraphics, type GraphicsChoice } from "../../../shared/graphics/mode";
 import { setMuted } from "../../../shared/sound/sound";
-import { buildOf } from "../../../shared/stamp/stamp";
+import { buildOf } from "../../../shared/build-stamp/stamp";
 import { useSound } from "../../../shared/sound/useSound";
 import { Button } from "../../../shared/ui/Button";
 import { Sheet } from "../../../shared/ui/Sheet";
@@ -21,7 +21,7 @@ import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { Chips, Head } from "../act";
 import { PicTile } from "../ui";
-import { GRAPHICS_KEY } from "../../../shared/kept/storage";
+import { GRAPHICS_KEY } from "../../../shared/storage/storage";
 
 // The city reads the graphics choice (GRAPHICS_KEY, shared/scene/mode.ts) when it opens, so a choice made here
 // applies when the city next opens, not at once.

@@ -11,6 +11,6 @@ interface ImportMetaEnv {
   readonly VITE_TURNSTILE_SITE_KEY?: string;
   /** The build number feedback carries (moderation:feedback-box-in-settings), set by the build: see src/shared/moderation/api.ts. */
   readonly VITE_BUILD?: string;
-  /** The Cloudflare Web Analytics site token. Set, the build puts the beacon in the page: see vite/beacon.plugin.ts. */
+  /** The Cloudflare Web Analytics site token. Set, the build puts the beacon in the page: see vite/analytics.plugin.ts. */
   readonly VITE_ANALYTICS_TOKEN?: string;
 }

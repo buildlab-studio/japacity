@@ -9,7 +9,7 @@ import type { FlatSave, Save } from "@japacity/sim";
 import { loadSave } from "@japacity/sim";
 
 import { productionConfig } from "../config";
-import { memoryStores } from "../deps";
+import { memoryStores } from "../dependencies";
 import type { OpenDatabase } from "./database";
 import { DATABASE_ENV } from "./database";
 import { storeSave } from "./memory";

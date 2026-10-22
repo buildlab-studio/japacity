@@ -6,7 +6,7 @@ import type { AdvertSlotEntry } from "@japacity/sim";
 import { hashString32, int, time } from "@japacity/sim";
 import type { Campaign, Creative } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { statusAt } from "./campaign";
 
 export type AdvertsDeps = Pick<ServerDeps, "stores" | "contents">;

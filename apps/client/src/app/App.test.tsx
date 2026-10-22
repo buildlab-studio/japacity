@@ -5,13 +5,13 @@ import { describe, expect, test } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
-import { askReadyLives, startReadyLife } from "../shared/frontdoor/frontDoor.testing";
+import { askReadyLives, startReadyLife } from "../shared/front-door/frontDoor.testing";
 import { turnWords } from "../features/turn/turn.words";
 import { monthEnding, playerMonth } from "../shared/words/format";
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
-import { SAVE_KEY } from "../shared/kept/storage";
+import { SAVE_KEY } from "../shared/storage/storage";
 import { memoryStorage } from "../shared/testing/storage";
 
 describe("the app", () => {

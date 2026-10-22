@@ -3,7 +3,7 @@
 import type { ServerRejection } from "@japacity/api";
 import type { Context, MiddlewareHandler } from "hono";
 
-import type { Limiter, ServerDeps } from "../deps";
+import type { Limiter, ServerDeps } from "../dependencies";
 
 /** The signed-in account, read once by the limit and kept for the route. */
 export interface SessionEnv {

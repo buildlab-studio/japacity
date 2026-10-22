@@ -12,7 +12,7 @@ import { authorityMode } from "../shared/net/authorityMode";
 import { goOnline } from "./online";
 import { remoteAuthority } from "./remote";
 import { createGameStore, type GameStore } from "./store";
-import { MORNING_KEY } from "../shared/kept/storage";
+import { MORNING_KEY } from "../shared/storage/storage";
 
 /** The account's row as the server answered it when the game started online; null before, and with the local authority. */
 let accountRead: Promise<AccountReply> | null = null;

@@ -5,7 +5,7 @@ import { Hono } from "hono";
 
 import type { Accounts } from "./auth/auth";
 import { sessionCookies } from "./auth/session";
-import type { ServerDeps } from "./deps";
+import type { ServerDeps } from "./dependencies";
 import { accountRoutes } from "./routes/account";
 import { ageRoutes } from "./routes/age";
 import { authRoutes } from "./routes/auth";

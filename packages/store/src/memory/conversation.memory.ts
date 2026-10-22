@@ -1,4 +1,4 @@
-import { byTime } from "../keys";
+import { byTime } from "../pairKeys";
 import type { ConversationRow, ConversationStore } from "../pair.types";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";

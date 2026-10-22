@@ -3,7 +3,7 @@ import { connectPglite } from "@japacity/db/pglite";
 import type { PgliteConnection } from "@japacity/db/pglite";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import type { Stores } from "../deps";
+import type { Stores } from "../dependencies";
 import { postgresStores } from "../postgres.testing";
 import { drizzleAuthAdapter } from "./drizzle";
 import { harness, makeJar } from "./auth.testing";

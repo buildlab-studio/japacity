@@ -39,7 +39,7 @@ vi.mock("../three/people", () => ({
   },
   poseFigure: () => undefined,
 }));
-vi.mock("../frontdoor/colours", () => ({ wear: () => undefined, readLook: () => null }));
+vi.mock("../front-door/colours", () => ({ wear: () => undefined, readLook: () => null }));
 
 const { renderFigure, renderPhoto } = await import("./photoRender");
 

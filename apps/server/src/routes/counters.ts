@@ -14,7 +14,7 @@ import type { DropReason } from "../analytics/list";
 import { NO_REGION, regionOf, requestRegion } from "../analytics/list";
 import { batchAllowed } from "../analytics/rate";
 import { usageCountsOn } from "../analytics/usage";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { overLimit } from "../limits/limit";
 import { countryOf } from "../account/country";
 

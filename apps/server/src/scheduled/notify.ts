@@ -1,6 +1,6 @@
 // The bank-full notices' scheduled job (clock:full-bank-push-notification): on
 // the five-minute cron, every bank that filled since the last run.
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { NoticeRun } from "../notify/notice";
 import { sendNotices } from "../notify/notice";
 import type { PushKeys } from "../notify/webpush";

@@ -8,7 +8,7 @@ import { Hono } from "hono";
 import { keptPersonOf } from "../account/person";
 import { refusal } from "../authority/answer";
 import { endCharacter, newCharacter } from "../authority/character";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 

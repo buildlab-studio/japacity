@@ -8,13 +8,13 @@
 import type { BoardReply, BoardRow } from "@japacity/api";
 import { useEffect, useState } from "react";
 
-import { lookForName } from "../../shared/frontdoor/looks";
+import { lookForName } from "../../shared/front-door/looks";
 import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { When } from "./boards";
-import { PERSON_KEY } from "../../shared/kept/storage";
+import { PERSON_KEY } from "../../shared/storage/storage";
 
 function figureWords(row: BoardRow, when: When): string {
   const figure = formatNumber(row.figure);

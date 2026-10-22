@@ -12,7 +12,7 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { PASS_COOKIE, PASS_PREFIX, PASS_TTL_MS, REFUSED_COOKIE, ageOn, parseBirthDate, plausible, readCookie } from "../account/age";
 import { rejection } from "./reply";
 import type { Accounts } from "../auth/auth";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
 

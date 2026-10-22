@@ -7,7 +7,7 @@ import type { ConversationRow, Id, PairRecord } from "@japacity/sim";
 import { canSay, fillOptions, pairView, saidMoment, time, toHex, viewFor } from "@japacity/sim";
 
 import { characterOf } from "../authority/command";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { PairAnswer } from "./codes";
 import { NOT_POSSIBLE, refused, widen } from "./codes";
 import { momentInto } from "./carry";

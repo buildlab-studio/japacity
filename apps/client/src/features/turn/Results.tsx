@@ -10,7 +10,7 @@ import { qualityIn } from "@japacity/sim";
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
 import { StateTag } from "../../shared/ui/StateTag";
-import { Counter } from "../../shared/world/Band";
+import { Counter } from "../../shared/world/TopBand";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { Tile } from "../../shared/tiles/Tile";
 import { PressButton } from "../../shared/ui/lively/PressButton";

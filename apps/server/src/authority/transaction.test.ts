@@ -6,7 +6,7 @@ import type { ServerReply } from "@japacity/api";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
-import { drawJob } from "../scheduled/draw";
+import { drawJob } from "../scheduled/lottery";
 import { TICKS_CRON } from "../scheduled/ticks";
 import { freshDatabases, postgresStores } from "../postgres.testing";
 import type { TestServer } from "./authority.testing";

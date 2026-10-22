@@ -13,7 +13,7 @@ import { createContext, createElement, use, useEffect, useMemo, useState, type R
 import { useGame } from "../../authority/GameProvider";
 import { authorityMode } from "../../shared/net/authorityMode";
 import { rejectionWords } from "../../authority/store";
-import { FROM_SIXTEEN } from "../../shared/frontdoor/archetypes";
+import { FROM_SIXTEEN } from "../../shared/front-door/archetypes";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { api, type Api } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";

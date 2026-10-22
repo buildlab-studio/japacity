@@ -4,7 +4,7 @@ import { time } from "@japacity/sim";
 import { Hono } from "hono";
 
 import { dashboard, WINDOW_DAYS } from "../../analytics/dashboard";
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 

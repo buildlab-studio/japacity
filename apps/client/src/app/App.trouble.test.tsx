@@ -8,13 +8,13 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { App, SLOW_MS } from "./App";
 import { localAuthority } from "../authority/local";
 import { remoteAuthority } from "../authority/remote";
-import { keepPerson } from "../shared/frontdoor/person";
+import { keepPerson } from "../shared/front-door/person";
 import { createGameStore } from "../authority/store";
 import { readDoor } from "../shared/datapage/door";
 import type { AccountApi } from "../shared/net/auth";
 import { requestFailure } from "../shared/net/http";
 import { BASE, fakeServer } from "../shared/testing/server";
-import { passThePage, startArchetype, toTheArchetypes } from "../shared/frontdoor/frontDoor.testing";
+import { passThePage, startArchetype, toTheArchetypes } from "../shared/front-door/frontDoor.testing";
 import { engineView } from "../shared/testing/fixtures";
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.

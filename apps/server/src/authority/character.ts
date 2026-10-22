@@ -7,7 +7,7 @@ import type { Id, Save } from "@japacity/sim";
 import { int, newState, toHex, viewFor } from "@japacity/sim";
 
 import { clockView, tickAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { leavePairs } from "../pair/leave";
 import { tickRow } from "../world/ticks";
 import type { Answer } from "./answer";

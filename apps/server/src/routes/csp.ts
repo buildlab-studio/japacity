@@ -14,7 +14,7 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
 import { requestRegion } from "../analytics/list";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { overLimit } from "../limits/limit";
 import { TOO_LARGE_DETAIL } from "../security/body";
 import { writeLine } from "../log";

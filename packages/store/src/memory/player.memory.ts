@@ -1,4 +1,4 @@
-import { compareIds, pairIds, pairKey } from "../keys";
+import { compareIds, pairIds, pairKey } from "../pairKeys";
 import type {
   CharacterRow,
   CharacterWrite,

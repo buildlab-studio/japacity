@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import "../testing/render";
 import { thumbsTapped, useFirstUse } from "./Walkthrough";
-import { WALK_KEY } from "../kept/storage";
+import { WALK_KEY } from "../storage/storage";
 
 afterEach(() => {
   localStorage.clear();

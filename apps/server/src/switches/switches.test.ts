@@ -12,7 +12,7 @@ import { accepted, call, held, newLife, restMonth, send, testServer } from "../a
 import { productionConfig, testConfig } from "../config";
 import type { Beacon } from "../lottery/beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../lottery/beacon";
-import { drawJob } from "../scheduled/draw";
+import { drawJob } from "../scheduled/lottery";
 import { TICKS_CRON } from "../scheduled/ticks";
 import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget } from "./dials";
 import { rollbackCheck } from "../ops/rollback";

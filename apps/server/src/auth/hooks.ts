@@ -11,7 +11,7 @@ import { time, toHex } from "@japacity/sim";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
 import { GUEST_PATH } from "../account/signup";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { AuthKeys } from "./auth";
 import { passkeyShown } from "./session";
 import type { SignedInWith } from "./session";

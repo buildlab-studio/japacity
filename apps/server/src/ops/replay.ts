@@ -6,7 +6,7 @@ import type { Command, Content, State, World } from "@japacity/sim";
 import { hashState, newState, step, upgradeState } from "@japacity/sim";
 import type { Held, LogRow, SegmentRow } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { namedContent } from "../switches/dials";
 
 export type Loaded<T> = { ok: true; value: T } | LoadFailure;

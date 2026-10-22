@@ -10,7 +10,7 @@ import { say } from "../../shared/words/text";
 import { FIRST_THUMBS, walkSeen } from "../../shared/world/Walkthrough";
 import { City } from "./City";
 import { cityWords } from "./city.words";
-import { WALK_KEY } from "../../shared/kept/storage";
+import { WALK_KEY } from "../../shared/storage/storage";
 
 const world = () => <City world results={(place) => <p data-results-for={place} />} />;
 
