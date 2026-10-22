@@ -33,8 +33,8 @@ describe("lines from home", () => {
     expect(say("offer.uncle-burial.who")).toBe("Papa");
     expect(words("offer.uncle-burial.body", { cost: 5000000 })).toMatch(/^“The family in Enugu is contributing for the burial,/);
     expect(say("ui.prologue.town.city")).toBe("Your family is from Enugu, a city.");
-    expect(nameOf("person.sib-home")).toBe("Your sibling in Enugu");
-    expect(blurbOf("person.sib-home")).toBe("Still in Enugu, still in the family's business, still asking how far.");
+    expect(nameOf("person.sibling-home")).toBe("Your sibling in Enugu");
+    expect(blurbOf("person.sibling-home")).toBe("Still in Enugu, still in the family's business, still asking how far.");
     // Mama and Papa live in the family's Lagos house: their own asks and the People screen say home, never the town.
     expect(words("offer.nepa-bill.body", { cost: 1800000 })).toMatch(/^“They want ₦18,000 or they cut the light, and your father says he will handle it o\.”$/);
     expect(words("offer.mum-shop.body", { cost: 1800000 })).toMatch(/^“The supplier has stopped my credit/);
@@ -48,7 +48,7 @@ describe("lines from home", () => {
     expect(words("offer.roof.said.pay", {})).toBe("You paid for the roof. The house back home stayed dry, and your father told everyone who paid.");
     expect(words("offer.roof.said.no", {})).toBe("You told your father you could not pay for the roof. The rain came into the house back home again.");
     setNow(null);
-    expect(nameOf("person.sib-home")).toBe("Your sibling in your hometown");
+    expect(nameOf("person.sibling-home")).toBe("Your sibling in your hometown");
   });
 
   test("[prologue:family-draw-on-first-answer] given every line that names where the life is from, when it is said for every hometown in content, then no brace is left and the town's own name stands in it, in the lines content holds", () => {
@@ -59,8 +59,8 @@ describe("lines from home", () => {
         "offer.harvest.body",
         "offer.roof.body",
         "offer.uncle-burial.body",
-        "person.sib-home.blurb",
-        "person.sib-home.name",
+        "person.sibling-home.blurb",
+        "person.sibling-home.name",
         "ui.page.family.from",
         "ui.prologue.town.city",
         "ui.prologue.town.town",

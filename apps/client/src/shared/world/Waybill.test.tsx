@@ -83,7 +83,7 @@ describe("the waybill", () => {
     expect(ask.form).toBe("slip");
     expect(ask.title).toBe(words(`${PARCEL}.title`));
     expect(ask.rows).toEqual([
-      { label: words(`${PARCEL}.waybill.from`), value: nameOf("person.sib-uk-settled") },
+      { label: words(`${PARCEL}.waybill.from`), value: nameOf("person.sibling-uk-settled") },
       { label: words(`${PARCEL}.waybill.to`), value: words(`${PARCEL}.waybill.you`) },
       { label: words(`${PARCEL}.waybill.contents`), value: words(`${PARCEL}.contents.${thing}`) },
       { label: words(`${PARCEL}.waybill.handling`), value: money(handling, "NGN"), strong: true },

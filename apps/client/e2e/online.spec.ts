@@ -303,7 +303,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
 test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [person:courting-opens-a-bond] in the world on a phone, Tobi stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The world is checked at phone size.");
   test.setTimeout(120_000);
-  const TOBI = "person.tobi-bank";
+  const TOBI = "person.tobi-banker";
   const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);

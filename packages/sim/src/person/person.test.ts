@@ -17,9 +17,9 @@ import { computerFacts } from "./person.facts";
 import { factsOf, WEDDING_SPOTS } from "./person.logic";
 import { PROLOGUE, BANKER, UK_DEPENDANT } from "../testing/ids";
 
-const TOBI: Id<"person"> = "person.tobi-bank";
+const TOBI: Id<"person"> = "person.tobi-banker";
 const AMAKA: Id<"person"> = "person.amaka-nurse";
-const KELECHI: Id<"person"> = "person.kelechi-dev";
+const KELECHI: Id<"person"> = "person.kelechi-developer";
 const PAPERS: Id<"person"> = "person.papers-uk";
 const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 const CALL: SlotPick = { activity: "activity.call-someone", param: null };
@@ -163,17 +163,17 @@ describe("slots", () => {
 
   test("[person:computer-siblings-drawn-with-family] given one sibling entry holding all the weight and another none, when the siblings are drawn, then only the weighted one is drawn", () => {
     const only = tuned((copy) => {
-      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-gulf" ? 1 : 0;
+      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sibling-gulf" ? 1 : 0;
     });
     const game = life({ content: only });
     turn(game);
     const people = Object.values(game.state.people.slots).map((slot) => slot.person).filter((person) => person !== null);
-    expect(people).toEqual(["person.sib-gulf", "person.sib-gulf"]);
+    expect(people).toEqual(["person.sibling-gulf", "person.sibling-gulf"]);
   });
 
   test("[person:computer-siblings-drawn-with-family] [person:computer-partner-facts] given the sibling who leaves for the Gulf at month 12, when the months pass, then the facts show home at month 11 and the Gulf with its status from month 12", () => {
     const only = tuned((copy) => {
-      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-gulf" ? 1 : 0;
+      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sibling-gulf" ? 1 : 0;
     });
     const game = life({ content: only });
     for (let month = 1; month <= 11; month += 1) turn(game);
@@ -184,7 +184,7 @@ describe("slots", () => {
   });
 
   test("[person:computer-siblings-drawn-with-family] given the sibling in Canada, when its facts are built either side of its settling month, then the status changes at that month", () => {
-    const entry = content.person["person.sib-ca"]!;
+    const entry = content.person["person.sibling-canada"]!;
     const read = { state: life().state, world: standInWorld("world-1", 0, content), content };
     const settles = entry.profile.settledFromMonth!;
     expect(computerFacts(read, entry, 400, settles - 1).status).toBe(entry.profile.status);
@@ -947,7 +947,7 @@ describe("requirements", () => {
     [1, false],
   ])("[person:computer-is-a-person-entry] given a sibling resident in Canada, when the sibling requirement asks for an age %i month over theirs, then it holds: %s", (over, met) => {
     const only = tuned((copy) => {
-      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-ca" ? 1 : 0;
+      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sibling-canada" ? 1 : 0;
     });
     const game = life({ content: only });
     turn(game);

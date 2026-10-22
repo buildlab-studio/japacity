@@ -415,7 +415,7 @@ describe("taken in", () => {
   test("[home:taken-in-after-eviction] given the graduate taken in by someone of the story, when the stay runs, then no upkeep is charged and the month it ends the where-next offer opens with makoko and family", () => {
     const { game } = evicted();
     choose(game, TAKEN_IN, "someone");
-    expect(game.state.home.guest).toEqual({ host: "someone", by: "person.sib-lagos-hustle", until: 1 + home.guestMonths });
+    expect(game.state.home.guest).toEqual({ host: "someone", by: "person.sibling-lagos-hustle", until: 1 + home.guestMonths });
     for (let i = 1; i < home.guestMonths; i += 1) {
       const result = restMonth(game);
       expect(upkeepPaid(result)).toBe(0);

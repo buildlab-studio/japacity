@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { dressPlace, filesOf, OPEN_STAGE, type PlaceFile, stageOf } from "./placeFile";
 
-const TOBI: Id<"person"> = "person.tobi-bank";
+const TOBI: Id<"person"> = "person.tobi-banker";
 const PARTY = "offer.party-set";
 const PARTNER = { thing: "partner", person: TOBI, file: "shared/person/person_kunle.glb", at: [0.5, 1, 2] as [number, number, number] };
 

@@ -76,7 +76,7 @@ describe("a thing's mark", () => {
 
 describe("a person met in a place", () => {
   test("[person:computer-mark-is-quiet] [world:things-are-tappable-models] given Tobi standing in the parlour, when his mark is built, then no name floats over him until a tap or a place's first entry, and then his name carries the computer tag, on his fan as on his mark", () => {
-    const [tobi] = withMeetings(things, "place.family-house", [{ thing: "after-service", person: "person.tobi-bank" }]).filter((thing) => thing.id === "after-service");
+    const [tobi] = withMeetings(things, "place.family-house", [{ thing: "after-service", person: "person.tobi-banker" }]).filter((thing) => thing.id === "after-service");
     expect(tobi?.mark).toBe("computer");
     const node = markNode(tobi!, () => undefined);
     showMark(node, { named: false, teaching: false, pulse: false });

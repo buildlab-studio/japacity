@@ -76,7 +76,7 @@ describe("the parcel: when it is shipped", () => {
     expect(age(game.state) % MONTHS_A_YEAR).toBe(0);
     expect(opened).toEqual([age(game.state)]);
     const item = openedIn(result);
-    expect(item?.terms["from"]).toBe("person.sib-uk-settled");
+    expect(item?.terms["from"]).toBe("person.sibling-uk-settled");
     expect(String(item?.terms["holds"]).startsWith("sibling-")).toBe(true);
     expect(item?.expiresMonth).toBe(game.state.turn.month + 3);
   });

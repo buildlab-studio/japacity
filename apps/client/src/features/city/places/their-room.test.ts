@@ -242,8 +242,8 @@ describe("their room dressed for each person", () => {
 
   test("[world:nobody-picked-from-list] given two computer partners courted, one with a home in Lagos and one home only for December, when their room opens, then it is the one the map puts it near, whichever was courted first", () => {
     const game = peopleGame();
-    courted(game, "person.kelechi-dev");
-    expect(roomPartner(game.view())).toBe("person.kelechi-dev");
+    courted(game, "person.kelechi-developer");
+    expect(roomPartner(game.view())).toBe("person.kelechi-developer");
     courted(game, TOBI);
     expect(roomPartner(game.view())).toBe(TOBI);
   });

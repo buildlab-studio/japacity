@@ -1372,7 +1372,7 @@
     "standing": [
       {
         "thing": "after-service",
-        "person": "person.tobi-bank",
+        "person": "person.tobi-banker",
         "file": "shared/person/person_kunle.glb",
         "at": [
           -1.4,

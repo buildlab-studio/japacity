@@ -46,8 +46,8 @@ function behaviour(courtMonths: number, agreeBp: number, marryAfterMonths: numbe
 }
 
 export const personTable: Record<Id<"person">, PersonEntry> = {
-  "person.tobi-bank": partner(
-    "person.tobi-bank",
+  "person.tobi-banker": partner(
+    "person.tobi-banker",
     [ageAtLeast(21), AT_HOME],
     { ageGapMonths: PARTNER_GAP, eduLevel: 3, englishBand: 55, care: 20, tech: 30, home: "city", job: "activity.job-bank-officer", pay: { currency: "NGN", amount: naira(4800000) }, ...NO_PLACE },
     behaviour(4, 6000, 8, false, 3, 5000, 8500, "with-you-abroad"),
@@ -60,8 +60,8 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     behaviour(5, 6000, 8, false, 3, 4000, 8500, "canada"),
     false,
   ),
-  "person.kelechi-dev": partner(
-    "person.kelechi-dev",
+  "person.kelechi-developer": partner(
+    "person.kelechi-developer",
     [ageAtLeast(22)],
     {
       ageGapMonths: PARTNER_GAP,
@@ -102,8 +102,8 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     behaviour(9, 5000, 12, true, 2, 5000, 8000, "uk"),
     true,
   ),
-  "person.ifeoma-ca": partner(
-    "person.ifeoma-ca",
+  "person.ifeoma-canada": partner(
+    "person.ifeoma-canada",
     [ageAtLeast(22)],
     {
       ageGapMonths: PARTNER_GAP,
@@ -171,9 +171,9 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     calls: [...CALLS],
   },
 
-  "person.sib-home": sibling("person.sib-home", 6000, { ageGapMonths: [-60, 60], eduLevel: 1, englishBand: null, care: 20, tech: 10, home: "town", job: null, pay: null, ...NO_PLACE }),
-  "person.sib-lagos-hustle": sibling("person.sib-lagos-hustle", 1800, { ageGapMonths: [-36, 36], eduLevel: 2, englishBand: null, care: 10, tech: 20, home: "city", job: null, pay: null, ...NO_PLACE }),
-  "person.sib-uk-later": sibling("person.sib-uk-later", 900, {
+  "person.sibling-home": sibling("person.sibling-home", 6000, { ageGapMonths: [-60, 60], eduLevel: 1, englishBand: null, care: 20, tech: 10, home: "town", job: null, pay: null, ...NO_PLACE }),
+  "person.sibling-lagos-hustle": sibling("person.sibling-lagos-hustle", 1800, { ageGapMonths: [-36, 36], eduLevel: 2, englishBand: null, care: 10, tech: 20, home: "city", job: null, pay: null, ...NO_PLACE }),
+  "person.sibling-uk-later": sibling("person.sibling-uk-later", 900, {
     ageGapMonths: [12, 60],
     eduLevel: 3,
     englishBand: 70,
@@ -188,7 +188,7 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     settledStatus: "status.uk-settled",
     settledFromMonth: 96,
   }),
-  "person.sib-gulf": sibling("person.sib-gulf", 700, {
+  "person.sibling-gulf": sibling("person.sibling-gulf", 700, {
     ageGapMonths: [-24, 36],
     eduLevel: 1,
     englishBand: null,
@@ -203,7 +203,7 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     settledStatus: null,
     settledFromMonth: null,
   }),
-  "person.sib-ca": sibling("person.sib-ca", 300, {
+  "person.sibling-canada": sibling("person.sibling-canada", 300, {
     ageGapMonths: [24, 96],
     eduLevel: 3,
     englishBand: 80,
@@ -218,7 +218,7 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     settledStatus: "status.ca-citizen",
     settledFromMonth: 36,
   }),
-  "person.sib-uk-settled": sibling("person.sib-uk-settled", 300, {
+  "person.sibling-uk-settled": sibling("person.sibling-uk-settled", 300, {
     ageGapMonths: [36, 120],
     eduLevel: 2,
     englishBand: 70,

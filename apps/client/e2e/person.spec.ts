@@ -15,7 +15,7 @@ import { kept } from "./support/saves";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
-const TOBI = "person.tobi-bank";
+const TOBI = "person.tobi-banker";
 const SEE = { activity: "activity.see-someone", param: null } as const;
 const PAIR = "pair-1";
 

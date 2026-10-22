@@ -168,17 +168,17 @@ While players are few, the game must feel alive without pretending a computer is
 
 ## Entries: computer partners
 
-Four ids carry a name other than the one shown, given by the name pool (person:one-mixed-name-pool): `person.amaka-nurse` shows as Hauwa, `person.funmi-uk` as Ejiro, `person.ifeoma-ca` as Uduak, `person.chidi-dubai` as Tonye; Tobi and Kelechi keep their names.
+Four ids carry a name other than the one shown, given by the name pool (person:one-mixed-name-pool): `person.amaka-nurse` shows as Hauwa, `person.funmi-uk` as Ejiro, `person.ifeoma-canada` as Uduak, `person.chidi-dubai` as Tonye; Tobi and Kelechi keep their names.
 
 All invented. Names are text keys, and the words file holds the names shown.
 
 | Id | Profile | Where | Pay a year | Court months | Agree | Marry after | Patience | Jealous | Recall | Plan | Shown when |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `person.tobi-bank` | Bank officer, bachelor's, band 55, city | home | ₦4,800,000 | 4 | 6000 | 8 | 3 | 5000 | 8500 | `with-you-abroad` | age 21 or more, at home |
+| `person.tobi-banker` | Bank officer, bachelor's, band 55, city | home | ₦4,800,000 | 4 | 6000 | 8 | 3 | 5000 | 8500 | `with-you-abroad` | age 21 or more, at home |
 | `person.amaka-nurse` | Staff nurse, bachelor's, care 60, band 60, town | home | ₦2,400,000 | 5 | 6000 | 8 | 3 | 4000 | 8500 | `canada` | age 21 or more, at home |
-| `person.kelechi-dev` | Developer on `status.uk-sponsored`, `activity.job-uk-skilled`, master's, band 75 | uk | £48,000 | 9 | 5000 | 12, December | 2 | 6000 | 8000 | `uk` | age 22 or more |
+| `person.kelechi-developer` | Developer on `status.uk-sponsored`, `activity.job-uk-skilled`, master's, band 75 | uk | £48,000 | 9 | 5000 | 12, December | 2 | 6000 | 8000 | `uk` | age 22 or more |
 | `person.funmi-uk` | Senior carer, `status.uk-settled`, diploma, band 65 | uk | £31,000 | 9 | 5000 | 12, December | 2 | 5000 | 8000 | `uk` | age 22 or more |
-| `person.ifeoma-ca` | Analyst, `status.ca-resident`, bachelor's, band 80 | canada | C$62,000 | 9 | 5000 | 12, December | 2 | 5000 | 8000 | `canada` | age 22 or more |
+| `person.ifeoma-canada` | Analyst, `status.ca-resident`, bachelor's, band 80 | canada | C$62,000 | 9 | 5000 | 12, December | 2 | 5000 | 8000 | `canada` | age 22 or more |
 | `person.chidi-dubai` | Driver, `status.gulf-worker`, secondary | uae | AED 30,000 | 6 | 6000 | 10, December | 2 | 5000 | 8000 | `home` | age 21 or more |
 | `person.papers-uk` | Unknown, `status.uk-citizen` | uk | £30,000 | 0 | 10000 | 0 | never | 0 | 2000 | `not-decided` | only through `offer.papers-marriage` |
 
@@ -188,12 +188,12 @@ Each has the spot list `beach`, `suya-spot`, `church`, `cinema`, `mall`, `friend
 
 | Id | Weight | Age gap months | Lives | Abroad from month | Status | Settled from month |
 |---|---|---|---|---|---|---|
-| `person.sib-home` | 6000 | -60 to 60 by the draw | home | never | | |
-| `person.sib-lagos-hustle` | 1800 | -36 to 36 | home, city | never | | |
-| `person.sib-uk-later` | 900 | 12 to 60 (older) | uk | 36 | `status.uk-sponsored` | 96, `status.uk-settled` |
-| `person.sib-gulf` | 700 | -24 to 36 | uae | 12 | `status.gulf-worker` | never |
-| `person.sib-ca` | 300 | 24 to 96 (older) | canada | 0 | `status.ca-resident` | 36, `status.ca-citizen` |
-| `person.sib-uk-settled` | 300 | 36 to 120 (older) | uk | 0 | `status.uk-settled` | 60, `status.uk-citizen` |
+| `person.sibling-home` | 6000 | -60 to 60 by the draw | home | never | | |
+| `person.sibling-lagos-hustle` | 1800 | -36 to 36 | home, city | never | | |
+| `person.sibling-uk-later` | 900 | 12 to 60 (older) | uk | 36 | `status.uk-sponsored` | 96, `status.uk-settled` |
+| `person.sibling-gulf` | 700 | -24 to 36 | uae | 12 | `status.gulf-worker` | never |
+| `person.sibling-canada` | 300 | 24 to 96 (older) | canada | 0 | `status.ca-resident` | 36, `status.ca-citizen` |
+| `person.sibling-uk-settled` | 300 | 36 to 120 (older) | uk | 0 | `status.uk-settled` | 60, `status.uk-citizen` |
 
 ## Entries: activities and offers
 

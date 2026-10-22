@@ -14,7 +14,7 @@ import { gameAuthority } from "./fixtures";
 import "./render";
 
 const BANKER: Id<"scenario"> = "scenario.banker";
-export const TOBI: Id<"person"> = "person.tobi-bank";
+export const TOBI: Id<"person"> = "person.tobi-banker";
 export const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 export const PAIR = "pair-1";
 

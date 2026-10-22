@@ -167,7 +167,7 @@
     "motion": [],
     "dressings": [
       {
-        "person": "person.tobi-bank",
+        "person": "person.tobi-banker",
         "models": [
           {
             "file": "shared/prop/prop_dining-table.glb",
@@ -207,7 +207,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.tobi-bank",
+            "person": "person.tobi-banker",
             "file": "shared/person/person_kunle.glb",
             "at": [
               -0.45,
@@ -289,7 +289,7 @@
         }
       },
       {
-        "person": "person.kelechi-dev",
+        "person": "person.kelechi-developer",
         "models": [
           {
             "file": "shared/prop/prop_dining-table.glb",
@@ -339,7 +339,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.kelechi-dev",
+            "person": "person.kelechi-developer",
             "file": "shared/person/person_dayo.glb",
             "at": [
               -0.45,
@@ -421,7 +421,7 @@
         }
       },
       {
-        "person": "person.ifeoma-ca",
+        "person": "person.ifeoma-canada",
         "models": [
           {
             "file": "shared/prop/prop_travel-bag.glb",
@@ -461,7 +461,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.ifeoma-ca",
+            "person": "person.ifeoma-canada",
             "file": "shared/person/person_ada.glb",
             "at": [
               -0.45,
