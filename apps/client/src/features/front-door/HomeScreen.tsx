@@ -7,10 +7,10 @@
 // shows that home alone. Begin is the screen's one action.
 import { Lock } from "lucide-react";
 
-import { type Archetype, type Home, homesFor, moneyDrawn } from "../../shared/frontdoor/archetypes";
-import { homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/frontdoor/homes";
-import { homePicture, LIFE_THINGS } from "../../shared/frontdoor/lives";
-import { FaceSticker, ModelPicture } from "../../shared/frontdoor/LookPicture";
+import { type Archetype, type Home, homesFor, moneyDrawn } from "../../shared/front-door/archetypes";
+import { homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/front-door/homes";
+import { homePicture, LIFE_THINGS } from "../../shared/front-door/lives";
+import { FaceSticker, ModelPicture } from "../../shared/front-door/LookPicture";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { Mark } from "../../shared/ui/Wordmark";
 import { formatMoney } from "../../shared/words/format";

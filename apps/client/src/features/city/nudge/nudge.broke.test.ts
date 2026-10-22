@@ -7,8 +7,8 @@ import type { PlayerView } from "@japacity/sim";
 import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { archetypeOf } from "../../../shared/frontdoor/archetypes";
-import { playTile } from "../../../shared/frontdoor/archetypes.testing";
+import { archetypeOf } from "../../../shared/front-door/archetypes";
+import { playTile } from "../../../shared/front-door/archetypes.testing";
 import { landedGame, newGame, openOffer } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
 import { BOARD_WAY, freeStep, nudgeOf, type Reach } from "./nudge";

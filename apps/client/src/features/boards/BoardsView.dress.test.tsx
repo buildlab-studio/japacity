@@ -7,7 +7,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, describe, expect, test } from "vitest";
 
 import "../../shared/testing/render";
-import { LOOKS } from "../../shared/frontdoor/looks";
+import { LOOKS } from "../../shared/front-door/looks";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 import { BOARD_FACES, boardFace, keptLook } from "./BoardList";

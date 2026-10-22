@@ -20,7 +20,7 @@ import { forgetArranged } from "../shared/world/arranged";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
 import { swapsFor } from "./others";
-import { playerName } from "../shared/frontdoor/person";
+import { playerName } from "../shared/front-door/person";
 import type { AuthorityEvent } from "./remote";
 import { MONTH_KEY } from "../shared/kept/storage";
 

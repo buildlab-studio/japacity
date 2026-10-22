@@ -11,7 +11,7 @@ import { makeCounters } from "../../shared/analytics/counters";
 import { countInto } from "../../shared/analytics/start";
 import { DOOR_STAGES } from "../../shared/datapage/door";
 import { say } from "../../shared/words/text";
-import { doorScreen, ScenarioView } from "./ScenarioView";
+import { doorScreen, FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -31,7 +31,7 @@ function countedDoor(): { rows: () => CounterRow[] } {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
   return {

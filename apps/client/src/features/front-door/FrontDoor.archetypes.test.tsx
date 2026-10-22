@@ -7,10 +7,10 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
-import { readPerson } from "../../shared/frontdoor/person";
-import { ARCHETYPES, archetypeOf } from "../../shared/frontdoor/archetypes";
-import { startIn } from "./ScenarioView";
-import { startArchetype, toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
+import { readPerson } from "../../shared/front-door/person";
+import { ARCHETYPES, archetypeOf } from "../../shared/front-door/archetypes";
+import { startIn } from "./FrontDoor";
+import { startArchetype, toTheArchetypes } from "../../shared/front-door/frontDoor.testing";
 import type { GameStore } from "../../authority/store";
 import { say } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.

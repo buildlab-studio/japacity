@@ -8,19 +8,19 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { readPerson } from "../../shared/frontdoor/person";
+import { readPerson } from "../../shared/front-door/person";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { ageStepWords, startYearFor, stepsOpen, yearsWorked } from "../../shared/datapage/age";
 import { readyMonths, yearsOf } from "../../shared/datapage/years";
-import { archetypeOf } from "../../shared/frontdoor/archetypes";
+import { archetypeOf } from "../../shared/front-door/archetypes";
 import { problemWords } from "../../shared/datapage/name";
-import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
-import { askReadyLives } from "../../shared/frontdoor/ready";
-import { ARCHETYPES, moneyDrawn, savingsOf } from "../../shared/frontdoor/archetypes";
+import { LOOKS, lookOf, namesFor } from "../../shared/front-door/looks";
+import { askReadyLives } from "../../shared/front-door/ready";
+import { ARCHETYPES, moneyDrawn, savingsOf } from "../../shared/front-door/archetypes";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { content, text } from "@japacity/content";
-import { fitHome, pocketIn, ScenarioView, selfContainReached, selfContainYear, startIn } from "./ScenarioView";
+import { fitHome, pocketIn, FrontDoor, selfContainReached, selfContainYear, startIn } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 import { DOOR_KEY } from "../../shared/kept/storage";
@@ -34,7 +34,7 @@ function door(): GameStore {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
   return store;

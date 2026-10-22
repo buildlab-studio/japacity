@@ -3,7 +3,7 @@
 import { namedPeople, namePool, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { keepPerson } from "../shared/frontdoor/person";
+import { keepPerson } from "../shared/front-door/person";
 import { bandName } from "../shared/share/face";
 import { createGameStore } from "./store";
 import { engineView, fakeAuthority } from "../shared/testing/fixtures";

@@ -11,9 +11,9 @@ import { bootGame } from "../../authority/boot";
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
-import { ARCHETYPES, archetypeOf } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf } from "../../shared/front-door/archetypes";
 import { say } from "../../shared/words/text";
-import { plannedYears, ScenarioView } from "./ScenarioView";
+import { plannedYears, FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -26,7 +26,7 @@ function door(): void {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
 }

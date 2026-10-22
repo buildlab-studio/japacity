@@ -7,10 +7,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
-import { forgetOwnColours, type OwnColours, reportOwn } from "../../shared/frontdoor/style";
+import { forgetOwnColours, type OwnColours, reportOwn } from "../../shared/front-door/style";
 import { stubReducedMotion } from "../../shared/testing/motion";
 import { say } from "../../shared/words/text";
-import { ScenarioView } from "./ScenarioView";
+import { FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -39,7 +39,7 @@ function door(): void {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
 }

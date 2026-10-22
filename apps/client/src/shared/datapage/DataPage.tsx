@@ -11,7 +11,7 @@
 // interface's face and the values larger; the same fields in the same order.
 import type { CSSProperties } from "react";
 
-import type { LookStyle } from "../frontdoor/style";
+import type { LookStyle } from "../front-door/style";
 import { say } from "../words/text";
 import { usePhoto } from "./photo";
 

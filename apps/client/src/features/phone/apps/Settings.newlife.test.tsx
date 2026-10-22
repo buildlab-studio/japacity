@@ -8,7 +8,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { App } from "../../../app/App";
 import { GameProvider } from "../../../authority/GameProvider";
 import { localAuthority } from "../../../authority/local";
-import { keepPerson } from "../../../shared/frontdoor/person";
+import { keepPerson } from "../../../shared/front-door/person";
 import { createGameStore, type GameStore } from "../../../authority/store";
 import { engineView, fakeAuthority } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";

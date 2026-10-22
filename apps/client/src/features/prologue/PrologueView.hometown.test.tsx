@@ -4,8 +4,8 @@ import { act } from "@testing-library/react";
 import { content } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson } from "../../shared/frontdoor/person";
-import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
+import { keepPerson } from "../../shared/front-door/person";
+import { archetypeOf, doorAnswer } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { hometownWords, say } from "../../shared/words/text";

@@ -5,7 +5,7 @@
 // hands in how to send and how to close.
 import type { OfferView, PlayerView, ReportLine } from "@japacity/sim";
 
-import { readPerson } from "../frontdoor/person";
+import { readPerson } from "../front-door/person";
 import { nameOf, words } from "../words/text";
 import type { Ask } from "./contract";
 

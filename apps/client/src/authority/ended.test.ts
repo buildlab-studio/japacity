@@ -9,7 +9,7 @@ import { engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
 import { forgetLife, LIFE_KEYS } from "./ended";
 import { localAuthority } from "./local";
-import { keepPerson, readPerson } from "../shared/frontdoor/person";
+import { keepPerson, readPerson } from "../shared/front-door/person";
 import { remoteAuthority } from "./remote";
 import { createGameStore } from "./store";
 import { DAYS_KEY, MONTH_KEY, PERSON_KEY, SAVE_KEY, TRAIL_KEY } from "../shared/kept/storage";

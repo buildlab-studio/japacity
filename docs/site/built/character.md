@@ -45,7 +45,7 @@ The diagram leaves out the side branches (a retake, a strike that drags on); eac
 
 ## Archetypes are presets the client holds
 
-The door does not show the prologue's cards. The player picks an archetype tile, and the prologue is played for them. An archetype is a preset of answers, one for every step, never held by the simulation (prologue:archetype-presets-answers). The presets are content's (`packages/content/src/prologue/prologue.preset.ts`), so the client offline and the server online play one source; the tiles, with the routes each names, are the client's (`apps/client/src/shared/frontdoor/archetypes.ts`).
+The door does not show the prologue's cards. The player picks an archetype tile, and the prologue is played for them. An archetype is a preset of answers, one for every step, never held by the simulation (prologue:archetype-presets-answers). The presets are content's (`packages/content/src/prologue/prologue.preset.ts`), so the client offline and the server online play one source; the tiles, with the routes each names, are the client's (`apps/client/src/shared/front-door/archetypes.ts`).
 
 ```mermaid
 sequenceDiagram
@@ -79,12 +79,12 @@ For each step the answer is the first of the archetype's answers that is allowed
 | `water` | The Gulf contract, the road. Starts in a room in Makoko (prologue:makoko-start-never-a-trap) |
 
 ::: details The door's seeds
-A tile's path must be open from the first card (prologue:tile-path-open-from-start). Where a life may be started over, in the local authority, the door tries a few named seeds in turn and starts on the first whose draws keep every step the tile chooses open (`apps/client/src/shared/frontdoor/draw.ts`). Online, the server draws once, and the life is lived as drawn.
+A tile's path must be open from the first card (prologue:tile-path-open-from-start). Where a life may be started over, in the local authority, the door tries a few named seeds in turn and starts on the first whose draws keep every step the tile chooses open (`apps/client/src/shared/front-door/draw.ts`). Online, the server draws once, and the life is lived as drawn.
 :::
 
 ## The person beside the save
 
-What the door builds about the person is not part of the simulation. The look, the first name, the archetype, the player's own colours on the look and the page's photo are kept on the device, under one key of their own beside the save (`apps/client/src/shared/frontdoor/person.ts`). The look is a whole shipped character, never a stat, and the colours are paint only. The simulation holds none of it, so nothing about how a character looks can change a single number in their life (prologue:front-door-builds-a-person, prologue:player-colours-on-looks).
+What the door builds about the person is not part of the simulation. The look, the first name, the archetype, the player's own colours on the look and the page's photo are kept on the device, under one key of their own beside the save (`apps/client/src/shared/front-door/person.ts`). The look is a whole shipped character, never a stat, and the colours are paint only. The simulation holds none of it, so nothing about how a character looks can change a single number in their life (prologue:front-door-builds-a-person, prologue:player-colours-on-looks).
 
 ```mermaid
 flowchart LR

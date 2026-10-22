@@ -6,8 +6,8 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { keepPerson } from "../../shared/frontdoor/person";
-import { LOOKS, lookForName } from "../../shared/frontdoor/looks";
+import { keepPerson } from "../../shared/front-door/person";
+import { LOOKS, lookForName } from "../../shared/front-door/looks";
 import { peopleGame, renderWithGame } from "../../shared/testing/person";
 import { say } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";

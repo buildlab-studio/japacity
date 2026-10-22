@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
-import { readPerson } from "../shared/frontdoor/person";
+import { readPerson } from "../shared/front-door/person";
 import type { GameStore } from "../authority/store";
 import { countInto } from "../shared/analytics/start";
 import { makeCounters } from "../shared/analytics/counters";
@@ -19,10 +19,10 @@ import { say, words } from "../shared/words/text";
 import { ownFile } from "../features/city/City";
 import { ROSTER } from "../shared/scene/roster";
 import { ownLook } from "../features/map/Ride";
-import { ARCHETYPES, archetypeOf, opensChips, savingsOf } from "../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf, opensChips, savingsOf } from "../shared/front-door/archetypes";
 import { formatMoney } from "../shared/words/format";
-import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "../shared/frontdoor/frontDoor.testing";
-import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../shared/frontdoor/looks";
+import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "../shared/front-door/frontDoor.testing";
+import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../shared/front-door/looks";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
 import { FULL_PROLOGUE_KEY, PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";

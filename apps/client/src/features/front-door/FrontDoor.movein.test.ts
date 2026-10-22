@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { newGame } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import { homeFigures } from "./ScenarioView";
+import { homeFigures } from "./FrontDoor";
 
 describe("the room's move-in on the door", () => {
   test("[prologue:front-door-three-screens] [home:compound-room-is-a-home] given the room in Ojuelegba, when the door's line and Bills' move are read, then the door's move-in is the year's rent with the agent's and the agreement's fees, the figure Bills asks, and its year after is the rent alone", () => {

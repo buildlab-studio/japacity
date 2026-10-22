@@ -4,9 +4,9 @@
 // only where WebGL is missing does the picture stand. The drawing is loaded only when needed.
 import { useEffect, useState } from "react";
 
-import { keepPerson, readPerson } from "../frontdoor/person";
-import { canDraw } from "../frontdoor/Gate";
-import { type LookStyle, styleKey } from "../frontdoor/style";
+import { keepPerson, readPerson } from "../front-door/person";
+import { canDraw } from "../front-door/Gate";
+import { type LookStyle, styleKey } from "../front-door/style";
 import { photoWidth, sharpEnough } from "./photo.size";
 
 /** A photo drawn and its width in pixels. */

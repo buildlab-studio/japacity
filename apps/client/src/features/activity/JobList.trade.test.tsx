@@ -4,8 +4,8 @@
 // says first that the one asked for came to nothing (told on the results: App.oneFigure.test.tsx). Played on the real engine from the tiles' own years.
 import { describe, expect, test } from "vitest";
 
-import { type Archetype, archetypeOf } from "../../shared/frontdoor/archetypes";
-import { playTile } from "../../shared/frontdoor/archetypes.testing";
+import { type Archetype, archetypeOf } from "../../shared/front-door/archetypes";
+import { playTile } from "../../shared/front-door/archetypes.testing";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { ActivityPicker } from "./ActivityView";

@@ -10,7 +10,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "../../app/App";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { playPresetOn } from "../../shared/net/preset.testing";

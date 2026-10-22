@@ -7,9 +7,9 @@ import { describe, expect, test } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
-import { toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
+import { toTheArchetypes } from "../../shared/front-door/frontDoor.testing";
 import { say } from "../../shared/words/text";
-import { ScenarioView } from "./ScenarioView";
+import { FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -18,7 +18,7 @@ function door(lifeAgain: boolean) {
   const store = createGameStore(authority, { life: authority, lifeAgain, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
 }

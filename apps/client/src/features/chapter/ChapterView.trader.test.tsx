@@ -4,7 +4,7 @@ import { text } from "@japacity/content";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { sixteenPath } from "../../shared/words/sixteen";

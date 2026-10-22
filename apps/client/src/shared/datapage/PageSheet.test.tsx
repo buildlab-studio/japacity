@@ -7,9 +7,9 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
-import { keepPerson } from "../frontdoor/person";
+import { keepPerson } from "../front-door/person";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { lookOf } from "../frontdoor/looks";
+import { lookOf } from "../front-door/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";
 import { readyWords } from "../words/ready";
 import { say } from "../words/text";

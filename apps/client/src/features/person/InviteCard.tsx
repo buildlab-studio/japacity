@@ -11,10 +11,10 @@ import { Link2, Send } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { readPerson } from "../../shared/frontdoor/person";
+import { readPerson } from "../../shared/front-door/person";
 import { rejectionWords } from "../../authority/store";
-import { FaceSticker } from "../../shared/frontdoor/LookPicture";
-import { lookForName, lookOf } from "../../shared/frontdoor/looks";
+import { FaceSticker } from "../../shared/front-door/LookPicture";
+import { lookForName, lookOf } from "../../shared/front-door/looks";
 import { slotKind } from "../../shared/sim/person";
 import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { PressButton } from "../../shared/ui/lively/PressButton";

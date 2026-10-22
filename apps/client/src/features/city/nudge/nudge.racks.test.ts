@@ -7,8 +7,8 @@ import { say } from "../../../shared/words/text";
 import { answerAsk } from "../acts/acts";
 import { describe, expect, test } from "vitest";
 
-import { archetypeOf } from "../../../shared/frontdoor/archetypes";
-import { playTile } from "../../../shared/frontdoor/archetypes.testing";
+import { archetypeOf } from "../../../shared/front-door/archetypes";
+import { playTile } from "../../../shared/front-door/archetypes.testing";
 import { newGame } from "../../../shared/testing/fixtures";
 import { nudgeOf, stepWayOf } from "./nudge";
 

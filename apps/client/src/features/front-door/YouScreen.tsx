@@ -6,12 +6,12 @@ import { Check, ChevronDown, Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { NAME_LONGEST, problemWords, type NameProblem } from "../../shared/datapage/name";
-import { canDraw } from "../../shared/frontdoor/Gate";
-import { FaceSticker, FigurePicture, ModelPicture } from "../../shared/frontdoor/LookPicture";
-import { LOOKS } from "../../shared/frontdoor/looks";
-import { OwnColoursRows } from "../../shared/frontdoor/OwnColours";
-import { isMade, type LookStyle, ownOf, reportOwn, useOwnColours } from "../../shared/frontdoor/style";
-import { bringIntoView } from "../../shared/frontdoor/view";
+import { canDraw } from "../../shared/front-door/Gate";
+import { FaceSticker, FigurePicture, ModelPicture } from "../../shared/front-door/LookPicture";
+import { LOOKS } from "../../shared/front-door/looks";
+import { OwnColoursRows } from "../../shared/front-door/OwnColours";
+import { isMade, type LookStyle, ownOf, reportOwn, useOwnColours } from "../../shared/front-door/style";
+import { bringIntoView } from "../../shared/front-door/view";
 import type { Tint } from "../../shared/ui/lively/tint";
 import { say } from "../../shared/words/text";
 

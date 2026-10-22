@@ -5,9 +5,9 @@ import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import { createGameStore } from "../../authority/store";
-import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
+import { archetypeOf, doorAnswer } from "../../shared/front-door/archetypes";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
 import { nextStepOf, RACKS, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { say } from "../../shared/words/text";

@@ -9,13 +9,13 @@ import { createPortal } from "react-dom";
 import { useStore } from "zustand";
 
 import { useGameStoreIfAny } from "../../authority/GameProvider";
-import { type KeptPerson, readPerson } from "../frontdoor/person";
+import { type KeptPerson, readPerson } from "../front-door/person";
 import type { GameStore } from "../../authority/store";
 import { keptTypeOf } from "../share/kept";
-import { type Archetype, archetypeOf, throughUniversity } from "../frontdoor/archetypes";
+import { type Archetype, archetypeOf, throughUniversity } from "../front-door/archetypes";
 import { sixteenPath } from "../words/sixteen";
-import { gateLook } from "../frontdoor/Gate";
-import { lookOf } from "../frontdoor/looks";
+import { gateLook } from "../front-door/Gate";
+import { lookOf } from "../front-door/looks";
 import { AGE, pageAgeWords, yearsOf } from "../words/quality";
 import { typeWords } from "../words/japaType";
 import { readyPercent, readyWords } from "../words/ready";

@@ -8,7 +8,7 @@ import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { cityPeople, HOME_FLOOR_BP, sharesOf, useLights } from "./lights";
 import { TwoLights } from "./TwoLights";
-import { forgetWinks, WINK_LINES, winkAlone, winkFor } from "../../shared/frontdoor/wink";
+import { forgetWinks, WINK_LINES, winkAlone, winkFor } from "../../shared/front-door/wink";
 import { StartScreen } from "./StartScreen";
 
 afterEach(() => {

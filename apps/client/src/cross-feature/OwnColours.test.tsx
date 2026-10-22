@@ -7,12 +7,12 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../authority/GameProvider";
 import { localAuthority } from "../authority/local";
-import { readPerson } from "../shared/frontdoor/person";
+import { readPerson } from "../shared/front-door/person";
 import { createGameStore, type GameStore } from "../authority/store";
 import { readDoor } from "../shared/datapage/door";
 import { say } from "../shared/words/text";
-import { ScenarioView } from "../features/scenario/ScenarioView";
-import { forgetOwnColours, type OwnColours, reportOwn, SWATCHES } from "../shared/frontdoor/style";
+import { FrontDoor } from "../features/front-door/FrontDoor";
+import { forgetOwnColours, type OwnColours, reportOwn, SWATCHES } from "../shared/front-door/style";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
 import { DOOR_KEY, SAVE_KEY } from "../shared/kept/storage";
@@ -28,7 +28,7 @@ function door(save = memoryStorage()): GameStore {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
   return store;

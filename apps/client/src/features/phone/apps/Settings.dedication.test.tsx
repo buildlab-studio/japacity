@@ -11,7 +11,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { localAuthority } from "../../../authority/local";
-import { keepPerson } from "../../../shared/frontdoor/person";
+import { keepPerson } from "../../../shared/front-door/person";
 import { createGameStore, type GameStore } from "../../../authority/store";
 import "../../../shared/testing/render";
 import { STAMP_META } from "../../../shared/stamp/stamp";

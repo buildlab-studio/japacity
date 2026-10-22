@@ -10,10 +10,10 @@ import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
 import { startYearFor } from "../../shared/datapage/age";
-import { ARCHETYPES, archetypeOf, doorAnswer, withAge } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf, doorAnswer, withAge } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { say } from "../../shared/words/text";
-import { ScenarioView } from "./ScenarioView";
+import { FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -28,7 +28,7 @@ function door(): void {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <ScenarioView />
+      <FrontDoor />
     </GameProvider>,
   );
 }

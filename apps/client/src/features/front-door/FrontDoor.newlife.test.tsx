@@ -5,9 +5,9 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
-import { readPerson } from "../../shared/frontdoor/person";
+import { readPerson } from "../../shared/front-door/person";
 import { readDoor } from "../../shared/datapage/door";
-import { LOOKS } from "../../shared/frontdoor/looks";
+import { LOOKS } from "../../shared/front-door/looks";
 import { say } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";

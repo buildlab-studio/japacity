@@ -73,8 +73,8 @@ const PILLS_ALLOWED = 8;
  * (`.round-button`, as the band's thumbs are `.thumb-round`), so it draws no round of its own here.
  */
 const DOOR_ROUNDS: Readonly<Record<string, number>> = {
-  [`${CLIENT}/shared/frontdoor/DoorFrame.tsx`]: 0,
-  [`${CLIENT}/shared/frontdoor/OwnColours.tsx`]: 1,
+  [`${CLIENT}/shared/front-door/DoorFrame.tsx`]: 0,
+  [`${CLIENT}/shared/front-door/OwnColours.tsx`]: 1,
   [`${CLIENT}/shared/datapage/DataPage.tsx`]: 1,
 };
 

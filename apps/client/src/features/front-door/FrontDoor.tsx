@@ -17,16 +17,16 @@ import { type ReactNode, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import { useScreenCount } from "../../shared/analytics/useScreenCount";
 import { authorityMode } from "../../shared/net/authorityMode";
-import { keepPerson } from "../../shared/frontdoor/person";
+import { keepPerson } from "../../shared/front-door/person";
 import { blurbOf, say } from "../../shared/words/text";
-import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf } from "../../shared/frontdoor/archetypes";
-import { DoorAction, DoorFrame } from "../../shared/frontdoor/DoorFrame";
-import { fitHome } from "../../shared/frontdoor/homes";
-import { StartHook } from "../../shared/frontdoor/Hook";
-import { gateLook } from "../../shared/frontdoor/Gate";
-import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
-import { isMade } from "../../shared/frontdoor/style";
-import { takeReadyAsk } from "../../shared/frontdoor/ready";
+import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf } from "../../shared/front-door/archetypes";
+import { DoorAction, DoorFrame } from "../../shared/front-door/DoorFrame";
+import { fitHome } from "../../shared/front-door/homes";
+import { StartHook } from "../../shared/front-door/Hook";
+import { gateLook } from "../../shared/front-door/Gate";
+import { LOOKS, lookOf, namesFor } from "../../shared/front-door/looks";
+import { isMade } from "../../shared/front-door/style";
+import { takeReadyAsk } from "../../shared/front-door/ready";
 import { madePhoto } from "../../shared/datapage/photo";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
 import { nameProblem } from "../../shared/datapage/name";
@@ -36,8 +36,8 @@ import { Board, HomeRow, ReadyHome, thingOf } from "./HomeScreen";
 import { LifeScreen } from "./LifeScreen";
 import { YouScreen } from "./YouScreen";
 
-export { fitHome, homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/frontdoor/homes";
-export { plannedYears } from "../../shared/frontdoor/planned";
+export { fitHome, homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/front-door/homes";
+export { plannedYears } from "../../shared/front-door/planned";
 
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */
 const READY = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
@@ -152,7 +152,7 @@ export function doorScreen(stage: DoorStage): "door-1" | "door-2" | "page" | nul
   }
 }
 
-export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
+export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
   // The life chooser cannot be opened again where a life is started only once (account:one-character-per-account).

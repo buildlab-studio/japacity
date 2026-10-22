@@ -6,7 +6,7 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { chanceOf, huntBand, jobCardLine } from "../../shared/words/jobs";
 import { say } from "../../shared/words/text";

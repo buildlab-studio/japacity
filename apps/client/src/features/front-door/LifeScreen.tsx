@@ -5,10 +5,10 @@
 import { Minus, Plus } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-import { agePointsCount, type Archetype, ARCHETYPES, savingsOf } from "../../shared/frontdoor/archetypes";
-import { LIFE_THINGS } from "../../shared/frontdoor/lives";
-import { WayChips } from "../../shared/frontdoor/WayChips";
-import { FaceSticker, ModelPicture } from "../../shared/frontdoor/LookPicture";
+import { agePointsCount, type Archetype, ARCHETYPES, savingsOf } from "../../shared/front-door/archetypes";
+import { LIFE_THINGS } from "../../shared/front-door/lives";
+import { WayChips } from "../../shared/front-door/WayChips";
+import { FaceSticker, ModelPicture } from "../../shared/front-door/LookPicture";
 import { ageStepWords } from "../../shared/datapage/age";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { Tile } from "../../shared/tiles/Tile";

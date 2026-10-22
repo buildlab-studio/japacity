@@ -17,7 +17,7 @@ import type {
 } from "@japacity/api";
 import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
-import { adoptPerson, personToSend } from "../shared/frontdoor/person";
+import { adoptPerson, personToSend } from "../shared/front-door/person";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
 import { pacer } from "../shared/net/pace";
 import type { WallGuard } from "../shared/net/wall";

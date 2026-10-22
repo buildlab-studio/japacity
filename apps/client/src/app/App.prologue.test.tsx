@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
-import { startArchetype } from "../shared/frontdoor/frontDoor.testing";
+import { startArchetype } from "../shared/front-door/frontDoor.testing";
 import type { GameStore } from "../authority/store";
 import { playerMonth } from "../shared/words/format";
 import { nameOf, say, words } from "../shared/words/text";

@@ -6,8 +6,8 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import tejuosho from "../../../../public/assets/places/tejuosho-front/place.json";
-import { archetypeOf } from "../../../shared/frontdoor/archetypes";
-import { playTile } from "../../../shared/frontdoor/archetypes.testing";
+import { archetypeOf } from "../../../shared/front-door/archetypes";
+import { playTile } from "../../../shared/front-door/archetypes.testing";
 import { newGame } from "../../../shared/testing/fixtures";
 import { formatMoney } from "../../../shared/words/format";
 import { needsWords } from "../../../shared/words/requirement";

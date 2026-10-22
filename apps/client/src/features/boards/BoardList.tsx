@@ -8,7 +8,7 @@
 import type { BoardReply, BoardRow } from "@japacity/api";
 import { useEffect, useState } from "react";
 
-import { lookForName } from "../../shared/frontdoor/looks";
+import { lookForName } from "../../shared/front-door/looks";
 import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";

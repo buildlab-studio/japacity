@@ -8,12 +8,12 @@ import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { readPerson } from "../../shared/frontdoor/person";
+import { readPerson } from "../../shared/front-door/person";
 import { bandName as characterName } from "../../shared/share/face";
-import { FigurePicture } from "../../shared/frontdoor/LookPicture";
-import { lookOf } from "../../shared/frontdoor/looks";
+import { FigurePicture } from "../../shared/front-door/LookPicture";
+import { lookOf } from "../../shared/front-door/looks";
 import { plannedShut, worldVar } from "../../authority/store";
-import { keptLookFile } from "../../shared/frontdoor/person";
+import { keptLookFile } from "../../shared/front-door/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";

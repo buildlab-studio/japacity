@@ -5,7 +5,7 @@ import { content, japaTypes, shareKinds, text, type JapaType } from "@japacity/c
 import type { PlayerView } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { keepPerson } from "../frontdoor/person";
+import { keepPerson } from "../front-door/person";
 import { japaTypeOf } from "../words/japaType";
 import { ART_IDS, artShapes } from "./art";
 import { QUALITIES } from "./encode";

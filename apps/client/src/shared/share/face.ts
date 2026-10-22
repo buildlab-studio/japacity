@@ -4,7 +4,7 @@
 import { content, type ShareKind } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
-import { readPerson } from "../frontdoor/person";
+import { readPerson } from "../front-door/person";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../words/text";
 
 export type ShareCard = NonNullable<PlayerView["card"]>;

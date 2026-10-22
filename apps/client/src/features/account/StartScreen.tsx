@@ -8,7 +8,7 @@
 // top of the scene (TwoLights.tsx), so a line about the light is a caption. Nothing says Lagos: the scene behind does.
 import { useId, useSyncExternalStore } from "react";
 
-import { StartHook } from "../../shared/frontdoor/Hook";
+import { StartHook } from "../../shared/front-door/Hook";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 import { OpenInBrowser } from "./OpenInBrowser";

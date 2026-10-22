@@ -3,7 +3,7 @@
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { ARCHETYPES, answersInOrder, presetAnswer } from "../frontdoor/archetypes";
+import { ARCHETYPES, answersInOrder, presetAnswer } from "../front-door/archetypes";
 import { newGame } from "../testing/fixtures";
 import { newsLines } from "./told";
 

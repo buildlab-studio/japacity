@@ -25,8 +25,8 @@ import {
 } from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
-import { wear } from "../../shared/frontdoor/colours";
-import type { LookStyle } from "../../shared/frontdoor/style";
+import { wear } from "../../shared/front-door/colours";
+import type { LookStyle } from "../../shared/front-door/style";
 import { blendFigure, type Figure, figureOf, poseFigure } from "../../shared/three/people";
 import type { RideChoice } from "../../shared/world/contract";
 import { type AbroadVehicle, type RideLand, VEHICLES, type VehicleSpec } from "./rideVehicles";

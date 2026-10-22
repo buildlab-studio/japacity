@@ -6,8 +6,8 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import yabaHub from "../../../../public/assets/places/yaba-hub/place.json";
-import { archetypeOf } from "../../../shared/frontdoor/archetypes";
-import { playTile } from "../../../shared/frontdoor/archetypes.testing";
+import { archetypeOf } from "../../../shared/front-door/archetypes";
+import { playTile } from "../../../shared/front-door/archetypes.testing";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { requirementSentence } from "../../../shared/words/requirement";
 import { say } from "../../../shared/words/text";
