@@ -5,7 +5,7 @@ export type * from "./analytics";
 export type * from "./moderation.types";
 export type * from "./pair.types";
 export type * from "./advert.types";
-export { byTime, compareIds, distinctPairKeys, pairIds, pairKey } from "./pairKeys";
+export { byTime, compareIds, distinctPairKeys, newestBlockFirst, pairIds, pairKey } from "./pairKeys";
 export { xorshift32 } from "./generator";
 export { makeLock } from "./lock";
 export { refuse } from "./result";

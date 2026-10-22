@@ -1,4 +1,5 @@
 import type { BlockRow, HoldRow, ModerationStore, ReportRow } from "../pair.types";
+import { newestBlockFirst } from "../pairKeys";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
@@ -23,7 +24,7 @@ export function memoryModerationStore(): ModerationStore {
       return Promise.resolve(blocks.length < before);
     },
     blocked: (x, y) => Promise.resolve(blocks.some((each) => (each.from === x && each.to === y) || (each.from === y && each.to === x))),
-    blocksBy: (account) => Promise.resolve(copy(blocks.filter((each) => each.from === account).sort((p, q) => p.at - q.at))),
+    blocksBy: (account) => Promise.resolve(copy(blocks.filter((each) => each.from === account).sort(newestBlockFirst))),
     blockedWith: (account) => {
       const others = blocks.flatMap((each) => (each.from === account ? [each.to] : each.to === account ? [each.from] : []));
       return Promise.resolve([...new Set(others)]);

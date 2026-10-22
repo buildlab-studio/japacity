@@ -1,5 +1,5 @@
 import type { BlockRow, HoldRow, ModerationStore, ReportRow } from "@japacity/store";
-import { refuse } from "@japacity/store";
+import { newestBlockFirst, refuse } from "@japacity/store";
 import { and, asc, eq, gt, gte, inArray, or } from "drizzle-orm";
 
 import type { Handle } from "../handle";
@@ -44,7 +44,7 @@ export function pgModerationStore(handle: Handle): ModerationStore {
       }),
 
     blocksBy: (account) =>
-      handle.read(async (db) => (await db.select().from(blocks).where(eq(blocks.from, account)).orderBy(asc(blocks.at))).map(toBlock)),
+      handle.read(async (db) => (await db.select().from(blocks).where(eq(blocks.from, account))).map(toBlock).sort(newestBlockFirst)),
 
     blockedWith: (account) =>
       handle.read(async (db) => {

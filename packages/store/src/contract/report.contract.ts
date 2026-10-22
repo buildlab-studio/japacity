@@ -41,6 +41,22 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.blockedWith("account-e")).toEqual([]);
     });
 
+    test("[moderation:blocked-list-in-settings] given blocks made by an account at different times and one against it, when its blocks are listed, then they are its own only, newest first, and a lifted block leaves the list", async () => {
+      const store = await make();
+      await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });
+      await store.block({ from: "account-a", to: "account-d", at: 3 * time.DAY_MS });
+      await store.block({ from: "account-a", to: "account-c", at: 2 * time.DAY_MS });
+      await store.block({ from: "account-e", to: "account-a", at: 4 * time.DAY_MS });
+
+      expect(await store.blocksBy("account-a")).toEqual([
+        { from: "account-a", to: "account-d", at: 3 * time.DAY_MS },
+        { from: "account-a", to: "account-c", at: 2 * time.DAY_MS },
+        { from: "account-a", to: "account-b", at: time.DAY_MS },
+      ]);
+      await store.unblock("account-a", "account-c");
+      expect((await store.blocksBy("account-a")).map((row) => row.to)).toEqual(["account-d", "account-b"]);
+    });
+
     test("[moderation:block-ends-pair-records] given a block, when it is lifted, then neither direction is blocked and a second lift finds nothing", async () => {
       const store = await make();
       await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });

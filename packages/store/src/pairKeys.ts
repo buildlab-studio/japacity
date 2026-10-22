@@ -1,6 +1,6 @@
 // pair:one-record-per-two: one record for any two characters. Ids compare by UTF-16 code
 // unit, the same order the transaction locks in, never by a locale's collation.
-import type { ConversationRow } from "./pair.types";
+import type { BlockRow, ConversationRow } from "./pair.types";
 
 /** The ascending order every store locks and sorts ids in. */
 export function compareIds(x: string, y: string): number {
@@ -32,4 +32,10 @@ export function distinctPairKeys(rows: readonly { pair: string | null }[]): stri
 export function byTime(x: ConversationRow, y: ConversationRow): number {
   if (x.sentAt !== y.sentAt) return x.sentAt - y.sentAt;
   return compareIds(x.id, y.id);
+}
+
+/** moderation:blocked-list-in-settings: the order an account's blocks are listed in: newest first, then by the account blocked in UTF-16 code unit order. */
+export function newestBlockFirst(x: BlockRow, y: BlockRow): number {
+  if (x.at !== y.at) return y.at - x.at;
+  return compareIds(x.to, y.to);
 }

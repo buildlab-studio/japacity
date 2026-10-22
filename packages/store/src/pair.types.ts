@@ -155,7 +155,7 @@ export interface ModerationStore {
   unblock: (from: string, to: string) => Promise<boolean>;
   /** moderation:block-refuses-both-ways: true when either account blocks the other. */
   blocked: (x: string, y: string) => Promise<boolean>;
-  /** The blocks the account has made, oldest first. */
+  /** moderation:blocked-list-in-settings: the blocks the account has made, newest first, then by the account blocked. */
   blocksBy: (account: string) => Promise<BlockRow[]>;
   /** moderation:block-refuses-both-ways: every account the account is blocked with, whichever side blocked, each once. */
   blockedWith: (account: string) => Promise<string[]>;
