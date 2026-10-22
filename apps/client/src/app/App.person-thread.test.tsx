@@ -13,7 +13,7 @@ import { reasonWords, words } from "../shared/moderation/moderation.words";
 import { ModerationProvider } from "../shared/moderation/ModerationProvider";
 import { api } from "../shared/net/http";
 import { bondName, momentWords, phraseWords } from "../shared/sim/person";
-import { courted, linkedFriend, PAIR, peopleGame, renderWithGame, TOBI } from "../shared/testing/person";
+import { courted, linkedFriend, PAIR, peopleGame, renderWithGame, DELE } from "../shared/testing/person";
 import { BASE, fakeServer, type FakeServer } from "../shared/testing/server";
 import { nameOf, say, sayCount } from "../shared/words/text";
 import { Chats, PhonePeople, PhoneTalk } from "../features/phone/apps/Chats";
@@ -71,11 +71,11 @@ function sayPhrase(thread: HTMLElement, phrase: string): void {
 describe("a computer partner's thread", () => {
   test("[person:view-shows-people] given a computer courted and met, then the thread names them, its head gives the stage and the facts, the moments show in words, and never a sum of their money", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 2);
+    const bond = courted(game, DELE, 2);
     const { store } = await renderWithGame(chats(null), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     const held = store.getState().view!.people.bonds.find((entry) => entry.id === bond)!;
-    expect(screen.getByRole("heading", { name: new RegExp(`^${nameOf(TOBI)}`) })).toBeDefined();
+    expect(screen.getByRole("heading", { name: new RegExp(`^${nameOf(DELE)}`) })).toBeDefined();
     const shown = document.querySelector<HTMLElement>('[data-phone-app="chats"]')!;
     expect(head(bond).querySelector('[data-head-row="stage"] summary')?.textContent).toContain(say("ui.people.stage.courting"));
     const thread = document.querySelector<HTMLElement>(`[data-chat="${bond}"] [data-thread]`)!;

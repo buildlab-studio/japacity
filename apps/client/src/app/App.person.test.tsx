@@ -5,7 +5,7 @@ import { App } from "./App";
 import { createGameStore } from "../authority/store";
 import { ActivityPicker } from "../features/activity/ActivityView";
 import { gameAuthority } from "../shared/testing/fixtures";
-import { courted, peopleGame, playMonth, renderWithGame, SEE, TOBI } from "../shared/testing/person";
+import { courted, peopleGame, playMonth, renderWithGame, SEE, DELE } from "../shared/testing/person";
 import { nameOf, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
@@ -36,7 +36,7 @@ describe("people in the shell", () => {
 
   test("[person:time-together-is-an-act] given someone courted, when time with someone is chosen, then it is sent at once, nothing is planned, and the moment is told in words", async () => {
     const game = peopleGame();
-    courted(game, TOBI);
+    courted(game, DELE);
     // The visit is the chair's act in their room; its card is the one the shell hands the world for it (App.tsx `actions`).
     const { store } = await renderWithGame(<ActivityPicker only={[SEE.activity]} />, game);
     // activity:now-acts-and-month-acts: seeing someone is an act done at once, so the tap sends it and the moment is made now,
@@ -46,9 +46,9 @@ describe("people in the shell", () => {
     await waitFor(() => expect(Object.values(game.state.people.bonds).find((held) => held.role === "partner")?.moments).toHaveLength(1));
     expect(store.getState().plan.some((pick) => pick?.activity === SEE.activity)).toBe(false);
     const moment = Object.values(game.state.people.bonds).find((held) => held.role === "partner")!.moments[0]!;
-    const line = words("line.people.met", { who: TOBI, spot: moment.spot ?? "", what: moment.what });
+    const line = words("line.people.met", { who: DELE, spot: moment.spot ?? "", what: moment.what });
     const told = store.getState().lines.filter((said) => said.key === "line.people.met").map((said) => words(said.key, said.params));
     expect(told).toEqual([line]);
-    expect(line).not.toMatch(/person\.tobi|suya-spot|friends-wedding|bus-stop/);
+    expect(line).not.toMatch(/person\.dele|suya-spot|friends-wedding|bus-stop/);
   });
 });

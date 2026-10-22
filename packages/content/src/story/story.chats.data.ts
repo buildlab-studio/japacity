@@ -142,6 +142,6 @@ export const siblingNames: Partial<Record<Id<"scenario">, string>> = {
   "scenario.graduate": "Uche",
   "scenario.banker": "Tolu",
   "scenario.developer": "Amina",
-  "scenario.nurse": "Emeka",
+  "scenario.nurse": "Chinedu",
   "scenario.teacher": "Mfon",
 };

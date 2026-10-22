@@ -300,18 +300,18 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
   });
 });
 
-test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [person:courting-opens-a-bond] in the world on a phone, Tobi stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
+test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [person:courting-opens-a-bond] in the world on a phone, Dele stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The world is checked at phone size.");
   test.setTimeout(120_000);
-  const TOBI = "person.tobi-banker";
+  const DELE = "person.dele-banker";
   const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
   const before = { body: viewReply(game, CLOCK.tick) };
-  expect(game.view().people.candidates.map((candidate) => candidate.person)).toContain(TOBI);
-  const result = game.accept({ type: "people/court", with: TOBI });
+  expect(game.view().people.candidates.map((candidate) => candidate.person)).toContain(DELE);
+  const result = game.accept({ type: "people/court", with: DELE });
   const after = { ok: true, view: game.view(), lines: result.lines, clock: CLOCK };
-  const bond = after.view.people.bonds.find((one) => one.person === TOBI)?.id ?? "";
+  const bond = after.view.people.bonds.find((one) => one.person === DELE)?.id ?? "";
   const sent: unknown[] = [];
   let courted = false;
   await fakeServer(page, {
@@ -348,22 +348,22 @@ test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [per
   await mark.click();
   // His fan (world:fan-of-sticker-buttons): his name in the pill over him, with the mark's word beside it.
   const chip = page.locator('[data-fan="after-service"]');
-  await expect(chip.locator("[data-fan-title]")).toContainText("Tobi");
+  await expect(chip.locator("[data-fan-title]")).toContainText("Dele");
   // The mark's word (person:computer-candidates-labelled).
   await expect(chip.locator("[data-fan-title] [data-person-mark]")).toHaveText("Not a player");
   await page.waitForTimeout(400);
-  await shootAtSize(page, "parlour-tobi", info.project.name);
+  await shootAtSize(page, "parlour-dele", info.project.name);
 
   await chip.locator('[data-fan-act="talk"] button').click();
   const card = page.getByRole("dialog");
-  await expect(card.getByRole("button", { name: /Start seeing Tobi/ })).toBeVisible({ timeout: 20_000 });
+  await expect(card.getByRole("button", { name: /Start seeing Dele/ })).toBeVisible({ timeout: 20_000 });
   await expect(card).toContainText("After service, your mother brings him home for lunch.");
   // The sheet settles before the picture.
   await page.waitForTimeout(800);
   await shootAtSize(page, "talk-sheet", info.project.name);
-  await card.getByRole("button", { name: /Start seeing Tobi/ }).click();
+  await card.getByRole("button", { name: /Start seeing Dele/ }).click();
   await expect.poll(() => sent.length).toBe(1);
-  expect(sent[0]).toMatchObject({ command: { type: "people/court", with: TOBI } });
+  expect(sent[0]).toMatchObject({ command: { type: "people/court", with: DELE } });
   // Courted, he stands there no more.
   await expect(mark).toHaveCount(0, { timeout: 20_000 });
 

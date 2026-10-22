@@ -13,7 +13,7 @@ import { ModerationProvider } from "../shared/moderation/ModerationProvider";
 import { api } from "../shared/net/http";
 import { slotOrder } from "../shared/sim/person";
 import { BASE, fakeServer } from "../shared/testing/server";
-import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithGame, TOBI } from "../shared/testing/person";
+import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithGame, DELE } from "../shared/testing/person";
 import { nameOf, say, sayCount } from "../shared/words/text";
 import { PhoneBack } from "../features/phone/act";
 import { Chats, PhonePeople } from "../features/phone/apps/Chats";
@@ -97,9 +97,9 @@ describe("the People row", () => {
 });
 
 describe("a bond's thread head", () => {
-  test("[world:nobody-picked-from-list] [world:one-action-one-sheet] given Tobi courted, when his thread is opened, then the computer mark stands by the name, its head says the stage on one row with the moments, and what can be asked waits behind its own row", async () => {
+  test("[world:nobody-picked-from-list] [world:one-action-one-sheet] given Dele courted, when his thread is opened, then the computer mark stands by the name, its head says the stage on one row with the moments, and what can be asked waits behind its own row", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 1);
+    const bond = courted(game, DELE, 1);
     await renderWithGame(chats(), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     const stage = row(bond, "stage");
@@ -113,17 +113,17 @@ describe("a bond's thread head", () => {
     const left = people.partnerMoments - 1;
     const ask = row(bond, "ask");
     expect(ask.querySelector("summary")?.textContent).toContain(leftWords(left));
-    expect(ask.querySelector("summary")?.textContent).toContain(say("ui.people.head.ask", { name: nameOf(TOBI) }));
+    expect(ask.querySelector("summary")?.textContent).toContain(say("ui.people.head.ask", { name: nameOf(DELE) }));
     open(ask);
     expect(within(ask).getByText(sayCount("ui.people.courting.next", left, { count: left }))).toBeDefined();
     // The thread itself follows the head.
     expect(document.querySelector(`[data-chat="${bond}"]`)).not.toBeNull();
-    expect(screen.getByRole("heading", { name: new RegExp(`^${nameOf(TOBI)}`) })).toBeDefined();
+    expect(screen.getByRole("heading", { name: new RegExp(`^${nameOf(DELE)}`) })).toBeDefined();
   });
 
-  test("[person:proposing-a-step] [world:nobody-picked-from-list] given Tobi courted to the moments partners need, when the head's ask row proposes, then people/propose goes to the engine and the head says partners", async () => {
+  test("[person:proposing-a-step] [world:nobody-picked-from-list] given Dele courted to the moments partners need, when the head's ask row proposes, then people/propose goes to the engine and the head says partners", async () => {
     const game = peopleGame(eagerContent());
-    const bond = courted(game, TOBI, people.partnerMoments);
+    const bond = courted(game, DELE, people.partnerMoments);
     const { authority } = await renderWithGame(chats(), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     open(row(bond, "ask"));
@@ -149,7 +149,7 @@ describe("a bond's thread head", () => {
 
   test("[person:either-side-ends-a-bond] [world:nobody-picked-from-list] given a bond courting, when the head's end row is opened, then the cost is said at once and ending it sends people/end", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 1);
+    const bond = courted(game, DELE, 1);
     const { authority, store } = await renderWithGame(chats(), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     const end = row(bond, "end");
@@ -164,7 +164,7 @@ describe("a bond's thread head", () => {
   test("[pair:block-and-report-one-tap] [world:nobody-picked-from-list] given a friend who plays, online, when their thread is opened, then its head carries block and report one tap away, and a computer's head carries neither", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
-    const computer = courted(game, TOBI);
+    const computer = courted(game, DELE);
     const server = fakeServer();
     const pairs = pairApiFor(BASE, server.fetch);
     await renderWithGame(
@@ -191,15 +191,15 @@ describe("a bond's thread head", () => {
 describe("the words of a bond's head", () => {
   // The mark's word is "Not a player"; the head's rows say a
   // person's words, never "moments", "Costs standing" or "Ask them".
-  test("[text:bands-not-figures] [text:voice-by-surface] [person:computer-candidates-labelled] given Tobi just courted, when his thread is opened, then the mark says Not a player, and the head says nothing shared yet, six more times together before you can ask, ask Tobi, and that ending it will be talked about", async () => {
+  test("[text:bands-not-figures] [text:voice-by-surface] [person:computer-candidates-labelled] given Dele just courted, when his thread is opened, then the mark says Not a player, and the head says nothing shared yet, six more times together before you can ask, ask Dele, and that ending it will be talked about", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI);
+    const bond = courted(game, DELE);
     await renderWithGame(chats(), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     expect(document.querySelector('h3 [data-person-mark="computer"]')?.textContent).toBe("Not a player");
     expect(row(bond, "stage").querySelector("summary")?.textContent).toContain("Nothing shared yet");
     const ask = row(bond, "ask").querySelector("summary")?.textContent ?? "";
-    expect(ask).toContain(`Ask ${nameOf(TOBI)}`);
+    expect(ask).toContain(`Ask ${nameOf(DELE)}`);
     expect(people.partnerMoments).toBe(6);
     expect(ask).toContain("Six more times together before you can ask");
     expect(row(bond, "end").querySelector("summary")?.textContent).toContain("Ending it will be talked about");
@@ -218,24 +218,24 @@ describe("the words of a bond's head", () => {
 });
 
 describe("the answer once courted, in the thread", () => {
-  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] given Tobi just courted, when his thread is opened, then its first message is his answer, from him, before any time together", async () => {
+  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] given Dele just courted, when his thread is opened, then its first message is his answer, from him, before any time together", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 1);
+    const bond = courted(game, DELE, 1);
     await renderWithGame(chats(), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     const thread = document.querySelector<HTMLElement>(`[data-chat="${bond}"] [data-thread]`)!;
     const first = thread.querySelector("li")!;
     expect(first.hasAttribute("data-courted")).toBe(true);
-    expect(first.textContent).toBe(`${nameOf(TOBI)}${content.person[TOBI] === undefined ? "" : say(`${TOBI}.courted`)}`);
+    expect(first.textContent).toBe(`${nameOf(DELE)}${content.person[DELE] === undefined ? "" : say(`${DELE}.courted`)}`);
     expect(thread.querySelectorAll("li").length).toBe(2);
   });
 });
 
 describe("a thread that ended", () => {
-  test("[person:computer-partner-drifts] [world:nobody-picked-from-list] given Tobi courted and no time made together, when his patience runs out, then his thread stays that month with his line and his reason, and is gone the month after", async () => {
+  test("[person:computer-partner-drifts] [world:nobody-picked-from-list] given Dele courted and no time made together, when his patience runs out, then his thread stays that month with his line and his reason, and is gone the month after", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI);
-    const patience = content.person[TOBI]?.behaviour.patienceMonths ?? 0;
+    const bond = courted(game, DELE);
+    const patience = content.person[DELE]?.behaviour.patienceMonths ?? 0;
     for (let month = 0; month < patience; month += 1) playMonth(game);
     expect(game.state.people.bonds[bond]?.ended?.by).toBe("drift");
     const { store } = await renderWithGame(chats(), game);
@@ -244,8 +244,8 @@ describe("a thread that ended", () => {
     fireEvent.click(shown!);
     const ended = head(bond);
     expect(ended.dataset.ended).toBe("drift");
-    expect(ended.querySelector("[data-ended-line]")?.textContent).toBe(`${nameOf(TOBI)} stopped calling.`);
-    expect(ended.querySelector("[data-ended-reason]")?.textContent).toBe(say(`${TOBI}.drifted`));
+    expect(ended.querySelector("[data-ended-line]")?.textContent).toBe(`${nameOf(DELE)} stopped calling.`);
+    expect(ended.querySelector("[data-ended-reason]")?.textContent).toBe(say(`${DELE}.drifted`));
     // Nothing can be asked or ended of a bond already over.
     expect(ended.querySelector("[data-head-row]")).toBeNull();
     // The month after, the thread is gone.
@@ -255,15 +255,15 @@ describe("a thread that ended", () => {
     expect(document.querySelector(`[data-chat-row="${bond}"]`)).toBeNull();
   });
 
-  test("[person:either-side-ends-a-bond] [person:computer-partner-drifts] given Tobi courted, when the player ends it, then the thread stays the month with the line that says the player ended it, and no reason of his", async () => {
+  test("[person:either-side-ends-a-bond] [person:computer-partner-drifts] given Dele courted, when the player ends it, then the thread stays the month with the line that says the player ended it, and no reason of his", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 1);
+    const bond = courted(game, DELE, 1);
     await renderWithGame(chats(), game);
     fireEvent.click(document.querySelector<HTMLElement>(`[data-chat-row="${bond}"]`)!);
     open(row(bond, "end"));
     fireEvent.click(within(row(bond, "end")).getByRole("button", { name: say("ui.people.end.confirm") }));
     await waitFor(() => expect(head(bond).dataset.ended).toBe("me"));
-    expect(head(bond).querySelector("[data-ended-line]")?.textContent).toBe(`You ended it with ${nameOf(TOBI)}.`);
+    expect(head(bond).querySelector("[data-ended-line]")?.textContent).toBe(`You ended it with ${nameOf(DELE)}.`);
     expect(head(bond).querySelector("[data-ended-reason]")).toBeNull();
   });
 });

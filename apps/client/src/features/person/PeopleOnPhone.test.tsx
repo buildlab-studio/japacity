@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 import { useView } from "../../authority/GameProvider";
 import { bondName, interviewName, personOf } from "../../shared/sim/person";
 import { renderWithView } from "../../shared/testing/render";
-import { courted, eagerContent, FRIEND, interviewGame, linkedFriend, partnered, peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
+import { courted, eagerContent, FRIEND, interviewGame, linkedFriend, partnered, peopleGame, renderWithGame, DELE } from "../../shared/testing/person";
 import { formatBp, formatMoney } from "../../shared/words/format";
 import { forMonths, inMonths, nameOf, say, sayCount } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";
@@ -200,7 +200,7 @@ describe("a bond's thread head", () => {
 
   test("[person:proposing-a-step] given a bond with the moments partners need, when the player asks, then the proposal goes to the engine and the answer shows on the head, with marrying and its share next", async () => {
     const game = peopleGame(eagerContent());
-    const bond = courted(game, TOBI, people.partnerMoments);
+    const bond = courted(game, DELE, people.partnerMoments);
     const { authority } = await renderWithGame(offline(<Head id={bond} />), game);
     fireEvent.click(within(open(row(bond, "ask"))).getByRole("button", { name: say("ui.people.propose.partner") }));
     await waitFor(() => expect(row(bond, "stage").querySelector("summary")?.textContent).toContain(say("ui.people.stage.partner")));
@@ -214,7 +214,7 @@ describe("a bond's thread head", () => {
     const copy = eagerContent();
     for (const entry of Object.values(copy.person)) entry.behaviour.agreeBp = 0;
     const game = peopleGame(copy);
-    const bond = courted(game, TOBI, people.partnerMoments);
+    const bond = courted(game, DELE, people.partnerMoments);
     await renderWithGame(offline(<Head id={bond} />), game);
     fireEvent.click(within(open(row(bond, "ask"))).getByRole("button", { name: say("ui.people.propose.partner") }));
     expect(await within(head(bond)).findByText(sayCount("ui.people.declined.cooldown", people.proposeCooldown, { months: people.proposeCooldown }))).toBeDefined();
@@ -256,7 +256,7 @@ describe("a bond's thread head", () => {
 
   test("[person:ender-pays-in-standing] given each stage, when the player goes to end it, then the standing and wellbeing it costs are said before, with more while a joint application is applying", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI);
+    const bond = courted(game, DELE);
     const view = game.view();
     const cases: [PlayerView["people"]["bonds"][number]["stage"], boolean, number][] = [
       ["courting", false, people.endStanding.courting],
@@ -301,15 +301,15 @@ describe("a bond's thread head", () => {
   test("[person:gossip-when-two-timing] given a partner and someone else courted, then the courted head warns that people talk, at the tuning's chance", async () => {
     const game = peopleGame(eagerContent());
     partnered(game);
-    const other = courted(game, "person.amaka-nurse");
+    const other = courted(game, "person.hauwa-nurse");
     await renderWithGame(offline(<Head id={other} />), game);
     expect(within(row(other, "stage")).getByText(say("ui.people.gossip", { chance: formatBp(people.gossipBp) }))).toBeDefined();
   });
 
   test("[person:computer-partner-drifts] given a computer partner with no time together for a month short of its patience, then the head warns it will stop waiting; with time together it only states the rule", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 1);
-    const patience = content.person[TOBI]!.behaviour.patienceMonths!;
+    const bond = courted(game, DELE, 1);
+    const patience = content.person[DELE]!.behaviour.patienceMonths!;
     const base = game.view();
     const last = base.people.bonds.find((entry) => entry.id === bond)!.moments!.at(-1)!;
     const era = { id: "era.test" as const, since: 0, until: 100, sinceMonth: 0, untilMonth: 100 };
@@ -333,7 +333,7 @@ describe("a bond's thread head", () => {
 
   test("[person:ended-bond-record-kept] given a bond ended, then its head is read only with no choices on it, and says when the two may start again", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI, 1);
+    const bond = courted(game, DELE, 1);
     game.accept({ type: "people/end", bond });
     await renderWithGame(offline(<Head id={bond} />), game);
     const shown = head(bond);

@@ -252,7 +252,7 @@ describe("spot checks against the rule pages", () => {
     expect(content.var["var.uk-living-line"]?.start).toBe(117100);
     // news.md: the rise sets the living line to £1,203.
     expect(content.news["news.uk-living-rise"]?.standIn.sets).toEqual([{ var: "var.uk-living-line", value: 120300 }]);
-    // offer.md: the roof comes up 2.5% of months; Mr Kunle is a fraud 35 times in 100.
+    // offer.md: the roof comes up 2.5% of months; Mr Gbenga is a fraud 35 times in 100.
     expect(content.offer["offer.roof"]?.chanceBp).toBe(250);
     expect(content.offer["offer.held-funds-agent"]?.fraudBp).toBe(3500);
     // route.md: the flight is ₦1,600,000, the deposit fee kept is £500.

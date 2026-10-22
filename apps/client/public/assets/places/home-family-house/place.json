@@ -1372,7 +1372,7 @@
     "standing": [
       {
         "thing": "after-service",
-        "person": "person.tobi-banker",
+        "person": "person.dele-banker",
         "file": "shared/person/person_kunle.glb",
         "at": [
           -1.4,
@@ -1382,7 +1382,7 @@
       },
       {
         "thing": "after-service",
-        "person": "person.funmi-uk",
+        "person": "person.ejiro-uk",
         "file": "shared/person/person_sade.glb",
         "at": [
           -1.4,
@@ -1392,7 +1392,7 @@
       },
       {
         "thing": "friend-guest",
-        "person": "person.amaka-nurse",
+        "person": "person.hauwa-nurse",
         "file": "shared/person/person_tolani.glb",
         "at": [
           0.2,
@@ -1402,7 +1402,7 @@
       },
       {
         "thing": "friend-guest",
-        "person": "person.chidi-dubai",
+        "person": "person.tonye-dubai",
         "file": "shared/person/person_segun.glb",
         "at": [
           0.2,

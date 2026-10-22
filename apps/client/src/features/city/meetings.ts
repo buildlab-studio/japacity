@@ -188,7 +188,7 @@ export function talkAsk(person: string, view: Pick<PlayerView, "people">, maxCou
 
 /**
  * What the corner tells once a computer partner is courted (person:courting-opens-a-bond): their
- * answer in their own words, `<person>.courted`, said as theirs ("Tobi: ..."), then the one plain line that they live
+ * answer in their own words, `<person>.courted`, said as theirs ("Dele: ..."), then the one plain line that they live
  * in the game (person:computer-mark-is-quiet). Their answer is left out where content has none.
  */
 export function courtedTold(person: string, said: { name: (person: string) => string; answer: (person: string) => string | null; said: (name: string, line: string) => string; chosen: (name: string) => string }): string[] {

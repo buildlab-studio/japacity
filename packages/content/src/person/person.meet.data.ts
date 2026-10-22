@@ -39,10 +39,10 @@ export const meetingThings: Record<string, string[]> = {
 };
 
 export const partnerMeetings: PartnerMeeting[] = [
-  { person: "person.tobi-banker", met: { place: FAMILY_HOUSE, thing: "after-service" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.bode-thomas" } },
-  { person: "person.amaka-nurse", met: { place: FAMILY_HOUSE, thing: "friend-guest" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.ojuelegba" } },
+  { person: "person.dele-banker", met: { place: FAMILY_HOUSE, thing: "after-service" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.bode-thomas" } },
+  { person: "person.hauwa-nurse", met: { place: FAMILY_HOUSE, thing: "friend-guest" }, decemberOnly: false, home: { place: THEIR_ROOM, near: "place.ojuelegba" } },
   { person: "person.kelechi-developer", met: { place: "place.yaba", thing: "meetup-speaker" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
-  { person: "person.funmi-uk", met: { place: FAMILY_HOUSE, thing: "after-service" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
-  { person: "person.ifeoma-canada", met: { place: "place.yaba", thing: "meetup-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
-  { person: "person.chidi-dubai", met: { place: FAMILY_HOUSE, thing: "friend-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.ejiro-uk", met: { place: FAMILY_HOUSE, thing: "after-service" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.uduak-canada", met: { place: "place.yaba", thing: "meetup-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
+  { person: "person.tonye-dubai", met: { place: FAMILY_HOUSE, thing: "friend-guest" }, decemberOnly: true, home: { place: THEIR_ROOM, near: null } },
 ];

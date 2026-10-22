@@ -16,7 +16,7 @@ import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/
 import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import placeFile from "../../../../public/assets/places/their-room/place.json";
 import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
-import { courted, linkedFriend, peopleGame, TOBI } from "../../../shared/testing/person";
+import { courted, linkedFriend, peopleGame, DELE } from "../../../shared/testing/person";
 import { crowdSize } from "../../../shared/scene/crowd";
 import { crowdTuning } from "../../../shared/scene/limits";
 import { roomPartner, standingAsThemselves, withStanding } from "../meetings";
@@ -213,22 +213,22 @@ describe("their room dressed for each person", () => {
     expect(checkWalkable(ID, stage, footprints)).toEqual([]);
   });
 
-  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] [person:computer-mark-is-quiet] given Tobi courted, when their room opens, then it is dressed for him: his props join the room, he stands in it alone as a thing with his name and the computer mark and no act, no stranger stands there in either mode, and the chair's visit and the door stay; a bond with a player, or no bond, keeps the plain room", () => {
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] [person:computer-mark-is-quiet] given Dele courted, when their room opens, then it is dressed for him: his props join the room, he stands in it alone as a thing with his name and the computer mark and no act, no stranger stands there in either mode, and the chair's visit and the door stay; a bond with a player, or no bond, keeps the plain room", () => {
     const game = peopleGame();
     expect(roomPartner(game.view())).toBeNull();
-    courted(game, TOBI);
-    expect(roomPartner(game.view())).toBe(TOBI);
+    courted(game, DELE);
+    expect(roomPartner(game.view())).toBe(DELE);
     const dressed = dressPlace(file, [], roomPartner(game.view()));
     // Nobody is met here, so no meeting takes the partner away (world:nobody-picked-from-list).
     const room = stageOf(withStanding(dressed.file, []));
-    const own = dressings.find((one) => one.person === TOBI);
+    const own = dressings.find((one) => one.person === DELE);
     expect(room.models).toEqual([...stage.models, ...(own?.models ?? [])]);
     expect(room.standing).toEqual(own?.standing);
     expect(dressed.crowd).toEqual({ low: 0, high: 0, target: 0 });
     for (const mode of ["low", "high"] as const) expect(crowdSize({ crowd: dressed.crowd ?? entry.crowd }, mode, crowdTuning(city, "interior", true))).toBe(0);
     expect(room.things).toEqual(stage.things);
     const partner = standingAsThemselves(room);
-    expect(partner).toEqual([{ id: "partner", file: own?.standing?.[0]?.file, copy: 0, label: `${TOBI}.name`, mark: "computer", acts: [] }]);
+    expect(partner).toEqual([{ id: "partner", file: own?.standing?.[0]?.file, copy: 0, label: `${DELE}.name`, mark: "computer", acts: [] }]);
     expect(thingSpot(room, partner[0]!)).toEqual(own?.standing?.[0]?.at.slice(0, 2));
     expect(filesOf(dressed.file, [])).toContain(own?.standing?.[0]?.file);
     // A friend who is a player has no dressing: the room stays plain, and nobody stands in it.
@@ -244,7 +244,7 @@ describe("their room dressed for each person", () => {
     const game = peopleGame();
     courted(game, "person.kelechi-developer");
     expect(roomPartner(game.view())).toBe("person.kelechi-developer");
-    courted(game, TOBI);
-    expect(roomPartner(game.view())).toBe(TOBI);
+    courted(game, DELE);
+    expect(roomPartner(game.view())).toBe(DELE);
   });
 });

@@ -13,7 +13,7 @@ import { describe, expect, test } from "vitest";
 import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import theirRoom from "../../../public/assets/places/their-room/place.json";
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
-import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/person";
+import { courted, eagerContent, partnered, peopleGame, DELE } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { actsOffered } from "./acts/acts";
@@ -25,11 +25,11 @@ import { stagedNow, thingSpot, thingsNow, thingsOf } from "./scene/things";
 
 const HUB = "place.yaba";
 const HOUSE = "place.family-house";
-const HAUWA: Id<"person"> = "person.amaka-nurse";
+const HAUWA: Id<"person"> = "person.hauwa-nurse";
 const KELECHI: Id<"person"> = "person.kelechi-developer";
-const EJIRO: Id<"person"> = "person.funmi-uk";
-const UDUAK: Id<"person"> = "person.ifeoma-canada";
-const TONYE: Id<"person"> = "person.chidi-dubai";
+const EJIRO: Id<"person"> = "person.ejiro-uk";
+const UDUAK: Id<"person"> = "person.uduak-canada";
+const TONYE: Id<"person"> = "person.tonye-dubai";
 const hub = yabaHub as unknown as PlaceFile;
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = theirRoom as unknown as PlaceFile;
@@ -68,17 +68,17 @@ function talks(acts: Record<string, string[]>): [string, string][] {
 }
 
 describe("a person standing where content meets them", () => {
-  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given the banker's first month, when the family house is read, then Tobi after the service and Hauwa, a friend of the family, stand as things named by them with the computer mark, each act courts them, and nobody stands where content meets nobody", () => {
+  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given the banker's first month, when the family house is read, then Dele after the service and Hauwa, a friend of the family, stand as things named by them with the computer mark, each act courts them, and nobody stands where content meets nobody", () => {
     const view = banker().view();
     const listed = view.people.candidates.map((candidate) => candidate.person);
-    expect(listed).toEqual(expect.arrayContaining([TOBI, HAUWA]));
+    expect(listed).toEqual(expect.arrayContaining([DELE, HAUWA]));
     const standing = standingAt(HOUSE, view.people.candidates, false);
-    expect(standing).toEqual(expect.arrayContaining([{ thing: "after-service", person: TOBI }, { thing: "friend-guest", person: HAUWA }]));
+    expect(standing).toEqual(expect.arrayContaining([{ thing: "after-service", person: DELE }, { thing: "friend-guest", person: HAUWA }]));
     expect(standing).toHaveLength(2);
     const things = withMeetings(thingsOf(stageOf(parlour)), HOUSE, standing);
-    const tobi = things.find((thing) => thing.id === "after-service");
-    expect(tobi).toMatchObject({ label: `${TOBI}.name`, mark: "computer" });
-    expect(tobi?.acts).toEqual([expect.objectContaining({ kind: "command", command: COURT, with: TOBI })]);
+    const dele = things.find((thing) => thing.id === "after-service");
+    expect(dele).toMatchObject({ label: `${DELE}.name`, mark: "computer" });
+    expect(dele?.acts).toEqual([expect.objectContaining({ kind: "command", command: COURT, with: DELE })]);
     // Mama, Papa and the rest of the parlour keep their things.
     expect(things.map((thing) => thing.id)).toEqual(expect.arrayContaining(["mama", "papa", "sofa", "table", "out"]));
     // The meetup's two stand only in December.
@@ -88,11 +88,11 @@ describe("a person standing where content meets them", () => {
     expect(anywhere.filter((person) => !listed.includes(person))).toEqual([]);
   });
 
-  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given Tobi courted, when the view no longer lists him, then he stands nowhere: his thing and his figure are gone from the parlour, and Hauwa still stands", () => {
+  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given Dele courted, when the view no longer lists him, then he stands nowhere: his thing and his figure are gone from the parlour, and Hauwa still stands", () => {
     const game = banker();
-    courted(game, TOBI);
+    courted(game, DELE);
     const view = game.view();
-    expect(view.people.candidates.map((candidate) => candidate.person)).not.toContain(TOBI);
+    expect(view.people.candidates.map((candidate) => candidate.person)).not.toContain(DELE);
     const standing = standingAt(HOUSE, view.people.candidates, false);
     expect(standing).toEqual([{ thing: "friend-guest", person: HAUWA }]);
     expect(withMeetings(thingsOf(stageOf(parlour)), HOUSE, standing).map((thing) => thing.id)).not.toContain("after-service");
@@ -109,10 +109,10 @@ describe("a person standing where content meets them", () => {
     // Each in their own model where two share the thing.
     const standers = stageOf(withStanding(parlour, standingAt(HOUSE, view.people.candidates, true))).standing ?? [];
     expect(standers.map((one) => one.person).sort()).toEqual([EJIRO, TONYE].sort());
-    // Once Ejiro is courted, Tobi has the place after the service again.
+    // Once Ejiro is courted, Dele has the place after the service again.
     const game = banker();
     courted(game, EJIRO);
-    expect(standingAt(HOUSE, game.view().people.candidates, true).find((one) => one.thing === "after-service")?.person).toBe(TOBI);
+    expect(standingAt(HOUSE, game.view().people.candidates, true).find((one) => one.thing === "after-service")?.person).toBe(DELE);
   });
 
   test("[world:nobody-picked-from-list] given each meeting, when the city reads where it stands, then the place file declares its thing with one talk act and someone to stand there for each person, its mark is over them, the model is from the place's kit, and nobody is met in their room", () => {
@@ -210,56 +210,56 @@ describe("a person standing where content meets them", () => {
 });
 
 describe("the talk sheet", () => {
-  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] [world:one-action-one-sheet] given Tobi standing in the parlour, when he is talked to, then the card carries the computer mark, his meeting line and one button that courts him, and its button sends people/court with him", () => {
+  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] [world:one-action-one-sheet] given Dele standing in the parlour, when he is talked to, then the card carries the computer mark, his meeting line and one button that courts him, and its button sends people/court with him", () => {
     const game = banker();
     const sent: string[] = [];
-    const ask = talkAsk(TOBI, game.view(), maxCourting, WORDS, { send: (person) => sent.push(person), dismiss: () => undefined });
+    const ask = talkAsk(DELE, game.view(), maxCourting, WORDS, { send: (person) => sent.push(person), dismiss: () => undefined });
     expect(ask.who).toBe(say("ui.people.mark.computer"));
-    expect(ask.title).toBe(nameOf(TOBI));
-    expect(ask.line).toBe(text[`${TOBI}.met`]);
-    expect(ask.button).toBe(say("ui.people.court", { name: nameOf(TOBI) }));
+    expect(ask.title).toBe(nameOf(DELE));
+    expect(ask.line).toBe(text[`${DELE}.met`]);
+    expect(ask.button).toBe(say("ui.people.court", { name: nameOf(DELE) }));
     expect(ask.blocked).toBeUndefined();
     expect(ask.cost).toBeNull();
     ask.act();
-    expect(sent).toEqual([TOBI]);
+    expect(sent).toEqual([DELE]);
     // What the button sends, the engine takes: the bond opens at courting.
     game.accept({ type: COURT, with: sent[0] as Id<"person"> });
-    expect(game.view().people.bonds.find((bond) => bond.person === TOBI)?.stage).toBe("courting");
+    expect(game.view().people.bonds.find((bond) => bond.person === DELE)?.stage).toBe("courting");
   });
 
   test("[person:courting-opens-a-bond] given the most bonds a life may court already courting, when another is talked to, then the card's button is shut, says Not yet, and the reason stands on it", () => {
     const game = banker();
-    const others = game.view().people.candidates.map((candidate) => candidate.person).filter((person) => person !== TOBI);
+    const others = game.view().people.candidates.map((candidate) => candidate.person).filter((person) => person !== DELE);
     expect(others.length).toBeGreaterThanOrEqual(maxCourting);
     for (const person of others.slice(0, maxCourting)) game.accept({ type: COURT, with: person });
-    const ask = talkAsk(TOBI, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
+    const ask = talkAsk(DELE, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
     expect(ask.button).toBe(say("ui.needs.not-yet"));
     expect(ask.blocked).toBe(say("ui.people.court.full", { count: maxCourting }));
     // The engine says the same: one more is not legal.
-    game.expectRejected({ type: COURT, with: TOBI }, "not-legal");
+    game.expectRejected({ type: COURT, with: DELE }, "not-legal");
   });
 });
 
 describe("seeing someone beside someone else", () => {
-  // Hauwa is still offered while Tobi is courted. The rules allow it (person:courting-opens-a-bond, up to
+  // Hauwa is still offered while Dele is courted. The rules allow it (person:courting-opens-a-bond, up to
   // maxCourting), and courting beside courting costs nothing, so then the card says nothing more; beside a partner, gossip
   // follows (person:one-partner-at-a-time, person:gossip-when-two-timing), and the card says what it costs before the tap.
-  test("[person:gossip-when-two-timing] [person:courting-opens-a-bond] given Tobi only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {
+  test("[person:gossip-when-two-timing] [person:courting-opens-a-bond] given Dele only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {
     const game = banker();
-    courted(game, TOBI);
+    courted(game, DELE);
     const ask = talkAsk(HAUWA, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
     expect(ask.blocked).toBeUndefined();
     expect(ask.note).toBeUndefined();
   });
 
-  test("[person:gossip-when-two-timing] [person:one-partner-at-a-time] given Tobi a partner, when Hauwa is talked to, then her card's button stays open and its second line says seeing her too costs standing if it comes out, and Tobi may leave", () => {
+  test("[person:gossip-when-two-timing] [person:one-partner-at-a-time] given Dele a partner, when Hauwa is talked to, then her card's button stays open and its second line says seeing her too costs standing if it comes out, and Dele may leave", () => {
     const game = peopleGame(eagerContent());
     const bond = partnered(game);
     expect(game.view().people.bonds.find((one) => one.id === bond)?.stage).toBe("partner");
     const ask = talkAsk(HAUWA, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
     expect(ask.blocked).toBeUndefined();
-    expect(ask.note).toBe(say("ui.people.court.partnered", { partner: nameOf(TOBI), name: nameOf(HAUWA) }));
-    expect(ask.note).toContain(nameOf(TOBI));
+    expect(ask.note).toBe(say("ui.people.court.partnered", { partner: nameOf(DELE), name: nameOf(HAUWA) }));
+    expect(ask.note).toContain(nameOf(DELE));
     expect(ask.note).toContain(nameOf(HAUWA));
   });
 });
@@ -278,22 +278,22 @@ describe("the answer once courted", () => {
       expect(told).toEqual([say("ui.people.courted.said", { name: nameOf(person), line: text[`${person}.courted`]! }), say("ui.people.chosen", { name: nameOf(person) })]);
       expect(told[0]?.startsWith(`${nameOf(person)}: "`)).toBe(true);
     }
-    expect(courtedTold(TOBI, { name: nameOf, answer: () => null, said: (name, line) => `${name}${line}`, chosen: (name) => name })).toEqual([nameOf(TOBI)]);
+    expect(courtedTold(DELE, { name: nameOf, answer: () => null, said: (name, line) => `${name}${line}`, chosen: (name) => name })).toEqual([nameOf(DELE)]);
   });
 });
 
 describe("their room", () => {
-  test("[world:nobody-picked-from-list] given no bond courting, their room is not open; once Tobi is courted it is, near his home in content", () => {
+  test("[world:nobody-picked-from-list] given no bond courting, their room is not open; once Dele is courted it is, near his home in content", () => {
     const game = banker();
     expect(roomOpen(game.view())).toBe(false);
-    courted(game, TOBI);
+    courted(game, DELE);
     expect(roomOpen(game.view())).toBe(true);
-    expect(roomNear(game.view())).toBe(partnerMeetings.find((meeting) => meeting.person === TOBI)?.home.near);
+    expect(roomNear(game.view())).toBe(partnerMeetings.find((meeting) => meeting.person === DELE)?.home.near);
   });
 
-  test("[person:time-together-is-an-act] [world:nobody-picked-from-list] given Tobi courted, when their room is entered, then the visit is staged there on its chair, and nobody stands there to be met", () => {
+  test("[person:time-together-is-an-act] [world:nobody-picked-from-list] given Dele courted, when their room is entered, then the visit is staged there on its chair, and nobody stands there to be met", () => {
     const game = banker();
-    courted(game, TOBI);
+    courted(game, DELE);
     const view = game.view();
     expect(content.place[THEIR_ROOM]?.stages).toContain("activity.see-someone");
     const acts = actsHere(room, THEIR_ROOM, view, true);

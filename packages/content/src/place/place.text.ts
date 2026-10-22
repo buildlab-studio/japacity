@@ -547,7 +547,7 @@ export const placeText: Record<string, string> = {
   // rumour in the compound that night.
   "place.family-house.send-off.overheard.1": "Who is carrying the jollof to the back?",
   "place.family-house.send-off.overheard.2": "Your aunty says she will cry at the airport. She has started already.",
-  "place.family-house.send-off.overheard.3": "Bring more chairs. Mama Bisi's people have come.",
+  "place.family-house.send-off.overheard.3": "Bring more chairs. Mama Bukola's people have come.",
   "place.family-house.send-off.overheard.4": "Call us when you land. Every Sunday, you hear?",
   "place.motor-park.name": "the motor park",
   "place.motor-park.blurb": "Buses, touts and men who know a man. Ask quietly and somebody always knows a way.",
@@ -604,7 +604,7 @@ export const placeText: Record<string, string> = {
   // streets:peckham-talks-like-lagos: Peckham talks the way Lagos talks. The grocer, a mother, the barber, a student and two passers-by.
   "place.peckham.overheard.4": "Fresh ugu came this morning. Who wants? Before e finish.",
   "place.peckham.overheard.4.by": "Grocer",
-  "place.peckham.overheard.5": "Tobi, come here jare. Hold my hand until we cross.",
+  "place.peckham.overheard.5": "Bolu, come here jare. Hold my hand until we cross.",
   "place.peckham.overheard.6": "Low cut or skin fade? Sit down, my brother, the match don start.",
   "place.peckham.overheard.7": "My course mate says the warehouse is hiring. Night shift sha.",
   "place.peckham.overheard.8": "Na wa for this cold. E dey enter my bone.",
@@ -675,7 +675,7 @@ export const placeText: Record<string, string> = {
   "place.church-uk.name": "the church on the Old Kent Road",
   "place.church-uk.blurb": "A hall church on the main road: Sunday service in Yoruba and English, and jollof after in the hall.",
   "place.church-uk.overheard.1": "Sister, you are new? Come and greet the pastor.",
-  "place.church-uk.overheard.2": "Who needs a room? Brother Femi has one in Lewisham.",
+  "place.church-uk.overheard.2": "Who needs a room? Brother Wale has one in Lewisham.",
   "place.church-uk.overheard.3": "The choir is practising on Thursday. Come.",
   "place.test-centre-uk.name": "the test centre at Elephant and Castle",
   "place.test-centre-uk.blurb": "Desks in rows behind a locked door, and lockers for everything but your ID.",

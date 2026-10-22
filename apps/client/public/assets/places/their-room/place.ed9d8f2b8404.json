@@ -167,7 +167,7 @@
     "motion": [],
     "dressings": [
       {
-        "person": "person.tobi-banker",
+        "person": "person.dele-banker",
         "models": [
           {
             "file": "shared/prop/prop_dining-table.glb",
@@ -207,7 +207,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.tobi-banker",
+            "person": "person.dele-banker",
             "file": "shared/person/person_kunle.glb",
             "at": [
               -0.45,
@@ -223,7 +223,7 @@
         }
       },
       {
-        "person": "person.amaka-nurse",
+        "person": "person.hauwa-nurse",
         "models": [
           {
             "file": "shared/prop/prop_cooking-corner.glb",
@@ -273,7 +273,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.amaka-nurse",
+            "person": "person.hauwa-nurse",
             "file": "shared/person/person_tolani.glb",
             "at": [
               -0.45,
@@ -355,7 +355,7 @@
         }
       },
       {
-        "person": "person.funmi-uk",
+        "person": "person.ejiro-uk",
         "models": [
           {
             "file": "shared/prop/prop_travel-bag.glb",
@@ -405,7 +405,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.funmi-uk",
+            "person": "person.ejiro-uk",
             "file": "shared/person/person_sade.glb",
             "at": [
               -0.45,
@@ -421,7 +421,7 @@
         }
       },
       {
-        "person": "person.ifeoma-canada",
+        "person": "person.uduak-canada",
         "models": [
           {
             "file": "shared/prop/prop_travel-bag.glb",
@@ -461,7 +461,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.ifeoma-canada",
+            "person": "person.uduak-canada",
             "file": "shared/person/person_ada.glb",
             "at": [
               -0.45,
@@ -477,7 +477,7 @@
         }
       },
       {
-        "person": "person.chidi-dubai",
+        "person": "person.tonye-dubai",
         "models": [
           {
             "file": "shared/prop/prop_travel-bag.glb",
@@ -522,7 +522,7 @@
         "standing": [
           {
             "thing": "partner",
-            "person": "person.chidi-dubai",
+            "person": "person.tonye-dubai",
             "file": "shared/person/person_segun.glb",
             "at": [
               -0.45,

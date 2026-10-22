@@ -11,7 +11,7 @@ export const obligationText: Record<string, string> = {
   "obligation.salary-loan.name": "Salary loan",
   "obligation.quick-loan.name": "QuickNaira loan",
   "obligation.held-funds.name": "Proof of funds from the microfinance bank",
-  "obligation.held-funds-agent.name": "Proof of funds from Mr Kunle",
+  "obligation.held-funds-agent.name": "Proof of funds from Mr Gbenga",
 
   // Report lines. Each carries `obligation`, the entry id, so the interface can name it.
   "line.obligation.charged": "{obligation}: {amount} paid this month.",

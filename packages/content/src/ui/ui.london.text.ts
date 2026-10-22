@@ -72,7 +72,7 @@ export const uiLondonText: Readonly<Record<string, string>> = {
   "city.overheard.big-shop-uk.2": "Card only on this till, sorry.",
   "city.overheard.care-home-uk.1": "Sign the visitors' book and wash your hands.",
   "city.overheard.care-home-uk.2": "Na four of us from Lagos today.",
-  "city.overheard.ward-uk.1": "Sister Ngozi says take bay three today.",
+  "city.overheard.ward-uk.1": "Sister Uju says take bay three today.",
   "city.overheard.ward-uk.2": "Who has a blood pressure machine that works?",
   "city.overheard.office-uk.1": "Who booked the big room all afternoon?",
   "city.overheard.office-uk.2": "My mother still thinks I fix computers.",

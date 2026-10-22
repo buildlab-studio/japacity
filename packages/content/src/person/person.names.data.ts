@@ -226,18 +226,18 @@ export const familyPeople: Record<Id<"scenario">, NamePeople> = {
  * place and guide words are scenery kept by their own checks.
  */
 export const namedPeople: NamedPerson[] = [
-  { name: "Kunle", people: "yoruba", role: "agent", keys: ["offer.held-funds-agent.name", "offer.held-funds-agent.who", "obligation.held-funds-agent.name"] },
+  { name: "Gbenga", people: "yoruba", role: "agent", keys: ["offer.held-funds-agent.name", "offer.held-funds-agent.who", "obligation.held-funds-agent.name"] },
   { name: "Terna", people: "tiv", role: "friend", keys: ["offer.send-off-party.name", "offer.send-off-party.who", "offer.agent-chaser.who", "prologue.friend.card", "chats.from.friend", "offer.agent-chaser.title", "offer.agent-chaser.body"] },
-  { name: "Tobi", people: "yoruba", role: "partner", keys: ["person.tobi-banker.name"] },
-  { name: "Hauwa", people: "hausa-fulani", role: "partner", keys: ["person.amaka-nurse.name"] },
+  { name: "Dele", people: "yoruba", role: "partner", keys: ["person.dele-banker.name"] },
+  { name: "Hauwa", people: "hausa-fulani", role: "partner", keys: ["person.hauwa-nurse.name"] },
   { name: "Kelechi", people: "igbo", role: "partner", keys: ["person.kelechi-developer.name"] },
-  { name: "Ejiro", people: "urhobo-isoko", role: "partner", keys: ["person.funmi-uk.name"] },
-  { name: "Uduak", people: "efik-ibibio", role: "partner", keys: ["person.ifeoma-canada.name"] },
-  { name: "Tonye", people: "ijaw", role: "partner", keys: ["person.chidi-dubai.name"] },
+  { name: "Ejiro", people: "urhobo-isoko", role: "partner", keys: ["person.ejiro-uk.name"] },
+  { name: "Uduak", people: "efik-ibibio", role: "partner", keys: ["person.uduak-canada.name"] },
+  { name: "Tonye", people: "ijaw", role: "partner", keys: ["person.tonye-dubai.name"] },
   // advice:chaser-runs-around-cheaper: the chaser a friend puts the player onto.
   { name: "Hadiza", people: "hausa-fulani", role: "chaser", keys: ["offer.agent-chaser.who.1.name"] },
   // The person News names as the source of a story she tells.
   { name: "Tolu", people: "yoruba", role: "friend", keys: ["news.uk-unis-recruit.in-force.source", "chapter.landing.brief.giver", "chapter.secure.brief.giver"] },
   // The friend at the hub who hands the first briefs (the briefs' words, chapter.text.ts).
-  { name: "Femi", people: "yoruba", role: "friend", keys: ["chapter.brief.giver", "chapter.find-your-feet.brief.giver", "chapter.build-the-file.brief.giver"] },
+  { name: "Lanre", people: "yoruba", role: "friend", keys: ["chapter.brief.giver", "chapter.find-your-feet.brief.giver", "chapter.build-the-file.brief.giver"] },
 ];

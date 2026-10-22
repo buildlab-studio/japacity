@@ -6,9 +6,9 @@ import { describe, expect, test } from "vitest";
 
 import { dressPlace, filesOf, OPEN_STAGE, type PlaceFile, stageOf } from "./placeFile";
 
-const TOBI: Id<"person"> = "person.tobi-banker";
+const DELE: Id<"person"> = "person.dele-banker";
 const PARTY = "offer.party-set";
-const PARTNER = { thing: "partner", person: TOBI, file: "shared/person/person_kunle.glb", at: [0.5, 1, 2] as [number, number, number] };
+const PARTNER = { thing: "partner", person: DELE, file: "shared/person/person_kunle.glb", at: [0.5, 1, 2] as [number, number, number] };
 
 const ROOM: PlaceFile = {
   place: "place.their-room",
@@ -23,14 +23,14 @@ const ROOM: PlaceFile = {
     things: [{ id: "door", file: "shared/prop/prop_room-door.glb", copy: 0, label: "city.thing.door", acts: [{ id: "out", label: "city.inside.out", kind: "out" }] }],
     dressings: [
       { offer: PARTY, models: [{ file: "shared/prop/prop_lantern.glb", at: [[2, 2, 0]] }], people: [[3, 3, 0]], motion: [], dancers: [], crowd: { low: 4, high: 8, target: 10 } },
-      { person: TOBI, models: [{ file: "shared/prop/prop_dining-table.glb", at: [[1, -1, 0]] }], people: [[-1, 1, 0]], motion: [], dancers: [], standing: [PARTNER], crowd: { low: 0, high: 0, target: 0 } },
+      { person: DELE, models: [{ file: "shared/prop/prop_dining-table.glb", at: [[1, -1, 0]] }], people: [[-1, 1, 0]], motion: [], dancers: [], standing: [PARTNER], crowd: { low: 0, high: 0, target: 0 } },
     ],
   },
 };
 
 describe("a dressing for the person whose room it is", () => {
-  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] given a room with a dressing for Tobi, when it opens for his bond, then his props join the room's, his spots replace its own, he stands in it, its things stay, and nobody else: its crowd is none", () => {
-    const { file, crowd } = dressPlace(ROOM, [], TOBI);
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] given a room with a dressing for Dele, when it opens for his bond, then his props join the room's, his spots replace its own, he stands in it, its things stay, and nobody else: its crowd is none", () => {
+    const { file, crowd } = dressPlace(ROOM, [], DELE);
     const stage = stageOf(file);
     expect(stage.models.map((model) => model.file)).toEqual(["shared/prop/prop_bed.glb", "shared/prop/prop_dining-table.glb"]);
     expect(stage.people).toEqual([[-1, 1, 0]]);
@@ -43,12 +43,12 @@ describe("a dressing for the person whose room it is", () => {
 
   test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] given the same room, when it opens for nobody's bond or for a person it has no dressing for, then it is the plain room, the same file", () => {
     expect(dressPlace(ROOM, [], null)).toEqual({ file: ROOM, crowd: null });
-    expect(dressPlace(ROOM, [], "person.amaka-nurse").file).toBe(ROOM);
-    expect(dressPlace(ROOM, [TOBI]).file).toBe(ROOM);
+    expect(dressPlace(ROOM, [], "person.hauwa-nurse").file).toBe(ROOM);
+    expect(dressPlace(ROOM, [DELE]).file).toBe(ROOM);
   });
 
   test("[city:set-piece-shown-where-staged] [world:nobody-picked-from-list] given an open offer the place stages and a person's dressing, when both could dress it, then the offer's does, with its guests' crowd", () => {
-    const { file, crowd } = dressPlace(ROOM, [PARTY], TOBI);
+    const { file, crowd } = dressPlace(ROOM, [PARTY], DELE);
     expect(stageOf(file).models.map((model) => model.file)).toEqual(["shared/prop/prop_bed.glb", "shared/prop/prop_lantern.glb"]);
     expect(stageOf(file).standing).toBeUndefined();
     expect(crowd).toEqual({ low: 4, high: 8, target: 10 });

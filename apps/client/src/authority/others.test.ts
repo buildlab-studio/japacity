@@ -16,7 +16,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const FRIEND = "person.amaka-nurse";
+const FRIEND = "person.hauwa-nurse";
 const TAKEN = new Set(namedPeople.map((person) => person.name));
 
 describe("a computer person never carries the player's name", () => {

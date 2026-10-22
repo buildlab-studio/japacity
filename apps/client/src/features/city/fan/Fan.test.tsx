@@ -118,10 +118,10 @@ describe("world:fan-of-sticker-buttons the fan's pictures", () => {
 
 describe("world:fan-of-sticker-buttons every thing fans", () => {
   test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given a thing fanned, when its buttons show, then the thing's name stands in a pill over it, and a person the game plays carries the quiet mark beside it", () => {
-    render(<Fan thing="tobi" title="Tobi" mark="computer" entries={[entry("talk", { kind: "act", picture: "act.talk", price: null, balance: null })]} onAct={vi.fn()} onFallback={vi.fn()} />);
-    act(() => anchorFan("tobi", { x: 100, y: 380 }));
-    const title = document.querySelector<HTMLElement>('[data-fan="tobi"] [data-fan-title]');
-    expect(title?.textContent).toContain("Tobi");
+    render(<Fan thing="dele" title="Dele" mark="computer" entries={[entry("talk", { kind: "act", picture: "act.talk", price: null, balance: null })]} onAct={vi.fn()} onFallback={vi.fn()} />);
+    act(() => anchorFan("dele", { x: 100, y: 380 }));
+    const title = document.querySelector<HTMLElement>('[data-fan="dele"] [data-fan-title]');
+    expect(title?.textContent).toContain("Dele");
     expect(title?.querySelector('[data-person-mark="computer"]')?.textContent).toBe("Not a player");
   });
 

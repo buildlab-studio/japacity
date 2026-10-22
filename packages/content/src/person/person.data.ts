@@ -46,15 +46,15 @@ function behaviour(courtMonths: number, agreeBp: number, marryAfterMonths: numbe
 }
 
 export const personTable: Record<Id<"person">, PersonEntry> = {
-  "person.tobi-banker": partner(
-    "person.tobi-banker",
+  "person.dele-banker": partner(
+    "person.dele-banker",
     [ageAtLeast(21), AT_HOME],
     { ageGapMonths: PARTNER_GAP, eduLevel: 3, englishBand: 55, care: 20, tech: 30, home: "city", job: "activity.job-bank-officer", pay: { currency: "NGN", amount: naira(4800000) }, ...NO_PLACE },
     behaviour(4, 6000, 8, false, 3, 5000, 8500, "with-you-abroad"),
     false,
   ),
-  "person.amaka-nurse": partner(
-    "person.amaka-nurse",
+  "person.hauwa-nurse": partner(
+    "person.hauwa-nurse",
     [ageAtLeast(21), AT_HOME],
     { ageGapMonths: PARTNER_GAP, eduLevel: 3, englishBand: 60, care: 60, tech: 15, home: "town", job: "activity.job-nurse", pay: { currency: "NGN", amount: naira(2400000) }, ...NO_PLACE },
     behaviour(5, 6000, 8, false, 3, 4000, 8500, "canada"),
@@ -81,8 +81,8 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     behaviour(9, 5000, 12, true, 2, 6000, 8000, "uk"),
     true,
   ),
-  "person.funmi-uk": partner(
-    "person.funmi-uk",
+  "person.ejiro-uk": partner(
+    "person.ejiro-uk",
     [ageAtLeast(22)],
     {
       ageGapMonths: PARTNER_GAP,
@@ -102,8 +102,8 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     behaviour(9, 5000, 12, true, 2, 5000, 8000, "uk"),
     true,
   ),
-  "person.ifeoma-canada": partner(
-    "person.ifeoma-canada",
+  "person.uduak-canada": partner(
+    "person.uduak-canada",
     [ageAtLeast(22)],
     {
       ageGapMonths: PARTNER_GAP,
@@ -123,8 +123,8 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     behaviour(9, 5000, 12, true, 2, 5000, 8000, "canada"),
     true,
   ),
-  "person.chidi-dubai": partner(
-    "person.chidi-dubai",
+  "person.tonye-dubai": partner(
+    "person.tonye-dubai",
     [ageAtLeast(21)],
     {
       ageGapMonths: PARTNER_GAP,

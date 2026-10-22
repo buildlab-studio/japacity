@@ -61,8 +61,8 @@ describe("words for the people's lists", () => {
   });
 
   test("[person:time-together-is-an-act] given the people's lines, then who, where, what and the step read as words", () => {
-    expect(words("line.people.met", { who: "person.tobi-banker", spot: "suya-spot", what: "argued-made-up" })).toBe(
-      `Time with ${text["person.tobi-banker.name"]!} at ${text["people.spot.suya-spot"]!}. You ${text["people.what.argued-made-up"]!}.`,
+    expect(words("line.people.met", { who: "person.dele-banker", spot: "suya-spot", what: "argued-made-up" })).toBe(
+      `Time with ${text["person.dele-banker.name"]!} at ${text["people.spot.suya-spot"]!}. You ${text["people.what.argued-made-up"]!}.`,
     );
     expect(words("line.people.called", { who: "player", what: "long-call" })).toBe(`Your friend on the phone: ${text["people.call.long-call"]!}.`);
     expect(words("line.people.proposed", { who: "player", step: "marry" })).toBe("You asked your friend: get married.");
@@ -110,7 +110,7 @@ describe("words for the people's lists", () => {
 describe("time with someone", () => {
   test("[person:time-together-is-an-act] given a bond at home and one abroad, then seeing someone goes to the one at home and calling to the one abroad", () => {
     const game = peopleGame();
-    const home = courted(game, "person.tobi-banker");
+    const home = courted(game, "person.dele-banker");
     const away = courted(game, "person.kelechi-developer");
     const view = game.view();
     expect(timeWith(view, SEE)?.id).toBe(home);
@@ -120,8 +120,8 @@ describe("time with someone", () => {
 
   test("[person:time-together-is-an-act] given two bonds at home, when one has just had a moment, then the next slot of time goes to the other, as the engine sends it", () => {
     const game = peopleGame();
-    courted(game, "person.tobi-banker");
-    courted(game, "person.amaka-nurse");
+    courted(game, "person.dele-banker");
+    courted(game, "person.hauwa-nurse");
     // activity:now-acts-and-month-acts: seeing someone is an act done at once, so a moment in the month both bonds were courted would
     // tie them on that month; a month passes first.
     playMonth(game, []);
@@ -138,7 +138,7 @@ describe("time with someone", () => {
 describe("ending it", () => {
   test("[person:ender-pays-in-standing] given a connected bond, then ending it costs no standing, only the wellbeing", () => {
     const game = peopleGame();
-    const bond = courted(game, "person.tobi-banker");
+    const bond = courted(game, "person.dele-banker");
     const view = game.view();
     const held = view.people.bonds.find((entry) => entry.id === bond)!;
     expect(endCost(view, { ...held, stage: "connected" })).toEqual({ absence: false, standing: 0, wellbeing: content.tuning.people.endWellbeing, joint: false });
