@@ -13,7 +13,7 @@ import { say } from "../../shared/words/text";
 import { BOARD_FACES, boardFace, keptLook } from "./BoardList";
 import { boardsApiFor, BoardsApiProvider } from "./boards";
 import { BoardsView } from "./BoardsView";
-import { PERSON_KEY } from "../../shared/kept/storage";
+import { PERSON_KEY } from "../../shared/storage/storage";
 
 afterEach(() => window.localStorage.clear());
 

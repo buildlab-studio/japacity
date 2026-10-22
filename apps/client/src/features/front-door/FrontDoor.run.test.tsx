@@ -23,7 +23,7 @@ import { content, text } from "@japacity/content";
 import { fitHome, pocketIn, FrontDoor, selfContainReached, selfContainYear, startIn } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { DOOR_KEY } from "../../shared/kept/storage";
+import { DOOR_KEY } from "../../shared/storage/storage";
 
 afterEach(() => {
   localStorage.clear();

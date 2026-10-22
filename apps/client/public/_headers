@@ -8,7 +8,7 @@
 # font-src data: the sign font, small enough that the build inlines it.
 # If the server is ever on another address than the page, connect-src names it, with its wss: form.
 # static.cloudflareinsights.com and cloudflareinsights.com: Cloudflare Web Analytics' beacon and its reports,
-# in the page only when the build has VITE_ANALYTICS_TOKEN (vite/beacon.plugin.ts).
+# in the page only when the build has VITE_ANALYTICS_TOKEN (vite/analytics.plugin.ts).
 # Caching (server:production-and-staging): every file is asked about again before use (no-cache: kept, but
 # revalidated), so a new build reaches the next load; the page itself above all. Only the files under /assets/ whose
 # names carry the hash of their contents (the build's code, the models) are kept for a year untouched. The models'

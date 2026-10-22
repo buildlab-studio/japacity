@@ -3,7 +3,7 @@
 // blurb and the first night's card. Kept on the device beside the save and the person, under one key of its own that goes when the life ends
 // (authority/ended.ts), so a reload never shows a mark again and a new life starts with none. The life's scenario is
 // kept with the marks, so marks left by another life are never read as this one's.
-import { browserStorage, TAUGHT_KEY } from "../kept/storage";
+import { browserStorage, TAUGHT_KEY } from "../storage/storage";
 
 /** The marks: the first chapter's title, the Calendar's teach card, a place's labels, a home's blurb, the first night. */
 export type TaughtMark = "title" | "calendar" | "night" | `place:${string}` | `home:${string}`;

@@ -12,7 +12,7 @@ import { say } from "../../shared/words/text";
 import { FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { DOOR_KEY } from "../../shared/kept/storage";
+import { DOOR_KEY } from "../../shared/storage/storage";
 
 afterEach(() => {
   vi.useRealTimers();

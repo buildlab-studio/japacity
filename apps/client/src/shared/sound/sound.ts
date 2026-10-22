@@ -4,7 +4,7 @@
 import { createStore } from "zustand/vanilla";
 
 import { type ClipFormat, type Playing, type SoundBackend, webAudioBackend } from "./sound.backend";
-import { MUTED_KEY } from "../kept/storage";
+import { MUTED_KEY } from "../storage/storage";
 
 /** The four notices of section 7, one a scene at most. */
 export type NoticeCase = "on" | "blocked" | "saver" | "unsupported";

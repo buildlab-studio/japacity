@@ -95,7 +95,7 @@ import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { onMap } from "../../shared/world/rentedHomes";
 import { LoadingNote } from "./LoadingNote";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
-import { browserStorage, CITY_BEEN_KEY, CITY_LAST_KEY } from "../../shared/kept/storage";
+import { browserStorage, CITY_BEEN_KEY, CITY_LAST_KEY } from "../../shared/storage/storage";
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (clock:envelopes-show-real-waits). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);

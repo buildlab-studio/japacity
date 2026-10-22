@@ -10,7 +10,7 @@ import { archetypeOf, fullPrologue } from "../shared/front-door/archetypes";
 import { tileSeed } from "../shared/front-door/draw";
 import { lastSegment, lifeStart, loadSave, newSave, newState, nextGameMorning, recordCommand, replay, savedCommands, sealFrom, standInWorld, step, time, viewFor, withhold, withholdLines, worldClockAt } from "@japacity/sim";
 import { readPerson } from "../shared/front-door/person";
-import { browserStorage, MORNING_KEY, PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
+import { browserStorage, MORNING_KEY, PERSON_KEY, SAVE_KEY } from "../shared/storage/storage";
 
 /** How the authority's life began. A replaced save is shown to the player. */
 type LifeStart =

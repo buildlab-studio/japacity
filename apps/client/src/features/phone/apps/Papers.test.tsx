@@ -15,7 +15,7 @@ import { forMonths, inMonths, nameOf, runningName, say } from "../../../shared/w
 import { PHONE_ACTS, paperNotices, papersMarkOf, papersOf, placeOf, requestOf } from "../papers";
 import { PhoneApps } from "../PhoneApps";
 import { marksOf, reloadSeen, waitingOf } from "../seen";
-import { CITY_LAST_KEY } from "../../../shared/kept/storage";
+import { CITY_LAST_KEY } from "../../../shared/storage/storage";
 
 const UK = "route.uk-masters";
 const PASSPORT = "document.passport";

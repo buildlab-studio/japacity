@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
 import { say } from "../words/text";
-import { browserStorage, WALK_KEY } from "../kept/storage";
+import { browserStorage, WALK_KEY } from "../storage/storage";
 
 /** What the key holds once the device has played; a device that saw the walkthrough holds it too, and shows no labels. */
 const PLAYED = "1";

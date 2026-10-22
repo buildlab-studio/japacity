@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, onTestFinished, test, vi } fro
 
 import { GameProvider, useGame } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/kept/storage";
+import { KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { accountView, engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";

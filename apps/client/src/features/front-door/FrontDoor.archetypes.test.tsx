@@ -15,7 +15,7 @@ import type { GameStore } from "../../authority/store";
 import { say } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { SAVE_KEY } from "../../shared/kept/storage";
+import { SAVE_KEY } from "../../shared/storage/storage";
 
 afterEach(() => {
   localStorage.clear();

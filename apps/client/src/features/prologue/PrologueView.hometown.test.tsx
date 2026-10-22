@@ -10,7 +10,7 @@ import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { hometownWords, say } from "../../shared/words/text";
 import { PageHandover, TURN_MS } from "./PrologueView";
-import { TRAIL_KEY } from "../../shared/kept/storage";
+import { TRAIL_KEY } from "../../shared/storage/storage";
 
 const PROLOGUE = "scenario.prologue";
 

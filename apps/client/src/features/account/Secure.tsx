@@ -28,7 +28,7 @@ import { askWaysBackIn } from "./marks";
 import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { tellWay, WayToast } from "./WayToast";
-import { secureAskedKey } from "../../shared/kept/storage";
+import { secureAskedKey } from "../../shared/storage/storage";
 
 const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userAgent);
 

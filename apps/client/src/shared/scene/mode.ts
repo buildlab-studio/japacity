@@ -1,7 +1,7 @@
 // The two graphics modes and how the city moves between them (city:two-graphics-modes). Pure: the scene
 // feeds in each frame's time and the time spent in the place, and reads back the mode and its table.
 import type { Tuning } from "@japacity/sim";
-import { GRAPHICS_KEY } from "../kept/storage";
+import { GRAPHICS_KEY } from "../storage/storage";
 
 export type Mode = "low" | "high";
 /** What the player chose in settings: the game's own judgement, or a mode fixed for this device. */

@@ -2,7 +2,7 @@
 import { describe, expect, test } from "vitest";
 
 import { keptTypeOf } from "./kept";
-import { CARDS_KEY } from "../kept/storage";
+import { CARDS_KEY } from "../storage/storage";
 
 const read = (value: string | null) => ({ getItem: (key: string) => (key === CARDS_KEY ? value : null) });
 

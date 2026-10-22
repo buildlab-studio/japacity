@@ -3,7 +3,7 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { optionWords } from "../../shared/sim/person";
+import { optionWords } from "../../shared/view/person";
 import { renderWithView } from "../../shared/testing/render";
 import { interviewGame, QUESTIONS, renderWithGame } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";

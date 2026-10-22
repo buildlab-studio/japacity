@@ -7,7 +7,7 @@ import { doorLookOf } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
 import { readStyle, styleKey, type LookStyle } from "./style";
-import { browserStorage, PERSON_KEY } from "../kept/storage";
+import { browserStorage, PERSON_KEY } from "../storage/storage";
 
 export interface KeptPerson {
   /** A shipped person's file name, `person_ada`: a whole look, never a stat. Absent where the look kept is one the game no longer ships: each reader then shows the look it shows with no person kept. */

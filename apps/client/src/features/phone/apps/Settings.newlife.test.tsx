@@ -16,7 +16,7 @@ import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
 import { HOLD_MS } from "./Settings";
-import { PERSON_KEY, SAVE_KEY } from "../../../shared/kept/storage";
+import { PERSON_KEY, SAVE_KEY } from "../../../shared/storage/storage";
 import { WhilePlaying } from "../phone.testing";
 
 afterEach(() => {

@@ -7,7 +7,7 @@ import type { PlayerView } from "@japacity/sim";
 
 import type { Tone } from "../ui/ToneTag";
 import { hometownWords, say, sayCount } from "../words/text";
-import { browserStorage, TRAIL_KEY } from "../kept/storage";
+import { browserStorage, TRAIL_KEY } from "../storage/storage";
 
 type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
 

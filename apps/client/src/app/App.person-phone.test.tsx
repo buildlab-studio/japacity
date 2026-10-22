@@ -11,7 +11,7 @@ import { describe, expect, test } from "vitest";
 import { moderationApi } from "../shared/moderation/api";
 import { ModerationProvider } from "../shared/moderation/ModerationProvider";
 import { api } from "../shared/net/http";
-import { slotOrder } from "../shared/sim/person";
+import { slotOrder } from "../shared/view/person";
 import { BASE, fakeServer } from "../shared/testing/server";
 import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithGame, TOBI } from "../shared/testing/person";
 import { nameOf, say, sayCount } from "../shared/words/text";

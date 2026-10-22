@@ -2,7 +2,7 @@
 // the device under one key of its own, so a reload at any step comes back to that step. The life itself is written
 // only at Begin (the authority keeps the save unwritten until a life is chosen).
 import { readStyle, type LookStyle } from "../front-door/style";
-import { browserStorage, DOOR_KEY } from "../kept/storage";
+import { browserStorage, DOOR_KEY } from "../storage/storage";
 
 /**
  * The steps of the run, in order (prologue:front-door-three-screens): `you` (the name and the look), `life` (the tiles and the age under

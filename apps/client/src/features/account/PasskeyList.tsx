@@ -6,7 +6,7 @@ import type { AccountView } from "@japacity/api";
 import { useEffect, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
-import { browserStorage, PASSKEY_OFFERED_KEY } from "../../shared/kept/storage";
+import { browserStorage, PASSKEY_OFFERED_KEY } from "../../shared/storage/storage";
 import type { AccountApi, AuthResult, PasskeyRow } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
 import { say, sayCount } from "../../shared/words/text";

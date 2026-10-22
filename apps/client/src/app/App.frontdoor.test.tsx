@@ -25,7 +25,7 @@ import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes }
 import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../shared/front-door/looks";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
-import { FULL_PROLOGUE_KEY, PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
+import { FULL_PROLOGUE_KEY, PERSON_KEY, SAVE_KEY } from "../shared/storage/storage";
 import { memoryStorage } from "../shared/testing/storage";
 
 const FIXED = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);

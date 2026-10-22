@@ -19,7 +19,7 @@ import { familyCard } from "./family";
 import { stampsOf } from "./stamps";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
-import { TRAIL_KEY } from "../kept/storage";
+import { TRAIL_KEY } from "../storage/storage";
 
 /** The age in months the view holds. */
 function ageOf(view: Pick<PlayerView, "qualities">): number {

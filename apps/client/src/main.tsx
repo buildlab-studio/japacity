@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client";
 
 import { App } from "./app/App";
 import { tilesAsked } from "./shared/tiles/asked";
-import { sayBuild } from "./shared/stamp/stamp";
+import { sayBuild } from "./shared/build-stamp/stamp";
 import { installSoundWake } from "./shared/sound/sound";
 import { livelyAsked } from "./shared/ui/lively/preview";
 

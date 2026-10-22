@@ -8,7 +8,7 @@ import { earlyWinIn, picksOf } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { momentLine } from "../shared/moment/moment";
-import { carriedPlan } from "../shared/sim/carried";
+import { carriedPlan } from "../shared/view/carried";
 import type { AccountApi } from "../shared/net/auth";
 import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
 import { plannable } from "../shared/words/acts";
@@ -22,7 +22,7 @@ import { forgetLife } from "./ended";
 import { swapsFor } from "./others";
 import { playerName } from "../shared/front-door/person";
 import type { AuthorityEvent } from "./remote";
-import { MONTH_KEY } from "../shared/kept/storage";
+import { MONTH_KEY } from "../shared/storage/storage";
 
 /** A number of the world at this tick as the store holds it: the fetched world's online, the local authority's offline; 0 before either is known. */
 export function worldVar(state: Pick<GameState, "world" | "vars">, id: string): number {

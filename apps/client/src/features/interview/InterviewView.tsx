@@ -9,7 +9,7 @@ import type { PlayerView } from "@japacity/sim";
 import { useEffect, useRef, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { optionWords } from "../../shared/sim/person";
+import { optionWords } from "../../shared/view/person";
 import { Tile } from "../../shared/tiles/Tile";
 import { Face } from "../../shared/ui/lively/Face";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";

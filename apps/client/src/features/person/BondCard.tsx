@@ -12,7 +12,7 @@ import { type ReactNode, useId, useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { FaceSticker } from "../../shared/front-door/LookPicture";
 import { lookForName } from "../../shared/front-door/looks";
-import { bondName, endCost, interviewName, jointRoutes, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/person";
+import { bondName, endCost, interviewName, jointRoutes, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/view/person";
 import { GhostButton } from "../../shared/ui/lively/GhostButton";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";

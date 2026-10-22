@@ -11,7 +11,7 @@ import { nameOf, say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
-import { FULL_PROLOGUE_KEY } from "../shared/kept/storage";
+import { FULL_PROLOGUE_KEY } from "../shared/storage/storage";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 import { memoryStorage } from "../shared/testing/storage";
 

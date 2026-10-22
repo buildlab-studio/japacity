@@ -4,7 +4,7 @@
 // nothing reloads again and the card with Reload says it instead. A reply from the game clears the mark, but only
 // one that comes 3 s or more after the reload: on a host walled in part, a route that answers at once beside one that
 // is walled must not clear it, or the page would reload for ever.
-import { browserStorage, WALL_KEY } from "../kept/storage";
+import { browserStorage, WALL_KEY } from "../storage/storage";
 
 /** A second wall sooner than this after the reload shows the card instead of reloading again. */
 export const WALL_AGAIN_MS = 60_000;

@@ -14,7 +14,7 @@ import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { When } from "./boards";
-import { PERSON_KEY } from "../../shared/kept/storage";
+import { PERSON_KEY } from "../../shared/storage/storage";
 
 function figureWords(row: BoardRow, when: When): string {
   const figure = formatNumber(row.figure);

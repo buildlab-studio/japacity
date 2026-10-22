@@ -9,7 +9,7 @@ import { newsMarkOf } from "../../shared/phone/newsSeen";
 import { japaMark } from "../../shared/world/briefHanded";
 import { familyFeedLines } from "./feed";
 import { papersMarkOf } from "./papers";
-import { browserStorage, SEEN_KEY } from "../../shared/kept/storage";
+import { browserStorage, SEEN_KEY } from "../../shared/storage/storage";
 import { listeners } from "../../shared/listeners/listeners";
 
 // The Calendar sits first among the apps: the month lives on the phone (world:top-band-is-lively-pill). Papers sits beside Japa: the

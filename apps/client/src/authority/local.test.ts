@@ -4,7 +4,7 @@ import { lastSegment, lifeStart, savedCommands, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { localAuthority } from "./local";
-import { PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
+import { PERSON_KEY, SAVE_KEY } from "../shared/storage/storage";
 import { memoryStorage } from "../shared/testing/storage";
 
 function storedSave(storage: ReturnType<typeof memoryStorage>): Save {

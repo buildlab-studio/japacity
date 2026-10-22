@@ -24,7 +24,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { startYearOf } from "@japacity/sim";
 
 import { say } from "../words/text";
-import { browserStorage, FULL_PROLOGUE_KEY } from "../kept/storage";
+import { browserStorage, FULL_PROLOGUE_KEY } from "../storage/storage";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 

@@ -12,7 +12,7 @@ import { localAuthority } from "./local";
 import { keepPerson, readPerson } from "../shared/front-door/person";
 import { remoteAuthority } from "./remote";
 import { createGameStore } from "./store";
-import { DAYS_KEY, MONTH_KEY, PERSON_KEY, SAVE_KEY, TRAIL_KEY } from "../shared/kept/storage";
+import { DAYS_KEY, MONTH_KEY, PERSON_KEY, SAVE_KEY, TRAIL_KEY } from "../shared/storage/storage";
 import { removableStorage } from "../shared/testing/storage";
 
 afterEach(() => {

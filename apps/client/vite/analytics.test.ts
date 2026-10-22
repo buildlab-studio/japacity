@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { BEACON_REPORTS, BEACON_SCRIPT, beaconPlugin, beaconTag, withBeacon } from "./beacon.plugin";
+import { BEACON_REPORTS, BEACON_SCRIPT, beaconPlugin, beaconTag, withBeacon } from "./analytics.plugin";
 
 const CLIENT = join(import.meta.dirname, "..");
 const PAGE = readFileSync(join(CLIENT, "index.html"), "utf8");

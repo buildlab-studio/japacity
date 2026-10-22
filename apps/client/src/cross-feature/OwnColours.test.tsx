@@ -15,7 +15,7 @@ import { FrontDoor } from "../features/front-door/FrontDoor";
 import { forgetOwnColours, type OwnColours, reportOwn, SWATCHES } from "../shared/front-door/style";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
-import { DOOR_KEY, SAVE_KEY } from "../shared/kept/storage";
+import { DOOR_KEY, SAVE_KEY } from "../shared/storage/storage";
 import { memoryStorage } from "../shared/testing/storage";
 
 afterEach(() => {

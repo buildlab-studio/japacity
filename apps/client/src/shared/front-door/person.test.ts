@@ -3,7 +3,7 @@
 import { describe, expect, test } from "vitest";
 
 import { adoptPerson, keepPerson, keptLookFile, keptStyleOf, personToSend, playerName, readPerson } from "./person";
-import { PERSON_KEY } from "../kept/storage";
+import { PERSON_KEY } from "../storage/storage";
 import { memoryStorage } from "../testing/storage";
 
 const PHOTO = "data:image/webp;base64,UklGRg==";

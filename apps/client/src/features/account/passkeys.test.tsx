@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { PASSKEY_MARK_KEY, PASSKEY_OFFERED_KEY } from "../../shared/kept/storage";
+import { PASSKEY_MARK_KEY, PASSKEY_OFFERED_KEY } from "../../shared/storage/storage";
 import { betterAuthApi, type AccountApi, type AuthResult, type PasskeyRow } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
 import { fakePhone, type Phone } from "../../shared/testing/passkeys";
