@@ -11,6 +11,10 @@ Players meet each other through invites, preset phrases, characters in a place, 
 
 **moderation:block-ends-pair-records** A block ends any pair record the two share the way a break-up does (`person.md`), with no standing cost to the one who blocked. `moderation/unblock` lifts the block and restores nothing.
 
+**moderation:blocked-list-in-settings** The phone's Settings holds a Blocked list: every account the player has blocked, newest first, each line the account's username, its face drawn from the shown name (as on a board), the day of the block and an Unblock button. Unblock is `moderation/unblock` and restores nothing (moderation:block-ends-pair-records); the line goes from the list. With none blocked the list says so in one line. The list is the blocker's alone: no account learns it is on another's list. A deleted account's line reads "A player" until its rows go. `GET /api/moderation/blocked` answers `{ ok, blocked: { account, username, at }[] }`, and `moderation/unblock` takes `{ account }` naming a line of that list; a block itself still names a pair or a character, from where the two met.
+
+**moderation:blocks-off-friends-board** Neither of two accounts with a block between them, in either direction, is on the other's friends boards, though an invite joined them. The everyone boards and the joined-week board are unchanged: they are public, and a gap there would tell the blocked account it was blocked.
+
 ## Rules: report
 
 **moderation:report-from-every-surface** `moderation/report` can be sent from every surface where a player meets another player or anything the game did not write: a conversation, a phrase said in a place, a character seen in a place, a display name, an invite card, a pair record, a stand-in's behaviour, and an advert. The client shows the report control on each of them; a test walks every surface in the interface list and finds it. The terms of play say so: a player can block or report another wherever they meet. A friend's thread in Chats carries block and report, citing their messages.
