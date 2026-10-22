@@ -13,7 +13,7 @@ import { advertLinksJob } from "./advert/scheduled";
 import { boardsWeekJob } from "./boards/scheduled";
 import { COUNTERS_CRON, countersJob } from "./scheduled/counters";
 import { runDeletions } from "./scheduled/deletion";
-import { drawJob } from "./scheduled/draw";
+import { drawJob } from "./scheduled/lottery";
 import { LIVES_CRON, livesJob } from "./scheduled/lives";
 import { MONEY_CRON, moneyJob } from "./scheduled/money";
 import { notifyJob } from "./scheduled/notify";

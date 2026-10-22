@@ -1,6 +1,6 @@
 import type { BoardQuery, BoardStore, FigureRow, RankedRow } from "../boards";
 import { scoreOf } from "../boards";
-import { compareIds } from "../keys";
+import { compareIds } from "../pairKeys";
 import { copy } from "./copy.memory";
 
 /** city:board-line-and-ranking: higher score first, then the earlier account, then the lower id. */

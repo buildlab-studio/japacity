@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
-import { testSession } from "../deps";
+import { testSession } from "../dependencies";
 import { dropOldFeedback } from "../moderation/feedback";
 
 const ADMIN = "account.admin";

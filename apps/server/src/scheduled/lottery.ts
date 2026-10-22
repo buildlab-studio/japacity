@@ -3,7 +3,7 @@
 // result is not stored, then open the draw on sale with the jackpot it leaves.
 // Safe to run twice or at once: every step keeps what the first run stored.
 import { tickAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { DrawKeys } from "../lottery/draw";
 import { closeDraw, drawOn, openDraw, storedBefore } from "../lottery/draw";
 import { TICKS_CRON } from "./ticks";

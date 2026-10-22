@@ -10,7 +10,7 @@ import { nightlyTotals } from "../analytics/nightly";
 import { regionOf } from "../analytics/list";
 import { numbersTotals } from "../analytics/numbers";
 import { replayLife } from "../analytics/replay";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** The cron in `wrangler.jsonc` that runs this job. */
 export const COUNTERS_CRON = "0 0 * * *";

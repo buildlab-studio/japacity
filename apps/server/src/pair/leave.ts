@@ -4,7 +4,7 @@
 // leaving side's name taken out, and at removal its rows go but what a hold keeps.
 import type { PairRecord } from "@japacity/sim";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { pairStep, sendTo, sideLive, sideOf } from "./step";
 
 /**

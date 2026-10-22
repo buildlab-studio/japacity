@@ -4,7 +4,7 @@ import type { ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 
 import { countFeedback } from "../analytics/live";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { sendFeedback } from "../moderation/feedback";

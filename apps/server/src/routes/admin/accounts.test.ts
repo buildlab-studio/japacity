@@ -10,7 +10,7 @@ import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { adminAccountsFrom, deployedConfig, productionConfig } from "../../config";
 import type { ServerConfig } from "../../config";
-import { testSession } from "../../deps";
+import { testSession } from "../../dependencies";
 
 const OWNER = "account.owner";
 

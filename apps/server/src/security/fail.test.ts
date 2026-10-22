@@ -5,8 +5,8 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { makeApp } from "../app";
 import { testDeps } from "../app.testing";
-import { memoryStores } from "../deps";
-import type { Stores } from "../deps";
+import { memoryStores } from "../dependencies";
+import type { Stores } from "../dependencies";
 import { answered, failureReply, failureStatus, RETRY_AFTER_SECONDS } from "./fail";
 import { SECURITY_HEADERS } from "./headers";
 

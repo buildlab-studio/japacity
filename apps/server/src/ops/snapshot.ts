@@ -8,7 +8,7 @@
 import type { State } from "@japacity/sim";
 import type { Held, SegmentRow, Writes } from "@japacity/store";
 
-import type { Contents, ServerDeps } from "../deps";
+import type { Contents, ServerDeps } from "../dependencies";
 import { load, snapshotOf } from "../authority/load";
 import { dialedContents } from "../switches/dials";
 import { heldWorlds } from "../world/ticks";

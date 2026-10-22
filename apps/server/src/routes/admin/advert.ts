@@ -16,7 +16,7 @@ import type { Fetcher } from "../../advert/links";
 import { failingLinks } from "../../advert/links";
 import type { Decided, Decision } from "../../advert/review";
 import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from "../../advert/review";
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 import { keepNone } from "../reply";

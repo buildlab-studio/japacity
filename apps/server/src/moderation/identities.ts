@@ -2,7 +2,7 @@
 // kept only as salted hashes, and the end of its sessions.
 import type { Auth } from "../auth/auth";
 import { sha256Hex } from "../auth/hooks";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** What a ban needs of the auth library. Tests hand in a stand-in. */
 export interface Identities {

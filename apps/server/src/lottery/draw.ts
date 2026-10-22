@@ -8,7 +8,7 @@ import type { DrawRow, TicketRow, WorldStore } from "@japacity/store";
 
 import { sendAuthority } from "../authority/command";
 import { tickAt, tickStartsAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { lotteryOdds } from "../switches/dials";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";

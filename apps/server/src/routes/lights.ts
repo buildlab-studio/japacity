@@ -11,7 +11,7 @@ import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
 import { lightsOf } from "../analytics/lights";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { overLimit } from "../limits/limit";
 import type { EdgeCache, Made } from "./cache";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./cache";

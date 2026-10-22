@@ -4,7 +4,7 @@
 // stores, where no log can be read by day.
 import type { LedgerStore } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 const byStore = new WeakMap<LedgerStore, Map<number, Set<string>>>();
 

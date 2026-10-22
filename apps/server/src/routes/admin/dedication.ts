@@ -12,7 +12,7 @@ import type { DedicationLight } from "@japacity/store";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 import { newId } from "../../moderation/decide";
 import { DEDICATION_LOG_REASON } from "../../moderation/reports";
 import { adminOnly, type AdminEnv } from "./admin";

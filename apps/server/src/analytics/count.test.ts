@@ -4,8 +4,8 @@ import { describe, expect, test } from "vitest";
 import { rejectionCounts } from "../ops/rejections";
 import { call, newLife, restMonth, send, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
-import type { Limiter } from "../deps";
-import { openLimiters } from "../deps";
+import type { Limiter } from "../dependencies";
+import { openLimiters } from "../dependencies";
 
 async function rejected(server: TestServer, code: string, region = "NG"): Promise<number> {
   const day = time.dayName(time.utcDay(server.deps.now()));

@@ -7,7 +7,7 @@ import type { SwitchName } from "@japacity/store";
 import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { isOn, retryAfterSeconds, switchedOff } from "./switches";
 
 /** server:four-off-switches: the commands a switch stops before they reach `step`. */

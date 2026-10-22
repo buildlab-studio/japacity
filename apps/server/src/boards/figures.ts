@@ -6,7 +6,7 @@ import { japacity } from "@japacity/sim";
 
 import type { Live } from "../authority/load";
 import { tickAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { tickRow } from "../world/ticks";
 import type { BoardPorts } from "./ports";
 import { accountPorts } from "./ports";

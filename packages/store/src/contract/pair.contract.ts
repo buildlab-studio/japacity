@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { pairIds, pairKey } from "../keys";
+import { pairIds, pairKey } from "../pairKeys";
 import type { PairStore, PlayerStore, StoreResult, Writes } from "../types";
 import { logRow, must, newCharacter } from "./contract.testing";
 

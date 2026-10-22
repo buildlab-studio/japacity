@@ -7,7 +7,7 @@ import type { Command, Content, ReportLine, Sender, State, StepResult, World } f
 import { checkContent, checkInvariants, hashState, step, upgradeState } from "@japacity/sim";
 import type { Held, LogRow, SegmentRow, SnapshotRow } from "@japacity/store";
 
-import type { Contents } from "../deps";
+import type { Contents } from "../dependencies";
 import { namedContent } from "../switches/dials";
 
 /** One held character inside a transaction: the state the rows so far leave, and everything still to write. */

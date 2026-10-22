@@ -17,12 +17,12 @@ import { ADMIN_STATEMENT_MS, ADMIN_TIMEOUT_DETAIL } from "./ops/timeout";
 import { softwarePasskey } from "./auth/passkey.testing";
 import { productionConfig } from "./config";
 import type { ServerConfig } from "./config";
-import { openLimiters } from "./deps";
+import { openLimiters } from "./dependencies";
 import type { Env } from "./index";
 import type { Place } from "./place/place.object";
 import { postgresStores } from "./postgres.testing";
-import { isolateFor } from "./production";
-import type { Isolate } from "./production";
+import { isolateFor } from "./postgres";
+import type { Isolate } from "./postgres";
 import { answered } from "./security/fail";
 import { gameReply } from "./worker";
 

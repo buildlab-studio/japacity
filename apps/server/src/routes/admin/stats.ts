@@ -8,7 +8,7 @@ import type { NumbersLog } from "@japacity/store";
 import { Hono } from "hono";
 
 import { buildStats, statsFrom } from "../../analytics/stats";
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 import { onlineAt } from "../../scheduled/online";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";

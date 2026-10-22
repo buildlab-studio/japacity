@@ -2,7 +2,7 @@
 // recorded with the reviewer, the time, the checks and the banned list's version.
 import type { AdminAction, AdvertReview, Campaign, Creative, LogParams, StoreResult } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { newId } from "../moderation/decide";
 import { BANNED_LIST_VERSION } from "./categories";
 import { campaignChecks, creativeChecks, missingChecks } from "./campaign";

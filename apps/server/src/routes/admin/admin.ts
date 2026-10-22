@@ -10,7 +10,7 @@ import type { MiddlewareHandler } from "hono";
 import { listAlarms } from "../../ops/alarm";
 import { rejectionCounts } from "../../ops/rejections";
 import { rollbackCheck } from "../../ops/rollback";
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 
 const WHOLE = /^\d{1,9}$/;
 

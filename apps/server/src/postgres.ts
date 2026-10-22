@@ -13,7 +13,7 @@ import type { Connection, Handle, Queries } from "@japacity/db";
 import type { CounterStore, SwitchStore } from "@japacity/store";
 
 import { load } from "./authority/load";
-import type { Contents, Limiters, Secrets, ServerDeps, SessionReader, Stores } from "./deps";
+import type { Contents, Limiters, Secrets, ServerDeps, SessionReader, Stores } from "./dependencies";
 import type { ServerConfig } from "./config";
 import { placeNudgeBus } from "./place/place.nudge";
 import type { PlaceOf } from "./place/place.nudge";

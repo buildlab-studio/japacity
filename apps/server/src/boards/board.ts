@@ -7,7 +7,7 @@ import type { BoardName, BoardReply, BoardRow } from "@japacity/api";
 import type { BoardQuery, BoardWhen, BoardWho, RankedRow, SwitchName } from "@japacity/store";
 import { pairIds } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { lagosWeek } from "./week";
 
 export const BOARD_NAMES: readonly BoardName[] = ["this-week.everyone", "this-week.friends", "all-time.everyone", "all-time.friends", "joined-week"];

@@ -2,7 +2,7 @@
 // were bought in has closed, so a number is never seen while sales still run.
 import type { PlayerView, State } from "@japacity/sim";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /**
  * The view with `lottery.numbers` filled: the numbers the server gave the

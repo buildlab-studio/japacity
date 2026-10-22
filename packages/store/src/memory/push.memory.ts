@@ -1,4 +1,4 @@
-import { compareIds } from "../keys";
+import { compareIds } from "../pairKeys";
 import type { PushStore, PushSubscriptionJson } from "../types";
 import { copy } from "./copy.memory";
 

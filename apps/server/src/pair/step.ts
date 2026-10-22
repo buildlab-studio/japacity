@@ -13,7 +13,7 @@ import { afterCommit, queueDiverged } from "../authority/commit";
 import type { Diverged, Live } from "../authority/load";
 import type { Turn } from "../authority/transaction";
 import { transact } from "../authority/transaction";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { Book } from "./book";
 import { bookOf } from "./book";
 import type { PairRejection } from "./codes";

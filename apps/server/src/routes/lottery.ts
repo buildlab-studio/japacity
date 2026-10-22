@@ -8,7 +8,7 @@ import { time } from "@japacity/sim";
 import { Hono } from "hono";
 
 import { tickStartsAt } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { closesTickOf } from "../lottery/draw";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";

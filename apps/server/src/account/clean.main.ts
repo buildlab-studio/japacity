@@ -9,8 +9,8 @@ import { connect, pgStores } from "@japacity/db";
 import { makeAuth } from "../auth/auth";
 import { drizzleAuthAdapter } from "../auth/drizzle";
 import { productionConfig } from "../config";
-import { memoryStores, openLimiters, webRandomBytes } from "../deps";
-import type { ServerDeps } from "../deps";
+import { memoryStores, openLimiters, webRandomBytes } from "../dependencies";
+import type { ServerDeps } from "../dependencies";
 import { cleanCli } from "./clean";
 
 const url = process.env["DATABASE_URL"];

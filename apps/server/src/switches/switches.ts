@@ -5,7 +5,7 @@
 import type { ServerRejection } from "@japacity/api";
 import type { DialChange, SwitchName, SwitchRow, SwitchStore } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** Keyed by the store, so each isolate's store keeps its own and a test's fresh stores start empty. */
 const cache = new WeakMap<SwitchStore, { at: number; row: SwitchRow }>();

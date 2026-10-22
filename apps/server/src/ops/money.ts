@@ -7,7 +7,7 @@ import type { Content, State, WalletSlice } from "@japacity/sim";
 import { int, ledgerReport, prizesOwed, time } from "@japacity/sim";
 import type { ByReason, LogRow, SegmentRow } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { activeOn, noteActive } from "./active";
 import { contentNamed, stateNow } from "./replay";
 

@@ -9,7 +9,7 @@ import type { InviteMilestone, InviteRow } from "@japacity/store";
 import { newCharacter } from "../authority/character";
 import { characterOf } from "../authority/command";
 import { transact } from "../authority/transaction";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { Status } from "../authority/answer";
 import type { PairAnswer, PairRejection } from "./codes";
 import { asRefusal, NOT_POSSIBLE, refused, widen } from "./codes";

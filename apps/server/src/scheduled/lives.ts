@@ -14,7 +14,7 @@ import type { CounterTotal } from "@japacity/store";
 import { stateNow } from "../ops/replay";
 import { LIVES_KEYS, LIVES_PLAYING } from "../analytics/lights";
 import { regionOf, WHOLE_GAME } from "../analytics/list";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** The cron in `wrangler.jsonc` that runs this job, beside the other nightly ones. */
 export const LIVES_CRON = "0 0 * * *";

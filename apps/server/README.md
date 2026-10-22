@@ -2,7 +2,7 @@
 
 The authority for every character online (`docs/rules/server.md`), the clock and the world on a schedule (`docs/rules/clock.md`), accounts (`docs/rules/account.md`), the draw (`docs/rules/lottery.md`). Hono on Cloudflare Workers; the stack is pinned in `docs/decisions/0006-the-online-stack.md`.
 
-- `ServerCode`, `ServerRejection`, `ClockView` and `ServerReply` are in `packages/api/src/reply.ts`, with every route's request and reply (decision 0027). `src/config.ts`: every number the pages put in config, the advert regions, the test switches. `src/deps.ts`: what a route is given. Only the maintainer changes these two.
+- `ServerCode`, `ServerRejection`, `ClockView` and `ServerReply` are in `packages/api/src/reply.ts`, with every route's request and reply (decision 0027). `src/config.ts`: every number the pages put in config, the advert regions, the test switches. `src/dependencies.ts`: what a route is given. Only the maintainer changes these two.
 - `src/app.ts`: `makeApp(deps)` mounts the routes. `src/index.ts`: the Worker, its bindings and the scheduled handler; `src/worker.ts`: each request's database client (opened on first use) and the app over it; `src/log.ts`: the one log line (server:shared-observability-block); `src/security/fail.ts`: the answer to a failure (server:no-platform-error-page).
 - Tests run on Node with in-memory stores: `pnpm vitest run --project server`. The tests that need the Workers runtime (`*.workers.test.ts`, the place object's among them) run in it through the Cloudflare Vitest plugin: `pnpm vitest run --project server-workers`.
 - `wrangler.jsonc` holds both environments' Hyperdrive ids. An id is not a secret: the connection string lives inside the Hyperdrive configuration.

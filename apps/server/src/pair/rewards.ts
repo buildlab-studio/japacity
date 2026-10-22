@@ -6,7 +6,7 @@ import { rewardFor } from "@japacity/sim";
 import type { InviteMilestone } from "@japacity/store";
 
 import type { Live } from "../authority/load";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** The milestones a life has reached: the prologue finished, the second chapter closed, a departure. */
 export function milestonesOf(state: State, content: Content): InviteMilestone[] {

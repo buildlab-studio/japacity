@@ -3,7 +3,7 @@
 import { time } from "@japacity/sim";
 import type { DeletionRow } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { sha256Hex } from "../auth/hooks";
 import { leavePairs as leaveEveryPair } from "../pair/leave";
 import { stopNotices } from "../notify/notice";

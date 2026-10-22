@@ -3,8 +3,8 @@
 import { content } from "@japacity/content";
 
 import { productionConfig, testConfig } from "./config";
-import { memoryStores, openLimiters, testSession } from "./deps";
-import type { ServerDeps } from "./deps";
+import { memoryStores, openLimiters, testSession } from "./dependencies";
+import type { ServerDeps } from "./dependencies";
 
 /** A test's `randomBytes`: bytes from a seeded Lehmer generator, the same on every run for the same seed. */
 export function seededBytes(seed: number): ServerDeps["randomBytes"] {

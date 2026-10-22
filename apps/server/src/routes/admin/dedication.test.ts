@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { signUp, type TestServer, testServer } from "../../authority/authority.testing";
 import { productionConfig, testConfig } from "../../config";
-import { TEST_SIGNED_IN_WITH } from "../../deps";
+import { TEST_SIGNED_IN_WITH } from "../../dependencies";
 import { LOG_REASONS } from "../../moderation/reports";
 import { adminDedicationRoutes, DEDICATION_PENDING_PATH } from "./dedication";
 import { DEDICATION_LIGHTS_PATH } from "../dedication";

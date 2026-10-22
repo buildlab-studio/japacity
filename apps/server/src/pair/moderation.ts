@@ -7,7 +7,7 @@ import { pairId, time, toHex } from "@japacity/sim";
 import type { ReportReason, ReportRow } from "@japacity/store";
 
 import { characterOf } from "../authority/command";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { PairAnswer } from "./codes";
 import { refused, widen } from "./codes";
 import type { ReportInput } from "../moderation/reports";

@@ -4,7 +4,7 @@
 import type { ReportRow } from "@japacity/store";
 
 import type { Accounts } from "../auth/auth";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { closeReport } from "../pair/moderation";
 import type { ModerationPorts } from "./decide";
 import { authIdentities } from "./identities";

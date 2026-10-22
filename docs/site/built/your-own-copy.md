@@ -25,7 +25,7 @@ To play on your own machine, none of this is needed: `pnpm dev` runs the offline
 - `apps/server/wrangler.jsonc`: the game's Worker. `routes` (a Custom Domain) and `vars.SITE_URL` at the top level are production; `env.staging` has its own of each. `SITE_URL` must be a bare https origin, and its host becomes the passkeys' relying party, which can never change once a real passkey exists ([From the browser to Postgres](./infrastructure.md)).
 - `packages/content/src/share/share.text.ts`: the address the share cards print.
 - `tools/check/scrub.ts`: `OWN_DOMAINS`, the domain whose published addresses the scrub check lets through.
-- The tests pin the shipped addresses (`apps/server/src/address.test.ts` and others: search for the domain), so they change with the routes in the same pull request.
+- The tests pin the shipped addresses (`apps/server/src/wrangler.test.ts` and others: search for the domain), so they change with the routes in the same pull request.
 
 ## 4. The database: Neon and Hyperdrive
 

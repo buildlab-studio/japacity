@@ -4,9 +4,9 @@ import { describe, expect, test } from "vitest";
 
 import { newLife, testServer } from "./authority/authority.testing";
 import { productionConfig } from "./config";
-import { openLimiters } from "./deps";
+import { openLimiters } from "./dependencies";
 import type { Place } from "./place/place.object";
-import { hubFor, isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
+import { hubFor, isolateFor, openRequest, placeOfIn, profileOfIn } from "./postgres";
 
 const PLACES = Object.values(content.place);
 

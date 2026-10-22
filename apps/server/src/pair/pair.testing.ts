@@ -10,7 +10,7 @@ import type { TestServer } from "../authority/authority.testing";
 import { call, held, newLife, send, signUp, testServer, view } from "../authority/authority.testing";
 import { load } from "../authority/load";
 import { testConfig } from "../config";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 export const INVITER = "account-a";
 export const FRIEND = "account-b";

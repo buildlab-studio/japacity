@@ -7,7 +7,7 @@ import type { Command, Rejection, ReportLine } from "@japacity/sim";
 import { viewFor } from "@japacity/sim";
 
 import { clockView } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { withNumbers } from "../lottery/numbers";
 import { bookOf } from "../pair/book";
 import { bondedWith, carry } from "../pair/carry";

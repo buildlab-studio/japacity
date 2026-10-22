@@ -7,7 +7,7 @@ import type { StandingReply } from "@japacity/api";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
-import type { ServerDeps } from "../../deps";
+import type { ServerDeps } from "../../dependencies";
 import type { SessionEnv } from "../../limits/limit";
 import { limit } from "../../limits/limit";
 import { closeReport, decideAppeal, fileAppeal, type ModerationPorts } from "../../moderation/decide";

@@ -9,7 +9,7 @@ import { requestDeletion } from "../account/deletion";
 import { generatedFirstName } from "../account/person";
 import { generatedUsername } from "../account/username";
 import { rollbackCheck } from "../ops/rollback";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { banIdentities, type Identities } from "./identities";
 import type { Report, ReportQueueStore } from "./reports";
 

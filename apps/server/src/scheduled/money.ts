@@ -7,7 +7,7 @@ import { activeOn, forgetBefore } from "../ops/active";
 import { raiseAlarms } from "../ops/alarm";
 import type { MoneyDay } from "../ops/money";
 import { drawAlarms, moneyReport } from "../ops/money";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** The cron in `wrangler.jsonc` that runs this job. */
 export const MONEY_CRON = "0 0 * * *";

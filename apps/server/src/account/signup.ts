@@ -10,7 +10,7 @@
 import type { GenericEndpointContext } from "better-auth";
 import { APIError } from "better-auth/api";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { emailIdentity, isBanned } from "../moderation/identities";
 import { restrictedUntil } from "../pair/restricted";
 import { isOn } from "../switches/switches";

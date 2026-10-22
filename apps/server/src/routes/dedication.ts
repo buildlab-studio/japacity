@@ -17,7 +17,7 @@ import type { DedicationLight } from "@japacity/store";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { newId } from "../moderation/decide";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";

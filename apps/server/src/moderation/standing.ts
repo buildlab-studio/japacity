@@ -5,7 +5,7 @@ import { type ActionOnMe, TOLD_ACTIONS, type Standing, type ToldAction } from "@
 import { time } from "@japacity/sim";
 import type { ModerationLogEntry } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { ReportQueueStore } from "./reports";
 
 function told(entry: ModerationLogEntry): entry is ModerationLogEntry & { action: ToldAction } {

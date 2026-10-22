@@ -7,14 +7,14 @@ import { env } from "cloudflare:workers";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "./config";
-import { memoryStores, openLimiters } from "./deps";
+import { memoryStores, openLimiters } from "./dependencies";
 import worker from "./index";
 import { makeApp } from "./app";
 import { newLife, testServer } from "./authority/authority.testing";
 import { placePresenceStore, readsToday } from "./place/place.presence";
 import { freshRooms, listenTo, until } from "./place/place.testing";
 import { roomCounts } from "./place/place.rooms";
-import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
+import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./postgres";
 import { placeSocketRoutes } from "./routes/place";
 
 /** A connection that is never asked anything: these tests build the stores and close them. */

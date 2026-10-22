@@ -6,7 +6,7 @@ import type { Sender, State } from "@japacity/sim";
 import type { Live } from "../authority/load";
 import type { TurnClock } from "../clock/turns";
 import { turnClock } from "../clock/view";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /**
  * clock:turns-earned-from-refill-time, clock:earned-turns-granted-first, clock:full-bank-earns-nothing, clock:full-bank-push-notification: one turn every `turnRefillMs` from

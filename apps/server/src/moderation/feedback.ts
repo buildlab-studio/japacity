@@ -6,7 +6,7 @@ import { int, time } from "@japacity/sim";
 import type { FeedbackRow } from "@japacity/store";
 
 import { sha256Hex } from "../auth/hooks";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import { newId } from "./decide";
 
 const LABEL = /^[\w.:-]{1,64}$/;

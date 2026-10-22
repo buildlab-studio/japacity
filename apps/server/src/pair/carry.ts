@@ -8,7 +8,7 @@ import { pairIds } from "@japacity/store";
 
 import type { Live } from "../authority/load";
 import type { Turn } from "../authority/transaction";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 import type { Book } from "./book";
 import { shareFamily } from "./family";
 import { openBond, sendFacts, sendTo, sideLive } from "./step";

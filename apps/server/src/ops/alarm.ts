@@ -6,7 +6,7 @@ import type { Alarm } from "@japacity/api";
 import { time } from "@japacity/sim";
 import type { AuditStore } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /**
  * The audit rows that hold alarms are filed under this name instead of a

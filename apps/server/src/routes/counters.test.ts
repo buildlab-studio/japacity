@@ -6,8 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import { signUp, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
-import type { Limiter } from "../deps";
-import { openLimiters } from "../deps";
+import type { Limiter } from "../dependencies";
+import { openLimiters } from "../dependencies";
 
 const { maxBatchBytes, maxCount, batchesPerHour } = content.tuning.analytics;
 

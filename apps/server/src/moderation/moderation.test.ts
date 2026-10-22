@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
-import { testSession } from "../deps";
+import { testSession } from "../dependencies";
 import { characterNameProblem, renameFrom } from "../account/username";
 import { identityHash, isBanned } from "./identities";
 import { readReport } from "./reports";

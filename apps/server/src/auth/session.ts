@@ -1,4 +1,4 @@
-// The session reader every route is given (deps.ts `SessionReader`): the
+// The session reader every route is given (dependencies.ts `SessionReader`): the
 // signed-in account from the session cookie, and whether that session has shown
 // a user-verified passkey recently enough for the admin view
 // (moderation:admin-view-for-admin-list), or null.
@@ -11,7 +11,7 @@ import { splitSetCookieHeader } from "better-auth/cookies";
 import type { MiddlewareHandler } from "hono";
 
 import { fromBase64Url } from "../bytes";
-import type { ServerDeps, SessionReader } from "../deps";
+import type { ServerDeps, SessionReader } from "../dependencies";
 import type { Auth } from "./auth";
 
 /**

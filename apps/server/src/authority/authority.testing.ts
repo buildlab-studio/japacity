@@ -10,8 +10,8 @@ import type { Hono } from "hono";
 import { makeApp } from "../app";
 import { seededBytes } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
-import type { ServerDeps } from "../deps";
-import { memoryStores, openLimiters, testSession } from "../deps";
+import type { ServerDeps } from "../dependencies";
+import { memoryStores, openLimiters, testSession } from "../dependencies";
 
 export interface TestServer {
   deps: ServerDeps;

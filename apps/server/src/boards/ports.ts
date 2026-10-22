@@ -2,7 +2,7 @@
 // account:social-needs-secured-account, read from the account's own state, so a guest is on no board
 // and reads none). Every board names a line by the account's username, read
 // from the account store (city:board-line-and-ranking).
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 export interface BoardPorts {
   /** account:social-needs-secured-account: the guests among these accounts. */

@@ -1,7 +1,7 @@
 // The account behind a character, for the people routes.
 import type { AccountRow } from "@japacity/store";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../dependencies";
 
 /** The account that holds a character, read from its row. */
 export async function accountOfCharacter(deps: ServerDeps, character: string): Promise<AccountRow | null> {

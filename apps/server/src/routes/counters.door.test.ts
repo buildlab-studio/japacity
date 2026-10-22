@@ -4,8 +4,8 @@ import { describe, expect, test } from "vitest";
 
 import { testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
-import type { Limiter } from "../deps";
-import { openLimiters } from "../deps";
+import type { Limiter } from "../dependencies";
+import { openLimiters } from "../dependencies";
 
 async function post(server: TestServer, rows: unknown[], headers: Record<string, string> = {}): Promise<Response> {
   return server.app.request("/api/counters", { method: "POST", headers: { "content-type": "text/plain", "cf-connecting-ip": "203.0.113.9", ...headers }, body: JSON.stringify({ rows }) });
