@@ -50,18 +50,20 @@ export interface SourceFile {
   text: string;
 }
 
-/** `value` as JSON with every object's keys in order, so the same data always gives the same text. */
-export function stableJson(value: unknown): string {
+/**
+ * `value` as JSON with every object's keys in the order the content has them: the simulation meets a table's entries
+ * in that order, so a reorder alone can move a replay and must move the fingerprint.
+ */
+export function orderedJson(value: unknown): string {
   if (value === null || typeof value === "string" || typeof value === "boolean") return JSON.stringify(value);
   if (typeof value === "number") {
     if (!Number.isFinite(value)) throw new Error(`The content holds a number JSON cannot keep: ${String(value)}.`);
     return JSON.stringify(value);
   }
-  if (Array.isArray(value)) return `[${value.map((each) => stableJson(each)).join(",")}]`;
+  if (Array.isArray(value)) return `[${value.map((each) => orderedJson(each)).join(",")}]`;
   if (typeof value === "object" && Object.getPrototypeOf(value) === Object.prototype) {
     const entries = Object.entries(value as Record<string, unknown>).filter(([, each]) => each !== undefined);
-    entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-    return `{${entries.map(([key, each]) => `${JSON.stringify(key)}:${stableJson(each)}`).join(",")}}`;
+    return `{${entries.map(([key, each]) => `${JSON.stringify(key)}:${orderedJson(each)}`).join(",")}}`;
   }
   throw new Error(`The content holds a value that is not plain data: ${typeof value}.`);
 }
@@ -104,10 +106,10 @@ export function printed(file: SourceFile): string {
   return kept.filter((token, at) => token !== "," || !CLOSERS.has(kept[at + 1] ?? "")).join(" ");
 }
 
-/** The content's part of what the seal hashes: its data, its version aside, with every object's keys in order. */
+/** The content's part of what the seal hashes: its data, its version aside, with every object's keys in the content's order. */
 function contentPart(data: object): string {
   const rest = Object.fromEntries(Object.entries(data).filter(([key]) => key !== "version"));
-  return `content\n${stableJson(rest)}\n`;
+  return `content\n${orderedJson(rest)}\n`;
 }
 
 /** The fingerprint of the content's data (its version aside) and the simulation's printed source. */

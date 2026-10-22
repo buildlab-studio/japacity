@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { readJson, REPO_ROOT } from "../repo";
-import { checkSeal, fingerprint, played, printed, resealed, SEAL_FILE, type Seal, simSources, type SourceFile, stableJson } from "./version";
+import { checkSeal, fingerprint, played, printed, resealed, SEAL_FILE, type Seal, simSources, type SourceFile, orderedJson } from "./version";
 
 const STEP: SourceFile = {
   path: "engine/step.ts",
@@ -51,11 +51,17 @@ describe("the content version's seal", () => {
     expect(paths).toEqual([...paths].sort());
   });
 
-  test("[server:content-version-sealed] given the same content with its keys in another order, or with only its version changed, when fingerprinted, then the fingerprint is the same", () => {
-    const reordered = { route: { "route.a": { fee: 100 } }, tuning: { turn: { refill: 2, cap: 3 } }, version: "1" };
-    expect(stableJson(reordered)).toBe(stableJson(DATA));
-    expect(fingerprint(reordered, [STEP, KIND])).toBe(sealed.fingerprint);
+  test("[server:content-version-sealed] given only the content's version changed, when fingerprinted, then the fingerprint is the same", () => {
     expect(fingerprint({ ...DATA, version: "2" }, [STEP, KIND])).toBe(sealed.fingerprint);
+  });
+
+  test("[server:content-version-sealed] given the same content with a table's entries or an object's keys in another order, when fingerprinted, then the fingerprint moved, since the simulation meets entries in the content's order", () => {
+    const reordered = { route: { "route.a": { fee: 100 } }, tuning: { turn: { refill: 2, cap: 3 } }, version: "1" };
+    expect(orderedJson(reordered)).not.toBe(orderedJson(DATA));
+    expect(fingerprint(reordered, [STEP, KIND])).not.toBe(sealed.fingerprint);
+    const twoEntries = { route: { "route.a": { fee: 100 }, "route.b": { fee: 200 } } };
+    const swapped = { route: { "route.b": { fee: 200 }, "route.a": { fee: 100 } } };
+    expect(fingerprint(swapped, [STEP, KIND])).not.toBe(fingerprint(twoEntries, [STEP, KIND]));
   });
 
   test("[server:content-version-sealed] given a tuning number changed in the content and the version not, when checked, then it fails and says to raise the version, add the old content to the older bundles if lives exist under it, and seal", () => {
@@ -103,8 +109,8 @@ describe("the content version's seal", () => {
   });
 
   test("[server:content-version-sealed] given a value that is not plain data in the content, when serialized, then it throws", () => {
-    expect(() => stableJson({ a: () => 1 })).toThrow(/not plain data/);
-    expect(() => stableJson({ a: new Map() })).toThrow(/not plain data/);
-    expect(() => stableJson({ a: Number.NaN })).toThrow(/JSON cannot keep/);
+    expect(() => orderedJson({ a: () => 1 })).toThrow(/not plain data/);
+    expect(() => orderedJson({ a: new Map() })).toThrow(/not plain data/);
+    expect(() => orderedJson({ a: Number.NaN })).toThrow(/JSON cannot keep/);
   });
 });
