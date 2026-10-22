@@ -58,15 +58,25 @@ export function pathShape(path: string): string {
     .join("/");
 }
 
-/** An error's words with anything personal or secret taken out: emails, addresses, long runs that may be an id or a token, quoted values. */
+/** Drizzle's line for a failed statement: the statement's own text, whose double quotes hold table and column names, every value a `$n` parameter. */
+const STATEMENT = "Failed query: ";
+
+/**
+ * An error's words with anything personal or secret taken out: emails (an `@` written `%40` too), addresses, long runs that
+ * may be an id or a token, and quoted values: in single quotes, and in double quotes, where Postgres puts the input it refuses,
+ * everywhere but a failed statement's own text.
+ */
 export function scrubbed(message: string): string {
   const first = message.split("\n")[0] ?? "";
+  const statement = first.startsWith(STATEMENT);
   return first
+    .replace(/%40/gi, "@")
     .replace(/[^\s@"'()]+@[^\s@"'()]+/g, "<email>")
     .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "<address>")
     .replace(/\b[0-9a-f]{0,4}(?::[0-9a-f]{0,4}){2,7}\b/gi, "<address>")
     .replace(/[A-Za-z0-9_+/=-]{20,}/g, "<id>")
     .replace(/'[^']*'/g, "'<value>'")
+    .replace(/"[^"]*"/g, (quoted) => (statement ? quoted : '"<value>"'))
     .replace(/\(([^()]*)\)=\(([^()]*)\)/g, "($1)=(<value>)")
     .slice(0, MESSAGE_MAX);
 }
