@@ -5,8 +5,8 @@
 import type { BlockedLine } from "@japacity/api";
 import { useCallback, useEffect, useState } from "react";
 
-import { FaceSticker } from "../front-door/LookPicture";
 import { lookForName } from "../front-door/looks";
+import { FaceTile } from "../ui/lively/FaceTile";
 import type { ModerationApi } from "./api";
 import { words } from "./moderation.words";
 
@@ -20,7 +20,7 @@ function Line({ line, tilt, busy, onUnblock }: { line: BlockedLine; tilt: number
   const name = line.username ?? words("ui.blocked.someone");
   return (
     <li className="lively-card flex min-h-14 items-center gap-3 px-3 py-2" data-blocked-line>
-      <FaceSticker look={lookForName(name)} size={36} tilt={tilt} />
+      <FaceTile look={lookForName(name)} tilt={tilt} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-[16px] font-bold" data-blocked-name>
           {name}

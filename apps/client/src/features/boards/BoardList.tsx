@@ -2,15 +2,13 @@
 // the top lines, then the player's own line wherever it ranks. The name is the
 // account's username on every board, friends too. Loaded
 // only after the server has answered with a board, so a switched-off board's
-// screen is never fetched. Each line is a card with a face sticker, the name,
+// screen is never fetched. Each line is a card with a face sticker (shared/ui/lively/FaceTile.tsx), the name,
 // and the figure as a chip: this week's rise in green; the player's own line
 // ringed (docs/design/09-the-lively-layer.md section 2).
 import type { BoardReply, BoardRow } from "@japacity/api";
-import { useEffect, useState } from "react";
 
 import { lookForName } from "../../shared/front-door/looks";
-import { assetUrl, loadManifest } from "../../shared/three/manifest";
-import { TINTS } from "../../shared/ui/lively/tint";
+import { FaceTile } from "../../shared/ui/lively/FaceTile";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { When } from "./boards";
@@ -58,30 +56,6 @@ export function boardFace(name: string, me: boolean, own: string | null = keptLo
   return lookForName(name);
 }
 
-/**
- * A look's face as a round sticker, the door's published face tile (`tiles/<look>-face.png`). Drawn here, not with the
- * door's own sticker, so the boards' chunk stays clear of the door's colours and the city's models.
- */
-function Face({ look, me, tilt }: { look: string; me: boolean; tilt: number }) {
-  const [src, setSrc] = useState<string | null>(null);
-  useEffect(() => {
-    let alive = true;
-    void loadManifest()
-      .then((manifest) => {
-        if (alive) setSrc(assetUrl(manifest, `tiles/${look}-face.png`));
-      })
-      .catch(() => undefined);
-    return () => {
-      alive = false;
-    };
-  }, [look]);
-  return (
-    <span className={`face-sticker ${TINTS[me ? "money" : "plain"]}`} style={{ width: 36, height: 36, rotate: `${String(tilt)}deg` }} data-face-sticker={look} aria-hidden>
-      {src === null ? null : <img src={src} alt="" draggable={false} />}
-    </span>
-  );
-}
-
 function Line({ row, when }: { row: BoardRow; when: When }) {
   const name = nameOf(row);
   const rise = when === "this-week" && row.figure > 0;
@@ -90,7 +64,7 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
       <span className="w-7 shrink-0 text-right text-[16px] font-bold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}
       </span>
-      <Face look={boardFace(name, row.me)} me={row.me} tilt={row.rank % 2 === 0 ? 4 : -4} />
+      <FaceTile look={boardFace(name, row.me)} tint={row.me ? "money" : "plain"} tilt={row.rank % 2 === 0 ? 4 : -4} />
       <span className="min-w-0 flex-1 truncate text-[16px] font-bold" data-board-name>
         {name}
       </span>
