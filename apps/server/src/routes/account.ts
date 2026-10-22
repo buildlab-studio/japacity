@@ -1,12 +1,14 @@
 // account:one-character-per-account, account:player-deletes-account, account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email and account:guest-floods-are-capped: `POST /api/guest`, the guest start after the
 // age screen; `GET /api/account`, the account's own row; `PUT /api/account`,
 // its one setting the player changes here (analytics:player-can-stop-usage-counts);
-// `PUT /api/account/username`; and `DELETE /api/account`, confirmed by a fresh
+// `PUT /api/account/username`; `GET /api/username/available`, the box's check while the player types
+// (account:username-typed-and-checked); and `DELETE /api/account`, confirmed by a fresh
 // session or a fresh email code. The guest gates are mounted here, before
 // every route they guard (account/guest.ts).
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
 // https://better-auth.com/docs/plugins/anonymous
-import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, ServerRejection } from "@japacity/api";
+import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, ServerRejection, UsernameFreeReply } from "@japacity/api";
+import { USERNAME_FREE_PATH } from "@japacity/api";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
@@ -24,7 +26,7 @@ import type { Accounts, Auth } from "../auth/auth";
 import { headersWithoutSession } from "../auth/stale";
 import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
-import { limit, sessionOf } from "../limits/limit";
+import { limit, overLimit, sessionOf } from "../limits/limit";
 import { leavePlaces } from "../postgres";
 import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
@@ -152,6 +154,20 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     const row = await deps.stores.account.get(signed.response.user.id);
     if (row === null) throw new Error(`The guest ${signed.response.user.id} has no account row.`);
     return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, NO_WAYS) });
+  });
+
+  // account:username-typed-and-checked: whether a name is free, asked by the box as the player types, signed out at the door. Usernames
+  // are public, so the answer tells nothing new; every check counts against its address, and a signed-in one against its
+  // session too, so names cannot be listed in bulk from one place or one account.
+  app.get(USERNAME_FREE_PATH, async (c) => {
+    const session = await deps.session(c.req.raw);
+    const address = c.req.header("cf-connecting-ip") ?? null;
+    const over = (await overLimit(deps, "reads", null, address)) ?? (session === null ? null : await overLimit(deps, "reads", session.account, null));
+    if (over !== null) return c.json<UsernameFreeReply>(over, 429);
+    const name = c.req.query("name") ?? null;
+    const problem = nameProblem(name);
+    if (problem !== null || name === null) return c.json<UsernameFreeReply>(nameRefused(problem ?? "format"), 400);
+    return c.json<UsernameFreeReply>({ ok: true, free: (await deps.stores.account.byUsername(name)) === null });
   });
 
   app.get("/api/account", limit(deps, "reads"), async (c) => {
