@@ -115,7 +115,7 @@ describe("activities abroad", () => {
     expect(activity["activity.job-uk-warehouse"]?.pay).toEqual({ currency: "GBP", amount: 2300000 });
     expect(activity["activity.job-uk-retail-part"]).toMatchObject({ part: true, pay: { currency: "GBP", amount: 1040000 }, hireBp: 5500 });
     expect(activity["activity.job-ca-dev"]?.pay).toEqual({ currency: "CAD", amount: 9500000 });
-    expect(activity["activity.job-it-farm-cash"]).toMatchObject({ cash: true, withheldBp: 2500, pay: { currency: "EUR", amount: 960000 } });
+    expect(activity["activity.job-italy-farm-cash"]).toMatchObject({ cash: true, withheldBp: 2500, pay: { currency: "EUR", amount: 960000 } });
     // The care worker's visiting-round bonus, £3,000 a year; the sponsor's salary is the pay.
     expect(activity["activity.job-uk-care"]).toMatchObject({ carBonus: 300000, hireBp: null, pay: { currency: "GBP", amount: { term: "salary" } } });
     // The Gulf contract's salary is a month: twelve of them make the year.

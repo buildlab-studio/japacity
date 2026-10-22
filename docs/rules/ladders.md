@@ -39,7 +39,7 @@ Abroad, a month still has a main activity and two or three free slots. What is o
 | `activity.job-ca-dev` | canada | C$95,000 | tech 70, 12 months local | any | 20% | wellbeing -4, tech +1 | |
 | `activity.job-gulf-guard` | uae | AED 21,600 (1,800 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | 12-hour shifts; accommodation included |
 | `activity.job-gulf-cleaner` | uae | AED 14,400 (1,200 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | |
-| `activity.job-it-farm-cash` | italy | €9,600 | none, `cash: true` | cash | 70% | wellbeing -9 | where the road leaves you; `withheldBp` 2500 |
+| `activity.job-italy-farm-cash` | italy | €9,600 | none, `cash: true` | cash | 70% | wellbeing -9 | where the road leaves you; `withheldBp` 2500 |
 
 The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,170 as `fee-test`; wait 3 to 6 months) and never expires.
 

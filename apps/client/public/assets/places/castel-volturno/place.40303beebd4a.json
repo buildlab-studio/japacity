@@ -489,7 +489,7 @@
             "id": "coffee",
             "label": "city.act.coffee",
             "kind": "sheet",
-            "stages": "activity.coffee-it"
+            "stages": "activity.coffee-italy"
           }
         ]
       },
@@ -507,7 +507,7 @@
             "id": "naija",
             "label": "city.act.naija-shop",
             "kind": "sheet",
-            "stages": "activity.naija-shop-it"
+            "stages": "activity.naija-shop-italy"
           }
         ]
       },
@@ -571,7 +571,7 @@
             "id": "street-find",
             "label": "city.act.street-find",
             "kind": "sheet",
-            "stages": "offer.street-find-it"
+            "stages": "offer.street-find-italy"
           }
         ]
       }

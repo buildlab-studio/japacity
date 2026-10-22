@@ -128,14 +128,14 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.barber-uae": "once",
   "activity.buy-clothes-uae": "once",
   "activity.laundry-uae": "repeat",
-  "activity.weekly-shop-it": "repeat",
-  "activity.cook-own-it": "repeat",
-  "activity.coffee-it": "purchase",
-  "activity.naija-shop-it": "repeat",
-  "activity.barber-it": "once",
-  "activity.buy-clothes-it": "once",
-  "activity.street-shopping-it": "repeat",
-  "activity.community-it": "once",
+  "activity.weekly-shop-italy": "repeat",
+  "activity.cook-own-italy": "repeat",
+  "activity.coffee-italy": "purchase",
+  "activity.naija-shop-italy": "repeat",
+  "activity.barber-italy": "once",
+  "activity.buy-clothes-italy": "once",
+  "activity.street-shopping-italy": "repeat",
+  "activity.community-italy": "once",
 };
 
 /**

@@ -54,12 +54,12 @@ The UAE has no test centre: the Gulf route sits no test there.
 
 | Id | Shown as | Where | Position | Scope | Stages (things) |
 |---|---|---|---|---|---|
-| `place.the-room` | The room in a shared flat, the Domitiana | the home, country-less; its sticker at the country's home spot | 40950, 14010 (made up) | interior | the bed, the cooking corner (`activity.cook-own-it`), the phone, the post, the bag |
-| `place.castel-volturno` | Castel Volturno (its real name; the roundabout is its thing) | the hub | 41034, 13941 | exterior | the roundabout (`activity.job-hunt`: the vans at dawn), the bar (`activity.coffee-it`), the African shop (`activity.naija-shop-it`), the call shop (`activity.send-money`), the bus stop, the find |
-| `place.via-domitiana` | Via Domitiana (its real name) | its own scene | 40929, 14025 | exterior | the bus stop, the pickup point (`activity.overtime`: the second shift), the Nigerian shop (`activity.street-shopping-it`), the barber (`activity.barber-it`), the market stall (`activity.buy-clothes-it`) |
-| `place.farm-italy` | The fields | its own scene; `shuttle: true` | 41010, 13990 (made up, inland) | exterior | the gangmaster's table (`activity.job-it-farm-cash`), the crates, the van, the water tap (a colleague's line) |
-| `place.big-shop-italy` | The discount supermarket | on the scene `big-shop-uk` | 41030, 13950 (made up) | interior | the trolley (`activity.weekly-shop-it`) |
-| `place.church-italy` | The church | on the scene `church-uk` | 41028, 13945 (made up) | interior | the pews (`activity.community-it`), the hall (world:nobody-picked-from-list) |
+| `place.the-room` | The room in a shared flat, the Domitiana | the home, country-less; its sticker at the country's home spot | 40950, 14010 (made up) | interior | the bed, the cooking corner (`activity.cook-own-italy`), the phone, the post, the bag |
+| `place.castel-volturno` | Castel Volturno (its real name; the roundabout is its thing) | the hub | 41034, 13941 | exterior | the roundabout (`activity.job-hunt`: the vans at dawn), the bar (`activity.coffee-italy`), the African shop (`activity.naija-shop-italy`), the call shop (`activity.send-money`), the bus stop, the find |
+| `place.via-domitiana` | Via Domitiana (its real name) | its own scene | 40929, 14025 | exterior | the bus stop, the pickup point (`activity.overtime`: the second shift), the Nigerian shop (`activity.street-shopping-italy`), the barber (`activity.barber-italy`), the market stall (`activity.buy-clothes-italy`) |
+| `place.farm-italy` | The fields | its own scene; `shuttle: true` | 41010, 13990 (made up, inland) | exterior | the gangmaster's table (`activity.job-italy-farm-cash`), the crates, the van, the water tap (a colleague's line) |
+| `place.big-shop-italy` | The discount supermarket | on the scene `big-shop-uk` | 41030, 13950 (made up) | interior | the trolley (`activity.weekly-shop-italy`) |
+| `place.church-italy` | The church | on the scene `church-uk` | 41028, 13945 (made up) | interior | the pews (`activity.community-italy`), the hall (world:nobody-picked-from-list) |
 | `place.naples-airport` | Naples Airport | the airport | 40884, 14285, on an inset | interior | the assisted return; the way home stays on the room's bag |
 
 ## 4. The ways and the fares
@@ -141,15 +141,15 @@ The contract's salary (`CONTRACT_SALARY`, the agent's term) less four weekly sho
 
 | What | Figure | Act |
 |---|---|---|
-| The weekly shop | €35, belly +40 | `activity.weekly-shop-it`, the discount supermarket, repeats |
-| A meal in the flat | €4, belly +25 | `activity.cook-own-it`, the cooking corner, repeats |
-| A coffee at the bar | €1.20, wellbeing +2 | `activity.coffee-it`, the roundabout, repeats |
-| The African shop | €20, belly +30, wellbeing +8 | `activity.naija-shop-it`, the roundabout, repeats |
-| The barber | €10, wellbeing +5, standing +1 | `activity.barber-it`, the Domitiana, once a month |
-| Clothes from the stall | €25, standing +1, wellbeing +3 | `activity.buy-clothes-it`, the Domitiana, once a month |
-| The Nigerian shop's evening | €15, wellbeing +5 | `activity.street-shopping-it`, the Domitiana, reason `enjoyment` |
-| The phone, prepaid | €10 a month | `obligation.upkeep-it` |
-| The room | €350 a month | `obligation.rent-room-it` |
+| The weekly shop | €35, belly +40 | `activity.weekly-shop-italy`, the discount supermarket, repeats |
+| A meal in the flat | €4, belly +25 | `activity.cook-own-italy`, the cooking corner, repeats |
+| A coffee at the bar | €1.20, wellbeing +2 | `activity.coffee-italy`, the roundabout, repeats |
+| The African shop | €20, belly +30, wellbeing +8 | `activity.naija-shop-italy`, the roundabout, repeats |
+| The barber | €10, wellbeing +5, standing +1 | `activity.barber-italy`, the Domitiana, once a month |
+| Clothes from the stall | €25, standing +1, wellbeing +3 | `activity.buy-clothes-italy`, the Domitiana, once a month |
+| The Nigerian shop's evening | €15, wellbeing +5 | `activity.street-shopping-italy`, the Domitiana, reason `enjoyment` |
+| The phone, prepaid | €10 a month | `obligation.upkeep-italy` |
+| The room | €350 a month | `obligation.rent-room-italy` |
 
 The farm's cash (€9,600 a year, €800 a month, a quarter of months paid nothing) less the room, four weekly shops, ten meals, the bus and the phone leaves about €240, and a withheld month is a hole: the road's glimpse is work at dawn, a shared flat and money that is barely there.
 

@@ -317,9 +317,9 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
 
   // Italy: where the road leaves you.
 
-  "activity.job-it-farm-cash": {
+  "activity.job-italy-farm-cash": {
     ...job(
-      "activity.job-it-farm-cash",
+      "activity.job-italy-farm-cash",
       "country.italy",
       IN_ITALY,
       { currency: "EUR", amount: euros(9600) },

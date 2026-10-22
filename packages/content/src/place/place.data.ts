@@ -469,21 +469,21 @@ const entries: PlaceEntry[] = [
   // The hub: the roundabout where the vans come at dawn, the bar, the African shop, the call shop for money home and the find.
   abroad("place.castel-volturno", "country.italy", "castel-volturno", "castel-volturno", "Castel Volturno", 41034, 13941, {
     hub: true,
-    stages: ["activity.job-hunt", "activity.coffee-it", "activity.naija-shop-it", "activity.send-money", "offer.street-find-it"],
+    stages: ["activity.job-hunt", "activity.coffee-italy", "activity.naija-shop-italy", "activity.send-money", "offer.street-find-italy"],
     crowd: QUIET,
     traditionalBp: HUB,
   }),
   // The coast road: the pickup point's second shift, the Nigerian shop, the barber and the market stall.
   abroad("place.via-domitiana", "country.italy", "castel-volturno", "castel-volturno", "Via Domitiana", 40929, 14025, {
-    stages: ["activity.overtime", "activity.street-shopping-it", "activity.barber-it", "activity.buy-clothes-it"],
+    stages: ["activity.overtime", "activity.street-shopping-italy", "activity.barber-italy", "activity.buy-clothes-italy"],
     crowd: QUIET,
     traditionalBp: HUB,
   }),
   // The fields inland, reached by the gangmaster's van for nothing (place:employer-shuttle-rides-free): the gangmaster's table.
-  castel("place.farm-italy", "business", "fields", 41010, 13990, { scope: "exterior", shuttle: true, stages: ["activity.job-it-farm-cash"], crowd: QUIET, traditionalBp: ROADSIDE }),
-  castel("place.big-shop-italy", "business", "castel-volturno", 41030, 13950, { assets: "big-shop-uk", stages: ["activity.weekly-shop-it"], crowd: BUSY, traditionalBp: HUB }),
+  castel("place.farm-italy", "business", "fields", 41010, 13990, { scope: "exterior", shuttle: true, stages: ["activity.job-italy-farm-cash"], crowd: QUIET, traditionalBp: ROADSIDE }),
+  castel("place.big-shop-italy", "business", "castel-volturno", 41030, 13950, { assets: "big-shop-uk", stages: ["activity.weekly-shop-italy"], crowd: BUSY, traditionalBp: HUB }),
   // The church, the community's place (world:nobody-picked-from-list).
-  castel("place.church-italy", "institution", "castel-volturno", 41028, 13945, { assets: "church-uk", occasion: true, stages: ["activity.community-it"], crowd: BUSY, traditionalBp: HUB }),
+  castel("place.church-italy", "institution", "castel-volturno", 41028, 13945, { assets: "church-uk", occasion: true, stages: ["activity.community-italy"], crowd: BUSY, traditionalBp: HUB }),
   abroad("place.naples-airport", "country.italy", "naples", "capodichino", "Naples Airport", 40884, 14285, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // One shared room dressed per person: a friend's room, and a partner's home once courting (world:nobody-picked-from-list).
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
@@ -492,7 +492,7 @@ const entries: PlaceEntry[] = [
     // The cooking corner cooks in each country's money (streets:london-life-by-hand, streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand, home:living-by-hand):
     // each country's meal shows only there. The hunt, the community and money home are at each country's own places
     // (city.md "Entries: abroad").
-    stages: ["activity.rest", "activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"],
+    stages: ["activity.rest", "activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-italy"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

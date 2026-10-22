@@ -224,7 +224,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
   "offer.street-find-uae": streetFind("offer.street-find-uae", "country.uae"),
   // Calgary's strip mall and Castel Volturno's roundabout have theirs on the same pattern (city.md "Entries: abroad", design page 11).
   "offer.street-find-ca": streetFind("offer.street-find-ca", "country.canada"),
-  "offer.street-find-it": streetFind("offer.street-find-it", "country.italy"),
+  "offer.street-find-italy": streetFind("offer.street-find-italy", "country.italy"),
 
   // Abroad (group `abroad`)
 

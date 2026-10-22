@@ -271,7 +271,7 @@
             "id": "weekly-shop",
             "label": "city.act.weekly-shop",
             "kind": "sheet",
-            "stages": "activity.weekly-shop-it"
+            "stages": "activity.weekly-shop-italy"
           }
         ]
       },

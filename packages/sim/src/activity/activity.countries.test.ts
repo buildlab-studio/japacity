@@ -45,13 +45,13 @@ const RULE: readonly Act[] = [
   { id: "activity.buy-clothes-uae", country: UAE, price: 8000, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 3]], name: "The tailor" },
   { id: "activity.laundry-uae", country: UAE, price: 2000, reason: "enjoyment", halfDays: 1, repeat: true, effects: [[WELLBEING, 2]], name: "The laundry" },
   // streets:castel-volturno-by-hand, Castel Volturno.
-  { id: "activity.weekly-shop-it", country: ITALY, price: 3500, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
-  { id: "activity.cook-own-it", country: ITALY, price: 400, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
-  { id: "activity.coffee-it", country: ITALY, price: 120, reason: "enjoyment", halfDays: null, repeat: false, effects: [[WELLBEING, 2]], name: "A coffee at the bar" },
-  { id: "activity.naija-shop-it", country: ITALY, price: 2000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 30], [WELLBEING, 8]], name: "The African shop" },
-  { id: "activity.barber-it", country: ITALY, price: 1000, reason: "enjoyment", halfDays: 1, repeat: false, effects: [[WELLBEING, 5], [STANDING, 1]], name: "A fresh cut" },
-  { id: "activity.buy-clothes-it", country: ITALY, price: 2500, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 3]], name: "Clothes from the stall" },
-  { id: "activity.street-shopping-it", country: ITALY, price: 1500, reason: "enjoyment", halfDays: 1, repeat: true, effects: [[WELLBEING, 5]], name: "An evening at the Nigerian shop" },
+  { id: "activity.weekly-shop-italy", country: ITALY, price: 3500, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
+  { id: "activity.cook-own-italy", country: ITALY, price: 400, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
+  { id: "activity.coffee-italy", country: ITALY, price: 120, reason: "enjoyment", halfDays: null, repeat: false, effects: [[WELLBEING, 2]], name: "A coffee at the bar" },
+  { id: "activity.naija-shop-italy", country: ITALY, price: 2000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 30], [WELLBEING, 8]], name: "The African shop" },
+  { id: "activity.barber-italy", country: ITALY, price: 1000, reason: "enjoyment", halfDays: 1, repeat: false, effects: [[WELLBEING, 5], [STANDING, 1]], name: "A fresh cut" },
+  { id: "activity.buy-clothes-italy", country: ITALY, price: 2500, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 3]], name: "Clothes from the stall" },
+  { id: "activity.street-shopping-italy", country: ITALY, price: 1500, reason: "enjoyment", halfDays: 1, repeat: true, effects: [[WELLBEING, 5]], name: "An evening at the Nigerian shop" },
 ];
 
 function currencyOf(country: Id<"country">): Currency {
@@ -153,15 +153,15 @@ describe("the three countries lived by hand", () => {
 
 describe("the church in Castel Volturno and the souq in Naif", () => {
   test("[streets:castel-volturno-by-hand] given a life in Castel Volturno, when the church's community is joined, then it is free, takes a morning, lifts the network and the mood by four each, and is once a month", () => {
-    expect(content.activity["activity.community-it"]).toMatchObject({ slot: "free", when: "now", halfDays: 1, where: "abroad", country: ITALY, cost: [] });
+    expect(content.activity["activity.community-italy"]).toMatchObject({ slot: "free", when: "now", halfDays: 1, where: "abroad", country: ITALY, cost: [] });
     const game = landed(ITALY, 0);
     middling(game, [NETWORK, WELLBEING]);
     const before = { ...game.state.quality };
-    game.accept({ type: "activity/now", activity: "activity.community-it", param: null });
+    game.accept({ type: "activity/now", activity: "activity.community-italy", param: null });
     expect((game.state.quality[NETWORK] ?? 0) - (before[NETWORK] ?? 0)).toBe(4);
     expect((game.state.quality[WELLBEING] ?? 0) - (before[WELLBEING] ?? 0)).toBe(4);
-    game.expectRejected({ type: "activity/now", activity: "activity.community-it", param: null }, "not-legal");
-    expect(text["activity.community-it.name"]).toBe("The church");
+    game.expectRejected({ type: "activity/now", activity: "activity.community-italy", param: null }, "not-legal");
+    expect(text["activity.community-italy.name"]).toBe("The church");
   });
 
   test("[streets:dubai-life-by-hand] given the souq, when its entry is read, then it keeps its price and lift and is paid as enjoyment", () => {
@@ -173,7 +173,7 @@ describe("the church in Castel Volturno and the souq in Naif", () => {
 const UPKEEPS = [
   { country: CANADA_COUNTRY, id: "obligation.upkeep-ca" as Id<"obligation">, currency: "CAD", amount: 3000, name: "Your phone, prepaid, in Canada" },
   { country: UAE, id: "obligation.upkeep-uae" as Id<"obligation">, currency: "AED", amount: 5000, name: "Your phone, prepaid, in Dubai" },
-  { country: ITALY, id: "obligation.upkeep-it" as Id<"obligation">, currency: "EUR", amount: 1000, name: "Your phone, prepaid, in Italy" },
+  { country: ITALY, id: "obligation.upkeep-italy" as Id<"obligation">, currency: "EUR", amount: 1000, name: "Your phone, prepaid, in Italy" },
 ] as const;
 
 describe("the three upkeeps", () => {
@@ -194,7 +194,7 @@ describe("the room abroad cooks in the country's money", () => {
     for (const [country, meal] of [
       [CANADA_COUNTRY, "activity.cook-own-ca"],
       [UAE, "activity.cook-own-uae"],
-      [ITALY, "activity.cook-own-it"],
+      [ITALY, "activity.cook-own-italy"],
     ] as const) {
       const game = landed(country, 10000);
       const cooked = game.accept({ type: "activity/now", activity: meal, param: null });
@@ -204,6 +204,6 @@ describe("the room abroad cooks in the country's money", () => {
       expect({ meal, upkeep: upkeep?.entry, relief: upkeep?.relief ?? [] }).toEqual({ meal, upkeep: content.country[country]?.upkeep, relief: [] });
       game.expectRejected({ type: "activity/now", activity: "activity.cook-own", param: null }, "not-legal");
     }
-    expect(content.place["place.the-room"]?.stages).toEqual(expect.arrayContaining(["activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"]));
+    expect(content.place["place.the-room"]?.stages).toEqual(expect.arrayContaining(["activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-italy"]));
   });
 });

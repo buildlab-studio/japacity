@@ -75,8 +75,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     // so the page gives Italy no tax line and none is entered.
     taxFreeLine: 0,
     taxBp: 0,
-    upkeep: "obligation.upkeep-it",
-    rentRoom: "obligation.rent-room-it",
+    upkeep: "obligation.upkeep-italy",
+    rentRoom: "obligation.rent-room-italy",
     rentFlat: null,
     phone: null,
     overstayer: "status.eu-irregular",

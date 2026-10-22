@@ -45,7 +45,7 @@ export const activitySignals: Record<string, ActivitySignal> = {
   "activity.job-ca-warehouse.signal.1": { week: 1, words: "The warehouse: the night shift. The cold comes in through the loading bay." },
   "activity.job-gulf-cleaner.signal.1": { week: 1, words: "The towers: you started before six. The heat came up by nine." },
   "activity.job-gulf-guard.signal.1": { week: 1, words: "The gate: twelve hours on your feet. The night was quiet." },
-  "activity.job-it-farm-cash.signal.1": { week: 1, words: "The farm: picking from dawn. The boss pays at the end of the week, in cash." },
+  "activity.job-italy-farm-cash.signal.1": { week: 1, words: "The farm: picking from dawn. The boss pays at the end of the week, in cash." },
 
   // Side jobs.
   "activity.weekend-tutoring.signal.1": { week: 1, words: "Tutoring: Saturday with the twins. The maths is coming." },

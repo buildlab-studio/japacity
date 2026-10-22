@@ -397,7 +397,7 @@
             "more": [
               "activity.cook-own-ca",
               "activity.cook-own-uae",
-              "activity.cook-own-it"
+              "activity.cook-own-italy"
             ]
           }
         ],
@@ -504,7 +504,7 @@
         ]
       },
       {
-        "activity": "activity.cook-own-it",
+        "activity": "activity.cook-own-italy",
         "models": [],
         "motion": [
           {

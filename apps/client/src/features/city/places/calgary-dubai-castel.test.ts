@@ -142,13 +142,13 @@ describe("the coast", () => {
   test("[streets:castel-volturno-by-hand] [world:things-are-tappable-models] given the roundabout and the Domitiana, when their things are read, then the roundabout opens the hunt, the bar the coffee, the African shop its act, the call shop money home; the pickup point overtime, the Nigerian shop the evening, the barber and the stall their acts, each staged there for Italy", () => {
     const at: [unknown, string, string, Id<"place">][] = [
       [castel, "roundabout", "activity.job-hunt", "place.castel-volturno"],
-      [castel, "bar", "activity.coffee-it", "place.castel-volturno"],
-      [castel, "african-shop", "activity.naija-shop-it", "place.castel-volturno"],
+      [castel, "bar", "activity.coffee-italy", "place.castel-volturno"],
+      [castel, "african-shop", "activity.naija-shop-italy", "place.castel-volturno"],
       [castel, "call-shop", "activity.send-money", "place.castel-volturno"],
-      [castel, "bench", "offer.street-find-it", "place.castel-volturno"],
-      [domitiana, "nigerian-shop", "activity.street-shopping-it", "place.via-domitiana"],
-      [domitiana, "barber", "activity.barber-it", "place.via-domitiana"],
-      [domitiana, "stall", "activity.buy-clothes-it", "place.via-domitiana"],
+      [castel, "bench", "offer.street-find-italy", "place.castel-volturno"],
+      [domitiana, "nigerian-shop", "activity.street-shopping-italy", "place.via-domitiana"],
+      [domitiana, "barber", "activity.barber-italy", "place.via-domitiana"],
+      [domitiana, "stall", "activity.buy-clothes-italy", "place.via-domitiana"],
     ];
     for (const [raw, thing, act, place] of at) {
       expect([thing, opens(raw, thing)]).toEqual([thing, [act]]);
@@ -196,7 +196,7 @@ describe("the interiors with a door", () => {
     const shops: [unknown, string][] = [
       [bigShopCanada, "activity.weekly-shop-ca"],
       [bigShopUae, "activity.weekly-shop-uae"],
-      [bigShopItaly, "activity.weekly-shop-it"],
+      [bigShopItaly, "activity.weekly-shop-italy"],
     ];
     for (const [raw, shop] of shops) {
       expect(opens(raw, "trolley")).toEqual([shop]);
@@ -229,8 +229,8 @@ describe("the interiors with a door", () => {
       expect(stagedAt("activity.overtime", here, PLACES, place)).toBe(place);
     }
     expect(thingIn(careHomeCanada, "manager").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(opens(farm, "table")).toEqual(["activity.job-it-farm-cash"]);
-    expect(stagedAt("activity.job-it-farm-cash", ITALY, PLACES)).toBe("place.farm-italy");
+    expect(opens(farm, "table")).toEqual(["activity.job-italy-farm-cash"]);
+    expect(stagedAt("activity.job-italy-farm-cash", ITALY, PLACES)).toBe("place.farm-italy");
   });
 
   test("[world:ride-abroad-and-workplace] [world:painted-maps-abroad] given a country's entry on a scene London keeps, when its stage file is looked for, then it is its own file beside the shared models where one is shipped, its models London's, and a place at home or one with no own file reads its assets folder's", () => {

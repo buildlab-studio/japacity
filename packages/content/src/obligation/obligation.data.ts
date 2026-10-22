@@ -316,14 +316,14 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   // abroad-money:arrival-opens-upkeep-and-room (design page 11 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
   "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(30)),
   "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(50)),
-  "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(10)),
+  "obligation.upkeep-italy": upkeepAbroad("obligation.upkeep-italy", "EUR", euros(10)),
 
   // SpareRoom's £668 for a room outside London, rounded as the page does.
   "obligation.rent-room-uk": rentRoom("obligation.rent-room-uk", "GBP", pounds(670)),
   "obligation.rent-room-ca": rentRoom("obligation.rent-room-ca", "CAD", cad(900)),
   // No rent while the Gulf employer houses you; this is for anyone else in the UAE.
   "obligation.rent-room-uae": rentRoom("obligation.rent-room-uae", "AED", aed(1200)),
-  "obligation.rent-room-it": rentRoom("obligation.rent-room-it", "EUR", euros(350)),
+  "obligation.rent-room-italy": rentRoom("obligation.rent-room-italy", "EUR", euros(350)),
 
   "obligation.rent-flat-uk": rentFlat("obligation.rent-flat-uk", "GBP", pounds(950), "obligation.rent-room-uk"),
   "obligation.rent-flat-ca": rentFlat("obligation.rent-flat-ca", "CAD", cad(1700), "obligation.rent-room-ca"),

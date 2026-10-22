@@ -27,8 +27,8 @@ describe("obligations abroad", () => {
     expect(content.obligation["obligation.phone-ca"]?.amount).toBe(4500);
     expect(content.obligation["obligation.upkeep-uae"]?.amount).toBe(5000);
     expect(content.obligation["obligation.rent-room-uae"]?.amount).toBe(120000);
-    expect(content.obligation["obligation.upkeep-it"]?.amount).toBe(1000);
-    expect(content.obligation["obligation.rent-room-it"]?.amount).toBe(35000);
+    expect(content.obligation["obligation.upkeep-italy"]?.amount).toBe(1000);
+    expect(content.obligation["obligation.rent-room-italy"]?.amount).toBe(35000);
     // Tuition in three instalments, every three months, one month's grace, then the status lapses.
     expect(content.obligation["obligation.tuition"]).toMatchObject({ type: "tuition", term: 3, everyMonths: 3, grace: 1, sink: "fee-school" });
     expect(content.obligation["obligation.tuition"]?.onDefault).toEqual([{ type: "status/lose" }]);

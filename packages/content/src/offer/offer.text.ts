@@ -432,7 +432,7 @@ export const offerText: Record<string, string> = {
   "offer.street-find-uk.who": "An aunty",
   "offer.street-find-uae.who": "A crewman",
   "offer.street-find-ca.who": "A man at the stop",
-  "offer.street-find-it.who": "A grandmother",
+  "offer.street-find-italy.who": "A grandmother",
   "offer.illness.who": "The doctor",
   "offer.illness-worse.who": "The doctor",
   "offer.whip-round.who": "Your classmates",
