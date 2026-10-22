@@ -314,22 +314,22 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   // abroad-money:arrival-opens-upkeep-and-room: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
   "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(15)),
   // abroad-money:arrival-opens-upkeep-and-room (design page 11 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
-  "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(30)),
+  "obligation.upkeep-canada": upkeepAbroad("obligation.upkeep-canada", "CAD", cad(30)),
   "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(50)),
-  "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(10)),
+  "obligation.upkeep-italy": upkeepAbroad("obligation.upkeep-italy", "EUR", euros(10)),
 
   // SpareRoom's £668 for a room outside London, rounded as the page does.
   "obligation.rent-room-uk": rentRoom("obligation.rent-room-uk", "GBP", pounds(670)),
-  "obligation.rent-room-ca": rentRoom("obligation.rent-room-ca", "CAD", cad(900)),
+  "obligation.rent-room-canada": rentRoom("obligation.rent-room-canada", "CAD", cad(900)),
   // No rent while the Gulf employer houses you; this is for anyone else in the UAE.
   "obligation.rent-room-uae": rentRoom("obligation.rent-room-uae", "AED", aed(1200)),
-  "obligation.rent-room-it": rentRoom("obligation.rent-room-it", "EUR", euros(350)),
+  "obligation.rent-room-italy": rentRoom("obligation.rent-room-italy", "EUR", euros(350)),
 
   "obligation.rent-flat-uk": rentFlat("obligation.rent-flat-uk", "GBP", pounds(950), "obligation.rent-room-uk"),
-  "obligation.rent-flat-ca": rentFlat("obligation.rent-flat-ca", "CAD", cad(1700), "obligation.rent-room-ca"),
+  "obligation.rent-flat-canada": rentFlat("obligation.rent-flat-canada", "CAD", cad(1700), "obligation.rent-room-canada"),
 
   "obligation.phone-uk": phone("obligation.phone-uk", "GBP", pounds(25)),
-  "obligation.phone-ca": phone("obligation.phone-ca", "CAD", cad(45)),
+  "obligation.phone-canada": phone("obligation.phone-canada", "CAD", cad(45)),
 
   // abroad-money:tuition-paid-in-instalments: the tuition less the deposit and discount is the principal, opened on
   // arrival, paid in three parts in months 1, 4 and 7 of the course.
@@ -464,14 +464,14 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // docs/rules/undertaking.md "Entries": the sponsor's promise to Canada for a
   // partner, 36 months from the landing. Nothing is owed until the partner takes
-  // assistance; each new month of it costs var.ca-assistance (undertaking:assistance-charged-to-sponsor).
-  "obligation.undertaking-ca": {
-    id: "obligation.undertaking-ca",
+  // assistance; each new month of it costs var.canada-assistance (undertaking:assistance-charged-to-sponsor).
+  "obligation.undertaking-canada": {
+    id: "obligation.undertaking-canada",
     type: "undertaking",
     // It follows the sponsor wherever they live (undertaking:undertaking-outlives-relationship).
     where: "any",
     currency: "CAD",
-    // Read from var.ca-assistance for each new month; no fixed charge.
+    // Read from var.canada-assistance for each new month; no fixed charge.
     amount: 0,
     rateBp: 0,
     term: 36,

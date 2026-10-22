@@ -90,11 +90,11 @@ describe("Calgary's strip mall and its station", () => {
   test("[streets:calgary-life-by-hand] [world:things-are-tappable-models] given the strip mall, when its things are read, then the notice opens the hunt, the coffee shop, the African store and the barber their acts, the transfer counter money home and the bench the find, each staged here for Canada", () => {
     const acts: Record<string, string> = {
       "jobs-notice": "activity.job-hunt",
-      "coffee-shop": "activity.coffee-ca",
-      "naija-shop": "activity.naija-shop-ca",
-      barber: "activity.barber-ca",
+      "coffee-shop": "activity.coffee-canada",
+      "naija-shop": "activity.naija-shop-canada",
+      barber: "activity.barber-canada",
       transfer: "activity.send-money",
-      bench: "offer.street-find-ca",
+      bench: "offer.street-find-canada",
     };
     for (const [thing, act] of Object.entries(acts)) {
       expect([thing, opens(calgary, thing)]).toEqual([thing, [act]]);
@@ -117,8 +117,8 @@ describe("Calgary's strip mall and its station", () => {
   });
 
   test("[place:country-pass-covers-ways] [world:things-are-tappable-models] given the CTrain station and Union station, when their machines are read, then each sells its country's month's pass, Transit pass and Zone pass, and the platform rides", () => {
-    expect(opens(ctrain, "ticket-machine")).toEqual(["activity.transit-pass-ca"]);
-    expect(stagedAt("activity.transit-pass-ca", CANADA, PLACES)).toBe("place.ctrain-station-canada");
+    expect(opens(ctrain, "ticket-machine")).toEqual(["activity.transit-pass-canada"]);
+    expect(stagedAt("activity.transit-pass-canada", CANADA, PLACES)).toBe("place.ctrain-station-canada");
     expect(opens(metro, "nol-machine")).toEqual(["activity.transit-pass-uae"]);
     expect(stagedAt("activity.transit-pass-uae", UAE, PLACES)).toBe("place.metro-station-uae");
     for (const raw of [ctrain, metro]) expect(thingIn(raw, "platform").acts.map((act) => act.kind)).toContain("ride");
@@ -142,13 +142,13 @@ describe("the coast", () => {
   test("[streets:castel-volturno-by-hand] [world:things-are-tappable-models] given the roundabout and the Domitiana, when their things are read, then the roundabout opens the hunt, the bar the coffee, the African shop its act, the call shop money home; the pickup point overtime, the Nigerian shop the evening, the barber and the stall their acts, each staged there for Italy", () => {
     const at: [unknown, string, string, Id<"place">][] = [
       [castel, "roundabout", "activity.job-hunt", "place.castel-volturno"],
-      [castel, "bar", "activity.coffee-it", "place.castel-volturno"],
-      [castel, "african-shop", "activity.naija-shop-it", "place.castel-volturno"],
+      [castel, "bar", "activity.coffee-italy", "place.castel-volturno"],
+      [castel, "african-shop", "activity.naija-shop-italy", "place.castel-volturno"],
       [castel, "call-shop", "activity.send-money", "place.castel-volturno"],
-      [castel, "bench", "offer.street-find-it", "place.castel-volturno"],
-      [domitiana, "nigerian-shop", "activity.street-shopping-it", "place.via-domitiana"],
-      [domitiana, "barber", "activity.barber-it", "place.via-domitiana"],
-      [domitiana, "stall", "activity.buy-clothes-it", "place.via-domitiana"],
+      [castel, "bench", "offer.street-find-italy", "place.castel-volturno"],
+      [domitiana, "nigerian-shop", "activity.street-shopping-italy", "place.via-domitiana"],
+      [domitiana, "barber", "activity.barber-italy", "place.via-domitiana"],
+      [domitiana, "stall", "activity.buy-clothes-italy", "place.via-domitiana"],
     ];
     for (const [raw, thing, act, place] of at) {
       expect([thing, opens(raw, thing)]).toEqual([thing, [act]]);
@@ -194,26 +194,26 @@ describe("the interiors with a door", () => {
 
   test("[world:ride-abroad-and-workplace] [streets:calgary-life-by-hand] given the shared big shop in each country, when its things are read, then the trolley opens that country's weekly shop, Calgary's back aisle its winter clothes, and the tills and the staff notice are looked at, since no country but the UK holds a job there", () => {
     const shops: [unknown, string][] = [
-      [bigShopCanada, "activity.weekly-shop-ca"],
+      [bigShopCanada, "activity.weekly-shop-canada"],
       [bigShopUae, "activity.weekly-shop-uae"],
-      [bigShopItaly, "activity.weekly-shop-it"],
+      [bigShopItaly, "activity.weekly-shop-italy"],
     ];
     for (const [raw, shop] of shops) {
       expect(opens(raw, "trolley")).toEqual([shop]);
       expect(thingIn(raw, "tills").acts.map((act) => act.kind)).toEqual(["plain"]);
       expect(thingIn(raw, "notice").acts.map((act) => act.kind)).toEqual(["plain"]);
     }
-    expect(opens(bigShopCanada, "clothes")).toEqual(["activity.buy-clothes-ca"]);
-    expect(stagedAt("activity.buy-clothes-ca", CANADA, PLACES)).toBe("place.big-shop-canada");
+    expect(opens(bigShopCanada, "clothes")).toEqual(["activity.buy-clothes-canada"]);
+    expect(stagedAt("activity.buy-clothes-canada", CANADA, PLACES)).toBe("place.big-shop-canada");
     expect(cityWords(thingIn(bigShopCanada, "clothes").label)).toBe("Winter clothes");
   });
 
   test("[world:ride-abroad-and-workplace] [city:places-stage-their-acts] given Calgary's workplaces and the site, when their doors are read, then each opens its job staged there for its country, the rota board opens overtime with a reader once it is done, the care home's manager's door is looked at with no senior rung, and the office's desks and glass office open the professional's and the developer's jobs", () => {
     const doors: [unknown, string, string, Id<"place">, typeof CANADA | typeof UAE][] = [
-      [warehouseCanada, "clock-in", "activity.job-ca-warehouse", "place.warehouse-canada", CANADA],
-      [careHomeCanada, "reception", "activity.job-ca-care-aide", "place.care-home-canada", CANADA],
-      [officeCanada, "desk", "activity.job-ca-professional", "place.office-canada", CANADA],
-      [officeCanada, "glass-office", "activity.job-ca-dev", "place.office-canada", CANADA],
+      [warehouseCanada, "clock-in", "activity.job-canada-warehouse", "place.warehouse-canada", CANADA],
+      [careHomeCanada, "reception", "activity.job-canada-care-aide", "place.care-home-canada", CANADA],
+      [officeCanada, "desk", "activity.job-canada-professional", "place.office-canada", CANADA],
+      [officeCanada, "glass-office", "activity.job-canada-developer", "place.office-canada", CANADA],
       [site, "guard-post", "activity.job-gulf-guard", "place.site-uae", UAE],
       [site, "cleaner-trolley", "activity.job-gulf-cleaner", "place.site-uae", UAE],
     ];
@@ -229,8 +229,8 @@ describe("the interiors with a door", () => {
       expect(stagedAt("activity.overtime", here, PLACES, place)).toBe(place);
     }
     expect(thingIn(careHomeCanada, "manager").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(opens(farm, "table")).toEqual(["activity.job-it-farm-cash"]);
-    expect(stagedAt("activity.job-it-farm-cash", ITALY, PLACES)).toBe("place.farm-italy");
+    expect(opens(farm, "table")).toEqual(["activity.job-italy-farm-cash"]);
+    expect(stagedAt("activity.job-italy-farm-cash", ITALY, PLACES)).toBe("place.farm-italy");
   });
 
   test("[world:ride-abroad-and-workplace] [world:painted-maps-abroad] given a country's entry on a scene London keeps, when its stage file is looked for, then it is its own file beside the shared models where one is shipped, its models London's, and a place at home or one with no own file reads its assets folder's", () => {

@@ -40,15 +40,15 @@ function byHand(id: Id<"activity">, cents: number, reason: Extract<Reason, "food
 
 export const calgaryActivityTable: Record<Id<"activity">, ActivityEntry> = {
   // place:country-pass-covers-ways: one ticket for the month at the CTrain station's machine, good on the bus and the train.
-  "activity.transit-pass-ca": byHand("activity.transit-pass-ca", transitPass(), "fare", []),
+  "activity.transit-pass-canada": byHand("activity.transit-pass-canada", transitPass(), "fare", []),
 
   // streets:calgary-life-by-hand. At the superstore: the weekly shop, and the coat the winter asks for.
-  "activity.weekly-shop-ca": byHand("activity.weekly-shop-ca", cad(90), "food", [lift("quality.belly", 40)]),
-  "activity.buy-clothes-ca": byHand("activity.buy-clothes-ca", cad(120), "enjoyment", [lift("quality.standing", 1), lift("quality.wellbeing", 4)]),
+  "activity.weekly-shop-canada": byHand("activity.weekly-shop-canada", cad(90), "food", [lift("quality.belly", 40)]),
+  "activity.buy-clothes-canada": byHand("activity.buy-clothes-canada", cad(120), "enjoyment", [lift("quality.standing", 1), lift("quality.wellbeing", 4)]),
   // In the basement room: a meal of your own.
-  "activity.cook-own-ca": byHand("activity.cook-own-ca", cad(8), "food", [lift("quality.belly", 25)]),
+  "activity.cook-own-canada": byHand("activity.cook-own-canada", cad(8), "food", [lift("quality.belly", 25)]),
   // At the strip mall: a coffee for no time, the African store, and the barber once a month.
-  "activity.coffee-ca": byHand("activity.coffee-ca", cad(3), "enjoyment", [lift("quality.wellbeing", 2)]),
-  "activity.naija-shop-ca": byHand("activity.naija-shop-ca", cad(40), "food", [lift("quality.belly", 30), lift("quality.wellbeing", 8)]),
-  "activity.barber-ca": byHand("activity.barber-ca", cad(30), "enjoyment", [lift("quality.wellbeing", 5), lift("quality.standing", 1), lift("quality.interview-prep", 2)]),
+  "activity.coffee-canada": byHand("activity.coffee-canada", cad(3), "enjoyment", [lift("quality.wellbeing", 2)]),
+  "activity.naija-shop-canada": byHand("activity.naija-shop-canada", cad(40), "food", [lift("quality.belly", 30), lift("quality.wellbeing", 8)]),
+  "activity.barber-canada": byHand("activity.barber-canada", cad(30), "enjoyment", [lift("quality.wellbeing", 5), lift("quality.standing", 1), lift("quality.interview-prep", 2)]),
 };

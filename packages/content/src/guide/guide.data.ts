@@ -190,9 +190,9 @@ export const guideTable: Record<Id<"guide">, GuideEntry> = {
       source("gov.uk: Student visa, family members", "https://www.gov.uk/student-visa/family-members", GUIDES_PAGE),
     ],
   ),
-  "guide.ca-family": guide(
-    "guide.ca-family",
-    ["route.ca-spouse", "route.ca-accompany"],
+  "guide.canada-family": guide(
+    "guide.canada-family",
+    ["route.canada-spouse", "route.canada-accompany"],
     ["route", "people", "interview", "obligation", "wallet"],
     [
       source("Justice Laws: IRPR s. 130, the five-year requirement", "https://laws-lois.justice.gc.ca/eng/regulations/SOR-2002-227/section-130.html", GUIDES_PAGE),

@@ -99,11 +99,11 @@ describe("ranges", () => {
 
   test("[quality:qualities-stay-in-range] given a quality with a small range, when it is pushed past both ends, then it stops at each end", () => {
     const game = graduate();
-    const entry = content.quality["quality.edu-grade"]!;
-    applyEffects(game, [add("quality.edu-grade", 9)]);
-    expect(game.state.quality["quality.edu-grade"]).toBe(entry.max);
-    applyEffects(game, [add("quality.edu-grade", -9)]);
-    expect(game.state.quality["quality.edu-grade"]).toBe(entry.min);
+    const entry = content.quality["quality.education-grade"]!;
+    applyEffects(game, [add("quality.education-grade", 9)]);
+    expect(game.state.quality["quality.education-grade"]).toBe(entry.max);
+    applyEffects(game, [add("quality.education-grade", -9)]);
+    expect(game.state.quality["quality.education-grade"]).toBe(entry.min);
   });
 
   const changeable = Object.keys(content.quality).filter((id) => id !== "quality.age-months") as Id<"quality">[];

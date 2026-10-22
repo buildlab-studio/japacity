@@ -162,9 +162,9 @@ describe("references", () => {
     expect(meetup).toBeDefined();
     const bad: Content = {
       ...content,
-      activity: { ...content.activity, "activity.meetup": { ...meetup!, counts: ["route.ca-masters"] } },
+      activity: { ...content.activity, "activity.meetup": { ...meetup!, counts: ["route.canada-masters"] } },
     };
-    expect(danglingReferences(bad)).toEqual(["route.ca-masters"]);
+    expect(danglingReferences(bad)).toEqual(["route.canada-masters"]);
   });
 
   test("[engine:content-checked-before-play] given every offer, when the terms its choices read are listed, then each is defined, picked or handed over", () => {
@@ -229,7 +229,7 @@ describe("spot checks against the rule pages", () => {
     expect(northgate?.tuition).toBe(1700000);
     expect(content.school["school.kingsmere"]?.minBand).toBe(70);
     // activity.md: the remote job pays $2,800; the English test costs ₦285,500.
-    expect(content.activity["activity.job-remote-dev"]?.pay).toEqual({ currency: "USD", amount: 280000 });
+    expect(content.activity["activity.job-remote-developer"]?.pay).toEqual({ currency: "USD", amount: 280000 });
     expect(content.activity["activity.sit-english-test"]?.cost).toEqual([
       { currency: "NGN", amount: 28550000, reason: "fee-test" },
     ]);
@@ -252,7 +252,7 @@ describe("spot checks against the rule pages", () => {
     expect(content.var["var.uk-living-line"]?.start).toBe(117100);
     // news.md: the rise sets the living line to £1,203.
     expect(content.news["news.uk-living-rise"]?.standIn.sets).toEqual([{ var: "var.uk-living-line", value: 120300 }]);
-    // offer.md: the roof comes up 2.5% of months; Mr Kunle is a fraud 35 times in 100.
+    // offer.md: the roof comes up 2.5% of months; Mr Gbenga is a fraud 35 times in 100.
     expect(content.offer["offer.roof"]?.chanceBp).toBe(250);
     expect(content.offer["offer.held-funds-agent"]?.fraudBp).toBe(3500);
     // route.md: the flight is ₦1,600,000, the deposit fee kept is £500.

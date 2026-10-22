@@ -82,7 +82,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     // 60 days.
     clockMonths: 2,
     // person:statuses-name-dependants: a partner may join a holder of one of these jobs.
-    dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"],
+    dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-developer", "activity.job-uk-graduate", "activity.job-uk-nurse"],
     tiedTo: null,
     renewMonths: 24,
     renewFeeVar: "var.uk-skilled-renew-fee",
@@ -137,34 +137,34 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
 
   // Canada
 
-  "status.ca-resident": {
+  "status.canada-resident": {
     ...BASE,
     ...CANADA,
-    id: "status.ca-resident",
+    id: "status.canada-resident",
     // Permanent residence.
     months: null,
     work: "any",
     countsToSettlement: true,
-    // status:lawful-months-reach-settlement names var.ca-settle-months as Canada's settlement months, and
+    // status:lawful-months-reach-settlement names var.canada-settle-months as Canada's settlement months, and
     // the page's next step from residence is citizenship, so the settlement step of the
     // contract carries Canadian citizenship and its fee. The citizen step stays empty.
-    settleMonthsVar: "var.ca-settle-months",
-    settleFeeVar: "var.ca-citizen-fee",
-    settled: "status.ca-citizen",
+    settleMonthsVar: "var.canada-settle-months",
+    settleFeeVar: "var.canada-citizen-fee",
+    settled: "status.canada-citizen",
   },
-  "status.ca-citizen": {
+  "status.canada-citizen": {
     ...BASE,
     ...KEPT,
-    id: "status.ca-citizen",
+    id: "status.canada-citizen",
     country: "country.canada",
     months: null,
     work: "any",
     countsFromBefore: true,
   },
-  "status.ca-overstayer": {
+  "status.canada-overstayer": {
     ...BASE,
     ...CANADA,
-    id: "status.ca-overstayer",
+    id: "status.canada-overstayer",
     months: null,
     work: "cash",
   },

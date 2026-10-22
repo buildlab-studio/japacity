@@ -151,7 +151,7 @@ describe("the three countries' ways", () => {
   });
 });
 
-const TRANSIT_PASS: Id<"activity"> = "activity.transit-pass-ca";
+const TRANSIT_PASS: Id<"activity"> = "activity.transit-pass-canada";
 const ZONE_PASS: Id<"activity"> = "activity.transit-pass-uae";
 
 describe("the long walk from the room", () => {

@@ -8,7 +8,7 @@ import type { BaseEvent, Cause, Ctx, Effect, Id, ObligationEntry, ObligationStat
 import { spendable } from "../wallet/wallet.rates";
 import type { ObligationEvent } from "./obligation.events";
 
-const ASSISTANCE: Id<"var"> = "var.ca-assistance";
+const ASSISTANCE: Id<"var"> = "var.canada-assistance";
 
 /** The sponsor's undertaking, told from a guarantee by the reason it is paid under. */
 export function isSponsorUndertaking(entry: ObligationEntry): boolean {

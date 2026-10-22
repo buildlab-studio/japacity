@@ -14,7 +14,7 @@ import { gameAuthority } from "./fixtures";
 import "./render";
 
 const BANKER: Id<"scenario"> = "scenario.banker";
-export const TOBI: Id<"person"> = "person.tobi-bank";
+export const DELE: Id<"person"> = "person.dele-banker";
 export const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 export const PAIR = "pair-1";
 
@@ -41,15 +41,15 @@ export function playMonth(game: Game, slots: SlotPick[] = []): void {
 }
 
 /** Courts a computer and spends `months` months seeing them. */
-export function courted(game: Game, person: Id<"person"> = TOBI, months = 0): string {
+export function courted(game: Game, person: Id<"person"> = DELE, months = 0): string {
   game.accept({ type: "people/court", with: person });
   for (let month = 0; month < months; month += 1) playMonth(game, [SEE]);
   return bondWith(game, person);
 }
 
-/** Courts Tobi to the moments partners need and asks; on eager content they agree. */
+/** Courts Dele to the moments partners need and asks; on eager content they agree. */
 export function partnered(game: Game): string {
-  const bond = courted(game, TOBI, game.content.tuning.people.partnerMoments);
+  const bond = courted(game, DELE, game.content.tuning.people.partnerMoments);
   game.accept({ type: "people/propose", bond, step: "partner" });
   return bond;
 }
@@ -63,7 +63,7 @@ export const FRIEND: PersonFacts = {
   statusMonthsLeft: null,
   monthsInCountry: 30,
   job: "activity.job-uk-senior-care",
-  meetsFloor: { "route.uk-partner": true, "route.ca-spouse": true },
+  meetsFloor: { "route.uk-partner": true, "route.canada-spouse": true },
   eduLevel: 3,
   englishBand: 70,
   home: "town",

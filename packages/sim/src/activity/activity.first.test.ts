@@ -140,7 +140,7 @@ describe("the sure hunt that lands another job", () => {
   ];
 
   test("[activity:job-hunt-lands-offer] [guide:early-win-in-three-turns] given the graduate's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
-    const asked = "activity.job-junior-dev";
+    const asked = "activity.job-junior-developer";
     const sure = sureHuntJob(readOf(start({ scenario: "scenario.graduate", content })), entryOf(asked), 1, false)?.id;
     expect(sure).not.toBe(asked);
     const told: (string | undefined)[][][] = [];

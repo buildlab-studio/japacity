@@ -38,15 +38,15 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   // The health surcharge for workers, a year.
   "var.uk-surcharge-year": { id: "var.uk-surcharge-year", start: pounds(1035) },
   // 1,095 days in five years, read as 36 lawful months.
-  "var.ca-settle-months": { id: "var.ca-settle-months", start: 36 },
+  "var.canada-settle-months": { id: "var.canada-settle-months", start: 36 },
   // Canadian cents.
-  "var.ca-citizen-fee": { id: "var.ca-citizen-fee", start: cad(630) },
+  "var.canada-citizen-fee": { id: "var.canada-citizen-fee", start: cad(630) },
   // route-gates.md: windows. The care route is closed to applicants abroad (22 Jul 2025).
 
   "var.uk-care-window": { id: "var.uk-care-window", start: 0 },
   "var.uk-skilled-window": { id: "var.uk-skilled-window", start: 2 },
   "var.uk-talent-window": { id: "var.uk-talent-window", start: 2 },
-  "var.ca-window": { id: "var.ca-window", start: 2 },
+  "var.canada-window": { id: "var.canada-window", start: 2 },
   "var.uae-window": { id: "var.uae-window", start: 2 },
 
   // route-gates.md: the sponsor routes, in pence. Salaries are a year.
@@ -60,15 +60,15 @@ export const varTable: Record<Id<"var">, VarEntry> = {
 
   // route-gates.md: the points route, in Canadian cents.
 
-  "var.ca-funds": { id: "var.ca-funds", start: 1526300 },
-  "var.ca-eca-fee": { id: "var.ca-eca-fee", start: 32900 },
-  "var.ca-apply-fee": { id: "var.ca-apply-fee", start: 152500 },
+  "var.canada-funds": { id: "var.canada-funds", start: 1526300 },
+  "var.canada-eca-fee": { id: "var.canada-eca-fee", start: 32900 },
+  "var.canada-apply-fee": { id: "var.canada-apply-fee", start: 152500 },
   // Working values, not the real draws: a bachelor's, band 7.0, a year of work and under thirty (404) is one short, and
-  // three years of work (429) clears it after the general pause too (+20, news.ca-general-stops); a diploma, band 6.0
+  // three years of work (429) clears it after the general pause too (+20, news.canada-general-stops); a diploma, band 6.0
   // and no work (289) never reaches either. The care cut-off sits below by the share of the real ones, 475 of 520.
-  "var.ca-cutoff": { id: "var.ca-cutoff", start: 405 },
-  "var.ca-care-cutoff": { id: "var.ca-care-cutoff", start: 370 },
-  "var.ca-decision-months": { id: "var.ca-decision-months", start: 6 },
+  "var.canada-cutoff": { id: "var.canada-cutoff", start: 405 },
+  "var.canada-care-cutoff": { id: "var.canada-care-cutoff", start: 370 },
+  "var.canada-decision-months": { id: "var.canada-decision-months", start: 6 },
 
   // route-gates.md: the endorsement route, in pence.
 
@@ -81,14 +81,14 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.uk-care-surge": { id: "var.uk-care-surge", start: 0 },
   "var.uk-skilled-surge": { id: "var.uk-skilled-surge", start: 10 },
   "var.uk-talent-surge": { id: "var.uk-talent-surge", start: 0 },
-  "var.ca-surge": { id: "var.ca-surge", start: 30 },
+  "var.canada-surge": { id: "var.canada-surge", start: 30 },
   "var.uae-surge": { id: "var.uae-surge", start: 0 },
 
   // director.md: strictness, 0 to 100.
 
   "var.uk-care-strictness": { id: "var.uk-care-strictness", start: 50 },
   "var.uk-skilled-strictness": { id: "var.uk-skilled-strictness", start: 40 },
-  "var.ca-strictness": { id: "var.ca-strictness", start: 50 },
+  "var.canada-strictness": { id: "var.canada-strictness", start: 50 },
 
   // director.md: home and the world.
 
@@ -111,11 +111,11 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.uk-partner-settle-months": { id: "var.uk-partner-settle-months", start: 60 },
   "var.uk-family-window": { id: "var.uk-family-window", start: 2 },
   "var.uk-partner-income": { id: "var.uk-partner-income", start: 2900000 },
-  "var.ca-sponsor-fee": { id: "var.ca-sponsor-fee", start: 134500 },
-  "var.ca-accompany-fee": { id: "var.ca-accompany-fee", start: 160000 },
-  "var.ca-family-window": { id: "var.ca-family-window", start: 2 },
-  "var.ca-assistance": { id: "var.ca-assistance", start: 73300 },
+  "var.canada-sponsor-fee": { id: "var.canada-sponsor-fee", start: 134500 },
+  "var.canada-accompany-fee": { id: "var.canada-accompany-fee", start: 160000 },
+  "var.canada-family-window": { id: "var.canada-family-window", start: 2 },
+  "var.canada-assistance": { id: "var.canada-assistance", start: 73300 },
   // director:world-variables-per-route and director:policy-cycle-surge-backlash: every window has its surge; the family routes' start at 0.
   "var.uk-family-surge": { id: "var.uk-family-surge", start: 0 },
-  "var.ca-family-surge": { id: "var.ca-family-surge", start: 0 },
+  "var.canada-family-surge": { id: "var.canada-family-surge", start: 0 },
 };

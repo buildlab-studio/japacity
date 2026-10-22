@@ -335,8 +335,8 @@
             "kind": "sheet",
             "stages": "activity.job-hunt",
             "more": [
-              "activity.job-junior-dev",
-              "activity.job-mid-dev",
+              "activity.job-junior-developer",
+              "activity.job-mid-developer",
               "activity.job-bank-officer",
               "activity.job-bank-senior",
               "activity.be-noticed"

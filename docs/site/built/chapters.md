@@ -97,8 +97,8 @@ Every route has a gate: the part of its journey that is its own.
 | `route.uk-talent` | endorsement | A portfolio and an endorsement |
 | `route.gulf-contract` | contract | An agent and a contract with an employer |
 | `route.road` | road | The road through the desert: no checklist, no figure, and its own chain of steps |
-| `route.uk-partner`, `route.ca-spouse` | partner | Through a partner who is abroad |
-| `route.uk-dependant`, `route.ca-accompany` | dependant | Going with a partner who goes |
+| `route.uk-partner`, `route.canada-spouse` | partner | Through a partner who is abroad |
+| `route.uk-dependant`, `route.canada-accompany` | dependant | Going with a partner who goes |
 
 The gates are in `packages/sim/src/route/gates/`. The partner and dependant routes rest on a bond with another character, a computer one or a real player ([People](../../rules/person.md), [Sponsoring a partner](../../rules/undertaking.md), [The genuineness interview](../../rules/interview.md)).
 

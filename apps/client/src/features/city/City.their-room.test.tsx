@@ -1,12 +1,12 @@
 // Their room in the world, dressed for the person whose room it is (world:nobody-picked-from-list; city:set-piece-shown-where-staged,
-// city:places-change-no-state; person:time-together-is-an-act, person:computer-mark-is-quiet): with Tobi's bond courting, the city draws his room
+// city:places-change-no-state; person:time-together-is-an-act, person:computer-mark-is-quiet): with Dele's bond courting, the city draws his room
 // with his props and him standing in it, a thing with his name and the computer mark and no act, and the visit stays on
 // the chair. The place file is the one the game ships; the scene is a stand-in that shows what the city hands it.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import theirRoom from "../../../public/assets/places/their-room/place.json";
-import { courted, peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
+import { courted, peopleGame, renderWithGame, DELE } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
 import { City } from "./City";
@@ -52,22 +52,22 @@ afterEach(() => {
 });
 
 describe("their room in the world", () => {
-  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] [person:computer-mark-is-quiet] [city:places-change-no-state] given Tobi's bond courting, when their room is drawn, then it is dressed for Tobi: his props stand in it, his figure stands alone as a thing named by him with the computer mark and no act, no stranger in the room, the visit stays on the chair, and a tap on him sends nothing", async () => {
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] [person:computer-mark-is-quiet] [city:places-change-no-state] given Dele's bond courting, when their room is drawn, then it is dressed for Dele: his props stand in it, his figure stands alone as a thing named by him with the computer mark and no act, no stranger in the room, the visit stays on the chair, and a tap on him sends nothing", async () => {
     const game = peopleGame();
     game.grant(1);
     game.endTurn([]);
-    courted(game, TOBI);
+    courted(game, DELE);
     const { authority } = await renderWithGame(<City world results={() => <p />} />, game);
-    const tobi = await waitFor(() => found('[data-stand-in-stander="partner"]'));
-    const dressing = ROOM.stage?.dressings?.find((one) => one.person === TOBI);
-    expect(tobi.dataset.person).toBe(TOBI);
-    expect(tobi.dataset.file).toBe(dressing?.standing?.[0]?.file);
+    const dele = await waitFor(() => found('[data-stand-in-stander="partner"]'));
+    const dressing = ROOM.stage?.dressings?.find((one) => one.person === DELE);
+    expect(dele.dataset.person).toBe(DELE);
+    expect(dele.dataset.file).toBe(dressing?.standing?.[0]?.file);
     for (const model of dressing?.models ?? []) expect(document.querySelector(`[data-stand-in-model="${model.file}"]`)).not.toBeNull();
     const thing = found('[data-stand-in-thing="partner"]');
-    expect([thing.dataset.label, thing.dataset.mark, thing.dataset.acts]).toEqual([`${TOBI}.name`, "computer", ""]);
+    expect([thing.dataset.label, thing.dataset.mark, thing.dataset.acts]).toEqual([`${DELE}.name`, "computer", ""]);
     expect(found('[data-stand-in-thing="time-together"]').dataset.acts).toBe("activity.see-someone");
     expect(found('[data-stand-in-thing="door"]').dataset.acts).toBe("out");
-    // Nobody but Tobi stands here: no stranger of the crowd either.
+    // Nobody but Dele stands here: no stranger of the crowd either.
     expect(document.querySelectorAll("[data-stand-in-stander]")).toHaveLength(1);
     expect(found("[data-stand-in-scene]").dataset.crowd).toBe("0");
     const before = authority.sent.length;
@@ -86,15 +86,15 @@ describe("their room in the world", () => {
     expect([...document.querySelectorAll<HTMLElement>("[data-stand-in-model]")].map((one) => one.dataset.standInModel)).toEqual(ROOM.stage?.models.map((model) => model.file));
   });
 
-  test("[person:computer-mark-is-quiet] [world:nobody-picked-from-list] given Tobi standing in his room, when he is tapped, then his fan shows his name with the computer tag and no act, since the bond's choices live in Chats and the visit on the chair", () => {
-    const [tobi] = standingAsThemselves(stageOf(dressPlace(ROOM, [], TOBI).file));
-    expect(tobi).toBeDefined();
-    expect(fanEntriesOf(tobi!)).toEqual([]);
+  test("[person:computer-mark-is-quiet] [world:nobody-picked-from-list] given Dele standing in his room, when he is tapped, then his fan shows his name with the computer tag and no act, since the bond's choices live in Chats and the visit on the chair", () => {
+    const [dele] = standingAsThemselves(stageOf(dressPlace(ROOM, [], DELE).file));
+    expect(dele).toBeDefined();
+    expect(fanEntriesOf(dele!)).toEqual([]);
     const onFallback = vi.fn();
-    render(<Fan thing={tobi!.id} title={nameOf(TOBI)} mark={tobi!.mark} entries={[]} onAct={vi.fn()} onFallback={onFallback} />);
-    act(() => anchorFan(tobi!.id, { x: 195, y: 420 }));
-    const fan = found(`[data-fan="${tobi!.id}"]`);
-    expect(fan.querySelector("[data-fan-title]")?.textContent).toBe(`${nameOf(TOBI)}${say("ui.people.mark.computer")}`);
+    render(<Fan thing={dele!.id} title={nameOf(DELE)} mark={dele!.mark} entries={[]} onAct={vi.fn()} onFallback={onFallback} />);
+    act(() => anchorFan(dele!.id, { x: 195, y: 420 }));
+    const fan = found(`[data-fan="${dele!.id}"]`);
+    expect(fan.querySelector("[data-fan-title]")?.textContent).toBe(`${nameOf(DELE)}${say("ui.people.mark.computer")}`);
     expect(fan.querySelector('[data-person-mark="computer"]')).not.toBeNull();
     expect(fan.querySelectorAll("button")).toHaveLength(0);
     expect(onFallback).not.toHaveBeenCalled();

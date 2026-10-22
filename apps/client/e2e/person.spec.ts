@@ -15,7 +15,7 @@ import { kept } from "./support/saves";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
-const TOBI = "person.tobi-bank";
+const DELE = "person.dele-banker";
 const SEE = { activity: "activity.see-someone", param: null } as const;
 const PAIR = "pair-1";
 
@@ -101,13 +101,13 @@ test("[world:nobody-picked-from-list] the slots in Chats show the family, and a 
   await shootAtSize(page, "tab", info.project.name);
   await putPhoneAway(page);
 
-  // Tobi in the parlour: talking to him opens his card, whose one button courts him (person:courting-opens-a-bond).
+  // Dele in the parlour: talking to him opens his card, whose one button courts him (person:courting-opens-a-bond).
   await intoTheRoom(page);
-  const tobi = (await page.locator('[data-mark][aria-label="Tobi"]').getAttribute("data-mark")) ?? "";
-  await doAct(page, tobi, "talk");
-  await page.getByRole("dialog").getByRole("button", { name: "Start seeing Tobi" }).click();
-  await expect(page.locator("[data-corner]")).toContainText("Tobi is a computer character. They live in the game.", { timeout: 15_000 });
-  const head = await openBond(page, "Tobi");
+  const dele = (await page.locator('[data-mark][aria-label="Dele"]').getAttribute("data-mark")) ?? "";
+  await doAct(page, dele, "talk");
+  await page.getByRole("dialog").getByRole("button", { name: "Start seeing Dele" }).click();
+  await expect(page.locator("[data-corner]")).toContainText("Dele is a computer character. They live in the game.", { timeout: 15_000 });
+  const head = await openBond(page, "Dele");
   await expect(head.locator('[data-head-row="stage"]')).toContainText("Seeing each other");
   await expect(page.locator("[data-app-screen='chats'] h3 [data-person-mark='computer']")).toBeVisible();
 });
@@ -115,10 +115,10 @@ test("[world:nobody-picked-from-list] the slots in Chats show the family, and a 
 test("[world:nobody-picked-from-list] a bond carries its time together, and a visit at their room counts with it", async ({ page }, info) => {
   test.setTimeout(180_000);
   const game = banker();
-  game.accept({ type: "people/court", with: TOBI });
+  game.accept({ type: "people/court", with: DELE });
   for (let index = 0; index < 3; index += 1) month(game, [SEE]);
   await seed(page, game);
-  await expect((await openBond(page, "Tobi")).locator('[data-head-row="stage"]')).toContainText("Three times together");
+  await expect((await openBond(page, "Dele")).locator('[data-head-row="stage"]')).toContainText("Three times together");
   await putPhoneAway(page);
 
   // Seeing someone answers at once (activity:now-acts-and-month-acts): the visit at their room makes the moment now, in the month in hand.
@@ -140,7 +140,7 @@ test("[world:nobody-picked-from-list] a bond carries its time together, and a vi
   await answer.getByRole("button", { name: "Done" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });
 
-  const head = await openBond(page, "Tobi");
+  const head = await openBond(page, "Dele");
   await expect(head.locator('[data-head-row="stage"]')).toContainText("Four times together");
   await expectNothingBroken(page, "on a bond", BROKEN);
   await shootAtSize(page, "bond", info.project.name);

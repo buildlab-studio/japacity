@@ -172,10 +172,10 @@ export const guideText: Record<string, string> = {
   "guide.uk-family.section.game":
     "In the game the floor, the fee and the interview are real figures from the pages below, rounded. At the interview both of you answer the same questions about your shared history, each in a separate room, and a marriage for papers that is caught brings a ban. The dependant's status ends with the main applicant's.",
   "guide.uk-family.section.next": "Read the gov.uk pages on the partner visa and on proof of income first, then the page for the main applicant's own visa about partners and children. The figures change each April.",
-  "guide.ca-family.title": "Sponsoring a spouse to Canada, or going with a worker or student: the undertaking and the points",
-  "guide.ca-family.section.real":
+  "guide.canada-family.title": "Sponsoring a spouse to Canada, or going with a worker or student: the undertaking and the points",
+  "guide.canada-family.section.real":
     "A sponsor signs an undertaking to support the person they bring for a set number of years and to repay any social assistance they take; a sponsor who defaulted on one, or is still bound by one, cannot sponsor again. A spouse adds points to an Express Entry profile. A partner of a worker or student may come with them on their own permit while the main applicant's holds.",
-  "guide.ca-family.section.game":
+  "guide.canada-family.section.game":
     "In the game the undertaking is an obligation that outlives the relationship and follows the sponsor home; assistance taken by the partner is charged to it. The points table carries a spouse's education, language and Canadian work, capped as the real grid caps them.",
-  "guide.ca-family.section.next": "Read the regulation sections on the undertaking first, then the Comprehensive Ranking System (CRS) grid for what a spouse adds. The settlement-fund figures change each year.",
+  "guide.canada-family.section.next": "Read the regulation sections on the undertaking first, then the Comprehensive Ranking System (CRS) grid for what a spouse adds. The settlement-fund figures change each year.",
 };

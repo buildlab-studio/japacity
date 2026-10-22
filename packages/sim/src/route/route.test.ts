@@ -22,7 +22,7 @@ const numbers = content.tuning.route;
 /** The UK master's own base chance of refusal (route:visa-refusal-chance). */
 const UK_BASE = content.route[UK_ROUTE]!.refusalBaseBp;
 const school = (id: Id<"school">): SchoolEntry => content.school[id]!;
-const GRADE: Id<"quality"> = "quality.edu-grade";
+const GRADE: Id<"quality"> = "quality.education-grade";
 /** The questions the interview may ask with a clean file, in content order. */
 const CLEAN_POOL = ["why-uk", "who-pays", "after", "course", "living"];
 
@@ -181,7 +181,7 @@ describe("hearing of a route and looking into it", () => {
   });
 
   test("[route:hearing-a-route] given no degree, when a certain meetup is played, then hearIf fails and the route stays unknown", () => {
-    const game = life({ quiet: true, change: meetupChance(10000), qualities: { "quality.edu-level": 2 } });
+    const game = life({ quiet: true, change: meetupChance(10000), qualities: { "quality.education-level": 2 } });
     game.endTurn([slot("activity.meetup")]);
     expect(uk(game).state).toBe("unknown");
   });
@@ -200,7 +200,7 @@ describe("hearing of a route and looking into it", () => {
   });
 
   test("[route:friend-tells-by-month] given no degree, when months pass well beyond hearBy, then nobody tells them and the route stays unknown", () => {
-    const game = life({ quiet: true, qualities: { "quality.edu-level": 2 } });
+    const game = life({ quiet: true, qualities: { "quality.education-level": 2 } });
     for (let month = 0; month < 6; month += 1) game.endTurn();
     expect(uk(game).state).toBe("unknown");
   });

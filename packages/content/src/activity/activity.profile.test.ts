@@ -61,12 +61,12 @@ describe("the waiting months' acts", () => {
   test("[activity:waiting-months-build-profile] given a master's at home, when its entry and fees are read, then a bachelor's starts it, the fees are ₦1,800,000 in twelve instalments, the twelfth month gives a master's and it counts toward Canada's points", () => {
     const masters = entryOf("activity.masters-at-home");
     expect(masters.requires).toEqual([
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
-      { type: "quality/max", quality: "quality.edu-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
+      { type: "quality/max", quality: "quality.education-level", value: 3 },
     ]);
     expect(masters.onMonth).toEqual([
       { at: 1, effects: [{ type: "obligation/open", obligation: "obligation.masters-at-home", principal: naira(1800000) }] },
-      { at: 12, effects: [{ type: "quality/add", quality: "quality.edu-level", amount: 1 }] },
+      { at: 12, effects: [{ type: "quality/add", quality: "quality.education-level", amount: 1 }] },
     ]);
     expect(content.obligation["obligation.masters-at-home"]).toMatchObject({ type: "tuition", where: "home", currency: "NGN", term: 12, rateBp: 0 });
     expect(masters.counts).toEqual(["route.canada-points"]);

@@ -314,10 +314,10 @@
         ],
         "acts": [
           {
-            "id": "senior-dev",
-            "label": "city.act.job-senior-dev",
+            "id": "senior-developer",
+            "label": "city.act.job-senior-developer",
             "kind": "sheet",
-            "stages": "activity.job-uk-senior-dev"
+            "stages": "activity.job-uk-senior-developer"
           }
         ]
       },

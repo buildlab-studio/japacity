@@ -83,7 +83,7 @@ describe("real names as neutral scenery", () => {
     // Every country's jobs are staged at its own places (city.md, design page 11), so the
     // employer is Calgary's warehouse, which stages Canada's warehouse job.
     const employer = realNameChecks(withPlace({ ...place("place.warehouse-canada"), realName: "A Real Warehouse" }), text, realNames).join("\n");
-    expect(employer).toMatch(/A Real Warehouse and employs through activity\.job-ca-warehouse/);
+    expect(employer).toMatch(/A Real Warehouse and employs through activity\.job-canada-warehouse/);
   });
 
   test("[city:invented-names-for-risky-businesses] given a real place staging the visa interview or a paid activity, when the place table is checked, then it is failed for refusing and for charging", () => {

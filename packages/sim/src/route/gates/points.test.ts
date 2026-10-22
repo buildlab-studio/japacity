@@ -95,7 +95,7 @@ function scoreInputs(base: State, inputs: { months: number; level: number; band:
   else document[ENGLISH] = { state: "held", readyMonth: null, expiresMonth: null, value: inputs.band };
   return {
     ...base,
-    quality: { ...base.quality, "quality.age-months": inputs.months, "quality.edu-level": inputs.level },
+    quality: { ...base.quality, "quality.age-months": inputs.months, "quality.education-level": inputs.level },
     document,
     activity: { ...base.activity, tenure: inputs.work === 0 ? {} : { [JUNIOR_DEV]: inputs.work } },
   };

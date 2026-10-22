@@ -26,7 +26,7 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
       { years: 44, points: 6 },
       { years: 45, points: 0 },
     ],
-    // quality.edu-level: 1 secondary, 2 diploma, 3 bachelor's, 4 master's, 5 doctorate.
+    // quality.education-level: 1 secondary, 2 diploma, 3 bachelor's, 4 master's, 5 doctorate.
     education: [
       { level: 1, points: 30 },
       { level: 2, points: 98 },

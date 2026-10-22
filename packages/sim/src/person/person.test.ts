@@ -17,9 +17,9 @@ import { computerFacts } from "./person.facts";
 import { factsOf, WEDDING_SPOTS } from "./person.logic";
 import { PROLOGUE, BANKER, UK_DEPENDANT } from "../testing/ids";
 
-const TOBI: Id<"person"> = "person.tobi-bank";
-const AMAKA: Id<"person"> = "person.amaka-nurse";
-const KELECHI: Id<"person"> = "person.kelechi-dev";
+const DELE: Id<"person"> = "person.dele-banker";
+const HAUWA: Id<"person"> = "person.hauwa-nurse";
+const KELECHI: Id<"person"> = "person.kelechi-developer";
 const PAPERS: Id<"person"> = "person.papers-uk";
 const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 const CALL: SlotPick = { activity: "activity.call-someone", param: null };
@@ -63,13 +63,13 @@ function court(game: Game, person: Id<"person">): string {
 }
 
 /** Courts a computer at home and meets them until the bond holds the moments to become partners. */
-function toCourted(game: Game, person: Id<"person"> = TOBI): string {
+function toCourted(game: Game, person: Id<"person"> = DELE): string {
   const bond = court(game, person);
   for (let index = 0; index < numbers.partnerMoments; index += 1) turn(game, [SEE]);
   return bond;
 }
 
-function toPartner(game: Game, person: Id<"person"> = TOBI): string {
+function toPartner(game: Game, person: Id<"person"> = DELE): string {
   const bond = toCourted(game, person);
   game.accept({ type: "people/propose", bond, step: "partner" });
   expect(game.state.people.bonds[bond]?.stage).toBe("partner");
@@ -163,17 +163,17 @@ describe("slots", () => {
 
   test("[person:computer-siblings-drawn-with-family] given one sibling entry holding all the weight and another none, when the siblings are drawn, then only the weighted one is drawn", () => {
     const only = tuned((copy) => {
-      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-gulf" ? 1 : 0;
+      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sibling-gulf" ? 1 : 0;
     });
     const game = life({ content: only });
     turn(game);
     const people = Object.values(game.state.people.slots).map((slot) => slot.person).filter((person) => person !== null);
-    expect(people).toEqual(["person.sib-gulf", "person.sib-gulf"]);
+    expect(people).toEqual(["person.sibling-gulf", "person.sibling-gulf"]);
   });
 
   test("[person:computer-siblings-drawn-with-family] [person:computer-partner-facts] given the sibling who leaves for the Gulf at month 12, when the months pass, then the facts show home at month 11 and the Gulf with its status from month 12", () => {
     const only = tuned((copy) => {
-      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-gulf" ? 1 : 0;
+      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sibling-gulf" ? 1 : 0;
     });
     const game = life({ content: only });
     for (let month = 1; month <= 11; month += 1) turn(game);
@@ -184,7 +184,7 @@ describe("slots", () => {
   });
 
   test("[person:computer-siblings-drawn-with-family] given the sibling in Canada, when its facts are built either side of its settling month, then the status changes at that month", () => {
-    const entry = content.person["person.sib-ca"]!;
+    const entry = content.person["person.sibling-canada"]!;
     const read = { state: life().state, world: standInWorld("world-1", 0, content), content };
     const settles = entry.profile.settledFromMonth!;
     expect(computerFacts(read, entry, 400, settles - 1).status).toBe(entry.profile.status);
@@ -203,24 +203,24 @@ describe("filling a slot", () => {
       expect(candidate.role).toBe("partner");
     }
     expect(view.candidates.map((candidate) => candidate.person)).not.toContain(PAPERS);
-    expect(view.candidates.map((candidate) => candidate.person)).toContain(TOBI);
+    expect(view.candidates.map((candidate) => candidate.person)).toContain(DELE);
   });
 
   test.each([
     [251, false],
     [252, true],
-  ])("[person:computer-candidates-labelled] given a character aged %i months, when the candidates are read, then Tobi (21 or more) is listed: %s", (age, listed) => {
+  ])("[person:computer-candidates-labelled] given a character aged %i months, when the candidates are read, then Dele (21 or more) is listed: %s", (age, listed) => {
     const young = tuned((copy) => {
       copy.scenario[BANKER]!.qualities["quality.age-months"] = age;
     });
     const game = life({ content: young });
-    expect(game.view().people.candidates.some((candidate) => candidate.person === TOBI)).toBe(listed);
+    expect(game.view().people.candidates.some((candidate) => candidate.person === DELE)).toBe(listed);
   });
 
-  test("[person:computer-candidates-labelled] given a bond with Tobi, when the candidates are read, then Tobi is no longer listed", () => {
+  test("[person:computer-candidates-labelled] given a bond with Dele, when the candidates are read, then Dele is no longer listed", () => {
     const game = life();
-    court(game, TOBI);
-    expect(game.view().people.candidates.map((candidate) => candidate.person)).not.toContain(TOBI);
+    court(game, DELE);
+    expect(game.view().people.candidates.map((candidate) => candidate.person)).not.toContain(DELE);
   });
 
   test("[person:invite-fills-a-slot] given an empty partner slot, when a card is put out and taken back, then the slot is invited with its terms and then empty again", () => {
@@ -273,12 +273,12 @@ describe("filling a slot", () => {
       copy.status["status.uk-sponsored"]!.dependants = ["activity.job-uk-skilled"];
     });
     const game = life({ content: easy });
-    const bond = toCourted(game, TOBI);
+    const bond = toCourted(game, DELE);
     game.accept({ type: "people/propose", bond, step: "partner" });
     for (let month = 0; month < numbers.marryAfterMonths; month += 1) turn(game, [SEE]);
     game.accept({ type: "people/propose", bond, step: "marry" });
     expect(game.state.people.bonds[bond]?.stage).toBe("married");
-    expect(game.state.people.slots.partner).toMatchObject({ state: "computer", bond, person: TOBI });
+    expect(game.state.people.slots.partner).toMatchObject({ state: "computer", bond, person: DELE });
   });
 });
 
@@ -315,10 +315,10 @@ describe("courting", () => {
     game.expectRejected({ type: "people/court", with: "pair-1" }, "not-legal");
   });
 
-  test("[person:time-together-is-an-act] given Tobi at home, when a slot sees someone, then one met moment is added from Tobi's lists, it costs the naira price under social and wellbeing rises by 3", () => {
+  test("[person:time-together-is-an-act] given Dele at home, when a slot sees someone, then one met moment is added from Dele's lists, it costs the naira price under social and wellbeing rises by 3", () => {
     const game = life();
-    const bond = court(game, TOBI);
-    const entry = content.person[TOBI]!;
+    const bond = court(game, DELE);
+    const entry = content.person[DELE]!;
     const spentBefore = game.state.wallet.totals.out.social?.NGN ?? 0;
     const result = turn(game, [SEE]);
     const [moment] = game.state.people.bonds[bond]!.moments;
@@ -364,7 +364,7 @@ describe("proposals", () => {
   test("[person:proposing-a-step] given a courting bond, when partners is proposed one moment short and then with enough, then the first is rejected and the second goes to the computer", () => {
     const easy = tuned(eager);
     const game = life({ content: easy });
-    const bond = court(game, TOBI);
+    const bond = court(game, DELE);
     for (let index = 0; index < numbers.partnerMoments - 1; index += 1) turn(game, [SEE]);
     game.expectRejected({ type: "people/propose", bond, step: "partner" }, "not-legal");
     turn(game, [SEE]);
@@ -374,7 +374,7 @@ describe("proposals", () => {
 
   test("[person:proposing-a-step] [person:behaviour-block-fields] given a computer whose agreement draw always fails, when it is asked, then it says no and the same proposal waits the cooldown, legal again at its last month", () => {
     const cold = tuned((copy) => {
-      copy.person[TOBI]!.behaviour.agreeBp = 0;
+      copy.person[DELE]!.behaviour.agreeBp = 0;
     });
     const game = life({ content: cold });
     const bond = toCourted(game);
@@ -397,8 +397,8 @@ describe("proposals", () => {
     const months = numbers.partnerMoments + extra;
     const game = life({
       content: tuned((copy) => {
-        copy.person[TOBI]!.behaviour.agreeBp = 10000;
-        copy.person[TOBI]!.behaviour.courtMonths = months;
+        copy.person[DELE]!.behaviour.agreeBp = 10000;
+        copy.person[DELE]!.behaviour.courtMonths = months;
       }),
     });
     const bond = toCourted(game);
@@ -409,7 +409,7 @@ describe("proposals", () => {
   test("[person:proposing-a-step] given a computer that draws at its agreeBp, when partners is asked, then it answers on the people stream at once and never leaves the proposal pending", () => {
     const outcomes = new Set<string>();
     for (const seed of ["a", "b", "c", "d", "e", "f", "g", "h"]) {
-      const game = life({ seed, content: tuned((copy) => (copy.person[TOBI]!.behaviour.courtMonths = 0)) });
+      const game = life({ seed, content: tuned((copy) => (copy.person[DELE]!.behaviour.courtMonths = 0)) });
       const bond = toCourted(game);
       const draws = game.state.draws.people ?? 0;
       game.accept({ type: "people/propose", bond, step: "partner" });
@@ -490,8 +490,8 @@ describe("proposals", () => {
 
   test("[person:one-partner-at-a-time] given a partner, when another is courted and asked to be partners, then courting is allowed and the proposal is not", () => {
     const game = life({ content: tuned(eager) });
-    toPartner(game, TOBI);
-    const other = toCourted(game, AMAKA);
+    toPartner(game, DELE);
+    const other = toCourted(game, HAUWA);
     expect(game.state.people.bonds[other]?.stage).toBe("courting");
     game.expectRejected({ type: "people/propose", bond: other, step: "partner" }, "not-legal");
   });
@@ -561,7 +561,7 @@ describe("the joint", () => {
 
   test("[person:money-counted-never-moved] [person:stand-in-acts-narrowly] given a joint, when consent is given, then the joint records it, and consent without a joint is rejected", () => {
     const game = life({ content: JOINT });
-    const lone = court(game, TOBI);
+    const lone = court(game, DELE);
     game.expectRejected({ type: "people/consent", bond: lone, countFunds: true }, "not-legal");
     const bond = jointWithKelechi(game);
     game.accept({ type: "people/consent", bond, countFunds: true });
@@ -609,7 +609,7 @@ describe("letting people down", () => {
   ] as const)("[person:either-side-ends-a-bond] [person:ender-pays-in-standing] given a bond at %s, when the character ends it, then standing falls by %i and wellbeing by the end's figure, and a second end is rejected", (stage, standing) => {
     const game = life({ content: tuned(eager) });
     let bond: string;
-    if (stage === "courting") bond = court(game, TOBI);
+    if (stage === "courting") bond = court(game, DELE);
     else {
       bond = toPartner(game);
       if (stage === "married") {
@@ -668,31 +668,31 @@ describe("letting people down", () => {
     expect(game.state.people.slots["sibling-1"]?.person).not.toBeNull();
   });
 
-  test("[person:ended-bond-record-kept] given an ended bond with Tobi, when the months pass, then the record stays, and Tobi is a candidate again only from the recourt month", () => {
+  test("[person:ended-bond-record-kept] given an ended bond with Dele, when the months pass, then the record stays, and Dele is a candidate again only from the recourt month", () => {
     const game = life();
-    const bond = court(game, TOBI);
+    const bond = court(game, DELE);
     turn(game, [SEE]);
     game.accept({ type: "people/end", bond });
     const ended = game.state.turn.month;
     for (let month = 1; month < numbers.recourtMonths; month += 1) turn(game);
-    expect(game.view().people.candidates.map((candidate) => candidate.person)).not.toContain(TOBI);
-    game.expectRejected({ type: "people/court", with: TOBI }, "not-legal");
+    expect(game.view().people.candidates.map((candidate) => candidate.person)).not.toContain(DELE);
+    game.expectRejected({ type: "people/court", with: DELE }, "not-legal");
     turn(game);
     expect(game.state.turn.month).toBe(ended + numbers.recourtMonths);
-    expect(game.view().people.candidates.map((candidate) => candidate.person)).toContain(TOBI);
+    expect(game.view().people.candidates.map((candidate) => candidate.person)).toContain(DELE);
     expect(game.state.people.bonds[bond]?.moments).toHaveLength(1);
-    game.accept({ type: "people/court", with: TOBI });
+    game.accept({ type: "people/court", with: DELE });
   });
 
   test("[person:gossip-when-two-timing] given a computer partner and a bond courting beside it, when gossip and jealousy always hit, then standing falls by 3 for the gossip, the partner ends it, and the courter pays as if they had ended it", () => {
     const loud = tuned((copy) => {
       eager(copy);
       copy.tuning.people.gossipBp = 10000;
-      copy.person[TOBI]!.behaviour.jealousBp = 10000;
+      copy.person[DELE]!.behaviour.jealousBp = 10000;
     });
     const game = life({ content: loud });
-    const partner = toPartner(game, TOBI);
-    const courting = court(game, AMAKA);
+    const partner = toPartner(game, DELE);
+    const courting = court(game, HAUWA);
     const result = turn(game, [SEE]);
     expect(qualityChange(result.events, "quality.standing", courting)).toBe(-3);
     expect(game.state.people.bonds[partner]?.ended?.by).toBe("them");
@@ -706,8 +706,8 @@ describe("letting people down", () => {
       copy.tuning.people.gossipBp = 0;
     });
     const game = life({ content: quiet });
-    const partner = toPartner(game, TOBI);
-    const courting = court(game, AMAKA);
+    const partner = toPartner(game, DELE);
+    const courting = court(game, HAUWA);
     const result = turn(game, [SEE]);
     expect(qualityChange(result.events, "quality.standing", courting)).toBe(0);
     expect(game.state.people.bonds[partner]?.stage).toBe("partner");
@@ -723,7 +723,7 @@ describe("letting people down", () => {
     const moments = Array.from({ length: numbers.partnerMoments }, (_unused, index) => ({ n: index + 1, by: "them" as const, kind: "said" as const, spot: null, what: "phrase.hello", tick: 0 }));
     game.accept({ type: "people/moments", pair: "pair-1", moments }, "authority");
     game.accept({ type: "people/agreed", pair: "pair-1", step: "partner" }, "authority");
-    court(game, TOBI);
+    court(game, DELE);
     const result = turn(game, [SEE]);
     expect(result.events).toContainEqual(expect.objectContaining({ type: "people/gossip-spread", bond }));
     const heard = game.accept({ type: "people/gossip", pair: "pair-1" }, "authority");
@@ -731,22 +731,22 @@ describe("letting people down", () => {
     expect(Object.keys(heard.lines[0]!.params)).toEqual([]);
   });
 
-  /** Courts Tobi and lets `months` pass with no moment, returning the last turn. */
+  /** Courts Dele and lets `months` pass with no moment, returning the last turn. */
   function waited(months: number) {
     const game = life();
-    const bond = court(game, TOBI);
+    const bond = court(game, DELE);
     let last = turn(game);
     for (let month = 1; month < months; month += 1) last = turn(game);
     return { game, bond, last };
   }
 
-  test("[person:computer-partner-drifts] given Tobi's patience, when one month fewer passes with no moment, then the bond is still courting", () => {
-    const { game, bond } = waited(content.person[TOBI]!.behaviour.patienceMonths! - 1);
+  test("[person:computer-partner-drifts] given Dele's patience, when one month fewer passes with no moment, then the bond is still courting", () => {
+    const { game, bond } = waited(content.person[DELE]!.behaviour.patienceMonths! - 1);
     expect(game.state.people.bonds[bond]?.stage).toBe("courting");
   });
 
-  test("[person:computer-partner-drifts] given Tobi's patience, when that many months pass with no moment, then Tobi drifts away and the character is the one left", () => {
-    const { game, bond, last } = waited(content.person[TOBI]!.behaviour.patienceMonths!);
+  test("[person:computer-partner-drifts] given Dele's patience, when that many months pass with no moment, then Dele drifts away and the character is the one left", () => {
+    const { game, bond, last } = waited(content.person[DELE]!.behaviour.patienceMonths!);
     expect(game.state.people.bonds[bond]?.ended?.by).toBe("drift");
     expect(qualityChange(last.events, "quality.wellbeing", bond)).toBe(numbers.leftWellbeing);
     expect(qualityChange(last.events, "quality.standing", bond)).toBe(0);
@@ -872,10 +872,10 @@ describe("the stand-in", () => {
 
   test("[person:computers-need-no-stand-in] given computer bonds, when the months pass, then none ever has a stand-in, and the stand-in names only a pair", () => {
     const game = life();
-    court(game, TOBI);
+    court(game, DELE);
     for (let month = 0; month < 3; month += 1) turn(game, [SEE]);
     expect(Object.values(game.state.people.bonds).every((bond) => bond.standIn === null)).toBe(true);
-    game.expectRejected({ type: "people/stand-in", pair: TOBI, stage: "on" }, "unknown-id", "authority");
+    game.expectRejected({ type: "people/stand-in", pair: DELE, stage: "on" }, "unknown-id", "authority");
   });
 });
 
@@ -903,7 +903,7 @@ describe("facts", () => {
     "[person:facts-function-is-pure] given a life some months in, when every secret in the state is cleared, then its facts are unchanged",
     (seed, months) => {
       const game = life({ seed });
-      court(game, TOBI);
+      court(game, DELE);
       for (let month = 0; month < months; month += 1) turn(game, [SEE]);
       const world = game.world();
       const cleared: State = copyOf(game.state);
@@ -918,11 +918,11 @@ describe("facts", () => {
     },
   );
 
-  test("[person:computer-is-a-person-entry] [person:computer-partner-facts] given Tobi courted, when the months pass, then the facts come from the entry, age moves a month a turn, and no wallet or pay figure appears", () => {
+  test("[person:computer-is-a-person-entry] [person:computer-partner-facts] given Dele courted, when the months pass, then the facts come from the entry, age moves a month a turn, and no wallet or pay figure appears", () => {
     const game = life();
-    const bond = court(game, TOBI);
+    const bond = court(game, DELE);
     const start = game.state.people.bonds[bond]!.facts!;
-    const entry = content.person[TOBI]!;
+    const entry = content.person[DELE]!;
     expect(start).toMatchObject({ label: "computer", where: "home", country: null, job: entry.profile.job, eduLevel: entry.profile.eduLevel, home: entry.profile.home, funds: null, assistanceTaken: 0 });
     turn(game, [SEE]);
     turn(game, [SEE]);
@@ -947,14 +947,14 @@ describe("requirements", () => {
     [1, false],
   ])("[person:computer-is-a-person-entry] given a sibling resident in Canada, when the sibling requirement asks for an age %i month over theirs, then it holds: %s", (over, met) => {
     const only = tuned((copy) => {
-      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-ca" ? 1 : 0;
+      for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sibling-canada" ? 1 : 0;
     });
     const game = life({ content: only });
     turn(game);
     const age = Math.max(...Object.values(game.state.people.bonds).map((bond) => bond.facts?.ageMonths ?? 0));
     const read = { state: game.state, world: game.world(), content: only };
-    expect(check(read, { type: "people/sibling-abroad", country: "country.canada", statuses: ["status.ca-resident", "status.ca-citizen"], minAgeMonths: age + over }).met).toBe(met);
-    expect(check(read, { type: "people/sibling-abroad", country: "country.uk", statuses: ["status.ca-resident"], minAgeMonths: 0 }).met).toBe(false);
+    expect(check(read, { type: "people/sibling-abroad", country: "country.canada", statuses: ["status.canada-resident", "status.canada-citizen"], minAgeMonths: age + over }).met).toBe(met);
+    expect(check(read, { type: "people/sibling-abroad", country: "country.uk", statuses: ["status.canada-resident"], minAgeMonths: 0 }).met).toBe(false);
   });
 });
 
@@ -1010,7 +1010,7 @@ describe("the view", () => {
   test("[person:view-shows-people] given bonds of every kind, when the view is read, then it has no hidden key, facts carry no funds off the joint, and moments are hidden while an interview is open", () => {
     const game = life();
     const friend = linked(game, { ...FACTS, funds: { currency: "GBP", amount: 500000 } });
-    court(game, TOBI);
+    court(game, DELE);
     turn(game, [SEE]);
     const view = game.view().people;
     expect(hiddenPaths(view)).toEqual([]);
@@ -1078,10 +1078,10 @@ describe("answers across lives", () => {
 
   test("[person:proposing-a-step] given a courting bond with the moments for it, when the legal commands are read, then partners is offered and accepted, and it is not offered again until the cooldown after a no has passed", () => {
     const cold = tuned((copy) => {
-      copy.person[TOBI]!.behaviour.agreeBp = 0;
+      copy.person[DELE]!.behaviour.agreeBp = 0;
     });
     const game = life({ content: cold });
-    const bond = court(game, TOBI);
+    const bond = court(game, DELE);
     const asks = () => legalCommands(game.view()).filter((command) => command.type === "people/propose");
     for (let index = 0; index < numbers.partnerMoments - 1; index += 1) turn(game, [SEE]);
     expect(asks()).toEqual([]);
@@ -1159,21 +1159,21 @@ describe("the view's bond fields", () => {
   test("[person:view-shows-people] given a computer bond and a friend's bond, when the view is read, then each names who it is with, the month of its last moment kept at every moment, its cooldown and its consent", () => {
     const game = life();
     const friend = linked(game);
-    const tobi = court(game, TOBI);
+    const dele = court(game, DELE);
     const viewOf = (id: string) => game.view().people.bonds.find((view) => view.id === id)!;
-    expect(viewOf(tobi)).toMatchObject({ person: TOBI, pair: null, cooldownUntil: null, consent: null, lastMomentMonth: game.state.turn.month });
+    expect(viewOf(dele)).toMatchObject({ person: DELE, pair: null, cooldownUntil: null, consent: null, lastMomentMonth: game.state.turn.month });
     expect(viewOf(friend)).toMatchObject({ person: null, pair: "pair-1", lastMomentMonth: null, consent: null });
     // activity:now-acts-and-month-acts: seeing someone is an act done at once, so the moment is kept at the month it is sent in.
     const seen = game.state.turn.month;
     turn(game, [SEE]);
-    expect(viewOf(tobi).lastMomentMonth).toBe(seen);
+    expect(viewOf(dele).lastMomentMonth).toBe(seen);
     const again = game.state.turn.month;
     turn(game, [SEE]);
-    expect(viewOf(tobi).lastMomentMonth).toBe(again);
+    expect(viewOf(dele).lastMomentMonth).toBe(again);
     game.accept({ type: "people/moments", pair: "pair-1", moments: [{ n: 1, by: "them", kind: "said", spot: null, what: "phrase.hello", tick: 0 }] }, "authority");
     expect(viewOf(friend).lastMomentMonth).toBe(game.state.turn.month);
-    game.accept({ type: "people/end", bond: tobi });
-    expect(viewOf(tobi).cooldownUntil).toBe(game.state.turn.month + numbers.recourtMonths);
+    game.accept({ type: "people/end", bond: dele });
+    expect(viewOf(dele).cooldownUntil).toBe(game.state.turn.month + numbers.recourtMonths);
   });
 });
 

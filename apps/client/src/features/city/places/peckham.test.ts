@@ -111,7 +111,7 @@ describe("Peckham's jobs", () => {
     "activity.job-uk-warehouse": "place.warehouse-uk",
     "activity.job-uk-skilled": "place.office-uk",
     "activity.job-uk-graduate": "place.office-uk",
-    "activity.job-uk-senior-dev": "place.office-uk",
+    "activity.job-uk-senior-developer": "place.office-uk",
   };
 
   test("[world:things-are-tappable-models] [world:ride-abroad-and-workplace] [city:places-stage-their-acts] given the UK's jobs, when Peckham is read, then the jobs notice and the agency each open the hunt staged here, the agency also takes a question, and every job is staged at its own workplace", () => {

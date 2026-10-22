@@ -76,7 +76,7 @@ A paper that is issued, runs out, is made void, is asked for, or is brought forw
 
 ## The file chapter
 
-The second chapter, "Build the file", opens with one line: "A file is paper and legwork: a passport, a transcript, a score, a letter." For the master's in the UK it asks for four things: the passport held, the transcript held, an English result at band 6.0 or better, and an offer from a school. Femi hands it over at the hub as a brief, "Papers, abeg", with each thing it asks for as a picture and the place it is got. The brief stands in Japa, each thing ticked as it comes in; in the world it shows only in the moment, under the band for a few seconds when it is handed and while you stand at the step's place, where a marker shows what to do.
+The second chapter, "Build the file", opens with one line: "A file is paper and legwork: a passport, a transcript, a score, a letter." For the master's in the UK it asks for four things: the passport held, the transcript held, an English result at band 6.0 or better, and an offer from a school. Lanre hands it over at the hub as a brief, "Papers, abeg", with each thing it asks for as a picture and the place it is got. The brief stands in Japa, each thing ticked as it comes in; in the world it shows only in the moment, under the band for a few seconds when it is handed and while you stand at the step's place, where a marker shows what to do.
 
 The chapter follows the way out the life leans to. Other ways have their own file:
 

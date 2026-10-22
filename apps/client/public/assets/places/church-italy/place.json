@@ -48,7 +48,7 @@
     "triangles": 4
   },
   "stage": {
-    "note": "London's church scene under the church in Castel Volturno's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Italy's. The pews for the community (activity.community-it), the hall looked at, the door.",
+    "note": "London's church scene under the church in Castel Volturno's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Italy's. The pews for the community (activity.community-italy), the hall looked at, the door.",
     "ground": {
       "size": [
         16.6,
@@ -330,7 +330,7 @@
             "id": "service",
             "label": "city.act.community",
             "kind": "sheet",
-            "stages": "activity.community-it"
+            "stages": "activity.community-italy"
           },
           {
             "id": "sit",

@@ -157,7 +157,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
     choices: [
       {
         id: "bank",
-        requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+        requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
         pick: null,
         effects: [{ type: "activity/start-job", job: "activity.job-bank-senior" }],
         fraudEffects: null,
@@ -166,7 +166,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
         id: "tech",
         requires: [{ type: "quality/min", quality: "quality.tech", value: 60 }],
         pick: null,
-        effects: [{ type: "activity/start-job", job: "activity.job-mid-dev" }],
+        effects: [{ type: "activity/start-job", job: "activity.job-mid-developer" }],
         fraudEffects: null,
       },
       {
@@ -223,8 +223,8 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
   "offer.street-find-uk": streetFind("offer.street-find-uk", "country.uk"),
   "offer.street-find-uae": streetFind("offer.street-find-uae", "country.uae"),
   // Calgary's strip mall and Castel Volturno's roundabout have theirs on the same pattern (city.md "Entries: abroad", design page 11).
-  "offer.street-find-ca": streetFind("offer.street-find-ca", "country.canada"),
-  "offer.street-find-it": streetFind("offer.street-find-it", "country.italy"),
+  "offer.street-find-canada": streetFind("offer.street-find-canada", "country.canada"),
+  "offer.street-find-italy": streetFind("offer.street-find-italy", "country.italy"),
 
   // Abroad (group `abroad`)
 
@@ -264,22 +264,22 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
 const assistanceOffers: Record<Id<"offer">, OfferEntry> = {
   // undertaking:social-assistance-offer: social assistance, the same for
   // every resident in Canada whose bank and cash together are under the line.
-  // The amount is fixed by content (the start of var.ca-assistance), so no player
+  // The amount is fixed by content (the start of var.canada-assistance), so no player
   // chooses what reaches a sponsor's bill. Group `abroad`, rolled every month it holds.
-  "offer.ca-assistance": {
-    id: "offer.ca-assistance",
+  "offer.canada-assistance": {
+    id: "offer.canada-assistance",
     group: "abroad",
     where: "abroad",
     when: [
       { type: "place/is", where: "abroad", country: "country.canada" },
-      { type: "status/is", statuses: ["status.ca-resident", "status.ca-citizen"] },
+      { type: "status/is", statuses: ["status.canada-resident", "status.canada-citizen"] },
       { type: "not", of: { type: "money/min", currency: "CAD", amount: tuning.undertaking.assistanceUnder } },
     ],
     chanceBp: pct(100),
     cooldown: 1,
     maxTimes: null,
     expiresAfter: 1,
-    terms: { amount: varTable["var.ca-assistance"]?.start ?? 0 },
+    terms: { amount: varTable["var.canada-assistance"]?.start ?? 0 },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -290,7 +290,7 @@ const assistanceOffers: Record<Id<"offer">, OfferEntry> = {
         effects: [
           { type: "money/add", currency: "CAD", pocket: "bank", amount: { term: "amount" }, reason: "assistance" },
           // Counted for a sponsor's undertaking only after arriving on the spouse route (undertaking:social-assistance-offer).
-          { type: "people/assistance-taken", route: "route.ca-spouse" },
+          { type: "people/assistance-taken", route: "route.canada-spouse" },
           { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
           { type: "quality/add", quality: "quality.standing", amount: -2 },
         ],

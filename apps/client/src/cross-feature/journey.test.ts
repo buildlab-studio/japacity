@@ -17,7 +17,7 @@ const said = (line: string) => line.replace(/\{[^}]*\}/g, "");
 const THEIRS: { pattern: RegExp; reason: string }[] = [
   { pattern: /^place\.[^.]+\.overheard\.\d+$/, reason: "a person's words overheard in a place (city:place-words-are-text-keys)" },
   { pattern: /^place\.[^.]+\.sign\.\d+$/, reason: "a sign painted in the world: KEYS CUT WHILE YOU WAIT" },
-  { pattern: /^person\.amaka-nurse\.drifted$/, reason: "Amaka's own words, in quotes, when she has given up on you" },
+  { pattern: /^person\.hauwa-nurse\.drifted$/, reason: "Hauwa's own words, in quotes, when she has given up on you" },
 ];
 const theirs = (key: string) => THEIRS.some(({ pattern }) => pattern.test(key));
 

@@ -44,7 +44,7 @@ describe("the hub's jobs board", () => {
   const board = stage.things?.find((thing) => thing.id === "jobs");
   if (board === undefined) throw new Error("The hub has no jobs board");
   const HUNT = "activity.job-hunt";
-  const jobs = ["activity.job-junior-dev", "activity.job-bank-officer"];
+  const jobs = ["activity.job-junior-developer", "activity.job-bank-officer"];
 
   test("[world:things-are-tappable-models] given the hunt open and jobs the board lists offered, when the board's act is read for now, then it opens the hunt's sheet, where the job is chosen from the list, not the first job's card", () => {
     const now = thingsNow([board], stagedNow(new Set([HUNT, ...jobs]), new Set(entry.stages), new Set(), null));

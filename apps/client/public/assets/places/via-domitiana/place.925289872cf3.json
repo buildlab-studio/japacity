@@ -440,7 +440,7 @@
             "id": "evening",
             "label": "city.act.shop",
             "kind": "sheet",
-            "stages": "activity.street-shopping-it"
+            "stages": "activity.street-shopping-italy"
           }
         ]
       },
@@ -458,7 +458,7 @@
             "id": "barber",
             "label": "city.act.barber",
             "kind": "sheet",
-            "stages": "activity.barber-it"
+            "stages": "activity.barber-italy"
           }
         ]
       },
@@ -476,7 +476,7 @@
             "id": "clothes",
             "label": "city.act.clothes",
             "kind": "sheet",
-            "stages": "activity.buy-clothes-it"
+            "stages": "activity.buy-clothes-italy"
           }
         ]
       },

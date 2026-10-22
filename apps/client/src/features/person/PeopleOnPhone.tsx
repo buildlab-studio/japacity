@@ -141,7 +141,7 @@ export function leftWords(count: number): string {
   return sayCount("ui.people.head.moments-left", count, { count: countSaid(count) });
 }
 
-/** Who the ask row asks: a computer by name, a friend as "your friend" (text:voice-by-surface: "Ask Tobi", never "Ask them"). */
+/** Who the ask row asks: a computer by name, a friend as "your friend" (text:voice-by-surface: "Ask Dele", never "Ask them"). */
 export function askName(bond: BondView): string {
   return bond.person === null ? say("ui.people.who.player") : bondName(bond);
 }

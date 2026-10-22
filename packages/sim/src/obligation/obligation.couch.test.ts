@@ -6,10 +6,10 @@ import { applyAs, life, sibling } from "../testing/person.journey";
 import type { Game } from "../testing/play";
 
 const used = content;
-const ROOM: Id<"obligation"> = "obligation.rent-room-ca";
-const UPKEEP: Id<"obligation"> = "obligation.upkeep-ca";
+const ROOM: Id<"obligation"> = "obligation.rent-room-canada";
+const UPKEEP: Id<"obligation"> = "obligation.upkeep-canada";
 const COUCH = content.tuning.people.couchMonths;
-const IN_CANADA: Partial<PersonFacts> = { where: "abroad", country: "country.canada", status: "status.ca-resident" };
+const IN_CANADA: Partial<PersonFacts> = { where: "abroad", country: "country.canada", status: "status.canada-resident" };
 
 /** The graduate with Canadian money for rent and upkeep, a sibling with these facts, then the move to Canada. */
 function arrives(siblingFacts: Partial<PersonFacts> | null): Game {

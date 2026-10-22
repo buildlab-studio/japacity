@@ -10,7 +10,7 @@ const CANADA: Id<"route"> = "route.canada-points";
 const TALENT: Id<"route"> = "route.uk-talent";
 const GULF: Id<"route"> = "route.gulf-contract";
 
-const DEGREE: Requirement = { type: "quality/min", quality: "quality.edu-level", value: 3 };
+const DEGREE: Requirement = { type: "quality/min", quality: "quality.education-level", value: 3 };
 
 /** A checklist item that is met or not, with no part earned on the way. */
 function item(id: string, weight: number, requirement: Requirement): ChecklistItem {
@@ -42,20 +42,20 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     status: "status.uk-student",
     refusalBaseBp: 900,
     flightPaidByEmployer: false,
-    hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    hearIf: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     hearBy: 3,
     window: "var.uk-study-window",
     checklist: [
       {
         id: "degree",
         weight: 6,
-        requirement: { type: "quality/min", quality: "quality.edu-level", value: 3 },
+        requirement: { type: "quality/min", quality: "quality.education-level", value: 3 },
         partial: false,
       },
       {
         id: "grade",
         weight: 4,
-        requirement: { type: "quality/min", quality: "quality.edu-grade", value: 3 },
+        requirement: { type: "quality/min", quality: "quality.education-grade", value: 3 },
         partial: false,
       },
       { id: "passport", weight: 4, requirement: { type: "document/held", document: "document.passport" }, partial: false },
@@ -179,14 +179,14 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
   "route.canada-points": {
     id: CANADA,
     gate: "points",
-    dependants: "route.ca-accompany",
+    dependants: "route.canada-accompany",
     country: "country.canada",
-    status: "status.ca-resident",
+    status: "status.canada-resident",
     refusalBaseBp: 1000,
     flightPaidByEmployer: false,
     hearIf: [DEGREE],
     hearBy: 5,
-    window: "var.ca-window",
+    window: "var.canada-window",
     checklist: [
       item("degree", 8, DEGREE),
       item("eca", 10, held("document.eca")),
@@ -204,11 +204,11 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     points: {
       table: "points.canada",
       spouseTable: "points.canada-spouse",
-      fundsVar: "var.ca-funds",
-      cutoffVar: "var.ca-cutoff",
-      careCutoffVar: "var.ca-care-cutoff",
-      feeVar: "var.ca-apply-fee",
-      decisionVar: "var.ca-decision-months",
+      fundsVar: "var.canada-funds",
+      cutoffVar: "var.canada-cutoff",
+      careCutoffVar: "var.canada-care-cutoff",
+      feeVar: "var.canada-apply-fee",
+      decisionVar: "var.canada-decision-months",
       // A profile lasts 12 months (route-gates:entering-the-pool and route-gates:profile-lapses-and-score-ages).
       profileMonths: 12,
     },
@@ -269,7 +269,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     // The employer pays the flight (route-gates:employer-flies-and-holds-passport).
     flightPaidByEmployer: true,
     // Secondary school.
-    hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
+    hearIf: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
     // Never by itself: at the motor park and through the agent.
     hearBy: null,
     window: "var.uae-window",
@@ -322,9 +322,9 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
 // and undertaking.md for the floor.
 
 const UK_PARTNER: Id<"route"> = "route.uk-partner";
-const CA_SPOUSE: Id<"route"> = "route.ca-spouse";
+const CA_SPOUSE: Id<"route"> = "route.canada-spouse";
 const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
-const CA_ACCOMPANY: Id<"route"> = "route.ca-accompany";
+const CA_ACCOMPANY: Id<"route"> = "route.canada-accompany";
 
 /** person:partner-routes-heard-via-bond: a partner abroad in the country with a status that may sponsor. */
 function partnerAbroad(country: Id<"country">, statuses: Id<"status">[]): Requirement {
@@ -332,7 +332,7 @@ function partnerAbroad(country: Id<"country">, statuses: Id<"status">[]): Requir
 }
 
 const UK_SPONSORS: Id<"status">[] = ["status.uk-settled", "status.uk-citizen"];
-const CA_SPONSORS: Id<"status">[] = ["status.ca-resident", "status.ca-citizen"];
+const CA_SPONSORS: Id<"status">[] = ["status.canada-resident", "status.canada-citizen"];
 
 const peopleRoutes: Record<Id<"route">, RouteEntry> = {
   "route.uk-partner": {
@@ -370,17 +370,17 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
       floorVar: "var.uk-partner-income",
     },
   },
-  "route.ca-spouse": {
+  "route.canada-spouse": {
     id: CA_SPOUSE,
     gate: "partner",
     dependants: null,
     country: "country.canada",
-    status: "status.ca-resident",
+    status: "status.canada-resident",
     refusalBaseBp: 600,
     flightPaidByEmployer: false,
     hearIf: [partnerAbroad("country.canada", CA_SPONSORS)],
     hearBy: 0,
-    window: "var.ca-family-window",
+    window: "var.canada-family-window",
     checklist: [
       item("married", 25, step(CA_SPOUSE, "married")),
       item("sponsor", 25, step(CA_SPOUSE, "sponsor")),
@@ -392,7 +392,7 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
     partner: {
       sponsorStatuses: CA_SPONSORS,
       bandMin: null,
-      feeVar: "var.ca-sponsor-fee",
+      feeVar: "var.canada-sponsor-fee",
       surchargeYears: 0,
       decisionMonths: 12,
       livingTogetherMonths: null,
@@ -432,12 +432,12 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
       decisionMonths: 1,
     },
   },
-  "route.ca-accompany": {
+  "route.canada-accompany": {
     id: CA_ACCOMPANY,
     gate: "dependant",
     dependants: null,
     country: "country.canada",
-    status: "status.ca-resident",
+    status: "status.canada-resident",
     refusalBaseBp: 300,
     flightPaidByEmployer: false,
     hearIf: [],
@@ -450,7 +450,7 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
     ],
     schools: [],
     interview: null,
-    dependant: { maintenanceVar: null, leadMonthsExempt: null, feeVar: "var.ca-accompany-fee", feeFromLead: false, decisionMonths: 1 },
+    dependant: { maintenanceVar: null, leadMonthsExempt: null, feeVar: "var.canada-accompany-fee", feeFromLead: false, decisionMonths: 1 },
   },
 };
 
@@ -493,16 +493,16 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
     ],
     [{ currency: "GBP", amount: { var: "var.uk-partner-fee" }, reason: "fee-visa" }, SURCHARGE_YEAR, SURCHARGE_YEAR, SURCHARGE_YEAR],
   ),
-  "activity.apply-ca-spouse": applying(
+  "activity.apply-canada-spouse": applying(
     CA_SPOUSE,
     [
-      { type: "var/min", var: "var.ca-family-window", value: 1 },
+      { type: "var/min", var: "var.canada-family-window", value: 1 },
       step(CA_SPOUSE, "married"),
       step(CA_SPOUSE, "sponsor"),
       { type: "not", of: { type: "place/banned", country: "country.canada" } },
       held("document.passport"),
     ],
-    [{ currency: "CAD", amount: { var: "var.ca-sponsor-fee" }, reason: "fee-visa" }],
+    [{ currency: "CAD", amount: { var: "var.canada-sponsor-fee" }, reason: "fee-visa" }],
   ),
   "activity.apply-uk-dependant": applying(
     UK_DEPENDANT,
@@ -516,7 +516,7 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
     ],
     [],
   ),
-  "activity.apply-ca-accompany": applying(CA_ACCOMPANY, [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport")], []),
+  "activity.apply-canada-accompany": applying(CA_ACCOMPANY, [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport")], []),
 };
 
 export const routeTable: Record<Id<"route">, RouteEntry> = { ...wholeLifeRoutes, ...peopleRoutes };

@@ -11,7 +11,7 @@ const NORTHGATE = "school.northgate";
 
 function withGrade(grade: number) {
   const view = engineView("scenario.graduate");
-  return { ...view, qualities: [...view.qualities.filter((quality) => quality.id !== "quality.edu-grade"), { id: "quality.edu-grade" as const, value: grade }] };
+  return { ...view, qualities: [...view.qualities.filter((quality) => quality.id !== "quality.education-grade"), { id: "quality.education-grade" as const, value: grade }] };
 }
 
 describe("the sheet that applies to one university", () => {

@@ -1167,8 +1167,8 @@ export interface RunOptions {
   stopWhen?: (game: Game, record: RunRecord) => boolean;
 }
 
-const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.ca-resident"];
-const CITIZEN_STATUSES: Id<"status">[] = ["status.uk-citizen", "status.ca-citizen"];
+const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.canada-resident"];
+const CITIZEN_STATUSES: Id<"status">[] = ["status.uk-citizen", "status.canada-citizen"];
 
 function restingTurnAccepted(game: Game): boolean {
   const result = step(game.state, { type: "turn/end", slots: [], basedOn: game.state.v }, game.world(), game.content);
@@ -1190,7 +1190,7 @@ function fileOf(state: State, content: Content): FileOnDay {
     unexplainedBp: visa?.unexplainedBp ?? 0,
     refusals: held?.refusals ?? 0,
     interviewScore: visa?.interviewScore ?? 0,
-    grade: state.quality["quality.edu-grade"] ?? 0,
+    grade: state.quality["quality.education-grade"] ?? 0,
   };
   return { unexplainedBp: file.unexplainedBp, interviewScore: file.interviewScore, chanceBp: refusalChanceBp(content.tuning.route, content.route[UK]?.refusalBaseBp ?? 0, file) };
 }
@@ -1257,7 +1257,7 @@ function prologuePath(state: State): string | null {
   if (state.scenario !== "scenario.prologue") return null;
   const choices = state.prologue.choices;
   const path = choices["after-school"] ?? "none";
-  return `${path}, grade ${String(state.quality["quality.edu-grade"] ?? 0)}`;
+  return `${path}, grade ${String(state.quality["quality.education-grade"] ?? 0)}`;
 }
 
 /** Plays one life with one strategy until the months run out or the life ends. */
@@ -1395,7 +1395,7 @@ export function runLife(
       record.flown = (Object.entries(after.route).find(([, held]) => held.state === "departed")?.[0] as Id<"route"> | undefined) ?? null;
     }
     if (record.road === null && after.place.where === "road") record.road = after.turn.month;
-    if (record.remote === null && after.activity.job === "activity.job-remote-dev") record.remote = after.turn.month;
+    if (record.remote === null && after.activity.job === "activity.job-remote-developer") record.remote = after.turn.month;
     const current = after.status.current?.entry ?? null;
     if (record.settledMonth === null && current !== null && (SETTLED_STATUSES.includes(current) || CITIZEN_STATUSES.includes(current))) record.settledMonth = after.turn.month;
     if (record.departed !== null) {

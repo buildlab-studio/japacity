@@ -3,7 +3,7 @@
 The first months teach the game by playing it, with no tutorial. A person hands the player a brief, a marker at the place shows the thing to do, and a single line under the top band, the nudge, comes only when something waits on the player. The first chapter, "Find your feet" ("Work first, abeg" on its brief), asks for four things: get a job, work a month in it, hear of a way out and look into it. The first job hunt of a life is made sure, so every new player sees money come in within three months.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
-  <img src="/pictures/dev-05-chapter-title-on-arrival.webp" alt="The first brief handed over: Femi at the hub, Work first, abeg, the four things as sticker tiles with their places, the rewards, and Let's go" width="220">
+  <img src="/pictures/dev-05-chapter-title-on-arrival.webp" alt="The first brief handed over: Lanre at the hub, Work first, abeg, the four things as sticker tiles with their places, the rewards, and Let's go" width="220">
   <img src="/pictures/dev-09-month-1-ask-sheet.webp" alt="The jobs board at the hub: Look for a job, with each job's pay and its chance from Likely to A fair chance" width="220">
   <img src="/pictures/dev-15-month-2-results.webp" alt="The month is done: payday leading as a card with the salary, a new job started, and kept this month" width="220">
 </div>

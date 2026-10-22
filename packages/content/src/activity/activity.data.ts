@@ -47,7 +47,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-teacher": {
     id: "activity.job-teacher",
     slot: "main",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(90000) },
@@ -61,7 +61,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-customer-service": {
     id: "activity.job-customer-service",
     slot: "main",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(110000) },
@@ -69,8 +69,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -3 }],
     counts: [],
   },
-  "activity.job-junior-dev": {
-    id: "activity.job-junior-dev",
+  "activity.job-junior-developer": {
+    id: "activity.job-junior-developer",
     slot: "main",
     requires: [{ type: "quality/min", quality: "quality.tech", value: 30 }],
     param: null,
@@ -89,8 +89,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     // health:sick-pay-unless-sick-leave: the bank pays through a sick month.
     sickLeave: true,
     requires: [
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
-      { type: "quality/min", quality: "quality.edu-grade", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-grade", value: 3 },
     ],
     param: null,
     cost: [],
@@ -118,14 +118,14 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  "activity.job-mid-dev": {
-    id: "activity.job-mid-dev",
+  "activity.job-mid-developer": {
+    id: "activity.job-mid-developer",
     slot: "main",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 60 },
       {
         type: "activity/tenure",
-        activities: ["activity.job-junior-dev", "activity.job-mid-dev", "activity.job-remote-dev"],
+        activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"],
         months: 12,
       },
     ],
@@ -139,15 +139,15 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  "activity.job-remote-dev": {
-    id: "activity.job-remote-dev",
+  "activity.job-remote-developer": {
+    id: "activity.job-remote-developer",
     slot: "main",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 75 },
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.english", value: 60 },
       // Simulated play: with no tenure asked, this one job paid for 97% of flights.
-      { type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 },
+      { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer"], months: 6 },
     ],
     param: null,
     cost: [],
@@ -343,7 +343,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.get-transcript",
     slot: "free",
     requires: [
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
       { type: "document/absent", document: "document.transcript" },
     ],
     param: null,
@@ -511,7 +511,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.weekend-tutoring": {
     id: "activity.weekend-tutoring",
     slot: "side",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(60000) },
@@ -704,7 +704,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       windowOpen("var.uk-skilled-window"),
       { type: "route/gate-step", route: SKILLED, step: "sponsor" },
       { type: "route/gate-step", route: SKILLED, step: "salary" },
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
       { type: "activity/tenure", activities: [], months: 24 },
       held("document.english-test", 40),
       held("document.tb-certificate"),
@@ -739,7 +739,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     param: null,
     // C$329, paid as a foreign fee.
-    cost: [{ currency: "CAD", amount: { var: "var.ca-eca-fee" }, reason: "fee-document" }],
+    cost: [{ currency: "CAD", amount: { var: "var.canada-eca-fee" }, reason: "fee-document" }],
     pay: null,
     hireBp: null,
     effects: [{ type: "document/request", document: "document.eca" }],
@@ -752,7 +752,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     // route-gates:entering-the-pool. Band 6.0 is CLB 7; `route/funds` asks for the funds.
     requires: [
       known(CANADA),
-      windowOpen("var.ca-window"),
+      windowOpen("var.canada-window"),
       held("document.eca"),
       held("document.english-test", 60),
       { type: "activity/tenure", activities: [], months: 12 },
@@ -867,7 +867,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/gate-step", route: GULF, step: "sponsor" },
       held("document.passport"),
       held("document.medical"),
-      { type: "quality/min", quality: "quality.edu-level", value: 1 },
+      { type: "quality/min", quality: "quality.education-level", value: 1 },
       { type: "quality/max", quality: "quality.age-months", value: 539 },
     ],
     param: null,

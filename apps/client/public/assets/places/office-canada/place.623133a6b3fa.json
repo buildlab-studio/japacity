@@ -1,28 +1,28 @@
 {
-  "place": "place.big-shop-canada",
+  "place": "place.office-canada",
   "scope": "interior",
   "hub": false,
-  "note": "The superstore in north-east Calgary (design page 11 section 3), London's big shop room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
+  "note": "The office downtown, Calgary (design page 11 section 3), London's office room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
   "instances": [
     {
-      "file": "places/big-shop-uk/building_room_bigshop.glb",
+      "file": "places/office-uk/building_room_office.glb",
       "count": 1
     },
     {
-      "file": "places/big-shop-uk/prop_shop-aisle.glb",
-      "count": 4
+      "file": "places/office-uk/prop_desk-pod.glb",
+      "count": 5
     },
     {
-      "file": "places/big-shop-uk/prop_tills.glb",
+      "file": "places/office-uk/prop_glass-office.glb",
       "count": 1
     },
     {
-      "file": "places/big-shop-uk/prop_trolley-bay.glb",
+      "file": "shared/prop/prop_tea-point.glb",
       "count": 1
     },
     {
-      "file": "places/yaba-hub/prop_jobs-board.glb",
-      "count": 1
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 2
     },
     {
       "file": "shared/prop/prop_room-door.glb",
@@ -30,7 +30,7 @@
     }
   ],
   "people": {
-    "low": 4,
+    "low": 3,
     "high": 6,
     "sample": [
       "shared/person/person_tunde.glb",
@@ -52,13 +52,13 @@
     "triangles": 2
   },
   "stage": {
-    "note": "London's big shop scene under the superstore's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are big-shop-uk's; the staged acts, the looks and the colleague's lines are Canada's. The trolleys by the door for the weekly shop; the back aisle for winter clothes; the tills and the staff notice looked at, since no Canadian job is held here.",
+    "note": "London's office scene under the office downtown's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are office-uk's; the staged acts, the looks and the colleague's lines are Canada's. The desks for the professional job; the glass office for the developer's; the kitchen where a colleague says a line.",
     "ground": {
       "size": [
         16.6,
         9.6
       ],
-      "colour": "white"
+      "colour": "concrete"
     },
     "roads": [],
     "light": {
@@ -73,19 +73,19 @@
         {
           "at": [
             -3.5,
-            3.2,
+            2.8,
             0
           ],
-          "size": 2.6,
+          "size": 2.4,
           "bulb": true
         },
         {
           "at": [
-            3.5,
-            3.2,
+            3.0,
+            2.8,
             0
           ],
-          "size": 2.6,
+          "size": 2.4,
           "bulb": true
         }
       ]
@@ -117,7 +117,7 @@
     ],
     "models": [
       {
-        "file": "places/big-shop-uk/building_room_bigshop.glb",
+        "file": "places/office-uk/building_room_office.glb",
         "at": [
           [
             0,
@@ -127,56 +127,66 @@
         ]
       },
       {
-        "file": "places/big-shop-uk/prop_shop-aisle.glb",
+        "file": "places/office-uk/prop_desk-pod.glb",
         "at": [
           [
-            -6.4,
-            -1.2,
-            1.5708
-          ],
-          [
-            -4.2,
-            -1.2,
-            1.5708
-          ],
-          [
-            -2.0,
-            -1.2,
-            1.5708
-          ],
-          [
-            -0.6,
-            -3.95,
+            -3.0,
+            -2.2,
             0
-          ]
-        ]
-      },
-      {
-        "file": "places/big-shop-uk/prop_tills.glb",
-        "at": [
+          ],
+          [
+            -0.2,
+            -2.2,
+            0
+          ],
           [
             2.6,
-            1.4,
+            -2.2,
+            0
+          ],
+          [
+            -3.0,
+            1.6,
+            0
+          ],
+          [
+            -0.2,
+            1.6,
             0
           ]
         ]
       },
       {
-        "file": "places/big-shop-uk/prop_trolley-bay.glb",
+        "file": "places/office-uk/prop_glass-office.glb",
         "at": [
           [
-            6.0,
-            -2.8,
-            -1.5708
+            -6.3,
+            -3.1,
+            0
           ]
         ]
       },
       {
-        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "file": "shared/prop/prop_tea-point.glb",
         "at": [
           [
+            4.8,
+            3.6,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            7.2,
+            -3.9,
+            0
+          ],
+          [
+            -7.2,
             3.8,
-            -4.1,
             0
           ]
         ]
@@ -194,51 +204,63 @@
     ],
     "people": [
       [
-        2.35,
-        1.2,
-        -1.5708
-      ],
-      [
-        -3.1,
-        -0.8,
+        -3.2,
+        -1.05,
         3.1416
       ],
       [
-        0.4,
-        -2.9,
-        3.1416
+        0.0,
+        -3.35,
+        0
       ],
       [
-        4.5,
-        -2.2,
-        1.5708
+        -6.3,
+        -4.15,
+        0
       ],
       [
-        4.15,
-        1.2,
+        5.45,
+        2.75,
         -1.5708
       ],
       [
-        0.7,
-        1.9,
+        2.4,
+        -1.05,
+        3.1416
+      ],
+      [
+        1.2,
+        0.3,
         1.5708
       ],
       [
-        -5.3,
-        1.8,
-        0.4
+        -1.6,
+        3.4,
+        0.3
       ]
     ],
     "acts": [
       {
         "spot": 0,
+        "pose": "sit"
+      },
+      {
+        "spot": 1,
+        "pose": "sit"
+      },
+      {
+        "spot": 2,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 3,
         "pose": "sit",
         "staff": true
       },
       {
         "spot": 4,
-        "pose": "sit",
-        "staff": true
+        "pose": "sit"
       }
     ],
     "motion": [],
@@ -258,72 +280,67 @@
     },
     "things": [
       {
-        "id": "trolley",
-        "file": "places/big-shop-uk/prop_trolley-bay.glb",
-        "copy": 0,
-        "label": "city.thing.trolley",
+        "id": "desk",
+        "file": "places/office-uk/prop_desk-pod.glb",
+        "copy": 1,
+        "label": "city.thing.desk",
         "at": [
-          4.6,
-          -2.8
+          -0.2,
+          -0.6
         ],
         "acts": [
           {
-            "id": "weekly-shop",
-            "label": "city.act.weekly-shop",
+            "id": "professional",
+            "label": "city.act.job-professional",
             "kind": "sheet",
-            "stages": "activity.weekly-shop-ca"
+            "stages": "activity.job-canada-professional"
           }
         ]
       },
       {
-        "id": "clothes",
-        "file": "places/big-shop-uk/prop_shop-aisle.glb",
-        "copy": 3,
-        "label": "city.thing.clothes-aisle",
+        "id": "glass-office",
+        "file": "places/office-uk/prop_glass-office.glb",
+        "copy": 0,
+        "label": "city.thing.glass-office",
         "at": [
-          -0.6,
-          -2.9
+          -6.3,
+          -1.2
         ],
         "acts": [
           {
-            "id": "clothes",
-            "label": "city.act.clothes",
+            "id": "developer",
+            "label": "city.act.job-developer",
             "kind": "sheet",
-            "stages": "activity.buy-clothes-ca"
+            "stages": "activity.job-canada-developer"
           }
         ]
       },
       {
-        "id": "tills",
-        "file": "places/big-shop-uk/prop_tills.glb",
+        "id": "colleague",
+        "file": "shared/prop/prop_tea-point.glb",
         "copy": 0,
-        "label": "city.thing.tills",
+        "label": "city.thing.colleague",
         "at": [
-          0.8,
-          0.9
+          4.8,
+          2.1
         ],
         "acts": [
           {
-            "id": "look",
-            "label": "city.act.look-tills",
-            "kind": "plain"
-          }
-        ]
-      },
-      {
-        "id": "notice",
-        "file": "places/yaba-hub/prop_jobs-board.glb",
-        "copy": 0,
-        "label": "city.thing.staff-notice",
-        "at": [
-          3.8,
-          -3.3
-        ],
-        "acts": [
+            "id": "talk",
+            "label": "city.act.talk-to",
+            "kind": "plain",
+            "tells": "city.line.colleague.office-canada.1"
+          },
           {
-            "id": "look",
-            "label": "city.act.read-staff-notice",
-            "kind": "plain"
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              4.15,
+              2.75,
+              1.5708
+            ]
           }
         ]
       },

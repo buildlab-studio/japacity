@@ -21,14 +21,14 @@ describe("obligations abroad", () => {
     expect(content.obligation["obligation.rent-flat-uk"]).toMatchObject({ type: "rent", amount: 95000, creditMin: 20 });
     expect(content.obligation["obligation.phone-uk"]).toMatchObject({ type: "phone", amount: 2500, creditMin: 10 });
     // Canada: C$30 (the prepaid phone alone, abroad-money:arrival-opens-upkeep-and-room), C$900, C$1,700, C$45. The UAE: AED 50 and AED 1,200. Italy: €10 and €350.
-    expect(content.obligation["obligation.upkeep-ca"]?.amount).toBe(3000);
-    expect(content.obligation["obligation.rent-room-ca"]?.amount).toBe(90000);
-    expect(content.obligation["obligation.rent-flat-ca"]?.amount).toBe(170000);
-    expect(content.obligation["obligation.phone-ca"]?.amount).toBe(4500);
+    expect(content.obligation["obligation.upkeep-canada"]?.amount).toBe(3000);
+    expect(content.obligation["obligation.rent-room-canada"]?.amount).toBe(90000);
+    expect(content.obligation["obligation.rent-flat-canada"]?.amount).toBe(170000);
+    expect(content.obligation["obligation.phone-canada"]?.amount).toBe(4500);
     expect(content.obligation["obligation.upkeep-uae"]?.amount).toBe(5000);
     expect(content.obligation["obligation.rent-room-uae"]?.amount).toBe(120000);
-    expect(content.obligation["obligation.upkeep-it"]?.amount).toBe(1000);
-    expect(content.obligation["obligation.rent-room-it"]?.amount).toBe(35000);
+    expect(content.obligation["obligation.upkeep-italy"]?.amount).toBe(1000);
+    expect(content.obligation["obligation.rent-room-italy"]?.amount).toBe(35000);
     // Tuition in three instalments, every three months, one month's grace, then the status lapses.
     expect(content.obligation["obligation.tuition"]).toMatchObject({ type: "tuition", term: 3, everyMonths: 3, grace: 1, sink: "fee-school" });
     expect(content.obligation["obligation.tuition"]?.onDefault).toEqual([{ type: "status/lose" }]);
@@ -55,6 +55,6 @@ describe("obligations abroad", () => {
       { type: "obligation/close", obligationType: "rent" },
       { type: "obligation/open", obligation: "obligation.rent-room-uk" },
     ]);
-    expect(content.obligation["obligation.rent-flat-ca"]?.onDefault).toContainEqual({ type: "obligation/open", obligation: "obligation.rent-room-ca" });
+    expect(content.obligation["obligation.rent-flat-canada"]?.onDefault).toContainEqual({ type: "obligation/open", obligation: "obligation.rent-room-canada" });
   });
 });

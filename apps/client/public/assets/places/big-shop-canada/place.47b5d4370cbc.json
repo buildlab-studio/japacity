@@ -1,8 +1,8 @@
 {
-  "place": "place.big-shop-italy",
+  "place": "place.big-shop-canada",
   "scope": "interior",
   "hub": false,
-  "note": "The discount supermarket in Castel Volturno (design page 11 section 3), London's big shop room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
+  "note": "The superstore in north-east Calgary (design page 11 section 3), London's big shop room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
   "instances": [
     {
       "file": "places/big-shop-uk/building_room_bigshop.glb",
@@ -52,7 +52,7 @@
     "triangles": 2
   },
   "stage": {
-    "note": "London's big shop scene under the discount supermarket's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are big-shop-uk's; the staged acts, the looks and the colleague's lines are Italy's. The trolleys by the door for the weekly shop; the tills and the staff notice looked at, since no Italian job is held here.",
+    "note": "London's big shop scene under the superstore's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are big-shop-uk's; the staged acts, the looks and the colleague's lines are Canada's. The trolleys by the door for the weekly shop; the back aisle for winter clothes; the tills and the staff notice looked at, since no Canadian job is held here.",
     "ground": {
       "size": [
         16.6,
@@ -271,7 +271,25 @@
             "id": "weekly-shop",
             "label": "city.act.weekly-shop",
             "kind": "sheet",
-            "stages": "activity.weekly-shop-it"
+            "stages": "activity.weekly-shop-canada"
+          }
+        ]
+      },
+      {
+        "id": "clothes",
+        "file": "places/big-shop-uk/prop_shop-aisle.glb",
+        "copy": 3,
+        "label": "city.thing.clothes-aisle",
+        "at": [
+          -0.6,
+          -2.9
+        ],
+        "acts": [
+          {
+            "id": "clothes",
+            "label": "city.act.clothes",
+            "kind": "sheet",
+            "stages": "activity.buy-clothes-canada"
           }
         ]
       },

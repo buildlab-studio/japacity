@@ -396,7 +396,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.send-off-party": {
     id: "offer.send-off-party",
     group: "life",
-    when: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    when: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     chanceBp: pct(5),
     cooldown: 5,
     // Terna leaves once. A life from sixteen whose prologue took him to a send-off can

@@ -9,7 +9,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.title": "Find your feet",
   "chapter.find-your-feet.open": "Service year is over. The allowance has stopped. Everybody is asking what is next.",
   // The opening line for each life, `open.<scenario's slug>`; the life from sixteen by its path: `prologue.degree` for
-  // a degree (edu-level 3 or more), `prologue.trade` for the trade or the shop counter. The plain line above stays as
+  // a degree (education-level 3 or more), `prologue.trade` for the trade or the shop counter. The plain line above stays as
   // the fallback.
   "chapter.find-your-feet.open.graduate": "Service year is over. The allowance has stopped. Everybody is asking what is next.",
   "chapter.find-your-feet.open.banker": "Four years at the bank. The salary comes every month, and half of it is spoken for before it lands.",
@@ -340,8 +340,8 @@ export const chapterText: Record<string, string> = {
   // `.giver.where` who hands it and where; `.brief.reward.<n>` the rewards as picture chips; `.brief.at.<item>` the
   // two-word place under a thing where the stop's own name would not say it. `chapter.brief.*` serves every chapter:
   // the giver when a chapter names none, the place under a thing by its stop, and the giver's toast as a thing comes in
-  // (Femi and Mama speak as themselves). Never "chapter", "step", "item" or "task" to the player.
-  "chapter.brief.giver": "Femi",
+  // (Lanre and Mama speak as themselves). Never "chapter", "step", "item" or "task" to the player.
+  "chapter.brief.giver": "Lanre",
   "chapter.brief.giver.where": "the hub",
   "chapter.brief.at.month": "In time",
   "chapter.brief.at.phone": "Your phone",
@@ -356,14 +356,14 @@ export const chapterText: Record<string, string> = {
   "chapter.brief.at.the-room": "Your room",
   "chapter.brief.at.peckham": "High street",
   "chapter.find-your-feet.brief.title": "Work first, abeg",
-  "chapter.find-your-feet.brief.giver": "Femi",
+  "chapter.find-your-feet.brief.giver": "Lanre",
   "chapter.find-your-feet.brief.giver.where": "the hub",
   "chapter.find-your-feet.brief.at.pay": "Your job",
   "chapter.find-your-feet.brief.at.heard": "The meetup",
   "chapter.find-your-feet.brief.reward.1": "A salary",
   "chapter.find-your-feet.brief.reward.2": "A way out",
   "chapter.build-the-file.brief.title": "Papers, abeg",
-  "chapter.build-the-file.brief.giver": "Femi",
+  "chapter.build-the-file.brief.giver": "Lanre",
   "chapter.build-the-file.brief.giver.where": "the hub",
   "chapter.build-the-file.brief.reward.1": "A full file",
   "chapter.decision-day.brief.title": "Show the money",

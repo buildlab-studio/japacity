@@ -378,7 +378,7 @@ describe("the view", () => {
     expect(nextStepOf(content, entryOf(CITIZEN))).toBeNull();
     expect(nextStepOf(content, entryOf(OVERSTAYER))).toBe("status.next.home");
     expect(nextStepOf(content, entryOf(UK_GRADUATE))).toBe("status.next.stay");
-    expect(isKept(content, SETTLED) && isKept(content, CITIZEN) && isKept(content, "status.ca-resident")).toBe(true);
+    expect(isKept(content, SETTLED) && isKept(content, CITIZEN) && isKept(content, "status.canada-resident")).toBe(true);
     expect(isKept(content, OVERSTAYER) || isKept(content, STUDENT)).toBe(false);
     applyEffects(game, [{ type: "status/remove" }]);
     expect(game.view().status).toBeNull();

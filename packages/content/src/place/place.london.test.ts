@@ -33,7 +33,7 @@ const LONDON: readonly Row[] = [
   { id: "place.big-shop-uk", nameKind: "business", position: [51474, -68], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-uk", "activity.job-uk-retail-part", "activity.overtime"] },
   { id: "place.care-home-uk", nameKind: "business", position: [51467, -54], scope: "interior", assets: "care-home-uk", stages: ["activity.job-uk-care", "activity.job-uk-senior-care", "activity.overtime"] },
   { id: "place.ward-uk", nameKind: "institution", position: [51468, -94], scope: "interior", assets: "ward-uk", stages: ["activity.job-uk-nurse", "activity.overtime"] },
-  { id: "place.office-uk", nameKind: "business", position: [51505, -86], scope: "interior", assets: "office-uk", stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-dev"] },
+  { id: "place.office-uk", nameKind: "business", position: [51505, -86], scope: "interior", assets: "office-uk", stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-developer"] },
   { id: "place.warehouse-uk", nameKind: "business", position: [51487, -62], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-uk-warehouse", "activity.overtime"] },
   { id: "place.church-uk", nameKind: "institution", position: [51486, -66], scope: "interior", assets: "church-uk", stages: ["activity.community-uk"] },
   { id: "place.test-centre-uk", nameKind: "institution", position: [51494, -100], scope: "interior", assets: "english-test-centre", stages: ["activity.nmc-tests", "activity.driving-test"] },

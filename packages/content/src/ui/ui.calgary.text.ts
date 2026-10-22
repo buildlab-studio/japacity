@@ -14,7 +14,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.thing.ticket-machine": "Ticket machine",
   "city.act.transit-pass": "Transit pass",
   "city.thing.platform": "Platform",
-  // The library's evening course (activity.learn-tech-ca), its notice and its shelves.
+  // The library's evening course (activity.learn-tech-canada), its notice and its shelves.
   "city.thing.course-desk": "Course desk",
   "city.act.course": "Evening course",
   "city.thing.course-notice": "Notice",
@@ -48,7 +48,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.thing.desk": "Desks",
   "city.act.job-professional": "Professional job",
   "city.thing.glass-office": "Glass office",
-  "city.act.job-dev": "Developer",
+  "city.act.job-developer": "Developer",
   "city.thing.pews": "Pews",
   "city.thing.hall": "Church hall",
   "city.act.look-hall": "Look",

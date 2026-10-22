@@ -1,36 +1,44 @@
 {
-  "place": "place.library-canada",
+  "place": "place.care-home-canada",
   "scope": "interior",
   "hub": false,
-  "note": "The library (design page 11 section 3), a room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
+  "note": "The care home in north-east Calgary (design page 11 section 3), London's care home room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
   "instances": [
     {
-      "file": "places/library-canada/building_room_library.glb",
+      "file": "places/care-home-uk/building_room_care.glb",
       "count": 1
     },
     {
-      "file": "places/library-canada/prop_bookshelf.glb",
-      "count": 4
+      "file": "places/care-home-uk/prop_reception-desk.glb",
+      "count": 1
     },
     {
-      "file": "places/library-canada/prop_library-table.glb",
-      "count": 2
+      "file": "shared/prop/prop_rota-board.glb",
+      "count": 1
     },
     {
-      "file": "places/library-canada/prop_course-desk.glb",
+      "file": "shared/prop/prop_tea-point.glb",
       "count": 1
     },
     {
       "file": "places/family-house-parlour/prop_armchair.glb",
+      "count": 2
+    },
+    {
+      "file": "places/family-house-parlour/prop_tv-stand.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_dining-table.glb",
       "count": 1
     },
     {
       "file": "shared/prop/prop_potted-plant.glb",
-      "count": 2
+      "count": 1
     },
     {
       "file": "shared/prop/prop_room-door.glb",
-      "count": 1
+      "count": 2
     }
   ],
   "people": {
@@ -56,13 +64,13 @@
     "triangles": 2
   },
   "stage": {
-    "note": "The library (world:things-are-tappable-models, world:room-seen-down-its-length; design page 11 section 3): tall shelves along the back wall and one across the far end, two long reading tables with their lamps where the readers sit, the course desk near the door with the course's notice on its stand, where the evening course is joined; an armchair in the corner; the door.",
+    "note": "London's care home scene under Calgary's care home's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are care-home-uk's; the staged acts, the looks and the colleague's lines are Canada's. The reception desk for the care aide's job; the rota board for overtime; the manager's door looked at, since Canada's care has no senior rung; the tea point where a colleague says a line.",
     "ground": {
       "size": [
         16.6,
         9.6
       ],
-      "colour": "denim"
+      "colour": "tan"
     },
     "roads": [],
     "light": {
@@ -72,22 +80,22 @@
         12
       ],
       "sky": "sky",
-      "ground": "denim",
+      "ground": "concrete",
       "lamps": [
         {
           "at": [
-            -3.4,
-            3.2,
-            0.4
+            -3.5,
+            2.8,
+            0
           ],
           "size": 2.4,
           "bulb": true
         },
         {
           "at": [
-            0.6,
-            3.2,
-            0.4
+            3.5,
+            2.8,
+            0
           ],
           "size": 2.4,
           "bulb": true
@@ -121,7 +129,7 @@
     ],
     "models": [
       {
-        "file": "places/library-canada/building_room_library.glb",
+        "file": "places/care-home-uk/building_room_care.glb",
         "at": [
           [
             0,
@@ -131,51 +139,31 @@
         ]
       },
       {
-        "file": "places/library-canada/prop_bookshelf.glb",
+        "file": "places/care-home-uk/prop_reception-desk.glb",
         "at": [
           [
-            -4.4,
-            -4.15,
-            0
-          ],
-          [
-            -0.6,
-            -4.15,
-            0
-          ],
-          [
-            3.2,
-            -4.15,
-            0
-          ],
-          [
-            -7.45,
-            0.6,
+            5.4,
+            -2.0,
             1.5708
           ]
         ]
       },
       {
-        "file": "places/library-canada/prop_library-table.glb",
+        "file": "shared/prop/prop_rota-board.glb",
         "at": [
           [
-            -3.4,
-            0.4,
-            0
-          ],
-          [
-            0.6,
-            0.4,
+            1.4,
+            -4.1,
             0
           ]
         ]
       },
       {
-        "file": "places/library-canada/prop_course-desk.glb",
+        "file": "shared/prop/prop_tea-point.glb",
         "at": [
           [
-            4.8,
             -2.4,
+            -3.6,
             0
           ]
         ]
@@ -184,20 +172,40 @@
         "file": "places/family-house-parlour/prop_armchair.glb",
         "at": [
           [
-            -5.6,
-            3.5,
+            -6.0,
+            1.2,
             3.1416
+          ],
+          [
+            -4.6,
+            1.2,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house-parlour/prop_tv-stand.glb",
+        "at": [
+          [
+            -5.3,
+            -4.0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_dining-table.glb",
+        "at": [
+          [
+            -0.6,
+            2.0,
+            0
           ]
         ]
       },
       {
         "file": "shared/prop/prop_potted-plant.glb",
         "at": [
-          [
-            7.2,
-            -3.9,
-            0
-          ],
           [
             -7.2,
             -3.9,
@@ -212,68 +220,70 @@
             7.94,
             2.8,
             -1.5708
+          ],
+          [
+            3.6,
+            -4.44,
+            0
           ]
         ]
       }
     ],
     "people": [
       [
-        -4.45,
-        1.25,
-        3.1416
+        4.45,
+        -1.7,
+        1.5708
       ],
       [
-        -2.35,
-        -0.45,
-        0
-      ],
-      [
-        0.6,
-        1.25,
-        3.1416
-      ],
-      [
-        1.65,
-        -0.45,
-        0
-      ],
-      [
-        4.8,
-        -3.05,
-        0
-      ],
-      [
-        -1.0,
-        -3.4,
-        3.1416
-      ],
-      [
-        -6.7,
-        1.2,
+        -1.75,
+        -2.75,
         -1.5708
+      ],
+      [
+        -6.0,
+        1.2,
+        3.1416
+      ],
+      [
+        -3.4,
+        0.2,
+        -1.5708
+      ],
+      [
+        -4.6,
+        1.2,
+        3.1416
+      ],
+      [
+        6.4,
+        0.4,
+        -1.5708
+      ],
+      [
+        1.6,
+        0.6,
+        1.5
       ]
     ],
     "acts": [
       {
         "spot": 0,
-        "pose": "sit"
+        "pose": "sit",
+        "staff": true
       },
       {
         "spot": 1,
-        "pose": "sit"
+        "pose": "sit",
+        "staff": true
       },
       {
         "spot": 2,
         "pose": "sit"
       },
       {
-        "spot": 3,
-        "pose": "sit"
-      },
-      {
         "spot": 4,
-        "pose": "sit",
-        "staff": true
+        "pose": "sit"
       }
     ],
     "motion": [],
@@ -293,76 +303,91 @@
     },
     "things": [
       {
-        "id": "course-desk",
-        "file": "places/library-canada/prop_course-desk.glb",
+        "id": "reception",
+        "file": "places/care-home-uk/prop_reception-desk.glb",
         "copy": 0,
-        "label": "city.thing.course-desk",
+        "label": "city.thing.reception",
         "at": [
-          4.4,
-          -1.0
+          6.6,
+          -2.0
         ],
         "acts": [
           {
-            "id": "course",
-            "label": "city.act.course",
+            "id": "care-work",
+            "label": "city.act.job-care-aide",
             "kind": "sheet",
-            "stages": "activity.learn-tech-ca"
+            "stages": "activity.job-canada-care-aide"
           }
         ]
       },
       {
-        "id": "notice",
-        "file": "places/library-canada/prop_course-desk.glb",
+        "id": "rota",
+        "file": "shared/prop/prop_rota-board.glb",
         "copy": 0,
-        "label": "city.thing.course-notice",
+        "label": "city.thing.rota",
         "at": [
-          6.15,
-          -1.6
-        ],
-        "acts": [
-          {
-            "id": "read",
-            "label": "city.act.read-notice",
-            "kind": "plain"
-          }
-        ]
-      },
-      {
-        "id": "shelves",
-        "file": "places/library-canada/prop_bookshelf.glb",
-        "copy": 1,
-        "label": "city.thing.shelves",
-        "at": [
-          -0.6,
+          1.4,
           -3.3
         ],
         "acts": [
           {
+            "id": "overtime",
+            "label": "city.act.overtime",
+            "kind": "sheet",
+            "stages": "activity.overtime"
+          },
+          {
+            "id": "read",
+            "label": "city.act.read-rota",
+            "kind": "plain",
+            "unless": [
+              "activity.overtime"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "manager",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 1,
+        "label": "city.thing.manager-door",
+        "at": [
+          3.6,
+          -3.6
+        ],
+        "acts": [
+          {
             "id": "look",
-            "label": "city.act.look-shelves",
+            "label": "city.act.look-manager",
             "kind": "plain"
           }
         ]
       },
       {
-        "id": "table",
-        "file": "places/library-canada/prop_library-table.glb",
-        "copy": 1,
-        "label": "city.thing.reading-table",
+        "id": "colleague",
+        "file": "shared/prop/prop_tea-point.glb",
+        "copy": 0,
+        "label": "city.thing.colleague",
         "at": [
-          1.65,
-          1.9
+          -2.4,
+          -2.1
         ],
         "acts": [
+          {
+            "id": "talk",
+            "label": "city.act.talk-to",
+            "kind": "plain",
+            "tells": "city.line.colleague.care-home-canada.1"
+          },
           {
             "id": "sit",
             "label": "city.act.sit",
             "kind": "plain",
             "pose": "sit",
             "seat": [
-              1.65,
-              1.25,
-              3.1416
+              -3.05,
+              -2.75,
+              1.5708
             ]
           }
         ]

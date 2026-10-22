@@ -83,7 +83,7 @@ describe("statuses", () => {
   test("[engine:content-checked-before-play] given every status that counts to settlement, when its settlement step is read, then it names the months, the fee and the status it leads to", () => {
     const counting = statuses.filter((status) => status.countsToSettlement);
     // person.md "Entries: routes and statuses": the partner and dependant visas count to settlement too (person:partner-status-renews).
-    expect(counting.map((status) => status.id)).toEqual(["status.uk-sponsored", "status.uk-talent", "status.ca-resident", "status.uk-partner", "status.uk-dependant"]);
+    expect(counting.map((status) => status.id)).toEqual(["status.uk-sponsored", "status.uk-talent", "status.canada-resident", "status.uk-partner", "status.uk-dependant"]);
     for (const status of counting) {
       expect(status.settleMonthsVar).not.toBeNull();
       expect(status.settleFeeVar).not.toBeNull();
@@ -102,7 +102,7 @@ describe("statuses", () => {
     expect(content.status["status.gulf-worker"]).toMatchObject({ months: 24, lapsesAtOnce: true, clockMonths: null, holdsPassport: true, banMonths: 60 });
     // Bans and detection: 10 years in the UK, 20 years in Canada; 3%, 3%, 6%, 4%.
     expect(content.status["status.uk-overstayer"]).toMatchObject({ banMonths: 120, detectBp: 300 });
-    expect(content.status["status.ca-overstayer"]).toMatchObject({ banMonths: 240, detectBp: 300 });
+    expect(content.status["status.canada-overstayer"]).toMatchObject({ banMonths: 240, detectBp: 300 });
     expect(content.status["status.uae-irregular"]?.detectBp).toBe(600);
     expect(content.status["status.eu-irregular"]?.detectBp).toBe(400);
     // Fees and months from the world: £3,226, £1,709, £1,865, £1,035 a year, C$630; 24, 60, 36, 36 months.
@@ -110,10 +110,10 @@ describe("statuses", () => {
     expect(content.var["var.uk-citizen-fee"]?.start).toBe(170900);
     expect(content.var["var.uk-skilled-renew-fee"]?.start).toBe(186500);
     expect(content.var["var.uk-surcharge-year"]?.start).toBe(103500);
-    expect(content.var["var.ca-citizen-fee"]?.start).toBe(63000);
+    expect(content.var["var.canada-citizen-fee"]?.start).toBe(63000);
     expect(content.var["var.uk-graduate-months"]?.start).toBe(24);
     expect(content.var["var.uk-settle-months"]?.start).toBe(60);
     expect(content.var["var.uk-talent-settle-months"]?.start).toBe(36);
-    expect(content.var["var.ca-settle-months"]?.start).toBe(36);
+    expect(content.var["var.canada-settle-months"]?.start).toBe(36);
   });
 });

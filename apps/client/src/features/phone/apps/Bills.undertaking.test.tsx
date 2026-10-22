@@ -16,7 +16,7 @@ type Owed = PlayerView["obligations"][number];
 function undertaking(change: Partial<Owed> = {}): Owed {
   return {
     id: "obligation-50",
-    entry: "obligation.undertaking-ca",
+    entry: "obligation.undertaking-canada",
     state: "active",
     openedMonth: 40,
     amount: 0,
@@ -45,11 +45,11 @@ describe("the undertaking, in Bills", () => {
     await showing(undertaking());
     const shown = within(card());
     expect(card().querySelector("[data-undertaking]")).not.toBeNull();
-    expect(shown.getByText(text["obligation.undertaking-ca.name"]!)).toBeDefined();
+    expect(shown.getByText(text["obligation.undertaking-canada.name"]!)).toBeDefined();
     expect(shown.getByText(sayCount("ui.undertaking.months-left", 30, { months: 30 }))).toBeDefined();
     expect(shown.getByText(sayCount("ui.undertaking.charged", 2, { months: 2 }))).toBeDefined();
     expect(shown.getByText(say("ui.undertaking.nothing-owed"))).toBeDefined();
-    expect(shown.getByText(say("ui.undertaking.assistance", { amount: formatMoney(content.var["var.ca-assistance"]!.start, "CAD") }))).toBeDefined();
+    expect(shown.getByText(say("ui.undertaking.assistance", { amount: formatMoney(content.var["var.canada-assistance"]!.start, "CAD") }))).toBeDefined();
     expect(shown.queryByRole("button")).toBeNull();
   });
 

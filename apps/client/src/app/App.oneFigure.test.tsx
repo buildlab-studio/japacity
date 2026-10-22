@@ -16,7 +16,7 @@ import { say, words } from "../shared/words/text";
 import { newsLines, toldOnResults } from "../shared/words/told";
 
 const HUNT = "activity.job-hunt";
-const JUNIOR_DEV = "activity.job-junior-dev";
+const JUNIOR_DEV = "activity.job-junior-developer";
 const TALENT = "route.uk-talent";
 
 /** A tile's life from sixteen, handed over: its preset played on one seed. */

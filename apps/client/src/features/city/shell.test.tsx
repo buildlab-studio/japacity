@@ -275,7 +275,7 @@ describe("the nudge", () => {
     const applied = { ...dear, activities: dear.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, done: true } : option)) };
     expect(nudgeOf(applied).key).toBe("ui.nudge.hunt-planned");
     // A job whose month's pay covers the gap: the nudge says to work and save.
-    const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-dev" as const } };
+    const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-developer" as const } };
     expect(nudgeOf(paid).key).toBe("chapter.build-the-file.item.english.saving");
     // The month's bills eat the pay: the nudge says the gap, never "work and save".
     const billed = { ...paid, obligations: [{ ...paid.obligations[0]!, due: 40_000_000, entry: "obligation.upkeep" as never }] };
@@ -360,7 +360,7 @@ describe("the nudge while a step waits", () => {
     const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
-    const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-dev") ?? null;
+    const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-developer") ?? null;
     if (better === null) throw new Error("The board lists no junior developer job.");
     expect(nudgeOf(pending).key).toBe("ui.nudge.better-job");
     const noBoard = { ...pending, activities: pending.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, params: [] } : option)) };
@@ -412,7 +412,7 @@ describe("the archetypes' own ways", () => {
     const nurse = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [], closes: false, next: null },
-      qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
+      qualities: base.qualities.map((quality) => (quality.id === "quality.education-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
       documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
       job: { id: null, months: 0, side: null, pay: null, sidePay: null },
       routes: [],
@@ -434,7 +434,7 @@ describe("the archetypes' own ways", () => {
     const nurse = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [], closes: false, next: null },
-      qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
+      qualities: base.qualities.map((quality) => (quality.id === "quality.education-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
       documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
       job: { id: "activity.job-nurse" as const, months: 1, side: null, pay: null, sidePay: null },
       routes: [
@@ -447,7 +447,7 @@ describe("the archetypes' own ways", () => {
     expect(say("chapter.find-your-feet.item.known.own.needs", { route: "health care" })).toBe("Read about health care in Japa");
     expect(stepWayOf(nurse)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route", param: "route.uk-care" });
     // A graduate with no way of her own keeps the table's words, and her way still opens the page, with no route chosen, so its picker offers the routes heard.
-    const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality)), documents: [] };
+    const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.education-level" ? { ...quality, value: 3 } : quality)), documents: [] };
     expect(nudgeOf(graduate).key).toBe("chapter.find-your-feet.item.known.nudge");
     expect(stepWayOf(graduate)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route" });
   });
@@ -456,7 +456,7 @@ describe("the archetypes' own ways", () => {
     const trader = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [], closes: false, next: null },
-      qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 1 } : quality)),
+      qualities: base.qualities.map((quality) => (quality.id === "quality.education-level" ? { ...quality, value: 1 } : quality)),
       pockets: { ...base.pockets, NGN: { ...base.pockets.NGN, cash: 600_000_000, bank: 0 } },
       routes: [],
       job: { id: null, months: 0, side: null, pay: null, sidePay: null },

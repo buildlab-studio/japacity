@@ -52,7 +52,7 @@ const ENGLISH = "quality.english";
 const NETWORK = "quality.network";
 const STANDING = "quality.standing";
 const WELLBEING = "quality.wellbeing";
-const EDU_LEVEL = "quality.edu-level";
+const EDU_LEVEL = "quality.education-level";
 const AGE = "quality.age-months";
 
 /** The span a start may be in, in whole years (prologue:age-advances-with-steps): the age cards offer each year of it. */
@@ -67,7 +67,7 @@ const WORKED_MONTHLY = 10000;
 /** At the first retake card the character is 213 months old; at a second, 228. */
 const FIRST_RETAKE_ONLY: Requirement = { type: "quality/max", quality: "quality.age-months", value: 226 };
 
-/** The shop job after school: edu-level 1, ₦70,000 a month saved for a year. */
+/** The shop job after school: education-level 1, ₦70,000 a month saved for a year. */
 const SHOP_WORK: Effect[] = [add(EDU_LEVEL, 1), earned(naira(300000))];
 
 /**

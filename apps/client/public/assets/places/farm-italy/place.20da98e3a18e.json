@@ -701,7 +701,7 @@
             "id": "farm-work",
             "label": "city.act.job-farm",
             "kind": "sheet",
-            "stages": "activity.job-it-farm-cash"
+            "stages": "activity.job-italy-farm-cash"
           }
         ]
       },

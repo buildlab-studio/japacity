@@ -6,7 +6,7 @@ import { newState } from "../engine/state";
 import { step } from "../engine/step";
 import type { ChapterEntry, Content, Id, ReportLine, Sender, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
-import { writeRoute } from "../testing/japacity.fixtures";
+import { writeRoute } from "../testing/japacity";
 import { registry } from "../kinds";
 import { slot, toHeard, toKnown } from "../testing/route.journey";
 import { miniContent } from "../testing/miniContent";

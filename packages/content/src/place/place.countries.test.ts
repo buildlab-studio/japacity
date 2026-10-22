@@ -28,25 +28,25 @@ const ITALY: Id<"country"> = "country.italy";
 /** The page's rows for the three countries, in its order, with what each stages. */
 const ROWS: readonly Row[] = [
   { id: "place.calgary-airport", country: CANADA, nameKind: "public", position: [51122, -114014], scope: "interior", assets: "calgary-airport", stages: [] },
-  { id: "place.calgary-north-east", country: CANADA, nameKind: "business", position: [51090, -113960], scope: "exterior", assets: "calgary-north-east", stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "activity.send-money", "offer.street-find-ca"], hub: true },
-  { id: "place.ctrain-station-canada", country: CANADA, nameKind: "institution", position: [51073, -113977], scope: "exterior", assets: "ctrain-station-canada", stages: ["activity.transit-pass-ca"] },
-  { id: "place.big-shop-canada", country: CANADA, nameKind: "business", position: [51095, -113980], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"] },
-  { id: "place.warehouse-canada", country: CANADA, nameKind: "business", position: [51110, -113990], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"] },
-  { id: "place.care-home-canada", country: CANADA, nameKind: "business", position: [51080, -113995], scope: "interior", assets: "care-home-uk", stages: ["activity.job-ca-care-aide", "activity.overtime"] },
-  { id: "place.office-canada", country: CANADA, nameKind: "business", position: [51046, -114063], scope: "interior", assets: "office-uk", stages: ["activity.job-ca-professional", "activity.job-ca-dev"] },
-  { id: "place.library-canada", country: CANADA, nameKind: "institution", position: [51092, -113972], scope: "interior", assets: "library-canada", stages: ["activity.learn-tech-ca"] },
-  { id: "place.church-canada", country: CANADA, nameKind: "institution", position: [51085, -113965], scope: "interior", assets: "church-uk", stages: ["activity.community-ca"] },
+  { id: "place.calgary-north-east", country: CANADA, nameKind: "business", position: [51090, -113960], scope: "exterior", assets: "calgary-north-east", stages: ["activity.job-hunt", "activity.coffee-canada", "activity.naija-shop-canada", "activity.barber-canada", "activity.send-money", "offer.street-find-canada"], hub: true },
+  { id: "place.ctrain-station-canada", country: CANADA, nameKind: "institution", position: [51073, -113977], scope: "exterior", assets: "ctrain-station-canada", stages: ["activity.transit-pass-canada"] },
+  { id: "place.big-shop-canada", country: CANADA, nameKind: "business", position: [51095, -113980], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-canada", "activity.buy-clothes-canada"] },
+  { id: "place.warehouse-canada", country: CANADA, nameKind: "business", position: [51110, -113990], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-canada-warehouse", "activity.overtime"] },
+  { id: "place.care-home-canada", country: CANADA, nameKind: "business", position: [51080, -113995], scope: "interior", assets: "care-home-uk", stages: ["activity.job-canada-care-aide", "activity.overtime"] },
+  { id: "place.office-canada", country: CANADA, nameKind: "business", position: [51046, -114063], scope: "interior", assets: "office-uk", stages: ["activity.job-canada-professional", "activity.job-canada-developer"] },
+  { id: "place.library-canada", country: CANADA, nameKind: "institution", position: [51092, -113972], scope: "interior", assets: "library-canada", stages: ["activity.learn-tech-canada"] },
+  { id: "place.church-canada", country: CANADA, nameKind: "institution", position: [51085, -113965], scope: "interior", assets: "church-uk", stages: ["activity.community-canada"] },
   { id: "place.dubai-airport", country: UAE, nameKind: "public", position: [25252, 55367], scope: "interior", assets: "dubai-airport", stages: [] },
   { id: "place.deira", country: UAE, nameKind: "public", position: [25273, 55305], scope: "exterior", assets: "deira", stages: ["activity.job-hunt", "activity.send-money", "activity.cafeteria-uae", "activity.naija-shop-uae", "activity.barber-uae", "activity.community-uae", "offer.street-find-uae"], hub: true },
   { id: "place.naif", country: UAE, nameKind: "public", position: [25272, 55310], scope: "exterior", assets: "naif", stages: ["activity.street-shopping-uae", "activity.laundry-uae", "activity.buy-clothes-uae"] },
   { id: "place.metro-station-uae", country: UAE, nameKind: "public", position: [25266, 55312], scope: "exterior", assets: "metro-station-uae", stages: ["activity.transit-pass-uae"] },
   { id: "place.big-shop-uae", country: UAE, nameKind: "business", position: [25265, 55320], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-uae"] },
   { id: "place.site-uae", country: UAE, nameKind: "business", position: [25186, 55263], scope: "exterior", assets: "site-uae", stages: ["activity.job-gulf-guard", "activity.job-gulf-cleaner", "activity.overtime"], shuttle: true },
-  { id: "place.castel-volturno", country: ITALY, nameKind: "public", position: [41034, 13941], scope: "exterior", assets: "castel-volturno", stages: ["activity.job-hunt", "activity.coffee-it", "activity.naija-shop-it", "activity.send-money", "offer.street-find-it"], hub: true },
-  { id: "place.via-domitiana", country: ITALY, nameKind: "public", position: [40929, 14025], scope: "exterior", assets: "via-domitiana", stages: ["activity.overtime", "activity.street-shopping-it", "activity.barber-it", "activity.buy-clothes-it"] },
-  { id: "place.farm-italy", country: ITALY, nameKind: "business", position: [41010, 13990], scope: "exterior", assets: "farm-italy", stages: ["activity.job-it-farm-cash"], shuttle: true },
-  { id: "place.big-shop-italy", country: ITALY, nameKind: "business", position: [41030, 13950], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-it"] },
-  { id: "place.church-italy", country: ITALY, nameKind: "institution", position: [41028, 13945], scope: "interior", assets: "church-uk", stages: ["activity.community-it"] },
+  { id: "place.castel-volturno", country: ITALY, nameKind: "public", position: [41034, 13941], scope: "exterior", assets: "castel-volturno", stages: ["activity.job-hunt", "activity.coffee-italy", "activity.naija-shop-italy", "activity.send-money", "offer.street-find-italy"], hub: true },
+  { id: "place.via-domitiana", country: ITALY, nameKind: "public", position: [40929, 14025], scope: "exterior", assets: "via-domitiana", stages: ["activity.overtime", "activity.street-shopping-italy", "activity.barber-italy", "activity.buy-clothes-italy"] },
+  { id: "place.farm-italy", country: ITALY, nameKind: "business", position: [41010, 13990], scope: "exterior", assets: "farm-italy", stages: ["activity.job-italy-farm-cash"], shuttle: true },
+  { id: "place.big-shop-italy", country: ITALY, nameKind: "business", position: [41030, 13950], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-italy"] },
+  { id: "place.church-italy", country: ITALY, nameKind: "institution", position: [41028, 13945], scope: "interior", assets: "church-uk", stages: ["activity.community-italy"] },
   { id: "place.naples-airport", country: ITALY, nameKind: "public", position: [40884, 14285], scope: "interior", assets: "naples-airport", stages: [] },
 ];
 
@@ -72,13 +72,13 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
       "activity.rest",
       "activity.call-home",
       "activity.rent-flat-uk",
-      "activity.rent-flat-ca",
+      "activity.rent-flat-canada",
       "activity.phone-contract-uk",
-      "activity.phone-contract-ca",
+      "activity.phone-contract-canada",
       "activity.cook-own-uk",
-      "activity.cook-own-ca",
+      "activity.cook-own-canada",
       "activity.cook-own-uae",
-      "activity.cook-own-it",
+      "activity.cook-own-italy",
     ]);
   });
 
@@ -104,17 +104,17 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
   test("[streets:street-finds-abroad] given the four finds on the street, when the places are read, then each is staged once, at its country's hub, and each has its words", () => {
     for (const [find, hub] of [
       ["offer.street-find-uk", "place.peckham"],
-      ["offer.street-find-ca", "place.calgary-north-east"],
+      ["offer.street-find-canada", "place.calgary-north-east"],
       ["offer.street-find-uae", "place.deira"],
-      ["offer.street-find-it", "place.castel-volturno"],
+      ["offer.street-find-italy", "place.castel-volturno"],
     ] as const) {
       expect({ find, at: places.filter((place) => (place.stages as readonly string[]).includes(find)).map((place) => place.id) }).toEqual({ find, at: [hub] });
       for (const key of [`${find}.name`, `${find}.title`, `${find}.body`, `${find}.choice.look`, `${find}.said.look`, `${find}.said.walk-on`, `${find}.who`]) {
         expect({ key, words: (text[key] ?? "").trim() !== "" }).toEqual({ key, words: true });
       }
     }
-    expect(content.offer["offer.street-find-ca"]?.when).toEqual([{ type: "place/is", where: "abroad", country: CANADA }]);
-    expect(content.offer["offer.street-find-it"]?.when).toEqual([{ type: "place/is", where: "abroad", country: ITALY }]);
+    expect(content.offer["offer.street-find-canada"]?.when).toEqual([{ type: "place/is", where: "abroad", country: CANADA }]);
+    expect(content.offer["offer.street-find-italy"]?.when).toEqual([{ type: "place/is", where: "abroad", country: ITALY }]);
   });
 });
 

@@ -493,7 +493,7 @@
             "id": "transit-pass",
             "label": "city.act.transit-pass",
             "kind": "sheet",
-            "stages": "activity.transit-pass-ca"
+            "stages": "activity.transit-pass-canada"
           }
         ]
       },

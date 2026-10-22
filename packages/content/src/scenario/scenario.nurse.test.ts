@@ -33,7 +33,7 @@ describe("the nurse", () => {
   test("[engine:content-checked-before-play] given the nurse, when figures from route-gates.md are read back, then each matches the page", () => {
     expect(nurseScenario.qualities).toMatchObject({
       "quality.age-months": 324,
-      "quality.edu-grade": 4,
+      "quality.education-grade": 4,
       "quality.english": 58,
       "quality.care": 60,
       "quality.network": 25,

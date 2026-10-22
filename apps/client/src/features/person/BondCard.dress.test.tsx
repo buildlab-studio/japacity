@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { useView } from "../../authority/GameProvider";
 import { lookForName } from "../../shared/front-door/looks";
 import { bondName } from "../../shared/view/person";
-import { courted, eagerContent, linkedFriend, partnered, peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
+import { courted, eagerContent, linkedFriend, partnered, peopleGame, renderWithGame, DELE } from "../../shared/testing/person";
 import { say } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";
 import { BondHead, PeopleSlots } from "./PeopleOnPhone";
@@ -31,7 +31,7 @@ function row(bond: string, id: string): HTMLElement {
 describe("a bond in the lively dress", () => {
   test("[person:view-shows-people] given a computer partner courted, when the head's stage row opens, then the facts stand under the person's face sticker, picked from their name, each fact a sticker chip", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI);
+    const bond = courted(game, DELE);
     await renderWithGame(offline(<Head id={bond} />), game);
     const facts = row(bond, "stage").querySelector<HTMLElement>("[data-bond-facts]");
     const held = game.view().people.bonds.find((one) => one.id === bond);
@@ -44,7 +44,7 @@ describe("a bond in the lively dress", () => {
 
   test("[person:proposing-a-step] given the moments partners need, when the ask row opens, then asking is the one pressed yellow button, and once partners marrying is yellow and applying together a ghost beside it", async () => {
     const game = peopleGame(eagerContent());
-    const bond = courted(game, TOBI, game.content.tuning.people.partnerMoments);
+    const bond = courted(game, DELE, game.content.tuning.people.partnerMoments);
     await renderWithGame(offline(<Head id={bond} />), game);
     const ask = row(bond, "ask");
     const yellow = ask.querySelectorAll("[data-press-button]");

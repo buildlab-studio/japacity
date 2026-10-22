@@ -39,7 +39,7 @@ export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
 }
 
 /** Schooling: what any school leaver's job asks for, so it marks no trade. */
-const SCHOOLING = "quality.edu-level";
+const SCHOOLING = "quality.education-level";
 
 /**
  * A job of a trade: a main job that asks for something the life learned or earned

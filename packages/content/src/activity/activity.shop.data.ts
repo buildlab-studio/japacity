@@ -9,8 +9,8 @@ import { naira } from "../units";
 
 const SHOP: Id<"activity"> = "activity.run-shop";
 const OPEN: Id<"activity"> = "activity.open-shop";
-const EDU_LEVEL: Id<"quality"> = "quality.edu-level";
-/** A bachelor's degree is edu-level 3 (quality.md): the shop is a trade's way, never a graduate's. */
+const EDU_LEVEL: Id<"quality"> = "quality.education-level";
+/** A bachelor's degree is education-level 3 (quality.md): the shop is a trade's way, never a graduate's. */
 const BELOW_DEGREE = 2;
 /**
  * The naira in hand that stocks a shop. Under the fair settlement (₦2,500,000), so a trader keeps

@@ -11,7 +11,7 @@ import { CA_SPOUSE, STANDING, UNDERTAKING } from "../testing/ids";
 
 const used = content;
 const entry = content.obligation[UNDERTAKING]!;
-const ASSISTANCE = content.var["var.ca-assistance"]!.start;
+const ASSISTANCE = content.var["var.canada-assistance"]!.start;
 const MONTHS = content.tuning.undertaking.months;
 
 /**
@@ -21,9 +21,9 @@ const MONTHS = content.tuning.undertaking.months;
  */
 function sponsor(cad: { bank: number; cash: number }, options: LifeOptions = {}): Game {
   const game = life(used, { pockets: { NGN: { bank: 200000000, cash: 150000000 }, CAD: cad }, ...options });
-  applyAs(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: "status.ca-resident" }]);
+  applyAs(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: "status.canada-resident" }]);
   applyAs(game, [{ type: "obligation/close", obligationType: "upkeep" }, { type: "obligation/close", obligationType: "rent" }]);
-  joint(game, CA_SPOUSE, "me", { stage: "married", facts: facts({ where: "abroad", country: "country.canada", status: "status.ca-resident" }) });
+  joint(game, CA_SPOUSE, "me", { stage: "married", facts: facts({ where: "abroad", country: "country.canada", status: "status.canada-resident" }) });
   setPeople(game, (slice) => ({ ...slice, sponsoring: { bond: BOND, route: CA_SPOUSE, month: game.state.turn.month } }));
   return game;
 }
@@ -210,13 +210,13 @@ describe("undertaking:undertaking-outlives-relationship: it outlives the relatio
 });
 
 describe("undertaking:social-assistance-offer: social assistance", () => {
-  const OFFER: Id<"offer"> = "offer.ca-assistance";
+  const OFFER: Id<"offer"> = "offer.canada-assistance";
 
   test("[undertaking:social-assistance-offer] given the offer, when it is read, then it comes up every month in Canada for a resident or citizen under the tuning's line, and take credits the assistance figure", () => {
     const offer = used.offer[OFFER]!;
     expect(offer).toMatchObject({ group: "abroad", where: "abroad", chanceBp: 10000, cooldown: 1, expiresAfter: 1, terms: { amount: ASSISTANCE } });
     expect(offer.when).toContainEqual({ type: "not", of: { type: "money/min", currency: "CAD", amount: content.tuning.undertaking.assistanceUnder } });
-    expect(offer.when).toContainEqual({ type: "status/is", statuses: ["status.ca-resident", "status.ca-citizen"] });
+    expect(offer.when).toContainEqual({ type: "status/is", statuses: ["status.canada-resident", "status.canada-citizen"] });
     const take = offer.choices.find((choice) => choice.id === "take")!;
     expect(take.effects).toContainEqual({ type: "money/add", currency: "CAD", pocket: "bank", amount: { term: "amount" }, reason: "assistance" });
   });
@@ -245,7 +245,7 @@ describe("undertaking:social-assistance-offer: social assistance", () => {
     };
     // Calgary's street find (design page 11) rolls before the abroad group and may take the month's rolls;
     // it is kept from rolling here so each month's roll is the assistance's.
-    const noFind: LifeOptions = { change: (base) => ({ ...base, offer: { ...base.offer, "offer.street-find-ca": { ...base.offer["offer.street-find-ca"]!, chanceBp: 0 } } }) };
+    const noFind: LifeOptions = { change: (base) => ({ ...base, offer: { ...base.offer, "offer.street-find-canada": { ...base.offer["offer.street-find-canada"]!, chanceBp: 0 } } }) };
     const arrived = sponsor({ bank: under - 1, cash: 0 }, noFind);
     setPeople(arrived, (slice) => ({ ...slice, arrived: { route: CA_SPOUSE, month: arrived.state.turn.month } }));
     takeOne(arrived);

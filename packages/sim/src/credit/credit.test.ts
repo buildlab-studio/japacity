@@ -280,8 +280,8 @@ describe("the view", () => {
     game.accept({ type: "return/home" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA_COUNTRY }]);
     expect(game.view().credit?.needs).toEqual([
-      { id: "obligation.phone-ca", creditMin: 10 },
-      { id: "obligation.rent-flat-ca", creditMin: 20 },
+      { id: "obligation.phone-canada", creditMin: 10 },
+      { id: "obligation.rent-flat-canada", creditMin: 20 },
       { id: "obligation.car", creditMin: 30 },
     ]);
   });

@@ -1,8 +1,8 @@
 {
-  "place": "place.church-canada",
+  "place": "place.church-italy",
   "scope": "interior",
   "hub": false,
-  "note": "The church hall in north-east Calgary (design page 11 section 3), London's church hall of about 16 by 9 metres seen down its length from the door end (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
+  "note": "The church in Castel Volturno (design page 11 section 3), London's church hall of about 16 by 9 metres seen down its length from the door end (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
   "instances": [
     {
       "file": "places/church-uk/building_room_church.glb",
@@ -48,7 +48,7 @@
     "triangles": 4
   },
   "stage": {
-    "note": "London's church scene under the church hall's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Canada's. The pews for the newcomers' group (activity.community-ca), the hall looked at, the door.",
+    "note": "London's church scene under the church in Castel Volturno's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Italy's. The pews for the community (activity.community-italy), the hall looked at, the door.",
     "ground": {
       "size": [
         16.6,
@@ -330,7 +330,7 @@
             "id": "service",
             "label": "city.act.community",
             "kind": "sheet",
-            "stages": "activity.community-ca"
+            "stages": "activity.community-italy"
           },
           {
             "id": "sit",

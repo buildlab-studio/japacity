@@ -23,15 +23,15 @@ Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up 
 
 | Id | Shown as | Where | Position | Scope | Stages (things) |
 |---|---|---|---|---|---|
-| `place.the-room` | The basement room, north-east Calgary | the home, country-less; its sticker at the country's home spot | 51088, -113955 (made up) | interior | the bed, the cooking corner (`activity.cook-own-ca`), the laptop, the phone, the post, the bag |
-| `place.calgary-north-east` | The strip mall, north-east Calgary | the hub, at a made-up spot in the north-east so the paper reads right | 51090, -113960 (made up) | exterior | the jobs notice (`activity.job-hunt`), the coffee shop (`activity.coffee-ca`), the African store (`activity.naija-shop-ca`) with its transfer counter (`activity.send-money`), the bus stop, the bench, the find |
-| `place.ctrain-station-canada` | The CTrain station | its own scene | 51073, -113977 (made up, on the north-east line) | exterior | the ticket machine (`activity.transit-pass-ca`), the platform (the train's stop) |
-| `place.big-shop-canada` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-ca`), the notice (overtime) |
-| `place.warehouse-canada` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-ca-warehouse`), the rota board (`activity.overtime`), the shelter |
-| `place.care-home-canada` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-ca-care-aide`), the rota board (`activity.overtime`), the tea point |
-| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-ca-professional`), the glass office (`activity.job-ca-dev`), the kitchen |
-| `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-ca`), the shelves, the notice |
-| `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-ca`), the hall (the people a life can meet, world:nobody-picked-from-list) |
+| `place.the-room` | The basement room, north-east Calgary | the home, country-less; its sticker at the country's home spot | 51088, -113955 (made up) | interior | the bed, the cooking corner (`activity.cook-own-canada`), the laptop, the phone, the post, the bag |
+| `place.calgary-north-east` | The strip mall, north-east Calgary | the hub, at a made-up spot in the north-east so the paper reads right | 51090, -113960 (made up) | exterior | the jobs notice (`activity.job-hunt`), the coffee shop (`activity.coffee-canada`), the African store (`activity.naija-shop-canada`) with its transfer counter (`activity.send-money`), the bus stop, the bench, the find |
+| `place.ctrain-station-canada` | The CTrain station | its own scene | 51073, -113977 (made up, on the north-east line) | exterior | the ticket machine (`activity.transit-pass-canada`), the platform (the train's stop) |
+| `place.big-shop-canada` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-canada`), the notice (overtime) |
+| `place.warehouse-canada` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-canada-warehouse`), the rota board (`activity.overtime`), the shelter |
+| `place.care-home-canada` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-canada-care-aide`), the rota board (`activity.overtime`), the tea point |
+| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-canada-professional`), the glass office (`activity.job-canada-developer`), the kitchen |
+| `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-canada`), the shelves, the notice |
+| `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-canada`), the hall (the people a life can meet, world:nobody-picked-from-list) |
 | `place.registry-canada` | The registry | not in content: `activity.driving-test` is the UK's alone (car:licence-and-driving-test), and no licence act reaches Canada | | | |
 | `place.calgary-airport` | Calgary International Airport | the airport | 51122, -114014, on the paper | interior | the arrival; December's flight and the way home stay on the room's bag |
 
@@ -54,12 +54,12 @@ The UAE has no test centre: the Gulf route sits no test there.
 
 | Id | Shown as | Where | Position | Scope | Stages (things) |
 |---|---|---|---|---|---|
-| `place.the-room` | The room in a shared flat, the Domitiana | the home, country-less; its sticker at the country's home spot | 40950, 14010 (made up) | interior | the bed, the cooking corner (`activity.cook-own-it`), the phone, the post, the bag |
-| `place.castel-volturno` | Castel Volturno (its real name; the roundabout is its thing) | the hub | 41034, 13941 | exterior | the roundabout (`activity.job-hunt`: the vans at dawn), the bar (`activity.coffee-it`), the African shop (`activity.naija-shop-it`), the call shop (`activity.send-money`), the bus stop, the find |
-| `place.via-domitiana` | Via Domitiana (its real name) | its own scene | 40929, 14025 | exterior | the bus stop, the pickup point (`activity.overtime`: the second shift), the Nigerian shop (`activity.street-shopping-it`), the barber (`activity.barber-it`), the market stall (`activity.buy-clothes-it`) |
-| `place.farm-italy` | The fields | its own scene; `shuttle: true` | 41010, 13990 (made up, inland) | exterior | the gangmaster's table (`activity.job-it-farm-cash`), the crates, the van, the water tap (a colleague's line) |
-| `place.big-shop-italy` | The discount supermarket | on the scene `big-shop-uk` | 41030, 13950 (made up) | interior | the trolley (`activity.weekly-shop-it`) |
-| `place.church-italy` | The church | on the scene `church-uk` | 41028, 13945 (made up) | interior | the pews (`activity.community-it`), the hall (world:nobody-picked-from-list) |
+| `place.the-room` | The room in a shared flat, the Domitiana | the home, country-less; its sticker at the country's home spot | 40950, 14010 (made up) | interior | the bed, the cooking corner (`activity.cook-own-italy`), the phone, the post, the bag |
+| `place.castel-volturno` | Castel Volturno (its real name; the roundabout is its thing) | the hub | 41034, 13941 | exterior | the roundabout (`activity.job-hunt`: the vans at dawn), the bar (`activity.coffee-italy`), the African shop (`activity.naija-shop-italy`), the call shop (`activity.send-money`), the bus stop, the find |
+| `place.via-domitiana` | Via Domitiana (its real name) | its own scene | 40929, 14025 | exterior | the bus stop, the pickup point (`activity.overtime`: the second shift), the Nigerian shop (`activity.street-shopping-italy`), the barber (`activity.barber-italy`), the market stall (`activity.buy-clothes-italy`) |
+| `place.farm-italy` | The fields | its own scene; `shuttle: true` | 41010, 13990 (made up, inland) | exterior | the gangmaster's table (`activity.job-italy-farm-cash`), the crates, the van, the water tap (a colleague's line) |
+| `place.big-shop-italy` | The discount supermarket | on the scene `big-shop-uk` | 41030, 13950 (made up) | interior | the trolley (`activity.weekly-shop-italy`) |
+| `place.church-italy` | The church | on the scene `church-uk` | 41028, 13945 (made up) | interior | the pews (`activity.community-italy`), the hall (world:nobody-picked-from-list) |
 | `place.naples-airport` | Naples Airport | the airport | 40884, 14285, on an inset | interior | the assisted return; the way home stays on the room's bag |
 
 ## 4. The ways and the fares
@@ -74,7 +74,7 @@ Each in the country's smallest unit, rounded up to its step; 2025 figures, round
 | CTrain (`train`) | C$3.80 | nothing | 700 m a minute | The same fare, one ticket for both |
 | Taxi | C$3.80 | C$2.00 | 600 m a minute | For the airport and the cold |
 | Walk | nothing | nothing | 80 m a minute | Within `walkMetres`; home always |
-| The transit pass | C$118 a month | | | `activity.transit-pass-ca`, the station's machine; covers bus and train |
+| The transit pass | C$118 a month | | | `activity.transit-pass-canada`, the station's machine; covers bus and train |
 
 Step 5 cents. `lonMetresPerE3` 71.
 
@@ -109,14 +109,14 @@ Priced now-acts in the country's money, each spending its time (turn:month-lived
 
 | What | Figure | Act |
 |---|---|---|
-| The weekly shop | C$90, belly +40 | `activity.weekly-shop-ca`, the superstore, repeats |
-| A meal in the room | C$8, belly +25 | `activity.cook-own-ca`, the cooking corner, repeats |
-| A coffee | C$3, wellbeing +2 | `activity.coffee-ca`, the strip mall, repeats |
-| The African store | C$40, belly +30, wellbeing +8 | `activity.naija-shop-ca`, the strip mall, repeats |
-| The barber | C$30, wellbeing +5, standing +1, interview-prep +2 | `activity.barber-ca`, the strip mall, once a month |
-| Winter clothes | C$120, standing +1, wellbeing +4 | `activity.buy-clothes-ca`, the superstore, once a month |
-| The phone, prepaid | C$30 a month | `obligation.upkeep-ca` |
-| The room | C$900 a month | `obligation.rent-room-ca` |
+| The weekly shop | C$90, belly +40 | `activity.weekly-shop-canada`, the superstore, repeats |
+| A meal in the room | C$8, belly +25 | `activity.cook-own-canada`, the cooking corner, repeats |
+| A coffee | C$3, wellbeing +2 | `activity.coffee-canada`, the strip mall, repeats |
+| The African store | C$40, belly +30, wellbeing +8 | `activity.naija-shop-canada`, the strip mall, repeats |
+| The barber | C$30, wellbeing +5, standing +1, interview-prep +2 | `activity.barber-canada`, the strip mall, once a month |
+| Winter clothes | C$120, standing +1, wellbeing +4 | `activity.buy-clothes-canada`, the superstore, once a month |
+| The phone, prepaid | C$30 a month | `obligation.upkeep-canada` |
+| The room | C$900 a month | `obligation.rent-room-canada` |
 
 A warehouse job (C$38,000 a year, about C$2,700 a month after the flat band) less the room, the pass, four weekly shops, ten meals, the phone and a cut leaves about C$1,200: Calgary pays, and the cold and the car are the price.
 
@@ -141,15 +141,15 @@ The contract's salary (`CONTRACT_SALARY`, the agent's term) less four weekly sho
 
 | What | Figure | Act |
 |---|---|---|
-| The weekly shop | €35, belly +40 | `activity.weekly-shop-it`, the discount supermarket, repeats |
-| A meal in the flat | €4, belly +25 | `activity.cook-own-it`, the cooking corner, repeats |
-| A coffee at the bar | €1.20, wellbeing +2 | `activity.coffee-it`, the roundabout, repeats |
-| The African shop | €20, belly +30, wellbeing +8 | `activity.naija-shop-it`, the roundabout, repeats |
-| The barber | €10, wellbeing +5, standing +1 | `activity.barber-it`, the Domitiana, once a month |
-| Clothes from the stall | €25, standing +1, wellbeing +3 | `activity.buy-clothes-it`, the Domitiana, once a month |
-| The Nigerian shop's evening | €15, wellbeing +5 | `activity.street-shopping-it`, the Domitiana, reason `enjoyment` |
-| The phone, prepaid | €10 a month | `obligation.upkeep-it` |
-| The room | €350 a month | `obligation.rent-room-it` |
+| The weekly shop | €35, belly +40 | `activity.weekly-shop-italy`, the discount supermarket, repeats |
+| A meal in the flat | €4, belly +25 | `activity.cook-own-italy`, the cooking corner, repeats |
+| A coffee at the bar | €1.20, wellbeing +2 | `activity.coffee-italy`, the roundabout, repeats |
+| The African shop | €20, belly +30, wellbeing +8 | `activity.naija-shop-italy`, the roundabout, repeats |
+| The barber | €10, wellbeing +5, standing +1 | `activity.barber-italy`, the Domitiana, once a month |
+| Clothes from the stall | €25, standing +1, wellbeing +3 | `activity.buy-clothes-italy`, the Domitiana, once a month |
+| The Nigerian shop's evening | €15, wellbeing +5 | `activity.street-shopping-italy`, the Domitiana, reason `enjoyment` |
+| The phone, prepaid | €10 a month | `obligation.upkeep-italy` |
+| The room | €350 a month | `obligation.rent-room-italy` |
 
 The farm's cash (€9,600 a year, €800 a month, a quarter of months paid nothing) less the room, four weekly shops, ten meals, the bus and the phone leaves about €240, and a withheld month is a hole: the road's glimpse is work at dawn, a shared flat and money that is barely there.
 

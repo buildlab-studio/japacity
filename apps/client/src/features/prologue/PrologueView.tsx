@@ -156,7 +156,7 @@ function Answers({ prologue, archetype, onAnswer }: { prologue: Prologue; archet
 }
 
 const QUALITY_LINES = new Set(["line.quality.gain", "line.quality.loss", "line.quality.drift"]);
-const GRADE = "quality.edu-grade";
+const GRADE = "quality.education-grade";
 const GRADED = "line.prologue.graded";
 
 /**

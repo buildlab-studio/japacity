@@ -167,7 +167,7 @@ describe("the routes a grant leads by", () => {
     });
     expect(leading.sort()).toEqual([...flown].sort());
     expect(leading).toContain(SKILLED);
-    expect(leading).toEqual(expect.arrayContaining([UK_PARTNER, "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"]));
+    expect(leading).toEqual(expect.arrayContaining([UK_PARTNER, "route.canada-spouse", "route.uk-dependant", "route.canada-accompany"]));
     expect(leading).not.toContain("route.road");
   });
 });

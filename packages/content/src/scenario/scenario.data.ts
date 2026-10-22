@@ -12,8 +12,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     qualities: {
       // 23 years 2 months.
       "quality.age-months": 278,
-      "quality.edu-level": 3,
-      "quality.edu-grade": 4,
+      "quality.education-level": 3,
+      "quality.education-grade": 4,
       "quality.english": 55,
       "quality.tech": 35,
       "quality.interview-prep": 0,
@@ -50,8 +50,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     qualities: {
       // 28 years 6 months.
       "quality.age-months": 342,
-      "quality.edu-level": 3,
-      "quality.edu-grade": 3,
+      "quality.education-level": 3,
+      "quality.education-grade": 3,
       "quality.english": 50,
       "quality.tech": 10,
       "quality.interview-prep": 0,
@@ -87,8 +87,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     qualities: {
       // 25 years.
       "quality.age-months": 300,
-      "quality.edu-level": 3,
-      "quality.edu-grade": 4,
+      "quality.education-level": 3,
+      "quality.education-grade": 4,
       "quality.english": 62,
       "quality.tech": 58,
       "quality.interview-prep": 0,
@@ -109,11 +109,11 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.illness-course": 0,
       "quality.forced-wait": 0,
     },
-    job: "activity.job-junior-dev",
+    job: "activity.job-junior-developer",
     // person:invite-fills-a-slot: a working value, as scenario.md gives this life no count.
     siblings: 2,
     hometown: "hometown.kaduna",
-    tenure: { "activity.job-junior-dev": 18 },
+    tenure: { "activity.job-junior-developer": 18 },
     pockets: { NGN: { bank: naira(900000), cash: naira(40000) } },
     documents: [],
     obligations: [
@@ -134,9 +134,9 @@ export const nurseScenario: ScenarioEntry = {
   qualities: {
     // 27 years.
     "quality.age-months": 324,
-    "quality.edu-level": 3,
+    "quality.education-level": 3,
     // Second upper.
-    "quality.edu-grade": 4,
+    "quality.education-grade": 4,
     "quality.english": 58,
     // The page gives no tech, prep, portfolio or land; each starts at 0.
     "quality.tech": 0,
@@ -187,9 +187,9 @@ export const teacherScenario: ScenarioEntry = {
   qualities: {
     // 26 years.
     "quality.age-months": 312,
-    "quality.edu-level": 3,
+    "quality.education-level": 3,
     // Second upper.
-    "quality.edu-grade": 4,
+    "quality.education-grade": 4,
     "quality.english": 60,
     "quality.tech": 32,
     "quality.interview-prep": 0,

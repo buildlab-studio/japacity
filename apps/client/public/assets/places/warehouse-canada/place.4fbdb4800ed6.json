@@ -1,28 +1,32 @@
 {
-  "place": "place.office-uk",
+  "place": "place.warehouse-canada",
   "scope": "interior",
   "hub": false,
-  "note": "The office at London Bridge (design page 10 section 4), a room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
+  "note": "The warehouse by Calgary's airport (design page 11 section 3), London's warehouse room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length), six metres high. Counts are the most in view from the whole view; three low and six high.",
   "instances": [
     {
-      "file": "places/office-uk/building_room_office.glb",
+      "file": "places/warehouse-uk/building_room_warehouse.glb",
       "count": 1
     },
     {
-      "file": "places/office-uk/prop_desk-pod.glb",
-      "count": 5
+      "file": "places/warehouse-uk/prop_racking.glb",
+      "count": 3
     },
     {
-      "file": "places/office-uk/prop_glass-office.glb",
-      "count": 1
-    },
-    {
-      "file": "shared/prop/prop_tea-point.glb",
-      "count": 1
-    },
-    {
-      "file": "shared/prop/prop_potted-plant.glb",
+      "file": "places/warehouse-uk/prop_cage-trolley.glb",
       "count": 2
+    },
+    {
+      "file": "places/warehouse-uk/prop_clock-in.glb",
+      "count": 1
+    },
+    {
+      "file": "places/warehouse-uk/prop_smoking-shelter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_rota-board.glb",
+      "count": 1
     },
     {
       "file": "shared/prop/prop_room-door.glb",
@@ -52,13 +56,13 @@
     "triangles": 2
   },
   "stage": {
-    "note": "The office (world:things-are-tappable-models, world:ride-abroad-and-workplace): rows of desks with their screens, where the skilled and the graduate jobs are got and held; the glass office at the far end for the senior developer's job; the kitchen on the near side, where a colleague sits and says a line; windows along the back wall; the door.",
+    "note": "London's warehouse scene under the warehouse by the airport's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are warehouse-uk's; the staged acts, the looks and the colleague's lines are Canada's. The clock-in for the warehouse job; the rota board for overtime; the shelter where a colleague says a line.",
     "ground": {
       "size": [
         16.6,
         9.6
       ],
-      "colour": "concrete"
+      "colour": "concreteWorn"
     },
     "roads": [],
     "light": {
@@ -73,19 +77,19 @@
         {
           "at": [
             -3.5,
-            2.8,
+            5.4,
             0
           ],
-          "size": 2.4,
+          "size": 3.0,
           "bulb": true
         },
         {
           "at": [
             3.0,
-            2.8,
+            5.4,
             0
           ],
-          "size": 2.4,
+          "size": 3.0,
           "bulb": true
         }
       ]
@@ -117,7 +121,7 @@
     ],
     "models": [
       {
-        "file": "places/office-uk/building_room_office.glb",
+        "file": "places/warehouse-uk/building_room_warehouse.glb",
         "at": [
           [
             0,
@@ -127,66 +131,66 @@
         ]
       },
       {
-        "file": "places/office-uk/prop_desk-pod.glb",
+        "file": "places/warehouse-uk/prop_racking.glb",
         "at": [
           [
+            -3.4,
+            -3.85,
+            0
+          ],
+          [
+            -3.4,
+            -1.2,
+            0
+          ],
+          [
+            -3.4,
+            1.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_cage-trolley.glb",
+        "at": [
+          [
+            1.0,
+            -0.4,
+            0.3
+          ],
+          [
+            1.9,
+            0.2,
+            -0.2
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_clock-in.glb",
+        "at": [
+          [
+            4.0,
+            -4.3,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_smoking-shelter.glb",
+        "at": [
+          [
+            6.9,
             -3.0,
-            -2.2,
-            0
-          ],
-          [
-            -0.2,
-            -2.2,
-            0
-          ],
-          [
-            2.6,
-            -2.2,
-            0
-          ],
-          [
-            -3.0,
-            1.6,
-            0
-          ],
-          [
-            -0.2,
-            1.6,
-            0
+            -1.5708
           ]
         ]
       },
       {
-        "file": "places/office-uk/prop_glass-office.glb",
+        "file": "shared/prop/prop_rota-board.glb",
         "at": [
           [
-            -6.3,
-            -3.1,
-            0
-          ]
-        ]
-      },
-      {
-        "file": "shared/prop/prop_tea-point.glb",
-        "at": [
-          [
-            4.8,
-            3.6,
-            3.1416
-          ]
-        ]
-      },
-      {
-        "file": "shared/prop/prop_potted-plant.glb",
-        "at": [
-          [
-            7.2,
-            -3.9,
-            0
-          ],
-          [
-            -7.2,
-            3.8,
+            1.8,
+            -4.1,
             0
           ]
         ]
@@ -204,63 +208,46 @@
     ],
     "people": [
       [
-        -3.2,
-        -1.05,
-        3.1416
-      ],
-      [
-        0.0,
-        -3.35,
-        0
-      ],
-      [
-        -6.3,
-        -4.15,
-        0
-      ],
-      [
-        5.45,
-        2.75,
+        7.3,
+        -3.4,
         -1.5708
       ],
       [
-        2.4,
-        -1.05,
+        -2.6,
+        -2.5,
         3.1416
       ],
       [
-        1.2,
+        4.0,
+        -3.2,
+        3.1416
+      ],
+      [
         0.3,
+        0.6,
+        1.2
+      ],
+      [
+        -1.8,
+        0.15,
         1.5708
       ],
       [
-        -1.6,
-        3.4,
-        0.3
+        2.8,
+        2.4,
+        -1.0
+      ],
+      [
+        5.4,
+        1.8,
+        -1.5708
       ]
     ],
     "acts": [
       {
         "spot": 0,
-        "pose": "sit"
-      },
-      {
-        "spot": 1,
-        "pose": "sit"
-      },
-      {
-        "spot": 2,
         "pose": "sit",
         "staff": true
-      },
-      {
-        "spot": 3,
-        "pose": "sit",
-        "staff": true
-      },
-      {
-        "spot": 4,
-        "pose": "sit"
       }
     ],
     "motion": [],
@@ -280,62 +267,64 @@
     },
     "things": [
       {
-        "id": "desk",
-        "file": "places/office-uk/prop_desk-pod.glb",
-        "copy": 1,
-        "label": "city.thing.desk",
+        "id": "clock-in",
+        "file": "places/warehouse-uk/prop_clock-in.glb",
+        "copy": 0,
+        "label": "city.thing.clock-in",
         "at": [
-          -0.2,
-          -0.6
+          4.0,
+          -3.4
         ],
         "acts": [
           {
-            "id": "skilled",
-            "label": "city.act.job-skilled",
+            "id": "warehouse-work",
+            "label": "city.act.job-warehouse",
             "kind": "sheet",
-            "stages": "activity.job-uk-skilled"
-          },
-          {
-            "id": "graduate",
-            "label": "city.act.job-graduate",
-            "kind": "sheet",
-            "stages": "activity.job-uk-graduate"
+            "stages": "activity.job-canada-warehouse"
           }
         ]
       },
       {
-        "id": "glass-office",
-        "file": "places/office-uk/prop_glass-office.glb",
+        "id": "rota",
+        "file": "shared/prop/prop_rota-board.glb",
         "copy": 0,
-        "label": "city.thing.glass-office",
+        "label": "city.thing.rota",
         "at": [
-          -6.3,
-          -1.2
+          1.8,
+          -3.3
         ],
         "acts": [
           {
-            "id": "senior-dev",
-            "label": "city.act.job-senior-dev",
+            "id": "overtime",
+            "label": "city.act.overtime",
             "kind": "sheet",
-            "stages": "activity.job-uk-senior-dev"
+            "stages": "activity.overtime"
+          },
+          {
+            "id": "read",
+            "label": "city.act.read-rota",
+            "kind": "plain",
+            "unless": [
+              "activity.overtime"
+            ]
           }
         ]
       },
       {
         "id": "colleague",
-        "file": "shared/prop/prop_tea-point.glb",
+        "file": "places/warehouse-uk/prop_smoking-shelter.glb",
         "copy": 0,
         "label": "city.thing.colleague",
         "at": [
-          4.8,
-          2.1
+          5.9,
+          -3.0
         ],
         "acts": [
           {
             "id": "talk",
             "label": "city.act.talk-to",
             "kind": "plain",
-            "tells": "city.line.colleague.office-uk.1"
+            "tells": "city.line.colleague.warehouse-canada.1"
           },
           {
             "id": "sit",
@@ -343,9 +332,9 @@
             "kind": "plain",
             "pose": "sit",
             "seat": [
-              4.15,
-              2.75,
-              1.5708
+              7.3,
+              -2.6,
+              -1.5708
             ]
           }
         ]

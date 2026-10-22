@@ -23,7 +23,7 @@ function wellbeing(amount: number): Effect {
 }
 
 /** The settled and citizen statuses: return:papers-return-keeps-status's list of statuses kept on a return with papers. */
-const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"];
+const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.uk-citizen", "status.canada-resident", "status.canada-citizen"];
 
 export const goalTable: Record<Id<"goal">, GoalEntry> = {
   "goal.first-car": {
@@ -44,7 +44,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
         type: "any",
         of: [
           { type: "obligation/has", obligationType: "rent", obligation: "obligation.rent-flat-uk" },
-          { type: "obligation/has", obligationType: "rent", obligation: "obligation.rent-flat-ca" },
+          { type: "obligation/has", obligationType: "rent", obligation: "obligation.rent-flat-canada" },
         ],
       },
     ],
@@ -62,10 +62,10 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
         type: "job/is",
         activities: [
           "activity.job-uk-nurse",
-          "activity.job-uk-senior-dev",
+          "activity.job-uk-senior-developer",
           "activity.job-uk-graduate",
-          "activity.job-ca-professional",
-          "activity.job-ca-dev",
+          "activity.job-canada-professional",
+          "activity.job-canada-developer",
         ],
       },
     ],
@@ -103,7 +103,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.settled",
     where: "abroad",
     // A status that counts to settlement.
-    openIf: [{ type: "status/is", statuses: ["status.uk-sponsored", "status.uk-talent", "status.ca-resident"] }],
+    openIf: [{ type: "status/is", statuses: ["status.uk-sponsored", "status.uk-talent", "status.canada-resident"] }],
     doneIf: [{ type: "status/is", statuses: SETTLED_STATUSES }],
     reward: [standing(10), wellbeing(8)],
   },

@@ -5,8 +5,8 @@ const UK: Id<"route"> = "route.uk-masters";
 
 export const qualityTable:Record<Id<"quality">, QualityEntry> = {
   "quality.age-months": { id: "quality.age-months", group: "self", min: 192, max: 1200, shown: true, counts: [] },
-  "quality.edu-level": { id: "quality.edu-level", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
-  "quality.edu-grade": { id: "quality.edu-grade", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
+  "quality.education-level": { id: "quality.education-level", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
+  "quality.education-grade": { id: "quality.education-grade", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
   "quality.english": { id: "quality.english", group: "skills", min: 0, max: 100, shown: true, counts: [UK] },
   "quality.tech": { id: "quality.tech", group: "skills", min: 0, max: 100, shown: true, counts: [] },
   // The body (quality:body-belly-and-energy, decision 0011): moved by what you do today and said in words, never as a meter.

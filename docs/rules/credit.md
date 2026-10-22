@@ -33,8 +33,8 @@ Credit history does not cross borders. Everyone arrives with an empty file, and 
 | Highest `credit/min` met under a judgment | 20 | `tuning.credit.judgmentCap` |
 | Returning to the same country | mark less 20 | `tuning.credit.returnPenalty` |
 | Car finance needs | 30 | `obligation.car.creditMin` |
-| A flat in your own name needs | 20 | `obligation.rent-flat-uk.creditMin`, `obligation.rent-flat-ca.creditMin` |
-| A phone contract needs | 10 | `obligation.phone-uk.creditMin`, `obligation.phone-ca.creditMin` |
+| A flat in your own name needs | 20 | `obligation.rent-flat-uk.creditMin`, `obligation.rent-flat-canada.creditMin` |
+| A phone contract needs | 10 | `obligation.phone-uk.creditMin`, `obligation.phone-canada.creditMin` |
 
 Content: the car's `rateByCredit` stops at 1.2% a month (about 15% a year) from mark 30, with no rung below, and no loan abroad has a ladder; credit:rate-follows-credit-ladder's "22% at the bottom" is in no entry.
 

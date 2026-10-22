@@ -258,9 +258,9 @@ const words: Record<string, string> = {
   "prologue.page.way.route.gulf-contract": "the Gulf",
   "prologue.page.way.route.road": "the road",
   "prologue.page.way.route.uk-partner": "joining your partner",
-  "prologue.page.way.route.ca-spouse": "your spouse in Canada",
+  "prologue.page.way.route.canada-spouse": "your spouse in Canada",
   "prologue.page.way.route.uk-dependant": "with your partner",
-  "prologue.page.way.route.ca-accompany": "with your spouse",
+  "prologue.page.way.route.canada-accompany": "with your spouse",
 
   "scenario.prologue.name": "A life from sixteen",
   "scenario.prologue.blurb": "Secondary school to the end of the service year. Your choices build where you start.",

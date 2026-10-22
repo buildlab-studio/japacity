@@ -316,7 +316,7 @@
             "id": "care-work",
             "label": "city.act.job-care-aide",
             "kind": "sheet",
-            "stages": "activity.job-ca-care-aide"
+            "stages": "activity.job-canada-care-aide"
           }
         ]
       },

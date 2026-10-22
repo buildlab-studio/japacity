@@ -130,7 +130,7 @@ describe("who is named in the game's words", () => {
   test("[person:computer-names-generated] [person:names-predict-nothing] given who holds which role, when they are read by people, then no people holds two roles that take money and no role is held only by one people (names rule 5)", () => {
     expect(roleProblems(everyNamed())).toEqual([]);
     const agents = everyNamed().map((person) => (person.role === "agent" ? { ...person, people: "igbo" as const } : person));
-    expect(roleProblems(agents)).toEqual(["igbo holds Kunle (agent) and Ameh (agent)", "every agent is igbo"]);
+    expect(roleProblems(agents)).toEqual(["igbo holds Gbenga (agent) and Ameh (agent)", "every agent is igbo"]);
     const taking = everyNamed().map((person) => (person.role === "fx" || person.role === "landlord" ? { ...person, people: "tiv" as const } : person));
     expect(roleProblems(taking)).toEqual(["tiv holds Ochai (fx) and Ovie (landlord)"]);
   });

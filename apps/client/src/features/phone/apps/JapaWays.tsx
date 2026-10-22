@@ -17,7 +17,7 @@ import { blurbOf, byMonths, hasWords, inMonths, lowerFirst, monthsAgo, nameOf, s
 import { Head } from "../act";
 import { MoneyChip, PicTile, WordChip } from "../ui";
 
-const GRADE = "quality.edu-grade";
+const GRADE = "quality.education-grade";
 
 /** A month gone by as it reads inside a line: "2 months ago", "last month", "this month"; never its number (world:top-band-is-lively-pill). */
 export function agoWords(stamped: number, now: number): string {

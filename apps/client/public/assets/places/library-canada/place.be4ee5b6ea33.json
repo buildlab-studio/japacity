@@ -1,23 +1,27 @@
 {
-  "place": "place.office-canada",
+  "place": "place.library-canada",
   "scope": "interior",
   "hub": false,
-  "note": "The office downtown, Calgary (design page 11 section 3), London's office room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
+  "note": "The library (design page 11 section 3), a room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
   "instances": [
     {
-      "file": "places/office-uk/building_room_office.glb",
+      "file": "places/library-canada/building_room_library.glb",
       "count": 1
     },
     {
-      "file": "places/office-uk/prop_desk-pod.glb",
-      "count": 5
+      "file": "places/library-canada/prop_bookshelf.glb",
+      "count": 4
     },
     {
-      "file": "places/office-uk/prop_glass-office.glb",
+      "file": "places/library-canada/prop_library-table.glb",
+      "count": 2
+    },
+    {
+      "file": "places/library-canada/prop_course-desk.glb",
       "count": 1
     },
     {
-      "file": "shared/prop/prop_tea-point.glb",
+      "file": "places/family-house-parlour/prop_armchair.glb",
       "count": 1
     },
     {
@@ -52,13 +56,13 @@
     "triangles": 2
   },
   "stage": {
-    "note": "London's office scene under the office downtown's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are office-uk's; the staged acts, the looks and the colleague's lines are Canada's. The desks for the professional job; the glass office for the developer's; the kitchen where a colleague says a line.",
+    "note": "The library (world:things-are-tappable-models, world:room-seen-down-its-length; design page 11 section 3): tall shelves along the back wall and one across the far end, two long reading tables with their lamps where the readers sit, the course desk near the door with the course's notice on its stand, where the evening course is joined; an armchair in the corner; the door.",
     "ground": {
       "size": [
         16.6,
         9.6
       ],
-      "colour": "concrete"
+      "colour": "denim"
     },
     "roads": [],
     "light": {
@@ -68,22 +72,22 @@
         12
       ],
       "sky": "sky",
-      "ground": "concrete",
+      "ground": "denim",
       "lamps": [
         {
           "at": [
-            -3.5,
-            2.8,
-            0
+            -3.4,
+            3.2,
+            0.4
           ],
           "size": 2.4,
           "bulb": true
         },
         {
           "at": [
-            3.0,
-            2.8,
-            0
+            0.6,
+            3.2,
+            0.4
           ],
           "size": 2.4,
           "bulb": true
@@ -117,7 +121,7 @@
     ],
     "models": [
       {
-        "file": "places/office-uk/building_room_office.glb",
+        "file": "places/library-canada/building_room_library.glb",
         "at": [
           [
             0,
@@ -127,51 +131,61 @@
         ]
       },
       {
-        "file": "places/office-uk/prop_desk-pod.glb",
+        "file": "places/library-canada/prop_bookshelf.glb",
         "at": [
           [
-            -3.0,
-            -2.2,
+            -4.4,
+            -4.15,
             0
           ],
           [
-            -0.2,
-            -2.2,
+            -0.6,
+            -4.15,
             0
           ],
           [
-            2.6,
-            -2.2,
+            3.2,
+            -4.15,
             0
           ],
           [
-            -3.0,
-            1.6,
+            -7.45,
+            0.6,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/library-canada/prop_library-table.glb",
+        "at": [
+          [
+            -3.4,
+            0.4,
             0
           ],
           [
-            -0.2,
-            1.6,
+            0.6,
+            0.4,
             0
           ]
         ]
       },
       {
-        "file": "places/office-uk/prop_glass-office.glb",
-        "at": [
-          [
-            -6.3,
-            -3.1,
-            0
-          ]
-        ]
-      },
-      {
-        "file": "shared/prop/prop_tea-point.glb",
+        "file": "places/library-canada/prop_course-desk.glb",
         "at": [
           [
             4.8,
-            3.6,
+            -2.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house-parlour/prop_armchair.glb",
+        "at": [
+          [
+            -5.6,
+            3.5,
             3.1416
           ]
         ]
@@ -186,7 +200,7 @@
           ],
           [
             -7.2,
-            3.8,
+            -3.9,
             0
           ]
         ]
@@ -204,39 +218,39 @@
     ],
     "people": [
       [
-        -3.2,
-        -1.05,
+        -4.45,
+        1.25,
         3.1416
       ],
       [
-        0.0,
-        -3.35,
+        -2.35,
+        -0.45,
         0
       ],
       [
-        -6.3,
-        -4.15,
-        0
-      ],
-      [
-        5.45,
-        2.75,
-        -1.5708
-      ],
-      [
-        2.4,
-        -1.05,
+        0.6,
+        1.25,
         3.1416
       ],
       [
+        1.65,
+        -0.45,
+        0
+      ],
+      [
+        4.8,
+        -3.05,
+        0
+      ],
+      [
+        -1.0,
+        -3.4,
+        3.1416
+      ],
+      [
+        -6.7,
         1.2,
-        0.3,
-        1.5708
-      ],
-      [
-        -1.6,
-        3.4,
-        0.3
+        -1.5708
       ]
     ],
     "acts": [
@@ -250,17 +264,16 @@
       },
       {
         "spot": 2,
-        "pose": "sit",
-        "staff": true
+        "pose": "sit"
       },
       {
         "spot": 3,
-        "pose": "sit",
-        "staff": true
+        "pose": "sit"
       },
       {
         "spot": 4,
-        "pose": "sit"
+        "pose": "sit",
+        "staff": true
       }
     ],
     "motion": [],
@@ -280,66 +293,76 @@
     },
     "things": [
       {
-        "id": "desk",
-        "file": "places/office-uk/prop_desk-pod.glb",
+        "id": "course-desk",
+        "file": "places/library-canada/prop_course-desk.glb",
+        "copy": 0,
+        "label": "city.thing.course-desk",
+        "at": [
+          4.4,
+          -1.0
+        ],
+        "acts": [
+          {
+            "id": "course",
+            "label": "city.act.course",
+            "kind": "sheet",
+            "stages": "activity.learn-tech-canada"
+          }
+        ]
+      },
+      {
+        "id": "notice",
+        "file": "places/library-canada/prop_course-desk.glb",
+        "copy": 0,
+        "label": "city.thing.course-notice",
+        "at": [
+          6.15,
+          -1.6
+        ],
+        "acts": [
+          {
+            "id": "read",
+            "label": "city.act.read-notice",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "shelves",
+        "file": "places/library-canada/prop_bookshelf.glb",
         "copy": 1,
-        "label": "city.thing.desk",
+        "label": "city.thing.shelves",
         "at": [
-          -0.2,
-          -0.6
+          -0.6,
+          -3.3
         ],
         "acts": [
           {
-            "id": "professional",
-            "label": "city.act.job-professional",
-            "kind": "sheet",
-            "stages": "activity.job-ca-professional"
+            "id": "look",
+            "label": "city.act.look-shelves",
+            "kind": "plain"
           }
         ]
       },
       {
-        "id": "glass-office",
-        "file": "places/office-uk/prop_glass-office.glb",
-        "copy": 0,
-        "label": "city.thing.glass-office",
+        "id": "table",
+        "file": "places/library-canada/prop_library-table.glb",
+        "copy": 1,
+        "label": "city.thing.reading-table",
         "at": [
-          -6.3,
-          -1.2
+          1.65,
+          1.9
         ],
         "acts": [
-          {
-            "id": "dev",
-            "label": "city.act.job-dev",
-            "kind": "sheet",
-            "stages": "activity.job-ca-dev"
-          }
-        ]
-      },
-      {
-        "id": "colleague",
-        "file": "shared/prop/prop_tea-point.glb",
-        "copy": 0,
-        "label": "city.thing.colleague",
-        "at": [
-          4.8,
-          2.1
-        ],
-        "acts": [
-          {
-            "id": "talk",
-            "label": "city.act.talk-to",
-            "kind": "plain",
-            "tells": "city.line.colleague.office-canada.1"
-          },
           {
             "id": "sit",
             "label": "city.act.sit",
             "kind": "plain",
             "pose": "sit",
             "seat": [
-              4.15,
-              2.75,
-              1.5708
+              1.65,
+              1.25,
+              3.1416
             ]
           }
         ]

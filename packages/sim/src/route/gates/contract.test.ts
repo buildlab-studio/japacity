@@ -111,10 +111,10 @@ describe("route-gates:gulf-route-heard-at-park: hearing of the Gulf", () => {
   });
 
   test("[route-gates:gulf-application-needs] given no schooling, when it asks around at the motor park, then the Gulf is not heard of; with secondary school it is", () => {
-    const none = life({ qualities: { "quality.edu-level": 0 } });
+    const none = life({ qualities: { "quality.education-level": 0 } });
     none.endTurn([slot("activity.ask-around")]);
     expect(routeOf(none).state).toBe("unknown");
-    const secondary = life({ qualities: { "quality.edu-level": 1 } });
+    const secondary = life({ qualities: { "quality.education-level": 1 } });
     secondary.endTurn([slot("activity.ask-around")]);
     expect(routeOf(secondary).state).toBe("heard");
   });

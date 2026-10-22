@@ -6,7 +6,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, richView } from "../../../shared/testing/fixtures";
-import { courted, peopleGame, TOBI } from "../../../shared/testing/person";
+import { courted, peopleGame, DELE } from "../../../shared/testing/person";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { inMonths, nameOf, say } from "../../../shared/words/text";
@@ -94,10 +94,10 @@ describe("the gate on each way in Japa", () => {
 
   test("[person:partner-gate-needs] given the partner gate resting on a bond, then the route names who it rests on and how their side stands", async () => {
     const game = peopleGame();
-    const bond = courted(game, TOBI);
+    const bond = courted(game, DELE);
     await renderWithView(<Japa />, withRoute("route.uk-partner", { gate: "partner", bond, lead: "applying" }, game.view()));
     expect(screen.getByText(say("ui.gate.partner.title"))).toBeDefined();
-    expect(screen.getByText(say("ui.gate.bond.with", { name: nameOf(TOBI), stage: say("ui.people.stage.courting").toLowerCase() }))).toBeDefined();
+    expect(screen.getByText(say("ui.gate.bond.with", { name: nameOf(DELE), stage: say("ui.people.stage.courting").toLowerCase() }))).toBeDefined();
     expect(screen.getByText(say("ui.gate.lead.state", { state: say("ui.route.state.applying").toLowerCase() }))).toBeDefined();
   });
 

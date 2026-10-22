@@ -33,11 +33,11 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     // A flat working band: 25% above C$16,000.
     taxFreeLine: cad(16000),
     taxBp: 2500,
-    upkeep: "obligation.upkeep-ca",
-    rentRoom: "obligation.rent-room-ca",
-    rentFlat: "obligation.rent-flat-ca",
-    phone: "obligation.phone-ca",
-    overstayer: "status.ca-overstayer",
+    upkeep: "obligation.upkeep-canada",
+    rentRoom: "obligation.rent-room-canada",
+    rentFlat: "obligation.rent-flat-canada",
+    phone: "obligation.phone-canada",
+    overstayer: "status.canada-overstayer",
     // No Canadian gate refuses for deception (route-gates:deception-bans-country names the sponsor and contract gates only), so the
     // deception ban here is the one a caught interview brings (interview:caught-sponsor-carries-bar): five years after misrepresentation (IRPA s. 40); undertaking:sponsored-arrivals-wait-to-sponsor: five years after arriving through a partner (IRPR s. 130(3)).
     deceptionBanMonths: 60,
@@ -75,8 +75,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     // so the page gives Italy no tax line and none is entered.
     taxFreeLine: 0,
     taxBp: 0,
-    upkeep: "obligation.upkeep-it",
-    rentRoom: "obligation.rent-room-it",
+    upkeep: "obligation.upkeep-italy",
+    rentRoom: "obligation.rent-room-italy",
     rentFlat: null,
     phone: null,
     overstayer: "status.eu-irregular",

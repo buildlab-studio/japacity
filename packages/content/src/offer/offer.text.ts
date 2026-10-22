@@ -149,7 +149,7 @@ export const offerText: Record<string, string> = {
   "offer.held-funds.choice.take": "Take the funds",
   "offer.held-funds.choice.no": "No, thank you",
 
-  "offer.held-funds-agent.name": "Mr Kunle can arrange it",
+  "offer.held-funds-agent.name": "Mr Gbenga can arrange it",
   "offer.held-funds-agent.title": "Cheaper than bank",
   "offer.held-funds-agent.body":
     "A friend of a friend: “Proof of funds, I do it every week, ₦3,000 a month on every ₦100,000, cheaper than any bank, just bring the first payment.”",
@@ -431,8 +431,8 @@ export const offerText: Record<string, string> = {
   "offer.returnee-leave-again.who": "A friend",
   "offer.street-find-uk.who": "An aunty",
   "offer.street-find-uae.who": "A crewman",
-  "offer.street-find-ca.who": "A man at the stop",
-  "offer.street-find-it.who": "A grandmother",
+  "offer.street-find-canada.who": "A man at the stop",
+  "offer.street-find-italy.who": "A grandmother",
   "offer.illness.who": "The doctor",
   "offer.illness-worse.who": "The doctor",
   "offer.whip-round.who": "Your classmates",
@@ -450,7 +450,7 @@ export const offerText: Record<string, string> = {
   "offer.salary-loan.who": "Your bank",
   "offer.quick-loan.who": "QuickNaira",
   "offer.held-funds.who": "Olokun Microfinance",
-  "offer.held-funds-agent.who": "Mr Kunle",
+  "offer.held-funds-agent.who": "Mr Gbenga",
   "offer.group-loan.who": "The group's leader",
   "offer.join-ajo.who": "Your neighbour",
   "offer.land-buyer.who": "A buyer",
@@ -470,6 +470,6 @@ export const offerText: Record<string, string> = {
   "offer.road-ransom-call.who": "The man",
   "offer.road-exit.who": "The migration agency",
   "offer.sponsor-licence-lost.who": "Your manager",
-  "offer.ca-assistance.who": "The assistance office",
+  "offer.canada-assistance.who": "The assistance office",
   "offer.court-date.who": "The court",
 };
