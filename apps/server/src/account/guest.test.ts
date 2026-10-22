@@ -7,7 +7,7 @@ import type { GoogleRoundTrip, Harness, Jar } from "../auth/auth.testing";
 import { testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import { PASS_COOKIE, PASS_PREFIX } from "./age";
-import { BOARDS_DETAIL, DEVICE_COOKIE, SECURED_PATHS } from "./guest";
+import { BOARDS_DETAIL, DEVICE_COOKIE, SECURED_PATHS, connectionOf } from "./guest";
 import { METHOD_TAKEN } from "./link";
 import { TURNSTILE_TEST } from "./turnstile";
 
@@ -466,6 +466,29 @@ describe("the flood limits on guests", () => {
     }
     expect(results).toEqual([200, 200, 200, 429]);
     expect(h.tables.user).toHaveLength(limits.guestsPerConnection);
+  });
+
+  test("[account:guest-floods-are-capped] given one IPv6 /64, when one more guest than the limit is started in the window from different addresses in it and fresh devices, then it is refused too-many; the next /64 is still allowed", async () => {
+    const h = harness({ config: testConfig({ testing: { captureOtp: true }, account: limits }) });
+    const addresses = ["2001:db8:1:2::1", "2001:DB8:1:2:ffff:ffff:ffff:fffe", "2001:0db8:0001:0002:0:0:0:3", "2001:db8:1:2:8000::4", "2001:db8:1:3::1"];
+    const results: number[] = [];
+    for (const ip of addresses) {
+      const jar = makeJar();
+      await h.passAge(jar, {});
+      results.push((await h.startGuest(jar, { ip })).status);
+    }
+    expect(results).toEqual([200, 200, 200, 429, 200]);
+    expect(h.tables.user).toHaveLength(limits.guestsPerConnection + 1);
+  });
+
+  test("[account:guest-floods-are-capped] given addresses as Cloudflare passes them, when each is taken as a connection, then an IPv6 one is its /64 however it is written, and an IPv4 one, or one carried in IPv6, is itself", () => {
+    expect(connectionOf("198.51.100.7")).toBe("198.51.100.7");
+    expect(connectionOf("::ffff:198.51.100.7")).toBe("198.51.100.7");
+    expect(connectionOf("2001:db8:1:2::1")).toBe("2001:db8:1:2::/64");
+    expect(connectionOf("2001:0DB8:0001:0002:ffff:ffff:ffff:ffff")).toBe("2001:db8:1:2::/64");
+    expect(connectionOf("2001:db8::1")).toBe("2001:db8:0:0::/64");
+    expect(connectionOf("::1")).toBe("0:0:0:0::/64");
+    expect(connectionOf("2001:db8:1:3::")).toBe("2001:db8:1:3::/64");
   });
 });
 
