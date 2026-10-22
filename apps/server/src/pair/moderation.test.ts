@@ -1,5 +1,5 @@
-import type { Reported } from "@japacity/api";
-import { pairView, time } from "@japacity/sim";
+import type { BlockedListReply, Reported } from "@japacity/api";
+import { pairId, pairView, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { requestDeletion } from "../account/deletion";
@@ -71,6 +71,99 @@ describe("block", () => {
 
     expect((await post(server, "/api/moderation/block", INVITER, { pair: "nobody~somebody" })).status).toBe(404);
     expect(await server.deps.stores.moderation.blocksBy(INVITER)).toEqual([]);
+  });
+});
+
+describe("the blocked list", () => {
+  const THIRD = "account-c";
+
+  function list(server: Parameters<typeof call>[0], account: string | null) {
+    return call<BlockedListReply | PairRejection>(server, "GET", "/api/moderation/blocked", account);
+  }
+
+  test("[moderation:blocked-list-in-settings] given two blocks made on different days, when the blocker reads the list, then it names each account with its username and the time of the block, newest first, and the blocked side's own list is empty", async () => {
+    const { server, key } = await linkedPair();
+    const third = await newLife(server, THIRD, "scenario.developer");
+    expect((await server.deps.stores.account.setUsername(FRIEND, "tunde_k", server.deps.now())).ok).toBe(true);
+    const first = server.deps.now();
+    await post(server, "/api/moderation/block", INVITER, { pair: key });
+    server.wait(time.DAY_MS);
+    await post(server, "/api/moderation/block", INVITER, { character: third });
+
+    const read = await list(server, INVITER);
+
+    expect(read.status).toBe(200);
+    expect(read.headers.get("cache-control")).toBe("private, no-store");
+    expect(read.body).toEqual({
+      ok: true,
+      blocked: [
+        { account: THIRD, username: THIRD, at: first + time.DAY_MS },
+        { account: FRIEND, username: "tunde_k", at: first },
+      ],
+    });
+    // The list is the blocker's alone: no account learns it is on another's.
+    expect((await list(server, FRIEND)).body).toEqual({ ok: true, blocked: [] });
+    expect((await list(server, THIRD)).body).toEqual({ ok: true, blocked: [] });
+  });
+
+  test("[moderation:blocked-list-in-settings] given a block on an account whose row is gone, when the list is read, then its line names no username, for the screen to read as a player", async () => {
+    const { server } = await linkedPair();
+    await server.deps.stores.moderation.block({ from: INVITER, to: "account-gone", at: server.deps.now() });
+
+    expect((await list(server, INVITER)).body).toEqual({ ok: true, blocked: [{ account: "account-gone", username: null, at: server.deps.now() }] });
+  });
+
+  test("[moderation:blocked-list-in-settings] [moderation:block-ends-pair-records] given a blocked pair, when the blocker unblocks by the account on the list, then the block lifts, the record is unblocked and stays ended, and the line goes from the list", async () => {
+    const { server, key } = await linkedPair();
+    await post(server, "/api/moderation/block", INVITER, { pair: key });
+
+    const lifted = await post(server, "/api/moderation/unblock", INVITER, { account: FRIEND });
+
+    expect(lifted.body).toEqual({ ok: true });
+    expect(await server.deps.stores.moderation.blocked(INVITER, FRIEND)).toBe(false);
+    expect((await recordOf(server.deps, key))?.record).toMatchObject({ stage: "ended", blocked: { a: false, b: false } });
+    expect((await list(server, INVITER)).body).toEqual({ ok: true, blocked: [] });
+  });
+
+  test("[moderation:blocked-list-in-settings] given a block on an account with no pair record, when it is unblocked by account, then the block lifts and no record is made", async () => {
+    const { server, a } = await linkedPair();
+    const third = await newLife(server, THIRD, "scenario.developer");
+    await post(server, "/api/moderation/block", INVITER, { character: third });
+
+    expect((await post(server, "/api/moderation/unblock", INVITER, { account: THIRD })).body).toEqual({ ok: true });
+    expect(await server.deps.stores.moderation.blocked(INVITER, THIRD)).toBe(false);
+    expect(await recordOf(server.deps, pairId(a, third))).toBeNull();
+  });
+
+  test("[moderation:blocked-list-in-settings] given an account the player has not blocked, known or not, when it is unblocked by account, then the answer is ok and nothing changes", async () => {
+    const { server, key } = await linkedPair();
+    await newLife(server, THIRD, "scenario.developer");
+    await post(server, "/api/moderation/block", FRIEND, { pair: key });
+    const before = await recordOf(server.deps, key);
+
+    for (const account of [THIRD, "account-nobody", INVITER, FRIEND]) {
+      expect((await post(server, "/api/moderation/unblock", INVITER, { account })).body).toEqual({ ok: true });
+    }
+
+    // The block the other side made stands: only the blocker can lift it.
+    expect(await server.deps.stores.moderation.blocksBy(FRIEND)).toEqual([{ from: FRIEND, to: INVITER, at: server.deps.now() }]);
+    expect(await recordOf(server.deps, key)).toEqual(before);
+  });
+
+  test("[moderation:blocked-list-in-settings] given a block that names an account, when it is sent, then it is refused and nothing is stored, since a block names where the two met", async () => {
+    const { server } = await linkedPair();
+
+    const refused = await post(server, "/api/moderation/block", INVITER, { account: FRIEND });
+
+    expect(refused.status).toBe(400);
+    expect(refused.body).toMatchObject({ ok: false, code: "not-legal" });
+    expect(await server.deps.stores.moderation.blocksBy(INVITER)).toEqual([]);
+  });
+
+  test("[moderation:blocked-list-in-settings] given no session, when the list is read, then it is refused", async () => {
+    const { server } = await linkedPair();
+
+    expect((await list(server, null)).status).toBe(401);
   });
 });
 

@@ -1,7 +1,7 @@
-// Block and report (pair:block-and-report-one-tap, pair:block-ends-every-bond and pair:report-holds-conversation; moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-carries-subject-and-reason, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation). A block ends every bond between the two as a block
+// Block and report (pair:block-and-report-one-tap, pair:block-ends-every-bond and pair:report-holds-conversation; moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-carries-subject-and-reason, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation; moderation:blocked-list-in-settings). A block ends every bond between the two as a block
 // end in both lives and is never shown to the blocked side as a block; a
 // report holds what it cites and changes nothing in either life.
-import { type Blocked, REPORT_REASONS, type ReportCite, type Reported, type ReportSubject } from "@japacity/api";
+import { type Blocked, type BlockedList, REPORT_REASONS, type ReportCite, type Reported, type ReportSubject } from "@japacity/api";
 import type { Id, PairRecord } from "@japacity/sim";
 import { pairId, time, toHex } from "@japacity/sim";
 import type { ReportReason, ReportRow } from "@japacity/store";
@@ -64,6 +64,8 @@ async function blockRecord(deps: ServerDeps, me: string, them: string): Promise<
 
 /** moderation:block-refuses-both-ways: `moderation/block` names the other player by their pair or their character. */
 export async function block(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Blocked>> {
+  // moderation:blocked-list-in-settings: an account is a line of the blocked list, for an unblock; a block names where the two met.
+  if (field(body, "account") !== null) return refused(400, "not-legal", "A block names a pair or a character.");
   const me = await characterOf(deps, account);
   if (me === null) return refused(404, "no-character", "This account has no character yet.");
   const them = await targetOf(deps, me, body);
@@ -73,25 +75,50 @@ export async function block(deps: ServerDeps, account: string, body: unknown): P
   return (await blockRecord(deps, me, them)) ?? { status: 200, body: { ok: true } };
 }
 
-/** moderation:block-ends-pair-records: the block lifted, and nothing restored: a new invite is needed. */
+/** moderation:block-ends-pair-records: the block written off the record the two characters share, if they share one. */
+async function unblockRecord(deps: ServerDeps, me: string, them: string): Promise<PairAnswer<Blocked> | null> {
+  const key = pairId(me, them);
+  if ((await deps.stores.pair.get(key)) === null) return null;
+  const outcome = await pairStep(deps, key, ({ book }) => {
+    const record = book.get(key);
+    const at = record === null ? null : sideOf(record, me);
+    if (at !== null) book.write(key, at, { type: "pair/unblocked" });
+    return { ok: true, value: null };
+  });
+  return outcome.kind === "diverged" || outcome.kind === "refused" ? widen(unusual(outcome)) : null;
+}
+
+/**
+ * moderation:blocked-list-in-settings: an unblock naming a line of the blocked list by its account. An account the
+ * player has not blocked, or that does not exist, answers as a lifted block does and changes nothing, so the answer
+ * never says whether it exists.
+ */
+async function unblockAccount(deps: ServerDeps, account: string, other: string): Promise<PairAnswer<Blocked>> {
+  if (other === account || !(await deps.stores.moderation.unblock(account, other))) return { status: 200, body: { ok: true } };
+  const me = await characterOf(deps, account);
+  const them = await characterOf(deps, other);
+  const answer = me === null || them === null || me === them ? null : await unblockRecord(deps, me, them);
+  return answer ?? { status: 200, body: { ok: true } };
+}
+
+/** moderation:block-ends-pair-records, moderation:blocked-list-in-settings: the block lifted, and nothing restored: a new invite is needed. */
 export async function unblock(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Blocked>> {
+  const other = field(body, "account");
+  if (other !== null) return unblockAccount(deps, account, other);
   const me = await characterOf(deps, account);
   if (me === null) return refused(404, "no-character", "This account has no character yet.");
   const them = await targetOf(deps, me, body);
   const theirs = them === null ? null : await accountOfCharacter(deps, them);
   if (them === null || theirs === null) return refused(404, "unknown-id", "There is no such player.");
   await deps.stores.moderation.unblock(account, theirs.id);
-  const key = pairId(me, them);
-  if ((await deps.stores.pair.get(key)) !== null) {
-    const outcome = await pairStep(deps, key, ({ book }) => {
-      const record = book.get(key);
-      const at = record === null ? null : sideOf(record, me);
-      if (at !== null) book.write(key, at, { type: "pair/unblocked" });
-      return { ok: true, value: null };
-    });
-    if (outcome.kind === "diverged" || outcome.kind === "refused") return widen(unusual(outcome));
-  }
-  return { status: 200, body: { ok: true } };
+  return (await unblockRecord(deps, me, them)) ?? { status: 200, body: { ok: true } };
+}
+
+/** moderation:blocked-list-in-settings: every account the player has blocked, newest first, each named in one read of the accounts. */
+export async function blockedList(deps: ServerDeps, account: string): Promise<BlockedList> {
+  const rows = await deps.stores.moderation.blocksBy(account);
+  const usernames = await deps.stores.account.usernames(rows.map((row) => row.to));
+  return { ok: true, blocked: rows.map((row) => ({ account: row.to, username: usernames.get(row.to) ?? null, at: row.at })) };
 }
 
 /** Sets or clears `held` on a record, touching no life (pair:report-holds-conversation). */

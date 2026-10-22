@@ -15,7 +15,7 @@ export const REPORT_REASONS = ["scam", "harassment", "impersonation", "underage"
 /** moderation:report-carries-subject-and-reason: whom a report is about: an account, or an advert's campaign. */
 export type ReportSubject = { account: string } | { campaign: string };
 
-/** `POST /api/moderation/block` and `/unblock`. The reply never says more than that it was done. */
+/** `POST /api/moderation/block` and `/unblock`. The reply never says more than that it was done, nor whether an account unblocked was on the list. */
 export interface Blocked {
   ok: true;
 }
@@ -26,8 +26,28 @@ export interface Reported {
   report: string;
 }
 
-/** The body of a block: the other player named by the pair the two share, or by their character. */
+/** The body of a block: the other player named by the pair the two share, or by their character, from where the two met. */
 export type BlockRequest = { pair: string } | { character: string };
+
+/** The body of an unblock: as a block's, or a line of the blocked list by its account (moderation:blocked-list-in-settings). */
+export type UnblockRequest = BlockRequest | { account: string };
+
+/** moderation:blocked-list-in-settings: one account the player has blocked. */
+export interface BlockedLine {
+  account: string;
+  /** The account's username, or null when its row is gone (a deletion under way): the screen reads "A player". */
+  username: string | null;
+  /** When the block was made, milliseconds since 1970. */
+  at: number;
+}
+
+/** `GET /api/moderation/blocked`: every account the player has blocked, newest first (moderation:blocked-list-in-settings). */
+export interface BlockedList {
+  ok: true;
+  blocked: BlockedLine[];
+}
+
+export type BlockedListReply = BlockedList | ServerRejection;
 
 /** The pair form of `POST /api/moderation/report`: a pair, and from a conversation its message ids; a block in the same step (pair:report-holds-conversation, moderation:report-offers-block). */
 export interface PairReportRequest {
