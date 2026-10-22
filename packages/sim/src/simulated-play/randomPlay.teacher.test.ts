@@ -8,8 +8,8 @@ import { describe, expect } from "vitest";
 import type { Id } from "../engine/types";
 import { start } from "../testing/play";
 import type { StrategyName } from "./players";
-import type { Walk } from "./random-play";
-import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
+import type { Walk } from "./randomPlay";
+import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./randomPlay";
 
 const LIFE: Id<"scenario"> = "scenario.teacher";
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];

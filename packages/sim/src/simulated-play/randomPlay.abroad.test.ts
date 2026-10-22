@@ -8,8 +8,8 @@ import { describe, expect } from "vitest";
 
 import { lifeSaves } from "../goldens/lives.data";
 import type { StrategyName } from "./players";
-import type { Walk } from "./random-play";
-import { atFlight, COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
+import type { Walk } from "./randomPlay";
+import { atFlight, COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./randomPlay";
 
 /** The first recording of each life, which flies the study route; the second has a file of its own. */
 const FLOWN = Object.keys(lifeSaves).filter((name) => !name.endsWith("-abroad"));

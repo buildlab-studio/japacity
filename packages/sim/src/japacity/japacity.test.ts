@@ -8,7 +8,7 @@ import { miniContent } from "../testing/miniContent";
 import { finishPrologue, start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from "../testing/route.journey";
-import { carryOut, judgeWith, writeRoute } from "../testing/japacity.fixtures";
+import { carryOut, judgeWith, writeRoute } from "../testing/japacity";
 import { ALWAYS_GRANTED } from "../testing/place.journey";
 import { checklistView, japacity, routePercent } from "./japacity.logic";
 import { UK_ROUTE } from "../testing/ids";

@@ -42,7 +42,7 @@ describe("the content version's seal", () => {
   });
 
   test("[server:content-version-sealed] given a test, a test helper or a tool's folder in the simulation's source, when the played files are listed, then none of them is read, and every kind's logic is", () => {
-    expect(["engine/step.test.ts", "japacity/japacity.fixtures.ts", "simulated-play/players.ts", "testing/play.ts", "goldens/index.ts", "goldens/graduate-careful.json", "engine/types.d.ts"].filter(played)).toEqual([]);
+    expect(["engine/step.test.ts", "turn/turn.fixtures.ts", "simulated-play/players.ts", "testing/play.ts", "goldens/index.ts", "goldens/graduate-careful.json", "engine/types.d.ts"].filter(played)).toEqual([]);
     expect(["engine/step.ts", "turn/turn.logic.ts", "world/standIn.ts", "index.ts"].every(played)).toBe(true);
     const paths = simSources().map((file) => file.path);
     expect(paths).toContain("engine/step.ts");

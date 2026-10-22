@@ -54,7 +54,7 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
-import { withThings } from "../thing/thing.mods";
+import { withThings } from "../thing/thing.modifiers";
 import { EARNED_ONLY, earnedNaira, pocketFor } from "../wallet/wallet.logic";
 import { officialRates } from "../wallet/wallet.rates";
 import type { Judge } from "../japacity/japacity.logic";
