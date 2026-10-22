@@ -55,7 +55,7 @@ export function Counter({ value, format, className = "" }: { value: number; form
  * cash together. At home the naira; abroad the country's own, so the naira left at home shows only in
  * the Bank app.
  */
-export function bandMoney(view: Pick<PlayerView, "place" | "pockets">): Pick<BandProps, "money" | "formatMoney"> {
+export function bandMoney(view: Pick<PlayerView, "place" | "pockets">): Pick<TopBandProps, "money" | "formatMoney"> {
   const currency = localCurrency(view);
   const pocket = view.pockets[currency];
   return { money: pocket.bank + pocket.cash, formatMoney: (value) => formatMoney(value, currency) };
@@ -76,7 +76,7 @@ export interface BandMonth {
   part: string;
 }
 
-export interface BandProps {
+export interface TopBandProps {
   /** The clock: the character's age, small over the name. */
   when: string;
   /** The place's name, or the room's. */
@@ -145,7 +145,7 @@ const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", af
  * closed, that row peeks for a few seconds whenever its words change. On a laptop it stands in the centred column.
  * While a fan's button is pressed the counter shows what would be left, and settles back when it is let go.
  */
-export function Band({ when, name, money, formatMoney, month, body = null, onMonth, sky, preview = null, hidden = false, more, open = false, onToggle }: BandProps) {
+export function TopBand({ when, name, money, formatMoney, month, body = null, onMonth, sky, preview = null, hidden = false, more, open = false, onToggle }: TopBandProps) {
   const previewing = preview !== null && preview !== money;
   return (
     <CentredColumn className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(12px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>

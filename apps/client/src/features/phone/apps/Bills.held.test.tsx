@@ -12,7 +12,7 @@ import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
-import { bandMoney } from "../../../shared/world/Band";
+import { bandMoney } from "../../../shared/world/TopBand";
 import { PhoneApps } from "../PhoneApps";
 
 const HELD = 1_119_311_000;

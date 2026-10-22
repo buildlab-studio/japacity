@@ -5,7 +5,7 @@ import { act, render } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { Phone } from "../features/phone/Phone";
-import { Band } from "../shared/world/Band";
+import { TopBand } from "../shared/world/TopBand";
 import { Corner, resetLines, tell } from "../shared/world/Lines";
 import { Nudge } from "../shared/world/Nudge";
 import { ThumbBar } from "../shared/world/ThumbBar";
@@ -25,7 +25,7 @@ function inColumn(selector: string): boolean {
 
 describe("the centred column", () => {
   test("[world:top-band-is-lively-pill] given the band with its nudge under it, when it draws, then both stand in the column", () => {
-    render(<Band when="23 yrs" name="The family house" money={0} formatMoney={String} more={<Nudge nudge={{ key: "ui.world.whole" }} />} />);
+    render(<TopBand when="23 yrs" name="The family house" money={0} formatMoney={String} more={<Nudge nudge={{ key: "ui.world.whole" }} />} />);
     expect(inColumn("[data-band] > *")).toBe(true);
     expect(inColumn("[data-nudge]")).toBe(true);
   });

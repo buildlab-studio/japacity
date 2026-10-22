@@ -15,7 +15,7 @@ import { abroadGame, engineView, fakeAuthority } from "../testing/fixtures";
 import "../testing/render";
 import { bodyWords } from "../words/body";
 import { formatMoney } from "../words/format";
-import { Band, bandMoney, bandMonth, bandPlace } from "./Band";
+import { TopBand, bandMoney, bandMonth, bandPlace } from "./TopBand";
 import { DAY_CLOCK_MS, dayClockOf, devClockPart, useDayClock } from "./dayClock";
 import { nameOf, say } from "../words/text";
 
@@ -81,7 +81,7 @@ describe("the band's month", () => {
     const month = bandMonth(view, MARCH, { part: "evening" });
     expect(month).toEqual({ name: "April", part: "Evening" });
     const onMonth = vi.fn();
-    render(<Band when="23 yrs 4 mo" name="The family house" money={42_000_000} formatMoney={(value) => formatMoney(value, "NGN")} month={month} onMonth={onMonth} />);
+    render(<TopBand when="23 yrs 4 mo" name="The family house" money={42_000_000} formatMoney={(value) => formatMoney(value, "NGN")} month={month} onMonth={onMonth} />);
     const chip = document.querySelector<HTMLElement>("[data-band-month]");
     if (chip === null) throw new Error("No month on the band");
     expect(chip.textContent).toBe("AprilEvening");
@@ -116,7 +116,7 @@ describe("the band's month", () => {
       const store = createGameStore(authority);
       function Shown() {
         const clock = useDayClock();
-        return <Band when="23 yrs" name="Home" money={0} formatMoney={String} month={bandMonth(engineView(), MARCH, clock)} />;
+        return <TopBand when="23 yrs" name="Home" money={0} formatMoney={String} month={bandMonth(engineView(), MARCH, clock)} />;
       }
       render(
         <GameProvider store={store}>
@@ -196,7 +196,7 @@ describe("the body on the band", () => {
     await store.getState().refresh();
     const { unmount } = render(
       <GameProvider store={store}>
-        <Band when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} month={{ name: "April", part: "Evening" }} body={bodyWords(hungry)} />
+        <TopBand when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} month={{ name: "April", part: "Evening" }} body={bodyWords(hungry)} />
       </GameProvider>,
     );
     const word = document.querySelector<HTMLElement>("[data-band-body]");
@@ -204,7 +204,7 @@ describe("the body on the band", () => {
     expect(word?.getAttribute("data-band-body")).toBe("Hungry");
     expect(word?.textContent).not.toMatch(/\d|%/);
     unmount();
-    render(<Band when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} body={bodyWords(bodyAt(80, 80))} />);
+    render(<TopBand when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} body={bodyWords(bodyAt(80, 80))} />);
     expect(document.querySelector("[data-band-body]")).toBeNull();
   });
 });

@@ -30,7 +30,7 @@ import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../
 import { ENGLISH_TEST, testChance } from "../../shared/words/englishTest";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
-import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
+import { TopBand, bandMoney, bandMonth } from "../../shared/world/TopBand";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
 import { type Said, SaidToast } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
@@ -1843,7 +1843,7 @@ export function City({
           {/* The room dims a little while the player sleeps (world:sleep-ends-the-month): a soft dark wash over the world, on opacity alone; it
               takes the taps meant for the room, since a sleeper does nothing until they wake. */}
           <div aria-hidden className={`fixed inset-0 z-[36] bg-device/35 transition-opacity duration-200 ease-out ${asleep === null ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`} data-sleep-wash={asleep === null ? "off" : "on"} />
-          <Band
+          <TopBand
             when={clock}
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
@@ -2047,7 +2047,7 @@ export function City({
             </div>
           )}
 
-          {/* In the world the band (shared/world/Band, 12 px from the top, a 52 px pill and its toggle) stands over this lane, so
+          {/* In the world the band (shared/world/TopBand, 12 px from the top, a 52 px pill and its toggle) stands over this lane, so
               the lane starts under it: a place loading is a note the player can see, never one behind the band (city:places-load-on-entry). */}
           <div className={`flex flex-col gap-2 lg:max-w-md ${world ? "mt-[72px]" : ""}`} data-notes-lane>
             {loading ? <LoadingNote place={name} percent={percent} /> : null}

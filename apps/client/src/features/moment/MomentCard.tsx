@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import type { MomentShot } from "../../authority/store";
 import { markFile } from "../../shared/ui/Wordmark";
-import { Counter } from "../../shared/world/Band";
+import { Counter } from "../../shared/world/TopBand";
 import { useSendOffShowing } from "../../shared/world/sendOff";
 import { say } from "../../shared/words/text";
 import { figureWords, momentFace, type MomentFace, type MomentIcon } from "../../shared/moment/moment";

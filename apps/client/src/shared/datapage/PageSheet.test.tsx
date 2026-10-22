@@ -13,7 +13,7 @@ import { lookOf } from "../front-door/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";
 import { readyWords } from "../words/ready";
 import { say } from "../words/text";
-import { Band } from "../world/Band";
+import { TopBand } from "../world/TopBand";
 import { stripLines } from "./DataPage";
 import { familyCard } from "./family";
 import { stampsOf } from "./stamps";
@@ -41,7 +41,7 @@ async function life(scenario: "scenario.graduate" | "scenario.prologue", person:
 function band(store: GameStore, when = "23 yrs 4 mo") {
   render(
     <GameProvider store={store}>
-      <Band when={when} name="The family house" money={0} formatMoney={String} />
+      <TopBand when={when} name="The family house" money={0} formatMoney={String} />
     </GameProvider>,
   );
 }
@@ -168,7 +168,7 @@ describe("the page from the band", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given no game around the band, then it shows the age alone, with nothing to open", () => {
-    render(<Band when="Month 6" name="Home" money={0} formatMoney={String} />);
+    render(<TopBand when="Month 6" name="Home" money={0} formatMoney={String} />);
     expect(screen.getByText("Month 6")).toBeDefined();
     expect(screen.queryByRole("button", { name: say("prologue.page.open") })).toBeNull();
   });
