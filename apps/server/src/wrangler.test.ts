@@ -40,7 +40,7 @@ function wrangler(path: string): Worker {
 const OBSERVED = {
   enabled: true,
   logs: { enabled: true, head_sampling_rate: 1, invocation_logs: false },
-  traces: { enabled: true, head_sampling_rate: 0.05 },
+  traces: { enabled: false },
   issues: { enabled: true },
 };
 
@@ -89,18 +89,19 @@ describe("the game's address", () => {
     expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", binding: "ASSETS", run_worker_first: true });
   });
 
-  test("[server:production-and-staging] [server:shared-observability-block] given both environments, when their observability is read, then production keeps every request's logs with no invocation log, a twentieth of traces and Issues, and staging has no block of its own, so it inherits the same", () => {
+  test("[server:production-and-staging] [server:shared-observability-block] given both environments, when their observability is read, then production keeps every request's logs with no invocation log, no traces and Issues, and staging has no block of its own, so it inherits the same", () => {
     expect(server.observability).toEqual(OBSERVED);
     // `observability` is an inheritable key (wrangler's configuration page), so staging without one runs on the top level's.
     expect(staging?.observability).toBeUndefined();
     expect(staging?.observability ?? server.observability).toEqual(OBSERVED);
   });
 
-  test("[server:shared-observability-block] given both environments, when their logs are read, then Cloudflare's own invocation logs are off and the Worker's own lines stay on", () => {
+  test("[server:shared-observability-block] given both environments, when their logs are read, then Cloudflare's own invocation logs and traces are off and the Worker's own lines stay on", () => {
     // An invocation log would record the full address with its invite and sign-in codes, the client's IP and place, the user agent and a cookie field.
     for (const block of [server.observability, staging?.observability ?? server.observability]) {
       const logs = block?.["logs"] as { enabled?: unknown; invocation_logs?: unknown } | undefined;
       expect(logs?.invocation_logs).toBe(false);
+      expect((block?.["traces"] as { enabled?: unknown } | undefined)?.enabled).toBe(false);
       expect(logs?.enabled).toBe(true);
     }
   });
