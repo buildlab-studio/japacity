@@ -36,7 +36,7 @@ It runs these in order and stops at the first failure, ending with `CHECK PASSED
 | lint | `pnpm lint` | Zero warnings. Holds the simulation's purity rules |
 | test | `pnpm test` | Every unit test project: sim, content, store, db, tools, assets, server, server-workers, client, teaser |
 | check:rules | `pnpm check:rules` | Every rule name in `docs/rules/` has a test that cites it, and every cited name exists. `tools/rules-pending.json` lists the rules waiting for a test |
-| check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version; after a change, raise the version and run `pnpm content:seal` (server:content-version-sealed) |
+| check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version; after a change, `pnpm content:freeze` first, then raise the version and run `pnpm content:seal` (server:content-version-sealed, server:older-content-frozen) |
 | check:assets | `pnpm check:assets` | The city's models and pictures match their manifest |
 | check:size | `pnpm check:size` | Builds the client and holds each part of a first visit to `tools/check/size-budget.json` (engine:first-download-has-budget) |
 | check:scrub | `pnpm check:scrub` | No file git would publish carries the planning words the repository keeps out (`tools/check/scrub.ts`) |

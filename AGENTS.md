@@ -14,6 +14,7 @@ Run from the repository root. pnpm switches itself to the pinned version there.
 | `pnpm typecheck`, `pnpm lint` | One step each |
 | `pnpm check:rules` | Every rule name has a test, and every cited name exists |
 | `pnpm bless` | Regenerate the golden files. The only way they change |
+| `pnpm content:freeze` | Keep the shipped content before raising its version: writes it to `packages/content/src/older/<version>` and lists it (server:older-content-frozen) |
 | `pnpm content:seal` | Seal the content version after raising it, when the content or the simulation changed (server:content-version-sealed) |
 | `pnpm dev`, `pnpm build` | The client |
 
