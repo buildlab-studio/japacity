@@ -45,6 +45,19 @@ export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void 
       expect(await store.sample("place.church", 20, null, 0)).toEqual([member("account-1", "place.church")]);
     });
 
+    test("[account:player-deletes-account] [moderation:fixed-admin-actions] given an account on sockets in two places beside another member, when it is forgotten in those places, then it is in neither and the other stays", async () => {
+      const store = await make();
+      await store.join("place.market", "socket-a", member("account-1"));
+      await store.join("place.market", "socket-b", member("account-1"));
+      await store.join("place.church", "socket-c", member("account-1", "place.church"));
+      await store.join("place.market", "socket-d", member("account-2"));
+
+      await store.forget(["place.market", "place.church"], "account-1", "Name account-1");
+
+      expect(await store.sample("place.market", 20, null, 0)).toEqual([member("account-2")]);
+      expect(await store.sample("place.church", 20, null, 0)).toEqual([]);
+    });
+
     test("[clock:presence-is-a-sample] given 12 members, when samples of every size from 0 to 13 are drawn, then none is longer than asked, none repeats a member and none shows the asker", async () => {
       const store = await make();
       await fill(store, 12);

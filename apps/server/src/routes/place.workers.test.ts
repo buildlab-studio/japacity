@@ -13,6 +13,9 @@ import { roomCounts } from "../place/place.rooms";
 import type { Rooms } from "../place/place.rooms";
 import { freshRooms, listenTo, member, until } from "../place/place.testing";
 import type { ServerConfig } from "../config";
+import { requestDeletion } from "../account/deletion";
+import { newLife, testServer } from "../authority/authority.testing";
+import { placeOfIn, profileOfIn } from "../postgres";
 import { placeSocketRoutes } from "./place";
 
 const PLACE = "place.agege";
@@ -304,3 +307,26 @@ describe("a block in a place's day", () => {
     expect(await today("account-3")).toEqual(expect.arrayContaining(["Name account-1", "Name account-2"]));
   });
 });
+
+describe("an account that leaves every place", () => {
+  test("[account:player-deletes-account] [city:players-shown-present-not-tracked] given a player in the hub on an open socket and another who sees them, when the player's deletion is asked for, then the socket closes at once and the player is in neither the crowd nor the day's list", async () => {
+    const rooms = freshRooms();
+    const server = testServer({ stores: { ...memoryStores(), presence: placePresenceStore(rooms) } });
+    server.app.route("/", placeSocketRoutes(server.deps, { rooms, placeOf: placeOfIn(server.deps), profileOf: profileOfIn(server.deps) }));
+    await newLife(server, "account-gone");
+    await newLife(server, "account-watch");
+    const hub = "place.ojuelegba";
+    const reply = await server.app.request(`/api/place/${hub}/socket`, { headers: { "x-test-account": "account-gone", upgrade: "websocket" } });
+    const end = listenTo(await opened(reply));
+    const look = async () => (await server.app.request(`/api/place/${hub}`, { headers: { "x-test-account": "account-watch" } })).json<PresenceReply>();
+    expect((await look()).others.map((other) => other.name)).toEqual(["account-gone"]);
+
+    await requestDeletion(server.deps, "account-gone");
+    await until(() => end.closed !== null, "the socket to close");
+
+    const after = await look();
+    expect(after.others).toEqual([]);
+    expect(after.today).toEqual([]);
+  });
+});
+

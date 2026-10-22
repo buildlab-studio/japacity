@@ -8,6 +8,7 @@ import type { AppealRow, ModerationLogEntry } from "@japacity/store";
 import { requestDeletion } from "../account/deletion";
 import { generatedFirstName } from "../account/person";
 import { generatedUsername } from "../account/username";
+import { leavePlaces } from "../postgres";
 import { rollbackCheck } from "../ops/rollback";
 import type { ServerDeps } from "../dependencies";
 import { banIdentities, type Identities } from "./identities";
@@ -109,6 +110,9 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
       await requestDeletion(deps, account);
     }
     await ports.identities.endSessions(account);
+    // Once no session is left to open another, the account's sockets close and its name leaves the day's list.
+    const row = await deps.stores.account.get(account);
+    if (row !== null) await leavePlaces(deps, account, row.username);
   }
 
   const closed = await ports.reports.close(report.id, act === "dismiss" ? "no-action" : "acted", deps.now());
@@ -123,10 +127,13 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
  * it to a first name from the pool (account:person-kept-with-character), its look and colours left as they are.
  */
 async function resetName(deps: ServerDeps, account: string): Promise<void> {
+  const before = await deps.stores.account.get(account);
   for (let draw = 0; draw < NAME_DRAWS; draw += 1) {
     const changed = await deps.stores.account.setUsername(account, generatedUsername(deps.randomBytes), null);
     if (changed.ok) {
       await resetPersonName(deps, changed.value.character);
+      // city:players-shown-present-not-tracked: the reported name leaves the crowd now, not when the socket closes or the day turns.
+      if (before !== null) await leavePlaces(deps, account, before.username);
       return;
     }
     if (changed.code === "missing") return;

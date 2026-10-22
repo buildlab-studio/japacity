@@ -317,6 +317,11 @@ export interface PresenceStore {
    * afresh for each fetch and a test can repeat one.
    */
   sample: (place: string, n: number, asker: string | null, seed: number) => Promise<PresenceMember[]>;
+  /**
+   * account:player-deletes-account, moderation:fixed-admin-actions: closes every socket of the account in these places at
+   * once, and `name` leaves the day's list where one is kept (city:players-shown-present-not-tracked).
+   */
+  forget: (places: readonly string[], account: string, name: string) => Promise<void>;
 }
 
 /** clock:socket-only-nudges: a socket only says that something changed. */

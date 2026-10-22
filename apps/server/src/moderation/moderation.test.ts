@@ -4,7 +4,7 @@ import { newState, time } from "@japacity/sim";
 import type { ModerationLogEntry } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.testing";
+import { forgettingPresence, testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
 import { testSession } from "../dependencies";
@@ -12,6 +12,7 @@ import { characterNameProblem, renameFrom } from "../account/username";
 import { identityHash, isBanned } from "./identities";
 import { readReport } from "./reports";
 import { ADMIN, as, DAY, HOUR, message, moderationHarness, post, report, SECOND_ADMIN } from "./moderation.testing";
+import type { ModerationHarness } from "./moderation.testing";
 
 type Body = Record<string, unknown>;
 
@@ -403,5 +404,49 @@ describe("what a report carries", () => {
     }
     for (const reason of REPORT_REASONS) expect(readReport({ subject: { campaign: "campaign.1" }, reason, cites: { card: "card.1" } }).ok).toBe(true);
     expect(REPORT_REASONS).toEqual(["scam", "harassment", "impersonation", "underage", "sexual", "hate", "self-harm", "illegal", "cheating", "advert", "other"]);
+  });
+});
+
+const HUB = "place.ojuelegba";
+
+/** The reported player standing in the hub under `username`, and a presence store that keeps every forget with how many sessions had ended by then. */
+async function inThePlace(h: ModerationHarness, username: string): Promise<{ presence: ReturnType<typeof forgettingPresence>; endedAtForget: number[] }> {
+  await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username, usernameChangedAt: 0, lastPlayedAt: 0 });
+  const presence = forgettingPresence();
+  const endedAtForget: number[] = [];
+  h.deps.stores.presence = {
+    ...presence,
+    forget: async (places, account, name) => {
+      endedAtForget.push(h.identities.ended.length);
+      await presence.forget(places, account, name);
+    },
+  };
+  await presence.join(HUB, "socket-1", { account: "account.reported", name: username, look: "person_ada", place: HUB, joinedAt: 0 });
+  return { presence, endedAtForget };
+}
+
+describe("the actions that reach the places", () => {
+  test("[moderation:fixed-admin-actions] [city:players-shown-present-not-tracked] given a player standing in a place under a reported name, when the name is reset, then the player's sockets close at once and the old name leaves the day's list", async () => {
+    const h = moderationHarness({ reports: [report("report.1")] });
+    const { presence } = await inThePlace(h, "rude_name");
+
+    expect((await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("reset-name")))).status).toBe(200);
+
+    expect(presence.forgotten).toEqual([{ account: "account.reported", name: "rude_name", places: expect.arrayContaining([HUB]) as string[] }]);
+    expect(await presence.sample(HUB, 20, null, 0)).toEqual([]);
+  });
+
+  test("[moderation:fixed-admin-actions] [account:player-deletes-account] given a player standing in a place, when it is suspended or banned, then once every session has ended the player's sockets close and its name leaves the day's list", async () => {
+    for (const action of [close("suspend", { days: 3 }), close("ban")]) {
+      const h = moderationHarness({ reports: [report("report.1")], identities: { "account.reported": ["email:bad@example.test"] } });
+      const { presence, endedAtForget } = await inThePlace(h, "named_player");
+
+      expect((await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, action))).status).toBe(200);
+
+      expect(h.identities.ended).toEqual(["account.reported"]);
+      expect(presence.forgotten.at(-1)).toEqual({ account: "account.reported", name: "named_player", places: expect.arrayContaining([HUB]) as string[] });
+      expect(endedAtForget.at(-1)).toBe(1);
+      expect(await presence.sample(HUB, 20, null, 0)).toEqual([]);
+    }
   });
 });

@@ -277,4 +277,39 @@ describe("the day's seen list in the place object", () => {
     expect(narrow.today).toHaveLength(1);
     for (const each of wide.today) expect(Object.keys(each).sort()).toEqual(["look", "name"]);
   });
+
+  test("[city:players-shown-present-not-tracked] [moderation:fixed-admin-actions] [account:player-deletes-account] given an account here on two sockets and others seen today, when the place forgets the account by its old name, then both its sockets close, it leaves the room, and the name leaves the day's list while the others stay", async () => {
+    const rooms = freshRooms();
+    const store = placePresenceStore(rooms);
+    const first = await openMember(rooms, "account-1", PLACE, "socket-1a");
+    const second = await openMember(rooms, "account-1", PLACE, "socket-1b");
+    const other = await openMember(rooms, "account-2");
+    const gone = await openMember(rooms, "account-3");
+    gone.end.close(1000, "moved");
+    await until(async () => (await roomStub(rooms, PLACE, 0).count()) === 3, "the close to reach the object");
+
+    await store.forget([PLACE, "place.church"], "account-1", seenOf("account-1").name);
+    await until(() => first.closed !== null && second.closed !== null, "both sockets to close");
+
+    expect(await roomStub(rooms, PLACE, 0).count()).toBe(1);
+    expect(other.closed).toBeNull();
+    const look = await roomLook(rooms, PLACE, "account-9", 20, 0, member("account-1").joinedAt);
+    expect(look.sample.map((each) => each.account)).toEqual(["account-2"]);
+    expect(look.today).toEqual([seenOf("account-3")]);
+    const stored = await runInDurableObject(roomStub(rooms, PLACE, 0), (_instance: Place, state) => state.storage.get(TODAY_KEY));
+    expect(JSON.stringify(stored)).not.toContain(seenOf("account-1").name);
+  });
+
+  test("[account:player-deletes-account] [clock:busy-place-splits-rooms] given rooms of one and an account alone in the first room with a second socket in the next, when the place forgets the account, then both rooms let it go", async () => {
+    const rooms = freshRooms({ maxPerObject: 1 });
+    const first = await openMember(rooms, "account-1", PLACE, "socket-1a");
+    const second = await openMember(rooms, "account-1", PLACE, "socket-1b");
+    expect(await roomCounts(rooms, PLACE)).toEqual([1, 1, 0]);
+
+    await placePresenceStore(rooms).forget([PLACE], "account-1", seenOf("account-1").name);
+    await until(() => first.closed !== null && second.closed !== null, "both sockets to close");
+
+    expect(await roomCounts(rooms, PLACE)).toEqual([0]);
+  });
 });
+

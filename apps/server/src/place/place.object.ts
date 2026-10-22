@@ -29,7 +29,7 @@ import {
   tagsFor,
 } from "./place.socket";
 import type { PlaceEnv, RoomLook } from "./place.socket";
-import { drawToday, lagosDay, listOn, parseTodayList, recordSeen, TODAY_KEY } from "./place.today";
+import { drawToday, forgetSeen, lagosDay, listOn, parseTodayList, recordSeen, TODAY_KEY } from "./place.today";
 import type { TodayList } from "./place.today";
 
 function send(socket: WebSocket, text: string): boolean {
@@ -121,6 +121,24 @@ export class Place extends DurableObject<PlaceEnv> {
     for (const each of found) close(each, CLOSE_NORMAL, "left");
     await this.drop(socket);
     return { found: found.length > 0, members: this.held.size };
+  }
+
+  /**
+   * account:player-deletes-account, moderation:fixed-admin-actions: closes every socket of the account here from the server's
+   * side, drops its members at once, and takes `name` off the day's list (city:players-shown-present-not-tracked). Answers how
+   * many members the room held before, so the router walks on past a room the account alone was in.
+   */
+  async forget(account: string, name: string): Promise<{ members: number }> {
+    const members = this.held.size;
+    for (const socket of this.ctx.getWebSockets(`account:${account}`)) {
+      const attachment = parseAttachment(JSON.stringify(socket.deserializeAttachment()));
+      close(socket, CLOSE_NORMAL, "left");
+      if (attachment !== null) await this.drop(attachment.socket);
+    }
+    const stored = await this.stored();
+    const kept = forgetSeen(stored, name);
+    if (kept !== stored && kept !== undefined) await this.ctx.storage.put(TODAY_KEY, kept);
+    return { members };
   }
 
   override async webSocketMessage(socket: WebSocket): Promise<void> {

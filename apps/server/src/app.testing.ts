@@ -1,6 +1,8 @@
 // The server's dependencies for tests: memory stores, open limits, the test
 // session and a fixed clock at the epoch, with `over` in place of any of them.
 import { content } from "@japacity/content";
+import { memoryPresenceStore } from "@japacity/store";
+import type { PresenceStore } from "@japacity/store";
 
 import { productionConfig, testConfig } from "./config";
 import { memoryStores, openLimiters, testSession } from "./dependencies";
@@ -29,5 +31,26 @@ export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
     now: () => productionConfig.clock.epoch,
     randomBytes: seededBytes(1),
     ...over,
+  };
+}
+
+/** One `forget` a presence store was asked for. */
+export interface Forgotten {
+  places: string[];
+  account: string;
+  name: string;
+}
+
+/** A memory presence store that keeps every `forget` it is asked for, so a test sees who left the places and by which name. */
+export function forgettingPresence(): PresenceStore & { forgotten: Forgotten[] } {
+  const store = memoryPresenceStore();
+  const forgotten: Forgotten[] = [];
+  return {
+    ...store,
+    forgotten,
+    forget: async (places, account, name) => {
+      forgotten.push({ places: [...places], account, name });
+      await store.forget(places, account, name);
+    },
   };
 }

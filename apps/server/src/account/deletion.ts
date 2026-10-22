@@ -6,6 +6,7 @@ import type { DeletionRow } from "@japacity/store";
 import type { ServerDeps } from "../dependencies";
 import { sha256Hex } from "../auth/hooks";
 import { leavePairs as leaveEveryPair } from "../pair/leave";
+import { leavePlaces } from "../postgres";
 import { stopNotices } from "../notify/notice";
 
 /** account:deletion-keeps-anonymous-totals: the one-way hash kept after the account is gone. */
@@ -29,6 +30,8 @@ export const leavePairs: LeavePairs = leaveEveryPair;
 export async function requestDeletion(deps: ServerDeps, account: string, dueAt?: number): Promise<DeletionRow> {
   const row = await deps.stores.account.get(account);
   await leavePairs(deps, account, row?.character ?? null);
+  // An account with no row opened no socket (the socket route reads its username), so only a row has places to leave.
+  if (row !== null) await leavePlaces(deps, account, row.username);
   await stopNotices(deps, account);
   const requestedAt = deps.now();
   const result = await deps.stores.deletion.request({
