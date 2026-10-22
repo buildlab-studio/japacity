@@ -172,8 +172,8 @@ async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<v
  * The library's routes the game never calls that would write or send something, each by the rule it would get around:
  * the password, its reset and linking a method outside the sign-in routes the game uses (account:sign-in-without-secret),
  * the email change and the code routes past the one send the game uses (account:sign-in-routes-rate-limited), a name,
- * a picture or a passkey's name (account:only-needed-data-kept), ending sessions outside sign-out
- * (account:session-is-secure-cookie), deleting outside the game's deletion route (account:player-deletes-account), and
+ * a picture or a passkey's name (account:only-needed-data-kept), ending sessions outside sign-out or listing them with
+ * their tokens to page script (account:session-is-secure-cookie), deleting outside the game's deletion route (account:player-deletes-account), and
  * Google's tokens, which no account keeps (account:only-needed-data-kept).
  * Matched on the library's own route, so no spelling of the address reaches one.
  */
@@ -199,6 +199,7 @@ export const CLOSED_PATHS: ReadonlySet<string> = new Set([
   "/update-session",
   "/revoke-session",
   "/revoke-other-sessions",
+  "/list-sessions",
   "/delete-user",
   "/delete-user/callback",
   "/delete-anonymous-user",

@@ -427,6 +427,20 @@ describe("the library routes the game never calls", () => {
   });
 });
 
+describe("the session list", () => {
+  test("[account:session-is-secure-cookie] given an account signed in twice, when the page asks the library for its sessions, then it answers 404 and no session's token is in the reply", async () => {
+    const h = harness();
+    const { jar, account } = await h.signUp("ada@example.com");
+    await (await h.helpers()).getCookies({ userId: account });
+    const tokens = h.tables.session.map((row) => String(row["token"]));
+    expect(tokens).toHaveLength(2);
+    const reply = await h.call("/api/auth/list-sessions", { jar });
+    const text = await reply.text();
+    expect(reply.status).toBe(404);
+    for (const token of tokens) expect(text).not.toContain(token);
+  });
+});
+
 describe("what Google leaves behind", () => {
   const TOKENS = ["idToken", "accessToken", "refreshToken"] as const;
 
