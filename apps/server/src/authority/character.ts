@@ -71,7 +71,7 @@ export interface EndReply {
  * account:start-a-new-life: ends the account's character for good. A real partner or sibling joined to it is told
  * as person:leaving-player-ends-bonds tells them of a deletion; then the account stops naming it, and the life's rows go as
  * the deletion job takes a character's (account:deleted-data-removed-within-month, account:deletion-keeps-anonymous-totals): its conversations but what a hold keeps,
- * its links, every save row, and its ledger mark. The account stays, with its age pass, its username,
+ * its links, every save row, its audit rows and its ledger mark. The account stays, with its age pass, its username,
  * its ways in and its blocks, so the next life needs no age screen and no bot check.
  */
 export async function endCharacter(deps: ServerDeps, account: string): Promise<Answer<EndReply>> {
@@ -87,5 +87,7 @@ export async function endCharacter(deps: ServerDeps, account: string): Promise<A
   await deps.stores.invite.remove(character);
   await deps.stores.player.remove(character);
   await deps.stores.ledger.dropMark(character);
+  // The account keeps no list of the lives it ended, so the deletion job could not find this one's rows later.
+  await deps.stores.audit.forget(character);
   return { status: 200, body: { ok: true } };
 }

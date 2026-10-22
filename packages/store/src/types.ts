@@ -492,9 +492,14 @@ export interface AuditRow extends AuditEntry {
   n: number;
 }
 
-/** server:rollback-apply-one-account: append-only. Nothing changes or removes a row once retired. */
+/**
+ * server:rollback-apply-one-account: append-only. Nothing changes a row once retired, and only `forget` removes one:
+ * account:deleted-data-removed-within-month takes a deleted account's character's rows with the rest.
+ */
 export interface AuditStore {
   retire: (entry: AuditEntry) => Promise<AuditRow>;
   /** The character's entries in the order they were retired. */
   list: (character: string) => Promise<AuditRow[]>;
+  /** account:deleted-data-removed-within-month: removes every entry of the character; one with none is no fault. */
+  forget: (character: string) => Promise<void>;
 }

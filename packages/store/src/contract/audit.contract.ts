@@ -48,5 +48,20 @@ export function suiteForAuditStore(make: () => Promise<AuditStore>): void {
 
       expect(await store.list("char-a")).toEqual([{ ...entry("char-a", "first"), n: stored.n }]);
     });
+
+    test("[account:deleted-data-removed-within-month] given entries for two characters, when one character's are forgotten, then every entry of that character is gone and the other's stay as they were", async () => {
+      const store = await make();
+      await store.retire(entry("char-a", "first"));
+      const other = await store.retire(entry("char-b", "other"));
+      await store.retire({ ...entry("char-a", "second"), why: "upgrade" });
+
+      await store.forget("char-a");
+
+      expect(await store.list("char-a")).toEqual([]);
+      expect(await store.list("char-b")).toEqual([other]);
+      // A character with nothing retired is forgotten without fault.
+      await store.forget("char-c");
+      expect(await store.list("char-b")).toEqual([other]);
+    });
   });
 }

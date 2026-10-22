@@ -13,7 +13,7 @@ afterEach(() => {
 
 const START = Date.parse("2026-10-08T09:00:00Z");
 
-/** An account with a character, a ledger mark, a retired audit entry, a day total and a lottery ticket, then deleted. */
+/** An account with a character, a ledger mark, retired audit entries, a day total, a lottery ticket, an admin log entry and a switch log entry, then deleted. */
 async function deletedPlayer(h: Harness) {
   const { jar, account } = await h.signUp("ada@example.com");
   const character = "char-ada";
@@ -23,7 +23,11 @@ async function deletedPlayer(h: Harness) {
   await h.deps.stores.account.setCharacter(account, character);
   await h.deps.stores.ledger.setMark(character, {} as never, 1);
   await h.deps.stores.ledger.addDay(1, { wage: { NGN: 500 } } as never, {});
-  await h.deps.stores.audit.retire({ character, why: "rollback", at: START, note: "kept", segments: [], log: [], snapshots: [] });
+  await h.deps.stores.audit.retire({ character, why: "rollback", at: START, note: "retired", segments: [], log: [], snapshots: [] });
+  await h.deps.stores.audit.retire({ character, why: "upgrade", at: START, note: "retired again", segments: [], log: [], snapshots: [] });
+  await h.deps.stores.audit.retire({ character: "char-someone-else", why: "rollback", at: START, note: "not theirs", segments: [], log: [], snapshots: [] });
+  await h.deps.stores.moderationLog.append({ id: "log.ada", admin: "account.admin", at: START, item: "report.ada", action: "warn", params: { account }, reason: "scam" });
+  await h.deps.stores.switches.set("signups", false, "account.admin", "a flood", START);
   await h.deps.stores.world.putDraw({ draw: 1, secret: "s", fingerprint: "f", beaconRound: 1, odds: h.deps.contents.current.tuning.lottery.odds, jackpot: 1 });
   await h.deps.stores.world.addTickets(1, character, 2);
   await h.deps.stores.dedication.light({ account, id: "light.ada", name: "Mama Nkechi", from: null, to: null, litAt: START });
@@ -51,6 +55,9 @@ describe("the deletion job", () => {
     expect(await h.deps.stores.account.get(account)).toBeNull();
     expect(await h.deps.stores.player.load(character)).toBeNull();
     expect(await h.deps.stores.ledger.mark(character)).toBeNull();
+    // The audit table's rows for the account's character go with the rest; another character's stay.
+    expect(await h.deps.stores.audit.list(character)).toEqual([]);
+    expect(await h.deps.stores.audit.list("char-someone-else")).toHaveLength(1);
     expect(await h.deps.stores.dedication.mine(account)).toBeNull();
     expect(h.tables.user).toHaveLength(0);
     expect(h.tables.session).toHaveLength(0);
@@ -60,14 +67,16 @@ describe("the deletion job", () => {
     expect(await runDeletions(h.deps, h.auth)).toBe(0);
   });
 
-  test("[account:deletion-keeps-anonymous-totals] given a completed deletion, when the kept records are read, then the audit entry, the day totals and the tickets survive and only the hash and dates name the account", async () => {
+  test("[account:deletion-keeps-anonymous-totals] [account:deleted-data-removed-within-month] given a completed deletion, when the kept records are read, then the day totals, the tickets, the admin log and the switch log survive, the audit entries do not, and only the hash and dates name the account", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();
     const { account, character } = await deletedPlayer(h);
     vi.setSystemTime(START + h.deps.config.account.deleteWithinDays * time.DAY_MS);
     await runDeletions(h.deps, h.auth);
-    expect(await h.deps.stores.audit.list(character)).toHaveLength(1);
+    expect(await h.deps.stores.audit.list(character)).toEqual([]);
+    expect(await h.deps.stores.moderationLog.get("log.ada")).toMatchObject({ id: "log.ada", params: { account } });
+    expect(await h.deps.stores.switches.log()).toHaveLength(1);
     expect((await h.deps.stores.ledger.day(1)).created).toEqual({ wage: { NGN: 500 } });
     expect(await h.deps.stores.world.tickets(1)).toHaveLength(2);
     const row = await h.deps.stores.deletion.find(await accountHash(account));

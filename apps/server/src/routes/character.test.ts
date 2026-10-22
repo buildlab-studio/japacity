@@ -11,11 +11,12 @@ import { cardOut, FRIEND, INVITER, lastBondIn, linkedPair, pairServer, sayFrom, 
 const STANDING = "quality.standing";
 
 describe("ending a life", () => {
-  test("[account:start-a-new-life] [account:one-character-per-account] given an account with a life, when it ends the life, then the account names no character, the life's rows are gone, the account keeps its age pass and username, and a new life starts on a seed of its own", async () => {
+  test("[account:start-a-new-life] [account:one-character-per-account] [account:deleted-data-removed-within-month] given an account with a life, when it ends the life, then the account names no character, the life's rows are gone with its audit rows, the account keeps its age pass and username, and a new life starts on a seed of its own", async () => {
     const server = pairServer();
     const first = await newLife(server, INVITER, "scenario.graduate");
     const firstSeed = (await held(server, first)).segments[0]?.start;
     const before = await server.deps.stores.account.get(INVITER);
+    await server.deps.stores.audit.retire({ character: first, why: "rollback", at: 1, note: "retired", segments: [], log: [], snapshots: [] });
 
     const again = await call(server, "POST", "/api/character", INVITER, { scenario: "scenario.graduate" });
     expect(again.body).toMatchObject({ ok: false, code: "one-character" });
@@ -27,6 +28,8 @@ describe("ending a life", () => {
     const after = await server.deps.stores.account.get(INVITER);
     expect(after).toMatchObject({ id: INVITER, character: null, username: before?.username, state: before?.state, age: before?.age });
     expect(await server.deps.stores.player.load(first)).toBeNull();
+    // account:deleted-data-removed-within-month: the ended life's audit rows go with its other rows, so a later deletion leaves none behind.
+    expect(await server.deps.stores.audit.list(first)).toEqual([]);
     expect((await view(server, INVITER)).body).toMatchObject({ ok: false, code: "no-character" });
 
     const made = await call<ViewReply>(server, "POST", "/api/character", INVITER, { scenario: "scenario.graduate" });
