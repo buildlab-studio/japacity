@@ -44,6 +44,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     calls,
     ageStatus: () => Promise.resolve("unasked"),
     declareAge: (birth) => (calls.push(`declareAge(${birth})`), Promise.resolve("passed")),
+    usernameFree: () => Promise.resolve(null),
     startGuest: (username) => (calls.push(`startGuest(${JSON.stringify(username)})`), Promise.resolve({ ok: true })),
     view: () => Promise.resolve(null),
     rename: () => Promise.resolve({ ok: true }),

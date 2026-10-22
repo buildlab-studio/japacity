@@ -42,6 +42,7 @@ function fakeAccount(view: AccountView, over: Partial<AccountApi> = {}): Account
     },
     ageStatus: () => Promise.resolve("passed"),
     declareAge: () => Promise.resolve("passed"),
+    usernameFree: () => Promise.resolve(null),
     startGuest: () => Promise.resolve({ ok: true }),
     view: () => (calls.push("view()"), Promise.resolve(held)),
     rename: () => Promise.resolve({ ok: true }),

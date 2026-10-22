@@ -1,7 +1,7 @@
 // What a signed-out player sees online. The start screen first, over the compound with no title and the two lights hung over
 // it (account:start-screen-over-live-city, account:two-lights-and-wink-lines): Play goes to
 // the age screen (account:age-screen-refuses-minors) and on to the door, where Begin on the page makes the guest life (account:guest-and-secured-states)
-// with the username filled in from the name and the bot check run unseen (GuestStart.tsx); "I already have a life
+// with the username the player typed into an empty box (account:username-typed-and-checked) and the bot check run unseen (GuestStart.tsx); "I already have a life
 // here", on the start screen and in one line on the age screen, goes straight to the ways back in. In a browser a kept
 // life was open in, the start screen turns its two doors round (marks.ts). A guest who chose to open its kept life
 // instead lands on the ways back in. An age answer that runs out twice in a row, or a browser with cookies off, is

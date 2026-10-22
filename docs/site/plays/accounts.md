@@ -19,7 +19,7 @@ flowchart TD
   S["The start screen"] -->|"Play"| A["The age screen: day, month, year"]
   A -->|"Under 18"| X["Refused, and the browser is remembered"]
   A -->|"18 or over"| D["The front door's three screens"]
-  D --> P["The page: the username filled in from the name"]
+  D --> P["The page: the player types a username, checked as they type"]
   P -->|"Begin"| B["The bot check runs unseen"]
   B --> G["A guest life: plays at once"]
   S -->|"I already have a life here"| W["Sign back in: Google, a code by email, a passkey"]

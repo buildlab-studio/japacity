@@ -120,6 +120,25 @@ describe("the ways in and the settings, as the server refuses them", () => {
 const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: null, passkeys: 0 } };
 
 describe("the guest start and the username, as the server built them", () => {
+  test("[account:username-typed-and-checked] given the server's answers, when the box asks whether a name is free, then GET /api/username/available carries the name in its query and free, taken and the name's own problem come back; a limit or no answer is null", async () => {
+    const { server, api } = account();
+    server.answer(
+      "GET /api/username/available",
+      { body: { ok: true, free: true } },
+      { body: { ok: true, free: false } },
+      { status: 400, body: { ok: false, code: "not-legal", detail: "no", name: "reserved" } },
+      { status: 400, body: { ok: false, code: "not-legal", detail: "no", name: "blocked" } },
+      { status: 400, body: { ok: false, code: "not-legal", detail: "no", name: "format" } },
+      { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many requests.", retryAfter: 60 } },
+    );
+    const heard = [];
+    for (const name of ["Ada_Lagos", "ada_lagos", "staff_ada", "big_ashawo", "ab", "ada_again"]) heard.push(await api.usernameFree(name));
+    expect(heard).toEqual(["free", "taken", "reserved", "blocked", "format", null]);
+    expect(server.sent[0]).toMatchObject({ method: "GET", path: "/api/username/available", search: "?name=Ada_Lagos", credentials: "same-origin" });
+    const lost = betterAuthApi({ baseUrl: BASE, fetch: () => Promise.reject(new TypeError("Load failed")) });
+    expect(await lost.usernameFree("ada_lagos")).toBeNull();
+  });
+
   test("[account:guest-and-secured-states] [account:bot-check-on-guest-creation] given a username and the bot check's token, when a guest life is started, then POST /api/guest carries the username and the token in its header", async () => {
     const { server, api } = account();
     server.answer("POST /api/guest", { body: { ok: true, account: VIEW } });

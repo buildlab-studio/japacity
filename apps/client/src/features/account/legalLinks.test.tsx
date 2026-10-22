@@ -20,6 +20,7 @@ function account(): AccountApi {
     declareAge: () => Promise.resolve("passed"),
     sendCode: ok,
     signInWithCode: ok,
+    usernameFree: () => Promise.resolve(null),
     startGuest: () => Promise.resolve({ ok: true }),
     view: () => Promise.resolve(null),
     rename: () => Promise.resolve({ ok: true }),
