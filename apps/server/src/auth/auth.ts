@@ -197,7 +197,6 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       customRules: {
         "/email-otp/send-verification-otp": { window: 60, max: config.auth.limits.otpSendPer60s },
         "/sign-in/email-otp": { window: 10, max: 3 },
-        "/email-otp/check-verification-otp": { window: 10, max: 3 },
       },
     },
     hooks: {
