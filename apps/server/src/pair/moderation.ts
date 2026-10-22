@@ -175,8 +175,9 @@ async function subjectOf(deps: ServerDeps, account: string, input: ReportInput, 
   const phrase = Object.hasOwn(current.phrase, cite.phrase) ? current.phrase[cite.phrase as Id<"phrase">] : undefined;
   if (!Object.hasOwn(current.place, cite.place) || phrase === undefined || phrase.where === "conversation") return { ok: false, answer: refused(404, "unknown-id", "There is no such phrase said in that place.") };
   if (cite.at > deps.now()) return { ok: false, answer: refused(400, "not-legal", "A phrase cannot be heard after the report.") };
-  // Presence carries no account (city:players-shown-present-not-tracked), so a phrase heard in a place names its speaker only when the body does; otherwise the subject is blank for the moderator to find.
-  return { ok: true, subject: input.subject ?? { account: "" } };
+  // Presence carries no account (city:players-shown-present-not-tracked), so the client cannot know the speaker's: an account the body
+  // names is never taken, or a report could name anyone it never met. The subject is blank for the moderator to find.
+  return { ok: true, subject: { account: "" } };
 }
 
 /** The cite form `{ subject?, reason, cites }` (moderation:report-carries-subject-and-reason): a card, an advert, a phrase heard in a place, or a pair or its messages. */

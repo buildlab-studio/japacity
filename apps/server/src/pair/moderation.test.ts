@@ -260,6 +260,18 @@ describe("the cite form of a report", () => {
     expect((await post(server, "/api/moderation/report", REPORTER, { reason: "harassment", cites: { ...cites, at: at + 1 } })).status).toBe(400);
   });
 
+  test("[moderation:report-carries-subject-and-reason] [moderation:spoken-phrases-not-stored] given a phrase heard in a place, when its report names an account in the body, one that exists or one that does not, then the report names no account and is left for the moderator to find", async () => {
+    const server = pairServer();
+    await signUp(server, REPORTER);
+    await signUp(server, "account-target");
+    const cites = { place: "place.ojuelegba", phrase: "phrase.hello", at: server.deps.now() };
+
+    for (const subject of [{ account: "account-target" }, { account: "account-that-does-not-exist" }, { account: REPORTER }]) {
+      expect(await filed(server, { subject, reason: "underage", cites })).toMatchObject({ subject: { account: "" }, reason: "underage", cites, unverified: true });
+    }
+    expect(JSON.stringify(await server.deps.stores.moderation.list("open"))).not.toMatch(/account-target|account-that-does-not-exist/);
+  });
+
   test("[moderation:report-carries-subject-and-reason] [pair:report-holds-conversation] given a pair's conversation, when a message is reported in the cite form, then it is the same report as the pair form's: the other side named and the record held", async () => {
     const { server, key } = await linkedPair();
     const said = await sayFrom(server, INVITER, key, "phrase.hello");
