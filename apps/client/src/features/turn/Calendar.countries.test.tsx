@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { landedGame } from "../../shared/testing/fixtures";
 import { passWords } from "./Calendar";
 
-const PASSES: Readonly<Record<string, Id<"activity">>> = { "country.canada": "activity.transit-pass-ca", "country.uae": "activity.transit-pass-uae" };
+const PASSES: Readonly<Record<string, Id<"activity">>> = { "country.canada": "activity.transit-pass-canada", "country.uae": "activity.transit-pass-uae" };
 
 /** A life landed in the country with its money in hand, and, when asked, this month's pass bought. */
 function landed(country: Id<"country">, pass = false): PlayerView {

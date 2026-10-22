@@ -48,7 +48,7 @@ describe("words for life abroad", () => {
       "offer.returnee-leave-again",
       "offer.sponsor-licence-lost",
       // undertaking:social-assistance-offer: social assistance in Canada.
-      "offer.ca-assistance",
+      "offer.canada-assistance",
       "offer.court-date",
     ]);
     const keys = offers.flatMap((offer) => [

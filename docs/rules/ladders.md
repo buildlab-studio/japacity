@@ -33,10 +33,10 @@ Abroad, a month still has a main activity and two or three free slots. What is o
 | `activity.job-uk-graduate` | uk | £30,000 | bachelor's and 12 months local or a master's held | any | 20% | wellbeing -3, network +1, tech +1 | the first professional job; not `sponsor: true` |
 | `activity.job-uk-kitchen-cash` | uk | £10,800 (about £7 an hour on paper) | none, `cash: true` | cash | 70% | wellbeing -7, standing -1 | `withheldBp` 1500 |
 | `activity.job-uk-courier-cash` | uk | £13,200 less `tuning.ladder.accountRent` £60 a week | none, `cash: true` | cash | 65% | wellbeing -8 | a rented account |
-| `activity.job-ca-warehouse` | canada | C$38,000 | none | any | 60% | wellbeing -5 | |
-| `activity.job-ca-care-aide` | canada | C$44,000 | care 30 | any | 45% | wellbeing -5, care +1 | counts for the care cut-off |
-| `activity.job-ca-professional` | canada | C$75,000 | bachelor's, 12 months local | any | 25% | wellbeing -3, network +1 | |
-| `activity.job-ca-dev` | canada | C$95,000 | tech 70, 12 months local | any | 20% | wellbeing -4, tech +1 | |
+| `activity.job-canada-warehouse` | canada | C$38,000 | none | any | 60% | wellbeing -5 | |
+| `activity.job-canada-care-aide` | canada | C$44,000 | care 30 | any | 45% | wellbeing -5, care +1 | counts for the care cut-off |
+| `activity.job-canada-professional` | canada | C$75,000 | bachelor's, 12 months local | any | 25% | wellbeing -3, network +1 | |
+| `activity.job-canada-dev` | canada | C$95,000 | tech 70, 12 months local | any | 20% | wellbeing -4, tech +1 | |
 | `activity.job-gulf-guard` | uae | AED 21,600 (1,800 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | 12-hour shifts; accommodation included |
 | `activity.job-gulf-cleaner` | uae | AED 14,400 (1,200 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | |
 | `activity.job-italy-farm-cash` | italy | €9,600 | none, `cash: true` | cash | 70% | wellbeing -9 | where the road leaves you; `withheldBp` 2500 |
@@ -58,7 +58,7 @@ The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,17
 | `activity.driving-test` | uk | see `car.md` | | |
 | `activity.buy-car-finance` | uk | see `car.md` | the deposit | |
 | `activity.rent-flat` | abroad | credit 20 | one month's rent as deposit | see `abroad-money.md` |
-| `activity.phone-contract` | abroad | credit 10 | | opens the country's phone obligation (`obligation.phone-uk`, `obligation.phone-ca`) |
+| `activity.phone-contract` | abroad | credit 10 | | opens the country's phone obligation (`obligation.phone-uk`, `obligation.phone-canada`) |
 | `activity.send-money` | abroad | | | opens the remit sheet: the interface's name for `wallet/remit` |
 | `activity.december-home-uk`, `-ca`, `-uae` | in that country, in the tick `var.season-december` is 1, not on its overstayer status | the fare both ways | the fare times the December factor, reason `fare` | standing +12, wellbeing +6; no set piece (return:december-visit-set-piece) |
 

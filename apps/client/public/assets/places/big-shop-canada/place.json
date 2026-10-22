@@ -271,7 +271,7 @@
             "id": "weekly-shop",
             "label": "city.act.weekly-shop",
             "kind": "sheet",
-            "stages": "activity.weekly-shop-ca"
+            "stages": "activity.weekly-shop-canada"
           }
         ]
       },
@@ -289,7 +289,7 @@
             "id": "clothes",
             "label": "city.act.clothes",
             "kind": "sheet",
-            "stages": "activity.buy-clothes-ca"
+            "stages": "activity.buy-clothes-canada"
           }
         ]
       },

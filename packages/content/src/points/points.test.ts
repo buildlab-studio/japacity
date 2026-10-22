@@ -16,8 +16,8 @@ const CARE_CUTOFF = start(block.careCutoffVar!);
 function adds(story: Id<"news">, id: Id<"var">): number {
   return (content.news[story]?.director?.adds ?? []).filter((add) => add.var === id).reduce((sum, add) => sum + add.value, 0);
 }
-const GENERAL_PAUSE = adds("news.ca-general-stops", block.cutoffVar);
-const CARE_DRAW = adds("news.ca-care-draw", block.careCutoffVar!);
+const GENERAL_PAUSE = adds("news.canada-general-stops", block.cutoffVar);
+const CARE_DRAW = adds("news.canada-care-draw", block.careCutoffVar!);
 
 /**
  * route-gates:points-score-from-table from the table: age, education, the band on each of four abilities, and the transferability part capped.

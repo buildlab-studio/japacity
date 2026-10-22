@@ -122,13 +122,13 @@ describe("the slots on the People row", () => {
   test("[undertaking:sponsored-arrivals-wait-to-sponsor] given a bar on sponsoring, then the People row says the month it lifts and who is sponsored", async () => {
     const game = peopleGame();
     const view = game.view();
-    const shown: PlayerView = { ...view, month: 10, people: { ...view.people, barUntilMonth: 70, sponsoring: { bond: "bond-9", route: "route.ca-spouse", month: 7 } } };
+    const shown: PlayerView = { ...view, month: 10, people: { ...view.people, barUntilMonth: 70, sponsoring: { bond: "bond-9", route: "route.canada-spouse", month: 7 } } };
     await renderWithView(offline(<PeopleSlots api={null} />), shown);
     const sponsoring = document.querySelector<HTMLElement>("[data-people-slots] [data-sponsoring]")!;
     // How long the bar holds and when the promise was made, as months away and ago, never a month number (world:top-band-is-lively-pill).
     expect(within(sponsoring).getByText(say("ui.people.bar", { when: forMonths(70, 10) }))).toBeDefined();
     expect(forMonths(70, 10)).toBe("for 60 more months");
-    expect(within(sponsoring).getByText(say("ui.people.sponsoring", { route: nameOf("route.ca-spouse"), when: "3 months ago" }))).toBeDefined();
+    expect(within(sponsoring).getByText(say("ui.people.sponsoring", { route: nameOf("route.canada-spouse"), when: "3 months ago" }))).toBeDefined();
     expect(sponsoring.textContent).not.toMatch(/month \d+/i);
   });
 });

@@ -22,14 +22,14 @@ const TALENT: Id<"route"> = "route.uk-talent";
 const GULF: Id<"route"> = "route.gulf-contract";
 
 /** Every route a player can see. The road never appears in the routes view (road:road-route-has-no-figure). */
-const EVERY_ROUTE: Id<"route">[] = [UK, CARE, SKILLED, CANADA, TALENT, GULF, "route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"];
+const EVERY_ROUTE: Id<"route">[] = [UK, CARE, SKILLED, CANADA, TALENT, GULF, "route.uk-partner", "route.canada-spouse", "route.uk-dependant", "route.canada-accompany"];
 
 const WINDOWS: Id<"var">[] = [
   "var.uk-study-window",
   "var.uk-care-window",
   "var.uk-skilled-window",
   "var.uk-talent-window",
-  "var.ca-window",
+  "var.canada-window",
   "var.uae-window",
 ];
 
@@ -460,33 +460,33 @@ const stories: Record<Id<"news">, NewsEntry> = {
 
   // Canada.
 
-  "news.ca-care-draw": pool({
-    id: "news.ca-care-draw",
+  "news.canada-care-draw": pool({
+    id: "news.canada-care-draw",
     touches: [CANADA],
     group: "openings",
-    needs: [atLeast("var.ca-window", 2)],
+    needs: [atLeast("var.canada-window", 2)],
     chanceBp: 600,
     rumourLead: 1,
     forceLag: 2,
     // A draw round lowers the care cut-off for six ticks and then it is back, so the cut-off does not drift.
     endsAfter: 6,
-    adds: [{ var: "var.ca-care-cutoff", value: -20 }],
+    adds: [{ var: "var.canada-care-cutoff", value: -20 }],
     revert: true,
   }),
-  "news.ca-general-stops": pool({
-    id: "news.ca-general-stops",
+  "news.canada-general-stops": pool({
+    id: "news.canada-general-stops",
     touches: [CANADA],
     group: "closures",
-    needs: [over("var.ca-surge", 40)],
+    needs: [over("var.canada-surge", 40)],
     chanceBp: 400,
     rumourLead: 2,
     forceLag: 3,
     endsAfter: null,
-    adds: [{ var: "var.ca-cutoff", value: 20 }],
+    adds: [{ var: "var.canada-cutoff", value: 20 }],
     once: true,
   }),
-  "news.ca-points-overhaul": pool({
-    id: "news.ca-points-overhaul",
+  "news.canada-points-overhaul": pool({
+    id: "news.canada-points-overhaul",
     touches: [CANADA],
     group: "closures",
     needs: [era("era.hard-line")],
@@ -495,13 +495,13 @@ const stories: Record<Id<"news">, NewsEntry> = {
     forceLag: 4,
     endsAfter: null,
     adds: [
-      { var: "var.ca-cutoff", value: 15 },
-      { var: "var.ca-care-cutoff", value: 10 },
+      { var: "var.canada-cutoff", value: 15 },
+      { var: "var.canada-care-cutoff", value: 10 },
     ],
     once: true,
   }),
-  "news.ca-funds-rise": pool({
-    id: "news.ca-funds-rise",
+  "news.canada-funds-rise": pool({
+    id: "news.canada-funds-rise",
     touches: [CANADA],
     group: "closures",
     needs: [],
@@ -510,7 +510,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     forceLag: 3,
     endsAfter: null,
     // Canadian cents: C$16,000.
-    sets: [{ var: "var.ca-funds", value: 1600000 }],
+    sets: [{ var: "var.canada-funds", value: 1600000 }],
   }),
 
   // The Gulf.
@@ -688,10 +688,10 @@ const SOURCES: Record<Id<"news">, Sources> = {
   "news.uk-graduate-shortened": told("official"),
   "news.uk-talent-body-closes": told("official"),
   "news.uk-talent-reappointed": told("official"),
-  "news.ca-care-draw": told("official"),
-  "news.ca-general-stops": told("official"),
-  "news.ca-points-overhaul": told("official"),
-  "news.ca-funds-rise": told("official"),
+  "news.canada-care-draw": told("official"),
+  "news.canada-general-stops": told("official"),
+  "news.canada-points-overhaul": told("official"),
+  "news.canada-funds-rise": told("official"),
   "news.uae-ban": told("paper", "street", "paper"),
   "news.uae-lifted": told("official", "street"),
   "news.passport-fee-doubles": told("official"),

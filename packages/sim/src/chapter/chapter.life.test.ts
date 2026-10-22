@@ -205,7 +205,7 @@ describe("after the last chapter", () => {
     const requirement = secure.items[0]!.requirement;
     expect(requirement.type).toBe("any");
     const paths = requirement.type === "any" ? requirement.of : [];
-    expect(paths[0]).toEqual({ type: "status/is", statuses: ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"] });
+    expect(paths[0]).toEqual({ type: "status/is", statuses: ["status.uk-settled", "status.uk-citizen", "status.canada-resident", "status.canada-citizen"] });
     expect(paths[1]).toEqual({ type: "place/returned", shapes: ["with-papers", "by-choice"] });
     expect(paths.slice(2).every((path) => path.type === "route/state" && path.in.length === 1 && path.in[0] === "granted")).toBe(true);
   });

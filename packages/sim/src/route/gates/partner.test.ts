@@ -18,11 +18,11 @@ import { CA_SPOUSE, UK_PARTNER } from "../../testing/ids";
 const ukPartner = content.route[UK_PARTNER]!;
 const caSpouse = content.route[CA_SPOUSE]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-partner";
-const APPLY_CA: Id<"activity"> = "activity.apply-ca-spouse";
+const APPLY_CA: Id<"activity"> = "activity.apply-canada-spouse";
 const FEE = content.var["var.uk-partner-fee"]!.start;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const SETTLED = facts({ where: "abroad", country: "country.uk", status: "status.uk-settled", meetsFloor: { [UK_PARTNER]: true } });
-const CA_RESIDENT = facts({ where: "abroad", country: "country.canada", status: "status.ca-resident" });
+const CA_RESIDENT = facts({ where: "abroad", country: "country.canada", status: "status.canada-resident" });
 
 /** The graduate married to a sponsor whose facts are `sponsor`, the joint agreed with the sponsor leading on `route`. */
 function married(route: Id<"route">, sponsor = SETTLED, options: LifeOptions = {}): Game {
@@ -173,7 +173,7 @@ describe("place:removal-bans-the-country: a removal's ban and the partner gate",
   test("[place:removal-bans-the-country] [person:partner-gate-needs] given a removal from Canada and a married sponsor resident there, when the spouse application is sent while the ban holds, then it is not offered and is refused with nothing taken", () => {
     const game = married(CA_SPOUSE, CA_RESIDENT);
     toKnown(game, CA_SPOUSE);
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: "status.ca-overstayer" }, { type: "status/remove" }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: "status.canada-overstayer" }, { type: "status/remove" }]);
     expect(game.state.place.where).toBe("home");
     expect(game.view().activities.find((offered) => offered.id === APPLY_CA)?.allowed).toBe(false);
     game.expectRejected({ type: "activity/now", activity: APPLY_CA, param: null }, "not-legal");
@@ -307,6 +307,6 @@ describe("person:partner-status-renews: the partner visa", () => {
 
   test("[person:tied-status-clock-on-breakup] given the partner and dependant visas, when their entries are read, then each is tied to the partner with a clock of 2 months, and permanent residence in Canada is not", () => {
     for (const id of ["status.uk-partner", "status.uk-dependant"] as const) expect(content.status[id]).toMatchObject({ tiedTo: "partner", clockMonths: 2 });
-    expect(content.status["status.ca-resident"]?.tiedTo).toBeNull();
+    expect(content.status["status.canada-resident"]?.tiedTo).toBeNull();
   });
 });

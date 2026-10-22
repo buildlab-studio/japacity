@@ -31,7 +31,7 @@ describe("the guides", () => {
     expect(Object.keys(content.guide).sort()).toEqual([
       "guide.agents",
       // The two family guides cover the people routes (guide:every-route-has-a-guide).
-      "guide.ca-family",
+      "guide.canada-family",
       "guide.canada-points",
       "guide.global-talent",
       "guide.gulf-work",

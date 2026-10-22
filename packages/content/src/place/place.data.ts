@@ -289,7 +289,7 @@ const entries: PlaceEntry[] = [
   lagos("place.airport-lagos", "Murtala Muhammed International Airport", "ikeja", 6574, 3321, {
     // The arrivals hall is an interior scene, but the entry keeps "exterior" because the terminal front's test reads its scope against the entry.
     assets: "arrivals-hall",
-    stages: ["chapter.send-off", "setpiece.december", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"],
+    stages: ["chapter.send-off", "setpiece.december", "activity.december-home-uk", "activity.december-home-canada", "activity.december-home-uae"],
     crowd: BUSY,
     traditionalBp: AIRPORT,
   }),
@@ -426,22 +426,22 @@ const entries: PlaceEntry[] = [
     scope: "exterior",
     hub: true,
     // Money home goes from the transfer counter at the African store, not the room (city.md).
-    stages: ["activity.job-hunt", "activity.coffee-ca", "activity.naija-shop-ca", "activity.barber-ca", "activity.send-money", "offer.street-find-ca"],
+    stages: ["activity.job-hunt", "activity.coffee-canada", "activity.naija-shop-canada", "activity.barber-canada", "activity.send-money", "offer.street-find-canada"],
     crowd: QUIET,
     traditionalBp: HUB,
   }),
   // The station (place:country-pass-covers-ways): the ticket machine's transit pass; the train's platform. Which station
   // is not said, so it is shown by plain description.
-  calgary("place.ctrain-station-canada", "institution", "north-east", 51073, -113977, { scope: "exterior", stages: ["activity.transit-pass-ca"], crowd: QUIET, traditionalBp: HUB }),
+  calgary("place.ctrain-station-canada", "institution", "north-east", 51073, -113977, { scope: "exterior", stages: ["activity.transit-pass-canada"], crowd: QUIET, traditionalBp: HUB }),
   // The rooms Calgary shares with London are London's scenes under Calgary's own entries (world:ride-abroad-and-workplace).
-  calgary("place.big-shop-canada", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"], crowd: BUSY, traditionalBp: HUB }),
-  calgary("place.warehouse-canada", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
-  calgary("place.care-home-canada", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-ca-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
-  calgary("place.office-canada", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-ca-professional", "activity.job-ca-dev"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.big-shop-canada", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-canada", "activity.buy-clothes-canada"], crowd: BUSY, traditionalBp: HUB }),
+  calgary("place.warehouse-canada", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-canada-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.care-home-canada", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-canada-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.office-canada", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-canada-professional", "activity.job-canada-dev"], crowd: QUIET, traditionalBp: OFFICE }),
   // The library's evening course, a room of its own.
-  calgary("place.library-canada", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-ca"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.library-canada", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-canada"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church hall, the community's place (world:nobody-picked-from-list).
-  calgary("place.church-canada", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-ca"], crowd: BUSY, traditionalBp: HUB }),
+  calgary("place.church-canada", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-canada"], crowd: BUSY, traditionalBp: HUB }),
   // The registry on the English test centre's scene, for Alberta's licence (city:places-stage-their-acts: each
   // country's tests at a place of its own).
 
@@ -492,7 +492,7 @@ const entries: PlaceEntry[] = [
     // The cooking corner cooks in each country's money (streets:london-life-by-hand, streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand, home:living-by-hand):
     // each country's meal shows only there. The hunt, the community and money home are at each country's own places
     // (city.md "Entries: abroad").
-    stages: ["activity.rest", "activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-italy"],
+    stages: ["activity.rest", "activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-canada", "activity.phone-contract-uk", "activity.phone-contract-canada", "activity.cook-own-uk", "activity.cook-own-canada", "activity.cook-own-uae", "activity.cook-own-italy"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

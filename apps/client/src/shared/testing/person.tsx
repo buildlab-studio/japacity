@@ -63,7 +63,7 @@ export const FRIEND: PersonFacts = {
   statusMonthsLeft: null,
   monthsInCountry: 30,
   job: "activity.job-uk-senior-care",
-  meetsFloor: { "route.uk-partner": true, "route.ca-spouse": true },
+  meetsFloor: { "route.uk-partner": true, "route.canada-spouse": true },
   eduLevel: 3,
   englishBand: 70,
   home: "town",

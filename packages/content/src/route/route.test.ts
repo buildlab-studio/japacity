@@ -135,19 +135,19 @@ describe("spot checks against route-gates.md and road.md", () => {
     expect(start("var.uk-care-visa-fee")).toBe(32400);
     expect(start("var.uk-surcharge-year")).toBe(103500);
     expect(start("var.uk-skilled-maintenance")).toBe(127000);
-    expect(start("var.ca-funds")).toBe(1526300);
-    expect(start("var.ca-eca-fee")).toBe(32900);
-    expect(start("var.ca-apply-fee")).toBe(152500);
+    expect(start("var.canada-funds")).toBe(1526300);
+    expect(start("var.canada-eca-fee")).toBe(32900);
+    expect(start("var.canada-apply-fee")).toBe(152500);
     expect(start("var.uk-talent-endorse-fee")).toBe(56100);
     expect(start("var.uk-talent-visa-fee")).toBe(20500);
     // Cut-offs and windows.
-    expect(start("var.ca-cutoff")).toBe(405);
-    expect(start("var.ca-care-cutoff")).toBe(370);
-    expect(start("var.ca-decision-months")).toBe(6);
+    expect(start("var.canada-cutoff")).toBe(405);
+    expect(start("var.canada-care-cutoff")).toBe(370);
+    expect(start("var.canada-decision-months")).toBe(6);
     expect(start("var.uk-care-window")).toBe(0);
     expect(start("var.uae-window")).toBe(2);
     // Director starts.
-    expect(start("var.ca-surge")).toBe(30);
+    expect(start("var.canada-surge")).toBe(30);
     expect(start("var.passport-fee")).toBe(10000000);
     expect(start("var.flight-factor")).toBe(10000);
     // Refusal bases.

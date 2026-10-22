@@ -117,7 +117,7 @@ export function CarFacts({ owed }: { owed: Owed }) {
   );
 }
 
-const ASSISTANCE = "var.ca-assistance";
+const ASSISTANCE = "var.canada-assistance";
 
 /** The undertaking's promise: months left, months charged, what is owed now, and how a charge comes. */
 export function UndertakingFacts({ owed }: { owed: Owed }) {

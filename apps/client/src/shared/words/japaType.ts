@@ -18,7 +18,7 @@ const AGENT_VISITS: ReadonlySet<Id<"activity">> = new Set(["activity.see-agent-s
 const AGENT_OBLIGATIONS: ReadonlySet<Id<"obligation">> = new Set(["obligation.agent-debt", "obligation.held-funds-agent"]);
 
 /** Time given to the family at home or from abroad. */
-const FAMILY: ReadonlySet<Id<"activity">> = new Set(["activity.family-time", "activity.family-meeting", "activity.call-home", "activity.send-money", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"]);
+const FAMILY: ReadonlySet<Id<"activity">> = new Set(["activity.family-time", "activity.family-meeting", "activity.call-home", "activity.send-money", "activity.december-home-uk", "activity.december-home-canada", "activity.december-home-uae"]);
 
 /** The skills a study act builds; an act that pays or meets people is not study. */
 const STUDY_QUALITIES: ReadonlySet<string> = new Set(["quality.english", "quality.tech", "quality.portfolio", "quality.interview-prep"]);

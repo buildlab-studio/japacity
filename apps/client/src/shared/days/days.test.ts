@@ -19,7 +19,7 @@ const MONTH_ACTS_FREE = [
   "activity.study-english-uk",
   "activity.learn-tech",
   "activity.learn-tech-uk",
-  "activity.learn-tech-ca",
+  "activity.learn-tech-canada",
   "activity.build-portfolio",
   "activity.open-source",
   "activity.conference-talk",

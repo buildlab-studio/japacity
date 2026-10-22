@@ -310,10 +310,10 @@
             "stages": "activity.community-uk"
           },
           {
-            "id": "community-ca",
+            "id": "community-canada",
             "label": "city.act.community",
             "kind": "sheet",
-            "stages": "activity.community-ca"
+            "stages": "activity.community-canada"
           }
         ]
       },
@@ -355,7 +355,7 @@
             "id": "contract-ca",
             "label": "city.act.phone-contract",
             "kind": "sheet",
-            "stages": "activity.phone-contract-ca"
+            "stages": "activity.phone-contract-canada"
           }
         ]
       },
@@ -379,7 +379,7 @@
             "id": "rent-ca",
             "label": "city.act.rent",
             "kind": "sheet",
-            "stages": "activity.rent-flat-ca"
+            "stages": "activity.rent-flat-canada"
           }
         ]
       },
@@ -395,7 +395,7 @@
             "kind": "sheet",
             "stages": "activity.cook-own-uk",
             "more": [
-              "activity.cook-own-ca",
+              "activity.cook-own-canada",
               "activity.cook-own-uae",
               "activity.cook-own-italy"
             ]
@@ -468,7 +468,7 @@
         ]
       },
       {
-        "activity": "activity.cook-own-ca",
+        "activity": "activity.cook-own-canada",
         "models": [],
         "motion": [
           {

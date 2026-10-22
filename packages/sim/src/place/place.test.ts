@@ -54,7 +54,7 @@ describe("where an entry applies", () => {
   });
 });
 
-const RESIDENT: Id<"status"> = "status.ca-resident";
+const RESIDENT: Id<"status"> = "status.canada-resident";
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 const tuning = content.tuning;
 const brokeLine = tuning.place.brokeLine;

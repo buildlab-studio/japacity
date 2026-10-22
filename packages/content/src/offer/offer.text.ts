@@ -431,7 +431,7 @@ export const offerText: Record<string, string> = {
   "offer.returnee-leave-again.who": "A friend",
   "offer.street-find-uk.who": "An aunty",
   "offer.street-find-uae.who": "A crewman",
-  "offer.street-find-ca.who": "A man at the stop",
+  "offer.street-find-canada.who": "A man at the stop",
   "offer.street-find-italy.who": "A grandmother",
   "offer.illness.who": "The doctor",
   "offer.illness-worse.who": "The doctor",
@@ -470,6 +470,6 @@ export const offerText: Record<string, string> = {
   "offer.road-ransom-call.who": "The man",
   "offer.road-exit.who": "The migration agency",
   "offer.sponsor-licence-lost.who": "Your manager",
-  "offer.ca-assistance.who": "The assistance office",
+  "offer.canada-assistance.who": "The assistance office",
   "offer.court-date.who": "The court",
 };

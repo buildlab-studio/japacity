@@ -58,13 +58,13 @@ flowchart LR
 
 ## What a partner gives: going as a dependant
 
-**person:routes-name-dependant-routes** A route entry names `dependants`: the route a partner takes to go with the one who leads, or null. `route.uk-skilled` and `route.uk-talent` name `route.uk-dependant`; `route.canada-points` names `route.ca-accompany`. `route.uk-masters` is null (taught master's students may not bring a partner for courses starting on or after 1 Jan 2024), `route.uk-care` is null (care workers sponsored from 11 Mar 2024 may not), `route.gulf-contract` is null (the contract's pay is under the AED 4,000 a resident needs to sponsor a wife), and the road is null.
+**person:routes-name-dependant-routes** A route entry names `dependants`: the route a partner takes to go with the one who leads, or null. `route.uk-skilled` and `route.uk-talent` name `route.uk-dependant`; `route.canada-points` names `route.canada-accompany`. `route.uk-masters` is null (taught master's students may not bring a partner for courses starting on or after 1 Jan 2024), `route.uk-care` is null (care workers sponsored from 11 Mar 2024 may not), `route.gulf-contract` is null (the contract's pay is under the AED 4,000 a resident needs to sponsor a wife), and the road is null.
 
 **person:statuses-name-dependants** A status entry names `dependants`: `none`, `any`, or a list of jobs. `status.uk-sponsored` lists `activity.job-uk-skilled`, `activity.job-uk-senior-dev`, `activity.job-uk-graduate` and `activity.job-uk-nurse`; `status.uk-talent` is `any`; every other status is `none` (a graduate may not add a new partner; a settled partner sponsors through the partner gate instead).
 
 **person:joint-application-proposed** `people/propose` with `step: "joint"`, a `route` and a `lead` (`me` or `them`) asks to set up a joint application. It needs the bond at `partner` or `married`, the route's `dependants` not null, and the lead either holding the route known or later in their own life, or already holding a status whose `dependants` allows the other to join. A computer leads only in the second way: it holds its status already and never applies for one. Agreement records the joint in both lives; in the dependant's life the dependant route moves to `known` at once; the lead's route then reads the partner's facts (person:canada-spouse-points, person:dependant-gate-needs). A computer never leads a route it would have to apply for, because leading needs a life that is played.
 
-**person:dependant-gate-needs** On the `dependant` gate, applying needs: the joint agreed and the bond intact; the lead's facts showing the joint route `applying`, `granted` or `departed`, or a status whose `dependants` allows it; the passport; for the UK the TB certificate, and `var.uk-dependant-maintenance` (£285) covered at one month end unless the lead's facts show 12 months in the country; the route's fee, which for `route.uk-dependant` is the lead route's visa fee var plus the surcharge for the lead's years, and for `route.ca-accompany` is `var.ca-accompany-fee`. Sending opens the genuineness interview only when the pair record is thin (interview:thin-record-triggers-interview).
+**person:dependant-gate-needs** On the `dependant` gate, applying needs: the joint agreed and the bond intact; the lead's facts showing the joint route `applying`, `granted` or `departed`, or a status whose `dependants` allows it; the passport; for the UK the TB certificate, and `var.uk-dependant-maintenance` (£285) covered at one month end unless the lead's facts show 12 months in the country; the route's fee, which for `route.uk-dependant` is the lead route's visa fee var plus the surcharge for the lead's years, and for `route.canada-accompany` is `var.canada-accompany-fee`. Sending opens the genuineness interview only when the pair record is thin (interview:thin-record-triggers-interview).
 
 **person:dependant-application-decided** A dependant application is decided in the `clocks` phase of its decision month or later, once the lead's facts show the joint route `granted` or `departed`, or the status that allows joining: one draw on `visa` with the route's `refusalBaseBp` plus 800 for each earlier refusal (route-gates:gate-decision-draw-terms with earlier refusals only), after the interview's result where one was held (interview:result-applies-to-application). If the lead's route is refused, the dependant is refused with the reason `lead`, the fee kept and the surcharge refunded. While the lead's route is `applying`, the dependant waits.
 
@@ -72,15 +72,15 @@ flowchart LR
 
 ## What a partner gives: the partner route
 
-**person:partner-routes-heard-via-bond** `route.uk-partner` and `route.ca-spouse` have the gate `partner`. A character hears of one when a bond at `partner` or `married` has facts showing the other abroad in the route's country holding a status in the route's `sponsorStatuses`, and looks into it as any route.
+**person:partner-routes-heard-via-bond** `route.uk-partner` and `route.canada-spouse` have the gate `partner`. A character hears of one when a bond at `partner` or `married` has facts showing the other abroad in the route's country holding a status in the route's `sponsorStatuses`, and looks into it as any route.
 
 **person:partner-gate-needs** Applying on the `partner` gate needs: the bond `married`, or for `route.uk-partner` the bond at `partner` for 24 of the applicant's months while both lived in the same place; the joint agreed with the sponsor as lead, which runs the sponsor's checks in the sponsor's own life (undertaking:agreeing-to-sponsor, undertaking:sponsor-settled-in-country, undertaking:sponsor-earnings-floor, undertaking:sponsored-arrivals-wait-to-sponsor and undertaking:defaults-bar-sponsoring); the sponsor's facts showing a status in `sponsorStatuses`, in the country, and `meetsFloor` true for this route; the English band at or above the route's `bandMin`; the passport, and the TB certificate for the UK; no ban on the country; and the route's fee var plus the surcharge for its `surchargeYears`. Sending opens the genuineness interview in both lives (interview:partner-application-opens-interview).
 
-**person:partner-application-decided** A partner application is decided in the `clocks` phase of its decision month or later, once the interview is scored: a `caught` or `fail` result refuses it as `interview.md` says; otherwise one draw on `visa` with the route's `refusalBaseBp`, plus 800 for each earlier refusal, plus `tuning.interview.doubtBp` for a `doubt` result. A grant moves the route to `granted`; `route/depart` grants the status and records `arrived` (`route`, `month`) in the people slice. For `route.ca-spouse`, the departure tells the authority to send `people/agreed` with `step: "landed"` to the sponsor's life, which opens the undertaking (undertaking:landing-opens-undertaking).
+**person:partner-application-decided** A partner application is decided in the `clocks` phase of its decision month or later, once the interview is scored: a `caught` or `fail` result refuses it as `interview.md` says; otherwise one draw on `visa` with the route's `refusalBaseBp`, plus 800 for each earlier refusal, plus `tuning.interview.doubtBp` for a `doubt` result. A grant moves the route to `granted`; `route/depart` grants the status and records `arrived` (`route`, `month`) in the people slice. For `route.canada-spouse`, the departure tells the authority to send `people/agreed` with `step: "landed"` to the sponsor's life, which opens the undertaking (undertaking:landing-opens-undertaking).
 
 **person:partner-status-renews** `status.uk-partner` lasts 33 months, allows any work, and renews by `status/renew` for 30 months at `var.uk-partner-renew-fee` plus the surcharge, legal only while the bond is `partner` or `married` and the sponsor's facts show `meetsFloor` for the route. Its lawful months count to settlement at `var.uk-partner-settle-months` (60).
 
-**person:tied-status-clock-on-breakup** `status.uk-partner` and `status.uk-dependant` carry `tiedTo: "partner"`. When the bond ends, the people kind applies `status/clock-start` and the clock is set to the entry's `clockMonths`, 2 (the 60 days to which permission is cut after a relationship breaks down). Any `status/grant` replaces the status and its clock (status:granting-a-status); getting a job marked `sponsor: true` grants one (ladders:sponsor-job-ties-status) and is the usual way out. At zero the status lapses (status:overstayer-risks-detection). `status.ca-resident` is not tied: permanent residence stays after a break-up (Canada removed conditional permanent residence for spouses in April 2017).
+**person:tied-status-clock-on-breakup** `status.uk-partner` and `status.uk-dependant` carry `tiedTo: "partner"`. When the bond ends, the people kind applies `status/clock-start` and the clock is set to the entry's `clockMonths`, 2 (the 60 days to which permission is cut after a relationship breaks down). Any `status/grant` replaces the status and its clock (status:granting-a-status); getting a job marked `sponsor: true` grants one (ladders:sponsor-job-ties-status) and is the usual way out. At zero the status lapses (status:overstayer-risks-detection). `status.canada-resident` is not tied: permanent residence stays after a break-up (Canada removed conditional permanent residence for spouses in April 2017).
 
 ## What a partner gives: points
 
@@ -88,7 +88,7 @@ flowchart LR
 
 ## What a sibling gives
 
-**person:canada-sibling-bonus** A sibling, real or computer, aged 18 or over whose facts show `status.ca-resident` or `status.ca-citizen` in Canada adds `points.canada.siblingBonus` (15) to the score. One sibling is enough; two add nothing more.
+**person:canada-sibling-bonus** A sibling, real or computer, aged 18 or over whose facts show `status.canada-resident` or `status.canada-citizen` in Canada adds `points.canada.siblingBonus` (15) to the score. One sibling is enough; two add nothing more.
 
 **person:sibling-couch-delays-rent** The couch. On `place/move` abroad to a country where a sibling's facts show them living, `rent-room` (abroad-money:arrival-opens-upkeep-and-room) opens `tuning.people.couchMonths` months later instead of at once. Upkeep is charged as usual.
 
@@ -178,7 +178,7 @@ All invented. Names are text keys, and the words file holds the names shown.
 | `person.hauwa-nurse` | Staff nurse, bachelor's, care 60, band 60, town | home | ₦2,400,000 | 5 | 6000 | 8 | 3 | 4000 | 8500 | `canada` | age 21 or more, at home |
 | `person.kelechi-developer` | Developer on `status.uk-sponsored`, `activity.job-uk-skilled`, master's, band 75 | uk | £48,000 | 9 | 5000 | 12, December | 2 | 6000 | 8000 | `uk` | age 22 or more |
 | `person.ejiro-uk` | Senior carer, `status.uk-settled`, diploma, band 65 | uk | £31,000 | 9 | 5000 | 12, December | 2 | 5000 | 8000 | `uk` | age 22 or more |
-| `person.uduak-canada` | Analyst, `status.ca-resident`, bachelor's, band 80 | canada | C$62,000 | 9 | 5000 | 12, December | 2 | 5000 | 8000 | `canada` | age 22 or more |
+| `person.uduak-canada` | Analyst, `status.canada-resident`, bachelor's, band 80 | canada | C$62,000 | 9 | 5000 | 12, December | 2 | 5000 | 8000 | `canada` | age 22 or more |
 | `person.tonye-dubai` | Driver, `status.gulf-worker`, secondary | uae | AED 30,000 | 6 | 6000 | 10, December | 2 | 5000 | 8000 | `home` | age 21 or more |
 | `person.papers-uk` | Unknown, `status.uk-citizen` | uk | £30,000 | 0 | 10000 | 0 | never | 0 | 2000 | `not-decided` | only through `offer.papers-marriage` |
 
@@ -192,7 +192,7 @@ Each has the spot list `beach`, `suya-spot`, `church`, `cinema`, `mall`, `friend
 | `person.sibling-lagos-hustle` | 1800 | -36 to 36 | home, city | never | | |
 | `person.sibling-uk-later` | 900 | 12 to 60 (older) | uk | 36 | `status.uk-sponsored` | 96, `status.uk-settled` |
 | `person.sibling-gulf` | 700 | -24 to 36 | uae | 12 | `status.gulf-worker` | never |
-| `person.sibling-canada` | 300 | 24 to 96 (older) | canada | 0 | `status.ca-resident` | 36, `status.ca-citizen` |
+| `person.sibling-canada` | 300 | 24 to 96 (older) | canada | 0 | `status.canada-resident` | 36, `status.canada-citizen` |
 | `person.sibling-uk-settled` | 300 | 36 to 120 (older) | uk | 0 | `status.uk-settled` | 60, `status.uk-citizen` |
 
 ## Entries: activities and offers
@@ -209,9 +209,9 @@ Each has the spot list `beach`, `suya-spot`, `church`, `cinema`, `mall`, `friend
 | Id | Gate | Country | Status | Base refusal | Fee | Surcharge years | Decision months | Band | Other |
 |---|---|---|---|---|---|---|---|---|---|
 | `route.uk-partner` | partner | uk | `status.uk-partner` | 500 | `var.uk-partner-fee` £2,064 | 3 | 3 | 30 | `sponsorStatuses` uk-settled, uk-citizen; window `var.uk-family-window` start 2; checklist married 20, sponsor 20, floor 15, english 10, passport 5, tb 5, applied 25 |
-| `route.ca-spouse` | partner | canada | `status.ca-resident` | 600 | `var.ca-sponsor-fee` C$1,345 | 0 | 12 | none | `sponsorStatuses` ca-resident, ca-citizen; window `var.ca-family-window` start 2; checklist married 25, sponsor 25, passport 10, applied 40 |
+| `route.canada-spouse` | partner | canada | `status.canada-resident` | 600 | `var.canada-sponsor-fee` C$1,345 | 0 | 12 | none | `sponsorStatuses` canada-resident, canada-citizen; window `var.canada-family-window` start 2; checklist married 25, sponsor 25, passport 10, applied 40 |
 | `route.uk-dependant` | dependant | uk | `status.uk-dependant` | 300 | the lead route's visa fee | the lead's | 1 | none | no window of its own; checklist joint 30, lead 30, passport 10, tb 10, funds 10 (partial), applied 10 |
-| `route.ca-accompany` | dependant | canada | `status.ca-resident` | 300 | `var.ca-accompany-fee` C$1,600 | 0 | 1 | none | no window; checklist joint 40, lead 40, applied 20 |
+| `route.canada-accompany` | dependant | canada | `status.canada-resident` | 300 | `var.canada-accompany-fee` C$1,600 | 0 | 1 | none | no window; checklist joint 40, lead 40, applied 20 |
 
 | Status | Months | Work | Tied to partner | Clock | Renew | Settles at | Dependants |
 |---|---|---|---|---|---|---|---|
@@ -250,11 +250,11 @@ The lead's columns with a spouse, then the spouse's factors (cap 40).
 | English for the partner route | A1, mapped to band 30 | A1 from gov.uk; the band is a working value | `route.uk-partner.bandMin` 30 |
 | Partner route decision | 3 months | working value | `route.uk-partner.decisionMonths` |
 | Permission cut after a break-up | 60 days | gov.uk caseworker guidance, version 12.0, 11 Sep 2026 | `clockMonths` 2 |
-| Canada conditional residence | Removed for spouses, April 2017 | canada.ca notice | `status.ca-resident` not tied |
-| Canada spousal sponsorship fees | C$1,345 (C$90 + C$570 + C$600 + C$85 biometrics) | From 30 Apr 2026, adviser summaries; not checked on canada.ca | `var.ca-sponsor-fee` 134500 |
-| Canada accompanying spouse fee | C$1,600 | working value from the processing and residence fees | `var.ca-accompany-fee` 160000 |
-| Canada spousal decision | 12 months | working value | `route.ca-spouse.decisionMonths` |
-| Spousal refusals, 2010 | About 16%, mostly bad faith | IRCC regulatory statement, 2012, archived | `route.ca-spouse.refusalBaseBp` 600 plus the interview |
+| Canada conditional residence | Removed for spouses, April 2017 | canada.ca notice | `status.canada-resident` not tied |
+| Canada spousal sponsorship fees | C$1,345 (C$90 + C$570 + C$600 + C$85 biometrics) | From 30 Apr 2026, adviser summaries; not checked on canada.ca | `var.canada-sponsor-fee` 134500 |
+| Canada accompanying spouse fee | C$1,600 | working value from the processing and residence fees | `var.canada-accompany-fee` 160000 |
+| Canada spousal decision | 12 months | working value | `route.canada-spouse.decisionMonths` |
+| Spousal refusals, 2010 | About 16%, mostly bad faith | IRCC regulatory statement, 2012, archived | `route.canada-spouse.refusalBaseBp` 600 plus the interview |
 | CRS with a spouse | Core cap 460, spouse factors 40, the tables above | canada.ca, CRS criteria, modified 22 Jun 2026 | `points.canada-spouse` |
 | Sibling in Canada | 15 points, sibling 18 or over, citizen or resident | the same page | `points.canada.siblingBonus` 15 |
 | Bonds courting at once | 3 | working value | `tuning.people.maxCourting` |
@@ -321,7 +321,7 @@ What `packages/sim/src/engine/types.ts` holds for this page:
 17. Requirements: `people/bond` (`role`, `stages`, `where?`, `country?`, `statuses?`), `people/sibling-abroad` (`country`, `statuses`, `minAgeMonths`), `people/joint` (`route`, `as`: `lead` or `dependant`).
 18. View: `PlayerView.people` as person:view-shows-people lists it.
 19. Tuning: `people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number }`.
-20. Vars: `var.uk-dependant-maintenance`, `var.uk-partner-fee`, `var.uk-partner-renew-fee`, `var.uk-partner-settle-months`, `var.uk-family-window`, `var.ca-sponsor-fee`, `var.ca-accompany-fee`, `var.ca-family-window`.
+20. Vars: `var.uk-dependant-maintenance`, `var.uk-partner-fee`, `var.uk-partner-renew-fee`, `var.uk-partner-settle-months`, `var.uk-family-window`, `var.canada-sponsor-fee`, `var.canada-accompany-fee`, `var.canada-family-window`.
 21. A pure `factsOf(state, content, world): PersonFacts` exported from the people kind for the server.
 22. Tuning: `people.computerAfterMonths: number` (person:computer-partner-offer-dial).
 23. Text keys: `line.people.computer-chosen` (person:computer-mark-is-quiet); the generated names list as text keys `person.name.<n>`, shared with the residents of city:residents-carry-no-tag, and a content check on their shape (person:computer-names-generated).

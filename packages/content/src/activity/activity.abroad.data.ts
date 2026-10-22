@@ -250,8 +250,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
 
   // Jobs in Canada
 
-  "activity.job-ca-warehouse": job(
-    "activity.job-ca-warehouse",
+  "activity.job-canada-warehouse": job(
+    "activity.job-canada-warehouse",
     "country.canada",
     IN_CANADA,
     { currency: "CAD", amount: cad(38000) },
@@ -260,8 +260,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     [wellbeing(-5)],
   ),
   // Counts for the care cut-off.
-  "activity.job-ca-care-aide": job(
-    "activity.job-ca-care-aide",
+  "activity.job-canada-care-aide": job(
+    "activity.job-canada-care-aide",
     "country.canada",
     IN_CANADA,
     { currency: "CAD", amount: cad(44000) },
@@ -269,8 +269,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     [{ type: "quality/min", quality: "quality.care", value: 30 }],
     [wellbeing(-5), gain("quality.care", 1)],
   ),
-  "activity.job-ca-professional": job(
-    "activity.job-ca-professional",
+  "activity.job-canada-professional": job(
+    "activity.job-canada-professional",
     "country.canada",
     IN_CANADA,
     { currency: "CAD", amount: cad(75000) },
@@ -281,8 +281,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     ],
     [wellbeing(-3), gain("quality.network", 1)],
   ),
-  "activity.job-ca-dev": job(
-    "activity.job-ca-dev",
+  "activity.job-canada-dev": job(
+    "activity.job-canada-dev",
     "country.canada",
     IN_CANADA,
     { currency: "CAD", amount: cad(95000) },
@@ -425,11 +425,11 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     [IN_UK, { type: "credit/min", value: 10 }, NO_PHONE_CONTRACT],
     { cost: [], effects: [{ type: "obligation/open", obligation: "obligation.phone-uk" }] },
   ),
-  "activity.phone-contract-ca": free(
-    "activity.phone-contract-ca",
+  "activity.phone-contract-canada": free(
+    "activity.phone-contract-canada",
     "country.canada",
     [IN_CANADA, { type: "credit/min", value: 10 }, NO_PHONE_CONTRACT],
-    { cost: [], effects: [{ type: "obligation/open", obligation: "obligation.phone-ca" }] },
+    { cost: [], effects: [{ type: "obligation/open", obligation: "obligation.phone-canada" }] },
   ),
   // The interface's name for wallet/remit: it opens the remit sheet. Nothing happens in the slot itself.
   "activity.send-money": free("activity.send-money", null, [ABROAD], { cost: [], effects: [] }),
@@ -451,7 +451,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
 
 /** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts, as the wallet keeps those pockets (abroad-money:foreign-currencies-join-wallet). */
 export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> = withWhen({
-  "activity.community-ca": free("activity.community-ca", "country.canada", [IN_CANADA], {
+  "activity.community-canada": free("activity.community-canada", "country.canada", [IN_CANADA], {
     cost: [{ currency: "CAD", amount: cad(15), reason: "social" }],
     effects: [gain("quality.network", 4), wellbeing(4)],
   }),
@@ -459,21 +459,21 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
     cost: [{ currency: "AED", amount: aed(20), reason: "social" }],
     effects: [gain("quality.network", 4), wellbeing(4)],
   }),
-  "activity.learn-tech-ca": free("activity.learn-tech-ca", "country.canada", [IN_CANADA], {
+  "activity.learn-tech-canada": free("activity.learn-tech-canada", "country.canada", [IN_CANADA], {
     cost: [{ currency: "CAD", amount: cad(60), reason: "study" }],
     effects: [gain("quality.tech", 4), wellbeing(-2)],
   }),
-  "activity.rent-flat-ca": free("activity.rent-flat-ca", "country.canada", [IN_CANADA, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-ca")], {
-    cost: [depositOf("obligation.rent-flat-ca")],
+  "activity.rent-flat-canada": free("activity.rent-flat-canada", "country.canada", [IN_CANADA, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-canada")], {
+    cost: [depositOf("obligation.rent-flat-canada")],
     effects: [
       { type: "obligation/close", obligationType: "rent" },
-      { type: "obligation/open", obligation: "obligation.rent-flat-ca" },
+      { type: "obligation/open", obligation: "obligation.rent-flat-canada" },
     ],
   }),
-  "activity.december-home-ca": free(
-    "activity.december-home-ca",
+  "activity.december-home-canada": free(
+    "activity.december-home-canada",
     "country.canada",
-    [IN_CANADA, { type: "var/min", var: "var.season-december", value: 1 }, { type: "not", of: { type: "status/is", statuses: ["status.ca-overstayer"] } }],
+    [IN_CANADA, { type: "var/min", var: "var.season-december", value: 1 }, { type: "not", of: { type: "status/is", statuses: ["status.canada-overstayer"] } }],
     {
       cost: [{ currency: "CAD", amount: cad(5940), reason: "fare" }],
       effects: [gain("quality.standing", 12), wellbeing(6)],

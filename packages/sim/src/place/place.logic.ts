@@ -46,7 +46,7 @@ import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 /** return:december-visit-set-piece: the least gap between two December visits, in the character's months. */
 const MONTHS_A_YEAR = 12;
 /** return:papers-return-keeps-status names one token that lapses with time away. */
-const RESIDENT: Id<"status"> = "status.ca-resident";
+const RESIDENT: Id<"status"> = "status.canada-resident";
 /** place:family-takes-you-back: what the family house charges for again when you come back. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
 /** place:departure-moves-abroad: what closes on a flight: the family house's charges, and a room's rent at home, let go (home:compound-room-is-a-home). */
@@ -447,7 +447,7 @@ function longWalkHomeOpen(ctx: Ctx, currency: Currency, cheapest: number): boole
  */
 export const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
   "country.uk": "activity.bus-pass-uk",
-  "country.canada": "activity.transit-pass-ca",
+  "country.canada": "activity.transit-pass-canada",
   "country.uae": "activity.transit-pass-uae",
 };
 

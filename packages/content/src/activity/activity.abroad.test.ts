@@ -34,7 +34,7 @@ describe("activities abroad", () => {
     const opening = Object.values(content.activity).flatMap((activity) =>
       activity.effects.flatMap((effect) => (effect.type === "obligation/open" && content.obligation[effect.obligation]?.deposit !== undefined ? [{ activity, entry: content.obligation[effect.obligation]! }] : [])),
     );
-    expect(opening.map(({ activity }) => activity.id).sort()).toEqual(["activity.rent-flat-ca", "activity.rent-flat-uk"]);
+    expect(opening.map(({ activity }) => activity.id).sort()).toEqual(["activity.rent-flat-canada", "activity.rent-flat-uk"]);
     for (const { activity, entry } of opening) {
       expect(activity.cost.filter((cost) => cost.reason === "rent")).toEqual([{ currency: entry.currency, amount: entry.deposit, reason: "rent" }]);
     }
@@ -43,11 +43,11 @@ describe("activities abroad", () => {
   test("[engine:content-checked-before-play] given the activities abroad and the ones held for the foreign pockets, when checked against the schema, then each parses and its key is its id", () => {
     expect(abroad.length).toBeGreaterThan(25);
     expect(pending.map((entry) => entry.id)).toEqual([
-      "activity.community-ca",
+      "activity.community-canada",
       "activity.community-uae",
-      "activity.learn-tech-ca",
-      "activity.rent-flat-ca",
-      "activity.december-home-ca",
+      "activity.learn-tech-canada",
+      "activity.rent-flat-canada",
+      "activity.december-home-canada",
       "activity.december-home-uae",
     ]);
     for (const [key, entry] of [...Object.entries(abroadActivityTable), ...Object.entries(foreignPocketActivityTable)]) {
@@ -114,7 +114,7 @@ describe("activities abroad", () => {
     expect(activity["activity.job-uk-nurse"]?.pay).toEqual({ currency: "GBP", amount: 3130000 });
     expect(activity["activity.job-uk-warehouse"]?.pay).toEqual({ currency: "GBP", amount: 2300000 });
     expect(activity["activity.job-uk-retail-part"]).toMatchObject({ part: true, pay: { currency: "GBP", amount: 1040000 }, hireBp: 5500 });
-    expect(activity["activity.job-ca-dev"]?.pay).toEqual({ currency: "CAD", amount: 9500000 });
+    expect(activity["activity.job-canada-dev"]?.pay).toEqual({ currency: "CAD", amount: 9500000 });
     expect(activity["activity.job-italy-farm-cash"]).toMatchObject({ cash: true, withheldBp: 2500, pay: { currency: "EUR", amount: 960000 } });
     // The care worker's visiting-round bonus, £3,000 a year; the sponsor's salary is the pay.
     expect(activity["activity.job-uk-care"]).toMatchObject({ carBonus: 300000, hireBp: null, pay: { currency: "GBP", amount: { term: "salary" } } });
@@ -130,14 +130,14 @@ describe("activities abroad", () => {
     expect(activity["activity.rent-flat-uk"]?.cost).toEqual([{ currency: "GBP", amount: 95000, reason: "rent" }]);
     // December home: the fare both ways times the factor. £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8.
     expect(activity["activity.december-home-uk"]?.cost).toEqual([{ currency: "GBP", amount: 310000, reason: "fare" }]);
-    expect(activity["activity.december-home-ca"]?.cost).toEqual([{ currency: "CAD", amount: 594000, reason: "fare" }]);
+    expect(activity["activity.december-home-canada"]?.cost).toEqual([{ currency: "CAD", amount: 594000, reason: "fare" }]);
     expect(activity["activity.december-home-uae"]?.cost).toEqual([{ currency: "AED", amount: 684000, reason: "fare" }]);
     // The nurse's pay: a staff nurse at ₦180,000 a month (route-gates.md).
     expect(activity["activity.job-nurse"]?.pay).toEqual({ currency: "NGN", amount: 18000000 });
   });
 
   test("[engine:content-checked-before-play] given the December fares, when they are worked out from the countries, then each activity charges the fare both ways times the factor", () => {
-    const december = { "country.uk": "activity.december-home-uk", "country.canada": "activity.december-home-ca", "country.uae": "activity.december-home-uae" } as const;
+    const december = { "country.uk": "activity.december-home-uk", "country.canada": "activity.december-home-canada", "country.uae": "activity.december-home-uae" } as const;
     for (const [country, id] of Object.entries(december)) {
       const entry = content.country[country as keyof typeof december];
       const cost = ({ ...content.activity, ...foreignPocketActivityTable })[id]?.cost[0]?.amount;

@@ -23,15 +23,15 @@ Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up 
 
 | Id | Shown as | Where | Position | Scope | Stages (things) |
 |---|---|---|---|---|---|
-| `place.the-room` | The basement room, north-east Calgary | the home, country-less; its sticker at the country's home spot | 51088, -113955 (made up) | interior | the bed, the cooking corner (`activity.cook-own-ca`), the laptop, the phone, the post, the bag |
-| `place.calgary-north-east` | The strip mall, north-east Calgary | the hub, at a made-up spot in the north-east so the paper reads right | 51090, -113960 (made up) | exterior | the jobs notice (`activity.job-hunt`), the coffee shop (`activity.coffee-ca`), the African store (`activity.naija-shop-ca`) with its transfer counter (`activity.send-money`), the bus stop, the bench, the find |
-| `place.ctrain-station-canada` | The CTrain station | its own scene | 51073, -113977 (made up, on the north-east line) | exterior | the ticket machine (`activity.transit-pass-ca`), the platform (the train's stop) |
-| `place.big-shop-canada` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-ca`), the notice (overtime) |
-| `place.warehouse-canada` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-ca-warehouse`), the rota board (`activity.overtime`), the shelter |
-| `place.care-home-canada` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-ca-care-aide`), the rota board (`activity.overtime`), the tea point |
-| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-ca-professional`), the glass office (`activity.job-ca-dev`), the kitchen |
-| `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-ca`), the shelves, the notice |
-| `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-ca`), the hall (the people a life can meet, world:nobody-picked-from-list) |
+| `place.the-room` | The basement room, north-east Calgary | the home, country-less; its sticker at the country's home spot | 51088, -113955 (made up) | interior | the bed, the cooking corner (`activity.cook-own-canada`), the laptop, the phone, the post, the bag |
+| `place.calgary-north-east` | The strip mall, north-east Calgary | the hub, at a made-up spot in the north-east so the paper reads right | 51090, -113960 (made up) | exterior | the jobs notice (`activity.job-hunt`), the coffee shop (`activity.coffee-canada`), the African store (`activity.naija-shop-canada`) with its transfer counter (`activity.send-money`), the bus stop, the bench, the find |
+| `place.ctrain-station-canada` | The CTrain station | its own scene | 51073, -113977 (made up, on the north-east line) | exterior | the ticket machine (`activity.transit-pass-canada`), the platform (the train's stop) |
+| `place.big-shop-canada` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-canada`), the notice (overtime) |
+| `place.warehouse-canada` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-canada-warehouse`), the rota board (`activity.overtime`), the shelter |
+| `place.care-home-canada` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-canada-care-aide`), the rota board (`activity.overtime`), the tea point |
+| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-canada-professional`), the glass office (`activity.job-canada-dev`), the kitchen |
+| `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-canada`), the shelves, the notice |
+| `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-canada`), the hall (the people a life can meet, world:nobody-picked-from-list) |
 | `place.registry-canada` | The registry | not in content: `activity.driving-test` is the UK's alone (car:licence-and-driving-test), and no licence act reaches Canada | | | |
 | `place.calgary-airport` | Calgary International Airport | the airport | 51122, -114014, on the paper | interior | the arrival; December's flight and the way home stay on the room's bag |
 
@@ -74,7 +74,7 @@ Each in the country's smallest unit, rounded up to its step; 2025 figures, round
 | CTrain (`train`) | C$3.80 | nothing | 700 m a minute | The same fare, one ticket for both |
 | Taxi | C$3.80 | C$2.00 | 600 m a minute | For the airport and the cold |
 | Walk | nothing | nothing | 80 m a minute | Within `walkMetres`; home always |
-| The transit pass | C$118 a month | | | `activity.transit-pass-ca`, the station's machine; covers bus and train |
+| The transit pass | C$118 a month | | | `activity.transit-pass-canada`, the station's machine; covers bus and train |
 
 Step 5 cents. `lonMetresPerE3` 71.
 
@@ -109,14 +109,14 @@ Priced now-acts in the country's money, each spending its time (turn:month-lived
 
 | What | Figure | Act |
 |---|---|---|
-| The weekly shop | C$90, belly +40 | `activity.weekly-shop-ca`, the superstore, repeats |
-| A meal in the room | C$8, belly +25 | `activity.cook-own-ca`, the cooking corner, repeats |
-| A coffee | C$3, wellbeing +2 | `activity.coffee-ca`, the strip mall, repeats |
-| The African store | C$40, belly +30, wellbeing +8 | `activity.naija-shop-ca`, the strip mall, repeats |
-| The barber | C$30, wellbeing +5, standing +1, interview-prep +2 | `activity.barber-ca`, the strip mall, once a month |
-| Winter clothes | C$120, standing +1, wellbeing +4 | `activity.buy-clothes-ca`, the superstore, once a month |
-| The phone, prepaid | C$30 a month | `obligation.upkeep-ca` |
-| The room | C$900 a month | `obligation.rent-room-ca` |
+| The weekly shop | C$90, belly +40 | `activity.weekly-shop-canada`, the superstore, repeats |
+| A meal in the room | C$8, belly +25 | `activity.cook-own-canada`, the cooking corner, repeats |
+| A coffee | C$3, wellbeing +2 | `activity.coffee-canada`, the strip mall, repeats |
+| The African store | C$40, belly +30, wellbeing +8 | `activity.naija-shop-canada`, the strip mall, repeats |
+| The barber | C$30, wellbeing +5, standing +1, interview-prep +2 | `activity.barber-canada`, the strip mall, once a month |
+| Winter clothes | C$120, standing +1, wellbeing +4 | `activity.buy-clothes-canada`, the superstore, once a month |
+| The phone, prepaid | C$30 a month | `obligation.upkeep-canada` |
+| The room | C$900 a month | `obligation.rent-room-canada` |
 
 A warehouse job (C$38,000 a year, about C$2,700 a month after the flat band) less the room, the pass, four weekly shops, ten meals, the phone and a cut leaves about C$1,200: Calgary pays, and the cold and the car are the price.
 

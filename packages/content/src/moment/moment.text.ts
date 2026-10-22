@@ -17,9 +17,9 @@ export const momentText: Record<string, string> = {
   "moment.granted.line.route.uk-talent": "A visa that says you are good at what you do. Somebody at home will frame it.",
   "moment.granted.line.route.gulf-contract": "The visa is through. The company books the seat, you pack the bag.",
   "moment.granted.line.route.uk-partner": "Granted. Your person is counting the days to arrivals.",
-  "moment.granted.line.route.ca-spouse": "Granted. Canada believes the two of you, and so does everyone at home.",
+  "moment.granted.line.route.canada-spouse": "Granted. Canada believes the two of you, and so does everyone at home.",
   "moment.granted.line.route.uk-dependant": "Granted. You are going together.",
-  "moment.granted.line.route.ca-accompany": "Granted. You are going together, and it is Canada.",
+  "moment.granted.line.route.canada-accompany": "Granted. You are going together, and it is Canada.",
   "moment.granted.caption": "months of hustle to get here",
   "moment.granted.caption.one": "month of hustle to get here",
 

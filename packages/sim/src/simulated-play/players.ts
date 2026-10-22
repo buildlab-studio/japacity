@@ -1167,8 +1167,8 @@ export interface RunOptions {
   stopWhen?: (game: Game, record: RunRecord) => boolean;
 }
 
-const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.ca-resident"];
-const CITIZEN_STATUSES: Id<"status">[] = ["status.uk-citizen", "status.ca-citizen"];
+const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.canada-resident"];
+const CITIZEN_STATUSES: Id<"status">[] = ["status.uk-citizen", "status.canada-citizen"];
 
 function restingTurnAccepted(game: Game): boolean {
   const result = step(game.state, { type: "turn/end", slots: [], basedOn: game.state.v }, game.world(), game.content);

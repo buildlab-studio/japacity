@@ -18,7 +18,7 @@ export const uiDaysText: Record<string, string> = {
   "ui.days.short.activity.study-english-uk": "class",
   "ui.days.short.activity.learn-tech": "class",
   "ui.days.short.activity.learn-tech-uk": "class",
-  "ui.days.short.activity.learn-tech-ca": "class",
+  "ui.days.short.activity.learn-tech-canada": "class",
   "ui.days.short.activity.build-portfolio": "your project",
   "ui.days.short.activity.open-source": "open source",
   "ui.days.short.activity.conference-talk": "the talk",

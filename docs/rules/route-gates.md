@@ -58,11 +58,11 @@ Sign words: `pays-for-cos` "They want you to pay for the certificate." `licensed
 
 **route-gates:points-score-from-table** A character's score is the sum of the points table below over age, education, language and foreign work, with the transferability part capped at 100. It is worked out from the state each time it is asked for and shown on the route from the moment it is known.
 
-**route-gates:entering-the-pool** Entering the pool (`activity.enter-pool`) needs: the route known with its window at 1 or more, `document.eca` held, the English result at band 60 or more (CLB 7), 12 months of tenure across every job, and the funds `var.ca-funds` covered now (route:funds-shown-exclude-cash with the Canadian line, valued in Canadian cents). It records `poolMonth` on the route and a profile that lasts 12 months. Japa's way file says the window and the pool in months ago or away.
+**route-gates:entering-the-pool** Entering the pool (`activity.enter-pool`) needs: the route known with its window at 1 or more, `document.eca` held, the English result at band 60 or more (CLB 7), 12 months of tenure across every job, and the funds `var.canada-funds` covered now (route:funds-shown-exclude-cash with the Canadian line, valued in Canadian cents). It records `poolMonth` on the route and a profile that lasts 12 months. Japa's way file says the window and the pool in months ago or away.
 
-**route-gates:pool-draws-invite** In the `clocks` phase, while a profile is live, a draw of the world invites the character when `var.ca-cutoff` is at or below the score, or when the character holds `quality.care` at 60 or more and `var.ca-care-cutoff` is at or below the score. The draw is not random: the world's cut-offs are. An invitation moves the route to `applying` with the decision `var.ca-decision-months` later, and the application fee is taken as a foreign fee in Canadian cents with the reason `fee-visa`. If it cannot be paid the invitation lapses after one month and the profile goes on.
+**route-gates:pool-draws-invite** In the `clocks` phase, while a profile is live, a draw of the world invites the character when `var.canada-cutoff` is at or below the score, or when the character holds `quality.care` at 60 or more and `var.canada-care-cutoff` is at or below the score. The draw is not random: the world's cut-offs are. An invitation moves the route to `applying` with the decision `var.canada-decision-months` later, and the application fee is taken as a foreign fee in Canadian cents with the reason `fee-visa`. If it cannot be paid the invitation lapses after one month and the profile goes on.
 
-**route-gates:points-decision-gives-residence** The decision uses route-gates:gate-decision-draw-terms with the unexplained share (Canadian officers ask about deposits too) and earlier refusals, not the strictness. A grant gives `status.ca-resident` on departure.
+**route-gates:points-decision-gives-residence** The decision uses route-gates:gate-decision-draw-terms with the unexplained share (Canadian officers ask about deposits too) and earlier refusals, not the strictness. A grant gives `status.canada-resident` on departure.
 
 **route-gates:profile-lapses-and-score-ages** A profile that reaches 12 months without an invitation lapses; the pool can be entered again. Age points fall as `quality.age-months` passes each birthday in the table, so the score is a clock.
 
@@ -114,11 +114,11 @@ Worked example: the developer at 25 with a bachelor's, band 7.0 and 18 months in
 |---|---|
 | Hear if | bachelor's degree |
 | Hear by | 5 |
-| Window | `var.ca-window`, start 2 |
-| Country, status | canada, `status.ca-resident` |
+| Window | `var.canada-window`, start 2 |
+| Country, status | canada, `status.canada-resident` |
 | Base refusal | 1000 |
 | Checklist | degree 8, eca 10, english 12, funds 20 (partial), pool 15, invited 20, police 5, applied 10 |
-| Documents | `document.eca`: wait 2 to 4 months, valid 60, requested by `activity.get-eca` at C$329 (`var.ca-eca-fee` 32900 cents) paid as a foreign fee with reason `fee-document` |
+| Documents | `document.eca`: wait 2 to 4 months, valid 60, requested by `activity.get-eca` at C$329 (`var.canada-eca-fee` 32900 cents) paid as a foreign fee with reason `fee-document` |
 
 ## The endorsement gate: `route.uk-talent`
 
@@ -173,12 +173,12 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Skilled worker maintenance | £1,270 held 28 days | In force | `var.uk-skilled-maintenance` 127000 |
 | Nurse verification wait after licence | 24 months | 1 Mar 2024 | `document.nmcn-verification` requires tenure 24 |
 | Care route closed to applicants abroad | 22 Jul 2025 | | `var.uk-care-window` start 0 |
-| Canada proof of funds, one person | C$15,263 | 7 Jul 2025 | `var.ca-funds` 1526300 |
-| Canada credential assessment | C$329 | 2025 | `var.ca-eca-fee` 32900 |
-| Canada application fee | C$1,525 | 2025 | `var.ca-apply-fee` 152500 |
-| Canada general cut-off, start | 405 | A working value: a bachelor's, band 7.0, a year of work and under thirty is one short and reaches it within two years; the game's scale, not the real one, where 2026 draws ran 508 to 547 | `var.ca-cutoff` 405 |
-| Canada healthcare cut-off, start | 370 | The general start times 475 over 520, the real ratio of Jun to Sep 2026 | `var.ca-care-cutoff` 370 |
-| Canada decision months | 6 | Working value | `var.ca-decision-months` 6 |
+| Canada proof of funds, one person | C$15,263 | 7 Jul 2025 | `var.canada-funds` 1526300 |
+| Canada credential assessment | C$329 | 2025 | `var.canada-eca-fee` 32900 |
+| Canada application fee | C$1,525 | 2025 | `var.canada-apply-fee` 152500 |
+| Canada general cut-off, start | 405 | A working value: a bachelor's, band 7.0, a year of work and under thirty is one short and reaches it within two years; the game's scale, not the real one, where 2026 draws ran 508 to 547 | `var.canada-cutoff` 405 |
+| Canada healthcare cut-off, start | 370 | The general start times 475 over 520, the real ratio of Jun to Sep 2026 | `var.canada-care-cutoff` 370 |
+| Canada decision months | 6 | Working value | `var.canada-decision-months` 6 |
 | Foreign work counts from | 12 months | The CRS grid | `points.canada.transfer.workMonths` 12 |
 | Care cut-off read from | care 60 | Working value | `points.canada.careMin` 60 |
 | Talent endorsement fee | £561 | Apr 2026 | `var.uk-talent-endorse-fee` 56100 |

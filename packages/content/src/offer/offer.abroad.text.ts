@@ -20,14 +20,14 @@ export const offerAbroadText: Record<string, string> = {
   "offer.street-find-uae.choice.walk-on": "Walk on",
   "offer.street-find-uae.said.walk-on": "You walk back along the creek. By morning the dhow is gone.",
 
-  "offer.street-find-ca.name": "A warm wind in January",
-  "offer.street-find-ca.title": "Feel that wind",
-  "offer.street-find-ca.body":
+  "offer.street-find-canada.name": "A warm wind in January",
+  "offer.street-find-canada.title": "Feel that wind",
+  "offer.street-find-canada.body":
     "In the middle of January the wind turns warm, the snow at the kerb starts to run, and a man at the bus stop says this is a chinook, enjoy it while it lasts.",
-  "offer.street-find-ca.choice.look": "Stand in it",
-  "offer.street-find-ca.said.look": "You open your coat and stand in the warm wind. For an hour Calgary feels kind.",
-  "offer.street-find-ca.choice.walk-on": "Walk on",
-  "offer.street-find-ca.said.walk-on": "You walk on to the bus. By night the cold is back.",
+  "offer.street-find-canada.choice.look": "Stand in it",
+  "offer.street-find-canada.said.look": "You open your coat and stand in the warm wind. For an hour Calgary feels kind.",
+  "offer.street-find-canada.choice.walk-on": "Walk on",
+  "offer.street-find-canada.said.walk-on": "You walk on to the bus. By night the cold is back.",
 
   "offer.street-find-italy.name": "A naming on the beach",
   "offer.street-find-italy.title": "Come and eat",
@@ -84,10 +84,10 @@ export const offerAbroadText: Record<string, string> = {
     "“The Home Office has taken the agency's licence, so your certificate is no longer valid and your job ends today.”",
   "offer.sponsor-licence-lost.choice.go": "Clear your locker",
 
-  "offer.ca-assistance.name": "Social assistance",
-  "offer.ca-assistance.title": "Help is available",
-  "offer.ca-assistance.body": "“{amount} a month for basic needs and shelter, while you look.”",
-  "offer.ca-assistance.choice.take": "Take it",
-  "offer.ca-assistance.choice.leave": "Manage without it",
-  "offer.ca-assistance.said.take": "You took the assistance. It covers the basics while you look, and nobody at home has to know.",
+  "offer.canada-assistance.name": "Social assistance",
+  "offer.canada-assistance.title": "Help is available",
+  "offer.canada-assistance.body": "“{amount} a month for basic needs and shelter, while you look.”",
+  "offer.canada-assistance.choice.take": "Take it",
+  "offer.canada-assistance.choice.leave": "Manage without it",
+  "offer.canada-assistance.said.take": "You took the assistance. It covers the basics while you look, and nobody at home has to know.",
 };

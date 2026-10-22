@@ -597,7 +597,7 @@
             "id": "coffee",
             "label": "city.act.coffee",
             "kind": "sheet",
-            "stages": "activity.coffee-ca"
+            "stages": "activity.coffee-canada"
           }
         ]
       },
@@ -615,7 +615,7 @@
             "id": "naija",
             "label": "city.act.naija-shop",
             "kind": "sheet",
-            "stages": "activity.naija-shop-ca"
+            "stages": "activity.naija-shop-canada"
           }
         ]
       },
@@ -651,7 +651,7 @@
             "id": "barber",
             "label": "city.act.barber",
             "kind": "sheet",
-            "stages": "activity.barber-ca"
+            "stages": "activity.barber-canada"
           }
         ]
       },
@@ -697,7 +697,7 @@
             "id": "street-find",
             "label": "city.act.street-find",
             "kind": "sheet",
-            "stages": "offer.street-find-ca"
+            "stages": "offer.street-find-canada"
           }
         ]
       }

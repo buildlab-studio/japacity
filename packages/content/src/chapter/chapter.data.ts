@@ -16,7 +16,7 @@ const OWN_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.u
  * The routes a visa is granted and flown on: every route with a country, a partner's and a dependant's among them,
  * never the road. The send-off reads a flight on any of them (chapter:met-items-close-the-chapter).
  */
-const FLOWN_ROUTES: Id<"route">[] = [...OWN_ROUTES, "route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"];
+const FLOWN_ROUTES: Id<"route">[] = [...OWN_ROUTES, "route.uk-partner", "route.canada-spouse", "route.uk-dependant", "route.canada-accompany"];
 
 function held(document: Id<"document">, min?: number): Requirement {
   return min === undefined ? { type: "document/held", document } : { type: "document/held", document, min };
@@ -201,9 +201,9 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
             "status.uk-settled",
             "status.uk-citizen",
             "status.uk-overstayer",
-            "status.ca-resident",
-            "status.ca-citizen",
-            "status.ca-overstayer",
+            "status.canada-resident",
+            "status.canada-citizen",
+            "status.canada-overstayer",
             "status.gulf-worker",
             "status.uae-irregular",
             "status.eu-irregular",
@@ -229,7 +229,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
           type: "any",
           of: [
             // `settled`: a settled or citizen status held.
-            { type: "status/is", statuses: ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"] },
+            { type: "status/is", statuses: ["status.uk-settled", "status.uk-citizen", "status.canada-resident", "status.canada-citizen"] },
             // `home`: a return with papers or by choice on the record. The chapter is current only
             // after Landing, which is met abroad, so the return is one made from there.
             { type: "place/returned", shapes: ["with-papers", "by-choice"] },

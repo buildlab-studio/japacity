@@ -38,7 +38,7 @@ const BACKLASH: [Id<"news">, Id<"var">, number][] = [
   ["news.uk-dependants-ban", "var.uk-study-surge", 60],
   ["news.uk-care-dependants", "var.uk-care-surge", 50],
   ["news.uk-care-sponsors-revoked", "var.uk-care-surge", 50],
-  ["news.ca-general-stops", "var.ca-surge", 40],
+  ["news.canada-general-stops", "var.canada-surge", 40],
 ];
 const AFTER: [step: string, Id<"news">, before: Id<"news">][] = [
   ["restriction", "news.uk-study-narrows", "news.uk-refusals-up"],
@@ -133,9 +133,9 @@ describe("the director's pool", () => {
     expect(story("news.uk-skilled-bar-rises").standIn.sets).toEqual([{ var: "var.uk-skilled-salary", value: 4600000 }]);
     expect(story("news.uk-settle-ten-years").standIn.sets).toEqual([{ var: "var.uk-settle-months", value: 120 }]);
     expect(story("news.uk-graduate-shortened").standIn.sets).toEqual([{ var: "var.uk-graduate-months", value: 18 }]);
-    expect(story("news.ca-care-draw").director?.adds).toEqual([{ var: "var.ca-care-cutoff", value: -20 }]);
-    expect(story("news.ca-general-stops").director?.adds).toEqual([{ var: "var.ca-cutoff", value: 20 }]);
-    expect(story("news.ca-funds-rise").standIn.sets).toEqual([{ var: "var.ca-funds", value: 1600000 }]);
+    expect(story("news.canada-care-draw").director?.adds).toEqual([{ var: "var.canada-care-cutoff", value: -20 }]);
+    expect(story("news.canada-general-stops").director?.adds).toEqual([{ var: "var.canada-cutoff", value: 20 }]);
+    expect(story("news.canada-funds-rise").standIn.sets).toEqual([{ var: "var.canada-funds", value: 1600000 }]);
     expect(story("news.passport-fee-doubles").standIn.sets).toEqual([{ var: "var.passport-fee", value: 20000000 }]);
     expect(story("news.fuel-subsidy").director?.adds).toEqual([{ var: "var.inflation", value: 2000 }]);
     expect(story("news.uae-ban").standIn).toMatchObject({ chanceBp: 200, rumourLead: 1, forceLag: 2, endsAfter: 18, revert: true });

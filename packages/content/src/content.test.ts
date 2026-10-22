@@ -162,9 +162,9 @@ describe("references", () => {
     expect(meetup).toBeDefined();
     const bad: Content = {
       ...content,
-      activity: { ...content.activity, "activity.meetup": { ...meetup!, counts: ["route.ca-masters"] } },
+      activity: { ...content.activity, "activity.meetup": { ...meetup!, counts: ["route.canada-masters"] } },
     };
-    expect(danglingReferences(bad)).toEqual(["route.ca-masters"]);
+    expect(danglingReferences(bad)).toEqual(["route.canada-masters"]);
   });
 
   test("[engine:content-checked-before-play] given every offer, when the terms its choices read are listed, then each is defined, picked or handed over", () => {

@@ -16,7 +16,7 @@ import { CANADA_ROUTE, CA_ACCOMPANY, SKILLED, UK_DEPENDANT } from "../../testing
 
 const ukDependant = content.route[UK_DEPENDANT]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-dependant";
-const APPLY_CA: Id<"activity"> = "activity.apply-ca-accompany";
+const APPLY_CA: Id<"activity"> = "activity.apply-canada-accompany";
 const SKILLED_FEE = content.var["var.uk-skilled-visa-fee"]!.start;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const MAINTENANCE = content.var["var.uk-dependant-maintenance"]!.start;
@@ -120,7 +120,7 @@ describe("person:dependant-gate-needs: applying as a dependant", () => {
     game.accept({ type: "activity/now", activity: APPLY_CA, param: null });
     expect(routeOf(game, CA_ACCOMPANY).state).toBe("applying");
     expect(routeOf(game, CA_ACCOMPANY).visa?.surchargePaid).toBe(0);
-    expect(before - game.state.wallet.pockets.CAD.bank).toBe(content.var["var.ca-accompany-fee"]!.start);
+    expect(before - game.state.wallet.pockets.CAD.bank).toBe(content.var["var.canada-accompany-fee"]!.start);
   });
 });
 

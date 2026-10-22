@@ -293,7 +293,7 @@
             "id": "professional",
             "label": "city.act.job-professional",
             "kind": "sheet",
-            "stages": "activity.job-ca-professional"
+            "stages": "activity.job-canada-professional"
           }
         ]
       },
@@ -311,7 +311,7 @@
             "id": "dev",
             "label": "city.act.job-dev",
             "kind": "sheet",
-            "stages": "activity.job-ca-dev"
+            "stages": "activity.job-canada-dev"
           }
         ]
       },

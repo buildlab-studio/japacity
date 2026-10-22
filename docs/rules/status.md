@@ -20,7 +20,7 @@ A status is the permission you hold abroad: what you may do, when it runs out, a
 
 **status:renewing-a-status** The command `status/renew` is accepted while the current status is in force, its entry has `renewMonths` above zero, and the renewal fee and the surcharge for the renewal period can be paid as foreign fees (wallet:foreign-fee-payment-order) with the reasons `fee-visa` and `fee-surcharge`. It extends `expiresMonth` by `renewMonths`. A `one-employer` status renews only while the job is held. A status whose entry has `renewBp` (the Gulf contract) is renewed by the employer, not the player. In the contract's last month a draw on the `status` stream at `renewBp` extends `expiresMonth` by `renewMonths` with no fee and a report line; `status/renew` stays refused for it, and a lost draw lets it lapse.
 
-**status:lawful-months-reach-settlement** `lawfulMonths` goes up by one in the `month` phase while a status that `countsToSettlement` is held. When it reaches the country's settlement months (`var.uk-settle-months`, `var.ca-settle-months`) and the settlement fee can be paid, the effect `status/grant` for the country's settled status is applied in the `clocks` phase, and the fee is taken. A settled status never expires. After the citizenship months on the settled status, the citizen status is granted the same way with its fee.
+**status:lawful-months-reach-settlement** `lawfulMonths` goes up by one in the `month` phase while a status that `countsToSettlement` is held. When it reaches the country's settlement months (`var.uk-settle-months`, `var.canada-settle-months`) and the settlement fee can be paid, the effect `status/grant` for the country's settled status is applied in the `clocks` phase, and the fee is taken. A settled status never expires. After the citizenship months on the settled status, the citizen status is granted the same way with its fee.
 
 **status:removal-sends-home-banned** The effect `status/remove` records a removal with the `banMonths` of the country's overstayer status, which bans every route into the country (place:removal-bans-the-country), and moves the character home with the effect `place/move` (to home): the character is home at once, and the return is on record with the shape `removed` (place:return-shape-decided-at-once). A character who leaves by choice while an overstayer carries no ban: the record of the overstay is enough, and the removal is the only ban.
 
@@ -39,9 +39,9 @@ A status is the permission you hold abroad: what you may do, when it runs out, a
 | `status.uk-settled` | uk | none | any | none | no | `uk-citizen` after 12 months and the fee | | |
 | `status.uk-citizen` | uk | none | any | | | | | |
 | `status.uk-overstayer` | uk | none | cash | | | | no | 120 |
-| `status.ca-resident` | canada | none (permanent residence) | any | none | no | `ca-citizen` after 36 lawful months in Canada and the fee | yes | 240 (needs permission to return; modelled as 20 years) |
-| `status.ca-citizen` | canada | none | any | | | | | |
-| `status.ca-overstayer` | canada | none | cash | | | | no | 240 |
+| `status.canada-resident` | canada | none (permanent residence) | any | none | no | `canada-citizen` after 36 lawful months in Canada and the fee | yes | 240 (needs permission to return; modelled as 20 years) |
+| `status.canada-citizen` | canada | none | any | | | | | |
+| `status.canada-overstayer` | canada | none | cash | | | | no | 240 |
 | `status.gulf-worker` | uae | 24 | one-employer | none: lapses at once | 24 months by the employer's choice (a draw) | none | no | 60 |
 | `status.uae-irregular` | uae | none | cash | | | | no | 60 |
 | `status.eu-irregular` | italy | none | cash | | | | no | 120 |
@@ -64,8 +64,8 @@ A status is the permission you hold abroad: what you may do, when it runs out, a
 | Gulf contract renewed by the employer | 60 in 100 | working value | `status.gulf-worker.renewBp` = 6000 |
 | UK health surcharge, workers | £1,035 a year | In force | `var.uk-surcharge-year` = 103500 |
 | UK health surcharge, students | £776 a year | In force since Feb 2024 | included in `var.uk-surcharge` as the 1.5-year sum |
-| Canada citizenship presence | 1,095 days in five years, modelled as 36 lawful months | IRCC, 2026 | `var.ca-settle-months` start 36 |
-| Canada citizenship fee | C$630 | IRCC | `var.ca-citizen-fee` = 63000 cents |
+| Canada citizenship presence | 1,095 days in five years, modelled as 36 lawful months | IRCC, 2026 | `var.canada-settle-months` start 36 |
+| Canada citizenship fee | C$630 | IRCC | `var.canada-citizen-fee` = 63000 cents |
 | UK removal ban | 10 years | Right to Remain, 2026 | `banMonths` 120 |
 | UAE grace after cancellation | 60 days | Sep 2024 rule | modelled inside the 24-month contract; the Gulf status lapses at once on leaving the job |
 | Detection chance, overstayer, a month | 3% UK and Canada, 6% UAE, 4% Italy | Working values | `detectBp` 300, 300, 600, 400 |

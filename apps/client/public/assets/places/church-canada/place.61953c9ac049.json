@@ -48,7 +48,7 @@
     "triangles": 4
   },
   "stage": {
-    "note": "London's church scene under the church hall's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Canada's. The pews for the newcomers' group (activity.community-ca), the hall looked at, the door.",
+    "note": "London's church scene under the church hall's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Canada's. The pews for the newcomers' group (activity.community-canada), the hall looked at, the door.",
     "ground": {
       "size": [
         16.6,
@@ -330,7 +330,7 @@
             "id": "service",
             "label": "city.act.community",
             "kind": "sheet",
-            "stages": "activity.community-ca"
+            "stages": "activity.community-canada"
           },
           {
             "id": "sit",

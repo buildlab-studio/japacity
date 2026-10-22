@@ -85,9 +85,9 @@ describe("what may be done abroad", () => {
     expect(wrong).toEqual([]);
     expect(listed).toEqual(expect.arrayContaining(["activity.rest", HUNT, "activity.call-home", "activity.community-uk", "activity.send-money"]));
     expect(listed).not.toContain("activity.family-time");
-    expect(listed).not.toContain("activity.community-ca");
+    expect(listed).not.toContain("activity.community-canada");
     game.expectRejected({ type: "turn/end", slots: [slot("activity.family-time")] }, "not-legal");
-    game.expectRejected({ type: "activity/now", activity: "activity.community-ca", param: null }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.community-canada", param: null }, "not-legal");
     game.endTurn([slot("activity.call-home")]);
 
     const home = start({ content, scenario: "scenario.graduate" });

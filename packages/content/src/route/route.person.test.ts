@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { content, text } from "../index";
 
 const used = content;
-const PEOPLE_ROUTES = ["route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"] as const;
+const PEOPLE_ROUTES = ["route.uk-partner", "route.canada-spouse", "route.uk-dependant", "route.canada-accompany"] as const;
 
 describe("the people routes", () => {
   test("[engine:content-checked-before-play] given the partner and dependant routes joined, when figures from person.md are read back, then each matches the page", () => {
@@ -15,13 +15,13 @@ describe("the people routes", () => {
       window: "var.uk-family-window",
       partner: { sponsorStatuses: ["status.uk-settled", "status.uk-citizen"], bandMin: 30, feeVar: "var.uk-partner-fee", surchargeYears: 3, decisionMonths: 3, livingTogetherMonths: 24, floorVar: "var.uk-partner-income" },
     });
-    expect(used.route["route.ca-spouse"]).toMatchObject({
+    expect(used.route["route.canada-spouse"]).toMatchObject({
       gate: "partner",
       country: "country.canada",
-      status: "status.ca-resident",
+      status: "status.canada-resident",
       refusalBaseBp: 600,
-      window: "var.ca-family-window",
-      partner: { sponsorStatuses: ["status.ca-resident", "status.ca-citizen"], bandMin: null, feeVar: "var.ca-sponsor-fee", surchargeYears: 0, decisionMonths: 12, livingTogetherMonths: null, floorVar: null },
+      window: "var.canada-family-window",
+      partner: { sponsorStatuses: ["status.canada-resident", "status.canada-citizen"], bandMin: null, feeVar: "var.canada-sponsor-fee", surchargeYears: 0, decisionMonths: 12, livingTogetherMonths: null, floorVar: null },
     });
     expect(used.route["route.uk-dependant"]).toMatchObject({
       gate: "dependant",
@@ -30,16 +30,16 @@ describe("the people routes", () => {
       window: null,
       dependant: { maintenanceVar: "var.uk-dependant-maintenance", leadMonthsExempt: 12, feeVar: null, feeFromLead: true, decisionMonths: 1 },
     });
-    expect(used.route["route.ca-accompany"]).toMatchObject({
+    expect(used.route["route.canada-accompany"]).toMatchObject({
       gate: "dependant",
-      status: "status.ca-resident",
+      status: "status.canada-resident",
       refusalBaseBp: 300,
       window: null,
-      dependant: { maintenanceVar: null, leadMonthsExempt: null, feeVar: "var.ca-accompany-fee", feeFromLead: false, decisionMonths: 1 },
+      dependant: { maintenanceVar: null, leadMonthsExempt: null, feeVar: "var.canada-accompany-fee", feeFromLead: false, decisionMonths: 1 },
     });
     expect(content.var["var.uk-partner-fee"]?.start).toBe(206400);
-    expect(content.var["var.ca-sponsor-fee"]?.start).toBe(134500);
-    expect(content.var["var.ca-accompany-fee"]?.start).toBe(160000);
+    expect(content.var["var.canada-sponsor-fee"]?.start).toBe(134500);
+    expect(content.var["var.canada-accompany-fee"]?.start).toBe(160000);
     expect(content.var["var.uk-dependant-maintenance"]?.start).toBe(28500);
     expect(content.var["var.uk-partner-income"]?.start).toBe(2900000);
   });
@@ -48,16 +48,16 @@ describe("the people routes", () => {
     const weights = Object.fromEntries(PEOPLE_ROUTES.map((id) => [id, Object.fromEntries(used.route[id]!.checklist.map((item) => [item.id, item.weight]))]));
     expect(weights).toEqual({
       "route.uk-partner": { married: 20, sponsor: 20, floor: 15, english: 10, passport: 5, tb: 5, applied: 25 },
-      "route.ca-spouse": { married: 25, sponsor: 25, passport: 10, applied: 40 },
+      "route.canada-spouse": { married: 25, sponsor: 25, passport: 10, applied: 40 },
       "route.uk-dependant": { joint: 30, lead: 30, passport: 10, tb: 10, funds: 10, applied: 10 },
-      "route.ca-accompany": { joint: 40, lead: 40, applied: 20 },
+      "route.canada-accompany": { joint: 40, lead: 40, applied: 20 },
     });
     const missing = PEOPLE_ROUTES.flatMap((id) => [`${id}.name`, `${id}.blurb`, ...used.route[id]!.checklist.map((item) => `${id}.item.${item.id}`)]).filter((key) => (text[key] ?? "") === "");
     expect(missing).toEqual([]);
   });
 
   test("[engine:content-checked-before-play] given the people routes joined, when every route, status, activity and offer they bring is read, then each has a name, and each id they name exists", () => {
-    const brought = ["activity.apply-uk-partner", "activity.apply-ca-spouse", "activity.apply-uk-dependant", "activity.apply-ca-accompany", "status.uk-partner", "status.uk-dependant", "offer.ca-assistance"] as const;
+    const brought = ["activity.apply-uk-partner", "activity.apply-canada-spouse", "activity.apply-uk-dependant", "activity.apply-canada-accompany", "status.uk-partner", "status.uk-dependant", "offer.canada-assistance"] as const;
     const tables: Record<string, Record<string, unknown>> = { route: used.route, status: used.status, var: used.var, activity: used.activity, document: used.document, country: used.country, obligation: used.obligation, offer: used.offer };
     expect(brought.filter((id) => tables[id.split(".")[0]!]?.[id] === undefined)).toEqual([]);
     const added = [...PEOPLE_ROUTES, ...brought];
@@ -70,11 +70,11 @@ describe("the people routes", () => {
 
 describe("the undertaking, the assistance and the points with a spouse", () => {
   test("[engine:content-checked-before-play] given the undertaking, the assistance offer and Canada's bar, when figures from undertaking.md are read back, then each matches the page", () => {
-    expect(content.obligation["obligation.undertaking-ca"]).toMatchObject({ type: "undertaking", where: "any", currency: "CAD", rateBp: 0, term: 36, grace: 2, sink: "undertaking" });
-    expect(content.obligation["obligation.undertaking-ca"]?.term).toBe(content.tuning.undertaking.months);
-    expect(content.obligation["obligation.undertaking-ca"]?.onDefault).toContainEqual({ type: "credit/mark", amount: -content.tuning.credit.onDefault });
-    expect(content.var["var.ca-assistance"]?.start).toBe(73300);
-    expect(used.offer["offer.ca-assistance"]?.terms).toEqual({ amount: 73300 });
+    expect(content.obligation["obligation.undertaking-canada"]).toMatchObject({ type: "undertaking", where: "any", currency: "CAD", rateBp: 0, term: 36, grace: 2, sink: "undertaking" });
+    expect(content.obligation["obligation.undertaking-canada"]?.term).toBe(content.tuning.undertaking.months);
+    expect(content.obligation["obligation.undertaking-canada"]?.onDefault).toContainEqual({ type: "credit/mark", amount: -content.tuning.credit.onDefault });
+    expect(content.var["var.canada-assistance"]?.start).toBe(73300);
+    expect(used.offer["offer.canada-assistance"]?.terms).toEqual({ amount: 73300 });
     expect(content.tuning.undertaking).toEqual({ months: 36, assistanceUnder: 100000 });
     expect(content.country["country.canada"]?.partnerBarMonths).toBe(60);
     expect(content.country["country.uk"]?.partnerBarMonths).toBe(0);

@@ -39,7 +39,7 @@ for (const table of [uiCalgaryText, uiDubaiText, uiCastelText]) addLateWords(tab
 /** A words key left unsaid, or an en or em dash (docs/rules/text.md), built from their codes so no dash stands in this file. */
 const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
 const ROOM = "place.the-room";
-const PASSES: Readonly<Record<string, Id<"activity">>> = { "country.canada": "activity.transit-pass-ca", "country.uae": "activity.transit-pass-uae" };
+const PASSES: Readonly<Record<string, Id<"activity">>> = { "country.canada": "activity.transit-pass-canada", "country.uae": "activity.transit-pass-uae" };
 
 /** A life landed in the country with its money in hand, and, when asked, this month's pass bought. */
 function landed(country: Id<"country">, pass = false): PlayerView {

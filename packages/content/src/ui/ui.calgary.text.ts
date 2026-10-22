@@ -14,7 +14,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.thing.ticket-machine": "Ticket machine",
   "city.act.transit-pass": "Transit pass",
   "city.thing.platform": "Platform",
-  // The library's evening course (activity.learn-tech-ca), its notice and its shelves.
+  // The library's evening course (activity.learn-tech-canada), its notice and its shelves.
   "city.thing.course-desk": "Course desk",
   "city.act.course": "Evening course",
   "city.thing.course-notice": "Notice",

@@ -953,8 +953,8 @@ describe("requirements", () => {
     turn(game);
     const age = Math.max(...Object.values(game.state.people.bonds).map((bond) => bond.facts?.ageMonths ?? 0));
     const read = { state: game.state, world: game.world(), content: only };
-    expect(check(read, { type: "people/sibling-abroad", country: "country.canada", statuses: ["status.ca-resident", "status.ca-citizen"], minAgeMonths: age + over }).met).toBe(met);
-    expect(check(read, { type: "people/sibling-abroad", country: "country.uk", statuses: ["status.ca-resident"], minAgeMonths: 0 }).met).toBe(false);
+    expect(check(read, { type: "people/sibling-abroad", country: "country.canada", statuses: ["status.canada-resident", "status.canada-citizen"], minAgeMonths: age + over }).met).toBe(met);
+    expect(check(read, { type: "people/sibling-abroad", country: "country.uk", statuses: ["status.canada-resident"], minAgeMonths: 0 }).met).toBe(false);
   });
 });
 

@@ -15,8 +15,8 @@ export const WELLBEING: Id<"quality"> = "quality.wellbeing";
 
 export const CANADA_ROUTE: Id<"route"> = "route.canada-points";
 export const CARE_ROUTE: Id<"route"> = "route.uk-care";
-export const CA_ACCOMPANY: Id<"route"> = "route.ca-accompany";
-export const CA_SPOUSE: Id<"route"> = "route.ca-spouse";
+export const CA_ACCOMPANY: Id<"route"> = "route.canada-accompany";
+export const CA_SPOUSE: Id<"route"> = "route.canada-spouse";
 export const GULF_ROUTE: Id<"route"> = "route.gulf-contract";
 export const SKILLED: Id<"route"> = "route.uk-skilled";
 export const TALENT: Id<"route"> = "route.uk-talent";
@@ -70,7 +70,7 @@ export const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
 export const TUITION: Id<"obligation"> = "obligation.tuition";
 export const UK_PHONE: Id<"obligation"> = "obligation.phone-uk";
 export const UK_UPKEEP: Id<"obligation"> = "obligation.upkeep-uk";
-export const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";
+export const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-canada";
 
 export const CAS: Id<"document"> = "document.cas";
 export const ENGLISH: Id<"document"> = "document.english-test";

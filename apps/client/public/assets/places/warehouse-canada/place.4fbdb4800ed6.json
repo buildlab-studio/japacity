@@ -1,27 +1,31 @@
 {
-  "place": "place.big-shop-canada",
+  "place": "place.warehouse-canada",
   "scope": "interior",
   "hub": false,
-  "note": "The superstore in north-east Calgary (design page 11 section 3), London's big shop room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
+  "note": "The warehouse by Calgary's airport (design page 11 section 3), London's warehouse room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length), six metres high. Counts are the most in view from the whole view; three low and six high.",
   "instances": [
     {
-      "file": "places/big-shop-uk/building_room_bigshop.glb",
+      "file": "places/warehouse-uk/building_room_warehouse.glb",
       "count": 1
     },
     {
-      "file": "places/big-shop-uk/prop_shop-aisle.glb",
-      "count": 4
+      "file": "places/warehouse-uk/prop_racking.glb",
+      "count": 3
     },
     {
-      "file": "places/big-shop-uk/prop_tills.glb",
+      "file": "places/warehouse-uk/prop_cage-trolley.glb",
+      "count": 2
+    },
+    {
+      "file": "places/warehouse-uk/prop_clock-in.glb",
       "count": 1
     },
     {
-      "file": "places/big-shop-uk/prop_trolley-bay.glb",
+      "file": "places/warehouse-uk/prop_smoking-shelter.glb",
       "count": 1
     },
     {
-      "file": "places/yaba-hub/prop_jobs-board.glb",
+      "file": "shared/prop/prop_rota-board.glb",
       "count": 1
     },
     {
@@ -30,7 +34,7 @@
     }
   ],
   "people": {
-    "low": 4,
+    "low": 3,
     "high": 6,
     "sample": [
       "shared/person/person_tunde.glb",
@@ -52,13 +56,13 @@
     "triangles": 2
   },
   "stage": {
-    "note": "London's big shop scene under the superstore's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are big-shop-uk's; the staged acts, the looks and the colleague's lines are Canada's. The trolleys by the door for the weekly shop; the back aisle for winter clothes; the tills and the staff notice looked at, since no Canadian job is held here.",
+    "note": "London's warehouse scene under the warehouse by the airport's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are warehouse-uk's; the staged acts, the looks and the colleague's lines are Canada's. The clock-in for the warehouse job; the rota board for overtime; the shelter where a colleague says a line.",
     "ground": {
       "size": [
         16.6,
         9.6
       ],
-      "colour": "white"
+      "colour": "concreteWorn"
     },
     "roads": [],
     "light": {
@@ -73,19 +77,19 @@
         {
           "at": [
             -3.5,
-            3.2,
+            5.4,
             0
           ],
-          "size": 2.6,
+          "size": 3.0,
           "bulb": true
         },
         {
           "at": [
-            3.5,
-            3.2,
+            3.0,
+            5.4,
             0
           ],
-          "size": 2.6,
+          "size": 3.0,
           "bulb": true
         }
       ]
@@ -117,7 +121,7 @@
     ],
     "models": [
       {
-        "file": "places/big-shop-uk/building_room_bigshop.glb",
+        "file": "places/warehouse-uk/building_room_warehouse.glb",
         "at": [
           [
             0,
@@ -127,55 +131,65 @@
         ]
       },
       {
-        "file": "places/big-shop-uk/prop_shop-aisle.glb",
+        "file": "places/warehouse-uk/prop_racking.glb",
         "at": [
           [
-            -6.4,
-            -1.2,
-            1.5708
+            -3.4,
+            -3.85,
+            0
           ],
           [
-            -4.2,
+            -3.4,
             -1.2,
-            1.5708
+            0
           ],
           [
-            -2.0,
-            -1.2,
-            1.5708
-          ],
-          [
-            -0.6,
-            -3.95,
+            -3.4,
+            1.5,
             0
           ]
         ]
       },
       {
-        "file": "places/big-shop-uk/prop_tills.glb",
+        "file": "places/warehouse-uk/prop_cage-trolley.glb",
         "at": [
           [
-            2.6,
-            1.4,
+            1.0,
+            -0.4,
+            0.3
+          ],
+          [
+            1.9,
+            0.2,
+            -0.2
+          ]
+        ]
+      },
+      {
+        "file": "places/warehouse-uk/prop_clock-in.glb",
+        "at": [
+          [
+            4.0,
+            -4.3,
             0
           ]
         ]
       },
       {
-        "file": "places/big-shop-uk/prop_trolley-bay.glb",
+        "file": "places/warehouse-uk/prop_smoking-shelter.glb",
         "at": [
           [
-            6.0,
-            -2.8,
+            6.9,
+            -3.0,
             -1.5708
           ]
         ]
       },
       {
-        "file": "places/yaba-hub/prop_jobs-board.glb",
+        "file": "shared/prop/prop_rota-board.glb",
         "at": [
           [
-            3.8,
+            1.8,
             -4.1,
             0
           ]
@@ -194,49 +208,44 @@
     ],
     "people": [
       [
-        2.35,
-        1.2,
+        7.3,
+        -3.4,
         -1.5708
       ],
       [
-        -3.1,
-        -0.8,
+        -2.6,
+        -2.5,
         3.1416
       ],
       [
-        0.4,
-        -2.9,
+        4.0,
+        -3.2,
         3.1416
       ],
       [
-        4.5,
-        -2.2,
+        0.3,
+        0.6,
+        1.2
+      ],
+      [
+        -1.8,
+        0.15,
         1.5708
       ],
       [
-        4.15,
-        1.2,
-        -1.5708
+        2.8,
+        2.4,
+        -1.0
       ],
       [
-        0.7,
-        1.9,
-        1.5708
-      ],
-      [
-        -5.3,
+        5.4,
         1.8,
-        0.4
+        -1.5708
       ]
     ],
     "acts": [
       {
         "spot": 0,
-        "pose": "sit",
-        "staff": true
-      },
-      {
-        "spot": 4,
         "pose": "sit",
         "staff": true
       }
@@ -258,72 +267,75 @@
     },
     "things": [
       {
-        "id": "trolley",
-        "file": "places/big-shop-uk/prop_trolley-bay.glb",
+        "id": "clock-in",
+        "file": "places/warehouse-uk/prop_clock-in.glb",
         "copy": 0,
-        "label": "city.thing.trolley",
+        "label": "city.thing.clock-in",
         "at": [
-          4.6,
-          -2.8
+          4.0,
+          -3.4
         ],
         "acts": [
           {
-            "id": "weekly-shop",
-            "label": "city.act.weekly-shop",
+            "id": "warehouse-work",
+            "label": "city.act.job-warehouse",
             "kind": "sheet",
-            "stages": "activity.weekly-shop-ca"
+            "stages": "activity.job-canada-warehouse"
           }
         ]
       },
       {
-        "id": "clothes",
-        "file": "places/big-shop-uk/prop_shop-aisle.glb",
-        "copy": 3,
-        "label": "city.thing.clothes-aisle",
-        "at": [
-          -0.6,
-          -2.9
-        ],
-        "acts": [
-          {
-            "id": "clothes",
-            "label": "city.act.clothes",
-            "kind": "sheet",
-            "stages": "activity.buy-clothes-ca"
-          }
-        ]
-      },
-      {
-        "id": "tills",
-        "file": "places/big-shop-uk/prop_tills.glb",
+        "id": "rota",
+        "file": "shared/prop/prop_rota-board.glb",
         "copy": 0,
-        "label": "city.thing.tills",
+        "label": "city.thing.rota",
         "at": [
-          0.8,
-          0.9
-        ],
-        "acts": [
-          {
-            "id": "look",
-            "label": "city.act.look-tills",
-            "kind": "plain"
-          }
-        ]
-      },
-      {
-        "id": "notice",
-        "file": "places/yaba-hub/prop_jobs-board.glb",
-        "copy": 0,
-        "label": "city.thing.staff-notice",
-        "at": [
-          3.8,
+          1.8,
           -3.3
         ],
         "acts": [
           {
-            "id": "look",
-            "label": "city.act.read-staff-notice",
-            "kind": "plain"
+            "id": "overtime",
+            "label": "city.act.overtime",
+            "kind": "sheet",
+            "stages": "activity.overtime"
+          },
+          {
+            "id": "read",
+            "label": "city.act.read-rota",
+            "kind": "plain",
+            "unless": [
+              "activity.overtime"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "colleague",
+        "file": "places/warehouse-uk/prop_smoking-shelter.glb",
+        "copy": 0,
+        "label": "city.thing.colleague",
+        "at": [
+          5.9,
+          -3.0
+        ],
+        "acts": [
+          {
+            "id": "talk",
+            "label": "city.act.talk-to",
+            "kind": "plain",
+            "tells": "city.line.colleague.warehouse-canada.1"
+          },
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              7.3,
+              -2.6,
+              -1.5708
+            ]
           }
         ]
       },

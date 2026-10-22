@@ -106,33 +106,33 @@ describe("person:canada-sibling-bonus: a sibling in Canada", () => {
   test("[person:canada-sibling-bonus] given a sibling resident in Canada aged exactly 18, and one a month younger, when the score is read, then only the first adds the bonus", () => {
     const adult = life(content, GRADUATE);
     const base = pointsScore(readOf(adult), CANADA_ROUTE);
-    sibling(adult, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident", ageMonths: 18 * YEAR });
+    sibling(adult, "sib-1", { where: "abroad", country: "country.canada", status: "status.canada-resident", ageMonths: 18 * YEAR });
     expect(siblingPoints(readOf(adult), CANADA_ROUTE)).toBe(BONUS);
     expect(pointsScore(readOf(adult), CANADA_ROUTE)).toBe(base + BONUS);
     const young = life(content, GRADUATE);
-    sibling(young, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident", ageMonths: 18 * YEAR - 1 });
+    sibling(young, "sib-1", { where: "abroad", country: "country.canada", status: "status.canada-resident", ageMonths: 18 * YEAR - 1 });
     expect(siblingPoints(readOf(young), CANADA_ROUTE)).toBe(0);
   });
 
   test("[person:canada-sibling-bonus] given two siblings who are citizens, one in the UK, and one with no status, when the bonus is read, then it is counted once, and only for Canada with residence or citizenship", () => {
     const two = life(content, GRADUATE);
-    sibling(two, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-citizen" });
-    sibling(two, "sib-2", { where: "abroad", country: "country.canada", status: "status.ca-resident" });
+    sibling(two, "sib-1", { where: "abroad", country: "country.canada", status: "status.canada-citizen" });
+    sibling(two, "sib-2", { where: "abroad", country: "country.canada", status: "status.canada-resident" });
     expect(siblingPoints(readOf(two), CANADA_ROUTE)).toBe(BONUS);
     const elsewhere = life(content, GRADUATE);
     sibling(elsewhere, "sib-1", { where: "abroad", country: "country.uk", status: "status.uk-settled" });
-    sibling(elsewhere, "sib-2", { where: "abroad", country: "country.canada", status: "status.ca-overstayer" });
+    sibling(elsewhere, "sib-2", { where: "abroad", country: "country.canada", status: "status.canada-overstayer" });
     expect(siblingPoints(readOf(elsewhere), CANADA_ROUTE)).toBe(0);
   });
 
   test("[person:canada-sibling-bonus] given a cut-off exactly the bonus above the graduate's score, when the world's draw looks, then the life is invited with the sibling and not without", () => {
     const probe = life(content, GRADUATE);
     const cutoff = pointsScore(readOf(probe), CANADA_ROUTE) + BONUS;
-    const vars = (): Record<Id<"var">, number> => ({ "var.ca-cutoff": cutoff });
+    const vars = (): Record<Id<"var">, number> => ({ "var.canada-cutoff": cutoff });
     const without = life(content, { ...GRADUATE, vars });
     expect(invites(readOf(without), CANADA_ROUTE)).toBe(false);
     const withSibling = life(content, { ...GRADUATE, vars });
-    sibling(withSibling, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident" });
+    sibling(withSibling, "sib-1", { where: "abroad", country: "country.canada", status: "status.canada-resident" });
     expect(invites(readOf(withSibling), CANADA_ROUTE)).toBe(true);
   });
 });

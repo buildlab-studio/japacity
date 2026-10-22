@@ -280,7 +280,7 @@
             "id": "warehouse-work",
             "label": "city.act.job-warehouse",
             "kind": "sheet",
-            "stages": "activity.job-ca-warehouse"
+            "stages": "activity.job-canada-warehouse"
           }
         ]
       },

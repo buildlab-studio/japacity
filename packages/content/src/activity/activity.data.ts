@@ -739,7 +739,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     param: null,
     // C$329, paid as a foreign fee.
-    cost: [{ currency: "CAD", amount: { var: "var.ca-eca-fee" }, reason: "fee-document" }],
+    cost: [{ currency: "CAD", amount: { var: "var.canada-eca-fee" }, reason: "fee-document" }],
     pay: null,
     hireBp: null,
     effects: [{ type: "document/request", document: "document.eca" }],
@@ -752,7 +752,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     // route-gates:entering-the-pool. Band 6.0 is CLB 7; `route/funds` asks for the funds.
     requires: [
       known(CANADA),
-      windowOpen("var.ca-window"),
+      windowOpen("var.canada-window"),
       held("document.eca"),
       held("document.english-test", 60),
       { type: "activity/tenure", activities: [], months: 12 },
