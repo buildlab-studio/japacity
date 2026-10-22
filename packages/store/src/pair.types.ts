@@ -157,6 +157,8 @@ export interface ModerationStore {
   blocked: (x: string, y: string) => Promise<boolean>;
   /** The blocks the account has made, oldest first. */
   blocksBy: (account: string) => Promise<BlockRow[]>;
+  /** moderation:block-refuses-both-ways: every account the account is blocked with, whichever side blocked, each once. */
+  blockedWith: (account: string) => Promise<string[]>;
   /** pair:report-holds-conversation, moderation:reports-hold-cited-records: the report and its hold, together. Refused with `exists` for a known id. */
   report: (report: NewReport, hold: Omit<HoldRow, "report" | "lifted">) => Promise<StoreResult<ReportRow>>;
   get: (id: string) => Promise<ReportRow | null>;

@@ -56,3 +56,40 @@ describe("who may read a place's crowd", () => {
     expect(here.body.others).toEqual([{ name: "watched", look: "scenario.graduate" }]);
   });
 });
+
+describe("a block in a place", () => {
+  test("[moderation:block-refuses-both-ways] given one player blocked by another and a third in the place, when each fetches the presence, then neither of the two sees the other and the third sees both", async () => {
+    const target = testServer();
+    target.app.route("/", placeSocketRoutes(target.deps, { rooms: {} as Rooms, placeOf: placeOfIn(target.deps), profileOf: profileOfIn(target.deps) }));
+    const place = "place.ojuelegba";
+    for (const account of ["acc-blocker", "acc-blocked", "acc-third"]) {
+      await newLife(target, account);
+      await target.deps.stores.presence.join(place, `socket-${account}`, { account, name: account, look: "scenario.graduate", place, joinedAt: 0 });
+    }
+    await target.deps.stores.moderation.block({ from: "acc-blocker", to: "acc-blocked", at: target.deps.now() });
+
+    const names = async (account: string) => (await call<PresenceReply>(target, "GET", `/api/place/${place}`, account)).body.others.map((other) => other.name).sort();
+
+    expect(await names("acc-blocker")).toEqual(["acc-third"]);
+    expect(await names("acc-blocked")).toEqual(["acc-third"]);
+    expect(await names("acc-third")).toEqual(["acc-blocked", "acc-blocker"]);
+  });
+
+  test("[moderation:block-refuses-both-ways] [clock:presence-is-a-sample] given more players than the sample and a blocked one among them, when the blocker fetches the presence, then the sample is still full and never holds the blocked player", async () => {
+    const target = testServer();
+    target.app.route("/", placeSocketRoutes(target.deps, { rooms: {} as Rooms, placeOf: placeOfIn(target.deps), profileOf: profileOfIn(target.deps) }));
+    const place = "place.ojuelegba";
+    const size = Math.min(target.deps.config.presence.sample, content.place[place]!.crowd.target);
+    await newLife(target, "acc-blocker");
+    for (const account of ["acc-blocked", ...Array.from({ length: size }, (_unused, index) => `acc-${String(index)}`)]) {
+      await target.deps.stores.presence.join(place, `socket-${account}`, { account, name: account, look: "scenario.graduate", place, joinedAt: 0 });
+    }
+    await target.deps.stores.moderation.block({ from: "acc-blocked", to: "acc-blocker", at: target.deps.now() });
+
+    for (let fetch = 0; fetch < 6; fetch += 1) {
+      const others = (await call<PresenceReply>(target, "GET", `/api/place/${place}`, "acc-blocker")).body.others.map((other) => other.name);
+      expect(others).toHaveLength(size);
+      expect(others).not.toContain("acc-blocked");
+    }
+  });
+});

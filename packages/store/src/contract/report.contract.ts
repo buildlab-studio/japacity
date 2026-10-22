@@ -26,6 +26,21 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.blocksBy("account-b")).toEqual([]);
     });
 
+    test("[moderation:block-refuses-both-ways] given blocks made by an account and against it, when the accounts it is blocked with are read, then each other account is named once, whichever side blocked, and a lifted block names no one", async () => {
+      const store = await make();
+      await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });
+      await store.block({ from: "account-c", to: "account-a", at: time.DAY_MS });
+      await store.block({ from: "account-a", to: "account-c", at: 2 * time.DAY_MS });
+      await store.block({ from: "account-d", to: "account-e", at: time.DAY_MS });
+
+      expect([...(await store.blockedWith("account-a"))].sort()).toEqual(["account-b", "account-c"]);
+      expect(await store.blockedWith("account-b")).toEqual(["account-a"]);
+      expect(await store.blockedWith("account-e")).toEqual(["account-d"]);
+      expect(await store.blockedWith("account-f")).toEqual([]);
+      await store.unblock("account-d", "account-e");
+      expect(await store.blockedWith("account-e")).toEqual([]);
+    });
+
     test("[moderation:block-ends-pair-records] given a block, when it is lifted, then neither direction is blocked and a second lift finds nothing", async () => {
       const store = await make();
       await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });

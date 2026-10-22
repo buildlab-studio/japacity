@@ -5,6 +5,7 @@
 import type { PresenceReply } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
 import { toHex } from "@japacity/sim";
+import type { PresenceMember } from "@japacity/store";
 import { Hono } from "hono";
 
 import type { ServerDeps } from "../dependencies";
@@ -37,6 +38,13 @@ function shown(member: { name: string; look: string }): { name: string; look: st
   return { name: member.name, look: member.look };
 }
 
+/** moderation:block-refuses-both-ways: the accounts blocked with the asker either way, and the usernames the day's list shows them by. */
+async function hiddenFrom(deps: ServerDeps, account: string): Promise<{ accounts: Set<string>; names: Set<string> }> {
+  const accounts = new Set(await deps.stores.moderation.blockedWith(account));
+  if (accounts.size === 0) return { accounts, names: new Set() };
+  return { accounts, names: new Set((await deps.stores.account.usernames([...accounts])).values()) };
+}
+
 /**
  * The place routes, mounted where the place objects are: `GET /api/place/:place`, a fresh sample of the other players there
  * (clock:presence-is-a-sample) and of some seen there today (city:players-shown-present-not-tracked), and
@@ -61,13 +69,17 @@ export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Ho
     const store = deps.stores.presence;
     // city:residents-fill-to-target, server:private-settings-and-dials: never more players than the place's target headcount, dial applied.
     const n = Math.min(deps.config.presence.sample, await placeTarget(deps, place));
+    // moderation:block-refuses-both-ways: the sample is asked for as many more as could be hidden, so it is still full once they are taken out.
+    const hidden = await hiddenFrom(deps, session.account);
+    const ask = n + hidden.accounts.size;
+    const others = (members: readonly PresenceMember[]) => members.filter((member) => !hidden.accounts.has(member.account)).slice(0, n);
     if (readsToday(store)) {
-      const look = await store.lookWithToday(place, n, session.account, seed, deps.now());
-      reply.others = look.others.map(shown);
-      reply.today = look.today.map(shown);
+      const look = await store.lookWithToday(place, ask, session.account, seed, deps.now());
+      reply.others = others(look.others).map(shown);
+      reply.today = look.today.filter((seen) => !hidden.names.has(seen.name)).slice(0, n - reply.others.length).map(shown);
       return c.json(reply);
     }
-    reply.others = (await store.sample(place, n, session.account, seed)).map(shown);
+    reply.others = others(await store.sample(place, ask, session.account, seed)).map(shown);
     return c.json(reply);
   });
 

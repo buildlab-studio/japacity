@@ -46,6 +46,15 @@ export function pgModerationStore(handle: Handle): ModerationStore {
     blocksBy: (account) =>
       handle.read(async (db) => (await db.select().from(blocks).where(eq(blocks.from, account)).orderBy(asc(blocks.at))).map(toBlock)),
 
+    blockedWith: (account) =>
+      handle.read(async (db) => {
+        const rows = await db
+          .select()
+          .from(blocks)
+          .where(or(eq(blocks.from, account), eq(blocks.to, account)));
+        return [...new Set(rows.map((row) => (row.from === account ? row.to : row.from)))];
+      }),
+
     report: (report, hold) =>
       handle.transaction(async (tx) => {
         const [row] = await tx
