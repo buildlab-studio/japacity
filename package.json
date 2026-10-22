@@ -21,6 +21,7 @@
     "check:scrub": "tsx tools/check/scrub.ts",
     "check:version": "tsx tools/check/version.ts check",
     "content:seal": "tsx tools/check/version.ts seal",
+    "content:freeze": "tsx tools/check/version.ts freeze",
     "assets:export": "tsx tools/assets/export.ts",
     "assets:shoot": "tsx tools/assets/shoot.ts",
     "assets:outline": "tsx tools/assets/outline.ts",

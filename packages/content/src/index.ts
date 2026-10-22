@@ -142,8 +142,9 @@ export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./s
 
 /**
  * The older content versions the server still bundles (server:older-contents-bundled), each exactly as it shipped,
- * so a life whose last segment names one replays under it and is upgraded on its first load. Version 1 is the first,
- * so there is none.
+ * so a life whose last segment names one replays under it and is upgraded on its first load. `pnpm content:freeze`
+ * writes each to `older/<version>` and lists it here (server:older-content-frozen); while version 1 is the current,
+ * there is none.
  */
 export const olderContents: readonly Content[] = [];
 
