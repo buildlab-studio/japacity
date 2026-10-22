@@ -12,6 +12,7 @@ import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "b
 
 import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../dependencies";
+import { leavePlaces } from "../postgres";
 import type { AuthKeys } from "./auth";
 import { passkeyShown } from "./session";
 import type { SignedInWith } from "./session";
@@ -27,6 +28,7 @@ export const EMAIL_LIMIT_WINDOW_MS = 60_000;
 
 const SEND_PATH = "/email-otp/send-verification-otp";
 const UNLINK_PATHS = new Set(["/unlink-account", "/passkey/delete-passkey"]);
+const REVOKE_PATH = "/revoke-sessions";
 const VERIFY_REGISTRATION_PATH = "/passkey/verify-registration";
 const VERIFY_AUTHENTICATION_PATH = "/passkey/verify-authentication";
 const REGISTER_PATHS = new Set(["/passkey/generate-register-options", VERIFY_REGISTRATION_PATH]);
@@ -329,10 +331,22 @@ async function endSteppedUpSession(ctx: HookContext): Promise<void> {
   if (before?.session.userId === opened.userId) await internal.deleteSession(token);
 }
 
+/**
+ * account:sign-out-ends-the-session, account:player-deletes-account: signing out on every phone ends every session, so the
+ * account's place sockets, which those sessions opened, close with them and its name leaves the day's list.
+ */
+async function leavePlacesOnRevoke(deps: ServerDeps, ctx: HookContext): Promise<void> {
+  if (ctx.path !== REVOKE_PATH || isAPIError(ctx.context.returned)) return;
+  const account = ctx.context.session?.user.id;
+  const row = account === undefined ? null : await deps.stores.account.get(account);
+  if (row !== null) await leavePlaces(deps, row.id, row.username);
+}
+
 /** The hooks run after every library route. */
 export function afterAuth(deps: ServerDeps, keys: AuthKeys) {
   return createAuthMiddleware(async (ctx) => {
     await endSessionsOnUnlink(ctx);
+    await leavePlacesOnRevoke(deps, ctx);
     await endSteppedUpSession(ctx);
     await notePasskey(deps, keys, ctx);
   });

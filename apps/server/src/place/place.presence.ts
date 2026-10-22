@@ -4,7 +4,7 @@
 import type { PresenceMember, PresenceStore } from "@japacity/store";
 
 import { CLOSE_NORMAL } from "./place.socket";
-import { leaveRooms, lookAround, openSocket, roomLook } from "./place.rooms";
+import { forgetRooms, leaveRooms, lookAround, openSocket, roomLook } from "./place.rooms";
 import type { Rooms } from "./place.rooms";
 import type { Seen } from "./place.today";
 
@@ -46,6 +46,9 @@ export function placePresenceStore(rooms: Rooms): PresenceStore & TodayReader {
       ends.delete(socket);
     },
     sample: (place, n, asker, seed) => lookAround(rooms, place, asker, n, seed),
+    forget: async (places, account, name) => {
+      await Promise.all(places.map((place) => forgetRooms(rooms, place, account, name)));
+    },
     lookWithToday: async (place, n, asker, seed, now) => {
       const look = await roomLook(rooms, place, asker, n, seed, now);
       return { others: look.sample, today: look.today };

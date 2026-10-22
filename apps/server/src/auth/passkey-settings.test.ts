@@ -3,6 +3,8 @@
 // (account:passkey-added-in-place), and signing out here or on every phone (account:sign-out-ends-the-session).
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { forgettingPresence } from "../app.testing";
+import { memoryStores } from "../dependencies";
 import { softwarePasskey } from "./passkey.testing";
 import { harness, makeJar } from "./auth.testing";
 import type { Harness, Jar } from "./auth.testing";
@@ -73,5 +75,22 @@ describe("signing out (account:sign-out-ends-the-session)", () => {
     expect(await playing(h, jar)).toBe(401);
     expect(await playing(h, other)).toBe(401);
     expect(await playing(h, stranger.jar)).toBe(200);
+  });
+
+  test("[account:sign-out-ends-the-session] [account:player-deletes-account] given a kept life standing in a place, when it signs out on this phone, then its socket is left to the phone; when it signs out on every phone, then its sockets close and its name leaves the day's list", async () => {
+    const presence = forgettingPresence();
+    const h = harness({ stores: { ...memoryStores(), presence } });
+    const { jar, account } = await h.signUp("ada@example.com");
+    const other = await signedInAgain(h, "ada@example.com");
+    const username = (await h.deps.stores.account.get(account))?.username ?? "";
+    await presence.join("place.ojuelegba", "socket-1", { account, name: username, look: "person_ada", place: "place.ojuelegba", joinedAt: 0 });
+
+    expect((await h.call("/api/auth/sign-out", { method: "POST", jar, json: {} })).status).toBe(200);
+    expect(presence.forgotten).toEqual([]);
+    expect((await h.call("/api/auth/revoke-sessions", { method: "POST", jar: other, json: {} })).status).toBe(200);
+
+    expect(username).not.toBe("");
+    expect(presence.forgotten).toEqual([{ account, name: username, places: expect.arrayContaining(["place.ojuelegba"]) as string[] }]);
+    expect(await presence.sample("place.ojuelegba", 20, null, 0)).toEqual([]);
   });
 });

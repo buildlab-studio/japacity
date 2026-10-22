@@ -18,6 +18,8 @@ import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTar
 import { rollbackCheck } from "../ops/rollback";
 import { GATED_COMMANDS } from "./gate";
 import { readSwitches } from "./switches";
+import type { Rooms } from "../place/place.rooms";
+import { placeSocketRoutes } from "../routes/place";
 
 const ADMIN = "account.owner";
 const { cacheMs, retryMs } = productionConfig.switches;
@@ -375,6 +377,8 @@ describe("the dials' callers", () => {
   test("[server:private-settings-and-dials] [city:residents-fill-to-target] [clock:presence-is-a-sample] given five players in a place whose target is dialed to 2, when the presence is fetched, then at most 2 others are sampled, and the config's sample once the dial is unset", async () => {
     const target = server();
     const place = "place.ojuelegba";
+    // city:players-shown-present-not-tracked: the asker's character stands in the place it asks about.
+    target.app.route("/", placeSocketRoutes(target.deps, { rooms: {} as Rooms, placeOf: () => Promise.resolve(place), profileOf: () => Promise.resolve(null) }));
     for (let index = 0; index < 6; index += 1) await target.deps.stores.presence.join(place, `socket-${String(index)}`, { account: `acc-${String(index)}`, name: `N${String(index)}`, look: "look.a", place, joinedAt: 0 });
     await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "placeTarget", place, value: 2, reason: "quiet" });
     const sampled = await call<{ others: unknown[] }>(target, "GET", `/api/place/${place}`, "acc-0");

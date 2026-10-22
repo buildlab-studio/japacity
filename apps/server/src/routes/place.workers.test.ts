@@ -13,6 +13,9 @@ import { roomCounts } from "../place/place.rooms";
 import type { Rooms } from "../place/place.rooms";
 import { freshRooms, listenTo, member, until } from "../place/place.testing";
 import type { ServerConfig } from "../config";
+import { requestDeletion } from "../account/deletion";
+import { newLife, testServer } from "../authority/authority.testing";
+import { placeOfIn, profileOfIn } from "../postgres";
 import { placeSocketRoutes } from "./place";
 
 const PLACE = "place.agege";
@@ -263,3 +266,67 @@ describe("the presence fetch's players seen today", () => {
     expect(reply).toEqual({ place: PLACE, others: [], today: [{ name: "Name account-1", look: "look-account-1" }] } satisfies PresenceReply);
   });
 });
+
+/** An account row whose username is the name the place shows, so a block's names can be read. */
+async function named(setupped: Setup, account: string): Promise<void> {
+  const at = setupped.deps.now();
+  const made = await setupped.deps.stores.account.create({
+    id: account,
+    country: "NG",
+    age: { passed: true, at, method: "declared" },
+    createdAt: at,
+    character: null,
+    notifyBankFull: false,
+    sendUsageCounts: true,
+    state: "secured",
+    username: `Name ${account}`,
+    usernameChangedAt: null,
+    lastPlayedAt: at,
+  });
+  if (!made.ok) throw new Error(made.detail);
+}
+
+describe("a block in a place's day", () => {
+  test("[moderation:block-refuses-both-ways] [city:players-shown-present-not-tracked] given one player blocked by another and a third, all seen here today, when each of the two fetches the presence, then neither is in the other's today and the third is in both", async () => {
+    const accounts = ["account-1", "account-2", "account-3"];
+    const setupped = setup(Object.fromEntries(accounts.map((account) => [account, PLACE])));
+    for (const account of accounts) {
+      await named(setupped, account);
+      await visit(setupped, account);
+    }
+    await setupped.deps.stores.moderation.block({ from: "account-2", to: "account-1", at: NOW });
+
+    const today = async (account: string) => (await (await presence(setupped, account)).json<PresenceReply>()).today.map((other) => other.name).sort();
+
+    const byOne = await today("account-1");
+    const byTwo = await today("account-2");
+    expect(byOne).toContain("Name account-3");
+    expect(byOne).not.toContain("Name account-2");
+    expect(byTwo).toContain("Name account-3");
+    expect(byTwo).not.toContain("Name account-1");
+    expect(await today("account-3")).toEqual(expect.arrayContaining(["Name account-1", "Name account-2"]));
+  });
+});
+
+describe("an account that leaves every place", () => {
+  test("[account:player-deletes-account] [city:players-shown-present-not-tracked] given a player in the hub on an open socket and another who sees them, when the player's deletion is asked for, then the socket closes at once and the player is in neither the crowd nor the day's list", async () => {
+    const rooms = freshRooms();
+    const server = testServer({ stores: { ...memoryStores(), presence: placePresenceStore(rooms) } });
+    server.app.route("/", placeSocketRoutes(server.deps, { rooms, placeOf: placeOfIn(server.deps), profileOf: profileOfIn(server.deps) }));
+    await newLife(server, "account-gone");
+    await newLife(server, "account-watch");
+    const hub = "place.ojuelegba";
+    const reply = await server.app.request(`/api/place/${hub}/socket`, { headers: { "x-test-account": "account-gone", upgrade: "websocket" } });
+    const end = listenTo(await opened(reply));
+    const look = async () => (await server.app.request(`/api/place/${hub}`, { headers: { "x-test-account": "account-watch" } })).json<PresenceReply>();
+    expect((await look()).others.map((other) => other.name)).toEqual(["account-gone"]);
+
+    await requestDeletion(server.deps, "account-gone");
+    await until(() => end.closed !== null, "the socket to close");
+
+    const after = await look();
+    expect(after.others).toEqual([]);
+    expect(after.today).toEqual([]);
+  });
+});
+

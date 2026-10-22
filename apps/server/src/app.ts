@@ -12,7 +12,6 @@ import { authRoutes } from "./routes/auth";
 import { characterRoute } from "./routes/character";
 import { commandRoute } from "./routes/command";
 import { notifyRoutes } from "./routes/notify";
-import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
 import { lightsRoute } from "./routes/lights";
@@ -39,6 +38,7 @@ import { bodyLimits } from "./security/body";
 import { onAppError } from "./security/fail";
 import { securityHeaders } from "./security/headers";
 import { sameOriginWrites } from "./security/origin";
+import { storablePaths } from "./security/storable";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
@@ -49,6 +49,8 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   // A write from another site, or a body too large, is refused before anything reads or counts it.
   if (accounts !== undefined) app.use(sameOriginWrites(accounts.keys.siteUrl));
   app.use(bodyLimits(deps.config.limits));
+  // An id Postgres cannot store is refused before any gate or route reads it.
+  app.use("/api/*", storablePaths());
   // account:dead-cookie-expired-on-first-read, account:session-renewal-reaches-browser: inside the body limit, whose
   // request is the one every gate and route below reads the session from.
   if (accounts !== undefined) app.use(sessionCookies());
@@ -67,7 +69,6 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", dedicationRoutes(deps));
   app.route("/", adminDedicationRoutes(deps));
   app.route("/", characterRoute(deps));
-  app.route("/", placeRoutes(deps));
   app.route("/", notifyRoutes(deps));
   app.route("/", advertRoutes(deps, () => isOn(deps, "adverts")));
   app.route("/api/admin/adverts", adminAdvertRoutes(deps));

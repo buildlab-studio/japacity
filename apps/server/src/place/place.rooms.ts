@@ -111,6 +111,14 @@ export async function nudgeRooms(rooms: Rooms, place: string, account: string, n
   }
 }
 
+/** account:player-deletes-account, moderation:fixed-admin-actions: the account's sockets closed and `name` off the day's list in every room of the place up to the first empty one. */
+export async function forgetRooms(rooms: Rooms, place: string, account: string, name: string): Promise<void> {
+  for (let room = 0; ; room++) {
+    const left = await roomStub(rooms, place, room).forget(account, name);
+    if (left.members === 0) return;
+  }
+}
+
 /** clock:moving-switches-place-socket: closes one socket wherever it is in the place. */
 export async function leaveRooms(rooms: Rooms, place: string, socket: string): Promise<void> {
   for (let room = 0; ; room++) {

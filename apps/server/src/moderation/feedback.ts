@@ -7,6 +7,7 @@ import type { FeedbackRow } from "@japacity/store";
 
 import { sha256Hex } from "../auth/hooks";
 import type { ServerDeps } from "../dependencies";
+import { storableText } from "../security/storable";
 import { newId } from "./decide";
 
 const LABEL = /^[\w.:-]{1,64}$/;
@@ -29,6 +30,8 @@ export async function sendFeedback(deps: ServerDeps, account: string, region: st
   const { maxChars, perDay } = deps.config.feedback;
   if (typeof text !== "string" || text.trim() === "") return { ok: false, status: 400, code: "not-legal", detail: "text is the feedback itself." };
   if (characters(text.trim()) > maxChars) return { ok: false, status: 400, code: "not-legal", detail: `text is at most ${String(maxChars)} characters.` };
+  // Refused before the day's send is taken, so text the database cannot store neither fails there nor costs a send.
+  if (!storableText(text)) return { ok: false, status: 400, code: "not-legal", detail: "text holds a character that cannot be kept." };
   if (typeof build !== "string" || !LABEL.test(build)) return { ok: false, status: 400, code: "not-legal", detail: "build is the client's build number." };
   if (typeof screen !== "string" || !LABEL.test(screen)) return { ok: false, status: 400, code: "not-legal", detail: "screen names the screen it was sent from." };
   if (mode !== "low" && mode !== "high") return { ok: false, status: 400, code: "not-legal", detail: "mode is low or high." };

@@ -24,6 +24,10 @@ export function memoryModerationStore(): ModerationStore {
     },
     blocked: (x, y) => Promise.resolve(blocks.some((each) => (each.from === x && each.to === y) || (each.from === y && each.to === x))),
     blocksBy: (account) => Promise.resolve(copy(blocks.filter((each) => each.from === account).sort((p, q) => p.at - q.at))),
+    blockedWith: (account) => {
+      const others = blocks.flatMap((each) => (each.from === account ? [each.to] : each.to === account ? [each.from] : []));
+      return Promise.resolve([...new Set(others)]);
+    },
     report: (report, hold) => {
       if (reports.some((each) => each.id === report.id)) return Promise.resolve(refuse("exists", `The report ${report.id} exists already.`));
       const row: ReportRow = { ...copy(report), status: "open", outcome: null, decidedAt: null };

@@ -44,6 +44,12 @@ export function recordSeen(stored: TodayList | undefined, day: number, seen: See
   return { day, seen: all.slice(Math.max(0, all.length - max)) };
 }
 
+/** moderation:fixed-admin-actions, account:player-deletes-account: the list without `name`, or the same list when it never held it. */
+export function forgetSeen(stored: TodayList | undefined, name: string): TodayList | undefined {
+  if (stored === undefined || !stored.seen.some((each) => each.name === name)) return stored;
+  return { day: stored.day, seen: stored.seen.filter((each) => each.name !== name) };
+}
+
 /** Reads what storage gave back, or undefined for anything that is not a list. */
 export function parseTodayList(value: unknown): TodayList | undefined {
   if (typeof value !== "object" || value === null) return undefined;

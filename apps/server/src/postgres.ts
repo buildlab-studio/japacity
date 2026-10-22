@@ -116,6 +116,20 @@ export function hubFor(where: Where, country: Id<"country"> | null, places: read
   return hub?.id ?? NO_HUB[where];
 }
 
+/** account:player-deletes-account: every place `hubFor` can answer, so every place a character's socket can be open in. */
+export function socketPlaces(places: readonly PlaceEntry[]): Id<"place">[] {
+  return [...new Set([...places.filter((place) => place.hub).map((place) => place.id), ...Object.values(NO_HUB)])];
+}
+
+/**
+ * account:player-deletes-account, moderation:fixed-admin-actions, account:sign-out-ends-the-session, city:players-shown-present-not-tracked:
+ * the account's sockets in every place close at once, and `name` leaves every day's list. Called with the name the crowd last
+ * showed: the old one on a rename, the account's own when it is deleted, suspended, banned or signed out on every phone.
+ */
+export async function leavePlaces(deps: ServerDeps, account: string, name: string): Promise<void> {
+  await deps.stores.presence.forget(socketPlaces(Object.values(deps.contents.current.place)), account, name);
+}
+
 /** clock:socket-only-nudges, clock:moving-switches-place-socket, city:players-shown-present-not-tracked: the content place a character's sockets and nudges are for. */
 export function placeOfIn(deps: ServerDeps): PlaceOf {
   return async (account) => {

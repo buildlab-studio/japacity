@@ -6,7 +6,7 @@ import { newLife, testServer } from "./authority/authority.testing";
 import { productionConfig } from "./config";
 import { openLimiters } from "./dependencies";
 import type { Place } from "./place/place.object";
-import { hubFor, isolateFor, openRequest, placeOfIn, profileOfIn } from "./postgres";
+import { hubFor, isolateFor, openRequest, placeOfIn, profileOfIn, socketPlaces } from "./postgres";
 
 const PLACES = Object.values(content.place);
 
@@ -20,6 +20,17 @@ describe("the place a character's socket is for", () => {
     }
     expect(hubFor("abroad", "country.uk", PLACES)).toBe("place.peckham");
     expect(hubFor("abroad", "country.uae", PLACES)).toBe("place.deira");
+  });
+
+  test("[account:player-deletes-account] given the content with its hubs and with none, when the places a socket can be open in are listed, then every place the hub read can answer is among them, and few enough to visit at once", () => {
+    const none = PLACES.map((place) => ({ ...place, hub: false }));
+    for (const places of [PLACES, none]) {
+      const listed = socketPlaces(places);
+      const answers = [hubFor("home", null, places), hubFor("road", null, places), ...[null, ...Object.values(content.country).map((country) => country.id)].map((country) => hubFor("abroad", country, places))];
+      for (const answer of answers) expect(listed).toContain(answer);
+      expect(new Set(listed).size).toBe(listed.length);
+      expect(listed.length).toBeLessThanOrEqual(PLACES.filter((place) => place.hub).length + 3);
+    }
   });
 
   test("[city:players-shown-present-not-tracked] given content with no hub for a where, when the hub is read, then the client's fallback place is answered", () => {

@@ -19,6 +19,15 @@ export function memoryPresenceStore(): PresenceStore {
       if (sockets?.size === 0) places.delete(place);
       return Promise.resolve();
     },
+    forget: (wanted, account) => {
+      // Memory keeps no day's list, so only the sockets go.
+      for (const place of wanted) {
+        const sockets = places.get(place);
+        for (const [socket, member] of sockets ?? []) if (member.account === account) sockets?.delete(socket);
+        if (sockets?.size === 0) places.delete(place);
+      }
+      return Promise.resolve();
+    },
     sample: (place, n, asker, seed) => {
       // One entry per account, the first socket's, so a player on two tabs is shown once.
       const byAccount = new Map<string, PresenceMember>();

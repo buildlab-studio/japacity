@@ -63,6 +63,16 @@ describe("the server's log line", () => {
     expect(scrubbed("word ".repeat(100))).toHaveLength(MESSAGE_MAX);
   });
 
+  test("[server:shared-observability-block] given an error's words with double-quoted values, as Postgres quotes input, and an email written with %40, when they are scrubbed, then each is taken out", () => {
+    expect(scrubbed('invalid input syntax for type uuid: "bisi-okafor"')).toBe('invalid input syntax for type uuid: "<value>"');
+    expect(scrubbed('invalid input value for enum region: "Adaeze"')).toBe('invalid input value for enum region: "<value>"');
+    expect(scrubbed('password authentication failed for user "neondb_owner"')).toBe('password authentication failed for user "<value>"');
+    expect(scrubbed('relation "a" and "b c" differ')).toBe('relation "<value>" and "<value>" differ');
+    expect(scrubbed("could not send to bisi%40gmail.com")).toBe("could not send to <email>");
+    expect(scrubbed("could not send to BISI%40Gmail.COM now")).toBe("could not send to <email> now");
+    expect(JSON.stringify(failureLine({ what: "request", method: "GET", path: "/api/view", status: 500, error: new Error('invalid input syntax for type uuid: "bisi-okafor"') }))).not.toContain("bisi-okafor");
+  });
+
   test("[server:shared-observability-block] given paths with ids, codes, pair keys and content ids, when their shape is taken, then route words and content ids stay and every other segment is :id", () => {
     expect(pathShape("/api/health")).toBe("/api/health");
     expect(pathShape("/api/place/place.ojuelegba/socket")).toBe("/api/place/place.ojuelegba/socket");

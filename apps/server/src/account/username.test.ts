@@ -2,7 +2,9 @@ import { blockedWords, reservedNames } from "@japacity/content";
 import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { forgettingPresence } from "../app.testing";
 import { harness, makeJar } from "../auth/auth.testing";
+import { memoryStores } from "../dependencies";
 import { productionConfig } from "../config";
 import { generatedFirstName } from "./person";
 import { characterNameProblem, generatedUsername, nameProblem, renameFrom } from "./username";
@@ -125,6 +127,22 @@ describe("the username on the server", () => {
     vi.setSystemTime(waitUntil);
     expect(await (await rename("Ada_Kano")).json()).toMatchObject({ ok: true, account: { username: "Ada_Kano" } });
     expect((await rename("not ok")).status).toBe(400);
+  });
+
+  test("[account:username-and-unconfirmed-email] [city:players-shown-present-not-tracked] given a player standing in a place, when it changes its username, then its sockets close at once and the old name leaves the day's list; a refused change reaches no place", async () => {
+    const presence = forgettingPresence();
+    const h = harness({ stores: { ...memoryStores(), presence } });
+    await h.guest(makeJar(), { username: "bola_abuja" });
+    const { jar, account } = await h.guest(makeJar(), { username: "ada_lagos" });
+    await presence.join("place.ojuelegba", "socket-1", { account, name: "ada_lagos", look: "person_ada", place: "place.ojuelegba", joinedAt: 0 });
+    const rename = (username: string) => h.call("/api/account/username", { method: "PUT", jar, json: { username } });
+
+    expect((await rename("Bola_Abuja")).status).toBe(409);
+    expect(presence.forgotten).toEqual([]);
+    expect((await rename("Ada_Ibadan")).status).toBe(200);
+
+    expect(presence.forgotten).toEqual([{ account, name: "ada_lagos", places: expect.arrayContaining(["place.ojuelegba"]) as string[] }]);
+    expect(await presence.sample("place.ojuelegba", 20, null, 0)).toEqual([]);
   });
 
   test("[account:username-and-unconfirmed-email] given a username, when anything tries to sign in with it, then no such way in exists", async () => {

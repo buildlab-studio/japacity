@@ -47,4 +47,28 @@ describe("mutes and suspensions on the people routes", () => {
     await newLife(server, INVITER);
     expect(await cardOut(server)).toMatch(/.+/);
   });
+
+  test("[moderation:fixed-admin-actions] given a link a player made before a mute or a suspension, when another opens or takes it while the restriction runs, then it is refused as no such link and no pair is made; once the restriction ends, the link opens and is taken", async () => {
+    for (const action of ["mute", "suspend"] as const) {
+      const server = pairServer();
+      await newLife(server, INVITER, "scenario.graduate");
+      await newLife(server, FRIEND, "scenario.banker");
+      const code = await cardOut(server);
+      const ends = server.deps.now() + 2 * time.DAY_MS;
+      await act(server, INVITER, action, 2, `log.${action}`);
+
+      server.setNow(ends - 1);
+      const shown = await call<{ ok: boolean; code?: string }>(server, "GET", `/api/invite/${code}`, null);
+      const taken = await call<{ ok: boolean; code?: string }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" });
+      expect({ status: shown.status, body: shown.body }).toMatchObject({ status: 404, body: { ok: false, code: "bad-code" } });
+      expect({ status: taken.status, body: taken.body }).toMatchObject({ status: 404, body: { ok: false, code: "bad-code" } });
+      expect(shown.text).not.toMatch(/mute|suspend|paused/i);
+      expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false, pair: null });
+
+      server.setNow(ends);
+      expect((await call<{ ok: boolean }>(server, "GET", `/api/invite/${code}`, null)).body).toMatchObject({ ok: true });
+      expect((await call<{ ok: boolean }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" })).body).toMatchObject({ ok: true });
+    }
+  });
 });
+

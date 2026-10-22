@@ -1,10 +1,11 @@
 // The place routes: the presence fetch (clock:presence-is-a-sample, city:players-shown-present-not-tracked) and the nudge socket
 // (clock:socket-only-nudges, clock:busy-place-splits-rooms, clock:presence-is-not-contact). Both need a session and answer
-// every signed-in account: presence is not contact (region:same-contact-everywhere),
+// only an account whose character is in that place, wherever it signed up: presence is not contact (region:same-contact-everywhere),
 // and the socket carries only nudges, never words between players.
 import type { PresenceReply } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
 import { toHex } from "@japacity/sim";
+import type { PresenceMember } from "@japacity/store";
 import { Hono } from "hono";
 
 import type { ServerDeps } from "../dependencies";
@@ -21,7 +22,7 @@ import { refuse } from "./reply";
 /** The character's display name and look, or null when the account has none. The core provides it. */
 export type ProfileOf = (account: string) => Promise<{ name: string; look: string } | null>;
 
-/** What the socket route needs beyond the deps: the place objects and two reads of the character. */
+/** What the place routes need beyond the deps: the place objects and two reads of the character. */
 export interface PlaceBindings {
   rooms: Rooms;
   placeOf: PlaceOf;
@@ -37,8 +38,19 @@ function shown(member: { name: string; look: string }): { name: string; look: st
   return { name: member.name, look: member.look };
 }
 
-/** `GET /api/place/:place`: a fresh sample of the other players there (clock:presence-is-a-sample), and of some seen there today (city:players-shown-present-not-tracked). */
-export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
+/** moderation:block-refuses-both-ways: the accounts blocked with the asker either way, and the usernames the day's list shows them by. */
+async function hiddenFrom(deps: ServerDeps, account: string): Promise<{ accounts: Set<string>; names: Set<string> }> {
+  const accounts = new Set(await deps.stores.moderation.blockedWith(account));
+  if (accounts.size === 0) return { accounts, names: new Set() };
+  return { accounts, names: new Set((await deps.stores.account.usernames([...accounts])).values()) };
+}
+
+/**
+ * The place routes, mounted where the place objects are: `GET /api/place/:place`, a fresh sample of the other players there
+ * (clock:presence-is-a-sample) and of some seen there today (city:players-shown-present-not-tracked), and
+ * `GET /api/place/:place/socket`, the nudge and presence socket, in the room the router picks (clock:busy-place-splits-rooms).
+ */
+export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
 
   app.get("/api/place/:place", limit(deps, "reads"), async (c) => {
@@ -46,6 +58,10 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
     if (session === null) return refuse(c, 401, "signed-out", "sign in first");
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
+    // city:players-shown-present-not-tracked: a place's crowd answers only its own people, as the socket does, so no account can watch for a name elsewhere.
+    const where = await bindings.placeOf(session.account);
+    if (where === null) return refuse(c, 404, "no-character", "the account has no character");
+    if (where !== place) return refuse(c, 409, "not-legal", `the character is in ${where}`);
     const reply: PresenceReply = { place, others: [], today: [] };
     // city:players-fill-the-crowd: a stranger is never shown in someone's home, so a home's sample is never drawn.
     if ((PRIVATE_PLACES as ReadonlySet<string>).has(place)) return c.json(reply);
@@ -53,22 +69,19 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const store = deps.stores.presence;
     // city:residents-fill-to-target, server:private-settings-and-dials: never more players than the place's target headcount, dial applied.
     const n = Math.min(deps.config.presence.sample, await placeTarget(deps, place));
+    // moderation:block-refuses-both-ways: the sample is asked for as many more as could be hidden, so it is still full once they are taken out.
+    const hidden = await hiddenFrom(deps, session.account);
+    const ask = n + hidden.accounts.size;
+    const others = (members: readonly PresenceMember[]) => members.filter((member) => !hidden.accounts.has(member.account)).slice(0, n);
     if (readsToday(store)) {
-      const look = await store.lookWithToday(place, n, session.account, seed, deps.now());
-      reply.others = look.others.map(shown);
-      reply.today = look.today.map(shown);
+      const look = await store.lookWithToday(place, ask, session.account, seed, deps.now());
+      reply.others = others(look.others).map(shown);
+      reply.today = look.today.filter((seen) => !hidden.names.has(seen.name)).slice(0, n - reply.others.length).map(shown);
       return c.json(reply);
     }
-    reply.others = (await store.sample(place, n, session.account, seed)).map(shown);
+    reply.others = others(await store.sample(place, ask, session.account, seed)).map(shown);
     return c.json(reply);
   });
-
-  return app;
-}
-
-/** `GET /api/place/:place/socket`: the nudge and presence socket, in the room the router picks (clock:busy-place-splits-rooms). */
-export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Hono<SessionEnv> {
-  const app = new Hono<SessionEnv>();
 
   // Opening a socket reads the character twice, so it counts against the reads limit.
   app.get("/api/place/:place/socket", limit(deps, "reads"), async (c) => {

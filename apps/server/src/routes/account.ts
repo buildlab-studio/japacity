@@ -25,6 +25,7 @@ import { headersWithoutSession } from "../auth/stale";
 import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
+import { leavePlaces } from "../postgres";
 import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
 import { rejection } from "./reply";
@@ -184,6 +185,8 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (deps.now() < renameFrom(row, deps.config)) return c.json<NameReply>(nameRefused("wait"), 403);
     const changed = await deps.stores.account.setUsername(session.account, username, deps.now());
     if (!changed.ok) return changed.code === "conflict" ? c.json<NameReply>(nameRefused("taken"), 409) : c.json<NameReply>(rejection("signed-out", "No account."), 401);
+    // city:players-shown-present-not-tracked: the old name leaves the crowd at once; the socket the client opens again carries the new one.
+    await leavePlaces(deps, session.account, row.username);
     return c.json<NameReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey, await waysOf(auth, changed.value)) });
   });
 
