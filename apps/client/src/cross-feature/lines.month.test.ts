@@ -69,15 +69,15 @@ describe("one line for one thing", () => {
       line("line.route.departed", { route: "route.uk-masters" }, "good"),
       line("line.place.arrived", { country: "country.uk" }, "good"),
       line("line.status.granted", { status: "status.uk-student" }, "good"),
-      line("line.activity.job-ended", { job: "activity.job-remote-dev" }, "bad"),
+      line("line.activity.job-ended", { job: "activity.job-remote-developer" }, "bad"),
     ];
     const story = storyLines(lines).map((each) => each.key);
     const departed = story.indexOf("line.route.departed");
     expect(departed).toBeGreaterThanOrEqual(0);
     expect(story[departed + 1]).toBe("line.route.departed-job-ended");
-    expect(words("line.route.departed-job-ended", { job: "activity.job-remote-dev" }).toLowerCase()).toContain(words("activity.job-remote-dev.name").toLowerCase());
+    expect(words("line.route.departed-job-ended", { job: "activity.job-remote-developer" }).toLowerCase()).toContain(words("activity.job-remote-developer.name").toLowerCase());
     // A job that ends in a month with no flight keeps its own line, in News.
-    expect(tidyLines([line("line.activity.job-ended", { job: "activity.job-remote-dev" }, "bad")]).map((each) => each.key)).toEqual(["line.activity.job-ended"]);
+    expect(tidyLines([line("line.activity.job-ended", { job: "activity.job-remote-developer" }, "bad")]).map((each) => each.key)).toEqual(["line.activity.job-ended"]);
   });
 });
 

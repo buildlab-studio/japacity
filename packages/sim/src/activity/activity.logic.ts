@@ -409,7 +409,7 @@ export function hireChanceBp(entry: ActivityEntry, network: number, tuning: Tuni
 }
 
 /** director.md: the remote-hiring boom adds its bonus to the remote job's hire chance, under the same cap. */
-const REMOTE_JOB: Id<"activity"> = "activity.job-remote-dev";
+const REMOTE_JOB: Id<"activity"> = "activity.job-remote-developer";
 const REMOTE_BONUS: Id<"var"> = "var.remote-hire-bonus";
 
 /** activity:job-hunt-lands-offer: a hunt's chance now, the world's bonus for the remote job included. */

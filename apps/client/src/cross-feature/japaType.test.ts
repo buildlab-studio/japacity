@@ -48,7 +48,7 @@ function graduateDoing(topActivities: Card["topActivities"], change: Partial<Pla
  */
 function graduatePlain(): PlayerView {
   const view = sendOff("graduate-careful");
-  return { ...view, card: { ...view.card!, standing: 50, topActivities: ["activity.job-junior-dev"] } };
+  return { ...view, card: { ...view.card!, standing: 50, topActivities: ["activity.job-junior-developer"] } };
 }
 
 /**
@@ -123,7 +123,7 @@ describe("the japa type, read at the send-off", () => {
     // developer's job leads its things done most, and with no reading before it its standing makes it the family anchor.
     const teacher = sendOff("teacher-borrower");
     expect(teacher.routes.find((route) => route.id === teacher.card!.route)?.refusals ?? 0).toBe(0);
-    expect(teacher.card!.topActivities[0]).toBe("activity.job-junior-dev");
+    expect(teacher.card!.topActivities[0]).toBe("activity.job-junior-developer");
     expect(japaTypeOf(teacher)).toBe("family-anchor");
     // The graduate (seed golden-ada-0): its standing ends high, 91 with decision 0012's arrivals, with time with the
     // family first among the things done most, so it is the family anchor before the careful saver its kept months would make it.
@@ -179,15 +179,15 @@ describe("the japa type, read at the send-off", () => {
     const standing = content.quality["quality.standing"]!;
     // The lowest standing in the top of the four bands the screen says (text:bands-not-figures).
     const topBand = standing.min + Math.ceil((3 * (standing.max - standing.min + 1)) / 4);
-    expect(japaTypeOf({ ...graduate, card: { ...graduate.card!, standing: topBand, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).toBe("family-anchor");
-    expect(japaTypeOf({ ...graduate, card: { ...graduate.card!, standing: topBand - 1, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).not.toBe("family-anchor");
-    expect(japaTypeOf({ ...graduateDoing(["activity.family-time", "activity.job-junior-dev"]), card: { ...graduate.card!, topActivities: ["activity.family-time"], standing: 50 } })).not.toBe("family-anchor");
+    expect(japaTypeOf({ ...graduate, card: { ...graduate.card!, standing: topBand, topActivities: ["activity.family-time", "activity.job-junior-developer"] } })).toBe("family-anchor");
+    expect(japaTypeOf({ ...graduate, card: { ...graduate.card!, standing: topBand - 1, topActivities: ["activity.family-time", "activity.job-junior-developer"] } })).not.toBe("family-anchor");
+    expect(japaTypeOf({ ...graduateDoing(["activity.family-time", "activity.job-junior-developer"]), card: { ...graduate.card!, topActivities: ["activity.family-time"], standing: 50 } })).not.toBe("family-anchor");
     // Two risks: the kiosk and an agent paid. One alone is not enough.
     expect(japaTypeOf(graduateDoing(["activity.play-lotto", "activity.see-agent-office"]))).toBe("gambler");
-    expect(japaTypeOf(graduateDoing(["activity.play-lotto", "activity.job-junior-dev"]))).not.toBe("gambler");
+    expect(japaTypeOf(graduateDoing(["activity.play-lotto", "activity.job-junior-developer"]))).not.toBe("gambler");
     // Study first.
-    expect(japaTypeOf(graduateDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
-    expect(japaTypeOf(graduateDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
+    expect(japaTypeOf(graduateDoing(["activity.learn-tech", "activity.job-junior-developer"]))).toBe("night-reader");
+    expect(japaTypeOf(graduateDoing(["activity.job-junior-developer", "activity.study-english"]))).toBe("night-reader");
     // The graduate as it went, plain: its recorded life kept two thirds of its months and more, and none of the
     // readings before holds: the careful saver. One month under two thirds is the hustler, below.
     expect(graduate.keptMonths * 3).toBeGreaterThanOrEqual(graduate.card!.months * 2);
@@ -197,9 +197,9 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...graduate, keptMonths: twoThirds })).toBe("careful-saver");
     expect(japaTypeOf({ ...graduate, keptMonths: twoThirds - 1 })).toBe("hustler");
     // The careful saver comes before the hustler: a side job held or side work done most does not undo it.
-    expect(japaTypeOf({ ...graduateDoing(["activity.job-junior-dev", "activity.side-gig"]), keptMonths: twoThirds, job: { ...graduate.job, side: "activity.weekend-tutoring" } })).toBe("careful-saver");
+    expect(japaTypeOf({ ...graduateDoing(["activity.job-junior-developer", "activity.side-gig"]), keptMonths: twoThirds, job: { ...graduate.job, side: "activity.weekend-tutoring" } })).toBe("careful-saver");
     // And after the readings that come first: every month kept is still the night reader who studied first.
-    expect(japaTypeOf({ ...graduateDoing(["activity.learn-tech", "activity.job-junior-dev"]), keptMonths: graduate.card!.months })).toBe("night-reader");
+    expect(japaTypeOf({ ...graduateDoing(["activity.learn-tech", "activity.job-junior-developer"]), keptMonths: graduate.card!.months })).toBe("night-reader");
   });
 
 

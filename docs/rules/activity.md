@@ -41,11 +41,11 @@ Pay is monthly, after tax, to the bank. Effects apply each month the job is held
 |---|---|---|---|---|---|
 | `activity.job-teacher` | Private school teacher | ₦90,000 | Bachelor's degree | 70% | Wellbeing -2, standing +1 |
 | `activity.job-customer-service` | Customer service agent | ₦110,000 | Secondary school | 60% | Wellbeing -3 |
-| `activity.job-junior-dev` | Junior developer | ₦320,000 | Tech 30 | 35% | Tech +2, wellbeing -3 |
+| `activity.job-junior-developer` | Junior developer | ₦320,000 | Tech 30 | 35% | Tech +2, wellbeing -3 |
 | `activity.job-bank-officer` | Bank officer | ₦320,000 | Bachelor's degree, second lower or better | 20% | Network +1, wellbeing -5 |
 | `activity.job-bank-senior` | Senior bank officer | ₦560,000 | 36 months as a bank officer | 25% | Network +1, wellbeing -5 |
-| `activity.job-mid-dev` | Mid-level developer | ₦1,100,000 | Tech 60, and 12 months across the developer jobs | 30% | Tech +2, wellbeing -4 |
-| `activity.job-remote-dev` | Remote developer, foreign company | $2,800 | Tech 75, portfolio 3, English 60, 6 months across the developer jobs | 10% | Tech +1, wellbeing -5 |
+| `activity.job-mid-developer` | Mid-level developer | ₦1,100,000 | Tech 60, and 12 months across the developer jobs | 30% | Tech +2, wellbeing -4 |
+| `activity.job-remote-developer` | Remote developer, foreign company | $2,800 | Tech 75, portfolio 3, English 60, 6 months across the developer jobs | 10% | Tech +1, wellbeing -5 |
 
 The remote job pays dollars into the dollar account. That money is documented and needs no explaining later.
 

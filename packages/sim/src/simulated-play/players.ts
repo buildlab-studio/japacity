@@ -1395,7 +1395,7 @@ export function runLife(
       record.flown = (Object.entries(after.route).find(([, held]) => held.state === "departed")?.[0] as Id<"route"> | undefined) ?? null;
     }
     if (record.road === null && after.place.where === "road") record.road = after.turn.month;
-    if (record.remote === null && after.activity.job === "activity.job-remote-dev") record.remote = after.turn.month;
+    if (record.remote === null && after.activity.job === "activity.job-remote-developer") record.remote = after.turn.month;
     const current = after.status.current?.entry ?? null;
     if (record.settledMonth === null && current !== null && (SETTLED_STATUSES.includes(current) || CITIZEN_STATUSES.includes(current))) record.settledMonth = after.turn.month;
     if (record.departed !== null) {

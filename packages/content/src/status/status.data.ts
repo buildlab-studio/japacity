@@ -82,7 +82,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     // 60 days.
     clockMonths: 2,
     // person:statuses-name-dependants: a partner may join a holder of one of these jobs.
-    dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"],
+    dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-developer", "activity.job-uk-graduate", "activity.job-uk-nurse"],
     tiedTo: null,
     renewMonths: 24,
     renewFeeVar: "var.uk-skilled-renew-fee",

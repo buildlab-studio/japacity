@@ -129,7 +129,7 @@ describe("a job's gates in words", () => {
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 })).toBe("Three years as a bank officer");
     expect(say("jobs.needs", { needs: requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }) })).toBe("Needs: Three years as a bank officer");
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 })).toBe(`Two years as a ${runningName("activity.job-nurse")}`);
-    expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 })).toBe(`Six months as a ${runningName("activity.job-junior-dev")} or a ${runningName("activity.job-mid-dev")}`);
+    expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer"], months: 6 })).toBe(`Six months as a ${runningName("activity.job-junior-developer")} or a ${runningName("activity.job-mid-developer")}`);
     expect(requirementSentence({ type: "activity/tenure", activities: [], months: 24 })).toBe("Two years in any job");
     expect(requirementSentence({ type: "activity/tenure", activities: [], months: 1 })).toBe("One month in any job");
     expect(requirementSentence({ type: "activity/tenure", activities: [], months: 18 })).toBe("18 months in any job");

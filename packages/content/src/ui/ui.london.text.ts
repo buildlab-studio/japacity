@@ -41,7 +41,7 @@ export const uiLondonText: Readonly<Record<string, string>> = {
   "city.act.job-nurse": "Nurse",
   "city.act.job-skilled": "Skilled job",
   "city.act.job-graduate": "Graduate job",
-  "city.act.job-senior-dev": "Senior developer",
+  "city.act.job-senior-developer": "Senior developer",
   "city.act.overtime": "Overtime",
   "city.act.read-rota": "Read",
   "city.act.read-rota.done": "Every shift is filled this month. Your name is where it should be.",

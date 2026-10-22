@@ -27,7 +27,7 @@ Abroad, a month still has a main activity and two or three free slots. What is o
 | `activity.job-uk-senior-care` | uk | £29,000 | care 60, 24 months in uk-care, `sponsor: true` | one-employer | 25% | wellbeing -4, standing +1 | |
 | `activity.job-uk-nurse` | uk | £31,300 | `document.nmc-pin`, `sponsor: true` | one-employer | 40% | wellbeing -5, care +1, standing +2 | the band 5 nurse |
 | `activity.job-uk-skilled` | uk | the sponsor's salary (£42,000 to £60,000) | the sponsor | one-employer | by the sponsor offer | wellbeing -4, tech +1 | |
-| `activity.job-uk-senior-dev` | uk | £62,000 | tech 85, 24 months local, `sponsor: true` | one-employer, any | 20% | wellbeing -4, tech +1 | |
+| `activity.job-uk-senior-developer` | uk | £62,000 | tech 85, 24 months local, `sponsor: true` | one-employer, any | 20% | wellbeing -4, tech +1 | |
 | `activity.job-uk-warehouse` | uk | £23,000 | none | any | 60% | wellbeing -5 | the survival job |
 | `activity.job-uk-retail-part` | uk | £10,400 (20 hours at £12.21) | none, `part: true` | part, any | 55% | wellbeing -3 | the student job |
 | `activity.job-uk-graduate` | uk | £30,000 | bachelor's and 12 months local or a master's held | any | 20% | wellbeing -3, network +1, tech +1 | the first professional job; not `sponsor: true` |
@@ -36,7 +36,7 @@ Abroad, a month still has a main activity and two or three free slots. What is o
 | `activity.job-canada-warehouse` | canada | C$38,000 | none | any | 60% | wellbeing -5 | |
 | `activity.job-canada-care-aide` | canada | C$44,000 | care 30 | any | 45% | wellbeing -5, care +1 | counts for the care cut-off |
 | `activity.job-canada-professional` | canada | C$75,000 | bachelor's, 12 months local | any | 25% | wellbeing -3, network +1 | |
-| `activity.job-canada-dev` | canada | C$95,000 | tech 70, 12 months local | any | 20% | wellbeing -4, tech +1 | |
+| `activity.job-canada-developer` | canada | C$95,000 | tech 70, 12 months local | any | 20% | wellbeing -4, tech +1 | |
 | `activity.job-gulf-guard` | uae | AED 21,600 (1,800 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | 12-hour shifts; accommodation included |
 | `activity.job-gulf-cleaner` | uae | AED 14,400 (1,200 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | |
 | `activity.job-italy-farm-cash` | italy | €9,600 | none, `cash: true` | cash | 70% | wellbeing -9 | where the road leaves you; `withheldBp` 2500 |

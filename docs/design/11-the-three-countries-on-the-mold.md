@@ -29,7 +29,7 @@ Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up 
 | `place.big-shop-canada` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-canada`), the notice (overtime) |
 | `place.warehouse-canada` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-canada-warehouse`), the rota board (`activity.overtime`), the shelter |
 | `place.care-home-canada` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-canada-care-aide`), the rota board (`activity.overtime`), the tea point |
-| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-canada-professional`), the glass office (`activity.job-canada-dev`), the kitchen |
+| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-canada-professional`), the glass office (`activity.job-canada-developer`), the kitchen |
 | `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-canada`), the shelves, the notice |
 | `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-canada`), the hall (the people a life can meet, world:nobody-picked-from-list) |
 | `place.registry-canada` | The registry | not in content: `activity.driving-test` is the UK's alone (car:licence-and-driving-test), and no licence act reaches Canada | | | |

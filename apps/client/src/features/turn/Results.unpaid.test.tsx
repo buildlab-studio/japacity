@@ -103,11 +103,11 @@ describe("a hunt's answer on the results", () => {
     // sure first months (guide:early-win-in-three-turns), so the draw stands.
     const game = newGame("scenario.graduate");
     for (let month = 0; month < 3; month += 1) game.endTurn([]);
-    const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-junior-dev")]);
+    const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-junior-developer")]);
     expect(lines.some((line) => line.key === "line.activity.hunt-missed")).toBe(true);
     await showResults(game, lines);
-    expect(storyRows().map((row) => row.textContent)).toContain(words("ui.results.hunt-missed", { job: "activity.job-junior-dev" }));
-    expect(words("ui.results.hunt-missed", { job: "activity.job-junior-dev" })).toBe(`${nameOf("activity.job-junior-dev")}: not this time.`);
+    expect(storyRows().map((row) => row.textContent)).toContain(words("ui.results.hunt-missed", { job: "activity.job-junior-developer" }));
+    expect(words("ui.results.hunt-missed", { job: "activity.job-junior-developer" })).toBe(`${nameOf("activity.job-junior-developer")}: not this time.`);
   });
 
   test("[world:month-end-results-sheet] given a hunt that found a job, when the results show, then it says an offer with the job and its pay a month, ranked with the offers", async () => {

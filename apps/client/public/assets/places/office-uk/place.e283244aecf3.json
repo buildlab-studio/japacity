@@ -1,8 +1,8 @@
 {
-  "place": "place.office-canada",
+  "place": "place.office-uk",
   "scope": "interior",
   "hub": false,
-  "note": "The office downtown, Calgary (design page 11 section 3), London's office room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
+  "note": "The office at London Bridge (design page 10 section 4), a room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
   "instances": [
     {
       "file": "places/office-uk/building_room_office.glb",
@@ -52,7 +52,7 @@
     "triangles": 2
   },
   "stage": {
-    "note": "London's office scene under the office downtown's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are office-uk's; the staged acts, the looks and the colleague's lines are Canada's. The desks for the professional job; the glass office for the developer's; the kitchen where a colleague says a line.",
+    "note": "The office (world:things-are-tappable-models, world:ride-abroad-and-workplace): rows of desks with their screens, where the skilled and the graduate jobs are got and held; the glass office at the far end for the senior developer's job; the kitchen on the near side, where a colleague sits and says a line; windows along the back wall; the door.",
     "ground": {
       "size": [
         16.6,
@@ -290,10 +290,16 @@
         ],
         "acts": [
           {
-            "id": "professional",
-            "label": "city.act.job-professional",
+            "id": "skilled",
+            "label": "city.act.job-skilled",
             "kind": "sheet",
-            "stages": "activity.job-canada-professional"
+            "stages": "activity.job-uk-skilled"
+          },
+          {
+            "id": "graduate",
+            "label": "city.act.job-graduate",
+            "kind": "sheet",
+            "stages": "activity.job-uk-graduate"
           }
         ]
       },
@@ -308,10 +314,10 @@
         ],
         "acts": [
           {
-            "id": "dev",
-            "label": "city.act.job-dev",
+            "id": "senior-developer",
+            "label": "city.act.job-senior-developer",
             "kind": "sheet",
-            "stages": "activity.job-canada-dev"
+            "stages": "activity.job-uk-senior-developer"
           }
         ]
       },
@@ -329,7 +335,7 @@
             "id": "talk",
             "label": "city.act.talk-to",
             "kind": "plain",
-            "tells": "city.line.colleague.office-canada.1"
+            "tells": "city.line.colleague.office-uk.1"
           },
           {
             "id": "sit",

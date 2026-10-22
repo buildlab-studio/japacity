@@ -12,7 +12,7 @@ import { ActivityPicker } from "./ActivityView";
 import { firstJob, huntOrder } from "./JobList";
 
 const HUNT = "activity.job-hunt";
-const JUNIOR_DEV = "activity.job-junior-dev";
+const JUNIOR_DEV = "activity.job-junior-developer";
 
 /** A tile's life from sixteen, handed over: its preset played on one seed. */
 function lifeOf(tile: Archetype, seed: string): ReturnType<typeof newGame> {

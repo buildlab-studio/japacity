@@ -308,10 +308,10 @@
         ],
         "acts": [
           {
-            "id": "dev",
-            "label": "city.act.job-dev",
+            "id": "developer",
+            "label": "city.act.job-developer",
             "kind": "sheet",
-            "stages": "activity.job-canada-dev"
+            "stages": "activity.job-canada-developer"
           }
         ]
       },

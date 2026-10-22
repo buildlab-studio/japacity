@@ -229,7 +229,7 @@ describe("spot checks against the rule pages", () => {
     expect(northgate?.tuition).toBe(1700000);
     expect(content.school["school.kingsmere"]?.minBand).toBe(70);
     // activity.md: the remote job pays $2,800; the English test costs ₦285,500.
-    expect(content.activity["activity.job-remote-dev"]?.pay).toEqual({ currency: "USD", amount: 280000 });
+    expect(content.activity["activity.job-remote-developer"]?.pay).toEqual({ currency: "USD", amount: 280000 });
     expect(content.activity["activity.sit-english-test"]?.cost).toEqual([
       { currency: "NGN", amount: 28550000, reason: "fee-test" },
     ]);

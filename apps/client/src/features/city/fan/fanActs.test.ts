@@ -66,7 +66,7 @@ describe("the things that fan", () => {
   });
 
   test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the hub's desks and boards, when their acts are read, then a job, a route, a course and a paper are never the simulation's buttons: a list is a list, one button that opens its sheet", () => {
-    for (const id of ["activity.job-hunt", "activity.job-junior-dev", "activity.look-into-route", "activity.learn-tech", "activity.get-passport", "activity.play-lotto", "activity.send-money", "activity.apply-for-visa"]) expect(fanEntry(id)).toBe(false);
+    for (const id of ["activity.job-hunt", "activity.job-junior-developer", "activity.look-into-route", "activity.learn-tech", "activity.get-passport", "activity.play-lotto", "activity.send-money", "activity.apply-for-visa"]) expect(fanEntry(id)).toBe(false);
     for (const id of [COOK, JOLLOF, "activity.buy-suya", "activity.pure-water", "activity.nap", "activity.help-shop"]) expect(fanEntry(id)).toBe(true);
     expect(kinds(fanEntriesOf(thingAt("yaba-hub", "desk")))).toEqual(["act:activity.learn-tech", "act:activity.look-into-route"]);
     expect(kinds(fanEntriesOf(thingAt("yaba-hub", "jobs")))).toEqual(["act:activity.job-hunt"]);

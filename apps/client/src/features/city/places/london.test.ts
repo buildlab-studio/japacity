@@ -135,7 +135,7 @@ describe("the workplaces with a door", () => {
 
   test("[world:ride-abroad-and-workplace] given the care home and the office, when the next rung is read, then the manager's door opens the senior care job and the glass office the senior developer's", () => {
     expect(thingIn(careHome, "manager").acts[0]?.stages).toBe("activity.job-uk-senior-care");
-    expect(thingIn(office, "glass-office").acts[0]?.stages).toBe("activity.job-uk-senior-dev");
+    expect(thingIn(office, "glass-office").acts[0]?.stages).toBe("activity.job-uk-senior-developer");
   });
 
   test.each(WORKPLACES.filter((place) => place.colleague !== null).map(({ id }) => id))("[world:ride-abroad-and-workplace] [world:things-are-tappable-models] given the colleague at %s, when they are talked to four times, then they say their three lines in turn over their own head and the fourth is the first again", (id) => {

@@ -117,23 +117,23 @@ describe("what may be done abroad", () => {
   test("[ladders:student-holds-one-part-job] [place:entries-legal-by-where] given the developer's job at home, when the life arrives as a student, then the job ends with the flight, no pay comes from it and no clock starts", () => {
     const game = readyLife(content, { from: "scenario.developer", seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
-    expect(game.state.activity.job).toBe("activity.job-junior-dev");
-    const served = game.state.activity.tenure["activity.job-junior-dev"];
+    expect(game.state.activity.job).toBe("activity.job-junior-developer");
+    const served = game.state.activity.tenure["activity.job-junior-developer"];
     const flight = game.accept({ type: "route/depart", route: "route.uk-masters" });
     expect(game.state.activity.job).toBeNull();
-    expect(flight.events).toContainEqual({ type: "activity/job-ended", job: "activity.job-junior-dev", why: "moved" });
+    expect(flight.events).toContainEqual({ type: "activity/job-ended", job: "activity.job-junior-developer", why: "moved" });
     const result = game.endTurn();
     expect(moneyOf(result, "salary")).toEqual([]);
     expect(game.state.status.current).toMatchObject({ entry: STUDENT, clock: null });
     // The time served is kept.
-    expect(game.state.activity.tenure["activity.job-junior-dev"]).toBe(served);
+    expect(game.state.activity.tenure["activity.job-junior-developer"]).toBe(served);
   });
 });
 
 describe("local tenure", () => {
   test("[ladders:local-tenure-counted] given months in a UK job and months in a job at home, when local tenure is judged abroad, then only the UK months count, and at home only the home ones", () => {
     const game = holding(UK_GRADUATE, WAREHOUSE, { from: "scenario.developer" });
-    const atHome = game.state.activity.tenure["activity.job-junior-dev"] ?? 0;
+    const atHome = game.state.activity.tenure["activity.job-junior-developer"] ?? 0;
     expect(atHome).toBeGreaterThan(0);
     playMonths(game, 3);
     expect(game.state.activity.tenure[WAREHOUSE]).toBe(3);

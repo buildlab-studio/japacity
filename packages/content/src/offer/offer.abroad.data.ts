@@ -166,7 +166,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
         id: "tech",
         requires: [{ type: "quality/min", quality: "quality.tech", value: 60 }],
         pick: null,
-        effects: [{ type: "activity/start-job", job: "activity.job-mid-dev" }],
+        effects: [{ type: "activity/start-job", job: "activity.job-mid-developer" }],
         fraudEffects: null,
       },
       {

@@ -275,7 +275,7 @@ describe("the nudge", () => {
     const applied = { ...dear, activities: dear.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, done: true } : option)) };
     expect(nudgeOf(applied).key).toBe("ui.nudge.hunt-planned");
     // A job whose month's pay covers the gap: the nudge says to work and save.
-    const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-dev" as const } };
+    const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-developer" as const } };
     expect(nudgeOf(paid).key).toBe("chapter.build-the-file.item.english.saving");
     // The month's bills eat the pay: the nudge says the gap, never "work and save".
     const billed = { ...paid, obligations: [{ ...paid.obligations[0]!, due: 40_000_000, entry: "obligation.upkeep" as never }] };
@@ -360,7 +360,7 @@ describe("the nudge while a step waits", () => {
     const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
-    const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-dev") ?? null;
+    const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-developer") ?? null;
     if (better === null) throw new Error("The board lists no junior developer job.");
     expect(nudgeOf(pending).key).toBe("ui.nudge.better-job");
     const noBoard = { ...pending, activities: pending.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, params: [] } : option)) };

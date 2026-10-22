@@ -33,7 +33,7 @@ const ROWS: readonly Row[] = [
   { id: "place.big-shop-canada", country: CANADA, nameKind: "business", position: [51095, -113980], scope: "interior", assets: "big-shop-uk", stages: ["activity.weekly-shop-canada", "activity.buy-clothes-canada"] },
   { id: "place.warehouse-canada", country: CANADA, nameKind: "business", position: [51110, -113990], scope: "interior", assets: "warehouse-uk", stages: ["activity.job-canada-warehouse", "activity.overtime"] },
   { id: "place.care-home-canada", country: CANADA, nameKind: "business", position: [51080, -113995], scope: "interior", assets: "care-home-uk", stages: ["activity.job-canada-care-aide", "activity.overtime"] },
-  { id: "place.office-canada", country: CANADA, nameKind: "business", position: [51046, -114063], scope: "interior", assets: "office-uk", stages: ["activity.job-canada-professional", "activity.job-canada-dev"] },
+  { id: "place.office-canada", country: CANADA, nameKind: "business", position: [51046, -114063], scope: "interior", assets: "office-uk", stages: ["activity.job-canada-professional", "activity.job-canada-developer"] },
   { id: "place.library-canada", country: CANADA, nameKind: "institution", position: [51092, -113972], scope: "interior", assets: "library-canada", stages: ["activity.learn-tech-canada"] },
   { id: "place.church-canada", country: CANADA, nameKind: "institution", position: [51085, -113965], scope: "interior", assets: "church-uk", stages: ["activity.community-canada"] },
   { id: "place.dubai-airport", country: UAE, nameKind: "public", position: [25252, 55367], scope: "interior", assets: "dubai-airport", stages: [] },

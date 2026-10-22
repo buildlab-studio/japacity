@@ -48,7 +48,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.thing.desk": "Desks",
   "city.act.job-professional": "Professional job",
   "city.thing.glass-office": "Glass office",
-  "city.act.job-dev": "Developer",
+  "city.act.job-developer": "Developer",
   "city.thing.pews": "Pews",
   "city.thing.hall": "Church hall",
   "city.act.look-hall": "Look",

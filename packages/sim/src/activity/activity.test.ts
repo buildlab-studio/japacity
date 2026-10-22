@@ -352,7 +352,7 @@ describe("what may fill a slot", () => {
 
   test("[activity:illegal-slot-rejects-turn] [activity:job-hunt-lands-offer] given a hunt for a job whose requirements do not hold, the job held, or something that is not a job, when the turn is ended, then it is rejected with not-legal", () => {
     const graduate = start({ content, scenario: "scenario.graduate" });
-    expect(graduate.expectRejected({ type: "turn/end", slots: [hunt("activity.job-remote-dev")] }, "not-legal").code).toBe("not-legal");
+    expect(graduate.expectRejected({ type: "turn/end", slots: [hunt("activity.job-remote-developer")] }, "not-legal").code).toBe("not-legal");
     expect(graduate.expectRejected({ type: "turn/end", slots: [hunt("activity.rest")] }, "not-legal").code).toBe("not-legal");
     const banker = start({ content, scenario: "scenario.banker" });
     expect(banker.expectRejected({ type: "turn/end", slots: [hunt("activity.job-bank-officer")] }, "not-legal").code).toBe("not-legal");
@@ -391,7 +391,7 @@ describe("the params a free activity may take now", () => {
     expect(paramsFor(readWith(graduate, (state) => state), huntEntry)).toEqual([
       "activity.job-teacher",
       "activity.job-customer-service",
-      "activity.job-junior-dev",
+      "activity.job-junior-developer",
       "activity.job-bank-officer",
       // Side jobs are hunted like jobs (activity:side-job-holds-a-slot).
       "activity.night-support",
@@ -605,7 +605,7 @@ describe("hunting for a job", () => {
   });
 
   test("[activity:job-hunt-lands-offer] [director:world-variables-per-route] given the remote-hiring boom's bonus in the world, when a hunt's chance is read, then the remote job's chance gains it, up to the cap, and no other job's does", () => {
-    const remote = content.activity["activity.job-remote-dev"]!;
+    const remote = content.activity["activity.job-remote-developer"]!;
     const game = start({ content, scenario: "scenario.graduate" });
     const world = game.world();
     const network = game.state.quality["quality.network"] ?? 0;
@@ -673,8 +673,8 @@ describe("starting and leaving a job", () => {
 
   test("[activity:new-job-replaces-held] given a job named by a term, when it is started, then the job is read from the terms in hand", () => {
     const graduate = bench("scenario.graduate");
-    graduate.apply([{ type: "activity/start-job", job: { term: "job" } }], { terms: { job: "activity.job-junior-dev" } });
-    expect(graduate.game.state.activity.job).toBe("activity.job-junior-dev");
+    graduate.apply([{ type: "activity/start-job", job: { term: "job" } }], { terms: { job: "activity.job-junior-developer" } });
+    expect(graduate.game.state.activity.job).toBe("activity.job-junior-developer");
   });
 
   test("[activity:new-job-replaces-held] given the job already held, when it is started again, then nothing happens", () => {
@@ -724,7 +724,7 @@ describe("starting and leaving a job", () => {
     expect(check(read, { type: "activity/tenure", activities: both, months: 50 })).toEqual({ met: false, have: 49, need: 50 });
     expect(check(read, { type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 })).toEqual({ met: true, have: 48, need: 36 });
     expect(check(read, { type: "activity/tenure", activities: [], months: 49 })).toEqual({ met: true, have: 49, need: 49 });
-    expect(check(read, { type: "activity/tenure", activities: ["activity.job-mid-dev"], months: 1 })).toEqual({ met: false, have: 0, need: 1 });
+    expect(check(read, { type: "activity/tenure", activities: ["activity.job-mid-developer"], months: 1 })).toEqual({ met: false, have: 0, need: 1 });
   });
 });
 
@@ -766,8 +766,8 @@ describe("requirements stop mattering once the job is held", () => {
   test("[activity:requirements-judged-at-hunt] given a job whose requirements do not hold, when the jobs to hunt are listed, then it is not among them", () => {
     const graduate = start({ content, scenario: "scenario.graduate" });
     const listed = paramsFor({ state: graduate.state, world: graduate.world(), content }, content.activity["activity.job-hunt"]!) ?? [];
-    expect(listed).not.toContain("activity.job-mid-dev");
-    expect(listed).not.toContain("activity.job-remote-dev");
+    expect(listed).not.toContain("activity.job-mid-developer");
+    expect(listed).not.toContain("activity.job-remote-developer");
   });
 });
 

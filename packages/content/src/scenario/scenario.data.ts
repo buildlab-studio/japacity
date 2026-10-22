@@ -109,11 +109,11 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.illness-course": 0,
       "quality.forced-wait": 0,
     },
-    job: "activity.job-junior-dev",
+    job: "activity.job-junior-developer",
     // person:invite-fills-a-slot: a working value, as scenario.md gives this life no count.
     siblings: 2,
     hometown: "hometown.kaduna",
-    tenure: { "activity.job-junior-dev": 18 },
+    tenure: { "activity.job-junior-developer": 18 },
     pockets: { NGN: { bank: naira(900000), cash: naira(40000) } },
     documents: [],
     obligations: [

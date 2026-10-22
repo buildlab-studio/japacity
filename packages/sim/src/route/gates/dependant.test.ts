@@ -58,7 +58,7 @@ describe("person:routes-name-dependant-routes, person:statuses-name-dependants: 
   });
 
   test("[person:statuses-name-dependants] given the statuses, when their dependants are read, then the sponsored worker lists four jobs, talent is any, and the rest none", () => {
-    expect(content.status["status.uk-sponsored"]?.dependants).toEqual(["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"]);
+    expect(content.status["status.uk-sponsored"]?.dependants).toEqual(["activity.job-uk-skilled", "activity.job-uk-senior-developer", "activity.job-uk-graduate", "activity.job-uk-nurse"]);
     expect(content.status["status.uk-talent"]?.dependants).toBe("any");
     const others = Object.values(content.status).filter((status) => !["status.uk-sponsored", "status.uk-talent"].includes(status.id));
     expect(others.every((status) => status.dependants === "none")).toBe(true);

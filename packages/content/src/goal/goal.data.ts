@@ -62,10 +62,10 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
         type: "job/is",
         activities: [
           "activity.job-uk-nurse",
-          "activity.job-uk-senior-dev",
+          "activity.job-uk-senior-developer",
           "activity.job-uk-graduate",
           "activity.job-canada-professional",
-          "activity.job-canada-dev",
+          "activity.job-canada-developer",
         ],
       },
     ],

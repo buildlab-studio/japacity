@@ -85,11 +85,11 @@ describe("the jobs list on the hunt's card", () => {
     const rank = { likely: 0, fair: 1, long: 2 } as const;
     expect(bands.map((band) => rank[band])).toEqual([...bands.map((band) => rank[band])].sort((a, b) => a - b));
     expect(ordered[0]).not.toBe("activity.job-teacher");
-    expect(firstJob(view, ordered)).toBe("activity.job-junior-dev");
+    expect(firstJob(view, ordered)).toBe("activity.job-junior-developer");
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const checked = screen.getAllByRole("radio").filter((row) => row.getAttribute("aria-checked") === "true");
     expect(checked).toHaveLength(1);
-    expect(checked[0]?.getAttribute("data-job")).toBe("activity.job-junior-dev");
+    expect(checked[0]?.getAttribute("data-job")).toBe("activity.job-junior-developer");
   });
 
   test("[world:one-action-one-sheet] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {
@@ -134,12 +134,12 @@ describe("the jobs list on the hunt's card", () => {
 
   test("[world:one-action-one-sheet] given a need the character already meets, when an out-of-reach job's needs are read, then only what is still missing is named", () => {
     const view = engineView();
-    const mid = jobsOutOfReach(view, huntOf(view)).find((job) => job.id === "activity.job-mid-dev");
+    const mid = jobsOutOfReach(view, huntOf(view)).find((job) => job.id === "activity.job-mid-developer");
     const tech = qualityIn(view, "quality.tech");
     expect(tech).toBeLessThan(60);
     expect(mid?.needs).toContain(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 }));
     const skilled: PlayerView = { ...view, qualities: view.qualities.map((quality) => (quality.id === "quality.tech" ? { ...quality, value: 90 } : quality)) };
-    const later = jobsOutOfReach(skilled, huntOf(view)).find((job) => job.id === "activity.job-mid-dev");
+    const later = jobsOutOfReach(skilled, huntOf(view)).find((job) => job.id === "activity.job-mid-developer");
     expect(later?.needs).not.toContain(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 }));
     expect(later?.needs.length).toBeGreaterThan(0);
   });

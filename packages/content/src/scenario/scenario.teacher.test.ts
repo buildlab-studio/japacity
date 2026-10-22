@@ -39,7 +39,7 @@ describe("the teacher, the fifth life", () => {
   });
 
   test("[engine:content-checked-before-play] given the teacher, when its starting figures are read at their edges, then it is a teacher who can just hunt for a junior developer's job and cannot drive", () => {
-    const junior = content.activity["activity.job-junior-dev"]?.requires.find((need) => need.type === "quality/min");
+    const junior = content.activity["activity.job-junior-developer"]?.requires.find((need) => need.type === "quality/min");
     expect(junior).toMatchObject({ quality: "quality.tech" });
     const floor = junior !== undefined && "value" in junior ? junior.value : 0;
     expect(teacherScenario.qualities["quality.tech"]).toBeGreaterThanOrEqual(floor);

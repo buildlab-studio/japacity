@@ -213,7 +213,7 @@ describe("the interiors with a door", () => {
       [warehouseCanada, "clock-in", "activity.job-canada-warehouse", "place.warehouse-canada", CANADA],
       [careHomeCanada, "reception", "activity.job-canada-care-aide", "place.care-home-canada", CANADA],
       [officeCanada, "desk", "activity.job-canada-professional", "place.office-canada", CANADA],
-      [officeCanada, "glass-office", "activity.job-canada-dev", "place.office-canada", CANADA],
+      [officeCanada, "glass-office", "activity.job-canada-developer", "place.office-canada", CANADA],
       [site, "guard-post", "activity.job-gulf-guard", "place.site-uae", UAE],
       [site, "cleaner-trolley", "activity.job-gulf-cleaner", "place.site-uae", UAE],
     ];

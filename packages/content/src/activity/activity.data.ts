@@ -69,8 +69,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -3 }],
     counts: [],
   },
-  "activity.job-junior-dev": {
-    id: "activity.job-junior-dev",
+  "activity.job-junior-developer": {
+    id: "activity.job-junior-developer",
     slot: "main",
     requires: [{ type: "quality/min", quality: "quality.tech", value: 30 }],
     param: null,
@@ -118,14 +118,14 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  "activity.job-mid-dev": {
-    id: "activity.job-mid-dev",
+  "activity.job-mid-developer": {
+    id: "activity.job-mid-developer",
     slot: "main",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 60 },
       {
         type: "activity/tenure",
-        activities: ["activity.job-junior-dev", "activity.job-mid-dev", "activity.job-remote-dev"],
+        activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"],
         months: 12,
       },
     ],
@@ -139,15 +139,15 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  "activity.job-remote-dev": {
-    id: "activity.job-remote-dev",
+  "activity.job-remote-developer": {
+    id: "activity.job-remote-developer",
     slot: "main",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 75 },
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.english", value: 60 },
       // Simulated play: with no tenure asked, this one job paid for 97% of flights.
-      { type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 },
+      { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer"], months: 6 },
     ],
     param: null,
     cost: [],

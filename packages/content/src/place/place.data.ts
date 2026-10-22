@@ -210,8 +210,8 @@ const entries: PlaceEntry[] = [
       "activity.learn-tech",
       "activity.build-portfolio",
       "activity.interview-prep",
-      "activity.job-junior-dev",
-      "activity.job-mid-dev",
+      "activity.job-junior-developer",
+      "activity.job-mid-developer",
       "activity.job-hunt",
       "activity.look-into-route",
       "activity.apply-to-school",
@@ -409,7 +409,7 @@ const entries: PlaceEntry[] = [
   // The ward on Denmark Hill, shown by plain description: the nurses' station and the rota board.
   london("place.ward-uk", "institution", "camberwell", 51468, -94, { stages: ["activity.job-uk-nurse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   // The office at London Bridge: the desk and the glass office.
-  london("place.office-uk", "business", "london-bridge", 51505, -86, { stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-dev"], crowd: QUIET, traditionalBp: OFFICE }),
+  london("place.office-uk", "business", "london-bridge", 51505, -86, { stages: ["activity.job-uk-skilled", "activity.job-uk-graduate", "activity.job-uk-senior-developer"], crowd: QUIET, traditionalBp: OFFICE }),
   // The warehouse on the Old Kent Road: the clock-in and the rota board.
   london("place.warehouse-uk", "business", "old-kent-road", 51487, -62, { stages: ["activity.job-uk-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church on the Old Kent Road, the community's place (world:nobody-picked-from-list), shown by plain description.
@@ -437,7 +437,7 @@ const entries: PlaceEntry[] = [
   calgary("place.big-shop-canada", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-canada", "activity.buy-clothes-canada"], crowd: BUSY, traditionalBp: HUB }),
   calgary("place.warehouse-canada", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-canada-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   calgary("place.care-home-canada", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-canada-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
-  calgary("place.office-canada", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-canada-professional", "activity.job-canada-dev"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.office-canada", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-canada-professional", "activity.job-canada-developer"], crowd: QUIET, traditionalBp: OFFICE }),
   // The library's evening course, a room of its own.
   calgary("place.library-canada", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-canada"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church hall, the community's place (world:nobody-picked-from-list).

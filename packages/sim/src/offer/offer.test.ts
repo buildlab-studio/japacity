@@ -323,8 +323,8 @@ describe("opening", () => {
     expect(banker.open("offer.salary-loan")!.terms.max).toBe(4 * pay);
 
     const senior = lab({ scenario: BANKER });
-    senior.apply([{ type: "activity/start-job", job: "activity.job-mid-dev" }]);
-    const midPay = content.activity["activity.job-mid-dev"]!.pay!.amount as number;
+    senior.apply([{ type: "activity/start-job", job: "activity.job-mid-developer" }]);
+    const midPay = content.activity["activity.job-mid-developer"]!.pay!.amount as number;
     expect(4 * midPay).toBeGreaterThan(300000000);
     expect(senior.open("offer.salary-loan")!.terms.max).toBe(300000000);
   });
@@ -332,8 +332,8 @@ describe("opening", () => {
   test("[offer:opening-fixes-terms-and-fraud] given a job paid in dollars, when a pay term is fixed, then the pay is valued in naira at the official rate", () => {
     const wide = variant({ "offer.salary-loan": { terms: { min: 10000000, max: { from: "pay", times: 4, cap: 100000000000 } } } });
     const subject = lab({ scenario: BANKER, content: wide });
-    subject.apply([{ type: "activity/start-job", job: "activity.job-remote-dev" }]);
-    const pay = content.activity["activity.job-remote-dev"]!.pay!;
+    subject.apply([{ type: "activity/start-job", job: "activity.job-remote-developer" }]);
+    const pay = content.activity["activity.job-remote-developer"]!.pay!;
     expect(pay.currency).toBe("USD");
     const rates = subject.game.world().rates;
     const official = Object.fromEntries(Object.entries(rates).map(([key, rate]) => [key, rate.official])) as Record<ForeignCurrency, number>;

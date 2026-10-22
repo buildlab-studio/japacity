@@ -5907,7 +5907,7 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.job-hunt",
-              "param": "activity.job-uk-senior-dev",
+              "param": "activity.job-uk-senior-developer",
               "basedOn": 554
             },
             "tick": 49,
@@ -6405,7 +6405,7 @@
       "v": 14,
       "banked": 23,
       "nairaBank": 435000000,
-      "hash": "709e1bbba94fd594"
+      "hash": "1dee4bb16097a85c"
     },
     {
       "month": 2,
@@ -6748,22 +6748,22 @@
       "v": 557,
       "banked": 0,
       "nairaBank": 12310911377,
-      "hash": "7c6751e310313b04"
+      "hash": "2a5ecda51dd1610f"
     },
     {
       "month": 51,
       "v": 570,
       "banked": 0,
       "nairaBank": 12410017881,
-      "hash": "66e23c76e9c7deb8"
+      "hash": "3a167f51be3faa21"
     },
     {
       "month": 52,
       "v": 585,
       "banked": 0,
       "nairaBank": 12941575321,
-      "hash": "b0dc2d6963715ba2"
+      "hash": "740f1eb74bf43754"
     }
   ],
-  "finalHash": "b64fd6a3f7547a72"
+  "finalHash": "61cba7aefa9aa008"
 }

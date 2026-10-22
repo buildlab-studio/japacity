@@ -150,9 +150,9 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     ),
     sickLeave: true,
   },
-  "activity.job-uk-senior-dev": {
+  "activity.job-uk-senior-developer": {
     ...job(
-      "activity.job-uk-senior-dev",
+      "activity.job-uk-senior-developer",
       "country.uk",
       IN_UK,
       { currency: "GBP", amount: pounds(62000) },
@@ -281,8 +281,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     ],
     [wellbeing(-3), gain("quality.network", 1)],
   ),
-  "activity.job-canada-dev": job(
-    "activity.job-canada-dev",
+  "activity.job-canada-developer": job(
+    "activity.job-canada-developer",
     "country.canada",
     IN_CANADA,
     { currency: "CAD", amount: cad(95000) },

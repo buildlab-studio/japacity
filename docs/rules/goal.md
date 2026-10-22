@@ -21,7 +21,7 @@ A goal is a thing worth doing that the game notices: a car, a home, a career ste
 |---|---|---|---|---|
 | `goal.first-car` | abroad | credit 20 | `obligation/has` type `car` (car:open-finance-gives-the-car) | standing +4, wellbeing +4 |
 | `goal.own-door` | abroad | 6 months abroad | a flat open (`obligation.rent-flat-uk` or `obligation.rent-flat-canada`) | wellbeing +6 |
-| `goal.step-up` | abroad | 12 months abroad | a job abroad paying 20% or more above the entry job of its ladder: one of `activity.job-uk-nurse`, `activity.job-uk-senior-dev`, `activity.job-uk-graduate`, `activity.job-canada-professional`, `activity.job-canada-dev` held (`job/is`) | standing +5 |
+| `goal.step-up` | abroad | 12 months abroad | a job abroad paying 20% or more above the entry job of its ladder: one of `activity.job-uk-nurse`, `activity.job-uk-senior-developer`, `activity.job-uk-graduate`, `activity.job-canada-professional`, `activity.job-canada-developer` held (`job/is`) | standing +5 |
 | `goal.clean-file` | abroad | credit 10 | credit 60 | wellbeing +3 |
 | `goal.send-well` | abroad | any remit | ₦2,000,000 sent home in total (`wallet/total`, flow `in`, reason `remit`, in naira: the naira that arrived home, abroad-money:remit-sends-money-home) | standing +6 |
 | `goal.december` | abroad | 12 months abroad | `setpiece.december` answered once | wellbeing +5 |
