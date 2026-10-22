@@ -1,14 +1,14 @@
-// account:passkey-needs-signed-in-session and moderation:admin-view-for-admin-list: who may add a passkey, and what every
+// account:passkey-needs-signed-in-session and moderation:admin-view-for-admin-list: who may add or remove a passkey, and what every
 // addition leaves behind, so whoever gets into an admin's email cannot add the
 // passkey the admin pages need.
 // Through the real auth library with a software passkey.
 import { describe, expect, test } from "vitest";
 
 import { testConfig } from "../config";
-import { accountHash, ADMIN_PASSKEY_BIND_DETAIL, PASSKEY_ROWS } from "./hooks";
+import { accountHash, ADMIN_PASSKEY_BIND_DETAIL, ADMIN_REMOVAL_DETAIL, PASSKEY_ROWS } from "./hooks";
 import type { PasskeyNote } from "./hooks";
 import { softwarePasskey } from "./passkey.testing";
-import { harness } from "./auth.testing";
+import { harness, makeJar, withGoogle } from "./auth.testing";
 import type { Harness } from "./auth.testing";
 
 async function signedUp(h: Harness, email: string, admin: boolean) {
@@ -127,5 +127,58 @@ describe("adding a passkey", () => {
     expect(note?.accountHash).toBe(await accountHash(account));
     expect(note?.accountHash).not.toContain(account);
     await namesNoOne(h, account);
+  });
+});
+
+describe("removing a way in", () => {
+  test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given an admin holding a passkey and signed in with it in one browser, when someone with only the admin's email signs in by code and removes that passkey, then it is refused, the passkey and the admin's session stay, and no passkey of theirs can be added", async () => {
+    const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
+    const { account } = await signedUp(h, "owner@example.com", true);
+    const owners = await softwarePasskey("b3duZXJzLXBhc3NrZXk");
+    await owners.store(h, account);
+    const ownerBrowser = (await owners.signIn(h)).jar;
+    expect((await h.call("/api/admin/alarms", { jar: ownerBrowser })).status).toBe(200);
+    const intruder = makeJar();
+    const code = await h.codeFor("owner@example.com", intruder, "198.51.100.9");
+    expect((await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar: intruder, ip: "198.51.100.9", json: { email: "owner@example.com", otp: code } })).status).toBe(200);
+    const listed = await (await h.call("/api/auth/passkey/list-user-passkeys", { jar: intruder })).json<{ id: string }[]>();
+    const removed = await h.call("/api/auth/passkey/delete-passkey", { method: "POST", jar: intruder, json: { id: listed[0]?.id } });
+    expect({ status: removed.status, message: (await removed.json<Record<string, unknown>>())["message"] }).toEqual({ status: 403, message: ADMIN_REMOVAL_DETAIL });
+    expect(passkeysOf(h, account)).toEqual(["b3duZXJzLXBhc3NrZXk"]);
+    expect((await h.call("/api/account", { jar: ownerBrowser })).status).toBe(200);
+    const theirs = await (await softwarePasskey("aW50cnVkZXJzLWtleQ")).register(h, intruder);
+    expect({ options: theirs.options, status: theirs.status }).toEqual({ options: 403, status: 403 });
+    expect((await h.call("/api/admin/alarms", { jar: intruder })).status).toBe(403);
+  });
+
+  test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given an admin holding a passkey and two Google links, signed in by email code, when one Google link is removed, then it is refused and both links and the other session stay", async () => {
+    const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
+    const { jar, account } = await signedUp(h, "owner@example.com", true);
+    await (await softwarePasskey("Zmlyc3Qta2V5")).store(h, account);
+    const googleBrowser = makeJar();
+    await withGoogle(h, googleBrowser, { sub: "google-subject-1", email: "owner@example.com" });
+    expect((await h.call("/api/account", { jar: googleBrowser })).status).toBe(200);
+    // A second link stored as if made earlier, so the library would let one go.
+    await (await h.auth.$context).adapter.create({ model: "account", data: { userId: account, providerId: "google", accountId: "google-subject-0", createdAt: new Date(), updatedAt: new Date() } });
+    const linked = h.tables.account.find((row) => row["accountId"] === "google-subject-1");
+    const unlinked = await h.call("/api/auth/unlink-account", { method: "POST", jar, json: { accountId: linked?.["id"] } });
+    expect({ status: unlinked.status, message: (await unlinked.json<Record<string, unknown>>())["message"] }).toEqual({ status: 403, message: ADMIN_REMOVAL_DETAIL });
+    expect(h.tables.account.filter((row) => row["userId"] === account).map((row) => row["accountId"]).sort()).toEqual(["google-subject-0", "google-subject-1"]);
+    expect((await h.call("/api/account", { jar: googleBrowser })).status).toBe(200);
+  });
+
+  test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given an admin signed in with a user-verified passkey, when it removes a passkey, then it is removed and its other sessions end", async () => {
+    const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
+    const { jar: codeBrowser, account } = await signedUp(h, "owner@example.com", true);
+    const first = await softwarePasskey("Zmlyc3Qta2V5");
+    await first.store(h, account);
+    await (await softwarePasskey("c2Vjb25kLWtleQ")).store(h, account);
+    const { jar } = await first.signIn(h);
+    const second = h.tables.passkey.find((row) => row["credentialID"] === "c2Vjb25kLWtleQ");
+    const removed = await h.call("/api/auth/passkey/delete-passkey", { method: "POST", jar, json: { id: second?.["id"] } });
+    expect(removed.status).toBe(200);
+    expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5"]);
+    expect((await h.call("/api/account", { jar })).status).toBe(200);
+    expect((await h.call("/api/account", { jar: codeBrowser })).status).toBe(401);
   });
 });

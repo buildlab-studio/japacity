@@ -1,7 +1,7 @@
 // The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
 // passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
-// removed (account:session-is-secure-cookie), who may add a passkey and what each addition
+// removed (account:session-is-secure-cookie), who may add or remove a passkey and what each addition
 // leaves behind (account:passkey-needs-signed-in-session), and the passkey step-up of a signed-in
 // session (moderation:admin-view-for-admin-list).
 // https://better-auth.com/docs/concepts/hooks
@@ -32,6 +32,7 @@ const VERIFY_AUTHENTICATION_PATH = "/passkey/verify-authentication";
 const REGISTER_PATHS = new Set(["/passkey/generate-register-options", VERIFY_REGISTRATION_PATH]);
 
 export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is added only from a session that has shown a passkey; use yours first.";
+export const ADMIN_REMOVAL_DETAIL = "A passkey or a linked sign-in on an admin account is removed only from a session that has shown a passkey; use yours first.";
 
 /** The code and words of a passkey that belongs to another account than the signed-in one (moderation:admin-view-for-admin-list). */
 export const OTHER_ACCOUNT = "other-account";
@@ -143,6 +144,15 @@ async function limitEmailSends(deps: ServerDeps, ctx: HookContext): Promise<void
   await day.write();
 }
 
+/**
+ * account:sign-in-routes-rate-limited: the one send the game uses sends only sign-in codes. The library would also send a
+ * code to verify an email, reset a password or change the email, which the game never asks for.
+ */
+function signInCodesOnly(ctx: HookContext): void {
+  if (ctx.path !== SEND_PATH) return;
+  if ((ctx.body as { type?: unknown } | undefined)?.type !== "sign-in") throw new APIError("BAD_REQUEST", { message: "Only a sign-in code is sent." });
+}
+
 /** How the request's session was opened, from the field the session hook set (session.ts). */
 function openedWith(session: { session: Record<string, unknown> }): SignedInWith {
   const method = session.session["signedInWith"];
@@ -153,15 +163,63 @@ function openedWith(session: { session: Record<string, unknown> }): SignedInWith
  * account:passkey-needs-signed-in-session, moderation:admin-view-for-admin-list: an account on the admin list that already
  * holds a passkey adds another only from a session that has shown a passkey.
  * Checked when the options are asked for and again at the verification,
- * which is where the passkey is stored.
+ * which is where the passkey is stored. Removing one of its passkeys or a linked sign-in needs the same session, or
+ * whoever got into the admin's email would remove the admin's passkey and then add their own as the first.
  */
 async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<void> {
-  if (!REGISTER_PATHS.has(ctx.path ?? "")) return;
+  const path = ctx.path ?? "";
+  const adding = REGISTER_PATHS.has(path);
+  if (!adding && !UNLINK_PATHS.has(path)) return;
   const session = await getSessionFromCtx(ctx);
   if (session === null || !deps.config.admin.accounts.includes(session.user.id)) return;
   if (passkeyShown(session.session, deps.now(), deps.config.admin.passkeyMs)) return;
   const held = await ctx.context.adapter.count({ model: "passkey", where: [{ field: "userId", value: session.user.id }] });
-  if (held > 0) throw new APIError("FORBIDDEN", { message: ADMIN_PASSKEY_BIND_DETAIL });
+  if (held > 0) throw new APIError("FORBIDDEN", { message: adding ? ADMIN_PASSKEY_BIND_DETAIL : ADMIN_REMOVAL_DETAIL });
+}
+
+/**
+ * The library's routes the game never calls that would write or send something, each by the rule it would get around:
+ * the password, its reset and linking a method outside the sign-in routes the game uses (account:sign-in-without-secret),
+ * the email change and the code routes past the one send the game uses (account:sign-in-routes-rate-limited), a name,
+ * a picture or a passkey's name (account:only-needed-data-kept), ending sessions outside sign-out or listing them with
+ * their tokens to page script (account:session-is-secure-cookie), deleting outside the game's deletion route (account:player-deletes-account), and
+ * Google's tokens, which no account keeps (account:only-needed-data-kept).
+ * Matched on the library's own route, so no spelling of the address reaches one.
+ */
+export const CLOSED_PATHS: ReadonlySet<string> = new Set([
+  "/request-password-reset",
+  "/reset-password",
+  "/reset-password/:token",
+  "/change-password",
+  "/verify-password",
+  "/email-otp/request-password-reset",
+  "/forget-password/email-otp",
+  "/email-otp/reset-password",
+  "/change-email",
+  "/email-otp/request-email-change",
+  "/email-otp/change-email",
+  "/send-verification-email",
+  "/verify-email",
+  "/email-otp/verify-email",
+  "/email-otp/check-verification-otp",
+  "/update-user",
+  "/passkey/update-passkey",
+  "/link-social",
+  "/update-session",
+  "/revoke-session",
+  "/revoke-other-sessions",
+  "/list-sessions",
+  "/delete-user",
+  "/delete-user/callback",
+  "/delete-anonymous-user",
+  "/account-info",
+  "/get-access-token",
+  "/refresh-token",
+]);
+
+/** A browser's call to a closed route answers 404 before the library runs it; the server's own calls (the deletion route's) pass. */
+function closedRouteCheck(ctx: HookContext): void {
+  if (CLOSED_PATHS.has(ctx.path ?? "") && ctx.request !== undefined) throw new APIError("NOT_FOUND", { message: "Not found." });
 }
 
 /** account:bot-check-on-guest-creation, account:guest-floods-are-capped: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
@@ -203,8 +261,10 @@ async function guardStepUp(ctx: HookContext): Promise<void> {
 /** The hooks run before every library route. */
 export function beforeAuth(deps: ServerDeps) {
   return createAuthMiddleware(async (ctx) => {
+    closedRouteCheck(ctx);
     guestStartCheck(ctx);
     await guardGuestPasskeys(ctx);
+    signInCodesOnly(ctx);
     await limitEmailSends(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
     await guardStepUp(ctx);
