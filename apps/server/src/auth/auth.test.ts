@@ -272,6 +272,22 @@ describe("signing in", () => {
 });
 
 describe("the sign-in limits", () => {
+  test("[account:sign-in-routes-rate-limited] given an account, when a code of any type but sign-in is asked for, then it is refused 400, nothing is sent and the email's count is untouched", async () => {
+    const h = harness();
+    await h.signUp("ada@example.com");
+    const before = h.sent.length;
+    const statuses: number[] = [];
+    for (let n = 0; n < h.deps.config.auth.limits.otpSendPer60s; n++) {
+      for (const type of ["email-verification", "forget-password", "change-email"]) {
+        statuses.push((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(n * 3 + statuses.length + 1)}`, json: { email: "ada@example.com", type } })).status);
+      }
+    }
+    expect(new Set(statuses)).toEqual(new Set([400]));
+    expect(h.sent.slice(before)).toEqual([]);
+    expect((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: "198.51.100.200", json: { email: "ada@example.com", type: "sign-in" } })).status).toBe(200);
+    expect(h.sent.slice(before).map((message) => message.type)).toEqual(["sign-in"]);
+  });
+
   test("[account:sign-in-routes-rate-limited] given code sends from one address, when one more than the limit is sent in 60 seconds, then it is refused and the count is in the database", async () => {
     const h = harness();
     const limit = h.deps.config.auth.limits.otpSendPer60s;

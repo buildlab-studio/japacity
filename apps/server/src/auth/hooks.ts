@@ -144,6 +144,15 @@ async function limitEmailSends(deps: ServerDeps, ctx: HookContext): Promise<void
   await day.write();
 }
 
+/**
+ * account:sign-in-routes-rate-limited: the one send the game uses sends only sign-in codes. The library would also send a
+ * code to verify an email, reset a password or change the email, which the game never asks for.
+ */
+function signInCodesOnly(ctx: HookContext): void {
+  if (ctx.path !== SEND_PATH) return;
+  if ((ctx.body as { type?: unknown } | undefined)?.type !== "sign-in") throw new APIError("BAD_REQUEST", { message: "Only a sign-in code is sent." });
+}
+
 /** How the request's session was opened, from the field the session hook set (session.ts). */
 function openedWith(session: { session: Record<string, unknown> }): SignedInWith {
   const method = session.session["signedInWith"];
@@ -255,6 +264,7 @@ export function beforeAuth(deps: ServerDeps) {
     closedRouteCheck(ctx);
     guestStartCheck(ctx);
     await guardGuestPasskeys(ctx);
+    signInCodesOnly(ctx);
     await limitEmailSends(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
     await guardStepUp(ctx);
