@@ -329,3 +329,100 @@ describe("the sign-in limits", () => {
     expect(statuses[3]).toBe(429);
   });
 });
+
+describe("the library routes the game never calls", () => {
+  /** A route the game never calls: each answers 404 to a browser, before the library runs it. */
+  async function closed(h: ReturnType<typeof harness>, jar: ReturnType<typeof makeJar>, routes: [method: string, path: string, body?: unknown][], ip?: string): Promise<number[]> {
+    const statuses: number[] = [];
+    for (const [method, path, body] of routes) {
+      const reply = await h.call(`/api/auth${path}`, { method, jar, ...(ip === undefined ? {} : { ip }), ...(body === undefined ? {} : { json: body }) });
+      statuses.push(reply.status);
+    }
+    return statuses;
+  }
+
+  test("[account:sign-in-routes-rate-limited] given an account, when the code routes the game never calls are asked again and again from many addresses, then each answers 404 and no code is sent", async () => {
+    const h = harness();
+    const { jar } = await h.signUp("ada@example.com");
+    const before = h.sent.length;
+    const statuses: number[] = [];
+    for (let n = 0; n < 2 * h.deps.config.auth.limits.otpSendPerDay; n++) {
+      const path = n % 2 === 0 ? "/email-otp/request-password-reset" : "/forget-password/email-otp";
+      statuses.push(...(await closed(h, makeJar(), [["POST", path, { email: "ada@example.com" }]], `203.0.113.${String(n + 10)}`)));
+    }
+    statuses.push(
+      ...(await closed(h, jar, [
+        ["POST", "/email-otp/request-email-change", { newEmail: "bola@example.com" }],
+        ["POST", "/email-otp/change-email", { newEmail: "bola@example.com", otp: "000000" }],
+        ["POST", "/change-email", { newEmail: "bola@example.com" }],
+        ["POST", "/send-verification-email", { email: "ada@example.com" }],
+        ["GET", "/verify-email?token=anything"],
+        ["POST", "/email-otp/verify-email", { email: "ada@example.com", otp: "000000" }],
+        ["POST", "/email-otp/check-verification-otp", { email: "ada@example.com", otp: "000000", type: "sign-in" }],
+      ])),
+    );
+    expect(new Set(statuses)).toEqual(new Set([404]));
+    expect(h.sent.slice(before)).toEqual([]);
+    expect(h.tables.user).toEqual([expect.objectContaining({ email: "ada@example.com" })]);
+  });
+
+  test("[account:sign-in-without-secret] given an account with no password, when the password routes are called, then each answers 404, no password is stored and no session is opened", async () => {
+    const h = harness();
+    const { jar, account } = await h.signUp("ada@example.com");
+    const password = "correct-horse-battery";
+    const stranger = makeJar();
+    const statuses = await closed(h, stranger, [
+      ["POST", "/request-password-reset", { email: "ada@example.com", redirectTo: "/" }],
+      ["POST", "/reset-password", { newPassword: password, token: "anything" }],
+      ["GET", "/reset-password/anything?callbackURL=/"],
+      ["POST", "/email-otp/reset-password", { email: "ada@example.com", otp: "000000", password }],
+    ]);
+    statuses.push(
+      ...(await closed(h, jar, [
+        ["POST", "/verify-password", { password }],
+        ["POST", "/change-password", { currentPassword: password, newPassword: `${password}-2` }],
+        ["POST", "/link-social", { provider: "google", callbackURL: "/" }],
+      ])),
+    );
+    expect(new Set(statuses)).toEqual(new Set([404]));
+    expect(h.tables.account.filter((row) => row["userId"] === account)).toEqual([]);
+    expect(stranger.cookies.size).toBe(0);
+  });
+
+  test("[account:only-needed-data-kept] given an account holding a passkey, when a name and a picture are sent for the account and a name for the passkey, then each answers 404 and neither row keeps them", async () => {
+    const h = harness();
+    const { jar, account } = await h.signUp("ada@example.com");
+    h.tables.passkey.push({ id: "passkey-1", userId: account, publicKey: "key", credentialID: "credential-1", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: new Date() });
+    const statuses = await closed(h, jar, [
+      ["POST", "/update-user", { name: "A Real Name", image: "https://photos.example/face.jpg" }],
+      ["POST", "/update-user/", { name: "A Real Name", image: "https://photos.example/face.jpg" }],
+      ["POST", "/passkey/update-passkey", { id: "passkey-1", name: "A Real Name's phone" }],
+    ]);
+    expect(statuses).toEqual([404, 404, 404]);
+    expect(h.tables.user).toEqual([expect.objectContaining({ id: account, name: "" })]);
+    expect(h.tables.user[0]?.["image"] ?? "").toBe("");
+    expect(h.tables.passkey[0]?.["name"]).toBeUndefined();
+  });
+
+  test("[account:session-is-secure-cookie] [account:player-deletes-account] given an account signed in twice, when the session and deletion routes the game never calls are sent, then each answers 404, both sessions stay and the account stays; the game's own deletion route still deletes", async () => {
+    const h = harness();
+    const { jar, account } = await h.signUp("ada@example.com");
+    const other = makeJar();
+    for (const cookie of await (await h.helpers()).getCookies({ userId: account })) other.cookies.set(cookie.name, cookie.value);
+    const otherToken = h.tables.session.at(-1)?.["token"];
+    const statuses = await closed(h, jar, [
+      ["POST", "/revoke-session", { token: otherToken }],
+      ["POST", "/revoke-other-sessions", {}],
+      ["POST", "/update-session", { signedInWith: "passkey" }],
+      ["POST", "/delete-user", {}],
+      ["GET", "/delete-user/callback?token=anything"],
+      ["POST", "/delete-anonymous-user", {}],
+    ]);
+    expect(new Set(statuses)).toEqual(new Set([404]));
+    expect((await h.call("/api/account", { jar })).status).toBe(200);
+    expect((await h.call("/api/account", { jar: other })).status).toBe(200);
+    expect(h.tables.user.map((row) => row["id"])).toEqual([account]);
+    expect((await h.call("/api/account", { method: "DELETE", jar, json: {} })).status).toBe(200);
+    expect(h.tables.user).toEqual([]);
+  });
+});

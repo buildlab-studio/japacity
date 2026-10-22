@@ -168,6 +168,46 @@ async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<v
   if (held > 0) throw new APIError("FORBIDDEN", { message: adding ? ADMIN_PASSKEY_BIND_DETAIL : ADMIN_REMOVAL_DETAIL });
 }
 
+/**
+ * The library's routes the game never calls that would write or send something, each by the rule it would get around:
+ * the password, its reset and linking a method outside the sign-in routes the game uses (account:sign-in-without-secret),
+ * the email change and the code routes past the one send the game uses (account:sign-in-routes-rate-limited), a name,
+ * a picture or a passkey's name (account:only-needed-data-kept), ending sessions outside sign-out
+ * (account:session-is-secure-cookie) and deleting outside the game's deletion route (account:player-deletes-account).
+ * Matched on the library's own route, so no spelling of the address reaches one.
+ */
+export const CLOSED_PATHS: ReadonlySet<string> = new Set([
+  "/request-password-reset",
+  "/reset-password",
+  "/reset-password/:token",
+  "/change-password",
+  "/verify-password",
+  "/email-otp/request-password-reset",
+  "/forget-password/email-otp",
+  "/email-otp/reset-password",
+  "/change-email",
+  "/email-otp/request-email-change",
+  "/email-otp/change-email",
+  "/send-verification-email",
+  "/verify-email",
+  "/email-otp/verify-email",
+  "/email-otp/check-verification-otp",
+  "/update-user",
+  "/passkey/update-passkey",
+  "/link-social",
+  "/update-session",
+  "/revoke-session",
+  "/revoke-other-sessions",
+  "/delete-user",
+  "/delete-user/callback",
+  "/delete-anonymous-user",
+]);
+
+/** A browser's call to a closed route answers 404 before the library runs it; the server's own calls (the deletion route's) pass. */
+function closedRouteCheck(ctx: HookContext): void {
+  if (CLOSED_PATHS.has(ctx.path ?? "") && ctx.request !== undefined) throw new APIError("NOT_FOUND", { message: "Not found." });
+}
+
 /** account:bot-check-on-guest-creation, account:guest-floods-are-capped: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
 function guestStartCheck(ctx: HookContext): void {
   if (ctx.path === GUEST_PATH && ctx.request !== undefined) throw new APIError("NOT_FOUND", { message: "Start a life through the guest start." });
@@ -207,6 +247,7 @@ async function guardStepUp(ctx: HookContext): Promise<void> {
 /** The hooks run before every library route. */
 export function beforeAuth(deps: ServerDeps) {
   return createAuthMiddleware(async (ctx) => {
+    closedRouteCheck(ctx);
     guestStartCheck(ctx);
     await guardGuestPasskeys(ctx);
     await limitEmailSends(deps, ctx);
