@@ -205,12 +205,12 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
       [
         // A bachelor's and 12 months local, or a master's: there is no "all of" requirement,
         // so it is written as a bachelor's or more, and 12 months local or a master's.
-        { type: "quality/min", quality: "quality.edu-level", value: 3 },
+        { type: "quality/min", quality: "quality.education-level", value: 3 },
         {
           type: "any",
           of: [
             { type: "activity/local-tenure", months: 12 },
-            { type: "quality/min", quality: "quality.edu-level", value: 4 },
+            { type: "quality/min", quality: "quality.education-level", value: 4 },
           ],
         },
       ],
@@ -276,7 +276,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     { currency: "CAD", amount: cad(75000) },
     pct(25),
     [
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
       { type: "activity/local-tenure", months: 12 },
     ],
     [wellbeing(-3), gain("quality.network", 1)],

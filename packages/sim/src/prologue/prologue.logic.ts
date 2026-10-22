@@ -262,7 +262,7 @@ function waec(ctx: Ctx): void {
   if ((ctx.state.quality[QUALITY.familyMeans] ?? 0) < waecStrain.under) ctx.apply([add(QUALITY.standing, waecStrain.standing)], cause());
 }
 
-/** prologue:steps-offer-legal-answers, step 8: the grade draw, set on `quality.edu-grade`. */
+/** prologue:steps-offer-legal-answers, step 8: the grade draw, set on `quality.education-grade`. */
 function graduate(ctx: Ctx): BaseEvent[] {
   const slice = ctx.state.prologue;
   const numbers = ctx.content.tuning.prologue;
@@ -355,7 +355,7 @@ function evolve(slice: PrologueSlice, event: PrologueEvent): PrologueSlice {
       };
     case "prologue/graded":
     case "prologue/headline":
-      // The grade lives on `quality.edu-grade`; a headline is flavour and changes nothing (prologue:headlines-and-friend-route).
+      // The grade lives on `quality.education-grade`; a headline is flavour and changes nothing (prologue:headlines-and-friend-route).
       return slice;
     case "prologue/closed":
       return { ...slice, open: false, step: null };

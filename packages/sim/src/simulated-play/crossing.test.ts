@@ -536,7 +536,7 @@ describe("whole-life rules that cross kinds", () => {
     if (game.state.prologue.step === "strike-drag") choose(game, "back");
     expect(moved("code", ["quality.tech"])).toEqual([15]);
     choose(game, "focus");
-    expect(moved("results-nurse", ["quality.edu-level", "quality.care"])).toEqual([3, 30]);
+    expect(moved("results-nurse", ["quality.education-level", "quality.care"])).toEqual([3, 30]);
     expect(game.view().documents.find((paper) => paper.id === "document.nursing-licence")?.state).toBe("held");
     // The service year's earnings, over the line for cash, land in the bank (wallet:money-lands-as-in-lagos).
     const naira = game.state.wallet.pockets.NGN;

@@ -50,7 +50,7 @@ function graduateKnown(used: Content = content): Game {
 const OFFERED = (() => {
   for (let i = 0; i < 1000; i += 1) {
     const seed = `seed-${String(i)}`;
-    if (offeredWith(seed, content, "school.northgate", content.scenario["scenario.graduate"]!.qualities["quality.edu-grade"] ?? 0)) return seed;
+    if (offeredWith(seed, content, "school.northgate", content.scenario["scenario.graduate"]!.qualities["quality.education-grade"] ?? 0)) return seed;
   }
   throw new Error("No seed gives an offer.");
 })();
@@ -304,7 +304,7 @@ describe("whole numbers, derived each time", () => {
       // The prologue life starts with every quality at its floor and its own steps to play; its figure is the prologue tests' business.
       fc.pre(scenario !== "scenario.prologue");
       // Past known, the life needs an offer from Northgate on its first answer; a seed that gives none is skipped.
-      fc.pre(!late || offeredWith(seed, content, "school.northgate", content.scenario[scenario]!.qualities["quality.edu-grade"] ?? 0));
+      fc.pre(!late || offeredWith(seed, content, "school.northgate", content.scenario[scenario]!.qualities["quality.education-grade"] ?? 0));
       const build = (): Game => {
         // The route is moved by the real route kind. Past known, the life is a ready one built from the scenario.
         const game = late ? readyLife(content, { from: scenario, seed, tuning: ALWAYS_GRANTED }) : start({ scenario, content, seed });

@@ -120,7 +120,7 @@ export const profileActivityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.masters-at-home",
     slot: "free",
     once: true,
-    requires: [atLeast("quality.edu-level", 3), { type: "quality/max", quality: "quality.edu-level", value: 3 }],
+    requires: [atLeast("quality.education-level", 3), { type: "quality/max", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
     pay: null,
@@ -128,7 +128,7 @@ export const profileActivityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -2 }],
     onMonth: [
       { at: 1, effects: [{ type: "obligation/open", obligation: MASTERS_FEES, principal: naira(1800000) }] },
-      { at: 12, effects: [{ type: "quality/add", quality: "quality.edu-level", amount: 1 }] },
+      { at: 12, effects: [{ type: "quality/add", quality: "quality.education-level", amount: 1 }] },
     ],
     counts: [CANADA],
   },

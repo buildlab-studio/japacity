@@ -52,7 +52,7 @@ describe("the situation in plain words", () => {
     expect(valueWords("quality.family-means", 26)).toBe(say("ui.band.quality.family-means.1"));
     expect(valueWords("quality.family-means", max)).toBe(say("ui.band.quality.family-means.3"));
     // A quality with named levels keeps its names.
-    expect(valueWords("quality.edu-grade", 4)).toBe(text["quality.edu-grade.value.4"]);
+    expect(valueWords("quality.education-grade", 4)).toBe(text["quality.education-grade.value.4"]);
   });
 
   test("[world:month-acts-carry-on] given the month's words, then none says free slots or upkeep, and a quiet month and the job hunt say the time in things to do", () => {

@@ -1190,7 +1190,7 @@ function fileOf(state: State, content: Content): FileOnDay {
     unexplainedBp: visa?.unexplainedBp ?? 0,
     refusals: held?.refusals ?? 0,
     interviewScore: visa?.interviewScore ?? 0,
-    grade: state.quality["quality.edu-grade"] ?? 0,
+    grade: state.quality["quality.education-grade"] ?? 0,
   };
   return { unexplainedBp: file.unexplainedBp, interviewScore: file.interviewScore, chanceBp: refusalChanceBp(content.tuning.route, content.route[UK]?.refusalBaseBp ?? 0, file) };
 }
@@ -1257,7 +1257,7 @@ function prologuePath(state: State): string | null {
   if (state.scenario !== "scenario.prologue") return null;
   const choices = state.prologue.choices;
   const path = choices["after-school"] ?? "none";
-  return `${path}, grade ${String(state.quality["quality.edu-grade"] ?? 0)}`;
+  return `${path}, grade ${String(state.quality["quality.education-grade"] ?? 0)}`;
 }
 
 /** Plays one life with one strategy until the months run out or the life ends. */

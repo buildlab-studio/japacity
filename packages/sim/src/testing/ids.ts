@@ -4,7 +4,7 @@ import type { Id } from "../engine/types";
 
 export const AGE: Id<"quality"> = "quality.age-months";
 export const BELLY: Id<"quality"> = "quality.belly";
-export const EDU: Id<"quality"> = "quality.edu-level";
+export const EDU: Id<"quality"> = "quality.education-level";
 export const ENERGY: Id<"quality"> = "quality.energy";
 export const NETWORK: Id<"quality"> = "quality.network";
 export const PORTFOLIO: Id<"quality"> = "quality.portfolio";

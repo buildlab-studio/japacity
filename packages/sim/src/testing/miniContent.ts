@@ -7,7 +7,7 @@ export const miniContent: Content = {
   version: "mini.1",
   quality: {
     "quality.age-months": { id: "quality.age-months", group: "self", min: 192, max: 1200, shown: true, counts: [] },
-    "quality.edu-level": { id: "quality.edu-level", group: "education", min: 0, max: 5, shown: true, counts: ["route.mini"] },
+    "quality.education-level": { id: "quality.education-level", group: "education", min: 0, max: 5, shown: true, counts: ["route.mini"] },
     "quality.wellbeing": { id: "quality.wellbeing", group: "self", min: 0, max: 100, shown: true, counts: [] },
     "quality.tech": { id: "quality.tech", group: "skills", min: 0, max: 100, shown: true, counts: [] },
     "quality.hidden": { id: "quality.hidden", group: "self", min: 0, max: 10, shown: false, counts: [] },
@@ -16,7 +16,7 @@ export const miniContent: Content = {
     "activity.job-clerk": {
       id: "activity.job-clerk",
       slot: "main",
-      requires: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
+      requires: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
       param: null,
       cost: [],
       pay: { currency: "NGN", amount: 10000000 },
@@ -49,7 +49,7 @@ export const miniContent: Content = {
     "activity.needs-degree": {
       id: "activity.needs-degree",
       slot: "free",
-      requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+      requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
       param: null,
       cost: [],
       pay: null,
@@ -95,11 +95,11 @@ export const miniContent: Content = {
       status: "status.mini",
       refusalBaseBp: 900,
       flightPaidByEmployer: false,
-      hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
+      hearIf: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
       hearBy: 2,
       window: "var.mini-window",
       checklist: [
-        { id: "degree", weight: 40, requirement: { type: "quality/min", quality: "quality.edu-level", value: 3 }, partial: false },
+        { id: "degree", weight: 40, requirement: { type: "quality/min", quality: "quality.education-level", value: 3 }, partial: false },
         { id: "passport", weight: 20, requirement: { type: "document/held", document: "document.passport" }, partial: false },
         { id: "funds", weight: 40, requirement: { type: "route/funds", route: "route.mini", heldMonths: 0 }, partial: true },
       ],
@@ -271,7 +271,7 @@ export const miniContent: Content = {
       siblings: 0,
       qualities: {
         "quality.age-months": 276,
-        "quality.edu-level": 3,
+        "quality.education-level": 3,
         "quality.wellbeing": 70,
         "quality.tech": 30,
         "quality.hidden": 1,
@@ -287,7 +287,7 @@ export const miniContent: Content = {
       siblings: 0,
       qualities: {
         "quality.age-months": 340,
-        "quality.edu-level": 3,
+        "quality.education-level": 3,
         "quality.wellbeing": 20,
         "quality.tech": 10,
         "quality.hidden": 0,

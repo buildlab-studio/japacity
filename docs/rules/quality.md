@@ -26,8 +26,8 @@ A quality is one whole number about the character: a skill, a grade, how the fam
 | Id | Group | Range | Shown | Counts toward | Meaning |
 |---|---|---|---|---|---|
 | `quality.age-months` | self | 192 to 1200 | Yes | | Age in months |
-| `quality.edu-level` | education | 0 to 5 | Yes | UK master's | 0 none, 1 secondary, 2 diploma, 3 bachelor's, 4 master's, 5 doctorate |
-| `quality.edu-grade` | education | 0 to 5 | Yes | UK master's | 1 pass, 2 third, 3 second lower, 4 second upper, 5 first |
+| `quality.education-level` | education | 0 to 5 | Yes | UK master's | 0 none, 1 secondary, 2 diploma, 3 bachelor's, 4 master's, 5 doctorate |
+| `quality.education-grade` | education | 0 to 5 | Yes | UK master's | 1 pass, 2 third, 3 second lower, 4 second upper, 5 first |
 | `quality.english` | skills | 0 to 100 | Yes | UK master's | Practice level. The test band is drawn from it |
 | `quality.tech` | skills | 0 to 100 | Yes | | Software skill |
 | `quality.interview-prep` | skills | 0 to 100 | Yes | UK master's | Readiness for a credibility interview |

@@ -154,7 +154,7 @@ function routeState(game: ReturnType<typeof newGame>, id: string): string {
 const NURSE_JOB = "activity.job-nurse";
 const CLINIC = "place.tb-clinic";
 const HUNT = "activity.job-hunt";
-const GRADE = "quality.edu-grade";
+const GRADE = "quality.education-grade";
 /** The master's own bar on the degree's grade: second class lower (route.md). */
 const GRADE_BAR = barOf((content.route["route.uk-masters"]?.checklist ?? []).map((item) => item.requirement), GRADE);
 

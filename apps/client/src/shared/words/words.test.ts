@@ -90,7 +90,7 @@ describe("requirement sentences", () => {
   const cases: [Requirement, string][] = [
     // A quality's gate is said by its band, never its figure (text:bands-not-figures).
     [{ type: "quality/min", quality: "quality.tech", value: 40 }, say("ui.req.band.quality.tech.1")],
-    [{ type: "quality/min", quality: "quality.edu-grade", value: 3 }, `${text["quality.edu-grade.name"]!}: ${text["quality.edu-grade.value.3"]!} or better`],
+    [{ type: "quality/min", quality: "quality.education-grade", value: 3 }, `${text["quality.education-grade.name"]!}: ${text["quality.education-grade.value.3"]!} or better`],
     [{ type: "document/held", document: "document.passport" }, `${text["document.passport.name"]!} in hand`],
     [{ type: "document/held", document: "document.english-test", min: 60 }, say("ui.req.document-held-band", { document: text["document.english-test.name"]!, band: formatBand(60) })],
     [{ type: "route/state", route: "route.uk-masters", in: ["heard"] }, `Hear of ${lowerFirst(text["route.uk-masters.name"]!)} first`],
@@ -146,7 +146,7 @@ describe("a job's gates in words", () => {
 
   test("[text:bands-not-figures] given every quality the player is shown, when its move is told, then it is said in words, never as a figure", () => {
     // The age is a figure by nature; the degree's level and grade are named by the prologue's own lines (prologue:view-shows-step-card).
-    const named = new Set(["quality.age-months", "quality.edu-level", "quality.edu-grade"]);
+    const named = new Set(["quality.age-months", "quality.education-level", "quality.education-grade"]);
     const shown = Object.values(content.quality).filter((entry) => entry.shown && !named.has(entry.id));
     expect(shown.length).toBeGreaterThan(8);
     for (const entry of shown) {

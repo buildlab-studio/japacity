@@ -31,7 +31,7 @@ import { ApplyFor, firstJob, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 
 const ENGLISH_RESULT = "document.english-test";
-const GRADE = "quality.edu-grade";
+const GRADE = "quality.education-grade";
 
 function Job() {
   const view = useView();

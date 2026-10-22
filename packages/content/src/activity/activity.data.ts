@@ -47,7 +47,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-teacher": {
     id: "activity.job-teacher",
     slot: "main",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(90000) },
@@ -61,7 +61,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-customer-service": {
     id: "activity.job-customer-service",
     slot: "main",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(110000) },
@@ -89,8 +89,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     // health:sick-pay-unless-sick-leave: the bank pays through a sick month.
     sickLeave: true,
     requires: [
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
-      { type: "quality/min", quality: "quality.edu-grade", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-grade", value: 3 },
     ],
     param: null,
     cost: [],
@@ -343,7 +343,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.get-transcript",
     slot: "free",
     requires: [
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
       { type: "document/absent", document: "document.transcript" },
     ],
     param: null,
@@ -511,7 +511,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.weekend-tutoring": {
     id: "activity.weekend-tutoring",
     slot: "side",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(60000) },
@@ -704,7 +704,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       windowOpen("var.uk-skilled-window"),
       { type: "route/gate-step", route: SKILLED, step: "sponsor" },
       { type: "route/gate-step", route: SKILLED, step: "salary" },
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
       { type: "activity/tenure", activities: [], months: 24 },
       held("document.english-test", 40),
       held("document.tb-certificate"),
@@ -867,7 +867,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/gate-step", route: GULF, step: "sponsor" },
       held("document.passport"),
       held("document.medical"),
-      { type: "quality/min", quality: "quality.edu-level", value: 1 },
+      { type: "quality/min", quality: "quality.education-level", value: 1 },
       { type: "quality/max", quality: "quality.age-months", value: 539 },
     ],
     param: null,

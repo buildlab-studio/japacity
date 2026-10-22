@@ -28,7 +28,7 @@ export const streetActivityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-phone-sales": {
     id: "activity.job-phone-sales",
     slot: "main",
-    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 2 }],
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 2 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: street.salesPay },

@@ -157,7 +157,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
     choices: [
       {
         id: "bank",
-        requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+        requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
         pick: null,
         effects: [{ type: "activity/start-job", job: "activity.job-bank-senior" }],
         fraudEffects: null,

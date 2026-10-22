@@ -27,8 +27,8 @@ describe("the person, in Papers", () => {
   test("given a level content names, then the name is shown instead of the number", async () => {
     const view = engineView();
     await openPapers(view);
-    const level = view.qualities.find((quality) => quality.id === "quality.edu-level")!;
-    expect(within(you()).getByText(text[`quality.edu-level.value.${String(level.value)}`]!)).toBeDefined();
+    const level = view.qualities.find((quality) => quality.id === "quality.education-level")!;
+    expect(within(you()).getByText(text[`quality.education-level.value.${String(level.value)}`]!)).toBeDefined();
   });
 
   test("given a life at home, then the qualities that count abroad and sit at nothing wait in one closed group", async () => {

@@ -324,7 +324,7 @@ describe("answers", () => {
     expect(30000000).toBeGreaterThan(game.content.tuning.wallet.cashUpTo);
     expect(game.state.wallet.pockets.NGN).toEqual({ bank: 30000000, cash: 0, locked: 0 });
     expect(game.state.wallet.totals.in.gig?.NGN).toBe(30000000);
-    expect(quality(game, "quality.edu-level")).toBe(1);
+    expect(quality(game, "quality.education-level")).toBe(1);
     // The shop's age card comes first (prologue:age-advances-with-steps).
     expect(game.state.prologue.step).toBe("age-shop");
   });
@@ -395,7 +395,7 @@ describe("the grade", () => {
     expect(gradeOf(3, true, true, content.tuning.prologue)).toBe(5);
   });
 
-  test("[prologue:steps-offer-legal-answers] given 60 degrees, when the results are out, then edu-level is 3 and the grade is the base plus at most one, both ways seen", () => {
+  test("[prologue:steps-offer-legal-answers] given 60 degrees, when the results are out, then education-level is 3 and the grade is the base plus at most one, both ways seen", () => {
     const grades = new Set<number>();
     for (let run = 0; run < 60; run += 1) {
       const game = newGame(`grade-${String(run)}`);
@@ -404,8 +404,8 @@ describe("the grade", () => {
       while (stepOf(game) !== "graduation") playStep(game);
       const base = game.state.prologue.gradeBase;
       const result = choose(game, game.view().prologue!.answers.find((answer) => answer.allowed)!.id);
-      const grade = quality(game, "quality.edu-grade");
-      expect(quality(game, "quality.edu-level")).toBe(3);
+      const grade = quality(game, "quality.education-grade");
+      expect(quality(game, "quality.education-level")).toBe(3);
       expect(grade).toBeGreaterThanOrEqual(Math.min(2 + base, 5));
       expect(grade).toBeLessThanOrEqual(Math.min(3 + base, 5));
       expect(result.events).toContainEqual({ type: "prologue/graded", grade });
@@ -441,8 +441,8 @@ describe("age", () => {
     expect(quality(game, AGE)).toBe(283);
     expect(quality(game, AGE)).toBeGreaterThanOrEqual(264);
     expect(game.state.wallet.pockets.NGN.bank).toBeGreaterThanOrEqual(40000000);
-    expect(quality(game, "quality.edu-level")).toBe(1);
-    expect(quality(game, "quality.edu-grade")).toBe(0);
+    expect(quality(game, "quality.education-level")).toBe(1);
+    expect(quality(game, "quality.education-grade")).toBe(0);
     expect(quality(game, "quality.network")).toBeGreaterThanOrEqual(20);
     expect(game.state.prologue.open).toBe(false);
   });
@@ -768,7 +768,7 @@ describe("the view", () => {
     expect(view.prologue?.step).toBe("shop");
     expect(view.prologue?.draw).toEqual(game.state.prologue.draw);
     expect(view.prologue?.answers.map((answer) => answer.id)).toEqual(["stay", "save"]);
-    expect(view.qualities.find((held) => held.id === "quality.edu-level")?.value).toBe(1);
+    expect(view.qualities.find((held) => held.id === "quality.education-level")?.value).toBe(1);
     expect(view.pockets.NGN.bank).toBe(30000000);
     expect(text[`prologue.${view.prologue!.step}.card`]).toBeTruthy();
     expect(hiddenPaths(view)).toEqual([]);

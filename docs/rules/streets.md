@@ -9,7 +9,7 @@ Each hidden place has something real to do. Every act here is a thing in the pla
 
 **streets:buy-phone-at-computer-village** A phone can be bought at Computer Village: `activity.buy-phone`, slot `none` (a purchase done now, activity:now-acts-and-month-acts), cost `tuning.street.phonePrice` from the naira, by its size (decision 0014: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it), staged at `place.computer-village`. It lifts `quality.wellbeing` by `tuning.street.phoneMood` and `quality.network` by `tuning.street.phoneNetwork`. It can be bought again; each is a new phone.
 
-**streets:phone-sales-job** Selling phones is a job: `activity.job-phone-sales`, a main-slot job hunted and held like any other (`activity.md`), pay `tuning.street.salesPay` a month, hire chance `tuning.street.salesHireBp`, needing `quality.edu-level` 2 or more, staged at `place.computer-village`. Each month held raises `quality.tech` by 1 and lowers `quality.wellbeing` by 1.
+**streets:phone-sales-job** Selling phones is a job: `activity.job-phone-sales`, a main-slot job hunted and held like any other (`activity.md`), pay `tuning.street.salesPay` a month, hire chance `tuning.street.salesHireBp`, needing `quality.education-level` 2 or more, staged at `place.computer-village`. Each month held raises `quality.tech` by 1 and lowers `quality.wellbeing` by 1.
 
 **streets:apprentice-learns-repair** The trade can be learned as an apprentice: `activity.apprentice-repair`, a free slot, no pay, staged at `place.computer-village`. Each month raises `quality.tech` by `tuning.street.apprenticeTech` and lowers `quality.wellbeing` by 1. It is allowed while `quality.tech` is under `tuning.street.apprenticeUntil`.
 

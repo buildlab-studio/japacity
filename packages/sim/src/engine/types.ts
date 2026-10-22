@@ -592,7 +592,7 @@ export interface PointsEntry {
   id: Id<"points">;
   /** Age in whole years to points. The last row's age is a floor. */
   age: { years: number; points: number }[];
-  /** `quality.edu-level` to points. */
+  /** `quality.education-level` to points. */
   education: { level: number; points: number }[];
   /** English band (times ten) to points per ability; the last row's band is a floor. */
   language: { band: number; points: number }[];

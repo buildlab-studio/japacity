@@ -25,7 +25,7 @@ describe("fairness", () => {
   });
 
   test("[director:stories-never-undo-player-gains] given a story whose needs read a character, directly or inside not and any, when checked, then it is found", () => {
-    const quality: Requirement = { type: "quality/min", quality: "quality.edu-level", value: 3 };
+    const quality: Requirement = { type: "quality/min", quality: "quality.education-level", value: 3 };
     expect(directorFairness(withNeeds([quality]))).toHaveLength(1);
     expect(directorFairness(withNeeds([{ type: "any", of: [{ type: "not", of: quality }] }]))).toHaveLength(1);
     expect(directorFairness(withNeeds([{ type: "not", of: { type: "var/max", var: "var.uk-study-window", value: 1 } }]))).toEqual([]);

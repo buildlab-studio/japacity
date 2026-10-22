@@ -9,7 +9,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.title": "Find your feet",
   "chapter.find-your-feet.open": "Service year is over. The allowance has stopped. Everybody is asking what is next.",
   // The opening line for each life, `open.<scenario's slug>`; the life from sixteen by its path: `prologue.degree` for
-  // a degree (edu-level 3 or more), `prologue.trade` for the trade or the shop counter. The plain line above stays as
+  // a degree (education-level 3 or more), `prologue.trade` for the trade or the shop counter. The plain line above stays as
   // the fallback.
   "chapter.find-your-feet.open.graduate": "Service year is over. The allowance has stopped. Everybody is asking what is next.",
   "chapter.find-your-feet.open.banker": "Four years at the bank. The salary comes every month, and half of it is spoken for before it lands.",

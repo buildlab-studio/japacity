@@ -12,7 +12,7 @@ import { nameOf, say } from "../../../shared/words/text";
 export const APPLY_TO_SCHOOL = "activity.apply-to-school";
 /** The sheet's corner: a building with columns, a university. */
 export const SCHOOL_ICON = "landmark";
-const GRADE = "quality.edu-grade";
+const GRADE = "quality.education-grade";
 
 /** The chance of an offer from this school at the character's grade, as the school's answer draws it (route:school-answers-by-grade). */
 export function offerChance(view: Pick<PlayerView, "qualities">, school: string): number {

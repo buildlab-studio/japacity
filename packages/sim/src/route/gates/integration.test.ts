@@ -80,7 +80,7 @@ describe("the gates through the dispatcher", () => {
   });
 
   test("[route-gates:departure-grants-status] [route-gates:employer-flies-and-holds-passport] [status:gulf-status-holds-passport] given a Gulf contract granted, when the character departs, then no flight is paid, the status is the Gulf worker's with the agent's job, and the character is in the UAE", () => {
-    const game = readyLife(content, { quiet: true, documents: GULF_PAPERS, qualities: { "quality.age-months": 360, "quality.edu-level": 3 }, vars: () => ({ "var.uae-window": 2 }), tuning: ALWAYS_GRANTED });
+    const game = readyLife(content, { quiet: true, documents: GULF_PAPERS, qualities: { "quality.age-months": 360, "quality.education-level": 3 }, vars: () => ({ "var.uae-window": 2 }), tuning: ALWAYS_GRANTED });
     toKnown(game, GULF_ROUTE);
     applyEffects(game, [{ type: "route/record-sponsor", route: GULF_ROUTE, employer: "agent", salary: 0, fraud: false }], { salary: 180000, role: 1 });
     expect(routeOf(game, GULF_ROUTE).gate).toMatchObject({ gate: "contract", agent: { role: "guard" } });

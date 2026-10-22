@@ -14,8 +14,8 @@ type Life = Pick<PlayerView, "scenario" | "qualities" | "pockets"> & Partial<Pic
 /** The papers and the routes, which say a nurse and a way already heard of. A caller without them gets the chapter's order. */
 type Held = Partial<Pick<PlayerView, "documents" | "routes">>;
 
-const EDU_LEVEL = "quality.edu-level";
-const GRADE = "quality.edu-grade";
+const EDU_LEVEL = "quality.education-level";
+const GRADE = "quality.education-grade";
 const CARE = "quality.care";
 /** A bachelor's degree (quality.md), the level the degree path closes at. */
 const DEGREE = 3;

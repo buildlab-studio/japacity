@@ -86,18 +86,18 @@ describe("a greyed answer", () => {
 
 describe("what an answer moved", () => {
   test("[prologue:view-shows-step-card] given schooling moved up a level, when the line is told, then it says the level, never \"up 1, to 1\"", () => {
-    const told = situationLine(line("line.quality.gain", { quality: "quality.edu-level", points: 1, value: 1 }));
+    const told = situationLine(line("line.quality.gain", { quality: "quality.education-level", points: 1, value: 1 }));
     expect(told).not.toBeNull();
-    expect(words(told!.key, told!.params)).toBe(`${say("quality.edu-level.name")} now: ${say("quality.edu-level.value.1")}.`);
+    expect(words(told!.key, told!.params)).toBe(`${say("quality.education-level.name")} now: ${say("quality.education-level.value.1")}.`);
     expect(words(told!.key, told!.params)).not.toMatch(/\d/);
   });
 
   test("[prologue:view-shows-step-card] given the degree graded, when the lines are told, then the grade is said by its name once, and land is said without a figure", () => {
     const graded = line("line.prologue.graded", { grade: 3 });
-    const gain = line("line.quality.gain", { quality: "quality.edu-grade", points: 3, value: 3 });
+    const gain = line("line.quality.gain", { quality: "quality.education-grade", points: 3, value: 3 });
     expect(situationLine(gain, [gain, graded])).toBeNull();
     const told = situationLine(graded, [gain, graded])!;
-    expect(words(told.key, told.params)).toBe(`Your degree comes out: ${say("quality.edu-grade.value.3")}.`);
+    expect(words(told.key, told.params)).toBe(`Your degree comes out: ${say("quality.education-grade.value.3")}.`);
     const land = situationLine(line("line.quality.gain", { quality: "quality.land", points: 1, value: 1 }))!;
     expect(words(land.key, land.params)).not.toMatch(/\d/);
     const portfolio = situationLine(line("line.quality.gain", { quality: "quality.portfolio", points: 1, value: 1 }))!;
@@ -107,7 +107,7 @@ describe("what an answer moved", () => {
 
   test("[text:bands-not-figures] given a whole life from sixteen, when every card's outcome is read, then none says a quality's figure", async () => {
     const { outcomes } = await walk("prologue-first", (allowed) => allowed[0] ?? "");
-    expect(outcomes.some((outcome) => outcome.includes(`${say("quality.edu-level.name")} now:`))).toBe(true);
+    expect(outcomes.some((outcome) => outcome.includes(`${say("quality.education-level.name")} now:`))).toBe(true);
     for (const outcome of outcomes) expect(outcome).not.toMatch(/ up \d+, to \d+| down \d+, to \d+|grade \d/);
   });
 });
@@ -191,14 +191,14 @@ describe("the handover says the archetype's own first step", () => {
 
   /** The first seed whose loose graduate's grade lands on `low` (true: under the master's bar), played on the engine alone. */
   function seedWhose(low: boolean): string {
-    const bar = content.route["route.uk-masters"]?.checklist.flatMap((item) => (item.requirement.type === "quality/min" && item.requirement.quality === "quality.edu-grade" ? [item.requirement.value] : []))[0] ?? 0;
+    const bar = content.route["route.uk-masters"]?.checklist.flatMap((item) => (item.requirement.type === "quality/min" && item.requirement.quality === "quality.education-grade" ? [item.requirement.value] : []))[0] ?? 0;
     for (let n = 0; n < 40; n += 1) {
       const game = newGame(PROLOGUE, `grade-${String(n)}`);
       for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
         const prologue = game.view().prologue!;
         game.accept({ type: "prologue/choose", step: prologue.step, answer: loose(prologue.answers.filter((answer) => answer.allowed).map((answer) => answer.id)) });
       }
-      const grade = qualityIn(game.view(), "quality.edu-grade");
+      const grade = qualityIn(game.view(), "quality.education-grade");
       if (grade < bar === low) return `grade-${String(n)}`;
     }
     throw new Error("No seed in 40 lands there.");

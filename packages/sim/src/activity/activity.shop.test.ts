@@ -36,7 +36,7 @@ function sixteen(seed: string, answers: readonly string[]): Game {
 function trader(): Game {
   for (let at = 0; at < 30; at += 1) {
     const game = sixteen(`shop-${String(at)}`, TRADER);
-    if (game.state.quality["quality.edu-level"] === 1 && naira(game) >= capital()) return game;
+    if (game.state.quality["quality.education-level"] === 1 && naira(game) >= capital()) return game;
   }
   throw new Error("No trader with the settlement in thirty seeds.");
 }
@@ -86,7 +86,7 @@ describe("the trader's own shop", () => {
     const offered = fixed.filter((scenario) => allowed(start({ content, scenario: scenario.id }), OPEN) !== false).map((scenario) => scenario.id);
     expect(offered).toEqual([]);
     const graduate = sixteen("shop-graduate", ["begin", "science", "jamb", "study"]);
-    expect(graduate.state.quality["quality.edu-level"]).toBeGreaterThanOrEqual(3);
+    expect(graduate.state.quality["quality.education-level"]).toBeGreaterThanOrEqual(3);
     expect(allowed(graduate, OPEN)).toBe(false);
   });
 });

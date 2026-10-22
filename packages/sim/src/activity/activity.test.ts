@@ -376,7 +376,7 @@ describe("the params a free activity may take now", () => {
     ...state,
     document: { ...state.document, "document.english-test": { state: held, readyMonth: 0, expiresMonth: 24, value } },
   });
-  const grade = (value: number) => (state: State): State => ({ ...state, quality: { ...state.quality, "quality.edu-grade": value } });
+  const grade = (value: number) => (state: State): State => ({ ...state, quality: { ...state.quality, "quality.education-grade": value } });
   const all = (...changes: ((state: State) => State)[]) => (state: State): State => changes.reduce((acc, change) => change(acc), state);
   const school = content.activity["activity.apply-to-school"]!;
 
@@ -419,7 +419,7 @@ describe("the params a free activity may take now", () => {
 
   test("[activity:illegal-slot-rejects-turn] given a known route, a grade and a band, when the schools are listed, then each school whose minimums are met is listed, each edge included", () => {
     const game = start({ content, scenario: "scenario.graduate" });
-    expect(game.state.quality["quality.edu-grade"]).toBe(4);
+    expect(game.state.quality["quality.education-grade"]).toBe(4);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(65))), school)).toEqual(["school.northgate", "school.ashby"]);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(70))), school)).toEqual(["school.northgate", "school.ashby", "school.kingsmere"]);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(60))), school)).toEqual(["school.northgate"]);
@@ -731,7 +731,7 @@ describe("starting and leaving a job", () => {
 describe("requirements stop mattering once the job is held", () => {
   test("[activity:requirements-judged-at-hunt] given a job whose requirements stop holding, when months pass, then the job is kept and still pays", () => {
     const worker = bench("scenario.worker", smallContent);
-    setQuality(worker, "quality.edu-level", 0);
+    setQuality(worker, "quality.education-level", 0);
     expect(check(worker.read(), miniContent.activity["activity.job-clerk"]!.requires[0]!).met).toBe(false);
     const result = worker.end([]);
     expect(worker.game.state.activity.job).toBe("activity.job-clerk");

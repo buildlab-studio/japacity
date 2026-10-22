@@ -10,7 +10,7 @@ const CANADA: Id<"route"> = "route.canada-points";
 const TALENT: Id<"route"> = "route.uk-talent";
 const GULF: Id<"route"> = "route.gulf-contract";
 
-const DEGREE: Requirement = { type: "quality/min", quality: "quality.edu-level", value: 3 };
+const DEGREE: Requirement = { type: "quality/min", quality: "quality.education-level", value: 3 };
 
 /** A checklist item that is met or not, with no part earned on the way. */
 function item(id: string, weight: number, requirement: Requirement): ChecklistItem {
@@ -42,20 +42,20 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     status: "status.uk-student",
     refusalBaseBp: 900,
     flightPaidByEmployer: false,
-    hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    hearIf: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     hearBy: 3,
     window: "var.uk-study-window",
     checklist: [
       {
         id: "degree",
         weight: 6,
-        requirement: { type: "quality/min", quality: "quality.edu-level", value: 3 },
+        requirement: { type: "quality/min", quality: "quality.education-level", value: 3 },
         partial: false,
       },
       {
         id: "grade",
         weight: 4,
-        requirement: { type: "quality/min", quality: "quality.edu-grade", value: 3 },
+        requirement: { type: "quality/min", quality: "quality.education-grade", value: 3 },
         partial: false,
       },
       { id: "passport", weight: 4, requirement: { type: "document/held", document: "document.passport" }, partial: false },
@@ -269,7 +269,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     // The employer pays the flight (route-gates:employer-flies-and-holds-passport).
     flightPaidByEmployer: true,
     // Secondary school.
-    hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
+    hearIf: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
     // Never by itself: at the motor park and through the agent.
     hearBy: null,
     window: "var.uae-window",

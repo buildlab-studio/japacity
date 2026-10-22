@@ -13,7 +13,7 @@ const BONUS = content.points["points.canada"]!.siblingBonus;
 const YEAR = 12;
 
 /** The graduate at 25 with a bachelor's and band 7.0. */
-const GRADUATE: LifeOptions = { qualities: { "quality.age-months": 25 * YEAR, "quality.edu-level": 3 } };
+const GRADUATE: LifeOptions = { qualities: { "quality.age-months": 25 * YEAR, "quality.education-level": 3 } };
 
 /** A spouse with a bachelor's and band 7.0 who has not worked in Canada. */
 const SPOUSE = facts({ eduLevel: 3, englishBand: 70 });

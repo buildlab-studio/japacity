@@ -7,8 +7,8 @@ export const QUALITY = {
   standing: "quality.standing",
   wellbeing: "quality.wellbeing",
   network: "quality.network",
-  eduGrade: "quality.edu-grade",
-  eduLevel: "quality.edu-level",
+  eduGrade: "quality.education-grade",
+  eduLevel: "quality.education-level",
   familyMeans: "quality.family-means",
   portfolio: "quality.portfolio",
 } as const satisfies Record<string, Id<"quality">>;
