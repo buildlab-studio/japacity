@@ -25,7 +25,7 @@ export interface SignInProps {
   onSignedIn: (by: SignedInBy) => void;
   /** Back to the start screen; none inside another page. */
   onBack?: (() => void) | null;
-  /** What a trip to Google came back with, when it was refused. */
+  /** What a trip to Google came back with, when it was refused: said at the top of the sheet (account:guest-secures-the-life). */
   problem?: string | null;
   /** The address to fill the email field with: the one a guest typed before choosing its kept life. */
   filled?: string | null;
@@ -68,7 +68,10 @@ export async function browserAutofill(): Promise<boolean> {
 
 export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, filled = null, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
   const [busy, setBusy] = useState(false);
-  const [problem, setProblem] = useState<string | null>(given);
+  // What the trip to Google came back with stands at the top; what a way on this sheet answers stands at its foot, by the ways.
+  const [returned, setReturned] = useState<string | null>(given);
+  const [problem, setProblem] = useState<string | null>(null);
+  useEffect(() => setReturned(given), [given]);
   const inApp = inAppBrowser(agent);
   // Passkeys are not offered inside an app's own browser, where they are unreliable: no button, no autofill.
   const passkeys = !inApp;
@@ -100,6 +103,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   async function run(action: () => Promise<AuthResult>, by: SignedInBy | null) {
     setBusy(true);
     setProblem(null);
+    setReturned(null);
     try {
       const result = await action();
       setProblem(failureWords(result));
@@ -127,6 +131,11 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
         </div>
         <p className="text-[14px] leading-snug text-text-2">{say("ui.account.returning.intro")}</p>
       </div>
+      {returned === null ? null : (
+        <p role="alert" className="font-bold text-bad" data-google-returned>
+          {returned}
+        </p>
+      )}
       {/* A passkey used here before comes first, as tall and as wide as Google's button. */}
       {passkeyFirst ? (
         <Button variant="primary" className="min-h-12 w-full text-[16px]" disabled={busy} onClick={usePasskey}>

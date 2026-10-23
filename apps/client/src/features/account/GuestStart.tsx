@@ -19,8 +19,8 @@ import { useUnseenCheck } from "./useUnseenCheck";
 /** account:username-typed-and-checked: how long the typing rests before the box asks the server whether the name is free. */
 export const CHECK_AFTER_MS = 350;
 
-/** What the box says under it for each answer of the check. */
-const FREE_WORDS: Record<FreeAnswer, string> = {
+/** What the box says under it for each answer of the check: the door's box and the rename box in Settings alike. */
+export const FREE_WORDS: Record<FreeAnswer, string> = {
   free: "ui.account.name.available",
   taken: "ui.account.name.taken",
   format: "ui.account.name.format",
@@ -151,14 +151,16 @@ const FIELD = "h-12 w-full min-w-0 rounded-[6px] border-2 border-sheet-line bg-s
 /**
  * account:username-typed-and-checked: what the box says of the name being typed. Nothing while it is empty; the shape's words for a
  * name not of the rule's shape, with nothing asked; otherwise the server's answer once the typing rests, for the name
- * still in the box. An answer the server could not give says nothing.
+ * still in the box. An answer the server could not give says nothing. `own`, in the rename box: the player's current
+ * name, in any capitals, which is neither free nor taken and is never asked.
  */
-function useFreeCheck(value: string, ask: (username: string) => Promise<FreeAnswer | null>): FreeAnswer | null {
+export function useFreeCheck(value: string, ask: (username: string) => Promise<FreeAnswer | null>, own: string | null = null): FreeAnswer | null {
   const name = value.trim();
   const shaped = USERNAME.test(name);
+  const theirs = own !== null && name.toLowerCase() === own.toLowerCase();
   const [heard, setHeard] = useState<{ name: string; answer: FreeAnswer | null } | null>(null);
   useEffect(() => {
-    if (!shaped) return;
+    if (!shaped || theirs) return;
     let current = true;
     const timer = setTimeout(() => {
       void ask(name).then((answer) => {
@@ -169,8 +171,8 @@ function useFreeCheck(value: string, ask: (username: string) => Promise<FreeAnsw
       current = false;
       clearTimeout(timer);
     };
-  }, [name, shaped, ask]);
-  if (name === "") return null;
+  }, [name, shaped, theirs, ask]);
+  if (name === "" || theirs) return null;
   if (!shaped) return "format";
   return heard?.name === name ? heard.answer : null;
 }

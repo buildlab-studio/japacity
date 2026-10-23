@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { fakePhone, type Phone } from "../testing/passkeys";
 import { BASE, fakeServer, type FakeServer } from "../testing/server";
+import { say } from "../words/text";
 import { betterAuthApi, CAPTCHA_HEADER } from "./auth";
 
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
@@ -223,6 +224,20 @@ describe("the trip to Google and back (account:guest-secures-the-life)", () => {
     history.replaceState(null, "", "/?error=account_not_linked");
     expect(api.returnedFromGoogle()).toBe("not-linked");
     expect(location.search).toBe("");
+  });
+
+  test("[account:guest-secures-the-life] given Google sent the page back with access_denied, then it is a cancel; state_mismatch, please_restart_the_process and an error the game does not know are a trip that did not finish", () => {
+    const { api } = account();
+    history.replaceState(null, "", "/?error=access_denied");
+    expect(api.returnedFromGoogle()).toBe("cancelled");
+    expect(location.search).toBe("");
+    for (const error of ["state_mismatch", "please_restart_the_process", "something_new"]) {
+      history.replaceState(null, "", `/?error=${error}&error_description=x`);
+      expect(api.returnedFromGoogle()).toBe("google");
+      expect(location.search).toBe("");
+    }
+    expect(say("ui.account.fail.cancelled")).toBe("Nothing happened. Try again when you are ready.");
+    expect(say("ui.account.fail.google")).toBe("Google sign-in did not finish. Try again, or use a code by email.");
   });
 });
 

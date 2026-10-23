@@ -91,7 +91,7 @@ function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: bool
 function nameRefused(name: NameProblem): ServerRejection & { name: NameProblem } {
   const said: Record<NameProblem, string> = {
     format: "A username is 3 to 20 letters, digits or underscores.",
-    reserved: "That username is kept for the game's own people.",
+    reserved: "That username is for the game's own people.",
     blocked: "That username is not allowed.",
     taken: "That username is taken.",
     wait: "The username can change again later.",

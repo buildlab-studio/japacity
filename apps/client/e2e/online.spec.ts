@@ -124,10 +124,10 @@ test("[pair:invite-link-single-use] [account:start-screen-over-live-city] an inv
   await page.getByRole("button", { name: "Continue" }).click();
   // account:guest-and-secured-states, account:bot-check-on-guest-creation: the card makes the life here, so the username stands under the age screen, the check unseen; a friend who kept a life goes to the ways back in.
   await expect(page.getByLabel("Username")).toBeVisible();
-  await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
+  await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(1);
   await expect(page.getByText("Check passed")).toHaveCount(0);
   await shootAtSize(page, "invite-username", info.project.name);
-  await page.getByRole("button", { name: "I already have a life here" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shootAtSize(page, "invite-ways-in", info.project.name);
 });
