@@ -2,28 +2,22 @@
 // the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
-import { DEFAULT_LOOK } from "../../shared/front-door/looks";
-import { keptLookFile, keptStyleOf } from "../../shared/front-door/person";
+import { keptStyleOf } from "../../shared/front-door/person";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
 import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
+import { useMotionReduced } from "../../shared/ui/motion";
 import { mapWords } from "./map.words";
+import { FALLBACK_OWN } from "./rideLook";
 import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, LONG_WALK_MS, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, stepClock, type Way } from "./rideScene";
 import { type AbroadVehicle, VEHICLES } from "./rideVehicles";
 
 export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
+export { ownLook } from "./rideLook";
 
 /** How long past its own length the ride may run by the wall clock before it ends anyway (world:ride-cuts-between-angles): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
 const RIDE_SLACK_MS = 3500;
-
-/** The look the city falls back to when the life's own person is not shipped (City.tsx). */
-const FALLBACK_OWN = `shared/person/${DEFAULT_LOOK}.glb`;
-
-/** The player's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the city's own, since a ready life has no person of its own (scenario.md); `shownOwn` settles it. */
-export function ownLook(kept: string | null = keptLookFile()): string {
-  return kept ?? FALLBACK_OWN;
-}
 
 /** The character the ride shows: the life's own person where it is shipped, else the city's fallback. */
 function shownOwn(manifest: PublishManifest, own: string): string {
@@ -88,6 +82,11 @@ export interface RideProps {
   long?: boolean;
   /** The fare paid, as words, shown as a pill under the title abroad: "£1.75", or "£0, bus pass" in a pass month (world:ride-abroad-and-workplace). */
   fare?: string;
+  /**
+   * The fare a turn back throws away, as words (world:costly-acts-confirmed): Turn back asks once more and names it. Left out (a walk, a
+   * ride the pass paid), Turn back loses nothing and turns back at once.
+   */
+  lost?: string;
 }
 
 /** How many road lines the card may say in the middle of a ride (map.words.ts). */
@@ -181,9 +180,14 @@ export function preloadRide(own: string): void {
 
 const FRAMES_KEPT = 240;
 
-export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false, fare }: RideProps) {
+export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack, long = false, fare, lost }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLDivElement>(null);
+  const barBox = useRef<HTMLDivElement>(null);
+  // world:reach-and-read: under Reduce Motion the bar steps once a second instead of gliding.
+  const reduced = useMotionReduced();
+  // world:costly-acts-confirmed: Turn back with a fare to lose asks once more before it throws the fare away.
+  const [asking, setAsking] = useState(false);
   const dark = useRef<HTMLDivElement>(null);
   const done = useRef(false);
   const pre = preMsOf(way);
@@ -208,6 +212,10 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
     if (done.current) return;
     done.current = true;
     back.current?.();
+  };
+  const askTurnBack = (): void => {
+    if (lost === undefined) turnBack();
+    else setAsking(true);
   };
   // The card's line follows the ride's own clock, so it matches what is outside.
   const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (length - pre))), seed, way, vehicle) : null);
@@ -240,7 +248,10 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
       shownAlong.current = nextAlong?.key ?? null;
       setAlong(nextAlong);
     }
-    if (bar.current !== null) bar.current.style.transform = `scaleX(${String(ms / length)})`;
+    // Under Reduce Motion the bar shows the whole seconds gone, a step each second (world:reach-and-read).
+    const shown = reduced.current ? Math.floor(ms / 1000) * 1000 : ms;
+    if (bar.current !== null) bar.current.style.transform = `scaleX(${String(shown / length)})`;
+    barBox.current?.setAttribute("aria-valuenow", String(Math.round((100 * ms) / length)));
     if (dark.current !== null) dark.current.style.opacity = String(darkAt(way, ms));
     // The ride ends by itself when its own clock runs out, or when the wall clock has run past it and its slack; Skip ends it at once.
     if (ms >= length || Date.now() - startedAt.current >= length + RIDE_SLACK_MS) end();
@@ -357,21 +368,35 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
                 {fare}
               </span>
             )}
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-[2px] bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100}>
+            <div ref={barBox} className="mt-1.5 h-1.5 overflow-hidden rounded-[2px] bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={0}>
               <div ref={bar} className="h-full origin-left rounded-[2px] bg-signal" style={{ transform: "scaleX(0)" }} data-ride-progress />
             </div>
           </div>
-          {onTurnBack === undefined ? null : (
-            <button type="button" onClick={turnBack} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-turn-back>
-              {mapWords("map.ride.turn-back")}
-            </button>
-          )}
           {long ? null : (
-            <button type="button" onClick={end} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-skip>
+            <button type="button" onClick={end} className="chip press reach h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-skip>
               {mapWords("map.ride.skip")}
             </button>
           )}
         </div>
+        {/* Turn back throws the fare away (world:costly-acts-confirmed): apart from Skip, under the band, in the warning colour; with a fare
+            it asks once more, keeping on the main button and turning back the warning one, apart. */}
+        {onTurnBack === undefined ? null : asking ? (
+          <div className="lively-card pointer-events-auto mt-2 flex flex-col gap-3 p-3" role="group" aria-label={mapWords("map.ride.turn-back")} data-ride-turn-back-ask>
+            <p className="text-[15px] leading-snug font-bold">{mapWords("map.ride.turn-back.ask", { fare: lost ?? "" })}</p>
+            <button type="button" className="press-button w-full" onClick={() => setAsking(false)} autoFocus>
+              {mapWords("map.ride.turn-back.keep")}
+            </button>
+            <button type="button" className="pill-button warn-button mt-2 self-start" onClick={turnBack} data-ride-turn-back-go>
+              {mapWords("map.ride.turn-back")}
+            </button>
+          </div>
+        ) : (
+          <div className="pointer-events-auto mt-2 flex">
+            <button type="button" onClick={askTurnBack} className="warn-chip press reach inline-flex h-9 items-center rounded-full px-3 text-[13px] font-bold" data-ride-turn-back>
+              {mapWords("map.ride.turn-back")}
+            </button>
+          </div>
+        )}
       </div>
       {line === null ? null : (
         <p className="chip fade pointer-events-none absolute inset-x-6 bottom-[max(28px,env(safe-area-inset-bottom))] mx-auto w-fit max-w-[calc(100%-48px)] px-3.5 py-2.5 text-center text-[15px] leading-snug font-semibold" data-ride-line={line}>

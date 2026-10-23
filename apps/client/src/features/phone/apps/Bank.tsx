@@ -351,7 +351,7 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
     <div className="lively-card flex flex-col gap-2.5 p-3" data-chooser="send">
       {options.length > 1 ? <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={options.map((value) => ({ value, label: currencyWords(value) }))} /> : null}
       <div role="radiogroup" aria-label={say("ui.remit.channel")} className="flex flex-col gap-1.5">
-        <span className="label text-[10px] text-text-2" aria-hidden>
+        <span className="label text-text-2" aria-hidden>
           {say("ui.remit.channel")}
         </span>
         {REMIT_CHANNELS.map((option) => (
@@ -605,7 +605,7 @@ function Stamps({ book }: { book: PassbookView }) {
               data-stamp-target={stamp.target ? "" : undefined}
             >
               <span className={`text-[14px] font-bold ${reached ? "" : "text-text"}`}>{shortNaira(stamp.at)}</span>
-              {caption === "" ? null : <span className="text-[10px] font-semibold">{caption}</span>}
+              {caption === "" ? null : <span className="text-[12px] font-semibold">{caption}</span>}
             </li>
           );
         })}

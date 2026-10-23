@@ -5,14 +5,15 @@
 // the phone's apps (docs/design/09-the-lively-layer.md section 2): the pickers
 // as segmented pills, each line a card, a note in a card with its one button.
 import type { BoardName } from "@japacity/api";
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
+import { softLazy } from "../../shared/net/parts";
 import { LivelyCard } from "../../shared/ui/lively/LivelyCard";
 import { say } from "../../shared/words/text";
 import { boardOf, useBoardsApi, WHENS, WHOS, type BoardAnswer, type BoardsApi, type When, type Who } from "./boards";
 
-const BoardList = lazy(() => import("./BoardList"));
-const JoinedWeekBoard = lazy(() => import("./JoinedWeekBoard"));
+const BoardList = softLazy(() => import("./BoardList"));
+const JoinedWeekBoard = softLazy(() => import("./JoinedWeekBoard"));
 
 type Asked = { state: "loading" } | { state: "answered"; answer: BoardAnswer } | { state: "failed" };
 

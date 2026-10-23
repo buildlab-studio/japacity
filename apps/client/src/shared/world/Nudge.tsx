@@ -21,7 +21,7 @@ export function Nudge({ nudge, hidden = false, onTap, opens }: { nudge: NudgeWor
           {inner}
         </div>
       ) : (
-        <button key={words} type="button" onClick={onTap} className={`${line} press pointer-events-auto text-left`} data-nudge-open>
+        <button key={words} type="button" onClick={onTap} className={`${line} press reach pointer-events-auto text-left`} data-nudge-open>
           {inner}
         </button>
       )}

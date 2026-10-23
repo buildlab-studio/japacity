@@ -51,7 +51,7 @@ export function BriefChip({ brief, moment, toast, onTap, onTucked }: { brief: Br
         type="button"
         onClick={onTap}
         disabled={onTap === undefined}
-        className={`brief-chip press pop pointer-events-auto inline-flex max-w-full items-center gap-2 py-1 pr-3 pl-1 text-[14px] font-bold ${slide === null ? "" : "brief-chip-tuck"}`}
+        className={`brief-chip press pop reach pointer-events-auto inline-flex max-w-full items-center gap-2 py-1 pr-3 pl-1 text-[14px] font-bold ${slide === null ? "" : "brief-chip-tuck"}`}
         style={slide === null ? undefined : { ["--tx" as string]: `${String(slide.x)}px`, ["--ty" as string]: `${String(slide.y)}px` }}
         aria-label={brief.title}
         {...(onTap === undefined ? {} : { "data-nudge-open": "" })}

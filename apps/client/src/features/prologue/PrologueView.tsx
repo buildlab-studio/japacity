@@ -395,7 +395,7 @@ function Family({ draw, water, turned, hometown }: { draw: Draw | null; water: b
               <span className="truncate text-[15px] font-extrabold" data-family-title>
                 {card.title}
               </span>
-              <span className="label ml-auto shrink-0 text-[9px] text-text-2">{say("ui.page.family")}</span>
+              <span className="label ml-auto shrink-0 text-text-2">{say("ui.page.family")}</span>
             </div>
             <div className="mt-1 flex flex-wrap gap-1" data-family-tags>
               {card.tags.map((tag) => (

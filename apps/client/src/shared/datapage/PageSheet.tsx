@@ -124,7 +124,7 @@ function Body({ body }: { body: string | null | undefined }) {
 /** The band's second line: the age, then the place small beside it, the band's heading (world:top-band-is-lively-pill). */
 function Under({ age, place }: { age: ReactNode; place: string }) {
   return (
-    <div className="mt-0.5 flex min-w-0 items-baseline gap-1 text-[11px] leading-tight text-text-2">
+    <div className="mt-0.5 flex min-w-0 items-baseline gap-1 text-[12px] leading-tight text-text-2">
       {age}
       {age === null ? null : <span aria-hidden>·</span>}
       <h2 className="min-w-0 truncate font-medium">{place}</h2>
@@ -157,13 +157,14 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
       {/* The lively band: the name with the part of the day beside it, the age and the place small under it. The name and the
           age open the page; the place's name does nothing (world:top-band-is-lively-pill, prologue:front-door-builds-a-person). The age comes before the part of
           the day to a screen reader and the keyboard; the grid lays them out. */}
-      <button type="button" tabIndex={-1} aria-hidden className="col-start-1 row-start-1 min-w-0 truncate text-left text-[16px] leading-tight font-bold" onClick={show}>
-        {name}
+      {/* The name truncates inside, so the button's reach pad is not cut with it (world:reach-and-read). */}
+      <button type="button" tabIndex={-1} aria-hidden className="reach col-start-1 row-start-1 min-w-0 text-left text-[16px] leading-tight font-bold" onClick={show}>
+        <span className="block truncate">{name}</span>
       </button>
       <div className="col-span-3 col-start-1 row-start-2 min-w-0">
         <Under
           age={
-            <button type="button" className="press num shrink-0 text-left font-bold" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
+            <button type="button" className="press reach num shrink-0 text-left font-bold" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
               {when}
             </button>
           }

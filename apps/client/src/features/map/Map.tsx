@@ -6,32 +6,51 @@
 import { X } from "lucide-react";
 import "./map.css";
 
-import { lazy, type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
+import { softLazy, useFetchAhead } from "../../shared/net/parts";
 import { Loader } from "../../shared/ui/Loader";
 import { formatMoney } from "../../shared/words/format";
 import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { fareWords, type MapPin, rideChoices, waysAbroad, withHomeWalk } from "./pins";
-import { ownLook, preloadRide, Ride } from "./Ride";
+import { ownLook } from "./rideLook";
 import { headingOf, RideSheet, WAY_MODEL } from "./RideSheet";
 import { RouteVehicle } from "./paper/routeVehicle";
 import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
 
+/**
+ * The ride and its scene, their own chunk (world:lazy-part-fails-softly, engine:first-download-has-budget): fetched ahead once the world
+ * is up and again as the map opens, so a way picked rides at once.
+ */
+const Ride = softLazy(() => import("./Ride").then((ride) => ({ default: ride.Ride })));
+
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
-const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
+const PaperMap = softLazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 /**
  * The painted maps abroad (world:painted-maps-abroad): the same folding map handed London, Calgary, Dubai or Castel
  * Volturno, each drawing a chunk of its own, loaded only when the map shows that country.
  */
 const PAINTED_ABROAD: Readonly<Record<string, typeof PaperMap>> = {
-  "country.uk": lazy(() => import("./paper/london").then((london) => ({ default: london.LondonPaperMap }))),
-  "country.canada": lazy(() => import("./paper/calgary").then((calgary) => ({ default: calgary.CalgaryPaperMap }))),
-  "country.uae": lazy(() => import("./paper/dubai").then((dubai) => ({ default: dubai.DubaiPaperMap }))),
-  "country.italy": lazy(() => import("./paper/castel").then((castel) => ({ default: castel.CastelPaperMap }))),
+  "country.uk": softLazy(() => import("./paper/london").then((london) => ({ default: london.LondonPaperMap }))),
+  "country.canada": softLazy(() => import("./paper/calgary").then((calgary) => ({ default: calgary.CalgaryPaperMap }))),
+  "country.uae": softLazy(() => import("./paper/dubai").then((dubai) => ({ default: dubai.DubaiPaperMap }))),
+  "country.italy": softLazy(() => import("./paper/castel").then((castel) => ({ default: castel.CastelPaperMap }))),
 };
+
+/**
+ * world:lazy-part-fails-softly: the painted map this life opens (Lagos at home, the country's own abroad), fetched ahead once the world is
+ * up and the connection idle, so a drop later still opens the map.
+ */
+export function MapAhead(): null {
+  const view = useView();
+  const abroad = view.place.where === "abroad" && view.place.country !== null ? PAINTED_ABROAD[view.place.country] : undefined;
+  const parts = useMemo(() => [abroad ?? PaperMap, Ride], [abroad]);
+  useFetchAhead(parts, view.place.where !== "road");
+  return null;
+}
 
 export interface MapProps {
   pins: readonly MapPin[];
@@ -95,7 +114,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const stable = useMemo(() => pins, [key]);
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
   const [picked, setPicked] = useState<string | null>(pickFirst);
-  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
+  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; lost?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
   // The way picked on the ride sheet: its vehicle rides the route on the map, the danfo when none or on foot.
   const [wayShown, setWayShown] = useState<RideChoice["id"]>("danfo");
   const routeVehicle = wayModelFor(placeCountry, wayShown, false) ?? WAY_MODEL[wayShown] ?? "vehicle_danfo";
@@ -138,7 +157,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     const answer = choice === undefined || onRide === undefined ? true : onRide(choice, to);
     const long = choice?.long === true;
     // Abroad the ride carries its fare as a pill, in the country's money (world:ride-abroad-and-workplace); on foot nothing is paid.
-    const fare = abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) };
+    // world:costly-acts-confirmed: a fare paid is what Turn back throws away, so it is named when Turn back asks; a walk or a pass loses nothing.
+    const lost = choice === undefined || choice.id === "walk" || choice.passed === true || choice.fare <= 0 ? {} : { lost: fareOf(choice) };
+    const fare = { ...(abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) }), ...lost };
     // The country's own vehicle (world:ride-abroad-and-workplace): the labour bus or the van on the shuttle's bus, else the way's.
     const shuttle = choice?.shuttle === true || (way === "bus" && here !== null && (shuttles.includes(here.id) || shuttles.includes(to)));
     const ridden = { vehicle: vehicleFor(placeCountry, way, shuttle), ...(choice === undefined || placeCountry === null ? {} : { label: choice.label }) };
@@ -161,7 +182,8 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   // The character as the city shows them (City.tsx), and a seed so the same ride says the same line.
   const own = ownLook();
   useEffect(() => {
-    if (drawing) preloadRide(own);
+    void Ride.ahead();
+    if (drawing) void import("./Ride").then((ride) => ride.preloadRide(own), () => undefined);
   }, [drawing, own]);
 
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
@@ -171,7 +193,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const painted = lagos || abroadPaper !== undefined;
   const Paper = lagos || abroadPaper === undefined ? PaperMap : abroadPaper;
   const closeButton = (
-    <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-[42px] items-center justify-center" data-map-close>
+    <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-11 items-center justify-center" data-map-close>
       <X size={20} strokeWidth={2.5} />
     </button>
   );
@@ -237,6 +259,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       )}
 
       {riding === null ? null : (
+        <Suspense fallback={null}>
         <Ride
           way={riding.way}
           vehicle={riding.vehicle}
@@ -248,6 +271,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           seed={seedOf(`${riding.id}:${String(view.month)}`)}
           {...(here === null ? {} : { from: here.name })}
           {...(riding.fare === undefined ? {} : { fare: riding.fare })}
+          {...(riding.lost === undefined ? {} : { lost: riding.lost })}
           onDone={() => {
             const id = riding.id;
             setRiding(null);
@@ -263,6 +287,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
                 },
               })}
         />
+        </Suspense>
       )}
       {dedication === null || !lagos ? null : dedication.page(dedicated, () => setDedicated(false))}
     </div>
@@ -283,7 +308,7 @@ function dotClass(state: MapPin["state"], home: boolean): string {
     case "been":
       return "bg-signal";
     case "can":
-      return "bg-in";
+      return "bg-in-fill";
     case "not":
     case "home":
       return "bg-sheet-muted";

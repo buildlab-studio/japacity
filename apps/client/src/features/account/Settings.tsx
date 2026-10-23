@@ -10,6 +10,7 @@
 // (account:username-and-unconfirmed-email, account:guest-reminded-to-secure). This file is the sheet: it and its words (content's
 // ui/ui.accountSheet.text.ts) ride a chunk of their own, fetched by the row (engine:first-download-has-budget).
 import type { AccountView } from "@japacity/api";
+import { Check } from "lucide-react";
 import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -94,7 +95,8 @@ function RenameCheck({ id, account, name, own, quiet }: { id: string; account: A
   const free = useFreeCheck(name, ask, own);
   const said = free === null || quiet ? null : say(FREE_WORDS[free]);
   return (
-    <p id={id} role="status" className={`text-sm font-bold ${free === "free" ? "text-action" : "text-text"}`} data-rename-check={free ?? ""}>
+    <p id={id} role="status" className={`text-sm font-bold ${free === "free" ? "text-in" : "text-text"}`} data-rename-check={free ?? ""}>
+      {free === "free" && said !== null ? <Check size={14} strokeWidth={3} className="mr-1 inline-block align-[-2px]" aria-hidden /> : null}
       {said}
     </p>
   );

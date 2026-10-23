@@ -181,7 +181,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
       aria-label={say(grown ? "phone.shrink" : "phone.grow")}
       aria-pressed={grown}
       data-grow
-      className={`press phone-round flex size-10 shrink-0 items-center justify-center ${app === null ? "bg-white/15 text-wall-text" : "border border-sheet-line bg-sheet-2 text-text shadow-[0_2px_6px_rgba(19,26,51,0.08)]"}`}
+      className={`press phone-round flex size-11 shrink-0 items-center justify-center ${app === null ? "bg-white/15 text-wall-text" : "border border-sheet-line bg-sheet-2 text-text shadow-[0_2px_6px_rgba(19,26,51,0.08)]"}`}
     >
       {grown ? <Minimize2 size={17} aria-hidden /> : <Maximize2 size={17} aria-hidden />}
     </button>
@@ -266,7 +266,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                   {/* The app's head: back, the app's own icon as a small tile, its name in
                       Rubik, and the grow as a round white button; plain on the sheet, no band. */}
                   <div className="flex items-center gap-2 px-2.5 pt-3 pb-2" data-app-head>
-                    <button type="button" onClick={back} aria-label={say("phone.back")} data-phone-back className="press phone-round flex size-9 shrink-0 items-center justify-center">
+                    <button type="button" onClick={back} aria-label={say("phone.back")} data-phone-back className="press phone-round flex size-11 shrink-0 items-center justify-center">
                       <ChevronLeft size={24} aria-hidden />
                     </button>
                     <span className="phone-app-tile flex size-10 shrink-0 items-center justify-center rounded-[12px] text-white" style={{ background: `var(${app.tint})` }} aria-hidden data-app-tile>
@@ -290,7 +290,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                 </div>
               )}
               <div className="flex justify-center pt-1 pb-2">
-                <button type="button" onClick={putAway} aria-label={say("phone.close")} data-home-bar className="flex h-6 w-40 items-center justify-center">
+                <button type="button" onClick={putAway} aria-label={say("phone.close")} data-home-bar className="reach flex h-6 w-40 items-center justify-center">
                   <span className={`h-[5px] w-28 rounded-[3px] ${app === null ? "bg-wall-text/70" : "bg-text/30"}`} />
                 </button>
               </div>

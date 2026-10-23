@@ -4,14 +4,15 @@
 // finger drags it round. The sheet rises over the bottom of the screen and the top
 // keeps the character in view, in the player's own colours (prologue:player-colours-on-looks). Where WebGL is missing the compound's
 // colours and the look's own picture stand in.
-import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
+import { type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
 import { readPerson } from "./person";
+import { softLazy } from "../net/parts";
 import { LOOKS, lookOf } from "./looks";
 import { DRAG_TURN, type Spin } from "./spin";
 import type { LookStyle } from "./style";
 
-const FrontScene = lazy(() => import("./FrontScene"));
+const FrontScene = softLazy(() => import("./FrontScene"));
 
 /** The answer of the first ask, kept for the visit. */
 let draws: boolean | null = null;

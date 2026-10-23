@@ -68,7 +68,7 @@ function LifeCard({ tile, look, on, onPick }: { tile: Archetype; look: string; o
         <span className="mt-0.5 block text-[16px] font-medium text-text-2" data-tile-life>
           {say(`prologue.archetype.${tile.id}.life`)}
         </span>
-        <span className="mt-1.5 block text-[12.5px] leading-snug text-text-2" data-tile-was>
+        <span className="mt-1.5 block text-[13px] leading-snug text-text-2" data-tile-was>
           {say(`prologue.archetype.${tile.id}.was`)}
         </span>
         <span className="mt-2.5 block">
@@ -152,13 +152,13 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
               <h2 className="text-[16px] font-bold">{say("prologue.door.age")}</h2>
               <p className="text-[12px] text-text-2">{say("ui.door.age.from", { years: lowest })}</p>
             </div>
-            <button type="button" className="round-button size-10!" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(older - 1)} onClick={() => onStep(-1)}>
+            <button type="button" className="round-button" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(older - 1)} onClick={() => onStep(-1)}>
               <Minus size={20} strokeWidth={2.4} aria-hidden />
             </button>
             <span className="num min-w-[52px] text-center text-[34px] leading-none font-bold" data-age-years>
               {say("prologue.door.age.years", { years: lowest + older })}
             </span>
-            <button type="button" className="round-button size-10!" aria-label={say("prologue.door.age.older")} disabled={!open.includes(older + 1)} onClick={() => onStep(1)}>
+            <button type="button" className="round-button" aria-label={say("prologue.door.age.older")} disabled={!open.includes(older + 1)} onClick={() => onStep(1)}>
               <Plus size={20} strokeWidth={2.4} aria-hidden />
             </button>
           </div>

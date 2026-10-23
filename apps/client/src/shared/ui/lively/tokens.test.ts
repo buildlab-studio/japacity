@@ -47,8 +47,9 @@ describe("the day paint", () => {
     expect(token(day, "--edge-width")).toBe("1px");
     expect(token(day, "--action")).toBe("#f2b705");
     expect(token(day, "--action-under")).toBe("#1c2a5e");
-    expect(token(day, "--in")).toBe("#2a8656");
-    expect(token(day, "--out")).toBe("#c23a2a");
+    // Money in and out keep their green and red, darkened to 4.5 to 1 on every sheet and tint (world:reach-and-read).
+    expect(token(day, "--in")).toBe("#1d7346");
+    expect(token(day, "--out")).toBe("#b3261e");
   });
 
   test("[world:colours-are-role-tokens] given :root, then each kind of act has its soft tint, and the plain one is the sheet's", () => {

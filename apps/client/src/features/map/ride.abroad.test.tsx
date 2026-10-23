@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import { uiLondonText } from "@japacity/content/ui/london";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
 import { positionOf, setPockets } from "@japacity/sim/testing";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
@@ -154,7 +154,8 @@ describe("the ride sheet in London", () => {
     fireEvent.click(within(sheet).getAllByRole("radio").find((radio) => radio.dataset.way === "train") as HTMLElement);
     fireEvent.click(sheet.querySelector("[data-ride-main]") as HTMLElement);
     expect(asked).toEqual(["train"]);
-    expect(document.querySelector("[data-ride='train']")).not.toBeNull();
+    // The ride is its own part, drawn once fetched (world:lazy-part-fails-softly).
+    await waitFor(() => expect(document.querySelector("[data-ride='train']")).not.toBeNull());
     expect(document.querySelector("[data-ride-fare]")?.textContent).toBe("£3.20");
     expect(document.querySelector("[data-ride-title]")?.textContent).toContain(mapWords("map.way.train"));
   });

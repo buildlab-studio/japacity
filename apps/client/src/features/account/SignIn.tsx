@@ -121,7 +121,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
           {onBack === null ? null : (
-            <button type="button" aria-label={say("ui.account.back")} className="press flex size-9 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={onBack}>
+            <button type="button" aria-label={say("ui.account.back")} className="press flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={onBack}>
               <ArrowLeft size={18} />
             </button>
           )}

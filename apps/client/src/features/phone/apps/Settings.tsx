@@ -17,6 +17,7 @@ import { buildOf } from "../../../shared/build-stamp/stamp";
 import { useSound } from "../../../shared/sound/useSound";
 import { Button } from "../../../shared/ui/Button";
 import { Sheet } from "../../../shared/ui/Sheet";
+import { motionReduced } from "../../../shared/ui/motion";
 import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { Chips, Head } from "../act";
@@ -169,17 +170,28 @@ export const HOLD_MS = 1500;
 /** The ending button: it ends only when held for HOLD_MS, by a finger, a mouse, or Enter or Space; letting go sooner does nothing. */
 function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean }) {
   const [holding, setHolding] = useState(false);
+  // world:reach-and-read: under Reduce Motion the fill steps once a second, by the whole seconds held, rather than jumping full.
+  const [seconds, setSeconds] = useState(0);
   const timer = useRef<number | null>(null);
+  const ticking = useRef<number | null>(null);
+  const stopTicking = (): void => {
+    if (ticking.current !== null) window.clearInterval(ticking.current);
+    ticking.current = null;
+    setSeconds(0);
+  };
   const stop = (): void => {
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = null;
+    stopTicking();
     setHolding(false);
   };
   const start = (): void => {
     if (disabled || timer.current !== null) return;
     setHolding(true);
+    if (motionReduced()) ticking.current = window.setInterval(() => setSeconds((held) => held + 1), 1000);
     timer.current = window.setTimeout(() => {
       timer.current = null;
+      stopTicking();
       setHolding(false);
       onDone();
     }, HOLD_MS);
@@ -187,9 +199,11 @@ function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean
   useEffect(
     () => () => {
       if (timer.current !== null) window.clearTimeout(timer.current);
+      if (ticking.current !== null) window.clearInterval(ticking.current);
     },
     [],
   );
+  const fill = holding && motionReduced() ? { width: `${String((100 * Math.min(HOLD_MS, seconds * 1000)) / HOLD_MS)}%` } : { width: holding ? "100%" : "0%", transition: holding ? `width ${String(HOLD_MS)}ms linear` : "none" };
   const held = (key: string): boolean => key === " " || key === "Enter";
   return (
     <button
@@ -212,7 +226,7 @@ function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean
       onContextMenu={(event) => event.preventDefault()}
       data-life-end-hold={holding ? "holding" : "idle"}
     >
-      <span aria-hidden className="absolute inset-y-0 left-0 bg-bad/20" style={{ width: holding ? "100%" : "0%", transition: holding ? `width ${String(HOLD_MS)}ms linear` : "none" }} />
+      <span aria-hidden className="absolute inset-y-0 left-0 bg-bad/20" style={fill} data-hold-fill />
       <span className="relative">{say(holding ? "ui.life.end.holding" : "ui.life.end.hold")}</span>
     </button>
   );

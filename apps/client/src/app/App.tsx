@@ -38,7 +38,8 @@ import { ChapterView } from "../features/chapter/ChapterView";
 import { City } from "../features/city/City";
 import { CreditsRow } from "../features/city/Credits";
 import { GuidesMenu } from "../features/guide/GuidesMenu";
-import { Map, type MapDedication } from "../features/map/Map";
+import { Map, MapAhead, type MapDedication } from "../features/map/Map";
+import { HoldParts, softLazy } from "../shared/net/parts";
 import { MomentCard } from "../features/moment/MomentCard";
 import { HeldShareCard } from "../features/notify/HeldShareCard";
 import { NotifyAsk } from "../features/notify/NotifyAsk";
@@ -66,9 +67,10 @@ import { say } from "../shared/words/text";
 import { usePaint } from "../shared/world/paint";
 import { useScreenCount } from "../shared/analytics/useScreenCount";
 
-const StartCity = lazy(() => import("../features/map/StartCity"));
+// world:lazy-part-fails-softly: the parts a player opens fail softly, the connection card up with Retry over what stands.
+const StartCity = softLazy(() => import("../features/map/StartCity"));
 /** The send-off's plane cut over the painted map (world:plane-cut-at-send-off), fetched with the scene that shows it. */
-const PlaneCut = lazy(() => import("../features/map/paper/PlaneCut"));
+const PlaneCut = softLazy(() => import("../features/map/paper/PlaneCut"));
 
 /** Whether WebGL draws here, asked once: each ask makes a context. */
 let drawsHere: boolean | null = null;
@@ -164,6 +166,7 @@ function WorldPlaying() {
   useScreenCount(view.setpiece === null ? null : "setpiece");
   return (
     <div className="min-h-dvh">
+      <MapAhead />
       <City
         world
         adverts={(place) => <PlaceAdverts place={place} />}
@@ -270,6 +273,7 @@ function Shell() {
   return (
     <>
       <Screen />
+      <HoldParts />
       {waiting ? null : <TroubleCard />}
     </>
   );

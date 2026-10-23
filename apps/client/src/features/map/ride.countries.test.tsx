@@ -8,7 +8,7 @@ import { uiCastelText } from "@japacity/content/ui/castel";
 import { uiDubaiText } from "@japacity/content/ui/dubai";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
 import { positionOf } from "@japacity/sim/testing";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
@@ -195,7 +195,8 @@ describe("the ride sheet and the ride abroad", () => {
     fireEvent.click(bus);
     fireEvent.click(sheet.querySelector("[data-ride-main]") as HTMLElement);
     expect(asked).toEqual(["bus"]);
-    expect(document.querySelector("[data-ride-vehicle='labour-bus']")).not.toBeNull();
+    // The ride is its own part, drawn once fetched (world:lazy-part-fails-softly).
+    await waitFor(() => expect(document.querySelector("[data-ride-vehicle='labour-bus']")).not.toBeNull());
     expect(document.querySelector("[data-ride-fare]")?.textContent).toBe(`${formatMoney(0, "AED")}, site bus`);
     expect(document.querySelector("[data-ride-title]")?.textContent).toContain("Site bus");
   });

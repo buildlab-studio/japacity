@@ -387,3 +387,17 @@ describe("the username in the settings", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.name.change") })).toBeNull();
   });
 });
+
+describe("the free name, read (world:reach-and-read)", () => {
+  test("[world:reach-and-read] given a free name typed in the rename box, then it is said in money in's green with a tick, never in the yellow", async () => {
+    const account = fakeAccount(me("secured"), { usernameFree: () => Promise.resolve("free") });
+    await mount(account, <AccountSettings account={account} />);
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.name.change") }));
+    fireEvent.change(screen.getByLabelText(say("ui.account.name.label")), { target: { value: "ada_ibadan" } });
+    await waitFor(() => expect(document.querySelector("[data-rename-check]")?.textContent).toBe(say("ui.account.name.available")));
+    const line = document.querySelector("[data-rename-check]") as HTMLElement;
+    expect(line.className.split(" ")).toContain("text-in");
+    expect(line.className).not.toContain("text-action");
+    expect(line.querySelector("svg")).not.toBeNull();
+  });
+});

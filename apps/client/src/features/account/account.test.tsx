@@ -356,6 +356,18 @@ describe("the door's sheets on a desktop", () => {
   });
 });
 
+describe("waits with the shared loader (world:reach-and-read)", () => {
+  test("[world:reach-and-read] given the game still asking where a visitor stands, then the words have the shared loader under them, never words alone", async () => {
+    gate(fakeAccount({ ageStatus: () => new Promise<AgeStanding>(() => undefined) }));
+    expect(await screen.findByRole("progressbar", { name: say("ui.account.loading") })).toBeDefined();
+  });
+
+  test("[world:reach-and-read] given the server not yet answering a new visitor, then the start screen's frame says it is checking with the shared loader", () => {
+    render(<StartTrouble trouble={null} />);
+    expect(screen.getByRole("progressbar", { name: say("ui.account.loading") })).toBeDefined();
+  });
+});
+
 describe("the wordmark on the account screens", () => {
   test("[account:start-screen-over-live-city] given the start screen, and then the age screen, then neither carries a title over the figure, the start screen holds the lockup at the head of its sheet and the age screen none", async () => {
     gate(fakeAccount());
@@ -547,6 +559,17 @@ describe("the guest start inside the invite page", () => {
     inside(passed({ startGuest: () => Promise.resolve({ ok: false, why: "expired" }) }));
     await pick("ada_lagos");
     expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
+  });
+
+  test("[world:reach-and-read] given a free name typed at the door, then it is said in money in's green with a tick, never in the yellow that cannot be read on the sheet", async () => {
+    inside(passed({ usernameFree: () => Promise.resolve("free") }));
+    const box = await screen.findByLabelText<HTMLInputElement>(say("ui.account.name.label"));
+    fireEvent.change(box, { target: { value: "ada_ikeja" } });
+    expect(await screen.findByText(say("ui.account.name.available"))).toBeDefined();
+    const line = document.querySelector("[data-username-check]") as HTMLElement;
+    expect(line.className.split(" ")).toContain("text-in");
+    expect(line.className).not.toContain("text-action");
+    expect(line.querySelector("svg")).not.toBeNull();
   });
 });
 

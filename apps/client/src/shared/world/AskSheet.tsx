@@ -225,7 +225,7 @@ function Slip({ ask, main, formatMoney }: { ask: Ask; main: Main; formatMoney: A
   return (
     <div className="rise mx-auto w-[88%] max-w-[360px]">
       <div className="px-5 pt-7 pb-[max(20px,env(safe-area-inset-bottom))] font-mono text-text shadow-2xl" style={{ clipPath: TORN, background: "var(--paper-ticket)" }}>
-        <div className="flex items-center justify-between text-[10px] tracking-[0.2em] text-text-2 uppercase">
+        <div className="flex items-center justify-between text-[12px] tracking-[0.2em] text-text-2 uppercase">
           <Dialog.Description>{ask.who}</Dialog.Description>
           <span>{ask.reference ?? ""}</span>
         </div>

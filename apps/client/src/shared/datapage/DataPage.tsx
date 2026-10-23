@@ -87,7 +87,7 @@ export function stripLines(name: string, strip: Strip): [string, string] {
   return [`P<${PAGE_CODE}${mrz(name, 25)}`, mrz(`${strip.district}<<${age}<<${strip.percent === null ? "" : String(strip.percent)}`, 30)];
 }
 
-const LABEL = "text-[9.5px] font-bold tracking-[0.14em] uppercase";
+const LABEL = "text-[12px] font-bold tracking-[0.14em] uppercase";
 
 function Field({ id, label, value, delay }: { id: string; label: string; value: string; delay: number | null }) {
   return (
@@ -115,14 +115,14 @@ export function Stamp({ words, turn, big = false, under }: { words: string; turn
   const style: CSSProperties = { borderColor: PAGE_COLOURS.red, color: PAGE_COLOURS.red, transform: `rotate(${String(turn)}deg)` };
   if (big) {
     return (
-      <span className="flex size-24 flex-col items-center justify-center rounded-full border-[3px] px-1 text-center font-mono text-[11px] leading-tight font-black tracking-[0.1em] uppercase" style={style} data-stamp data-stamp-round>
+      <span className="flex size-24 flex-col items-center justify-center rounded-full border-[3px] px-1 text-center font-mono text-[12px] leading-tight font-black tracking-[0.1em] uppercase" style={style} data-stamp data-stamp-round>
         {words}
-        {under === undefined ? null : <span className="mt-0.5 text-[9px] font-bold">{under}</span>}
+        {under === undefined ? null : <span className="mt-0.5 text-[12px] font-bold">{under}</span>}
       </span>
     );
   }
   return (
-    <span className="inline-block rounded-[3px] border-2 px-1.5 py-0.5 font-mono text-[9px] font-black tracking-[0.12em] uppercase" style={style} data-stamp>
+    <span className="inline-block rounded-[3px] border-2 px-1.5 py-0.5 font-mono text-[12px] font-black tracking-[0.12em] uppercase" style={style} data-stamp>
       {words}
     </span>
   );
@@ -137,7 +137,7 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
   const lines = page.strip === undefined ? null : stripLines(page.name, page.strip);
   return (
     <div className="relative overflow-hidden rounded-[18px] border-[1.5px] border-[var(--edge)] shadow-[0_6px_0_rgba(27,42,74,0.14),0_14px_26px_rgba(20,40,50,0.18)]" style={{ backgroundColor: PAGE_COLOURS.paper, backgroundImage: SECURITY, color: PAGE_COLOURS.ink }} data-page>
-      <div className="flex h-[34px] items-center justify-between px-3.5 text-[11px] font-bold uppercase" style={{ background: PAGE_COLOURS.band, color: PAGE_COLOURS.paper }}>
+      <div className="flex h-[34px] items-center justify-between px-3.5 text-[12px] font-bold uppercase" style={{ background: PAGE_COLOURS.band, color: PAGE_COLOURS.paper }}>
         <span className="tracking-[0.16em]">{say("prologue.page.head")}</span>
         <span className="tracking-[0.14em]" style={{ opacity: 0.8 }} data-page-type>
           {say("ui.page.type-line")}
@@ -189,7 +189,7 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
         </span>
       </div>
       {lines === null ? null : (
-        <div className="px-3 py-2 font-mono text-[11px] leading-snug tracking-[0.12em]" style={{ background: "rgba(12, 58, 36, 0.07)", color: "rgba(12, 58, 36, 0.8)" }} data-page-strip aria-hidden>
+        <div className="px-3 py-2 font-mono text-[12px] leading-snug tracking-[0.12em]" style={{ background: "rgba(12, 58, 36, 0.07)", color: "rgba(12, 58, 36, 0.8)" }} data-page-strip aria-hidden>
           <div className="truncate">{lines[0]}</div>
           <div className="truncate">{lines[1]}</div>
         </div>

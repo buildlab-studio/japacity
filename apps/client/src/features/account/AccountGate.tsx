@@ -19,6 +19,7 @@ import { useGame } from "../../authority/GameProvider";
 import { counting } from "../../shared/analytics/start";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { AccountApi, AgeStanding, Full as FullStanding } from "../../shared/net/auth";
+import { Loader } from "../../shared/ui/Loader";
 import { say } from "../../shared/words/text";
 import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
@@ -197,7 +198,13 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     if (typeof standing === "object") return <Full retryAfter={standing.retryAfter} check={check} onOpen={() => undefined} />;
     switch (standing) {
       case "loading":
-        return <p className="text-text-2">{say("ui.account.loading")}</p>;
+        // The words with the shared loader under them (world:reach-and-read).
+        return (
+          <p role="status" className="flex flex-col gap-2 text-text-2">
+            {say("ui.account.loading")}
+            <Loader label={say("ui.account.loading")} />
+          </p>
+        );
       case "failed":
         return <p role="alert">{say("ui.account.fail.unreachable")}</p>;
       case "refused":

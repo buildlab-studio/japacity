@@ -195,7 +195,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
           <p className="text-[13px] text-text-2">{say("ui.account.code.spam")}</p>
           {known === undefined ? (
             <div>
-              <button type="button" className="press min-h-9 text-[14px] text-text-2 underline underline-offset-4" onClick={change}>
+              <button type="button" className="press min-h-11 text-[14px] text-text-2 underline underline-offset-4" onClick={change}>
                 {say("ui.account.code.change")}
               </button>
             </div>

@@ -259,7 +259,7 @@ function NameUnder({ one }: { one: Placed }) {
   const years = one.light.years === undefined ? null : lightYears(one.light.years, say("ui.dedication.between"));
   return (
     <p
-      className="absolute max-w-[76px] -translate-x-1/2 truncate text-center text-[11.5px] leading-tight text-text/75"
+      className="absolute max-w-[76px] -translate-x-1/2 truncate text-center text-[12px] leading-tight text-text/75"
       style={{ left: one.x, top: one.y + one.r + 6 + (one.top === true || one.row !== 1 ? 0 : 15) }}
       title={years === null ? one.light.name : `${one.light.name}, ${years}`}
       data-light-name
