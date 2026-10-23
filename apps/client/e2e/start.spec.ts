@@ -239,7 +239,7 @@ test.describe("inside a messaging app's browser", () => {
   test("[account:guest-secures-the-life] the start screen says where the life is saved, with Open in my browser to Chrome, and Play still works", async ({ page }, info) => {
     await fakeDoor(page, signUpRoutes(lifeMade()));
     await page.goto("/");
-    await expect(page.getByText("Opened inside an app? Your life is saved in the browser you play in.")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Opened inside an app? Your life lives in the browser you play in.")).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("link", { name: "Open in my browser" })).toHaveAttribute("href", /^intent:\/\/.*package=com\.android\.chrome;S\.browser_fallback_url=/);
     await page.waitForTimeout(800);
     await shootAtSize(page, "start-screen-in-app", info.project.name);

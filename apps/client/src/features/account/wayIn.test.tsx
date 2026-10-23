@@ -350,7 +350,7 @@ describe("the way out of an in-app browser (account:guest-secures-the-life)", ()
   test("[account:guest-secures-the-life] given the start screen inside an app's browser on Android, then a quiet line under the doors says where the life is saved, Open in my browser opens Chrome or the plain address, and Play still works", async () => {
     startIn(ANDROID_WHATSAPP);
     expect(await screen.findByText(say("ui.account.in-app.start"))).toBeDefined();
-    expect(say("ui.account.in-app.start")).toBe("Opened inside an app? Your life is saved in the browser you play in.");
+    expect(say("ui.account.in-app.start")).toBe("Opened inside an app? Your life lives in the browser you play in.");
     const out = screen.getByRole("link", { name: say("ui.account.in-app.open") });
     expect(out.getAttribute("href")).toBe("intent://japacity.app/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fjapacity.app%2F;end");
     const returning = screen.getByRole("button", { name: say("ui.account.start.returning") });

@@ -330,6 +330,8 @@ describe("the username in the settings", () => {
     const check = () => document.querySelector("[data-rename-check]")?.textContent ?? "";
     // The box opens on the player's own name: nothing said, nothing asked.
     expect((box as HTMLInputElement).value).toBe("ada_lagos");
+    // Leaving the rename is a plain Cancel, never the deletion's "Keep my account".
+    expect(screen.getByRole("button", { name: say("ui.account.name.change.cancel") })).toBeTruthy();
     await act(() => new Promise((resolve) => setTimeout(resolve, CHECK_AFTER_MS * 2)));
     expect(asked).toEqual([]);
     expect(check()).toBe("");

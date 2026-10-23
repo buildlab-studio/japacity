@@ -189,7 +189,7 @@ function Username({ account }: { account: AccountApi }) {
               {say("ui.account.name.change.go")}
             </Button>
             <Button disabled={busy} onClick={() => setEditing(false)}>
-              {say("ui.account.delete.keep")}
+              {say("ui.account.name.change.cancel")}
             </Button>
           </div>
         </form>

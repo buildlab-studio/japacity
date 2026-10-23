@@ -54,7 +54,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.start.kept.returning": "Sign in",
   "ui.account.start.kept.play": "Start a new life",
   // Inside an app's own browser, under the doors: a quiet line, never a blocker
-  "ui.account.in-app.start": "Opened inside an app? Your life is saved in the browser you play in.",
+  "ui.account.in-app.start": "Opened inside an app? Your life lives in the browser you play in.",
   "ui.account.start.steps": "How it goes",
   "ui.account.start.step.hustle": "Hustle",
   "ui.account.start.step.papers": "Papers",
@@ -206,6 +206,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.name.current": "@{name}",
   "ui.account.name.change": "Change it",
   "ui.account.name.change.go": "Save the new name",
+  "ui.account.name.change.cancel": "Cancel",
   "ui.account.name.changed": "Saved. Others now see {name}.",
   "ui.account.name.free": "Your first change is free. After that, changes come a while apart.",
   "ui.account.guest.too-many": "Too many new lives from here today. Come back tomorrow.",
