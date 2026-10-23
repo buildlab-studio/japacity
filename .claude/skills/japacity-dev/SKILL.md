@@ -123,7 +123,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
   ```
   Use the dev server port your task gives (`pnpm --filter @japacity/client exec vite --port <n> --strictPort`). Never use another piece's port.
 - **Stay in your folders.** Your task names them. Anything else you need changed goes in your report, with file, line and why.
-- **Commits**: small, a subject that says what changed and where, `git add` with explicit paths. No attribution lines, trailers or footers of any kind, and nothing that names an AI.
+- **Commits**: small, a subject that says what changed and where, `git add` with explicit paths.
 - **Push your branch** only when `pnpm check` ends `CHECK PASSED` and your task says to. Never force-push, never touch `main`, never deploy. The maintainer merges.
 - **The report** (`REPORT.md` at the worktree's root, never committed): what you built by rule name; the last lines of `pnpm check`; every change outside your folders and why; rules you could not build or test; what you would look at next. Update it after each piece is done, so a restart loses nothing.
 

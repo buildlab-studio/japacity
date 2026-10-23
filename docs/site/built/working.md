@@ -182,7 +182,7 @@ The browser tests (`pnpm test:browser`, in `apps/client/e2e/`) run the client in
 
 ## The hooks
 
-The commit rules are enforced by git hooks, switched on through `core.hooksPath` in the maintainer's checkout; every worktree of that clone shares them, so every agent working in one meets them. They refuse a commit message with an attribution line, a trailer or a mention of an AI. A refused commit is fixed, the message or the file, and never forced: `--no-verify` is not used here. A contribution from outside is held to the same rules by review.
+The maintainer's checkout runs its own git hooks, switched on through `core.hooksPath`; every worktree of that clone shares them, so every agent working in one meets them. A commit a hook refuses is fixed, the message or the file, and never forced: `--no-verify` is not used here.
 
 ## The rules discipline
 

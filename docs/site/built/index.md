@@ -136,7 +136,7 @@ flowchart LR
 The browser tests (`pnpm test:browser`) are not part of the check. Neither is `pnpm docs:build`, which builds this site.
 
 ::: details What else guards a change
-- The maintainer's git hooks, kept outside the repository, refuse a commit message with an attribution line or a trailer. A refused commit is fixed, never forced.
+- The maintainer's git hooks, kept outside the repository, check every commit. A refused commit is fixed, never forced.
 - In CI, `pnpm check:protected` asks for a label when a change touches a test, a golden file, a schema or the lint rules.
 - Golden files change only through `pnpm bless`. See [The simulation](./simulation.md#goldens-recorded-lives-and-simulated-play).
 :::

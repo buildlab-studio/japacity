@@ -131,7 +131,7 @@ End every task with:
 
 ## Commits
 
-Small, with a subject that says what changed and where. A message never carries an attribution line or a trailer; a commit a hook refuses is fixed, never forced. A body only when the change needs one; bullets are one line each. No attribution lines, trailers or footers of any kind, and nothing that names an AI. Use `git add` with explicit paths.
+Small, with a subject that says what changed and where. A commit a hook refuses is fixed, never forced. A body only when the change needs one; bullets are one line each. Use `git add` with explicit paths.
 
 ## Never
 

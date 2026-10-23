@@ -120,12 +120,13 @@ const madeUpRun = (match: string): boolean => /^(0123456789abcdef)+$/i.test(matc
 const never = (): boolean => false;
 
 /**
- * The only files where a 32-hex run may stand: the staging Hyperdrive ids, which are not secret without the account's
- * token, and the hash of the configuration `wrangler types` writes at the top of each Worker's generated types.
+ * The only files where a 32-hex run may stand: the Hyperdrive ids of production and staging, public identifiers that are
+ * useless without the account's token, and the hash of the configuration `wrangler types` writes at the top of each
+ * Worker's generated types.
  */
 const GENERATED_TYPES = "the hash of the Worker's configuration that `wrangler types` records (pnpm check:types), not an id";
 const WRANGLER_IDS = new Map([
-  ["apps/server/wrangler.jsonc", "the staging Hyperdrive ids (research: not secret, listed on the your-own-copy page)"],
+  ["apps/server/wrangler.jsonc", "the Hyperdrive ids of production and staging: public identifiers, useless without the account's token"],
   ["apps/server/worker-configuration.d.ts", GENERATED_TYPES],
 ]);
 
