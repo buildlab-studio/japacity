@@ -10,7 +10,7 @@
 // (account:username-and-unconfirmed-email, account:guest-reminded-to-secure).
 import type { AccountView } from "@japacity/api";
 import { ChevronRight } from "lucide-react";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { pageOf } from "../../shared/datapage/PageSheet";
@@ -21,6 +21,7 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
 import { counting, setUsageCounts } from "../../shared/analytics/start";
 import { CodeForm, failureWords } from "./CodeForm";
+import { FREE_WORDS, useFreeCheck } from "./GuestStart";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { PasskeyList, usePasskeysWork } from "./PasskeyList";
 import { GuestReminder } from "./Secure";
@@ -111,6 +112,21 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+/**
+ * account:username-typed-and-checked: the rename box says whether the name being typed is free, with the door's own check;
+ * saving is the check that counts, so once it refuses, its words stand alone.
+ */
+function RenameCheck({ id, account, name, own, quiet }: { id: string; account: AccountApi; name: string; own: string; quiet: boolean }) {
+  const ask = useCallback((username: string) => account.usernameFree(username), [account]);
+  const free = useFreeCheck(name, ask, own);
+  const said = free === null || quiet ? null : say(FREE_WORDS[free]);
+  return (
+    <p id={id} role="status" className={`text-sm font-bold ${free === "free" ? "text-action" : "text-text"}`} data-rename-check={free ?? ""}>
+      {said}
+    </p>
+  );
+}
+
 /** account:username-and-unconfirmed-email: the username, and its change: the first free, then one after each wait the server sets. */
 function Username({ account }: { account: AccountApi }) {
   const me = useAccountView();
@@ -119,6 +135,7 @@ function Username({ account }: { account: AccountApi }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const checkId = useId();
   if (me === null) return null;
   const waiting = me.renameFrom > Date.now();
 
@@ -155,8 +172,18 @@ function Username({ account }: { account: AccountApi }) {
         <form className="flex flex-col gap-2" onSubmit={(event) => void save(event)} noValidate>
           <label className="flex flex-col gap-1">
             <span className="text-sm font-medium">{say("ui.account.name.label")}</span>
-            <input className="min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base" autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={20} value={name} onChange={(event) => setName(event.target.value)} />
+            <input
+              className="min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base"
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              maxLength={20}
+              value={name}
+              aria-describedby={checkId}
+              onChange={(event) => (setName(event.target.value), setProblem(null))}
+            />
           </label>
+          <RenameCheck id={checkId} account={account} name={name} own={me.username} quiet={problem !== null} />
           <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="primary" disabled={busy}>
               {say("ui.account.name.change.go")}

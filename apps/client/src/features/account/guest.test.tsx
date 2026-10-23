@@ -10,6 +10,7 @@ import { heardBody } from "../../shared/net/guest";
 import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
+import { CHECK_AFTER_MS } from "./GuestStart";
 import { browserLink, inAppBrowser } from "./inApp";
 import { askMoment, GuestReminder, SecureAsk, SecureSheet } from "./Secure";
 import { AccountSettings } from "./Settings";
@@ -318,6 +319,59 @@ describe("the username in the settings", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.change.go") }));
     expect(await screen.findByText(say("ui.account.name.changed", { name: "Ada_Ibadan" }))).toBeDefined();
     expect(account.calls).toContain('rename("Ada_Ibadan")');
+  });
+
+  test("[account:username-typed-and-checked] given the rename box open, when a name is typed, then the server is asked once the typing rests and the box says free or taken; the player's own name says neither and is never asked", async () => {
+    const asked: string[] = [];
+    const account = fakeAccount(me("secured"), { usernameFree: (username) => (asked.push(username), Promise.resolve(username === "ada_kano" ? "taken" : "free")) });
+    await mount(account, <AccountSettings account={account} />);
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.name.change") }));
+    const box = screen.getByLabelText(say("ui.account.name.label"));
+    const check = () => document.querySelector("[data-rename-check]")?.textContent ?? "";
+    // The box opens on the player's own name: nothing said, nothing asked.
+    expect((box as HTMLInputElement).value).toBe("ada_lagos");
+    await act(() => new Promise((resolve) => setTimeout(resolve, CHECK_AFTER_MS * 2)));
+    expect(asked).toEqual([]);
+    expect(check()).toBe("");
+    fireEvent.change(box, { target: { value: "ada_ibadan" } });
+    await waitFor(() => expect(check()).toBe(say("ui.account.name.available")));
+    fireEvent.change(box, { target: { value: "ada_kano" } });
+    await waitFor(() => expect(check()).toBe(say("ui.account.name.taken")));
+    // Said where a screen reader hears it, as the player types.
+    expect(document.querySelector("[data-rename-check]")?.getAttribute("role")).toBe("status");
+    // The own name again, in any capitals, says neither free nor taken, and is not asked.
+    fireEvent.change(box, { target: { value: "Ada_Lagos" } });
+    await act(() => new Promise((resolve) => setTimeout(resolve, CHECK_AFTER_MS * 2)));
+    expect(check()).toBe("");
+    expect(asked).toEqual(["ada_ibadan", "ada_kano"]);
+  });
+
+  test("[account:username-typed-and-checked] given the rename box, when a name is typed fast in pieces, then the server is asked once, for the last; a name not of the rule's shape says so and asks nothing", async () => {
+    const asked: string[] = [];
+    const account = fakeAccount(me("secured"), { usernameFree: (username) => (asked.push(username), Promise.resolve("free")) });
+    await mount(account, <AccountSettings account={account} />);
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.name.change") }));
+    const box = screen.getByLabelText(say("ui.account.name.label"));
+    const check = () => document.querySelector("[data-rename-check]")?.textContent ?? "";
+    for (const typed of ["a", "ad", "ada", "ada_", "ada_i", "ada_ib"]) fireEvent.change(box, { target: { value: typed } });
+    await waitFor(() => expect(check()).toBe(say("ui.account.name.available")));
+    expect(asked).toEqual(["ada_ib"]);
+    fireEvent.change(box, { target: { value: "ada ib" } });
+    expect(check()).toBe(say("ui.account.name.format"));
+    await act(() => new Promise((resolve) => setTimeout(resolve, CHECK_AFTER_MS * 2)));
+    expect(asked).toEqual(["ada_ib"]);
+  });
+
+  test("[account:username-typed-and-checked] given a name the box said was free, when someone takes it before saving, then saving says taken: saving is the check that counts", async () => {
+    const account = fakeAccount(me("secured"), { usernameFree: () => Promise.resolve("free"), rename: () => Promise.resolve({ ok: false, why: "taken" }) });
+    await mount(account, <AccountSettings account={account} />);
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.name.change") }));
+    const box = screen.getByLabelText(say("ui.account.name.label"));
+    fireEvent.change(box, { target: { value: "ada_ibadan" } });
+    await waitFor(() => expect(document.querySelector("[data-rename-check]")?.textContent).toBe(say("ui.account.name.available")));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.change.go") }));
+    expect(await screen.findByRole("alert")).toHaveProperty("textContent", say("ui.account.name.taken"));
+    expect(document.querySelector("[data-rename-check]")?.textContent).toBe("");
   });
 
   test("[account:username-and-unconfirmed-email] given a change made and the wait not over, then no change is offered and the day it opens is said", async () => {
