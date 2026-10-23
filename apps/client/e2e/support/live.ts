@@ -31,6 +31,31 @@ export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
 }
 
 /**
+ * Until the middle of the button a tap would land on is the button's own, as a player sees it bare before tapping. An emote over
+ * a resident standing in front of a thing covers its mark, and a tap there is a tap on that person; a word bubble may stand
+ * over a thing's dot, which can be tapped a moment later (world:street-talk-budget). The emotes move on to other residents
+ * every few seconds while nothing is tapped, and the bubble goes. A forced click skips Playwright's own check of this, so it
+ * is made here. Where the button stays covered the tap goes as it is, and the caller's look for what it opened says so.
+ */
+async function clearToTap(page: Page, selector: string): Promise<void> {
+  await page
+    .waitForFunction(
+      (target) => {
+        const button = document.querySelector<HTMLElement>(target);
+        if (button === null) return true;
+        const box = button.getBoundingClientRect();
+        // A button gone from view is no longer the tap's: the caller looks again.
+        if (box.width === 0 && box.height === 0) return true;
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return hit !== null && button.contains(hit);
+      },
+      selector,
+      { timeout: 15_000 },
+    )
+    .catch(() => undefined);
+}
+
+/**
  * A tap on a thing: on its quiet mark, or, where the step's marker stands on it in the mark's place (world:nudge-says-one-thing),
  * on the thing itself where the scene draws it.
  */
@@ -45,15 +70,22 @@ async function tapThing(page: Page, thing: string): Promise<void> {
     await mark.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
   }
   if (await mark.isVisible().catch(() => false)) {
-    // A mark the nudge pulses never holds still for the stability check; the tap lands on the button all the same.
-    await mark.click({ timeout: 10_000, force: true });
-    return;
+    // A mark the nudge pulses never holds still for the stability check; the tap lands on the button all the same, once
+    // nothing stands over it. While it waited the step's marker may have taken the mark's place, and is looked for next.
+    await clearToTap(page, `[data-mark="${thing}"]`);
+    if (await mark.isVisible().catch(() => false)) {
+      await mark.click({ timeout: 10_000, force: true });
+      return;
+    }
   }
   // The step's marker over the thing takes the tap (world:nudge-says-one-thing), so nobody standing in front of it does.
   const markerTap = page.locator(`[data-marker-tap="${thing}"]`);
   if (await markerTap.isVisible().catch(() => false)) {
-    await markerTap.click({ force: true });
-    return;
+    await clearToTap(page, `[data-marker-tap="${thing}"]`);
+    if (await markerTap.isVisible().catch(() => false)) {
+      await markerTap.click({ force: true });
+      return;
+    }
   }
   const at = await page.evaluate((id) => (window as unknown as { __city?: { screenOfThing?: (one: string) => { x: number; y: number } | null } }).__city?.screenOfThing?.(id) ?? null, thing);
   if (at === null) return;
