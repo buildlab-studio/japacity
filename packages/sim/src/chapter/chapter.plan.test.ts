@@ -99,8 +99,9 @@ describe("the plan in the view", () => {
     // The master's is only heard of: no figure of its own (japacity:heard-routes-have-no-figure), but the sum its checklist would earn.
     expect(routePercent(read, UK_ROUTE)).toBeNull();
     expect(ways.find((way) => way.route === UK_ROUTE)?.percent).toBe(sum(UK_ROUTE));
-    // The nurse's licence and months on the ward count for care, not for the master's.
-    expect(sum(UK_ROUTE)).toBeLessThan(routePercent(read, CARE_ROUTE) ?? 0);
+    // The nurse's licence and months on the ward count for care, not for the master's: the master's earns its degree, grade and passport,
+    // and its English is the degree (route:degree-meets-masters-english).
+    expect(checklistView(read, UK_ROUTE).filter((item) => item.met).map((item) => item.id).sort()).toEqual(["degree", "english", "grade", "passport"]);
     // A route with no file of its own is never a way the plan can take.
     expect(ways.some((way) => way.route === SKILLED)).toBe(false);
   });

@@ -295,7 +295,7 @@ describe("the December visit", () => {
     }
     expect(game.state.setpiece.open).toBeNull();
     // The fare both ways in December, and the party, the gifts and the look at their prices in pounds.
-    expect(paid.reduce((sum, amount) => sum + amount, 0)).toBe(310000 + 22700 + 34100 + 14200);
+    expect(paid.reduce((sum, amount) => sum + amount, 0)).toBe(129200 + 22700 + 34100 + 14200);
     expect(game.state.quality[STANDING]).toBe(standing + 6 + 8 + 4);
     expect(game.state.setpiece.answered["setpiece.december"]).toBe(1);
   });

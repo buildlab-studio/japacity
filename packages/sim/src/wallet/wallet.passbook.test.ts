@@ -107,8 +107,9 @@ describe("[wallet:passbook-against-plan-cost] the money held for the road and th
     const game = planOn(nurse(), CARE_ROUTE);
     const view = game.view();
     const target = passbook(game).target!;
-    // The life holds its passport and licence; the verification, the English test, the TB test, the police paper and the visa are ahead.
-    const fees = ["activity.request-verification", "activity.sit-english-test", "activity.tb-test", "activity.get-police-certificate", "activity.apply-uk-care"].reduce((sum, act) => sum + priceOf(view, act), 0);
+    // The life holds its passport and licence; the verification, the English (the degree's statement or the test, either of which the
+    // route takes, route-gates:sponsor-application-needs), the TB test, the police paper and the visa are ahead.
+    const fees = ["activity.request-verification", "activity.degree-english", "activity.sit-english-test", "activity.tb-test", "activity.get-police-certificate", "activity.apply-uk-care"].reduce((sum, act) => sum + priceOf(view, act), 0);
     const { flight } = content.tuning.route;
     expect(target).toEqual({ route: CARE_ROUTE, funds: 0, fees, flight: kobo(view, flight.amount as number, flight.currency), total: fees + kobo(view, flight.amount as number, flight.currency) });
   });
