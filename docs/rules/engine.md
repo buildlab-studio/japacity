@@ -168,7 +168,7 @@ Each kind is one module of plain functions. A kind adds only what it needs.
 | `fraud` | Whether an agent is honest |
 | `street` | What happens at the aboki, and the informal remittance that may not arrive (abroad-money:remit-sends-money-home) |
 | `prologue` | The prologue's opening draw and the draws after its answers (prologue:family-draw-on-first-answer, prologue:steps-offer-legal-answers) |
-| `status` | The overstayer's detection (status:overstayer-risks-detection), cash pay withheld (ladders:cash-jobs-paid-in-hand), the driving test (car:licence-and-driving-test) |
+| `status` | The overstayer's detection (status:overstayer-risks-detection), then the landlord's check in the same month (abroad-money:right-to-rent-check, decision 0028), cash pay withheld (ladders:cash-jobs-paid-in-hand), the driving test (car:licence-and-driving-test) |
 | `credit` | Reserved for the credit kind. No rule draws on it |
 | `road` | The road pitch's hidden kind (road:taking-pitch-pays-deposit) and each step of the chain (road:chain-steps-monthly) |
 | `lotto` | The kiosk, the bet slip and the savings circle's pot (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds, luck:savings-circle-holds-pot) |

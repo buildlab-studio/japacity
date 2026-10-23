@@ -29,6 +29,13 @@ export const StatusEntrySchema = z.strictObject({
   banMonths: CountSchema,
   detectBp: BpSchema,
   holdsPassport: z.boolean(),
+  graceMonths: CountSchema.exactOptional(),
+  noticeMonths: CountSchema.exactOptional(),
+  ownFareBanMonths: CountSchema.exactOptional(),
+  assistedBanMonths: CountSchema.exactOptional(),
+  rentCheckBp: BpSchema.exactOptional(),
+  returnGrant: CountSchema.exactOptional(),
+  finePerMonth: CountSchema.exactOptional(),
 });
 
 export type StatusEntryMatches = Proof<Same<z.infer<typeof StatusEntrySchema>, StatusEntry>>;

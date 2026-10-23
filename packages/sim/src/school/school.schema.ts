@@ -9,7 +9,6 @@ export const SchoolEntrySchema = z.strictObject({
   tuition: CountSchema,
   deposit: CountSchema,
   minGrade: CountSchema,
-  minBand: CountSchema,
   offerBp: BpSchema,
   autoDiscount: z.strictObject({ minGrade: CountSchema, amount: CountSchema }).nullable(),
   meritDiscount: z.strictObject({ bp: BpSchema, amount: CountSchema }).nullable(),

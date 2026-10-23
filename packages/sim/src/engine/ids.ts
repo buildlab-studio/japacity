@@ -15,6 +15,8 @@ export const QUALITY = {
 
 export const VAR = {
   seasonDecember: "var.season-december",
+  /** status:uae-amnesty: 1 while the amnesty holds. */
+  uaeAmnesty: "var.uae-amnesty",
   ukSurchargeYear: "var.uk-surcharge-year",
 } as const satisfies Record<string, Id<"var">>;
 
@@ -25,7 +27,14 @@ export const SETPIECE = {
 export const STATUS = {
   /** road:sea-arrival-in-italy: the status the road's far shore gives. */
   euIrregular: "status.eu-irregular",
+  /** status:uae-fine-accrues, status:uae-amnesty: the UAE's overstayer status. */
+  uaeIrregular: "status.uae-irregular",
 } as const satisfies Record<string, Id<"status">>;
+
+export const COUNTRY = {
+  /** status:overstayer-hospital-charged: the hospital's charge is the UK's. */
+  uk: "country.uk",
+} as const satisfies Record<string, Id<"country">>;
 
 export const DOCUMENT = {
   homeLicence: "document.home-licence",
