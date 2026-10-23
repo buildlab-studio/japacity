@@ -5,7 +5,7 @@ import { stageOf } from "../../../shared/scene/placeFile";
 import { roomOf, HOUSE } from "../acts/room";
 import { builtPlaces } from "../../../shared/scene/placeFile.testing";
 import { cameraAt, onScreen, projected, SCREENS } from "./scene.testing";
-import { aimShot, clampTurn, CLOSE_AHEAD, defaultShot, depthDistance, FIT_MARGIN, fitDistance, quarterTurns, ROOM_PITCH, roomDistance, roomShot, shotOf, snapTilt, snapTurn, snapZoom, turnToward, WHOLE, wholeDistance, widthEnds } from "./shot";
+import { aimShot, clampTurn, CLOSE_AHEAD, defaultShot, depthDistance, dueInRoom, easeRoomView, FIT_MARGIN, fitDistance, quarterTurns, ROOM_PITCH, roomDistance, roomShot, shotOf, snapTilt, snapTurn, snapZoom, turnToward, WHOLE, wholeDistance, widthEnds } from "./shot";
 import { thingSpot, thingsOf } from "./things";
 
 /** The pitch of a view above the ground, in degrees. */
@@ -174,5 +174,24 @@ describe("the turn's snap", () => {
     expect(snapTilt(0.49)).toBe(0);
     expect(snapTilt(0.5)).toBe(1);
     expect(snapTilt(0.9)).toBe(1);
+  });
+});
+
+describe("a thing chosen from the whole house", () => {
+  test("[world:room-seen-down-its-length] [city:two-graphics-modes] given a thing tapped from a wide home's whole view, when the camera eases in on its room frame by frame, and the scene is drawn anew partway (a new graphics mode) with the view its shell keeps, then the thing is due once the camera stands in the room and not before", () => {
+    const view = { zoom: 1, zoomTo: 0 as const, turn: 0, turnTo: 0, tilt: 0, tiltTo: 0, pinching: false, turning: false, room: "parlour", waiting: "after-service" as string | null };
+    expect(dueInRoom(view)).toBeNull();
+    Object.assign(view, easeRoomView(view, 1 / 60));
+    expect(view.zoom).toBeLessThan(1);
+    expect(dueInRoom(view)).toBeNull();
+    // The scene drawn anew keeps nothing of its own: only the view the shell holds goes on.
+    const kept = { ...view };
+    for (let frame = 0; frame < 120 && kept.zoom !== kept.zoomTo; frame += 1) {
+      expect(dueInRoom(kept)).toBeNull();
+      Object.assign(kept, easeRoomView(kept, 1 / 60));
+    }
+    expect(kept.zoom).toBe(0);
+    expect(dueInRoom(kept)).toBe("after-service");
+    expect(dueInRoom({ ...kept, waiting: null })).toBeNull();
   });
 });

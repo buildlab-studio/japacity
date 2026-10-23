@@ -74,6 +74,25 @@ function signUpRoutes(made: Answer): Record<string, Answer | ((faked: Faked) => 
   };
 }
 
+/**
+ * The start sheet at rest: it rises from the foot (`.rise`, index.css), so a door read while it moves stands lower than it
+ * will, and two doors read a frame apart stand where neither is. Their boxes are read once nothing moves the sheet.
+ */
+async function doorsAtRest(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const door = document.querySelector("[data-gate-sheet] button");
+      if (door === null) return false;
+      return document.getAnimations().every((motion) => {
+        const moved = (motion.effect as KeyframeEffect | null)?.target;
+        return !(moved instanceof Element && moved.contains(door)) || motion.playState !== "running" || motion.effect?.getTiming().iterations === Infinity;
+      });
+    },
+    null,
+    { timeout: 20_000 },
+  );
+}
+
 async function pickBirth(page: Page, day: string, month: string, year: string): Promise<void> {
   await page.getByRole("combobox", { name: "Day" }).selectOption(day);
   await page.getByRole("combobox", { name: "Month" }).selectOption({ label: month });
@@ -197,6 +216,7 @@ test("[account:start-screen-over-live-city] the returning door is a full-width b
   const play = page.getByRole("button", { name: "Play", exact: true });
   const returning = page.getByRole("button", { name: "I already have a life here" });
   await expect(play).toBeVisible({ timeout: 20_000 });
+  await doorsAtRest(page);
   const [playBox, returningBox] = await Promise.all([play.boundingBox(), returning.boundingBox()]);
   expect(returningBox?.height ?? 0).toBeCloseTo(playBox?.height ?? -1, 0);
   expect(returningBox?.width ?? 0).toBeCloseTo(playBox?.width ?? -1, 0);
@@ -221,6 +241,7 @@ test("[account:start-screen-over-live-city] in a browser a kept life was open in
   await expect(back).toBeVisible({ timeout: 20_000 });
   await expect(fresh).toBeVisible();
   await expect(page.getByRole("button", { name: "Play", exact: true })).toHaveCount(0);
+  await doorsAtRest(page);
   const [backBox, freshBox] = await Promise.all([back.boundingBox(), fresh.boundingBox()]);
   expect((freshBox?.y ?? 0) > (backBox?.y ?? 0)).toBe(true);
   await page.locator("[data-front-scene] canvas").waitFor({ timeout: 15_000 }).catch(() => undefined);
