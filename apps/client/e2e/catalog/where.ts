@@ -26,3 +26,6 @@ export function catalogDir(): string {
 
 /** The file each test appends a line to for a screen it could not reach, read by the contact sheet. */
 export const MISSED_FILE = "missed.jsonl";
+
+/** The file the shoot writes each screen's raster pictures to when CATALOG_RASTERS is set (shoot.ts). */
+export const RASTERS_FILE = "rasters.jsonl";

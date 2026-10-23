@@ -6,13 +6,13 @@ import { fileURLToPath } from "node:url";
 
 import { test } from "@playwright/test";
 
-import { catalogDir, MISSED_FILE, shortCommit } from "./where";
+import { catalogDir, MISSED_FILE, RASTERS_FILE, shortCommit } from "./where";
 
 function setup(): void {
   const dir = catalogDir();
   mkdirSync(dir, { recursive: true });
   // A second run of the same commit replaces its pictures; the review written beside them is kept.
-  for (const name of readdirSync(dir)) if (name.endsWith(".png") || name === MISSED_FILE) rmSync(join(dir, name));
+  for (const name of readdirSync(dir)) if (name.endsWith(".png") || name === MISSED_FILE || name === RASTERS_FILE) rmSync(join(dir, name));
   copyFileSync(join(dirname(fileURLToPath(import.meta.url)), "CHECKLIST.md"), join(dir, "CHECKLIST.md"));
   writeFileSync(join(dir, "run.json"), JSON.stringify({ commit: shortCommit(), started: Date.now() }));
   console.log(`The catalog is shot into ${dir}`);
