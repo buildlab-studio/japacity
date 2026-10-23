@@ -224,7 +224,7 @@ flowchart LR
 
 ### The roles
 
-- **The lead** is one long session that owns the plan. It turns the maintainer's request into rules on the rule pages (the maintainer agrees them) and into briefs, one per piece. It reviews every hand-back against the code itself: it reads the diff, runs the tests the piece touched, and never takes a report's word for what landed. It merges, runs the full check, and deploys when the maintainer says so.
+- **The lead** is one long session that owns the plan. It turns a request into rules on the rule pages and into briefs, one per piece. It reviews every hand-back against the code itself: it reads the diff, runs the tests the piece touched, and never takes a report's word for what landed. It merges, runs the full check, and deploys once a release is approved.
 - **Builders** each take one brief, in their own git worktree on their own branch. A builder stays in the folders its brief names, writes the failing test before the code, runs only the tests it touches while it works, commits small with explicit paths, and hands back a report. It never pushes, merges or deploys.
 - **Reviewers** read and never write. They audit one thing (security, the screens as a player meets them, the logic of one system, a tree before it is published) and return findings ranked by harm: what is wrong, where (file and line), and why it matters. Each finding becomes a brief of its own, or is dropped with a reason.
 
@@ -232,7 +232,7 @@ flowchart LR
 
 A builder starts with nothing but its brief and the repository, so the brief carries everything the piece needs:
 
-- **Why**: the request in the maintainer's own words, so the builder can judge the cases the brief did not foresee.
+- **Why**: the request and what it is for, so the builder can judge the cases the brief did not foresee.
 - **The piece**: numbered items, each small enough to commit alone, naming the files where that is known.
 - **The rules to cite**: the rule names the tests must carry. New rules are on the rule pages before the brief goes out.
 - **The standing rules**: stay in the worktree; never push, deploy or touch a database; which checks to run at the end; the report's shape.
@@ -244,7 +244,7 @@ Worktree `../japacity-wt/<dir>`, branch `<piece>/<name>`, from main <commit>.
 Read `AGENTS.md` and `.claude/skills/japacity-dev/SKILL.md` first.
 
 ## Why
-<The request, in the maintainer's words, and what it is for.>
+<The request and what it is for.>
 
 ## The piece
 1. <One change, with its files and the rule it cites.>
@@ -308,7 +308,7 @@ done
 A lead session runs for days, and an agent's context is compacted or restarted on the way. Nothing that matters lives only in the conversation:
 
 - **A running log**: what was decided, what landed, what is next, kept short and updated as it happens.
-- **The maintainer's instructions, recorded as they arrive**, with the time, so a later session follows the latest word and not a remembered one.
+- **Requests recorded as they arrive**, in order, so a later session follows the latest one and not a remembered one.
 - **A handover file** that a fresh session reads first: where things stand, what is open, and the commands to pick up from.
 - **Reports saved beside the work**: each builder writes its report to `REPORT.md` at its worktree's root and updates it as each item is done, so a builder that restarts loses nothing.
 
@@ -363,6 +363,15 @@ Each recipe starts the same way: the entry and its rules are on the kind's rule 
 4. Add its one guide, "What the route really needs", with its three parts and dated sources (`packages/content/src/guide/`). `guide.test.ts` fails a route with no guide or with two (guide:every-route-has-a-guide).
 5. If the story should follow it, its chapter variants for building the file and decision day go in `packages/content/src/chapter/chapter.data.ts`; see [Chapters and routes](./chapters.md).
 6. A new route may move the recorded lives and so the goldens. That is a finding for the maintainer, who re-records and blesses; a contributor never touches `packages/sim/src/goldens/`.
+
+## How rules, decisions and designs are written
+
+Four kinds of page hold what the game is and why, each in a standard shape. Every one states what holds now and the reason for it. None records who asked for a change, who decided it or when; the history of a page is in git.
+
+- **A rule** (`docs/rules/<kind>.md`) is an entry in a business-rule catalogue: a bold id `kind:slug` at the start of one paragraph that states the rule in the present tense, so a test can cite it and `pnpm check:rules` can hold both. A number lives in the page's Numbers table with its value, its source, and, where the game departs from real life, the real figure and the factor applied ("Real: 14 days with a good reason; the game: one month, about twice as kind").
+- **A decision record** (`docs/decisions/NNNN-title.md`) is an architecture decision record: Status, Context, Decision, Consequences. An accepted record is not rewritten; a later one supersedes it and both say so.
+- **A design page** (`docs/design/`) is a design doc: the context and scope, what the design is for and not for, the design itself, and the alternatives weighed.
+- **A research note** (`docs/research/`) keeps only facts the game rests on, each with its source and the date it was read.
 
 ## Writing anything here
 
