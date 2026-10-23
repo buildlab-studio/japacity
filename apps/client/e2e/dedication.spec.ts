@@ -48,8 +48,18 @@ async function openTheMap(page: Page): Promise<void> {
   await page.locator("[data-strip]").click();
   await mapIs(page, "open");
   await expect(page.locator("[data-open-map]")).toBeVisible();
-  // The unfolding's motion settles before anything is tapped or pictured.
-  await page.waitForTimeout(500);
+  // The unfolding's motion settles before anything is tapped or pictured. The fold says open on its own clock even where a
+  // slow frame has not let the motion run (PaperMap's Unfold), and the paper then still unfolds on transform: the wait is for
+  // that motion's end, as the player sees the map come to rest.
+  await page.waitForFunction(
+    () => {
+      const unfold = document.querySelector("[data-unfold]");
+      if (unfold === null) return false;
+      return unfold.getAnimations({ subtree: true }).every((motion) => !(motion instanceof CSSTransition && motion.transitionProperty === "transform") || motion.playState === "finished");
+    },
+    null,
+    { timeout: 30_000 },
+  );
 }
 
 test("[world:lantern-canoe-on-map] [account:dedication-page-and-its-doors] in a life, the lantern canoe on the open map is no stop, opens the dedication page and folds nothing; offline the water is out of reach", async ({ page }) => {
