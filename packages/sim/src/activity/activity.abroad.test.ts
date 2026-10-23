@@ -188,10 +188,14 @@ describe("pay and tax abroad", () => {
   });
 
   test("[abroad-money:salary-abroad-taxed-locally] given a job under the line, one above it and a job in the UAE, when a month is played, then the first pays no tax, the second the share above the line, the UAE none", () => {
-    const retail = holding(STUDENT, RETAIL);
-    expect(yearly(RETAIL)).toBeLessThan(content.country["country.uk"]!.taxFreeLine);
+    // The student job at the real wage (£13,200, ladders.md) sits above the line, so a part job under it is made from it.
+    const underLine = 1040000;
+    expect(underLine).toBeLessThan(content.country["country.uk"]!.taxFreeLine);
+    const retail = holding(STUDENT, RETAIL, {
+      change: (used) => ({ ...used, activity: { ...used.activity, [RETAIL]: { ...used.activity[RETAIL]!, pay: { currency: "GBP", amount: underLine } } } }),
+    });
     const under = retail.endTurn();
-    expect(moneyOf(under, "salary")).toEqual([{ type: "wallet/credited", currency: "GBP", pocket: "bank", amount: divFloor(yearly(RETAIL), 12), reason: "salary" }]);
+    expect(moneyOf(under, "salary")).toEqual([{ type: "wallet/credited", currency: "GBP", pocket: "bank", amount: divFloor(underLine, 12), reason: "salary" }]);
     expect(moneyOf(under, "tax")).toEqual([]);
 
     const warehouse = holding(UK_GRADUATE, WAREHOUSE);
@@ -309,8 +313,8 @@ describe("cash work", () => {
     expect(cashWorkedThisMonth(readOf(holding(UK_GRADUATE, WAREHOUSE)))).toBe(false);
   });
 
-  test("[ladders:cash-jobs-paid-in-hand] [status:overstayer-risks-detection] given an overstayer with the base detection taken out, when a month is played in a cash job, with no job, and with the cash raise at 0, then only cash work found at a raise of 10000 removes the status", () => {
-    const removed = (job: Id<"activity"> | null, cashDetectBp: number): boolean => {
+  test("[ladders:cash-jobs-paid-in-hand] [status:overstayer-risks-detection] [status:detection-gives-notice] given an overstayer with the base detection taken out, when a month past the grace is played in a cash job, with no job, and with the cash raise at 0, then only cash work found at a raise of 10000 gives a notice", () => {
+    const noticed = (job: Id<"activity"> | null, cashDetectBp: number): boolean => {
       const change = (used: Content): Content => ({
         ...used,
         status: { ...used.status, [OVERSTAYER]: { ...used.status[OVERSTAYER]!, detectBp: 0 } },
@@ -318,12 +322,15 @@ describe("cash work", () => {
         tuning: { ...used.tuning, ladder: { ...used.tuning.ladder, cashDetectBp } },
       });
       const game = holding(OVERSTAYER, job, { change });
-      return game.endTurn().events.some((event) => event.type === "status/removed");
+      // status:grace-before-overstaying: the grace month draws nothing; the month after it is the overstay.
+      game.grant(game.content.tuning.turn.cap);
+      game.endTurn();
+      return game.endTurn().events.some((event) => event.type === "status/noticed");
     };
-    expect(tuning.ladder.cashDetectBp).toBe(200);
-    expect(removed(KITCHEN, 10000)).toBe(true);
-    expect(removed(null, 10000)).toBe(false);
-    expect(removed(KITCHEN, 0)).toBe(false);
+    expect(tuning.ladder.cashDetectBp).toBe(100);
+    expect(noticed(KITCHEN, 10000)).toBe(true);
+    expect(noticed(null, 10000)).toBe(false);
+    expect(noticed(KITCHEN, 0)).toBe(false);
   });
 
   test("[status:status-sets-work-rule] [ladders:cash-jobs-paid-in-hand] given a graduate in the warehouse whose status lapses to the overstayer's, when the next month is played, then the job ends before it is paid", () => {

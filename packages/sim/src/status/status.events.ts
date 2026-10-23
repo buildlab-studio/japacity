@@ -1,4 +1,4 @@
-import type { Currency, Id } from "../engine/types";
+import type { Currency, Id, OverstayState } from "../engine/types";
 
 /** How a status came to be granted: by an effect, by its own `next`, by settling, by citizenship, or as the overstayer after a lapse. */
 export type GrantWhy = "granted" | "next" | "settled" | "citizen" | "lapsed";
@@ -19,6 +19,10 @@ export type StatusEvent =
       job: Id<"activity"> | null;
       why: GrantWhy;
       fee: { currency: Currency; amount: number } | null;
+      /** An overstayer status's stages from its first month (status:overstayer-risks-detection, status:grace-before-overstaying). */
+      overstay?: OverstayState;
+      /** A partner status granted in country past the grace settles at these months (person:partner-route-in-country). */
+      settleMonths?: number;
     }
   /** status:expiry-lapses-or-moves-on, status:overstayer-risks-detection, status:course-passed-or-withdrawn. The current status is gone; the overstayer status follows in its own event. */
   | { type: "status/lapsed"; status: Id<"status">; why: LapseWhy }
@@ -37,4 +41,14 @@ export type StatusEvent =
   /** status:removal-sends-home-banned. */
   | { type: "status/removed"; status: Id<"status"> | null; country: Id<"country">; month: number; banMonths: number }
   /** The character is home and holds nothing abroad (place:return-home-paid-or-assisted). */
-  | { type: "status/closed"; status: Id<"status"> };
+  | { type: "status/closed"; status: Id<"status"> }
+  /** status:grace-before-overstaying: an application made in country holds the grace through this month. */
+  | { type: "status/grace-held"; graceUntil: number }
+  /** status:detection-gives-notice: found, with a notice to this month. */
+  | { type: "status/noticed"; country: Id<"country">; noticeUntil: number; months: number }
+  /** status:notice-ends-in-removal: an application made in country holds the notice to this month. */
+  | { type: "status/notice-held"; noticeUntil: number }
+  /** status:uae-fine-accrues: a month's fine added. */
+  | { type: "status/fined"; amount: number }
+  /** abroad-money:right-to-rent-check: the landlord's check ended the room. */
+  | { type: "status/rent-checked" };
