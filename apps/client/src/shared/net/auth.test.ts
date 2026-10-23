@@ -55,6 +55,14 @@ describe("the age screen's routes, as the server built them", () => {
     expect(await api.declareAge("2000-01-01")).toEqual({ full: true, retryAfter: 30 });
   });
 
+  test("[account:age-screen-refuses-minors] given a browser holding a pass, when it asks where it stands, then it is passed; a pass beside a refusal is refused, and a reply with no pass named is still to ask", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { body: { refused: false, passed: true } }, { body: { refused: true, passed: true } }, { body: { refused: false } });
+    expect(await api.ageStatus()).toBe("passed");
+    expect(await api.ageStatus()).toBe("refused");
+    expect(await api.ageStatus()).toBe("unasked");
+  });
+
   test("[server:signups-off-shows-full] given sign-ups open and a browser never refused, when it asks where it stands, then the age screen is still to ask", async () => {
     const { server, api } = account();
     server.answer("GET /api/age", { body: { refused: false } });

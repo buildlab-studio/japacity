@@ -3,7 +3,7 @@
 // (account:username-typed-and-checked), and the guest line once; Begin makes the guest life with the unseen bot check's
 // token, then the character, then the game opens on it.
 import type { Id } from "@japacity/sim";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../authority/GameProvider";
@@ -189,6 +189,32 @@ describe("the username box (account:username-typed-and-checked)", () => {
     fireEvent.click(next(say("ui.door.begin")));
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     expect(sent(account)).toEqual(["declareAge(1990-05-17)", "startGuest(ada_lagos)"]);
+  });
+});
+
+describe("a pass held (account:age-screen-refuses-minors)", () => {
+  test("[account:age-screen-refuses-minors] given a browser whose age pass still holds, when the game opens again before Begin, then the door's step shows without the start screen or the age screen, and nothing is declared", async () => {
+    const account = { ...fakeAccount(), ageStatus: () => Promise.resolve("passed" as const) };
+    online(account);
+    expect(await screen.findByRole("textbox", { name: say("prologue.door.name.title") })).toBeDefined();
+    expect(stage()).toBe("you");
+    expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
+    expect(screen.queryByRole("combobox", { name: say("ui.account.age.day") })).toBeNull();
+    expect(account.calls).toEqual([]);
+  });
+
+  test("[account:age-screen-refuses-minors] given a browser whose age pass still holds and a run kept at the page, when the game opens again, then the page shows as it was left, the username as typed", async () => {
+    const first = fakeAccount();
+    online(first);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada_lagos");
+    cleanup();
+    const again = { ...fakeAccount(), ageStatus: () => Promise.resolve("passed" as const) };
+    online(again);
+    expect((await screen.findByRole<HTMLInputElement>("textbox", { name: say("ui.account.name.label") })).value).toBe("ada_lagos");
+    expect(stage()).toBe("page");
+    expect(again.calls.filter((call) => call.startsWith("declareAge"))).toEqual([]);
   });
 });
 

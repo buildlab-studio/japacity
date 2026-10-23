@@ -16,15 +16,25 @@ import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
 
-/** The guest start, the one route that reads the pass. */
-export const PASS_PATH = "/api/guest";
+/**
+ * The pass cookie's path: the guest start, which spends the pass, and the standing, which reports it held
+ * (account:age-screen-refuses-minors); a browser sends the cookie to every path under it.
+ */
+export const PASS_PATH = "/api";
 
 export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
 
   // account:sign-up-open-everywhere, account:age-screen-refuses-minors: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (server:four-off-switches).
-  app.get("/api/age", limit(deps, "reads"), (c) => {
-    return c.json<AgeStatus>({ refused: readCookie(c.req.header("cookie"), REFUSED_COOKIE) !== null });
+  // A pass is reported while its row stands unspent and its hour is not up, so a reload or Back before Begin returns to the door's step.
+  app.get("/api/age", limit(deps, "reads"), async (c) => {
+    const cookie = c.req.header("cookie");
+    if (readCookie(cookie, REFUSED_COOKIE) !== null) return c.json<AgeStatus>({ refused: true, passed: false });
+    const nonce = readCookie(cookie, PASS_COOKIE);
+    if (nonce === null || nonce === "") return c.json<AgeStatus>({ refused: false, passed: false });
+    const context = await auth.$context;
+    const pass = await context.internalAdapter.findVerificationValue(PASS_PREFIX + nonce);
+    return c.json<AgeStatus>({ refused: false, passed: pass !== null && new Date(pass.expiresAt).getTime() > deps.now() });
   });
 
   app.post("/api/age", limit(deps, "commands"), async (c) => {

@@ -394,10 +394,10 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
 
   return {
     async ageStatus() {
-      // `GET /api/age` reads the server's refusal cookie (account:age-screen-refuses-minors); its switch gate answers 503 first while sign-ups are off (server:four-off-switches).
+      // `GET /api/age` reads the server's refusal cookie and the pass still held (account:age-screen-refuses-minors); its switch gate answers 503 first while sign-ups are off (server:four-off-switches).
       try {
         const reply = await server.get<AgeStatus | ServerRejection>("/api/age");
-        if (!isRejection(reply)) return reply.refused === true ? "refused" : "unasked";
+        if (!isRejection(reply)) return reply.refused === true ? "refused" : reply.passed === true ? "passed" : "unasked";
         if (reply.code === "switched-off") return full(reply);
         return "unasked";
       } catch {
