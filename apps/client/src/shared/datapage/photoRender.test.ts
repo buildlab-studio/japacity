@@ -83,8 +83,8 @@ describe("the stills of the figure", () => {
     expect(await renderPhoto("shared/person/person_ada.glb", { skin: "skin2" }, 258)).toBe("data:image/webp;base64,UklGRg");
     expect(toDataURL).toHaveBeenCalledTimes(1);
     expect(made.renders).toBe(3);
-    // Sized for each still: the figure's 400 by 800, then the photo's own box.
-    expect(made.sizes[0]).toEqual([400, 800]);
+    // Sized for each still: the figure's 600 by 1200 as the published figure is, then the photo's own box.
+    expect(made.sizes[0]).toEqual([600, 1200]);
     expect(made.sizes[2]?.[0]).toBe(258);
     expect(made.renderers - before).toBe(1);
   });

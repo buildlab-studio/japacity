@@ -57,7 +57,8 @@ function LifeCard({ tile, look, on, onPick }: { tile: Archetype; look: string; o
           <ModelPicture model={thing.tile} size={160} />
         </span>
         <span className="absolute bottom-[-22px] left-[-10px] z-[3]">
-          <FaceSticker look={look} size={88} tilt={-6} tint="food" />
+          {/* 85 CSS pixels: the published face is 256 across, three picture pixels for each on a sharp phone. */}
+          <FaceSticker look={look} size={85} tilt={-6} tint="food" />
         </span>
       </span>
       <span className="block px-1.5 pt-8">

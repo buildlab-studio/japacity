@@ -30,10 +30,11 @@ export function useStageScale(): number {
   return scale;
 }
 
-/** A file published under public/assets, by its path, or null until the manifest is read or when it is not published. */
-function usePublished(path: string): string | null {
+/** A file published under public/assets, by its path, or null until the manifest is read, when it is not published or when none is asked. */
+function usePublished(path: string | null): string | null {
   const [url, setUrl] = useState<{ path: string; url: string | null } | null>(null);
   useEffect(() => {
+    if (path === null) return;
     let alive = true;
     void loadManifest()
       .then((manifest) => {
@@ -62,15 +63,28 @@ export interface Dress {
   money: string;
 }
 
-/** A published tile as a die-cut sticker. Silent to a screen reader: the words carry the meaning. */
-function Pic({ model, className = "", style }: { model: string; className?: string; style?: CSSProperties }) {
+/** The pixels across a thing's tile and its poster (tools/assets/shoot.ts TILE_SHOT and POSTER_SHOT). */
+const TILE_PX = 512;
+const POSTER_PX = 896;
+
+/**
+ * A published tile as a die-cut sticker. Silent to a screen reader: the words carry the meaning. A thing the scene draws
+ * large has a poster published beside its tile; the browser is offered both by their widths, with the sticker's size on
+ * the scaled stage, so each screen fetches the one that is sharp there (prologue:front-door-three-screens).
+ */
+function Pic({ model, className = "", style, poster = true }: { model: string; className?: string; style?: CSSProperties; poster?: boolean }) {
   const src = usePublished(`tiles/${model}.png`);
-  return src === null ? null : <img src={src} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
+  const large = usePublished(poster ? `tiles/${model}-poster.png` : null);
+  const scale = useStageScale();
+  if (src === null) return null;
+  const width = typeof style?.width === "number" ? style.width : null;
+  const offered = large === null || width === null ? {} : { srcSet: `${src} ${String(TILE_PX)}w, ${large} ${String(POSTER_PX)}w`, sizes: `${String(Math.ceil(width * scale))}px` };
+  return <img src={src} {...offered} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
 }
 
 /** One of the family or the hall as a sticker: the look standing, or cheering with both hands up (the wave). */
 function Person({ look, pose = "figure", className = "", style }: { look: string; pose?: "figure" | "cheer"; className?: string; style?: CSSProperties }) {
-  return <Pic model={`${look}-${pose}`} className={className} {...(style === undefined ? {} : { style })} />;
+  return <Pic model={`${look}-${pose}`} poster={false} className={className} {...(style === undefined ? {} : { style })} />;
 }
 
 /** The character, in their own colours where they chose them (prologue:player-colours-on-looks). */
