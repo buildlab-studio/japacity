@@ -1,7 +1,7 @@
 {
   "asset": "person_ngozi",
   "file": "public/assets/shared/person/person_ngozi.glb",
-  "fileSha256": "fa7e33782149e40d9deb695895394da04f0fbca393489d23e461f2f271a63719",
+  "fileSha256": "7aa0b863959d4a4d0c8a860907a405a375c0829d9b330967e2a4dbc0a2950d07",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/ngozi/renders/figure.png",
-      "sha256": "a25108fb1049946f31157b89ac44600eee61f9516d63e5ffffd094fc9784259f",
+      "sha256": "723553569f19c082c4461f1014edbbdd1da362e53b863635808712ff39b14816",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/ngozi/renders/cheer.png",
-      "sha256": "8480614cf44f767b273a1d6ac9e8d5376d1a224802d0839b168b1d012ea3bed1",
+      "sha256": "c28b385b9f95df46d78d3671cf5229534436d0890ec32af65859d90361dd6da4",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

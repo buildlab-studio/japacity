@@ -96,7 +96,7 @@ export function kindFolder(prefix: string): string {
 /** The way every dish in the hub faces, in the frame of its unturned buildings (assets:dishes-face-one-satellite). */
 const HUB_DISH_YAW = DEFAULT_DISH_YAW;
 
-export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "face" | "figure" | "cheer";
+export type ViewName = "front" | "back" | "left" | "right" | "threeQuarter" | "plan" | "phone" | "phoneFar" | "tile" | "poster" | "face" | "figure" | "cheer";
 
 /** A look's portraits for the front door (prologue:front-door-builds-a-person, prologue:front-door-three-screens): the face for the look strip and the life cards, the whole figure with a hand on the hip, and the figure cheering on the page after Begin. */
 export const PORTRAITS: readonly ViewName[] = ["face", "figure", "cheer"];
@@ -115,6 +115,19 @@ export function isPortrayed(name: string): boolean {
 const TILED_KINDS = /^(prop|shopfront|vehicle|landmark|building)_/;
 /** Models no player is shown as a thing: the rooms' and the homes' shells, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
 const UNTILED = /^(building_room_|building_home-|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
+
+/**
+ * The things the send-off draws far larger than a choice's tile (chapter:send-off-scene-in-beats): a street's buildings,
+ * the taxi pulling in and the bus shelter, up to 260 of its 390 stage pixels across, about 290 CSS pixels on a large
+ * phone. Each also gets the poster: the tile's framing at more pixels, so the scene's sticker is sharp at three to one
+ * while every small tile stays small (prologue:front-door-three-screens).
+ */
+const POSTERED: ReadonlySet<string> = new Set(["building_rye-lane-terrace_a", "building_rye-lane-terrace_b", "building_deira-arcade_a", "building_deira-arcade_b", "building_deira-arcade_c", "building_shop-row", "vehicle_taxi-dubai", "prop_bus-shelter"]);
+
+/** Whether a model gets the poster beside its tile: a thing the send-off draws larger than the tile is sharp at. */
+export function isPostered(name: string): boolean {
+  return POSTERED.has(name);
+}
 
 /** Whether a model gets the tile view: a thing a player could be shown on a choice. */
 export function isTiled(name: string): boolean {
@@ -745,7 +758,11 @@ ENTRIES.push(
 );
 
 /** Every shipped asset, each model a player could be shown as a thing with the tile view beside its fixed views. */
-export const CATALOG: CatalogEntry[] = ENTRIES.map((entry) => (isTiled(entry.name) && !entry.views.includes("tile") ? { ...entry, views: [...entry.views, "tile"] } : entry));
+export const CATALOG: CatalogEntry[] = ENTRIES.map((entry): CatalogEntry => {
+  const tiled: ViewName[] = isTiled(entry.name) && !entry.views.includes("tile") ? ["tile"] : [];
+  const postered: ViewName[] = isPostered(entry.name) && !entry.views.includes("poster") ? ["poster"] : [];
+  return tiled.length + postered.length === 0 ? entry : { ...entry, views: [...entry.views, ...tiled, ...postered] };
+});
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {
   if (names.length === 0 || names.includes("all")) return CATALOG;

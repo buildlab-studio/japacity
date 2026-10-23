@@ -3,7 +3,7 @@
 // city:places-load-on-entry). A file whose contents change gets a new name, so the browser may keep every published
 // file for good. The build check skips the hashed copies and the manifest (assets-check.ts).
 // First it copies each model's tile render to tiles/<name>.png, and each look's portraits to
-// tiles/<name>-face.png, -figure.png and -cheer.png, so the interface's pictures are published as
+// tiles/<name>-face.png, -figure.png and -cheer.png, and each poster to tiles/<name>-poster.png, so the interface's pictures are published as
 // the models are (design page 09, the pictures; the front door's faces and figures).
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -59,15 +59,16 @@ export interface TilePicture {
   view?: ViewName;
 }
 
-/** The name a picture is published under: the asset's own for its tile, `<asset>-<view>` for a portrait. */
+/** The name a picture is published under: the asset's own for its tile, `<asset>-<view>` for a poster or a portrait. */
 export function tileName(picture: Pick<TilePicture, "name" | "view">): string {
   return picture.view === undefined || picture.view === "tile" ? picture.name : `${picture.name}-${picture.view}`;
 }
 
-/** Every picture the catalog publishes under tiles: each model's tile, and each look's portraits. */
+/** Every picture the catalog publishes under tiles: each model's tile and its poster where it has one, and each look's portraits. */
 export function tilePictures(entries: readonly Pick<CatalogEntry, "name" | "source" | "views">[]): TilePicture[] {
   return entries.flatMap((entry) => [
     ...(entry.views.includes("tile") ? [{ name: entry.name, source: entry.source }] : []),
+    ...(entry.views.includes("poster") ? [{ name: entry.name, source: entry.source, view: "poster" as const }] : []),
     ...PORTRAITS.filter((view) => entry.views.includes(view)).map((view) => ({ name: entry.name, source: entry.source, view })),
   ]);
 }

@@ -4,9 +4,10 @@
 // plan for buildings and landmarks, and the phone shot at 360 by 640 CSS pixels, device scale 2,
 // 12 m from the asset in the standard street. Every model but a person also gets the tile: the
 // three-quarter view framed tight in a 256 pixel square at device scale 2 on a clear ground, which
-// the interface cuts as a sticker (design page 09). A look the front door offers also gets its
+// the interface cuts as a sticker (design page 09); a thing the send-off draws large also gets the
+// poster, the tile at scale 3.5. A look the front door offers also gets its
 // portraits on the same clear ground: the face (128 square at scale 2), and the whole figure with
-// a hand on the hip and cheering (200 by 400 at scale 2), each from the game's own poses. Writes the pictures and a render manifest
+// a hand on the hip and cheering (200 by 400 at scale 3), each from the game's own poses. Writes the pictures and a render manifest
 // beside them in the asset's renders folder, and their hashes into models/manifest.json.
 // `--view` shoots only the views named, keeping the others' records.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -25,11 +26,19 @@ export const PHONE_SHOT = { width: 360, height: 640, deviceScaleFactor: 2, dista
 export const SHEET_VIEWPORT = { width: 1024, height: 768, deviceScaleFactor: 1 } as const;
 /** The tile's square: 256 CSS pixels at device scale 2, a 512 pixel picture. */
 export const TILE_SHOT = { width: 256, height: 256, deviceScaleFactor: 2 } as const;
+/**
+ * The poster: the tile's square and framing at device scale 3.5, an 896 pixel picture, for a thing the send-off draws up
+ * to about 290 CSS pixels across, sharp there at three to one.
+ */
+export const POSTER_SHOT = { width: 256, height: 256, deviceScaleFactor: 3.5 } as const;
 /** A look's face: 128 CSS pixels square at device scale 2, a 256 pixel picture, sharp at the strip's and the life card's sizes. */
 export const FACE_SHOT = { width: 128, height: 128, deviceScaleFactor: 2 } as const;
-/** A look's whole figure: 200 by 400 CSS pixels at device scale 2, a 400 by 800 picture. */
-export const FIGURE_SHOT = { width: 200, height: 400, deviceScaleFactor: 2 } as const;
-const VIEWS: readonly ViewName[] = ["front", "back", "left", "right", "threeQuarter", "plan", "phone", "phoneFar", "tile", "face", "figure", "cheer"];
+/**
+ * A look's whole figure: 200 by 400 CSS pixels at device scale 3, a 600 by 1200 picture, sharp at three to one on the
+ * door's first screen (about 150 CSS pixels across) and as the character in the send-off (about 165).
+ */
+export const FIGURE_SHOT = { width: 200, height: 400, deviceScaleFactor: 3 } as const;
+const VIEWS: readonly ViewName[] = ["front", "back", "left", "right", "threeQuarter", "plan", "phone", "phoneFar", "tile", "poster", "face", "figure", "cheer"];
 /** The pose each portrait is shot in, from the game's own poses. */
 export const PORTRAIT_POSES = { face: "stand", figure: "hip", cheer: "cheer" } as const;
 type Portrait = keyof typeof PORTRAIT_POSES;
@@ -65,7 +74,9 @@ async function load(page: Page, entry: CatalogEntry, withFigure: boolean, pose?:
 }
 
 async function show(page: Page, view: ViewName): Promise<unknown> {
-  return page.evaluate((v) => (globalThis as unknown as { stage: { show: (x: string) => unknown } }).stage.show(v), view);
+  // The poster is the tile's view on a larger page: the stage frames by the page's shape, so the same square frames the same.
+  const shown = view === "poster" ? "tile" : view;
+  return page.evaluate((v) => (globalThis as unknown as { stage: { show: (x: string) => unknown } }).stage.show(v), shown);
 }
 
 export interface RenderRecord {
@@ -107,9 +118,10 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
   const asked = entry.views.filter((view) => only === null || only.includes(view));
   const phone = (view: ViewName): boolean => view === "phone" || view === "phoneFar";
   const groups: [{ width: number; height: number; deviceScaleFactor: number }, readonly ViewName[], PoseName | undefined][] = [
-    [SHEET_VIEWPORT, asked.filter((view) => !phone(view) && view !== "tile" && !isPortrait(view)), undefined],
+    [SHEET_VIEWPORT, asked.filter((view) => !phone(view) && view !== "tile" && view !== "poster" && !isPortrait(view)), undefined],
     [PHONE_SHOT, asked.filter(phone), undefined],
     [TILE_SHOT, asked.filter((view) => view === "tile"), undefined],
+    [POSTER_SHOT, asked.filter((view) => view === "poster"), undefined],
     // Each portrait is a load of its own, in its own pose.
     ...asked.filter(isPortrait).map((view): [{ width: number; height: number; deviceScaleFactor: number }, readonly ViewName[], PoseName] => [view === "face" ? FACE_SHOT : FIGURE_SHOT, [view], PORTRAIT_POSES[view]]),
   ];
@@ -121,7 +133,7 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
       const info = (await show(page, view)) as { camera: unknown };
       const file = join(dir, `${view}.png`);
       // The tile and the portraits keep the page's clear background as their alpha.
-      const bytes = await page.screenshot({ path: file, omitBackground: view === "tile" || isPortrait(view) });
+      const bytes = await page.screenshot({ path: file, omitBackground: view === "tile" || view === "poster" || isPortrait(view) });
       records.push({ view, file: relative(REPO_ROOT, file), sha256: sha256(bytes), viewport: { width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor }, camera: info.camera });
     }
     await context.close();

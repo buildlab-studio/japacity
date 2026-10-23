@@ -1,7 +1,7 @@
 {
   "asset": "vehicle_taxi-dubai",
   "file": "public/assets/places/deira/vehicle_taxi-dubai.glb",
-  "fileSha256": "84b5da652b1c3460c9b063b7822253da2f67be880236a9af741abd783baed68d",
+  "fileSha256": "6408115f9f24d259f46d5c4ef05afaaea7b564c5eff1572b8074078f2b6ea94b",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -161,6 +161,30 @@
         "width": 256,
         "height": 256,
         "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.405410307790324,
+          4.899393236930829,
+          5.723993389918168
+        ],
+        "target": [
+          -0.023290197840914892,
+          0.4668778352023054,
+          0.2952928842869288
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "poster",
+      "file": "models/vehicles/taxi/dubai/renders/poster.png",
+      "sha256": "d60e419fde1f5d91d476a04c94f81637fe38d1a61e70d49a2af740dfd4a74abb",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 3.5
       },
       "camera": {
         "kind": "perspective",

@@ -1,7 +1,7 @@
 {
   "asset": "person_dayo",
   "file": "public/assets/shared/person/person_dayo.glb",
-  "fileSha256": "41331f75fb4373889b988cef3810675d499d3ab784b56ec32af31342ada7fe27",
+  "fileSha256": "921108ceecea4d2767929755c837623d1f396dbe1226b2040a047426367725e3",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/dayo/renders/figure.png",
-      "sha256": "fb83a4758bc29df6e57687d3c07500496f7d270a1dd39c0629f4c259c4583d27",
+      "sha256": "818000a0ef02587ef79db282ee1156928ce0da700197042f7e5e01188f3e867b",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/dayo/renders/cheer.png",
-      "sha256": "48f044c521f7a97d7090eec783b2199d083524f6215753f5e15d8ef93f2cb727",
+      "sha256": "80b2905ce22ccc7cb02d8c822b608ad489de733b4dcfe3acf691962cee124d5b",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

@@ -1,9 +1,9 @@
 {
   "asset": "building_rye-lane-terrace_b",
   "file": "public/assets/places/peckham/building_rye-lane-terrace_b.glb",
-  "fileSha256": "9ee9df32a5e013bc8408b56dc602b1a127ebaf9f355120b8898eec837b408076",
+  "fileSha256": "654079936646a51cce34d64094cf178aba3cc1ac27c66a704ea4cfdb6f8a0abe",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
     {
       "view": "front",
@@ -186,6 +186,30 @@
         "width": 256,
         "height": 256,
         "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          17.853150077472645,
+          17.69608281019399,
+          17.74716666630877
+        ],
+        "target": [
+          0.4126408418169184,
+          3.455966649642662,
+          0.3066574306530451
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "poster",
+      "file": "models/buildings/rye-lane-terrace/b/renders/poster.png",
+      "sha256": "a39f7601c49b74cfdb240662d6e400c8be9463bf713a073f99e95b09c7cbebe4",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 3.5
       },
       "camera": {
         "kind": "perspective",

@@ -1,9 +1,9 @@
 {
   "asset": "building_deira-arcade_a",
   "file": "public/assets/places/deira/building_deira-arcade_a.glb",
-  "fileSha256": "c55e188680b911c0cc9557b8bbc5ff1b4ec9a12d490c80c6d555c6bde8e73da7",
+  "fileSha256": "d4f8d364a1dbd78e59877b7941b052057677c9f971826da848363d2315006818",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
     {
       "view": "front",
@@ -186,6 +186,30 @@
         "width": 256,
         "height": 256,
         "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          26.65938335004689,
+          25.856655245430595,
+          26.22226825714615
+        ],
+        "target": [
+          0.887660752396255,
+          4.814131859831037,
+          0.4505456594955061
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "poster",
+      "file": "models/buildings/deira-arcade/a/renders/poster.png",
+      "sha256": "bdb8456438dc2e2703f67ef2afa0315b0b17fd849658ee08a5475cebaeb23a5f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 3.5
       },
       "camera": {
         "kind": "perspective",

@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, isTiled } from "./catalog";
+import { CATALOG, isPostered, isTiled } from "./catalog";
 import { defaultPaths } from "./assets-check";
 import { readManifest, sha256 } from "./manifest";
 import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
@@ -120,9 +120,10 @@ describe("the committed publish", () => {
       return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${entry.name}.png`] !== sha256(render);
     });
     expect(wrong.map((entry) => entry.name)).toEqual([]);
-    // Beside the things' tiles, the door's looks' portraits (face, figure and cheer for each look), and nothing else.
+    // Beside the things' tiles, the door's looks' portraits (face, figure and cheer for each look), the send-off's posters, and nothing else.
     const portraits = tilePictures(CATALOG).filter((picture) => picture.view !== undefined);
-    expect(portraits).toHaveLength(48);
+    expect(portraits.filter((picture) => picture.view !== "poster")).toHaveLength(48);
+    expect(portraits.filter((picture) => picture.view === "poster").map((picture) => picture.name)).toEqual(CATALOG.filter((entry) => isPostered(entry.name)).map((entry) => entry.name));
     const unpublished = portraits.filter((picture) => {
       const published = manifest.files[`${TILES}/${tileName(picture)}.png`];
       if (published === undefined) return true;
