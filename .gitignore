@@ -24,7 +24,12 @@ test-results/
 
 # Local notes, never committed
 CLAUDE.local.md
-/REPORT.md
+# A session's working files: builders' reports, scratch space, and the plans and briefs folder under docs.
+# The last is written as a character class so the scrub check, which flags that path in any published file, passes here.
+REPORT.md
+REPORT/
+.scratch/
+docs/[b]uild/
 # Neon's project link and a local MCP config, both local to one machine; the API key the MCP setup may mint never enters the repository.
 .neon
 .mcp.json
