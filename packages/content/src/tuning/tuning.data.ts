@@ -255,7 +255,7 @@ export const tuning: Tuning = {
   analytics: { batchSeconds: 60, maxBatchBytes: 16384, maxCount: 500, batchesPerHour: 90, minShown: 10, refD1Bp: 3000, refD7Bp: 900 },
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
-  city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, walkMmPerS: 1400, stopShortMm: 300,
+  city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 40, maxPixelRatio: 2, desktopMinWidth: 1024, walkMmPerS: 1400, stopShortMm: 300,
     // world.md: nothing roams and there is no fly-over (world:nothing-roams, world:map-is-painted-lagos); the rides' fares in kobo and pace, and how far a walk goes (world:ride-sheet-shows-fares, place:rides-between-city-places: beyond it a fare is the only way).
     roam: false, flyover: false,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,

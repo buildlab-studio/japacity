@@ -87,6 +87,12 @@ describe("rising and dropping", () => {
     expect(feed(waited, windowOf(WINDOW_FRAMES - AGREE_FRAMES + 1, city.dropFrameMs, slowMs)).mode).toBe("high");
   });
 
+  test("[city:two-graphics-modes] given high after dropAfterMs, when a steady 30 frames a second comes with the clock's jitter, then it stays high: a steady 30 frames a second is not slow", () => {
+    const waited = feed(watchFrames("high", false), waitFor(city.dropAfterMs, 1));
+    const thirtyHz = Array.from({ length: WINDOW_FRAMES * 2 }, (_, at) => (at % 2 === 0 ? 34 : 36));
+    expect(feed(waited, thirtyHz).mode).toBe("high");
+  });
+
   test("[city:two-graphics-modes] given a mode the player fixed, when every frame is slow, then it never moves", () => {
     const frames = [...waitFor(city.dropAfterMs, slowMs), ...windowOf(0, 1, slowMs)];
     expect(feed(watchFrames("high", true), frames).mode).toBe("high");
