@@ -1,158 +1,93 @@
 # Every route out, and a timeline to drive the news feed
 
-> Research, 7 Oct 2026, from official reports and published journalism.
-> For game design and public-interest storytelling. Not advice. Kept at the level of published reporting: no operational detail.
-> Some dates in the timeline were not re-checked against a primary source. They are marked * there.
+Sources checked October 2026.
 
-## 1. Journalism to build on
+For game design and public-interest storytelling, not advice. Kept at the level of published reporting: no operational detail.
 
-| Work | Outlet, year | What it showed |
-|---|---|---|
-| Undercover journey from Kano through Niger to Tripoli, 47 days, three parts | Foundation for Investigative Journalism (Fisayo Soyombo), Sept 2026 | Migrants held for weeks in staging-town compounds. Minors travelling. Accounts of rape and kidnap for ransom. People who run out of money stuck in Libya doing unpaid labour, unable to go to the police because being there is itself a crime. He stopped at Tripoli and did not cross the sea |
-| Undercover Sahara trek | The Sun (Emmanuel Mayah), 2009 | The earlier precedent |
-| Undercover as a trafficking recruit | Premium Times with ZAM (Tobore Ovuorie), 2014 | A recruit camp near Lagos: beatings, police complicity, a killing |
-| Migrants auctioned in Libya | CNN, 2017 | Led to mass evacuation flights |
-| Nigerian girls and the debt behind the journey | BBC Panorama, 2017 | Years of forced sex work to repay the trip |
-| Domestic worker abuse in Lebanon | Al Jazeera, 2020 | A worker beaten, another offered for sale online |
-| Nigerian women trapped in Iraq | Al Jazeera, 2024 | Recruited for housework. Twenty-hour days, confinement, abuse |
+## 1. Journalism the road's real-story card credits
 
-The game can point players to these as "the real story". Link and credit them. Do not reproduce them.
+| Work | Outlet, date | What it showed | Link |
+|---|---|---|---|
+| "Undercover: Europe through the Sahara desert and the Mediterranean sea", three parts, by Fisayo Soyombo | Foundation for Investigative Journalism, 23 to 25 Sep 2026 | A 47-day journey from Kano through Niger to Tripoli. Migrants confined in houses along the way, and held until they pay to be released. He reached Tripoli and did not cross the sea | [Part I](https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/) |
+| "Europe by Desert: Tears of African Migrants", by Emmanuel Mayah | Daily Sun, December 2010 (the page carries both 2009 and 2010; the text's own date reads 2010) | A 37-day trek of 4,318 km through seven countries to Libya | [Award copy](https://award.wscij.org/?p=8058) |
+| "People for sale" | CNN, 14 Nov 2017 | Migrants auctioned in Libya. Evacuation flights followed | [CNN](https://edition.cnn.com/2017/11/14/africa/libya-migrant-auctions/index.html) |
+| "Trafficked into prostitution with black magic" | BBC News, Feb 2019 | Nigerian women held by debt and a ritual oath in Italy | [BBC News video](https://www.youtube.com/watch?v=epfED62IA8Q) |
 
-## 2. The dangerous routes, as documented
+The game links and credits these. It does not reproduce them.
 
-### North through Niger and Libya, then the sea
-- **Who**: mostly young people, many from Edo and Delta, often in debt, sold on reaching Europe in weeks.
-- **What happens**: months, not weeks. Detention, forced labour, ransom demands to family.
-- **Scale**: about 36,000 Nigerians reached Italy by sea in 2016, the largest group that year.
-- **Deaths at sea, central Mediterranean**: 618 dead and 918 missing in 2024. About 1,330 dead in 2025. About 765 by early April 2026.
-- **Deaths in the desert**: 1,180 documented from 2020 to mid 2024. The UN agencies behind the count say the true figure is probably at least double the sea toll.
-- **2023**: Niger repealed its anti-smuggling law, reopening the main desert corridor.
-- **Agreements between Europe and North African states** change who intercepts boats. They do not make the journey safer.
+## 2. The road north, as documented
 
-### Trafficking of women and girls to Europe
-- Nigerian women arriving in Italy rose from 1,454 in 2014 to 11,009 in 2016. The UN migration agency estimated 80% were potential trafficking victims, aged 13 to 24.
-- A sponsor, often a former victim, pays for the trip. The woman then owes up to about €45,000, enforced by a ritual oath.
-- In March 2018 the Oba of Benin publicly revoked those oaths and cursed the traffickers. Fear of the oath is what kept women silent.
+### Who goes and what happens
+- **Months, not weeks.** Confinement in houses along the route, payment demanded before release, work without pay for those who run out of money. Source: the series above.
+- **Debt.** Trafficked women owe €20,000 to €50,000, enforced by a ritual oath. Source: [EUAA: Nigeria country focus, Jan 2026](https://www.euaa.europa.eu/nigeria-country-focus/223-traffickers-recruitment-and-modus-operandi). On 9 Mar 2018 the Oba of Benin revoked those oaths and cursed the traffickers. Source: [Pathfinders](https://pathfindersji.org/oba-of-benin-renounces-curses-on-victims-of-human-trafficking/).
+- **Women and girls.** Nigerian women and girls arriving in Italy by sea rose from 1,454 in 2014 to 11,009 in 2016. IOM estimated about 80% were potential victims of trafficking for sexual exploitation. Source: [IOM, Jul 2017](https://www.iom.int/news/un-migration-agency-issues-report-arrivals-sexually-exploited-migrants-chiefly-nigeria).
+- **Scale at the peak.** 37,551 Nigerians reached Italy by sea in 2016, 21% of all arrivals and the largest group. Source: [UNHCR Italy update, Dec 2016](https://data.unhcr.org/en/documents/download/53099).
 
-### Domestic and cleaning work in the Gulf and Middle East
-- An offer that looks legitimate becomes confinement, unpaid work, and sometimes sexual abuse.
-- The sponsorship system ties a worker's legal status to one employer, so leaving means becoming illegal.
-- Documented in Lebanon, Oman, Iraq, and Saudi Arabia. In August 2025 Nigeria's anti-trafficking agency stopped 25 women at Abuja airport.
+### Deaths
+- **Central Mediterranean**: 618 dead and 918 missing from 1 Jan to 7 Dec 2024 (IOM Libya's partial count); about 1,330 dead or missing in 2025; 996 dead from 1 Jan to 15 Sep 2026, against 844 in the same months of 2025. Sources: [ANSA citing IOM, Dec 2024](https://www.ansa.it/english/news/2024/12/11/618-dead-and-918-missing-in-central-med-in-2024-iom_64811c93-838e-4cbe-af8d-9b9311e00dfd.html), [EMN Belgium on IOM's 2025 data](https://emnbelgium.be/nl/node/5084), [UNRIC on IOM data, Sep 2026](https://unric.org/en/new-iom-data-migrant-arrivals-to-europe-fall-39-in-2026-while-deaths-continue-to-rise/).
+- **The Sahara**: 1,180 people known to have died crossing it from Jan 2020 to May 2024. The number is believed to be much higher, and desert deaths are presumed to be double those at sea. Source: [UNRIC on the UNHCR, IOM and MMC report, Jul 2024](https://unric.org/en/migration-twice-as-many-migrants-die-crossing-the-sahara-than-the-mediterranean-sea/).
+- **Policy changes the risk, never makes it safe.** Niger repealed its 2015 law against migrant smuggling in Nov 2023, reopening the main desert corridor. Source: [Clingendael, Jul 2024](https://clingendael.org/sites/default/files/2024-07/CA%20Nigers%20Repeal%20of%20the%202015-36%20Anti-Smuggling%20Law_0.pdf).
 
-### The Atlantic route
-Evidence that Nigerians use it is thin. It is among the deadliest routes anywhere.
+### Domestic and cleaning work in the Gulf
+- The sponsorship (kafala) system ties a worker's legal status to one employer; leaving the employer means losing status, and passports are often taken although the law forbids it. Sources: [Wikipedia: Kafala system](https://en.wikipedia.org/wiki/Kafala_system), [UAE foreign ministry: labour rights](https://www.mofa.gov.ae/en/the-ministry/the-foreign-policy/labour-rights).
+- An offer that looks real can become beatings, rape and unpaid wages: Nigerian women recruited for housework in Iraq. Source: [Al Jazeera, Dec 2024](https://www.aljazeera.com/features/2024/12/27/modern-slavery-trapped-in-iraq-nigerian-women-cry-out-for-help).
+- On 18 Aug 2025 the anti-trafficking agency stopped 25 women bound for the Middle East in Abuja. Source: [NAPTIP](https://naptip.gov.ng/naptip-disrupts-human-trafficking-activities-rescues-25-victims-en-route-to-middle-east-countries-in-abuja).
 
-### Return
-- About 70,000 Nigerians returned by August 2025, 27,000 of them helped to resettle, about 7,000 still stranded in Libya (official figures that do not fully reconcile).
-- Nigeria's anti-trafficking agency: 25,642 victims rescued to August 2025, nearly three quarters female and nearly half children. 750 convictions.
-- Returnees report debts still owed, trauma, small resettlement support, and being treated as failures at home. Some go back.
+### The way back
+- **Assisted return from Libya.** IOM has flown 105,356 people home from Libya since 2015, and Nigerians are the largest group at 28,581 (to Sep 2025). The flights are donor-funded, at no charge to the migrant. Source: [IOM Libya snapshot, Sep 2025](https://libya.iom.int/sites/g/files/tmzbdl931/files/documents/2025-10/iom-libya-vhr-sanpshot-sept-2025.pdf). About 7,000 Nigerians were still stranded there in Aug 2025. Source: [ThisDay citing the diaspora commission, Aug 2025](https://www.thisdaylive.com/2025/08/21/irregular-migration-7000-nigerians-stranded-in-libya-says-nidcom/).
+- **The anti-trafficking agency** has rescued 25,642 victims and secured 750 convictions since 2003 (as of Jul 2025). Source: [Leadership, Aug 2025](https://leadership.ng/naptip-rescues-25642-victims-secures-750-convictions/).
+- **Return is not a reset.** Returnees face debts still owed, shame and stigma, and some try again. Source: [Harvard FXB and IOM, Nov 2019](https://fxb.harvard.edu/2019/11/12/returninghomereport).
 
 ### What this means for design
-1. **Debt is the trap.** The bill grows after departure. It does not end with the traveller: it lands on the family.
-2. **Time is unpredictable.** A planned 30 days took 47 for a prepared journalist.
-3. **Return is not a reset.** Stigma, debt, and the pull to try again carry over.
+1. **Debt is the trap.** It grows after departure and lands on the family.
+2. **Time is unpredictable.** Months, held at each stage until money comes.
+3. **Return is not a reset.** Stigma, debt and the pull to try again carry over.
 4. **Show what is behind an offer that looks real**, without showing how the networks operate.
 5. **Policy news changes the risk on a route. It never makes it safe.**
 
-## 3. Formal routes not covered before
+## 3. How the formal routes open and close
 
-| Route | Who qualifies | Cost and time | Notes |
-|---|---|---|---|
-| UK Global Talent | An endorsed leader or emerging leader in tech, research, or the arts | About £766 plus a yearly health charge. About 3 weeks. Settlement possible in 3 to 5 years | Nigeria was the 3rd largest source of tech endorsement applicants up to 2021. The tech endorsing body announced closure in 2023, was bought, and carried on |
-| Funded PhD or research master's | A strong first degree and a supervisor who wants you | Entrance test about $205 to $230 plus application fees. Tuition waived and a stipend paid | Common practice is to write to professors before applying. New US student visas for Nigerians are suspended since Jan 2026 |
-| Scholarships | Varies: UK, Commonwealth, EU, German, US, and a Nigerian oil-fund scheme | Fully funded | Run on yearly deadlines. Funding can be frozen: one major US programme was paused for weeks in 2025 |
-| Canada category draws | Six months' work in a listed occupation within three years | Began June 2023 | 2025 cut-off scores: French speakers 379 to 481, healthcare 462 to 510, Canadian experience 515 to 547. No general draw since April 2024 |
-| Work first | Years of professional experience plus language and education | Years | How bankers and tech workers typically qualified. Experience gained inside the destination country now counts for more |
-| Germany Opportunity Card | Points, a degree or vocational qualification, basic German or good English, proof of funds | One year to look for work | Launched June 2024. About 2,500 issued in the first months |
-| Within Africa | West African citizens can stay 90 days visa-free in the bloc | Cheap | Risks: shop closures aimed at foreign traders, and deadly anti-migrant violence in South Africa in 2019 and again in mid 2026 |
+- **UK Global Talent, digital technology.** The endorsing body lost its government funding in Jan 2023 and said it would stop on 31 Mar 2023; it was bought in Apr 2023 and kept endorsing. After a tender the Home Office reappointed it for at least three years (guidance of 13 Jun 2025), and from 4 Aug 2025 applicants use the gov.uk form first. Sources: [tech.eu, 25 Apr 2023](https://tech.eu/2023/04/25/confirmed/), [gov.uk: Global Talent, digital technology](https://www.gov.uk/global-talent-digital-technology).
+- **Canada category draws.** The first healthcare draw was on 28 Jun 2023 (cut-off 476). Points for a job offer were removed on 25 Mar 2025, and are due to return under new rules from 3 Nov 2026. 2026 healthcare draws cut off at 467 to 475; Canadian Experience Class draws at 507 to 523. Sources: [IRCC draw records](https://www.canada.ca/content/dam/ircc/documents/json/ee_rounds_123_en.json), [canada.ca: check your score](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score.html).
+- **The last draw open to every programme** was on 23 Apr 2024 (cut-off 529). Source: [CanadaVisa, Apr 2024](https://www.canadavisa.com/news/canada-express-entry-draw-results-week-of-april-22-2024.html).
 
 ### What this means for design
 1. **Formal routes are slow and costly but they compound.** Experience earned now becomes points later.
 2. **Windows close mid-plan.** This is the central drama.
-3. **Category draws reward retraining, with a lag** before the new experience counts.
-4. **A second language is a real strategy.** French speakers had the lowest cut-offs.
-5. **Scholarships are lotteries with deadlines.**
-6. **Age is a clock.** Points systems favour applicants in their twenties.
+3. **Category draws reward a trade, with a lag** before the new experience counts.
+4. **Age is a clock.** Points systems favour applicants in their twenties.
 
 ## 4. Timeline for the news feed
 
-One row per event. Dates marked * were not re-checked against a primary source.
+One row per real event a story echoes. The game's stories are stylised; this is what they rest on.
 
-| Date | Where | What changed | Who it hit |
-|---|---|---|---|
-| May 2015 | Niger | Anti-smuggling law passed | Desert route goes underground |
-| 2016 | Italy | Peak arrivals of Nigerians by sea | Irregular migrants |
-| Feb 2017* | Italy, Libya | Interception agreement | Sea crossers |
-| Apr 2017 | Libya | Return flights to Nigeria scale up | Stranded migrants |
-| Nov 2017 | Libya | Slave auction report, evacuations follow | Detainees |
-| Mar 2018 | Edo | Oba revokes trafficking oaths | Trafficked women |
-| May 2018 | Edo | State anti-trafficking law | Traffickers, returnees |
-| Sep 2019 | South Africa | Attacks on migrants, evacuations | Nigerians there |
-| Apr 2020 | Lebanon | Domestic worker "sale" scandal | Domestic workers |
-| Jul 2021* | UK | Two-year post-study work route opens | Students |
-| Feb 2022* | UK | Care workers become eligible for the health visa | Carers |
-| Oct 2022 | UAE | Visas suspended for Nigerians | Workers, travellers |
-| Jan 2023 | UK | Tech endorsing body announces closure | Talent applicants |
-| Apr 2023 | UK | It is bought and continues | Talent applicants |
-| May 2023* | UK | Ban on student dependants announced | Student families |
-| Jun 2023 | Nigeria | Currency floated, naira halves | Everyone saving in naira |
-| Jun 2023 | Canada | First healthcare draw | Health workers |
-| Jul 2023 | EU, Tunisia | Migration agreement | Sea crossers |
-| Nov 2023 | Niger | Anti-smuggling law repealed | Desert route reopens |
-| Jan 2024 | UK | Student dependants ban takes effect | Student families |
-| Jan 2024 | Canada | Study permit cap | Students |
-| Mar 2024 | Nigeria | Nursing council adds a two-year wait before verifying nurses for work abroad | Nurses |
-| Mar 2024* | UK | Care workers can no longer bring dependants | Carers' families |
-| Apr 2024* | UK | Salary threshold for skilled workers rises | Skilled workers |
-| Apr 2024 | Canada | Last general draw | Applicants abroad |
-| May 2024 | UK | A university tells Nigerian students to leave over unpaid fees after the currency crash | Students |
-| Jun 2024 | Germany | Opportunity Card launches | Graduates, tradespeople |
-| Jul 2024 | UAE | Visa ban lifted | Workers |
-| Jan 2025 | Sahel | Three states leave the West African bloc, free movement kept | Overland travellers |
-| Feb 2025 | US | Major scholarship funding frozen for weeks | Scholars |
-| Early 2025 | Canada | Draw categories overhauled, job-offer points removed | Applicants |
-| Jul 2025 | US | Visas cut to single entry, three months | Visitors |
-| Jul 2025 | UK | Skill and salary bars raised. Care route closed to applicants abroad | Carers, skilled workers |
-| Aug 2025 | UK | Tech endorsing body reappointed | Tech workers |
-| Sep 2025 | Nigeria | Passport fees double | Everyone |
-| Nov 2025 | Canada | 2026 student intake target cut 49% | Students |
-| Jan 2026 | US | New visitor, student, exchange, and immigrant visas suspended | Almost everyone |
-| Feb 2026 | Canada | First physicians draw, but it needs Canadian experience | Doctors already there |
-| Mid 2026 | South Africa | Anti-migrant violence, evacuation flights | Nigerians there |
-| Sep 2026 | Nigeria | Sahara undercover series published | Public awareness |
-| Jan 2027 (announced) | UK | Post-study work route cut to 18 months | Students |
-
-## Sources
-
-- [FIJ: Soyombo, part one](https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/)
-- [TheCable on the Soyombo series](https://www.thecable.ng/fisayo-soyombo-goes-undercover-in-sahara-desert-documents-migrants-perilous-journey-to-europe/)
-- [Ovuorie investigation, NYU undercover archive](https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14817)
-- [CNN People for Sale, NYU archive](https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14851)
-- [Al Jazeera: Lebanon](https://www.aljazeera.com/news/2020/4/30/lebanon-employer-investigated-over-nigeria-domestic-worker-abuse)
-- [Al Jazeera: Iraq](https://www.aljazeera.com/features/2024/12/27/modern-slavery-trapped-in-iraq-nigerian-women-cry-out-for-help)
-- [IOM 2017 trafficking report](https://www.iom.int/news/un-migration-agency-issues-report-arrivals-sexually-exploited-migrants-chiefly-nigeria)
-- [LIDC: debt bondage](https://lidc.ac.uk/sex-trafficking-from-nigeria-to-italy-a-complex-and-vicious-cycle)
-- [Pathfinders: Oba of Benin](https://pathfindersji.org/oba-of-benin-renounces-curses-on-victims-of-human-trafficking/)
-- [Al Jazeera: Niger repeal](https://www.aljazeera.com/amp/news/2023/11/28/nigers-military-government-repeals-anti-migration-law-after-eight-years)
-- [IOM Nigeria returns](https://nigeria.iom.int/news/over-8000-nigerian-migrants-return-home-iom-assistance-past-12-months)
-- [Guardian NG: stranded in Libya](https://guardian.ng/news/7000-nigerians-stranded-in-libya-nidcom-reveals/)
-- [Leadership: NAPTIP figures](https://leadership.ng/naptip-rescues-25642-victims-secures-750-convictions/)
-- [Arab News: reintegration](https://www.arabnews.com/node/1555556)
-- [ANSA: 2024 central Mediterranean deaths](https://www.ansa.it/amp/english/news/2024/12/11/618-dead-and-918-missing-in-central-med-in-2024-iom_64811c93-838e-4cbe-af8d-9b9311e00dfd.html)
-- [Al Jazeera: 2026 deaths](https://aljazeera.com/news/2026/4/7/mediterranean-migrant-deaths-mounting-towards-1000-in-2026-un)
-- [UNRIC: Sahara deaths report](https://unric.org/en/migration-twice-as-many-migrants-die-crossing-the-sahara-than-the-mediterranean-sea/)
-- [New Humanitarian: Atlantic route](https://www.thenewhumanitarian.org/news-feature/2024/06/19/deaths-migration-route-canary-islands-spain-soar-1000-month)
-- [GOV.UK: Global Talent](https://www.gov.uk/global-talent)
-- [Techloy: Nigeria's rank for tech endorsements](https://techloy.com/nigeria-ranked-third-globally-for-uk-global-tech-talent-visa-in-2021)
-- [CIC News: first category draw](https://www.cicnews.com/2023/06/express-entry-ircc-to-make-healthcare-announcement-today-0637355.html)
-- [CIC News: 2025 review](https://www.cicnews.com/?p=64085)
-- [CIC News: study cap](https://www.cicnews.com/2024/01/breaking-ircc-to-announce-a-two-year-cap-on-admissions-for-international-students-0142492.html)
-- [Pinsent Masons: care route closes](https://www.pinsentmasons.com/out-law/news/uk-care-worker-visa-route-closes)
-- [PIE News: graduate route shortened](https://thepienews.com/shorter-graduate-route-from-january-2027-uk-govt-confirms/)
-- [Open Doors: Nigeria fact sheet](https://opendoorsdata.org/wp-content/uploads/2026/01/OD_Nigeria_Fact-Sheet-2025.pdf)
-- [ICEF: US restrictions](https://monitor.icef.com/2025/12/us-extends-travel-ban-nigeria-now-included-on-restricted-list/)
-- [PTDF scholarships](https://scholarship.ptdf.gov.ng/guidelines)
-- [African Courier: Opportunity Card](https://www.theafricancourier.de/germany-issues-2500-opportunity-cards-top-recipients-by-nationality)
-- [Al Jazeera: South Africa 2026](https://www.aljazeera.com/news/2026/7/6/nigeria-sees-no-sign-that-anti-immigrant-violence-is-waning-in-south-africa)
-- [Africanews: UAE ban lifted](https://africanews.com/2024/07/17/uae-lifts-2022-visa-ban-on-nigerians)
-- [Channels: Saudi-bound women stopped](https://www.channelstv.com/2025/08/18/naptip-rescues-25-saudi-bound-women-from-trafficking-ring)
+| Date | Where | What changed | Story it backs | Source |
+|---|---|---|---|---|
+| 23 Mar 2020 | Nigeria | Lagos and Abuja closed to international flights | `news.pandemic-borders` | [NCAA](https://www.ncaa.gov.ng/media/news/update-on-clarification-of-flight-restriction-into-nigeria-due-to-covid-19-pandemic/) |
+| 1 Jul 2021 | UK | Graduate route opens, two years after a degree | the graduate status | [University of Glasgow](https://www.gla.ac.uk/international/graduateimmigrationroute) |
+| 15 Feb 2022 | UK | Care workers become eligible for the Health and Care visa (announced 24 Dec 2021) | `news.uk-care-opens` | [gov.uk, Dec 2021](https://www.gov.uk/government/news/biggest-visa-boost-for-social-care-as-health-and-care-visa-scheme-expanded) |
+| 14 Feb to 14 Oct 2022 | Nigeria | University lecturers strike for eight months | `news.strike-starts` | [Ripples Nigeria](https://www.ripplesnigeria.com/just-in-asuu-officially-announces-end-of-strike-but/) |
+| Oct 2022 | UAE | Visas for Nigerians suspended | `news.uae-ban` | [Africanews](https://www.africanews.com/2024/07/17/uae-lifts-2022-visa-ban-on-nigerians/) |
+| Jan to Apr 2023 | UK | The tech endorsing body loses its funding, then is bought and carries on | `news.uk-talent-body-closes` | [tech.eu](https://tech.eu/2023/04/25/confirmed/) |
+| 29 May 2023 | Nigeria | Fuel subsidy ended | `news.fuel-subsidy` | [Nairametrics](https://nairametrics.com/2023/05/29/breaking-fuel-subsidy-is-gone-president-bola-ahmed-tinubu/) |
+| Jun 2023 | Nigeria | The naira is floated | `news.naira-float` | `06-naira-rates-and-currency.md` |
+| 28 Jun 2023 | Canada | First healthcare draw | `news.canada-care-draw` | [IRCC draw records](https://www.canada.ca/content/dam/ircc/documents/json/ee_rounds_123_en.json) |
+| 1 Jan 2024 | UK | Taught postgraduate students can no longer bring dependants (announced 23 May 2023) | `news.uk-dependants-ban` | [gov.uk: family members](https://www.gov.uk/student-visa/family-members) |
+| 1 Mar 2024 | Nigeria | Nursing council asks two years' work before verifying a nurse for abroad | the verification paper | [ICIR](https://www.icirnigeria.org/nurses-sue-nigerian-government-over-new-verification-guidelines/) |
+| 11 Mar 2024 | UK | New care workers can no longer bring dependants | `news.uk-care-dependants` | [Harper Macleod](https://www.harpermacleod.co.uk/insights/visa-ban-for-care-worker-dependants/) |
+| 4 Apr 2024 | UK | Skilled Worker threshold rises to £38,700 | `news.uk-skilled-bar-rises` | [gov.uk: your job](https://www.gov.uk/skilled-worker-visa/your-job) |
+| 23 Apr 2024 | Canada | Last draw open to every programme | `news.canada-general-stops` | [CanadaVisa](https://www.canadavisa.com/news/canada-express-entry-draw-results-week-of-april-22-2024.html) |
+| May 2024 | UK | A university withdraws Nigerian students who missed fee instalments after the naira fell | the students withdrawn | `03-life-abroad-and-return.md` section 3 |
+| Jul 2022 to Dec 2024 | UK | Over 470 care sponsor licences revoked | `news.uk-care-sponsors-revoked` | `03-life-abroad-and-return.md` section 3 |
+| 17 Jul 2024 | UAE | Visa ban lifted | `news.uae-lifted` | [Africanews](https://www.africanews.com/2024/07/17/uae-lifts-2022-visa-ban-on-nigerians/) |
+| 25 Mar 2025 | Canada | Points for a job offer removed | `news.canada-points-overhaul` | [canada.ca: check your score](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score.html) |
+| Jun to Aug 2025 | UK | Tech endorsing body reappointed; new form from 4 Aug | `news.uk-talent-reappointed` | [gov.uk](https://www.gov.uk/global-talent-digital-technology) |
+| 7 Jul 2025 | Canada | Proof of funds for one person set at C$15,263 | `news.canada-funds-rise` | [canada.ca](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/proof-funds.html) |
+| 22 Jul 2025 | UK | Skilled Worker threshold £41,700 at RQF 6; care route closed to applicants abroad | `news.uk-skilled-bar-rises`, `news.uk-care-closes` | [HC 997](https://www.gov.uk/government/publications/statement-of-changes-to-the-immigration-rules-hc-997-1-july-2025/statement-of-changes-to-the-immigration-rules-hc-997-1-july-2025-accessible-version) |
+| 1 Sep 2025 | Nigeria | Passport fees double | `news.passport-fee-doubles` | [NIS](https://immigration.gov.ng/nigeria-immigration-service-announces-upward-review-of-nigerian-standard-passport-fees/) |
+| 11 Nov 2025 | UK | Student funds rise to £1,529 a month in London and £1,171 elsewhere | `news.uk-living-rise` | `09-uk-masters-numbers.md` |
+| 20 Nov 2025 | UK | Consultation proposes a 10-year baseline for settlement, up from 5. Not in the rules yet | `news.uk-settle-ten-years` | [gov.uk: earned settlement](https://www.gov.uk/government/consultations/earned-settlement) |
+| 1 Jan 2026 | US | Visitor, student, exchange and immigrant visas suspended for Nigerians | why there is no US route | `01-japa-journey.md` section 1 |
+| 8 Jan 2026 | UK | Skilled Worker English rises from B1 to B2 | the sponsor routes | [gov.uk: knowledge of English](https://www.gov.uk/skilled-worker-visa/knowledge-of-english) |
+| 1 Jan 2027 (set) | UK | Graduate route cut to 18 months | `news.uk-graduate-shortened` | [gov.uk: Graduate visa](https://www.gov.uk/graduate-visa) |
+| Mar 2027 (set) | UK | Settlement needs B2 English | the settled status | [gov.uk, Mar 2026](https://www.gov.uk/government/news/higher-standard-of-english-now-required-to-settle-in-the-uk) |

@@ -1,124 +1,68 @@
 # Life after arrival, and coming back
 
-> Research, 7 Oct 2026, from official figures and published reporting.
-> For game design. Not advice. Each fact carries its year. Items not confirmed are listed at the end.
+Sources checked October 2026.
+
+For game design, not advice.
 
 ## 1. Return ("japada")
 
-- **No official count exists** of Nigerians returning by choice from the UK, US, or Canada. The evidence is reporting and personal accounts (2023 to 2025).
-- **Reasons returnees gave (2025)**: rent (a US nurse paying over $3,000 a month), childcare costs in Canada, racism and isolation, anxiety and depression from shift work, long waits for medical care, visas expiring with no money to renew, failed courses.
-- **Timing**: some come home after only 2 to 8 years. Those who already hold a foreign passport or a pension find returning easier, because they can leave again (2025).
-- **Stigma (2025)**: returnees are called failures. Relatives blame spiritual attack. Many avoid saying why they came back.
-- **Arrival shocks (2025)**: power, water, and internet failures, and sellers who raise prices for anyone assumed to have foreign money.
-- **Trapped abroad**: in Dec 2023 the UN migration agency said over 1,000 Nigerians were stuck in the UK on fake job letters, some after paying $10,000, unable to afford the trip home or to face it.
-- **Returning well**: a surgeon who left a top US hospital after 25 years to open a hospital at home, a former US nurse now farming (2025). Over half of returnee-founded African startups are in West Africa, led by Nigeria (2024).
-- **The reverse of the dream**: older diaspora Nigerians selling the retirement homes they built in Lagos because of insecurity (2023).
+- **No official count** of Nigerians returning by choice exists. The evidence is reporting and personal accounts. Source: [New Lines, Jul 2025](https://newlinesmag.com/reportage/nigerias-returnees-arent-always-welcome/).
+- **Reasons returnees give**: feeling cut off, racism, mental distress, family health at home. Source: New Lines above.
+- **Stigma**: returnees are seen as people who "couldn't make it". Source: New Lines above. Returnees from the road also carry debts, shame, and the pull to try again. Source: [Harvard FXB and IOM, Nov 2019](https://fxb.harvard.edu/2019/11/12/returninghomereport).
 
 ## 2. Getting home
 
-| Fact | Date |
-|---|---|
-| A Nigerian airline started Lagos to London on 30 Mar 2024 at about ₦1.2m return. Foreign airlines then cut economy fares by about 40% | 2024 |
-| Cheap connecting one-way fares at that time: via Cairo $470, via Addis Ababa $544, via Istanbul $648 | Apr 2024 |
-| During the 2023 dollar shortage one carrier charged up to $3,534 from Lagos to London, against $701 from Accra | Jul 2023 |
-| December peak: one family of four was quoted £10,200 in economy, London to Lagos, for 19 Dec 2025 to 3 Jan 2026 | May 2025 |
-| Domestic December fares roughly triple the off-peak price on some routes | Aug 2025 |
-| Airlines compete on extra luggage allowance | Mar 2025 |
-| UK Voluntary Returns Service: flight booked for you and up to £3,000. Only for people with no current leave to stay | Dec 2025 |
-| UK charter removal to Nigeria and Ghana carried 43 people on 25 Apr 2025. A Mar 2026 UK and Nigeria deal speeds removals, running at about 1,150 a year | 2025, 2026 |
-| The UN migration agency helped 4,431 Nigerians return in 2023, mostly from Libya | 2023 |
+### Fares home, one way in economy
+The game's fares are working values set against fare searches. A fare search moves daily; these are snapshots taken in Oct 2026 for the coming months.
+
+| From | One way | Return | Source |
+|---|---|---|---|
+| London | cheapest £330, recent deals £335 to £389 | cheapest £488; average £640 in Sep and £1,108 in Dec | [KAYAK UK](https://www.kayak.co.uk/flight-routes/London-LON/Lagos-LOS) |
+| Toronto | cheapest C$757, typical C$787 to C$1,440, average C$882 | cheapest C$1,336, average C$1,597 | [KAYAK Canada](https://www.ca.kayak.com/flight-routes/Toronto-Pearson-YYZ/Lagos-LOS) |
+| Dubai | AED 1,168 to AED 1,399, average AED 1,265 | cheapest AED 2,251, average AED 2,836 | [KAYAK UAE](https://www.kayak.ae/flight-routes/Dubai-DXB/Lagos-LOS) |
+| Rome | cheapest €307, typical €395 to €543, average €381 | cheapest €452, average €669 | [KAYAK Italy](https://www.kayak.it/flight-routes/Roma-ROM/Lagos-LOS) |
+
+- **December is the peak.** A family of four was quoted £10,200 in economy, London to Lagos, for 19 Dec 2025 to 3 Jan 2026: about £2,550 each, return. Source: [BusinessDay, 2025](https://businessday.ng/opinion/article/high-airfares-preclude-a-visit-to-nigeria-in-december-2025/).
+
+### The assisted return and removal
+- **The UK's Voluntary Returns Service** is for people with no permission to stay. It can buy the flight for someone who cannot pay it, and may give up to £3,000 by country and circumstances. Sources: [gov.uk: return home voluntarily](https://www.gov.uk/return-home-voluntarily), [gov.uk: how the service works](https://www.gov.uk/government/publications/returning-to-your-home-country-voluntarily-how-the-service-works/practical-information-for-applicants).
+- **Removals to Nigeria** run at about 1,150 a year, nearly double what they were. Since a deal of 19 Mar 2026 Nigeria accepts UK letters as travel documents, so removals no longer wait for Nigerian emergency papers. Source: [gov.uk, Mar 2026](https://www.gov.uk/government/news/new-uk-nigeria-partnership-to-speed-up-removals).
+- **Re-entry bans.** Someone removed from the UK at public expense is refused re-entry for 10 years; someone who leaves at their own expense after overstaying more than 30 days, for 12 months; someone who used deception, 10 years. Source: [gov.uk: Immigration Rules, Part Suitability](https://www.gov.uk/guidance/immigration-rules/immigration-rules-part-suitability).
+- From Libya, the road's way home is IOM's assisted return: `02-all-routes-and-timeline.md` section 2.
 
 ## 3. The low end abroad
 
-- **UK care sponsors**: over 470 care-sector sponsor licences revoked between Jul 2022 and Dec 2024, with about 39,000 workers linked to them.
-- **The 60-day rule**: when a sponsor loses its licence, the worker has 60 days to find a new one or face removal (2024).
-- **Rematching mostly failed**: 421 of 7,048 workers who asked for help were placed (Jul 2024 to Jan 2025).
-- **Agent fees and pay (union survey of 3,000+ visa holders, Feb 2025)**: about a quarter paid £5,000 to £20,000 in fees, over 27% were paid under the minimum wage, about a quarter shared a bedroom.
-- **Sponsors with no work**: one couple paid £18,000 and received about £500 of work (2024).
-- **Exploitation reports**: a helpline recorded about 800 modern-slavery victims in care in 2023, up from 63 in 2021.
-- **Route closed** to recruitment from abroad on 22 Jul 2025. Workers already in the UK can switch employer until 22 Jul 2028.
-- **Students**: a UK university cut fee instalments from seven to three in 2024. Nigerian students who missed payments after the naira's collapse were withdrawn and lost their visas. Term-time work is capped at 20 hours a week. 11% of UK students had used a food bank by mid 2022.
+- **Care sponsors.** Over 470 care sponsor licences were revoked between Jul 2022 and Dec 2024; about 39,000 workers had been sponsored by them since Oct 2020. Source: [gov.uk, Mar 2025](https://www.gov.uk/government/news/new-rules-to-prioritise-recruiting-care-workers-in-england).
+- **The 60 days.** When a sponsor's licence is revoked, a worker who had no part in the breach normally has their permission cut to 60 days to find a new sponsor or leave. Source: [gov.uk: sponsor guidance Part 3](https://assets.publishing.service.gov.uk/media/69aaaf82c78869bf8eb8a46f/Sponsor-guidance-Part-3-compliance-03-26-v1.0.pdf).
+- **Finding a new sponsor mostly failed.** Of 7,048 displaced care workers who asked the regional partnerships for help between Jul 2024 and Jan 2025, 6% were placed. Source: [EIN on the Work Rights Centre's evidence](https://www.ein.org.uk/node/773915).
+- **Fees and pay.** In a union survey of over 3,000 Health and Care visa holders, almost a quarter had paid fees to an employer or recruiter, over 100 paid £5,000 to £20,000, and 27% were paid below the minimum wage then in force (Feb 2025). Source: [UNISON, Feb 2025](https://www.unison.org.uk/news/2025/02/migrant-care-staff-having-share-beds-sleep-rough-and-charged-thousands-illegal-fees).
+- **The care route** closed to new applicants from abroad on 22 Jul 2025: `01-japa-journey.md` section 2.
+- **Students** may work 20 hours a week in term time at degree level, full time in the holidays. Source: [gov.uk: Immigration Rules, Appendix Student](https://www.gov.uk/guidance/immigration-rules/immigration-rules-appendix-student).
+- **The minimum wage** for workers 21 and over is £12.71 an hour from 1 Apr 2026 (was £12.21). Source: [gov.uk: minimum wage rates](https://www.gov.uk/national-minimum-wage-rates).
+- **Fees owed after the naira fell.** In 2024 a UK university cut its fee instalments from seven to three, withdrew Nigerian students who fell behind and reported them to the Home Office, which ended their leave. Source: [BBC via Graphic, May 2024](https://www.graphic.com.gh/international/international-news/crisis-hit-university-students-ordered-to-leave-uk.html).
 
-## 4. The high end abroad
+## 4. Status that moves after arrival
 
-- **US**: about 533,000 Nigerian-born residents in 2024. 67% hold a bachelor's degree or more. 59% are citizens. 57% arrived since 2010.
-- **How Nigerians got US green cards (2023)**: 48% as close relatives of citizens, 16% by lottery, 12% through employment.
-- **Texas**: Houston's county recorded about 35,000 Nigerians in 2020. Community estimates run to 50,000 to 70,000 for Houston and 25,000 to 35,000 for Dallas. Reasons given: oil and gas jobs, cheaper housing, existing churches and networks (2026).
-- **UK doctors**: over 10,000 Nigeria-trained doctors on the UK register in 2022. About two thirds of the doctors and dentists who left Nigeria in 2024 went to the UK.
-- **Settlement is a moving target**. The UK announced in Nov 2025 a baseline of 10 years before permanent settlement, up from 5, and 15 or more for low-paid workers. Not yet law at mid 2026. Already set: a higher English bar for new skilled workers from Jan 2026 and for settlement from Mar 2027.
+- **Settlement** takes 5 years on the work routes. A consultation of 20 Nov 2025 proposes a 10-year baseline; it closed on 12 Feb 2026 and is not in the rules yet. Source: [gov.uk: earned settlement](https://www.gov.uk/government/consultations/earned-settlement).
+- **English for settlement** rises to B2 from Mar 2027. Source: [gov.uk, Mar 2026](https://www.gov.uk/government/news/higher-standard-of-english-now-required-to-settle-in-the-uk).
+- **The Graduate route** gives 2 years to those who apply by 31 Dec 2026 and 18 months from 1 Jan 2027. Fee £937 from 8 Apr 2026. Source: [gov.uk: Graduate visa](https://www.gov.uk/graduate-visa).
 
 ## 5. December visits
 
-- **Scale claims**: an events firm put Dec 2024 at about 1.2m visitors and ₦111.5bn in revenue, and Dec 2025 at 3.6m participants and ₦396.5bn, 55% of it from diaspora visitors, with the US the top source for the first time. These are promotional figures from a private firm, with methods that changed between years.
-- **Prices**: visitors complained of a "December tax". Some businesses charged triple (2025). Locals blamed returnees for prices and traffic (2024).
-- **Safety**: airport ride bookings rose as people flew to avoid kidnapping on the roads (2025). The airports authority promised penalties for staff who extort passengers (2024).
-- **Pressure**: the visitor is expected to spend, give, and look successful.
+- **Scale.** A report by a Lagos events and media firm counted about 3.6m participants and ₦396.5bn of spending in the 2025 season (mid Nov 2025 to 10 Jan 2026), 55% of it from the diaspora. These are the firm's own estimates. Source: [BusinessDay, 2026](https://businessday.ng/business-economy/article/us-uk-top-lagos-detty-december-arrivals-as-diaspora-spending-hits-n396bn/).
+- **Pressure.** The visitor is expected to spend, give and look successful, and pays the peak fare: the average London return in December is £1,108, against £640 in September (section 2).
 
-## 6. Remittances and the house back home
+## 6. Remittances
 
-- **Total**: $22.8bn received in 2025, about 7.8% of GDP. $19.5bn in 2023.
-- **Survey of 650+ Nigerians in the UK (Nov 2025)**: 58% send £100 to £500 a month. 12% send over £1,000. 60% work in health or social care. 28% have cut their own savings to keep sending. 15% have delayed marriage or buying a home. Over half of large transfers go to mothers.
-- **Building from abroad (2018 reporting)**: relatives treat the sender as a cash machine. Many projects are badly built or never finished.
+- **Total.** Personal remittances to Nigeria were $22.8bn in 2025 (World Bank). The central bank's own series puts inflows at $21.8bn, flat on 2024. Sources: [World Bank data](https://api.worldbank.org/v2/country/NGA/indicator/BX.TRF.PWKR.CD.DT?format=json&date=2022:2025), [Vanguard on the CBN bulletin, May 2026](https://www.vanguardngr.com/2026/05/diaspora-remittances-stabilises-at-21-8bn-in-2025-amid-global-pressures/).
+- **What one person sends.** In a survey of over 650 Nigerians in the UK (Nov 2025), 58% send £100 to £500 a month and 12% send over £1,000. Source: [Condia, Nov 2025](https://thecondia.com/ohentpay-nigerians-in-the-uk-remittance-report-2025/).
 
-## 7. Prior art (titles not checked against a source)
+## 7. What this means for design
 
-Novels: *Americanah*, *Every Day Is for the Thief*, *On Black Sisters' Street*, *Ghana Must Go*. Screen: *Osuofia in London*, *Bob Hearts Abishola*.
-
-## 8. What this means for design
-
-1. **Arrival is a second game, and the visa you came on sets its rules.** A sponsored carer, a student, a talent-visa holder, and a dependant live in the same city under different constraints.
+1. **Arrival is a second game, and the visa you came on sets its rules.** A sponsored carer, a student, a talent-visa holder and a dependant live in the same city under different constraints.
 2. **Status can still be lost after arrival.** A sponsor's licence revoked starts a 60-day countdown. Settlement rules can add years mid-game.
-3. **Return has many shapes**: deported, assisted, broke, burnt out, or back with capital and a passport. Only the last keeps the door open.
-4. **Going home costs money and planning.** Fares swing by season. The cheap ticket costs time. A person with no money and no status may have no way home except the assisted scheme.
+3. **Return has many shapes**: removed, assisted, broke, by choice, or back with papers. Only the last keeps the door open.
+4. **Going home costs money and planning.** Fares swing by season. A person with no money and no status may have no way home except the assisted scheme.
 5. **Family is a standing cost.** Monthly requests, where refusing costs trust and agreeing costs savings.
-6. **The December visit is a set piece**: inflated prices, pressure to perform success, a chance to raise standing or drain a year of savings.
-7. **The house back home** is a long project with a trust decision at its centre.
-8. **Stigma on return** rises with visible failure and falls with visible capital.
-
-## Sources
-
-- [New Lines: Nigeria's returnees aren't always welcome (2025)](https://newlinesmag.com/reportage/nigerias-returnees-arent-always-welcome/)
-- [Saturday Punch feature on returnees, reposted (2025)](https://kolaking.substack.com/p/japa-da-nigerians-abroad-return-home)
-- [Vanguard via AllAfrica: why young Nigerians abroad are returning (2025)](https://allafrica.com/stories/202511180489.html)
-- [NPR: Nigerians reconsidering return in old age (2023)](https://www.kaxe.org/2023-01-26/nigerians-who-left-their-country-planning-to-return-in-old-age-are-reconsidering)
-- [Launch Base Africa: returnee founders (2024)](https://launchbaseafrica.com/2024/11/11/back-to-build-the-growing-influence-of-returnee-emigrants-in-africas-tech-ecosystem/)
-- [Prime Business Africa: fake UK job letters (2023)](https://www.primebusiness.africa/?p=110441)
-- [Guardian Nigeria: assisted returns in 2023](https://guardian.ng/?p=2330246)
-- [ThisDay: fare war after new London route (2024)](https://www.thisdaylive.com/2024/04/11/air-peace-flight-to-london-sparks-price-war-among-foreign-airlines/)
-- [Daily Trust: 2023 fares](https://www.dailytrustfoundation.org/intl-travels-airfares-hit-rooftop-in-nigeria-as-ghanaians-beninese-others-pay-less-there-is-no/)
-- [BusinessDay: December 2025 fares](https://businessday.ng/opinion/article/high-airfares-preclude-a-visit-to-nigeria-in-december-2025/)
-- [AllAfrica: domestic December fares (2025)](https://allafrica.com/stories/202508250359.html)
-- [GOV.UK: Voluntary Returns Service](https://www.gov.uk/government/publications/returning-to-your-home-country-voluntarily-how-the-service-works/practical-information-for-applicants)
-- [Express & Star: charter removal flight (2025)](https://www.expressandstar.com/uk-news/migrants-returned-on-charter-flight-to-nigeria-and-ghana-5704632)
-- [GOV.UK: UK and Nigeria removals partnership (2026)](https://www.gov.uk/government/news/new-uk-nigeria-partnership-to-speed-up-removals)
-- [Bureau of Investigative Journalism: care workers and sponsor breaches (2024)](https://thebureauinvestigates.com/stories/2024-05-11/one-hell-to-another-thousands-of-care-workers-risk-deportation-after-employers-breach-rules)
-- [UK Parliament committee: care sponsor revocations (2025)](https://committees.parliament.uk/publications/47273/documents/245047/default/)
-- [Right to Remain: care route closure](https://righttoremain.org.uk/a-system-that-used-migrant-workers-and-is-now-pushing-them-out/)
-- [Left Foot Forward: union survey on care fees (2025)](https://leftfootforward.org/2025/02/migrant-care-staff-charged-up-to-20000-in-illegal-fees-to-work-unison-finds)
-- [Context: abuse in UK care jobs (2024)](https://www.context.news/socioeconomic-inclusion/long-read/soaring-abuse-in-uk-care-jobs-shatters-migrants-dreams)
-- [BBC via Graphic: students ordered to leave (2024)](https://www.graphic.com.gh/international/international-news/crisis-hit-university-students-ordered-to-leave-uk.html)
-- [The PIE: students and food banks (2022)](https://thepienews.com/food-banks-influx-international-students/)
-- [Migration Policy Institute: Sub-Saharan African immigrants in the US (2025)](https://www.migrationpolicy.org/article/sub-saharan-african-immigrants-united-states-2025)
-- [Guardian Nigeria: Nigerians in Texas (2026)](https://guardian.ng/nigerian/what-city-in-texas-has-the-most-nigerians/)
-- [BusinessDay: doctors leaving (2025)](https://businessday.ng/?p=1077860)
-- [Foot Anstey: earned settlement explainer (2025)](https://www.footanstey.com/our-insights/articles-news/the-latest-on-the-introduction-of-the-earned-settlement-model-in-the-uk-to-replace-indefinite-leave-to-remain/)
-- [Magrath: UK immigration mid-year review 2026](https://www.magrath.co.uk/resources/news/uk-immigration-mid-year-review-2026-for-businesses/)
-- [BusinessDay: December 2025 arrivals and spending (2026)](https://businessday.ng/business-economy/article/us-uk-top-lagos-detty-december-arrivals-as-diaspora-spending-hits-n396bn/)
-- [ThisDay: December 2024 figures and the proposed visitor tax (2025)](https://www.thisdaylive.com/2025/01/21/detty-december-a-celebration-not-a-cash-cow/)
-- [Al Jazeera: December 2024 amid economic strain](https://www.aljazeera.com/features/2024/12/25/nigerias-celebratory-detty-december-turns-sombre-amid-economic-woes)
-- [Radio Nigeria: December 2025 prices](https://radionigerialagos.gov.ng/?p=35594)
-- [Condia: airport ride bookings (2025)](https://thecondia.com/?p=24559)
-- [TheCable: airport extortion crackdown (2024)](https://thecable.ng/?p=1098151)
-- [Intelpoint: remittances in 2025](https://intelpoint.co/insights/personal-remittance-inflows-to-nigeria-increased-3-0-year-on-year-from-22-1-billion-in-2024-to-22-8-billion-in-2025/)
-- [ThisDay: remittances in 2023](https://www.thisdaylive.com/2024/07/01/wbank-at-19-5bn-nigeria-accounted-for-35-of-sub-saharan-africas-diaspora-remittance-in-2023/)
-- [Condia: UK to Nigeria remittance survey (2025)](https://thecondia.com/ohentpay-nigerians-in-the-uk-remittance-report-2025/)
-- [TheCable: building a home from abroad (2018)](https://www.thecable.ng/?p=302816)
-
-## Not verified
-
-- December fares from Toronto, Houston, or Dallas to Lagos, and total journey times on long-layover routes against direct flights.
-- Whether the UK's 10-year settlement rules became law in September or October 2026.
-- Citizenship timelines for Canada and the US, and typical tech and finance salaries.
-- Home-ownership rates for Nigerian Americans, and tax as a stated reason for choosing Texas.
-- The care-visa share that went to Nigerians in 2023 (about 22% was reported, possibly including dependants).
-- The reading that the December figures are promotional is a judgement, not a sourced fact.
+6. **The December visit is a set piece**: high prices, pressure to show success, a chance to raise standing or drain a year of savings.
+7. **Stigma on return** rises with visible failure and falls with visible capital.
