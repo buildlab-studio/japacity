@@ -80,6 +80,17 @@ describe("the day's seen list", () => {
     expect(drawToday(list, here, -1, 7)).toEqual([]);
   });
 
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given the asker on the list and not here now, when today is drawn for them, then they are never in it, under any look they were seen with, and the draw is still as full as the list allows", () => {
+    const list = [...filled(4).seen, { name: "Name 1", look: "look-older" }];
+
+    for (const seed of [1, 2, 3, 4, 5, 6, 7]) {
+      const drawn = drawToday(list, [], 10, seed, "Name 1");
+      expect(drawn.map((each) => each.name)).not.toContain("Name 1");
+      expect(drawn).toHaveLength(3);
+    }
+    expect(drawToday(list, [], 10, 1, null)).toHaveLength(5);
+  });
+
   test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given more on the list than asked, when today is drawn with different seeds, then the draws are not all the same", () => {
     const list = filled(MAX).seen;
     const draws = new Set([1, 2, 3, 4, 5].map((seed) => drawToday(list, [], 5, seed).map((each) => each.name).join(",")));

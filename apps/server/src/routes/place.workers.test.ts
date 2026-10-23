@@ -226,6 +226,19 @@ describe("the presence fetch's players seen today", () => {
     expect(JSON.stringify(reply)).not.toContain("account-0");
   });
 
+  test("[city:players-shown-present-not-tracked] given a player who was here today and left, and another who left too, when the first fetches the presence with no socket open, then today holds the other and never the asker's own name", async () => {
+    const setupped = setup({ "account-0": PLACE, "account-1": PLACE });
+    setupped.clock.at = MIDNIGHT;
+    for (const account of ["account-0", "account-1"]) await visit(setupped, account);
+
+    for (let fetch = 0; fetch < 4; fetch++) {
+      const reply = await (await presence(setupped, "account-0")).json<PresenceReply>();
+      expect(reply).toEqual({ place: PLACE, others: [], today: [{ name: "Name account-1", look: "look-account-1" }] } satisfies PresenceReply);
+    }
+    const other = await (await presence(setupped, "account-1")).json<PresenceReply>();
+    expect(other.today).toEqual([{ name: "Name account-0", look: "look-account-0" }]);
+  });
+
   test("[city:players-shown-present-not-tracked] given a player seen just before Lagos midnight, when the presence is fetched either side of it, then they are in today before and gone at midnight", async () => {
     const setupped = setup({ "account-0": PLACE, "account-1": PLACE });
     setupped.clock.at = MIDNIGHT - 1;

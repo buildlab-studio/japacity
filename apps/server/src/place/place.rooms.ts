@@ -84,12 +84,12 @@ export async function openSocket(rooms: Rooms, place: string, attachment: Attach
 
 /**
  * clock:presence-is-a-sample, city:players-shown-present-not-tracked: the look of the room the asker is in, or of room 0
- * when the asker is in none. `now` names the Lagos day; null asks for no one seen today.
+ * when the asker is in none. `now` names the Lagos day; null asks for no one seen today. `askerName` keeps the asker off the day's list.
  */
-export async function roomLook(rooms: Rooms, place: string, asker: string | null, n: number, seed: number, now: number | null): Promise<RoomLook> {
+export async function roomLook(rooms: Rooms, place: string, asker: string | null, n: number, seed: number, now: number | null, askerName: string | null = null): Promise<RoomLook> {
   let first: RoomLook | null = null;
   for (let room = 0; ; room++) {
-    const look = await roomStub(rooms, place, room).look(place, asker, n, seed, now);
+    const look = await roomStub(rooms, place, room).look(place, asker, n, seed, now, askerName);
     first ??= look;
     if (look.holds) return look;
     if (look.members === 0) return first;

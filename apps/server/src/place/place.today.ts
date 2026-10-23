@@ -65,9 +65,12 @@ export function parseTodayList(value: unknown): TodayList | undefined {
   return { day: held.day, seen };
 }
 
-/** clock:presence-is-a-sample: at most `n` of the day's list, none of them here now, drawn afresh by the seed. */
-export function drawToday(seen: readonly Seen[], here: readonly Seen[], n: number, seed: number): Seen[] {
-  const pool = seen.filter((each) => !here.some((member) => same(member, each))).map((each) => ({ name: each.name, look: each.look }));
+/**
+ * clock:presence-is-a-sample, city:players-shown-present-not-tracked: at most `n` of the day's list, none of them here now
+ * and never the asker (`self`, the asker's name) under any look, since the list is of other players; drawn afresh by the seed.
+ */
+export function drawToday(seen: readonly Seen[], here: readonly Seen[], n: number, seed: number, self: string | null = null): Seen[] {
+  const pool = seen.filter((each) => each.name !== self && !here.some((member) => same(member, each))).map((each) => ({ name: each.name, look: each.look }));
   const next = xorshift32(seed);
   for (let index = pool.length - 1; index > 0; index--) {
     const other = next() % (index + 1);

@@ -98,13 +98,13 @@ export class Place extends DurableObject<PlaceEnv> {
 
   /**
    * clock:presence-is-a-sample, city:players-shown-present-not-tracked: the room's answer to a presence fetch. Those seen
-   * today fill only what the live sample leaves of `n`, and never anyone here now.
+   * today fill only what the live sample leaves of `n`, and never anyone here now nor the asker, by `askerName`.
    */
-  async look(place: string, asker: string | null, n: number, seed: number, now: number | null = null): Promise<RoomLook> {
+  async look(place: string, asker: string | null, n: number, seed: number, now: number | null = null, askerName: string | null = null): Promise<RoomLook> {
     const here = [...this.held.values()];
     const holds = asker !== null && here.some((member) => member.account === asker);
     const sample = await this.members.sample(place, n, asker, seed);
-    const today = now === null ? [] : drawToday(listOn(await this.stored(), lagosDay(now)), here, n - sample.length, seed);
+    const today = now === null ? [] : drawToday(listOn(await this.stored(), lagosDay(now)), here, n - sample.length, seed, askerName);
     return { members: this.held.size, holds, sample, today };
   }
 
