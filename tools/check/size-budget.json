@@ -22,12 +22,13 @@
       "measured": 40290
     },
     "total": {
-      "budget": 896000,
+      "budget": 897000,
       "measured": 890466
     }
   },
   "changes": [
     "18 Oct 2026: budgets at version 1; content-sim raised from 280087 to 326689 for the interface's words, moved out of the client's shared chunk into content's ui tables, which lowered shared from 65037 to 39686",
-    "18 Oct 2026: shared raised to 42304 for the account screens' passkey list, sign-out on every phone and the returning player's marks; three and the model loader each pinned to a chunk of their own"
+    "18 Oct 2026: shared raised to 42304 for the account screens' passkey list, sign-out on every phone and the returning player's marks; three and the model loader each pinned to a chunk of their own",
+    "23 Oct 2026: total raised from 896000 to 897000 (measured 896083) for the account's plain words with the start door's second line, the Settings name check, Google's errors and the graphics mode's settled frames; to be won back by moving the words only Settings and the account sheet use out of the first visit, then lowered again"
   ]
 }
