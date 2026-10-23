@@ -4,12 +4,15 @@
 import type { Nudge, PresenceMember } from "@japacity/store";
 
 import { productionConfig } from "../config";
+import type { Place } from "./place.object";
 import type { Seen } from "./place.today";
 
 /** What the place object reads from its bindings. */
 export interface PlaceEnv {
   /** server:noisy-socket-closed: the rate-limit binding for socket messages. */
   SOCKET_10S: RateLimit;
+  /** clock:no-member-past-an-empty-room: the rooms themselves, so a room that empties can reach the next. */
+  PLACE: DurableObjectNamespace<Place>;
 }
 
 /** clock:attachments-rebuild-presence, clock:busy-place-splits-rooms, city:players-shown-present-not-tracked: the limits the router sends with each socket, from the server's config. */
@@ -38,6 +41,8 @@ export const LIMITS_HEADER = "x-place-limits";
 export const CLOSE_NORMAL = 1000;
 /** RFC 6455: policy violation. */
 export const CLOSE_POLICY = 1008;
+/** RFC 6455's registry, 1012 Service Restart: a member sent back to the router, which the client reconnects as after any close (clock:no-member-past-an-empty-room). */
+export const CLOSE_REJOIN = 1012;
 /** The object's refusal of a member when the room is full. */
 export const STATUS_FULL = 503;
 /** The refusal of an attachment over `attachmentBytes` (clock:attachments-rebuild-presence). */

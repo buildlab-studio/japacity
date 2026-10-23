@@ -6,9 +6,9 @@ import { describe, expect, test } from "vitest";
 import { productionConfig } from "../config";
 import type { Place } from "./place.object";
 import { acceptedEnd, placePresenceStore } from "./place.presence";
-import { lookAround, openSocket, roomCounts, roomLook, roomStub } from "./place.rooms";
+import { lookAround, nextRoomName, openSocket, roomCounts, roomLook, roomStub } from "./place.rooms";
 import type { Rooms } from "./place.rooms";
-import { ATTACHMENT_HEADER, attachmentBytes, CLOSE_POLICY, LIMITS_HEADER, NUDGE_EVERY_MS, STATUS_FULL, STATUS_TOO_LARGE } from "./place.socket";
+import { ATTACHMENT_HEADER, attachmentBytes, CLOSE_POLICY, CLOSE_REJOIN, LIMITS_HEADER, NUDGE_EVERY_MS, STATUS_FULL, STATUS_TOO_LARGE } from "./place.socket";
 import type { Attachment } from "./place.socket";
 import { freshRooms, listenTo, member, openMember, settle, until } from "./place.testing";
 import type { ClientEnd } from "./place.testing";
@@ -313,3 +313,79 @@ describe("the day's seen list in the place object", () => {
   });
 });
 
+describe("a room that empties before the rooms after it", () => {
+  test("[clock:no-member-past-an-empty-room] [account:player-deletes-account] given rooms of one with members in rooms 0, 1 and 2, when room 1's member leaves and the place then forgets room 2's account, then room 2's socket is closed and the account is in no room", async () => {
+    const rooms = freshRooms({ maxPerObject: 1 });
+    const store = placePresenceStore(rooms);
+    const first = await openMember(rooms, "account-1", PLACE, "socket-1");
+    await store.join(PLACE, "socket-2", member("account-2"));
+    const third = await openMember(rooms, "account-3", PLACE, "socket-3");
+    expect(await roomCounts(rooms, PLACE)).toEqual([1, 1, 1, 0]);
+
+    await store.leave(PLACE, "socket-2");
+    await store.forget([PLACE], "account-3", seenOf("account-3").name);
+
+    await until(() => third.closed !== null, "room 2's socket to close");
+    expect(first.closed).toBeNull();
+    expect(await roomStub(rooms, PLACE, 2).count()).toBe(0);
+  });
+
+  test("[clock:no-member-past-an-empty-room] [clock:busy-place-splits-rooms] [clock:presence-is-a-sample] given rooms of one with members in rooms 0 and 1, when room 0's member leaves, then room 1's member is sent back to reconnect, and on reconnecting takes room 0, where the sample finds it", async () => {
+    const rooms = freshRooms({ maxPerObject: 1 });
+    const store = placePresenceStore(rooms);
+    await store.join(PLACE, "socket-1", member("account-1"));
+    const second = await openMember(rooms, "account-2", PLACE, "socket-2");
+    expect(await roomCounts(rooms, PLACE)).toEqual([1, 1, 0]);
+
+    await store.leave(PLACE, "socket-1");
+
+    await until(() => second.closed !== null, "room 1's socket to be sent back");
+    expect(second.closed).toEqual({ code: CLOSE_REJOIN });
+    expect(await roomStub(rooms, PLACE, 1).count()).toBe(0);
+    await openMember(rooms, "account-2", PLACE, "socket-2-again");
+    expect(await roomCounts(rooms, PLACE)).toEqual([1, 0]);
+    expect((await lookAround(rooms, PLACE, null, 20, 0)).map((each) => each.account)).toEqual(["account-2"]);
+  });
+
+  test("[clock:no-member-past-an-empty-room] given rooms of one with members in rooms 0 to 3, when room 1's member leaves, then every room after it sends its member back and room 0's member stays", async () => {
+    const rooms = freshRooms({ maxPerObject: 1 });
+    const store = placePresenceStore(rooms);
+    const first = await openMember(rooms, "account-1", PLACE, "socket-1");
+    await store.join(PLACE, "socket-2", member("account-2"));
+    const later = [await openMember(rooms, "account-3", PLACE, "socket-3"), await openMember(rooms, "account-4", PLACE, "socket-4")];
+    expect(await roomCounts(rooms, PLACE)).toEqual([1, 1, 1, 1, 0]);
+
+    await store.leave(PLACE, "socket-2");
+
+    await until(() => later.every((end) => end.closed !== null), "rooms 2 and 3 to send their members back");
+    expect(later.map((end) => end.closed)).toEqual([{ code: CLOSE_REJOIN }, { code: CLOSE_REJOIN }]);
+    expect(first.closed).toBeNull();
+    expect([await roomStub(rooms, PLACE, 2).count(), await roomStub(rooms, PLACE, 3).count()]).toEqual([0, 0]);
+    expect(await roomCounts(rooms, PLACE)).toEqual([1, 0]);
+  });
+
+  test("[clock:no-member-past-an-empty-room] [account:player-deletes-account] [city:players-shown-present-not-tracked] given rooms of one where room 1 emptied and room 2's member was sent back, both rooms listing who was there today, when the place forgets room 2's account, then its name is off room 2's list too", async () => {
+    const rooms = freshRooms({ maxPerObject: 1 });
+    const store = placePresenceStore(rooms);
+    await openMember(rooms, "account-1", PLACE, "socket-1");
+    await store.join(PLACE, "socket-2", member("account-2"));
+    const third = await openMember(rooms, "account-3", PLACE, "socket-3");
+    await store.leave(PLACE, "socket-2");
+    await until(() => third.closed !== null, "room 2's socket to be sent back");
+    const listOf = (room: number) => runInDurableObject(roomStub(rooms, PLACE, room), (_instance: Place, state) => state.storage.get(TODAY_KEY));
+    expect(JSON.stringify(await listOf(2))).toContain(seenOf("account-3").name);
+
+    await store.forget([PLACE], "account-3", seenOf("account-3").name);
+
+    expect(JSON.stringify(await listOf(2))).not.toContain(seenOf("account-3").name);
+    expect(JSON.stringify(await listOf(1))).toContain(seenOf("account-2").name);
+  });
+
+  test("[clock:no-member-past-an-empty-room] given a room's name, when the next room is named, then it is the same place and scope with the number one higher, and a name that is no room's has none", () => {
+    expect(nextRoomName("place.market#0")).toBe("place.market#1");
+    expect(nextRoomName("test-4/place.market#9")).toBe("test-4/place.market#10");
+    expect(nextRoomName("place.market")).toBeNull();
+    expect(nextRoomName("place.market#01")).toBeNull();
+    expect(nextRoomName("place.market#x")).toBeNull();
+  });
+});
