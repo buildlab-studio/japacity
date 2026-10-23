@@ -24,6 +24,7 @@ import { glowAt, loadGrids } from "../../../shared/three/motion";
 import { poseFigure } from "../../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "../../../shared/scene/limits";
+import type { SceneFrame } from "../../../shared/scene/mode";
 import { lightKindOf, type Look, lookAt, mixLooks, ownHeightOf, PLACE_LIGHT, placeLook, ROOM_LIGHT, skyLightOf, skyOf, sunAt, useDayClock } from "./daylight";
 import { filesOf, type Room, showsFor, type Spot, type Stage, stageOf } from "../../../shared/scene/placeFile";
 import { misfit, turned } from "./arrange";
@@ -302,6 +303,22 @@ function Place(props: PlaceProps) {
   const sun = useRef<DirectionalLight>(null);
   const skyLight = useRef<HemisphereLight>(null);
   const frames = useRef<number[]>([]);
+  /** The world built for the place as it stands now, null while it is being built anew; and the last world whose frame was judged. */
+  const latest = useRef<World | null>(null);
+  const judged = useRef<World | null>(null);
+  /** True once the city stopped looking or the tab was hidden: the next frame spans the time away (city:two-graphics-modes). */
+  const paused = useRef(false);
+  useEffect(() => {
+    if (!looking) paused.current = true;
+  }, [looking]);
+  useEffect(() => {
+    // A hidden tab draws nothing; its first frame back spans the whole time away.
+    const away = (): void => {
+      if (document.visibilityState === "hidden") paused.current = true;
+    };
+    document.addEventListener("visibilitychange", away);
+    return () => document.removeEventListener("visibilitychange", away);
+  }, []);
   /** The quarter whose wall pair a wide home's shell shows now, for the world it was shown in. */
   const wallsShown = useRef<{ world: World | null; quarter: number }>({ world: null, quarter: 0 });
   /** An act chosen while the character still walks to its thing: it follows on arrival (world:nothing-roams). */
@@ -422,6 +439,7 @@ function Place(props: PlaceProps) {
     let alive = true;
     const wanted = filesOf(file, [...people.map((shown) => shown.person.file), own]);
     let done = 0;
+    latest.current = null;
     onProgress(0, wanted.length);
     void (async () => {
       const manifest = await loadManifest();
@@ -447,6 +465,7 @@ function Place(props: PlaceProps) {
       modelsRef.current = models;
       // The character wears the player's own colours (prologue:player-colours-on-looks): painted once, as the place is built.
       wear(built.own.root, keptStyleOf(own));
+      latest.current = built;
       setWorld(built);
     })().catch((error: unknown) => {
       // The screen says the place could not be shown in its own words; what went wrong is kept by kind, never as text.
@@ -771,9 +790,14 @@ function Place(props: PlaceProps) {
     if (world === null) return;
     const ms = delta * 1000;
     if (looking) {
-      onFrame(ms);
+      const frame: SceneFrame = latest.current !== world ? "building" : judged.current !== world ? "fresh" : paused.current ? "paused" : "drawn";
+      if (frame !== "building") {
+        judged.current = world;
+        paused.current = false;
+      }
+      onFrame(ms, frame);
       frames.current = [...frames.current, ms].slice(-100);
-    }
+    } else paused.current = true;
     animateWorld(world, time, delta);
     const next = stepWalk(walk.current.walker, delta, walk.current.speed);
     walk.current.walker = next;

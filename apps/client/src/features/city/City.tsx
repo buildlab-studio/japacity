@@ -68,7 +68,7 @@ import { localDate, type Other, poolOf, sampleCrowd } from "../../shared/scene/c
 import { atNight, BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, MORNING, NIGHT, nudgeOf, stepThingHere, stepWayOf } from "./nudge/nudge";
 import { nudgeHere, stepOpen } from "./nudge/stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
-import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "../../shared/scene/mode";
+import { type Device, enterPlace, judgeFrame, keepChoice, type Mode, type ModeChoice, modeSettings, readChoice, startingMode, watchFrames } from "../../shared/scene/mode";
 import { overheard, speakerOf } from "./overheard";
 import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageFilePath, stageOf } from "../../shared/scene/placeFile";
 import { shotOf, turnsRound } from "./scene/shot";
@@ -1770,10 +1770,10 @@ export function City({
                       : {}),
                   }
                 : {})}
-              onFrame={(frameMs) => {
+              onFrame={(frameMs, frame = "drawn") => {
                 // The first frame drawn of a place: the first brief's card waits for it, so it never stands on a blank world.
                 if (drawnAt !== placeId) setDrawnAt(placeId);
-                const next = observeFrame(watch.current, frameMs, city);
+                const next = judgeFrame(watch.current, frameMs, frame, city);
                 watch.current = next;
                 if (next.mode !== mode) setMode(next.mode);
               }}

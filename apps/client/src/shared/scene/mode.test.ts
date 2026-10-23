@@ -1,7 +1,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { AGREE_FRAMES, type Device, enterPlace, type FrameWatch, keepChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames, WINDOW_FRAMES } from "./mode";
+import { AGREE_FRAMES, type Device, enterPlace, type FrameWatch, judgeFrame, keepChoice, modeSettings, observeFrame, readChoice, type SceneFrame, SETTLE_FRAMES, startingMode, watchFrames, WINDOW_FRAMES } from "./mode";
 import { memoryStorage } from "../testing/storage";
 
 const city = content.tuning.city;
@@ -101,5 +101,53 @@ describe("the table", () => {
     expect(high).toMatchObject({ pixelRatio: city.maxPixelRatio, shadows: true, crowd: city.crowdHigh, atmosphere: true, antialias: true, mesh: "fine" });
     expect(low.fog.far).toBeLessThan(high.fog.far);
     expect(modeSettings("high", { ...desktop, pixelRatio: 1 }, city).pixelRatio).toBe(1);
+  });
+});
+
+describe("what counts as a frame", () => {
+  const slowMs = city.dropFrameMs + 1;
+  /** The watch after each of `frames` in turn, each drawn as `frame` says. */
+  function judge(watch: FrameWatch, frames: number[], frame: SceneFrame = "drawn"): FrameWatch {
+    return frames.reduce((current, ms) => judgeFrame(current, ms, frame, city), watch);
+  }
+
+  test(`[city:two-graphics-modes] given high in a place, when a world just built draws its first ${String(SETTLE_FRAMES)} frames slowly while its shaders compile and its textures go up, then none of them is judged and the time in the place starts after them; the frame after them is judged`, () => {
+    const fresh = judgeFrame(watchFrames("high", false), 1200, "fresh", city);
+    const settling = judge(fresh, Array.from({ length: SETTLE_FRAMES - 1 }, () => 1200));
+    expect(settling).toMatchObject({ mode: "high", elapsedMs: 0, frames: [] });
+    const judged = judgeFrame(settling, slowMs, "drawn", city);
+    expect(judged).toMatchObject({ elapsedMs: slowMs, frames: [slowMs] });
+  });
+
+  test("[city:two-graphics-modes] given high in a place, when the frame after a pause spans a minute away (a hidden tab, or the city behind the map), then it is not judged: it adds no time in the place and no slow frame", () => {
+    const waited = judge(watchFrames("high", false), [16, 16]);
+    const back = judgeFrame(waited, 60_000, "paused", city);
+    expect(back).toMatchObject({ elapsedMs: 32, frames: [16, 16] });
+    expect(judgeFrame(back, 17, "drawn", city).frames).toEqual([16, 16, 17]);
+  });
+
+  test("[city:two-graphics-modes] given high, when frames are drawn while the place is built anew, then none is judged", () => {
+    const watch = judge(watchFrames("high", false), Array.from({ length: WINDOW_FRAMES * 2 }, () => 1000), "building");
+    expect(watch).toMatchObject({ mode: "high", elapsedMs: 0, frames: [] });
+  });
+
+  test("[city:two-graphics-modes] given high and a pause of a minute, when the frames after it are slow, then it still drops only once dropAfterMs of judged frames have passed", () => {
+    const back = judgeFrame(watchFrames("high", false), 60_000, "paused", city);
+    const short = judge(back, Array.from({ length: WINDOW_FRAMES }, () => slowMs));
+    expect(short.elapsedMs).toBeLessThan(city.dropAfterMs);
+    expect(short.mode).toBe("high");
+    expect(judge(short, waitFor(city.dropAfterMs, slowMs)).mode).toBe("low");
+  });
+
+  test(`[city:two-graphics-modes] given high and a world just built on a phone too slow for it, when its frames stay slow past the first ${String(SETTLE_FRAMES)}, then it drops to low once dropAfterMs of them have passed`, () => {
+    const fresh = judge(judgeFrame(watchFrames("high", false), 2000, "fresh", city), Array.from({ length: SETTLE_FRAMES - 1 }, () => 2000));
+    const dropped = judge(fresh, waitFor(Math.max(city.dropAfterMs, WINDOW_FRAMES * slowMs), slowMs));
+    expect(dropped).toMatchObject({ mode: "low", fixed: true });
+  });
+
+  test("[city:two-graphics-modes] given low after a pause, when the frame after it spans the time away, then it cannot raise the mode early either", () => {
+    const back = judgeFrame(watchFrames("low", false), 60_000, "paused", city);
+    const fast = judge(back, Array.from({ length: WINDOW_FRAMES }, () => 1));
+    expect(fast.mode).toBe("low");
   });
 });

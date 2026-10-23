@@ -4,7 +4,7 @@ import type { WorldClock } from "@japacity/sim";
 
 import type { Act, Picked as WorldPicked, Shot, Thing } from "../../../shared/world/contract";
 import type { Shown } from "../../../shared/scene/crowd";
-import type { ModeSettings } from "../../../shared/scene/mode";
+import type { ModeSettings, SceneFrame } from "../../../shared/scene/mode";
 import type { PlaceFile } from "../../../shared/scene/placeFile";
 import type { Walker } from "../../../shared/scene/walk";
 
@@ -38,7 +38,8 @@ export interface SceneProps {
   onProgress: (loaded: number, total: number) => void;
   onFailed: (why: string) => void;
   onPick: (picked: ScenePick) => void;
-  onFrame: (frameMs: number) => void;
+  /** Each frame drawn while the city is looked at, and what it was (city:two-graphics-modes): `drawn` where left out. */
+  onFrame: (frameMs: number, frame?: SceneFrame) => void;
   /** The world mode: the raised camera of world:camera-always-raised, the place's things and their acts. */
   overview?: boolean;
   /** The world mode: the street camera, the hold-to-plan view, routed walks and strolling people (tuning.city.roam). */
