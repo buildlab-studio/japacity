@@ -206,7 +206,9 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     advanced: {
       useSecureCookies: true,
       defaultCookieAttributes: COOKIE_ATTRIBUTES,
-      ipAddress: { ipAddressHeaders: ["cf-connecting-ip"] },
+      // server:anonymous-limit-by-address: the library keys its own limits by the same classes as `addressKey`, an IPv6 address
+      // by its /64 and one carrying IPv4 as the IPv4. 64 is its default; it is written here so a change of default cannot move it.
+      ipAddress: { ipAddressHeaders: ["cf-connecting-ip"], ipv6Subnet: 64 },
       backgroundTasks: { handler: keys.background },
     },
     telemetry: { enabled: false },

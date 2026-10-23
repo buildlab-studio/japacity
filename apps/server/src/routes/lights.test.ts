@@ -157,4 +157,13 @@ describe("GET /api/lights", () => {
     expect(reads).toHaveBeenCalledTimes(2);
     expect((await call(server, "GET", "/api/lights", null, undefined, "198.51.100.2")).status).toBe(200);
   });
+
+  test("[account:two-lights-and-wink-lines] [server:anonymous-limit-by-address] given two IPv6 addresses in one /64 at the anonymous limit together, when a third in it asks, then it is refused 429, and an address in another /64 is answered", async () => {
+    const config = testConfig({ testing: { testLogin: true }, limits: { anonPer60s: 2 } });
+    const server = testServer({ config, now: () => epoch, limits: memoryLimiters(config.limits, () => epoch) });
+    expect((await call(server, "GET", "/api/lights", null, undefined, "2001:db8:5:6::1")).status).toBe(200);
+    expect((await call(server, "GET", "/api/lights", null, undefined, "2001:db8:5:6::2")).status).toBe(200);
+    expect((await call(server, "GET", "/api/lights", null, undefined, "2001:db8:5:6:a:b:c:d")).status).toBe(429);
+    expect((await call(server, "GET", "/api/lights", null, undefined, "2001:db8:5:7::1")).status).toBe(200);
+  });
 });

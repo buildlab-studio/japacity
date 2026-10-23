@@ -300,6 +300,27 @@ describe("the sign-in limits", () => {
     expect(h.tables.rateLimit.some((row) => String(row["key"]).startsWith("198.51.100.50"))).toBe(true);
   });
 
+  test("[account:sign-in-routes-rate-limited] [server:anonymous-limit-by-address] given code sends from different addresses in one IPv6 /64, when one more than the limit is sent in 60 seconds, then it is refused, and an address in the next /64 is still sent", async () => {
+    const h = harness();
+    const limit = h.deps.config.auth.limits.otpSendPer60s;
+    const send = async (ip: string, n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `six-${String(n)}@example.com`, type: "sign-in" } })).status;
+    const statuses: number[] = [];
+    for (let n = 0; n <= limit; n++) statuses.push(await send(n % 2 === 0 ? `2001:db8:4:4::${String(n + 1)}` : `2001:DB8:4:4:ffff:${String(n)}::1`, n));
+    expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
+    expect(await send("2001:db8:4:5::1", limit + 1)).toBe(200);
+  });
+
+  test("[account:sign-in-routes-rate-limited] [server:anonymous-limit-by-address] given code sends from an IPv4 address and the same address carried in IPv6, when one more than the limit is sent in 60 seconds, then it is refused", async () => {
+    const h = harness();
+    const limit = h.deps.config.auth.limits.otpSendPer60s;
+    const statuses: number[] = [];
+    for (let n = 0; n <= limit; n++) {
+      const ip = n % 2 === 0 ? "198.51.100.51" : "::ffff:198.51.100.51";
+      statuses.push((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `four-${String(n)}@example.com`, type: "sign-in" } })).status);
+    }
+    expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
+  });
+
   test("[account:sign-in-routes-rate-limited] given code sends to one email from many addresses, when one more than the limit is sent in 60 seconds, then it is refused", async () => {
     const h = harness();
     const limit = h.deps.config.auth.limits.otpSendPer60s;

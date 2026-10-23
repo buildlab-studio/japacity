@@ -10,6 +10,7 @@ import type { Context, MiddlewareHandler } from "hono";
 
 import { RATE_LIMIT_MODEL, sha256Hex } from "../auth/hooks";
 import type { ServerDeps } from "../dependencies";
+import { addressKey } from "../limits/address";
 import type { SessionEnv } from "../limits/limit";
 
 const SECURE = "Secure this life with Google or an email code";
@@ -128,32 +129,9 @@ interface LimitAdapter {
   update: (input: { model: string; where: { field: string; value: string }[]; update: Record<string, unknown> }) => Promise<unknown>;
 }
 
-/** An IPv4 address carried in IPv6 (`::ffff:192.0.2.1`). */
-const MAPPED_IPV4 = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/;
-
-/**
- * account:guest-floods-are-capped: the connection an address counts against. An IPv6 address counts as its /64, the
- * smallest block one home or one host is given (RFC 6177), so the addresses inside it are one connection; an IPv4
- * address, or one carried in IPv6, counts alone.
- */
-export function connectionOf(address: string): string {
-  if (!address.includes(":")) return address;
-  const lower = address.toLowerCase();
-  const mapped = MAPPED_IPV4.exec(lower)?.[1];
-  if (mapped !== undefined) return mapped;
-  const [head = "", tail] = lower.split("::");
-  const left = head === "" ? [] : head.split(":");
-  const right = tail === undefined || tail === "" ? [] : tail.split(":");
-  const groups = tail === undefined ? left : [...left, ...new Array<string>(Math.max(0, 8 - left.length - right.length)).fill("0"), ...right];
-  return `${groups
-    .slice(0, 4)
-    .map((group) => group.replace(/^0+(?=.)/, ""))
-    .join(":")}::/64`;
-}
-
 async function keysOf(device: string, address: string | null): Promise<{ key: string; max: "guestsPerDevice" | "guestsPerConnection" }[]> {
   const keys: { key: string; max: "guestsPerDevice" | "guestsPerConnection" }[] = [{ key: GUEST_DEVICE_PREFIX + (await sha256Hex(device)), max: "guestsPerDevice" }];
-  if (address !== null && address !== "") keys.push({ key: GUEST_ADDRESS_PREFIX + (await sha256Hex(connectionOf(address))), max: "guestsPerConnection" });
+  if (address !== null && address !== "") keys.push({ key: GUEST_ADDRESS_PREFIX + (await sha256Hex(addressKey(address))), max: "guestsPerConnection" });
   return keys;
 }
 
