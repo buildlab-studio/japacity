@@ -543,6 +543,20 @@ describe("the guest start inside the invite page", () => {
     expect(asked).toEqual(["ada_lagos", "ada_ikeja"]);
   });
 
+  test("[account:username-typed-and-checked] given the box empty, or a name the server refuses, when the guest start is pressed, then the box is focused with the reason under it", async () => {
+    inside(passed({ startGuest: () => Promise.resolve({ ok: false, why: "taken" }) }));
+    const box = await screen.findByLabelText<HTMLInputElement>(say("ui.account.name.label"));
+    const go = screen.getByRole("button", { name: say("ui.account.name.go") });
+    go.focus();
+    fireEvent.click(go);
+    expect(await screen.findByText(say("ui.account.name.empty"))).toBeDefined();
+    expect(document.activeElement).toBe(box);
+    go.focus();
+    await pick("ada_lagos");
+    expect(await screen.findByText(say("ui.account.name.taken"))).toBeDefined();
+    expect(document.activeElement).toBe(box);
+  });
+
   test("[account:age-screen-refuses-minors] given an age answer that ran out, when the username is sent, then the age screen asks again", async () => {
     inside(passed({ startGuest: () => Promise.resolve({ ok: false, why: "expired" }) }));
     await pick("ada_lagos");

@@ -10,7 +10,9 @@
 // Begin starts the life at once and the page fills as the years go by (prologue:printed-page-hands-over).
 // Online and signed out, the gate hands in the guest start (account:start-screen-over-live-city): Where you live holds the
 // username box, empty for the player to type their own and checked as they type (account:username-typed-and-checked), and
-// the guest line; Begin makes the guest life before the character.
+// the guest line; Begin makes the guest life before the character. Enter in the box is Begin, and a Begin refused for the
+// name brings the box into view and focuses it, the reason under it. The box stays under the homes: the page is where
+// you live, and the refusal itself brings the box up wherever the page was scrolled.
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
 import { type ReactNode, useState } from "react";
@@ -121,7 +123,9 @@ function captionOf(draft: DoorDraft): string {
 /** The guest start the gate hands in online (account:guest-and-secured-states, account:username-and-unconfirmed-email, account:start-screen-over-live-city); the account feature's GuestDoor. */
 export interface DoorGuest {
   check: (username: string) => string | null;
-  fields: (value: string, onChange: (username: string) => void, problem: string | null) => ReactNode;
+  fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void) => ReactNode;
+  /** account:username-typed-and-checked: brings the box into view and focuses it, for a Begin refused for the name as typed. */
+  reveal: () => void;
   /** Null once the guest life is made; otherwise what to say by the username. */
   start: (username: string) => Promise<string | null>;
   started: () => Promise<void>;
@@ -255,7 +259,10 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
     }
     const typed = guest.check(username);
     setUsernameSaid(typed);
-    if (typed !== null) return;
+    if (typed !== null) {
+      guest.reveal();
+      return;
+    }
     setPressed(true);
     // account:guest-and-secured-states: the guest life first; the character is the account's one (account:one-character-per-account).
     void guest.start(username).then((said) => {
@@ -293,6 +300,7 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
                 setUsernameSaid(null);
               },
               usernameSaid,
+              begin,
             )}
           </div>
         )}

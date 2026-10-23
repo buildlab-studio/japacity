@@ -4,7 +4,7 @@
 // token, then the character, then the game opens on it.
 import type { Id } from "@japacity/sim";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../authority/GameProvider";
 import { createGameStore, type GameStore } from "../authority/store";
@@ -189,6 +189,97 @@ describe("the username box (account:username-typed-and-checked)", () => {
     fireEvent.click(next(say("ui.door.begin")));
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     expect(sent(account)).toEqual(["declareAge(1990-05-17)", "startGuest(ada_lagos)"]);
+  });
+});
+
+describe("Enter and a refused Begin (account:username-typed-and-checked)", () => {
+  /** Each element brought into view, in order. */
+  const brought: Element[] = [];
+  beforeEach(() => {
+    brought.length = 0;
+    Object.defineProperty(Element.prototype, "scrollIntoView", {
+      configurable: true,
+      value: function (this: Element) {
+        brought.push(this);
+      },
+    });
+  });
+  afterEach(() => {
+    Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+  });
+
+  /** The words the box's description points at, as the reader hears them under it. */
+  const describedBy = (): string =>
+    (usernameBox().getAttribute("aria-describedby") ?? "")
+      .split(" ")
+      .map((id) => document.getElementById(id)?.textContent ?? "")
+      .join(" ");
+
+  test("[account:username-typed-and-checked] given a username typed on the page, when Enter is pressed in the box, then it is Begin: the guest is made with that name and the game opens", async () => {
+    const account = fakeAccount();
+    const { store } = online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada_lagos");
+    fireEvent.keyDown(usernameBox(), { key: "Enter", code: "Enter" });
+    await waitFor(() => expect(store.getState().signedOut).toBe(false));
+    expect(sent(account)).toEqual(["declareAge(1990-05-17)", "startGuest(ada_lagos)"]);
+  });
+
+  test("[account:username-typed-and-checked] given Enter pressed while a key is composed, or with a modifier, then nothing is sent", async () => {
+    const account = fakeAccount();
+    online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada_lagos");
+    fireEvent.keyDown(usernameBox(), { key: "Enter", code: "Enter", isComposing: true });
+    fireEvent.keyDown(usernameBox(), { key: "Enter", code: "Enter", shiftKey: true });
+    await act(() => Promise.resolve());
+    expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual([]);
+  });
+
+  test("[account:username-typed-and-checked] given the box empty, when Begin is pressed, then the box is brought into view and focused, with the reason under it", async () => {
+    const account = fakeAccount();
+    online(account);
+    await toTheDoor();
+    toThePage();
+    const begin = next(say("ui.door.begin"));
+    begin.focus();
+    fireEvent.click(begin);
+    expect(await screen.findByText(say("ui.account.name.empty"))).toBeDefined();
+    expect(document.activeElement).toBe(usernameBox());
+    expect(brought).toContain(usernameBox());
+    expect(describedBy()).toContain(say("ui.account.name.empty"));
+    expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual([]);
+  });
+
+  test("[account:username-typed-and-checked] given a name the server refuses at Begin as taken, then the box is brought into view and focused, with the reason under it", async () => {
+    const account = fakeAccount(() => ({ ok: false, why: "taken" }));
+    online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada_lagos");
+    const begin = next(say("ui.door.begin"));
+    begin.focus();
+    fireEvent.click(begin);
+    expect(await screen.findByText(say("ui.account.name.taken"))).toBeDefined();
+    await waitFor(() => expect(document.activeElement).toBe(usernameBox()));
+    expect(brought).toContain(usernameBox());
+    expect(describedBy()).toContain(say("ui.account.name.taken"));
+  });
+
+  test("[account:username-typed-and-checked] given a Begin refused for no fault of the name (too many lives from here), then the box and its reason are brought into view but the focus stays, so no keyboard rises over the reason", async () => {
+    const account = fakeAccount(() => ({ ok: false, why: "too-many" }));
+    online(account);
+    await toTheDoor();
+    toThePage();
+    typeUsername("ada_lagos");
+    const begin = next(say("ui.door.begin"));
+    begin.focus();
+    fireEvent.click(begin);
+    expect(await screen.findByText(say("ui.account.guest.too-many"))).toBeDefined();
+    await waitFor(() => expect(brought).toContain(usernameBox()));
+    expect(document.activeElement).not.toBe(usernameBox());
   });
 });
 
