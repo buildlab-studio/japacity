@@ -1,42 +1,41 @@
 # Real places and map data
 
-> Research, 7 Oct 2026. Short. The question: should the game use prominent real places, in Nigeria and in the countries people leave for, and can a maps service supply them?
-> Not checked: where Nigerians settle in each destination country.
+Sources checked October 2026.
+
+Backs `../rules/city.md`, `../rules/advert.md` (section 3) and `../rules/guide.md` (sections 2 and 5).
 
 ## 1. The answer in short
 
-- **Yes to real places.**
-- **No to fetching them from Google Maps.** Its terms do not let us keep what we fetch.
+- **Real places, yes.** Real public names give the feeling of home.
+- **Google Maps, no.** Its terms do not let a game keep what it fetches.
 - **Open map data can be kept and shipped**, with attribution.
-- **The game needs a short hand-picked list per city**, perhaps 30 to 60 names. Data is for checking names and positions. It is not for generating a map.
+- **A short hand-picked list per city.** Map data is for checking names and rough positions, not for generating a map.
 
 ## 2. What the data sources allow
 
-| Source | Can we store it and ship it in the game | Conditions |
+| Source | Kept and shipped in the game? | Conditions |
 |---|---|---|
-| Google Maps Places | **No.** Place ids can be kept. Latitude and longitude for up to 30 days, then deleted. Nothing else may be cached | Attribution when shown. Charged per request |
-| Overture Maps, places | **Yes** | Licences: CDLA Permissive 2.0 and Apache 2.0. Commercial use allowed. Attribution required |
-| Overture Maps, buildings and roads, and OpenStreetMap | **Yes** | Open Database Licence. Attribution required. A database built from it must be shared on the same terms |
+| Google Maps Places | **No.** Only latitude and longitude may be cached, for up to 30 consecutive days, then deleted | Places content may not be used with a non-Google map. Attribution when shown |
+| OpenStreetMap | **Yes** | Open Database Licence. Attribution required; a database made from it is shared on the same terms. A credits screen is an accepted place for a game's attribution |
+| Overture Maps | **Yes** | Buildings, transport, base and divisions: Open Database Licence, with the OpenStreetMap line. Places: mostly CDLA Permissive 2.0, some Apache 2.0 and CC0, each provider with its own line |
+
+Sources: [Google Maps Platform service specific terms, section 14 (Places API)](https://cloud.google.com/maps-platform/terms/maps-service-terms), [OpenStreetMap: copyright and licence](https://www.openstreetmap.org/copyright), [OpenStreetMap Foundation: attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines), [Overture Maps: attribution and licences](https://docs.overturemaps.org/attribution/).
 
 ## 3. Three kinds of name, three rules
 
 | Kind | Examples | Rule |
 |---|---|---|
-| Public places: areas, roads, markets, bridges, bus stops, airports | Oshodi, a named market, a named bridge, the arrivals hall of a named airport | **Use the real name.** This is where the feeling of home comes from |
-| Institutions the journey passes through: visa centres, test centres, embassies, banks, universities | | **Use plain descriptions**: "the visa centre", "the English test centre". The game shows queues, refusals, and fees, and a real brand should not be the villain |
-| Private businesses: restaurants, shops, airlines | A well-known amala spot | **A made-up name by default. The real name when the business agrees or pays.** The game has advert slots in the world, so a real business as a place is something to sell |
+| Public places: areas, roads, markets, bridges, bus stops, stations, airports | Oshodi, a named market, a named bridge, the arrivals hall of a named airport | **The real name**, spelt as on the sign |
+| Institutions the journey passes through: visa centres, test centres, embassies, banks, universities, government offices | | **A plain description**: "the visa centre", "the English test centre". The game shows them queueing, refusing and charging, and a real brand should not be the villain |
+| Private businesses | A well-known food spot, a mall | **A made-up name by default.** A real name only as plain words on a place the player visits, eats, shops or meets at. Never for a business that lends, charges, employs, sponsors, refuses or can cheat or fail in the game |
+
+The rules in full are in `../rules/city.md` (city:invented-names-for-risky-businesses, city:sponsor-shows-name-only) and `../rules/advert.md` (advert:institutions-never-take-real-names).
 
 ## 4. Abroad
 
-The same rule applies in each destination: the real airport, the real city and area names, plain descriptions for institutions, made-up or agreed names for businesses. Which areas to show turns on where Nigerians actually settle in each route country, which is not checked here.
+The same rules hold in each destination: the real airport, city and area names; plain descriptions for institutions; made-up names for businesses.
 
 ## 5. What it means for the game
 
-- The `place` kind carries: city, country, area, the real name if any, rough position, the data source and its licence, and a sponsor if any.
-- The assets register records licences and attribution text; each place records its data source and licence.
-- A credits screen carries the map data attribution.
-
-## Sources
-
-- [Google Maps Platform service terms, 1 May 2025](https://cloud.google.com/archive/maps-platform/terms/maps-service-terms-20250501)
-- [Overture Maps: attribution and licences](https://docs.overturemaps.org/attribution/)
+- A place records its city, country and area, its real name if it has one, a rough position, and the data source with its licence (`../rules/city.md`, city:positions-rough-on-purpose).
+- The Credits screen carries the map data attribution (`../rules/guide.md`, guide:credits-carry-map-line).
