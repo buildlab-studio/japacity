@@ -52,7 +52,7 @@ export function useOpenKeptLife(): (email: string | null) => Promise<AuthResult>
 }
 
 /**
- * The way to the kept life, with what it costs said first. It throws this guest life away, so Keep playing is the main
+ * The way to the kept life, with what it costs said first. It throws this guest life away, so Carry on playing is the main
  * button and the way out wears the warning colour apart from it (world:costly-acts-confirmed).
  */
 function OpenKeptLife({ email, lead = null, onKeep }: { email: string | null; lead?: ReactNode; onKeep: () => void }) {
@@ -65,7 +65,7 @@ function OpenKeptLife({ email, lead = null, onKeep }: { email: string | null; le
       <p className="text-[14px]">{say("ui.secure.taken.ends")}</p>
       <div>
         <Button variant="primary" disabled={busy} onClick={onKeep}>
-          {say("ui.guest.sign-out.keep")}
+          {say("ui.guest.sign-out.stay")}
         </Button>
       </div>
       <div className="mt-1 border-t border-sheet-line pt-3">

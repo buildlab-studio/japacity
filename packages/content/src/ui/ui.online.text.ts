@@ -206,7 +206,7 @@ export const uiOnlineText: Record<string, string> = {
   // A guest who has a saved life already: that life opens, and this one ends
   "ui.secure.taken.open": "Sign in to my saved life",
   "ui.secure.taken.ends": "This life on this phone ends if you do.",
-  "ui.guest.sign-out.keep": "Keep playing",
+  "ui.guest.sign-out.stay": "Carry on playing",
   "ui.guest.reminder": "This life lives only on this phone until you save it.",
   "ui.guest.keep": "Save this life",
   "ui.invite.keep-first": "To take a friend's card, save this life first with Google or your email.",

@@ -313,12 +313,12 @@ describe("signing out of a guest life", () => {
 });
 
 describe("leaving a guest life asks once (world:costly-acts-confirmed)", () => {
-  test("[world:costly-acts-confirmed] [account:guest-and-secured-states] given a guest pressing Sign out, then Keep playing is the main button and comes first, Sign out and leave this life wears the warning colour apart from it, and Keep playing keeps the life", async () => {
+  test("[world:costly-acts-confirmed] [account:guest-and-secured-states] given a guest pressing Sign out, then Carry on playing is the main button and comes first, Sign out and leave this life wears the warning colour apart from it, and Carry on playing keeps the life", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out") }));
-    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.keep") });
+    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.stay") });
     const go = screen.getByRole("button", { name: say("ui.guest.sign-out.go") });
     expect(keep.className).toContain("bg-accent");
     expect(go.className).not.toContain("bg-accent");

@@ -291,7 +291,7 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
     expect(account.calls).toContain("signOut()");
   });
 
-  test("[world:costly-acts-confirmed] [account:guest-secures-the-life] given the way to a saved life offered to a guest, then Keep playing is the main button and comes first, the way out wears the warning colour apart from it, and Keep playing keeps the guest in", async () => {
+  test("[world:costly-acts-confirmed] [account:guest-secures-the-life] given the way to a saved life offered to a guest, then Carry on playing is the main button and comes first, the way out wears the warning colour apart from it, and Carry on playing keeps the guest in", async () => {
     const account = guest();
     await signedInGuest(
       account,
@@ -301,7 +301,7 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
       </>,
     );
     fireEvent.click(await button("ui.account.start.returning"));
-    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.keep") });
+    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.stay") });
     const go = screen.getByRole("button", { name: say("ui.secure.taken.open") });
     expect(keep.className).toContain("bg-accent");
     expect(go.className).toContain("text-bad");
