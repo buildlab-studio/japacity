@@ -1,133 +1,53 @@
-# Real people as partners and family: invites, stand-ins, safety, and the real rules
+# Real people as partners and family: invites, stand-ins, safety and the real rules
 
-> Research, 7 Oct 2026, from official pages, wikis, developer talks, and press.
-> Unverified items are listed at the end.
+Sources checked October 2026.
 
-## 1. Invite loops that worked
+Backs `../rules/pair.md`, `../rules/person.md`, `../rules/interview.md` and `../rules/undertaking.md`. Section 5 is the one the interview and undertaking pages cite.
 
-| Case | What happened |
-|---|---|
-| A daily word game | Players invented a spoiler-free result grid and the game adopted it. No reward attached. 90 players to over 300,000 in two months |
-| A mobile football management game | Players posting match wins to friends brought over 9,000 installs a day |
-| A mobile ludo game | Private games with people you know. Daily players went from about 14m to 51m in lockdown |
-| A location-based mobile game | Referral rewards arrive as the newcomer reaches milestones, for both sides |
-| A social-network farming game | Lost players the month the platform removed app notifications |
-| Nigerian cash referral bonuses | Farmed with fake accounts on cheap SIM cards, then scrapped |
+## 1. Invites
 
-**Takeaway**: the card should be a status snapshot worth showing ("Looking for: a sibling in Canada") with a link straight into that slot. Reward what the invited friend goes on to do. Never reward the act of sending, and never with anything worth cash.
+- **A shared result that shows, not tells.** Wordle's coloured-box grid was first typed by hand by its players; the maker then added a button that writes it. The game went from fewer than 100 players to more than two million by mid January 2022. The game's invite card works the same way: a snapshot of a life ("Looking for: a sibling in Canada") with a link into that slot. Source: [The Spinoff, January 2022](https://thespinoff.co.nz/media/13-01-2022/those-coloured-boxes-on-twitter-are-new-zealands-fault).
+- **Cash for sign-ups gets farmed.** In Nigeria, referral bonuses paid in cash or credit were farmed with fake accounts and new SIM cards (about ₦300 each), and with recruits who did the minimum, took the bonus and left. The schemes were ended. So the game rewards what an invited friend goes on to do, never the act of inviting, and never with anything worth cash. Source: [WeeTracker, 2020](https://weetracker.com/2020/07/24/startups-botched-referral-schemes-nigeria/).
 
-## 2. A slot a friend can fill, with a computer character otherwise
+## 2. A computer stand-in for an absent player
 
-- A farming game gives every player a computer neighbour from the start who cannot be removed.
-- A racing series trains a stand-in on each player's driving. It races in friends' games while the player is offline.
-- A mobile racing game gave its bots fake usernames. Players worked it out in a day and resented it.
-- Shooters fill new players' matches with bots and fade them out.
-- One game warns an absent clan leader at 21 and 32 days, then hands leadership on at 35.
+Forza's Drivatar learns from how a player drives and races in friends' games while that player is offline, earning them credits. The game's stand-in is the same idea for a partner or sibling who stops playing: the other player is warned after 7 real days of silence, and the stand-in, labelled as one, takes the slot at 14 (working values). Source: [Xbox Wire, 2014](https://news.xbox.com/en-us/2014/09/30/games-forza-horizon-2-drivatars/).
 
-**Takeaway**: label computer characters openly. Let a real person take over a slot later. Put a clock on inactivity: warn, then swap in a stand-in so nothing stalls.
+## 3. Partners who are real players
 
-## 3. Real-player partners in persistent games
+In 2021 Chinese police arrested 469 people who posed as women online, drew men into games, pushed them to buy items and pay for virtual weddings with their "girlfriends", and took a cut. So in this game a partnership gives immigration benefits only: no shared wallet, and nothing of value moves from one player to another. Source: [WN Hub, September 2021](https://wnhub.io/news/analytics/item-4013).
 
-| Game | How it works | What went wrong |
-|---|---|---|
-| A browser crime game | Ring and witness. Shared property and an optional shared vault. Either can divorce after 7 days | Scamming is an official in-game crime |
-| A virtual world | Partnership is a profile label. Ending it costs a small fee | A real couple divorced over an in-world affair (2008) |
-| A side-scrolling online role-playing game | Weddings with benefits | About 27,000 weddings and 20,000 annulments in a year. One spouse dumped the other's items before leaving |
-| A large Chinese online game | Nearly 2 million weddings, some through a matchmaker character | |
-| Chinese police case, 2021 | | 469 arrested for posing as women, staging in-game weddings, and profiting from what victims bought |
-| A mobile life-sim | Every partner is a computer character | Cheating has no human victim |
+## 4. Safety between strangers
 
-**Takeaway**: no shared wallets. Benefits should be immigration benefits, never transferable value. A break-up should cost the one who leaves and give the one left a way to recover.
-
-## 4. Safety when strangers are matched
-
-**Limiting what strangers can say**
-
-- A card game gives strangers six preset phrases and a mute.
-- A console adventure game allows a single wordless call. Its designer credits that for the cooperation it is known for.
-- A social adventure game shows strangers as silhouettes until both exchange a token. Chat opens further along the friendship.
-
-**When open chat plus relationships went badly**
-
-- A teen virtual hotel muted all chat in 2012 after a television investigation into predators, then reopened market by market.
-- A children's game platform bans seeking romance, added age checks for all chat in January 2026, and was sued by a US state in December 2025.
-
-**Romance fraud**
-
-- US: about $1.16bn lost in the first nine months of 2025. UK: over £106m a year, rising. In 43% of one bank's cases the scammer claimed to live abroad.
-- One raid in Lagos in December 2024 arrested 792 people over romance scams.
-- Scammers already use in-game chat in ordinary word games.
-
-**Limits on gifts and trades**
-
-- One game needs a friendship, a minimum level, and physical nearness to trade, with one special trade a day.
-- One holds new accounts for 20 hours of play before free trading.
-- One lets trades be reversed for 7 days.
-
-**Takeaway**: strangers get preset phrases only. Free text opens with time and mutual consent, with links, phone numbers, and payment handles blocked. "Partner abroad who needs money for fees" is the standard scam script, so sending value to a partner must never be a mechanic.
+- **Saying less can bond more.** Journey lets strangers play together with no chat and no names. Its designer, Jenova Chen, says that was done so players form an emotional connection, and because names and chat in competitive games are often unfriendly. The game gives strangers preset phrases only. Source: [Siliconera, 2012](https://www.siliconera.com/journey-producer-reveals-how-gamer-reactions-influenced-the-game/).
+- **The partner abroad who needs money is the standard romance scam.** In one UK bank's romance fraud cases, 43% of scammers claimed to live abroad, and the value sent to them rose 37% in a year (reported February 2026). UK Finance counted £20.5 million lost to romance scams in January to June 2025, across almost 3,000 cases. So no phrase can carry money, a link, a phone number or a payment handle. Source: [FinTech Global, February 2026](https://fintech.global/2026/02/06/tsb-warns-romance-fraud-rising-sharply-across-social-media/).
 
 ## 5. The real rules about family
 
-**Canada points system**
+### Canada's points
 
-- A sibling in Canada who is an adult citizen or permanent resident is worth 15 points.
-- With a spouse coming along, the main applicant's own factors cap at 460 instead of 500, and the spouse's factors add up to 40. Couples put the higher scorer forward as the main applicant.
+- A brother or sister in Canada, 18 or over and a citizen or permanent resident, is worth 15 points.
+- With a spouse or partner coming along, the main applicant's core factors cap at 460 instead of 500, and the spouse's own factors add up to 40 (education 10, language 20, Canadian work 10).
 
-**UK partner visa**
+Source: [Canada.ca: CRS criteria](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html).
 
-- The sponsor must earn £29,000 (2026).
-- The relationship is shown with official documents: tenancy, bills, bank statements.
-- If the relationship ends, the visa is usually cut to 60 days.
+### The UK partner visa
 
-**United States**
+- **Income**: the couple's combined income must be at least £29,000 a year for applications since 11 April 2024. £18,600 still applies only to extensions of visas first applied for before that date. Source: [GOV.UK: proof of income](https://www.gov.uk/uk-family-visa/proof-income-partner).
+- **The relationship**: married or in a civil partnership, or living together for at least 2 years. The first grant from outside the UK is up to 2 years 9 months, each extension up to 2 years 6 months, and settlement comes after 5 years on the route. Source: [GOV.UK: partner visa](https://www.gov.uk/uk-family-visa/partner-spouse).
+- **A break-up**: permission granted on a relationship that has broken down is considered for cancellation, normally leaving 60 days to apply for something else or leave. Source: [GOV.UK: cancellation and curtailment of permission, caseworker guidance](https://www.gov.uk/government/publications/considering-immigration-status-and-deciding-enforcement-action/cancellation-and-curtailment-of-permission-accessible).
 
-- Spouse and fiancé routes exist. A fiancé must marry within 90 days. Couples married under two years get a conditional two-year card and must apply together to make it permanent.
-- For Nigerians in 2026 these routes are in practice shut by the visa suspensions.
+### Sham marriage and deception
 
-**Parents**
+- **UK**: a marriage notice referred for investigation has its notice period extended from 28 days to 70. Source: [GOV.UK: marriage referral and investigation scheme, statutory guidance](https://www.gov.uk/government/publications/marriage-and-civil-partnership-referral-and-investigation-scheme/marriage-and-civil-partnership-referral-and-investigation-scheme-statutory-guidance-for-home-office-staff-accessible-version).
+- **UK**: deception in an application brings a 10-year refusal period. Source: [Home Office: mandatory refusal periods](https://assets.publishing.service.gov.uk/media/6971ff98a1311bdcfa0ed899/Mandatory_refusal_period.pdf).
+- **Canada**: misrepresentation makes a person inadmissible for five years. Source: [Immigration and Refugee Protection Act, s. 40](https://laws-lois.justice.gc.ca/eng/acts/i-2.5/section-40.html).
+- **Canada**: someone who became a permanent resident as a sponsored spouse or partner may not sponsor a new spouse or partner until five years after. Source: [Immigration and Refugee Protection Regulations, s. 130](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2002-227/section-130.html).
 
-- Canada sponsored parents and grandparents by lottery. Intake was paused in July 2026. A long-stay visitor visa is the fallback.
+### Who can bring a partner along
 
-**Sham marriage**
+- **UK students**: for courses starting on or after 1 January 2024, only students on a PhD, another doctorate or a research-based higher degree can bring a partner and children. Source: [GOV.UK: Student visa, family members](https://www.gov.uk/student-visa/family-members).
+- **UK care workers**: those sponsored from 11 March 2024 cannot bring a partner or children, with narrow exceptions. Source: [GOV.UK: Health and Care Worker visa, partner and children](https://www.gov.uk/health-care-worker-visa/your-partner-and-children).
+- **Canada**: since 21 January 2025, open work permits for spouses go only to spouses of master's students on programs of 16 months or more, doctoral and some professional students, and workers in skilled or shortage jobs with 16 months or more left. The game's Canada routes are permanent residence, which this does not touch. Source: [Canada.ca notice](https://www.canada.ca/en/immigration-refugees-citizenship/news/notices/changes-open-work-permits-family-members-temporary-residents.html).
 
-- UK: the notice period can be extended to 70 days to investigate.
-- Canada: a five-year ban for misrepresentation. A sponsored spouse cannot sponsor a new one for five years.
-- US: up to five years in prison, a fine, and a permanent bar.
-
-**Tightening, 2024 to 2026**: the UK barred most student dependants and care worker dependants. Canada narrowed work permits for spouses.
-
-**Takeaway**: a sibling abroad gives a small fixed bonus. A break-up starts a 60-day clock. Family points with no genuineness check would teach the fraud route, so the check has to be in the game.
-
-## Sources
-
-- [Gamezebo: Facebook game traffic, Feb 2010](https://www.gamezebo.com/news/facebook-game-traffic-declines-in-feb-2010-beginning-of-the-end/)
-- [WeeTracker: botched referral schemes in Nigeria](https://weetracker.com/2020/07/24/startups-botched-referral-schemes-nigeria/)
-- [Meta: incentivisation policies](https://developers.secure.facebook.com/docs/development/terms-and-policies/policy-deep-dive)
-- [NBC News: divorce over a virtual affair](https://www.nbcnews.com/news/amp/wbna27718230)
-- [GDC Vault: research on in-game marriage](https://www.gdcvault.com/play/1026916/Will-You-Marry-Me-Research)
-- [WN Hub: arrests over in-game romance scams in China](https://wnhub.io/news/analytics/item-4013)
-- [Florida Attorney General sues a children's game platform](https://www.myfloridalegal.com/node/28064)
-- [US romance scam losses in 2025, from FTC data](https://nordvpn.com/research-lab/this-month-in-data/us-romance-scam-losses/)
-- [SecurityBrief UK: romance scam losses](https://securitybrief.co.uk/story/romance-scam-losses-exceed-106m-as-valentine-s-day-approaches)
-- [FinTech Global: TSB on romance fraud](https://fintech.global/2026/02/06/tsb-warns-romance-fraud-rising-sharply-across-social-media/)
-- [Al Jazeera: romance scam arrests in Lagos](https://www.aljazeera.com/news/2025/8/22/nigeria-deports-60-chinese-39-filipino-convicted-in-crypto-romance-scams)
-- [Canada.ca: points criteria](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html)
-- [GOV.UK: partner visa](https://www.gov.uk/uk-family-visa/partner-spouse)
-- [GOV.UK: partner visa income](https://www.gov.uk/uk-family-visa/proof-income-partner)
-- [Ashfords: relationship breakdown and UK visas](https://www.ashfords.co.uk/insights/articles/relationship-breakdown-how-does-this-affect-your-uk-visa)
-- [travel.state.gov: fiancé visa](https://travel.state.gov/content/travel/en/us-visas/immigrate/family-immigration/nonimmigrant-visa-for-a-fiance-k-1.html)
-- [Fredrikson: US travel restrictions from 1 Jan 2026](https://www.fredlaw.com/alert-white-house-expands-travel-ban-to-take-effect-january-1-2026)
-- [CIC News: parents and grandparents intake paused](https://www.cicnews.com/2026/07/canada-shuts-door-to-sponsoring-parents-and-grandparents-for-permanent-residence-0778003.html/amp)
-- [GOV.UK: marriage and civil partnership checks](https://www.gov.uk/government/speeches/immigration-act-2014-marriage-and-civil-partnership)
-- [Canada: misrepresentation, IRPA section 40](https://laws-lois.justice.gc.ca/eng/acts/i-2.5/section-40.html)
-- [Canada.ca: sponsorship restriction on marriage fraud](https://www.canada.ca/en/news/archive/2012/03/minister-kenney-introduces-sponsorship-restriction-address-marriage-fraud.html)
-- [US Department of Justice: marriage fraud](https://www.justice.gov/archives/jm/criminal-resource-manual-1948-marriage-fraud-8-usc-1325c-and-18-usc-1546)
-- [Moving2Canada: spouse work permit restrictions](https://moving2canada.com/news-and-features/news/work/family-open-work-permit-restrictions-january-2025/)
-
-## Not verified
-
-- Any Nigerian or African game that grew through WhatsApp sharing, with numbers.
-- Any game that automatically replaces an inactive spouse with a computer stand-in.
-- Romance scams run through games in Nigeria specifically.
-- Whether US spouse and fiancé routes changed for Nigerians after January 2026.
-- Any change to the UK partner income requirement after June 2026.
+**For the game**: a sibling abroad gives a small fixed bonus; a break-up starts a 60-day clock; and a partner route ends in a genuineness check, because family points with no check would teach the fraud route.
