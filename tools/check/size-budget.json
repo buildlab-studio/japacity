@@ -2,8 +2,8 @@
   "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; shared is every other chunk the entry imports (the bundler's runtime, React, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a dated line below saying why.",
   "parts": {
     "main": {
-      "budget": 334309,
-      "measured": 318390
+      "budget": 329954,
+      "measured": 328163
     },
     "three": {
       "budget": 195779,
@@ -22,13 +22,14 @@
       "measured": 40290
     },
     "total": {
-      "budget": 897000,
-      "measured": 890466
+      "budget": 894000,
+      "measured": 892810
     }
   },
   "changes": [
     "18 Oct 2026: budgets at version 1; content-sim raised from 280087 to 326689 for the interface's words, moved out of the client's shared chunk into content's ui tables, which lowered shared from 65037 to 39686",
     "18 Oct 2026: shared raised to 42304 for the account screens' passkey list, sign-out on every phone and the returning player's marks; three and the model loader each pinned to a chunk of their own",
-    "23 Oct 2026: total raised from 896000 to 897000 (measured 896083) for the account's plain words with the start door's second line, the Settings name check, Google's errors and the graphics mode's settled frames; to be won back by moving the words only Settings and the account sheet use out of the first visit, then lowered again"
+    "23 Oct 2026: total raised from 896000 to 897000 (measured 896083) for the account's plain words with the start door's second line, the Settings name check, Google's errors and the graphics mode's settled frames; to be won back by moving the words only Settings and the account sheet use out of the first visit, then lowered again",
+    "23 Oct 2026: total lowered from 897000 to 894000 (measured 892810, from 896083) and main from 334309 to 329954 (measured 328163, from 332518) for what moved out of the first visit: the account sheet's code (Settings.tsx and its passkey list) with its 50 lines of words (the username's change, the usage counts, the bank-full switch, the passkeys, signing out and deleting) in content's ui/ui.accountSheet.text.ts, fetched by the account's row, and the dedication page's 24 lines in ui/ui.dedication.text.ts, fetched with the page; content-sim (313005 to 313959) and shared (40286 to 40414) moved a little inside their budgets as the bundler gave the looks table a chunk of its own"
   ]
 }
