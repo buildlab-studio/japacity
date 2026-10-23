@@ -90,7 +90,7 @@ Every command has `type`, `basedOn` (the state version) and its own fields. The 
 | `wallet/remit` | `currency` (a foreign one), `amount`, `channel`: app, bank or informal (abroad-money:remit-sends-money-home) | No |
 | `prologue/choose` | `step`, `answer` (prologue:steps-offer-legal-answers) | No |
 | `status/renew` | (status:renewing-a-status, status:view-shows-status) | No |
-| `return/home` | None. The shape of the return is worked out, not sent (place:return-home-paid-or-assisted, place:return-shape-decided-at-once) | No |
+| `return/home` | `scheme`: true asks the UK's returns service (place:returns-service-takes-you-home); otherwise nothing. The shape of the return is worked out, not sent (place:return-home-paid-or-assisted, place:return-shape-decided-at-once) | No |
 | `place/ride` | `from`, `to`, `way`: danfo, keke or okada (place:rides-between-city-places) | No |
 | `activity/now` | `activity`, `param`: a now-act answered at once where it is staged (activity:now-acts-and-month-acts) | No |
 | `chapter/lean` | `route`: make a way out heard of or looked into the plan the chapters follow (chapter.md) | No |

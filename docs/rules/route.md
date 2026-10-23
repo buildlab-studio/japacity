@@ -197,6 +197,7 @@ The part before the slash names the kind that carries an effect out or judges a 
 | `route/apply` | effect | The visa application, once its conditions hold (route:visa-application-needs, route:unexplained-share-of-funds, route:application-fixes-figures and route:application-opens-interview) |
 | `route/support` | effect | The family pledge: money in a parent's account that counts toward the route (route:funds-shown-exclude-cash) |
 | `route/interview-scored` | effect | The finished interview's score goes on the open visa application (route:answers-score-and-close) |
+| `route/lapse` | effect | On a loss of permission in `country` other than a return with papers, a departed route into that country goes back to known, its school, deposit, confirmation and sponsor cleared and its record kept (route:lapsed-route-known-again) |
 | `setpiece/open` | effect | Opens a set piece, scored onto the route's application when a route is given (route:set-piece-draws-questions, route:answers-carry-effects). Judged by the `setpiece` kind |
 | `route/state` | requirement | The route's state is one of `in` |
 | `route/offer` | requirement | An offer from at least one school on the route is held |

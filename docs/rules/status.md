@@ -166,5 +166,5 @@ The part before the slash names the kind that carries an effect out or judges a 
 | `status/lose` | effect | Lapses the status abroad, to the overstayer (status:overstayer-risks-detection); at home it closes the status with nothing after it; an overstayer is left as it is |
 | `status/remove` | effect | A removal: recorded, and the character sent home with the shape `removed` (status:removal-sends-home-banned); applied only at the end of a notice (status:notice-ends-in-removal) |
 | `status/clock-start` | effect | Starts the clock on a one-employer status, or lapses at once one that `lapsesAtOnce` (status:lost-job-starts-clock, status:gulf-status-holds-passport) |
-| `status/is` | requirement | The current status is one of `statuses` |
+| `status/is` | requirement | The current status is one of `statuses`; with `grace: true`, only while that overstayer status is in its grace (status:grace-allows-in-country-applications) |
 | `status/clock-under` | requirement | A status is held whose clock is running and under `months` |
