@@ -1,7 +1,7 @@
 # Overstaying
 
 > When a status abroad runs out, the life goes on. The game carries overstaying in three stages, a grace month, the overstay itself and a notice, with removal as the last case and every way out priced in real terms. The rules are in `../rules/status.md` (status:overstayer-risks-detection to status:uae-amnesty), `../rules/place.md` (place:leaving-an-overstay-bans, place:returns-service-takes-you-home), `../rules/route.md` (route:lapsed-route-known-again), `../rules/route-gates.md` (route-gates:in-country-grant-switches-status, route-gates:canada-return-asks-authorisation), `../rules/person.md` (person:partner-route-in-country), `../rules/abroad-money.md` (abroad-money:right-to-rent-check) and `../rules/road.md` (road:sea-arrival-in-italy).
-> Set by the owner on 23 Oct 2026. For game design. Not immigration advice.
+> For game design. Not immigration advice.
 
 ## 1. The decision in one line
 
@@ -9,7 +9,7 @@ Losing status is a hard turn, not an ending: a month to fix it from inside, then
 
 ## 2. Why
 
-Before this page a lapsed status turned into a detection draw of 3% a month, and a hit sent the character home at once, banned for ten years. That is harsher than life in two ways. Real enforcement is slow: the UK removed about 9,914 people in 2025 against an estimated 700,000 to 900,000 without papers, about 1% to 1.5% a year, where the game's 3% a month was about 25 times that. And real life keeps doors open: a late application within days, leaving by choice for a short ban, the returns service, a partner who is settled. The owner's words: no automatic removal; the player can still redo a master's, go with someone on a visa, or go home by choice; removal is the last case.
+Before this page a lapsed status turned into a detection draw of 3% a month, and a hit sent the character home at once, banned for ten years. That is harsher than life in two ways. Real enforcement is slow: the UK removed about 9,914 people in 2025 against an estimated 700,000 to 900,000 without papers, about 1% to 1.5% a year, where the game's 3% a month was about 25 times that. And real life keeps doors open: a late application within days, leaving by choice for a short ban, the returns service, a partner who is settled. So the game removes no one at once: the player can still redo a master's, go with someone on a visa, or go home by choice, and removal is the last case.
 
 ## 3. The three stages
 
@@ -44,7 +44,7 @@ stateDiagram-v2
 | The returns service | Any time | Nothing: the ticket is paid and £1,500 arrives in naira at home | 24 months |
 | Removal | The notice's end, nothing chosen | Standing -20 | 120 months |
 
-Every return past the grace, and a removal, stays on the record as one earlier refusal on the next application into that country. The flown route goes back to known on any loss of status, so the master's can be applied for again once the ban lifts: the owner's "redo another master's".
+Every return past the grace, and a removal, stays on the record as one earlier refusal on the next application into that country. The flown route goes back to known on any loss of status, so the master's can be applied for again once the ban lifts.
 
 ## 5. Each country
 
