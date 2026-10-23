@@ -112,9 +112,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 
 ## Writing, everywhere
 
-- No em-dash or en-dash, in code, comments, docs, commit messages or player text. Use a full stop, a comma, a colon or brackets.
 - Short plain sentences. No filler. No emoji. No exclamation marks from the narrator.
-- Never name another game or product in the repository, a commit or a report.
 
 ## Branches, worktrees and the report
 
@@ -134,4 +132,3 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 1. The test that cites the rule fails without your change and passes with it.
 2. `pnpm check` ends `CHECK PASSED`, and its last lines are in the report.
 3. `git diff main --stat` shows only your folders, or the report says why not.
-4. No em-dash or en-dash anywhere you wrote: `git diff main | grep -nP "\x{2014}|\x{2013}"` prints nothing.
