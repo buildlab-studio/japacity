@@ -16,7 +16,7 @@ import { Balance, pricedLabel } from "../../shared/world/Balance";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
-import { formatBand, formatMoney } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence, saysWhyOnCard } from "../../shared/words/requirement";
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/englishTest";
@@ -30,7 +30,6 @@ import { countsWords, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, firstJob, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 
-const ENGLISH_RESULT = "document.english-test";
 const GRADE = "quality.education-grade";
 
 function Job() {
@@ -205,15 +204,14 @@ function gradeWords(value: number): string {
  * grade held now, or that it already has the application.
  */
 function noSchoolReasons(view: PlayerView): string[] {
-  const english = view.documents.find((paper) => paper.id === ENGLISH_RESULT && paper.state === "held");
-  const band = english?.value === null || english === undefined ? say("ui.activity.no-band") : say("ui.document.band", { band: formatBand(english.value) }).toLowerCase();
+  // route:applying-to-a-school: no school asks an English band, so only the grade is said.
   const grade = qualityIn(view, GRADE);
-  const have = `${band}, ${gradeWords(grade)}`;
+  const have = gradeWords(grade);
   const applied = new Set(view.routes.flatMap((route) => route.schools.map((school) => school.id)));
   return Object.values(content.school).map((school) =>
     applied.has(school.id)
       ? say("ui.activity.school-applied", { school: nameOf(school.id) })
-      : say("ui.activity.school-needs", { school: nameOf(school.id), band: formatBand(school.minBand), grade: gradeWords(school.minGrade), have }),
+      : say("ui.activity.school-needs", { school: nameOf(school.id), grade: gradeWords(school.minGrade), have }),
   );
 }
 

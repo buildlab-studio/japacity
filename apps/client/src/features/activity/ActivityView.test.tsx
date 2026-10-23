@@ -124,12 +124,13 @@ describe("the month plan", () => {
     expect(document.querySelector("details[data-later]")).toBeNull();
   });
 
-  test("given a university application with no school open, then the card says what each university asks", async () => {
+  test("[route:applying-to-a-school] given a university application with no school open, then the card says what each university asks, which is no band in English", async () => {
     const base = engineView();
     const apply: ActivityOption = { id: "activity.apply-to-school", allowed: true, missing: [], params: [], cost: [], affordable: true, when: "now", done: false };
     await renderWithView(<ActivityView />, { ...base, activities: [apply] });
     expect(screen.getByText(say("ui.activity.no-school"))).toBeDefined();
-    for (const school of Object.values(content.school)) expect(screen.getByText(new RegExp(`^${text[`${school.id}.name`]!} asks for band`))).toBeDefined();
+    for (const school of Object.values(content.school)) expect(screen.getByText(new RegExp(`^${text[`${school.id}.name`]!} asks for `))).toBeDefined();
+    expect(screen.queryAllByText(/asks for band/)).toEqual([]);
     expect(addButton("activity.apply-to-school").hasAttribute("disabled")).toBe(true);
   });
 

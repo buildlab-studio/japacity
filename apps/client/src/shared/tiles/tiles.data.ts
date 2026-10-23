@@ -98,6 +98,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   // The papers: made at a counter or a clinic where the world has one, else a paper standing in.
   "activity.get-passport": stand("🛂"),
   "activity.get-transcript": stand("📜"),
+  "activity.degree-english": stand("📜"),
   "activity.tb-test": "prop_xray-stand",
   "activity.gulf-medical": "prop_xray-stand",
   "activity.get-police-certificate": stand("🪪"),
@@ -279,6 +280,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   // standing in.
   "document.passport": stand("📘"),
   "document.transcript": stand("📄"),
+  "document.degree-english": stand("📄"),
   "document.english-test": "prop_test-desk",
   "document.tb-certificate": "prop_xray-stand",
   "document.police-certificate": stand("🪪"),

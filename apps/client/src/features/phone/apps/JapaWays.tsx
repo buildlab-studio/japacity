@@ -11,7 +11,7 @@ import { Check, Circle } from "lucide-react";
 
 import { bondName } from "../../../shared/view/person";
 import { atBankRate, shortfall } from "../../../shared/words/cost";
-import { formatBand, formatMoney, formatNumber } from "../../../shared/words/format";
+import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { anyOptions, requirementSentence } from "../../../shared/words/requirement";
 import { blurbOf, byMonths, hasWords, inMonths, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head } from "../act";
@@ -199,7 +199,7 @@ function Schools({ route, view }: { route: RouteView; view: PlayerView }) {
                   ? say("ui.route.school.costs-discount", { deposit: formatMoney(entry.deposit, "GBP"), tuition: formatMoney(entry.tuition, "GBP"), after: formatMoney(entry.tuition - discount, "GBP") })
                   : say("ui.route.school.costs", { deposit: formatMoney(entry.deposit, "GBP"), tuition: formatMoney(entry.tuition, "GBP") })}
               </Line>
-              {school === undefined ? <Line tone="quiet">{say("ui.route.school.asks", { band: formatBand(entry.minBand), grade })}</Line> : null}
+              {school === undefined ? <Line tone="quiet">{say("ui.route.school.asks", { grade })}</Line> : null}
               {route.school === null ? <Line tone="quiet">{say("ui.route.school.naira", { naira: formatMoney(deposit.need, "NGN") })}</Line> : null}
               {owing && deposit.short > 0 ? (
                 <Line tone="bad">{say("ui.route.school.short", { need: formatMoney(deposit.need, "NGN"), have: formatMoney(deposit.have, "NGN"), short: formatMoney(deposit.short, "NGN") })}</Line>
