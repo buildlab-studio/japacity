@@ -131,12 +131,12 @@ flowchart LR
 | `check:version` | `tools/check/version.ts` | The content version moved with any change to the content's data or the simulation's code: the fingerprint in `packages/content/src/seal.json` still matches, or the version was raised and sealed (server:content-version-sealed) |
 | `check:assets` | `tools/assets/assets-check.ts` | The city's models: file names, sizes, the palette, footprints, and a render of each staged place in Playwright's Chromium |
 | `check:size` | `tools/check/size.ts` | A production build of the client, whose first visit stays inside each part's gzipped budget in `tools/check/size-budget.json`, with none of the admin page's code in it (engine:first-download-has-budget) |
-| `check:scrub` | `tools/check/scrub.ts` | Every file git would publish is free of the words that would mark private planning notes, outside the two pages players read, and of the values that belong to one deployment, outside the files each may stand in |
+| `check:scrub` | `tools/check/scrub.ts` | Every file git would publish keeps legal and regulatory wording to the two pages players read (the terms and the privacy notice), keeps each value that belongs to one deployment to the files it may stand in, and carries no leftover tag of the build's process (a review code, a branch name, a comment tag) where a comment should say what holds and why |
 
 The browser tests (`pnpm test:browser`) are not part of the check. Neither is `pnpm docs:build`, which builds this site.
 
 ::: details What else guards a change
-- The maintainer's git hooks, kept outside the repository, refuse a commit message with an attribution line, a trailer or a long dash. A refused commit is fixed, never forced.
+- The maintainer's git hooks, kept outside the repository, check every commit. A refused commit is fixed, never forced.
 - In CI, `pnpm check:protected` asks for a label when a change touches a test, a golden file, a schema or the lint rules.
 - Golden files change only through `pnpm bless`. See [The simulation](./simulation.md#goldens-recorded-lives-and-simulated-play).
 :::

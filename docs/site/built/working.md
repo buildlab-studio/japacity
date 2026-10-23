@@ -1,6 +1,8 @@
 # Working on it
 
-Japacity is changed in a fixed order: the rule first, then a test that cites it, then the code. One command, `pnpm check`, says whether a change holds, and it must end with `CHECK PASSED` before a change is done. This page is the short way in for a person; `AGENTS.md` at the repository's root is the full contract for anyone changing code, and the three skills in `.claude/skills/` (`japacity-dev`, `japacity-play`, `japacity-shipped-lives`) are the working order written down.
+Japacity is changed in a fixed order: the rule first, then a test that cites it, then the code. One command, `pnpm check`, says whether a change holds, and it must end with `CHECK PASSED` before a change is done. Most of the code is written by AI coding agents working in parallel, each in its own git worktree, planned and reviewed by one lead session and the maintainer; [How the work is organised](#how-the-work-is-organised) is that workflow, written so another project can use it.
+
+This page is the short way in for a person. `AGENTS.md` at the repository's root is the full contract for anyone changing code, person or agent, and the three skills in `.claude/skills/` (`japacity-dev`, `japacity-play`, `japacity-shipped-lives`) are the working order written down.
 
 ## Run it locally
 
@@ -45,6 +47,7 @@ pnpm docs:preview  # the built site on port 5181
 | `pnpm check:version` | The content version moved with any change to the content's data or the simulation's code (server:content-version-sealed) |
 | `pnpm check:assets` | The asset build check of `docs/decisions/0009-models-are-code.md`. It opens Playwright's Chromium for the last step |
 | `pnpm check:protected -- <base-ref>` | CI only: changed tests, goldens or schemas need the `approved-test-change` label |
+| `pnpm content:freeze` | Keep the shipped content before its version is raised: written to `packages/content/src/older/<version>` and listed (server:older-content-frozen) |
 | `pnpm content:seal` | Seal the content version after raising it: the fingerprint `pnpm check:version` compares (server:content-version-sealed) |
 | `pnpm record:lives`, `pnpm bless` | Record the simulated lives, then regenerate the golden files. Goldens change only this way |
 | `pnpm assets:export`, `assets:shoot`, `assets:outline`, `assets:credits`, `assets:publish` | The asset pipeline in `tools/assets/`. Each file says its usage in its first lines |
@@ -123,11 +126,13 @@ The bot check runs with Cloudflare's always-pass test keys. Turnstile reports th
 
 ### Against staging
 
-The same tests run against staging, which is behind Cloudflare Access, with an Access service token. Its two values come from your keychain or secret store into the environment for one command, and are never written to a file, printed or committed. On a Mac, from the keychain:
+The same tests run against staging, which is behind Cloudflare Access, with an Access service token. Its two values come from the operating system's keychain (or another secret store) into the environment for one command, and are never written to a file, printed or committed:
 
 ```sh
 CF_ACCESS_CLIENT_ID=<from the keychain> CF_ACCESS_CLIENT_SECRET=<from the keychain> pnpm test:browser:real --staging
 ```
+
+On a Mac, `security find-generic-password -s <item> -w` reads one item, under the name you stored it with.
 
 `--staging` points the tests at `https://staging.japacity.app` (or set `REAL_BASE_URL` to another address), and every request carries the headers `CF-Access-Client-Id` and `CF-Access-Client-Secret`; without them staging answers 302 to its sign-in page, and the run stops at once saying so. Staging has no Mailpit and the tests cannot reach its database, so the tests that need an email code or a switch are skipped there, each with its reason. No trace is kept on staging, since a trace holds every request's headers. The headers also go to Cloudflare's own bot check, which the page loads from `challenges.cloudflare.com`.
 
@@ -150,7 +155,7 @@ flowchart LR
   rules --> version["check:version<br/>the content version moved with what a replay reads"]
   version --> assets["check:assets<br/>models match their manifest"]
   assets --> size["check:size<br/>a first visit within budget"]
-  size --> scrub["check:scrub<br/>no planning words"]
+  size --> scrub["check:scrub<br/>nothing out of place in a published file"]
   scrub --> passed["CHECK PASSED"]
 ```
 
@@ -164,7 +169,7 @@ flowchart LR
 | check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version, or the version was raised and sealed with `pnpm content:seal` (server:content-version-sealed) |
 | check:assets | `pnpm check:assets` | The city's models and pictures match their manifest. Its last step opens Playwright's Chromium |
 | check:size | `pnpm check:size` | A production build of the client, whose first visit stays inside each part's gzipped budget in `tools/check/size-budget.json` (engine:first-download-has-budget) |
-| check:scrub | `pnpm check:scrub` | The repository holds what the game says to players, and none of the planning behind it. A short list of words that mark such planning fails the check in any file git would publish, but for the few pages players read |
+| check:scrub | `pnpm check:scrub` | Every file git would publish keeps legal and regulatory wording to the pages players read (the terms and the privacy notice), keeps each value that belongs to one deployment (an email address, an account id, a key) to the files it may stand in, and carries no leftover tag of the build's process where a comment should say what holds and why (`tools/check/scrub.ts`) |
 
 While you work, run only the tests you touch:
 
@@ -177,7 +182,7 @@ The browser tests (`pnpm test:browser`, in `apps/client/e2e/`) run the client in
 
 ## The hooks
 
-The commit rules are enforced by the maintainer's git hooks, kept outside the repository and switched on through `core.hooksPath` in the main checkout; every worktree of that clone shares them. They refuse a commit message with an attribution line or a trailer, a mention of an AI, or an em-dash or an en-dash. A refused commit is fixed, the message or the file, and never forced: `--no-verify` is not used here.
+The maintainer's checkout runs its own git hooks, switched on through `core.hooksPath`; every worktree of that clone shares them, so every agent working in one meets them. A commit a hook refuses is fixed, the message or the file, and never forced: `--no-verify` is not used here.
 
 ## The rules discipline
 
@@ -195,13 +200,69 @@ flowchart LR
 - **Every rule has a test.** The test's title starts with the name in brackets, then given, when, then: `[turn:month-turns-on-empty-bank] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0011)`. A rule with numbers gets a test at each edge, and reads its numbers from content.
 - **`pnpm check:rules`** fails a rule with no test, a test that cites a name that does not exist, and a name defined on a page it does not name. `tools/rules-pending.json` lists the rules still waiting; it is rewritten only by `pnpm check:rules --write-pending`, never by hand.
 - **Tests are not loosened to pass.** An existing test, golden file, schema or lint rule is never edited, deleted, skipped or weakened to get a pass. If one is wrong, stop and report. CI fails a pull request that changes a protected file unless a maintainer adds the `approved-test-change` label (`tools/check/protected.ts`).
-- **A bug fix starts with a failing test.**
+- **The test fails first.** It is written, run and seen to fail for the right reason before the code that makes it pass. A bug fix starts with a failing test that shows the bug.
+- **Both ways.** `pnpm check:rules` fails a rule nobody tests and a test that cites a rule nobody wrote, so the rule pages and the tests cannot drift apart.
 - **Goldens change one way.** The golden files in `packages/sim/src/goldens/` are recorded lives replayed against a stored result. Only the maintainer re-records them (`pnpm record:lives`) and blesses them (`pnpm bless`), with the reason in the commit.
 - **Decisions are written down.** A change to determinism, the ledger's reasons, or the command and view types needs a record in `docs/decisions/`.
 
-## Worktrees
+## How the work is organised
 
-Each piece of work gets its own branch in its own worktree beside the main checkout, so several can run at once without touching each other.
+Most changes here are made by AI coding agents, several at once, each on one piece of work. What keeps that safe is not trust in any one agent: it is the order above (rule, failing test, code), one check that every change must pass, roles that keep planning, building and reviewing apart, and a few habits that keep parallel work from losing anything. None of it is specific to one tool; any agent that can run a shell and git can work this way, and so can a person.
+
+```mermaid
+flowchart LR
+  ask["The maintainer's request"] --> lead["Lead: rules and briefs"]
+  lead --> b1["Builder: worktree 1"]
+  lead --> b2["Builder: worktree 2"]
+  lead --> r["Reviewer: read only"]
+  b1 -->|"report"| review["Lead reviews against the code"]
+  b2 -->|"report"| review
+  r -->|"findings by harm"| lead
+  review --> wave["One merge branch per wave"]
+  wave --> staging["Staging"] --> production["Production"]
+```
+
+### The roles
+
+- **The lead** is one long session that owns the plan. It turns the maintainer's request into rules on the rule pages (the maintainer agrees them) and into briefs, one per piece. It reviews every hand-back against the code itself: it reads the diff, runs the tests the piece touched, and never takes a report's word for what landed. It merges, runs the full check, and deploys when the maintainer says so.
+- **Builders** each take one brief, in their own git worktree on their own branch. A builder stays in the folders its brief names, writes the failing test before the code, runs only the tests it touches while it works, commits small with explicit paths, and hands back a report. It never pushes, merges or deploys.
+- **Reviewers** read and never write. They audit one thing (security, the screens as a player meets them, the logic of one system, a tree before it is published) and return findings ranked by harm: what is wrong, where (file and line), and why it matters. Each finding becomes a brief of its own, or is dropped with a reason.
+
+### The brief
+
+A builder starts with nothing but its brief and the repository, so the brief carries everything the piece needs:
+
+- **Why**: the request in the maintainer's own words, so the builder can judge the cases the brief did not foresee.
+- **The piece**: numbered items, each small enough to commit alone, naming the files where that is known.
+- **The rules to cite**: the rule names the tests must carry. New rules are on the rule pages before the brief goes out.
+- **The standing rules**: stay in the worktree; never push, deploy or touch a database; which checks to run at the end; the report's shape.
+
+```md
+# Brief: <the piece>
+
+Worktree `../japacity-wt/<dir>`, branch `<piece>/<name>`, from main <commit>.
+Read `AGENTS.md` and `.claude/skills/japacity-dev/SKILL.md` first.
+
+## Why
+<The request, in the maintainer's words, and what it is for.>
+
+## The piece
+1. <One change, with its files and the rule it cites.>
+2. <The next.>
+
+Rules: `<kind>:<rule-name>`, ...
+
+## Standing rules
+- Stay in this worktree. Never push, deploy or touch a database.
+- Failing test first. Never weaken an assertion.
+- Run the tests you touch, then `pnpm typecheck`, `pnpm lint`, `pnpm check:rules`.
+- Report: commits; each item with its files; rules you could not build or test, and why;
+  the last lines of each command.
+```
+
+### Worktrees
+
+Each piece gets its own branch in its own worktree beside the main checkout, so several builders can run at once without touching each other's files:
 
 ```sh
 git worktree add -b <piece>/<name> ../japacity-wt/<dir> main
@@ -209,11 +270,57 @@ cd ../japacity-wt/<dir>
 pnpm install --frozen-lockfile --offline
 ```
 
-Use your own dev server port, stay in the folders your piece names, and commit small, with a subject that says what changed and where. Run the full check before pushing; when several checkouts share one machine, hold a lock so only one check runs at a time:
+Each worktree uses its own dev server port, the one its brief gives. The main checkout is the lead's; a builder never commits there.
+
+### Parallel work
+
+- **Independent pieces run at once**, each in its own worktree. Pieces that touch the same files either wait for each other or merge in an order the lead sets, and the later one is rebased or merged on top of the earlier.
+- **A conflicted file is read against both sides.** Before a hand merge is committed, the file is diffed against each branch, so neither side's change is lost to the side that was kept.
+- **One full check at a time.** `pnpm check` builds and tests everything and is heavy, so on one machine it runs under a shared lock. `mkdir` either makes the folder or fails, atomically, so it is the lock:
+
+  ```sh
+  until mkdir /tmp/japacity-check-lock 2>/dev/null; do sleep 20; done; pnpm check; rmdir /tmp/japacity-check-lock
+  ```
+
+  A lock folder older than any check could take, with no check running, is stale and removed.
+- **Browser suites wait for a quiet machine.** A loaded machine makes timing tests fail that are not broken, so the browser suite runs when nothing else heavy does, and a failure is run again alone before it is believed.
+
+### Landing in waves
+
+Finished pieces land together, in waves, so the expensive steps run once per wave and not once per piece:
+
+1. The lead merges the wave's branches, in the order set, into one merge branch.
+2. One full check and one browser suite run on that branch.
+3. The branch lands in `main`, and a push to `main` deploys staging once CI passes.
+4. Staging is looked at, then production is deployed from a release tag.
+
+After every merge, a short script checks that every worktree's tip is in `main`, so no commit made on a side branch, or on a detached head, is lost:
 
 ```sh
-until mkdir /tmp/japacity-check-lock 2>/dev/null; do sleep 20; done; pnpm check; rmdir /tmp/japacity-check-lock
+git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r dir; do
+  tip=$(git -C "$dir" rev-parse HEAD)
+  git merge-base --is-ancestor "$tip" main || echo "not in main: $dir $tip"
+done
 ```
+
+### Keeping context across long sessions
+
+A lead session runs for days, and an agent's context is compacted or restarted on the way. Nothing that matters lives only in the conversation:
+
+- **A running log**: what was decided, what landed, what is next, kept short and updated as it happens.
+- **The maintainer's instructions, recorded as they arrive**, with the time, so a later session follows the latest word and not a remembered one.
+- **A handover file** that a fresh session reads first: where things stand, what is open, and the commands to pick up from.
+- **Reports saved beside the work**: each builder writes its report to `REPORT.md` at its worktree's root and updates it as each item is done, so a builder that restarts loses nothing.
+
+These are working files, not the product: they stay out of the published tree (`.gitignore` lists `REPORT.md`, `REPORT/` and `.scratch/`).
+
+### The simulation's guard rails
+
+The simulation is deterministic, so a life can be replayed from its commands, and a few checks hold that true however many agents change it:
+
+- **Goldens and recorded lives replay.** The golden files in `packages/sim/src/goldens/` are recorded lives replayed turn by turn against a stored result, on every test run. A change that moves one is a finding, never something to fix by editing the file.
+- **`pnpm bless` is the only way they change.** The maintainer re-records (`pnpm record:lives`), blesses, and says in the commit which golden moved, from which month, and why.
+- **The content version is sealed.** `pnpm check:version` holds the content's data and the simulation's code to a fingerprint sealed with the content version (server:content-version-sealed). Before the version is raised, `pnpm content:freeze` keeps the shipped content as it shipped (server:older-content-frozen), so lives saved under it still replay; then the version is raised and sealed again with `pnpm content:seal`.
 
 ## The play driver
 
@@ -259,7 +366,5 @@ Each recipe starts the same way: the entry and its rules are on the kind's rule 
 
 ## Writing anything here
 
-- No em-dash or en-dash anywhere: code, comments, docs, commit messages, player text.
 - Short plain sentences. No emoji. No exclamation marks from the narrator.
 - Player text follows [the words page](../../rules/text.md). See [The content](./content.md) for how words are keyed.
-- Never name another game or product in the repository, a commit or a report.

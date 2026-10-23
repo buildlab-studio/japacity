@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-Once a week the whole world draws together. The draw changes money, and money changes only inside the simulation, yet the draw itself needs a secret, a public beacon and every ticket in the world, which only the server has. A shared pot makes a ticket's worth depend on how many play: while players are few, a pot made up by the house turns each ticket into free money.
+Once a week the whole world draws together. The draw changes money, and money changes only inside the simulation, yet the draw itself needs a secret, a public beacon and every ticket in the world, which only the server has. A shared pot makes a ticket's worth depend on how many play, so the same ticket would be a different bet from one week to the next, and a pot made up by the house could make a ticket worth more than its price.
 
 ## Decision
 

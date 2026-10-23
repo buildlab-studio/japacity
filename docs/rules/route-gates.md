@@ -52,7 +52,7 @@ A sponsor is an employer abroad who holds a licence and gives you a certificate.
 | `offer.sponsor-tech-firm` | uk-skilled | 4% | 4 | 2 | 15% | `salary` a draw £42,000 to £60,000 by £1,000; `fee` ₦6,000,000 if a fraud | `pays-for-cos` (5, 80), `licensed-register` (90, 25), `video-interview` (90, 40), `whatsapp-only` (10, 70), `start-date` (80, 30) | `take`, `decline`. Needs `quality.tech` 60 or more |
 | `offer.sponsor-agency` | uk-skilled | 6% | 3 | 1 | 50% | `salary` a draw £38,000 to £45,000 by £500; `fee` ₦5,000,000 | the same five signs | `take`, `decline`. The one that beats the others on every visible number |
 
-Sign words: `pays-for-cos` "They want you to pay for the certificate." `licensed-register` "The company is on the public register of licensed sponsors." `video-interview` "There was an interview on video with the manager." `whatsapp-only` "Everything happens on WhatsApp." `start-date` "They gave a start date and a rota."
+Sign words: `pays-for-cos` "They want you to pay for the certificate." `licensed-register` "The company is on the public register of licensed sponsors." `video-interview` "There was an interview on video with the manager." `whatsapp-only` "Everything happens in a chat app." `start-date` "They gave a start date and a rota."
 
 ## The points gate: `route.canada-points`
 
@@ -185,7 +185,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Talent visa fee | £205 | Apr 2026 | `var.uk-talent-visa-fee` 20500 |
 | Endorsement wait | 1 to 2 months | Tech Nation guidance, 5 to 8 weeks | `document.endorsement` wait [1, 2] |
 | Endorsement validity | 3 months | gov.uk | `document.endorsement` validMonths 3 |
-| Gulf agent fee | ₦900,000 to ₦1,800,000 | Working value from reported losses of ₦450,000 and £1,775 | `offer.gulf-agent` terms |
+| Gulf agent fee | ₦900,000 to ₦1,800,000 | Working value from a reported loss of ₦450,000; charging workers recruitment fees is illegal in the UAE | `offer.gulf-agent` terms |
 | Gulf guard pay | AED 1,500 to 2,200 a month, accommodation included | 2024 to 2025 listings | `offer.gulf-agent` terms |
 | UAE window for Nigerians | Closed Oct 2022 to Jul 2024, open since | | `var.uae-window` start 2; the director's story closes it |
 | Deception ban | 120 months | gov.uk | `country.uk.deceptionBanMonths` 120 |
@@ -213,7 +213,7 @@ All read on 7 Oct 2026.
 - [CIC News: healthcare draw, Feb 2026](https://www.cicnews.com/2026/02/latest-express-entry-draw-sees-thousands-of-healthcare-professionals-invited-0271898.html), [immigration.ca: 3,500 healthcare invitations, Sep 2026](https://immigration.ca/canada-invites-3500-healthcare-workers-express-entry-september-4-2026/)
 - [Liberty Immigration: proof of funds 2026](https://libertyimmigration.ca/express-entry-proof-of-funds-2026-updated-settlement-fund-requirements/)
 - [Migrate UK: Global Talent fees 2026](https://migrate-uk.com/articles/global-talent-visa-fees-2026-complete-cost-breakdown), [Lewis Silkin: digital technology applicants](https://lewissilkin.com/en/insights/factsheet-global-talent-digital-technology-applicants)
-- [Pakistan Bureau of Emigration: UAE security guard listings, AED 1,200 to 2,267](https://beoe.gov.pk/foreign-jobs/1279899/1498048/55-security-guards-required-in-united-arab-emirates-salary-1200-2267-dirham-aed), [Legit: a Nigerian's ₦450,000 loss to a Dubai agent](https://www.legit.ng/people/1472165-i-got-scammed-lied-my-parents-nigerian-lady-uaes-first-female-delivery-rider-opens-video/), [BHRRC: fees of up to £1,775 for Gulf guard jobs](https://www.bhrrc.org/ja/最新ニュース/g4s-faces-calls-to-repay-fees-paid-by-migrant-workers-to-recruitment-agents-for-jobs-in-gulf-states-conflict-zones-includes-co-comments/)
+- [Pakistan Bureau of Emigration: UAE security guard listings, AED 1,200 to 2,267](https://beoe.gov.pk/foreign-jobs/1279899/1498048/55-security-guards-required-in-united-arab-emirates-salary-1200-2267-dirham-aed), [Legit: a Nigerian's ₦450,000 loss to a Dubai agent](https://www.legit.ng/people/1472165-i-got-scammed-lied-my-parents-nigerian-lady-uaes-first-female-delivery-rider-opens-video/), [UAE government: charging workers recruitment fees is illegal](https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-rights)
 - [Africanews: UAE lifts the 2022 visa ban](https://africanews.com/2024/07/17/uae-lifts-2022-visa-ban-on-nigerians)
 
 ## Not verified

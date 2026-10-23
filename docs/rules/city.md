@@ -196,18 +196,18 @@ Positions are `latE3, lonE3`. All checked against OpenStreetMap through its sear
 
 ### Businesses, by made-up name
 
-Working names until city:made-up-names-checked is passed.
+Every name below is made up; its searches are recorded in `packages/content/src/place/place.names.json` (city:made-up-names-checked).
 
-| Id or shopfront | Working name | In | Scope | Stages |
+| Id or shopfront | Name | In | Scope | Stages |
 |---|---|---|---|---|
-| `place.yaba-hub` | Third Floor Hub | `place.yaba` | interior | (inside `place.yaba`) |
+| `place.yaba-hub` | Inverter Room | `place.yaba` | interior | (inside `place.yaba`) |
 | shopfront | Lagoonside Bank, Broad Street branch | `place.broad-street` | exterior sign | |
 | `place.olokun-office` | Olokun Microfinance (already in `offer.held-funds`) | Victoria Island | interior | `offer.held-funds`, `offer.salary-loan`; the school's deposit is paid at its counter (route:deposit-secures-school) |
 | shopfront | Five-Five Lotto | `place.bode-thomas` | exterior sign | |
-| shopfront | Correct Score betting shop | `place.bode-thomas` | exterior sign | |
-| shopfront | Bright Path School | `place.adeniran-ogunsanya` | exterior sign | |
-| shopfront | Gold Crown Salon | `place.ogba` | exterior sign | |
-| shopfront | Clearline Contact Centre | `place.victoria-island` | exterior sign | |
+| shopfront | Late Equaliser betting shop | `place.bode-thomas` | exterior sign | |
+| shopfront | Tall Mango School | `place.adeniran-ogunsanya` | exterior sign | |
+| shopfront | Twelve Combs Salon | `place.ogba` | exterior sign | |
+| shopfront | Morning Shift Contact Centre | `place.victoria-island` | exterior sign | |
 | `place.agent-office` | an office with a name on the door (the name is the offer's) | Ikeja | interior | `offer.held-funds-agent`, `offer.gulf-agent`, `activity.see-agent-office`, `offer.agent-office` |
 
 ### Homes and stylised places

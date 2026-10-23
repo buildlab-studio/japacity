@@ -27,18 +27,18 @@ Ask these in order. The first yes decides.
 | Who is in a place | Shows a sample | Held in memory, short-lived | Not stored |
 | Messages | Shows them | Checks connection, blocks, rate | Stored. See section 4 |
 | Content | Bundled | Bundled | Only ids, and the content version a save was made under |
-| Models, sounds, images | Loaded from static hosting | | Advertiser images, after review, in file storage |
+| Models, sounds, images | Loaded from static hosting | | Advert images, after review, in file storage |
 | Sound and graphics settings | On the device | | |
 | Sign-in secrets, payment details | Never | Handled by the sign-in library and, for any payment, a payment provider | References only |
 | Analytics | Sends batched counters | Receives and checks them | A separate store |
 
-**Advertisers book by hand.** A submission comes by a form outside the game or by email and waits in quarantine for review (advert:submissions-never-auto-post). Self-serve booking is not part of the game: it would need its own pages and the same review.
+**Adverts are reviewed by hand.** A submission comes from outside the game and waits in quarantine until a person reviews it; nothing posts by itself (advert:submissions-never-auto-post).
 
 **Real-time connection: a nudge, not a pipe.** A socket tells the client "something changed", and the client fetches it by an ordinary request. Game state never travels over the socket. It keeps the server simple and cheap.
 
 ## 3. Why the server is the authority
 
-Trusting the client keeps server cost tiny, which is how a browser game holds tens of thousands of players at once on almost nothing. It also lets a player set their own balance and predict their own results, and the clean-up afterwards hurts honest players. So the server is the authority, and the client runs the same code only to show results early. Our rates, proof of funds, pair records, and japacity scores are worthless if a player can edit them.
+Trusting the client would keep the server's work small. It would also let a player set their own balance and predict their own results, and the clean-up afterwards hurts honest players. So the server is the authority, and the client runs the same code only to show results early. Our rates, proof of funds, pair records, and japacity scores are worthless if a player can edit them.
 
 ## 4. Messages between players
 
@@ -99,7 +99,7 @@ The game has no typed text. If it had, this is how it would live:
 
 **What to watch:**
 
-1. **The database is the one thing that must be sized.** At a viral peak of 100,000 players online it handles about 420 commands a second, one transaction each. Heartbeats and presence stay off it.
+1. **The database is the one thing that must be sized.** At a peak of 100,000 players online it handles about 420 commands a second, one transaction each. Heartbeats and presence stay off it.
 2. **Lagos to London is about 100 ms** each way for a command. The client shows the command as sent until the reply arrives (server:client-never-predicts), and the server runs near the database (server:worker-placed-near-database) so the reply crosses once. A command that draws no random number and reads no hidden field can be predicted on the client; nothing in the contract blocks it.
 3. **Cloudflare has had six published outages in two years.**
 4. **The bill has no cap.** Spending alerts and per-player rate limits are the guard (server:spending-alerts).

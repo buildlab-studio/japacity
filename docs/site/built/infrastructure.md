@@ -139,8 +139,10 @@ Local runs read their settings from files git ignores: `.dev.vars` for `wrangler
 
 ## How things moved
 
-- 8 Oct 2026: a gate Worker took the route `japacity.app/*` in front of the game's Worker while the game was closed to the public, and a Cloudflare Access application shielded the host as well.
-- 11 Oct 2026: the fifteen migrations were squashed into a clean set of two before the first production deploy. `ADMIN_ACCOUNTS` became a Worker secret. Cloudflare Email Service was chosen to send the email (decision 0007).
-- 15 Oct 2026: the migrations were squashed again, into `0000_japacity.sql`, and both Neon branches were reset to it.
-- 16 Oct 2026: production's tick went from every thirty minutes to every five, when the Neon project moved to a paid plan.
-- 17 Oct 2026: the game opened. The Access application and the gate's route were deleted, and the game's Worker answers `japacity.app` as its Custom Domain. The gate Worker and its holding page were deleted.
+The infrastructure was not always this shape. In order:
+
+- **Closed, then open.** While the game was closed to the public, a small gate Worker held the route in front of the game's Worker and showed a holding page, and an access check stood in front of the host as well, so production could run before anyone played. When the game opened, the gate and the check came off, and the game's Worker now answers `japacity.app` itself as its Custom Domain.
+- **One clean starting migration.** The migrations written while the schema settled were squashed into one file, `0000_japacity.sql`, before the first players, and both databases started from it; every migration since only adds (`packages/db/README.md`, server:migration-before-deploy).
+- **Secrets out of config.** The admin list, `ADMIN_ACCOUNTS`, moved from a variable to a Worker secret, so no deployment's admins are written in a committed file.
+- **Email.** Cloudflare Email Service was chosen to send the email codes and notices, as a binding on the Worker with no API key to keep (decision 0007).
+- **The tick.** Production's world tick went from every thirty minutes to every five once its database no longer had to sleep between runs. Staging keeps thirty minutes so its database can sleep (clock:cron-stores-missing-ticks).

@@ -129,9 +129,9 @@ export const guideText: Record<string, string> = {
   // guide.gulf-work
   "guide.gulf-work.title": "Work in the Gulf: contracts, agents and the passport rule",
   "guide.gulf-work.section.real":
-    "The United Arab Emirates (UAE) stopped new visas for Nigerians in October 2022 and lifted the ban in July 2024. Guard and cleaning jobs are listed at about 1,200 to 2,267 dirhams (AED) a month, often with a room.\n\nThe employer is meant to pay for the visa and the ticket. Reporting shows agents charging workers fees for the same jobs, up to £1,775 for guard work, and people losing money to agents who never sent them anywhere. The National Agency for the Prohibition of Trafficking in Persons (NAPTIP) has stopped groups of women headed for Gulf work through trafficking rings.",
+    "The United Arab Emirates (UAE) stopped new visas for Nigerians in October 2022 and lifted the ban in July 2024. Guard and cleaning jobs are listed at about 1,200 to 2,267 dirhams (AED) a month, often with a room.\n\nThe employer is meant to pay for the visa and the ticket, and the UAE's own government page says charging workers a recruitment fee is illegal there. Reporting still shows people paying agents fees and losing the money to agents who never sent them anywhere. The National Agency for the Prohibition of Trafficking in Persons (NAPTIP) has stopped groups of women headed for Gulf work through trafficking rings.",
   "guide.gulf-work.section.game": "In the game an agent is an offer that may be real or a fraud, and a fraud simply keeps your money. On a real contract the employer pays the flight and holds your passport while the contract runs: that is the game's rule, kept simple. Check the law of the country you are going to on its official pages.",
-  "guide.gulf-work.section.next": "Read the reporting on agents' fees and on the Dubai loss, and the job listings for real pay ranges.",
+  "guide.gulf-work.section.next": "Read the UAE's page on recruitment fees, the reporting on the Dubai loss, and the job listings for real pay ranges.",
 
   // guide.road
   "guide.road.title": "The road north: what people who came back say, and where to get help",

@@ -1,10 +1,7 @@
 # Secret scanning: gitleaks with its default rules, run on every pull request's commits by the
 # check workflow (.github/workflows/check.yml) and locally with `gitleaks git --config .gitleaks.toml` or
-# `gitleaks dir --config .gitleaks.toml`. Nothing here is allowed by its value: each entry names a place, a shape or
-# a commit, and says why what is there is not a secret.
-#
-# The workflow scans only a pull request's own commits. The entries for old commits matter only to a scan of the
-# whole history, which the maintainer runs locally, and to the public repository if it carries this history.
+# `gitleaks dir --config .gitleaks.toml`. Nothing here is allowed by its value: each entry names a place or a shape,
+# and says why what is there is not a secret.
 
 title = "Japacity"
 
@@ -29,6 +26,14 @@ paths = ['''\.test\.tsx?$''', '''(^|/)e2e/[^/]+\.spec\.ts$''']
 [[rules.allowlists]]
 description = "Content ids"
 regexes = ['''^[a-z][a-z0-9-]*(\.[a-z0-9-]+)+$''']
+
+# The passkey providers' AAGUIDs: published authenticator model ids from the community list, which name a password
+# manager and prove nothing (apps/client/src/shared/net/providers.ts). Only that file, and only a UUID in that place.
+[[rules.allowlists]]
+description = "Published passkey AAGUIDs in the provider map"
+condition = "AND"
+paths = ['''^apps/client/src/shared/net/providers\.ts$''']
+regexes = ['''^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$''']
 
 # Places and shapes that are never a secret, for every rule.
 [[allowlists]]

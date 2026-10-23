@@ -33,7 +33,7 @@ What holds, stated plainly, with the rule ids and files it rests on.
 What follows, good and bad, and what the decision does not change.
 ```
 
-The file is `NNNN-a-short-slug.md`, numbered after the last record. A record cites rules by id and other records by number (`decision 0004`). It states the decision as it holds, never the steps that led to it: no dates, no people, no quotes, no reviews, no branches, and no other game.
+The file is `NNNN-a-short-slug.md`, numbered after the last record. A record cites rules by id and other records by number (`decision 0004`). It states the decision as it holds, never the steps that led to it: no dates, no people, no quotes, no reviews and no branches.
 
 ## Changing a decision
 

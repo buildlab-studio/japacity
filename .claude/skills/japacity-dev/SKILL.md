@@ -112,9 +112,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 
 ## Writing, everywhere
 
-- No em-dash or en-dash, in code, comments, docs, commit messages or player text. Use a full stop, a comma, a colon or brackets.
 - Short plain sentences. No filler. No emoji. No exclamation marks from the narrator.
-- Never name another game or product in the repository, a commit or a report.
 
 ## Branches, worktrees and the report
 
@@ -125,7 +123,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
   ```
   Use the dev server port your task gives (`pnpm --filter @japacity/client exec vite --port <n> --strictPort`). Never use another piece's port.
 - **Stay in your folders.** Your task names them. Anything else you need changed goes in your report, with file, line and why.
-- **Commits**: small, a subject that says what changed and where, `git add` with explicit paths. No attribution lines, trailers or footers of any kind, and nothing that names an AI.
+- **Commits**: small, a subject that says what changed and where, `git add` with explicit paths.
 - **Push your branch** only when `pnpm check` ends `CHECK PASSED` and your task says to. Never force-push, never touch `main`, never deploy. The maintainer merges.
 - **The report** (`REPORT.md` at the worktree's root, never committed): what you built by rule name; the last lines of `pnpm check`; every change outside your folders and why; rules you could not build or test; what you would look at next. Update it after each piece is done, so a restart loses nothing.
 
@@ -134,4 +132,3 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 1. The test that cites the rule fails without your change and passes with it.
 2. `pnpm check` ends `CHECK PASSED`, and its last lines are in the report.
 3. `git diff main --stat` shows only your folders, or the report says why not.
-4. No em-dash or en-dash anywhere you wrote: `git diff main | grep -nP "\x{2014}|\x{2013}"` prints nothing.

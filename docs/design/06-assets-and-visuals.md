@@ -180,9 +180,9 @@ Six touches beyond the baseline, each with its weight and what to watch for.
 
 ## 9. Rules for AI-made media
 
-Players have punished some uses hard. One game replaced its cutscenes with AI video and fell to 36% positive reviews before reversing. Another was cancelled a day after showing AI art.
+Generated media earns its place only when it is honest about what it is and never stands in for the play.
 
-1. **Say so.** The game states plainly where generated media is used. The worst reactions came when it surfaced later. A clip made with a generation tool carries a small "Made with AI tools" line in its corner while it plays, and the opening clip says so on its first frame: the EU's disclosure duty covers generated media that resembles real people, places or events, and labelling every clip is simpler than judging each.
+1. **Say so.** The game states plainly where generated media is used. A player should never find it out later. A clip made with a generation tool carries a small "Made with AI tools" line in its corner while it plays, and the opening clip says so on its first frame: the EU's disclosure duty covers generated media that resembles real people, places or events, and labelling every clip is simpler than judging each.
 2. **No faces in clips.** Hands, places, objects, backs.
 3. **Clips reward moments. They do not tell the story.** The story is played.
 4. **Everything is skippable.**

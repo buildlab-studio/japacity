@@ -22,15 +22,16 @@ const DAVIDSON_COSTS = source("Davidson Morris: Skilled Worker costs 2026", "htt
 const SECRET_FILMING = source("BBC via Graphic: secret filming of sponsorship sellers", "https://www.graphic.com.gh/international/international-news/secret-filming-reveals-brazen-tactics-of-uk-immigration-scammers.html");
 const CARE_EXTORTION = source("Guardian Nigeria: care jobs extortion scheme", "https://guardian.ng/news/nigerian-doctor-indicted-for-care-jobs-extortion-scheme-in-uk/");
 const CRS_GRID = source("immigration.ca: the CRS grid", "https://www.immigration.ca/express-entry-crs-grid/");
-const GULF_FEES = source("BHRRC: fees of up to £1,775 for Gulf guard jobs", "https://www.bhrrc.org/ja/最新ニュース/g4s-faces-calls-to-repay-fees-paid-by-migrant-workers-to-recruitment-agents-for-jobs-in-gulf-states-conflict-zones-includes-co-comments/");
+const FEES_READ = "2026-10-23";
+const GULF_FEES = source("u.ae: charging workers recruitment fees is illegal in the UAE", "https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-rights", FEES_READ);
 const DUBAI_LOSS = source("Legit: a Nigerian's ₦450,000 loss to a Dubai agent", "https://www.legit.ng/people/1472165-i-got-scammed-lied-my-parents-nigerian-lady-uaes-first-female-delivery-rider-opens-video/");
 const IOM_RETURNS = source("IOM Nigeria: returns home with IOM assistance", "https://nigeria.iom.int/news/over-8000-nigerian-migrants-return-home-iom-assistance-past-12-months");
 const PIE_FUNDS = source("The PIE News: proof of funds loans, 2023", "https://thepienews.com/?p=180187");
 const THE_LENDING = source("Times Higher Education: visa money lending, 2022", "https://www.timeshighereducation.com/news/visa-money-lending-scams-commonplace-warns-ex-minister");
 const PIE_AGENTS = source("The PIE News: agents and immigration rules, 2022", "https://thepienews.com/uk-nigerian-agents-help-students-break-immigration-rules/");
 
-function guide(id: Id<"guide">, routes: Id<"route">[], kinds: string[], sources: Source[]): GuideEntry {
-  return { id, routes, kinds, sources, checkedOn: CHECKED, sections: GUIDE_SECTIONS };
+function guide(id: Id<"guide">, routes: Id<"route">[], kinds: string[], sources: Source[], checkedOn: string = CHECKED): GuideEntry {
+  return { id, routes, kinds, sources, checkedOn, sections: GUIDE_SECTIONS };
 }
 
 export const guideTable: Record<Id<"guide">, GuideEntry> = {
@@ -110,6 +111,7 @@ export const guideTable: Record<Id<"guide">, GuideEntry> = {
       DUBAI_LOSS,
       source("Channels: Saudi-bound women stopped", "https://www.channelstv.com/2025/08/18/naptip-rescues-25-saudi-bound-women-from-trafficking-ring"),
     ],
+    FEES_READ,
   ),
   "guide.road": guide(
     "guide.road",
@@ -165,6 +167,7 @@ export const guideTable: Record<Id<"guide">, GuideEntry> = {
       PIE_AGENTS,
       source("Immigration and Asylum Act 1999, section 82", "https://www.legislation.gov.uk/ukpga/1999/33/section/82", GUIDES_PAGE),
     ],
+    FEES_READ,
   ),
   "guide.numbers": guide(
     "guide.numbers",
