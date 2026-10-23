@@ -41,6 +41,7 @@ export const uiAccountSheetText: Record<string, string> = {
   "ui.account.passkey.added-on": "Added {date}",
   "ui.account.passkey.remove": "Remove",
   "ui.account.passkey.remove.named": "Remove {name}, added {date}",
+  "ui.account.passkey.remove.ask": "Remove {name}? Any phone signed in with it is signed out.",
   "ui.account.passkey.last.google": "This is your last passkey. You can still sign in with Google.",
   "ui.account.passkey.last.email": "This is your last passkey. You can still sign in with a code sent to {email}.",
   "ui.account.passkey.last.go": "Remove it",

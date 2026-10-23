@@ -17,9 +17,13 @@ export interface AgeRequest {
 /** A pass, or `under-age`, `bad-date`, and `switched-off` while sign-ups are off. */
 export type AgeReply = { ok: true } | ServerRejection;
 
-/** `GET /api/age`: whether this browser was refused at the age screen and must not be asked again (account:age-screen-refuses-minors). */
+/**
+ * `GET /api/age` (account:age-screen-refuses-minors): whether this browser was refused at the age screen and must not be asked again, and
+ * whether it holds a pass not yet spent nor run out, so a reload or Back before Begin goes on to the door without asking again.
+ */
 export interface AgeStatus {
   refused: boolean;
+  passed: boolean;
 }
 
 /** `GET /api/account`: the account as its owner sees it. No age date (account:only-needed-data-kept), no email (the auth library's session holds that). */

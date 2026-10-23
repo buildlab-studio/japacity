@@ -2,6 +2,8 @@
 // name and the day it was added, with Remove; adding one where the browser can make it (account:passkey-offered-where-it-works),
 // offered once on this device as a quiet line; and the confirmation a session older than the server's fresh age needs
 // before a passkey is added, made in place with a code or the account's own passkey (account:passkey-needs-signed-in-session).
+// Removing any passkey asks once, naming that phones signed in with it are signed out, and for the last one the way still
+// left; Keep it is the main button, Remove it wears the warning colour apart from it (world:costly-acts-confirmed).
 import type { AccountView } from "@japacity/api";
 import { useEffect, useState } from "react";
 
@@ -67,7 +69,7 @@ function lastWords(ways: AccountView["ways"]): string {
 }
 
 /** `passkeyOnly`: the server asks for a session that has shown a passkey (an admin's, account:passkey-needs-signed-in-session), which a code does not open. */
-type Step = { kind: "idle" } | { kind: "confirm"; email: string | null; passkeyOnly?: true } | { kind: "last"; row: PasskeyRow };
+type Step = { kind: "idle" } | { kind: "confirm"; email: string | null; passkeyOnly?: true } | { kind: "remove"; row: PasskeyRow; name: string };
 
 /** `known`: the account has been read, so `ways` is the server's and not a stand-in while it loads. */
 export function PasskeyList({ account, ways, known }: { account: AccountApi; ways: AccountView["ways"]; known: boolean }) {
@@ -159,7 +161,7 @@ export function PasskeyList({ account, ways, known }: { account: AccountApi; way
     void refreshAccount(account);
   };
 
-  const asked = (row: PasskeyRow) => (held <= 1 ? setStep({ kind: "last", row }) : void remove(row));
+  const asked = (row: PasskeyRow, name: string) => setStep({ kind: "remove", row, name });
   const offering = offer && !later && held === 0;
 
   return (
@@ -178,7 +180,7 @@ export function PasskeyList({ account, ways, known }: { account: AccountApi; way
                   <span className="block truncate font-bold">{name}</span>
                   <span className="block text-sm text-text-2">{added}</span>
                 </span>
-                <Button small disabled={busy} aria-label={say("ui.account.passkey.remove.named", { name, date: dayOf(row.addedAt) })} onClick={() => asked(row)}>
+                <Button small disabled={busy} aria-label={say("ui.account.passkey.remove.named", { name, date: dayOf(row.addedAt) })} onClick={() => asked(row, name)}>
                   {say("ui.account.passkey.remove")}
                 </Button>
               </li>
@@ -186,15 +188,18 @@ export function PasskeyList({ account, ways, known }: { account: AccountApi; way
           })}
         </ul>
       )}
-      {step.kind === "last" ? (
+      {step.kind === "remove" ? (
         <div className="motion-reveal flex flex-col gap-2" role="group">
-          <p>{lastWords(ways)}</p>
-          <div className="flex flex-wrap gap-2">
-            <Button disabled={busy} onClick={() => void remove(step.row)}>
-              {say("ui.account.passkey.last.go")}
-            </Button>
-            <Button disabled={busy} onClick={() => setStep({ kind: "idle" })}>
+          <p>{say("ui.account.passkey.remove.ask", { name: step.name })}</p>
+          {held <= 1 ? <p>{lastWords(ways)}</p> : null}
+          <div>
+            <Button variant="primary" disabled={busy} onClick={() => setStep({ kind: "idle" })}>
               {say("ui.account.passkey.last.keep")}
+            </Button>
+          </div>
+          <div className="mt-1 border-t border-sheet-line pt-3">
+            <Button variant="warning" disabled={busy} onClick={() => void remove(step.row)}>
+              {say("ui.account.passkey.last.go")}
             </Button>
           </div>
         </div>

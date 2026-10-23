@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, test } from "vitest";
 
 import { api, type Fetch } from "../../shared/net/http";
+import { onPhoneAppAsked } from "../../shared/phone/ask";
 import { formatMoney } from "../../shared/words/format";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
@@ -181,6 +182,21 @@ describe("the admin's passkey, asked in place", () => {
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText(words("admin.passkey.none"))).toBeTruthy();
     expect(within(sheet).queryByRole("button", { name: words("admin.passkey.use") })).toBeNull();
+  });
+
+  test("[moderation:admin-view-for-admin-list] given a listed admin with no passkey yet, when Open Settings is pressed on the sheet, then the sheet closes onto the game and the phone is asked for its Settings, where a passkey is added", async () => {
+    const asked: string[] = [];
+    const stop = onPhoneAppAsked((app) => asked.push(app));
+    const server = fakeServer({ "GET /api/account": () => accountReply(false, 0) });
+    mountAt(server);
+    const sheet = await screen.findByRole("dialog");
+    const open = within(sheet).getByRole("button", { name: words("admin.passkey.settings") });
+    expect(open.className).toContain("bg-accent");
+    fireEvent.click(open);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(asked).toEqual(["settings"]);
+    expect(screen.getByText("the game")).toBeTruthy();
+    stop();
   });
 
   test("[moderation:admin-view-for-admin-list] given the admin page open, when an admin route is refused because the passkey's window closed, then the page gives way to the sheet, which asks for the passkey again", async () => {

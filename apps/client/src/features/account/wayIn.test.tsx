@@ -291,6 +291,28 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
     expect(account.calls).toContain("signOut()");
   });
 
+  test("[world:costly-acts-confirmed] [account:guest-secures-the-life] given the way to a saved life offered to a guest, then Carry on playing is the main button and comes first, the way out wears the warning colour apart from it, and Carry on playing keeps the guest in", async () => {
+    const account = guest();
+    await signedInGuest(
+      account,
+      <>
+        <GuestReminder />
+        <Gone />
+      </>,
+    );
+    fireEvent.click(await button("ui.account.start.returning"));
+    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.stay") });
+    const go = screen.getByRole("button", { name: say("ui.secure.taken.open") });
+    expect(keep.className).toContain("bg-accent");
+    expect(go.className).toContain("text-bad");
+    expect(go.className).not.toContain("bg-accent");
+    expect(keep.compareDocumentPosition(go) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(keep.parentElement).not.toBe(go.parentElement);
+    fireEvent.click(keep);
+    expect(screen.queryByText(say("ui.secure.taken.ends"))).toBeNull();
+    expect(account.calls).not.toContain("signOut()");
+  });
+
   test("[account:guest-secures-the-life] given the month report's line after the first chapter, then it carries no way to another life", async () => {
     await signedInGuest(guest(), <GuestReminder afterFirstChapter returning={false} />);
     expect(screen.queryByRole("button", { name: say("ui.account.start.returning") })).toBeNull();
@@ -513,6 +535,21 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
     });
     expect(asks).toBe(0);
     expect(screen.getByRole("button", { name: say("ui.account.passkey") })).toBeDefined();
+  });
+
+  test("[account:passkey-errors-told-apart] given the passkey button's prompt cancelled on the ways back in, then it is told quietly as nothing happened: no alert and not in the warning colour; a refusal still is", async () => {
+    const answers: AuthResult[] = [{ ok: false, why: "cancelled" }, { ok: false, why: "passkey-gone" }];
+    const account = fakeAccount({ signInWithPasskey: () => Promise.resolve(answers.shift() ?? OK) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={cannot} passkeyUsed={false} />);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey") }));
+    const said = await screen.findByText(say("ui.account.fail.cancelled"));
+    expect(said.getAttribute("role")).not.toBe("alert");
+    expect(said.className).not.toContain("text-bad");
+    expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey") }));
+    const refused = await screen.findByRole("alert");
+    expect(refused.textContent).toBe(say("ui.account.fail.passkey-gone"));
+    expect(screen.queryByText(say("ui.account.fail.cancelled"))).toBeNull();
   });
 
   test("[account:passkey-in-email-autofill] given an autofill ask cancelled or refused, then nothing is said", async () => {

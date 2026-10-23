@@ -3,7 +3,7 @@
 import type { AccountView } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Id, InviteCard } from "@japacity/sim";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { App } from "../../app/App";
@@ -16,7 +16,7 @@ import { api } from "../../shared/net/http";
 import { engineView } from "../../shared/testing/fixtures";
 import { fakeModeration } from "../../shared/testing/moderation";
 import "../../shared/testing/render";
-import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
+import { BASE, deferred, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { nameOf, say, words } from "../../shared/words/text";
 import { answerAge } from "./age.testing";
 import { inviteCodeOf, InvitePage, InviteServerProvider } from "./InvitePage";
@@ -102,6 +102,16 @@ function openLink(server: FakeServer, accountApi: AccountApi) {
     </ModerationProvider>,
   );
   return { store, moderation };
+}
+
+/** The page alone over a faked server, `onDone` the shell's way to the game. */
+function alone(server: FakeServer, onDone: () => void = () => undefined) {
+  const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
+  render(
+    <GameProvider store={store}>
+      <InvitePage code={CODE} server={api({ baseUrl: BASE, fetch: server.fetch })} onDone={onDone} />
+    </GameProvider>,
+  );
 }
 
 async function comeIn() {
@@ -205,17 +215,81 @@ describe("the invite link's page", () => {
     expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(false);
   });
 
-  test("[pair:invite-link-single-use] given a link already used, then the page says so plainly and offers nothing", async () => {
+  test("[pair:invite-link-single-use] given a link already used, then the page says so plainly, asks for a new card, shows no card, and its one way on is Open Japacity, which leaves for the game", async () => {
     const server = fakeServer();
     server.answer(`GET /api/invite/${CODE}`, { body: { ok: false, code: "used", detail: "This link has been used." } });
+    const left: string[] = [];
+    alone(server, () => left.push("game"));
+    expect(await screen.findByText(words("reject.used"))).toBeDefined();
+    expect(screen.getByText(say("ui.invite.again"))).toBeDefined();
+    expect(screen.queryByRole("figure")).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.invite.retry") })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.invite.open") }));
+    expect(left).toEqual(["game"]);
+  });
+
+  test("[pair:invite-link-single-use] given a link the game does not know, then the page says the link is not right, asks for a new card and offers Open Japacity", async () => {
+    const server = fakeServer();
+    server.answer(`GET /api/invite/${CODE}`, { status: 404, body: { ok: false, code: "bad-code", detail: "There is no such link." } });
+    alone(server);
+    expect(await screen.findByText(words("reject.bad-code"))).toBeDefined();
+    expect(screen.getByText(say("ui.invite.again"))).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
+    expect(screen.queryByText(say("ui.account.fail.unreachable"))).toBeNull();
+  });
+
+  test("[pair:invite-link-single-use] given the server out of reach, then the page says the link could not be checked, with Retry, which asks again and shows the card, and Open Japacity", async () => {
+    const server = fakeServer();
+    server.answer(`GET /api/invite/${CODE}`, () => Promise.reject(new TypeError("Failed to fetch")));
+    alone(server);
+    expect(await screen.findByText(say("ui.invite.unchecked"))).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
+    server.answer(`GET /api/invite/${CODE}`, { body: { ok: true, slot: "partner", looking: "partner", expires: 9_000, card: CARD } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.invite.retry") }));
+    expect(await screen.findByRole("figure")).toBeDefined();
+    expect(server.sent.filter((request) => request.path === `/api/invite/${CODE}`)).toHaveLength(2);
+    expect(screen.queryByText(say("ui.invite.unchecked"))).toBeNull();
+  });
+
+  test("[pair:invite-link-single-use] given the link still being checked, then the page shows the shared loader under its words, and Open Japacity", async () => {
+    const server = fakeServer();
+    const held = deferred<{ body: unknown }>();
+    server.answer(`GET /api/invite/${CODE}`, () => held.promise);
+    alone(server);
+    expect(await screen.findByRole("progressbar", { name: say("ui.invite.checking") })).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
+    held.resolve({ body: { ok: true, slot: "partner", looking: "partner", expires: 9_000, card: CARD } });
+    expect(await screen.findByRole("figure")).toBeDefined();
+    expect(screen.queryByRole("progressbar", { name: say("ui.invite.checking") })).toBeNull();
+  });
+
+  test("[pair:invite-link-single-use] given the game offline, then the page says links need the game online, and offers Open Japacity", () => {
     const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
     render(
       <GameProvider store={store}>
-        <InvitePage code={CODE} server={api({ baseUrl: BASE, fetch: server.fetch })} />
+        <InvitePage code={CODE} server={null} />
       </GameProvider>,
     );
-    expect(await screen.findByText(words("reject.used"))).toBeDefined();
-    expect(screen.queryByRole("figure")).toBeNull();
+    expect(screen.getByText(say("ui.invite.offline"))).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
+  });
+
+  test("[pair:invite-link-single-use] given the card shown, then Open Japacity stands under it whether the friend is signed out, a guest asked to save first, or signed in to take it", async () => {
+    openLink(cardServer(), account());
+    await screen.findByRole("figure");
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
+    cleanup();
+    const guestServer = cardServer();
+    openLink(guestServer, account("passed", () => guestServer.answer("GET /api/view", NO_CHARACTER), "guest"));
+    await answerAge("1990-05-01");
+    fireEvent.change(await screen.findByLabelText(say("ui.account.name.label")), { target: { value: "ada_lagos" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
+    expect(await screen.findByText(say("ui.invite.keep-first"))).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
+    cleanup();
+    openLink(cardServer("sibling", NO_CHARACTER), account());
+    expect(await screen.findByRole("button", { name: say("ui.invite.take") })).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.invite.open") })).toBeDefined();
   });
 
   test.each([

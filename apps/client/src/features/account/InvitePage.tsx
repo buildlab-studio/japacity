@@ -5,6 +5,9 @@
 // the slot it was made for. A partner link
 // needs a grown-up life, the friend's own or a new one; a sibling link always
 // starts a new life (person:real-sibling-shares-family-draw). No advert shows here (advert:no-adverts-on-protected-screens).
+// No state of the page is a dead end (pair:invite-link-single-use): each has Open Japacity, the game at its own address; a
+// link used, old or unknown says so and asks for a new card, one the server could not be asked about offers Retry, and
+// the wait while it is checked shows the shared loader. Once the card is taken, Play is that way in.
 import type { AcceptReply, AcceptRequest, InviteShown, InviteShownReply, ServerRejection } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -17,6 +20,7 @@ import { FROM_SIXTEEN } from "../../shared/front-door/archetypes";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { api, type Api } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
+import { Loader } from "../../shared/ui/Loader";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { runningName, say, words } from "../../shared/words/text";
 import { AccountGate, type AccountGateProps } from "./AccountGate";
@@ -32,7 +36,8 @@ export function inviteCodeOf(path: string): string | null {
 /** A partner's new life starts grown up: the prologue's life starts at sixteen (person:three-ways-to-fill-slots). */
 const GROWN_UP = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => id !== FROM_SIXTEEN);
 
-type Stage = { kind: "loading" } | { kind: "refused"; why: string } | { kind: "card"; shown: InviteShown } | { kind: "taken"; shown: InviteShown };
+/** `unchecked`: the server could not be reached to check the link. */
+type Stage = { kind: "loading" } | { kind: "refused"; why: string } | { kind: "unchecked" } | { kind: "card"; shown: InviteShown } | { kind: "taken"; shown: InviteShown };
 
 function buildServer(): Api | null {
   const mode = authorityMode();
@@ -170,6 +175,9 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
   const guest = useGuest();
   const closeLifeChooser = useGame((state) => state.closeLifeChooser);
   const [stage, setStage] = useState<Stage>({ kind: "loading" });
+  // Each Retry asks the server again.
+  const [asked, setAsked] = useState(0);
+  const leave = () => onDone?.();
 
   useEffect(() => {
     if (server === null) return;
@@ -180,16 +188,39 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
         if (live) setStage(reply.ok ? { kind: "card", shown: reply } : { kind: "refused", why: refusedWords(reply) });
       })
       .catch(() => {
-        if (live) setStage({ kind: "refused", why: say("ui.account.fail.unreachable") });
+        if (live) setStage({ kind: "unchecked" });
       });
     return () => {
       live = false;
     };
-  }, [server, code]);
+  }, [server, code, asked]);
 
-  if (server === null) return <Page>{say("ui.invite.offline")}</Page>;
-  if (stage.kind === "loading") return <Page>{say("ui.account.loading")}</Page>;
-  if (stage.kind === "refused") return <Page alert>{stage.why}</Page>;
+  if (server === null) return <Page onOpen={leave}>{say("ui.invite.offline")}</Page>;
+  if (stage.kind === "loading")
+    return (
+      <Page onOpen={leave} waiting>
+        {say("ui.invite.checking")}
+      </Page>
+    );
+  if (stage.kind === "refused")
+    return (
+      <Page onOpen={leave} alert more={say("ui.invite.again")}>
+        {stage.why}
+      </Page>
+    );
+  if (stage.kind === "unchecked")
+    return (
+      <Page
+        onOpen={leave}
+        alert
+        onRetry={() => {
+          setStage({ kind: "loading" });
+          setAsked((count) => count + 1);
+        }}
+      >
+        {say("ui.invite.unchecked")}
+      </Page>
+    );
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8" data-invite-page>
@@ -226,17 +257,45 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
       ) : signedIn ? (
         <Accept server={server} code={code} shown={stage.shown} onTaken={() => setStage({ kind: "taken", shown: stage.shown })} />
       ) : (
-        <p className="text-text-2">{say("ui.account.loading")}</p>
+        <div className="flex flex-col gap-2">
+          <p className="text-text-2">{say("ui.account.loading")}</p>
+          <Loader label={say("ui.account.loading")} />
+        </div>
+      )}
+      {stage.kind === "taken" ? null : (
+        <div>
+          <Button variant="quiet" onClick={leave}>
+            {say("ui.invite.open")}
+          </Button>
+        </div>
       )}
     </main>
   );
 }
 
-function Page({ children, alert = false }: { children: string; alert?: boolean }) {
+/**
+ * A page with no card: the words, a second line where there is one, and the ways on: Retry first where the server could not
+ * be asked, else Open Japacity as the main button. `waiting`: the shared loader under the words while the link is checked.
+ */
+function Page({ children, alert = false, more = null, waiting = false, onOpen, onRetry = null }: { children: string; alert?: boolean; more?: string | null; waiting?: boolean; onOpen: () => void; onRetry?: (() => void) | null }) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8" data-invite-page>
       <Wordmark ground="light" className="mt-2 mb-2" />
-      <p role={alert ? "alert" : undefined}>{children}</p>
+      <div className="flex flex-col gap-2">
+        <p role={alert ? "alert" : undefined}>{children}</p>
+        {more === null ? null : <p className="text-text-2">{more}</p>}
+        {waiting ? <Loader label={children} /> : null}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {onRetry === null ? null : (
+          <Button variant="primary" onClick={onRetry}>
+            {say("ui.invite.retry")}
+          </Button>
+        )}
+        <Button variant={onRetry === null && !waiting ? "primary" : "secondary"} onClick={onOpen}>
+          {say("ui.invite.open")}
+        </Button>
+      </div>
     </main>
   );
 }

@@ -41,10 +41,10 @@ export function useLifeName(): string {
   return view === null ? "" : pageOf(view).name;
 }
 
-type AccountSheet = typeof import("./Settings");
+export type AccountSheet = typeof import("./Settings");
 
 /** The sheet's code and its words, each fetched once. */
-function loadAccountSheet(): Promise<AccountSheet> {
+export function loadAccountSheet(): Promise<AccountSheet> {
   return Promise.all([import("./Settings"), loadLaterWords("sheet")]).then(([sheet]) => sheet);
 }
 

@@ -24,10 +24,11 @@ import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { inAppBrowser } from "./inApp";
-import { askWaysBackIn } from "./marks";
+import { askWaysBackIn, backFromDeleteTrip } from "./marks";
 import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { tellWay, WayToast } from "./WayToast";
+import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 import { secureAskedKey } from "../../shared/storage/storage";
 
 const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userAgent);
@@ -50,8 +51,11 @@ export function useOpenKeptLife(): (email: string | null) => Promise<AuthResult>
   };
 }
 
-/** The way to the kept life, with what it costs said first. */
-function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: ReactNode }) {
+/**
+ * The way to the kept life, with what it costs said first. It throws this guest life away, so Carry on playing is the main
+ * button and the way out wears the warning colour apart from it (world:costly-acts-confirmed).
+ */
+function OpenKeptLife({ email, lead = null, onKeep }: { email: string | null; lead?: ReactNode; onKeep: () => void }) {
   const open = useOpenKeptLife();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -60,7 +64,13 @@ function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: Rea
       {lead}
       <p className="text-[14px]">{say("ui.secure.taken.ends")}</p>
       <div>
+        <Button variant="primary" disabled={busy} onClick={onKeep}>
+          {say("ui.guest.sign-out.stay")}
+        </Button>
+      </div>
+      <div className="mt-1 border-t border-sheet-line pt-3">
         <Button
+          variant="warning"
           disabled={busy}
           onClick={() => {
             setBusy(true);
@@ -188,7 +198,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
               {problem}
             </p>
           )}
-          {taken === null ? null : <OpenKeptLife email={taken.email} />}
+          {taken === null ? null : <OpenKeptLife email={taken.email} onKeep={() => setTaken(null)} />}
           <div>
             <Button variant="quiet" onClick={() => openChange(false)}>
               {say("ui.secure.later")}
@@ -261,6 +271,8 @@ export function SecureAsk() {
   const [problem, setProblem] = useState<string | null>(null);
   const [kept, setKept] = useState<"google" | null>(null);
   const [taken, setTaken] = useState(false);
+  // account:player-deletes-account: the account sheet's code, fetched to open the delete confirmation again after Google.
+  const [again, setAgain] = useState<AccountSheet | null>(null);
   const won = useRef(earlyWin);
   useEffect(() => {
     won.current = earlyWin;
@@ -282,6 +294,13 @@ export function SecureAsk() {
     if (account === null) return;
     const back = account.returnedFromGoogle();
     if (back === null) return;
+    // account:player-deletes-account: back from Google to confirm a deletion: the confirmation stands open again, for the same account only.
+    if (back === "delete") {
+      void refreshAccount(account).then((now) => {
+        if (now !== null && backFromDeleteTrip(now.id)) loadAccountSheet().then(setAgain, () => undefined);
+      });
+      return;
+    }
     // A kept life signed back in to with Google: the world says so, and nothing opens.
     if (back === "signed-in") {
       tellWay(account, "in.google");
@@ -329,6 +348,7 @@ export function SecureAsk() {
   return (
     <>
       <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} kept={kept} taken={taken} />
+      {again === null ? null : <again.DeleteAgain account={account} onClose={() => setAgain(null)} />}
       <WayToast account={account} />
     </>
   );
@@ -355,7 +375,7 @@ export function GuestReminder({ afterFirstChapter = false, returning = !afterFir
         </Button>
       </div>
       {!returning ? null : leaving ? (
-        <OpenKeptLife email={null} />
+        <OpenKeptLife email={null} onKeep={() => setLeaving(false)} />
       ) : (
         <div>
           <Button variant="quiet" small onClick={() => setLeaving(true)}>

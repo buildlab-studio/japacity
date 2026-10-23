@@ -2,8 +2,9 @@
 // turns the start screen round (account:start-screen-over-live-city), and that a passkey was added or used here, which
 // puts the passkey first on the ways back in (account:passkey-in-email-autofill). The game never clears either: a
 // signed-out player is the one most likely to come back. And the hand-over from a guest life to the ways back in, when
-// the guest chose to open the life it kept before (account:guest-secures-the-life).
-import { browserStorage, KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
+// the guest chose to open the life it kept before (account:guest-secures-the-life). And the account a trip to Google left
+// from to confirm a deletion, so only the same account coming back is asked again (account:player-deletes-account).
+import { browserStorage, DELETE_TRIP_KEY, KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
 
 function marked(key: string): boolean {
   try {
@@ -46,4 +47,16 @@ export const waysBackInAsked = (): Asked | null => asked;
 
 export function doneWaysBackIn(): void {
   asked = null;
+}
+
+/** Whether the account now signed in is the one the trip to Google left from; the mark goes as it is read. */
+export function backFromDeleteTrip(account: string): boolean {
+  try {
+    const store = browserStorage("session");
+    const left = store?.getItem(DELETE_TRIP_KEY) ?? null;
+    store?.removeItem(DELETE_TRIP_KEY);
+    return left === account;
+  } catch {
+    return false;
+  }
 }

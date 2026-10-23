@@ -41,7 +41,7 @@ import { loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
 
 type Standing = AgeStanding | FullStanding | "loading" | "failed";
 
-/** Where the player is on the way in: the start screen, the age screen, or the ways back in to a kept life. */
+/** Where the player is on the way in: the start screen, the age screen (the door once the age is passed), or the ways back in to a kept life. */
 type Step = "start" | "age" | "returning";
 
 /** The screen a standing and a step show; `door` is the three-screen door, the new life's page at its end. */
@@ -146,7 +146,8 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // the life instead, where the shell tells it (Secure.tsx), so it never lands here.
   useEffect(() => {
     const failed = account?.returnedFromGoogle() ?? null;
-    if (failed === null || failed === "kept" || failed === "signed-in") return;
+    // A deletion's trip that came back signed out has nothing to confirm; the start screen stands.
+    if (failed === null || failed === "kept" || failed === "signed-in" || failed === "delete") return;
     setStep("returning");
     setBack(failureWords({ ok: false, why: failed }));
   }, [account]);
@@ -165,7 +166,11 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     account
       .ageStatus()
       .then((found) => {
-        if (!gone) setStanding(found);
+        if (gone) return;
+        setStanding(found);
+        // account:age-screen-refuses-minors: a pass still held means the player was past the age screen before this reload or Back,
+        // so the gate opens on the door's step (its run kept) instead of the start screen and the age asked again.
+        if (found === "passed") setStep((now) => (now === "start" ? "age" : now));
       })
       .catch(() => {
         if (!gone) setStanding("failed");

@@ -53,6 +53,12 @@ export const KEPT_MARK_KEY = "japacity.account.kept";
 /** That a passkey was added or used in this browser (account:passkey-in-email-autofill): "1" or nothing, with no account data in it. */
 export const PASSKEY_MARK_KEY = "japacity.account.passkey";
 
+/**
+ * account:player-deletes-account: the account a trip to Google left to confirm a deletion for, in the tab's storage; only the
+ * same account coming back reopens the confirmation, and the mark goes as it is read.
+ */
+export const DELETE_TRIP_KEY = "japacity.account.delete-trip";
+
 /** The key an account's ask to secure it is marked under, once per account and moment. */
 export function secureAskedKey(account: string, moment: string): string {
   return `japacity-secure-asked:${account}:${moment}`;

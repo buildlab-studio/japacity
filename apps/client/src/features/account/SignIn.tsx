@@ -71,6 +71,8 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   // What the trip to Google came back with stands at the top; what a way on this sheet answers stands at its foot, by the ways.
   const [returned, setReturned] = useState<string | null>(given);
   const [problem, setProblem] = useState<string | null>(null);
+  // account:passkey-errors-told-apart: a prompt the player cancelled is told as nothing happened, quietly, never as a refusal.
+  const [quiet, setQuiet] = useState<string | null>(null);
   useEffect(() => setReturned(given), [given]);
   const inApp = inAppBrowser(agent);
   // Passkeys are not offered inside an app's own browser, where they are unreliable: no button, no autofill.
@@ -106,7 +108,9 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
     setReturned(null);
     try {
       const result = await action();
-      setProblem(failureWords(result));
+      const cancelled = !result.ok && result.why === "cancelled";
+      setProblem(cancelled ? null : failureWords(result));
+      setQuiet(cancelled ? failureWords(result) : null);
       if (result.ok && by === "passkey") markPasskeyHere();
       if (result.ok && by !== null) onSignedIn(by);
     } finally {
@@ -161,6 +165,9 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
           </Button>
         </div>
       )}
+      <p role="status" className={quiet === null ? "sr-only" : "text-[14px] text-text-2"}>
+        {quiet ?? ""}
+      </p>
       {problem === null ? null : (
         <p role="alert" className="text-bad">
           {problem}

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { PASS_COOKIE, PASS_PREFIX, REFUSED_COOKIE } from "../account/age";
+import { PASS_COOKIE, PASS_PREFIX, PASS_TTL_MS, REFUSED_COOKIE } from "../account/age";
 import { harness, makeJar } from "../auth/auth.testing";
 import { productionConfig } from "../config";
 
@@ -97,7 +97,49 @@ describe("GET /api/age", () => {
     const h = harness();
     const reply = await h.call("/api/age", { jar: makeJar() });
     expect(reply.status).toBe(200);
-    expect(await reply.json()).toEqual({ refused: false });
+    expect(await reply.json()).toEqual({ refused: false, passed: false });
+  });
+
+  test("[account:age-screen-refuses-minors] given a passed screen, when the standing is read while the pass holds, then it reports passed, so a reload or Back before Begin does not ask again", async () => {
+    const h = harness();
+    const jar = makeJar();
+    await h.passAge(jar);
+    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: false, passed: true });
+  });
+
+  test("[account:age-screen-refuses-minors] given a pass, then its cookie's path covers both the standing and the guest start, so the browser sends it to each", async () => {
+    const h = harness();
+    const reply = await h.passAge(makeJar());
+    const line = (reply.headers.get("set-cookie") ?? "").split(/,(?=\s*[\w-]+=)/).find((cookie) => cookie.trim().startsWith(`${PASS_COOKIE}=`)) ?? "";
+    const path = /;\s*Path=([^;]*)/i.exec(line)?.[1] ?? "";
+    expect(path).not.toBe("");
+    // A cookie's path covers a request whose path is the same or starts with it and a slash (RFC 6265 section 5.1.4).
+    const covers = (request: string) => request === path || request.startsWith(path.endsWith("/") ? path : `${path}/`);
+    expect(covers("/api/age")).toBe(true);
+    expect(covers("/api/guest")).toBe(true);
+  });
+
+  test("[account:age-screen-refuses-minors] given the pass spent by the guest start, when the standing is read with the pass cookie still sent, then it is not passed", async () => {
+    const h = harness();
+    const jar = makeJar();
+    await h.passAge(jar);
+    const copy = makeJar();
+    copy.cookies.set(PASS_COOKIE, jar.cookies.get(PASS_COOKIE) ?? "");
+    expect((await h.startGuest(jar)).status).toBe(200);
+    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: false, passed: false });
+    expect(await (await h.call("/api/age", { jar: copy })).json()).toEqual({ refused: false, passed: false });
+  });
+
+  test("[account:age-screen-refuses-minors] given a pass, when its time is up, then the standing is not passed; a moment before, it is", async () => {
+    let now = Date.now();
+    const h = harness({ now: () => now });
+    const jar = makeJar();
+    await h.passAge(jar);
+    const start = now;
+    now = start + PASS_TTL_MS - 1;
+    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: false, passed: true });
+    now = start + PASS_TTL_MS;
+    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: false, passed: false });
   });
 
   test("[account:age-screen-refuses-minors] given a browser refused at the screen, when its standing is read, then it is refused, from the cookie alone", async () => {
@@ -105,15 +147,15 @@ describe("GET /api/age", () => {
     const jar = makeJar();
     await h.passAge(jar, { dateOfBirth: bornYearsAgo(h.deps.config.account.minAge, 1) });
     expect(jar.cookies.has(REFUSED_COOKIE)).toBe(true);
-    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: true });
-    expect(await (await h.call("/api/age", { headers: { cookie: `${REFUSED_COOKIE}=1` } })).json()).toEqual({ refused: true });
+    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: true, passed: false });
+    expect(await (await h.call("/api/age", { headers: { cookie: `${REFUSED_COOKIE}=1` } })).json()).toEqual({ refused: true, passed: false });
   });
 
   test("[account:sign-up-open-everywhere] given a request from Australia, when the standing is read, then it answers as it does anywhere", async () => {
     const h = harness();
     const reply = await h.call("/api/age", { country: "AU" });
     expect(reply.status).toBe(200);
-    expect(await reply.json()).toEqual({ refused: false });
+    expect(await reply.json()).toEqual({ refused: false, passed: false });
   });
 
   test("[account:sign-up-open-everywhere] [server:four-off-switches] given sign-ups switched off, when the standing is read, then the gate answers 503 switched-off with the wait, refused cookie or not", async () => {

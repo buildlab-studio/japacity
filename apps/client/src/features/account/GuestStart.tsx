@@ -8,7 +8,7 @@
 // browser that keeps no sign-in (account:bot-check-on-guest-creation).
 import { USERNAME, USERNAME_LONGEST as LONGEST } from "@japacity/api";
 import { Check } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 
 import type { AccountApi, FreeAnswer, GuestFailure } from "../../shared/net/auth";
 import { isReported } from "../../shared/net/http";
@@ -52,6 +52,25 @@ const GUEST_WORDS: Record<GuestFailure, string> = {
   refused: "ui.account.fail.refused",
 };
 
+/** The guest start's refusals that are about the name itself, which the player fixes in the box (account:username-typed-and-checked). */
+const NAME_REFUSALS: readonly GuestFailure[] = ["format", "reserved", "blocked", "taken", "wait"];
+
+/**
+ * account:username-typed-and-checked: a Begin refused brings the box into view with its reason under it, and, when the name is the
+ * reason, focuses it. Centred, so the reason under the box stays in view with a phone's keyboard up; a refusal that is not
+ * the name's leaves the focus where it was, so no keyboard rises over it.
+ */
+function bringBoxIntoView(box: HTMLInputElement | null, focus: boolean): void {
+  if (box === null) return;
+  if (focus) box.focus({ preventScroll: true });
+  if (typeof box.scrollIntoView === "function") box.scrollIntoView({ block: "center" });
+}
+
+/** Enter as the player means it: not while a word is being composed, and with no modifier held. */
+function plainEnter(event: KeyboardEvent<HTMLInputElement>): boolean {
+  return event.key === "Enter" && !event.nativeEvent.isComposing && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey;
+}
+
 /** Why a username cannot be sent as typed: empty, or not account:username-and-unconfirmed-email's shape. */
 function usernameProblem(username: string): string | null {
   if (username.trim() === "") return say("ui.account.name.empty");
@@ -62,8 +81,12 @@ function usernameProblem(username: string): string | null {
 export interface GuestDoor {
   /** Why the username cannot be sent as typed, or null. */
   check: (username: string) => string | null;
-  /** The username field, empty until typed and checked as it is typed, its rule's words, the guest line and the unseen check, for the page. */
-  fields: (value: string, onChange: (username: string) => void, problem: string | null) => ReactNode;
+  /** The username field, empty until typed and checked as it is typed, its rule's words, the guest line and the unseen check, for the page; Enter in it is `onEnter`. */
+  fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void) => ReactNode;
+  /** account:username-typed-and-checked: a Begin refused for the name as typed brings the box into view and focuses it. */
+  reveal: () => void;
+  /** The username box, for the page that holds it. */
+  box: RefObject<HTMLInputElement | null>;
   /** Makes the guest life with this username, as typed. Resolves to null once the life is made (or was made already), else to what to say. */
   start: (username: string) => Promise<string | null>;
   /** account:username-typed-and-checked: whether a name is free, as the box asks while the player types. */
@@ -105,6 +128,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   }, [sitekey, load]);
   // Made once: a Begin pressed again after the character failed to start goes straight on, unless the session went with it.
   const made = useRef(false);
+  const box = useRef<HTMLInputElement | null>(null);
 
   async function once(username: string): Promise<GuestFailure | null> {
     const bot = await check.token();
@@ -124,6 +148,8 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     }
     if (why === "expired") onExpired();
     if (why === "full") onFull();
+    // The age screen or the full screen takes the page's place for those two; every other refusal is said under the box.
+    if (why !== "expired" && why !== "full") bringBoxIntoView(box.current, NAME_REFUSALS.includes(why));
     const trouble = check.trouble();
     if (why === "bot-check" && trouble !== null) return say(BOT_WORDS[trouble]);
     return say(GUEST_WORDS[why]);
@@ -133,7 +159,9 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   const ask = useCallback((username: string) => account.usernameFree(username), [account]);
   return {
     check: usernameProblem,
-    fields: (value, onChange, problem) => <GuestFields value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} />,
+    fields: (value, onChange, problem, onEnter) => <GuestFields box={box} value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} {...(onEnter === undefined ? {} : { onEnter })} />,
+    reveal: () => bringBoxIntoView(box.current, true),
+    box,
     start,
     ask,
     widget: check.widget,
@@ -179,7 +207,7 @@ export function useFreeCheck(value: string, ask: (username: string) => Promise<F
 }
 
 /** The username on the page, its rule, the check as it is typed, and the guest line said once (account:username-and-unconfirmed-email, account:username-typed-and-checked, account:guest-reminded-to-secure). */
-function GuestFields({ value, onChange, problem, ask, widget }: { value: string; onChange: (username: string) => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode }) {
+function GuestFields({ box, value, onChange, onEnter, problem, ask, widget }: { box: RefObject<HTMLInputElement | null>; value: string; onChange: (username: string) => void; onEnter?: () => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode }) {
   const free = useFreeCheck(value, ask);
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
@@ -187,8 +215,10 @@ function GuestFields({ value, onChange, problem, ask, widget }: { value: string;
         {say("ui.account.name.label")}
       </label>
       <input
+        ref={box}
         id="guest-username"
         className={`mt-1.5 ${FIELD}`}
+        enterKeyHint="go"
         value={value}
         maxLength={LONGEST}
         autoComplete="off"
@@ -197,6 +227,12 @@ function GuestFields({ value, onChange, problem, ask, widget }: { value: string;
         aria-invalid={problem !== null || (free !== null && free !== "free")}
         aria-describedby="guest-username-check guest-username-said"
         onChange={(event) => onChange(event.target.value)}
+        // account:username-typed-and-checked: Enter in the box is Begin; inside the invite page's form it submits on its own.
+        onKeyDown={(event) => {
+          if (onEnter === undefined || !plainEnter(event)) return;
+          event.preventDefault();
+          onEnter();
+        }}
       />
       {/* Polite, so the answer is heard as the player types; Begin's own refusal below is the alert. */}
       {/* A free name in money in's green with a tick, read on the sheet by day and by night (world:reach-and-read). */}
@@ -238,6 +274,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
     const typed = usernameProblem(username);
     if (typed !== null) {
       setProblem(typed);
+      door.reveal();
       return;
     }
     setBusy(true);
@@ -250,7 +287,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={(event) => void start(event)} noValidate data-guest-form>
-      <GuestFields value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} />
+      <GuestFields box={door.box} value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} />
       <div>
         <Button type="submit" variant="primary" disabled={busy}>
           {say("ui.account.name.go")}

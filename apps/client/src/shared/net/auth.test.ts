@@ -55,6 +55,14 @@ describe("the age screen's routes, as the server built them", () => {
     expect(await api.declareAge("2000-01-01")).toEqual({ full: true, retryAfter: 30 });
   });
 
+  test("[account:age-screen-refuses-minors] given a browser holding a pass, when it asks where it stands, then it is passed; a pass beside a refusal is refused, and a reply with no pass named is still to ask", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { body: { refused: false, passed: true } }, { body: { refused: true, passed: true } }, { body: { refused: false } });
+    expect(await api.ageStatus()).toBe("passed");
+    expect(await api.ageStatus()).toBe("refused");
+    expect(await api.ageStatus()).toBe("unasked");
+  });
+
   test("[server:signups-off-shows-full] given sign-ups open and a browser never refused, when it asks where it stands, then the age screen is still to ask", async () => {
     const { server, api } = account();
     server.answer("GET /api/age", { body: { refused: false } });
@@ -191,6 +199,19 @@ describe("the guest start and the username, as the server built them", () => {
     expect(api.returnedFromGoogle()).toBeNull();
     history.replaceState(null, "", "/?error=no-account");
     expect(api.returnedFromGoogle()).toBe("no-life");
+  });
+});
+
+describe("the trip to Google to confirm a deletion (account:player-deletes-account)", () => {
+  test("[account:player-deletes-account] given a trip to Google to confirm a deletion, when it leaves, then it comes back marked as that trip, and the page reads it once as the deletion's", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/sign-in/social", { body: { url: "https://accounts.google.test/o", redirect: false } });
+    expect(await api.signInWithGoogle(null, "delete")).toEqual({ ok: true });
+    const body = server.sent.find((request) => request.path === "/api/auth/sign-in/social")?.body as { callbackURL: string };
+    history.replaceState(null, "", new URL(body.callbackURL).search);
+    expect(api.returnedFromGoogle()).toBe("delete");
+    expect(location.search).toBe("");
+    expect(api.returnedFromGoogle()).toBeNull();
   });
 });
 

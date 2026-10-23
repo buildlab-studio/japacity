@@ -4,7 +4,8 @@
 // never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the lively layer's cards
 // (docs/design/09-the-lively-layer.md section 2): a white card with the looking line as a sticker chip, the character's
 // face sticker beside the maker's heading (never on the card, which carries no look to the friend), the pressed yellow
-// button for the one action and a ghost button for taking the card back.
+// button for the one action and a ghost button for taking the card back. Once the link is got it goes on through the
+// device's share sheet, or, where there is none or it fails, onto the clipboard (pair:invite-link-single-use).
 import { content, text } from "@japacity/content";
 import { INVITE_FILLS } from "@japacity/sim";
 import { Link2, Send } from "lucide-react";
@@ -75,6 +76,30 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
   );
 }
 
+/** pair:invite-link-single-use: the link sent on through the device's share sheet, or copied where there is none or it failed. A closed sheet says nothing. */
+function SendOn({ link }: { link: string }) {
+  const [sheet, setSheet] = useState(() => typeof navigator.share === "function");
+  const [copied, setCopied] = useState<string | null>(null);
+  const send = () =>
+    sheet
+      ? navigator.share({ text: say("ui.people.invite.share-text"), url: link }).catch((error: unknown) => setSheet(error instanceof DOMException && error.name === "AbortError"))
+      : navigator.clipboard.writeText(link).then(
+          () => setCopied("ui.people.invite.copied"),
+          () => setCopied("ui.people.invite.copy-failed"),
+        );
+  return (
+    <div className="flex flex-col gap-1">
+      <PressButton className="w-full" onClick={() => void send()}>
+        {sheet ? <Send size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
+        {say(sheet ? "ui.people.invite.share" : "ui.people.invite.copy")}
+      </PressButton>
+      <p role="status" className={copied === null ? "sr-only" : "text-[14px]"}>
+        {copied === null ? "" : say(copied)}
+      </p>
+    </div>
+  );
+}
+
 function Link({ api, slot }: { api: PairApi; slot: string }) {
   const [link, setLink] = useState<string | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
@@ -94,9 +119,12 @@ function Link({ api, slot }: { api: PairApi; slot: string }) {
   };
   if (link !== null) {
     return (
-      <div className="lively-card flex flex-col gap-1 p-3 text-[14px]" data-invite-link>
-        <p className="break-all font-semibold">{say("ui.people.invite.link", { link })}</p>
-        <p className="text-text-2">{say("ui.people.invite.link-days", { days: content.tuning.pair.inviteDays })}</p>
+      <div className="flex flex-col gap-2">
+        <div className="lively-card flex flex-col gap-1 p-3 text-[14px]" data-invite-link>
+          <p className="break-all font-semibold">{say("ui.people.invite.link", { link })}</p>
+          <p className="text-text-2">{say("ui.people.invite.link-days", { days: content.tuning.pair.inviteDays })}</p>
+        </div>
+        <SendOn link={link} />
       </div>
     );
   }
