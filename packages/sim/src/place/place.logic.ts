@@ -35,7 +35,7 @@ import type {
   WayHome,
   WhereEntry,
 } from "../engine/types";
-import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
+import { amnestyHolds, carryFineHome, countryEntry, fineOwed, inGrace, isKept, isOverstayer, overstayOf, removalBanMonths, statusEntry } from "../status/status.logic";
 import { FAMILY_HOUSE, homeCharges } from "../home/home.logic";
 import { drives } from "../thing/thing.logic";
 import type { PlaceEvent } from "./place.events";
@@ -137,10 +137,54 @@ export function capitalBonus(read: ReadCtx): number {
  * reads `status.removals` and `place.returns`.
  */
 export function bannedUntil(read: ReadCtx, country: Id<"country">): number | null {
-  const removed = read.state.status.removals.filter((removal) => removal.country === country);
-  if (removed.length === 0) return null;
   const months = removalBanMonths(read.content, country);
-  return Math.max(...removed.map((removal) => removal.month + months));
+  const ends = [
+    ...read.state.status.removals.filter((removal) => removal.country === country).map((removal) => removal.month + months),
+    // place:leaving-an-overstay-bans: a return from an overstay records its ban, read the same way; a ban of 0 records nothing.
+    ...(read.state.place.overstays ?? []).filter((left) => left.country === country && left.banMonths > 0).map((left) => left.month + left.banMonths),
+  ];
+  return ends.length === 0 ? null : Math.max(...ends);
+}
+
+/** status:overstay-counts-as-refusal: the overstays on a country's record: each return past the grace and each removal. */
+export function overstaysIn(read: ReadCtx, country: Id<"country">): number {
+  const returns = (read.state.place.overstays ?? []).filter((left) => left.country === country && left.pastGrace).length;
+  return returns + read.state.status.removals.filter((removal) => removal.country === country).length;
+}
+
+/**
+ * place:leaving-an-overstay-bans: the ban a return in this shape records on the country, from an overstayer status: none at the character's own fare
+ * in the grace or while the amnesty holds (status:uae-amnesty), the entry's figure otherwise. A return from any other status records none, and a
+ * removal's is the removal's own (place:removal-bans-the-country).
+ */
+export function overstayBan(read: ReadCtx, shape: ReturnShape): number {
+  const now = overstayOf(read);
+  if (now === null || amnestyHolds(read, now.entry.id)) return 0;
+  switch (shape) {
+    case "by-choice":
+    case "broke":
+      return inGrace(read) ? 0 : (now.entry.ownFareBanMonths ?? 0);
+    case "assisted":
+      return now.entry.assistedBanMonths ?? 0;
+    case "removed":
+      return now.entry.banMonths;
+    case "with-papers":
+      return 0;
+    default: {
+      const never: never = shape;
+      throw new Error(`Unknown shape ${String(never)}.`);
+    }
+  }
+}
+
+/** place:returns-service-takes-you-home: the grant the returns service gives on the current status, in the country's money, or 0 where there is none. */
+function returnGrant(read: ReadCtx): number {
+  return overstayOf(read)?.entry.returnGrant ?? 0;
+}
+
+/** place:returns-service-takes-you-home: the grant in naira at the day's official rate. */
+function grantInNaira(read: ReadCtx, country: Id<"country">, grant: number): number {
+  return convertMinor(grant, countryEntry(read.content, country).currency, "NGN", officialRates(read.world));
 }
 
 /** place:removal-bans-the-country: whether a removal's ban holds on the country this month. It lifts in the month `bannedUntil` gives. */
@@ -204,8 +248,16 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   const current = ctx.state.status.current;
   const kept = shape === "with-papers" && current !== null && isKept(ctx.content, current.entry) ? current.entry : null;
   const month = ctx.state.turn.month;
+  // place:leaving-an-overstay-bans and status:overstay-counts-as-refusal, read while the status still stands.
+  const onOverstay = overstayOf(ctx) !== null;
+  const banMonths = overstayBan(ctx, shape);
+  const pastGrace = onOverstay && !inGrace(ctx);
+  const overstay = onOverstay && (pastGrace || banMonths > 0) ? { overstay: { banMonths, pastGrace } } : {};
+  // status:uae-fine-accrues: the fine an assisted return leaves owing follows home; the amnesty clears it (status:uae-amnesty).
+  const fineLeft = shape === "assisted" ? fineOwed(ctx) : 0;
+  const grant = shape === "assisted" ? returnGrant(ctx) : 0;
   const events = record(ctx, [
-    { type: "place/returned", shape, country, month, kept, keptMonths: kept === null || current === null ? null : { monthsHeld: current.monthsHeld, lawfulMonths: current.lawfulMonths } },
+    { type: "place/returned", shape, country, month, kept, keptMonths: kept === null || current === null ? null : { monthsHeld: current.monthsHeld, lawfulMonths: current.lawfulMonths }, ...overstay },
     { type: "place/moved", to: "home", country: null, month },
   ]);
   ctx.apply([{ type: "status/lose" }], cause);
@@ -218,7 +270,20 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   if (standing !== 0) gains.push({ type: "quality/add", quality: QUALITY.standing, amount: standing });
   if (bonus !== 0) gains.push({ type: "quality/add", quality: QUALITY.standing, amount: bonus });
   ctx.apply(gains, cause);
+  carryFineHome(ctx, country, fineLeft);
+  // place:returns-service-takes-you-home: on arrival, after the standing is read, so the grant moves no standing.
+  if (grant > 0) events.push(...receiveGrant(ctx, country, grant, cause));
+  // route:lapsed-route-known-again: every return but one with papers loses the permission the flown route gave.
+  if (shape !== "with-papers") ctx.apply([{ type: "route/lapse", country }], cause);
   return events;
+}
+
+/** place:returns-service-takes-you-home: the grant to the naira bank at the day's official rate, as a documented gift, never flagged. */
+function receiveGrant(ctx: Ctx, country: Id<"country">, grant: number, cause: Cause): BaseEvent[] {
+  const amount = grantInNaira(ctx, country, grant);
+  if (amount <= 0) return [];
+  ctx.apply([{ type: "money/add", currency: "NGN", pocket: "bank", amount, reason: "gift", flagged: false }], cause);
+  return record(ctx, [{ type: "place/grant-received", amount }]);
 }
 
 /** place:departure-moves-abroad for `abroad`; a move home that no command paid for (a removal, status:removal-sends-home-banned) is a return with no fare. */
@@ -245,13 +310,29 @@ function move(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   }
 }
 
-/** How the fare is paid now: from the country's currency, or from naira as a foreign fee (place:fare-home-in-local-currency). Null: it cannot be. */
-function farePayment(read: ReadCtx, fare: MoneyParam): Payment | null {
+/**
+ * How the fare is paid now: from the country's currency, or from naira as a foreign fee (place:fare-home-in-local-currency), with the UAE's fine beside it from
+ * the same pockets under its own reason (status:uae-fine-accrues). Null: the two together cannot be paid.
+ */
+function farePayments(read: ReadCtx, fare: MoneyParam, fine: number): Payment[] | null {
   const { currency, amount } = fare;
-  if (check(read, { type: "money/min", currency, amount }).met) return { type: "money/take", currency, pocket: "transfer", amount, reason: "fare" };
+  const total = amount + fine;
+  const parts: [number, "fare" | "fine"][] = fine > 0 ? [[amount, "fare"], [fine, "fine"]] : [[amount, "fare"]];
+  if (check(read, { type: "money/min", currency, amount: total }).met) return parts.map(([part, reason]) => ({ type: "money/take", currency, pocket: "transfer", amount: part, reason }));
   if (!read.content.tuning.place.fareFromNaira || currency === "NGN") return null;
-  if (!check(read, { type: "money/can-pay", currency, amount }).met) return null;
-  return { type: "money/pay-fee", currency, amount, reason: "fare" };
+  if (!check(read, { type: "money/can-pay", currency, amount: total }).met) return null;
+  return parts.map(([part, reason]) => ({ type: "money/pay-fee", currency, amount: part, reason }));
+}
+
+/** The wallet once every payment is made as the wallet makes it, or null when one would not be. */
+function walletAfterAll(read: ReadCtx, payments: readonly Payment[]): ReadCtx | null {
+  let after: ReadCtx = read;
+  for (const payment of payments) {
+    const wallet = walletAfter(after, payment);
+    if (wallet === null) return null;
+    after = { ...after, state: { ...after.state, wallet } };
+  }
+  return after;
 }
 
 /** road:sea-arrival-in-italy: from the far shore the only way home is the assisted scheme, with no fare. */
@@ -265,26 +346,43 @@ function fromFarShore(read: ReadCtx): boolean {
  * capital. From the far shore the return is assisted with no fare (road:sea-arrival-in-italy). Null when not abroad.
  */
 function wayHomeOf(read: ReadCtx): WayHome | null {
-  const fare = fareHome(read);
+  const fareAlone = fareHome(read);
   const country = read.state.place.country;
-  if (fare === null || country === null) return null;
+  if (fareAlone === null || country === null) return null;
   const entry = countryEntry(read.content, country);
   const offPeak: MoneyParam = { currency: entry.currency, amount: entry.fare };
+  // status:uae-fine-accrues: the fare from the UAE carries the fine within it, and `fine` says how much.
+  const owed = fineOwed(read);
+  const fare: MoneyParam = { currency: fareAlone.currency, amount: fareAlone.amount + owed };
+  const fine: MoneyParam | null = owed > 0 ? { currency: fareAlone.currency, amount: owed } : null;
   const naira = fare.currency === "NGN" ? fare.amount : feeInNaira(read, fare.currency, fare.amount);
   const standing = (after: ReadCtx, shape: ReturnShape): number => read.content.tuning.return.standing[shape] + capitalBonus(after);
-  const payment = farePayment(read, fare);
+  const grant = returnGrant(read);
+  // place:returns-service-takes-you-home: the service's way beside the fare's, where the status has one.
+  const scheme = grant > 0 ? { grant: { currency: "NGN" as const, amount: grantInNaira(read, country, grant) }, banMonths: overstayBan(read, "assisted") } : null;
+  const way = (paidFrom: WayHome["paidFrom"], shape: ReturnShape | null, moved: number): WayHome => ({
+    fare,
+    offPeak,
+    paidFrom,
+    naira,
+    shape,
+    standing: moved,
+    banMonths: shape === null ? 0 : overstayBan(read, shape),
+    fine,
+    scheme,
+  });
+  const payments = farePayments(read, fareAlone, owed);
   // The command's own order: a fare that cannot be paid by one who holds a status is refused before the far shore is read.
-  if (payment === null && !holdsNoStatus(read)) return { fare, offPeak, paidFrom: null, naira, shape: null, standing: 0 };
-  if (fromFarShore(read)) return { fare, offPeak, paidFrom: null, naira, shape: "assisted", standing: standing(read, "assisted") };
-  if (payment === null) {
+  if (payments === null && !holdsNoStatus(read)) return way(null, null, 0);
+  if (fromFarShore(read)) return way(null, "assisted", standing(read, "assisted"));
+  if (payments === null) {
     const shape = returnShape(read, false);
-    return { fare, offPeak, paidFrom: null, naira, shape, standing: standing(read, shape) };
+    return way(null, shape, standing(read, shape));
   }
-  const wallet = walletAfter(read, payment);
-  if (wallet === null) return { fare, offPeak, paidFrom: null, naira, shape: null, standing: 0 };
-  const after: ReadCtx = { ...read, state: { ...read.state, wallet } };
+  const after = walletAfterAll(read, payments);
+  if (after === null) return way(null, null, 0);
   const shape = returnShape(after, true);
-  return { fare, offPeak, paidFrom: payment.type === "money/take" ? "local" : "naira", naira, shape, standing: standing(after, shape) };
+  return way(payments[0]?.type === "money/take" ? "local" : "naira", shape, standing(after, shape));
 }
 
 /**
@@ -295,14 +393,19 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "return/home") throw new Error(`return/home cannot handle ${command.type}.`);
   const fare = fareHome(ctx);
   if (fare === null) return reject("not-legal", "Only a character abroad can come home.");
-  const payment = farePayment(ctx, fare);
-  if (payment === null && !holdsNoStatus(ctx)) {
+  const cause: Cause = { source: command.type, param: ctx.state.place.country, terms: {} };
+  // place:returns-service-takes-you-home: the scheme pays the ticket whatever the money held, on a status that has it.
+  if (command.scheme === true) {
+    if (returnGrant(ctx) <= 0) return reject("not-legal", "The returns service is for an overstayer of a country that has one.");
+    return comeHome(ctx, "assisted", cause);
+  }
+  const payments = farePayments(ctx, fare, fineOwed(ctx));
+  if (payments === null && !holdsNoStatus(ctx)) {
     return reject("cannot-afford", `The fare home is ${String(fare.amount)} in ${fare.currency} and cannot be paid.`);
   }
-  const cause: Cause = { source: command.type, param: ctx.state.place.country, terms: {} };
   if (fromFarShore(ctx)) return comeHome(ctx, "assisted", cause);
-  if (payment !== null) ctx.apply([payment], cause);
-  return comeHome(ctx, returnShape(ctx, payment !== null), cause);
+  if (payments !== null) ctx.apply(payments, cause);
+  return comeHome(ctx, returnShape(ctx, payments !== null), cause);
 }
 
 /**
@@ -728,6 +831,9 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
       return {
         ...slice,
         returns: [...slice.returns, { month: event.month, shape: event.shape, country: event.country }],
+        ...(event.overstay === undefined || event.country === null
+          ? {}
+          : { overstays: [...(slice.overstays ?? []), { country: event.country, month: event.month, banMonths: event.overstay.banMonths, pastGrace: event.overstay.pastGrace }] }),
         heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month, monthsHeld: event.keptMonths?.monthsHeld ?? 0, lawfulMonths: event.keptMonths?.lawfulMonths ?? 0 },
       };
     case "place/token-used":
@@ -737,6 +843,9 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
       return { ...slice, decemberMonth: event.month };
     // place:rides-between-city-places: the simulation keeps no place of the city, so a ride changes nothing here.
     case "place/rode":
+      return slice;
+    // The grant is the wallet's money; the record of the return holds the rest.
+    case "place/grant-received":
       return slice;
     default: {
       const never: never = event;
@@ -776,6 +885,8 @@ function lines(event: PlaceEvent): ReportLine[] {
     // world:ride-sheet-shows-fares: arrival is a toast on the screen, and the fare's own ledger line tells the money.
     case "place/rode":
       return [];
+    case "place/grant-received":
+      return [line("returns-grant", { amount: { currency: "NGN", amount: event.amount } }, "good", false)];
     default: {
       const never: never = event;
       throw new Error(`Unknown place event ${JSON.stringify(never)}.`);
