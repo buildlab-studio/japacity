@@ -6,6 +6,7 @@ import { CircleAlert, X } from "lucide-react";
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
+import { LEVEL, useBackLayer } from "../../shared/back/back";
 import type { PlayerCommand } from "../../authority/store";
 import { formatMoney } from "../../shared/words/format";
 import { AskSheet } from "../../shared/world/AskSheet";
@@ -33,6 +34,8 @@ export function useInnerBack(back: (() => void) | null): void {
     hand(inner ? () => latest.current?.() : null);
     return () => hand(null);
   }, [inner, hand]);
+  // world:back-closes-topmost: the inner screen is a layer over its app, so Back takes it first.
+  useBackLayer(inner, () => latest.current?.(), { level: LEVEL.inner });
 }
 
 export interface AskSpec {

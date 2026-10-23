@@ -13,6 +13,7 @@ import type { ReactNode } from "react";
 import type { PlayerCommand } from "../../../authority/store";
 import { useEffect, useRef } from "react";
 
+import { useBackHold } from "../../../shared/back/back";
 import { cue } from "../../../shared/sound/cues";
 import { type PlaneCutSlot, sendOff, useSeat, useSendOff } from "../../../shared/world/sendOff";
 import { formatMoney } from "../../../shared/words/format";
@@ -65,6 +66,8 @@ function seatWords(seat: string): string {
 
 export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps) {
   const scene = useSendOff();
+  // world:back-closes-topmost: the send-off's beats are not closed by Back; Back waits while they run.
+  useBackHold(scene !== null);
   const { view, send, busy, rejection } = game;
   const seat = useSeat();
   const scale = useStageScale();

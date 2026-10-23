@@ -5,6 +5,7 @@
 import { Footprints } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { LEVEL, useBackLayer } from "../../shared/back/back";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { blurbOf, say, words } from "../../shared/words/text";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
@@ -95,6 +96,8 @@ export function fareTile(choice: RideChoice, formatMoney: (amount: number) => st
 
 export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = formatMoney, onChoose, onClose, onStay, by, onWay, wayModel }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(() => firstWay(ways, have, by));
+  // world:back-closes-topmost: a ride's sheet before the ride starts is a layer over the map; Back and Escape close it first.
+  useBackLayer(true, onClose, { level: LEVEL.ride });
   useEffect(() => {
     onWay?.(chosen);
   }, [chosen, onWay]);
