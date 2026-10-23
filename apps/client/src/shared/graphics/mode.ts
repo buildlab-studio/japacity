@@ -9,7 +9,7 @@ export type GraphicsMode = "low" | "high";
 /** What the player may choose: a mode, or leave it to the device. */
 export type GraphicsChoice = GraphicsMode | "auto";
 
-/** A phone starts low, and most players are on one, until the city says otherwise. */
+/** Until the city has drawn, the mode is not known: a feedback sent before then reports low, the safe guess. The city writes its own choice (city:two-graphics-modes) as it opens. */
 let current: GraphicsMode = "low";
 
 export function setGraphicsMode(mode: GraphicsMode): void {

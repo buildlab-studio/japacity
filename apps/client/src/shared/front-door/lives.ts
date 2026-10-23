@@ -31,9 +31,11 @@ export function wayPicture(words: string): string | null {
 const PICTURES = import.meta.glob<string>("./homes/*.webp", { eager: true, query: "?url", import: "default" });
 
 /**
- * A home's picture: the room as the game draws it (cropped from the wide homes' renders) for the three homes on the
- * mainland, else the model the picture table names for the place (Makoko's house on stilts), and for the self-contain,
- * the goal, a Yaba house.
+ * A home's picture: the room as the game draws it for the three homes on the mainland, shot in high with the view eased
+ * onto the room on a phone's shape at four times its size, then cut to the band the postcards show at 840 by 594, three
+ * picture pixels for each CSS pixel of the postcard in front, so it stays sharp whatever mode the city runs
+ * in; else the model the picture table names for the place (Makoko's house on stilts), and for the self-contain, the
+ * goal, a Yaba house.
  */
 export function homePicture(home: Home | "self-contain"): { src: string } | { model: string } {
   const src = PICTURES[`./homes/${home}.webp`];

@@ -46,10 +46,24 @@ export interface FrameWatch {
   frames: number[];
   /** True once the mode dropped: it stays low for the session. Also true when the player fixed the mode. */
   fixed: boolean;
+  /** Frames still to pass unjudged: the first of a world just built, or the one that spans a pause. */
+  settling: number;
 }
 
+/**
+ * Frames a world just built draws before its frames are judged: the first ones compile its shaders and send its
+ * textures up (city:two-graphics-modes; over a second each measured in the first place on a phone's browser).
+ */
+export const SETTLE_FRAMES = 10;
+
+/**
+ * What a frame of the scene was: drawn on a world being built anew for the place (`building`), the first of a world just
+ * built (`fresh`), the first after a pause, a hidden tab or the city looking away (`paused`), or any other (`drawn`).
+ */
+export type SceneFrame = "drawn" | "fresh" | "paused" | "building";
+
 export function watchFrames(mode: Mode, fixed: boolean): FrameWatch {
-  return { mode, elapsedMs: 0, frames: [], fixed };
+  return { mode, elapsedMs: 0, frames: [], fixed, settling: 0 };
 }
 
 /** A fresh count on entering a place, keeping the mode and whether it is fixed. */
@@ -78,11 +92,34 @@ function tooSlow(frames: readonly number[], city: CityTuning): boolean {
  */
 export function observeFrame(watch: FrameWatch, frameMs: number, city: CityTuning): FrameWatch {
   if (watch.fixed) return watch;
+  if (watch.settling > 0) return { ...watch, settling: watch.settling - 1 };
   const frames = [...watch.frames, frameMs].slice(-WINDOW_FRAMES);
   const elapsedMs = watch.elapsedMs + frameMs;
-  if (watch.mode === "low" && elapsedMs >= city.raiseAfterMs && fastEnough(frames, city)) return { mode: "high", elapsedMs: 0, frames: [], fixed: false };
-  if (watch.mode === "high" && elapsedMs >= city.dropAfterMs && tooSlow(frames, city)) return { mode: "low", elapsedMs: 0, frames: [], fixed: true };
+  if (watch.mode === "low" && elapsedMs >= city.raiseAfterMs && fastEnough(frames, city)) return { mode: "high", elapsedMs: 0, frames: [], fixed: false, settling: 0 };
+  if (watch.mode === "high" && elapsedMs >= city.dropAfterMs && tooSlow(frames, city)) return { mode: "low", elapsedMs: 0, frames: [], fixed: true, settling: 0 };
   return { ...watch, frames, elapsedMs };
+}
+
+/**
+ * One frame of the scene, judged as city:two-graphics-modes says only when it was drawn on the place's own world, settled:
+ * frames on a world being built are not judged, a world just built passes its first SETTLE_FRAMES unjudged, and the
+ * frame after a pause spans the time away, not a frame drawn. None of them adds time in the place.
+ */
+export function judgeFrame(watch: FrameWatch, frameMs: number, frame: SceneFrame, city: CityTuning): FrameWatch {
+  switch (frame) {
+    case "building":
+      return watch;
+    case "fresh":
+      return observeFrame({ ...watch, settling: SETTLE_FRAMES }, frameMs, city);
+    case "paused":
+      return observeFrame({ ...watch, settling: Math.max(watch.settling, 1) }, frameMs, city);
+    case "drawn":
+      return observeFrame(watch, frameMs, city);
+    default: {
+      const never: never = frame;
+      throw new Error(`Unknown frame: ${String(never)}`);
+    }
+  }
 }
 
 /** How the scene is drawn in a mode: the table of city:two-graphics-modes. */
