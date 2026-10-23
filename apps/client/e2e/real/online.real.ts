@@ -205,7 +205,7 @@ test.describe("one new player, played in order on one phone", () => {
     await openApp(page, "settings");
     await page.locator("[data-account-row]").click();
     await page.locator("[data-guest-reminder]").getByRole("button").click();
-    const sheet = page.getByRole("dialog", { name: "Keep this life" });
+    const sheet = page.getByRole("dialog", { name: "Save this life" });
     await expect(sheet).toBeVisible();
     const asked = Date.now() - 1_000;
     await sheet.getByLabel("Email").fill(EMAIL);
@@ -213,7 +213,7 @@ test.describe("one new player, played in order on one phone", () => {
     const code = await codeFor(page, EMAIL, asked);
     // The sixth digit sends the code (account:code-form-forgives).
     await sheet.getByLabel("The 6-digit code").fill(code);
-    await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Saved. Sign in on any phone to carry on.")).toBeVisible({ timeout: 20_000 });
     const account = await page.request.get("/api/account");
     expect(((await account.json()) as { account: { state: string; username: string } }).account).toMatchObject({ state: "secured", username: USERNAME });
     await page.keyboard.press("Escape");
@@ -273,7 +273,7 @@ test.describe("one new player, played in order on one phone", () => {
     // Signed out, the client asks again who is there.
     seen.allow("401 GET /api/view", "401 GET /api/account");
     // A kept life was open in this browser, so the start screen offers the way back in first (account:start-screen-over-live-city).
-    await page.getByRole("button", { name: /^(Sign in to my life|I already have a life here)$/ }).click({ timeout: 30_000 });
+    await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 30_000 });
     const asked = Date.now() - 1_000;
     await page.getByLabel("Email").fill(EMAIL);
     await page.getByRole("button", { name: "Send me a code" }).click();

@@ -90,7 +90,7 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   // The compound draws in its own chunk; the picture waits for it, where the browser can draw it at all.
   await page.locator("[data-front-scene] canvas").waitFor({ timeout: 15_000 }).catch(() => undefined);
   await page.waitForTimeout(800);
-  await expect(page.getByRole("button", { name: "I already have a life here" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
   // The lockup heads the start sheet, once; there is no title in words over the figure.
   await expect(page.getByRole("img", { name: "Japacity" })).toHaveCount(1);
   await expect(page.getByText("Japacity", { exact: true })).toHaveCount(0);
@@ -127,7 +127,7 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   await expect(username).toHaveValue("");
   await username.fill("Olamide");
   await expect(page.getByText("That name is free.")).toBeVisible();
-  await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
+  await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(1);
   await expect(page.getByText("Check passed")).toHaveCount(0);
   // The sheet rises into place before its picture.
   await page.waitForTimeout(800);
@@ -172,10 +172,10 @@ test("[account:start-screen-over-live-city] under 18 is refused on the age scree
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
 });
 
-test("[account:start-screen-over-live-city] I already have a life here shows the ways back in, Google first, with no age screen", async ({ page }, info) => {
+test("[account:start-screen-over-live-city] Sign in shows the ways back in, Google first, with no age screen", async ({ page }, info) => {
   const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
   await page.goto("/");
-  await page.getByRole("button", { name: "I already have a life here" }).click({ timeout: 20_000 });
+  await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
   await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(page.getByLabel("Email")).toBeVisible();
@@ -195,7 +195,7 @@ test("[account:start-screen-over-live-city] the returning door is a full-width b
   const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
   await page.goto("/");
   const play = page.getByRole("button", { name: "Play", exact: true });
-  const returning = page.getByRole("button", { name: "I already have a life here" });
+  const returning = page.getByRole("button", { name: "Sign in", exact: true });
   await expect(play).toBeVisible({ timeout: 20_000 });
   const [playBox, returningBox] = await Promise.all([play.boundingBox(), returning.boundingBox()]);
   expect(returningBox?.height ?? 0).toBeCloseTo(playBox?.height ?? -1, 0);
@@ -212,11 +212,11 @@ test("[account:start-screen-over-live-city] the returning door is a full-width b
   expect(faked.sent.some((request) => request.route === "POST /api/age")).toBe(false);
 });
 
-test("[account:start-screen-over-live-city] in a browser a kept life was open in, the start screen offers Sign in to my life first and Start a new life under it", async ({ page }, info) => {
+test("[account:start-screen-over-live-city] in a browser a kept life was open in, the start screen offers Sign in first and Start a new life under it", async ({ page }, info) => {
   await page.addInitScript(() => localStorage.setItem("japacity.account.kept", "1"));
   await fakeDoor(page, signUpRoutes(lifeMade()));
   await page.goto("/");
-  const back = page.getByRole("button", { name: "Sign in to my life" });
+  const back = page.getByRole("button", { name: "Sign in", exact: true });
   const fresh = page.getByRole("button", { name: "Start a new life" });
   await expect(back).toBeVisible({ timeout: 20_000 });
   await expect(fresh).toBeVisible();

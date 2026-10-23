@@ -12,7 +12,7 @@ export const uiBoardsText: Record<string, string> = {
   "ui.boards.about.friends": "You and the players you joined through an invite.",
   "ui.boards.loading": "Fetching the board...",
   "ui.boards.paused": "This board is paused for now. Look again later.",
-  "ui.boards.secure": "Secure your life to see the boards and be on them. Until then it lives only on this phone.",
+  "ui.boards.secure": "Save your life to see the boards and be on them. Until then it lives only on this phone.",
   "ui.boards.failed": "The board did not load.",
   "ui.boards.retry": "Try again",
   "ui.boards.empty": "Nobody is on this board yet.",

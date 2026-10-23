@@ -328,7 +328,7 @@ export function SecureAsk() {
 
 /**
  * account:guest-reminded-to-secure: the quiet reminder, a line and a way to keep the life. Nothing for a secured account or offline.
- * On the account sheet (`returning`, there unless it stands after the first chapter) it also offers "I already have a life here"
+ * On the account sheet (`returning`, there unless it stands after the first chapter) it also offers "Sign in"
  * (account:guest-secures-the-life): a first press says that this life ends, a second opens the ways back in.
  */
 export function GuestReminder({ afterFirstChapter = false, returning = !afterFirstChapter }: { afterFirstChapter?: boolean; returning?: boolean }) {

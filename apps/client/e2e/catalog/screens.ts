@@ -17,9 +17,9 @@ export const SCREENS: readonly Screen[] = [
   // The front, online against a faked server: the start screen over the compound, the age screen, the ways back in.
   { key: "front-start-day", what: "The start screen by day" },
   { key: "front-start-night", what: "The start screen with the night paint" },
-  { key: "front-start-kept", what: "The start screen in a browser a kept life was open in: Sign in to my life first" },
+  { key: "front-start-kept", what: "The start screen in a browser a saved life was open in: Sign in first" },
   { key: "front-age", what: "The age screen after Play" },
-  { key: "front-returning", what: "I already have a life here: the ways back in" },
+  { key: "front-returning", what: "Sign in: the ways back in" },
   // The door, offline.
   { key: "door-you-day", what: "The door's first step: the look and the name" },
   { key: "door-yours-day", what: "Make it yours: the colours and the fabric" },

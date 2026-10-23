@@ -24,7 +24,7 @@ export const uiOnlineText: Record<string, string> = {
   "reject.wrong-slot": "That card is no longer out.",
   "reject.not-adult": "A partner link needs a grown-up life past the start.",
   "reject.moved-on": "That has moved on.",
-  "reject.guest-only": "Keep this life first: add Google or your email.",
+  "reject.guest-only": "Save this life first: add Google or your email.",
   "ui.online.wait": "Too much at once. Try again in {seconds} seconds.",
   "ui.online.wait.one": "Too much at once. Try again in a second.",
 
@@ -48,9 +48,10 @@ export const uiOnlineText: Record<string, string> = {
   // The start screen online (account:start-screen-over-live-city): a hook, the whole game in three steps, then Play
   "ui.account.start.play": "Play",
   "ui.account.start.play.then": "Free · no sign-up",
-  "ui.account.start.returning": "I already have a life here",
-  // The two doors turned round, in a browser a kept life was open in
-  "ui.account.start.kept.returning": "Sign in to my life",
+  "ui.account.start.returning": "Sign in",
+  "ui.account.start.returning.then": "Carry on a saved life",
+  // The two doors turned round, in a browser a saved life was open in; Sign in carries the same second line
+  "ui.account.start.kept.returning": "Sign in",
   "ui.account.start.kept.play": "Start a new life",
   // Inside an app's own browser, under the doors: a quiet line, never a blocker
   "ui.account.in-app.start": "Opened inside an app? Your life is saved in the browser you play in.",
@@ -174,11 +175,11 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.fail.cancelled": "Nothing happened. Try again when you are ready.",
   "ui.account.fail.unreachable": "The game could not reach its server. Check your connection and try again.",
   "ui.account.fail.refused": "That did not work. Try another way in.",
-  "ui.account.fail.no-life": "No life is kept with that yet. Go back and tap Play to start one.",
+  "ui.account.fail.no-life": "No saved life on that account yet. Go back and tap Play to start one.",
   "ui.account.fail.passkey-first": "Sign in with your passkey first, then add the new one here.",
-  "ui.account.fail.not-linked": "The life on that Google address was kept with a code by email. Send a code to that address to sign in.",
+  "ui.account.fail.not-linked": "The life on that Google address was saved with a code by email. Send a code to that address to sign in.",
 
-  // Back to a kept life, from the start screen (account:start-screen-over-live-city, account:guest-secures-the-life)
+  // Back to a saved life, from the start screen (account:start-screen-over-live-city, account:guest-secures-the-life)
   "ui.account.returning.title": "Sign back in",
   "ui.account.returning.intro": "Use the way you signed in before.",
   "ui.account.in-app": "Google sign-in does not open inside this app. Use a code by email, or open Japacity in your browser.",
@@ -195,7 +196,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.name.go": "Start my life",
   "ui.account.name.empty": "Pick a username first.",
   "ui.account.name.format": "Use 3 to 20 letters, numbers or _ and nothing else.",
-  "ui.account.name.reserved": "That name is kept for the game's own people. Pick another.",
+  "ui.account.name.reserved": "That name is for the game's own people. Pick another.",
   "ui.account.name.blocked": "That name is not allowed. Pick another.",
   "ui.account.name.taken": "Someone has that name. Pick another.",
   "ui.account.name.available": "That name is free.",
@@ -210,29 +211,29 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.guest.full": "Japacity is full right now. Try again shortly.",
   "ui.account.guest.lost": "Your life did not start. Tap Begin, then say when you were born again.",
   "ui.account.fail.taken": "That sign-in already has a life. This one stays as it is, on this phone.",
-  "ui.account.fail.guest-only": "Keep this life with Google or your email first. Then you can add a passkey.",
+  "ui.account.fail.guest-only": "Save this life with Google or your email first. Then you can add a passkey.",
 
-  // Keeping a guest life (account:guest-and-secured-states, account:guest-secures-the-life, account:guest-reminded-to-secure)
-  "ui.secure.title": "Keep this life",
+  // Saving a guest life (account:guest-and-secured-states, account:guest-secures-the-life, account:guest-reminded-to-secure)
+  "ui.secure.title": "Save this life",
   "ui.secure.why": "Right now this life lives only on this phone. Add Google or your email and you can come back to it on any phone.",
-  "ui.secure.ask.first-chapter": "You finished your first brief. Right now this life lives only on this phone. Keep it, so you can come back to it anywhere.",
-  "ui.secure.ask.visa": "Big decisions are coming. Keep this life first, so nothing you build is lost with this phone.",
+  "ui.secure.ask.first-chapter": "You finished your first brief. Right now this life lives only on this phone. Save it, so you can come back to it anywhere.",
+  "ui.secure.ask.visa": "Big decisions are coming. Save this life first, so nothing you build is lost with this phone.",
   "ui.secure.google": "Continue with Google",
-  "ui.secure.in-app": "Google does not open inside this app. Keep this life with your email here, then open it in any browser.",
+  "ui.secure.in-app": "Google does not open inside this app. Save this life with your email here, then open it in any browser.",
   "ui.secure.or": "Or with your email",
   "ui.secure.code.send": "Send me a code",
-  "ui.secure.code.go": "Keep my life",
-  "ui.secure.done.title": "Kept",
-  "ui.secure.done": "Done. This life is yours on any phone now.",
+  "ui.secure.code.go": "Save",
+  "ui.secure.done.title": "Saved",
+  "ui.secure.done": "Saved. Sign in on any phone to carry on.",
   "ui.secure.later": "Not now",
-  // A guest who has a kept life already: that life opens, and this one ends
-  "ui.secure.taken.open": "Open my kept life",
+  // A guest who has a saved life already: that life opens, and this one ends
+  "ui.secure.taken.open": "Sign in to my saved life",
   "ui.secure.taken.ends": "This life on this phone ends if you do.",
-  "ui.guest.reminder": "This life lives only on this phone until you keep it.",
-  "ui.guest.keep": "Keep it",
-  "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you keep it.",
+  "ui.guest.reminder": "This life lives only on this phone until you save it.",
+  "ui.guest.keep": "Save this life",
+  "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you save it.",
   "ui.guest.sign-out.go": "Sign out and leave this life",
-  "ui.invite.keep-first": "To take a friend's card, keep this life first with Google or your email.",
+  "ui.invite.keep-first": "To take a friend's card, save this life first with Google or your email.",
 
   // The terms and the privacy notice, linked from the sign-in, the settings and the guides menu
   "ui.legal.label": "Terms and privacy",
@@ -250,16 +251,16 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
   // The account's row at the top of Settings and the rows on its sheet (account:username-and-unconfirmed-email, account:guest-reminded-to-secure).
   "ui.account.person.label": "Name",
-  "ui.account.ways.google": "Kept with Google as {email}",
-  "ui.account.ways.email": "Kept with your email as {email}",
-  "ui.account.ways.email.short": "Kept with your email",
-  "ui.account.ways.guest": "Only on this phone until kept",
+  "ui.account.ways.google": "Signed in with Google as {email}",
+  "ui.account.ways.email": "Signed in with your email as {email}",
+  "ui.account.ways.email.short": "Signed in with your email",
+  "ui.account.ways.guest": "Only on this phone. Save it to play anywhere.",
   "ui.account.passkeys": "{count} passkeys",
   "ui.account.passkeys.one": "1 passkey",
   "ui.account.passkeys.zero": "Passkey: none yet",
-  // A short toast over the world once a life is kept or signed back in to, naming the way (account:guest-secures-the-life).
-  "ui.account.toast.kept.google": "Kept with Google",
-  "ui.account.toast.kept.email": "Kept with your email",
+  // A short toast over the world once a life is saved or signed back in to, naming the way (account:guest-secures-the-life).
+  "ui.account.toast.kept.google": "Saved with Google",
+  "ui.account.toast.kept.email": "Saved with your email",
   "ui.account.toast.in.google": "Signed in with Google",
   "ui.account.toast.in.email": "Signed in with your email",
   "ui.account.toast.in.passkey": "Signed in with your passkey",

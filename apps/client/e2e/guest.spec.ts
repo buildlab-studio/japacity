@@ -33,7 +33,7 @@ async function pastTheCard(page: Page): Promise<void> {
   await expect(card).toBeVisible({ timeout: 20_000 });
   // The keep-this-life ask never stands over the card (account:guest-secures-the-life: never over a moment or another card that is up).
   await page.waitForTimeout(1500);
-  await expect(page.getByRole("dialog", { name: "Keep this life" })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Save this life" })).toHaveCount(0);
   await card.getByRole("button", { name: "Let's go" }).click();
   await expect(card).toHaveCount(0);
 }
@@ -94,7 +94,7 @@ test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] a gues
   });
   await page.goto("/");
   await pastTheCard(page);
-  const ask = page.getByRole("dialog", { name: "Keep this life" });
+  const ask = page.getByRole("dialog", { name: "Save this life" });
   await expect(ask).toBeVisible({ timeout: 20_000 });
   // Read through the words table, so the line the sheet says is the one the test looks for.
   await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
@@ -117,10 +117,10 @@ test.describe("inside a messaging app's browser", () => {
     });
     await page.goto("/");
     await pastTheCard(page);
-    const sheet = page.getByRole("dialog", { name: "Keep this life" });
+    const sheet = page.getByRole("dialog", { name: "Save this life" });
     await expect(sheet).toBeVisible({ timeout: 20_000 });
     await expect(sheet.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
-    await expect(sheet.getByText("Google does not open inside this app. Keep this life with your email here, then open it in any browser.")).toBeVisible();
+    await expect(sheet.getByText("Google does not open inside this app. Save this life with your email here, then open it in any browser.")).toBeVisible();
     await expect(sheet.getByRole("link", { name: "Open in my browser" })).toHaveCount(0);
     await sheet.getByLabel("Email").fill("ada@example.com");
     await shootPhone(page, "securing-sheet-in-app-phone", info.project.name, PICTURE);
@@ -140,16 +140,16 @@ test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secu
   await serve(page, answers, sent);
   await page.goto("/");
   await pastTheCard(page);
-  const sheet = page.getByRole("dialog", { name: "Keep this life" });
+  const sheet = page.getByRole("dialog", { name: "Save this life" });
   await expect(sheet).toBeVisible({ timeout: 20_000 });
   await sheet.getByLabel("Email").fill("ada@example.com");
   await sheet.getByRole("button", { name: "Send me a code" }).click();
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured" } } };
   // The sixth digit sends the code (account:code-form-forgives).
   await sheet.getByLabel("The 6-digit code").fill("123456");
-  await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible();
-  // Kept, the sheet says only that.
-  const kept = page.getByRole("dialog", { name: "Kept" });
+  await expect(page.getByText("Saved. Sign in on any phone to carry on.")).toBeVisible();
+  // Saved, the sheet says only that.
+  const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible();
   await expect(kept.getByRole("button", { name: "Not now" })).toHaveCount(0);
   await expect(kept.getByLabel("Email")).toHaveCount(0);
@@ -158,7 +158,7 @@ test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secu
   expect(sent).not.toContain("POST /api/character");
 });
 
-test("[account:guest-secures-the-life] a guest that comes back from Google with the life kept sees the keeping sheet in its kept state, the address left clean, and the world says Kept with Google as it closes", async ({ page }, info) => {
+test("[account:guest-secures-the-life] a guest that comes back from Google with the life kept sees the keeping sheet in its kept state, the address left clean, and the world says Saved with Google as it closes", async ({ page }, info) => {
   await serve(page, {
     "GET /api/view": pastFirstChapter(),
     "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
@@ -166,17 +166,17 @@ test("[account:guest-secures-the-life] a guest that comes back from Google with 
   });
   // Where the library's callback sends the page once Google kept the life (shared/net/auth.ts, GOOGLE_BACK).
   await page.goto("/?google=kept");
-  const kept = page.getByRole("dialog", { name: "Kept" });
+  const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible({ timeout: 20_000 });
-  await expect(kept.getByText("Done. This life is yours on any phone now.")).toBeVisible();
+  await expect(kept.getByText("Saved. Sign in on any phone to carry on.")).toBeVisible();
   await expect(kept.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   expect(new URL(page.url()).search).toBe("");
   await shootPhone(page, "kept-with-google-phone", info.project.name, PICTURE);
   await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
-  await expect(page.locator("[data-way-toast]")).toHaveText("Kept with Google");
+  await expect(page.locator("[data-way-toast]")).toHaveText("Saved with Google");
 });
 
-test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] [account:start-screen-over-live-city] a kept life names its way in on Settings' account row; signing out says so once on the start screen, turned round for a browser a kept life was open in, and the notice goes when Sign in to my life is tapped", async ({ page }, info) => {
+test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] [account:start-screen-over-live-city] a kept life names its way in on Settings' account row; signing out says so once on the start screen, turned round for a browser a kept life was open in, and the notice goes when Sign in is tapped", async ({ page }, info) => {
   const sent: string[] = [];
   const answers: Record<string, Answer> = {
     "GET /api/view": pastFirstChapter(),
@@ -192,11 +192,11 @@ test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] [acc
   await page.locator('[data-app="settings"]').click();
   const row = page.locator("[data-account-row]");
   await expect(row).toContainText("@ada_lagos");
-  await expect(row).toContainText("Kept with Google as ada@example.com");
+  await expect(row).toContainText("Signed in with Google as ada@example.com");
   await shootPhone(page, "settings-account-row-phone", info.project.name, PICTURE);
   await row.click();
   const sheet = page.getByRole("dialog", { name: uiOnlineText["ui.account.settings"] ?? "Account" });
-  await expect(sheet.getByText("Kept with Google as ada@example.com")).toBeVisible();
+  await expect(sheet.getByText("Signed in with Google as ada@example.com")).toBeVisible();
   await expect(sheet.getByText("Passkey: none yet")).toBeVisible();
   await shootPhone(page, "settings-account-sheet-phone", info.project.name, PICTURE);
   answers["GET /api/view"] = SIGNED_OUT;
@@ -206,7 +206,7 @@ test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] [acc
   await expect(notice).toBeVisible({ timeout: 20_000 });
   expect(sent).toContain("POST /api/auth/sign-out");
   // A kept life was open in this browser: the way back in comes first (account:start-screen-over-live-city).
-  await page.getByRole("button", { name: "Sign in to my life" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(notice).toHaveCount(0);
   await page.getByRole("button", { name: uiOnlineText["ui.account.back"] ?? "Back" }).click();

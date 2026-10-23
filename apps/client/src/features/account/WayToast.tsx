@@ -1,5 +1,5 @@
-// The one short line a way in leaves over the world (account:guest-secures-the-life): "Kept with
-// Google" once a guest's life is kept, "Signed in with your email" once a kept life is signed back in to. The sign-in
+// The one short line a way in leaves over the world (account:guest-secures-the-life): "Saved with
+// Google" once a guest's life is saved, "Signed in with your email" once a kept life is signed back in to. The sign-in
 // sheet closes as the life opens, so its welcome is handed here and told once the world is up; the keeping sheet hands
 // its line here as it closes. One store for each account seam, as standing.ts keeps the account. The line is read out
 // through one polite live region, mounted with the world before any line comes; the toast itself is for the eye. The

@@ -149,7 +149,7 @@ test("front: the start screen, the age screen and the ways back in", async ({ pa
     // A browser a kept life was open in turns the doors round (account:start-screen-over-live-city).
     await page.evaluate(() => localStorage.setItem("japacity.account.kept", "1"));
     await page.goto(`${ONLINE}/?clock=afternoon`);
-    await expect(page.getByRole("button", { name: "Sign in to my life" })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible({ timeout: 30_000 });
     await page.locator("[data-front-scene] canvas").waitFor({ timeout: 20_000 }).catch(() => undefined);
     await page.waitForTimeout(1500);
     await shot(page, "front-start-kept");
@@ -163,7 +163,7 @@ test("front: the start screen, the age screen and the ways back in", async ({ pa
   });
   await attempt(page, "front-returning", async () => {
     await startScreen(page, "?clock=afternoon");
-    await page.getByRole("button", { name: "I already have a life here" }).click();
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
     await shot(page, "front-returning");
   });

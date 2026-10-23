@@ -129,7 +129,7 @@ async function play() {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
 }
 
-/** "I already have a life here" on the start screen (account:start-screen-over-live-city). */
+/** "Sign in" on the start screen (account:start-screen-over-live-city). */
 async function returning() {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
 }
@@ -158,7 +158,7 @@ const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"),
 describe("the start screen online", () => {
   // The hook in two rows, the three steps, Play with its second line, and the two lights over the scene, in place of a
   // sentence about the game.
-  test("[account:start-screen-over-live-city] [text:hook-not-explanation] given a new browser, then the first screen is the start screen over the compound: no title over the figure and the lockup at the head of the sheet, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
+  test("[account:start-screen-over-live-city] [text:hook-not-explanation] given a new browser, then the first screen is the start screen over the compound: no title over the figure and the lockup at the head of the sheet, the hook in two rows and the three steps where the sentence was, Play with its second line and Sign in with its own, the two lights over the top, and nothing else asked", async () => {
     const account = fakeAccount();
     gate(account);
     const playButton = await screen.findByRole("button", { name: say("ui.account.start.play") });
@@ -212,7 +212,7 @@ describe("the start screen online", () => {
     expect(ageFields()).toEqual([null, null, null]);
   });
 
-  test("[account:start-screen-over-live-city] given the start screen, when I already have a life here is pressed, then the ways back in show with no age screen and nothing is declared; Back returns to the start", async () => {
+  test("[account:start-screen-over-live-city] given the start screen, when Sign in is pressed, then the ways back in show with no age screen and nothing is declared; Back returns to the start", async () => {
     const account = fakeAccount();
     gate(account);
     await returning();
@@ -762,7 +762,7 @@ describe("the signed-out notice goes when the player moves on (account:guest-and
   }
   const notice = () => screen.queryByText(say("ui.account.notice.signed-out"));
 
-  test("[account:guest-and-secured-states] given a player who signed out, when I already have a life here is tapped, then the notice is gone from the ways back in, and stays gone back on the start screen", async () => {
+  test("[account:guest-and-secured-states] given a player who signed out, when Sign in is tapped, then the notice is gone from the ways back in, and stays gone back on the start screen", async () => {
     signedOut();
     expect(await screen.findByText(say("ui.account.notice.signed-out"))).toBeDefined();
     await returning();

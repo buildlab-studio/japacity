@@ -106,7 +106,7 @@ function gate(account: AccountApi, { turnstile = fakeTurnstile(), embedded = fal
 const button = (key: string) => screen.findByRole("button", { name: say(key) });
 
 describe("the two doors of the start screen (account:start-screen-over-live-city)", () => {
-  test("[account:start-screen-over-live-city] given a browser no kept life was open in, then Play comes first and I already have a life here under it, a full-width outlined button as tall as Play, never a text link", async () => {
+  test("[account:start-screen-over-live-city] given a browser no kept life was open in, then Play comes first and Sign in under it, a full-width outlined button as tall as Play, never a text link, with its small second line sized as Play's", async () => {
     gate(fakeAccount());
     const play = await button("ui.account.start.play");
     const returning = screen.getByRole("button", { name: say("ui.account.start.returning") });
@@ -115,9 +115,16 @@ describe("the two doors of the start screen (account:start-screen-over-live-city
     expect(returning.className).toMatch(/\bh-\[58px\]/);
     expect(returning.className).toMatch(/\bborder-2\b/);
     expect(document.querySelector("[data-start-screen]")?.getAttribute("data-start-screen")).toBe("new");
+    expect(say("ui.account.start.returning")).toBe("Sign in");
+    // The second line is said as the button's description, as Play's is, and drawn at Play's line's size.
+    const line = document.getElementById(returning.getAttribute("aria-describedby") ?? "");
+    expect(line?.textContent).toBe("Carry on a saved life");
+    expect(returning.contains(line)).toBe(true);
+    const playLine = document.getElementById(play.getAttribute("aria-describedby") ?? "");
+    expect(line?.className).toBe(playLine?.className);
   });
 
-  test("[account:start-screen-over-live-city] given a browser a kept life was open in, then the doors turn round: Sign in to my life first, Start a new life under it, the hook and the steps unchanged; each goes where it says", async () => {
+  test("[account:start-screen-over-live-city] given a browser a kept life was open in, then the doors turn round: Sign in first with its second line, Start a new life under it, the hook and the steps unchanged; each goes where it says", async () => {
     localStorage.setItem(KEPT_MARK_KEY, "1");
     const account = fakeAccount();
     gate(account);
@@ -125,6 +132,7 @@ describe("the two doors of the start screen (account:start-screen-over-live-city
     const fresh = screen.getByRole("button", { name: say("ui.account.start.kept.play") });
     expect(back.compareDocumentPosition(fresh) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(back.className).toMatch(/\bbtn-main\b/);
+    expect(document.getElementById(back.getAttribute("aria-describedby") ?? "")?.textContent).toBe("Carry on a saved life");
     expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
     expect(document.querySelector("[data-start-hook]")).not.toBeNull();
     expect(document.querySelector("[data-start-screen]")?.getAttribute("data-start-screen")).toBe("kept");
@@ -133,7 +141,7 @@ describe("the two doors of the start screen (account:start-screen-over-live-city
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
     fireEvent.click(await button("ui.account.start.kept.play"));
     expect(await screen.findByRole("heading", { name: say("ui.account.age.title") })).toBeDefined();
-    expect(say("ui.account.start.kept.returning")).toBe("Sign in to my life");
+    expect(say("ui.account.start.kept.returning")).toBe("Sign in");
     expect(say("ui.account.start.kept.play")).toBe("Start a new life");
   });
 
@@ -231,7 +239,7 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
   const guest = (over: Partial<AccountApi> = {}) =>
     fakeAccount({ view: () => Promise.resolve(accountView({ state: "guest" })), signInWithCode: () => Promise.resolve({ ok: false, why: "taken" }), ...over });
 
-  test("[account:guest-secures-the-life] given a code to an address that already has a life, then the refusal offers Open my kept life with what it costs; it signs the guest out and opens the ways back in with the address filled in", async () => {
+  test("[account:guest-secures-the-life] given a code to an address that already has a life, then the refusal offers Sign in to my saved life with what it costs; it signs the guest out and opens the ways back in with the address filled in", async () => {
     const account = guest();
     const store = await signedInGuest(account, <KeepThenGate account={account} />);
     fireEvent.change(await screen.findByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
@@ -248,7 +256,7 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
     expect(store.getState().accountNotice).toBeNull();
   });
 
-  test("[account:guest-secures-the-life] [account:sign-out-ends-the-session] given Open my kept life when the sign-out does not reach the server, then the guest stays in and is told, and the ways back in do not open", async () => {
+  test("[account:guest-secures-the-life] [account:sign-out-ends-the-session] given Sign in to my saved life when the sign-out does not reach the server, then the guest stays in and is told, and the ways back in do not open", async () => {
     const account = guest({ signOut: () => Promise.resolve({ ok: false, why: "sign-out" }) });
     const store = await signedInGuest(account, <KeepThenGate account={account} taken />);
     fireEvent.click(await button("ui.secure.taken.open"));
@@ -266,7 +274,7 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
     expect(store.getState().signedOut).toBe(true);
   });
 
-  test("[account:guest-secures-the-life] given a guest's account sheet, then I already have a life here is offered; a first press says this life ends, a second opens the ways back in", async () => {
+  test("[account:guest-secures-the-life] given a guest's account sheet, then Sign in is offered; a first press says this life ends, a second opens the ways back in", async () => {
     const account = guest();
     const store = await signedInGuest(
       account,

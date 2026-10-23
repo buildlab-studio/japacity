@@ -2,7 +2,7 @@ import type { NewsEntry, NewsStage, RejectionCode } from "@japacity/sim";
 import type { Proof, Same } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
-import { content, HOMETOWN_FILL, mergeText, text, textTables } from "./index";
+import { content, HOMETOWN_FILL, mergeText, text, textTables, uiBoardsText, uiOnlineText } from "./index";
 
 declare global {
   interface ImportMeta {
@@ -202,6 +202,48 @@ describe("the words files together", () => {
       return source.includes(EM_DASH) || source.includes(EN_DASH);
     });
     expect(dashed).toEqual([]);
+  });
+});
+
+/**
+ * text:account-words-plain: the tables a player reads the account's words in: `uiOnlineText` (the start screen, the ways back
+ * in, the account's sheet, the save sheet, the guest lines and the invite's page) and `uiBoardsText` (the boards).
+ */
+const ACCOUNT_TABLES = { uiOnlineText, uiBoardsText };
+
+/** Lines in those tables where keep means another thing than saving a life: the hook's light, the browser's cookies, and two buttons that undo a step. */
+const KEEP_MEANS_ANOTHER_THING = new Set([
+  // The start screen's hook (text:hook-not-explanation): the light at home, kept on.
+  "ui.wink.start.2.b",
+  // A browser that holds no cookies, in account:bot-check-on-guest-creation's own words.
+  "ui.account.cookies",
+  // The answer to "Delete my account": the account stays as it is.
+  "ui.account.delete.keep",
+  // The answer to removing the last passkey: the passkey stays.
+  "ui.account.passkey.last.keep",
+]);
+
+describe("the account's words (text:account-words-plain)", () => {
+  test("[text:account-words-plain] given the start, sign-in, account, invite and boards words, when each line is read, then none says keep, kept, secure or secured for a life put on an account", () => {
+    const said = Object.entries(ACCOUNT_TABLES).flatMap(([table, words]) =>
+      Object.entries(words)
+        .filter(([key, line]) => !KEEP_MEANS_ANOTHER_THING.has(key) && /\b(keep|keeps|keeping|kept|secure|secures|securing|secured)\b/i.test(line))
+        .map(([key, line]) => `${table} ${key}: ${line}`),
+    );
+    expect(said).toEqual([]);
+    // The exceptions are lines that are there, so a renamed key cannot hide a line from the walk.
+    for (const key of KEEP_MEANS_ANOTHER_THING) expect(uiOnlineText[key]).toMatch(/\bkeep(ing)?\b/i);
+  });
+
+  test("[text:account-words-plain] given the account's own actions, when they are read, then a guest's life is saved and coming back to it is signing in", () => {
+    expect(uiOnlineText["ui.secure.title"]).toBe("Save this life");
+    expect(uiOnlineText["ui.secure.code.go"]).toBe("Save");
+    expect(uiOnlineText["ui.secure.done.title"]).toBe("Saved");
+    expect(uiOnlineText["ui.secure.done"]).toBe("Saved. Sign in on any phone to carry on.");
+    expect(uiOnlineText["ui.account.start.returning"]).toBe("Sign in");
+    expect(uiOnlineText["ui.account.start.kept.returning"]).toBe("Sign in");
+    expect(uiOnlineText["ui.account.start.returning.then"]).toBe("Carry on a saved life");
+    expect(uiOnlineText["ui.secure.taken.open"]).toBe("Sign in to my saved life");
   });
 });
 

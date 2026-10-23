@@ -151,7 +151,7 @@ describe("the securing sheet", () => {
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={ANDROID_WHATSAPP} />);
     expect(screen.queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
     expect(screen.getByText(say("ui.secure.in-app"))).toBeDefined();
-    expect(say("ui.secure.in-app")).toBe("Google does not open inside this app. Keep this life with your email here, then open it in any browser.");
+    expect(say("ui.secure.in-app")).toBe("Google does not open inside this app. Save this life with your email here, then open it in any browser.");
     expect(screen.queryByRole("link")).toBeNull();
     expect(screen.queryByRole("button", { name: say("ui.account.in-app.copy") })).toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
