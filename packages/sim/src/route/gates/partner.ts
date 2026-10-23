@@ -4,8 +4,8 @@
 //
 // The people kind holds the bonds and the joint; this module only reads them.
 import { heldBand } from "../../activity/activity.logic";
-import { worldVar } from "../../engine/check";
-import { VAR } from "../../engine/ids";
+import { check, worldVar } from "../../engine/check";
+import { QUALITY, VAR } from "../../engine/ids";
 import { emit } from "../../engine/kind";
 import type { Bond, BondStage, Cause, Ctx, Id, PersonFacts, ReadCtx, RouteEntry, RouteState } from "../../engine/types";
 import { bannedNow } from "../../place/place.logic";
@@ -60,11 +60,18 @@ function floorHolds(entry: RouteEntry, facts: PersonFacts | null): boolean {
   return blockOf(entry).floorVar === null || facts?.meetsFloor[entry.id] === true;
 }
 
+/** person:partner-gate-needs: where the route asks English, a bachelor's degree meets it, as does the degree's English statement (document:degree-english-statement), or the band. */
 function bandHolds(read: ReadCtx, block: PartnerBlock): boolean {
   if (block.bandMin === null) return true;
+  if ((read.state.quality[QUALITY.eduLevel] ?? 0) >= BACHELORS) return true;
+  if (check(read, { type: "document/held", document: STATEMENT }).met) return true;
   const band = heldBand(read);
   return band !== null && band >= block.bandMin;
 }
+
+/** A bachelor's degree on the education scale (quality.md). */
+const BACHELORS = 3;
+const STATEMENT: Id<"document"> = "document.degree-english";
 
 /**
  * The interview's word on an application sent in `submittedMonth`

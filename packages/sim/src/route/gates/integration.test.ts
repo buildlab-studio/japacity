@@ -20,7 +20,7 @@ const CARE_PAPERS: ScenarioEntry["documents"] = [
   { document: "document.passport", monthsLeft: 40, value: null },
   { document: "document.nursing-licence", monthsLeft: 30, value: null },
   { document: "document.nmcn-verification", monthsLeft: 24, value: null },
-  { document: "document.english-test", monthsLeft: 24, value: 40 },
+  { document: "document.english-test", monthsLeft: 24, value: 55 },
   { document: "document.tb-certificate", monthsLeft: 24, value: null },
 ];
 const GULF_PAPERS: ScenarioEntry["documents"] = [

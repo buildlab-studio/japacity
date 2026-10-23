@@ -417,22 +417,19 @@ describe("the params a free activity may take now", () => {
     for (const other of ["unknown", "known", "applying"] as const) expect(paramsFor(readWith(game, routeIn(other)), look)).toEqual([]);
   });
 
-  test("[activity:illegal-slot-rejects-turn] given a known route, a grade and a band, when the schools are listed, then each school whose minimums are met is listed, each edge included", () => {
+  test("[activity:illegal-slot-rejects-turn] [route:applying-to-a-school] given a known route and a grade, when the schools are listed, then each school whose grade minimum is met is listed, each edge included, whatever band is held or none", () => {
     const game = start({ content, scenario: "scenario.graduate" });
     expect(game.state.quality["quality.education-grade"]).toBe(4);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(65))), school)).toEqual(["school.northgate", "school.ashby"]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(70))), school)).toEqual(["school.northgate", "school.ashby", "school.kingsmere"]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(60))), school)).toEqual(["school.northgate"]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(55))), school)).toEqual([]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(70), grade(3))), school)).toEqual(["school.northgate"]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(70), grade(2))), school)).toEqual([]);
+    const every = ["school.northgate", "school.ashby", "school.kingsmere"];
+    expect(paramsFor(readWith(game, all(routeIn("known"), band(70))), school)).toEqual(every);
+    expect(paramsFor(readWith(game, all(routeIn("known"), band(40))), school)).toEqual(every);
+    expect(paramsFor(readWith(game, routeIn("known")), school)).toEqual(every);
+    expect(paramsFor(readWith(game, all(routeIn("known"), grade(3))), school)).toEqual(["school.northgate"]);
+    expect(paramsFor(readWith(game, all(routeIn("known"), grade(2))), school)).toEqual([]);
   });
 
-  test("[activity:illegal-slot-rejects-turn] given no band held, a route not known, or an application already there, when the schools are listed, then those are left out", () => {
+  test("[activity:illegal-slot-rejects-turn] given a route not known, or an application already there, when the schools are listed, then those are left out", () => {
     const game = start({ content, scenario: "scenario.graduate" });
-    expect(paramsFor(readWith(game, routeIn("known")), school)).toEqual([]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(70, "pending"))), school)).toEqual([]);
-    expect(paramsFor(readWith(game, all(routeIn("known"), band(null))), school)).toEqual([]);
     expect(paramsFor(readWith(game, all(routeIn("heard"), band(70))), school)).toEqual([]);
     const applied = (state: State): State => ({
       ...state,

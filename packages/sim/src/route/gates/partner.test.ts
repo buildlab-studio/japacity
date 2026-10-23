@@ -116,8 +116,11 @@ describe("person:partner-gate-needs: applying on the partner gate", () => {
     expect(partnerGate.reached(readOf(game), caSpouse, routeOf(game, CA_SPOUSE), "sponsor")).toBe(true);
   });
 
-  test("[person:partner-gate-needs] given an English band of 3.0 and one of 2.5, when the UK application is sent, then only 3.0 is enough", () => {
-    const band = (value: number): LifeOptions => ({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value } : paper)) });
+  test("[person:partner-gate-needs] given no degree and an English band of 3.0 or one of 2.5, when the UK application is sent, then only 3.0 is enough", () => {
+    const band = (value: number): LifeOptions => ({
+      documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value } : paper)),
+      qualities: { "quality.education-level": 2 },
+    });
     const low = married(UK_PARTNER, SETTLED, band(ukPartner.partner!.bandMin! - 5));
     toKnown(low, UK_PARTNER);
     low.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
@@ -125,6 +128,21 @@ describe("person:partner-gate-needs: applying on the partner gate", () => {
     toKnown(edge, UK_PARTNER);
     edge.accept({ type: "activity/now", activity: APPLY_UK, param: null });
     expect(routeOf(edge, UK_PARTNER).state).toBe("applying");
+  });
+
+  test("[person:partner-gate-needs] [document:degree-english-statement] given a band of 2.5 with a bachelor's degree, or with the degree's English statement, when the UK application is sent, then the English is met", () => {
+    const low = READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: ukPartner.partner!.bandMin! - 5 } : paper));
+    const graduate = married(UK_PARTNER, SETTLED, { documents: low });
+    toKnown(graduate, UK_PARTNER);
+    graduate.accept({ type: "activity/now", activity: APPLY_UK, param: null });
+    expect(routeOf(graduate, UK_PARTNER).state).toBe("applying");
+    const statement = married(UK_PARTNER, SETTLED, {
+      documents: [...low, { document: "document.degree-english", monthsLeft: null, value: null }],
+      qualities: { "quality.education-level": 2 },
+    });
+    toKnown(statement, UK_PARTNER);
+    statement.accept({ type: "activity/now", activity: APPLY_UK, param: null });
+    expect(routeOf(statement, UK_PARTNER).state).toBe("applying");
   });
 
   test("[person:partner-gate-needs] given a joint with the applicant leading, or the sponsor gone home, when the gate is asked, then applying is not legal", () => {
