@@ -250,7 +250,7 @@ export const offerText: Record<string, string> = {
   "offer.sponsor-care-home.sign.pays-for-cos": "They want you to pay for the certificate.",
   "offer.sponsor-care-home.sign.licensed-register": "The company is on the public register of licensed sponsors.",
   "offer.sponsor-care-home.sign.video-interview": "There was an interview on video with the manager.",
-  "offer.sponsor-care-home.sign.whatsapp-only": "Everything happens on WhatsApp.",
+  "offer.sponsor-care-home.sign.whatsapp-only": "Everything happens in a chat app.",
   "offer.sponsor-care-home.sign.start-date": "They gave a start date and a rota.",
 
   "offer.sponsor-trust.name": "A hospital trust offers a nursing post",
@@ -269,7 +269,7 @@ export const offerText: Record<string, string> = {
   "offer.sponsor-tech-firm.sign.pays-for-cos": "They want you to pay for the certificate.",
   "offer.sponsor-tech-firm.sign.licensed-register": "The company is on the public register of licensed sponsors.",
   "offer.sponsor-tech-firm.sign.video-interview": "There was an interview on video with the manager.",
-  "offer.sponsor-tech-firm.sign.whatsapp-only": "Everything happens on WhatsApp.",
+  "offer.sponsor-tech-firm.sign.whatsapp-only": "Everything happens in a chat app.",
   "offer.sponsor-tech-firm.sign.start-date": "They gave a start date and a rota.",
 
   "offer.sponsor-agency.name": "An agency has a role for you",
@@ -281,7 +281,7 @@ export const offerText: Record<string, string> = {
   "offer.sponsor-agency.sign.pays-for-cos": "They want you to pay for the certificate.",
   "offer.sponsor-agency.sign.licensed-register": "The company is on the public register of licensed sponsors.",
   "offer.sponsor-agency.sign.video-interview": "There was an interview on video with the manager.",
-  "offer.sponsor-agency.sign.whatsapp-only": "Everything happens on WhatsApp.",
+  "offer.sponsor-agency.sign.whatsapp-only": "Everything happens in a chat app.",
   "offer.sponsor-agency.sign.start-date": "They gave a start date and a rota.",
 
   // The Gulf agent: route-gates.md. The pitch is the page's.
