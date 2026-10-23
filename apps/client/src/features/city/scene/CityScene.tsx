@@ -34,7 +34,7 @@ import { anchorFan } from "../fan/anchor";
 import { markNode, showMark } from "./mark";
 import { bedLie, othersSeen, sleepMarkNode } from "../acts/sleep";
 import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT } from "./labels";
-import { aimRoom, aimShot, clampTurn, EASE, easeRoomView, easeZoom, homeTap, quarterTurns, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
+import { aimRoom, aimShot, clampTurn, dueInRoom, EASE, easeRoomView, easeZoom, homeTap, quarterTurns, roomAt, roomFirst, roomShot, SETTLE, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapTilt, snapTurn, snapZoom, turnedShot, turnsRound, turnToward, widthEnds } from "./shot";
 import { showWalls, wallsQuarter } from "../../../shared/scene/walls";
 import { thingSpot, walkBeforeAct, walkSpot } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "../../../shared/scene/walk";
@@ -147,6 +147,11 @@ interface Rig {
   pinching: boolean;
   /** A wide home's room the view eases in on (world:room-seen-down-its-length); null for the room the character stands in. */
   room: string | null;
+  /**
+   * A thing tapped from the whole house, waiting for the camera to stand in on its room before it is chosen (dueInRoom). It is
+   * kept here with the view, since a new graphics mode draws the scene anew while the camera eases.
+   */
+  waiting: Thing | null;
 }
 
 /** Buy mode's lifted thing: `good` is the last spot it fitted, where a shake sends it back and where it is set down. */
@@ -164,7 +169,7 @@ interface Lifted {
   down: boolean;
 }
 
-const wholeRig = (turn = 0): Rig => ({ zoom: 1, zoomTo: 1, turn, turnTo: turn, tilt: 0, tiltTo: 0, turning: false, pinching: false, room: null });
+const wholeRig = (turn = 0): Rig => ({ zoom: 1, zoomTo: 1, turn, turnTo: turn, tilt: 0, tiltTo: 0, turning: false, pinching: false, room: null, waiting: null });
 
 /** The room a wide home's view eases in on: the one asked for, else the one the character stands in, else the first. */
 function roomInView(rooms: readonly Room[], asked: string | null, at: { x: number; z: number }): Room | undefined {
@@ -355,7 +360,6 @@ function Place(props: PlaceProps) {
   // A wide home's rooms (world:room-seen-down-its-length): a thing chosen from the whole house, or in
   // another room, eases the camera in on its room first, and its fan opens once the camera is there.
   const rooms = useMemo(() => (raised ? (stage.rooms ?? []) : []), [raised, stage.rooms]);
-  const deferred = useRef<Thing | null>(null);
   const zoomed = props.onZoomed;
   const easeTo = (room: Room | null): void => {
     rig.current.room = room === null ? rig.current.room : room.id;
@@ -367,7 +371,7 @@ function Place(props: PlaceProps) {
     const room = roomFirst(rooms, rig.current.zoomTo === 1, roomInView(rooms, rig.current.room, walk.current.walker), thingSpot(stage, thing));
     if (room !== null) {
       easeTo(room);
-      deferred.current = thing;
+      rig.current.waiting = thing;
       return;
     }
     choose(thing);
@@ -825,9 +829,9 @@ function Place(props: PlaceProps) {
       state.camera.lookAt(...target);
       lens(state.camera, fov, SHOT_NEAR_PLANE);
       // Once the camera has eased in on its room, the thing chosen opens there.
-      const waiting = deferred.current;
-      if (waiting !== null && view.zoom === view.zoomTo) {
-        deferred.current = null;
+      const waiting = dueInRoom(view);
+      if (waiting !== null) {
+        view.waiting = null;
         chooseRef.current(waiting);
       }
     } else if (raised) {
@@ -1069,7 +1073,7 @@ function Place(props: PlaceProps) {
     const tap = homeTap(rooms, whole, roomInView(rooms, rig.current.room, walk.current.walker), x, z);
     if (tap.kind === "in") easeTo(tap.room);
     if (tap.kind === "out") {
-      deferred.current = null;
+      rig.current.waiting = null;
       easeTo(null);
     }
     // From the whole house even a tap past every room only looks: nothing walks until the camera is in.

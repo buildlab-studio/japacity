@@ -229,6 +229,16 @@ export function easeRoomView(view: ViewEase, delta: number, still = false): Pick
   };
 }
 
+/**
+ * The thing a tap chose from a wide home's whole house, due once the camera stands in on its room, so its fan opens close
+ * (world:room-seen-down-its-length); null while the camera still eases or nothing waits. The wait is held on the view the
+ * scene's shell keeps, beside the zoom it waits on, so a scene drawn anew while the camera eases (a new graphics mode,
+ * city:two-graphics-modes) still opens the thing once the camera is in.
+ */
+export function dueInRoom<T>(view: { zoom: number; zoomTo: number; waiting: T | null }): T | null {
+  return view.waiting !== null && view.zoom === view.zoomTo ? view.waiting : null;
+}
+
 /** The room of a wide home whose floor holds a point, or null outside every room. */
 export function roomAt(rooms: readonly Room[], x: number, z: number): Room | null {
   return rooms.find(({ floor: [x0, z0, x1, z1] }) => x >= Math.min(x0, x1) && x <= Math.max(x0, x1) && z >= Math.min(z0, z1) && z <= Math.max(z0, z1)) ?? null;
