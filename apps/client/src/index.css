@@ -239,12 +239,7 @@ body {
     animation: none !important;
   }
   /* A bar that shows time passing steps once a second instead of standing still (world:reach-and-read): `--seconds` is its length. */
-  .sleep-bar {
-    animation-name: sleep-bar !important;
-    animation-duration: calc(var(--seconds) * 1s) !important;
-    animation-timing-function: steps(var(--seconds), end) !important;
-    animation-fill-mode: both !important;
-  }
+  .sleep-bar { animation: sleep-bar calc(var(--seconds) * 1s) steps(var(--seconds)) both !important; }
 }
 
 /* The world's bands, chips and the one main button (world:top-band-is-lively-pill, world:one-action-one-sheet, world:colours-are-role-tokens, world:motions-under-half-second). */
@@ -769,29 +764,8 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .round-button { width: 44px; height: 44px; border-radius: 9999px; }
 /* The warning colour on a costly act (world:costly-acts-confirmed): never the main yellow, and set apart from the safe main button. The
    chip is the act's first ask, red words on the card's white; the button confirms it, white words on the red. */
-.warn-chip {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 9999px;
-  background: var(--sheet-2);
-  color: var(--out);
-  box-shadow: 0 0 0 2px var(--out-fill);
-}
-.warn-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 9999px;
-  background: var(--out-fill);
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 700;
-  box-shadow: 0 3px 0 var(--edge);
-}
-.warn-button:active:not(:disabled) { translate: 0 2px; box-shadow: 0 1px 0 var(--edge); }
-.warn-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.warn-chip { background: var(--sheet-2); color: var(--out); box-shadow: 0 0 0 2px var(--out-fill); }
+.warn-button { background: var(--out-fill); color: #fff; }
 .pill-button { height: 44px; border-radius: 9999px; padding: 0 16px; font-size: 15px; }
 .round-button:active:not(:disabled),
 .pill-button:active:not(:disabled) { translate: 0 2px; box-shadow: 0 1px 0 var(--edge); }

@@ -137,7 +137,6 @@ describe("time passing under Reduce Motion (world:reach-and-read)", () => {
   test("[world:reach-and-read] given Reduce Motion, then the sleep's bar keeps running down, a step each second, while every other motion stops", () => {
     const reduced = [...CSS.matchAll(/@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?)\n\}/g)].map((match) => match[1] ?? "").join("\n");
     const bar = /\.sleep-bar\s*\{([^}]*)\}/.exec(reduced)?.[1] ?? "";
-    expect(bar).toMatch(/animation-name:\s*sleep-bar\s*!important/);
-    expect(bar).toMatch(/animation-timing-function:\s*steps\(var\(--seconds\)/);
+    expect(bar).toMatch(/animation:\s*sleep-bar calc\(var\(--seconds\) \* 1s\) steps\(var\(--seconds\)\)[^;]*!important/);
   });
 });

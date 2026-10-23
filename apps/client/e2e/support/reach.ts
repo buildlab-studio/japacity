@@ -99,9 +99,15 @@ export function reachOnScreen(page: Page): Promise<Reach> {
       if (parent instanceof SVGGraphicsElement) {
         const matrix = parent.getScreenCTM();
         if (matrix !== null) scale = Math.hypot(matrix.a, matrix.b);
-      } else if (parent instanceof HTMLElement && parent.offsetWidth > 0) {
-        const drawn = parent.getBoundingClientRect().width / parent.offsetWidth;
-        if (Number.isFinite(drawn) && drawn > 0) scale = drawn;
+      } else {
+        // The scale every transform from the element up draws it at, turning aside (rotation keeps the size).
+        for (let at: Element | null = parent; at !== null; at = at.parentElement) {
+          const style = getComputedStyle(at);
+          const matrix = /^matrix(?:3d)?\(([^)]+)\)$/.exec(style.transform)?.[1]?.split(",").map(Number);
+          if (matrix !== undefined && matrix.length >= 2) scale *= Math.hypot(matrix[0] ?? 1, matrix[1] ?? 0);
+          const own = style.scale === "none" || style.scale === "" ? 1 : Number(style.scale.split(" ")[0]);
+          if (Number.isFinite(own) && own > 0) scale *= own;
+        }
       }
       const drawnSize = size * scale;
       if (drawnSize + 0.05 < MIN_TEXT) texts.push({ where: whereOf(parent), width: round(box.width), height: round(drawnSize) });

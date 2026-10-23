@@ -172,14 +172,12 @@ function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean
   const [holding, setHolding] = useState(false);
   // world:reach-and-read: under Reduce Motion the fill steps once a second, by the whole seconds held, rather than jumping full.
   const [seconds, setSeconds] = useState(0);
-  const [stepping, setStepping] = useState(false);
   const timer = useRef<number | null>(null);
   const ticking = useRef<number | null>(null);
   const stopTicking = (): void => {
     if (ticking.current !== null) window.clearInterval(ticking.current);
     ticking.current = null;
     setSeconds(0);
-    setStepping(false);
   };
   const stop = (): void => {
     if (timer.current !== null) window.clearTimeout(timer.current);
@@ -190,10 +188,7 @@ function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean
   const start = (): void => {
     if (disabled || timer.current !== null) return;
     setHolding(true);
-    if (motionReduced()) {
-      setStepping(true);
-      ticking.current = window.setInterval(() => setSeconds((held) => held + 1), 1000);
-    }
+    if (motionReduced()) ticking.current = window.setInterval(() => setSeconds((held) => held + 1), 1000);
     timer.current = window.setTimeout(() => {
       timer.current = null;
       stopTicking();
@@ -208,7 +203,7 @@ function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean
     },
     [],
   );
-  const fill = stepping ? { width: `${String((100 * Math.min(HOLD_MS, seconds * 1000)) / HOLD_MS)}%` } : { width: holding ? "100%" : "0%", transition: holding ? `width ${String(HOLD_MS)}ms linear` : "none" };
+  const fill = holding && motionReduced() ? { width: `${String((100 * Math.min(HOLD_MS, seconds * 1000)) / HOLD_MS)}%` } : { width: holding ? "100%" : "0%", transition: holding ? `width ${String(HOLD_MS)}ms linear` : "none" };
   const held = (key: string): boolean => key === " " || key === "Enter";
   return (
     <button
