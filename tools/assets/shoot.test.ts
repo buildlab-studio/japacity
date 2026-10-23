@@ -4,12 +4,12 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, SOURCE } from "./catalog";
+import { CATALOG, isPortrayed, isPostered, isTiled, PORTRAITS, PUBLIC, SOURCE } from "./catalog";
 import { filesUnder, readJson, REPO_ROOT } from "../repo";
 import { sourceFiles } from "./assets-check";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
-import { FACE_SHOT, FIGURE_SHOT, mergeRecords, PHONE_SHOT, PORTRAIT_POSES, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
+import { FACE_SHOT, FIGURE_SHOT, mergeRecords, PHONE_SHOT, PORTRAIT_POSES, POSTER_SHOT, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
 import { signText } from "./stage-browser";
 
 const config = readJson<{ phoneShot: Record<string, number>; criteria: { key: string }[] }>(join(SOURCE, "review.config.json"));
@@ -151,16 +151,16 @@ describe("the door's portraits", () => {
     for (const name of ["person_hawker_a", "person_hawker_b"]) expect(isPortrayed(name)).toBe(false);
   });
 
-  test("[assets:contributor-renders-fixed-views] given the portraits' shots, when their numbers and poses are read, then the face is 128 CSS pixels square and the figure 200 by 400, both at device scale 2, in the game's stand, hip and cheer poses, on the stage's clear ground", () => {
+  test("[assets:contributor-renders-fixed-views] given the portraits' shots, when their numbers and poses are read, then the face is 128 CSS pixels square at device scale 2 and the figure 200 by 400 at device scale 3, in the game's stand, hip and cheer poses, on the stage's clear ground", () => {
     expect(FACE_SHOT).toEqual({ width: 128, height: 128, deviceScaleFactor: 2 });
-    expect(FIGURE_SHOT).toEqual({ width: 200, height: 400, deviceScaleFactor: 2 });
+    expect(FIGURE_SHOT).toEqual({ width: 200, height: 400, deviceScaleFactor: 3 });
     expect(PORTRAIT_POSES).toEqual({ face: "stand", figure: "hip", cheer: "cheer" });
     expect(stage).toMatch(/case "face":\s*case "figure":\s*case "cheer":/);
     expect(stage).toMatch(/const CLEAR_VIEWS: readonly ViewName\[\] = \["tile", "face", "figure", "cheer"\]/);
   });
 
-  test.each(portrayed.map((entry) => ({ name: entry.name, source: entry.source })))("[assets:no-reference-photos-kept] given $name's portraits, when they are read, then the face is 256 pixels square and the figures 400 by 800, each clear at its corners with the person filling it", ({ source }) => {
-    for (const [view, width, height] of [["face", 256, 256], ["figure", 400, 800], ["cheer", 400, 800]] as const) {
+  test.each(portrayed.map((entry) => ({ name: entry.name, source: entry.source })))("[assets:no-reference-photos-kept] given $name's portraits, when they are read, then the face is 256 pixels square and the figures 600 by 1200, each clear at its corners with the person filling it", ({ source }) => {
+    for (const [view, width, height] of [["face", 256, 256], ["figure", 600, 1200], ["cheer", 600, 1200]] as const) {
       const image = read(source, view);
       expect({ view, size: [image.width, image.height] }).toEqual({ view, size: [width, height] });
       const alphaAt = (x: number, y: number): number => image.pixels[(y * image.width + x) * 4 + 3] ?? 255;
@@ -171,5 +171,47 @@ describe("the door's portraits", () => {
       const share = filled / ((width / 4) * (height / 4));
       expect({ view, enough: share > (view === "face" ? 0.2 : 0.15), notAll: share < 0.9 }).toEqual({ view, enough: true, notAll: true });
     }
+  });
+});
+
+describe("the send-off's posters", () => {
+  const postered = CATALOG.filter((entry) => entry.views.includes("poster"));
+  /** The box the opaque pixels fill, as shares of the picture's side, so a tile and its poster compare at any size. */
+  function filled(source: string, view: "tile" | "poster"): { side: number; box: number[] } {
+    const image = decodePng(readFileSync(join(REPO_ROOT, source, "renders", `${view}.png`)));
+    const alphaAt = (x: number, y: number): number => image.pixels[(y * image.width + x) * 4 + 3] ?? 255;
+    let [minX, minY, maxX, maxY] = [image.width, image.height, -1, -1];
+    for (let y = 0; y < image.height; y++) {
+      for (let x = 0; x < image.width; x++) {
+        if (alphaAt(x, y) < 128) continue;
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
+    expect([alphaAt(0, 0), alphaAt(image.width - 1, 0), alphaAt(0, image.height - 1), alphaAt(image.width - 1, image.height - 1)]).toEqual([0, 0, 0, 0]);
+    return { side: image.width === image.height ? image.width : -1, box: [minX, minY, maxX + 1, maxY + 1].map((at) => at / image.width) };
+  }
+
+  test("[assets:contributor-renders-fixed-views] [prologue:front-door-three-screens] given the things the send-off draws larger than their tile, when their views are listed, then each has its tile and the poster, and nothing else has a poster", () => {
+    expect(postered.map((entry) => entry.name).sort()).toEqual(["building_deira-arcade_a", "building_deira-arcade_b", "building_deira-arcade_c", "building_rye-lane-terrace_a", "building_rye-lane-terrace_b", "building_shop-row", "prop_bus-shelter", "vehicle_taxi-dubai"]);
+    for (const entry of postered) expect({ name: entry.name, tile: entry.views.includes("tile"), postered: isPostered(entry.name) }).toEqual({ name: entry.name, tile: true, postered: true });
+    expect(CATALOG.filter((entry) => !entry.views.includes("poster")).filter((entry) => existsSync(join(REPO_ROOT, entry.source, "renders", "poster.png"))).map((entry) => entry.name)).toEqual([]);
+  });
+
+  test("[assets:contributor-renders-fixed-views] [prologue:front-door-three-screens] given the poster shot, when its numbers are read, then it is the tile's square of 256 CSS pixels at device scale 3.5, an 896 pixel picture, three picture pixels for each CSS pixel of the send-off's largest sticker on a large phone", () => {
+    expect(POSTER_SHOT).toEqual({ width: TILE_SHOT.width, height: TILE_SHOT.height, deviceScaleFactor: 3.5 });
+    // The largest is 260 of the stage's 390 pixels across, the stage scaled to a 430 by 932 phone.
+    const largest = 260 * Math.min(430 / 390, 932 / 844);
+    expect(POSTER_SHOT.width * POSTER_SHOT.deviceScaleFactor).toBeGreaterThanOrEqual(Math.ceil(largest * 3));
+  });
+
+  test.each(postered.map((entry) => ({ name: entry.name, source: entry.source })))("[assets:no-reference-photos-kept] given $name's poster, when it is read beside its tile, then it is 896 pixels square, clear at its corners, framed as the tile is", ({ source }) => {
+    const tile = filled(source, "tile");
+    const poster = filled(source, "poster");
+    expect(poster.side).toBe(896);
+    // The same framing: the thing's box within a hundredth of the picture's side.
+    for (const [at, share] of poster.box.entries()) expect(Math.abs(share - (tile.box[at] ?? 0))).toBeLessThan(0.01);
   });
 });

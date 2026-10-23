@@ -91,7 +91,7 @@ export async function renderPhoto(file: string, style: LookStyle | undefined, wi
 }
 
 /** The door's figure: the published figure's size and framing (tools/assets/shoot.ts FIGURE_SHOT, the stage's portrait). */
-const FIGURE_PX = { width: 400, height: 800 } as const;
+const FIGURE_PX = { width: 600, height: 1200 } as const;
 const FIGURE_FOV = 24;
 const FIGURE_YAW = (25 * Math.PI) / 180;
 

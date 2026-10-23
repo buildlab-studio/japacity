@@ -163,3 +163,24 @@ describe("the send-off's beats, laid out", () => {
     await waitFor(() => expect(document.querySelector(`[data-so-stop-person] [data-so-tile='${people.looks[0]}-figure']`)).not.toBeNull());
   });
 });
+
+describe("the send-off's stickers, sharp at their size", () => {
+  test("[prologue:front-door-three-screens] [chapter:send-off-scene-in-beats] given a thing drawn larger than its tile is sharp at, with its poster published, then the browser is offered the tile and the poster by their widths with the sticker's size on the stage, and a person's figure is offered alone", async () => {
+    const landing = landingOf("country.uk");
+    if (landing === null) throw new Error("No landing in the United Kingdom.");
+    render(<LandingBeat dress={dress} landing={landing} place="Peckham, London" weather="4 degrees" marker="Peckham Rye" heard={{ name: "Aunty", words: "You just land?", look: stopLookFor(landing.country, dress.look) }} go="Get on the bus" blind="12 · PECKHAM" onGo={none} />);
+    const shelter = await waitFor(() => {
+      const found = document.querySelector<HTMLImageElement>("[data-so-tile='prop_bus-shelter']");
+      if (found === null) throw new Error("No shelter drawn.");
+      return found;
+    });
+    // jsdom's window is 1024 by 768: the stage at 768 / 844 of its size.
+    const scale = Math.min(window.innerWidth / 390, window.innerHeight / 844);
+    const tile = shelter.getAttribute("src") ?? "";
+    expect(tile).toMatch(/tiles\/prop_bus-shelter\.png$/);
+    expect(shelter.getAttribute("srcset")).toBe(`${tile} 512w, ${tile.replace(/\.png$/, "-poster.png")} 896w`);
+    expect(shelter.getAttribute("sizes")).toBe(`${String(Math.ceil(170 * scale))}px`);
+    const person = document.querySelector<HTMLImageElement>("[data-so-stop-person] [data-so-tile]");
+    expect(person?.getAttribute("srcset")).toBeNull();
+  });
+});

@@ -1,7 +1,7 @@
 {
   "asset": "person_tunde",
   "file": "public/assets/shared/person/person_tunde.glb",
-  "fileSha256": "e3b6f0b110640c951242122b0ae0f33af0a077564c1ff6c179663921f43378f8",
+  "fileSha256": "dadb9b1a1713a20b61c0ea8b5143dd4c47cb56314a0a532bf218fb6650b7fd60",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/tunde/renders/figure.png",
-      "sha256": "761355489855d8cfcb0168e49889fcda34cc535762a040558d61f8edd7e78f03",
+      "sha256": "aded1cf4593926bb1694e472ff46c4001928bcb877bab359e917cec3d3caf3be",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/tunde/renders/cheer.png",
-      "sha256": "994a88122ba82ff7f07974ef2eeb3215f0ff0a5b8dddc525807c0f92940b96c2",
+      "sha256": "febe4f64feea623bfb693c1f940dfe1f10bf0b18fb7dd420a735c9617e591944",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

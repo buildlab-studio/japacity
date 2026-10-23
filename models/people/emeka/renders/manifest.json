@@ -1,7 +1,7 @@
 {
   "asset": "person_emeka",
   "file": "public/assets/shared/person/person_emeka.glb",
-  "fileSha256": "e4f5801399fa3f481a6990ff1e624e46ade83b1a08e24aaf888b3a702de276a2",
+  "fileSha256": "95fc5a310f69834e4c07bc622dcc627548998f38efe80c6a78ebd7f8b28ff390",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/emeka/renders/figure.png",
-      "sha256": "6fbcd4e6da431c152acbdc25cad6b2ba13695894dad13de5651b85c413b87d06",
+      "sha256": "6ce128bf8f57136d0faa35b6788ba02d7b643d5948b5c0dd58921aa78d4fd6a7",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/emeka/renders/cheer.png",
-      "sha256": "f8f6920d7134332bdb06ff3991da723155bc28ef655910d2b9cbbc9f19df4102",
+      "sha256": "67a5f2610123c32c06aceb2b2d2c551688b6734f95e3bde615c8a8b674ab995e",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

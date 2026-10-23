@@ -6,8 +6,9 @@ import { join } from "node:path";
 
 import type { Locator, Page } from "@playwright/test";
 
+import { rastersOnScreen } from "../support/rasters";
 import { SCREENS } from "./screens";
-import { catalogDir, MISSED_FILE } from "./where";
+import { catalogDir, MISSED_FILE, RASTERS_FILE } from "./where";
 
 const DIR = catalogDir();
 /** Where the screen stood when a step failed: Playwright's output folder, never the catalog. */
@@ -26,10 +27,22 @@ async function settle(page: Page, ms: number): Promise<void> {
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
 }
 
+/**
+ * With CATALOG_RASTERS set, every raster picture the screen shows is written down beside the pictures, with its scale
+ * at this screen's pixel ratio (e2e/support/rasters.ts), for the sharpness audit.
+ */
+async function logRasters(page: Page, key: string, part: number): Promise<void> {
+  if ((process.env.CATALOG_RASTERS ?? "") === "") return;
+  const rasters = await rastersOnScreen(page).catch(() => []);
+  const viewport = page.viewportSize();
+  appendFileSync(join(DIR, RASTERS_FILE), `${JSON.stringify({ key, part, viewport, rasters })}\n`);
+}
+
 /** The screen as the player sees it now. */
 export async function shot(page: Page, key: string, wait = 600): Promise<void> {
   await settle(page, wait);
   await page.screenshot({ path: join(DIR, fileOf(key)), fullPage: false, animations: "allow" });
+  await logRasters(page, key, 1);
 }
 
 /**
@@ -58,6 +71,7 @@ export async function shotPages(page: Page, key: string, within: Locator, most =
     await scroller.evaluate((element, to) => element.scrollTo({ top: to, behavior: "instant" }), top);
     await settle(page, 300);
     await page.screenshot({ path: join(DIR, fileOf(key, part)), fullPage: false });
+    await logRasters(page, key, part);
   }
   await scroller.evaluate((element) => {
     element.scrollTo({ top: 0, behavior: "instant" });

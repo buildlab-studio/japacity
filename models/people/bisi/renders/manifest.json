@@ -1,7 +1,7 @@
 {
   "asset": "person_bisi",
   "file": "public/assets/shared/person/person_bisi.glb",
-  "fileSha256": "3ccc4705d9ee1e8d3d150bf80ef6544a9e2b2cf42050417c5864e223f4596dec",
+  "fileSha256": "dbb27f87e8414d673a8f9713e3c9839084e4b974a7db8f1b15dc1ac6bed8c3b4",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/bisi/renders/figure.png",
-      "sha256": "ef2f4abb9b72243a62e43fa164b5c73f5f6e3075cf2f147df36ebd444ca8049e",
+      "sha256": "f49f7481683a254e7fb35fb5e4166367f3a69df09bd66805c47d35a33c4a2652",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/bisi/renders/cheer.png",
-      "sha256": "7d4f683484cf5c4b5a6929f5804153affe22c635aaa018f3027c02a7fa47b2bd",
+      "sha256": "486cd208d7d1ca4af3e3d4b57c11a803d24023b271f0d8add42344fbbd5e9592",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

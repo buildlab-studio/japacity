@@ -1,7 +1,7 @@
 {
   "asset": "person_kunle",
   "file": "public/assets/shared/person/person_kunle.glb",
-  "fileSha256": "6b44d2c6805a2ea2c1b7a67335c826264fdc049cb10d41d2267bd9bce589f114",
+  "fileSha256": "971735ed443ca8e6db0030abbb50747d0a5ef5fb219e47c02516c147a1fc7c10",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/kunle/renders/figure.png",
-      "sha256": "d77f1706b87aa54820a3c56ede2ff6ab467be4cc4f2f6eef36d30bc867fa6462",
+      "sha256": "e231dcaa4a4166a1ef951fb3f26cb376bd073ad9dd80ec0762e1ec4fda4cbfb3",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/kunle/renders/cheer.png",
-      "sha256": "1ea22b9f546a5f889ead6de50886430d3263b356849fcf1c78dc1a75aaac6cc7",
+      "sha256": "125352cab48d1a9ad5d69c88d40fc0c8a8a991440e6dad35a218ab8554bc35e0",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

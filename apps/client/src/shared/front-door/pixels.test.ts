@@ -20,6 +20,6 @@ describe("the door's pixels", () => {
       expect({ file, pixels: source.includes("dpr={doorPixels()}"), smooth: /antialias: true/.test(source), rough: /antialias: false/.test(source) }).toEqual({ file, pixels: true, smooth: true, rough: false });
     }
     const still = readFileSync(join(import.meta.dirname, "..", "datapage", "photoRender.ts"), "utf8");
-    expect({ smooth: /antialias: true/.test(still), rough: /antialias: false/.test(still), figure: /FIGURE_PX = \{ width: 400, height: 800 \}/.test(still) }).toEqual({ smooth: true, rough: false, figure: true });
+    expect({ smooth: /antialias: true/.test(still), rough: /antialias: false/.test(still), figure: /FIGURE_PX = \{ width: 600, height: 1200 \}/.test(still) }).toEqual({ smooth: true, rough: false, figure: true });
   });
 });

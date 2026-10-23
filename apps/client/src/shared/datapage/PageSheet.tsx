@@ -77,7 +77,8 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     strip: { district: districtOf(view), years: yearsOf(months), percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
     // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (prologue:player-colours-on-looks).
-    ...(person === null ? {} : { wear: { look: gateLook(person.look), ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),
+    // With no person on this device (a life opened on another), the look shown is worn as made, so its photo is drawn too.
+    wear: person === null ? { look: gateLook(undefined) } : { look: gateLook(person.look), ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) },
     stamps: stampsOf(view),
   };
 }

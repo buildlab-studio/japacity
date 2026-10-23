@@ -1,7 +1,7 @@
 {
   "asset": "person_segun",
   "file": "public/assets/shared/person/person_segun.glb",
-  "fileSha256": "078bd2fd6192e1c5e331f4a4e31a11f57f8e8da9aca4c6ebb7a7e47763b35ee1",
+  "fileSha256": "6ecb38c5d7c76e3ab32be80320db18c42d5c22dbc7e4cf9833292117a92ff938",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/segun/renders/figure.png",
-      "sha256": "4cf6067344f42cea024d2f7474d402a2ecc899cc08299452382da590f4757ac0",
+      "sha256": "ed52ef45fc2e65d5e4c3cc3430184d39a2dd8c6ead512408d429fb409387ad12",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/segun/renders/cheer.png",
-      "sha256": "74be4606bf2f9fa5deb680fd0ab7895a5390d66b9e0b5b78d679957ad0eace28",
+      "sha256": "c9160878563fd70cd64dd8e03b2f69301f5e781181c474d1b5923dbf76f41cb7",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

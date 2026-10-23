@@ -9,12 +9,13 @@ import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { keepPerson } from "../front-door/person";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { lookOf } from "../front-door/looks";
+import { lookOf, LOOKS } from "../front-door/looks";
 import { AGE, clockWords, yearsOf } from "../words/quality";
 import { readyWords } from "../words/ready";
 import { say } from "../words/text";
 import { TopBand } from "../world/TopBand";
 import { stripLines } from "./DataPage";
+import { pageOf } from "./PageSheet";
 import { familyCard } from "./family";
 import { stampsOf } from "./stamps";
 // Registers Testing Library's cleanup for this file.
@@ -171,5 +172,14 @@ describe("the page from the band", () => {
     render(<TopBand when="Month 6" name="Home" money={0} formatMoney={String} />);
     expect(screen.getByText("Month 6")).toBeDefined();
     expect(screen.queryByRole("button", { name: say("prologue.page.open") })).toBeNull();
+  });
+});
+
+describe("the page's photo with no person kept on this device", () => {
+  test("[prologue:player-colours-on-looks] given a life with no person kept on this device, when the page is read, then it wears the look it shows as made, so the photo is drawn where WebGL is there and the look's small picture stands only where it is missing", async () => {
+    const store = await life("scenario.graduate", null);
+    const page = pageOf(store.getState().view!, null);
+    expect(page.wear).toEqual({ look: LOOKS[0]?.id });
+    expect(page.photo).toBe(lookOf(LOOKS[0]?.id)!.picture);
   });
 });

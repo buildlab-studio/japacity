@@ -1,7 +1,7 @@
 {
   "asset": "person_bayo",
   "file": "public/assets/shared/person/person_bayo.glb",
-  "fileSha256": "9a7d19ec9b41c6916e4f5a755637201fb4f4c0b85c11a2c21bf6fef81f43b078",
+  "fileSha256": "630172e00a119a022643f3fa3d2ca8df4a397305c48f41f2b83b703810b4fbcf",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
@@ -180,11 +180,11 @@
     {
       "view": "figure",
       "file": "models/people/bayo/renders/figure.png",
-      "sha256": "1f416c37cdc2b18bb1f7a61603979c64cbd7ca8cd0f1867378128028a19e11d6",
+      "sha256": "4695ee2b2881b924355cc9b5a06d03d2d8f7b7dc1710105975045eb0fdedaf47",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",
@@ -204,11 +204,11 @@
     {
       "view": "cheer",
       "file": "models/people/bayo/renders/cheer.png",
-      "sha256": "5c11667f4a673c0020be64c6f6284a266167f7ce4f579e45d38f13facdb8ed1e",
+      "sha256": "416402742833ecd8a25e9efed04f9615d3bc0862153d0a8963c529f7fec9ba78",
       "viewport": {
         "width": 200,
         "height": 400,
-        "deviceScaleFactor": 2
+        "deviceScaleFactor": 3
       },
       "camera": {
         "kind": "perspective",

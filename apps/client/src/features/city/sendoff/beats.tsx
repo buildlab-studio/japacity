@@ -30,21 +30,26 @@ export function useStageScale(): number {
   return scale;
 }
 
-/** A file published under public/assets, by its path, or null until the manifest is read or when it is not published. */
-function usePublished(path: string): string | null {
-  const [url, setUrl] = useState<{ path: string; url: string | null } | null>(null);
+/**
+ * A tile and, where asked, its poster, both read from one look at the manifest, so the sticker draws once with every
+ * picture it may take and never fetches the tile first and the poster after; null until the manifest is read. Each is
+ * null when it is not published.
+ */
+function usePublished(tile: string, poster: string | null): { tile: string | null; poster: string | null } | null {
+  const key = `${tile}|${poster ?? ""}`;
+  const [urls, setUrls] = useState<{ key: string; tile: string | null; poster: string | null } | null>(null);
   useEffect(() => {
     let alive = true;
     void loadManifest()
       .then((manifest) => {
-        if (alive) setUrl({ path, url: assetUrl(manifest, path) });
+        if (alive) setUrls({ key, tile: assetUrl(manifest, tile), poster: poster === null ? null : assetUrl(manifest, poster) });
       })
       .catch(() => undefined);
     return () => {
       alive = false;
     };
-  }, [path]);
-  return url !== null && url.path === path ? url.url : null;
+  }, [key, tile, poster]);
+  return urls !== null && urls.key === key ? { tile: urls.tile, poster: urls.poster } : null;
 }
 
 /** Who the character is in the scene: the name, the look in their own colours (the city hands the figure in), the money on the band. */
@@ -62,15 +67,30 @@ export interface Dress {
   money: string;
 }
 
-/** A published tile as a die-cut sticker. Silent to a screen reader: the words carry the meaning. */
-function Pic({ model, className = "", style }: { model: string; className?: string; style?: CSSProperties }) {
-  const src = usePublished(`tiles/${model}.png`);
-  return src === null ? null : <img src={src} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
+/** The pixels across a thing's tile and its poster (tools/assets/shoot.ts TILE_SHOT and POSTER_SHOT). */
+const TILE_PX = 512;
+const POSTER_PX = 896;
+
+/**
+ * A published tile as a die-cut sticker. Silent to a screen reader: the words carry the meaning. A thing the scene draws
+ * large has a poster published beside its tile; the browser is offered both by their widths, with the sticker's size on
+ * the scaled stage, so each screen fetches the one that is sharp there (prologue:front-door-three-screens).
+ */
+function Pic({ model, className = "", style, poster = true }: { model: string; className?: string; style?: CSSProperties; poster?: boolean }) {
+  const urls = usePublished(`tiles/${model}.png`, poster ? `tiles/${model}-poster.png` : null);
+  const scale = useStageScale();
+  const src = urls?.tile ?? null;
+  if (src === null) return null;
+  const large = urls?.poster ?? null;
+  const width = typeof style?.width === "number" ? style.width : null;
+  const offered = large === null || width === null ? {} : { srcSet: `${src} ${String(TILE_PX)}w, ${large} ${String(POSTER_PX)}w`, sizes: `${String(Math.ceil(width * scale))}px` };
+  // The choice set before the source, so the browser picks once.
+  return <img {...offered} src={src} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
 }
 
 /** One of the family or the hall as a sticker: the look standing, or cheering with both hands up (the wave). */
 function Person({ look, pose = "figure", className = "", style }: { look: string; pose?: "figure" | "cheer"; className?: string; style?: CSSProperties }) {
-  return <Pic model={`${look}-${pose}`} className={className} {...(style === undefined ? {} : { style })} />;
+  return <Pic model={`${look}-${pose}`} poster={false} className={className} {...(style === undefined ? {} : { style })} />;
 }
 
 /** The character, in their own colours where they chose them (prologue:player-colours-on-looks). */

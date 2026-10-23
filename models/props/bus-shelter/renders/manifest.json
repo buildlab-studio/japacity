@@ -3,7 +3,7 @@
   "file": "public/assets/shared/prop/prop_bus-shelter.glb",
   "fileSha256": "e444b102f57c17fff4b299adaddd5798d402254d874299d21cb18961dca8504d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
     {
       "view": "front",
@@ -161,6 +161,30 @@
         "width": 256,
         "height": 256,
         "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.813803879292699,
+          5.948780707235563,
+          6.189891622405756
+        ],
+        "target": [
+          0.74401275606489,
+          0.9928170081745954,
+          0.12010049917794584
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "poster",
+      "file": "models/props/bus-shelter/renders/poster.png",
+      "sha256": "8f65cbd599e997f73ec9958f3790cdc253d171a43efd03e37d4c97f04a351e1e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 3.5
       },
       "camera": {
         "kind": "perspective",

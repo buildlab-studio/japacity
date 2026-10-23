@@ -1,9 +1,9 @@
 {
   "asset": "building_shop-row",
   "file": "public/assets/places/ojuelegba/building_shop-row.glb",
-  "fileSha256": "b2d2a1f0eb1b2203b955315b3db6353aa0dfb5106ec3396fab0385d4f354087e",
+  "fileSha256": "a0bc5b86927ae4a98b3a6be88d01b76a7275b2ca49c68a251a42e1aa903f58ee",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
     {
       "view": "front",
@@ -186,6 +186,30 @@
         "width": 256,
         "height": 256,
         "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          18.591292504040922,
+          15.83749038967595,
+          18.02554886337542
+        ],
+        "target": [
+          1.187240637220855,
+          1.6271415461285574,
+          0.6214969965553516
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "poster",
+      "file": "models/buildings/shop-row/renders/poster.png",
+      "sha256": "e8b8d83333243282295e960cc2b599082bde1f16c5e34f8349b8b517b4c327e2",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 3.5
       },
       "camera": {
         "kind": "perspective",
