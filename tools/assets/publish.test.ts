@@ -162,7 +162,8 @@ describe("the committed publish", () => {
     }
     expect(wrong).toEqual([]);
     expect(Object.keys(manifest.files).filter((path) => path.startsWith(`${TILES}/`))).toHaveLength(tiled.length * 2 + portraits.length);
-  });
+    // It decodes every shipped picture and its render: about 3 s alone, past the default 5 s in the full check.
+  }, 60_000);
 
   test("[assets:pictures-sharp-at-three] given a tile's small size, when it is read, then it is the small width across, three times the largest box a small tile fills", async () => {
     const small = manifest.files[`${TILES}/prop_radio-small.webp`] ?? "";

@@ -115,7 +115,8 @@ describe("the register", () => {
     // The same place map data the command feeds in, so the credits file has one expected shape (city:credits-screen-attributions).
     const { problems } = await runChecks(defaultPaths(REPO_ROOT), placeMapData());
     expect(problems).toEqual([]);
-  });
+    // It decodes every shipped picture (assets:pictures-shipped-light): about 3 s alone, past the default 5 s in the full check.
+  }, 60_000);
 });
 
 describe("budgets for one asset", () => {
