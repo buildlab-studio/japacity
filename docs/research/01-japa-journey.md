@@ -1,140 +1,89 @@
-# The japa journey: raw material for game systems
+# The japa journey: what the routes and costs rest on
 
-> Research, 7 Oct 2026, from official pages and press.
-> This is for game design. It is not immigration advice. Rules have changed many times since 2023 and will change again. Every figure carries its date.
+Sources checked October 2026.
 
-## 1. The headline for design
+For game design, not immigration advice. The UK student route's money is in `09-uk-masters-numbers.md`; the rates are in `06-naira-rates-and-currency.md`.
 
-**The door has been closing since 2024.** Departures peaked in 2022 and 2023. The UK and Canada routes shrank sharply from 2024. Since 1 January 2026 the US has suspended new visitor, student, exchange, and immigrant visas for Nigerians.
+## 1. Why there is no US route
 
-That matters for the game in two ways. The drama is real and current: rules change while people are mid-application. And any game that hard-codes today's rules will be out of date within months, so rules must be data with dates.
+Since 1 Jan 2026 the US has suspended visitor (B), student (F, M), exchange (J) and immigrant visas for Nigerian nationals. Holders of a visa issued before then are exempt. Source: [White House: Proclamation 10998, 16 Dec 2025](https://www.whitehouse.gov/presidential-actions/2025/12/restricting-and-limiting-the-entry-of-foreign-nationals-to-protect-the-security-of-the-united-states/).
 
-## 2. Scale
+## 2. The routes the game models
 
-| Measure | Figure | When |
-|---|---|---|
-| Young Nigerians who have considered emigrating | 60%, with 37% "a lot" (12% in 2017) | 2024 survey |
-| Would leave with their family if they could | 53% | 2025 survey |
-| UK study visas to Nigerians | 58,680 at the peak, plus 67,516 dependants | Year to June 2023 |
-| UK study visas to Nigerians | 30,204, about half the peak | 2025 |
-| UK work visas to Nigerians | 28,495, then 2,851, then 395 in a single quarter | 2023, 2025, Q1 2026 |
-| Canada permanent residents from Nigeria | 22,130, 17,465, 20,380 | 2022, 2023, 2024 |
-| Canada study permits to Nigerians | 26,520 | 2024 |
-| US visitor visa refusal rate for Nigerians | 46.5% | 2024 |
-| Doctors who left | Over 16,000 in five to seven years (minister's estimate) | Stated April 2025 |
-| Nigerian-trained nurses joining the UK register | 14,815 | 2017 to 2024 |
-| Remittances into Nigeria | About $21.8bn a year | 2024 and 2025 |
+### UK study
+- Taught postgraduate students cannot bring dependants on courses starting from 1 Jan 2024. Only research students may. Source: [gov.uk: Student visa, family members](https://www.gov.uk/student-visa/family-members).
+- Funds, fees and the 28-day rule: `09-uk-masters-numbers.md`.
 
-No reliable figure was found for tech workers leaving.
+### UK sponsored work (skilled and care)
 
-## 3. Routes as processes
-
-| Route | Steps | Main costs | Where it fails |
+| Figure | Value | Holds from | Source |
 |---|---|---|---|
-| UK student | University offer, enrolment confirmation, hold living funds for 28 days, TB test, online application, biometrics, digital visa | Visa £558. Health surcharge £776 a year. Living funds £1,483 a month in London or £1,136 elsewhere (rising late 2026) | Funds not held long enough. Unexplained deposits. Taught postgraduates cannot bring family. Currency falling mid-course |
-| UK skilled worker, health and care | Job offer, employer sponsorship certificate, English test, TB test | Visa £819 or £324. Minimum salary £41,700, or £31,300 in health roles | Care-worker visas closed to applicants abroad in July 2025. Fake sponsorship certificates. Nurses need home-council verification |
-| Canada skilled migration | Credential evaluation, language test, points profile, invitation, medical and police checks | Evaluation about C$329. Proof of funds C$15,263 for one person | School exam results must come from the exam board, often 3 to 4 months. Points too low |
-| Canada student | Provincial attestation, admission letter, show funds, biometrics | Living funds C$22,895, rising to C$23,448. Plus tuition | Approval rate for all countries fell from 51% to 30% in a year. The 2026 intake target was cut 49% |
-| US student or visitor | Admission document for students, online form, interview in Lagos | $185 visa fee plus a $250 integrity fee where collected | New visas suspended for Nigerians since 1 Jan 2026. Nigeria barred from the 2026 diversity lottery |
-| Germany | Blocked bank account | €11,904 | |
-| UAE | | $10,000 balance for six months for over-45s | Tourist visas restricted for ages 18 to 45 since July 2025 |
+| Skilled Worker visa, up to 3 years, applying from outside the UK | £819 | 8 Apr 2026 | [gov.uk fee table](https://www.gov.uk/government/publications/visa-regulations-revised-table/home-office-immigration-and-nationality-fees-8-april-2026) |
+| Health and Care Worker visa, up to 3 years | £324 | 8 Apr 2026 | same |
+| Health surcharge, workers | £1,035 a year. Health and Care visa holders do not pay it | Current | [gov.uk: how much to pay](https://www.gov.uk/healthcare-immigration-application/how-much-pay), [gov.uk: Health and Care visa](https://www.gov.uk/health-care-worker-visa) |
+| General salary threshold | £41,700 a year, jobs at RQF 6 or above (was £38,700 from 4 Apr 2024) | 22 Jul 2025 | [gov.uk: your job](https://www.gov.uk/skilled-worker-visa/your-job) |
+| Care worker minimum salary | £25,000 a year (£12.82 an hour) for workers first sponsored from 9 Apr 2025 | 9 Apr 2025 | [gov.uk: going rates](https://www.gov.uk/government/publications/skilled-worker-visa-going-rates-for-eligible-occupations/skilled-worker-visa-going-rates-for-eligible-occupation-codes) |
+| Funds to show | £1,270, held 28 days in a row, day 28 within 31 days of applying | Current | [gov.uk: how much it costs](https://www.gov.uk/skilled-worker-visa/how-much-it-costs) |
+| English | B2 for applications from 8 Jan 2026 (was B1). Health and Care is part of the route. Holders from before then stay at B1 when they extend | 8 Jan 2026 | [gov.uk: knowledge of English](https://www.gov.uk/skilled-worker-visa/knowledge-of-english) |
+| Care route from abroad | Closed. Care worker codes are open only to people already in the UK, until 22 Jul 2028 | 22 Jul 2025 | [gov.uk: overseas recruitment for care workers to end](https://www.gov.uk/government/news/overseas-recruitment-for-care-workers-to-end), [HC 997](https://www.gov.uk/government/publications/statement-of-changes-to-the-immigration-rules-hc-997-1-july-2025/statement-of-changes-to-the-immigration-rules-hc-997-1-july-2025-accessible-version) |
 
-**Costs everyone meets**
+A nurse also needs the Nigerian nursing council to verify the licence to the foreign board. Since 1 Mar 2024 the council asks for two years' work after the permanent licence first. Nurses went to court over it; no ruling or change was found. The council's fee for verifying certificates is ₦66,875. Sources: [ICIR: nurses sue over the guidelines](https://www.icirnigeria.org/nurses-sue-nigerian-government-over-new-verification-guidelines/), [NMCN: verification](https://www.nmcn.gov.ng/verify.html).
 
-| Item | Figure | When |
-|---|---|---|
-| English test | ₦107,500, then ₦266,000 to ₦285,500 | Before and after early 2024 |
-| Passport | ₦100,000 or ₦200,000, double the 2024 price | From Sep 2025 |
-| TB test | $94, or ₦120,000 at private clinics. Valid 6 months | 2026 |
-| Exchange rate | ₦471 to the dollar, then ₦1,321 to the dollar and ₦1,785 to the pound | Before June 2023, Sep 2026 |
-| Flight, Lagos to London | ₦2m and up (press estimate) | 2024 |
+### UK Global Talent
+£561 for the endorsement plus £205 for the visa, £766 in all, from 8 Apr 2026. Source: [gov.uk fee table](https://www.gov.uk/government/publications/visa-regulations-revised-table/home-office-immigration-and-nationality-fees-8-april-2026). How the endorsing body closed and came back: `02-all-routes-and-timeline.md` section 3.
 
-## 4. Shocks, in order
+### Canada points (Express Entry)
 
-| When | What changed |
-|---|---|
-| June 2023 | Exchange controls removed. The naira went from 471 to 750 per dollar in a month |
-| Jan 2024 | UK taught-course students can no longer bring dependants. Canada caps study permits |
-| Mar 2024 | Nigeria's nursing council requires two years' work before verifying a nurse for work abroad |
-| Spring 2024 | UK care workers can no longer bring dependants. UK salary minimum rises |
-| May 2024 | A UK university tells Nigerian students to leave after the currency crash left fees unpaid |
-| July 2025 | US visas for Nigerians cut to single entry, three months. UK raises skill and salary minimums and closes the care route to applicants abroad |
-| Nov 2025 | Canada cuts its 2026 student intake target by 49% |
-| Jan 2026 | US suspends new visas for Nigerians in most categories |
-| Jan 2027 (planned) | UK post-study work visa shortens to 18 months |
+| Figure | Value | Holds from | Source |
+|---|---|---|---|
+| Proof of funds, one person | C$15,263 | 7 Jul 2025 | [canada.ca: proof of funds](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/proof-funds.html) |
+| Application fees, principal applicant | C$1,590: C$990 processing plus C$600 right of permanent residence (was C$1,525) | 30 Apr 2026 | [IRCC fee list](https://ircc.canada.ca/english/information/fees/fees.asp) |
+| Credential assessment with WES | C$264 base, plus delivery (C$14 to C$97) and tax: about C$290 to C$390 in all | 1 Jan 2026 | [WES: evaluations](https://www.wes.org/evaluations/) |
+
+Cut-off scores and draws: `02-all-routes-and-timeline.md` section 3.
+
+### UAE contract work
+- The UAE stopped issuing visas to Nigerians in Oct 2022 and lifted the ban in Jul 2024. Source: [Africanews, 17 Jul 2024](https://www.africanews.com/2024/07/17/uae-lifts-2022-visa-ban-on-nigerians/).
+- In Jul 2025 the press reported a Dubai notice to travel agents: Nigerians aged 18 to 45 travelling alone cannot get tourist visas, and over-45s must show six months of statements with at least $10,000 at each month end. No official UAE publication was found. Source: [Vanguard, 9 Jul 2025](https://www.vanguardngr.com/2025/07/full-list-uae-imposes-fresh-travel-conditions-on-nigerians-bans-transit-visa-others/).
+- UAE law forbids an employer to keep a worker's passport. Source: [UAE foreign ministry: labour rights](https://www.mofa.gov.ae/en/the-ministry/the-foreign-policy/labour-rights). In practice passports are often held under the sponsorship system: `02-all-routes-and-timeline.md` section 2.
+
+## 3. Costs everyone meets
+
+| Item | Figure | Holds from | Source |
+|---|---|---|---|
+| Passport, 32 pages, 5 years | ₦100,000 (was ₦50,000), applying in Nigeria | 1 Sep 2025 | [NIS release, 28 Aug 2025](https://immigration.gov.ng/nigeria-immigration-service-announces-upward-review-of-nigerian-standard-passport-fees/) |
+| Passport, 64 pages, 10 years | ₦200,000 (was ₦100,000) | 1 Sep 2025 | same |
+| IELTS on computer | ₦279,500; IELTS for UKVI ₦295,000. The latest official figures found; 2026 guides quote up to ₦315,500 | 15 Jul 2025 | [British Council Nigeria: IELTS questions](https://www.britishcouncil.org.ng/exam/ielts/book-test/ielts-faqs-frequently-asked-questions) |
+| TB test for a UK visa | US$94 at the IOM clinics, paid in naira; ₦120,000 at three private Lagos clinics. Valid 6 months | Page of 13 May 2026 | [gov.uk: TB testing in Nigeria](https://www.gov.uk/government/publications/tuberculosis-test-for-a-uk-visa-clinics-in-nigeria/tuberculosis-testing-in-nigeria) |
+| Flight, Lagos to London, one way in economy | ₦1.5m to ₦2m on the main carriers after a new direct route cut fares; return fares averaged about ₦840,000 at the cheapest carriers | Apr 2024, the latest naira figure found | [ThisDay, Apr 2024](https://www.thisdaylive.com/2024/04/11/air-peace-flight-to-london-sparks-price-war-among-foreign-airlines/) |
+
+Fares home in the countries' own money: `03-life-abroad-and-return.md` section 2.
+
+## 4. Shocks
+
+The dated rule changes and shocks are in `02-all-routes-and-timeline.md` section 4, one table for the whole news feed.
 
 ## 5. The world around the process
 
-- **Proof of funds services.** Banks and agents sell them. Visa officers treat sudden large deposits as suspicious.
-- **Scams.** The common one is a fake UK sponsorship certificate, at £4,000 to £8,000 each in one reported scheme. One prosecuted case cost a victim ₦19m plus €8,370. Forged documents can bring long travel bans.
-- **Language.** The word comes from Yoruba for breaking away and spread after a 2020 song. The jokes: "japa to sapa" (leaving, only to be broke abroad) and "japada" (coming back).
-- **The first year abroad**, as reported: high rent and tax, long hours, evenings alone, status that depends on paperwork, degrees that do not lead to the right to stay, and pressure to send money home.
-- **Thin evidence**: family pressure and how often people return are documented through stories, not data.
+- **Proof of funds loans.** Microfinance banks and loan apps lend money to show for a visa, at about 5% a month (2022). Officers ask where large deposits came from, so borrowed money can sink an application. Sources: [Nairametrics, Dec 2022](https://nairametrics.com/2022/12/16/how-to-secure-proof-of-funds-for-a-visa/), [UK Visit caseworker guidance](https://assets.publishing.service.gov.uk/media/6ab66e8ba9c3d267bcccef22/Visit__updated_.pdf).
+- **Sold and fake sponsorship certificates.** Victims in one reported scheme paid £4,000 to £8,000 each (Dec 2023). A union survey of care workers found one who paid £13,500 for a certificate and about 50 who paid over £10,000 in fees (Feb 2025). Sources: [BusinessDay, Dec 2023](https://businessday.ng/news/article/japa-nigerian-victims-lament-activity-of-uk-certificate-of-sponsorship-fraudster/), [UNISON, Feb 2025](https://www.unison.org.uk/news/2025/02/migrant-care-staff-having-share-beds-sleep-rough-and-charged-thousands-illegal-fees).
+- **Stranded on fake job letters.** In Dec 2023 IOM's mission in Nigeria said over a thousand Nigerians had reached the UK on fake job letters, some after paying over $10,000, and that some could not afford to come home while others were ashamed to. Source: [Prime Business Africa, Dec 2023](https://www.primebusiness.africa/?p=110441).
+- **The words.** Japa is Yoruba for to run away; a 2018 song made it the word for emigrating. Sapa is being broke, hence "japa to sapa". Japada is coming back home. Sources: [Wikipedia: Japa](https://en.wikipedia.org/wiki/Japa_(slang)), [Complex: the song's video, Nov 2018](https://www.complex.com/music/a/joseph-jp-patterson/premiere-naira-marley-japa-video), [Wikipedia: Sapa](https://en.wikipedia.org/wiki/Sapa_(slang)), [BusinessDay: from japa to japada](https://businessday.ng/news/article/from-japa-to-japada-3-reasons-nigerians-are-returning-home/).
 
-## 6. What could become mechanics
+## 6. What became mechanics
 
-From the process:
-1. **The 28-day clock.** Money must sit untouched. Sudden deposits raise a flag.
-2. **The exchange-rate event.** Every naira cost changes while you are mid-process.
-3. **The paperwork queue.** Exam board, professional council, passport office, each with its own random delay.
-4. **Rule changes mid-application** that lock a route you were halfway down.
-5. **Who comes with you.** Choosing which family members can be included.
-
-From the world around it:
-6. **The agent** who might be honest or a scammer, with signs a player can learn to read.
-7. **The family meter**: requests to send money home.
+1. **The 28-day clock.** Money must sit untouched. Sudden deposits raise a question.
+2. **The exchange rate.** Every naira cost moves while you are mid-process.
+3. **The paperwork queue.** Exam board, professional council, passport office, each with its own wait.
+4. **Rule changes mid-application** that close a route you were halfway down.
+5. **Who comes with you.** Which family members a route lets you bring.
+6. **The agent** who may be honest or a fraud, with signs a player can learn to read.
+7. **Family requests**: money asked for at home.
 8. **Loneliness against work hours** once abroad.
-9. **A return ending.**
-10. **Social feeds** that show a polished success story that is not true.
+9. **Coming home**, in more than one shape.
 
-## 7. Other Nigerian themes with pull
+## 7. The prologue's Nigeria
 
-| Theme | One line of evidence |
-|---|---|
-| The national service year | Allowance raised to ₦77,000 a month in 2025 |
-| University strikes | An 8-month lecturers' strike in 2022 |
-| Tech startups | $343m raised in 2025, down 16% |
-| Film | Box office of ₦15.6bn in 2025. Local films out-earned Hollywood at home for the first time |
-| Music | Nigerian artists earned about ₦60bn on one streaming service in 2025 |
-| Football as a way out | Africa's top exporter of footballers (undated source) |
-| Power cuts | The national grid collapsed 12 times in 2024 |
-| Weddings and parties, trading, transport, church, politics | Widely shared, figures not verified |
-
-Several of these fit inside a japa game as starting points: the service year or a strike-delayed degree as an origin, and nursing, tech, or football as careers that decide which route is open.
-
-## Sources
-
-- [Afrobarometer: Nigerian youth, 2025](https://www.afrobarometer.org/wp-content/uploads/2025/06/AD998-Nigerian-youth-want-government-action-on-jobs-and-cost-of-living-Afrobarometer-16june25.pdf)
-- [Africa Polling Institute survey, via Sahara Reporters](https://saharareporters.com/2025/07/06/over-half-nigerians-will-leave-country-family-if-given-opportunity-survey)
-- [BusinessDay: UK study visas 2025](https://businessday.ng/news/article/uk-study-visas-for-nigerians-rise-to-30204-remain-among-top-four-sources/)
-- [BusinessDay: UK visas, year to June 2023](https://businessday.ng/business-economy/article/40875-nigerian-students-health-workers-get-uk-visas-in-1-year/)
-- [News Central: UK work visas to Nigerians](https://newscentraltv.com/uk-granted-nearly-50000-work-visas-to-nigerians-in-five-years/)
-- [Markets Reporters: Canada PR](https://www.marketsreporters.com/2025/02/11/number-of-nigerians-securing-canadian-pr-rises-17-ahead-of-immigration-cuts/)
-- [IRCC annual report 2025](https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/annual-report-parliament-immigration-2025.html)
-- [Legit: US refusal rate 2024](https://www.legit.ng/nigeria/1648776-us-releases-actual-percentage-nigerians-denied-visa-2024-denied-country-announced/)
-- [AllAfrica: doctors leaving](https://allafrica.com/stories/202504090041.html)
-- [Guardian NG: nurses](https://guardian.ng/features/health/over-14000-nigerian-nurses-leave-for-uk-jobs/)
-- [Vanguard: remittances 2025](https://www.vanguardngr.com/2026/05/diaspora-remittances-stabilises-at-21-8bn-in-2025-amid-global-pressures/)
-- [gov.uk: fees, April 2026](https://www.gov.uk/government/publications/visa-regulations-revised-table/home-office-immigration-and-nationality-fees-8-april-2026)
-- [gov.uk: TB testing in Nigeria](https://www.gov.uk/government/publications/tuberculosis-test-for-a-uk-visa-clinics-in-nigeria/tuberculosis-testing-in-nigeria)
-- [DavidsonMorris: UK changes, July 2025](https://www.davidsonmorris.com/22-july-2025-uk-visa-sponsorship-changes)
-- [Adam Bernards: UK rule timeline 2026](https://adambernards.co.uk/blog/uk-immigration-rule-changes-2026-the-complete-timeline/)
-- [Premium Times: US suspension](https://www.premiumtimesng.com/news/headlines/844955-us-announces-date-for-suspension-of-visa-issuance-to-nigerians-others.html)
-- [Guardian NG: US status, Sept 2026](https://guardian.ng/nigerian/are-nigerians-allowed-to-travel-to-the-usa/)
-- [Legit: diversity lottery 2026](https://www.legit.ng/people/1729296-us-green-card-lottery-1-african-country-barred-participating-2026/)
-- [Nairametrics: Canada study funds](https://nairametrics.com/2026/08/28/canada-raises-study-permit-funds-requirement-to-c23448-from-september-1/)
-- [ICEF: Canada study permits 2025](https://monitor.icef.com/2025/09/canada-study-permit-numbers-are-in-steep-decline-in-2025/)
-- [Vanguard: UAE conditions](https://www.vanguardngr.com/2025/07/full-list-uae-imposes-fresh-travel-conditions-on-nigerians-bans-transit-visa-others/)
-- [TechEconomy: English test fees](https://www.techeconomy.ng/why-british-council-increased-ielts-fees-for-second-time-in-2024)
-- [TechEconomy: passport fees](https://techeconomy.ng/nigerian-immigration-increases-passport-fees-up-to-200000-effective-september-1-2025)
-- [FIJ: nursing council rule](https://fij.ng/article/new-nmcn-guideline-prevents-nurses-from-travelling-abroad-for-2-years-after-licensure/)
-- [Teesside students ordered to leave](https://www.ghll.org.uk/news/items/nigerian_students_at_teesside_university_ordered_to_leave_uk_after_currency_crash-2024-05-22)
-- [BusinessDay: sponsorship certificate fraud](https://businessday.ng/news/article/japa-nigerian-victims-lament-activity-of-uk-certificate-of-sponsorship-fraudster/)
-- [Premium Times: EFCC case](https://www.premiumtimesng.com/news/top-news/863801-how-nigerian-woman-allegedly-defrauded-victim-of-n19m-e8370-for-uk-certificate-efcc.html)
-- [Vanguard: common visa mistakes](https://www.vanguardngr.com/2025/11/5-common-visa-mistakes-nigerians-make-and-how-to-avoid-them/)
-- [Wikipedia: Japa (slang)](https://en.wikipedia.org/wiki/Japa_(slang))
-- [BusinessDay: from japa to sapa](https://businessday.ng/news/article/from-japa-to-sapa-nigerians-in-a-fix-struggle-with-life-abroad/)
-- [Vanguard: after japa, Sept 2026](https://www.vanguardngr.com/2026/09/after-japa-when-the-dream-meets-reality/)
-- [TheCable: service year allowance](https://thecable.ng/its-official-nysc-begins-payment-of-n77k-allowance-to-corps-members)
-- [BusinessDay: box office 2025](https://businessday.ng/news/article/nigerian-box-office-hit-historic-n15-6bn-in-2025-as-nollywood-films-get-more-views-than-hollywood-for-first-time/)
-- [Intelpoint: grid collapses 2024](https://intelpoint.co/insights/nigerias-national-grid-has-collapsed-12-times-in-2024/)
+- **The service year allowance** is ₦77,000 a month (was ₦33,000), first paid in Mar 2025. Source: [ICIR, 26 Mar 2025](https://www.icirnigeria.org/fg-begins-payment-of-n77000-to-corps-members-but-many-yet-to-receive-new-allowance/).
+- **University strikes.** The lecturers' union struck from 14 Feb to 14 Oct 2022, eight months. Source: [Ripples Nigeria, Oct 2022](https://www.ripplesnigeria.com/just-in-asuu-officially-announces-end-of-strike-but/).
+- Nursing and tech are careers that decide which route opens: section 2.
