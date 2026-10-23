@@ -11,6 +11,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider, useGame, useView } from "../../../authority/GameProvider";
+import { createBack } from "../../../shared/back/back";
 import { createGameStore } from "../../../authority/store";
 import { fakeAuthority, gameAuthority, recordedGame } from "../../../shared/testing/fixtures";
 import { found } from "../../../shared/testing/render";
@@ -265,5 +266,21 @@ describe("the send-off as a scene", () => {
     const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
     const animated = [...css.matchAll(/\.(so-[\w-]+)\s*\{[^}]*animation:/g)].map((match) => match[1]);
     for (const name of animated) expect([name, reduced.includes(`.${name ?? ""}`)]).toEqual([name, true]);
+  });
+
+  test("[world:back-closes-topmost] given the send-off's beats, when Back is pressed, then the beat goes on and the scene stays", async () => {
+    history.replaceState(null, "", "/");
+    const stack = createBack(window);
+    try {
+      await graduateAtTheGate();
+      const depth = () => (history.state as Record<string, unknown> | null)?.japacityBack;
+      await waitFor(() => expect(depth()).toBe(1));
+      const at = beat();
+      act(() => history.back());
+      await waitFor(() => expect(depth()).toBe(1));
+      expect(beat()).toBe(at);
+    } finally {
+      stack.dispose();
+    }
   });
 });

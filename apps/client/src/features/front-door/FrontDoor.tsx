@@ -17,6 +17,7 @@ import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { useScreenCount } from "../../shared/analytics/useScreenCount";
+import { LEVEL, useBackLayer } from "../../shared/back/back";
 import { authorityMode } from "../../shared/net/authorityMode";
 import { keepPerson } from "../../shared/front-door/person";
 import { blurbOf, say } from "../../shared/words/text";
@@ -276,6 +277,12 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
           backToLife();
         };
   const onBack = pressed ? null : back !== null ? () => change({ stage: back }) : asked && draft.stage === "you" ? leave : null;
+  // world:back-closes-topmost: each screen past the first is a step Back takes back, as the door's own arrow does; the third
+  // stands over the second. A run Settings opened over a life is a step over that life. Begin pressed, nothing goes back.
+  const deep = draft.stage === "page" ? 2 : draft.stage === "life" || draft.stage === "ready" ? 1 : 0;
+  useBackLayer(!pressed && asked && leave !== null, () => leave?.(), { level: LEVEL.step });
+  useBackLayer(!pressed && deep >= 1, () => change({ stage: "you" }), { level: LEVEL.door });
+  useBackLayer(!pressed && deep >= 2, () => change({ stage: before(draft) ?? "you" }), { level: LEVEL.door + 1 });
   const at = Math.max(0, SCREENS.indexOf(draft.stage === "ready" ? "life" : draft.stage === "begun" ? "page" : draft.stage));
   const frame = { mark: draft.stage, look: draft.look, onBack, onShuffle: faster ? shuffle : null, onSkip: faster ? () => go("page") : null, at };
 

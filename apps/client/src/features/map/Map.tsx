@@ -9,6 +9,7 @@ import "./map.css";
 import { type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
+import { LEVEL, useBackHold, useBackLayer } from "../../shared/back/back";
 import { softLazy, useFetchAhead } from "../../shared/net/parts";
 import { Loader } from "../../shared/ui/Loader";
 import { formatMoney } from "../../shared/words/format";
@@ -187,6 +188,10 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   }, [drawing, own]);
 
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
+  // world:back-closes-topmost: the map is a layer Back and Escape close, and the scene under it is inert (world:reach-and-read);
+  // a ride under way is not closed by Back.
+  useBackLayer(true, onClose, { level: LEVEL.map, cover: true });
+  useBackHold(riding !== null);
 
   const lagos = country.id === "lagos";
   const abroadPaper = PAINTED_ABROAD[country.id];

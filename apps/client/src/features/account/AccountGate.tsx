@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
+import { LEVEL, useBackLayer } from "../../shared/back/back";
 import { counting } from "../../shared/analytics/start";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { AccountApi, AgeStanding, Full as FullStanding } from "../../shared/net/auth";
@@ -114,6 +115,9 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // How many times in a row the guest start found the age answer or the session gone: the cookie did not stay.
   const [lapses, setLapses] = useState(0);
   const shown = shownOf(standing, step, embedded);
+  // world:back-closes-topmost: the age screen, the door and the ways back in are a step over the start screen; Back and Escape
+  // return to it. An age already answered stays answered, so Play goes on to the door.
+  useBackLayer(!embedded && step !== "start", () => go("start"), { level: LEVEL.step });
   const key = counted(shown, embedded);
   const sheet = useRef<HTMLDivElement>(null);
   // The notice, said through one live region mounted before its words come.

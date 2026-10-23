@@ -2,6 +2,8 @@
 // changes behind it, and it comes back. Every scene change but the ride goes through it.
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useBackHold } from "../back/back";
+
 // The hold at the darkest point: with the fades either side it reads as a cut, and it leaves the scene swap room under the half second (world:entering-is-a-cut).
 export const CUT_MS = 260;
 
@@ -31,5 +33,7 @@ export function useCut(): { cutting: boolean; cutTo: (then: () => void) => void 
 }
 
 export function Cut({ cutting }: { cutting: boolean }) {
+  // world:back-closes-topmost: Back waits while the cut runs.
+  useBackHold(cutting);
   return <div aria-hidden className={`pointer-events-none fixed inset-0 z-[60] bg-device transition-opacity duration-300 ${cutting ? "opacity-100" : "opacity-0"}`} data-cut={cutting} />;
 }

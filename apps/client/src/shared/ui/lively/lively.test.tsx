@@ -127,7 +127,7 @@ describe("the pill and the card", () => {
 });
 
 describe("the sheet", () => {
-  test("[world:colours-are-role-tokens] given an open sheet, when it draws, then it rises in the sheet colour with its handle, its title and its line, and the handle closes it", () => {
+  test("[world:colours-are-role-tokens] given an open sheet, when it draws, then it rises in the sheet colour with its handle, its title and its line, and its close at the top right closes it (world:sheets-one-frame: the handle only drags)", () => {
     const change = vi.fn();
     render(
       <LivelySheet open onOpenChange={change} title="Your study table" line="One leg shorter. Still works." picture={<Sticker emoji="📚" alt="Books" />} className="extra">

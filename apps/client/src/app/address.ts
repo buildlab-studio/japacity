@@ -4,6 +4,7 @@
 import type { AccountReply } from "@japacity/api";
 
 import { inviteCodeOf } from "../features/account/InvitePage";
+import { replaceAddress } from "../shared/back/back";
 import { adminAsked } from "../features/admin/adminPath";
 
 export type Address = "root" | "admin" | "invite" | "unknown";
@@ -14,10 +15,10 @@ export function addressOf(pathname: string): Address {
   return inviteCodeOf(pathname) === null ? "unknown" : "invite";
 }
 
-/** The address bar shows `/`, with the query and the fragment it had, and nothing reloads. */
+/** The address bar shows `/`, with the query and the fragment it had, and nothing reloads; Back over the game's own entries keeps it (world:back-closes-topmost). */
 export function showRoot(): void {
   if (typeof history === "undefined" || typeof location === "undefined") return;
-  history.replaceState(history.state, "", `/${location.search}${location.hash}`);
+  replaceAddress(`/${location.search}${location.hash}`);
 }
 
 /** The server says the account is on the admin list: the admin view opens, or asks this account for its passkey. Nobody else is told anything. */

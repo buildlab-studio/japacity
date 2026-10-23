@@ -3,6 +3,7 @@
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import { type ReactNode, type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { LEVEL, useBackLayer } from "../../shared/back/back";
 import { PhoneNav } from "../../shared/phone/nav";
 import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
 import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../shared/ui/motion";
@@ -166,6 +167,10 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
   }, [away, handset, onClose]);
   const time = useClock(now);
   const app = apps.find((candidate) => candidate.id === open) ?? null;
+  // world:back-closes-topmost: the phone is a layer while it stands, and an app on it another over it; Back and Escape put
+  // away the app first, then the phone, and the scene under the phone is inert (world:reach-and-read).
+  useBackLayer(!away, putAway, { level: LEVEL.phone, cover: true });
+  useBackLayer(!away && app !== null, () => setOpen(null), { level: LEVEL.app });
   const openApp = (id: string) => {
     setOpen(id);
     onOpen?.(id);

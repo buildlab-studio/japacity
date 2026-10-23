@@ -27,6 +27,7 @@ import { USERNAME_FREE_PATH } from "@japacity/api";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
+import { replaceAddress } from "../back/back";
 import { forgetAccount, putUsageCounts, readAccount } from "./account";
 import { api, type Fetch, pageFetch, requestFetch } from "./http";
 import { providerOf } from "./providers";
@@ -459,7 +460,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       const done = url.searchParams.get(GOOGLE_BACK);
       if (error === null && done === null) return null;
       for (const name of ["error", "error_description", GOOGLE_BACK]) url.searchParams.delete(name);
-      if (typeof history !== "undefined") history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      if (typeof history !== "undefined") replaceAddress(`${url.pathname}${url.search}${url.hash}`);
       if (error !== null) return FAILURES[error] ?? GOOGLE_FAILURES[error] ?? "google";
       if (done === GOOGLE_DONE.keep) return "kept";
       return done === GOOGLE_DONE["sign-in"] ? "signed-in" : null;
