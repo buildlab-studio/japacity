@@ -91,7 +91,7 @@ test("[prologue:player-colours-on-looks] given a life opened on a phone at three
   await closeGranted(page);
   await placeReady(page);
   await passOpeningWords(page);
-  await page.getByRole("button", { name: text["prologue.page.open"] }).first().click();
+  await page.getByRole("button", { name: text["prologue.page.open"] ?? "Your page" }).first().click();
   await page.locator("[data-photo-made]").waitFor({ timeout: 30_000 });
   expect(await softOn(page, "Your page")).toEqual([]);
 });
