@@ -2,29 +2,22 @@
 // the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
-import { DEFAULT_LOOK } from "../../shared/front-door/looks";
-import { keptLookFile, keptStyleOf } from "../../shared/front-door/person";
+import { keptStyleOf } from "../../shared/front-door/person";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
 import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
 import { useMotionReduced } from "../../shared/ui/motion";
 import { mapWords } from "./map.words";
+import { FALLBACK_OWN } from "./rideLook";
 import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, LONG_WALK_MS, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, stepClock, type Way } from "./rideScene";
 import { type AbroadVehicle, VEHICLES } from "./rideVehicles";
 
 export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
+export { ownLook } from "./rideLook";
 
 /** How long past its own length the ride may run by the wall clock before it ends anyway (world:ride-cuts-between-angles): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
 const RIDE_SLACK_MS = 3500;
-
-/** The look the city falls back to when the life's own person is not shipped (City.tsx). */
-const FALLBACK_OWN = `shared/person/${DEFAULT_LOOK}.glb`;
-
-/** The player's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the city's own, since a ready life has no person of its own (scenario.md); `shownOwn` settles it. */
-export function ownLook(kept: string | null = keptLookFile()): string {
-  return kept ?? FALLBACK_OWN;
-}
 
 /** The character the ride shows: the life's own person where it is shipped, else the city's fallback. */
 function shownOwn(manifest: PublishManifest, own: string): string {
@@ -393,13 +386,13 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
             <button type="button" className="press-button w-full" onClick={() => setAsking(false)} autoFocus>
               {mapWords("map.ride.turn-back.keep")}
             </button>
-            <button type="button" className="warn-button mt-2 self-start" onClick={turnBack} data-ride-turn-back-go>
+            <button type="button" className="pill-button warn-button mt-2 self-start" onClick={turnBack} data-ride-turn-back-go>
               {mapWords("map.ride.turn-back")}
             </button>
           </div>
         ) : (
           <div className="pointer-events-auto mt-2 flex">
-            <button type="button" onClick={askTurnBack} className="warn-chip press reach h-9 px-3 text-[13px] font-bold" data-ride-turn-back>
+            <button type="button" onClick={askTurnBack} className="warn-chip press reach inline-flex h-9 items-center rounded-full px-3 text-[13px] font-bold" data-ride-turn-back>
               {mapWords("map.ride.turn-back")}
             </button>
           </div>

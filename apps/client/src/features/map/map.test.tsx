@@ -209,7 +209,8 @@ describe("the ride", () => {
     expect([balance("before"), balance("after")]).toEqual([formatMoney(cash, "NGN"), formatMoney(cash - keke.fare, "NGN")]);
     fireEvent.click(main());
     expect(onRide).toHaveBeenCalledWith(keke, "place.bode-thomas");
-    expect(screen.getByText(mapWords("map.ride.to", { way: "Keke", place: headingOf(nameOf("place.bode-thomas")) }))).toBeTruthy();
+    // The ride is its own part, drawn once fetched (world:lazy-part-fails-softly).
+    expect(await screen.findByText(mapWords("map.ride.to", { way: "Keke", place: headingOf(nameOf("place.bode-thomas")) }))).toBeTruthy();
   });
 
   test("[world:ride-sheet-shows-fares] given too little money for a way, when the sheet shows, then the main button is shut and says how much is short", async () => {

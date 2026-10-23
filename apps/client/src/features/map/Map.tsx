@@ -16,10 +16,16 @@ import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { fareWords, type MapPin, rideChoices, waysAbroad, withHomeWalk } from "./pins";
-import { ownLook, preloadRide, Ride } from "./Ride";
+import { ownLook } from "./rideLook";
 import { headingOf, RideSheet, WAY_MODEL } from "./RideSheet";
 import { RouteVehicle } from "./paper/routeVehicle";
 import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
+
+/**
+ * The ride and its scene, their own chunk (world:lazy-part-fails-softly, engine:first-download-has-budget): fetched ahead once the world
+ * is up and again as the map opens, so a way picked rides at once.
+ */
+const Ride = softLazy(() => import("./Ride").then((ride) => ({ default: ride.Ride })));
 
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = softLazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
@@ -41,7 +47,7 @@ const PAINTED_ABROAD: Readonly<Record<string, typeof PaperMap>> = {
 export function MapAhead(): null {
   const view = useView();
   const abroad = view.place.where === "abroad" && view.place.country !== null ? PAINTED_ABROAD[view.place.country] : undefined;
-  const parts = useMemo(() => [abroad ?? PaperMap], [abroad]);
+  const parts = useMemo(() => [abroad ?? PaperMap, Ride], [abroad]);
   useFetchAhead(parts, view.place.where !== "road");
   return null;
 }
@@ -176,7 +182,8 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   // The character as the city shows them (City.tsx), and a seed so the same ride says the same line.
   const own = ownLook();
   useEffect(() => {
-    if (drawing) preloadRide(own);
+    void Ride.ahead();
+    if (drawing) void import("./Ride").then((ride) => ride.preloadRide(own), () => undefined);
   }, [drawing, own]);
 
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
@@ -252,6 +259,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       )}
 
       {riding === null ? null : (
+        <Suspense fallback={null}>
         <Ride
           way={riding.way}
           vehicle={riding.vehicle}
@@ -279,6 +287,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
                 },
               })}
         />
+        </Suspense>
       )}
       {dedication === null || !lagos ? null : dedication.page(dedicated, () => setDedicated(false))}
     </div>
