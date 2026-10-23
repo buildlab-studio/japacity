@@ -90,7 +90,7 @@ export interface SecureSheetProps {
   onOpenChange: (open: boolean) => void;
   /** Why the sheet opened, in the player's words; the plain reason when null. */
   reason: string | null;
-  /** A failure to say as the sheet opens, as when Google came back refused. */
+  /** A failure to say at the top as the sheet opens, as when Google came back refused (account:guest-secures-the-life). */
   problem?: string | null;
   /** The life came back kept from Google: the sheet opens in its kept state. */
   kept?: "google" | null;
@@ -107,7 +107,9 @@ export interface SecureSheetProps {
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, taken: takenBack = false, agent }: SecureSheetProps) {
   const earlyWin = useEarlyWin();
-  const [problem, setProblem] = useState<string | null>(given);
+  // What the trip to Google came back with stands at the top; what a way on this sheet answers stands at its foot, by the ways.
+  const [returned, setReturned] = useState<string | null>(given);
+  const [problem, setProblem] = useState<string | null>(null);
   // Which way the life was kept, once it is: the sheet's kept state, and the line the world says as it closes.
   const [keptWith, setKeptWith] = useState<"google" | "email" | null>(back);
   const done = keptWith !== null;
@@ -117,7 +119,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   // A way in that already has a life, with the address when the code was the way: the kept life can be opened instead.
   const [taken, setTaken] = useState<{ email: string | null } | null>(takenBack ? { email: null } : null);
 
-  useEffect(() => setProblem(given), [given]);
+  useEffect(() => setReturned(given), [given]);
   useEffect(() => setTaken(takenBack ? { email: null } : null), [takenBack]);
   useEffect(() => {
     if (back !== null) setKeptWith(back);
@@ -126,6 +128,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   async function google() {
     setBusy(true);
     setProblem(null);
+    setReturned(null);
     setTaken(null);
     const result: AuthResult = await account.signInWithGoogle(null, "keep");
     setBusy(false);
@@ -165,6 +168,11 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
         </div>
       ) : (
         <div className="flex flex-col gap-4" data-secure-sheet>
+          {returned === null ? null : (
+            <p role="alert" className="font-bold text-bad" data-google-returned>
+              {returned}
+            </p>
+          )}
           {/* Inside an in-app browser the life lives in that app's own browser: it is kept here, by the code. */}
           {inApp ? (
             <p data-in-app>{say("ui.secure.in-app")}</p>

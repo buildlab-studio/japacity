@@ -246,6 +246,22 @@ describe("when the asks come", () => {
     await mount(account, <SecureAsk />);
     expect(await screen.findByText(say("ui.account.fail.taken"))).toBeDefined();
   });
+
+  test("[account:guest-secures-the-life] given Google came back to the save sheet refused by the player or with a trip that did not finish, then the sheet opens and says it at its top, above Google's button, in the game's words", async () => {
+    for (const [why, key] of [
+      ["cancelled", "ui.account.fail.cancelled"],
+      ["google", "ui.account.fail.google"],
+    ] as const) {
+      const account = fakeAccount(me("guest"), { returnedFromGoogle: () => why });
+      await mount(account, <SecureAsk />);
+      const sheet = await screen.findByRole("dialog", { name: say("ui.secure.title") });
+      const said = within(sheet).getByText(say(key));
+      expect(said.getAttribute("role")).toBe("alert");
+      const google = within(sheet).getByRole("button", { name: say("ui.secure.google") });
+      expect(said.compareDocumentPosition(google) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      cleanup();
+    }
+  });
 });
 
 describe("the quiet lines", () => {

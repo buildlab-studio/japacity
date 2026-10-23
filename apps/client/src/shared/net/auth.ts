@@ -44,6 +44,7 @@ import { pageWall, type WallGuard } from "./wall";
  * account no longer has; `other-account`: the phone answered with a passkey of another account, never sent on
  * (account:passkey-errors-told-apart, account:player-deletes-account).
  * `sign-out`: a sign-out that did not reach the server (account:sign-out-ends-the-session).
+ * `google`: a trip to Google that lost its way or came back with an error the game does not know (account:guest-secures-the-life).
  */
 type AuthFailure =
   | "not-fresh"
@@ -62,7 +63,8 @@ type AuthFailure =
   | "already-here"
   | "passkey-gone"
   | "other-account"
-  | "sign-out";
+  | "sign-out"
+  | "google";
 
 /** Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), or to sign back in to a kept one. */
 type GoogleTrip = "keep" | "sign-in";
@@ -176,6 +178,13 @@ interface LibraryError {
 
 /** The refusal the seam itself gives a passkey of another account, in place of the server's answer (account:player-deletes-account). */
 const OTHER_ACCOUNT = "OTHER_ACCOUNT";
+
+/**
+ * account:guest-secures-the-life: the errors a trip to Google can come back with that this game tells apart; `access_denied`
+ * is the player's own no at Google's screen. Every other one (`state_mismatch`, `please_restart_the_process`, any new one) is a
+ * trip that did not finish.
+ */
+const GOOGLE_FAILURES: Record<string, AuthFailure> = { access_denied: "cancelled" };
 
 /** The library's error codes this game tells apart; every other one is a plain refusal. */
 const FAILURES: Record<string, AuthFailure> = {
@@ -449,7 +458,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       if (error === null && done === null) return null;
       for (const name of ["error", "error_description", GOOGLE_BACK]) url.searchParams.delete(name);
       if (typeof history !== "undefined") history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-      if (error !== null) return FAILURES[error] ?? "refused";
+      if (error !== null) return FAILURES[error] ?? GOOGLE_FAILURES[error] ?? "google";
       if (done === GOOGLE_DONE.keep) return "kept";
       return done === GOOGLE_DONE["sign-in"] ? "signed-in" : null;
     },

@@ -173,6 +173,8 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.fail.expired": "That code has run out. Ask for a new one.",
   "ui.account.fail.too-many": "Too many tries. Ask for a new code in a minute.",
   "ui.account.fail.cancelled": "Nothing happened. Try again when you are ready.",
+  // A trip to Google that lost its way, or came back with an error the game does not know (account:guest-secures-the-life)
+  "ui.account.fail.google": "Google sign-in did not finish. Try again, or use a code by email.",
   "ui.account.fail.unreachable": "The game could not reach its server. Check your connection and try again.",
   "ui.account.fail.refused": "That did not work. Try another way in.",
   "ui.account.fail.no-life": "No saved life on that account yet. Go back and tap Play to start one.",

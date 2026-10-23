@@ -2,7 +2,7 @@ import type { AccountView } from "@japacity/api";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -799,5 +799,21 @@ describe("the signed-out notice goes when the player moves on (account:guest-and
     gate(fakeAccount({ returnedFromGoogle: () => "not-linked" }));
     expect(await screen.findByText(say("ui.account.fail.not-linked"))).toBeDefined();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
+  });
+
+  test("[account:guest-secures-the-life] given Google came back refused by the player or with a trip that did not finish, then the ways back in say it at the top of the sheet, above Google's button, in the game's words", async () => {
+    for (const [why, key] of [
+      ["cancelled", "ui.account.fail.cancelled"],
+      ["google", "ui.account.fail.google"],
+    ] as const) {
+      gate(fakeAccount({ returnedFromGoogle: () => why }));
+      const said = await screen.findByText(say(key));
+      expect(said.getAttribute("role")).toBe("alert");
+      const google = screen.getByRole("button", { name: say("ui.account.google") });
+      expect(said.compareDocumentPosition(google) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      const email = screen.getByLabelText(say("ui.account.email.label"));
+      expect(said.compareDocumentPosition(email) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      cleanup();
+    }
   });
 });
