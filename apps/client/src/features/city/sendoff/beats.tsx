@@ -30,22 +30,26 @@ export function useStageScale(): number {
   return scale;
 }
 
-/** A file published under public/assets, by its path, or null until the manifest is read, when it is not published or when none is asked. */
-function usePublished(path: string | null): string | null {
-  const [url, setUrl] = useState<{ path: string; url: string | null } | null>(null);
+/**
+ * A tile and, where asked, its poster, both read from one look at the manifest, so the sticker draws once with every
+ * picture it may take and never fetches the tile first and the poster after; null until the manifest is read. Each is
+ * null when it is not published.
+ */
+function usePublished(tile: string, poster: string | null): { tile: string | null; poster: string | null } | null {
+  const key = `${tile}|${poster ?? ""}`;
+  const [urls, setUrls] = useState<{ key: string; tile: string | null; poster: string | null } | null>(null);
   useEffect(() => {
-    if (path === null) return;
     let alive = true;
     void loadManifest()
       .then((manifest) => {
-        if (alive) setUrl({ path, url: assetUrl(manifest, path) });
+        if (alive) setUrls({ key, tile: assetUrl(manifest, tile), poster: poster === null ? null : assetUrl(manifest, poster) });
       })
       .catch(() => undefined);
     return () => {
       alive = false;
     };
-  }, [path]);
-  return url !== null && url.path === path ? url.url : null;
+  }, [key, tile, poster]);
+  return urls !== null && urls.key === key ? { tile: urls.tile, poster: urls.poster } : null;
 }
 
 /** Who the character is in the scene: the name, the look in their own colours (the city hands the figure in), the money on the band. */
@@ -73,13 +77,15 @@ const POSTER_PX = 896;
  * the scaled stage, so each screen fetches the one that is sharp there (prologue:front-door-three-screens).
  */
 function Pic({ model, className = "", style, poster = true }: { model: string; className?: string; style?: CSSProperties; poster?: boolean }) {
-  const src = usePublished(`tiles/${model}.png`);
-  const large = usePublished(poster ? `tiles/${model}-poster.png` : null);
+  const urls = usePublished(`tiles/${model}.png`, poster ? `tiles/${model}-poster.png` : null);
   const scale = useStageScale();
+  const src = urls?.tile ?? null;
   if (src === null) return null;
+  const large = urls?.poster ?? null;
   const width = typeof style?.width === "number" ? style.width : null;
   const offered = large === null || width === null ? {} : { srcSet: `${src} ${String(TILE_PX)}w, ${large} ${String(POSTER_PX)}w`, sizes: `${String(Math.ceil(width * scale))}px` };
-  return <img src={src} {...offered} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
+  // The choice set before the source, so the browser picks once.
+  return <img {...offered} src={src} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
 }
 
 /** One of the family or the hall as a sticker: the look standing, or cheering with both hands up (the wave). */
