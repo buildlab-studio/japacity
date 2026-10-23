@@ -202,6 +202,19 @@ describe("the guest start and the username, as the server built them", () => {
   });
 });
 
+describe("the trip to Google to confirm a deletion (account:player-deletes-account)", () => {
+  test("[account:player-deletes-account] given a trip to Google to confirm a deletion, when it leaves, then it comes back marked as that trip, and the page reads it once as the deletion's", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/sign-in/social", { body: { url: "https://accounts.google.test/o", redirect: false } });
+    expect(await api.signInWithGoogle(null, "delete")).toEqual({ ok: true });
+    const body = server.sent.find((request) => request.path === "/api/auth/sign-in/social")?.body as { callbackURL: string };
+    history.replaceState(null, "", new URL(body.callbackURL).search);
+    expect(api.returnedFromGoogle()).toBe("delete");
+    expect(location.search).toBe("");
+    expect(api.returnedFromGoogle()).toBeNull();
+  });
+});
+
 describe("the trip to Google and back (account:guest-secures-the-life)", () => {
   test("[account:guest-secures-the-life] given a trip to keep a guest's life or to sign back in, when it leaves, then the library is asked to come back to the page marked with that trip, and a refusal to the bare page", async () => {
     const { server, api } = account();

@@ -20,6 +20,7 @@ import { say } from "../../shared/words/text";
 import { setUsageCounts } from "../../shared/analytics/start";
 import { keptLine, NO_WAYS, useLifeName, waysOf } from "./AccountButton";
 import { CodeForm, failureWords } from "./CodeForm";
+import { markDeleteTrip } from "./marks";
 import { FREE_WORDS, useFreeCheck } from "./GuestStart";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { PasskeyList, usePasskeysWork } from "./PasskeyList";
@@ -182,7 +183,147 @@ function dayOf(at: number): string {
   return new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
 }
 
-type Step = "idle" | "warn" | "confirm";
+/** The step a deletion stands at: Delete my account, the warning with its two choices, or the confirmation a stale session needs. */
+export type DeleteStep = "idle" | "warn" | "confirm";
+
+/**
+ * account:player-deletes-account, world:costly-acts-confirmed: deleting the account. The warning's main button keeps the account and comes first; Delete for
+ * good wears the warning colour, apart from it. A session older than the server allows is confirmed with one of the
+ * account's own passkeys, the emailed code, or Google where Google is linked, whose trip comes back to this warning
+ * (`opened`, from the world, with `onKept` to close it).
+ */
+export function DeleteAccount({ account, opened = "idle", onKept = null }: { account: AccountApi; opened?: DeleteStep; onKept?: (() => void) | null }) {
+  const leave = useGame((state) => state.leave);
+  const me = useAccountView();
+  const ways = me === null ? NO_WAYS : waysOf(me);
+  const works = usePasskeysWork(account);
+  const [step, setStep] = useState<DeleteStep>(opened);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const keep = () => {
+    setStep("idle");
+    onKept?.();
+  };
+
+  async function run(action: () => Promise<AuthResult>, after: (result: AuthResult) => void | Promise<void>) {
+    setBusy(true);
+    setProblem(null);
+    try {
+      const result = await action();
+      await after(result);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const gone = () => leave("ui.account.notice.deleted");
+
+  const remove = () =>
+    run(
+      () => account.deleteAccount(null),
+      async (result) => {
+        if (result.ok) {
+          gone();
+          return;
+        }
+        if (result.why === "not-fresh") {
+          setStep("confirm");
+          setEmail(await account.email());
+          return;
+        }
+        setProblem(failureWords(result));
+      },
+    );
+
+  /** account:player-deletes-account: only one of this account's own passkeys confirms; a cancel says nothing. */
+  const confirmWithPasskey = () =>
+    run(
+      () => account.confirmWithPasskey(),
+      (result) => {
+        if (result.ok) return remove();
+        if (result.why !== "cancelled") setProblem(failureWords(result));
+      },
+    );
+
+  /** The trip leaves marked with this account, so only it coming back reopens the warning. */
+  const google = () =>
+    run(
+      () => {
+        if (me !== null) markDeleteTrip(me.id);
+        return account.signInWithGoogle(null, "delete");
+      },
+      (result) => setProblem(failureWords(result)),
+    );
+
+  return (
+    <>
+      {/* Each step of leaving settles in where the last stood (world:motions-under-half-second). */}
+      <div key={step} className={`flex flex-col gap-3 border-t border-sheet-line pt-4 ${step === "idle" ? "" : "motion-reveal"}`} data-delete-step={step}>
+        {step === "idle" ? (
+          <div>
+            <Button variant="quiet" disabled={busy} onClick={() => setStep("warn")}>
+              {say("ui.account.delete")}
+            </Button>
+          </div>
+        ) : null}
+        {step === "warn" ? (
+          <>
+            <p>{say("ui.account.delete.warn")}</p>
+            <div>
+              <Button variant="primary" disabled={busy} onClick={keep}>
+                {say("ui.account.delete.keep")}
+              </Button>
+            </div>
+            <div className="mt-2 border-t border-sheet-line pt-4">
+              <Button variant="warning" disabled={busy} onClick={() => void remove()}>
+                {say("ui.account.delete.confirm")}
+              </Button>
+            </div>
+          </>
+        ) : null}
+        {step === "confirm" ? (
+          <>
+            <p>{say("ui.account.delete.fresh")}</p>
+            {ways.passkeys > 0 && works === true ? (
+              <div>
+                <Button disabled={busy} onClick={() => void confirmWithPasskey()}>
+                  {say("ui.account.passkey")}
+                </Button>
+              </div>
+            ) : null}
+            {email === null ? null : (
+              <CodeForm
+                account={account}
+                email={email}
+                sendLabel={say("ui.account.delete.code", { email })}
+                confirm={(code) => account.deleteAccount(code)}
+                goLabel={say("ui.account.delete.code.go")}
+                onSignedIn={gone}
+              />
+            )}
+            {ways.google === null ? null : (
+              <>
+                <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void google()} />
+                <p className="text-sm text-text-2">{say("ui.account.delete.google")}</p>
+              </>
+            )}
+            <div>
+              <Button variant="primary" disabled={busy} onClick={keep}>
+                {say("ui.account.delete.keep")}
+              </Button>
+            </div>
+          </>
+        ) : null}
+      </div>
+      {problem === null ? null : (
+        <p role="alert" className="text-bad">
+          {problem}
+        </p>
+      )}
+    </>
+  );
+}
 
 /** account:sign-out-ends-the-session: signing out of every phone asks first. */
 type Leaving = "no" | "guest" | "everywhere";
@@ -213,13 +354,10 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
   const me = useAccountView();
   const guest = me?.state === "guest";
   const ways = me === null ? NO_WAYS : waysOf(me);
-  const works = usePasskeysWork(account);
   const [leaving, setLeaving] = useState<Leaving>("no");
-  const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
 
   async function run(action: () => Promise<AuthResult>, after: (result: AuthResult) => void | Promise<void>) {
     setBusy(true);
@@ -233,25 +371,6 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
     }
   }
 
-  const gone = () => leave("ui.account.notice.deleted");
-
-  const remove = () =>
-    run(
-      () => account.deleteAccount(null),
-      async (result) => {
-        if (result.ok) {
-          gone();
-          return;
-        }
-        if (result.why === "not-fresh") {
-          setStep("confirm");
-          setEmail(await account.email());
-          return;
-        }
-        setProblem(failureWords(result));
-      },
-    );
-
   /** account:sign-out-ends-the-session: the player leaves only once the server has ended the session; otherwise the sheet says so and stays. */
   const signOut = (everywhere: boolean) =>
     run(
@@ -259,16 +378,6 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
       (result) => {
         if (result.ok) leave("ui.account.notice.signed-out");
         else setProblem(failureWords(result));
-      },
-    );
-
-  /** account:player-deletes-account: only one of this account's own passkeys confirms; a cancel says nothing. */
-  const confirmWithPasskey = () =>
-    run(
-      () => account.confirmWithPasskey(),
-      (result) => {
-        if (result.ok) return remove();
-        if (result.why !== "cancelled") setProblem(failureWords(result));
       },
     );
 
@@ -327,58 +436,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
 
       {more}
 
-      {/* Each step of leaving settles in where the last stood (world:motions-under-half-second). */}
-      <div key={step} className={`flex flex-col gap-3 border-t border-sheet-line pt-4 ${step === "idle" ? "" : "motion-reveal"}`}>
-        {step === "idle" ? (
-          <div>
-            <Button variant="quiet" disabled={busy} onClick={() => setStep("warn")}>
-              {say("ui.account.delete")}
-            </Button>
-          </div>
-        ) : null}
-        {step === "warn" ? (
-          <>
-            <p>{say("ui.account.delete.warn")}</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="primary" disabled={busy} onClick={() => void remove()}>
-                {say("ui.account.delete.confirm")}
-              </Button>
-              <Button disabled={busy} onClick={() => setStep("idle")}>
-                {say("ui.account.delete.keep")}
-              </Button>
-            </div>
-          </>
-        ) : null}
-        {step === "confirm" ? (
-          <>
-            <p>{say("ui.account.delete.fresh")}</p>
-            {ways.passkeys > 0 && works === true ? (
-              <div>
-                <Button disabled={busy} onClick={() => void confirmWithPasskey()}>
-                  {say("ui.account.passkey")}
-                </Button>
-              </div>
-            ) : null}
-            {email === null ? null : (
-              <CodeForm
-                account={account}
-                email={email}
-                sendLabel={say("ui.account.delete.code", { email })}
-                confirm={(code) => account.deleteAccount(code)}
-                goLabel={say("ui.account.delete.code.go")}
-                onSignedIn={gone}
-              />
-            )}
-            <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null), (result) => setProblem(failureWords(result)))} />
-            <p className="text-sm text-text-2">{say("ui.account.delete.google")}</p>
-            <div>
-              <Button disabled={busy} onClick={() => setStep("idle")}>
-                {say("ui.account.delete.keep")}
-              </Button>
-            </div>
-          </>
-        ) : null}
-      </div>
+      <DeleteAccount account={account} />
 
       {message === null ? null : <p role="status">{message}</p>}
       {problem === null ? null : (

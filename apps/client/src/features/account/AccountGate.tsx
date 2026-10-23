@@ -141,7 +141,8 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // the life instead, where the shell tells it (Secure.tsx), so it never lands here.
   useEffect(() => {
     const failed = account?.returnedFromGoogle() ?? null;
-    if (failed === null || failed === "kept" || failed === "signed-in") return;
+    // A deletion's trip that came back signed out has nothing to confirm; the start screen stands.
+    if (failed === null || failed === "kept" || failed === "signed-in" || failed === "delete") return;
     setStep("returning");
     setBack(failureWords({ ok: false, why: failed }));
   }, [account]);

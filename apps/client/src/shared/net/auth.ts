@@ -68,11 +68,14 @@ type AuthFailure =
   | "sign-out"
   | "google";
 
-/** Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), or to sign back in to a kept one. */
-type GoogleTrip = "keep" | "sign-in";
+/**
+ * Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), to sign back in to a kept one, or to
+ * confirm a deletion with a fresh session, which comes back to the confirmation (account:player-deletes-account).
+ */
+type GoogleTrip = "keep" | "sign-in" | "delete";
 
-/** A trip to Google that went through: the guest's life kept, or a kept life signed back in to. */
-type GoogleDone = "kept" | "signed-in";
+/** A trip to Google that went through: the guest's life kept, a kept life signed back in to, or a deletion's confirmation to return to. */
+type GoogleDone = "kept" | "signed-in" | "delete";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
@@ -216,7 +219,7 @@ const FAILURES: Record<string, AuthFailure> = {
  * so the trip's own answer rides in that address, and a refusal goes to `errorCallbackURL` with `?error=` instead.
  */
 const GOOGLE_BACK = "google";
-const GOOGLE_DONE: Record<GoogleTrip, string> = { keep: "kept", "sign-in": "in" };
+const GOOGLE_DONE: Record<GoogleTrip, string> = { keep: "kept", "sign-in": "in", delete: "delete" };
 
 function failure(error: LibraryError, byStatus: Partial<Record<number, AuthFailure>>): AuthFailure {
   const known = error.code === undefined ? undefined : FAILURES[error.code];
@@ -462,6 +465,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       if (typeof history !== "undefined") history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
       if (error !== null) return FAILURES[error] ?? GOOGLE_FAILURES[error] ?? "google";
       if (done === GOOGLE_DONE.keep) return "kept";
+      if (done === GOOGLE_DONE.delete) return "delete";
       return done === GOOGLE_DONE["sign-in"] ? "signed-in" : null;
     },
     // The button: the browser's own prompt. The field's autofill is the ask below, which the button's cancels.

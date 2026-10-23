@@ -17,6 +17,7 @@ import { App } from "../../app/App";
 import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { YEARS_LISTED } from "./AgeScreen";
+import { SecureAsk } from "./Secure";
 import { AccountSettings } from "./Settings";
 import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
@@ -736,14 +737,88 @@ describe("deleting the account", () => {
 });
 
 describe("the delete confirmation's passkey", () => {
-  test("[account:player-deletes-account] given a stale session on an account that holds no passkey, then the confirmation offers no passkey, only the code and Google", async () => {
+  test("[account:player-deletes-account] given a stale session on an account that holds no passkey and no Google, then the confirmation offers no passkey and no Google, only the code", async () => {
     const account = fakeAccount({ view: () => Promise.resolve(SECURED), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }) });
     cleanUpAndSettings(account);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
     expect(await screen.findByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) })).toBeDefined();
-    expect(screen.getByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
+    expect(screen.queryByText(say("ui.account.delete.google"))).toBeNull();
     expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
+  });
+});
+
+describe("the delete confirmation's colours and Google (account:player-deletes-account)", () => {
+  const LINKED: AccountView = { ...SECURED, ways: { ...SECURED.ways, google: "ada@gmail.test" } };
+
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  test("[account:player-deletes-account] [world:costly-acts-confirmed] given Delete my account pressed, then the confirmation's main button keeps the account and comes first, and Delete for good wears the warning colour, never the main yellow, apart from it", async () => {
+    cleanUpAndSettings(fakeAccount({ view: () => Promise.resolve(SECURED) }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    const keep = await screen.findByRole("button", { name: say("ui.account.delete.keep") });
+    const remove = screen.getByRole("button", { name: say("ui.account.delete.confirm") });
+    expect(keep.className).toContain("bg-accent");
+    expect(remove.className).not.toContain("bg-accent");
+    expect(remove.className).toContain("text-bad");
+    expect(remove.className).toContain("border-bad");
+    expect(keep.compareDocumentPosition(remove) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(keep.parentElement).not.toBe(remove.parentElement);
+  });
+
+  test("[account:player-deletes-account] given a stale session on an account Google is linked to, then Google is offered to confirm, and its trip goes as the deletion's", async () => {
+    const trips: (string | undefined)[] = [];
+    const account = fakeAccount({ view: () => Promise.resolve(LINKED), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }), signInWithGoogle: (_bot, trip) => (trips.push(trip), Promise.resolve(OK)) });
+    cleanUpAndSettings(account);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.google") }));
+    await waitFor(() => expect(trips).toEqual(["delete"]));
+  });
+
+  test("[account:player-deletes-account] given the player back from Google's sign-in to confirm, signed in as the same account, then the delete confirmation stands open again, and Delete for good deletes", async () => {
+    const trip = fakeAccount({ view: () => Promise.resolve(LINKED), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }), signInWithGoogle: () => Promise.resolve(OK) });
+    cleanUpAndSettings(trip);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.google") }));
+    await act(() => Promise.resolve());
+    cleanup();
+    const back = fakeAccount({ view: () => Promise.resolve(LINKED), returnedFromGoogle: () => "delete", deleteAccount: (code) => (back.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(OK)) });
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account: back });
+    render(
+      <GameProvider store={store}>
+        <SecureAsk />
+      </GameProvider>,
+    );
+    const sheet = await screen.findByRole("dialog", { name: say("ui.account.delete") });
+    expect(within(sheet).getByText(say("ui.account.delete.warn"))).toBeDefined();
+    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.account.delete.confirm") }));
+    await waitFor(() => expect(store.getState().signedOut).toBe(true));
+    expect(back.calls.filter((call) => call.startsWith("deleteAccount"))).toEqual(["deleteAccount(null)"]);
+  });
+
+  test("[account:player-deletes-account] given a return from Google's sign-in to confirm signed in as another account, then no confirmation opens, so nothing of the other account is offered for deletion", async () => {
+    const trip = fakeAccount({ view: () => Promise.resolve(LINKED), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }), signInWithGoogle: () => Promise.resolve(OK) });
+    cleanUpAndSettings(trip);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.google") }));
+    await act(() => Promise.resolve());
+    cleanup();
+    const other = fakeAccount({ view: () => Promise.resolve({ ...LINKED, id: "account-2" }), returnedFromGoogle: () => "delete" });
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account: other });
+    render(
+      <GameProvider store={store}>
+        <SecureAsk />
+      </GameProvider>,
+    );
+    await act(() => new Promise((done) => setTimeout(done, 50)));
+    expect(screen.queryByRole("dialog", { name: say("ui.account.delete") })).toBeNull();
+    expect(other.calls.filter((call) => call.startsWith("deleteAccount"))).toEqual([]);
   });
 });
 

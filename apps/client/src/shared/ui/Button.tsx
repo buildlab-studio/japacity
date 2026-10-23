@@ -1,9 +1,11 @@
 import type { ComponentProps } from "react";
 
-type Variant = "primary" | "secondary" | "quiet";
+type Variant = "primary" | "secondary" | "quiet" | "warning";
 
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-accent text-accent-ink font-semibold border border-accent hover:brightness-95",
+  // world:costly-acts-confirmed: the costly choice, in the warning colour on the card's own ground, never the main yellow.
+  warning: "bg-sheet-2 text-bad font-semibold border-2 border-bad hover:bg-sheet-muted",
   secondary: "bg-sheet-2 text-ink border border-ink/70 hover:bg-sheet-muted",
   quiet: "bg-transparent text-ink underline underline-offset-4 decoration-sheet-line hover:decoration-ink",
 };
