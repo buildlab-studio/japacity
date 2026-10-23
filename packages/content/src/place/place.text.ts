@@ -620,7 +620,7 @@ export const placeText: Record<string, string> = {
   "place.rye-lane.sign.naija": "Ogbono House\nNigerian foods",
   "place.rye-lane.sign.barber": "Brimfade\nBarbers",
   "place.rye-lane.sign.clothes": "Wrennick\nClothing",
-  "place.rye-lane.sign.transfer": "Kobowire\nMoney to Nigeria",
+  "place.rye-lane.sign.transfer": "Tillvane\nMoney to Nigeria",
   "place.rye-lane.sign.pub": "Tollhouse Lantern\nPub",
   "place.rye-lane.overheard.1": "Do you have the big tin of palm oil?",
   "place.rye-lane.overheard.2": "Send it today and they get it in the morning.",

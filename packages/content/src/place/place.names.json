@@ -514,7 +514,7 @@
     "status": "draft"
   },
   {
-    "file": "places/rye-lane/sign_kobowire",
+    "file": "places/rye-lane/sign_tillvane",
     "place": "place.rye-lane",
     "source": "code",
     "author": "Japacity",
@@ -532,16 +532,19 @@
     "outline": null,
     "review": null,
     "nameCheck": {
-      "name": "Kobowire",
-      "workingName": "Ferrylane",
+      "name": "Tillvane",
+      "workingName": "Kobowire",
       "searches": [
         "web: \"Ferrylane\"",
         "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Ferrylane\" (many Ferry Lane companies, one formerly Ferrylane Limited)",
-        "web: \"Kobowire\" OR \"Kobo Wire\" money transfer",
-        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Kobowire\" (no results)"
+        "web: \"Kobowire\" OR \"Kobo Wire\" money transfer (close to Koboweb, a Nigerian microfinance bank)",
+        "web: \"Ilekun\" money transfer OR bank OR company (close to Alekun, a Nigerian microfinance bank)",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Larkway\" (Larkway Asset Management, active)",
+        "web: \"Tillvane\" OR \"Till Vane\" money transfer, bank, Nigeria",
+        "UK Companies House name search (find-and-update.company-information.service.gov.uk): \"Tillvane\" (no results)"
       ],
-      "date": "2026-10-16",
-      "result": "Replaced. Many \"Ferry Lane\" companies are on the UK register. \"Kobowire\": no transfer service or company found; the nearest is iKobo, a transfer service in the United States that closed in 2008."
+      "date": "2026-10-23",
+      "result": "Replaced twice. Many \"Ferry Lane\" companies are on the UK register, and \"Kobowire\" was close to Koboweb, a Nigerian microfinance bank. \"Ilekun\" (close to Alekun, a Nigerian microfinance bank) and \"Larkway\" (a live UK asset manager) were dropped. \"Tillvane\": no transfer service, bank, fintech or company found on the web or the UK register."
     },
     "status": "draft"
   },
