@@ -61,7 +61,6 @@ A route is a set of requirements over the profile, plus a window that the world 
 - Every known route has its own percentage: how much of its checklist is met, with harder items counting for more.
 - Your japacity is the highest of those among routes whose window is open.
 - It moves with the world. A window closing can drop it overnight. A new route can lift it.
-- It is the share line: "My japacity is 80%. What's yours?"
 - After leaving it keeps counting, toward the next status: settlement, then a passport.
 
 **Worked example.** A student plans a US student visa and builds grades and an English score. She never applies. She takes a job, speaks at events, and launches a product. At a meetup she hears of a talent visa. Her checklist shows two of three proofs already met, from things she did for other reasons. Meanwhile her husband, a nurse, qualifies for a healthcare draw. They now have two ways out and must choose who leads and who goes as the dependant.
@@ -217,7 +216,7 @@ flowchart LR
 
 **Why this model:**
 
-- The median new player gives a game 8 minutes, once. Under 3% are left at day 30. On any wall clock a first departure sits days away, after most players have gone. On turns, a keen player can reach it in one sitting.
+- On any wall clock a first departure sits days away. On turns, a keen player can reach it in one sitting, and a player who comes by for a few minutes still moves forward.
 - It is the one pacing model with 15 to 20 years of precedent in shared browser games. In each the character moves on a budget and the world's events run on the real calendar.
 - Absence costs nothing. Your character stands still while you are away. Only the world moves.
 - It matches how returning players behave: 4 to 5 visits a day of about 5 minutes is two or three turns a visit.
@@ -375,9 +374,9 @@ Test scores are checked on the server. Leaderboards with client-trusted scores f
 
 - Quotas, spreads, and a cap on conversions per turn limit what trading can earn.
 - Rates are computed on the server, so the pattern cannot be read from the client.
-- This is the daily reason to open the game. A market like it builds a strong return habit, and players complain when it becomes a chore.
+- The rate is a small choice to weigh on a short visit, and it must never become a chore.
 
-**Topped-up naira.** Real money buys naira as a top-up through a payment processor, with a monthly cap per account. The Bank shows earned and topped-up naira as two accounts, says on a screen of its own what was topped up, what is left and how it is spent, and says once before the first top-up that topped-up naira never buys a ticket, since the draw is fair only when every ticket is bought with money earned in the game (wallet:top-ups-are-marked).
+**Topped-up naira.** The wallet can hold naira that came from outside play as a top-up, marked apart from naira earned (wallet:top-ups-are-marked, decision 0015). Every debit spends earned naira first, and topped-up naira never buys a ticket, since the draw is fair only when every ticket is bought with money earned in the game. Only the authority's command credits a top-up; no server route sends it and no content entry carries it, so there is no cap and no Bank screen for it, and a life with no top-up is unchanged.
 
 **Naming.** Street changers are called aboki in the game, as they are in everyday speech.
 
@@ -433,19 +432,19 @@ The matchmaker for strangers and free text are not part of the game (section 16)
 - The chain under way has a screen of its own.
 - The full rules are in `../rules/road.md`, "What the road holds to".
 
-## 18. Risks and how the design answers them
+## 18. What could go wrong in play, and how the design answers it
 
-| Risk | Response |
+| What could go wrong | How the design answers it |
 |---|---|
 | A second character becomes a feeder for the first, or feels compulsory | One shared turn budget. Transfers pay the same fees and rates as anyone's. The main journey never needs one |
 | The rate becomes a chore, or trading becomes the whole game | Quotas, spreads, a cap per turn, and a pattern that rewards two looks a day, not twenty |
-| Showing street rates is sensitive in Nigeria | Simulated rates only, never a live feed of real ones |
+| The game reads as a source of real street rates | Simulated rates only, never a live feed of real ones |
 | Matching strangers as partners invites scams and harassment | The safety rules in section 6. Contact only between friends who invited each other; no matchmaker and no typed text |
 | Family points with no check would teach fraud | The genuineness interview and long bans |
-| Debt chains become spirals that make players quit | The dampers in section 12 |
-| Many qualities and routes are costly to author and balance | Storylet model. Simulated profiles run through the system to find dead ends |
+| Debt chains become spirals with no way out | The dampers in section 12 |
+| Many qualities and routes are hard to write and balance | Storylet model. Simulated profiles run through the system to find dead ends |
 | A personal feed hides the wider world | Fixed shared front page |
-| Server-wide changes anger invested players | The four fairness rules |
+| A change to the whole world undoes what a player has built | The four fairness rules |
 
 ## 19. Decisions
 
