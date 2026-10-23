@@ -45,6 +45,7 @@ import { NotifyAsk } from "../features/notify/NotifyAsk";
 import { NotifySetting } from "../features/notify/NotifySetting";
 import { OfferView } from "../features/offer/OfferView";
 import { usePairApi } from "../features/person/pairApi";
+import { replaceAddress } from "../shared/back/back";
 import { api } from "../shared/net/http";
 import { addressOf, listedAsAdmin, showRoot, type Address } from "./address";
 import { BondHead, PeopleSlots } from "../features/person/PeopleOnPhone";
@@ -319,7 +320,7 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
     void store.getState().refresh();
   }, [store]);
   const leaveInvite = () => {
-    if (typeof history !== "undefined") history.replaceState(null, "", "/");
+    if (typeof history !== "undefined") replaceAddress("/");
     setInvite(null);
   };
   return (
