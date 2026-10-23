@@ -222,6 +222,23 @@ describe("the passkeys listed and removed (account:passkeys-listed-and-removed)"
     expect(account.calls).toEqual(["removePasskey(row-1)"]);
   });
 
+  test("[account:passkey-needs-signed-in-session] [text:account-words-plain] given an admin whose session has not shown a passkey, when a passkey is removed and the server refuses it for that, then the sheet says in plain words to sign in with the passkey first, and the passkey stays listed", async () => {
+    const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 2 }), {
+      passkeys: () => Promise.resolve([GOOGLE_ROW, PHONE_ROW]),
+      removePasskey: (id) => (account.calls.push(`removePasskey(${id})`), Promise.resolve({ ok: false, why: "passkey-first-remove" })),
+    });
+    const store = settings(account);
+    fireEvent.click(await screen.findByRole("button", { name: /^Remove Google Password Manager, added / }));
+    const line = await screen.findByRole("alert");
+    expect(line.textContent).toBe(say("ui.account.fail.passkey-first-remove"));
+    expect(line.textContent).toBe("Sign in with your passkey first, then remove it.");
+    expect(line.textContent).not.toMatch(/\b(keep|kept|secure|secured)\b/i);
+    expect(screen.queryByText(say("ui.account.fail.refused"))).toBeNull();
+    expect(screen.getByText("Google Password Manager")).toBeDefined();
+    expect(account.calls).toEqual(["removePasskey(row-1)"]);
+    expect(store.getState().signedOut).toBe(false);
+  });
+
   test("[account:passkeys-listed-and-removed] given the last passkey of a life kept by a code, then the way left is the code to its email", async () => {
     const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 1 }), { passkeys: () => Promise.resolve([PHONE_ROW]) });
     settings(account);

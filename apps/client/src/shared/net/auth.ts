@@ -38,6 +38,7 @@ import { pageWall, type WallGuard } from "./wall";
  * `guest-only`: a passkey waits until the life is secured (account:guest-secures-the-life).
  * `passkey-first`: account:passkey-needs-signed-in-session's refusal of a new passkey on an admin account holding one, from a session that has not
  * shown a passkey within the admin's window; the account sheet confirms in place with the account's own passkey (account:passkey-added-in-place).
+ * `passkey-first-remove`: the same rule's refusal of removing a passkey on such an account, told on the sheet as a line to sign in with the passkey first.
  * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
  * (its `account_not_linked`); the player is pointed to the code (account:guest-secures-the-life).
  * `already-here`: this phone already holds a passkey for the account; `passkey-gone`: the phone offered a passkey the
@@ -59,6 +60,7 @@ type AuthFailure =
   | "taken"
   | "guest-only"
   | "passkey-first"
+  | "passkey-first-remove"
   | "not-linked"
   | "already-here"
   | "passkey-gone"
@@ -484,7 +486,8 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       return rows.map(passkeyRow).sort((a, b) => a.addedAt - b.addedAt);
     },
     async removePasskey(id) {
-      const result = await attempt(() => client.passkey.deletePasskey({ id }));
+      // account:passkey-needs-signed-in-session: the server's only 403 on a removal is the admin's, from a session that has not shown a passkey.
+      const result = await attempt(() => client.passkey.deletePasskey({ id }), { 403: "passkey-first-remove" });
       if (!result.ok) return result;
       forgetAccount(server);
       // Removing a way in may end this phone's session with the others (account:session-is-secure-cookie): the game's
