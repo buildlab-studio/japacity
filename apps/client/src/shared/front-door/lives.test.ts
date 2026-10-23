@@ -16,7 +16,7 @@ const published = (JSON.parse(readFileSync(join(ASSETS, "manifest.json"), "utf8"
 
 describe("the door's pictures", () => {
   test("[prologue:front-door-builds-a-person] given every look the door offers, when the publish is read, then its face, its whole figure with a hand on the hip and its cheer are published as tiles, shot from the shipped model", () => {
-    const missing = LOOKS.flatMap((look) => ["face", "figure", "cheer"].filter((view) => published[`tiles/${look.id}-${view}.png`] === undefined).map((view) => `${look.id}-${view}`));
+    const missing = LOOKS.flatMap((look) => ["face", "figure", "cheer"].filter((view) => published[`tiles/${look.id}-${view}.webp`] === undefined).map((view) => `${look.id}-${view}`));
     expect(missing).toEqual([]);
     expect(LOOKS.length).toBe(16);
   });
@@ -25,7 +25,7 @@ describe("the door's pictures", () => {
     expect(Object.keys(LIFE_THINGS).sort()).toEqual(ARCHETYPES.map((archetype) => archetype.id).sort());
     for (const archetype of ARCHETYPES) {
       const thing = LIFE_THINGS[archetype.id];
-      expect({ id: archetype.id, published: published[`tiles/${thing.tile}.png`] !== undefined }).toEqual({ id: archetype.id, published: true });
+      expect({ id: archetype.id, published: published[`tiles/${thing.tile}.webp`] !== undefined }).toEqual({ id: archetype.id, published: true });
       expect(["food", "study", "money", "body", "people", "plain"]).toContain(thing.tint);
     }
     // No two lives share a thing: the card says which life it is before its words do.
@@ -49,7 +49,7 @@ describe("the door's pictures", () => {
     for (const home of ["compound-room", "hostel-room", "family-house"] as const) expect({ home, room: "src" in homePicture(home) }).toEqual({ home, room: true });
     for (const home of [...HOMES.filter((one) => one === "makoko"), "self-contain" as const]) {
       const picture = homePicture(home);
-      expect({ home, published: "model" in picture && published[`tiles/${picture.model}.png`] !== undefined }).toEqual({ home, published: true });
+      expect({ home, published: "model" in picture && published[`tiles/${picture.model}.webp`] !== undefined }).toEqual({ home, published: true });
     }
   });
 });

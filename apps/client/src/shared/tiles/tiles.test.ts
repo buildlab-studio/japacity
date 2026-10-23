@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
+import { picturePath } from "./published";
 import { ACT_GLYPHS, glyphTile, HOME_FILES, marketTile, PHONE_PICTURES, standIns, TILE_TABLE, tileOf } from "./tiles.data";
 
 const ASSETS = join(import.meta.dirname, "..", "..", "..", "public", "assets");
@@ -72,9 +73,10 @@ describe("the table of pictures", () => {
     expect(wrong.map((thing) => `${thing.id}: ${modelOf(thing.file)}`)).toEqual([]);
   });
 
-  test("given every row naming a model, when the publish is read, then that model's tile is published", () => {
+  test("[assets:pictures-shipped-light] [assets:pictures-sharp-at-three] given every row naming a model, when the publish is read, then that model's tile is published as WebP, and its small size beside it", () => {
     const models = Object.values(TILE_TABLE).filter((row): row is string => typeof row === "string");
-    expect([...new Set(models)].filter((model) => published[`tiles/${model}.png`] === undefined)).toEqual([]);
+    expect([...new Set(models)].filter((model) => published[picturePath(model)] === undefined || published[picturePath(`${model}-small`)] === undefined)).toEqual([]);
+    expect(picturePath("prop_bed")).toBe("tiles/prop_bed.webp");
   });
 
   test("given every row, when it is read, then it names something there is: an act, an offer, a place, a paper or a way out in content, a home's thing, one of the phone's own pictures, or an act's glyph", () => {

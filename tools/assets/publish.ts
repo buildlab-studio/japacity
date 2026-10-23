@@ -2,15 +2,17 @@
 // of its contents, beside its source, and writes the manifest the city's loader reads (city.md
 // city:places-load-on-entry). A file whose contents change gets a new name, so the browser may keep every published
 // file for good. The build check skips the hashed copies and the manifest (assets-check.ts).
-// First it copies each model's tile render to tiles/<name>.png, and each look's portraits to
-// tiles/<name>-face.png, -figure.png and -cheer.png, and each poster to tiles/<name>-poster.png, so the interface's pictures are published as
-// the models are (design page 09, the pictures; the front door's faces and figures).
+// First it publishes each model's tile render as tiles/<name>.webp with its small size tiles/<name>-small.webp, each
+// look's portraits as tiles/<name>-face.webp, -figure.webp and -cheer.webp, and each poster as tiles/<name>-poster.webp,
+// so the interface's pictures are published as the models are (design page 09, the pictures; the front door's faces and
+// figures), as WebP (assets:pictures-shipped-light).
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import { CATALOG, type CatalogEntry, PORTRAITS, type ViewName } from "./catalog";
 import { defaultPaths, isPublishedCopy, TILES } from "./assets-check";
 import { hashedName, readManifest, sha256, writeManifest } from "./manifest";
+import { SMALL_SUFFIX, toWebp } from "./webp";
 import { filesUnder, isMain, REPO_ROOT } from "../repo";
 
 export { HASH_DIGITS, hashedName, hashInName } from "./manifest";
@@ -73,28 +75,48 @@ export function tilePictures(entries: readonly Pick<CatalogEntry, "name" | "sour
   ]);
 }
 
+/** Whether a picture is also published small: a model's tile, which the map, the phone and the fans draw small (assets:pictures-sharp-at-three). */
+export function hasSmall(picture: Pick<TilePicture, "view">): boolean {
+  return picture.view === undefined || picture.view === "tile";
+}
+
+/** The files a picture is published as under tiles: `<name>.webp`, and `<name>-small.webp` where it has a small size. */
+export function tileFiles(picture: Pick<TilePicture, "name" | "view">): { file: string; small: boolean }[] {
+  const name = tileName(picture);
+  return [{ file: `${name}.webp`, small: false }, ...(hasSmall(picture) ? [{ file: `${name}${SMALL_SUFFIX}.webp`, small: true }] : [])];
+}
+
+/** A published copy's name without its hash: `prop_a.0123456789ab.webp` is a copy of `prop_a.webp`. */
+function unhashed(file: string): string {
+  return file.replace(/\.[0-9a-f]{12}(\.[a-z0-9]+)$/, "$1");
+}
+
 /**
- * Copies each asset's renders/<view>.png (the tile's by default) to tiles/<name>.png under the folder
- * and removes any tile no asset names, its hashed copies with it. Returns each copy's hash by its path
- * from the root, for the image manifest (assets:no-reference-photos-kept): a tile is a render the shooter wrote, only published.
+ * Publishes each asset's renders/<view>.png (the tile's by default) under tiles as WebP, at its own size and, for a
+ * tile, at the small size (assets:pictures-shipped-light), and removes any file there no asset names, its hashed
+ * copies with it. Returns each picture's hash by its path from the root, for the image manifest
+ * (assets:no-reference-photos-kept): a tile is a render the shooter wrote, only published.
  */
-export function copyTiles(entries: readonly TilePicture[], root: string, folder: string, from = relative(root, folder)): Record<string, string> {
+export async function encodeTiles(entries: readonly TilePicture[], root: string, folder: string, from = relative(root, folder)): Promise<Record<string, string>> {
   const into = join(folder, TILES);
   mkdirSync(into, { recursive: true });
-  const names = new Set(entries.map((entry) => `${tileName(entry)}.png`));
-  for (const stale of filesUnder(into).filter((file) => !names.has(isPublishedCopy(file) ? file.replace(/\.[0-9a-f]+\.png$/, ".png") : file))) rmSync(join(into, stale));
+  const names = new Set(entries.flatMap((entry) => tileFiles(entry).map((one) => one.file)));
+  for (const stale of filesUnder(into).filter((file) => !names.has(unhashed(file)))) rmSync(join(into, stale));
   const hashes: Record<string, string> = {};
   for (const entry of entries) {
-    const render = join(root, entry.source, "renders", `${entry.view ?? "tile"}.png`);
-    copyFileSync(render, join(into, `${tileName(entry)}.png`));
-    hashes[`${from}/${TILES}/${tileName(entry)}.png`] = sha256(readFileSync(render));
+    const render = readFileSync(join(root, entry.source, "renders", `${entry.view ?? "tile"}.png`));
+    for (const { file, small } of tileFiles(entry)) {
+      const picture = await toWebp(render, small);
+      writeFileSync(join(into, file), picture);
+      hashes[`${from}/${TILES}/${file}`] = sha256(picture);
+    }
   }
   return hashes;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const folder = defaultPaths(REPO_ROOT).public;
-  const tiles = copyTiles(tilePictures(CATALOG), REPO_ROOT, folder);
+  const tiles = await encodeTiles(tilePictures(CATALOG), REPO_ROOT, folder);
   const images = readManifest();
   const prefix = `${relative(REPO_ROOT, folder)}/${TILES}/`;
   images.renders = { ...Object.fromEntries(Object.entries(images.renders).filter(([path]) => !path.startsWith(prefix))), ...tiles };
@@ -103,4 +125,4 @@ function main(): void {
   console.log(`publish: ${String(Object.keys(manifest.files).length)} file(s) beside their sources under apps/client/public/assets`);
 }
 
-if (isMain(import.meta.url)) main();
+if (isMain(import.meta.url)) await main();

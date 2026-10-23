@@ -98,7 +98,10 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
         <World variant="folded" uid="strip" frame={frame} tiles={tiles} route={route} />
         {stadium === null ? null : (
           <span className="paper-mk" style={at(stadium, 2)}>
-            {tiles("landmark_national-stadium") === null ? null : <img src={tiles("landmark_national-stadium") ?? ""} alt="" width={26} height={26} className="paper-cut" draggable={false} />}
+            {(() => {
+              const offered = tiles("landmark_national-stadium", 26);
+              return offered === null ? null : <img {...offered} alt="" width={26} height={26} className="paper-cut" draggable={false} />;
+            })()}
           </span>
         )}
         {city.strip.landmarks.map((mark) => (
@@ -110,7 +113,10 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
         ))}
         {city.strip.minis.map((mini, index) => (
           <span key={index} className="paper-mk" style={at(mini.at, 1)}>
-            {tiles(mini.model) === null ? null : <img src={tiles(mini.model) ?? ""} alt="" width={mini.size} height={mini.size} className="paper-cut" draggable={false} />}
+            {(() => {
+              const offered = tiles(mini.model, mini.size);
+              return offered === null ? null : <img {...offered} alt="" width={mini.size} height={mini.size} className="paper-cut" draggable={false} />;
+            })()}
           </span>
         ))}
         {homeStop === null ? null : (

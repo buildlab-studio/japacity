@@ -13,6 +13,9 @@ import type { Marks, Placed } from "./stops";
 import type { TileUrl } from "./useTiles";
 import { type Frame, World } from "./World";
 
+/** The card's own tile in its title pill, across in CSS pixels. */
+const CARD_TILE_PX = 22;
+
 /** How far in from a card's side edges a stop picked is kept, so its name stands whole. */
 const SIDE = 120;
 
@@ -92,7 +95,7 @@ export interface CardViewProps {
 
 export const CardView = memo(function CardView({ card, width, height, drawn, stops, names, marks, tiles, route, lift, onPick, current, onCard, style, className = "" }: CardViewProps) {
   const inner = { width: Math.max(1, width - 8), height: Math.max(1, height - 8) };
-  const url = tiles(card.model);
+  const offered = tiles(card.model, CARD_TILE_PX);
   const frame = cardFrame(card, inner.width, inner.height, lift);
   // The card never pans, so only the paper inside it (and a little round it) is drawn.
   const within = [Math.floor(-frame.x / frame.sx) - 20, Math.floor(-frame.y / frame.sy) - 20, Math.ceil((inner.width - frame.x) / frame.sx) + 20, Math.ceil((inner.height - frame.y) / frame.sy) + 20] as const;
@@ -105,7 +108,7 @@ export const CardView = memo(function CardView({ card, width, height, drawn, sto
         {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} labels={labels} /> : null}
       </div>
       <span className="paper-card-title" data-card-title>
-        <span className="paper-card-tile">{url === null ? null : <img src={url} alt="" width={22} height={22} draggable={false} />}</span>
+        <span className="paper-card-tile">{offered === null ? null : <img {...offered} alt="" width={CARD_TILE_PX} height={CARD_TILE_PX} draggable={false} />}</span>
         {title}
       </span>
     </section>

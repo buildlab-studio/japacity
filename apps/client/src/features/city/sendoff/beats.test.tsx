@@ -13,10 +13,11 @@ import { sendOffWords } from "../sendOff.words";
 import { COUNTER, Counter, Departures, type Dress, GATE, Gate, HALL, LANDING, LANE_TOP, LandingBeat, Ride, RIDE } from "./beats";
 import { castFor, firstPings, landingOf, STOP_PEOPLE, stopLookFor } from "./plan";
 
-// Every published tile is there, by its own path, so each sticker draws and its place can be read.
+// Every published tile is there, by its own path, so each sticker draws and its place can be read; a look's portraits
+// are published at one size, so none has a small size beside it (tools/assets/publish.ts hasSmall).
 vi.mock("../../../shared/three/manifest", async (original) => ({
   ...(await original<typeof import("../../../shared/three/manifest")>()),
-  loadManifest: () => Promise.resolve({ files: new Proxy({}, { get: (_, key) => String(key) }) }),
+  loadManifest: () => Promise.resolve({ files: new Proxy({}, { get: (_, key) => (/-(face|figure|cheer)-small\.webp$/.test(String(key)) ? undefined : String(key)) }) }),
 }));
 
 const dress: Dress = { name: "Adaeze", first: "Ada", age: "25 yrs 6 mo", look: "person_ada", figure: <img alt="" data-figure />, cast: castFor("person_ada"), money: "₦12,000,741" };
@@ -165,7 +166,7 @@ describe("the send-off's beats, laid out", () => {
 });
 
 describe("the send-off's stickers, sharp at their size", () => {
-  test("[prologue:front-door-three-screens] [chapter:send-off-scene-in-beats] given a thing drawn larger than its tile is sharp at, with its poster published, then the browser is offered the tile and the poster by their widths with the sticker's size on the stage, and a person's figure is offered alone", async () => {
+  test("[prologue:front-door-three-screens] [chapter:send-off-scene-in-beats] [assets:pictures-sharp-at-three] [assets:pictures-shipped-light] given a thing drawn larger than its tile is sharp at, with its poster published, then the browser is offered the small size, the tile and the poster as WebP by their widths with the sticker's size on the stage, and a person's figure is offered alone", async () => {
     const landing = landingOf("country.uk");
     if (landing === null) throw new Error("No landing in the United Kingdom.");
     render(<LandingBeat dress={dress} landing={landing} place="Peckham, London" weather="4 degrees" marker="Peckham Rye" heard={{ name: "Aunty", words: "You just land?", look: stopLookFor(landing.country, dress.look) }} go="Get on the bus" blind="12 · PECKHAM" onGo={none} />);
@@ -177,8 +178,8 @@ describe("the send-off's stickers, sharp at their size", () => {
     // jsdom's window is 1024 by 768: the stage at 768 / 844 of its size.
     const scale = Math.min(window.innerWidth / 390, window.innerHeight / 844);
     const tile = shelter.getAttribute("src") ?? "";
-    expect(tile).toMatch(/tiles\/prop_bus-shelter\.png$/);
-    expect(shelter.getAttribute("srcset")).toBe(`${tile} 512w, ${tile.replace(/\.png$/, "-poster.png")} 896w`);
+    expect(tile).toMatch(/tiles\/prop_bus-shelter\.webp$/);
+    expect(shelter.getAttribute("srcset")).toBe(`${tile.replace(/\.webp$/, "-small.webp")} 192w, ${tile} 512w, ${tile.replace(/\.webp$/, "-poster.webp")} 896w`);
     expect(shelter.getAttribute("sizes")).toBe(`${String(Math.ceil(170 * scale))}px`);
     const person = document.querySelector<HTMLImageElement>("[data-so-stop-person] [data-so-tile]");
     expect(person?.getAttribute("srcset")).toBeNull();

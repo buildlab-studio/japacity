@@ -12,13 +12,14 @@ import { measure, readGlb } from "./glb";
 import { placeMapData } from "./map-data";
 import { hashInName, type Manifest, sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
+import { drawnFrom, SMALL_SUFFIX, webpProblem } from "./webp";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
 import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
 import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 
 /** assets:shipped-file-naming, as the page writes it. */
-export const FILE_NAME = /^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
+export const FILE_NAME = /^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2|webp)$/;
 /** Files decision 0009 places under public/assets beside the models, and the publish step's manifest. */
 export const DATA_FILES = new Set(["place.json", "credits.json", "manifest.json"]);
 const IMAGE = /\.(png|jpe?g|webp|gif|avif|bmp|tiff?|heic|ktx2)$/i;
@@ -127,7 +128,7 @@ export function checkNames(files: readonly string[]): string[] {
   return files
     .filter((file) => !DATA_FILES.has(file.split("/").pop() ?? ""))
     .filter((file) => !FILE_NAME.test(file.split("/").pop() ?? ""))
-    .map((file) => `assets:shipped-file-naming: ${file} is not named <prefix>_<name>[_<variant>].<glb|png|ktx2>`);
+    .map((file) => `assets:shipped-file-naming: ${file} is not named <prefix>_<name>[_<variant>].<glb|png|ktx2|webp>`);
 }
 
 /** 2. One row per shipped file and one file per row, with the row's figures equal to the file's (assets:register-matches-every-file). */
@@ -278,21 +279,47 @@ export function checkImages(images: readonly { path: string; bytes: Uint8Array }
   return problems;
 }
 
-/** 6b. Every picture under tiles is a model's tile render, byte for byte, by the model's name, and every model's tile render is published (assets:no-reference-photos-kept). */
-export function checkTiles(tiles: readonly { path: string; bytes: Uint8Array }[], renders: ReadonlyMap<string, Uint8Array>): string[] {
+/** A render published under tiles: its PNG, and whether it is also published at the small size (a model's tile). */
+export interface TileRender {
+  bytes: Uint8Array;
+  small: boolean;
+}
+
+/**
+ * 6b. Every picture under tiles is a model's render by the model's name, as WebP (assets:pictures-shipped-light): lossy,
+ * its transparency whole, and drawn from that render at its own size or, for a tile, the small size beside it; and every
+ * render is published in each of its sizes (assets:no-reference-photos-kept).
+ */
+export async function checkTiles(tiles: readonly { path: string; bytes: Uint8Array }[], renders: ReadonlyMap<string, TileRender>): Promise<string[]> {
   const problems: string[] = [];
   const published = new Set<string>();
   for (const tile of tiles) {
-    const name = /^tiles\/(.+)\.png$/.exec(tile.path)?.[1] ?? "";
+    const match = /^tiles\/(.+)\.([a-z0-9]+)$/.exec(tile.path);
+    if (match?.[2] !== "webp") {
+      problems.push(`assets:pictures-shipped-light: ${tile.path} is not WebP; a picture the interface shows ships as WebP (run pnpm assets:publish)`);
+      continue;
+    }
+    const named = match[1] ?? "";
+    const small = !renders.has(named) && named.endsWith(SMALL_SUFFIX);
+    const name = small ? named.slice(0, -SMALL_SUFFIX.length) : named;
     const render = renders.get(name);
-    if (render === undefined) {
+    if (render === undefined || (small && !render.small)) {
       problems.push(`assets:no-reference-photos-kept: ${tile.path} is no model's tile render`);
       continue;
     }
-    published.add(name);
-    if (sha256(render) !== sha256(tile.bytes)) problems.push(`assets:no-reference-photos-kept: ${tile.path} differs from ${name}'s tile render; run pnpm assets:publish`);
+    published.add(`${name}${small ? SMALL_SUFFIX : ""}`);
+    const format = webpProblem(tile.bytes);
+    if (format !== null) {
+      problems.push(`assets:pictures-shipped-light: ${tile.path} ${format}; run pnpm assets:publish`);
+      continue;
+    }
+    const drawn = await drawnFrom(tile.bytes, render.bytes, small);
+    if (drawn !== null) problems.push(`assets:no-reference-photos-kept: ${tile.path} differs from ${name}'s tile render: it ${drawn}; run pnpm assets:publish`);
   }
-  for (const name of renders.keys()) if (!published.has(name)) problems.push(`assets:no-reference-photos-kept: ${name}'s tile render is not published under tiles; run pnpm assets:publish`);
+  for (const [name, render] of renders) {
+    if (!published.has(name)) problems.push(`assets:no-reference-photos-kept: ${name}'s tile render is not published under tiles; run pnpm assets:publish`);
+    if (render.small && !published.has(`${name}${SMALL_SUFFIX}`)) problems.push(`assets:pictures-sharp-at-three: ${name}'s tile render is not published at the small size under tiles; run pnpm assets:publish`);
+  }
   return problems;
 }
 
@@ -519,18 +546,18 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
 
   // Each asset's source folder is the one whose render manifest names its shipped file.
   const folders = new Map<string, string>();
-  const tileRenders = new Map<string, Uint8Array>();
+  const tileRenders = new Map<string, TileRender>();
   for (const file of filesUnder(paths.source).filter((path) => path.endsWith("renders/manifest.json"))) {
     const renders = readJson<{ asset: string; file: string; renders: { view: string; file: string }[] }>(join(paths.source, file));
     const shipped = renders.file.replace(/^public\/assets\//, "");
     folders.set(shipped, join(paths.source, file.replace(/\/renders\/manifest\.json$/, "")));
     const tile = renders.renders.find((record) => record.view === "tile");
-    if (tile !== undefined) tileRenders.set(renders.asset, readFileSync(join(paths.root, tile.file)));
-    // A look's portraits and a thing's poster are published as its tiles are, under `<asset>-<view>` (the front door's faces and figures, the send-off's large stickers).
-    for (const portrait of renders.renders.filter((record) => PORTRAIT_VIEWS.includes(record.view) || record.view === POSTER_VIEW)) tileRenders.set(`${renders.asset}-${portrait.view}`, readFileSync(join(paths.root, portrait.file)));
+    if (tile !== undefined) tileRenders.set(renders.asset, { bytes: readFileSync(join(paths.root, tile.file)), small: true });
+    // A look's portraits and a thing's poster are published as its tiles are, under `<asset>-<view>` (the front door's faces and figures, the send-off's large stickers), each at one size.
+    for (const portrait of renders.renders.filter((record) => PORTRAIT_VIEWS.includes(record.view) || record.view === POSTER_VIEW)) tileRenders.set(`${renders.asset}-${portrait.view}`, { bytes: readFileSync(join(paths.root, portrait.file)), small: false });
   }
   const tiles = files.filter(isTile);
-  problems.push(...checkTiles(tiles.map((file) => ({ path: file, bytes: readFileSync(join(paths.public, file)) })), tileRenders));
+  problems.push(...(await checkTiles(tiles.map((file) => ({ path: file, bytes: readFileSync(join(paths.public, file)) })), tileRenders)));
   const reviews = new Map<string, Review | null>();
   const outlines = new Map<string, Record<string, { passes: boolean }> | null>();
   for (const row of register.rows) {

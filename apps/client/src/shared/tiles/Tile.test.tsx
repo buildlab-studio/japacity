@@ -8,7 +8,10 @@ import "../testing/render";
 
 vi.mock("../three/manifest", async (original) => {
   const real = await original<typeof import("../three/manifest")>();
-  return { ...real, loadManifest: () => Promise.resolve({ files: { "tiles/prop_bed.png": "tiles/prop_bed.0123456789ab.png" } }) };
+  return {
+    ...real,
+    loadManifest: () => Promise.resolve({ files: { "tiles/prop_bed.webp": "tiles/prop_bed.0123456789ab.webp", "tiles/prop_bed-small.webp": "tiles/prop_bed-small.ba9876543210.webp" } }),
+  };
 });
 
 describe("a tile", () => {
@@ -19,8 +22,17 @@ describe("a tile", () => {
     expect(tile.className).toContain("extra");
     expect(tile.style.width).toBe("48px");
     expect(tile.style.height).toBe("48px");
-    await waitFor(() => expect(tile.querySelector("img")?.getAttribute("src")).toMatch(/assets\/tiles\/prop_bed\.0123456789ab\.png$/));
+    await waitFor(() => expect(tile.querySelector("img")?.getAttribute("src")).toMatch(/assets\/tiles\/prop_bed\.0123456789ab\.webp$/));
     expect(tile.querySelector("img")?.getAttribute("alt")).toBe("");
+  });
+
+  test("[assets:pictures-sharp-at-three] [assets:pictures-shipped-light] given a model's tile published at its small size beside it, when it is drawn in a box, then both are offered as WebP by their widths with the box's size, so a small box fetches the small one", async () => {
+    const { container } = render(<Tile of="activity.nap" size={36} />);
+    const tile = container.querySelector<HTMLElement>("[data-tile='activity.nap']")!;
+    await waitFor(() => expect(tile.querySelector("img")).not.toBeNull());
+    const picture = tile.querySelector("img")!;
+    expect(picture.getAttribute("srcset")).toMatch(/^\S*assets\/tiles\/prop_bed-small\.ba9876543210\.webp 192w, \S*assets\/tiles\/prop_bed\.0123456789ab\.webp 512w$/);
+    expect(picture.getAttribute("sizes")).toBe("36px");
   });
 
   test("given an act on a stand-in, when it is drawn, then it shows the emoji, marked as standing in, and fetches nothing", () => {

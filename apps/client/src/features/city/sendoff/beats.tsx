@@ -4,7 +4,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useState } from "react";
 
-import { assetUrl, loadManifest } from "../../../shared/three/manifest";
+import { offer, usePublishManifest } from "../../../shared/tiles/published";
 import type { Seat } from "../../../shared/world/sendOff";
 import { say } from "../../../shared/words/text";
 import { sendOffWords } from "../sendOff.words";
@@ -30,28 +30,6 @@ export function useStageScale(): number {
   return scale;
 }
 
-/**
- * A tile and, where asked, its poster, both read from one look at the manifest, so the sticker draws once with every
- * picture it may take and never fetches the tile first and the poster after; null until the manifest is read. Each is
- * null when it is not published.
- */
-function usePublished(tile: string, poster: string | null): { tile: string | null; poster: string | null } | null {
-  const key = `${tile}|${poster ?? ""}`;
-  const [urls, setUrls] = useState<{ key: string; tile: string | null; poster: string | null } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    void loadManifest()
-      .then((manifest) => {
-        if (alive) setUrls({ key, tile: assetUrl(manifest, tile), poster: poster === null ? null : assetUrl(manifest, poster) });
-      })
-      .catch(() => undefined);
-    return () => {
-      alive = false;
-    };
-  }, [key, tile, poster]);
-  return urls !== null && urls.key === key ? { tile: urls.tile, poster: urls.poster } : null;
-}
-
 /** Who the character is in the scene: the name, the look in their own colours (the city hands the figure in), the money on the band. */
 export interface Dress {
   /** The name the world's band shows. */
@@ -67,25 +45,19 @@ export interface Dress {
   money: string;
 }
 
-/** The pixels across a thing's tile and its poster (tools/assets/shoot.ts TILE_SHOT and POSTER_SHOT). */
-const TILE_PX = 512;
-const POSTER_PX = 896;
-
 /**
- * A published tile as a die-cut sticker. Silent to a screen reader: the words carry the meaning. A thing the scene draws
- * large has a poster published beside its tile; the browser is offered both by their widths, with the sticker's size on
- * the scaled stage, so each screen fetches the one that is sharp there (prologue:front-door-three-screens).
+ * A published tile as a die-cut sticker. Silent to a screen reader: the words carry the meaning. The browser is offered
+ * the tile's small size, the tile and, for a thing the scene draws large, its poster, by their widths, with the sticker's
+ * size on the scaled stage, so each screen fetches the one that is sharp there (assets:pictures-sharp-at-three), all read
+ * from one look at the manifest so the sticker draws once with every picture it may take.
  */
 function Pic({ model, className = "", style, poster = true }: { model: string; className?: string; style?: CSSProperties; poster?: boolean }) {
-  const urls = usePublished(`tiles/${model}.png`, poster ? `tiles/${model}-poster.png` : null);
+  const manifest = usePublishManifest();
   const scale = useStageScale();
-  const src = urls?.tile ?? null;
-  if (src === null) return null;
-  const large = urls?.poster ?? null;
   const width = typeof style?.width === "number" ? style.width : null;
-  const offered = large === null || width === null ? {} : { srcSet: `${src} ${String(TILE_PX)}w, ${large} ${String(POSTER_PX)}w`, sizes: `${String(Math.ceil(width * scale))}px` };
-  // The choice set before the source, so the browser picks once.
-  return <img {...offered} src={src} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
+  const offered = manifest === null ? null : offer(manifest, model, width === null ? null : width * scale, poster);
+  if (offered === null) return null;
+  return <img {...offered} alt="" draggable={false} className={`so-abs so-sticker ${className}`} style={style} data-so-tile={model} />;
 }
 
 /** One of the family or the hall as a sticker: the look standing, or cheering with both hands up (the wave). */

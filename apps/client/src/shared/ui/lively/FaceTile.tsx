@@ -1,4 +1,4 @@
-// A look's face as a round sticker, the door's published face tile (`tiles/<look>-face.png`), for a line that names a
+// A look's face as a round sticker, the door's published face tile (`tiles/<look>-face.webp`), for a line that names a
 // player by the name it shows (city:board-line-and-ranking, moderation:blocked-list-in-settings). Drawn here, not with the
 // door's own sticker (shared/front-door/LookPicture.tsx), so a chunk that draws it stays clear of the door's colours and the
 // city's models: a module shared with those regroups the first visit's chunks (engine:first-download-has-budget).
@@ -13,7 +13,7 @@ export function FaceTile({ look, tint = "plain", tilt = 0, size = 36 }: { look: 
     let alive = true;
     void loadManifest()
       .then((manifest) => {
-        if (alive) setSrc(assetUrl(manifest, `tiles/${look}-face.png`));
+        if (alive) setSrc(assetUrl(manifest, `tiles/${look}-face.webp`));
       })
       .catch(() => undefined);
     return () => {

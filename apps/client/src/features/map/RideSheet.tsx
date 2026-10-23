@@ -148,7 +148,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
               const on = choice.id === chosen;
               const shut = choice.shut !== undefined;
               const model = wayModel?.(choice) ?? WAY_MODEL[choice.id];
-              const url = model === null ? null : tiles(model);
+              const offered = model === null ? null : tiles(model, 44);
               return (
                 <button
                   key={choice.id}
@@ -168,7 +168,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
                       </span>
                     ) : (
                       <span className="sticker-cut" style={{ rotate: on ? "-6deg" : "-3deg" }}>
-                        {url === null ? <span className="block size-11" /> : <img src={url} alt="" width={44} height={44} draggable={false} className="block object-contain" />}
+                        {offered === null ? <span className="block size-11" /> : <img {...offered} alt="" width={44} height={44} draggable={false} className="block object-contain" />}
                       </span>
                     )}
                   </span>
