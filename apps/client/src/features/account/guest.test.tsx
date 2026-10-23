@@ -312,6 +312,26 @@ describe("signing out of a guest life", () => {
   });
 });
 
+describe("leaving a guest life asks once (world:costly-acts-confirmed)", () => {
+  test("[world:costly-acts-confirmed] [account:guest-and-secured-states] given a guest pressing Sign out, then Keep playing is the main button and comes first, Sign out and leave this life wears the warning colour apart from it, and Keep playing keeps the life", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <AccountSettings account={account} />);
+    await screen.findByText(say("ui.guest.reminder"));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out") }));
+    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.keep") });
+    const go = screen.getByRole("button", { name: say("ui.guest.sign-out.go") });
+    expect(keep.className).toContain("bg-accent");
+    expect(go.className).not.toContain("bg-accent");
+    expect(go.className).toContain("text-bad");
+    expect(keep.compareDocumentPosition(go) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(keep.parentElement).not.toBe(go.parentElement);
+    fireEvent.click(keep);
+    expect(screen.queryByText(say("ui.guest.sign-out"))).toBeNull();
+    expect(screen.getByRole("button", { name: say("ui.account.sign-out") })).toBeDefined();
+    expect(account.calls).not.toContain("signOut()");
+  });
+});
+
 describe("the username in the settings", () => {
   test("[account:username-and-unconfirmed-email] given the free change unused, when a new name is saved, then the server is asked and the new name shows", async () => {
     const account = fakeAccount(me("guest"));

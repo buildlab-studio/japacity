@@ -193,7 +193,7 @@ describe("adding a passkey from an older session (account:passkey-added-in-place
 });
 
 describe("the passkeys listed and removed (account:passkeys-listed-and-removed)", () => {
-  test("[account:passkeys-listed-and-removed] given two passkeys, then each shows by its provider's name, or Passkey, with the day it was added, and one is removed at once with other phones said to be signed out", async () => {
+  test("[account:passkeys-listed-and-removed] [world:costly-acts-confirmed] given two passkeys, then each shows by its provider's name, or Passkey, with the day it was added; Remove asks once, naming that phones signed in with it are signed out, Keep it the main button and Remove it in the warning colour apart; confirmed, it goes with other phones said to be signed out", async () => {
     const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 2 }), { passkeys: () => Promise.resolve([GOOGLE_ROW, PHONE_ROW]) });
     const store = settings(account);
     const first = await screen.findByText("Google Password Manager");
@@ -202,6 +202,18 @@ describe("the passkeys listed and removed (account:passkeys-listed-and-removed)"
     expect(screen.getByText(say("ui.account.passkey.provider"))).toBeDefined();
     expect(screen.getByText("2 passkeys")).toBeDefined();
     fireEvent.click(within(row as HTMLElement).getByRole("button", { name: /^Remove Google Password Manager, added / }));
+    expect(await screen.findByText(say("ui.account.passkey.remove.ask", { name: "Google Password Manager" }))).toBeDefined();
+    expect(account.calls).toEqual([]);
+    const keep = screen.getByRole("button", { name: say("ui.account.passkey.last.keep") });
+    const go = screen.getByRole("button", { name: say("ui.account.passkey.last.go") });
+    expect(keep.className).toContain("bg-accent");
+    expect(go.className).not.toContain("bg-accent");
+    expect(go.className).toContain("text-bad");
+    expect(keep.parentElement).not.toBe(go.parentElement);
+    fireEvent.click(keep);
+    expect(account.calls).toEqual([]);
+    fireEvent.click(within(row as HTMLElement).getByRole("button", { name: /^Remove Google Password Manager, added / }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.last.go") }));
     expect(await screen.findByText(say("ui.account.passkey.removed"))).toBeDefined();
     expect(account.calls).toEqual(["removePasskey(row-1)"]);
     expect(store.getState().signedOut).toBe(false);
@@ -212,6 +224,7 @@ describe("the passkeys listed and removed (account:passkeys-listed-and-removed)"
     const store = settings(account);
     fireEvent.click(await screen.findByRole("button", { name: /^Remove Google Password Manager/ }));
     expect(await screen.findByText(say("ui.account.passkey.last.google"))).toBeDefined();
+    expect(screen.getByText(say("ui.account.passkey.remove.ask", { name: "Google Password Manager" }))).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey.last.keep") }));
     expect(screen.queryByText(say("ui.account.passkey.last.google"))).toBeNull();
     expect(account.calls).toEqual([]);
@@ -229,6 +242,7 @@ describe("the passkeys listed and removed (account:passkeys-listed-and-removed)"
     });
     const store = settings(account);
     fireEvent.click(await screen.findByRole("button", { name: /^Remove Google Password Manager, added / }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.last.go") }));
     const line = await screen.findByRole("alert");
     expect(line.textContent).toBe(say("ui.account.fail.passkey-first-remove"));
     expect(line.textContent).toBe("Sign in with your passkey first, then remove it.");

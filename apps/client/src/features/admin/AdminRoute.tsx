@@ -2,9 +2,11 @@
 // fetches this chunk for no one else). The admin page once the session has shown a passkey; until then the game, with a
 // sheet that asks for the passkey in place. An admin route refused on the way (the passkey's window closed) asks again.
 // Anyone the server does not name as an admin sees the game, with `/` in the address bar (server:unknown-address-becomes-root).
+// A listed account with no passkey yet is sent by its sheet to the phone's Settings, where one is added.
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { showRoot } from "../../app/address";
+import { askPhoneApp } from "../../shared/phone/ask";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { AdminPage } from "./AdminPage";
@@ -127,7 +129,18 @@ export function AdminRoute({ api, children }: { api?: AdminApi; children: ReactN
               {words("admin.passkey.use")}
             </Button>
           ) : null}
-          <Button variant={stage === "passkey" ? "quiet" : "secondary"} onClick={() => setStage("game")}>
+          {stage === "no-passkey" ? (
+            <Button
+              variant="primary"
+              onClick={() => {
+                setStage("game");
+                askPhoneApp("settings");
+              }}
+            >
+              {words("admin.passkey.settings")}
+            </Button>
+          ) : null}
+          <Button variant="quiet" onClick={() => setStage("game")}>
             {words("admin.back")}
           </Button>
         </div>

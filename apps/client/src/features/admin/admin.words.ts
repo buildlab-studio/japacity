@@ -23,6 +23,7 @@ const adminText = {
   "admin.passkey.failed": "That did not work. Try again.",
   "admin.passkey.unreachable": "The server did not answer. Check your connection and try again.",
   "admin.passkey.none": "The admin view needs a passkey, and this account has none yet. Add one in Settings, Account, then open /admin again.",
+  "admin.passkey.settings": "Open Settings",
   "admin.loading": "Loading.",
   "admin.reload": "Reload",
   "admin.refused": "Refused: {detail}",

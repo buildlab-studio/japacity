@@ -51,8 +51,11 @@ export function useOpenKeptLife(): (email: string | null) => Promise<AuthResult>
   };
 }
 
-/** The way to the kept life, with what it costs said first. */
-function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: ReactNode }) {
+/**
+ * The way to the kept life, with what it costs said first. It throws this guest life away, so Keep playing is the main
+ * button and the way out wears the warning colour apart from it (world:costly-acts-confirmed).
+ */
+function OpenKeptLife({ email, lead = null, onKeep }: { email: string | null; lead?: ReactNode; onKeep: () => void }) {
   const open = useOpenKeptLife();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -61,7 +64,13 @@ function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: Rea
       {lead}
       <p className="text-[14px]">{say("ui.secure.taken.ends")}</p>
       <div>
+        <Button variant="primary" disabled={busy} onClick={onKeep}>
+          {say("ui.guest.sign-out.keep")}
+        </Button>
+      </div>
+      <div className="mt-1 border-t border-sheet-line pt-3">
         <Button
+          variant="warning"
           disabled={busy}
           onClick={() => {
             setBusy(true);
@@ -189,7 +198,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
               {problem}
             </p>
           )}
-          {taken === null ? null : <OpenKeptLife email={taken.email} />}
+          {taken === null ? null : <OpenKeptLife email={taken.email} onKeep={() => setTaken(null)} />}
           <div>
             <Button variant="quiet" onClick={() => openChange(false)}>
               {say("ui.secure.later")}
@@ -392,7 +401,7 @@ export function GuestReminder({ afterFirstChapter = false, returning = !afterFir
         </Button>
       </div>
       {!returning ? null : leaving ? (
-        <OpenKeptLife email={null} />
+        <OpenKeptLife email={null} onKeep={() => setLeaving(false)} />
       ) : (
         <div>
           <Button variant="quiet" small onClick={() => setLeaving(true)}>

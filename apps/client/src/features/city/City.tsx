@@ -24,6 +24,7 @@ import { formatMoney } from "../../shared/words/format";
 import { jobCardLine, jobCardWords } from "../../shared/words/jobs";
 import { countsWords } from "../../shared/words/profile";
 import { needsWords } from "../../shared/words/requirement";
+import { onPhoneAppAsked } from "../../shared/phone/ask";
 import { newsRead } from "../../shared/phone/newsSeen";
 import { earlyStops, sixteenPath } from "../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
@@ -572,6 +573,15 @@ export function City({
     setPhoneApp(opening === null ? "calendar" : `calendar:${opening}`);
     setPhone(true);
   };
+  // A screen outside the world asks for an app (the admin's no-passkey sheet, Settings): the phone rises open on it (moderation:admin-view-for-admin-list).
+  useEffect(
+    () =>
+      onPhoneAppAsked((app) => {
+        setPhoneApp(app);
+        setPhone(true);
+      }),
+    [],
+  );
   /**
    * Sleep is a timed act from the bed, at any hour of the world's day (world:sleep-ends-the-month), with a fixed
    * time the player can wake out of: the figure lies on the bed under a soft dark wash with a chip under the band,

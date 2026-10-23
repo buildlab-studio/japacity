@@ -397,11 +397,17 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
             </Button>
           </div>
         ) : null}
+        {/* world:costly-acts-confirmed: leaving a guest life throws it away, so Keep playing is the main button and leaving wears the warning colour apart. */}
         {guest && leaving === "guest" ? (
           <>
             <p role="alert">{say("ui.guest.sign-out")}</p>
             <div>
-              <Button disabled={busy} onClick={() => void signOut(false)}>
+              <Button variant="primary" disabled={busy} onClick={() => setLeaving("no")}>
+                {say("ui.guest.sign-out.keep")}
+              </Button>
+            </div>
+            <div className="mt-1 border-t border-sheet-line pt-3">
+              <Button variant="warning" disabled={busy} onClick={() => void signOut(false)}>
                 {say("ui.guest.sign-out.go")}
               </Button>
             </div>

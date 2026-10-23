@@ -2,12 +2,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "../authority/boot";
 import { askReadyLives, startReadyLife } from "../shared/front-door/frontDoor.testing";
+import { askPhoneApp } from "../shared/phone/ask";
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
@@ -51,6 +52,14 @@ describe("the world is the game", () => {
     expect(document.querySelector("[data-account] [data-credits-row]")).toBeNull();
     fireEvent.click(row);
     expect(await screen.findByRole("dialog", { name: "Credits" })).toBeTruthy();
+  });
+
+  test("[moderation:admin-view-for-admin-list] given a life in the world, when the phone is asked for its Settings (the admin's no-passkey sheet does), then the phone rises open on Settings", async () => {
+    history.replaceState(null, "", "/");
+    await startLife();
+    await waitFor(() => expect(document.querySelector("[data-thumb='phone']")).not.toBeNull());
+    act(() => askPhoneApp("settings"));
+    await waitFor(() => expect(document.querySelector("[data-credits-row]")).not.toBeNull());
   });
 
   test("[world:no-classic-view-kept] given ?classic, when a life starts, then the world opens as at any address, with no month page", async () => {
