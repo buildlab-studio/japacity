@@ -4,18 +4,19 @@
 // Tell us opens the same box (analytics:client-sends-interface-counts).
 import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
 import { Ban, BellDot, MessageSquareText } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
 import { graphicsMode } from "../graphics/mode";
+import { softLazy } from "../net/parts";
 import { buildNumber, type ModerationApi } from "./api";
 import { useModeration } from "./ModerationProvider";
 import { anyReasonWords, words } from "./moderation.words";
 
 // moderation:blocked-list-in-settings: the list rides a chunk of its own, fetched when its sheet first opens.
-const BlockedList = lazy(() => import("./BlockedList"));
+const BlockedList = softLazy(() => import("./BlockedList"));
 
 /** The screen feedback is sent from, as the game's own state names it. */
 function useScreenName(): string {

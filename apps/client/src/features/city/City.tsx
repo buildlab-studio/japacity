@@ -5,7 +5,7 @@
 import { content, text } from "@japacity/content";
 import { type Id, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
-import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { isValidElement, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../shared/front-door/person";
@@ -17,6 +17,7 @@ import { keptLookFile } from "../../shared/front-door/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
+import { softLazy, useFetchAhead } from "../../shared/net/parts";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
@@ -106,10 +107,14 @@ const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.eng
  */
 const STANDING_NUDGES: ReadonlySet<string> = new Set(["setpiece", "offer", "dues"]);
 
-const CityScene = lazy(() => import("./scene/CityScene"));
-const Bag = lazy(() => import("./Bag"));
+// world:lazy-part-fails-softly: each part fetched on first use fails softly, the world kept and the connection card up with Retry.
+const CityScene = softLazy(() => import("./scene/CityScene"));
+const Bag = softLazy(() => import("./Bag"));
 // The send-off as a scene (chapter:send-off-scene-in-beats): its own chunk, fetched only when the gate's act is picked (engine:first-download-has-budget).
-const SendOffScene = lazy(() => import("./sendoff/SendOffScene"));
+const SendOffScene = softLazy(() => import("./sendoff/SendOffScene"));
+/** world:lazy-part-fails-softly: the bag, fetched ahead once the world is up; the send-off joins it once a flight is boardable. */
+const AHEAD_BAG = [Bag];
+const AHEAD_BAG_AND_SEND_OFF = [Bag, SendOffScene];
 /**
  * The route the airport's gate boards (chapter:send-off-card-on-close): a granted visa's, else a route into the country of a status kept
  * from a return with papers, the one flown before first (return:papers-return-keeps-status).
@@ -906,6 +911,7 @@ export function City({
   // A visa granted, or a status kept from a return with papers, makes the flight boardable at the airport's gate
   // (chapter:send-off-card-on-close, return:papers-return-keeps-status, route/depart).
   const departDue = departRoute(view);
+  useFetchAhead(departDue === null ? AHEAD_BAG : AHEAD_BAG_AND_SEND_OFF, world);
   // chapter:send-off-scene-in-beats: the gate's act opens the send-off scene in place of the card the flight was; the scene's third beat sends
   // `route/depart`, so picking the act changes nothing in the life.
   useEffect(() => {

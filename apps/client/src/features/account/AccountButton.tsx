@@ -12,6 +12,7 @@ import { pageOf } from "../../shared/datapage/PageSheet";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
 import { loadLaterWords } from "../../shared/words/later";
+import { fetchSoftly } from "../../shared/net/parts";
 import { useAccountView } from "./standing";
 
 /** A guest's ways back in: none but its own session (account:guest-and-secured-states). */
@@ -84,7 +85,8 @@ export function AccountButton({ more = null }: { more?: ReactNode }) {
         className="lively-card press mt-1 mb-3 flex w-full items-center gap-3 p-3 text-left"
         onClick={() => {
           counting().count("screen/opened", "settings");
-          loadAccountSheet().then(
+          // world:lazy-part-fails-softly: a sheet that cannot be fetched shows the connection card, and Retry opens it.
+          fetchSoftly(loadAccountSheet).then(
             (loaded) => {
               setSheet(loaded);
               setOpen(true);

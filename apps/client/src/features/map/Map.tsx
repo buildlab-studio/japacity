@@ -6,9 +6,10 @@
 import { X } from "lucide-react";
 import "./map.css";
 
-import { lazy, type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
+import { softLazy, useFetchAhead } from "../../shared/net/parts";
 import { Loader } from "../../shared/ui/Loader";
 import { formatMoney } from "../../shared/words/format";
 import type { CountryChoice, RideChoice } from "../../shared/world/contract";
@@ -21,17 +22,29 @@ import { RouteVehicle } from "./paper/routeVehicle";
 import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
 
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
-const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
+const PaperMap = softLazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 /**
  * The painted maps abroad (world:painted-maps-abroad): the same folding map handed London, Calgary, Dubai or Castel
  * Volturno, each drawing a chunk of its own, loaded only when the map shows that country.
  */
 const PAINTED_ABROAD: Readonly<Record<string, typeof PaperMap>> = {
-  "country.uk": lazy(() => import("./paper/london").then((london) => ({ default: london.LondonPaperMap }))),
-  "country.canada": lazy(() => import("./paper/calgary").then((calgary) => ({ default: calgary.CalgaryPaperMap }))),
-  "country.uae": lazy(() => import("./paper/dubai").then((dubai) => ({ default: dubai.DubaiPaperMap }))),
-  "country.italy": lazy(() => import("./paper/castel").then((castel) => ({ default: castel.CastelPaperMap }))),
+  "country.uk": softLazy(() => import("./paper/london").then((london) => ({ default: london.LondonPaperMap }))),
+  "country.canada": softLazy(() => import("./paper/calgary").then((calgary) => ({ default: calgary.CalgaryPaperMap }))),
+  "country.uae": softLazy(() => import("./paper/dubai").then((dubai) => ({ default: dubai.DubaiPaperMap }))),
+  "country.italy": softLazy(() => import("./paper/castel").then((castel) => ({ default: castel.CastelPaperMap }))),
 };
+
+/**
+ * world:lazy-part-fails-softly: the painted map this life opens (Lagos at home, the country's own abroad), fetched ahead once the world is
+ * up and the connection idle, so a drop later still opens the map.
+ */
+export function MapAhead(): null {
+  const view = useView();
+  const abroad = view.place.where === "abroad" && view.place.country !== null ? PAINTED_ABROAD[view.place.country] : undefined;
+  const parts = useMemo(() => [abroad ?? PaperMap], [abroad]);
+  useFetchAhead(parts, view.place.where !== "road");
+  return null;
+}
 
 export interface MapProps {
   pins: readonly MapPin[];

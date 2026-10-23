@@ -74,11 +74,12 @@ interface LifeControls {
 
 /**
  * engine:browser-authority-for-dev-only: a request that brought no answer the game can read, by its kind, and what it was for: the view, a
- * command (kept, and sent again on Retry), or the life Begin starts. Shown as a card over the screen.
+ * command (kept, and sent again on Retry), the life Begin starts, or a part of the client loaded on first use (world:lazy-part-fails-softly).
+ * Shown as a card over the screen.
  */
 export interface Trouble {
   kind: FailureKind;
-  during: "view" | "command" | "life";
+  during: "view" | "command" | "life" | "part";
 }
 
 /** engine:browser-authority-for-dev-only: a failed view refresh tries again by itself after each of these pauses, then the card shows. */
@@ -164,6 +165,13 @@ export interface GameState {
   morningShown: () => void;
   /** engine:browser-authority-for-dev-only: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
   retry: () => Promise<void>;
+  /**
+   * world:lazy-part-fails-softly: a part of the client that could not be fetched. The connection card shows, the world stays, and Retry
+   * runs `load` again; the promise settles with what that brings. A card already showing keeps its words, and its Retry loads the part too.
+   */
+  holdPart: <T>(load: () => Promise<T>) => Promise<T>;
+  /** world:lazy-part-fails-softly: the connection is back; a request that failed for it is tried again, once. */
+  backOnline: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
   /**
    * server:server-plays-prologue-preset, prologue:archetype-presets-answers: the prologue's preset sent as one request, its reply applied as a command's; `keep` is
@@ -627,6 +635,21 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         again = null;
         if (run === null) set({ trouble: null });
         else await run();
+      },
+      holdPart<T>(load: () => Promise<T>): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+          const before = again;
+          again = async () => {
+            if (before === null) set({ trouble: null });
+            else await before();
+            await load().then(resolve, reject);
+          };
+          // The busy flag stays: a command may be under way while a part is fetched.
+          if (get().trouble === null) set({ trouble: { kind: "network", during: "part" } });
+        });
+      },
+      async backOnline() {
+        if (get().trouble?.kind === "network") await get().retry();
       },
       send: (command) => send(command),
       preset: authority.preset === undefined ? null : (request, keep) => playPreset(request, keep),
