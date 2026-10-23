@@ -53,7 +53,7 @@ test.beforeEach(({ browserName }, info) => {
   test.skip(info.project.name !== "Pixel 7" || browserName !== "chromium", "A phone's screen at three to one, in the browser the suite draws WebGL in");
 });
 
-test("[prologue:front-door-three-screens] given a phone at three to one, when the door is walked through every life and every home to the page, then every picture has a picture pixel for each device pixel it covers", async ({ page }) => {
+test("[assets:pictures-sharp-at-three] [prologue:front-door-three-screens] given a phone at three to one, when the door is walked through every life and every home to the page, then every picture has a picture pixel for each device pixel it covers", async ({ page }) => {
   test.setTimeout(120_000);
   const found: Awaited<ReturnType<typeof softOn>> = [];
   await page.goto("/");
@@ -84,7 +84,7 @@ test("[prologue:front-door-three-screens] given a phone at three to one, when th
   expect(found).toEqual([]);
 });
 
-test("[prologue:player-colours-on-looks] given a life opened on a phone at three to one with no person kept on it, when the page opens from the band, then its photo is drawn and every picture on it is sharp", async ({ page }) => {
+test("[assets:pictures-sharp-at-three] [prologue:player-colours-on-looks] given a life opened on a phone at three to one with no person kept on it, when the page opens from the band, then its photo is drawn and every picture on it is sharp", async ({ page }) => {
   test.setTimeout(120_000);
   await seedSave(page, graduateBeforeFlight());
   await page.goto(`/${LIVED}`);
@@ -106,7 +106,7 @@ const FLIGHTS = [
   { route: "route.road", country: "country.italy" },
 ] as const;
 
-test("[chapter:send-off-scene-in-beats] [prologue:front-door-three-screens] given a phone at three to one, when every beat of the send-off is drawn for every country it lands in, then every sticker on it is sharp", async ({ page }) => {
+test("[assets:pictures-sharp-at-three] [chapter:send-off-scene-in-beats] [prologue:front-door-three-screens] given a phone at three to one, when every beat of the send-off is drawn for every country it lands in, then every sticker on it is sharp", async ({ page }) => {
   test.setTimeout(240_000);
   await seedSave(page, graduateBeforeFlight());
   await page.goto(`/${LIVED}`);
