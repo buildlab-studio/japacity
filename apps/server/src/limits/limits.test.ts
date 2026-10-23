@@ -78,4 +78,22 @@ describe("the limits over the routes", () => {
     const command = await call<ServerRejection>(server, "POST", "/api/command", null, { command: restMonth({ v: 0 }), basedOn: 0 }, "198.51.100.1");
     expect(command.status).toBe(429);
   });
+
+  test("[server:anonymous-limit-by-address] given requests with no session from two IPv6 addresses in one /64, when together they pass the limit, then the next from either is refused and an address in the next /64 is answered", async () => {
+    const server = limitedServer({ anonPer60s: 2 });
+    const from = (ip: string) => call<ServerRejection>(server, "GET", "/api/world", null, undefined, ip);
+    expect([(await from("2001:db8:1:2::1")).status, (await from("2001:DB8:1:2:ffff::9")).status]).toEqual([200, 200]);
+    expect((await from("2001:db8:1:2:0:0:0:1")).status).toBe(429);
+    expect((await from("2001:db8:1:2::abcd")).status).toBe(429);
+    expect((await from("2001:db8:1:3::1")).status).toBe(200);
+  });
+
+  test("[server:anonymous-limit-by-address] given requests with no session, when an IPv4 address and the same address carried in IPv6 pass the limit together, then both are refused and the next IPv4 address is answered", async () => {
+    const server = limitedServer({ anonPer60s: 2 });
+    const from = (ip: string) => call<ServerRejection>(server, "GET", "/api/world", null, undefined, ip);
+    expect([(await from("198.51.100.1")).status, (await from("::ffff:198.51.100.1")).status]).toEqual([200, 200]);
+    expect((await from("198.51.100.1")).status).toBe(429);
+    expect((await from("::ffff:198.51.100.1")).status).toBe(429);
+    expect((await from("198.51.100.2")).status).toBe(200);
+  });
 });

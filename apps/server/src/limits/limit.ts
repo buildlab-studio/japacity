@@ -4,6 +4,7 @@ import type { ServerRejection } from "@japacity/api";
 import type { Context, MiddlewareHandler } from "hono";
 
 import type { Limiter, ServerDeps } from "../dependencies";
+import { addressKey } from "./address";
 
 /** The signed-in account, read once by the limit and kept for the route. */
 export interface SessionEnv {
@@ -32,9 +33,9 @@ function gatesOf(deps: ServerDeps, gate: Gate): { limiter: Limiter; seconds: num
   }
 }
 
-/** server:per-account-rate-limits, server:anonymous-limit-by-address: the refusal for a request over a limit, or null. A limit passed is counted; the next is not asked once one refuses. */
+/** server:per-account-rate-limits, server:anonymous-limit-by-address: the refusal for a request over a limit, or null. A limit passed is counted; the next is not asked once one refuses. An address is counted under its key (`addressKey`), so every route that limits by address keys an IPv6 one by its /64. */
 export async function overLimit(deps: ServerDeps, gate: Gate, account: string | null, address: string | null): Promise<ServerRejection | null> {
-  const checks = account === null ? [{ limiter: deps.limits.anon60s, seconds: 60, key: address ?? NO_ADDRESS }] : gatesOf(deps, gate).map((each) => ({ ...each, key: account }));
+  const checks = account === null ? [{ limiter: deps.limits.anon60s, seconds: 60, key: address === null ? NO_ADDRESS : addressKey(address) }] : gatesOf(deps, gate).map((each) => ({ ...each, key: account }));
   for (const check of checks) {
     const { success } = await check.limiter.limit({ key: check.key });
     if (!success) return { ok: false, code: "rate-limited", detail: "Too many requests. Try again in a moment.", retryAfter: check.seconds };

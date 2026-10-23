@@ -46,6 +46,8 @@ export const uiAccountSheetText: Record<string, string> = {
   "ui.account.passkey.last.go": "Remove it",
   "ui.account.passkey.last.keep": "Keep it",
   "ui.account.passkey.removed": "Removed. Other phones are signed out.",
+  // An admin's removal from a session that has not shown a passkey (account:passkey-needs-signed-in-session)
+  "ui.account.fail.passkey-first-remove": "Sign in with your passkey first, then remove it.",
 
   // Signing out here or everywhere (account:sign-out-ends-the-session), a guest warned first (account:guest-reminded-to-secure)
   "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you save it.",

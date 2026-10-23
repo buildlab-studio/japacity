@@ -5,9 +5,10 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { GOOGLE_PROFILE, harness, makeJar, withGoogle } from "../auth/auth.testing";
 import type { GoogleRoundTrip, Harness, Jar } from "../auth/auth.testing";
 import { testConfig } from "../config";
+import { addressKey as connectionOf } from "../limits/address";
 import { memoryLimiters } from "../limits/memory";
 import { PASS_COOKIE, PASS_PREFIX } from "./age";
-import { BOARDS_DETAIL, DEVICE_COOKIE, SECURED_PATHS, connectionOf } from "./guest";
+import { BOARDS_DETAIL, DEVICE_COOKIE, SECURED_PATHS } from "./guest";
 import { METHOD_TAKEN } from "./link";
 import { TURNSTILE_TEST } from "./turnstile";
 

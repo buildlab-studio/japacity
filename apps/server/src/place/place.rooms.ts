@@ -2,8 +2,10 @@
 // Rooms are counted without a database: the router asks room 0, 1, 2 and on
 // for its member count, which each object holds in memory, and stops at the
 // first empty room. A newcomer only ever opens the first empty room, so a
-// room past an empty one exists only when an earlier room emptied; its
-// members keep their room until they leave.
+// room past an empty one could hold members only after an earlier room
+// emptied; the room that empties sends the next room's members back to
+// reconnect, and so on down the rooms (clock:no-member-past-an-empty-room),
+// so every walk that stops at the first empty room reaches every member.
 import type { Nudge, PresenceMember } from "@japacity/store";
 
 import type { ServerConfig } from "../config";
@@ -31,6 +33,14 @@ export function roomsFor(namespace: DurableObjectNamespace<Place>, presence: Ser
 
 export function roomName(scope: string, place: string, room: number): string {
   return `${scope}${place}#${String(room)}`;
+}
+
+/** clock:no-member-past-an-empty-room: the name of the room after the one named, or null for a name that is no room's. */
+export function nextRoomName(name: string): string | null {
+  const at = name.lastIndexOf("#");
+  const number = name.slice(at + 1);
+  if (at < 0 || !/^(0|[1-9]\d*)$/.test(number)) return null;
+  return `${name.slice(0, at)}#${String(Number(number) + 1)}`;
 }
 
 export function roomStub(rooms: Rooms, place: string, room: number): DurableObjectStub<Place> {
@@ -84,12 +94,12 @@ export async function openSocket(rooms: Rooms, place: string, attachment: Attach
 
 /**
  * clock:presence-is-a-sample, city:players-shown-present-not-tracked: the look of the room the asker is in, or of room 0
- * when the asker is in none. `now` names the Lagos day; null asks for no one seen today.
+ * when the asker is in none. `now` names the Lagos day; null asks for no one seen today. `askerName` keeps the asker off the day's list.
  */
-export async function roomLook(rooms: Rooms, place: string, asker: string | null, n: number, seed: number, now: number | null): Promise<RoomLook> {
+export async function roomLook(rooms: Rooms, place: string, asker: string | null, n: number, seed: number, now: number | null, askerName: string | null = null): Promise<RoomLook> {
   let first: RoomLook | null = null;
   for (let room = 0; ; room++) {
-    const look = await roomStub(rooms, place, room).look(place, asker, n, seed, now);
+    const look = await roomStub(rooms, place, room).look(place, asker, n, seed, now, askerName);
     first ??= look;
     if (look.holds) return look;
     if (look.members === 0) return first;
@@ -111,11 +121,15 @@ export async function nudgeRooms(rooms: Rooms, place: string, account: string, n
   }
 }
 
-/** account:player-deletes-account, moderation:fixed-admin-actions: the account's sockets closed and `name` off the day's list in every room of the place up to the first empty one. */
+/**
+ * account:player-deletes-account, moderation:fixed-admin-actions: the account's sockets closed and `name` off the day's list
+ * in every room of the place up to the first that holds no member and no list. A room emptied today keeps its list, and a room
+ * after it may too (clock:no-member-past-an-empty-room sends members back, not their names), so the walk goes on through it.
+ */
 export async function forgetRooms(rooms: Rooms, place: string, account: string, name: string): Promise<void> {
   for (let room = 0; ; room++) {
     const left = await roomStub(rooms, place, room).forget(account, name);
-    if (left.members === 0) return;
+    if (left.members === 0 && !left.listed) return;
   }
 }
 

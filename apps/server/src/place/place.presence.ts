@@ -15,9 +15,9 @@ interface PlaceLook {
 }
 
 // PresenceStore in packages/store has no read of the day's list, so this interface is that read.
-/** city:players-shown-present-not-tracked: the read of the day's list beside the sample. `now` names the Lagos day. */
+/** city:players-shown-present-not-tracked: the read of the day's list beside the sample. `now` names the Lagos day; `askerName` is never in the list read. */
 export interface TodayReader {
-  lookWithToday: (place: string, n: number, asker: string | null, seed: number, now: number) => Promise<PlaceLook>;
+  lookWithToday: (place: string, n: number, asker: string | null, seed: number, now: number, askerName: string | null) => Promise<PlaceLook>;
 }
 
 /** Whether a presence store also reads the day's list. */
@@ -49,8 +49,8 @@ export function placePresenceStore(rooms: Rooms): PresenceStore & TodayReader {
     forget: async (places, account, name) => {
       await Promise.all(places.map((place) => forgetRooms(rooms, place, account, name)));
     },
-    lookWithToday: async (place, n, asker, seed, now) => {
-      const look = await roomLook(rooms, place, asker, n, seed, now);
+    lookWithToday: async (place, n, asker, seed, now, askerName) => {
+      const look = await roomLook(rooms, place, asker, n, seed, now, askerName);
       return { others: look.sample, today: look.today };
     },
   };

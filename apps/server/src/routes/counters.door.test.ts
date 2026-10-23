@@ -47,4 +47,19 @@ describe("the door's screens sent signed out", () => {
     await post(server, [door("door-1")], { "cf-ipcountry": "NG" });
     expect((await stored(server)).map((row) => [row.key, row.count])).toEqual([["door-1", 1]]);
   });
+
+  test("[analytics:server-checks-every-batch] [server:anonymous-limit-by-address] given door batches with no session from two addresses in one IPv6 /64 and from an IPv4 address carried in IPv6, when each is sent, then the /64 is counted under one key and the carried address under its IPv4 one", async () => {
+    const keys: string[] = [];
+    const anon60s: Limiter = {
+      limit: ({ key }) => {
+        keys.push(key);
+        return Promise.resolve({ success: true });
+      },
+    };
+    const server = testServer({ limits: { ...openLimiters, anon60s } });
+    await post(server, [door("door-1")], { "cf-connecting-ip": "2001:db8:7:8::1" });
+    await post(server, [door("door-1")], { "cf-connecting-ip": "2001:DB8:7:8:1:2:3:4" });
+    await post(server, [door("door-1")], { "cf-connecting-ip": "::ffff:203.0.113.9" });
+    expect(keys).toEqual(["2001:db8:7:8::/64", "2001:db8:7:8::/64", "203.0.113.9"]);
+  });
 });

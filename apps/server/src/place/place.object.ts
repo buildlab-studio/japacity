@@ -24,11 +24,13 @@ import {
   nudgeText,
   parseAttachment,
   parseLimits,
+  CLOSE_REJOIN,
   STATUS_FULL,
   STATUS_TOO_LARGE,
   tagsFor,
 } from "./place.socket";
 import type { PlaceEnv, RoomLook } from "./place.socket";
+import { nextRoomName } from "./place.rooms";
 import { drawToday, forgetSeen, lagosDay, listOn, parseTodayList, recordSeen, TODAY_KEY } from "./place.today";
 import type { TodayList } from "./place.today";
 
@@ -98,13 +100,13 @@ export class Place extends DurableObject<PlaceEnv> {
 
   /**
    * clock:presence-is-a-sample, city:players-shown-present-not-tracked: the room's answer to a presence fetch. Those seen
-   * today fill only what the live sample leaves of `n`, and never anyone here now.
+   * today fill only what the live sample leaves of `n`, and never anyone here now nor the asker, by `askerName`.
    */
-  async look(place: string, asker: string | null, n: number, seed: number, now: number | null = null): Promise<RoomLook> {
+  async look(place: string, asker: string | null, n: number, seed: number, now: number | null = null, askerName: string | null = null): Promise<RoomLook> {
     const here = [...this.held.values()];
     const holds = asker !== null && here.some((member) => member.account === asker);
     const sample = await this.members.sample(place, n, asker, seed);
-    const today = now === null ? [] : drawToday(listOn(await this.stored(), lagosDay(now)), here, n - sample.length, seed);
+    const today = now === null ? [] : drawToday(listOn(await this.stored(), lagosDay(now)), here, n - sample.length, seed, askerName);
     return { members: this.held.size, holds, sample, today };
   }
 
@@ -126,9 +128,10 @@ export class Place extends DurableObject<PlaceEnv> {
   /**
    * account:player-deletes-account, moderation:fixed-admin-actions: closes every socket of the account here from the server's
    * side, drops its members at once, and takes `name` off the day's list (city:players-shown-present-not-tracked). Answers how
-   * many members the room held before, so the router walks on past a room the account alone was in.
+   * many members the room held before, so the router walks on past a room the account alone was in, and whether it keeps a
+   * day's list, so the router walks on past an emptied room whose later rooms may still list the name.
    */
-  async forget(account: string, name: string): Promise<{ members: number }> {
+  async forget(account: string, name: string): Promise<{ members: number; listed: boolean }> {
     const members = this.held.size;
     for (const socket of this.ctx.getWebSockets(`account:${account}`)) {
       const attachment = parseAttachment(JSON.stringify(socket.deserializeAttachment()));
@@ -138,7 +141,20 @@ export class Place extends DurableObject<PlaceEnv> {
     const stored = await this.stored();
     const kept = forgetSeen(stored, name);
     if (kept !== stored && kept !== undefined) await this.ctx.storage.put(TODAY_KEY, kept);
-    return { members };
+    return { members, listed: (stored?.seen.length ?? 0) > 0 };
+  }
+
+  /**
+   * clock:no-member-past-an-empty-room: asked by the room before this one when it emptied. Every member here is closed with
+   * CLOSE_REJOIN and dropped at once; each client reconnects and the router places it as any newcomer, in an earlier room.
+   * A room with no member does nothing, since nothing past it can hold one.
+   */
+  async rejoin(): Promise<void> {
+    for (const socket of this.ctx.getWebSockets("member")) {
+      const attachment = parseAttachment(JSON.stringify(socket.deserializeAttachment()));
+      close(socket, CLOSE_REJOIN, "rejoin");
+      if (attachment !== null) await this.drop(attachment.socket);
+    }
   }
 
   override async webSocketMessage(socket: WebSocket): Promise<void> {
@@ -193,6 +209,19 @@ export class Place extends DurableObject<PlaceEnv> {
     this.held.delete(socket);
     await this.members.leave(member.place, socket);
     await this.presenceChanged();
+    if (this.held.size === 0) await this.sendBackNext();
+  }
+
+  /** clock:no-member-past-an-empty-room: this room has just emptied, so the next room's members go back to the router. */
+  private async sendBackNext(): Promise<void> {
+    const next = this.ctx.id.name === undefined ? null : nextRoomName(this.ctx.id.name);
+    if (next === null) return;
+    // Best effort: this room's own change is done, and a failed call leaves the next room as it was, which its members' next reconnect mends.
+    try {
+      await this.env.PLACE.get(this.env.PLACE.idFromName(next)).rejoin();
+    } catch {
+      return;
+    }
   }
 
   /** clock:presence-is-a-sample: the first change in a window sets the alarm; the rest find it set. */

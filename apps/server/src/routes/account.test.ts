@@ -268,4 +268,21 @@ describe("GET /api/username/available", () => {
     expect(overSession.status).toBe(429);
     expect(overSession.reply).toMatchObject({ ok: false, code: "rate-limited", retryAfter: 60 });
   });
+
+  test("[account:username-typed-and-checked] [server:anonymous-limit-by-address] given name checks signed out from two addresses in one IPv6 /64 and from an IPv4 address carried in IPv6, when each is counted, then the /64 is one key and the carried address is its IPv4 one", async () => {
+    const counted: string[] = [];
+    const h = harness({
+      limits: {
+        ...openLimiters,
+        anon60s: {
+          limit: ({ key }) => {
+            counted.push(key);
+            return Promise.resolve({ success: true });
+          },
+        },
+      },
+    });
+    for (const ip of ["2001:db8:a:b::1", "2001:db8:a:b:ffff:0:0:2", "::ffff:198.51.100.2"]) expect((await availability(h, "ada_lagos", { ip })).status).toBe(200);
+    expect(counted).toEqual(["2001:db8:a:b::/64", "2001:db8:a:b::/64", "198.51.100.2"]);
+  });
 });

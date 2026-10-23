@@ -329,6 +329,19 @@ describe("the passkeys of a kept life (account:passkeys-listed-and-removed, acco
     expect(server.sent.find((request) => request.path === "/api/auth/passkey/delete-passkey")?.body).toEqual({ id: "row-own" });
     expect(await api.removePasskey("row-own")).toEqual({ ok: true, signedIn: false });
   });
+
+  test("[account:passkey-needs-signed-in-session] given an admin on a session that has not shown a passkey, when a passkey is removed, then the server's 403 is told as passkey-first-remove, never a plain refusal, and the account is not read again", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/passkey/delete-passkey", { status: 403, body: { message: "A passkey or a linked sign-in on an admin account is removed only from a session that has shown a passkey; use yours first." } });
+    expect(await api.removePasskey("row-own")).toEqual({ ok: false, why: "passkey-first-remove" });
+    expect(server.sent.map((request) => `${request.method} ${request.path}`)).toEqual(["POST /api/auth/passkey/delete-passkey"]);
+  });
+
+  test("[account:passkey-needs-signed-in-session] given any other refusal of a removal, then it stays a plain refusal", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/passkey/delete-passkey", { status: 401, body: { message: "Unauthorized" } });
+    expect(await api.removePasskey("row-own")).toEqual({ ok: false, why: "refused" });
+  });
 });
 
 describe("where a passkey can be made, and its errors (account:passkey-offered-where-it-works, account:passkey-errors-told-apart)", () => {

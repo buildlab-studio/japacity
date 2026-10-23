@@ -191,6 +191,15 @@ describe("the reports refused", () => {
     expect((await post(server, legacyReport(), "application/csp-report", "198.51.100.4")).status).toBe(204);
   });
 
+  test("[server:csp-reports-to-own-origin] [server:anonymous-limit-by-address] given an IPv6 address over the anonymous limit, when another address in its /64 posts a report, then it is refused 429, and an address in the next /64 still reports", async () => {
+    const config = testConfig({ limits: { anonPer60s: 1 } });
+    const now = productionConfig.clock.epoch;
+    const server = testServer({ config, now: () => now, limits: memoryLimiters(config.limits, () => now) });
+    expect((await post(server, legacyReport(), "application/csp-report", "2001:db8:9:9::1")).status).toBe(204);
+    expect((await post(server, legacyReport(), "application/csp-report", "2001:db8:9:9::2")).status).toBe(429);
+    expect((await post(server, legacyReport(), "application/csp-report", "2001:db8:9:a::1")).status).toBe(204);
+  });
+
   test("[server:csp-reports-to-own-origin] given a request with no country, when its report is counted, then it is counted under the unknown region", async () => {
     const server = testServer();
     const reply = await server.app.request(CSP_REPORT_PATH, { method: "POST", headers: { "content-type": "application/csp-report", "cf-connecting-ip": "203.0.113.9" }, body: legacyReport() });

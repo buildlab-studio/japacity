@@ -73,6 +73,8 @@ Two clocks run online. A character's life moves when the player plays, one banke
 
 **clock:busy-place-splits-rooms** A place's object holds at most `presence.maxPerObject` sockets. A place that would pass it is split into numbered rooms of the same place, and a newcomer joins the fullest room with space. A cap well under Cloudflare's 32,768 so that one busy place stays under the object's soft limit of about 1,000 requests a second.
 
+**clock:no-member-past-an-empty-room** When a room of a place loses its last member, the next room closes its members' sockets as a restart (1012) and drops them at once, and so on down the rooms; a room that had no member passes nothing on. So no room past an empty one ever holds a member, and the router's walks over the rooms (a newcomer's count, the sample, a nudge, closing one socket, forgetting an account) may stop at the first empty room and still reach every member. Each client reconnects as after any close (clock:sockets-reconnect-with-backoff) and the router places it as any newcomer (clock:busy-place-splits-rooms). Forgetting an account also walks on through emptied rooms that still keep a day's list.
+
 **clock:presence-is-not-contact** A socket opens for every signed-in account, wherever it is. Who is in a place, by name and look, is presence, not contact (region:same-contact-everywhere). The socket carries only the nudges of clock:socket-only-nudges, never words between players; contact stays with the people routes of `pair.md`.
 
 ## Rules: telling a player the bank is full

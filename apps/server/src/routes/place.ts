@@ -74,7 +74,10 @@ export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Ho
     const ask = n + hidden.accounts.size;
     const others = (members: readonly PresenceMember[]) => members.filter((member) => !hidden.accounts.has(member.account)).slice(0, n);
     if (readsToday(store)) {
-      const look = await store.lookWithToday(place, ask, session.account, seed, deps.now());
+      // city:players-shown-present-not-tracked: the day's list is of other players, so the asker's own name, kept there from an
+      // earlier visit today, is left out; a name is a username, one account's alone.
+      const self = await bindings.profileOf(session.account);
+      const look = await store.lookWithToday(place, ask, session.account, seed, deps.now(), self?.name ?? null);
       reply.others = others(look.others).map(shown);
       reply.today = look.today.filter((seen) => !hidden.names.has(seen.name)).slice(0, n - reply.others.length).map(shown);
       return c.json(reply);
