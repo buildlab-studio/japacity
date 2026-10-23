@@ -17,6 +17,7 @@
     "@japacity/sim": "workspace:*",
     "eslint": "^10.12.0",
     "meshoptimizer": "1.3.0",
+    "sharp": "0.35.5",
     "three": "0.186.1",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"

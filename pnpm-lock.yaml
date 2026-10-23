@@ -83,15 +83,15 @@ importers:
       '@japacity/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@japacity/content':
+        specifier: workspace:*
+        version: link:../../packages/content
       '@japacity/model-kit':
         specifier: workspace:*
         version: link:../../packages/model-kit
       '@japacity/models':
         specifier: workspace:*
         version: link:../../models
-      '@japacity/content':
-        specifier: workspace:*
-        version: link:../../packages/content
       '@japacity/sim':
         specifier: workspace:*
         version: link:../../packages/sim
@@ -244,16 +244,6 @@ importers:
         specifier: workspace:*
         version: link:../store
 
-  packages/model-kit:
-    dependencies:
-      three:
-        specifier: 0.186.1
-        version: 0.186.1
-    devDependencies:
-      '@types/three':
-        specifier: 0.186.0
-        version: 0.186.0
-
   packages/brand: {}
 
   packages/content:
@@ -300,6 +290,16 @@ importers:
         specifier: ~0.31.11
         version: 0.31.11
 
+  packages/model-kit:
+    dependencies:
+      three:
+        specifier: 0.186.1
+        version: 0.186.1
+    devDependencies:
+      '@types/three':
+        specifier: 0.186.0
+        version: 0.186.0
+
   packages/sim:
     dependencies:
       zod:
@@ -330,15 +330,15 @@ importers:
       '@gltf-transform/functions':
         specifier: 4.5.1
         version: 4.5.1(@types/node@24.19.1)
+      '@japacity/content':
+        specifier: workspace:*
+        version: link:../packages/content
       '@japacity/model-kit':
         specifier: workspace:*
         version: link:../packages/model-kit
       '@japacity/models':
         specifier: workspace:*
         version: link:../models
-      '@japacity/content':
-        specifier: workspace:*
-        version: link:../packages/content
       '@japacity/sim':
         specifier: workspace:*
         version: link:../packages/sim
@@ -348,6 +348,9 @@ importers:
       meshoptimizer:
         specifier: 1.3.0
         version: 1.3.0
+      sharp:
+        specifier: ^0.35.5
+        version: 0.35.5(@types/node@24.19.1)
       three:
         specifier: 0.186.1
         version: 0.186.1
