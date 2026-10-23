@@ -21,7 +21,7 @@ import { AccountSettings } from "./Settings";
 import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 import { WayToast } from "./WayToast";
-import { loadLaterWords } from "./later.words";
+import { loadLaterWords } from "../../shared/words/later";
 
 // The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
 beforeAll(() => loadLaterWords("sheet"));

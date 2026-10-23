@@ -14,7 +14,7 @@ import { CHECK_AFTER_MS } from "./GuestStart";
 import { browserLink, inAppBrowser } from "./inApp";
 import { askMoment, GuestReminder, SecureAsk, SecureSheet } from "./Secure";
 import { AccountSettings } from "./Settings";
-import { loadLaterWords } from "./later.words";
+import { loadLaterWords } from "../../shared/words/later";
 
 // The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
 beforeAll(() => loadLaterWords("sheet"));

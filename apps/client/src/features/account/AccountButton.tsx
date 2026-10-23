@@ -1,6 +1,6 @@
 // The account's row at the head of the phone's Settings (account:username-and-unconfirmed-email, account:guest-reminded-to-secure): the
 // name's initial, the name, the username and the way the life is kept, the whole row one tap. The sheet it opens rides chunks of
-// its own, its code (Settings.tsx) and its words (through later.words.ts) (engine:first-download-has-budget): both fetched as the row
+// its own, its code (Settings.tsx) and its words (through shared/words/later.ts) (engine:first-download-has-budget): both fetched as the row
 // shows, and the sheet opened only once both are in, so it never shows a key or an empty line.
 import type { AccountView } from "@japacity/api";
 import { ChevronRight } from "lucide-react";
@@ -11,7 +11,7 @@ import { counting } from "../../shared/analytics/start";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
-import { loadLaterWords } from "./later.words";
+import { loadLaterWords } from "../../shared/words/later";
 import { useAccountView } from "./standing";
 
 /** A guest's ways back in: none but its own session (account:guest-and-secured-states). */

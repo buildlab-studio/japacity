@@ -14,7 +14,7 @@ import type { NotifyApi, NotifyDevice, NotifyStatus, Permission } from "./notify
 import { httpNotifyApi } from "./notify.api";
 import { NotifyAsk } from "./NotifyAsk";
 import { NotifySetting } from "./NotifySetting";
-import { loadLaterWords } from "../account/later.words";
+import { loadLaterWords } from "../../shared/words/later";
 
 // The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
 beforeAll(() => loadLaterWords("sheet"));

@@ -11,7 +11,7 @@ import type { Api } from "../../shared/net/http";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { Dedication, MOST_DRAWN, placeLights, placesForLights } from "./Dedication";
-import { loadLaterWords } from "./later.words";
+import { loadLaterWords } from "../../shared/words/later";
 
 // The page's words ride a chunk of their own (engine:first-download-has-budget): added before the page is drawn, as its door adds them before it opens.
 beforeAll(() => loadLaterWords("dedication"));

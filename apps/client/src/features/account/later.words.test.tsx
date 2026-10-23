@@ -20,7 +20,7 @@ import "../../shared/testing/render";
 import { hasWords, say, words } from "../../shared/words/text";
 import { AccountButton } from "./AccountButton";
 import { DedicationLater } from "./DedicationLater";
-import { loadLaterWords } from "./later.words";
+import { loadLaterWords } from "../../shared/words/later";
 
 /** The client's source folder. */
 const SRC = join(import.meta.dirname, "..", "..");
@@ -80,10 +80,10 @@ function fakeAccount(): AccountApi {
 describe("the account sheet's words, which a first visit does not carry", () => {
   test("[engine:first-download-has-budget] [account:username-and-unconfirmed-email] [account:dedication-page-and-its-doors] given the sheet's and the dedication's words and the sheet's code, when the game's modules are read, then only the loader names the tables and only the row names the sheet, each by a dynamic import", () => {
     const files = sources(SRC);
-    const loader = readFileSync(join(SRC, "features", "account", "later.words.ts"), "utf8");
+    const loader = readFileSync(join(SRC, "shared", "words", "later.ts"), "utf8");
     for (const [table, file] of [["account-sheet", "ui.accountSheet.text"], ["dedication", "ui.dedication.text"]] as const) {
       const naming = files.filter((path) => readFileSync(path, "utf8").includes(`@japacity/content/ui/${table}`));
-      expect(naming.map((path) => path.slice(SRC.length + 1))).toEqual(["features/account/later.words.ts"]);
+      expect(naming.map((path) => path.slice(SRC.length + 1))).toEqual(["shared/words/later.ts"]);
       expect(loader).toContain(`import("@japacity/content/ui/${table}")`);
       expect(readFileSync(CONTENT_INDEX, "utf8")).not.toContain(file);
     }

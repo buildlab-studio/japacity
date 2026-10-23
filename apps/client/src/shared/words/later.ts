@@ -3,7 +3,7 @@
 // content's ui/ui.accountSheet.text.ts), fetched by the account's row with the sheet's code, and the dedication page's
 // (content's ui/ui.dedication.text.ts), fetched with the page's own chunk. The first visit carries only the late table's few lines
 // (shared/words/late.ts).
-import { addLateWords } from "../../shared/words/late";
+import { addLateWords } from "./late";
 
 const loading = new Map<string, Promise<void>>();
 

@@ -21,7 +21,7 @@ import type { AccountApi } from "../shared/net/auth";
 import { abroadView, engineView, fakeAuthority } from "../shared/testing/fixtures";
 import { found, renderWithView } from "../shared/testing/render";
 import { say } from "../shared/words/text";
-import { loadLaterWords } from "../features/account/later.words";
+import { loadLaterWords } from "../shared/words/later";
 
 // The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
 beforeAll(() => loadLaterWords("sheet"));
