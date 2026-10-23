@@ -40,7 +40,7 @@ export function useLifeName(): string {
   return view === null ? "" : pageOf(view).name;
 }
 
-type AccountSheet = typeof import("./Settings");
+export type AccountSheet = typeof import("./Settings");
 
 /** The sheet's code and its words, each fetched once. */
 export function loadAccountSheet(): Promise<AccountSheet> {

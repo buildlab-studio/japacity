@@ -18,9 +18,10 @@ import { Button } from "../../shared/ui/Button";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { say } from "../../shared/words/text";
 import { setUsageCounts } from "../../shared/analytics/start";
+import { browserStorage, DELETE_TRIP_KEY } from "../../shared/storage/storage";
+import { Sheet } from "../../shared/ui/Sheet";
 import { keptLine, NO_WAYS, useLifeName, waysOf } from "./AccountButton";
 import { CodeForm, failureWords } from "./CodeForm";
-import { markDeleteTrip } from "./marks";
 import { FREE_WORDS, useFreeCheck } from "./GuestStart";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { PasskeyList, usePasskeysWork } from "./PasskeyList";
@@ -181,6 +182,24 @@ function Username({ account }: { account: AccountApi }) {
 /** A day as the player reads it, in their own calendar. */
 function dayOf(at: number): string {
   return new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+}
+
+/** account:player-deletes-account: marks, in the tab's storage, the account a trip to Google to confirm a deletion leaves from (read in marks.ts). */
+function markDeleteTrip(account: string): void {
+  try {
+    browserStorage("session")?.setItem(DELETE_TRIP_KEY, account);
+  } catch {
+    // A tab that keeps nothing comes back to the world, and Delete my account is where it was.
+  }
+}
+
+/** account:player-deletes-account: the delete confirmation opened again over the world after a sign-in with Google to confirm it. */
+export function DeleteAgain({ account, onClose }: { account: AccountApi; onClose: () => void }) {
+  return (
+    <Sheet open onOpenChange={(open) => (open ? undefined : onClose())} title={say("ui.account.delete")}>
+      <DeleteAccount account={account} opened="warn" onKept={onClose} />
+    </Sheet>
+  );
 }
 
 /** The step a deletion stands at: Delete my account, the warning with its two choices, or the confirmation a stale session needs. */

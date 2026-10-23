@@ -49,15 +49,6 @@ export function doneWaysBackIn(): void {
   asked = null;
 }
 
-/** account:player-deletes-account: marks, in the tab's storage, the account a trip to Google to confirm a deletion leaves from. */
-export function markDeleteTrip(account: string): void {
-  try {
-    browserStorage("session")?.setItem(DELETE_TRIP_KEY, account);
-  } catch {
-    // A tab that keeps nothing comes back to the world, and Delete my account is where it was.
-  }
-}
-
 /** Whether the account now signed in is the one the trip to Google left from; the mark goes as it is read. */
 export function backFromDeleteTrip(account: string): boolean {
   try {

@@ -28,7 +28,7 @@ import { askWaysBackIn, backFromDeleteTrip } from "./marks";
 import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { tellWay, WayToast } from "./WayToast";
-import { loadAccountSheet } from "./AccountButton";
+import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 import { secureAskedKey } from "../../shared/storage/storage";
 
 const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userAgent);
@@ -271,7 +271,8 @@ export function SecureAsk() {
   const [problem, setProblem] = useState<string | null>(null);
   const [kept, setKept] = useState<"google" | null>(null);
   const [taken, setTaken] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  // account:player-deletes-account: the account sheet's code, fetched to open the delete confirmation again after Google.
+  const [again, setAgain] = useState<AccountSheet | null>(null);
   const won = useRef(earlyWin);
   useEffect(() => {
     won.current = earlyWin;
@@ -296,7 +297,7 @@ export function SecureAsk() {
     // account:player-deletes-account: back from Google to confirm a deletion: the confirmation stands open again, for the same account only.
     if (back === "delete") {
       void refreshAccount(account).then((now) => {
-        if (now !== null && backFromDeleteTrip(now.id)) setDeleting(true);
+        if (now !== null && backFromDeleteTrip(now.id)) loadAccountSheet().then(setAgain, () => undefined);
       });
       return;
     }
@@ -347,36 +348,9 @@ export function SecureAsk() {
   return (
     <>
       <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} kept={kept} taken={taken} />
-      {deleting ? <DeleteAgain account={account} onClose={() => setDeleting(false)} /> : null}
+      {again === null ? null : <again.DeleteAgain account={account} onClose={() => setAgain(null)} />}
       <WayToast account={account} />
     </>
-  );
-}
-
-/**
- * account:player-deletes-account: the delete confirmation opened again after a sign-in with Google to confirm it, in a sheet of its own over the
- * world: the account sheet's code and words are fetched first, as its row fetches them, so it never shows a key.
- */
-function DeleteAgain({ account, onClose }: { account: AccountApi; onClose: () => void }) {
-  const [sheet, setSheet] = useState<Awaited<ReturnType<typeof loadAccountSheet>> | null>(null);
-  useEffect(() => {
-    let live = true;
-    loadAccountSheet().then(
-      (loaded) => {
-        if (live) setSheet(loaded);
-      },
-      () => undefined,
-    );
-    return () => {
-      live = false;
-    };
-  }, []);
-  if (sheet === null) return null;
-  const { DeleteAccount } = sheet;
-  return (
-    <Sheet open onOpenChange={(open) => (open ? undefined : onClose())} title={say("ui.account.delete")}>
-      <DeleteAccount account={account} opened="warn" onKept={onClose} />
-    </Sheet>
   );
 }
 

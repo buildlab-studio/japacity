@@ -8,7 +8,7 @@
 // device's share sheet, or, where there is none or it fails, onto the clipboard (pair:invite-link-single-use).
 import { content, text } from "@japacity/content";
 import { INVITE_FILLS } from "@japacity/sim";
-import { Copy, Link2, Send, Share2 } from "lucide-react";
+import { Link2, Send } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -76,45 +76,25 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
   );
 }
 
-/** The device's share sheet, where it has one. */
-function shareSheet(): boolean {
-  return typeof navigator !== "undefined" && typeof navigator.share === "function";
-}
-
-/** pair:invite-link-single-use: the link sent on through the share sheet, with Copy where there is none or it failed. A closed sheet says nothing. */
+/** pair:invite-link-single-use: the link sent on through the device's share sheet, or copied where there is none or it failed. A closed sheet says nothing. */
 function SendOn({ link }: { link: string }) {
-  const [sheet, setSheet] = useState(shareSheet);
-  const [copied, setCopied] = useState<boolean | null>(null);
-  const share = async () => {
-    try {
-      await navigator.share({ text: say("ui.people.invite.share-text"), url: link });
-    } catch (error) {
-      if (!(error instanceof DOMException && error.name === "AbortError")) setSheet(false);
-    }
-  };
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  };
+  const [sheet, setSheet] = useState(() => typeof navigator.share === "function");
+  const [copied, setCopied] = useState<string | null>(null);
+  const send = () =>
+    sheet
+      ? navigator.share({ text: say("ui.people.invite.share-text"), url: link }).catch((error: unknown) => setSheet(error instanceof DOMException && error.name === "AbortError"))
+      : navigator.clipboard.writeText(link).then(
+          () => setCopied("ui.people.invite.copied"),
+          () => setCopied("ui.people.invite.copy-failed"),
+        );
   return (
     <div className="flex flex-col gap-1">
-      {sheet ? (
-        <PressButton className="w-full" onClick={() => void share()}>
-          <Share2 size={16} aria-hidden />
-          {say("ui.people.invite.share")}
-        </PressButton>
-      ) : (
-        <PressButton className="w-full" onClick={() => void copy()}>
-          <Copy size={16} aria-hidden />
-          {say("ui.people.invite.copy")}
-        </PressButton>
-      )}
+      <PressButton className="w-full" onClick={() => void send()}>
+        {sheet ? <Send size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
+        {say(sheet ? "ui.people.invite.share" : "ui.people.invite.copy")}
+      </PressButton>
       <p role="status" className={copied === null ? "sr-only" : "text-[14px]"}>
-        {copied === null ? "" : say(copied ? "ui.people.invite.copied" : "ui.people.invite.copy-failed")}
+        {copied === null ? "" : say(copied)}
       </p>
     </div>
   );

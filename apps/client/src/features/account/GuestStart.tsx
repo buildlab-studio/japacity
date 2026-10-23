@@ -12,7 +12,6 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import type { AccountApi, FreeAnswer, GuestFailure } from "../../shared/net/auth";
 import { isReported } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
-import { motionOn } from "../../shared/ui/motion";
 import { say } from "../../shared/words/text";
 import type { LoadTurnstile } from "./Turnstile";
 import { useUnseenCheck } from "./useUnseenCheck";
@@ -63,7 +62,7 @@ const NAME_REFUSALS: readonly GuestFailure[] = ["format", "reserved", "blocked",
 function bringBoxIntoView(box: HTMLInputElement | null, focus: boolean): void {
   if (box === null) return;
   if (focus) box.focus({ preventScroll: true });
-  if (typeof box.scrollIntoView === "function") box.scrollIntoView({ block: "center", behavior: motionOn() ? "smooth" : "auto" });
+  if (typeof box.scrollIntoView === "function") box.scrollIntoView({ block: "center" });
 }
 
 /** Enter as the player means it: not while a word is being composed, and with no modifier held. */
