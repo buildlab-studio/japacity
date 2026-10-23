@@ -108,7 +108,8 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
         {/* The theme's own band behind the figure (world:colours-are-role-tokens: an interface colour is a role token, never sand or cream). The compound keeps its own colours and shows through a clear sky. */}
         {/* The look's own picture stands in until the scene has loaded, so the first screen never reads empty on a slow phone, and where WebGL is missing. */}
         {scene !== undefined ? (
-          <div className="pointer-events-none absolute inset-0" data-gate-scene>
+          // world:reach-and-read: the live city behind the start screen takes no Tab and no tap.
+          <div className="pointer-events-none absolute inset-0" inert data-gate-scene>
             {scene}
           </div>
         ) : drawing ? (

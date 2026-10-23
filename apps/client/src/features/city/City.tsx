@@ -37,6 +37,7 @@ import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
+import { useSceneCovered } from "../../shared/back/back";
 import { type PlaneCutSlot, sendOff, useSendOffShowing } from "../../shared/world/sendOff";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
@@ -499,6 +500,8 @@ export function City({
   const addToPlan = useGame((state) => state.addToPlan);
   const plan = useGame((state) => state.plan);
   const [phone, setPhone] = useState(false);
+  // world:reach-and-read: true while the phone, the map or a sheet stands over the scene.
+  const sceneCovered = useSceneCovered();
   const endMonth = useGame((state) => state.endMonth);
   const stopPick = useGame((state) => state.stopPick);
   const beganAt = useGame((state) => state.beganAt);
@@ -1729,7 +1732,7 @@ export function City({
 
   return (
     <>
-      <div className={`fixed inset-0 ${looking ? "z-[35]" : "pointer-events-none -z-10"}`} data-city={placeId} data-looking={looking}>
+      <div className={`fixed inset-0 ${looking ? "z-[35]" : "pointer-events-none -z-10"}`} inert={sceneCovered} data-city={placeId} data-looking={looking}>
         {drawing && entry !== null && file !== null && sample !== null ? (
           <Suspense fallback={null}>
             <CityScene
@@ -1839,7 +1842,8 @@ export function City({
         : null}
 
       {world && looking ? (
-        <>
+        // world:reach-and-read: under the phone, the map or a sheet, the band, the thumbs and the cards over the scene are inert with it.
+        <div className="contents" inert={sceneCovered} data-scene-chrome>
           {/* The room dims a little while the player sleeps (world:sleep-ends-the-month): a soft dark wash over the world, on opacity alone; it
               takes the taps meant for the room, since a sleeper does nothing until they wake. */}
           <div aria-hidden className={`fixed inset-0 z-[36] bg-device/35 transition-opacity duration-200 ease-out ${asleep === null ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`} data-sleep-wash={asleep === null ? "off" : "on"} />
@@ -2027,7 +2031,7 @@ export function City({
             />
           ) : null}
           {markerShown && stepThing !== null && nowItem !== null ? <Marker thing={stepThing} words={nowItem.words} picture={nowItem.picture} onTap={followStep} /> : null}
-        </>
+        </div>
       ) : null}
       {looking ? (
         <div className="pointer-events-none fixed inset-0 z-[36] flex flex-col justify-between gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
