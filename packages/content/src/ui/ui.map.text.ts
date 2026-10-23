@@ -59,6 +59,9 @@ export const uiMapText: Record<string, string> = {
   "map.ride.skip": "Skip",
   // Turn back: you get down at the next stop and walk back; the fare is not returned (world:ride-sheet-shows-fares).
   "map.ride.turn-back": "Turn back",
+  // Asked once more before a fare is thrown away (world:costly-acts-confirmed): keeping on is the main button.
+  "map.ride.turn-back.ask": "Get down and walk back? The {fare} fare is gone.",
+  "map.ride.turn-back.keep": "Keep going",
   // Where you are as the ride goes, in the card: pulling out, the road, the stop.
   "map.ride.along.start": "Pulling out of {from}.",
   // On foot nothing pulls out: the walk sets off (world:ride-sheet-shows-fares).

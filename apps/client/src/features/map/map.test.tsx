@@ -503,7 +503,7 @@ describe("the ride", () => {
     expect(screen.queryByRole("button", { name: mapWords("map.ride.turn-back") })).toBeNull();
   });
 
-  test("[world:ride-sheet-shows-fares] given the map with a way back, when a ride's Turn back is tapped, then the map says where the walk goes back to, and nothing arrives", async () => {
+  test("[world:ride-sheet-shows-fares] [world:costly-acts-confirmed] given the map with a way back, when a ride's Turn back is tapped and then confirmed, then the map says where the walk goes back to, and nothing arrives", async () => {
     vi.useFakeTimers();
     const onGo = vi.fn();
     const onTurnBack = vi.fn();
@@ -515,6 +515,12 @@ describe("the ride", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(500);
     });
+    fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.turn-back") }));
+    // The danfo's fare is named and kept until the second tap (world:costly-acts-confirmed).
+    expect(onTurnBack).not.toHaveBeenCalled();
+    const ask = document.querySelector("[data-ride-turn-back-ask]")?.textContent ?? "";
+    expect(ask).toContain(mapWords("map.ride.turn-back.ask", { fare: "" }).split(" ").slice(0, 4).join(" "));
+    expect(ask).toMatch(/₦\d/);
     fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.turn-back") }));
     const here = pins.find((pin) => pin.state === "here");
     expect(onTurnBack).toHaveBeenCalledWith(here?.id, "place.bode-thomas");
@@ -870,7 +876,8 @@ describe("the ride cuts between its angles by itself", () => {
     const names = within(ride)
       .getAllByRole("button")
       .map((button) => button.textContent);
-    expect(names).toEqual([mapWords("map.ride.turn-back"), mapWords("map.ride.skip")]);
+    // Skip on the band, Turn back apart under it (world:costly-acts-confirmed).
+    expect(names).toEqual([mapWords("map.ride.skip"), mapWords("map.ride.turn-back")]);
     const seen: (string | undefined)[] = [];
     for (let ms = 0; ms < RIDE_MS - 100; ms += 100) {
       seen.push(window.__ride?.angle);
