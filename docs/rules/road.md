@@ -46,11 +46,18 @@ The road variant of `RouteGateView` (`gate: "road"`, `step`, `monthsHere`) is bu
 
 **road:lost-is-final** `lost` applies `turn/finish`, and the view's card is the `lost` one (`card.kind`). It is final for that character. The view shows the ending card and the real-story card, and nothing else can be done. The authority may still grant turns; nothing uses them.
 
-**road:sea-arrival-in-italy** `on` from the `sea` step arrives: `place/move` to `country.italy` with `status.eu-irregular`, cash work only (ladders:cash-jobs-paid-in-hand), no route from there except `return/home` by the assisted scheme. The debt stays open.
+**road:sea-arrival-in-italy** `on` from the `sea` step arrives: `place/move` to `country.italy` with `status.eu-irregular`, cash work only (ladders:cash-jobs-paid-in-hand), no route from there except `return/home` by the assisted scheme. The debt stays open. The road arrives with no papers, so there is no grace (status:grace-before-overstaying, `graceMonths` 0). Detection gives an expulsion order with one month to leave (status:detection-gives-notice); the assisted return before it or inside it carries no ban, and only a removal at the order's end bans Italy, for 36 months (place:leaving-an-overstay-bans). Real: an expulsion decree can give 7 to 30 days to leave, the re-entry ban of 3 to 5 years can be revoked on proof of leaving in time, and joining an assisted voluntary return suspends the expulsion (D.lgs. 286/1998, Art. 13 c.5 and c.14, Art. 14-ter).
 
 **road:road-earns-nothing** No achievement, collection entry, share card or japacity point is earned anywhere in the chain. The report lines are plain and tone `bad`. No advert slot renders while the place is `road` (a rule the client obeys; the sim marks `place.where === "road"`).
 
-**road:real-story-card-after-chain** After the chain ends in any way, the view's `card` carries the real-story card: the credits and links in content for the journalism the chain follows. Nothing from that journalism is reproduced. Content carries each credit's link beside it, `road.real-story.link.N` beside `road.real-story.credit.N` in `route.text.ts`, where the research found one; a credit with no link is named only. The documentation site's sources page lists every credit with its link (guide:one-sources-page).
+**road:real-story-card-after-chain** After the chain ends in any way, the view's `card` carries the real-story card: the credits and links in content for the journalism the chain follows. Nothing from that journalism is reproduced. Content carries each credit's link beside it, `road.real-story.link.N` beside `road.real-story.credit.N` in `route.text.ts`, where the research found one; a credit with no link is named only. The documentation site's sources page lists every credit with its link (guide:one-sources-page). The credits are the four below, by outlet, work and year, never a reporter's name (`../research/02-all-routes-and-timeline.md` section 1):
+
+| Key | Credit | Link |
+|---|---|---|
+| `credit.1` | Foundation for Investigative Journalism, an undercover journey north, 2026 | the FIJ's part I |
+| `credit.2` | The Sun, an undercover Sahara trek, 2010 (the Daily Sun, December 2010; the page carries both years and the text's own date reads 2010) | the award copy, award.wscij.org/?p=8058 |
+| `credit.3` | CNN, migrants auctioned in Libya, 2017 | CNN, 14 Nov 2017, edition.cnn.com/2017/11/14/africa/libya-migrant-auctions/index.html, in place of the archive link that no longer answers |
+| `credit.4` | BBC News, women held by debt and an oath, 2019 (in place of a BBC Panorama of 2017 that the research could not find) | the BBC News video of Feb 2019 |
 
 **road:pitch-reaches-anyone-at-home** The pitch offers reach every character who meets `tuning.road.enabled` and is at home, and `take` needs the character at home when it is chosen: a pitch left open through a flight cannot start the chain abroad. Nothing on the profile locks them. A player with better options sees them less often (road:pitch-rises-with-pressure) and lower in the offer list (the offer view sorts by group, `road` last).
 

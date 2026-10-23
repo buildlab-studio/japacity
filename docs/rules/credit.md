@@ -15,7 +15,7 @@ Credit history does not cross borders. Everyone arrives with an empty file, and 
 
 **credit:approval-reads-the-mark** Approval reads the mark. An obligation entry abroad names the mark it needs as `creditMin`, and the view lists those as `credit.needs`; the activity that opens it carries the requirement `credit/min` with the same figure, and that requirement judges it. A thin file is the common refusal: a car on finance needs 30, a flat in your own name needs 20, a phone contract needs 10. Below those, the room is a shared one, the phone is pay as you go, and the car is cash or nothing.
 
-**credit:rate-follows-credit-ladder** The rate on a car or a loan reads the mark through the entry's `rateByCredit` ladder: the first rung whose `min` the mark reaches gives the monthly rate. The ladder in content follows the real tiers: about 6% a year at the top, 10 to 15% for average files, 22% at the bottom.
+**credit:rate-follows-credit-ladder** The rate on a car or a loan reads the mark through the entry's `rateByCredit` ladder: the first rung whose `min` the mark reaches gives the monthly rate. The ladder in content follows the real tiers: about 9% APR at the top, about 16% for average files, about 22% at the bottom (car.md, Numbers).
 
 **credit:judgment-blocks-credit** A court judgment (a loan or car shortfall left after repossession) puts a `judgment` on the file for 72 months. While one is there, `credit/min` above 20 is never met, whatever the mark.
 
@@ -36,7 +36,7 @@ Credit history does not cross borders. Everyone arrives with an empty file, and 
 | A flat in your own name needs | 20 | `obligation.rent-flat-uk.creditMin`, `obligation.rent-flat-canada.creditMin` |
 | A phone contract needs | 10 | `obligation.phone-uk.creditMin`, `obligation.phone-canada.creditMin` |
 
-Content: the car's `rateByCredit` stops at 1.2% a month (about 15% a year) from mark 30, with no rung below, and no loan abroad has a ladder; credit:rate-follows-credit-ladder's "22% at the bottom" is in no entry.
+Content: the car's `rateByCredit` stops at 1.2% a month (about 22% APR) from mark 30, with no rung below, and no loan abroad has a ladder.
 
 Pace: a carer paying rent and phone on time gains 6 a month and reaches 30 in five months, which is when the car becomes possible. One missed month costs four months of progress.
 

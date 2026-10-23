@@ -25,7 +25,7 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 
 | Id | Values |
 |---|---|
-| `obligation.car` | type `car`; currency GBP; price £9,500 (`car.price` 950000 pence); deposit 10% (`car.depositBp` 1000); term 36 months; final payment 30% of the price (`car.finalBp` 3000); rate by credit: mark 70 or more 0.5% a month (6% a year), 50 to 69 0.9%, 30 to 49 1.2% (about 15%), under 30 not offered; sink `car-payment`, interest sink `loan-interest`; grace 2; reportsToCredit true |
+| `obligation.car` | type `car`; currency GBP; price £9,500 (`car.price` 950000 pence); deposit 10% (`car.depositBp` 1000); term 36 months; final payment 30% of the price (`car.finalBp` 3000); rate by credit: mark 70 or more 0.5% a month (about 9% APR), 50 to 69 0.9% (about 16% APR), 30 to 49 1.2% (about 22% APR), under 30 not offered; the rate is flat on the opening principal, so the APR is about one and a half times the monthly rate times twelve; sink `car-payment`, interest sink `loan-interest`; grace 2; reportsToCredit true |
 | `obligation.car-shortfall` | type `loan`, principal the shortfall, 12 months, 0% interest, sink `loan-repay`; opened with a judgment |
 | `activity.buy-car-finance` | abroad, UK; needs credit 30 and a licence in force; cost the deposit; effect opens the car |
 | `activity.driving-test` | abroad, UK; cost `tuning.car.testFee` and, the first time, `tuning.car.lessons`; effect the pass draw |
@@ -41,7 +41,7 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 | Deposit | 10% | Common dealer plan | `obligation.car.car.depositBp` |
 | Term | 36 months | Common dealer plan | `obligation.car.term` |
 | Final payment | 30% of the price | Working value inside the usual range | `obligation.car.car.finalBp` |
-| Rates by file | 6%, 11%, 15% a year | Lender blog, 2026 | `obligation.car.rateByCredit` |
+| Rates by file | 0.5%, 0.9% and 1.2% a month flat on the opening principal: about 9%, 16% and 22% APR on £8,550 borrowed over 36 months with a £2,850 final payment. Real: mainstream used-car finance 9.9% to 14.9% APR, the market average about 13% to 16%, thin or poor files 15% to 29.9% and up; the game sits inside each band (factor 1.0) | Carsa, 30 Jun 2026 | `obligation.car.rateByCredit` 50, 90, 120 |
 | Misses before the car is taken | 3 in a row (two misses bring the notice) | Arrears notice after two misses, then a default notice of 14 days | `obligation.car.grace` 2 |
 | Taken without a court if paid under | a third of the total | Consumer Credit Act, protected goods | `obligation.car.car.courtThirdBp` 3333 |
 | Court delay when over a third is paid | 3 months | Working value | `obligation.car.car.courtMonths` 3 |
@@ -60,6 +60,7 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 
 ## Sources
 
+- [Carsa: is 10.9% APR good for car finance, 30 Jun 2026](https://carsa.co.uk/blog/is-10-9-apr-good-car-finance-2026)
 - [MoneyHelper: PCP explained](https://www.moneyhelper.org.uk/en/everyday-money/buying-and-running-a-car/financing-buying-car-personal-contract-purchase-pcp?source=mas)
 - [National Debtline: car repossession, the third and the half](https://nationaldebtline.org/get-information/guides/car-repossession-what-happens-and-what-you-can-do-about-it/)
 - [GOV.UK: driving on a non-GB licence](https://www.gov.uk/driving-nongb-licence/y/a-resident-of-great-britain/full-car-and-motorcycle/any-other-country)

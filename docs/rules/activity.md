@@ -66,7 +66,7 @@ Counter-moves, as free-slot activities: `activity.safe-ride` (₦25,000 a month,
 | `activity.rest` | Rest | | | | Wellbeing +12 |
 | `activity.family-time` | Time with family | | | | Standing +4, wellbeing +4 |
 | `activity.job-hunt` | Look for a job | | A job | | Hunt |
-| `activity.study-english` | Study for the English test | | | ₦10,000, study | English +6, wellbeing -2 |
+| `activity.study-english` | Study for the English test | | | ₦3,000, study; a day, repeats (activity:acts-may-repeat-in-month) | English +2, energy -3 |
 | `activity.learn-tech` | Take a coding course | | | ₦15,000, study | Tech +4, wellbeing -2 |
 | `activity.build-portfolio` | Build something to show | Tech 40 | | | Portfolio +1, tech +1, wellbeing -3 |
 | `activity.side-gig` | Take a side gig | Tech 25 | | | Gig: ₦30,000 to ₦90,000, plus ₦1,000 a point of tech. Wellbeing -4 |
@@ -74,8 +74,9 @@ Counter-moves, as free-slot activities: `activity.safe-ride` (₦25,000 a month,
 | `activity.look-into-route` | Look into a route | Has heard of it | A route | | Look into it |
 | `activity.get-passport` | Apply for a passport | Passport neither held nor being made | | ₦100,000, document fee | Request the passport |
 | `activity.get-transcript` | Chase your transcript | Bachelor's degree. Transcript neither held nor being made | | ₦25,000, document fee | Request the transcript |
-| `activity.sit-english-test` | Sit the English test | Passport held. No result pending | | ₦285,500, test fee | Request the test result |
-| `activity.apply-to-school` | Apply to a university | Route known. Passport, transcript and English result held | A school | | Apply to the school |
+| `activity.sit-english-test` | Sit the English test | Passport held. No result pending | | ₦295,000, test fee (document:who-sits-the-english-test) | Request the test result |
+| `activity.degree-english` | Ask for your degree's English statement | A bachelor's degree. Statement neither held nor being made | | ₦150,000, document fee; from the Papers app | Request the statement (document:degree-english-statement) |
+| `activity.apply-to-school` | Apply to a university | Route known. Passport and transcript held | A school | | Apply to the school |
 | `activity.ask-family-loan` | Call home about a loan | At home. Standing 40. Family means 10. Family stake 0 | | | A morning, once a month; opens `offer.family-loan` (wallet:roads-to-the-target) |
 | `activity.family-meeting` | Call a family meeting | Holds an offer from a school. Standing 30. Family stake 0 | | | Opens the family's pledge: the full one or the small one, whichever fits |
 | `activity.tb-test` | Take the TB test | Passport held. Certificate neither held nor being made | | ₦120,000, test fee | Request the certificate |

@@ -1,6 +1,6 @@
 # Routes, schools and the interview
 
-> The study route: a one-year taught master's in the UK. Figures are from `../research/09-uk-masters-numbers.md`. The three universities are invented.
+> The study route: a one-year taught master's in the UK. Figures are from `../research/09-uk-masters-numbers.md`; where the game differs from real life, the real value and the factor stand beside it. The three universities are invented.
 > Kinds: `route`, `school`, `setpiece`. Background: `../design/01-concept.md` sections 4 and 10.
 > For game design. Not immigration advice.
 
@@ -17,6 +17,7 @@ stateDiagram-v2
   applying --> granted
   applying --> known: refused, and it goes on your record
   granted --> departed: you fly
+  departed --> known: the status it gave is lost
 ```
 
 `refused` is kept for a route closed to one character by a ban. A deception ban sets it (route-gates:deception-bans-country, until `bannedUntil`); no rule of this page does.
@@ -31,11 +32,13 @@ stateDiagram-v2
 
 **route:looking-into-makes-known** Looking into a heard route makes it known. The checklist is shown from then on. Any of the four ways in advice:four-ways-to-learn-route looks into a route (the official page, someone who went, the adviser, an agent); the effect `route/look-into` is what each of them emits. The view lists the routes in content order (the order of `content.route`), never in the order the stored state's keys come back in, since a database may reorder them; so the list online is the list offline. The view is not hashed.
 
+**route:lapsed-route-known-again** A route flown can be tried again once the permission it gave is gone. When a character abroad loses permission in a country (the status lapses to the overstayer, status:overstayer-risks-detection; a removal; or a return home of any shape but `with-papers`), every route into that country that is `departed` moves back to `known`: its school, deposit, university's confirmation, sponsor and count of months held are cleared, and its refusals and record are kept. So a new master's can be applied for, in country in the grace (status:grace-allows-in-country-applications) or from home once any ban has lifted (place:leaving-an-overstay-bans). A `with-papers` return keeps its route as it was (return:papers-return-keeps-status).
+
 **route:closed-window-blocks-applying** While the route's window is closed, applying to a school and applying for the visa are not legal. An application already sent is still decided.
 
 ## Rules: schools
 
-**route:applying-to-a-school** A character may apply to a school on a known route when their grade and English band meet the school's minimums and they have no application or offer there already. A school that rejected them takes a new application once `tuning.route.reapplyMonths` months have passed since its answer, and the view says how long is left. The answer is due after a wait drawn between the school's two figures.
+**route:applying-to-a-school** A character may apply to a school on a known route when their grade meets the school's minimum and they have no application or offer there already. No school asks an English band (route:degree-meets-masters-english). A school that rejected them takes a new application once `tuning.route.reapplyMonths` months have passed since its answer, and the view says how long is left. The answer is due after a wait drawn between the school's two figures.
 
 **route:school-answers-by-grade** In the `clocks` phase a school answers when its month has come. The chance of an offer is the school's base chance plus 5% for each grade above its minimum, never more than 95%. An offer carries a discount: the automatic one if the grade earns it, plus the merit one if its draw succeeds.
 
@@ -49,7 +52,9 @@ stateDiagram-v2
 
 **route:funds-held-month-count** In the `clocks` phase of each month in which a deposit is paid and no visa application is pending, the funds check runs. If the funds shown cover the funds required, the count of months held goes up by one. If not, it goes back to zero.
 
-**route:visa-application-needs** Applying for the visa needs all of: the route known and its window not closed, a deposit paid, the passport, English result, TB certificate and university's confirmation all held, the funds covered now, and the count of months held at one or more. The visa fee and the health surcharge are the activity's cost. "Covered now" is judged when the slot is checked, before those fees come out of the funds shown.
+**route:visa-application-needs** Applying for the visa needs all of: the route known and its window not closed, a deposit paid, the passport, TB certificate and university's confirmation all held (the TB certificate is not asked of an application made in country, status:grace-allows-in-country-applications), the English met (route:degree-meets-masters-english), the funds covered now, and the count of months held at one or more. The visa fee and the health surcharge are the activity's cost. "Covered now" is judged when the slot is checked, before those fees come out of the funds shown.
+
+**route:degree-meets-masters-english** For the UK master's the degree is the English. A bachelor's degree meets the route's English with no paper, no fee and no test: the `english` checklist item reads the degree, and no school asks a band. The English test stays open to anyone who wants a band for another route (route-gates:sponsor-application-needs, route-gates:entering-the-pool). Real: for a degree-level course the university may assess English itself, and many waive a test for a Nigerian degree taught in English (Birmingham asks none of Nigerian nationals with a Nigerian degree; Manchester may waive it; Leicester asks nothing more after a year at a recognised Nigerian university; Heriot-Watt takes the school certificate's English). The game's three schools all waive, where in life many do and some do not.
 
 **route:unexplained-share-of-funds** The unexplained share is the value of the wallet's lots, at the official rate, as a share of the funds required, never more than 100%.
 
@@ -63,11 +68,11 @@ stateDiagram-v2
 
 **route:grant-moves-to-granted** A grant moves the route to granted.
 
-**route:refusal-refunds-and-resets** A refusal moves the route back to known and adds one to its refusals. The health surcharge is refunded to the pound bank pocket at once. The deposit, less a £500 fee, is refunded two months later. The route's school is cleared, the university's confirmation is voided, and the count of months held goes to zero. The school's offer stands, so the deposit can be paid again.
+**route:refusal-refunds-and-resets** A refusal moves the route back to known and adds one to its refusals. The health surcharge is refunded to the pound bank pocket at once. The deposit, less `tuning.route.depositAdminFee` (£500), is refunded `tuning.route.depositRefundMonths` (2) months later. The route's school is cleared, the university's confirmation is voided, and the count of months held goes to zero. The school's offer stands, so the deposit can be paid again.
 
 **route:refusal-reasons-recorded** A refusal records its reasons, most telling first: `funds` if the unexplained share was 30% or more, `interview` if the interview score was below zero, `history` if there was an earlier refusal, and `credibility` if none of those apply.
 
-**route:departure-pays-flight** `route/depart` needs the route granted, no held-funds obligation open, and the flight paid: ₦1,600,000, naira, with the reason `flight`, unless the route's entry has `flightPaidByEmployer`. The route becomes departed. The life does not end: `place/move` takes the character abroad and `status/grant` gives the route's status (route-gates:departure-grants-status). `turn/finish` is not applied at departure (turn:finish-ends-the-life). Once the route is granted, no held-funds loan is offered (`offer.held-funds` asks that the route is not granted or departed): the funds have done their work.
+**route:departure-pays-flight** `route/depart` needs the route granted, no held-funds obligation open, and the flight paid: `tuning.route.flight`, ₦1,100,000, naira, with the reason `flight`, unless the route's entry has `flightPaidByEmployer`. The route becomes departed. The life does not end: `place/move` takes the character abroad and `status/grant` gives the route's status (route-gates:departure-grants-status). `turn/finish` is not applied at departure (turn:finish-ends-the-life). Once the route is granted, no held-funds loan is offered (`offer.held-funds` asks that the route is not granted or departed): the funds have done their work.
 
 ## Rules: the interview
 
@@ -97,7 +102,7 @@ stateDiagram-v2
 | `grade` | 4 | Second lower or better | |
 | `passport` | 4 | Passport held | |
 | `transcript` | 3 | Transcript held | |
-| `english` | 12 | English result held, band 6.0 or better | |
+| `english` | 12 | A bachelor's degree, taught in English (route:degree-meets-masters-english) | |
 | `offer` | 12 | An offer from a school | |
 | `deposit` | 12 | Deposit paid | |
 | `funds` | 28 | Funds shown cover funds required | Yes |
@@ -107,13 +112,13 @@ stateDiagram-v2
 
 ## Entries: schools
 
-| Id | Name | Tuition | Deposit | Lowest grade | Lowest band | Offer chance | Automatic discount | Merit discount | Answers in |
-|---|---|---|---|---|---|---|---|---|---|
-| `school.northgate` | Northgate University, north-east England | £17,000 | £4,000 | Second lower | 6.0 | 85% | £2,000 for second upper or better | None | 1 month |
-| `school.ashby` | University of Ashby, the Midlands | £24,250 | £6,000 | Second upper | 6.5 | 60% | None | £3,000, 30% | 1 to 2 months |
-| `school.kingsmere` | Kingsmere University, north-west England | £35,200 | £7,500 | Second upper | 7.0 | 30% | None | £5,000, 15% | 1 to 2 months |
+| Id | Name | Tuition | Deposit | Lowest grade | Offer chance | Automatic discount | Merit discount | Answers in |
+|---|---|---|---|---|---|---|---|---|
+| `school.northgate` | Northgate University, north-east England | £17,000 | £4,000 | Second lower | 85% | £2,000 for second upper or better | None | 1 month |
+| `school.ashby` | University of Ashby, the Midlands | £24,250 | £5,000 | Second upper | 60% | None | £3,000, 30% | 1 to 2 months |
+| `school.kingsmere` | Kingsmere University, north-west England | £35,200 | £6,000 | Second upper | 30% | None | £5,000, 15% | 1 to 2 months |
 
-The dearer schools only cost more.
+The dearer schools only cost more. The deposits against real life, for Nigerian applicants in 2026: £4,000 is the common figure (Essex for 2027 to 2028, with Nigeria named; UEA for September 2026; Keele; Teesside, whose fee Northgate takes), with Nottingham £4,500, Brighton £5,000, Leicester £3,000, Manchester £2,500, York £3,000, King's College London £2,000 and Coventry £8,000. Northgate's £4,000 is real (factor 1.0); Ashby's £5,000 is 1.25 times the common figure and Kingsmere's £6,000 1.5 times, a game choice that keeps the dearer schools dearer in every line, since in life a dearer university does not ask a bigger deposit. The schools ask no English band (route:degree-meets-masters-english).
 
 ## Entry: `setpiece.credibility-interview`
 
@@ -164,13 +169,21 @@ Three questions are asked. Scores are hidden from the player.
 | Offer chance for each grade above the school's minimum | 5% | `offerPerGradeBp` = 500 |
 | Offer chance at most | 95% | `offerMaxBp` = 9500 |
 | Months from application to decision | 1 | `decisionMonths` |
-| Fee kept from a refunded deposit | £500 | `depositAdminFee` = 50000 |
-| Months until the deposit refund arrives | 2 | `depositRefundMonths` |
-| Flight | ₦1,600,000 | `flight` |
+| Fee kept from a refunded deposit | £500. Real: Essex keeps £500 of a refunded deposit, and £2,000 when the refusal was the applicant's own doing; Leicester refunds nothing after a refusal for misleading papers or credibility. The game keeps £500 on every refusal (factor 1.0 for the common case) | `depositAdminFee` = 50000 |
+| Months until the deposit refund arrives | 2. Real: York aims to decide in 14 working days and pay within 28 working days of approval (factor 1.0) | `depositRefundMonths` |
+| Flight, Lagos to London, one way | ₦1,100,000, about US$810 at ₦1,361.34 to the dollar: a direct one-way in the September rush with bags. Real: Royal Air Maroc returns from US$579 through Casablanca and Virgin Atlantic direct returns from US$1,134 (Nov and Dec 2026), a one way averaging about US$521, so about ₦700,000 to ₦1,200,000 one way; the game about 1.0 to 1.5 times | `flight` |
 | Interview prep that reveals weak answers | 40 | `hintPrep` |
 | Months before a school that refused takes a new application | 6 | `reapplyMonths` |
 
 A clean file with a good interview is refused about 6 times in 100. A file resting on borrowed funds, with a poor interview, is refused more often than not. The real rate for Nigerian applicants was about 21 in 100 in early 2026.
+
+## Sources
+
+Read on 23 Oct 2026, beside `../research/09-uk-masters-numbers.md`:
+
+- [GOV.UK: Student visa, knowledge of English](https://www.gov.uk/student-visa/knowledge-of-english): the university may assess English for a degree-level course
+- The universities' pages for Nigerian applicants: Birmingham, Manchester, Leicester and Heriot-Watt on English; Essex (deposit policy for 2027 to 2028, sections 3.2, 5.1.1 and 5.1.2), UEA, Keele, Nottingham, Brighton, York and King's College London on deposits and refunds (named, not each linked)
+- Royal Air Maroc and Virgin Atlantic fare pages for Nigeria, Nov and Dec 2026; FareCompare's average one way (named, not linked); the dollar at ₦1,361.34, official, 23 Oct 2026 (`../research/09-uk-masters-numbers.md`)
 
 ## Effects and requirements this kind handles
 
