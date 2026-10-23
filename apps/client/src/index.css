@@ -58,8 +58,14 @@
   /* The underside of the one yellow action, which flattens on press. */
   --action-under: #1c2a5e;
   --signal: #f2b705;
-  --in: #2a8656;
-  --out: #c23a2a;
+  /* Money in and out as words (world:reach-and-read): 4.5 to 1 on every sheet, card and tint by day; the night paint lightens them. */
+  --in: #1d7346;
+  --out: #b3261e;
+  /* Money in and out as a fill carrying white words (a done or failed mark, the clock's banner, the warning button): the same in both paints. */
+  --in-fill: #1d7346;
+  --out-fill: #b3261e;
+  /* Keyboard focus (world:reach-and-read): navy on the pale sheets by day, the danfo yellow on the navy ones by night. */
+  --focus-ring: #1c2a5e;
   --scrim: rgba(12, 16, 34, 0.5);
   --device: #0d1124;
   /* The drawn map's water takes the lagoon tone (world:colours-are-role-tokens). */
@@ -97,6 +103,19 @@
   --bad: var(--out);
 }
 
+/* Keyboard focus (world:reach-and-read): a ring 3 px wide in the game's colours wherever a control takes focus; a control's own ring,
+   where it draws one, stands over this. */
+@layer base {
+  :focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+}
+
+/* A hit area of at least 44 by 44 CSS pixels round a control drawn smaller (world:reach-and-read): an invisible pad centred on it that
+   takes the tap without moving what stands beside it. In the components layer, so a control placed absolutely keeps its place. */
+@layer components {
+  .reach { position: relative; }
+}
+.reach::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 44px); height: max(100%, 44px); translate: -50% -50%; }
+
 /* The night paint: the same shapes in navy, cream ink and cream edges, the yellow action unchanged; its underside turns
    cream with the edges so the press still reads on navy. A part of the page may carry the attribute too (the lively
    preview shows the two paints side by side), so every token that reads another is set again here. */
@@ -112,7 +131,11 @@
   --screen: #18234f;
   --sheet-line: rgba(243, 239, 230, 0.14);
   --text: #f3efe6;
-  --text-2: #aab3d6;
+  --text-2: #b6bedf;
+  /* Money in and out lightened for the navy (world:reach-and-read). */
+  --in: #7ddba6;
+  --out: #ffab9e;
+  --focus-ring: #f2b705;
   --edge: #f3efe6;
   --tint-food: #5c3a30;
   --tint-study: #2c4475;
@@ -147,6 +170,8 @@
   --color-signal: var(--signal);
   --color-in: var(--in);
   --color-out: var(--out);
+  --color-in-fill: var(--in-fill);
+  --color-out-fill: var(--out-fill);
   --color-scrim: var(--scrim);
   --color-device: var(--device);
   --color-screen: var(--screen);
@@ -213,6 +238,13 @@ body {
     transition: none !important;
     animation: none !important;
   }
+  /* A bar that shows time passing steps once a second instead of standing still (world:reach-and-read): `--seconds` is its length. */
+  .sleep-bar {
+    animation-name: sleep-bar !important;
+    animation-duration: calc(var(--seconds) * 1s) !important;
+    animation-timing-function: steps(var(--seconds), end) !important;
+    animation-fill-mode: both !important;
+  }
 }
 
 /* The world's bands, chips and the one main button (world:top-band-is-lively-pill, world:one-action-one-sheet, world:colours-are-role-tokens, world:motions-under-half-second). */
@@ -223,7 +255,7 @@ body {
 .label-strong { color: var(--strong-label); }
 .wall { background-color: var(--wall); background-image: var(--pattern); color: var(--wall-text); }
 .num { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; }
-.label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+.label { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
 .title { font-weight: 850; letter-spacing: -0.02em; }
 .panel { background-color: var(--sheet); background-image: var(--sheet-pattern); color: var(--text); border-radius: 6px; box-shadow: 0 18px 40px rgba(10, 14, 30, 0.35); }
 .chip { background: var(--sheet); color: var(--text); border-radius: 4px; box-shadow: 0 2px 0 var(--sheet-line); }
@@ -503,7 +535,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 
 /* The lively band (docs/design/09-the-lively-layer.md, section 2): a white pill by day and navy at
    night, a thin edge with its underside, the money in green, the part of the day after a dot. No pattern (decision 0025). */
-:root { --money-ink: #13804b; }
+:root { --money-ink: #0f7343; }
 :root[data-paint="night"], [data-paint="night"] { --money-ink: #9be3b9; }
 .band-pill {
   border-radius: 9999px;
@@ -735,7 +767,32 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   transition-timing-function: ease-out;
 }
 .round-button { width: 44px; height: 44px; border-radius: 9999px; }
-.pill-button { height: 42px; border-radius: 9999px; padding: 0 16px; font-size: 15px; }
+/* The warning colour on a costly act (world:costly-acts-confirmed): never the main yellow, and set apart from the safe main button. The
+   chip is the act's first ask, red words on the card's white; the button confirms it, white words on the red. */
+.warn-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--out);
+  box-shadow: 0 0 0 2px var(--out-fill);
+}
+.warn-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 9999px;
+  background: var(--out-fill);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--edge);
+}
+.warn-button:active:not(:disabled) { translate: 0 2px; box-shadow: 0 1px 0 var(--edge); }
+.warn-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.pill-button { height: 44px; border-radius: 9999px; padding: 0 16px; font-size: 15px; }
 .round-button:active:not(:disabled),
 .pill-button:active:not(:disabled) { translate: 0 2px; box-shadow: 0 1px 0 var(--edge); }
 .round-button:disabled { opacity: 0.4; }

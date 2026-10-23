@@ -5,7 +5,7 @@
 import { content, text } from "@japacity/content";
 import { type Id, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
-import { isValidElement, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { type CSSProperties, isValidElement, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../shared/front-door/person";
@@ -1878,7 +1878,7 @@ export function City({
                   <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined || toBed ? {} : { opens: stepWay.opens })} {...(toBed ? (bed === null ? {} : { onTap: () => setPicked({ kind: "thing", thing: bed }) }) : nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   ) : null}
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
-                    <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
+                    <button type="button" className="chip press reach pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
                       <span className="truncate">{say("ui.world.coming", { what: coming.what, when: coming.when ?? inMonths(coming.month, view.month) })}</span>
                     </button>
@@ -1921,7 +1921,7 @@ export function City({
                     🌙
                   </span>
                   <span>{say("ui.sleep.chip")}</span>
-                  <span aria-hidden className="sleep-bar absolute inset-x-0 bottom-0 h-[3px] bg-signal" style={{ animationDuration: `${String(asleep.ms)}ms` }} data-asleep-bar />
+                  <span aria-hidden className="sleep-bar absolute inset-x-0 bottom-0 h-[3px] bg-signal" style={{ animationDuration: `${String(asleep.ms)}ms`, "--seconds": String(Math.ceil(asleep.ms / 1000)) } as CSSProperties} data-asleep-bar />
                 </button>
               </div>
               {/* Wake up, low on the right above the Phone button (in the centred column on a laptop), does as the chip does. */}

@@ -176,7 +176,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
                   <span className={`font-semibold ${choice.passed === true || choice.pill !== undefined ? "text-[12px] leading-tight" : "text-[14px]"}`} data-way-fare>
                     {fareTile(choice, formatMoney, formatFare)}
                   </span>
-                  <span className="text-[11px] leading-tight text-text-2">{shut ? mapWords(choice.shut === "fare" ? "map.way.walk-fare" : "map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
+                  <span className="text-[12px] leading-tight text-text-2">{shut ? mapWords(choice.shut === "fare" ? "map.way.walk-fare" : "map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
                 </button>
               );
             })}

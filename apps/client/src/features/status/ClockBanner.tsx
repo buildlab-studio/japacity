@@ -13,7 +13,7 @@ export function ClockBanner({ className = "" }: { className?: string }) {
   return (
     // The figure stays big; the alarm sits small over it and the words take the rest of the row, so "2 months on the clock"
     // keeps to one line beside it on a phone at rest.
-    <div role="alert" data-clock className={`flex items-center gap-3 rounded-md bg-bad px-3 py-3 text-on-strong ${className}`}>
+    <div role="alert" data-clock className={`flex items-center gap-3 rounded-md bg-out-fill px-3 py-3 text-on-strong ${className}`}>
       <div className="flex shrink-0 flex-col items-center gap-1">
         <AlarmClock size={22} aria-hidden />
         <p className="text-6xl leading-none font-bold tabular-nums" data-clock-figure>{clock}</p>

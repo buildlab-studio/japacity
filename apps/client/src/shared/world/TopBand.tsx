@@ -126,7 +126,7 @@ export function bandPlace(name: string): string {
  */
 function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void) | undefined }) {
   return (
-    <button type="button" className="band-part press shrink-0 text-[14px] leading-none text-text-2" onClick={onMonth} aria-label={say("ui.month.chip", { name: month.name, part: month.part })} data-band-month={month.part}>
+    <button type="button" className="band-part press reach shrink-0 text-[14px] leading-none text-text-2" onClick={onMonth} aria-label={say("ui.month.chip", { name: month.name, part: month.part })} data-band-month={month.part}>
       <span className="sr-only">{month.name}</span>
       <span key={month.part} className="fade" data-band-part>
         {month.part}
@@ -162,7 +162,7 @@ export function TopBand({ when, name, money, formatMoney, month, body = null, on
       </div>
       {onToggle === undefined ? null : (
         <div className="flex justify-center">
-          <button type="button" className="band-pill pointer-events-auto -mt-1 flex h-5 w-12 items-center justify-center rounded-b-[10px] rounded-t-none" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
+          <button type="button" className="band-pill reach pointer-events-auto -mt-1 flex h-5 w-12 items-center justify-center rounded-b-[10px] rounded-t-none" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
             <ChevronDown size={14} strokeWidth={2.6} className={open ? "rotate-180" : ""} aria-hidden />
           </button>
         </div>

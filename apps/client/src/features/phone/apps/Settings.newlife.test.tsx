@@ -18,6 +18,7 @@ import { PhoneApps } from "../PhoneApps";
 import { HOLD_MS } from "./Settings";
 import { PERSON_KEY, SAVE_KEY } from "../../../shared/storage/storage";
 import { WhilePlaying } from "../phone.testing";
+import { stubReducedMotion } from "../../../shared/testing/motion";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -158,3 +159,30 @@ describe("start a new life", () => {
     expect(document.querySelector("[data-life-end]")).toBeNull();
   });
 });
+
+describe("the held button under Reduce Motion (world:reach-and-read)", () => {
+  test("[world:reach-and-read] given Reduce Motion, when the ending button is held, then its fill steps once a second instead of jumping full while time is still needed", async () => {
+    const motion = stubReducedMotion(true);
+    const { store } = await localLife();
+    openSettings(store);
+    openSheet();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"] });
+    const button = holdButton();
+    const fill = () => (button.querySelector("[data-hold-fill]") as HTMLElement).style.width;
+    fireEvent.pointerDown(button);
+    expect(fill()).toBe("0%");
+    act(() => {
+      vi.advanceTimersByTime(999);
+    });
+    expect(fill()).toBe("0%");
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(fill()).toBe(`${String((100 * 1000) / HOLD_MS)}%`);
+    fireEvent.pointerUp(button);
+    vi.useRealTimers();
+    motion.set(false);
+    vi.unstubAllGlobals();
+  });
+});
+

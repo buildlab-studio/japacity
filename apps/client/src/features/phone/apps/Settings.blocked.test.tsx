@@ -128,3 +128,11 @@ describe("the Blocked list in Settings", () => {
     expect(screen.queryByRole("button", { name: words("ui.blocked") })).toBeNull();
   });
 });
+
+describe("the Blocked list while it loads (world:reach-and-read)", () => {
+  test("[world:reach-and-read] given the list not yet answered, when it opens, then it shows the shared loader, never an empty sheet", async () => {
+    const sheet = await openList(fakeModeration({ blocked: () => new Promise<BlockedListReply>(() => undefined) }));
+    await settle();
+    expect(within(sheet).getByRole("progressbar", { name: words("ui.blocked.loading") })).toBeDefined();
+  });
+});

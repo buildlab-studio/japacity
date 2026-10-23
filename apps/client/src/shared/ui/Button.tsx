@@ -15,7 +15,8 @@ export interface ButtonProps extends ComponentProps<"button"> {
 
 /** A plain button. Touch targets stay at least 44px tall unless `small`. */
 export function Button({ variant = "secondary", small = false, className = "", type = "button", ...rest }: ButtonProps) {
-  const size = small ? "min-h-9 px-3 text-sm" : "min-h-11 px-4";
+  // A small button keeps its look and takes a 44 px tap through its reach pad (world:reach-and-read).
+  const size = small ? "reach min-h-9 px-3 text-sm" : "min-h-11 px-4";
   return (
     <button
       type={type}

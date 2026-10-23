@@ -144,7 +144,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
       {/* Your own colours on the look (prologue:player-colours-on-looks), under the strip, opened on a tap. */}
       <section ref={section} className="mt-1 px-5 pb-4" data-door-yours>
         <h2>
-          <button type="button" className="pill-button h-9! text-[14px]!" aria-expanded={yours} onClick={() => setYours((open) => !open)} data-yours-open>
+          <button type="button" className="pill-button reach h-9! text-[14px]!" aria-expanded={yours} onClick={() => setYours((open) => !open)} data-yours-open>
             {say("ui.door.yours")}
             <ChevronDown size={16} strokeWidth={2.6} className={`transition-transform duration-200 ${yours ? "rotate-180" : ""}`} aria-hidden />
           </button>

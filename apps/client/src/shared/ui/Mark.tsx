@@ -9,8 +9,8 @@ export type MarkState = "done" | "failed" | "setback" | "waiting";
 
 /** Each state's glyph, its colours and its word. Small squares, never pills (world:colours-are-role-tokens); the setback's is turned on its point. */
 const MARKS: Record<MarkState, { glyph: ComponentType<{ size?: number; strokeWidth?: number; "aria-hidden"?: boolean }>; shape: string; colour: string; word: string }> = {
-  done: { glyph: Check, shape: "rounded-[4px]", colour: "bg-in text-white", word: "ui.page.mark.done" },
-  failed: { glyph: X, shape: "rounded-[4px]", colour: "bg-out text-white", word: "ui.page.mark.failed" },
+  done: { glyph: Check, shape: "rounded-[4px]", colour: "bg-in-fill text-white", word: "ui.page.mark.done" },
+  failed: { glyph: X, shape: "rounded-[4px]", colour: "bg-out-fill text-white", word: "ui.page.mark.failed" },
   setback: { glyph: TriangleAlert, shape: "rounded-[2px] rotate-45 [&>svg]:-rotate-45", colour: "bg-signal text-[#2b2208]", word: "ui.page.mark.setback" },
   waiting: { glyph: Clock, shape: "rounded-[4px]", colour: "bg-sheet-line text-text-2", word: "ui.page.mark.waiting" },
 };

@@ -108,7 +108,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const stable = useMemo(() => pins, [key]);
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
   const [picked, setPicked] = useState<string | null>(pickFirst);
-  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
+  const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"]; long: boolean; fare?: string; lost?: string; vehicle: AbroadVehicle | null; label?: string } | null>(null);
   // The way picked on the ride sheet: its vehicle rides the route on the map, the danfo when none or on foot.
   const [wayShown, setWayShown] = useState<RideChoice["id"]>("danfo");
   const routeVehicle = wayModelFor(placeCountry, wayShown, false) ?? WAY_MODEL[wayShown] ?? "vehicle_danfo";
@@ -151,7 +151,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     const answer = choice === undefined || onRide === undefined ? true : onRide(choice, to);
     const long = choice?.long === true;
     // Abroad the ride carries its fare as a pill, in the country's money (world:ride-abroad-and-workplace); on foot nothing is paid.
-    const fare = abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) };
+    // world:costly-acts-confirmed: a fare paid is what Turn back throws away, so it is named when Turn back asks; a walk or a pass loses nothing.
+    const lost = choice === undefined || choice.id === "walk" || choice.passed === true || choice.fare <= 0 ? {} : { lost: fareOf(choice) };
+    const fare = { ...(abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) }), ...lost };
     // The country's own vehicle (world:ride-abroad-and-workplace): the labour bus or the van on the shuttle's bus, else the way's.
     const shuttle = choice?.shuttle === true || (way === "bus" && here !== null && (shuttles.includes(here.id) || shuttles.includes(to)));
     const ridden = { vehicle: vehicleFor(placeCountry, way, shuttle), ...(choice === undefined || placeCountry === null ? {} : { label: choice.label }) };
@@ -184,7 +186,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const painted = lagos || abroadPaper !== undefined;
   const Paper = lagos || abroadPaper === undefined ? PaperMap : abroadPaper;
   const closeButton = (
-    <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-[42px] items-center justify-center" data-map-close>
+    <button type="button" onClick={onClose} aria-label={mapWords("map.close")} className="map-round press pointer-events-auto inline-flex size-11 items-center justify-center" data-map-close>
       <X size={20} strokeWidth={2.5} />
     </button>
   );
@@ -261,6 +263,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           seed={seedOf(`${riding.id}:${String(view.month)}`)}
           {...(here === null ? {} : { from: here.name })}
           {...(riding.fare === undefined ? {} : { fare: riding.fare })}
+          {...(riding.lost === undefined ? {} : { lost: riding.lost })}
           onDone={() => {
             const id = riding.id;
             setRiding(null);
@@ -296,7 +299,7 @@ function dotClass(state: MapPin["state"], home: boolean): string {
     case "been":
       return "bg-signal";
     case "can":
-      return "bg-in";
+      return "bg-in-fill";
     case "not":
     case "home":
       return "bg-sheet-muted";

@@ -46,12 +46,15 @@ function HomePicture({ home, className = "", size }: { home: Home | "self-contai
 export function Board({ look, name, caption, thing, onYou, onLife }: { look: string; name: string; caption: string; thing: string | null; onYou: (() => void) | null; onLife: (() => void) | null }) {
   return (
     <div className="band-pill mx-5 mt-3 flex items-center gap-2.5 py-1.5 pr-3.5 pl-1.5" data-door-board>
-      <button type="button" className="shrink-0" aria-label={say("ui.door.edit.you")} onClick={onYou ?? undefined} disabled={onYou === null} data-door-edit="you">
+      <button type="button" className="reach shrink-0" aria-label={say("ui.door.edit.you")} onClick={onYou ?? undefined} disabled={onYou === null} data-door-edit="you">
         <FaceSticker look={look} size={40} tint="food" />
       </button>
-      <button type="button" className="min-w-0 flex-1 truncate text-left text-[14px] font-bold" aria-label={say("ui.door.edit.life")} onClick={onLife ?? undefined} disabled={onLife === null} data-door-edit="life">
-        {name === "" ? say("prologue.page.empty") : name}
-        {caption === "" ? null : <span className="font-medium text-text-2"> · {caption}</span>}
+      {/* The words truncate inside, so the button's reach pad is not cut with them (world:reach-and-read). */}
+      <button type="button" className="reach min-w-0 flex-1 text-left text-[14px] font-bold" aria-label={say("ui.door.edit.life")} onClick={onLife ?? undefined} disabled={onLife === null} data-door-edit="life">
+        <span className="block truncate">
+          {name === "" ? say("prologue.page.empty") : name}
+          {caption === "" ? null : <span className="font-medium text-text-2"> · {caption}</span>}
+        </span>
       </button>
       {thing === null ? null : (
         <span className="sticker-cut shrink-0" style={{ rotate: "6deg" }} aria-hidden>
@@ -138,7 +141,7 @@ function Goal({ reached }: { reached: boolean }) {
           {say("ui.door.home.goal")}
         </StickerChip>
         {reached ? (
-          <span className="text-[11px] font-bold text-text-2" data-home-reached>
+          <span className="text-[12px] font-bold text-text-2" data-home-reached>
             {say("ui.door.home.reached")}
           </span>
         ) : null}
@@ -188,7 +191,7 @@ export function HomeRow({ archetype, years, home, onHome }: HomeProps) {
               <span className="mx-0.5 mt-1.5 block min-h-[28px] text-[12px] leading-tight font-bold">{say(`ui.door.home.${one}`)}</span>
               <span className="mx-0.5 mt-1 block leading-tight" data-home-left={shown.kind}>
                 <b className="num block text-[13px]">{shown.figure}</b>
-                <i className="block text-[11px] font-medium text-text-2 not-italic">{say(`ui.door.home.${shown.kind}`)}</i>
+                <i className="block text-[12px] font-medium text-text-2 not-italic">{say(`ui.door.home.${shown.kind}`)}</i>
               </span>
               {shut ? (
                 <span className="round-button absolute top-1 right-1 size-6! shadow-none!" aria-hidden>

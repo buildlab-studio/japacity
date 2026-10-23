@@ -7,6 +7,7 @@
 // browser, is said as that and not as "try again"; a session lost a second time in a row, or cookies off, is said as a
 // browser that keeps no sign-in (account:bot-check-on-guest-creation).
 import { USERNAME, USERNAME_LONGEST as LONGEST } from "@japacity/api";
+import { Check } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import type { AccountApi, FreeAnswer, GuestFailure } from "../../shared/net/auth";
@@ -146,7 +147,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   };
 }
 
-const FIELD = "h-12 w-full min-w-0 rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[17px] font-bold text-text outline-none focus:border-action";
+const FIELD = "h-12 w-full min-w-0 rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[17px] font-bold text-text focus:border-action";
 
 /**
  * account:username-typed-and-checked: what the box says of the name being typed. Nothing while it is empty; the shape's words for a
@@ -198,7 +199,9 @@ function GuestFields({ value, onChange, problem, ask, widget }: { value: string;
         onChange={(event) => onChange(event.target.value)}
       />
       {/* Polite, so the answer is heard as the player types; Begin's own refusal below is the alert. */}
-      <p id="guest-username-check" role="status" className={`text-[13px] font-bold ${free === null || problem !== null ? "" : "mt-1.5"} ${free === "free" ? "text-action" : "text-text"}`} data-username-check={free ?? ""}>
+      {/* A free name in money in's green with a tick, read on the sheet by day and by night (world:reach-and-read). */}
+      <p id="guest-username-check" role="status" className={`text-[13px] font-bold ${free === null || problem !== null ? "" : "mt-1.5"} ${free === "free" ? "text-in" : "text-text"}`} data-username-check={free ?? ""}>
+        {free === "free" && problem === null ? <Check size={14} strokeWidth={3} className="mr-1 inline-block align-[-2px]" aria-hidden /> : null}
         {free === null || problem !== null ? null : say(FREE_WORDS[free])}
       </p>
       {problem === null ? (

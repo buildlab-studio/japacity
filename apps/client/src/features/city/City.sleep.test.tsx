@@ -162,3 +162,15 @@ describe("sleep, a timed act from the bed", () => {
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
   });
 });
+
+describe("the sleep's bar under Reduce Motion (world:reach-and-read)", () => {
+  test("[world:reach-and-read] given the bed's Sleep tapped, then the bar carries the sleep's length in whole seconds, the steps it takes under Reduce Motion", async () => {
+    await byTheBed();
+    pressFanActNow("mattress", "end-month");
+    await pass(0);
+    const bar = found("[data-asleep-bar]");
+    const ms = parseFloat(bar.style.animationDuration);
+    expect(bar.style.getPropertyValue("--seconds")).toBe(String(Math.ceil(ms / 1000)));
+  });
+});
+

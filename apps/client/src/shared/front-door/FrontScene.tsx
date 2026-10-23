@@ -15,6 +15,7 @@ import { loadManifest } from "../three/manifest";
 import { figureOf, poseFigure } from "../three/people";
 import { modeSettings } from "../scene/mode";
 import { filesOf, type PlaceFile, stageOf } from "../scene/placeFile";
+import { useMotionReduced } from "../ui/motion";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../scene/world";
 import { readLook, wear } from "./colours";
 import { BACK, compoundCamera, FOV, GATE, HIGH, loadCompound, PLACE } from "./compound";
@@ -70,6 +71,8 @@ function Compound({ file, look, spin, style, onShown }: FrontSceneProps & { file
   const shown = useRef<string | null>(null);
   const facing = useRef(TO_SHEET);
   const speed = useRef(SLOW_TURN);
+  // world:reach-and-read: under Reduce Motion the figure turns only by the finger.
+  const reduced = useMotionReduced();
   const plinth = useRef<Mesh>(null);
   const camera = useThree((state) => state.camera);
   const settings = modeSettings("low", { finePointer: false, width: 390, pixelRatio: 1 }, content.tuning.city);
@@ -137,7 +140,7 @@ function Compound({ file, look, spin, style, onShown }: FrontSceneProps & { file
     const time = advanceClock(delta);
     if (world === null) return;
     animateWorld(world, time, delta);
-    const turned = turnFrame(spin, facing.current, speed.current, delta);
+    const turned = turnFrame(spin, facing.current, speed.current, delta, reduced.current);
     facing.current = turned.angle;
     speed.current = turned.speed;
     world.own.root.position.set(GATE[0], PLINTH_HIGH, GATE[1]);

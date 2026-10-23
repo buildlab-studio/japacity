@@ -44,7 +44,7 @@ function StillMap({ pins }: { pins: readonly MapPin[] }) {
   const stops = placeStops(pins.map((pin) => ({ id: pin.id, state: pin.state, position: pin.position })));
   const [cx, cy] = toPaper({ latE3: FAMILY_SPOT.latE3 - 6, lonE3: FAMILY_SPOT.lonE3 + 18 });
   return (
-    <div ref={box} className="paper absolute inset-0 overflow-hidden" style={{ background: "var(--sea)" }} aria-hidden>
+    <div ref={box} className="paper absolute inset-0 overflow-hidden" style={{ background: "var(--sea)" }} aria-hidden inert>
       <World variant="open" uid="start" frame={{ x: size.width / 2 - ZOOM * cx, y: size.height / 2 - ZOOM * cy, sx: ZOOM, sy: ZOOM }} stops={stops} names={nameOf} marks={{ home: FAMILY_HOUSE, picked: null, step: null }} tiles={tiles} pinPx={34} />
     </div>
   );

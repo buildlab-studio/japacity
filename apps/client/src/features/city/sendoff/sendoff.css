@@ -57,16 +57,16 @@
 .so-band .money { margin-left: auto; background: var(--so-money); color: var(--so-green); font-weight: 700; font-size: 15px; padding: 7px 12px; border-radius: 999px; border: 2px solid var(--so-green); flex-shrink: 0; }
 
 /* The round thumbs at the foot, drawn as the world's; the scene decides nothing with them. */
-.so-thumb { position: absolute; bottom: 22px; width: 68px; height: 68px; border-radius: 50%; background: #fff; border: 2.5px solid var(--so-navy); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: var(--so-navy); gap: 2px; z-index: 6; pointer-events: none; }
+.so-thumb { position: absolute; bottom: 22px; width: 68px; height: 68px; border-radius: 50%; background: #fff; border: 2.5px solid var(--so-navy); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--so-navy); gap: 2px; z-index: 6; pointer-events: none; }
 .so-thumb.map { left: 18px; }
 .so-thumb.phone { right: 18px; }
 .so-thumb svg { width: 22px; height: 22px; }
-.so-badge { position: absolute; right: 2px; top: 2px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--so-yellow); border: 2px solid var(--so-navy); font-size: 11px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.so-badge { position: absolute; right: 2px; top: 2px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--so-yellow); border: 2px solid var(--so-navy); font-size: 12px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
 .so-dot { position: absolute; right: 4px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--so-yellow); border: 2px solid var(--so-navy); }
 
 /* A word bubble in a person's voice: the name pill on top, the words, the tail. */
 .so-bubble { position: absolute; background: #fff; border: 2.5px solid var(--so-navy); border-radius: 18px; padding: 10px 12px; font-size: 14.5px; font-weight: 500; line-height: 1.3; max-width: 230px; box-shadow: 0 6px 0 rgba(28, 42, 94, 0.12); z-index: 4; }
-.so-bubble .name { position: absolute; top: -14px; left: 12px; background: var(--so-navy); color: var(--so-cream); font-size: 11px; font-weight: 700; letter-spacing: 0.3px; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.so-bubble .name { position: absolute; top: -14px; left: 12px; background: var(--so-navy); color: var(--so-cream); font-size: 12px; font-weight: 700; letter-spacing: 0.3px; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 /* The tail points down at the one speaking, --so-tail in from the bubble's left edge; on .side it points left, at a speaker beside the bubble. */
 .so-bubble::after { content: ""; position: absolute; bottom: -9px; left: var(--so-tail, 28px); width: 16px; height: 16px; background: #fff; border-right: 2.5px solid var(--so-navy); border-bottom: 2.5px solid var(--so-navy); transform: rotate(45deg); }
 .so-bubble.right::after { left: auto; right: 28px; }
@@ -104,7 +104,7 @@
 .so-hall-wall { position: absolute; left: 0; right: 0; top: 96px; height: 180px; background: #d0dded; }
 .so-hall-wall .win { position: absolute; top: 16px; height: 90px; background: #eef5fc; border: 3px solid #b9c8dc; border-radius: 6px; }
 .so-counters { position: absolute; z-index: 1; left: 0; right: 0; top: 266px; height: 56px; background: #2c3f87; border-top: 10px solid var(--so-yellow); box-shadow: 0 10px 0 #18234f; }
-.so-counters .sign { position: absolute; top: -80px; background: #fff; border: 2.5px solid var(--so-navy); border-radius: 10px; padding: 4px 9px; font-size: 11px; font-weight: 700; color: var(--so-navy); }
+.so-counters .sign { position: absolute; top: -80px; background: #fff; border: 2.5px solid var(--so-navy); border-radius: 10px; padding: 4px 9px; font-size: 12px; font-weight: 700; color: var(--so-navy); }
 .so-floor { position: absolute; left: 0; right: 0; top: 322px; bottom: 0; background-color: #e3e9f1; background-image: repeating-linear-gradient(90deg, transparent 0 62px, rgba(28, 42, 94, 0.08) 62px 64px), repeating-linear-gradient(0deg, transparent 0 48px, rgba(28, 42, 94, 0.08) 48px 50px); }
 .so-rope { position: absolute; left: 22px; right: 22px; top: 548px; height: 34px; border-bottom: 5px solid var(--so-rose); border-radius: 0 0 50% 50% / 0 0 100% 100%; z-index: 3; }
 .so-post { position: absolute; top: 532px; width: 12px; height: 60px; background: var(--so-navy); border-radius: 4px; z-index: 3; }
@@ -118,13 +118,13 @@
 .so-desk { position: absolute; left: 0; right: 0; top: 420px; height: 150px; background: #2c3f87; border-top: 14px solid var(--so-yellow); box-shadow: 0 12px 0 #18234f; z-index: 1; }
 .so-desk-floor { position: absolute; left: 0; right: 0; top: 570px; bottom: 0; background: #e3e9f1; }
 .so-clerk { position: absolute; overflow: hidden; }
-.so-passport { position: absolute; width: 76px; height: 104px; border-radius: 7px; background: #1b5e3b; border: 2px solid #0f3d26; box-shadow: 0 0 0 3px #fff, 0 8px 10px rgba(19, 26, 51, 0.3); color: #e7c46a; font-weight: 700; text-align: center; font-size: 8.5px; letter-spacing: 1px; padding-top: 10px; line-height: 1.5; white-space: pre-line; z-index: 3; }
+.so-passport { position: absolute; width: 76px; height: 104px; border-radius: 7px; background: #1b5e3b; border: 2px solid #0f3d26; box-shadow: 0 0 0 3px #fff, 0 8px 10px rgba(19, 26, 51, 0.3); color: #e7c46a; font-weight: 700; text-align: center; font-size: 12px; letter-spacing: 0.5px; padding-top: 10px; line-height: 1.5; white-space: pre-line; z-index: 3; }
 .so-passport .seal { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #e7c46a; margin: 8px auto 10px; }
 .so-stub { position: absolute; width: 236px; height: 92px; border-radius: 10px; background: var(--so-yellow); border: 2.5px solid var(--so-navy); box-shadow: 0 0 0 3px #fff, 0 8px 10px rgba(19, 26, 51, 0.3); padding: 8px 48px 8px 10px; color: var(--so-ink); z-index: 3; }
-.so-stub .k { font-size: 9px; font-weight: 700; letter-spacing: 1.4px; color: #5c4a00; }
+.so-stub .k { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; color: #5c4a00; }
 .so-stub .r { display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px; gap: 8px; }
 .so-stub .big { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; }
-.so-stub .s { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.so-stub .s { font-size: 12px; font-weight: 700; white-space: nowrap; }
 .so-stub .cut { position: absolute; right: 38px; top: 0; bottom: 0; border-left: 2px dashed var(--so-navy); opacity: 0.6; }
 .so-slide-l { animation: so-slide-l 0.42s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
 .so-slide-r { animation: so-slide-r 0.42s cubic-bezier(0.2, 0.9, 0.25, 1) 0.08s both; }
@@ -210,7 +210,7 @@
 .so-pings { position: absolute; display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; z-index: 5; }
 .so-ping { position: relative; background: #fff; border: 2.5px solid var(--so-navy); border-radius: 14px; padding: 5px 9px; font-size: 12px; font-weight: 600; box-shadow: 0 5px 0 rgba(28, 42, 94, 0.14); line-height: 1.25; }
 .so-ping .words { display: block; }
-.so-ping b { display: block; font-size: 11px; color: var(--so-green); font-weight: 700; letter-spacing: 0.3px; }
+.so-ping b { display: block; font-size: 12px; color: var(--so-green); font-weight: 700; letter-spacing: 0.3px; }
 .so-ping-in { animation: so-ping-in 0.28s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
 @keyframes so-ping-in { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
 /* "Send-off card saved" in the scene's toast lane, under the band, over nobody. */

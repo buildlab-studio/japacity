@@ -9,7 +9,7 @@ export function StatBox({ label, value, mark }: { label: string; value: string; 
   return (
     <div className="rounded-[5px] bg-sheet-muted py-2 text-center" data-stat={mark}>
       <div className="num text-[17px]">{value === "" ? say("prologue.page.empty") : value}</div>
-      <div className="label text-[9px] text-text-2">{label}</div>
+      <div className="label text-text-2">{label}</div>
     </div>
   );
 }

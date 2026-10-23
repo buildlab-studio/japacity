@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { lookForName } from "../front-door/looks";
 import { FaceTile } from "../ui/lively/FaceTile";
+import { Loader } from "../ui/Loader";
 import type { ModerationApi } from "./api";
 import { words } from "./moderation.words";
 
@@ -69,7 +70,8 @@ export default function BlockedList({ moderation }: { moderation: ModerationApi 
     [moderation],
   );
 
-  if (asked.state === "loading") return <p className="text-[14px] text-text-2" aria-busy="true" />;
+  // The shared loader while the list is asked for (world:reach-and-read), never an empty sheet.
+  if (asked.state === "loading") return <Loader label={words("ui.blocked.loading")} className="my-2" />;
   if (asked.state === "failed") {
     return (
       <div className="lively-card flex flex-col items-start gap-2.5 p-3" data-blocked-failed>

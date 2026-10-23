@@ -27,3 +27,19 @@ describe("the figure on the plinth", () => {
     expect(state.speed).toBeCloseTo(SLOW_TURN, 2);
   });
 });
+
+describe("the figure under Reduce Motion (world:reach-and-read)", () => {
+  test("[world:reach-and-read] given Reduce Motion and no finger, then the figure stands still: nothing turns on its own", () => {
+    expect(turnFrame(still(), 0.3, SLOW_TURN, 1, true)).toEqual({ angle: 0.3, speed: 0 });
+  });
+
+  test("[world:reach-and-read] given Reduce Motion and a flick let go, then the figure stops where it was let go rather than coasting", () => {
+    expect(turnFrame(still(), 1.1, 20, 1 / 60, true)).toEqual({ angle: 1.1, speed: 0 });
+  });
+
+  test("[world:reach-and-read] given Reduce Motion and a finger dragging, then the figure still turns by the drag", () => {
+    const spin: Spin = { dragging: true, pending: 0.4, last: 0 };
+    expect(turnFrame(spin, 0.5, 0, 1 / 60, true).angle).toBeCloseTo(0.9);
+  });
+});
+

@@ -32,12 +32,12 @@ export function markNode(thing: Pick<Thing, "id" | "label" | "mark">, onTap: () 
   if (thing.mark !== undefined) name.append(markTag(thing.mark));
   const tag = document.createElement("span");
   tag.dataset.thingState = "";
-  tag.className = "ml-1.5 rounded-[3px] bg-strong px-1.5 py-px align-[1px] text-[10px] font-extrabold text-on-strong";
+  tag.className = "ml-1.5 rounded-[3px] bg-strong px-1.5 py-px align-[1px] text-[12px] font-extrabold text-on-strong";
   tag.hidden = true;
   name.append(tag);
-  // The dot sits in a target big enough for a thumb; the dot itself stays small and still.
+  // The dot sits in a target big enough for a thumb, 44 px (world:reach-and-read), its foot tucked so the dot stands where it did; the dot itself stays small and still.
   const hit = document.createElement("span");
-  hit.className = "flex size-8 items-center justify-center";
+  hit.className = "flex size-11 -mb-1.5 items-center justify-center";
   const dot = document.createElement("span");
   dot.dataset.markDot = "";
   dot.className = "mark-dot";

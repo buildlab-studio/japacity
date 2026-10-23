@@ -34,7 +34,7 @@ export interface AgeScreenProps {
   thisYear?: number;
 }
 
-const FIELD = "h-12 w-full min-w-0 appearance-none rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[16px] font-bold text-text outline-none focus:border-action";
+const FIELD = "h-12 w-full min-w-0 appearance-none rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[16px] font-bold text-text focus:border-action";
 
 export function AgeScreen({ account, onStanding, onBack = null, onReturning = null, said = null, thisYear = new Date().getFullYear() }: AgeScreenProps) {
   const [day, setDay] = useState("");
@@ -68,7 +68,7 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
     <form className="flex flex-col gap-3" onSubmit={(event) => void answer(event)} noValidate data-age-screen>
       <div className="flex items-center gap-2">
         {onBack === null ? null : (
-          <button type="button" aria-label={say("ui.account.back")} className="press flex size-9 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={onBack}>
+          <button type="button" aria-label={say("ui.account.back")} className="press flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={onBack}>
             <ArrowLeft size={18} />
           </button>
         )}

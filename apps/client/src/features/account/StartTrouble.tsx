@@ -7,6 +7,7 @@ import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { Trouble } from "../../authority/store";
 import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
+import { Loader } from "../../shared/ui/Loader";
 import { TroubleFace } from "../../shared/ui/Trouble";
 import { say } from "../../shared/words/text";
 
@@ -19,8 +20,9 @@ export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
           <div className="flex flex-col" data-start-trouble={trouble?.kind ?? "asking"}>
             <StartHook />
             {trouble === null ? (
-              <p role="status" className="mt-4 text-[14px] text-text-2">
+              <p role="status" className="mt-4 flex flex-col gap-2 text-[14px] text-text-2">
                 {say("ui.account.loading")}
+                <Loader label={say("ui.account.loading")} />
               </p>
             ) : (
               <div className="-mx-4 mt-2">

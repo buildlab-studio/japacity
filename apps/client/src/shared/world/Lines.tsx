@@ -428,7 +428,7 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
           <span key={speech.id} className={`pop block ${anchored ? "-translate-x-1/2 -translate-y-full" : ""}`}>
             <span className="talk-bubble block px-3 py-2">
               <span className="mb-1 flex items-center gap-1.5 text-[13px] font-bold">
-                <span className="face-mark flex size-5 shrink-0 items-center justify-center text-[11px] text-white" style={{ background: faceMark(speech.name).colour }} aria-hidden>
+                <span className="face-mark flex size-5 shrink-0 items-center justify-center text-[12px] text-white" style={{ background: faceMark(speech.name).colour }} aria-hidden>
                   {faceMark(speech.name).initial}
                 </span>
                 <span data-speech-name>{speech.name}</span>

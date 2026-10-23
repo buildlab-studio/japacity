@@ -13,6 +13,7 @@ export const uiModerationText = {
   "ui.blocked.none": "You have not blocked anyone.",
   "ui.blocked.failed": "The list did not load.",
   "ui.blocked.retry": "Try again",
+  "ui.blocked.loading": "Getting the list...",
   "ui.report": "Report",
   "ui.report.title": "Report {name}",
   "ui.report.intro": "Pick what is wrong. A person on the team reads every report.",
