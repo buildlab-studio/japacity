@@ -5,7 +5,7 @@ description: "How a change is checked against the lives players already have on 
 
 # A change meets the lives already shipped
 
-Once a player has a life on production, a change is not only code: it is something that happens to that life. This skill is how a change is judged against shipped lives before it is built and before it is deployed. Staging's lives belong to testers and may be reset with the maintainer's word; production's are never reset.
+Once a player has a life on production, a change is not only code: it is something that happens to that life. This skill is how a change is judged against shipped lives before it is built and before it is deployed. Staging's lives are test lives and may be reset with the maintainer's word; production's are never reset.
 
 ## How a life is kept, and why a rules change can break it
 
@@ -19,7 +19,7 @@ Once a player has a life on production, a change is not only code: it is somethi
 ## First, know what is shipped
 
 1. Production's commit and content version: `/api/health` answers `content`, and the maintainer's record of the deploy names the commit.
-2. Whether lives exist on it: the maintainer counts `characters` on the production branch (through the Neon tools; an agent asks the maintainer). No lives, no carrying: anything may change.
+2. Whether lives exist on it: the maintainer counts `characters` in production's database (an agent never reads it, and asks the maintainer). No lives, no carrying: anything may change.
 3. What is on staging, likewise, and whose lives they are.
 
 ## Then classify the change
