@@ -115,6 +115,11 @@ export const uiOnlineText: Record<string, string> = {
   "ui.invite.taken": "Done. You are linked.",
   "ui.invite.play": "Play",
   "ui.invite.offline": "Invite cards work only when the game is online.",
+  "ui.invite.open": "Open Japacity",
+  "ui.invite.checking": "Checking the link...",
+  "ui.invite.again": "Ask your friend to make you a new card.",
+  "ui.invite.unchecked": "The game could not check this link. Check your connection and try again.",
+  "ui.invite.retry": "Try again",
 
   // The full screen while sign-ups are switched off (server:signups-off-shows-full)
   "server.full": "Japacity is full right now. Try again shortly.",
