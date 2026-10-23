@@ -18,8 +18,8 @@ function effectsOf(questionId: string, answer: string): Effect[] {
 
 describe("the December visit", () => {
   test("[return:december-visit-set-piece] given each country, when the go question is read, then going takes the fare both ways times the December factor in the country's currency, and staying, listed first, takes nothing", () => {
-    // £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8, €480 x 2 x 2.0.
-    const fares = { uk: ["GBP", 310000], ca: ["CAD", 594000], uae: ["AED", 684000], it: ["EUR", 192000] } as const;
+    // £380 x 2 x 1.7, C$1,350 x 2 x 2.2, AED 1,300 x 2 x 1.8, €480 x 2 x 2.0.
+    const fares = { uk: ["GBP", 129200], ca: ["CAD", 594000], uae: ["AED", 468000], it: ["EUR", 192000] } as const;
     for (const [suffix, [currency, amount]] of Object.entries(fares)) {
       expect(question(`go-${suffix}`).answers.map((answer) => answer.id)).toEqual(["stay", "go"]);
       expect(effectsOf(`go-${suffix}`, "go")).toEqual([{ type: "money/take", currency, pocket: "transfer", amount, reason: "fare" }]);
@@ -50,7 +50,7 @@ describe("the December visit", () => {
     expect(december.ask).toBe(4);
     const missing = december.questions.flatMap((item) => [`setpiece.december.q.${item.id}`, ...item.answers.map((answer) => `setpiece.december.a.${item.id}.${answer.id}`)]).filter((key) => (text[key] ?? "") === "");
     expect(missing).toEqual([]);
-    expect(text["setpiece.december.a.go-uk.go"]).toBe("Book the flight: £3,100 there and back");
+    expect(text["setpiece.december.a.go-uk.go"]).toBe("Book the flight: £1,292 there and back");
     expect(text["setpiece.december.a.party-uk.big"]).toBe("Go big: £227");
   });
 
@@ -72,7 +72,7 @@ describe("the December visit", () => {
       }
     }
     for (const item of december.questions) expect(item.answers.some((answer) => (answer.requires ?? []).length === 0)).toBe(true);
-    expect(question("go-uk").answers.find((answer) => answer.id === "go")?.requires).toEqual([{ type: "money/min", currency: "GBP", amount: 310000 }]);
+    expect(question("go-uk").answers.find((answer) => answer.id === "go")?.requires).toEqual([{ type: "money/min", currency: "GBP", amount: 129200 }]);
   });
 
   test("[luck:big-wins-are-staged] given the staged December line, when its words are looked up, then they are there", () => {

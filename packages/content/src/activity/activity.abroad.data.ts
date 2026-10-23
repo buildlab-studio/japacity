@@ -179,13 +179,13 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     ),
     sickLeave: true,
   },
-  // The student job: 20 hours at £12.21 an hour, about £10,400 a year.
+  // The student job: 20 hours at £12.71 an hour, about £13,200 a year.
   "activity.job-uk-retail-part": {
     ...job(
       "activity.job-uk-retail-part",
       "country.uk",
       IN_UK,
-      { currency: "GBP", amount: pounds(10400) },
+      { currency: "GBP", amount: pounds(13200) },
       pct(55),
       [],
       [wellbeing(-3)],
@@ -434,7 +434,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   // The interface's name for wallet/remit: it opens the remit sheet. Nothing happens in the slot itself.
   "activity.send-money": free("activity.send-money", null, [ABROAD], { cost: [], effects: [] }),
   // return:december-visit-set-piece: in the December tick, the fare both ways times the December factor:
-  // £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8 (place.md).
+  // £380 x 2 x 1.7, C$1,350 x 2 x 2.2, AED 1,300 x 2 x 1.8 (place.md).
   // An overstayer cannot fly out and back, so not on the overstayer status; and
   // none from Italy, where the only status is irregular. These slots open no set piece:
   // the place kind opens the December set piece in the same tick.
@@ -443,7 +443,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     "country.uk",
     [IN_UK, { type: "var/min", var: "var.season-december", value: 1 }, { type: "not", of: { type: "status/is", statuses: ["status.uk-overstayer"] } }],
     {
-      cost: [{ currency: "GBP", amount: pounds(3100), reason: "fare" }],
+      cost: [{ currency: "GBP", amount: pounds(1292), reason: "fare" }],
       effects: [gain("quality.standing", 12), wellbeing(6)],
     },
   ),
@@ -484,7 +484,7 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
     "country.uae",
     [IN_UAE, { type: "var/min", var: "var.season-december", value: 1 }, { type: "not", of: { type: "status/is", statuses: ["status.uae-irregular"] } }],
     {
-      cost: [{ currency: "AED", amount: aed(6840), reason: "fare" }],
+      cost: [{ currency: "AED", amount: aed(4680), reason: "fare" }],
       effects: [gain("quality.standing", 12), wellbeing(6)],
     },
   ),

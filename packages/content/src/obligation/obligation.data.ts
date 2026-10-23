@@ -324,6 +324,9 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   // No rent while the Gulf employer houses you; this is for anyone else in the UAE.
   "obligation.rent-room-uae": rentRoom("obligation.rent-room-uae", "AED", aed(1200)),
   "obligation.rent-room-italy": rentRoom("obligation.rent-room-italy", "EUR", euros(350)),
+  // abroad-money:right-to-rent-check: the room let with no papers asked, a quarter above the shared room, after the landlord's check
+  // ends the room. It reports to no credit file; its misses follow the shared room's.
+  "obligation.rent-cash-room-uk": { ...rentRoom("obligation.rent-cash-room-uk", "GBP", pounds(840)), reportsToCredit: false },
 
   "obligation.rent-flat-uk": rentFlat("obligation.rent-flat-uk", "GBP", pounds(950), "obligation.rent-room-uk"),
   "obligation.rent-flat-canada": rentFlat("obligation.rent-flat-canada", "CAD", cad(1700), "obligation.rent-room-canada"),
@@ -376,7 +379,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     currency: "GBP",
     creditMin: 30,
     reportsToCredit: true,
-    // A month: 0.5% at 70 and up (6% a year), 0.9% from 50, 1.2% from 30 (about 15%). Under 30, none.
+    // A month, flat on the opening principal: 0.5% at 70 and up (about 9% APR), 0.9% from 50 (about 16%), 1.2% from 30 (about 22%). Under 30, none.
     rateByCredit: [
       { min: 70, rateBp: 50 },
       { min: 50, rateBp: 90 },
@@ -430,6 +433,24 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   // day of the return. The same terms as the shortfall abroad.
   "obligation.car-shortfall-home": {
     id: "obligation.car-shortfall-home",
+    type: "loan",
+    where: "any",
+    currency: "NGN",
+    reportsToCredit: true,
+    amount: 0,
+    rateBp: 0,
+    term: 12,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 1,
+    onMiss: [],
+    onDefault: [],
+  },
+
+  // status:uae-fine-accrues: the UAE's overstay fine left owing by an assisted return or a removal, carried home in naira at the
+  // day's official rate as the car's shortfall is (return:return-reopens-home-charges).
+  "obligation.uae-fine-home": {
+    id: "obligation.uae-fine-home",
     type: "loan",
     where: "any",
     currency: "NGN",

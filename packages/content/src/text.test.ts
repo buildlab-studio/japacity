@@ -115,8 +115,8 @@ describe("words for every entry", () => {
     // stages and its seven eras 21 (announced, in force, ended): 114 rows of a head and a body.
     // Plus the ended stage of the refusals story and the Canadian draw, which each have an end, and the
     // rumour of the UAE lifting, whose talk runs while the ban's 18 ticks run out: 236. Plus the one-chance story's
-    // announced and in-force stages (wallet:cash-pile-warning): 240.
-    expect(keys).toHaveLength(240);
+    // announced and in-force stages (wallet:cash-pile-warning): 240. Plus the UAE's amnesty, its four stages (status:uae-amnesty): 248.
+    expect(keys).toHaveLength(248);
     expect(missingWords(keys)).toEqual([]);
   });
 

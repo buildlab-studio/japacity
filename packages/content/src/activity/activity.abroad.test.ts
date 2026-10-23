@@ -110,10 +110,10 @@ describe("activities abroad", () => {
 
   test("[engine:content-checked-before-play] given the activities abroad, when figures from ladders.md and car.md are read back, then each matches the page", () => {
     const activity = { ...content.activity, ...foreignPocketActivityTable };
-    // Pay a year: the band 5 nurse £31,300, the warehouse £23,000, the student job £10,400, Canada's developer C$95,000, the farm €9,600.
+    // Pay a year: the band 5 nurse £31,300, the warehouse £23,000, the student job £13,200, Canada's developer C$95,000, the farm €9,600.
     expect(activity["activity.job-uk-nurse"]?.pay).toEqual({ currency: "GBP", amount: 3130000 });
     expect(activity["activity.job-uk-warehouse"]?.pay).toEqual({ currency: "GBP", amount: 2300000 });
-    expect(activity["activity.job-uk-retail-part"]).toMatchObject({ part: true, pay: { currency: "GBP", amount: 1040000 }, hireBp: 5500 });
+    expect(activity["activity.job-uk-retail-part"]).toMatchObject({ part: true, pay: { currency: "GBP", amount: 1320000 }, hireBp: 5500 });
     expect(activity["activity.job-canada-developer"]?.pay).toEqual({ currency: "CAD", amount: 9500000 });
     expect(activity["activity.job-italy-farm-cash"]).toMatchObject({ cash: true, withheldBp: 2500, pay: { currency: "EUR", amount: 960000 } });
     // The care worker's visiting-round bonus, £3,000 a year; the sponsor's salary is the pay.
@@ -128,10 +128,10 @@ describe("activities abroad", () => {
     expect(activity["activity.buy-car-finance"]?.effects).toEqual([{ type: "obligation/open", obligation: "obligation.car", principal: 855000 }]);
     // A flat's deposit is one month: £950.
     expect(activity["activity.rent-flat-uk"]?.cost).toEqual([{ currency: "GBP", amount: 95000, reason: "rent" }]);
-    // December home: the fare both ways times the factor. £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8.
-    expect(activity["activity.december-home-uk"]?.cost).toEqual([{ currency: "GBP", amount: 310000, reason: "fare" }]);
+    // December home: the fare both ways times the factor. £380 x 2 x 1.7, C$1,350 x 2 x 2.2, AED 1,300 x 2 x 1.8.
+    expect(activity["activity.december-home-uk"]?.cost).toEqual([{ currency: "GBP", amount: 129200, reason: "fare" }]);
     expect(activity["activity.december-home-canada"]?.cost).toEqual([{ currency: "CAD", amount: 594000, reason: "fare" }]);
-    expect(activity["activity.december-home-uae"]?.cost).toEqual([{ currency: "AED", amount: 684000, reason: "fare" }]);
+    expect(activity["activity.december-home-uae"]?.cost).toEqual([{ currency: "AED", amount: 468000, reason: "fare" }]);
     // The nurse's pay: a staff nurse at ₦180,000 a month (route-gates.md).
     expect(activity["activity.job-nurse"]?.pay).toEqual({ currency: "NGN", amount: 18000000 });
   });

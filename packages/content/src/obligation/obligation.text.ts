@@ -38,6 +38,8 @@ export const obligationText: Record<string, string> = {
   "obligation.car.name": "Car on finance",
   "obligation.car-shortfall.name": "What is still owed on the car",
   "obligation.car-shortfall-home.name": "What is still owed on the car you left",
+  "obligation.uae-fine-home.name": "The Dubai overstay fine you still owe",
+  "obligation.rent-cash-room-uk.name": "Rent on a room that asks no papers",
   "obligation.agent-debt.name": "What the men on the road say you owe",
   "obligation.group-loan.name": "Group loan",
   "obligation.guarantee.name": "Your cousin's loan, as guarantor",

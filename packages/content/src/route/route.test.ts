@@ -137,7 +137,10 @@ describe("spot checks against route-gates.md and road.md", () => {
     expect(start("var.uk-skilled-maintenance")).toBe(127000);
     expect(start("var.canada-funds")).toBe(1526300);
     expect(start("var.canada-eca-fee")).toBe(32900);
-    expect(start("var.canada-apply-fee")).toBe(152500);
+    expect(start("var.canada-apply-fee")).toBe(159000);
+    // route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs.
+    expect(start("var.canada-arc-fee")).toBe(49250);
+    expect(start("var.canada-removal-cost")).toBe(384000);
     expect(start("var.uk-talent-endorse-fee")).toBe(56100);
     expect(start("var.uk-talent-visa-fee")).toBe(20500);
     // Cut-offs and windows.
@@ -164,8 +167,8 @@ describe("spot checks against route-gates.md and road.md", () => {
     expect(content.document["document.eca"]).toMatchObject({ wait: [2, 4], validMonths: 60 });
     expect(content.document["document.endorsement"]).toMatchObject({ wait: [1, 2], validMonths: 3 });
     expect(content.document["document.nursing-licence"]?.validMonths).toBe(36);
-    // Activity fees: ₦150,000 verification, ₦60,000 medical, ₦25,000 licence.
-    expect(content.activity["activity.request-verification"]?.cost).toEqual([{ currency: "NGN", amount: 15000000, reason: "fee-document" }]);
+    // Activity fees: ₦66,875 verification, ₦60,000 medical, ₦25,000 licence.
+    expect(content.activity["activity.request-verification"]?.cost).toEqual([{ currency: "NGN", amount: 6687500, reason: "fee-document" }]);
     expect(content.activity["activity.gulf-medical"]?.cost).toEqual([{ currency: "NGN", amount: 6000000, reason: "fee-test" }]);
     expect(content.activity["activity.renew-licence"]?.cost).toEqual([{ currency: "NGN", amount: 2500000, reason: "fee-document" }]);
     // The skilled visa carries three years of surcharge, the talent visa five, the care visa none.

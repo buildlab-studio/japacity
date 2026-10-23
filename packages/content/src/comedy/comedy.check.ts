@@ -27,6 +27,7 @@ const ALSO_BAD: readonly string[] = [
   "line.place.returned-assisted",
   "line.place.returned-removed",
   "line.status.removed",
+  "line.status.noticed",
   "line.status.clock-ran",
   "line.route.banned",
   "line.route.funds-short",

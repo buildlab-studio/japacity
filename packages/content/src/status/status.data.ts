@@ -11,6 +11,8 @@
 //   country (a new sponsor, settlement, citizenship), false where it starts a stay.
 import type { Id, StatusEntry } from "@japacity/sim";
 
+import { aed, pounds } from "../units";
+
 type Shared = Omit<StatusEntry, "id" | "country" | "months" | "work" | "banMonths" | "detectBp">;
 type ByCountry = Pick<StatusEntry, "country" | "banMonths" | "detectBp">;
 
@@ -36,14 +38,14 @@ const BASE: Shared = {
   holdsPassport: false,
 };
 
-/** UK removal ban 10 years; 3% a month detection. */
-const UK: ByCountry = { country: "country.uk", banMonths: 120, detectBp: 300 };
-/** Removal from Canada modelled as 20 years; 3% a month detection. */
-const CANADA: ByCountry = { country: "country.canada", banMonths: 240, detectBp: 300 };
-/** The UAE: 5 years; 6% a month detection. */
-const UAE: ByCountry = { country: "country.uae", banMonths: 60, detectBp: 600 };
-/** Italy: 10 years; 4% a month detection. */
-const ITALY: ByCountry = { country: "country.italy", banMonths: 120, detectBp: 400 };
+/** UK removal ban 10 years; 1% a month detection. */
+const UK: ByCountry = { country: "country.uk", banMonths: 120, detectBp: 100 };
+/** Removal from Canada 10 years, then the authorisation to return (route-gates:canada-return-asks-authorisation); 1% a month detection. */
+const CANADA: ByCountry = { country: "country.canada", banMonths: 120, detectBp: 100 };
+/** The UAE: 5 years; 2% a month detection. */
+const UAE: ByCountry = { country: "country.uae", banMonths: 60, detectBp: 200 };
+/** Italy: 3 years, the real minimum; 1% a month detection. */
+const ITALY: ByCountry = { country: "country.italy", banMonths: 36, detectBp: 100 };
 
 /** Settled and citizen statuses: never removed, never detected. */
 const KEPT: Omit<ByCountry, "country"> = { banMonths: 0, detectBp: 0 };
@@ -133,6 +135,13 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     id: "status.uk-overstayer",
     months: null,
     work: "cash",
+    // status.md, "Entries: overstaying, country by country".
+    graceMonths: 1,
+    noticeMonths: 3,
+    ownFareBanMonths: 12,
+    assistedBanMonths: 24,
+    rentCheckBp: 1500,
+    returnGrant: pounds(1500),
   },
 
   // Canada
@@ -167,6 +176,11 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     id: "status.canada-overstayer",
     months: null,
     work: "cash",
+    // The 90-day restoration window; the notice is the departure order; leaving at one's own fare is never banned.
+    graceMonths: 3,
+    noticeMonths: 1,
+    ownFareBanMonths: 0,
+    assistedBanMonths: 12,
   },
 
   // The United Arab Emirates
@@ -190,6 +204,12 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     id: "status.uae-irregular",
     months: null,
     work: "cash",
+    // Any return from the overstay brings the one-year labour ban; the fine is AED 50 a day.
+    graceMonths: 1,
+    noticeMonths: 1,
+    ownFareBanMonths: 12,
+    assistedBanMonths: 12,
+    finePerMonth: aed(1500),
   },
 
   // Italy, where the road ends
@@ -200,6 +220,11 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     id: "status.eu-irregular",
     months: null,
     work: "cash",
+    // The road arrives with no papers, so there is no grace; the expulsion order gives a month to leave.
+    graceMonths: 0,
+    noticeMonths: 1,
+    ownFareBanMonths: 0,
+    assistedBanMonths: 0,
   },
 };
 

@@ -56,7 +56,7 @@ export const activityAbroadText: Record<string, string> = {
   "activity.learn-tech-canada.name": "Take a coding course, Canada",
   "activity.learn-tech-canada.blurb": "You pay for an evening course at the college and do the exercises on the bus.",
   "activity.study-english-uk.name": "Study English, UK",
-  "activity.study-english-uk.blurb": "You take an evening class. Settlement asks for a B2 result.",
+  "activity.study-english-uk.blurb": "You take an evening class.",
   "activity.nmc-tests.name": "Sit the nursing tests",
   "activity.nmc-tests.blurb": "The computer test and the practical exam that put you on the UK register.",
   "activity.driving-test.name": "Learn to drive",

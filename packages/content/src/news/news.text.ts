@@ -42,7 +42,7 @@ export const newsText: Record<string, string> = {
     "Two people in your office were told to \"check back next week\" for their allowance.",
   "news.dollar-scarcity.announced.head": "Banks ration foreign currency",
   "news.dollar-scarcity.announced.body":
-    "Personal allowances are cut to a fifth. School fees will be \"processed in order of receipt\".",
+    "Personal allowances are cut from $500 a month to $200. School fees will be \"processed in order of receipt\".",
   "news.dollar-scarcity.in-force.head": "The queue is now two months",
   "news.dollar-scarcity.in-force.body": "The FX man has dollars today. At his price.",
   "news.dollar-scarcity.ended.head": "The rationing is over",
@@ -218,6 +218,16 @@ export const newsText: Record<string, string> = {
   "news.uae-lifted.announced.body": "Work visas will be issued again from next month.",
   "news.uae-lifted.in-force.head": "The Gulf is open again",
   "news.uae-lifted.in-force.body": "Agents are back at the park. So are the fake ones.",
+
+  "news.uae-amnesty.name": "The UAE opens an amnesty for overstayers",
+  "news.uae-amnesty.rumour.head": "Talk of an amnesty in Dubai",
+  "news.uae-amnesty.rumour.body": "People without papers say the government will let them leave with no fine.",
+  "news.uae-amnesty.announced.head": "The UAE announces an amnesty",
+  "news.uae-amnesty.announced.body": "For four months, anyone without papers may leave with no fine and no ban.",
+  "news.uae-amnesty.in-force.head": "The amnesty is open",
+  "news.uae-amnesty.in-force.body": "Leave now and there is no fine at the airport and no ban after.",
+  "news.uae-amnesty.ended.head": "The amnesty has closed",
+  "news.uae-amnesty.ended.body": "The fines and the bans are back.",
 
   "news.passport-fee-doubles.name": "Passport fee to double",
   "news.passport-fee-doubles.rumour.head": "The passport may cost more",

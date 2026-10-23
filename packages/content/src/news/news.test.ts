@@ -5,8 +5,8 @@ import { describe, expect, test } from "vitest";
 import { badNews } from "../comedy/comedy.check";
 import { content, text } from "../index";
 
-/** The five stories of news.md, the 25 of director.md's pool, the one-chance story of wallet:cash-pile-warning and one for each of the seven eras. */
-const STORY_COUNT = 5 + 25 + 1 + 7;
+/** The five stories of news.md, the 26 of director.md's pool, the one-chance story of wallet:cash-pile-warning and one for each of the seven eras. */
+const STORY_COUNT = 5 + 26 + 1 + 7;
 
 /** Every variable a requirement reads, through `not` and `any`. */
 function varsRead(requirements: Requirement[]): Id<"var">[] {

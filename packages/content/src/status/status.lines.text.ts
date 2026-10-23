@@ -15,5 +15,7 @@ export const statusLinesText: Record<string, string> = {
   "line.status.renewed": "Renewed for {months} months. The fee: {fee}. The surcharge: {surcharge}.",
   "line.status.employer-renewed": "The employer kept you on. {status} runs {months} months more, at their cost.",
   "line.status.removed": "They found you. You were put on a plane to Lagos, and {country} is closed to you for {months} months.",
+  "line.status.noticed": "You have been found. A notice says you must leave {country} or put your papers right within {months} months.",
+  "line.status.rent-checked": "The landlord checked your papers and ended your room. The room you found asks no papers, and it costs more.",
   "line.status.closed": "You no longer hold {status}.",
 };

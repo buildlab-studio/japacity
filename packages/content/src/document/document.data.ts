@@ -5,6 +5,8 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   "document.passport": { id: "document.passport", wait: [1, 3], validMonths: 60, result: null },
   "document.transcript": { id: "document.transcript", wait: [1, 4], validMonths: null, result: null },
   "document.english-test": { id: "document.english-test", wait: [1, 1], validMonths: 24, result: "english-band" },
+  // document:degree-english-statement: the degree's English statement, a month's wait, for good, with no value: it always passes.
+  "document.degree-english": { id: "document.degree-english", wait: [1, 1], validMonths: null, result: null },
   "document.tb-certificate": { id: "document.tb-certificate", wait: [0, 0], validMonths: 6, result: null },
   // document:police-certificate-for-routes: the police character certificate, for the routes that take one.
   "document.police-certificate": { id: "document.police-certificate", wait: [1, 3], validMonths: 12, result: null },

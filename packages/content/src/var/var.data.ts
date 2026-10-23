@@ -62,13 +62,16 @@ export const varTable: Record<Id<"var">, VarEntry> = {
 
   "var.canada-funds": { id: "var.canada-funds", start: 1526300 },
   "var.canada-eca-fee": { id: "var.canada-eca-fee", start: 32900 },
-  "var.canada-apply-fee": { id: "var.canada-apply-fee", start: 152500 },
+  "var.canada-apply-fee": { id: "var.canada-apply-fee", start: 159000 },
   // Working values, not the real draws: a bachelor's, band 7.0, a year of work and under thirty (404) is one short, and
   // three years of work (429) clears it after the general pause too (+20, news.canada-general-stops); a diploma, band 6.0
   // and no work (289) never reaches either. The care cut-off sits below by the share of the real ones, 475 of 520.
   "var.canada-cutoff": { id: "var.canada-cutoff", start: 405 },
   "var.canada-care-cutoff": { id: "var.canada-care-cutoff", start: 370 },
   "var.canada-decision-months": { id: "var.canada-decision-months", start: 6 },
+  // route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs repaid, in Canadian cents.
+  "var.canada-arc-fee": { id: "var.canada-arc-fee", start: 49250 },
+  "var.canada-removal-cost": { id: "var.canada-removal-cost", start: 384000 },
 
   // route-gates.md: the endorsement route, in pence.
 
@@ -102,6 +105,8 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.transcript-wait-extra": { id: "var.transcript-wait-extra", start: 0 },
   // Basis points: the fare is multiplied by this over 10000.
   "var.flight-factor": { id: "var.flight-factor", start: 10000 },
+  // status:uae-amnesty: 1 while the director's amnesty story holds.
+  "var.uae-amnesty": { id: "var.uae-amnesty", start: 0 },
   // Basis points added to the remote job's hire chance.
   "var.remote-hire-bonus": { id: "var.remote-hire-bonus", start: 0 },
   // person.md and undertaking.md: the partner and dependant routes' figures

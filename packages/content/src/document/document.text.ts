@@ -5,6 +5,8 @@ export const documentText: Record<string, string> = {
   "document.passport.name": "Passport",
   "document.transcript.name": "Degree transcript",
   "document.english-test.name": "English test result",
+  "document.degree-english.name": "Your degree's English statement",
+  "document.degree-english.blurb": "A letter that says your degree was taught in English. The UK work routes and the partner route take it in place of a test.",
   "document.tb-certificate.name": "TB test certificate",
   "document.police-certificate.name": "Police character certificate",
   "document.police-certificate.blurb": "A letter from the police that says you have no record. The routes abroad ask for it. It lasts a year.",

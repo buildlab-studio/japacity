@@ -100,11 +100,11 @@ describe("statuses", () => {
     expect(content.status["status.uk-settled"]).toMatchObject({ months: null, citizenAfter: 12, citizen: "status.uk-citizen" });
     // The Gulf worker: 24 months, lapses at once, the employer holds the passport.
     expect(content.status["status.gulf-worker"]).toMatchObject({ months: 24, lapsesAtOnce: true, clockMonths: null, holdsPassport: true, banMonths: 60 });
-    // Bans and detection: 10 years in the UK, 20 years in Canada; 3%, 3%, 6%, 4%.
-    expect(content.status["status.uk-overstayer"]).toMatchObject({ banMonths: 120, detectBp: 300 });
-    expect(content.status["status.canada-overstayer"]).toMatchObject({ banMonths: 240, detectBp: 300 });
-    expect(content.status["status.uae-irregular"]?.detectBp).toBe(600);
-    expect(content.status["status.eu-irregular"]?.detectBp).toBe(400);
+    // Bans and detection: 10 years in the UK and Canada, 3 in Italy; 1%, 1%, 2%, 1%.
+    expect(content.status["status.uk-overstayer"]).toMatchObject({ banMonths: 120, detectBp: 100 });
+    expect(content.status["status.canada-overstayer"]).toMatchObject({ banMonths: 120, detectBp: 100 });
+    expect(content.status["status.uae-irregular"]?.detectBp).toBe(200);
+    expect(content.status["status.eu-irregular"]).toMatchObject({ banMonths: 36, detectBp: 100 });
     // Fees and months from the world: £3,226, £1,709, £1,865, £1,035 a year, C$630; 24, 60, 36, 36 months.
     expect(content.var["var.uk-settle-fee"]?.start).toBe(322600);
     expect(content.var["var.uk-citizen-fee"]?.start).toBe(170900);

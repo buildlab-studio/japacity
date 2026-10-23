@@ -225,14 +225,20 @@ describe("references", () => {
 
 describe("spot checks against the rule pages", () => {
   test("[engine:content-checked-before-play] given the content, when figures from the rule pages are read back, then each matches the page", () => {
-    // route.md: Northgate tuition £17,000, Kingsmere band 7.0.
+    // route.md: Northgate tuition £17,000; deposits £4,000, £5,000 and £6,000, and no school asks a band (route:degree-meets-masters-english).
     expect(northgate?.tuition).toBe(1700000);
-    expect(content.school["school.kingsmere"]?.minBand).toBe(70);
-    // activity.md: the remote job pays $2,800; the English test costs ₦285,500.
+    expect(["school.northgate", "school.ashby", "school.kingsmere"].map((id) => content.school[id as `school.${string}`]?.deposit)).toEqual([400000, 500000, 600000]);
+    expect(Object.values(content.school).some((school) => "minBand" in school)).toBe(false);
+    // activity.md: the remote job pays $2,800; the English test costs ₦295,000 (document:who-sits-the-english-test).
     expect(content.activity["activity.job-remote-developer"]?.pay).toEqual({ currency: "USD", amount: 280000 });
     expect(content.activity["activity.sit-english-test"]?.cost).toEqual([
-      { currency: "NGN", amount: 28550000, reason: "fee-test" },
+      { currency: "NGN", amount: 29500000, reason: "fee-test" },
     ]);
+    // route:departure-pays-flight: the flight, ₦1,100,000; route:refusal-refunds-and-resets: £500 kept, the rest two months on.
+    expect(content.tuning.route).toMatchObject({ flight: { currency: "NGN", amount: 110000000 }, depositAdminFee: 50000, depositRefundMonths: 2 });
+    // route-gates.md: the council's verification ₦66,875; ladders.md: cash work raises detection by 1 point.
+    expect(content.activity["activity.request-verification"]?.cost).toEqual([{ currency: "NGN", amount: 6687500, reason: "fee-document" }]);
+    expect(content.tuning.ladder.cashDetectBp).toBe(100);
     // route:visa-application-needs: the visa fee and surcharge are read from the world.
     expect(content.activity["activity.apply-for-visa"]?.cost).toEqual([
       { currency: "GBP", amount: { var: "var.uk-visa-fee" }, reason: "fee-visa" },
@@ -255,8 +261,8 @@ describe("spot checks against the rule pages", () => {
     // offer.md: the roof comes up 2.5% of months; Mr Gbenga is a fraud 35 times in 100.
     expect(content.offer["offer.roof"]?.chanceBp).toBe(250);
     expect(content.offer["offer.held-funds-agent"]?.fraudBp).toBe(3500);
-    // route.md: the flight is ₦1,600,000, the deposit fee kept is £500.
-    expect(content.tuning.route.flight).toEqual({ currency: "NGN", amount: 160000000 });
+    // route.md: the flight is ₦1,100,000, the deposit fee kept is £500.
+    expect(content.tuning.route.flight).toEqual({ currency: "NGN", amount: 110000000 });
     expect(content.tuning.route.depositAdminFee).toBe(50000);
     // wallet.md: cash deposits over ₦500,000 are flagged.
     expect(content.tuning.wallet.flagDepositAbove).toBe(50000000);

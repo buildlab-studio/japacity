@@ -69,7 +69,7 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file.item.transcript.planned": "Transcript planned. Live the month.",
   "chapter.build-the-file.item.transcript.short": "Find {amount} more for the transcript",
   "chapter.build-the-file.item.transcript.saving": "Payday first, then the transcript",
-  "chapter.build-the-file.item.english": "Score band 6.0 or better in English",
+  "chapter.build-the-file.item.english": "Your degree is your English",
   "chapter.build-the-file.item.english.nudge": "Sit the English test at the centre",
   "chapter.build-the-file.item.english.nudge.here": "Sit the English test at the desk",
   "chapter.build-the-file.item.english.planned": "Test booked. Live the month.",

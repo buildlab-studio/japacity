@@ -109,7 +109,7 @@ export const tuning: Tuning = {
     depositAdminFee: pounds(500),
     depositRefundMonths: 2,
     decisionMonths: 1,
-    flight: { currency: "NGN", amount: naira(1600000) },
+    flight: { currency: "NGN", amount: naira(1100000) },
     hintPrep: 40,
   },
 
@@ -127,7 +127,9 @@ export const tuning: Tuning = {
   // The handling is the clerk's charge; a laptop lifts the mood, clothes stand you up a little at an interview.
   parcel: { handling: naira(1500), laptopMood: 8, clothesPrep: 10 },
   // status:course-passed-or-withdrawn: months a student status must be held for the course to count as passed.
-  status: { courseMonths: 12 },
+  // status:overstayer-hospital-charged: the hospital at 150% of its figure past the grace in the UK. person:partner-route-in-country: the
+  // ten-year partner route for a status granted in country past the grace. abroad-money:right-to-rent-check: the wellbeing a room lost to the check costs.
+  status: { courseMonths: 12, hospitalChargeBp: 15000, overstayPartnerSettleMonths: 120, rentCheckWellbeing: -6 },
 
   // credit.md
   // credit:clean-mark-drifts-up: a clean year before the file drifts.
@@ -156,7 +158,7 @@ export const tuning: Tuning = {
   road: { enabled: true, meansStep: naira(100000), pressureStandingUnder: 30, pressureAgeOver: 30, pressureStrongRoute: 60 },
 
   // ladders.md
-  ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000), robberyWellbeing: -12 },
+  ladder: { cashDetectBp: 100, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000), robberyWellbeing: -12 },
 
   // prologue.md
   prologue: {

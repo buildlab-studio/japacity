@@ -60,6 +60,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.agent-debt": "Paid toward the agent's debt: {amount}.",
   "line.wallet.ransom": "Paid to get out: {amount}.",
   "line.wallet.fare": "Fare paid: {amount}.",
+  "line.wallet.fine": "Overstay fine paid: {amount}.",
   "line.wallet.build": "Spent on the house: {amount}.",
   "line.wallet.win": "You won {amount}. A letter came with it.",
   "line.wallet.ticket": "Lottery tickets: {amount}.",

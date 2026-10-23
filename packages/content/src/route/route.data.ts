@@ -11,6 +11,8 @@ const TALENT: Id<"route"> = "route.uk-talent";
 const GULF: Id<"route"> = "route.gulf-contract";
 
 const DEGREE: Requirement = { type: "quality/min", quality: "quality.education-level", value: 3 };
+/** document:degree-english-statement: the degree's English statement, which always passes. */
+const STATEMENT: Requirement = { type: "document/held", document: "document.degree-english" };
 
 /** A checklist item that is met or not, with no part earned on the way. */
 function item(id: string, weight: number, requirement: Requirement): ChecklistItem {
@@ -65,12 +67,8 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
         requirement: { type: "document/held", document: "document.transcript" },
         partial: false,
       },
-      {
-        id: "english",
-        weight: 12,
-        requirement: { type: "document/held", document: "document.english-test", min: 60 },
-        partial: false,
-      },
+      // route:degree-meets-masters-english: the degree is the master's English.
+      { id: "english", weight: 12, requirement: DEGREE, partial: false },
       { id: "offer", weight: 12, requirement: { type: "route/offer", route: UK }, partial: false },
       { id: "deposit", weight: 12, requirement: { type: "route/deposit", route: UK }, partial: false },
       { id: "funds", weight: 28, requirement: { type: "route/funds", route: UK, heldMonths: 0 }, partial: true },
@@ -108,8 +106,8 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // taken out of the application's, as the police certificate's is.
       item("certificate", 5, held("document.nurse-certificate")),
       item("passport", 6, held("document.passport")),
-      // Band 4.0, B1, held as the band times ten.
-      item("english", 10, held("document.english-test", 40)),
+      // route-gates:sponsor-application-needs: the degree's statement, or band 5.5, B2, held as the band times ten.
+      item("english", 10, { type: "any", of: [STATEMENT, held("document.english-test", 55)] }),
       item("sponsor", 25, step(CARE, "sponsor")),
       item("tb", 5, held("document.tb-certificate")),
       // document:police-certificate-for-routes: the police certificate; its weight comes out of the application's.
@@ -124,7 +122,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       maintenanceVar: null,
       // The page names `sponsorFindBp` but gives no figure. 10%, the care home offer's 8% a month and a little more for looking.
       findBp: 1000,
-      bandMin: 40,
+      bandMin: 55,
       documents: ["document.nursing-licence", "document.nmcn-verification"],
       strictnessVar: "var.uk-care-strictness",
       // The care route is exempt from the surcharge.
@@ -148,7 +146,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     checklist: [
       item("degree", 8, DEGREE),
       item("passport", 6, held("document.passport")),
-      item("english", 10, held("document.english-test", 40)),
+      item("english", 10, { type: "any", of: [STATEMENT, held("document.english-test", 55)] }),
       item("sponsor", 30, step(SKILLED, "sponsor")),
       item("salary", 10, step(SKILLED, "salary")),
       { id: "funds", weight: 10, requirement: { type: "route/funds", route: SKILLED, heldMonths: 0 }, partial: true },
@@ -164,7 +162,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       maintenanceVar: "var.uk-skilled-maintenance",
       // The page gives no figure. 6%, between the tech firm's 4% and the agency's 6% a month, rounded up.
       findBp: 600,
-      bandMin: 40,
+      bandMin: 55,
       // The degree is a quality, so no document is named.
       documents: [],
       strictnessVar: "var.uk-skilled-strictness",
@@ -351,8 +349,8 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
       item("married", 20, step(UK_PARTNER, "married")),
       item("sponsor", 20, step(UK_PARTNER, "sponsor")),
       item("floor", 15, step(UK_PARTNER, "floor")),
-      // A1, held as band 3.0.
-      item("english", 10, held("document.english-test", 30)),
+      // person:partner-gate-needs: a bachelor's degree, the degree's statement, or A1, held as band 3.0.
+      item("english", 10, { type: "any", of: [DEGREE, STATEMENT, held("document.english-test", 30)] }),
       item("passport", 5, held("document.passport")),
       item("tb", 5, held("document.tb-certificate")),
       item("applied", 25, applied(UK_PARTNER)),
@@ -457,11 +455,24 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
 /** The health surcharge for one year of a worker's visa, in pounds, as the other gates' activities charge it. */
 const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
 
+/**
+ * person:partner-route-in-country, status:grace-allows-in-country-applications: a family route applied for from home, or from inside its
+ * country on the country's overstayer status (a partner at any time, a dependant only in the grace). The act is `where: "any"`
+ * so it may stand abroad, and this keeps it to those.
+ */
+function fromHomeOr(overstayer: Id<"status">, grace: boolean): Requirement {
+  const there: Requirement = grace ? { type: "status/is", statuses: [overstayer], grace: true } : { type: "status/is", statuses: [overstayer] };
+  return { type: "any", of: [{ type: "place/is", where: "home" }, there] };
+}
+
+/** The TB certificate, not asked of an application made in the UK (person:partner-route-in-country). */
+const TB_UNLESS_IN_UK: Requirement = { type: "any", of: [held("document.tb-certificate"), { type: "place/is", where: "abroad", country: "country.uk" }] };
+
 function applying(route: Id<"route">, requires: Requirement[], cost: Cost[]): ActivityEntry {
   return {
     id: `activity.apply-${route.slice("route.".length)}` as Id<"activity">,
     slot: "free",
-    where: "home",
+    where: "any",
     requires: [{ type: "route/state", route, in: ["known"] }, ...requires],
     param: null,
     cost,
@@ -487,9 +498,10 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(UK_PARTNER, "floor"),
       // person:partner-gate-needs, place:removal-bans-the-country: no removal's ban on the country, judged before the fee and the surcharge are taken.
       { type: "not", of: { type: "place/banned", country: "country.uk" } },
-      held("document.english-test", 30),
-      held("document.tb-certificate"),
+      { type: "any", of: [DEGREE, STATEMENT, held("document.english-test", 30)] },
+      TB_UNLESS_IN_UK,
       held("document.passport"),
+      fromHomeOr("status.uk-overstayer", false),
     ],
     [{ currency: "GBP", amount: { var: "var.uk-partner-fee" }, reason: "fee-visa" }, SURCHARGE_YEAR, SURCHARGE_YEAR, SURCHARGE_YEAR],
   ),
@@ -501,6 +513,7 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(CA_SPOUSE, "sponsor"),
       { type: "not", of: { type: "place/banned", country: "country.canada" } },
       held("document.passport"),
+      fromHomeOr("status.canada-overstayer", false),
     ],
     [{ currency: "CAD", amount: { var: "var.canada-sponsor-fee" }, reason: "fee-visa" }],
   ),
@@ -510,13 +523,18 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(UK_DEPENDANT, "joint"),
       step(UK_DEPENDANT, "lead"),
       held("document.passport"),
-      held("document.tb-certificate"),
+      TB_UNLESS_IN_UK,
+      fromHomeOr("status.uk-overstayer", true),
       // The maintenance at one month end, or nothing required once the lead has a year in the UK (person:dependant-gate-needs).
       { type: "route/funds", route: UK_DEPENDANT, heldMonths: 1 },
     ],
     [],
   ),
-  "activity.apply-canada-accompany": applying(CA_ACCOMPANY, [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport")], []),
+  "activity.apply-canada-accompany": applying(
+    CA_ACCOMPANY,
+    [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport"), fromHomeOr("status.canada-overstayer", true)],
+    [],
+  ),
 };
 
 export const routeTable: Record<Id<"route">, RouteEntry> = { ...wholeLifeRoutes, ...peopleRoutes };
