@@ -28,11 +28,12 @@ const FLAGGED: ReadonlySet<string> = new Set(["place.passport-office"]);
 export function PlacePicture({ id, size, tiles }: { id: string; size: number; tiles: TileUrl }) {
   const picture = tileOf(id);
   if (FLAGGED.has(id) && "model" in picture) {
-    const front = tiles(picture.model);
+    // The counter fills most of the sticker beside its flag.
+    const front = tiles(picture.model, size * 0.88);
     return (
       <span className="paper-cut relative block" style={{ width: size, height: size, ...({ "--e": "2px" } as CSSProperties) }} data-picture={`${picture.model}+flag`}>
         <Flag />
-        {front === null ? null : <img src={front} alt="" draggable={false} className="absolute object-contain" style={{ width: "88%", height: "88%", left: "0", bottom: "0" }} />}
+        {front === null ? null : <img {...front} alt="" draggable={false} className="absolute object-contain" style={{ width: "88%", height: "88%", left: "0", bottom: "0" }} />}
       </span>
     );
   }
@@ -44,6 +45,6 @@ export function PlacePicture({ id, size, tiles }: { id: string; size: number; ti
       </span>
     );
   }
-  const url = tiles(picture.model);
-  return <span className="paper-cut block" style={{ width: size, height: size, ...({ "--e": "2px" } as CSSProperties) }}>{url === null ? null : <img src={url} alt="" draggable={false} className="block size-full object-contain" />}</span>;
+  const offered = tiles(picture.model, size);
+  return <span className="paper-cut block" style={{ width: size, height: size, ...({ "--e": "2px" } as CSSProperties) }}>{offered === null ? null : <img {...offered} alt="" draggable={false} className="block size-full object-contain" />}</span>;
 }

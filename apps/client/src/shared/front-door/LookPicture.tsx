@@ -1,12 +1,14 @@
 // The door's pictures (prologue:front-door-builds-a-person, prologue:front-door-three-screens): a look's face for the look strip and the
 // life cards, its whole figure standing with a hand on the hip on the first screen and cheering on the page after
-// Begin, each shot by the asset shooter from the shipped model and published as a tile (`tiles/<look>-face.png`,
-// `-figure.png`, `-cheer.png`), and a model's own tile for a life's thing or a home. No three.js turntable and no drag:
+// Begin, each shot by the asset shooter from the shipped model and published as a tile (`tiles/<look>-face.webp`,
+// `-figure.webp`, `-cheer.webp`), and a model's own tile for a life's thing or a home, offered at its small size and its
+// own by the box's width (assets:pictures-sharp-at-three). No three.js turntable and no drag:
 // the figure is a sticker. Until the manifest is read, or where a picture is missing, the look's own small picture
 // stands in. A figure in the player's own colours (prologue:player-colours-on-looks) is drawn once as a still in their place.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { assetUrl, loadManifest } from "../three/manifest";
+import { offer, picturePath, usePublishManifest } from "../tiles/published";
 import { type Tint, TINTS } from "../ui/lively/tint";
 import { canDraw } from "./Gate";
 import { lookOf } from "./looks";
@@ -35,7 +37,7 @@ function usePublished(path: string | null): string | null {
 
 /** A look's portrait as published, or the look's own small picture while it is not. */
 function useLookPicture(look: string, view: Portrait): string {
-  const published = usePublished(`tiles/${look}-${view}.png`);
+  const published = usePublished(picturePath(`${look}-${view}`));
   return published ?? lookOf(look)?.picture ?? "";
 }
 
@@ -53,10 +55,11 @@ export function FaceSticker({ look, size, on = false, tilt = 0, tint = "plain", 
 
 /** A model's tile by the model's name, `prop_laptop-desk`, cut as a sticker by the caller. */
 export function ModelPicture({ model, size, className = "" }: { model: string; size: number; className?: string }) {
-  const src = usePublished(`tiles/${model}.png`);
+  const manifest = usePublishManifest();
+  const offered = useMemo(() => (manifest === null ? null : offer(manifest, model, size)), [manifest, model, size]);
   return (
     <span className={`inline-block shrink-0 ${className}`} style={{ width: size, height: size }} data-model={model} aria-hidden>
-      {src === null ? null : <img src={src} alt="" width={size} height={size} draggable={false} className="block h-full w-full object-contain" />}
+      {offered === null ? null : <img {...offered} alt="" width={size} height={size} draggable={false} className="block h-full w-full object-contain" />}
     </span>
   );
 }

@@ -70,6 +70,9 @@ function nameWords(kind: Name, name: string): string {
   return headingOf(name);
 }
 
+/** The route's danfo sticker across, in CSS pixels: the same on the screen whatever the zoom (--inv). */
+const DANFO_PX = 30;
+
 /** The most never-visited names a card shows at once: a few at a time. */
 export const NEWEST = 3;
 /** The paper drawn round a card's own view, in paper units (CardView's `within`). */
@@ -115,10 +118,11 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       {folded
         ? null
         : city.decor.map((item, index) => {
-            const url = tiles(item.model);
-            return url === null ? null : (
+            // A decor sticker grows with the paper's zoom, so its box on the screen is its size times the zoom.
+            const offered = tiles(item.model, item.size * z);
+            return offered === null ? null : (
               <span key={index} className={`stk paper-chip ${item.kind === "boat" ? "boat" : ""}`} style={{ left: item.at[0], top: item.at[1], width: item.size, height: item.size, transform: `translate(-50%, -62%) rotate(${String(item.tilt)}deg)`, ...({ "--e": "0.6px" } as CSSProperties) }} data-decor={item.model}>
-                <img src={url} alt="" draggable={false} />
+                <img {...offered} alt="" draggable={false} />
               </span>
             );
           })}
@@ -158,8 +162,11 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
           })}
       {folded || danfo === null ? null : (
         <span className="paper-danfo" style={{ left: danfo.at[0], top: danfo.at[1] }} data-route-danfo aria-hidden>
-          <span className="paper-cut block" style={{ width: 30, height: 30, scale: Math.abs(danfo.heading) > 90 ? "-1 1" : undefined }}>
-            {tiles(vehicle) === null ? null : <img src={tiles(vehicle) ?? ""} alt="" draggable={false} className="block size-full object-contain" data-route-vehicle={vehicle} />}
+          <span className="paper-cut block" style={{ width: DANFO_PX, height: DANFO_PX, scale: Math.abs(danfo.heading) > 90 ? "-1 1" : undefined }}>
+            {(() => {
+              const offered = tiles(vehicle, DANFO_PX);
+              return offered === null ? null : <img {...offered} alt="" draggable={false} className="block size-full object-contain" data-route-vehicle={vehicle} />;
+            })()}
           </span>
         </span>
       )}
