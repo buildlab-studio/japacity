@@ -2,12 +2,15 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, existsSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+import sharp from "sharp";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG, isPostered, isTiled } from "./catalog";
 import { defaultPaths } from "./assets-check";
 import { readManifest, sha256 } from "./manifest";
-import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
+import { drawnFrom, SMALL, toWebp, webpProblem } from "./webp";
+import { discRender } from "./webp.testing";
+import { encodeTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileFiles, tileName, type TilePicture, tilePictures, TILES } from "./publish";
 import { filesUnder, readJson, REPO_ROOT } from "../repo";
 
 describe("published names", () => {
@@ -42,21 +45,32 @@ describe("published names", () => {
 });
 
 describe("the tiles", () => {
-  test("[city:places-load-on-entry] given assets with a tile render, when the tiles are copied, then each lands under tiles by the asset's name, a tile no asset names is removed, and the image manifest learns each copy's hash", () => {
+  test("[city:places-load-on-entry] [assets:pictures-shipped-light] [assets:pictures-sharp-at-three] given assets with a tile render, when the tiles are published, then each lands under tiles by the asset's name as WebP at its own size and the small size, anything no asset names is removed, and the image manifest learns each picture's hash", async () => {
     const work = mkdtempSync(join(tmpdir(), "tiles-"));
     try {
       const folder = join(work, "public");
-      for (const name of ["a", "b"]) {
+      const renders = { a: await discRender(512, 512), b: await discRender(512, 512, "#1f8a4c") };
+      for (const [name, render] of Object.entries(renders)) {
         mkdirSync(join(work, "src", name, "renders"), { recursive: true });
-        writeFileSync(join(work, "src", name, "renders", "tile.png"), `tile ${name}`);
+        writeFileSync(join(work, "src", name, "renders", "tile.png"), render);
       }
       mkdirSync(join(folder, TILES), { recursive: true });
-      writeFileSync(join(folder, TILES, "prop_gone.png"), "old");
-      writeFileSync(join(folder, TILES, "prop_gone.0123456789ab.png"), "old");
-      const hashes = copyTiles([{ name: "prop_a", source: "src/a" }, { name: "vehicle_b", source: "src/b" }], work, folder, "public");
-      expect(filesUnder(join(folder, TILES))).toEqual(["prop_a.png", "vehicle_b.png"]);
-      expect(readFileSync(join(folder, TILES, "vehicle_b.png"), "utf8")).toBe("tile b");
-      expect(hashes).toEqual({ "public/tiles/prop_a.png": sha256(Buffer.from("tile a")), "public/tiles/vehicle_b.png": sha256(Buffer.from("tile b")) });
+      for (const stale of ["prop_gone.png", "prop_gone.0123456789ab.png", "prop_a.png", "prop_a.0123456789ab.png", "prop_gone.webp"]) writeFileSync(join(folder, TILES, stale), "old");
+      const hashes = await encodeTiles([{ name: "prop_a", source: "src/a" }, { name: "vehicle_b", source: "src/b" }], work, folder, "public");
+      expect(filesUnder(join(folder, TILES))).toEqual(["prop_a-small.webp", "prop_a.webp", "vehicle_b-small.webp", "vehicle_b.webp"]);
+      const b = readFileSync(join(folder, TILES, "vehicle_b.webp"));
+      const bSmall = readFileSync(join(folder, TILES, "vehicle_b-small.webp"));
+      expect(b).toEqual(await toWebp(renders.b));
+      expect(bSmall).toEqual(await toWebp(renders.b, true));
+      expect(await drawnFrom(b, renders.b)).toBeNull();
+      expect(await drawnFrom(bSmall, renders.b, true)).toBeNull();
+      expect(bSmall.byteLength).toBeLessThan(b.byteLength);
+      expect(hashes).toEqual({
+        "public/tiles/prop_a.webp": sha256(readFileSync(join(folder, TILES, "prop_a.webp"))),
+        "public/tiles/prop_a-small.webp": sha256(readFileSync(join(folder, TILES, "prop_a-small.webp"))),
+        "public/tiles/vehicle_b.webp": sha256(b),
+        "public/tiles/vehicle_b-small.webp": sha256(bSmall),
+      });
     } finally {
       rmSync(work, { recursive: true, force: true });
     }
@@ -64,26 +78,31 @@ describe("the tiles", () => {
 });
 
 describe("the door's portraits", () => {
-  test("[city:places-load-on-entry] [assets:no-reference-photos-kept] given a look with its face, figure and cheer renders, when the tiles are copied, then each lands under tiles as the look's name and the view's, beside the things' tiles", () => {
+  test("[city:places-load-on-entry] [assets:no-reference-photos-kept] [assets:pictures-shipped-light] given a look with its face, figure and cheer renders, when the tiles are published, then each lands under tiles as WebP by the look's name and the view's, at its one size, beside the things' tiles", async () => {
     const work = mkdtempSync(join(tmpdir(), "portraits-"));
     try {
       const folder = join(work, "public");
       mkdirSync(join(work, "src", "ada", "renders"), { recursive: true });
-      for (const view of ["face", "figure", "cheer"]) writeFileSync(join(work, "src", "ada", "renders", `${view}.png`), `${view} ada`);
+      const face = await discRender(256, 256);
+      writeFileSync(join(work, "src", "ada", "renders", "face.png"), face);
+      for (const view of ["figure", "cheer"]) writeFileSync(join(work, "src", "ada", "renders", `${view}.png`), await discRender(600, 1200));
       mkdirSync(join(work, "src", "a", "renders"), { recursive: true });
-      writeFileSync(join(work, "src", "a", "renders", "tile.png"), "tile a");
+      writeFileSync(join(work, "src", "a", "renders", "tile.png"), await discRender(512, 512));
       const pictures = tilePictures([
         { name: "prop_a", source: "src/a", views: ["front", "tile"] },
         { name: "person_ada", source: "src/ada", views: ["front", "phone", "face", "figure", "cheer"] },
         { name: "person_hawker", source: "src/hawker", views: ["front", "phone"] },
       ]);
       expect(pictures.map(tileName)).toEqual(["prop_a", "person_ada-face", "person_ada-figure", "person_ada-cheer"]);
-      const hashes = copyTiles(pictures, work, folder, "public");
-      expect(filesUnder(join(folder, TILES))).toEqual(["person_ada-cheer.png", "person_ada-face.png", "person_ada-figure.png", "prop_a.png"]);
-      expect(readFileSync(join(folder, TILES, "person_ada-figure.png"), "utf8")).toBe("figure ada");
-      expect(hashes["public/tiles/person_ada-face.png"]).toBe(sha256(Buffer.from("face ada")));
+      expect(pictures.map((picture) => tileFiles(picture).map((one) => one.file))).toEqual([["prop_a.webp", "prop_a-small.webp"], ["person_ada-face.webp"], ["person_ada-figure.webp"], ["person_ada-cheer.webp"]]);
+      const hashes = await encodeTiles(pictures, work, folder, "public");
+      expect(filesUnder(join(folder, TILES))).toEqual(["person_ada-cheer.webp", "person_ada-face.webp", "person_ada-figure.webp", "prop_a-small.webp", "prop_a.webp"]);
+      const published = readFileSync(join(folder, TILES, "person_ada-face.webp"));
+      expect(await drawnFrom(published, face)).toBeNull();
+      expect(hashes["public/tiles/person_ada-face.webp"]).toBe(sha256(published));
       // A portrait's name never reads as a published copy's hash.
-      expect(hashInName("person_ada-face.png")).toBeNull();
+      expect(hashInName("person_ada-face.webp")).toBeNull();
+      expect(hashInName("prop_a-small.webp")).toBeNull();
     } finally {
       rmSync(work, { recursive: true, force: true });
     }
@@ -93,6 +112,14 @@ describe("the door's portraits", () => {
 describe("the committed publish", () => {
   const folder = defaultPaths(REPO_ROOT).public;
   const manifest = readJson<PublishManifest>(join(folder, MANIFEST_FILE));
+
+  test("[assets:pictures-shipped-light] given the pictures published under public/assets/tiles, when their kinds are read, then none is a PNG and every one is a lossy WebP with its transparency whole", () => {
+    const shipped = filesUnder(join(folder, TILES));
+    expect(shipped.length).toBeGreaterThan(0);
+    expect(shipped.filter((file) => file.toLowerCase().endsWith(".png"))).toEqual([]);
+    expect(shipped.filter((file) => !file.endsWith(".webp"))).toEqual([]);
+    expect(shipped.map((file) => ({ file, problem: webpProblem(readFileSync(join(folder, TILES, file))) })).filter((one) => one.problem !== null)).toEqual([]);
+  });
 
   test("[city:places-load-on-entry] given the manifest the loader reads, when each name is checked, then it carries the hash of that file's contents", () => {
     const wrong = Object.entries(manifest.files).filter(([, published]) => {
@@ -110,27 +137,36 @@ describe("the committed publish", () => {
     expect(sourcesOf(folder)).toEqual(Object.keys(manifest.files));
   });
 
-  test("[city:places-load-on-entry] [assets:no-reference-photos-kept] given every model with a tile, when the publish is read, then its tile is published by its name with the render's bytes, and the image manifest knows the copy", () => {
+  test("[city:places-load-on-entry] [assets:no-reference-photos-kept] [assets:pictures-shipped-light] given every model with a tile, when the publish is read, then its tile is published by its name as WebP drawn from the render, at its own size and the small size, and the image manifest knows each", async () => {
     const images = readManifest().renders;
     const tiled = CATALOG.filter((entry) => isTiled(entry.name));
-    const wrong = tiled.filter((entry) => {
-      const published = manifest.files[`${TILES}/${entry.name}.png`];
-      if (published === undefined) return true;
-      const render = readFileSync(join(REPO_ROOT, entry.source, "renders", "tile.png"));
-      return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${entry.name}.png`] !== sha256(render);
-    });
-    expect(wrong.map((entry) => entry.name)).toEqual([]);
     // Beside the things' tiles, the door's looks' portraits (face, figure and cheer for each look), the send-off's posters, and nothing else.
     const portraits = tilePictures(CATALOG).filter((picture) => picture.view !== undefined);
     expect(portraits.filter((picture) => picture.view !== "poster")).toHaveLength(48);
     expect(portraits.filter((picture) => picture.view === "poster").map((picture) => picture.name)).toEqual(CATALOG.filter((entry) => isPostered(entry.name)).map((entry) => entry.name));
-    const unpublished = portraits.filter((picture) => {
-      const published = manifest.files[`${TILES}/${tileName(picture)}.png`];
-      if (published === undefined) return true;
+    const wrong: string[] = [];
+    const pictures: TilePicture[] = [...tiled.map((entry) => ({ name: entry.name, source: entry.source })), ...portraits];
+    for (const picture of pictures) {
       const render = readFileSync(join(REPO_ROOT, picture.source, "renders", `${picture.view ?? "tile"}.png`));
-      return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${tileName(picture)}.png`] !== sha256(render);
-    });
-    expect(unpublished.map(tileName)).toEqual([]);
-    expect(Object.keys(manifest.files).filter((path) => path.startsWith(`${TILES}/`))).toHaveLength(tiled.length + portraits.length);
+      for (const { file, small } of tileFiles(picture)) {
+        const published = manifest.files[`${TILES}/${file}`];
+        if (published === undefined) {
+          wrong.push(`${file} is not published`);
+          continue;
+        }
+        const bytes = readFileSync(join(folder, published));
+        const drawn = await drawnFrom(bytes, render, small);
+        if (drawn !== null) wrong.push(`${file} ${drawn}`);
+        if (images[`apps/client/public/assets/${TILES}/${file}`] !== sha256(bytes)) wrong.push(`${file} is not in the image manifest with its hash`);
+      }
+    }
+    expect(wrong).toEqual([]);
+    expect(Object.keys(manifest.files).filter((path) => path.startsWith(`${TILES}/`))).toHaveLength(tiled.length * 2 + portraits.length);
+  });
+
+  test("[assets:pictures-sharp-at-three] given a tile's small size, when it is read, then it is the small width across, three times the largest box a small tile fills", async () => {
+    const small = manifest.files[`${TILES}/prop_radio-small.webp`] ?? "";
+    expect((await sharp(readFileSync(join(folder, small))).metadata()).width).toBe(SMALL.width);
+    expect(SMALL.width).toBe(3 * 64);
   });
 });

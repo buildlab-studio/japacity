@@ -1,6 +1,7 @@
 import { join } from "node:path";
 
 import type { RegisterRow, Review } from "@japacity/model-kit";
+import sharp from "sharp";
 import { describe, expect, test } from "vitest";
 
 import type { BakedModel } from "./bake";
@@ -33,6 +34,8 @@ import {
 import { measure, readGlb, toDocument, writeGlb } from "./glb";
 import { placeMapData } from "./map-data";
 import { sha256 } from "./manifest";
+import { toWebp } from "./webp";
+import { discRender } from "./webp.testing";
 import { checkPalette } from "./palette-check";
 import type { Register } from "./register";
 import { readJson, REPO_ROOT } from "../repo";
@@ -51,7 +54,7 @@ const review = (scores: Partial<Review["scores"]>): Review => ({
 
 describe("names", () => {
   test("[assets:shipped-file-naming] given shipped names, when they are checked, then the page's pattern passes and anything else fails, with place.json and credits.json allowed", () => {
-    const good = ["places/ojuelegba/building_shop-row.glb", "shared/person/person_body_plus-set.glb", "shared/person/person_hawker_a.glb", "tiles/prop_market-stall.png", "places/x/place.json", "credits.json"];
+    const good = ["places/ojuelegba/building_shop-row.glb", "shared/person/person_body_plus-set.glb", "shared/person/person_hawker_a.glb", "tiles/prop_market-stall.png", "tiles/prop_market-stall.webp", "tiles/prop_market-stall-small.webp", "tiles/building_deira-arcade_a-poster.webp", "places/x/place.json", "credits.json"];
     expect(checkNames(good)).toEqual([]);
     const bad = ["shared/person/var_plus_short_busty.glb", "shared/person/person_Amaka.glb", "shared/person/person_a_b_c.glb", "places/x/building_plaza.gltf", "places/x/photo.jpg", "places/x/landmark_national_stadium_a.glb"];
     expect(checkNames(bad)).toHaveLength(bad.length);
@@ -216,21 +219,47 @@ describe("pictures", () => {
 });
 
 describe("tiles", () => {
-  test("[assets:no-reference-photos-kept] given a picture under tiles, when it is checked, then it passes only as a model's tile render published by the model's name, and a tile render left unpublished fails", () => {
-    const tile = Uint8Array.from([1, 2, 3]);
-    const renders = new Map([["prop_a", tile], ["vehicle_b", Uint8Array.from([4])]]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/vehicle_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: Uint8Array.from([9]) }, { path: "tiles/vehicle_b.png", bytes: Uint8Array.from([4]) }], renders)).toEqual([expect.stringMatching(/tiles\/prop_a\.png differs from prop_a's tile render/)]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }, { path: "tiles/vehicle_b.png", bytes: Uint8Array.from([4]) }, { path: "tiles/prop_c.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/tiles\/prop_c\.png is no model's tile/)]);
-    expect(checkTiles([{ path: "tiles/prop_a.png", bytes: tile }], renders)).toEqual([expect.stringMatching(/vehicle_b's tile render is not published/)]);
+  test("[assets:no-reference-photos-kept] [assets:pictures-shipped-light] given a picture under tiles, when it is checked, then it passes only as a model's render published as WebP by the model's name, and a render left unpublished fails", async () => {
+    const a = await discRender(512, 512);
+    const b = await discRender(512, 512, "#1f8a4c");
+    const renders = new Map([["prop_a", { bytes: a, small: false }], ["vehicle_b", { bytes: b, small: false }]]);
+    const aWebp = await toWebp(a);
+    const bWebp = await toWebp(b);
+    expect(await checkTiles([{ path: "tiles/prop_a.webp", bytes: aWebp }, { path: "tiles/vehicle_b.webp", bytes: bWebp }], renders)).toEqual([]);
+    expect(await checkTiles([{ path: "tiles/prop_a.webp", bytes: bWebp }, { path: "tiles/vehicle_b.webp", bytes: bWebp }], renders)).toEqual([expect.stringMatching(/tiles\/prop_a\.webp differs from prop_a's tile render/)]);
+    expect(await checkTiles([{ path: "tiles/prop_a.webp", bytes: aWebp }, { path: "tiles/vehicle_b.webp", bytes: bWebp }, { path: "tiles/prop_c.webp", bytes: aWebp }], renders)).toEqual([expect.stringMatching(/tiles\/prop_c\.webp is no model's tile/)]);
+    expect(await checkTiles([{ path: "tiles/prop_a.webp", bytes: aWebp }], renders)).toEqual([expect.stringMatching(/vehicle_b's tile render is not published/)]);
   });
 
-  test("[assets:no-reference-photos-kept] given a look's portraits under tiles, when they are checked, then each passes as its render by the look's name and the view's, and an unpublished portrait fails", () => {
-    const face = Uint8Array.from([5]);
-    const renders = new Map([["person_ada-face", face]]);
+  test("[assets:pictures-shipped-light] given a tile published as PNG, or as WebP lossless or with its transparency quantised, when it is checked, then it fails", async () => {
+    const a = await discRender(512, 512);
+    const renders = new Map([["prop_a", { bytes: a, small: false }]]);
+    expect(await checkTiles([{ path: "tiles/prop_a.png", bytes: a }], renders)).toEqual([expect.stringMatching(/assets:pictures-shipped-light: tiles\/prop_a\.png is not WebP/), expect.stringMatching(/prop_a's tile render is not published/)]);
+    const lossless = await sharp(a).webp({ lossless: true }).toBuffer();
+    expect(await checkTiles([{ path: "tiles/prop_a.webp", bytes: lossless }], renders)).toEqual([expect.stringMatching(/assets:pictures-shipped-light: tiles\/prop_a\.webp is lossless WebP/)]);
+    const quantised = await sharp(a).webp({ quality: 85, alphaQuality: 50 }).toBuffer();
+    expect(await checkTiles([{ path: "tiles/prop_a.webp", bytes: quantised }], renders)).toEqual([expect.stringMatching(/assets:pictures-shipped-light: tiles\/prop_a\.webp has its transparency quantised/)]);
+  });
+
+  test("[assets:pictures-sharp-at-three] [assets:pictures-shipped-light] given a model's tile owed a small size, when the tiles are checked, then the small size must be published beside it, drawn down from the render, and a portrait has none", async () => {
+    const a = await discRender(512, 512);
+    const face = await discRender(256, 256);
+    const renders = new Map([["prop_a", { bytes: a, small: true }], ["person_ada-face", { bytes: face, small: false }]]);
+    const tile = { path: "tiles/prop_a.webp", bytes: await toWebp(a) };
+    const small = { path: "tiles/prop_a-small.webp", bytes: await toWebp(a, true) };
+    const portrait = { path: "tiles/person_ada-face.webp", bytes: await toWebp(face) };
+    expect(await checkTiles([tile, small, portrait], renders)).toEqual([]);
+    expect(await checkTiles([tile, portrait], renders)).toEqual([expect.stringMatching(/assets:pictures-sharp-at-three: prop_a's tile render is not published at the small size/)]);
+    expect(await checkTiles([tile, { path: "tiles/prop_a-small.webp", bytes: tile.bytes }, portrait], renders)).toEqual([expect.stringMatching(/tiles\/prop_a-small\.webp differs from prop_a's tile render: it is 512 by 512, its render drawn down 192 by 192/)]);
+    expect(await checkTiles([tile, small, portrait, { path: "tiles/person_ada-face-small.webp", bytes: await toWebp(face, true) }], renders)).toEqual([expect.stringMatching(/tiles\/person_ada-face-small\.webp is no model's tile/)]);
+  });
+
+  test("[assets:no-reference-photos-kept] given a look's portraits under tiles, when they are checked, then each passes as its render by the look's name and the view's, and an unpublished portrait fails", async () => {
+    const face = await discRender(256, 256);
+    const renders = new Map([["person_ada-face", { bytes: face, small: false }]]);
     expect(PORTRAIT_VIEWS).toEqual(["face", "figure", "cheer"]);
-    expect(checkTiles([{ path: "tiles/person_ada-face.png", bytes: face }], renders)).toEqual([]);
-    expect(checkTiles([], renders)).toEqual([expect.stringMatching(/person_ada-face's tile render is not published/)]);
+    expect(await checkTiles([{ path: "tiles/person_ada-face.webp", bytes: await toWebp(face) }], renders)).toEqual([]);
+    expect(await checkTiles([], renders)).toEqual([expect.stringMatching(/person_ada-face's tile render is not published/)]);
   });
 
   test("[assets:register-matches-every-file] given the files under public/assets, when they are sorted, then a tile is a picture of a model and not a model of its own, so it needs no register row or budget", () => {
