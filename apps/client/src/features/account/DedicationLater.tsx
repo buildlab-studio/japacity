@@ -1,11 +1,13 @@
 // The dedication page fetched only when it is first opened (account:dedication-page-and-its-doors; engine:first-download-has-budget,
 // the first visit's size): the third light and the version line's five taps stay on the first visit, small, and the
-// page with its sheet comes in its own chunk on the first tap. Until then nothing of it is drawn.
+// page with its sheet comes in its own chunk on the first tap, its words in another (later.words.ts). Until both are in nothing of it
+// is drawn, so no key shows.
 import { lazy, Suspense, useState } from "react";
 
 import type { DedicationProps } from "./Dedication";
+import { loadLaterWords } from "./later.words";
 
-const Page = lazy(() => import("./Dedication").then((page) => ({ default: page.Dedication })));
+const Page = lazy(() => Promise.all([import("./Dedication"), loadLaterWords("dedication")]).then(([page]) => ({ default: page.Dedication })));
 
 export function DedicationLater(props: DedicationProps) {
   const [asked, setAsked] = useState(props.open);

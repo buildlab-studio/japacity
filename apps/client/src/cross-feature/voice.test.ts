@@ -7,13 +7,15 @@ import { uiCastelText } from "@japacity/content/ui/castel";
 import { uiDubaiText } from "@japacity/content/ui/dubai";
 import { uiLondonText } from "@japacity/content/ui/london";
 import { uiSendOffText } from "@japacity/content/ui/send-off";
+import { uiAccountSheetText } from "@japacity/content/ui/account-sheet";
+import { uiDedicationText } from "@japacity/content/ui/dedication";
 import { uiCalgaryMapText, uiCastelMapText, uiDubaiMapText, uiLondonMapText } from "@japacity/content/ui/paper";
 import { describe, expect, test } from "vitest";
 
 // The content check on institutions beside wrongdoing (person:no-institution-tied-to-crime), run here over the tables that ride a chunk of their own too.
 import { institutionProblems } from "../../../../packages/content/src/person/person.names.check";
 
-/** The tables that ride a chunk of their own, outside content's text: each country's papers and places, and the send-off. */
+/** The tables that ride a chunk of their own, outside content's text: each country's papers and places, the send-off, the account sheet and the dedication page. */
 const chunkTables: Record<string, Record<string, string>> = {
   london: uiLondonMapText,
   londonPlaces: { ...uiLondonText },
@@ -25,6 +27,8 @@ const chunkTables: Record<string, Record<string, string>> = {
   dubaiPlaces: { ...uiDubaiText },
   castelPlaces: { ...uiCastelText },
   sendOff: uiSendOffText,
+  accountSheet: uiAccountSheetText,
+  dedication: uiDedicationText,
 };
 
 /** Every line a player can read, with the table it is in. */

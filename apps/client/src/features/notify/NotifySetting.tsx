@@ -1,6 +1,7 @@
 // The bank-full notice's switch in the account settings (docs/rules/clock.md
 // clock:full-bank-push-notification). On asks the browser and keeps this device; off forgets every
-// device of the account (account:only-needed-data-kept).
+// device of the account (account:only-needed-data-kept). Shown only in the account sheet, so its words are the sheet's
+// (content's ui/ui.accountSheet.text.ts), in by the time the sheet opens (engine:first-download-has-budget).
 import { useEffect, useState } from "react";
 
 import { say } from "../../shared/words/text";

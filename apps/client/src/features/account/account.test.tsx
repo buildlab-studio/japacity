@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
@@ -21,6 +21,10 @@ import { AccountSettings } from "./Settings";
 import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 import { WayToast } from "./WayToast";
+import { loadLaterWords } from "./later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 // The marks a kept life and a used passkey leave in this browser turn the screens round; each test starts from a new browser.
 beforeEach(() => {

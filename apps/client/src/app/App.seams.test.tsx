@@ -5,7 +5,7 @@ import type { CounterRow } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { createGameStore } from "../authority/store";
@@ -21,6 +21,10 @@ import type { AccountApi } from "../shared/net/auth";
 import { abroadView, engineView, fakeAuthority } from "../shared/testing/fixtures";
 import { found, renderWithView } from "../shared/testing/render";
 import { say } from "../shared/words/text";
+import { loadLaterWords } from "../features/account/later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 vi.mock("../shared/share/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 

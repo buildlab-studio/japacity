@@ -1,0 +1,68 @@
+// The account sheet's own words, in the voice of docs/rules/text.md: the username's change, the life's name, the usage counts,
+// the bank-full notice's switch, the passkeys, signing out and deleting the account. Read only once the account's row in
+// Settings is tapped, so they ride a chunk of their own, fetched then (engine:first-download-has-budget); the row's own words
+// stay in ui.online.text.ts.
+export const uiAccountSheetText: Record<string, string> = {
+  // The username and its change (account:username-and-unconfirmed-email), and the life's name beside it
+  "ui.account.name.wait": "You changed it not long ago. You can change it again from {date}.",
+  "ui.account.name.change": "Change it",
+  "ui.account.name.change.go": "Save the new name",
+  "ui.account.name.change.cancel": "Cancel",
+  "ui.account.name.changed": "Saved. Others now see {name}.",
+  "ui.account.name.free": "Your first change is free. After that, changes come a while apart.",
+  "ui.account.person.label": "Name",
+
+  // The usage counts setting (analytics:player-can-stop-usage-counts)
+  "ui.account.usage": "Send usage counts",
+  "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
+  "ui.account.usage.failed": "That did not save. Try again in a moment.",
+
+  // The bank-full notice's switch (clock:full-bank-push-notification)
+  "ui.notify.setting": "Tell me when my months are full",
+  "ui.notify.blocked": "This browser blocks notices from Japacity. Allow them in its settings, then turn this on.",
+  "ui.notify.unsupported": "This browser cannot show notices. On an iPhone, adding Japacity to the home screen may be needed first.",
+
+  // The passkeys listed, added where they work and removed (account:passkey-needs-signed-in-session, account:passkeys-listed-and-removed,
+  // account:passkey-offered-where-it-works)
+  "ui.account.passkey.add": "Add a passkey",
+  "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
+  "ui.account.passkeys": "{count} passkeys",
+  "ui.account.passkeys.one": "1 passkey",
+  "ui.account.passkeys.zero": "Passkey: none yet",
+  "ui.account.passkey.why": "Sign in with your face, fingerprint or screen lock instead of a code.",
+  "ui.account.passkey.offer": "Next time, sign in with your face or fingerprint. Add a passkey?",
+  "ui.account.passkey.later": "Not now",
+  "ui.account.passkey.fresh": "To add a passkey, first confirm it is you.",
+  "ui.account.passkey.fresh.passkey": "Use my passkey",
+  "ui.account.passkey.fresh.code": "Send a code to {email}",
+  "ui.account.passkey.fresh.code.go": "Confirm with this code",
+  "ui.account.passkey.fresh.done": "Confirmed. Tap Add a passkey to finish.",
+  "ui.account.passkey.provider": "Passkey",
+  "ui.account.passkey.added-on": "Added {date}",
+  "ui.account.passkey.remove": "Remove",
+  "ui.account.passkey.remove.named": "Remove {name}, added {date}",
+  "ui.account.passkey.last.google": "This is your last passkey. You can still sign in with Google.",
+  "ui.account.passkey.last.email": "This is your last passkey. You can still sign in with a code sent to {email}.",
+  "ui.account.passkey.last.go": "Remove it",
+  "ui.account.passkey.last.keep": "Keep it",
+  "ui.account.passkey.removed": "Removed. Other phones are signed out.",
+
+  // Signing out here or everywhere (account:sign-out-ends-the-session), a guest warned first (account:guest-reminded-to-secure)
+  "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you save it.",
+  "ui.guest.sign-out.go": "Sign out and leave this life",
+  "ui.account.sign-out": "Sign out",
+  "ui.account.sign-out.all": "Sign out on every phone",
+  "ui.account.sign-out.all.warn": "This signs you out everywhere, this phone too.",
+  "ui.account.sign-out.all.go": "Sign out everywhere",
+  "ui.account.sign-out.all.keep": "Stay signed in",
+
+  // Deleting the account (account:player-deletes-account)
+  "ui.account.delete": "Delete my account",
+  "ui.account.delete.warn": "This ends your life in Japacity for good. Your character, your saves and your account go, and nobody can bring them back.",
+  "ui.account.delete.confirm": "Delete for good",
+  "ui.account.delete.keep": "Keep my account",
+  "ui.account.delete.fresh": "Before it goes, show it is you: sign in again, or get a code by email.",
+  "ui.account.delete.code": "Send a code to {email}",
+  "ui.account.delete.code.go": "Delete with this code",
+  "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
+};

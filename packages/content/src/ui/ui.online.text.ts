@@ -1,4 +1,4 @@
-// Playing online: the server's own refusals, the clock, the age screen, signing in and the account settings, in the
+// Playing online: the server's own refusals, the clock, the age screen, signing in and the account's row, in the
 // voice of docs/rules/text.md.
 export const uiOnlineText: Record<string, string> = {
   // The server's refusals (server:per-account-rate-limits, account:sign-up-open-everywhere, account:one-character-per-account)
@@ -73,34 +73,9 @@ export const uiOnlineText: Record<string, string> = {
   "ui.lights.everyone": "Everyone playing, now",
   "ui.lights.said": "{home} lives at home, {abroad} abroad",
   "ui.lights.unsaid": "The two lights, home and abroad",
-  // The dedication page (account:dedication-page-and-its-doors), reached from the lantern canoe on the map (world:lantern-canoe-on-map) and Settings' five taps,
-  // and naming a light of the player's own (account:name-a-light-for-yours). The dedication's lines and the nickname under the big light are
-  // content's (about.data.ts), never here.
+  // The lantern canoe on the map (world:lantern-canoe-on-map), one door to the dedication page (account:dedication-page-and-its-doors). The
+  // page's own words ride its chunk: ui.dedication.text.ts (engine:first-download-has-budget).
   "ui.dedication.canoe": "A canoe with a lantern",
-  "ui.dedication.page": "Dedication",
-  "ui.dedication.count": "{count} lights",
-  "ui.dedication.count.one": "{count} light",
-  "ui.dedication.tonight": "on the water tonight",
-  "ui.dedication.rest": "Sun re o.",
-  "ui.dedication.close": "Close",
-  "ui.dedication.light-one": "Light one for yours",
-  "ui.dedication.out": "The water is out of reach right now.",
-  "ui.dedication.yours": "yours",
-  "ui.dedication.name": "Who is it for?",
-  "ui.dedication.years": "Years, if you want",
-  "ui.dedication.from": "First year",
-  "ui.dedication.to": "Last year",
-  "ui.dedication.between": "to",
-  "ui.dedication.hint": "Four words at most. Its name shows to everyone once it has been looked over.",
-  "ui.dedication.light-it": "Light it",
-  "ui.dedication.mine": "Yours is on the water. Its name shows to everyone once it has been looked over.",
-  "ui.dedication.put-out": "Put it out",
-  "ui.dedication.problem.name-words": "Four words at most.",
-  "ui.dedication.problem.name-characters": "Forty letters at most.",
-  "ui.dedication.problem.first-year": "A year from {first} to {year}.",
-  "ui.dedication.problem.last-year": "A year from {first} to {year}.",
-  "ui.dedication.problem.last-before": "The last year cannot come before the first.",
-  "ui.dedication.problem.name-empty": "A name first.",
   "ui.account.back": "Back",
 
   // The age screen (account:age-screen-refuses-minors)
@@ -202,13 +177,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.name.blocked": "That name is not allowed. Pick another.",
   "ui.account.name.taken": "Someone has that name. Pick another.",
   "ui.account.name.available": "That name is free.",
-  "ui.account.name.wait": "You changed it not long ago. You can change it again from {date}.",
   "ui.account.name.current": "@{name}",
-  "ui.account.name.change": "Change it",
-  "ui.account.name.change.go": "Save the new name",
-  "ui.account.name.change.cancel": "Cancel",
-  "ui.account.name.changed": "Saved. Others now see {name}.",
-  "ui.account.name.free": "Your first change is free. After that, changes come a while apart.",
   "ui.account.guest.too-many": "Too many new lives from here today. Come back tomorrow.",
   "ui.account.guest.expired": "Your age answer has run out. Answer it again to start.",
   "ui.account.guest.full": "Japacity is full right now. Try again shortly.",
@@ -234,8 +203,6 @@ export const uiOnlineText: Record<string, string> = {
   "ui.secure.taken.ends": "This life on this phone ends if you do.",
   "ui.guest.reminder": "This life lives only on this phone until you save it.",
   "ui.guest.keep": "Save this life",
-  "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you save it.",
-  "ui.guest.sign-out.go": "Sign out and leave this life",
   "ui.invite.keep-first": "To take a friend's card, save this life first with Google or your email.",
 
   // The terms and the privacy notice, linked from the sign-in, the settings and the guides menu
@@ -243,74 +210,29 @@ export const uiOnlineText: Record<string, string> = {
   "ui.legal.terms": "Terms of play",
   "ui.legal.privacy": "Privacy notice",
 
-  // The usage counts setting (analytics:player-can-stop-usage-counts)
-  "ui.account.usage": "Send usage counts",
-  "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
-  "ui.account.usage.failed": "That did not save. Try again in a moment.",
-
-  // The settings (account:passkey-needs-signed-in-session, account:player-deletes-account)
+  // The account's row at the top of Settings, which opens its sheet (account:username-and-unconfirmed-email, account:guest-reminded-to-secure).
+  // The sheet's own words ride its chunk: ui.accountSheet.text.ts (engine:first-download-has-budget).
   "ui.account.settings": "Account",
-  "ui.account.passkey.add": "Add a passkey",
-  "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
-  // The account's row at the top of Settings and the rows on its sheet (account:username-and-unconfirmed-email, account:guest-reminded-to-secure).
-  "ui.account.person.label": "Name",
   "ui.account.ways.google": "Signed in with Google as {email}",
   "ui.account.ways.email": "Signed in with your email as {email}",
   "ui.account.ways.email.short": "Signed in with your email",
   "ui.account.ways.guest": "Only on this phone. Save it to play anywhere.",
-  "ui.account.passkeys": "{count} passkeys",
-  "ui.account.passkeys.one": "1 passkey",
-  "ui.account.passkeys.zero": "Passkey: none yet",
   // A short toast over the world once a life is saved or signed back in to, naming the way (account:guest-secures-the-life).
   "ui.account.toast.kept.google": "Saved with Google",
   "ui.account.toast.kept.email": "Saved with your email",
   "ui.account.toast.in.google": "Signed in with Google",
   "ui.account.toast.in.email": "Signed in with your email",
   "ui.account.toast.in.passkey": "Signed in with your passkey",
-  "ui.account.sign-out": "Sign out",
-  "ui.account.delete": "Delete my account",
-  "ui.account.delete.warn": "This ends your life in Japacity for good. Your character, your saves and your account go, and nobody can bring them back.",
-  "ui.account.delete.confirm": "Delete for good",
-  "ui.account.delete.keep": "Keep my account",
-  "ui.account.delete.fresh": "Before it goes, show it is you: sign in again, or get a code by email.",
-  "ui.account.delete.code": "Send a code to {email}",
-  "ui.account.delete.code.go": "Delete with this code",
-  "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
-  // The passkeys listed, added where they work and removed; signing out here or everywhere (account:passkeys-listed-and-removed,
-  // account:passkey-offered-where-it-works, account:passkey-errors-told-apart, account:sign-out-ends-the-session).
-  "ui.account.passkey.why": "Sign in with your face, fingerprint or screen lock instead of a code.",
-  "ui.account.passkey.offer": "Next time, sign in with your face or fingerprint. Add a passkey?",
-  "ui.account.passkey.later": "Not now",
-  "ui.account.passkey.fresh": "To add a passkey, first confirm it is you.",
-  "ui.account.passkey.fresh.passkey": "Use my passkey",
-  "ui.account.passkey.fresh.code": "Send a code to {email}",
-  "ui.account.passkey.fresh.code.go": "Confirm with this code",
-  "ui.account.passkey.fresh.done": "Confirmed. Tap Add a passkey to finish.",
-  "ui.account.passkey.provider": "Passkey",
-  "ui.account.passkey.added-on": "Added {date}",
-  "ui.account.passkey.remove": "Remove",
-  "ui.account.passkey.remove.named": "Remove {name}, added {date}",
-  "ui.account.passkey.last.google": "This is your last passkey. You can still sign in with Google.",
-  "ui.account.passkey.last.email": "This is your last passkey. You can still sign in with a code sent to {email}.",
-  "ui.account.passkey.last.go": "Remove it",
-  "ui.account.passkey.last.keep": "Keep it",
-  "ui.account.passkey.removed": "Removed. Other phones are signed out.",
+  // What went wrong with a passkey or signing out, told apart (account:passkey-errors-told-apart, account:sign-out-ends-the-session).
   "ui.account.fail.already-here": "This phone already has a passkey for this life.",
   "ui.account.fail.passkey-gone": "That passkey was removed from your account. Sign in another way.",
   "ui.account.fail.other-account": "That passkey belongs to another life. Use one made for this life.",
   "ui.account.fail.sign-out": "Could not sign out. Check your connection and try again.",
-  "ui.account.sign-out.all": "Sign out on every phone",
-  "ui.account.sign-out.all.warn": "This signs you out everywhere, this phone too.",
-  "ui.account.sign-out.all.go": "Sign out everywhere",
-  "ui.account.sign-out.all.keep": "Stay signed in",
 
   // The bank-full notice (clock:full-bank-push-notification)
   "ui.notify.ask.title": "Know when your months are full",
   "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
   "ui.notify.ask.yes": "Tell me",
   "ui.notify.ask.no": "Not now",
-  "ui.notify.setting": "Tell me when my months are full",
-  "ui.notify.blocked": "This browser blocks notices from Japacity. Allow them in its settings, then turn this on.",
-  "ui.notify.unsupported": "This browser cannot show notices. On an iPhone, adding Japacity to the home screen may be needed first.",
   "ui.notify.failed": "That did not work. Try again in a while.",
 };

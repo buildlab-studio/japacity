@@ -3,6 +3,7 @@ import type { Proof, Same } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
 import { content, HOMETOWN_FILL, mergeText, text, textTables, uiBoardsText, uiOnlineText } from "./index";
+import { uiAccountSheetText } from "./ui/ui.accountSheet.text";
 
 declare global {
   interface ImportMeta {
@@ -207,9 +208,12 @@ describe("the words files together", () => {
 
 /**
  * text:account-words-plain: the tables a player reads the account's words in: `uiOnlineText` (the start screen, the ways back
- * in, the account's sheet, the save sheet, the guest lines and the invite's page) and `uiBoardsText` (the boards).
+ * in, the account's row, the save sheet, the guest lines and the invite's page), `uiAccountSheetText` (the account's sheet, which rides
+ * a chunk of its own) and `uiBoardsText` (the boards).
  */
-const ACCOUNT_TABLES = { uiOnlineText, uiBoardsText };
+const ACCOUNT_TABLES = { uiOnlineText, uiAccountSheetText, uiBoardsText };
+/** Every line of those tables by its key. */
+const ACCOUNT_LINES: Record<string, string> = Object.fromEntries(Object.values(ACCOUNT_TABLES).flatMap((table) => Object.entries(table)));
 
 /** Lines in those tables where keep means another thing than saving a life: the hook's light, the browser's cookies, and two buttons that undo a step. */
 const KEEP_MEANS_ANOTHER_THING = new Set([
@@ -232,7 +236,7 @@ describe("the account's words (text:account-words-plain)", () => {
     );
     expect(said).toEqual([]);
     // The exceptions are lines that are there, so a renamed key cannot hide a line from the walk.
-    for (const key of KEEP_MEANS_ANOTHER_THING) expect(uiOnlineText[key]).toMatch(/\bkeep(ing)?\b/i);
+    for (const key of KEEP_MEANS_ANOTHER_THING) expect(ACCOUNT_LINES[key]).toMatch(/\bkeep(ing)?\b/i);
   });
 
   test("[text:account-words-plain] given the account's own actions, when they are read, then a guest's life is saved and coming back to it is signing in", () => {

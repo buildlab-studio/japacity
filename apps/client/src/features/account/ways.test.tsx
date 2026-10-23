@@ -4,7 +4,7 @@
 import type { AccountView } from "@japacity/api";
 import type { PlayerView } from "@japacity/sim";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, beforeAll, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
@@ -16,8 +16,13 @@ import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { failureWords } from "./CodeForm";
 import { SecureAsk, SecureSheet } from "./Secure";
-import { AccountButton, AccountSettings } from "./Settings";
+import { AccountButton } from "./AccountButton";
+import { AccountSettings } from "./Settings";
 import { WayToast } from "./WayToast";
+import { loadLaterWords } from "./later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 const OK: AuthResult = { ok: true };
 const PLAIN_CHROME = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36";

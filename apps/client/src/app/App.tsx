@@ -27,7 +27,7 @@ import { GuestReminder, SecureAsk } from "../features/account/Secure";
 import { OFFER_PLACES } from "../features/city/nudge/nudge";
 import { PARCEL } from "../shared/world/parcel.ask";
 import { ParcelWaybill } from "../shared/world/Waybill";
-import { AccountButton } from "../features/account/Settings";
+import { AccountButton } from "../features/account/AccountButton";
 import { useAccountView } from "../features/account/standing";
 import { ActivityPicker } from "../features/activity/ActivityView";
 import { PhoneTile, PlaceAdverts } from "../features/advert/placed";

@@ -2,7 +2,7 @@ import type { PushSubscriptionJson } from "@japacity/api";
 import type { ReportLine } from "@japacity/sim";
 import { time } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
@@ -14,6 +14,10 @@ import type { NotifyApi, NotifyDevice, NotifyStatus, Permission } from "./notify
 import { httpNotifyApi } from "./notify.api";
 import { NotifyAsk } from "./NotifyAsk";
 import { NotifySetting } from "./NotifySetting";
+import { loadLaterWords } from "../account/later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 const REASK_DAYS = 14;
 const START = Date.UTC(2026, 9, 10, 9, 0, 0);

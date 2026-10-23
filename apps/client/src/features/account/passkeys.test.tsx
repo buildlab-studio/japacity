@@ -3,7 +3,7 @@
 // and signing out here or everywhere.
 import type { AccountView } from "@japacity/api";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
@@ -15,6 +15,10 @@ import "../../shared/testing/render";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 import { AccountSettings } from "./Settings";
+import { loadLaterWords } from "./later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 const OK: AuthResult = { ok: true };
 const NOT_FRESH: AuthResult = { ok: false, why: "not-fresh" };

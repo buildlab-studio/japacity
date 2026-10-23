@@ -3,10 +3,12 @@
 // where X is truly on its way is allowed, so the scan looks only for the dead-time shapes, and the
 // lines nearest to waiting are pinned as they read.
 import { text, textTables } from "@japacity/content";
+import { uiAccountSheetText } from "@japacity/content/ui/account-sheet";
+import { uiDedicationText } from "@japacity/content/ui/dedication";
 import { describe, expect, test } from "vitest";
 
-// Content's tables, the interface's own among them. The admin page's words are left out: they are the staff's tool, where a report's age in the queue is a measure, not the game's voice.
-const every: { key: string; line: string }[] = Object.values(textTables).flatMap((lines) => Object.entries(lines).map(([key, line]) => ({ key, line })));
+// Content's tables, the interface's own among them, and the account sheet's and the dedication page's, which ride chunks of their own. The admin page's words are left out: they are the staff's tool, where a report's age in the queue is a measure, not the game's voice.
+const every: { key: string; line: string }[] = [...Object.values(textTables), uiAccountSheetText, uiDedicationText].flatMap((lines) => Object.entries(lines).map(([key, line]) => ({ key, line })));
 const all = new Map(every.map(({ key, line }) => [key, line]));
 
 /** The dead-time shapes: the player idle, or something said to wait on them. A brace's name is a slot, never said. */

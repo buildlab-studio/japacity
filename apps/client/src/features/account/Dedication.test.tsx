@@ -4,13 +4,17 @@
 import type { SharedLight } from "@japacity/api";
 import { DEDICATION_NICKNAME, DEDICATION_SHORT } from "@japacity/content";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 
 import { forgetDedication, setDedicationServer } from "../../shared/dedication/lights";
 import type { Api } from "../../shared/net/http";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { Dedication, MOST_DRAWN, placeLights, placesForLights } from "./Dedication";
+import { loadLaterWords } from "./later.words";
+
+// The page's words ride a chunk of their own (engine:first-download-has-budget): added before the page is drawn, as its door adds them before it opens.
+beforeAll(() => loadLaterWords("dedication"));
 
 type Animated = { frames: Keyframe[]; on: Element };
 

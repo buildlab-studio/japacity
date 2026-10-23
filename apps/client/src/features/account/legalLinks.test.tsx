@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
@@ -10,6 +10,10 @@ import { say } from "../../shared/words/text";
 import { AccountGate } from "./AccountGate";
 import { AccountSettings } from "./Settings";
 import { TEST_SITE_KEY, type LoadTurnstile } from "./Turnstile";
+import { loadLaterWords } from "./later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 const OK: AuthResult = { ok: true };
 

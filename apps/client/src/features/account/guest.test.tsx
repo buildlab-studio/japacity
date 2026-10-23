@@ -1,7 +1,7 @@
 import type { AccountView } from "@japacity/api";
 import { time, type Id, type PlayerView } from "@japacity/sim";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
@@ -14,6 +14,10 @@ import { CHECK_AFTER_MS } from "./GuestStart";
 import { browserLink, inAppBrowser } from "./inApp";
 import { askMoment, GuestReminder, SecureAsk, SecureSheet } from "./Secure";
 import { AccountSettings } from "./Settings";
+import { loadLaterWords } from "./later.words";
+
+// The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
+beforeAll(() => loadLaterWords("sheet"));
 
 const OK: AuthResult = { ok: true };
 

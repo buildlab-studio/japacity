@@ -13,7 +13,9 @@
     "./ui/dubai": "./src/ui/ui.dubai.text.ts",
     "./ui/castel": "./src/ui/ui.castel.text.ts",
     "./ui/paper": "./src/ui/ui.paper.text.ts",
-    "./ui/send-off": "./src/ui/ui.sendOff.text.ts"
+    "./ui/send-off": "./src/ui/ui.sendOff.text.ts",
+    "./ui/account-sheet": "./src/ui/ui.accountSheet.text.ts",
+    "./ui/dedication": "./src/ui/ui.dedication.text.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
