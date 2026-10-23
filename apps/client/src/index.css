@@ -369,12 +369,9 @@ body {
    @starting-style. The rule at the top of this file sets every transition to none under reduced motion, so each snaps. */
 .motion-scrim { transition-property: opacity; transition-duration: 200ms; transition-timing-function: ease; }
 .motion-scrim[data-starting-style], .motion-scrim[data-ending-style] { opacity: 0; }
-/* A sheet rises from the foot on a phone and comes in from the right on a desktop, and goes back the same way. */
+/* A sheet rises from the foot and goes back the same way, on a phone and in the laptop's centre alike (world:sheets-one-frame). */
 .motion-sheet { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 .motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateY(100%); }
-@media (min-width: 64rem) {
-  .motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateX(100%); }
-}
 /* A lively sheet rises from the foot and sinks back the same way, on a phone and in the laptop's column alike. */
 .motion-rise { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 .motion-rise[data-starting-style], .motion-rise[data-ending-style] { transform: translateY(100%); }

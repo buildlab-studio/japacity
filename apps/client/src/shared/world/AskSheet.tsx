@@ -3,11 +3,12 @@
 // is shut and says how much is short, as the ride sheet does, so nothing is planned or sent that cannot be paid.
 import { Dialog } from "@base-ui/react/dialog";
 import type { Currency } from "@japacity/sim";
-import { TriangleAlert, X } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
 import { StickerChip } from "../ui/lively/StickerChip";
+import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
 import { say } from "../words/text";
 import { Balance, CENTRED, pricedLabel } from "./Balance";
@@ -106,19 +107,9 @@ function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main
   // A reason from the world shuts the button and takes the second line (world:one-action-one-sheet).
   const main: Main = ask?.blocked !== undefined ? { after: ask.blocked, figure: null, shut: true } : ask?.note !== undefined ? { after: ask.note, figure: null, shut: false } : counted;
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) ask?.dismiss();
-      }}
-    >
-      <Dialog.Portal>
-        <Dialog.Backdrop className="motion-scrim fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
-        <Dialog.Popup className="motion-sink fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-ask-form={ask?.form}>
-          {ask === null ? null : ask.form === "card" ? <Card ask={ask} main={main} formatMoney={formatMoney} icon={icon} /> : <Slip ask={ask} main={main} formatMoney={formatMoney} />}
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <SheetFrame open={open} onClose={() => ask?.dismiss()} className="motion-sink" {...(ask === null ? {} : { attributes: { "data-ask-form": ask.form } })}>
+      {ask === null ? null : ask.form === "card" ? <Card ask={ask} main={main} formatMoney={formatMoney} icon={icon} /> : <Slip ask={ask} main={main} formatMoney={formatMoney} />}
+    </SheetFrame>
   );
 }
 
@@ -127,16 +118,14 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
     // The lively card (docs/design/09-the-lively-layer.md section 2): the sheet's pale sky with its handle, the picture on a
     // soft tile, a small line for who and where, the title of a few words; navy at night.
     <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
-      <span aria-hidden className="mx-auto mt-2 block h-[5px] w-10 rounded-[3px] bg-text/25" />
-      <div className="relative flex items-center gap-3 px-4 pt-2 pr-12 pb-1">
+      <SheetHandle />
+      <div className="relative flex items-center gap-3 px-4 pt-1 pr-14 pb-1">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-plain text-text">{icon?.(ask.icon)}</div>
         <div className="min-w-0 flex-1">
           <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{ask.who}</Dialog.Description>
           <Dialog.Title className="text-title leading-tight font-bold">{ask.title}</Dialog.Title>
         </div>
-        <Dialog.Close aria-label={say("ui.world.close")} className="press absolute top-1 right-3 flex size-9 items-center justify-center rounded-[12px] text-text-2">
-          <X size={18} />
-        </Dialog.Close>
+        <SheetCloseButton label={say("ui.world.close")} />
       </div>
       <div className="p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
         <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>
