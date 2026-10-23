@@ -7,7 +7,7 @@
 //
 // The entries carry how deep they stand (`japacityBack` in the history state), so a landing tells how many layers the player
 // went back through, and an entry reached forward after its layer closed is stepped back over.
-import { createContext, use, useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 /** The key the depth is kept under in the history state, beside whatever else the state holds. */
 const KEY = "japacityBack";
@@ -201,18 +201,11 @@ export function createBack(win: Window): BackStack {
   return stack;
 }
 
-/** The page's one stack, made on first use; none outside a browser. */
+/** The page's one stack, made on first use (a test makes its own with `createBack`); none outside a browser. */
 function sharedBack(): BackStack | null {
   if (live !== null) return live;
   if (typeof window === "undefined") return null;
   return createBack(window);
-}
-
-/** A stack of its own for a test; the page's own otherwise. */
-export const BackContext = createContext<BackStack | null>(null);
-
-function useStack(): BackStack | null {
-  return use(BackContext) ?? sharedBack();
 }
 
 /**
@@ -220,7 +213,7 @@ function useStack(): BackStack | null {
  * putting it away (which may first play its motion). When it closes by any other control its entry is taken off.
  */
 export function useBackLayer(open: boolean, close: () => void, { level = LEVEL.sheet, hold = false, cover = false }: BackLayerOptions = {}): void {
-  const stack = useStack();
+  const stack = sharedBack();
   const latest = useRef(close);
   latest.current = close;
   useEffect(() => {
@@ -238,7 +231,7 @@ export function useBackHold(active: boolean): void {
 
 /** world:reach-and-read: true while a layer that covers the scene stands; the scene is then inert. */
 export function useSceneCovered(): boolean {
-  const stack = useStack();
+  const stack = sharedBack();
   return useSyncExternalStore(
     (listener) => stack?.subscribe(listener) ?? NOTHING,
     () => stack?.covered() ?? false,

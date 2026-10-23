@@ -8,7 +8,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { BackContext, type BackStack, createBack } from "../back/back";
+import { type BackStack, createBack } from "../back/back";
 import { AskSheet } from "../world/AskSheet";
 import { WorldSheet } from "../world/WorldSheet";
 import { LivelySheet } from "./lively/LivelySheet";
@@ -69,7 +69,7 @@ function drag(by: number, ms: number): void {
 }
 
 function within(ui: ReactElement) {
-  return render(<BackContext value={stack}>{ui}</BackContext>);
+  return render(ui);
 }
 
 describe.each(SHEETS)("%s", (_name, draw) => {

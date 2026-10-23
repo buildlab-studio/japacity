@@ -65,7 +65,7 @@ export function SheetFrame({ open, onClose, className, scrim = "bg-scrim/60", co
   );
 }
 
-/** Where a drag stands: its start, and the last two points for the speed of a flick. */
+/** Where a drag stands: the pointer, where it started, and its last point and speed, for a flick. */
 interface Drag {
   id: number;
   from: number;
@@ -78,56 +78,35 @@ interface Drag {
 export function SheetHandle({ className = "" }: { className?: string }) {
   const parts = use(Frame);
   const drag = useRef<Drag | null>(null);
-  const move = (frame: HTMLElement, by: number): void => {
-    frame.style.transition = "none";
-    frame.style.transform = `translateY(${String(by)}px)`;
-  };
-  const release = (frame: HTMLElement): void => {
+  // One handler for the pointer's moves: down starts the drag, a move follows the finger, up or cancel lets go.
+  const follow = (event: PointerEvent<HTMLDivElement>): void => {
+    const held = drag.current;
+    const frame = parts?.popup.current;
+    const y = event.clientY;
+    if (event.type === "pointerdown") {
+      if (event.button !== 0) return;
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      drag.current = { id: event.pointerId, from: y, at: performance.now(), y, speed: 0 };
+      return;
+    }
+    if (held === null || held.id !== event.pointerId || frame === null || frame === undefined) return;
+    const by = Math.max(0, y - held.from);
+    if (event.type === "pointermove") {
+      const time = performance.now();
+      held.speed = (y - held.y) / Math.max(1, time - held.at);
+      held.at = time;
+      held.y = y;
+      frame.style.transition = "none";
+      frame.style.transform = `translateY(${String(by)}px)`;
+      return;
+    }
+    drag.current = null;
     frame.style.transition = "";
     frame.style.transform = "";
-  };
-  const down = (event: PointerEvent<HTMLDivElement>): void => {
-    if (event.button !== 0) return;
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    drag.current = { id: event.pointerId, from: event.clientY, at: performance.now(), y: event.clientY, speed: 0 };
-  };
-  const moved = (event: PointerEvent<HTMLDivElement>): void => {
-    const held = drag.current;
-    const frame = parts?.popup.current;
-    if (held === null || held.id !== event.pointerId || frame === null || frame === undefined) return;
-    const time = performance.now();
-    const elapsed = Math.max(1, time - held.at);
-    held.speed = (event.clientY - held.y) / elapsed;
-    held.at = time;
-    held.y = event.clientY;
-    move(frame, Math.max(0, event.clientY - held.from));
-  };
-  const up = (event: PointerEvent<HTMLDivElement>): void => {
-    const held = drag.current;
-    drag.current = null;
-    const frame = parts?.popup.current;
-    if (held === null || held.id !== event.pointerId || frame === null || frame === undefined) return;
-    const by = Math.max(0, event.clientY - held.from);
-    const height = frame.getBoundingClientRect().height;
-    const flicked = held.speed >= FLICK_SPEED && by >= FLICK_MIN_PX;
-    release(frame);
-    if (by * CLOSE_SHARE > height || flicked) parts?.close();
-  };
-  const cancel = (): void => {
-    drag.current = null;
-    const frame = parts?.popup.current;
-    if (frame !== null && frame !== undefined) release(frame);
+    if (event.type === "pointerup" && (by * CLOSE_SHARE > frame.getBoundingClientRect().height || (held.speed >= FLICK_SPEED && by >= FLICK_MIN_PX))) parts?.close();
   };
   return (
-    <div
-      aria-hidden
-      className={`mx-auto flex h-7 w-24 shrink-0 cursor-grab touch-none items-center justify-center ${className}`}
-      onPointerDown={down}
-      onPointerMove={moved}
-      onPointerUp={up}
-      onPointerCancel={cancel}
-      data-sheet-handle
-    >
+    <div aria-hidden className={`mx-auto flex h-7 w-24 shrink-0 cursor-grab touch-none items-center justify-center ${className}`} onPointerDown={follow} onPointerMove={follow} onPointerUp={follow} onPointerCancel={follow} data-sheet-handle>
       <span className="h-[5px] w-10 rounded-[3px] bg-text/25" />
     </div>
   );

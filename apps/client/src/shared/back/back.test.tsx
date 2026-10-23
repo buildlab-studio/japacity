@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { BackContext, type BackStack, createBack, LEVEL, replaceAddress, useBackLayer, useSceneCovered } from "./back";
+import { type BackStack, createBack, LEVEL, replaceAddress, useBackLayer, useSceneCovered } from "./back";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
 
@@ -81,7 +81,7 @@ function Covered() {
 }
 
 function within(children: React.ReactNode) {
-  return render(<BackContext value={stack}>{children}</BackContext>);
+  return render(<>{children}</>);
 }
 
 const shown = (name: string) => document.querySelector(`[data-open="${name}"]`) !== null;
