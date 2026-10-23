@@ -2,6 +2,8 @@
 
 A one-page map for a person joining the work. The rules for anyone changing code are in [`AGENTS.md`](AGENTS.md).
 
+Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md) (the Contributor Covenant 2.1). Report a breach to security@japacity.app.
+
 ## The skills
 
 The way of working is written down as skills in [`.claude/skills/`](.claude/skills/). Each is a plain page, useful to a person as much as to an agent.
