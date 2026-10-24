@@ -35,18 +35,18 @@ describe("the gate on each way in Japa", () => {
   });
 
   test("[route-gates:points-view-carries-invites] given a carer under the general cut-off but at the care cut-off, when the gate shows, then it says she is at the cut-off for care workers, not short", async () => {
-    await renderWithView(<Japa />, withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, educationCutoff: null, invites: true, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null }));
+    await renderWithView(<Japa />, withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, educationCutoff: null, fundsShort: 0, invites: true, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null }));
     expect(screen.getByText(say("ui.gate.points.over-care"))).toBeDefined();
     expect(screen.queryByText(say("ui.gate.points.short", { short: formatNumber(40) }))).toBeNull();
   });
 
   test("[route-gates:points-view-carries-invites] given the same score without the care to count, when the gate shows, then it is short of the general cut-off", async () => {
-    await renderWithView(<Japa />, withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, educationCutoff: null, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null }));
+    await renderWithView(<Japa />, withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, educationCutoff: null, fundsShort: 0, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null }));
     expect(screen.getByText(say("ui.gate.points.short", { short: formatNumber(40) }))).toBeDefined();
   });
 
   test("[route-gates:entering-the-pool] given a profile in the pool, then the month it entered and the month it lapses show", async () => {
-    const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, educationCutoff: null, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
+    const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, educationCutoff: null, fundsShort: 0, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
     await renderWithView(<Japa />, view);
     // Said as months ago and away (world:top-band-is-a-pill): in the pool since the end of month 30, lapsing as month 42 ends.
     expect(screen.getByText(say("phone.japa.pool", { since: agoWords(30, view.month), ends: inMonths(42, view.month) }))).toBeDefined();

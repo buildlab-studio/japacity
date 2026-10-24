@@ -531,6 +531,41 @@ describe("the points gate", () => {
     });
   });
 
+  describe("the flight", () => {
+    /** The developer granted Canada with the funds line set as the test says, through the clocks. */
+    function granted(line: { value: number }): Game {
+      const game = developer({ tuning: ALWAYS_GRANTED, vars: () => ({ [CUTOFF]: DEVELOPER_SCORE, [block.fundsVar]: line.value }) });
+      toPool(game);
+      const decision = canada(game).visa!.decisionMonth;
+      while (game.state.turn.month < decision) game.endTurn();
+      expect(canada(game).state).toBe("granted");
+      return game;
+    }
+
+    test("[route-gates:canada-funds-checked-at-departure] given Canada granted and the funds exactly covered on the day, when the flight is asked for, then it goes", () => {
+      const line = { value: startVar(block.fundsVar) };
+      const game = granted(line);
+      line.value = pointsFunds(readOf(game), CANADA_ROUTE).shown;
+      game.accept({ type: "route/depart", route: CANADA_ROUTE });
+      expect(canada(game).state).toBe("departed");
+      expect(game.state.place.country).toBe(entry.country);
+    });
+
+    test("[route-gates:canada-funds-checked-at-departure] given Canada granted and the funds one cent short on the day, when the flight is asked for, then it is refused with the reason funds, the grant stands and the way's file says what is missing; with the money back it goes", () => {
+      const line = { value: startVar(block.fundsVar) };
+      const game = granted(line);
+      line.value = pointsFunds(readOf(game), CANADA_ROUTE).shown + 1;
+      const refused = game.expectRejected({ type: "route/depart", route: CANADA_ROUTE }, "not-legal");
+      expect(refused.reason).toBe("funds");
+      expect(canada(game).state).toBe("granted");
+      expect(game.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate).toMatchObject({ gate: "points", fundsShort: 1 });
+      applyEffects(game, [{ type: "money/add", currency: "CAD", pocket: "bank", amount: 1, reason: "gift" }]);
+      expect(game.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate).toMatchObject({ gate: "points", fundsShort: 0 });
+      game.accept({ type: "route/depart", route: CANADA_ROUTE });
+      expect(canada(game).state).toBe("departed");
+    });
+  });
+
   describe("the profile's clock", () => {
     test("[route-gates:profile-lapses-and-score-ages] given a profile and no invitation, when 11 months pass it is live, and when the 12th passes it lapses and the pool may be entered again", () => {
       const game = developer();

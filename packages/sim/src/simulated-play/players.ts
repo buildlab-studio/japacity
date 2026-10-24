@@ -762,7 +762,8 @@ function departures(view: PlayerView): Loose[] {
       commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
     }
   }
-  for (const item of granted) commands.push({ type: "route/depart", route: item.id });
+  // route-gates:canada-funds-checked-at-departure: a way whose funds are short on the day waits until they are back.
+  for (const item of granted) if (item.gate?.gate !== "points" || item.gate.fundsShort === 0) commands.push({ type: "route/depart", route: item.id });
   return commands;
 }
 

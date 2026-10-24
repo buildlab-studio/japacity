@@ -286,6 +286,12 @@ function fundsCovered(read: ReadCtx, route: Id<"route">): boolean {
   return shown >= required;
 }
 
+/** route-gates:canada-funds-checked-at-departure: what the shown funds lack of `fundsVar` today, in Canadian cents; 0 when covered. */
+export function fundsShort(read: ReadCtx, route: Id<"route">): number {
+  const { shown, required } = pointsFunds(read, route);
+  return Math.max(0, required - shown);
+}
+
 /** Why an invitation cannot be used now: the fee or the funds; null when it can. */
 function invitationShort(ctx: Ctx, entry: RouteEntry, block: PointsBlock): "fee" | "funds" | null {
   if (!canPayFee(ctx, block)) return "fee";
@@ -385,6 +391,8 @@ export const pointsGate: Gate = {
   },
   // route-gates:entering-the-pool: the settlement funds in Canadian cents are what this route shows.
   funds: (read, entry) => ({ required: worldVar(read, blockOf(entry).fundsVar), currency: FUNDS_CURRENCY }),
+  // route-gates:canada-funds-checked-at-departure: the funds must be held when the visa is issued, so the flight asks them again.
+  departureShort: (read, entry) => fundsShort(read, entry.id),
   // route-gates:points-score-from-table: the score shows from the moment the route is known.
   view: (read, entry, held) => {
     const block = blockOf(entry);
@@ -396,6 +404,8 @@ export const pointsGate: Gate = {
       careCutoff: block.careCutoffVar === null ? null : worldVar(read, block.careCutoffVar),
       // route-gates:points-view-carries-invites: the teachers' cut-off while the draw stands.
       educationCutoff: educationCutoff(read, entry.id),
+      // route-gates:canada-funds-checked-at-departure: the way's file says how much is missing.
+      fundsShort: fundsShort(read, entry.id),
       // route-gates:points-view-carries-invites: the clocks' own test, the care cut-off for a carer among it.
       invites: invites(read, entry.id),
       poolMonth: gate.poolMonth,

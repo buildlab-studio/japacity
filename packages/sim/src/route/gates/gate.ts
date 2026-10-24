@@ -49,6 +49,8 @@ export interface Gate {
   application?(read: ReadCtx, entry: RouteEntry, held: RouteState): ApplicationFigures;
   /** The funds the route asks to see, in its own currency (route:funds-required). Missing: the study gate's tuition and living line. Null: the route shows no funds. */
   funds?(read: ReadCtx, entry: RouteEntry, held: RouteState): { required: number; currency: ForeignCurrency } | null;
+  /** What the money to show lacks on the day of the flight, in the gate's own currency; 0 when covered (route-gates:canada-funds-checked-at-departure). Missing: the flight asks no funds. */
+  departureShort?(read: ReadCtx, entry: RouteEntry, held: RouteState): number;
   /** The job the character holds on arrival (route-gates:sponsored-status-on-departure, route-gates:employer-flies-and-holds-passport). Missing or null: none. */
   departureJob?(entry: RouteEntry, held: RouteState): Id<"activity"> | null;
   /** Effects to apply once the application is recorded (the dependant gate pays its fee from the lead's route). */

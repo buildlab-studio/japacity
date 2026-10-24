@@ -2210,6 +2210,8 @@ export interface Rejection {
   ok: false;
   code: RejectionCode;
   detail: string;
+  /** Why a granted way cannot be flown yet, where a rule names it (route-gates:canada-funds-checked-at-departure, decision 0033). Missing: no reason beyond the code. */
+  reason?: "funds";
 }
 
 /**
@@ -2381,7 +2383,7 @@ export interface RouteView {
 export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
   /** `invites` (route-gates:points-view-carries-invites): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
-  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; educationCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
+  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; educationCutoff: number | null; fundsShort: number; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
   | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
   | { gate: "dependant"; bond: string | null; lead: RouteStateName | null }

@@ -597,6 +597,9 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (ctx.state.place.where === "abroad") return reject("not-legal", "No flight leaves from abroad. The gate is at the Lagos airport.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
+  // route-gates:canada-funds-checked-at-departure: a gate that asks its funds again on the day refuses the flight while they are short; the grant stands.
+  const short = token === null ? (GATES[entry.gate].departureShort?.(readOf(ctx), entry, held) ?? 0) : 0;
+  if (short > 0) return reject("not-legal", `The money to show is ${String(short)} short of the line on the day of the flight.`, "funds");
   const flight = ctx.content.tuning.route.flight;
   const amount = ctx.amount(flight.amount);
   // route-gates:departure-grants-status: the employer's flight costs nothing. A flight on a kept status is the character's own.
