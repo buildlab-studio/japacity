@@ -27,7 +27,9 @@ function isStudy(id: Id<"activity">): boolean {
   const entry = content.activity[id];
   if (entry === undefined || entry.slot !== "free" || entry.pay !== null) return false;
   if (id === "activity.masters-at-home") return true;
-  const adds = entry.effects.flatMap((effect) => (effect.type === "quality/add" ? [effect.quality as string] : []));
+  // quality:skill-bands-slow-gains: a tech study's gain is its band gains, not an effect.
+  const banded = (entry.bandGains ?? []).some((gain) => gain > 0) ? ["quality.tech"] : [];
+  const adds = [...entry.effects.flatMap((effect) => (effect.type === "quality/add" ? [effect.quality as string] : [])), ...banded];
   return adds.some((quality) => STUDY_QUALITIES.has(quality)) && !adds.includes("quality.network");
 }
 

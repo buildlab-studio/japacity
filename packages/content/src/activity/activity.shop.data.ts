@@ -42,6 +42,7 @@ export const shopActivityTable: Record<Id<"activity">, ActivityEntry> = {
   [SHOP]: {
     id: SHOP,
     slot: "main",
+    employer: "own",
     where: "home",
     requires: [],
     param: null,

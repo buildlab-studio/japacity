@@ -280,7 +280,8 @@ describe("what a thing does in life", () => {
     setQuality(game, TECH, 50);
     setPockets(game, { NGN: 50_000_00 });
     game.accept({ type: "activity/now", activity: "activity.learn-tech", param: null });
-    expect(quality(game, TECH)).toBe(53);
+    // The laptop's +1 rides on the day's class; the first day in the working band gives nothing of its own (activity:study-days-capped).
+    expect(quality(game, TECH)).toBe(51);
   });
 
   test("[home:things-a-life-owns] [home:home-slice-fields] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as if there were no market", () => {

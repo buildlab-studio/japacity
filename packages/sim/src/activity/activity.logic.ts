@@ -5,7 +5,7 @@
 // because an earlier slot can change the state.
 import { check, resolveAmount, worldVarOr } from "../engine/check";
 import { DOCUMENT, QUALITY } from "../engine/ids";
-import { bp, valueInKobo } from "../engine/int";
+import { bp, mulDiv, roundDownTo, valueInKobo } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, readOf, turnInProgress, turnSlots } from "../engine/kind";
@@ -44,6 +44,7 @@ import { ADVISER, adviserReading, FRIEND, friendWord } from "./activity.advice";
 import {
   carHolds,
   DRIVING_TEST,
+  MONTHS_PER_YEAR,
   drivingAttempts,
   isJob,
   jobTerms,
@@ -54,6 +55,22 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
+import {
+  bandGain,
+  behindOnFees,
+  BOOTCAMP,
+  bootcampHelpBp,
+  bootcampTaken,
+  certificateTech,
+  classDaysNow,
+  dayGain,
+  DEVELOPER_JOBS,
+  FREE_PATH,
+  holdsCourse,
+  LEARN_TECH,
+  onBootcamp,
+  onCourse,
+} from "./activity.learning";
 import { withThings } from "../thing/thing.modifiers";
 import { EARNED_ONLY, earnedNaira, pocketFor } from "../wallet/wallet.logic";
 import { officialRates } from "../wallet/wallet.rates";
@@ -96,6 +113,14 @@ const ILLNESS_LOCK = "illness";
 const UNLOCKED_LINE = "line.turn.unlocked";
 /** The staged line of the first pay abroad (luck:big-wins-are-staged), which the first-pay card reads (share:cards-due-at-set-moments). */
 const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
+
+/** activity:bootcamp-paid-after-a-job: the loan the first developer job opens. */
+const BOOTCAMP_LOAN: Id<"obligation"> = "obligation.bootcamp";
+/** Kobo in a naira: a reviewed pay is rounded down to whole naira (activity:naira-pay-reviewed-yearly). */
+const KOBO_PER_NAIRA = 100;
+/** A rise read in basis points of the rate it rose from. */
+const BP_WHOLE = 10000;
+const PORTFOLIO: Id<"quality"> = "quality.portfolio";
 
 /** The kiosk draws each ticket out of a million (luck:kiosk-sells-lotto-tickets). */
 export const PER_MILLION = 1000000;
@@ -210,6 +235,8 @@ function huntableJobs(read: ReadCtx, judge: Judge): string[] {
       (entry) =>
         isJob(entry) &&
         entry.hireBp !== null &&
+        // activity:paid-tech-courses: no job is held while the bootcamp runs.
+        !(entry.slot === "main" && onBootcamp(read.state)) &&
         entry.id !== job &&
         entry.id !== side &&
         appliesHere(entry, read.state) &&
@@ -322,6 +349,19 @@ function paramAllowed(read: ReadCtx, entry: ActivityEntry, param: string | null,
 // Costs
 // ---------------------------------------------------------------------------
 
+/**
+ * document:trade-papers: an exam of several sittings is sat on the months its milestones open its set piece; on the others it is study
+ * and costs nothing. Every other entry is always "on its day".
+ */
+function sittingDay(state: State, entry: ActivityEntry): boolean {
+  const exam = entry.exam;
+  if (exam?.sittings === undefined) return true;
+  const count = (state.activity.played[entry.id] ?? 0) + 1;
+  return (entry.onMonth ?? []).some(
+    (step) => (count === step.at || (step.repeat === true && count % step.at === 0)) && step.effects.some((effect) => effect.type === "setpiece/open" && effect.setpiece === exam.setpiece),
+  );
+}
+
 /** A price as the kind pays it. `cash` is paid from the cash pocket only (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds). `earned`: paid from earned naira only (wallet:top-ups-are-marked). */
 interface Price {
   currency: Currency;
@@ -369,7 +409,9 @@ function ticketsOf(param: string | null, luck: Tuning["luck"]): number {
  * attempt under `fee-test`, in the currency of the country the test is in.
  */
 function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Price[] {
-  const prices: Price[] = entry.cost.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
+  // activity:paid-tech-courses: a path's own price is paid once, at its start. document:trade-papers: an exam of sittings is paid on a sitting's day.
+  const costs = holdsCourse(read.state, entry) || !sittingDay(read.state, entry) ? [] : entry.cost;
+  const prices: Price[] = costs.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
   const { luck, car } = read.content.tuning;
   // luck:kiosk-sells-lotto-tickets with wallet:top-ups-are-marked: the slip is paid from earned naira only.
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true, earned: true });
@@ -414,7 +456,7 @@ const REMOTE_BONUS: Id<"var"> = "var.remote-hire-bonus";
 export function huntChanceBp(read: ReadCtx, entry: ActivityEntry): number {
   const tuning = read.content.tuning.quality;
   const network = read.state.quality[QUALITY.network] ?? 0;
-  const bonus = entry.id === REMOTE_JOB ? worldVarOr(read.world, REMOTE_BONUS) : 0;
+  const bonus = (entry.id === REMOTE_JOB ? worldVarOr(read.world, REMOTE_BONUS) : 0) + bootcampHelpBp(read, entry.id);
   return Math.min(tuning.hireMaxBp, hireChanceBp(entry, network, tuning) + bonus);
 }
 
@@ -488,6 +530,7 @@ function startJob(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
   const previous = ctx.state.activity.job;
   if (previous === entry.id) return [];
   const events = record(ctx, { type: "activity/job-started", job: entry.id, previous });
+  events.push(...holdPay(ctx, entry), ...billBootcamp(ctx, entry));
   const { place, status } = ctx.state;
   const kept = status.current !== null && isKept(ctx.content, status.current.entry);
   if (entry.sponsor === true && place.where === "abroad" && place.country !== null && !kept) {
@@ -497,6 +540,61 @@ function startJob(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
     if (sponsored !== null && !named) ctx.apply([{ type: "status/grant", status: sponsored, job: entry.id }], { source: entry.id, param: null, terms: {} });
   }
   return events;
+}
+
+/** activity:naira-pay-reviewed-yearly: the jobs whose pay is reviewed: naira main jobs at home with an employer that reviews. */
+function reviewed(entry: ActivityEntry): boolean {
+  return entry.slot === "main" && entry.where !== "abroad" && entry.pay?.currency === "NGN" && (entry.employer === "formal" || entry.employer === "informal");
+}
+
+/** activity:naira-pay-reviewed-yearly: a reviewed job's pay is held from its start, with the official dollar rate of the day. */
+function holdPay(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
+  if (!reviewed(entry) || entry.pay === null) return [];
+  const pay = resolveAmount(readOf(ctx), entry.pay.amount, {});
+  return record(ctx, { type: "activity/pay-held", job: entry.id, pay, rate: officialRates(ctx.world).USD });
+}
+
+/**
+ * activity:bootcamp-paid-after-a-job: the first developer job after the bootcamp opens its loan for what is owed. It is a debt taken over,
+ * so it credits nothing (obligation:loan-opening-credits-principal), and it is opened under the loan's own name.
+ */
+function billBootcamp(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
+  const owed = ctx.state.activity.bootcampOwed;
+  if (owed === undefined || !DEVELOPER_JOBS.includes(entry.id) || ctx.content.obligation[BOOTCAMP_LOAN] === undefined) return [];
+  ctx.apply([{ type: "obligation/open", obligation: BOOTCAMP_LOAN, principal: owed }], { source: BOOTCAMP_LOAN, param: null, terms: {} });
+  return record(ctx, { type: "activity/bootcamp-billed", owed });
+}
+
+/**
+ * activity:naira-pay-reviewed-yearly: at each 12 months in a reviewed job, before that month's pay, the held pay rises by the employer's
+ * share: a formal one's 10% and half the official dollar's rise beyond it since the last review, at most the cap; an informal one's 5%.
+ * A job held with no pay on record (a starting life's, or one carried from an older save) records it now and is reviewed a year on.
+ */
+function review(ctx: Ctx): BaseEvent[] {
+  const job = ctx.state.activity.job;
+  if (job === null) return [];
+  const entry = jobEntry(ctx.content, job);
+  if (!reviewed(entry)) return [];
+  const { pay, reviewRate } = ctx.state.activity;
+  if (pay === undefined || reviewRate === undefined) return holdPay(ctx, entry);
+  const months = ctx.state.activity.tenure[job] ?? 0;
+  if (months === 0 || months % MONTHS_PER_YEAR !== 0) return [];
+  const rate = officialRates(ctx.world).USD;
+  const numbers = ctx.content.tuning.activity;
+  const rise = rate > reviewRate ? mulDiv(rate - reviewRate, BP_WHOLE, reviewRate) : 0;
+  const share =
+    entry.employer === "formal" ? Math.min(numbers.reviewCapBp, numbers.reviewFormalBp + bp(Math.max(0, rise - numbers.reviewFormalBp), numbers.reviewShareBp)) : numbers.reviewInformalBp;
+  const next = roundDownTo(pay + bp(pay, share), KOBO_PER_NAIRA);
+  return record(ctx, { type: "activity/reviewed", job, was: { currency: "NGN", amount: pay }, pay: { currency: "NGN", amount: next }, rate });
+}
+
+/** activity:naira-pay-reviewed-yearly: the months until the held job's next review, for the Jobs app; nothing for a job not reviewed or with no pay on record. */
+function reviewView(read: ReadCtx): { review?: number } {
+  const job = read.state.activity.job;
+  if (job === null || read.state.activity.pay === undefined || !reviewed(jobEntry(read.content, job))) return {};
+  const months = read.state.activity.tenure[job] ?? 0;
+  const into = months % MONTHS_PER_YEAR;
+  return { review: months > 0 && into === 0 ? 1 : MONTHS_PER_YEAR - into + 1 };
 }
 
 function startJobEffect(ctx: Ctx, effect: { job: Id<"activity"> | { term: string } }, cause: Cause): BaseEvent[] {
@@ -647,7 +745,7 @@ function workSide(ctx: Ctx): BaseEvent[] {
         : { type: "money/add", currency: pay.currency, pocket: "bank", amount: pay.amount, reason: "salary" };
     ctx.apply([effect], cause);
   }
-  const events = record(ctx, { type: "activity/side-worked", side, pay });
+  const events = record(ctx, { type: "activity/side-worked", side, pay, tenure: (ctx.state.activity.tenure[side] ?? 0) + 1 });
   ctx.apply(entry.effects, cause);
   lockForSide(ctx, side);
   events.push(...oneChance(ctx, side));
@@ -656,16 +754,29 @@ function workSide(ctx: Ctx): BaseEvent[] {
 
 function main(ctx: Ctx): BaseEvent[] {
   licenceOnArrival(ctx);
-  return [...followStatus(ctx), ...dropUnfit(ctx), ...workJob(ctx), ...workSide(ctx)];
+  return [...followStatus(ctx), ...dropUnfit(ctx), ...review(ctx), ...workJob(ctx), ...workSide(ctx)];
 }
 
 // ---------------------------------------------------------------------------
 // Slots
 // ---------------------------------------------------------------------------
 
-/** place:entries-legal-by-where, ladders:activities-filtered-by-where and ladders:car-bonus-needs-car: the place, the car and the requirements. */
+/**
+ * activity:capital-opens-own-work: an act that starts a side job of its own needs the side slot free, since one side job is held at a
+ * time (activity:side-job-holds-a-slot) and the capital is never given back.
+ */
+function sideSlotTaken(read: ReadCtx, entry: ActivityEntry): boolean {
+  if (read.state.activity.side === null) return false;
+  return entry.effects.some((effect) => effect.type === "activity/start-job" && typeof effect.job === "string" && read.content.activity[effect.job]?.slot === "side");
+}
+
+/**
+ * place:entries-legal-by-where, ladders:activities-filtered-by-where and ladders:car-bonus-needs-car: the place, the car and the requirements.
+ * activity:paid-tech-courses: a path held was judged at its start and goes on; one tech study at a time; the bootcamp once a life.
+ */
 function requirementsHold(read: ReadCtx, entry: ActivityEntry, judge: Judge): boolean {
-  return appliesHere(entry, read.state) && carHolds(read, entry) && allHold(entry.requires, judge);
+  const judged = holdsCourse(read.state, entry) || allHold(entry.requires, judge);
+  return appliesHere(entry, read.state) && carHolds(read, entry) && judged && !sideSlotTaken(read, entry) && !onCourse(read.state, entry) && !bootcampTaken(read.state, entry);
 }
 
 /**
@@ -852,6 +963,16 @@ const MOVED = "moved";
  */
 function endCourses(ctx: Ctx, cause: Cause): BaseEvent[] {
   const events: BaseEvent[] = [];
+  // activity:paid-tech-courses: a tech study path held ends with the flight as the master's does, its fees closed with it.
+  const study = ctx.state.activity.study;
+  if (study !== undefined) {
+    events.push(...record(ctx, { type: "activity/course-ended", activity: study.activity }));
+    const fees = (ctx.content.activity[study.activity]?.onMonth ?? []).flatMap((step) => step.effects).flatMap((effect) => (effect.type === "obligation/open" ? [effect.obligation] : []));
+    for (const id of fees) {
+      const owed = ctx.content.obligation[id];
+      if (owed !== undefined && Object.values(ctx.state.obligation.items).some((item) => item.entry === id)) ctx.apply([{ type: "obligation/close", obligationType: owed.type }], cause);
+    }
+  }
   for (const [id, count] of Object.entries(ctx.state.activity.played) as [Id<"activity">, number][]) {
     const steps = ctx.content.activity[id]?.onMonth ?? [];
     const opening = steps.find((step) => step.effects.some((effect) => effect.type === "obligation/open"));
@@ -899,7 +1020,14 @@ function examEffect(ctx: Ctx, effect: Extract<Effect, { type: "activity/exam" }>
   }).length;
   const passed = right >= exam.pass;
   const events = record(ctx, { type: "activity/exam-marked", activity: entry.id, right, asked: open.questions.length, pass: exam.pass, passed });
-  if (passed) ctx.apply(exam.effects, { source: entry.id, param: null, terms: {} });
+  if (!passed) return events;
+  // document:trade-papers: an exam of several sittings counts each pass, and only the last gives what the exam gives.
+  if (exam.sittings !== undefined) {
+    const sittings = (ctx.state.activity.sittings?.[entry.id] ?? 0) + 1;
+    events.push(...record(ctx, { type: "activity/sitting-passed", activity: entry.id, sittings }));
+    if (sittings < exam.sittings) return events;
+  }
+  ctx.apply(exam.effects, { source: entry.id, param: null, terms: {} });
   return events;
 }
 
@@ -937,6 +1065,8 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     const cap = ctx.content.tuning.luck.maxTickets;
     if (bought + Number(pick.param ?? 0) > cap) return reject("not-legal", `The kiosk sells ${String(cap)} tickets a month, and ${String(bought)} are bought.`);
   }
+  // activity:study-days-capped: a fourth day of class in a month is refused.
+  if (classCapped(ctx.state, ctx.content, entry, 0)) return reject("not-legal", `${entry.id} has run its days this month.`);
   const problem = slotProblem(ctx, entry, pick, true);
   if (problem === "requirements") return reject("not-legal", `${entry.id} cannot be done here and now.`);
   if (problem === "param") return reject("not-legal", `${String(pick.param)} is not a param ${entry.id} may take now.`);
@@ -952,6 +1082,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     cause,
   );
   milestones(ctx, entry, cause);
+  events.push(...learn(ctx, entry, cause, classDaysNow(ctx.state)));
   events.push(...record(ctx, { type: "activity/now-said", activity: entry.id, param: pick.param, ready: paperDue(ctx, entry) }));
   return events;
 }
@@ -975,14 +1106,72 @@ function closeMonth(ctx: Ctx): BaseEvent[] {
   return nowThisMonth(ctx.state).length === 0 ? [] : record(ctx, { type: "activity/now-cleared" });
 }
 
+function addTech(ctx: Ctx, amount: number, cause: Cause): void {
+  if (amount > 0) ctx.apply([{ type: "quality/add", quality: TECH, amount }], cause);
+}
+
+/**
+ * quality:skill-bands-slow-gains: what a tech study gives as it is done, by the band the character is in: the day's class its day's share
+ * (activity:study-days-capped), the free path its month and streak (activity:free-path-keeps-a-streak), a path its month (activity:paid-tech-courses),
+ * and the apprenticeship its month (streets:apprentice-learns-repair). `day` is the day of class this month, counted with this one.
+ */
+function learn(ctx: Ctx, entry: ActivityEntry, cause: Cause, day: number): BaseEvent[] {
+  if (entry.bandGains === undefined) return [];
+  if (entry.course !== undefined) return courseMonth(ctx, entry, entry.course, cause);
+  if (entry.id === FREE_PATH) return freeMonth(ctx, entry, cause);
+  const read = readOf(ctx);
+  addTech(ctx, entry.id === LEARN_TECH ? dayGain(read, entry, day) : bandGain(read, entry), cause);
+  return [];
+}
+
+/** activity:free-path-keeps-a-streak: the month's gain by band, a month more in the streak, and each fifth month in a row a certificate. */
+function freeMonth(ctx: Ctx, entry: ActivityEntry, cause: Cause): BaseEvent[] {
+  addTech(ctx, bandGain(readOf(ctx), entry), cause);
+  const months = (ctx.state.activity.streak ?? 0) + 1;
+  const events = record(ctx, { type: "activity/streak", months });
+  if (months % ctx.content.tuning.activity.freeStreakMonths !== 0) return events;
+  events.push(...record(ctx, { type: "activity/certificate" }));
+  addTech(ctx, certificateTech(readOf(ctx)), cause);
+  ctx.apply([{ type: "quality/add", quality: PORTFOLIO, amount: 1 }], cause);
+  return events;
+}
+
+/**
+ * activity:paid-tech-courses: a month of the path. Its first month starts it (the bootcamp ends the job held, as a new job does); a month
+ * behind on its fees gives nothing and does not count; the last month gives its closing gains, and the bootcamp leaves its fee owed
+ * (activity:bootcamp-paid-after-a-job).
+ */
+function courseMonth(ctx: Ctx, entry: ActivityEntry, course: NonNullable<ActivityEntry["course"]>, cause: Cause): BaseEvent[] {
+  const held = ctx.state.activity.study;
+  const months = held?.activity === entry.id ? held.months : 0;
+  const events = months === 0 && entry.id === BOOTCAMP ? endJob(ctx, "bootcamp") : [];
+  if (behindOnFees(readOf(ctx), entry)) return [...events, ...record(ctx, { type: "activity/course-month", activity: entry.id, months })];
+  addTech(ctx, bandGain(readOf(ctx), entry), cause);
+  if (months + 1 < course.months) return [...events, ...record(ctx, { type: "activity/course-month", activity: entry.id, months: months + 1 })];
+  events.push(...record(ctx, { type: "activity/course-finished", activity: entry.id }));
+  ctx.apply(course.effects, cause);
+  if (entry.id === BOOTCAMP) events.push(...record(ctx, { type: "activity/bootcamp-done", owed: ctx.content.tuning.activity.bootcampFee, month: ctx.state.turn.month }));
+  return events;
+}
+
+/** activity:study-days-capped: the days of class the month's slots have run so far, beside the ones taken now. */
+interface ClassDays {
+  slots: number;
+}
+
+/** activity:study-days-capped: the day's class has run its days this month, counting the now-acts and the slots' days together. */
+function classCapped(state: State, content: Content, entry: Pick<ActivityEntry, "id">, slotDays: number): boolean {
+  return entry.id === LEARN_TECH && classDaysNow(state) + slotDays >= content.tuning.turn.studyDaysCap;
+}
+
 /** One slot (activity:slots-resolve-in-order, activity:costs-paid-bank-or-cash): checked again, paid, then its effects. A failure pays nothing. */
-function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
+function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number, days: ClassDays = { slots: 0 }): BaseEvent[] {
   const plain = ctx.content.activity[pick.activity];
   if (plain === undefined) throw new Error(`The slot names ${pick.activity}, which the turn check let through.`);
   const entry = withThings(ctx, plain);
   // activity:waiting-months-build-profile: an act done once a month at most; a second pick of it fails as a slot, with nothing paid.
   const again = entry.once === true && turnSlots(ctx).slice(0, slot).some((earlier) => earlier.activity === entry.id);
-  const why = again ? "requirements" : slotProblem(ctx, entry, pick, true);
+  const why = again || classCapped(ctx.state, ctx.content, entry, days.slots) ? "requirements" : slotProblem(ctx, entry, pick, true);
   if (why !== null) {
     return record(ctx, { type: "activity/slot-failed", slot, activity: entry.id, param: pick.param, why });
   }
@@ -993,11 +1182,13 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   // each paid, stopping when one can no longer be paid.
   const times = entry.repeat === true ? ctx.content.tuning.turn.repeatPerSlot : 1;
   for (let time = 0; time < times; time += 1) {
-    if (time > 0 && slotProblem(ctx, entry, pick, true) !== null) break;
+    if (time > 0 && (slotProblem(ctx, entry, pick, true) !== null || classCapped(ctx.state, ctx.content, entry, days.slots))) break;
     payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
     events.push(...runById(ctx, entry, pick, cause));
     ctx.apply(entry.effects, cause);
     milestones(ctx, entry, cause);
+    if (entry.id === LEARN_TECH) days.slots += 1;
+    events.push(...learn(ctx, entry, cause, classDaysNow(ctx.state) + days.slots));
   }
   events.push(...outcome(ctx, entry, pieces));
   return events;
@@ -1019,7 +1210,10 @@ function outcome(ctx: Ctx, entry: ActivityEntry, before: number): BaseEvent[] {
 function slots(ctx: Ctx): BaseEvent[] {
   const picks = turnSlots(ctx);
   const events: BaseEvent[] = answerNowActs(ctx);
-  picks.forEach((pick, index) => events.push(...resolveSlot(ctx, pick, index)));
+  const days: ClassDays = { slots: 0 };
+  picks.forEach((pick, index) => events.push(...resolveSlot(ctx, pick, index, days)));
+  // activity:free-path-keeps-a-streak: a month without the free path sets its streak to nothing.
+  if ((ctx.state.activity.streak ?? 0) > 0 && !events.some((event) => event.type === "activity/streak")) events.push(...record(ctx, { type: "activity/streak", months: 0 }));
   // The count is the one the player saw at the turn check, carried by the
   // engine, not the count after the job's toll in `main`.
   const turn = turnInProgress(ctx);
@@ -1140,9 +1334,12 @@ function quit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Requirements
 // ---------------------------------------------------------------------------
 
-/** Months added across the listed jobs. An empty list means every job; the driving test's attempts are not months. */
-export function tenureAcross(state: State, activities: readonly Id<"activity">[]): number {
-  const counted = activities.length === 0 ? (Object.keys(state.activity.tenure) as Id<"activity">[]).filter((id) => id !== DRIVING_TEST) : activities;
+/**
+ * Months added across the listed jobs. An empty list means every main job: a side job's months count only where a list names it
+ * (activity:each-trade-climbs-its-ladder, night support toward remote support), and the driving test's attempts are not months.
+ */
+export function tenureAcross(state: State, content: Content, activities: readonly Id<"activity">[]): number {
+  const counted = activities.length === 0 ? (Object.keys(state.activity.tenure) as Id<"activity">[]).filter((id) => content.activity[id]?.slot === "main") : activities;
   return counted.reduce((sum, id) => sum + (state.activity.tenure[id] ?? 0), 0);
 }
 
@@ -1168,7 +1365,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "job/is":
       return { met: job !== null && requirement.activities.includes(job) };
     case "activity/tenure": {
-      const have = tenureAcross(read.state, requirement.activities);
+      const have = tenureAcross(read.state, read.content, requirement.activities);
       return { met: have >= requirement.months, have, need: requirement.months };
     }
     case "activity/local-tenure": {
@@ -1243,7 +1440,10 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
       const entry = withThings(read, plain);
       const params = paramsFor(read, entry, judge);
       const waiting = entry.param === "school" && params?.length === 0 ? schoolWait(read) : [];
-      const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
+      // activity:paid-tech-courses: a path held was judged at its start, so nothing is missing while it runs.
+      const missing = holdsCourse(read.state, entry) ? [] : [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
+      const capped = classCapped(read.state, read.content, entry, 0);
+      const studying = onCourse(read.state, entry);
       const prices = pricesOf(read, entry, params?.[0] ?? null);
       const done = doneThisMonth(read.state, entry);
       // activity:spent-body-refuses-acts: a now-act that takes effort waits for sleep once the body is spent; what takes none stays open.
@@ -1251,7 +1451,7 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
       const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
         id: entry.id,
-        allowed: !done && !spent && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
+        allowed: !done && !spent && !capped && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
         missing,
         params,
         cost: prices.map(({ currency, amount }) => ({ currency, amount })),
@@ -1260,6 +1460,8 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
         done,
         ...(sure ? { sure: true as const } : {}),
         ...(spent ? { spent: true as const } : {}),
+        ...(capped ? { capped: true as const } : {}),
+        ...(studying ? { onCourse: true as const } : {}),
         // A thing owned changed the act's time.
         ...(entry.halfDays !== plain.halfDays && entry.halfDays !== undefined ? { halfDays: entry.halfDays } : {}),
       };
@@ -1396,6 +1598,19 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
       return event.counted === true ? [] : [line("line.activity.played-now", pickParams(event.activity, event.param), "plain")];
     case "activity/now-cleared":
       return [];
+    case "activity/reviewed":
+      return [line("line.activity.reviewed", { job: event.job, amount: event.pay }, "good")];
+    case "activity/certificate":
+      return [line("line.activity.certificate", {}, "good")];
+    case "activity/course-finished":
+      return [line("line.activity.course-finished", { activity: event.activity }, "good")];
+    case "activity/pay-held":
+    case "activity/streak":
+    case "activity/course-month":
+    case "activity/bootcamp-done":
+    case "activity/bootcamp-billed":
+    case "activity/sitting-passed":
+      return [];
     default: {
       const never: never = event;
       throw new Error(`Unknown activity event ${JSON.stringify(never)}.`);
@@ -1432,15 +1647,49 @@ function adviserLines(reading: Extract<ActivityEvent, { type: "activity/advised"
   ];
 }
 
+/** The slice with the optional fields named left out, so a life that never held them keeps its shape. */
+function without(slice: ActivitySlice, keys: readonly (keyof ActivitySlice)[]): ActivitySlice {
+  return Object.fromEntries(Object.entries(slice).filter(([key]) => !keys.includes(key as keyof ActivitySlice))) as unknown as ActivitySlice;
+}
+
+/** activity:naira-pay-reviewed-yearly: the slice without a job's pay on record. */
+function withoutHeldPay(slice: ActivitySlice): ActivitySlice {
+  return without(slice, ["pay", "reviewRate"]);
+}
+
+/** activity:paid-tech-courses: the slice with no path held. */
+function withoutStudy(slice: ActivitySlice): ActivitySlice {
+  return without(slice, ["study"]);
+}
+
 function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
   switch (event.type) {
     case "activity/job-started":
-      return { ...slice, job: event.job };
+      // activity:naira-pay-reviewed-yearly: the pay held is the job's; a new job records its own.
+      return { ...withoutHeldPay(slice), job: event.job };
     case "activity/job-ended":
       // Tenure stays: time served is kept when a job is left (activity:new-job-replaces-held).
-      return { ...slice, job: null };
+      return { ...withoutHeldPay(slice), job: null };
+    case "activity/pay-held":
+      return { ...slice, pay: event.pay, reviewRate: event.rate };
+    case "activity/reviewed":
+      return { ...slice, pay: event.pay.amount, reviewRate: event.rate };
+    case "activity/streak":
+      return { ...slice, streak: event.months };
+    case "activity/course-month":
+      return { ...slice, study: { activity: event.activity, months: event.months } };
+    case "activity/course-finished":
+      return withoutStudy(slice);
+    case "activity/bootcamp-done":
+      return { ...slice, bootcampOwed: event.owed, bootcampDone: event.month };
+    case "activity/bootcamp-billed":
+      return without(slice, ["bootcampOwed"]);
+    case "activity/sitting-passed":
+      return { ...slice, sittings: { ...slice.sittings, [event.activity]: event.sittings } };
     case "activity/month-worked":
       return { ...slice, tenure: { ...slice.tenure, [event.job]: event.tenure } };
+    case "activity/side-worked":
+      return { ...slice, tenure: { ...slice.tenure, [event.side]: event.tenure } };
     case "activity/side-started":
       return { ...slice, side: event.side };
     case "activity/side-ended":
@@ -1468,7 +1717,6 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/now-said":
     case "activity/pay-withheld":
     case "activity/sick-pay":
-    case "activity/side-worked":
     case "activity/robbed":
     case "activity/overtime-paid":
     case "activity/lotto-played":
@@ -1482,8 +1730,10 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/advised":
     case "activity/exam-marked":
     case "activity/contributed":
-    case "activity/course-ended":
+    case "activity/certificate":
       return slice;
+    case "activity/course-ended":
+      return slice.study?.activity === event.activity ? withoutStudy(slice) : slice;
     default: {
       const never: never = event;
       throw new Error(`Unknown activity event ${JSON.stringify(never)}.`);
@@ -1497,7 +1747,7 @@ function invariants(state: State, content: Content): string[] {
   if (job !== null && content.activity[job]?.slot !== "main") problems.push(`The job ${job} is not a main-slot activity in content.`);
   if (side !== null && content.activity[side]?.slot !== "side") problems.push(`The side job ${side} is not a side-slot activity in content.`);
   for (const [id, months] of Object.entries(tenure)) {
-    if (id !== DRIVING_TEST && content.activity[id as Id<"activity">]?.slot !== "main") problems.push(`Tenure is kept for ${id}, which is not a job in content.`);
+    if (id !== DRIVING_TEST && !isJob(content.activity[id as Id<"activity">])) problems.push(`Tenure is kept for ${id}, which is not a job in content.`);
     if (!Number.isSafeInteger(months) || months < 0) problems.push(`Tenure in ${id} is ${String(months)}.`);
   }
   for (const id of state.activity.raised ?? []) {
@@ -1563,6 +1813,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       pay: read.state.activity.job === null ? null : bookedPay(read, jobEntry(read.content, read.state.activity.job)),
       sidePay: read.state.activity.side === null ? null : bookedPay(read, jobEntry(read.content, read.state.activity.side), {}),
       ...raiseView(read),
+      ...reviewView(read),
     },
     activities: activityOptions(read),
     lastSlots: read.state.activity.lastSlots,

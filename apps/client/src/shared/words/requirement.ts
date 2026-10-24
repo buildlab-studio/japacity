@@ -62,7 +62,7 @@ function bandAt(quality: string, value: number): { n: number; words: string } | 
 }
 
 /** Time in months as a person says it: "three years" when it is whole years, else "six months". */
-function timeWords(months: number): string {
+export function timeWords(months: number): string {
   if (months > 0 && months % 12 === 0) return say(months === 12 ? "ui.time.year" : "ui.time.years", { count: countWords(months / 12) });
   return say(months === 1 ? "ui.time.month" : "ui.time.months", { count: countWords(months) });
 }

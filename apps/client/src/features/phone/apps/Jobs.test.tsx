@@ -54,10 +54,10 @@ describe("Jobs abroad", () => {
 });
 
 describe("a side job's level in Jobs", () => {
-  test("[activity:side-jobs-pay-by-tier] given weekend tutoring held under its tech tier, when Jobs opens, then the side job's row says its pay now and what lifts it", async () => {
+  test("[activity:side-jobs-pay-by-tier] given home lessons held under their tier, when Jobs opens, then the side job's row says its pay now and what lifts it", async () => {
     const view = viewAfter(newGame("scenario.graduate"), [{ type: "activity/start-job", job: "activity.weekend-tutoring" }]);
     await renderWithView(<Jobs />, view);
-    expect(document.querySelector("[data-phone-app=jobs]")?.textContent).toContain("Pays ₦60,000 a month; ₦90,000 once your tech is good");
+    expect(document.querySelector("[data-phone-app=jobs]")?.textContent).toContain("Pays ₦80,000 a month; ₦120,000 once your English is excellent and you have two years in the trade");
   });
 });
 

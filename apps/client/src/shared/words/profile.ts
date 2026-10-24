@@ -1,16 +1,28 @@
 // The waiting months' figures in words (activity:waiting-months-build-profile and activity:side-jobs-pay-by-tier): the route each act
 // counts toward, and a side job's pay by level and the band that lifts it. The words are content's ui/ui.profile.text.ts.
 import { content } from "@japacity/content";
-import type { ActivityTier, Id, MoneyParam, PlayerView } from "@japacity/sim";
+import type { ActivityTier, Id, MoneyParam, PlayerView, Requirement } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
 
 import { formatMoney } from "./format";
-import { requirementSentence } from "./requirement";
+import { requirementSentence, timeWords } from "./requirement";
 import { bandOpening, hasWords, lowerFirst, nameOf, say } from "./text";
 
 
 function figure(tier: ActivityTier): number {
   return typeof tier.pay.amount === "number" ? tier.pay.amount : 0;
+}
+
+/**
+ * activity:side-jobs-pay-by-tier: a tier's need as the view can judge it. A quality is read from the view; months across a trade's jobs
+ * are not in the view, so a tier that asks them is never promised from here: the held side job's pay is the view's `sidePay`.
+ */
+function needMet(view: Pick<PlayerView, "qualities">, need: Requirement): boolean {
+  return need.type === "quality/min" && qualityIn(view, need.quality) >= need.value;
+}
+
+function tierMet(view: Pick<PlayerView, "qualities">, tier: ActivityTier): boolean {
+  return tier.needs.every((need) => needMet(view, need));
 }
 
 /**
@@ -20,7 +32,7 @@ function figure(tier: ActivityTier): number {
 export function tierPay(view: Pick<PlayerView, "qualities">, job: string): MoneyParam | null {
   const entry = content.activity[job as Id<"activity">];
   if (entry === undefined || entry.pay === null || typeof entry.pay.amount !== "number") return null;
-  const met = (entry.tiers ?? []).filter((tier) => qualityIn(view, tier.min.quality) >= tier.min.value).map(figure);
+  const met = (entry.tiers ?? []).filter((tier) => tierMet(view, tier)).map(figure);
   return { currency: entry.pay.currency, amount: Math.max(entry.pay.amount, ...met) };
 }
 
@@ -29,7 +41,7 @@ export function nextTier(view: Pick<PlayerView, "qualities">, job: string): Acti
   const now = tierPay(view, job);
   const entry = content.activity[job as Id<"activity">];
   if (now === null || entry === undefined) return null;
-  const ahead = (entry.tiers ?? []).filter((tier) => qualityIn(view, tier.min.quality) < tier.min.value && figure(tier) > now.amount);
+  const ahead = (entry.tiers ?? []).filter((tier) => !tierMet(view, tier) && figure(tier) > now.amount);
   return ahead.reduce<ActivityTier | null>((best, tier) => (best === null || figure(tier) < figure(best) ? tier : best), null);
 }
 
@@ -55,9 +67,17 @@ export function liftWords(view: Pick<PlayerView, "qualities">, job: string): str
  */
 export function tierWords(tier: ActivityTier): string {
   const next = typeof tier.pay.amount === "number" ? formatMoney(tier.pay.amount, tier.pay.currency) : say("ui.req.some-amount");
-  const band = bandOpening(tier.min.quality, tier.min.value);
-  if (band !== null) return say("ui.tier.lift", { next, band: lowerFirst(say(`ui.band.${tier.min.quality}.${String(band)}`)) });
-  return say("ui.tier.lift-needs", { next, needs: lowerFirst(requirementSentence({ type: "quality/min", quality: tier.min.quality, value: tier.min.value })) });
+  // Each need as a person says it: a quality by its band, months across the trade's jobs as time in the trade, anything else as its requirement.
+  const said = tier.needs.map((need) => {
+    if (need.type === "activity/tenure") return { once: true, words: say("ui.tier.trade-months", { time: timeWords(need.months) }) };
+    const band = need.type === "quality/min" ? bandOpening(need.quality, need.value) : null;
+    if (need.type === "quality/min" && band !== null) return { once: true, words: lowerFirst(say(`ui.band.${need.quality}.${String(band)}`)) };
+    return { once: false, words: lowerFirst(requirementSentence(need)) };
+  });
+  const phrases = said.map((one) => one.words);
+  const joined = phrases.length <= 1 ? (phrases[0] ?? "") : `${phrases.slice(0, -1).join(", ")} ${say("ui.counts.and")} ${phrases.at(-1) ?? ""}`;
+  if (said.every((one) => one.once)) return say("ui.tier.lift", { next, band: joined });
+  return say("ui.tier.lift-needs", { next, needs: joined });
 }
 
 /** activity:waiting-months-build-profile: "Counts toward: the talent route", the routes the activity's entry counts toward, or null with none. */

@@ -22,6 +22,16 @@ function payOf(id: Id<"activity">): number {
   return amount;
 }
 
+/** A graduate whose English meets night support's 60 and tech its 40 (activity:each-trade-climbs-its-ladder), so it may be hunted. */
+function nightReady(): Game {
+  const game = start({ content, scenario: "scenario.graduate" });
+  applyEffects(game, [
+    { type: "quality/add", quality: "quality.english", amount: 60 - (game.state.quality["quality.english"] ?? 0) },
+    { type: "quality/add", quality: "quality.tech", amount: 40 - (game.state.quality["quality.tech"] ?? 0) },
+  ]);
+  return game;
+}
+
 /** A life holding a side job, taken as the job offer's acceptance takes it. */
 function sideJob(scenario: Id<"scenario">, side: Id<"activity">): Game {
   const game = start({ content, scenario });
@@ -31,7 +41,7 @@ function sideJob(scenario: Id<"scenario">, side: Id<"activity">): Game {
 
 describe("side jobs", () => {
   test("[activity:side-job-holds-a-slot] [activity:job-hunt-lands-offer] given a hunt for a side job, when it lands and the offer is accepted, then the side job is held beside no job, one slot is locked for it and the month's free slots drop by one", () => {
-    const game = start({ content, scenario: "scenario.graduate" });
+    const game = nightReady();
     expect(game.view().freeSlots).toBe(tuning.turn.freeSlotsNoJob);
     let offer: string | undefined;
     for (let month = 0; month < 30 && offer === undefined; month += 1) {
@@ -52,7 +62,7 @@ describe("side jobs", () => {
   });
 
   test("[wallet:view-carries-month-pay] given a hunt for a side job that lands, when the offer is read, then it says the month's pay; once the side job is held the view's side pay is the same, and the month books exactly it", () => {
-    const game = start({ content, scenario: "scenario.graduate" });
+    const game = nightReady();
     let offer: { id: string; pay?: { currency: string; amount: number } } | undefined;
     for (let month = 0; month < 30 && offer === undefined; month += 1) {
       game.endTurn([slot(HUNT, NIGHT_SUPPORT)]);

@@ -79,10 +79,10 @@ describe("qualities in words, never numbers", () => {
     }
   });
 
-  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given weekend tutoring under its tech tier, when the board says its pay, then the tier's pay is said with the band it opens at", () => {
+  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given home lessons under their tier, when the board says their pay, then the tier's pay is said with the band its English opens at and the months as time in the trade, never a figure", () => {
     const view = newGame("scenario.graduate").view();
-    expect(liftWords(view, "activity.weekend-tutoring")).toBe(`${say("ui.tier.lift", { next: "₦90,000", band: "your tech is good" })}`);
-    expect(payLiftWords("activity.weekend-tutoring", view)).toBe("₦60,000 a month; ₦90,000 once your tech is good");
+    expect(liftWords(view, "activity.weekend-tutoring")).toBe(`${say("ui.tier.lift", { next: "₦120,000", band: "your English is excellent and you have two years in the trade" })}`);
+    expect(payLiftWords("activity.weekend-tutoring", view)).toBe("₦80,000 a month; ₦120,000 once your English is excellent and you have two years in the trade");
   });
 
   test("[text:bands-not-figures] [world:phone-holds-what-phones-hold] given every route's checklist in content, when its items are said, then none says a quality's figure, and the talent file asks for strong tech", () => {

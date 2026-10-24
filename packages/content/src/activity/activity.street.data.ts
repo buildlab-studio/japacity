@@ -28,6 +28,7 @@ export const streetActivityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-phone-sales": {
     id: "activity.job-phone-sales",
     slot: "main",
+    employer: "informal",
     requires: [{ type: "quality/min", quality: "quality.education-level", value: 2 }],
     param: null,
     cost: [],
@@ -48,10 +49,9 @@ export const streetActivityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [],
     pay: null,
     hireBp: null,
-    effects: [
-      { type: "quality/add", quality: TECH, amount: street.apprenticeTech },
-      { type: "quality/add", quality: WELLBEING, amount: -1 },
-    ],
+    // quality:skill-bands-slow-gains: the apprenticeship's gain is a tech study's, given while starting; the bar stops it at 30.
+    effects: [{ type: "quality/add", quality: WELLBEING, amount: -1 }],
+    bandGains: [street.apprenticeTech],
     counts: [],
   },
   // streets:sleeping-under-the-bridge: only with nowhere else, naira cash and bank together under the broke line; the rest an empty slot gives.

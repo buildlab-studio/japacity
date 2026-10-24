@@ -10,6 +10,7 @@ import { activityRoomText } from "./activity.room.text";
 import { activityShopText } from "./activity.shop.text";
 import { activityStreetText } from "./activity.street.text";
 import { activityWaterText } from "./activity.water.text";
+import { activityLadderText, activityLearningText } from "./activity.ladder.text";
 
 export const activityText: Record<string, string> = {
   "activity.job-teacher.name": "Private school teacher",
@@ -37,8 +38,8 @@ export const activityText: Record<string, string> = {
   "activity.job-hunt.blurb": "You send applications and follow up on every lead.",
   "activity.study-english.name": "Study for the English test",
   "activity.study-english.blurb": "You buy the practice books and work through them at night. A month of study lifts your chance at the test.",
-  "activity.learn-tech.name": "Take a coding course",
-  "activity.learn-tech.blurb": "You pay for a course and do the exercises after work.",
+  "activity.learn-tech.name": "A day's coding class",
+  "activity.learn-tech.blurb": "A paid day of class or a day at a cyber cafe. Three days a month at most.",
   "activity.build-portfolio.name": "Build something to show",
   "activity.build-portfolio.blurb": "You finish a project you can put in front of an employer.",
   "activity.side-gig.name": "Take a side gig",
@@ -105,9 +106,9 @@ export const activityText: Record<string, string> = {
   "activity.apply-gulf-contract.name": "Send your papers to the employer",
   "activity.apply-gulf-contract.blurb": "The agent takes your passport and medical to the employer's office for the visa.",
 
-  "activity.night-support.name": "Night support, foreign company",
+  "activity.night-support.name": "Night customer support, foreign company",
   "activity.night-support.blurb": "A side job beside your day job: you answer chats for a company abroad through the night, in dollars.",
-  "activity.weekend-tutoring.name": "Weekend tutoring",
+  "activity.weekend-tutoring.name": "Home lessons",
   "activity.weekend-tutoring.blurb": "Saturdays and Sundays in other people's houses, getting their children ready for exams.",
   "activity.ride-driving.name": "Driving for a ride app at night",
   "activity.ride-driving.blurb": "You drive after work until the roads empty. Cash at the end of the night.",
@@ -171,6 +172,9 @@ export const activityText: Record<string, string> = {
   ...activityProfileText,
   ...activityShopText,
   ...activityWaterText,
+  // activity:each-trade-climbs-its-ladder and activity:capital-opens-own-work: the rungs, the side jobs and own work.
+  ...activityLadderText,
+  ...activityLearningText,
   // activity:now-acts-and-month-acts: what the place says when a now-act is done there.
   ...activityNowText,
 };

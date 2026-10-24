@@ -508,8 +508,22 @@ export interface ActivityEntry {
   needsCar?: boolean;
   /** Yearly bonus paid while the character has the car, in the pay's currency. */
   carBonus?: number;
-  /** A side job's pay by level: the highest tier whose `min` is met pays, else `pay` (activity:side-jobs-pay-by-tier). Missing: no tiers. */
+  /** A side job's pay by level: the highest tier whose `needs` all hold pays, else `pay` (activity:side-jobs-pay-by-tier). Missing: no tiers. */
   tiers?: ActivityTier[];
+  /** A naira job's employer, read by the yearly pay review (activity:naira-pay-reviewed-yearly): `own` work grows by its own rule. Missing: not reviewed. */
+  employer?: "formal" | "informal" | "own";
+  /**
+   * A tech study's gain a month by band of `quality.tech` (quality:skill-bands-slow-gains), one figure for each band of
+   * `tuning.quality.techBands` from the first; a band with no figure gives nothing. Missing: no gain by band.
+   */
+  bandGains?: number[];
+  /** The figure a gain by band never takes tech past (activity:paid-tech-courses, "up to 59"). Missing: no ceiling beyond the bands. */
+  bandUntil?: number;
+  /**
+   * A tech study path of so many months (activity:paid-tech-courses): held from its first month until its months are done, one at a time,
+   * then `effects` and its line. Missing: not a path.
+   */
+  course?: ActivityCourse;
   /** True: one slot a month at most; a second pick in the same month is not legal (activity:waiting-months-build-profile). Missing: no limit. */
   once?: true;
   /** When it answers (activity:now-acts-and-month-acts): `now` runs at once by `activity/now`, `month` stays a slot pick. Missing: `month`. */
@@ -537,10 +551,16 @@ export interface ActivityEntry {
   counts: Id<"route">[];
 }
 
-/** One rung of a side job's pay (activity:side-jobs-pay-by-tier). */
+/** One rung of a side job's pay (activity:side-jobs-pay-by-tier): it pays once every one of its `needs` holds. */
 export interface ActivityTier {
-  min: { quality: Id<"quality">; value: number };
+  needs: Requirement[];
   pay: Money;
+}
+
+/** A tech study path's length and what finishing it gives (activity:paid-tech-courses). */
+export interface ActivityCourse {
+  months: number;
+  effects: Effect[];
 }
 
 /** Effects tied to the count of months an activity has filled a slot (activity:waiting-months-build-profile). */
@@ -555,6 +575,8 @@ export interface ActivityExam {
   setpiece: Id<"setpiece">;
   pass: number;
   effects: Effect[];
+  /** The sittings to pass before `effects` apply, each pass short of it counted (document:trade-papers). Missing: one. */
+  sittings?: number;
 }
 
 export interface DocumentEntry {
@@ -1272,6 +1294,8 @@ export interface Tuning {
     halfDays: { noJob: number; withJob: number };
     /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (activity:acts-may-repeat-in-month). */
     repeatPerSlot: number;
+    /** The day's coding class runs at most this many times a month (activity:study-days-capped). */
+    studyDaysCap: number;
     /** The day's arrivals (offer:day-arrivals-roll-offers): shares of the month's free time, in basis points, at which one offer may come up as the time is lived. */
     arrivalsBp: number[];
     /** The body (quality:body-belly-and-energy): what each half-day lived takes off the belly and the energy, where the month's rest brings each back to, and what a hungry or spent month takes off wellbeing. */
@@ -1290,6 +1314,8 @@ export interface Tuning {
     skillSoftBp: number;
     /** The share of a skill gain kept while a side job is held, rounding up (activity:side-job-holds-a-slot). */
     sideJobSkillBp: number;
+    /** The lowest figure of each band of tech, from the first (quality:skill-bands-slow-gains). */
+    techBands: number[];
   };
   wallet: {
     bankChargeBp: number;
@@ -1451,7 +1477,24 @@ export interface Tuning {
   /** `visit`: the second miss in a row, the officer and the group at the house (obligation:group-covers-misses-at-cost). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
   /** The waiting months' acts (activity:waiting-months-build-profile): a raise's size and its chance each month the player tries to be noticed. */
-  activity: { raiseBp: number; raiseChanceBp: number };
+  /**
+   * activity:waiting-months-build-profile's raise, activity:naira-pay-reviewed-yearly's review, activity:free-path-keeps-a-streak's path and
+   * activity:paid-tech-courses and activity:bootcamp-paid-after-a-job's bootcamp.
+   */
+  activity: {
+    raiseBp: number;
+    raiseChanceBp: number;
+    reviewFormalBp: number;
+    reviewShareBp: number;
+    reviewCapBp: number;
+    reviewInformalBp: number;
+    freePathData: number;
+    freeStreakMonths: number;
+    freeCertTech: number;
+    bootcampFee: number;
+    bootcampHireBp: number;
+    bootcampHireMonths: number;
+  };
   /** The room's basics (obligation:cooking-and-fetching-water): the share of the upkeep's next charge that cooking and fetching water take off. */
   room: { cookedBp: number; waterBp: number };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (lottery:odds-fixed-at-draw-open). */
@@ -1767,6 +1810,20 @@ export interface ActivitySlice {
   raisedIn?: Record<Id<"activity">, number>;
   /** The now-acts sent in the month in hand, in order, cleared as the month closes (activity:now-acts-and-month-acts). Missing: none. */
   now?: SlotPick[];
+  /** The held job's pay a month as the yearly review left it, the entry's figure at the start (activity:naira-pay-reviewed-yearly). Missing: no reviewed job held. */
+  pay?: number;
+  /** The official dollar rate, kobo for one dollar, on the day the held job started and at each review since (activity:naira-pay-reviewed-yearly). Missing with `pay`. */
+  reviewRate?: number;
+  /** Months in a row the free path was played (activity:free-path-keeps-a-streak). Missing: none yet. */
+  streak?: number;
+  /** What the bootcamp leaves owed until a developer job opens its loan (activity:bootcamp-paid-after-a-job). Missing: nothing owed. */
+  bootcampOwed?: number;
+  /** The month the bootcamp finished, from which its hire help runs (activity:paid-tech-courses). Missing: never finished. */
+  bootcampDone?: number;
+  /** The tech study path held and the months it has counted (activity:paid-tech-courses). Missing: none held. */
+  study?: { activity: Id<"activity">; months: number };
+  /** The sittings passed of each exam sat more than once (document:trade-papers). Missing: none passed. */
+  sittings?: Record<Id<"activity">, number>;
 }
 
 export interface PocketBalance {
@@ -2499,6 +2556,10 @@ export interface ActivityOption {
   spent?: true;
   /** The act's time in half-days when a thing owned changes it (the gas cooker's pot). Missing otherwise: the entry's own. */
   halfDays?: number;
+  /** activity:study-days-capped: the day's class has run its days this month. Missing otherwise. */
+  capped?: true;
+  /** activity:paid-tech-courses: another tech study path is held, so this one waits ("You are on a course"). Missing otherwise. */
+  onCourse?: true;
 }
 
 export interface OfferView {
@@ -2532,8 +2593,17 @@ export interface PlayerView {
    * `raise` (activity:waiting-months-build-profile): the held job's pay a month with the raise from being noticed, and the month the raise
    * landed (null for a raise the state holds without its month). Absent while the job held has no raise.
    * `pay` and `sidePay` (wallet:view-carries-month-pay): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read.
+   * `review` (activity:naira-pay-reviewed-yearly): the months to the held job's next pay review. Absent while the job held is not reviewed.
    */
-  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; pay: MoneyParam | null; sidePay: MoneyParam | null; raise?: { pay: MoneyParam; month: number | null } };
+  job: {
+    id: Id<"activity"> | null;
+    months: number;
+    side: Id<"activity"> | null;
+    pay: MoneyParam | null;
+    sidePay: MoneyParam | null;
+    raise?: { pay: MoneyParam; month: number | null };
+    review?: number;
+  };
   freeSlots: number;
   activities: ActivityOption[];
   lastSlots: SlotPick[];

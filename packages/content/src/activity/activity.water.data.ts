@@ -1,6 +1,6 @@
 // The fish racks at Makoko (activity:fish-racks-at-makoko): the child of the water's work at hand, where
-// they grew up. A main job the board lists to anyone whose room is on the lagoon, hired on a high chance; work at
-// hand, not a way up (the stall reached on Makoko's savings is, activity:trader-opens-own-shop). It ends like any job at home on the
+// they grew up. A main job the board lists to anyone whose room is on the lagoon, hired on a high chance; the first rung of
+// the fish trade, whose kiln and trade are opened with their capital (activity:capital-opens-own-work, activity.ladder.data.ts). It ends like any job at home on the
 // flight (activity:side-job-holds-a-slot). Joined into the activity table in activity.data.ts; place.data.ts stages it at Makoko.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
@@ -20,6 +20,7 @@ export const waterActivityTable: Record<Id<"activity">, ActivityEntry> = {
   [RACKS]: {
     id: RACKS,
     slot: "main",
+    employer: "informal",
     where: "home",
     requires: [{ type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-makoko" }],
     param: null,

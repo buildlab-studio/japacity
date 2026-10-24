@@ -36,6 +36,12 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.buy-phone": "purchase",
   "activity.street-shopping-uk": "purchase",
   "activity.street-shopping-uae": "purchase",
+  // document:trade-papers: the teaching registration's request, made from the Papers app.
+  "activity.get-trcn": "once",
+  // Own work opened with its capital (activity:capital-opens-own-work): the capital paid over, the work started now.
+  "activity.buy-kiln": "once",
+  "activity.start-fish-trade": "once",
+  "activity.open-pos-stand": "once",
   // Signing for a car, a flat or a phone abroad, and sending money home: done at a counter.
   "activity.buy-car-finance": "once",
   "activity.rent-flat-uk": "once",

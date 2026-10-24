@@ -69,6 +69,11 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.side-gig": "prop_repair-table",
   "activity.apprentice-repair": "prop_repair-table",
   "activity.open-shop": "prop_market-stall",
+  // Own work opened with its capital (activity:capital-opens-own-work) and the teaching registration (document:trade-papers).
+  "activity.buy-kiln": stand("🐟"),
+  "activity.start-fish-trade": stand("🐟"),
+  "activity.open-pos-stand": stand("💳"),
+  "activity.get-trcn": stand("📜"),
   // The street's enjoyment and spending.
   "activity.buy-suya": "prop_suya-grill",
   "activity.mallam-tea": "prop_street-bench",
@@ -178,6 +183,20 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.job-bank-officer": "prop_bank-counter",
   "activity.job-bank-senior": "prop_bank-counter",
   "activity.job-nurse": stand("🩺"),
+  // The trades' rungs at home (activity:each-trade-climbs-its-ladder): stand-ins until their models are shot.
+  "activity.job-senior-nurse": stand("🩺"),
+  "activity.job-ward-manager": stand("🩺"),
+  "activity.job-senior-teacher": stand("📚"),
+  "activity.job-head-of-department": stand("📚"),
+  "activity.job-team-lead": stand("🎧"),
+  "activity.job-remote-support": stand("🎧"),
+  "activity.job-shop-supervisor": "prop_market-stall",
+  "activity.job-fish-smoker": stand("🐟"),
+  "activity.job-fish-trader": stand("🐟"),
+  "activity.job-relationship-manager": "prop_bank-counter",
+  "activity.job-accounts-officer": stand("🧾"),
+  "activity.job-chartered-accountant": stand("🧾"),
+  "activity.job-finance-manager": stand("🧾"),
   "activity.job-uk-nurse": "prop_nurses-station",
   "activity.job-uk-care": "prop_reception-desk",
   "activity.job-uk-senior-care": stand("🤲"),
@@ -297,6 +316,9 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "document.endorsement": stand("📨"),
   "document.medical": "prop_xray-stand",
   "document.nurse-certificate": stand("📜"),
+  // document:trade-papers.
+  "document.trcn": stand("📜"),
+  "document.ican": stand("📜"),
   // The ways out in Japa: the street the way leads to where the world has one built.
   "route.uk-masters": "building_rye-lane-terrace_a",
   "route.uk-care": "building_rye-lane-terrace_a",

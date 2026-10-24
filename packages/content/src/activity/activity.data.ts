@@ -16,6 +16,8 @@ import { roomActivityTable } from "./activity.room.data";
 import { shopActivityTable } from "./activity.shop.data";
 import { streetActivityTable } from "./activity.street.data";
 import { waterActivityTable } from "./activity.water.data";
+import { ladderActivityTable, SUPPORT_JOBS, TEACHER_JOBS } from "./activity.ladder.data";
+import { learningActivityTable } from "./activity.learning.data";
 import { peopleApplyActivities } from "../route/route.data";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -64,6 +66,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-teacher": {
     id: "activity.job-teacher",
     slot: "main",
+    employer: "informal",
     requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
@@ -78,6 +81,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-customer-service": {
     id: "activity.job-customer-service",
     slot: "main",
+    employer: "formal",
     requires: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
     param: null,
     cost: [],
@@ -89,7 +93,12 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-junior-developer": {
     id: "activity.job-junior-developer",
     slot: "main",
-    requires: [{ type: "quality/min", quality: "quality.tech", value: 30 }],
+    employer: "formal",
+    // Employers judge a junior by a piece of work shown (activity.md, the developer's ladder).
+    requires: [
+      { type: "quality/min", quality: "quality.tech", value: 30 },
+      { type: "quality/min", quality: "quality.portfolio", value: 1 },
+    ],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(320000) },
@@ -103,6 +112,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-bank-officer": {
     id: "activity.job-bank-officer",
     slot: "main",
+    employer: "formal",
     // health:sick-pay-unless-sick-leave: the bank pays through a sick month.
     sickLeave: true,
     requires: [
@@ -122,6 +132,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-bank-senior": {
     id: "activity.job-bank-senior",
     slot: "main",
+    employer: "formal",
     // health:sick-pay-unless-sick-leave: the bank pays through a sick month.
     sickLeave: true,
     requires: [{ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }],
@@ -138,6 +149,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-mid-developer": {
     id: "activity.job-mid-developer",
     slot: "main",
+    employer: "formal",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 60 },
       {
@@ -185,6 +197,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-nurse": {
     id: "activity.job-nurse",
     slot: "main",
+    employer: "formal",
     requires: [{ type: "quality/min", quality: "quality.care", value: 60 }],
     param: null,
     cost: [],
@@ -273,10 +286,9 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [{ currency: "NGN", amount: naira(5000), reason: "study" }],
     pay: null,
     hireBp: null,
-    effects: [
-      { type: "quality/add", quality: "quality.tech", amount: 2 },
-      { type: "quality/add", quality: "quality.energy", amount: -3 },
-    ],
+    // activity:study-days-capped: a share of the free path's month by band for each day, the activity kind's to give.
+    effects: [{ type: "quality/add", quality: "quality.energy", amount: -3 }],
+    bandGains: [3, 2, 1],
     counts: [],
   },
   // A piece for the portfolio: a weekend at the laptop, up at once (activity:acts-may-repeat-in-month).
@@ -533,34 +545,41 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   // Side jobs (activity:side-job-holds-a-slot): hunted like a job, held beside it, one free slot locked while kept.
   // The contract's pay names no pocket; naira pay goes to cash and dollar pay to the bank.
 
+  // Tied to the trade: at its pay for any life it would be a second road to the dollar for everyone (activity.md, Side jobs).
   "activity.night-support": {
     id: "activity.night-support",
     slot: "side",
     requires: [
-      { type: "quality/min", quality: "quality.english", value: 50 },
-      { type: "quality/min", quality: "quality.tech", value: 20 },
+      { type: "quality/min", quality: "quality.english", value: 60 },
+      { type: "any", of: [{ type: "activity/tenure", activities: SUPPORT_JOBS, months: 6 }, { type: "quality/min", quality: "quality.tech", value: 40 }] },
     ],
     param: null,
     cost: [],
-    pay: { currency: "USD", amount: dollars(350) },
-    // activity:side-jobs-pay-by-tier: a stronger tech hand takes the harder tickets. Working values.
-    tiers: [
-      { min: { quality: "quality.tech", value: 60 }, pay: { currency: "USD", amount: dollars(450) } },
-      { min: { quality: "quality.tech", value: 80 }, pay: { currency: "USD", amount: dollars(600) } },
-    ],
+    pay: { currency: "USD", amount: dollars(250) },
+    // activity:side-jobs-pay-by-tier: strong English takes the harder calls. Half shifts of the real $400 to $600.
+    tiers: [{ needs: [{ type: "quality/min", quality: "quality.english", value: 75 }], pay: { currency: "USD", amount: dollars(350) } }],
     hireBp: pct(30),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -6 }],
     counts: [],
   },
+  // The teacher's side job: home lessons, the exam coaching tier for a teacher of two years.
   "activity.weekend-tutoring": {
     id: "activity.weekend-tutoring",
     slot: "side",
     requires: [{ type: "quality/min", quality: "quality.education-level", value: 3 }],
     param: null,
     cost: [],
-    pay: { currency: "NGN", amount: naira(60000) },
-    // activity:side-jobs-pay-by-tier, the page's own example: coding lessons pay more than exam lessons.
-    tiers: [{ min: { quality: "quality.tech", value: 50 }, pay: { currency: "NGN", amount: naira(90000) } }],
+    pay: { currency: "NGN", amount: naira(80000) },
+    // activity:side-jobs-pay-by-tier, the page's own example. Real: ₦64,400 a month for three children's lessons in Lekki.
+    tiers: [
+      {
+        needs: [
+          { type: "quality/min", quality: "quality.english", value: 70 },
+          { type: "activity/tenure", activities: TEACHER_JOBS, months: 24 },
+        ],
+        pay: { currency: "NGN", amount: naira(120000) },
+      },
+    ],
     hireBp: pct(50),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -4 }],
     counts: [],
@@ -574,8 +593,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     pay: { currency: "NGN", amount: naira(120000) },
     // activity:side-jobs-pay-by-tier: regular riders and an office account come through people. Working values.
     tiers: [
-      { min: { quality: "quality.network", value: 70 }, pay: { currency: "NGN", amount: naira(150000) } },
-      { min: { quality: "quality.network", value: 85 }, pay: { currency: "NGN", amount: naira(180000) } },
+      { needs: [{ type: "quality/min", quality: "quality.network", value: 70 }], pay: { currency: "NGN", amount: naira(150000) } },
+      { needs: [{ type: "quality/min", quality: "quality.network", value: 85 }], pay: { currency: "NGN", amount: naira(180000) } },
     ],
     hireBp: pct(45),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -7 }],
@@ -660,6 +679,10 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...shopActivityTable,
   // The fish racks at Makoko (activity:fish-racks-at-makoko).
   ...waterActivityTable,
+  // activity:each-trade-climbs-its-ladder: the trades' rungs and side jobs, and own work opened with its capital (activity:capital-opens-own-work).
+  ...ladderActivityTable,
+  // quality:skill-bands-slow-gains: learning tech in bands, and the trades' papers (document:trade-papers).
+  ...learningActivityTable,
   // person.md: applying on the partner and dependant gates (person:dependant-gate-needs, person:partner-gate-needs).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.

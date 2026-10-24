@@ -17,6 +17,8 @@ export const uiProfileText: Record<string, string> = {
   "ui.tier.next": "{pay}; {lift}",
   "ui.tier.lift": "{next} once {band}",
   "ui.tier.lift-needs": "{next} with {needs}",
+  // A tier that asks months across the trade's jobs: "₦120,000 once your English is excellent and you have two years in the trade".
+  "ui.tier.trade-months": "you have {time} in the trade",
 
   // The things and acts that stage them (world:things-are-tappable-models).
   "city.thing.laptops": "Laptops",

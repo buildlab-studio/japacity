@@ -22,6 +22,8 @@ const CERTIFY: Id<"activity"> = "activity.nurse-certification";
 const MASTERS: Id<"activity"> = "activity.masters-at-home";
 
 const CARE: Id<"quality"> = "quality.care";
+const ENGLISH_QUALITY: Id<"quality"> = "quality.english";
+const TEACHER_JOBS: Id<"activity">[] = ["activity.job-teacher", "activity.job-senior-teacher", "activity.job-head-of-department"];
 
 interface Credit {
   type: string;
@@ -84,36 +86,55 @@ function holding(scenario: Id<"scenario">, side: Id<"activity">): Game {
 }
 
 describe("side jobs by level", () => {
-  test("[activity:side-jobs-pay-by-tier] given weekend tutoring, when a month is paid at one point under its tier and then at the tier, then the entry's own pay comes first and the tier's pay once its tech is met", () => {
-    const tiers = entryOf(TUTORING).tiers ?? [];
-    const [tier] = tiers;
-    if (tier === undefined) throw new Error("Tutoring has no tier.");
-    const game = holding("scenario.graduate", TUTORING);
-    raiseTo(game, tier.min.quality, tier.min.value - 1);
-    expect(credits(month(game, []), "gig").map((credit) => credit.amount)).toEqual([figure(entryOf(TUTORING).pay!)]);
-    raiseTo(game, tier.min.quality, tier.min.value);
-    expect(credits(month(game, []), "gig").map((credit) => credit.amount)).toEqual([figure(tier.pay)]);
+  test("[activity:side-jobs-pay-by-tier] given home lessons, whose tier needs strong English and two years teaching, when a month is paid with one of the two missing and then with both, then the entry's own pay comes first and the tier's pay once every need holds", () => {
+    const [tier] = entryOf(TUTORING).tiers ?? [];
+    if (tier === undefined) throw new Error("Home lessons have no tier.");
+    expect(tier.needs).toEqual([
+      { type: "quality/min", quality: ENGLISH_QUALITY, value: 70 },
+      { type: "activity/tenure", activities: TEACHER_JOBS, months: 24 },
+    ]);
+    // A graduate at strong English has never taught: the tenure is the missing need.
+    const graduate = holding("scenario.graduate", TUTORING);
+    raiseTo(graduate, ENGLISH_QUALITY, 70);
+    expect(credits(month(graduate, []), "gig").map((credit) => credit.amount)).toEqual([figure(entryOf(TUTORING).pay!)]);
+    // The teacher has taught four years: one point of English under the tier pays the entry's own, the tier's figure pays it.
+    const teacher = holding("scenario.teacher", TUTORING);
+    raiseTo(teacher, ENGLISH_QUALITY, 69);
+    expect(credits(month(teacher, []), "gig").map((credit) => credit.amount)).toEqual([figure(entryOf(TUTORING).pay!)]);
+    raiseTo(teacher, ENGLISH_QUALITY, 70);
+    expect(credits(month(teacher, []), "gig").map((credit) => credit.amount)).toEqual([figure(tier.pay)]);
     expect(figure(tier.pay)).toBeGreaterThan(figure(entryOf(TUTORING).pay!));
   });
 
-  test("[activity:side-jobs-pay-by-tier] given the night shift with two tiers, when both are met, then the highest tier pays, in its own currency to the bank", () => {
-    const tiers = entryOf(NIGHT_SUPPORT).tiers ?? [];
+  test("[activity:side-jobs-pay-by-tier] given ride driving with two tiers on network, when both are met, then the highest tier whose needs hold pays", () => {
+    const tiers = entryOf(RIDE).tiers ?? [];
     expect(tiers.length).toBeGreaterThanOrEqual(2);
     const top = tiers.reduce((best, tier) => (figure(tier.pay) > figure(best.pay) ? tier : best));
+    const game = holding("scenario.banker", RIDE);
+    raiseTo(game, NETWORK, 85);
+    const paid = credits(month(game, []), "gig");
+    expect(paid.map((credit) => credit.amount)).toEqual([figure(top.pay)]);
+  });
+
+  test("[activity:side-jobs-pay-by-tier] given night support held, when English reaches its tier's 75, then the month pays the tier's dollars to the bank, and one point under it the entry's own", () => {
+    const [tier] = entryOf(NIGHT_SUPPORT).tiers ?? [];
+    if (tier === undefined) throw new Error("Night support has no tier.");
+    expect(tier.needs).toEqual([{ type: "quality/min", quality: ENGLISH_QUALITY, value: 75 }]);
     const game = holding("scenario.graduate", NIGHT_SUPPORT);
-    for (const tier of tiers) raiseTo(game, tier.min.quality, Math.max(qualityOf(game, tier.min.quality), tier.min.value));
-    const paid = credits(month(game, []), "salary");
-    expect(paid).toEqual([{ type: "wallet/credited", currency: top.pay.currency, pocket: "bank", amount: figure(top.pay), reason: "salary" }]);
+    raiseTo(game, ENGLISH_QUALITY, 74);
+    expect(credits(month(game, []), "salary").map((credit) => credit.amount)).toEqual([figure(entryOf(NIGHT_SUPPORT).pay!)]);
+    raiseTo(game, ENGLISH_QUALITY, 75);
+    expect(credits(month(game, []), "salary")).toEqual([{ type: "wallet/credited", currency: tier.pay.currency, pocket: "bank", amount: figure(tier.pay), reason: "salary" }]);
   });
 
   test("[activity:side-jobs-pay-by-tier] given ride driving held by a life under its network tier, when its network reaches the tier, then the month pays more", () => {
     const [tier] = entryOf(RIDE).tiers ?? [];
     if (tier === undefined) throw new Error("Ride driving has no tier.");
-    expect(tier.min.quality).toBe(NETWORK);
+    expect(tier.needs).toEqual([{ type: "quality/min", quality: NETWORK, value: 70 }]);
     const game = holding("scenario.banker", RIDE);
-    expect(qualityOf(game, NETWORK)).toBeLessThan(tier.min.value);
+    expect(qualityOf(game, NETWORK)).toBeLessThan(70);
     const before = credits(month(game, []), "gig").reduce((sum, credit) => sum + credit.amount, 0);
-    raiseTo(game, NETWORK, tier.min.value);
+    raiseTo(game, NETWORK, 70);
     const after = credits(month(game, []), "gig").reduce((sum, credit) => sum + credit.amount, 0);
     expect(before).toBe(figure(entryOf(RIDE).pay!));
     expect(after).toBe(figure(tier.pay));

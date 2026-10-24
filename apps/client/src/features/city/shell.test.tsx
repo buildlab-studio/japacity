@@ -360,8 +360,9 @@ describe("the nudge while a step waits", () => {
     const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
-    const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-developer") ?? null;
-    if (better === null) throw new Error("The board lists no junior developer job.");
+    // The junior developer asks a piece of work to show (activity:each-trade-climbs-its-ladder); the bank officer's pay is the better job here.
+    const better = (hunt?.params ?? []).find((job) => job === "activity.job-bank-officer") ?? null;
+    if (better === null) throw new Error("The board lists no bank officer job.");
     expect(nudgeOf(pending).key).toBe("ui.nudge.better-job");
     const noBoard = { ...pending, activities: pending.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, params: [] } : option)) };
     expect(nudgeOf(noBoard).key).toBe("chapter.build-the-file.item.passport.started");

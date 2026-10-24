@@ -2,7 +2,7 @@
 // the totals the ledger already keeps and the content, never the world, so the
 // authority can run it over every saved account.
 import { jobTerms, MONTHS_PER_YEAR, paidYearly } from "../activity/activity.pay";
-import { bp, divCeil } from "../engine/int";
+import { bp, divCeil, divFloor } from "../engine/int";
 import { ReasonSchema } from "../engine/language.schema";
 import type { ActivityEntry, Content, Currency, Effect, Reason, State } from "../engine/types";
 
@@ -90,10 +90,18 @@ function prologueAllowance(content: Content, reason: Reason, currency: Currency)
 
 type Ceiling = (currency: Currency, state: State, content: Content) => number;
 
-/** A month's main job with overtime in every free slot, over the months played. */
+/** The basis points of a whole: a raise of `capBp` keeps the pay and adds the share. */
+const WHOLE_BP = 10000;
+
+/**
+ * A month's main job with overtime in every free slot, over the months played. The job's month is first raised by the yearly review's
+ * cap for each whole year played (activity:naira-pay-reviewed-yearly), so a life reviewed every year stays under it.
+ */
 function working(main: number, state: State, content: Content): number {
-  const { turn, ladder } = content.tuning;
-  return state.turn.month * (main + turn.freeSlots * bp(main, ladder.overtimeBp));
+  const { turn, ladder, activity } = content.tuning;
+  let raised = main;
+  for (let year = 0; year < divFloor(state.turn.month, MONTHS_PER_YEAR); year += 1) raised = bp(raised, WHOLE_BP + activity.reviewCapBp);
+  return state.turn.month * (raised + turn.freeSlots * bp(raised, ladder.overtimeBp));
 }
 
 /**

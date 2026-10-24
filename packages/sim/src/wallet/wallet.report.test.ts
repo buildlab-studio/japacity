@@ -74,6 +74,28 @@ describe("the ledger report", () => {
     expect(over.suspect).toBe(true);
   });
 
+  test("[wallet:ledger-report-raises-alarms] [activity:naira-pay-reviewed-yearly] given 25 months played, when the salary ceiling in naira is read, then the best naira job's month is raised by the review's cap for each of the two years played before overtime and the months are counted", () => {
+    const game = start({ content, scenario: "scenario.banker" });
+    for (let month = 0; month < 25; month += 1) {
+      if (game.state.turn.banked < 1) game.grant(1);
+      game.endTurn();
+    }
+    const state = game.state;
+    let best = 0;
+    for (const entry of Object.values(content.activity)) {
+      const amount = entry.pay?.amount;
+      if (entry.slot !== "main" || entry.cash === true || entry.pay?.currency !== "NGN" || typeof amount !== "number") continue;
+      const bonus = entry.carBonus ?? 0;
+      best = Math.max(best, entry.where === "abroad" ? divCeil(amount + bonus, 12) : amount + divCeil(bonus, 12));
+    }
+    const { turn, ladder, activity } = content.tuning;
+    const raised = bp(best, 10000 + activity.reviewCapBp);
+    const twice = bp(raised, 10000 + activity.reviewCapBp);
+    const ceiling = state.turn.month * (twice + turn.freeSlots * bp(twice, ladder.overtimeBp));
+    expect(state.turn.month).toBe(25);
+    expect(ceilingOf(state, "salary", "NGN")).toBe(ceiling);
+  });
+
   test("[wallet:ledger-report-raises-alarms] given the opening money, when it is read, then the ceiling is the richest starting life's; at it nothing is suspect and one kobo over names the account", () => {
     const state = banker();
     const richest = Math.max(...Object.values(content.scenario).map((life) => (life.pockets.NGN?.bank ?? 0) + (life.pockets.NGN?.cash ?? 0)));

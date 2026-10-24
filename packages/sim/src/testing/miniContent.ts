@@ -299,7 +299,7 @@ export const miniContent: Content = {
     },
   },
   tuning: {
-    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, halfDays: { noJob: 60, withJob: 20 }, repeatPerSlot: 3, arrivalsBp: [3333, 6667], body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 } },
+    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, halfDays: { noJob: 60, withJob: 20 }, repeatPerSlot: 3, studyDaysCap: 3, arrivalsBp: [3333, 6667], body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 } },
     quality: {
       wellbeingRest: 12,
       wellbeingDriftTo: 60,
@@ -310,6 +310,7 @@ export const miniContent: Content = {
       skillSoftAt: 70,
       skillSoftBp: 5000,
       sideJobSkillBp: 5000,
+      techBands: [0, 30, 50, 70, 85],
     },
     wallet: {
       bankChargeBp: 150,
@@ -424,7 +425,7 @@ export const miniContent: Content = {
     },
     chapter: { cardLines: 3, sendOffNaira: 15000000 },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
-    activity: { raiseBp: 1000, raiseChanceBp: 3000 },
+    activity: { raiseBp: 1000, raiseChanceBp: 3000, reviewFormalBp: 1000, reviewShareBp: 5000, reviewCapBp: 3000, reviewInformalBp: 500, freePathData: 650000, freeStreakMonths: 5, freeCertTech: 2, bootcampFee: 300000000, bootcampHireBp: 2000, bootcampHireMonths: 6 },
     room: { cookedBp: 1500, waterBp: 400 },
     lottery: {
       ticket: 20000,

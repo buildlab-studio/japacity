@@ -4,7 +4,7 @@ import type { ActivityEntry, Effect, Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { content } from "../index";
-import { naira, pct } from "../units";
+import { dollars, naira, pct } from "../units";
 
 function entryOf(id: string): ActivityEntry {
   const entry = content.activity[id as Id<"activity">];
@@ -37,7 +37,8 @@ describe("the waiting months' acts", () => {
   test("[activity:waiting-months-build-profile] given being noticed, when its entry and the tuning are read, then it needs a job held six months and the raise is 10% on a 30% draw", () => {
     expect(entryOf("activity.be-noticed").requires).toEqual([{ type: "job/any" }, { type: "activity/local-tenure", months: 6 }]);
     expect(adds(entryOf("activity.be-noticed").effects, "quality.standing")).toBe(2);
-    expect(content.tuning.activity).toEqual({ raiseBp: pct(10), raiseChanceBp: pct(30) });
+    const { raiseBp, raiseChanceBp } = content.tuning.activity;
+    expect({ raiseBp, raiseChanceBp }).toEqual({ raiseBp: pct(10), raiseChanceBp: pct(30) });
   });
 
   test("[activity:waiting-months-build-profile] given the nurse's certification, when its entry, quiz and paper are read, then it costs ₦120,000, needs care 50 and the licence, asks three questions with one right answer each, passes at two, and gives the certificate in two months for good and care 10", () => {
@@ -74,18 +75,33 @@ describe("the waiting months' acts", () => {
 });
 
 describe("side jobs by level", () => {
-  test("[activity:side-jobs-pay-by-tier] given the three side jobs, when their tiers are read, then each has a tier on tech, English or network that pays more than its own pay, in its own currency", () => {
-    for (const id of ["activity.night-support", "activity.weekend-tutoring", "activity.ride-driving"]) {
+  test("[activity:side-jobs-pay-by-tier] given the side jobs with tiers, when their tiers are read, then each tier's needs are requirements on a quality or months across a trade's jobs, and it pays more than the entry's own pay, in its own currency", () => {
+    const tiered = ["activity.home-care-visits", "activity.night-support", "activity.weekend-tutoring", "activity.pos-stand", "activity.ride-driving"] as const;
+    for (const id of tiered) {
       const entry = entryOf(id);
       expect(entry.slot).toBe("side");
       expect(entry.tiers?.length).toBeGreaterThan(0);
       for (const tier of entry.tiers ?? []) {
-        expect(["quality.tech", "quality.english", "quality.network"]).toContain(tier.min.quality);
+        expect(tier.needs.length).toBeGreaterThan(0);
+        for (const need of tier.needs) expect(["quality/min", "activity/tenure"]).toContain(need.type);
         expect(tier.pay.currency).toBe(entry.pay?.currency);
         expect(tier.pay.amount as number).toBeGreaterThan(entry.pay?.amount as number);
       }
     }
-    // The page's own example: ₦60,000 a month; ₦90,000 at tech 50.
-    expect(entryOf("activity.weekend-tutoring").tiers).toEqual([{ min: { quality: "quality.tech", value: 50 }, pay: { currency: "NGN", amount: naira(90000) } }]);
+    // The page's own example: ₦80,000 a month; ₦120,000 once your English is strong and you have taught two years.
+    expect(entryOf("activity.weekend-tutoring").pay).toEqual({ currency: "NGN", amount: naira(80000) });
+    expect(entryOf("activity.weekend-tutoring").tiers).toEqual([
+      {
+        needs: [
+          { type: "quality/min", quality: "quality.english", value: 70 },
+          { type: "activity/tenure", activities: ["activity.job-teacher", "activity.job-senior-teacher", "activity.job-head-of-department"], months: 24 },
+        ],
+        pay: { currency: "NGN", amount: naira(120000) },
+      },
+    ]);
+    expect(entryOf("activity.night-support").pay).toEqual({ currency: "USD", amount: dollars(250) });
+    expect(entryOf("activity.night-support").tiers).toEqual([{ needs: [{ type: "quality/min", quality: "quality.english", value: 75 }], pay: { currency: "USD", amount: dollars(350) } }]);
+    expect(entryOf("activity.home-care-visits").tiers).toEqual([{ needs: [{ type: "quality/min", quality: "quality.care", value: 75 }], pay: { currency: "NGN", amount: naira(120000) } }]);
+    expect(entryOf("activity.pos-stand").tiers).toEqual([{ needs: [{ type: "quality/min", quality: "quality.network", value: 60 }], pay: { currency: "NGN", amount: naira(90000) } }]);
   });
 });

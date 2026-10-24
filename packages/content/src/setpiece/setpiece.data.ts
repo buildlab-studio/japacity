@@ -6,6 +6,7 @@ import { countryTable } from "../country/country.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira, pct } from "../units";
 import { NURSE_EXAM, TALK } from "../activity/activity.profile.data";
+import { ICAN_EXAM } from "../activity/activity.learning.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 
@@ -13,8 +14,8 @@ const UK: Id<"route"> = "route.uk-masters";
  * A quiz question (activity:waiting-months-build-profile): the right answer scores 1 and the rest 0. On the last question
  * every answer marks the paper (`activity/exam`), so the pass is judged the moment it is answered.
  */
-function examQuestion(id: string, answers: string[], right: string, last: boolean): SetpieceQuestion {
-  const mark: Effect[] = last ? [{ type: "activity/exam", activity: "activity.nurse-certification" }] : [];
+function examQuestion(id: string, answers: string[], right: string, last: boolean, activity: Id<"activity"> = "activity.nurse-certification"): SetpieceQuestion {
+  const mark: Effect[] = last ? [{ type: "activity/exam", activity }] : [];
   return { id, when: [], answers: answers.map((answer) => ({ id: answer, score: answer === right ? 1 : 0, when: [], thenScore: null, effects: mark })) };
 }
 
@@ -369,6 +370,17 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
       examQuestion("register", ["nmc", "embassy", "agent"], "nmc", false),
       examQuestion("verify", ["six-months", "two-years", "at-once"], "two-years", false),
       examQuestion("sponsorship", ["nurse", "nobody", "employer"], "employer", true),
+    ],
+  },
+  // document:trade-papers: a sitting of the chartered exams, three questions from the trade's own facts in the order written, a pass at two.
+  [ICAN_EXAM]: {
+    id: ICAN_EXAM,
+    ask: 3,
+    order: "fixed",
+    questions: [
+      examQuestion("body", ["ican", "cbn", "firs"], "ican", false, "activity.ican-exams"),
+      examQuestion("entry", ["credit", "receipt", "signature"], "credit", false, "activity.ican-exams"),
+      examQuestion("balance", ["day", "year", "till"], "day", true, "activity.ican-exams"),
     ],
   },
   // activity:waiting-months-build-profile: the talk is one question, how it opens; the activity carries what the talk gives. The answer marks

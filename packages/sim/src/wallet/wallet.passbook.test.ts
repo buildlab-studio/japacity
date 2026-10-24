@@ -282,6 +282,11 @@ describe("[wallet:roads-to-the-target] the roads to it", () => {
     expect(ladder.monthly).toBe(kobo(view, mid.amount as number, mid.currency) - kobo(view, view.job.pay!.amount, view.job.pay!.currency));
   });
 
+  test("[wallet:roads-to-the-target] [activity:each-trade-climbs-its-ladder] given the nurse on the ward, when her ladder road is read, then it is the next rung of her own trade, the senior nursing officer, with the care it still asks, and not the bank", () => {
+    const game = planOn(nurse(), CARE_ROUTE);
+    expect(road(game, "ladder")).toMatchObject({ via: "activity.job-senior-nurse", state: "shut", needs: [{ type: "quality/min", quality: "quality.care", value: 70 }] });
+  });
+
   test("[wallet:roads-to-the-target] [activity:side-job-holds-a-slot] given the nurse who can drive, when its roads are read, then the side job is the ride driving the life can take now; once held, it is taken and its months are the pace's", () => {
     const game = planOn(nurse(), CARE_ROUTE);
     game.endTurn();

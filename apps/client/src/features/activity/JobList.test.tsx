@@ -78,18 +78,18 @@ describe("the jobs list on the hunt's card", () => {
   });
 
   // activity:job-hunt-lands-offer: the list keeps its order, and the row chosen is the life's own trade, the graduate's code, not the first row.
-  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given the teacher's pay under the graduate's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is its own trade's, the junior developer's", async () => {
+  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given the teacher's pay under the graduate's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is the first that asks more than schooling, the bank officer's degree grade, since the junior developer asks a piece of work the graduate has not shown", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     const bands = ordered.map((job) => chanceBand(jobChanceBp(entryOf(job), networkOf(view))));
     const rank = { likely: 0, fair: 1, long: 2 } as const;
     expect(bands.map((band) => rank[band])).toEqual([...bands.map((band) => rank[band])].sort((a, b) => a - b));
     expect(ordered[0]).not.toBe("activity.job-teacher");
-    expect(firstJob(view, ordered)).toBe("activity.job-junior-developer");
+    expect(firstJob(view, ordered)).toBe("activity.job-bank-officer");
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const checked = screen.getAllByRole("radio").filter((row) => row.getAttribute("aria-checked") === "true");
     expect(checked).toHaveLength(1);
-    expect(checked[0]?.getAttribute("data-job")).toBe("activity.job-junior-developer");
+    expect(checked[0]?.getAttribute("data-job")).toBe("activity.job-bank-officer");
   });
 
   test("[world:one-action-one-sheet] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {

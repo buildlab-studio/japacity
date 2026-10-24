@@ -401,6 +401,39 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [],
   },
 
+  // activity:paid-tech-courses: the year's diploma, ₦40,000 a month for twelve, the principal handed over by its first month. As for
+  // the master's at home, the grace is the whole term: fees fall behind and stay owed, and the months behind give nothing.
+  "obligation.tech-diploma": {
+    id: "obligation.tech-diploma",
+    type: "tuition",
+    where: "home",
+    currency: "NGN",
+    amount: 0,
+    rateBp: 0,
+    term: 12,
+    sink: "study",
+    interestSink: "study",
+    grace: 12,
+    onMiss: [],
+    onDefault: [],
+  },
+  // activity:bootcamp-paid-after-a-job: the bootcamp's fee, 36 monthly charges with no interest, opened by the first developer job
+  // and crediting nothing. A loan that follows the life wherever it goes (return:return-reopens-home-charges).
+  "obligation.bootcamp": {
+    id: "obligation.bootcamp",
+    type: "loan",
+    where: "any",
+    currency: "NGN",
+    amount: 0,
+    rateBp: 0,
+    term: 36,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 2,
+    onMiss: [],
+    onDefault: [],
+  },
+
   // car.md "Entries": £9,500, 10% down, 36 months, 30% at the end.
   "obligation.car": {
     id: "obligation.car",

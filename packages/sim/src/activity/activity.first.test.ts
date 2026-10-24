@@ -12,6 +12,7 @@ import type { FirstSession } from "../testing/firstSession";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
+import { applyEffects } from "../testing/route.journey";
 import { sureHuntJob } from "./activity.logic";
 import { HUNT } from "../testing/ids";
 
@@ -141,11 +142,17 @@ describe("the sure hunt that lands another job", () => {
 
   test("[activity:job-hunt-lands-offer] [guide:early-win-in-three-turns] given the graduate's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
     const asked = "activity.job-junior-developer";
-    const sure = sureHuntJob(readOf(start({ scenario: "scenario.graduate", content })), entryOf(asked), 1, false)?.id;
+    // The junior job asks a piece of work to show (activity:each-trade-climbs-its-ladder): this graduate has one.
+    const shown = (seed?: string) => {
+      const game = start({ scenario: "scenario.graduate", content, ...(seed === undefined ? {} : { seed }) });
+      applyEffects(game, [{ type: "quality/add", quality: "quality.portfolio", amount: 1 }]);
+      return game;
+    };
+    const sure = sureHuntJob(readOf(shown()), entryOf(asked), 1, false)?.id;
     expect(sure).not.toBe(asked);
     const told: (string | undefined)[][][] = [];
     for (let at = 0; at < 16; at += 1) {
-      const game = start({ scenario: "scenario.graduate", content, seed: `z1-${String(at)}` });
+      const game = shown(`z1-${String(at)}`);
       const named = game.view().activities.find((option) => option.id === HUNT);
       expect(named?.params).toContain(asked);
       expect(named?.sure).toBe(true);
