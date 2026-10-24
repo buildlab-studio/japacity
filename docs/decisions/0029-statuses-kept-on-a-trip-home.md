@@ -28,9 +28,12 @@ Settlement: absences of more than 180 days in any 12 months break continuous res
 - **Two years away**: any kept UK status, settled included, lapses after 24 months in a row at home; citizenship never lapses. Canada's resident token lapses after 36.
 - **Settlement**: months at home count nothing toward settlement or citizenship, and 6 months or more at home inside any 12 starts the road to settling again (status:absence-breaks-settlement). Counting nothing for the months away is stricter than life, where short absences still count; it keeps one plain line the player can read.
 - **Partner**: the same 6-month line stands in for the partner route's own test, that the couple has lived together in the UK.
-- **Not modelled**: cancellation of a kept permission while its holder is away, the returning resident's visa, the research absences Appendix Continuous Residence leaves out, and Global Talent's need to have earned in the UK before settling.
+- **Not modelled**: cancellation of a kept permission while its holder is away, the returning resident's visa, the research absences Appendix Continuous Residence leaves out, and Global Talent's need to have earned in the UK before settling; a dependant's kept status where the main holder is also home on a kept one (it ends with the main holder's presence abroad), and a partner's kept status when the relationship ends at home.
 
 ## Consequences
+
+- The contract grows by: `heldAbroad` carrying the kept status's end month, its settlement months and the months away; `StatusState.away`; `RouteState.grantedMonth`; the requirement `route/state` with `afterReturn`; the view's `place.kept` (`until`, `restarts`); the event `place/token-ended`; and the tuning `tuning.status.absenceMonths`, `tuning.status.absenceWindowMonths`, `tuning.return.ukKeptLapseMonths` and `tuning.return.residentLapseMonths`.
+- A kept status gives way to the status of a route granted at home; a settled status outranks any route.
 
 - The Secure chapter's `home` path is reached by a `with-papers` return on these statuses as well as a settled one, and its `second` path reads only a route granted after the latest return (chapter.md row 6).
 - The view and the screens say a kept status's end month and that the character can fly back on it; a stay past six months says the road to settling starts again.
