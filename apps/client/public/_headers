@@ -1,21 +1,39 @@
-# The page's own headers, against injected scripts, framing, content sniffing and referrer leaks. The content security
-# policy is report-only: it reports what it would block and blocks nothing; without the Report-Only suffix, it enforces.
-# Reports go to the server's /api/csp-report (server:csp-reports-to-own-origin): report-to names the Reporting API's
-# endpoint, which Reporting-Endpoints defines on this origin, and report-uri is the older form for browsers without it.
-# Both are paths on the page's own origin, so the same file serves every deployment.
-# wasm-unsafe-eval: the models' mesh decoder. challenges.cloudflare.com: the bot check.
-# blob: the models' textures, fetched from blob addresses, and the shared cards.
+# The page's own headers, against injected scripts, framing, content sniffing and referrer leaks.
+# Two content security policies (server:csp-reports-to-own-origin). The first is enforced: the browser refuses what it
+# does not allow. The second only reports: it is the first made stricter, and says what it would refuse before it is
+# safe to enforce; once its reports are quiet, it takes the first's place.
+# To roll the first back to reporting alone, add -Report-Only to its name; a browser then refuses nothing.
+# Both report to the server's /api/csp-report: report-to names the Reporting API's endpoint, which Reporting-Endpoints
+# defines on this origin, and report-uri is the older form for browsers without it. Both are paths on the page's own
+# origin, so the same file serves every deployment.
+# The enforced policy is a list of sources rather than nonces or hashes: the page has no inline script, the files are
+# served as they are with no server to mint a nonce, and the two outside scripts (the bot check, the beacon) are not
+# versioned, so no hash of them holds. 'self' serves only the build and the API's JSON, which nosniff keeps from ever
+# running as script.
+# wasm-unsafe-eval: the models' mesh decoder, WebAssembly only; no string ever runs as script ('unsafe-eval' is never
+# allowed, and public/zod-jitless.js keeps Zod from trying). challenges.cloudflare.com: the bot check's script and frame.
+# blob: the models' textures, fetched from blob addresses, their decoder's worker, and the shared cards.
 # font-src data: the sign font, small enough that the build inlines it.
+# style-src 'unsafe-inline' while the stricter policy reports: the splash and the legal pages carry inline styles.
+# form-action 'none': every form of the game is handled in code and never submits; signing in is a fetch and a move to
+# Google's page, not a form. manifest-src and every other kind fall back to default-src 'self'.
+# No upgrade-insecure-requests: every address the page uses is its own or https already, so it would change nothing in
+# production and would break the local preview over http.
 # If the server is ever on another address than the page, connect-src names it, with its wss: form.
 # static.cloudflareinsights.com and cloudflareinsights.com: Cloudflare Web Analytics' beacon and its reports,
 # in the page only when the build has VITE_ANALYTICS_TOKEN (vite/analytics.plugin.ts).
+# The stricter policy: Trusted Types, so a script's address is only ever set through the page's one policy, japacity
+# (shared/policy/trusted.ts); and inline styles only by their hashes, which the build writes in place of the token in
+# braces (vite/style-hashes.plugin.ts), with no style attribute (the game's own styles are set in code, which no
+# policy governs).
 # Caching (server:production-and-staging): every file is asked about again before use (no-cache: kept, but
 # revalidated), so a new build reaches the next load; the page itself above all. Only the files under /assets/ whose
 # names carry the hash of their contents (the build's code, the models) are kept for a year untouched. The models'
 # manifest has a fixed name, so it is asked about every time like the page. A later rule's "! Cache-Control" drops
 # the earlier rule's value, so each path carries one.
 /*
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; report-uri /api/csp-report; report-to csp
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri /api/csp-report; report-to csp
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' {inline-style-hashes}; style-src-attr 'none'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types japacity; report-uri /api/csp-report; report-to csp
   Reporting-Endpoints: csp="/api/csp-report"
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY

@@ -1,5 +1,6 @@
-// `POST /api/csp-report` (server:csp-reports-to-own-origin): where the page's content policy, which reports and blocks
-// nothing, sends what it would have blocked, so the violations real play makes can be seen. Browsers send
+// `POST /api/csp-report` (server:csp-reports-to-own-origin): where the page's two content policies send what they refused
+// (the enforced one) and what they would have refused (the stricter one that only reports), so the violations real
+// play makes can be seen. Browsers send
 // one of two shapes: the older `report-uri` one (`application/csp-report`, one report) and the Reporting API's
 // (`application/reports+json`, a list that may hold other kinds of report too). Each violation becomes one log line
 // and one count. A report carries far more than is kept: the line holds the directive, the blocked address's origin

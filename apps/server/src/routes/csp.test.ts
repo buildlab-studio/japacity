@@ -16,6 +16,16 @@ import { CSP_BLOCKED_COUNTER, CSP_COUNTER, CSP_REPORT_BYTES, CSP_REPORT_PATH, CS
 
 const HEADERS = readFileSync(fileURLToPath(new URL("../../../client/public/_headers", import.meta.url).href), "utf8");
 
+/** One policy header of the page, as its directives and their sources. */
+function policyOf(header: string): Map<string, string[]> {
+  const policy = new RegExp(`^\\s+${header}: (.*)$`, "m").exec(HEADERS)?.[1] ?? "";
+  return new Map(policy.split(";").map((part) => part.trim().split(/\s+/)).map(([name = "", ...sources]) => [name, sources]));
+}
+
+/** The policy the browser enforces, and the stricter one it only reports. */
+const ENFORCED = policyOf("Content-Security-Policy");
+const REPORTED = policyOf("Content-Security-Policy-Report-Only");
+
 /** What a person's browser would put in a report, each a sentinel that must never reach a log line. */
 const PERSONAL = {
   query: "secret-query-7f3a",
@@ -81,15 +91,42 @@ afterEach(() => {
 });
 
 describe("the page's policy reports", () => {
-  test("[server:csp-reports-to-own-origin] given the page's _headers, when they are read, then the policy still only reports, and reports to /api/csp-report by report-to through Reporting-Endpoints and by report-uri", () => {
-    const policy = /^\s+Content-Security-Policy-Report-Only: (.*)$/m.exec(HEADERS)?.[1] ?? "";
-    const directives = new Map(policy.split(";").map((part) => part.trim().split(/\s+/)).map(([name = "", ...sources]) => [name, sources]));
-    expect(directives.get("report-uri")).toEqual([CSP_REPORT_PATH]);
-    expect(directives.get("report-to")).toEqual(["csp"]);
+  test("[server:csp-reports-to-own-origin] given the page's _headers, when they are read, then one policy is enforced and a stricter one beside it only reports, each once, both to /api/csp-report by report-to through Reporting-Endpoints and by report-uri", () => {
+    expect(HEADERS.match(/^\s+Content-Security-Policy: /gm)).toHaveLength(1);
+    expect(HEADERS.match(/^\s+Content-Security-Policy-Report-Only: /gm)).toHaveLength(1);
+    for (const policy of [ENFORCED, REPORTED]) {
+      expect(policy.get("report-uri")).toEqual([CSP_REPORT_PATH]);
+      expect(policy.get("report-to")).toEqual(["csp"]);
+    }
     expect(/^\s+Reporting-Endpoints: (.*)$/m.exec(HEADERS)?.[1]).toBe(`csp="${CSP_REPORT_PATH}"`);
-    expect(HEADERS).not.toMatch(/^\s+Content-Security-Policy:/m);
     // A path on the page's own origin: the one file serves every deployment and names none.
     expect(CSP_REPORT_PATH.startsWith("/api/")).toBe(true);
+  });
+
+  test("[server:csp-reports-to-own-origin] given the enforced policy, when its directives are read, then nothing loads from anywhere not named, no string runs as script, no inline script runs, and no page may frame it, change its base, embed a plugin or send a form anywhere", () => {
+    expect(ENFORCED.get("default-src")).toEqual(["'self'"]);
+    expect(ENFORCED.get("object-src")).toEqual(["'none'"]);
+    expect(ENFORCED.get("base-uri")).toEqual(["'none'"]);
+    expect(ENFORCED.get("frame-ancestors")).toEqual(["'none'"]);
+    expect(ENFORCED.get("form-action")).toEqual(["'none'"]);
+    expect(ENFORCED.get("script-src")?.[0]).toBe("'self'");
+    for (const [name, sources] of ENFORCED) {
+      for (const loose of ["'unsafe-eval'", "'unsafe-hashes'", "*", "https:", "http:", "data:"]) expect({ name, loose, allowed: sources.includes(loose) }).toEqual({ name, loose, allowed: (name === "img-src" || name === "font-src") && loose === "data:" });
+      if (name.startsWith("script-src")) expect({ name, inline: sources.includes("'unsafe-inline'") }).toEqual({ name, inline: false });
+      for (const source of sources) if (source.startsWith("https://")) expect({ name, source, host: /^https:\/\/[a-z0-9.-]+$/.test(source) }).toEqual({ name, source, host: true });
+    }
+  });
+
+  test("[server:csp-reports-to-own-origin] given the stricter policy beside it, when its directives are read, then it is the enforced one that also asks for Trusted Types from the page's one policy, inline styles only by the build's hashes and no style attribute", () => {
+    const stricter = new Set(["style-src", "style-src-attr", "require-trusted-types-for", "trusted-types"]);
+    for (const [name, sources] of ENFORCED) if (!stricter.has(name)) expect({ name, sources: REPORTED.get(name) }).toEqual({ name, sources });
+    expect([...REPORTED.keys()].filter((name) => !ENFORCED.has(name) && !stricter.has(name))).toEqual([]);
+    expect(REPORTED.get("require-trusted-types-for")).toEqual(["'script'"]);
+    expect(REPORTED.get("trusted-types")).toEqual(["japacity"]);
+    expect(REPORTED.get("style-src")).toEqual(["'self'", "{inline-style-hashes}"]);
+    expect(REPORTED.get("style-src-attr")).toEqual(["'none'"]);
+    // What the stricter one reports is not already refused: the enforced policy still lets inline styles in.
+    expect(ENFORCED.get("style-src")).toEqual(["'self'", "'unsafe-inline'"]);
   });
 
   test("[server:csp-reports-to-own-origin] given a report-uri report, when it is posted, then it is answered 204 and leaves one line of the directive, the blocked origin and the page's path, and one count under the request's region", async () => {
