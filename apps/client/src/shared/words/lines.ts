@@ -297,8 +297,6 @@ function unpaidCost(obligation: string): string {
   const mood = takes.has("quality.wellbeing");
   const quality = standing && mood ? "standing-mood" : standing ? "standing" : mood ? "mood" : null;
   if (entry.reportsToCredit === true) return quality === "standing-mood" ? "credit-standing-mood" : "credit";
-  // A missed instalment costs nothing at once; the next one missed withdraws the student (status:course-passed-or-withdrawn).
-  if (quality === null && entry.onDefault.some((effect) => effect.type === "status/lose")) return "withdraw";
   return quality ?? "plain";
 }
 
