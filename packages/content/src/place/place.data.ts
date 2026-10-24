@@ -251,7 +251,7 @@ const entries: PlaceEntry[] = [
   lagos("place.maryland", "Maryland", "ikeja", 6577, 3366, { crowd: BUSY, traditionalBp: ROADSIDE }),
   lagos("place.ojota", "Ojota", "kosofe", 6587, 3379, { crowd: BUSY, traditionalBp: ROADSIDE }),
   // streets:buy-phone-at-computer-village, streets:phone-sales-job and streets:apprentice-learns-repair: a phone, the sales job and the repair apprenticeship.
-  lagos("place.computer-village", "Computer Village", "ikeja", 6594, 3340, { stages: ["offer.laptop-fault", "activity.side-gig", "activity.buy-phone", "activity.job-phone-sales", "activity.apprentice-repair"], crowd: PACKED, traditionalBp: MARKET }),
+  lagos("place.computer-village", "Computer Village", "ikeja", 6594, 3340, { stages: ["offer.laptop-fault", "activity.side-gig", "activity.buy-phone", "activity.job-phone-sales", "activity.apprentice-repair", "activity.phone-repairs"], crowd: PACKED, traditionalBp: MARKET }),
   lagos("place.allen-avenue", "Allen Avenue", "ikeja", 6601, 3352, { stages: ["activity.ride-driving"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.ogba", "Ogba", "ogba", 6633, 3341, { crowd: BUSY, traditionalBp: STREET }),
   lagos("place.berger", "Berger", "ojodu", 6642, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),

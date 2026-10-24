@@ -116,6 +116,13 @@ describe("Computer Village: selling phones", () => {
     expect(hireChanceBp(entry, 10, content.tuning.quality)).toBe(street.salesHireBp + 10 * content.tuning.quality.networkHireBp);
   });
 
+  test("[streets:phone-sales-job] [activity:each-trade-climbs-its-ladder] given the sales job, when the shop's ladder is read, then it is the first rung with an informal employer, the shop supervisor above it asks a year in it, and its side job, weekend repairs at Computer Village, asks tech 20", () => {
+    expect(content.activity[SALES]?.employer).toBe("informal");
+    expect(content.activity["activity.job-shop-supervisor"]?.requires).toContainEqual({ type: "activity/tenure", activities: [SALES], months: 12 });
+    expect(content.activity["activity.phone-repairs"]).toMatchObject({ slot: "side", requires: [{ type: "quality/min", quality: TECH, value: 20 }] });
+    expect(content.place["place.computer-village"]?.stages).toContain("activity.phone-repairs");
+  });
+
   test("[streets:phone-sales-job] given school to level 2, when the jobs to hunt are listed, then the sales job is among them; at level 1 it is not", () => {
     const game = graduate();
     const hunt = content.activity["activity.job-hunt"]!;

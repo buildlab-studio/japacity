@@ -138,11 +138,13 @@ export const learningActivityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "document/absent", document: "document.ican" },
     ],
     param: null,
-    cost: [],
+    // Paid on the day of each sitting; a sitting that cannot be paid waits six months for the next.
+    cost: [{ currency: "NGN", amount: naira(50000), reason: "fee-test" }],
     pay: null,
     hireBp: null,
     effects: [],
-    exam: { setpiece: ICAN_EXAM, pass: 2, effects: [] },
+    onMonth: [{ at: 6, repeat: true, effects: [{ type: "setpiece/open", setpiece: ICAN_EXAM, route: null }] }],
+    exam: { setpiece: ICAN_EXAM, pass: 2, sittings: 3, effects: [{ type: "document/request", document: "document.ican" }] },
     counts: [],
   },
 };

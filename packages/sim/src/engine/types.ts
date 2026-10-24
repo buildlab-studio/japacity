@@ -551,6 +551,8 @@ export interface ActivityExam {
   setpiece: Id<"setpiece">;
   pass: number;
   effects: Effect[];
+  /** The sittings to pass before `effects` apply, each pass short of it counted (document:trade-papers). Missing: one. */
+  sittings?: number;
 }
 
 export interface DocumentEntry {
@@ -1744,6 +1746,8 @@ export interface ActivitySlice {
   bootcampDone?: number;
   /** The tech study path held and the months it has counted (activity:paid-tech-courses). Missing: none held. */
   study?: { activity: Id<"activity">; months: number };
+  /** The sittings passed of each exam sat more than once (document:trade-papers). Missing: none passed. */
+  sittings?: Record<Id<"activity">, number>;
 }
 
 export interface PocketBalance {

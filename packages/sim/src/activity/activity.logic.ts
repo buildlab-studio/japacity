@@ -349,6 +349,19 @@ function paramAllowed(read: ReadCtx, entry: ActivityEntry, param: string | null,
 // Costs
 // ---------------------------------------------------------------------------
 
+/**
+ * document:trade-papers: an exam of several sittings is sat on the months its milestones open its set piece; on the others it is study
+ * and costs nothing. Every other entry is always "on its day".
+ */
+function sittingDay(state: State, entry: ActivityEntry): boolean {
+  const exam = entry.exam;
+  if (exam?.sittings === undefined) return true;
+  const count = (state.activity.played[entry.id] ?? 0) + 1;
+  return (entry.onMonth ?? []).some(
+    (step) => (count === step.at || (step.repeat === true && count % step.at === 0)) && step.effects.some((effect) => effect.type === "setpiece/open" && effect.setpiece === exam.setpiece),
+  );
+}
+
 /** A price as the kind pays it. `cash` is paid from the cash pocket only (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds). `earned`: paid from earned naira only (wallet:top-ups-are-marked). */
 interface Price {
   currency: Currency;
@@ -396,8 +409,8 @@ function ticketsOf(param: string | null, luck: Tuning["luck"]): number {
  * attempt under `fee-test`, in the currency of the country the test is in.
  */
 function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Price[] {
-  // activity:paid-tech-courses: a path's own price is paid once, at its start.
-  const costs = holdsCourse(read.state, entry) ? [] : entry.cost;
+  // activity:paid-tech-courses: a path's own price is paid once, at its start. document:trade-papers: an exam of sittings is paid on a sitting's day.
+  const costs = holdsCourse(read.state, entry) || !sittingDay(read.state, entry) ? [] : entry.cost;
   const prices: Price[] = costs.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
   const { luck, car } = read.content.tuning;
   // luck:kiosk-sells-lotto-tickets with wallet:top-ups-are-marked: the slip is paid from earned naira only.
@@ -1007,7 +1020,14 @@ function examEffect(ctx: Ctx, effect: Extract<Effect, { type: "activity/exam" }>
   }).length;
   const passed = right >= exam.pass;
   const events = record(ctx, { type: "activity/exam-marked", activity: entry.id, right, asked: open.questions.length, pass: exam.pass, passed });
-  if (passed) ctx.apply(exam.effects, { source: entry.id, param: null, terms: {} });
+  if (!passed) return events;
+  // document:trade-papers: an exam of several sittings counts each pass, and only the last gives what the exam gives.
+  if (exam.sittings !== undefined) {
+    const sittings = (ctx.state.activity.sittings?.[entry.id] ?? 0) + 1;
+    events.push(...record(ctx, { type: "activity/sitting-passed", activity: entry.id, sittings }));
+    if (sittings < exam.sittings) return events;
+  }
+  ctx.apply(exam.effects, { source: entry.id, param: null, terms: {} });
   return events;
 }
 
@@ -1587,6 +1607,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/course-month":
     case "activity/bootcamp-done":
     case "activity/bootcamp-billed":
+    case "activity/sitting-passed":
       return [];
     default: {
       const never: never = event;
@@ -1661,6 +1682,8 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return { ...slice, bootcampOwed: event.owed, bootcampDone: event.month };
     case "activity/bootcamp-billed":
       return without(slice, ["bootcampOwed"]);
+    case "activity/sitting-passed":
+      return { ...slice, sittings: { ...slice.sittings, [event.activity]: event.sittings } };
     case "activity/month-worked":
       return { ...slice, tenure: { ...slice.tenure, [event.job]: event.tenure } };
     case "activity/side-worked":

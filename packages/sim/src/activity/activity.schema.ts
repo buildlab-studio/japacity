@@ -37,7 +37,7 @@ export const ActivityEntrySchema = z.strictObject({
   repeat: z.literal(true).exactOptional(),
   purchase: z.literal(true).exactOptional(),
   onMonth: z.array(z.strictObject({ at: z.int().positive(), repeat: z.literal(true).exactOptional(), effects: z.array(EffectSchema) })).exactOptional(),
-  exam: z.strictObject({ setpiece: idOf("setpiece"), pass: z.int().positive(), effects: z.array(EffectSchema) }).exactOptional(),
+  exam: z.strictObject({ setpiece: idOf("setpiece"), pass: z.int().positive(), effects: z.array(EffectSchema), sittings: z.int().positive().exactOptional() }).exactOptional(),
   requires: z.array(RequirementSchema),
   param: z.enum(["job", "route", "known-route", "school"]).nullable(),
   cost: z.array(CostSchema),

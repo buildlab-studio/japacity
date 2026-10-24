@@ -81,6 +81,8 @@ export type ActivityEvent =
   | { type: "activity/course-finished"; activity: Id<"activity"> }
   /** activity:bootcamp-paid-after-a-job: the bootcamp finished in `month`, leaving `owed` to pay once a developer job is held. */
   | { type: "activity/bootcamp-done"; owed: number; month: number }
+  /** document:trade-papers: a sitting of an exam sat more than once was passed; `sittings` passed so far. */
+  | { type: "activity/sitting-passed"; activity: Id<"activity">; sittings: number }
   /** activity:bootcamp-paid-after-a-job: the first developer job opened the bootcamp's loan; nothing is owed on the slice any more. */
   | { type: "activity/bootcamp-billed"; owed: number }
   /** activity:waiting-months-build-profile: a course at home in progress ended with the flight; its fees close with it. */
