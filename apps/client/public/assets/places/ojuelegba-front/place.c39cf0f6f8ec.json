@@ -691,6 +691,24 @@
             ]
           }
         ]
+      },
+      {
+        "id": "pos",
+        "file": "shared/prop/prop_stall.glb",
+        "copy": 0,
+        "label": "city.thing.pos",
+        "at": [
+          0.2,
+          6.8
+        ],
+        "acts": [
+          {
+            "id": "pos",
+            "label": "city.act.pos-stand",
+            "kind": "sheet",
+            "stages": "activity.open-pos-stand"
+          }
+        ]
       }
     ]
   }

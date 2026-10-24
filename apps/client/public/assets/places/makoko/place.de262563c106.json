@@ -942,6 +942,48 @@
             "kind": "plain"
           }
         ]
+      },
+      {
+        "id": "kiln",
+        "file": "places/makoko/prop_fish-racks.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.kiln",
+        "at": [
+          -2,
+          1
+        ],
+        "acts": [
+          {
+            "id": "kiln",
+            "label": "place.makoko.act.kiln",
+            "kind": "sheet",
+            "stages": "activity.buy-kiln"
+          }
+        ]
+      },
+      {
+        "id": "canoe-trade",
+        "file": "places/third-mainland-bridge/prop_canoe.glb",
+        "copy": 1,
+        "label": "place.makoko.thing.canoe-trade",
+        "at": [
+          3.6,
+          2.3
+        ],
+        "acts": [
+          {
+            "id": "deliveries",
+            "label": "place.makoko.act.deliveries",
+            "kind": "sheet",
+            "stages": "activity.canoe-deliveries"
+          },
+          {
+            "id": "fish-trade",
+            "label": "place.makoko.act.fish-trade",
+            "kind": "sheet",
+            "stages": "activity.start-fish-trade"
+          }
+        ]
       }
     ],
     "owned": [

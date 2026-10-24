@@ -169,6 +169,11 @@ export const uiCityText: Record<string, string> = {
   "city.thing.taxi": "Taxi",
   "city.act.laptop-fault": "The laptop",
   "city.act.side-gig": "Side gig",
+  // activity:capital-opens-own-work and activity:each-trade-climbs-its-ladder: the POS stand at the junction and the weekend repair table.
+  "city.thing.pos": "POS stand",
+  "city.act.pos-stand": "Set up a POS stand",
+  "city.thing.repairs": "Repair table",
+  "city.act.phone-repairs": "Weekend repairs",
   "city.act.look-phones": "Look",
   "city.act.look-phones.done": "Phones in their boxes, prices on paper.",
   "city.act.look-grocer": "Look",

@@ -460,6 +460,12 @@ export const placeText: Record<string, string> = {
   "place.makoko.act.racks.done": "Fish laid in rows over the fire. It sells by the basin.",
   // activity:fish-racks-at-makoko: the racks are work at hand for the child of the water.
   "place.makoko.act.racks-work": "Work the racks",
+  // activity:capital-opens-own-work: your own kiln beside the racks, and the canoes' trade and deliveries at the walk.
+  "place.makoko.thing.kiln": "Kiln",
+  "place.makoko.act.kiln": "Build your own kiln",
+  "place.makoko.thing.canoe-trade": "Work canoe",
+  "place.makoko.act.deliveries": "Canoe deliveries",
+  "place.makoko.act.fish-trade": "Trade fish",
   "place.makoko.thing.school": "School",
   "place.makoko.act.school": "Listen",
   "place.makoko.act.school.done": "A class saying the times table together, loud enough to hear across the water.",

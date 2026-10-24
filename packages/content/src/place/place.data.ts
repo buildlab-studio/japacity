@@ -306,7 +306,7 @@ const entries: PlaceEntry[] = [
   unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { spot: [6451, 3431], assets: "visa-centre", stages: ["activity.get-passport"], crowd: BUSY, traditionalBp: OFFICE }),
   // document:police-certificate-for-routes: no police station is built, so the police certificate is asked at the notice here.
   unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { spot: [6428, 3422], stages: ["activity.apply-for-visa", "activity.apply-uk-care", "activity.apply-uk-talent", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
-  unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { spot: [6598, 3352], stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { spot: [6598, 3352], stages: ["activity.sit-english-test", "activity.study-english", "setpiece.ican-exam"], crowd: QUIET, traditionalBp: OFFICE }),
   // The staff nurse's job is on the clinic's notice, where a nurse from sixteen takes her first step (prologue:archetype-presets-answers).
   // activity:waiting-months-build-profile: the nurse's certification on the notice, its exam sat on the chairs.
   unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { spot: [6596, 3348], stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse", "activity.nurse-certification", "setpiece.nurse-exam"], crowd: QUIET, traditionalBp: OFFICE }),
