@@ -21,8 +21,12 @@ function twoOffers() {
   const game = abroadGame();
   // Decision 0013: in the recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
   // would take its student status, and the shop job with it, before an offer comes. So each month's pound dues are
-  // covered before it hunts, and it stays a student who may work part time.
+  // covered before it hunts, and it stays a student who may work part time. The December visit opens within the
+  // months of the hunt; it is answered by staying, so the hunt goes on.
   for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) {
+    for (let question = game.view().setpiece?.question; question !== undefined && question !== null; question = game.view().setpiece?.question) {
+      game.accept({ type: "setpiece/answer", question: question.id, answer: question.allowed[0]! });
+    }
     setPockets(game, { GBP: game.view().obligations.reduce((sum, owed) => sum + owed.due, 0) });
     game.endTurn([{ activity: HUNT, param: SHOP }]);
   }

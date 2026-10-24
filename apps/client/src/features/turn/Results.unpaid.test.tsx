@@ -122,12 +122,16 @@ describe("a hunt's answer on the results", () => {
     expect(said).toContain(`${formatMoney(pay.amount, pay.currency)} a month`);
   });
 
-  test("[world:month-end-results-sheet] [wallet:view-carries-month-pay] given a job abroad under the tax line, whose pay content gives a year, when its pay a month is read from the view, then it is the year's pay over twelve", () => {
+  test("[world:month-end-results-sheet] [wallet:view-carries-month-pay] [abroad-money:salary-abroad-taxed-locally] given a job abroad above the tax line, whose pay content gives a year, when its pay a month is read from the view, then it is the year's pay over twelve less the month's tax on the part above the line", () => {
     // wallet:view-carries-month-pay: the figure is the view's, the job held through the engine.
     const year = content.activity["activity.job-uk-retail-part"]?.pay?.amount;
     expect(typeof year).toBe("number");
+    const { taxFreeLine, taxBp } = content.country["country.uk"]!;
+    expect(year as number).toBeGreaterThan(taxFreeLine);
+    const tax = Math.floor(Math.floor(((year as number) - taxFreeLine) * taxBp / 10_000) / 12);
+    expect(tax).toBeGreaterThan(0);
     const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);
-    expect(monthlyPayOf(view, "activity.job-uk-retail-part")).toEqual({ currency: "GBP", amount: Math.floor((year as number) / 12) });
+    expect(monthlyPayOf(view, "activity.job-uk-retail-part")).toEqual({ currency: "GBP", amount: Math.floor((year as number) / 12) - tax });
   });
 });
 
