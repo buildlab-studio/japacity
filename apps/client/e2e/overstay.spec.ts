@@ -18,7 +18,7 @@ test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile
 
 /** The graduate's second life a few months into London on a sponsored job, as london.spec.ts opens it. */
 const GRADUATE_IN_LONDON = 392;
-/** The months played after the job is left: the clock's month, the grace's two, and one past it. */
+/** The months played after the job is left: through the clock and the grace's one month to past it. */
 const MONTHS_AFTER = 4;
 
 function say(key: string, params: Record<string, string | number> = {}): string {
