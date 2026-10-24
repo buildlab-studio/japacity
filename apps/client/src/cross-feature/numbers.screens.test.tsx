@@ -47,11 +47,11 @@ describe("no quality's figure on the screens", () => {
     expect(steps.flatMap(figures)).toEqual([]);
   });
 
-  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given the graduate at the hub's board, when its rows are read, then no row says a quality's figure, and weekend tutoring's pay rises once the life's tech is good", async () => {
+  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given the graduate at the hub's board, when its rows are read, then no row says a quality's figure, and home lessons' pay rises once the life's English is excellent and two years are taught", async () => {
     await renderWithView(<ActivityPicker only={[HUNT]} />, newGame("scenario.graduate").view());
     const rows = [...document.querySelectorAll("[data-job]")];
     expect(rows.length).toBeGreaterThan(1);
     expect(rows.flatMap((row) => figures(row.textContent ?? ""))).toEqual([]);
-    expect(document.querySelector(`[data-job="${TUTORING}"] [data-lift]`)?.textContent).toBe("₦90,000 once your tech is good");
+    expect(document.querySelector(`[data-job="${TUTORING}"] [data-lift]`)?.textContent).toBe("₦120,000 once your English is excellent and you have two years in the trade");
   });
 });

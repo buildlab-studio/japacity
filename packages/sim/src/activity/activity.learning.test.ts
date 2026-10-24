@@ -120,7 +120,7 @@ describe("the day's coding class", () => {
     }
   });
 
-  test("[activity:study-days-capped] given two days taken now, when the class also stands in a slot, then the slot runs one day more and no more", () => {
+  test("[activity:study-days-capped] [activity:acts-may-repeat-in-month] given two days taken now, when the class also stands in a slot, then the slot runs one day more and no more", () => {
     const game = learner();
     setTo(game, TECH, 10);
     game.accept({ type: "activity/now", activity: LEARN_TECH, param: null });
