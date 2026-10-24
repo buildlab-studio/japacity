@@ -1101,6 +1101,12 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
   if (cash > due * 2 + 10000000) {
     commands.push({ type: "wallet/move", currency: "NGN", amount: Math.min(SAFE_CASH_MOVE, cash - due * 2), to: "bank" });
   }
+  // Home with pounds left over from abroad and the naira under the broke line: pounds are changed back to naira.
+  const floor = BROKE_BELOW + due;
+  if (naira(view) < floor && view.pockets.GBP.bank > 0) {
+    const pence = Math.min(view.pockets.GBP.bank, mulDiv(floor - naira(view), 105, view.rates.GBP.official) + 100);
+    commands.push({ type: "wallet/convert", from: "GBP", to: "NGN", amount: pence, via: "bank" });
+  }
   // Paying ahead on a loan whose next charge is more than the pockets hold.
   for (const owed of view.obligations) {
     if (owed.entry === "obligation.quick-loan" && naira(view) >= owed.outstanding + due && !habits.takesLoans) {
@@ -1269,6 +1275,10 @@ function abroadMoney(view: PlayerView, content: Content, habits: Habits, currenc
   const commands: Loose[] = [];
   const pocket = view.pockets[currency];
   const dues = monthlyDueIn(view, content, currency);
+  // Naira left in cash at home is put in the bank, where the change abroad can reach it.
+  if (view.pockets.NGN.cash > 10000000 && view.pockets.NGN.bank < mulDiv(dues, view.rates[currency].official, 100)) {
+    commands.push({ type: "wallet/move", currency: "NGN", amount: Math.min(SAFE_CASH_MOVE, view.pockets.NGN.cash), to: "bank" });
+  }
   commands.push(...coverDues(view, currency, dues));
   // Cash work pays into cash; the remittance and most fees read the bank pocket.
   if (pocket.cash > dues + 10000) commands.push({ type: "wallet/move", currency, amount: pocket.cash - dues, to: "bank" });

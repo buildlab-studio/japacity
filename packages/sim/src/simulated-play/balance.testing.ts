@@ -11,6 +11,7 @@ import { runLife, tradeOfJob } from "./players";
 const MASTERS: Id<"route"> = "route.uk-masters";
 const CARE: Id<"route"> = "route.uk-care";
 const TALENT: Id<"route"> = "route.uk-talent";
+const SKILLED: Id<"route"> = "route.uk-skilled";
 const CANADA: Id<"route"> = "route.canada-points";
 const GULF: Id<"route"> = "route.gulf-contract";
 
@@ -133,14 +134,23 @@ export interface BalanceRun {
 /** Answers a prologue card as an archetype's preset does, from content (prologue:archetype-presets-answers). */
 export type PresetAnswer = (preset: string, home: string, step: string, answers: readonly { id: string; allowed: boolean }[]) => string | null;
 
+/**
+ * Under the broke line: at home, offer.md's line, naira bank and cash under ₦150,000; abroad, where offer.md draws no line, all the
+ * life's money valued in the country's money at the official rates under one month of what falls due there.
+ */
 function isBroke(view: PlayerView, content: Content): boolean {
   if (view.place.where !== "abroad") return view.pockets.NGN.bank + view.pockets.NGN.cash < BROKE_BELOW;
   const country = view.place.country;
   const currency = country === null ? undefined : content.country[country]?.currency;
   if (currency === undefined || currency === "NGN") return false;
-  const pocket = view.pockets[currency];
+  const local = view.rates[currency].official;
+  const held = (["NGN", "GBP", "USD", "CAD", "AED", "EUR"] as const).reduce((sum, money) => {
+    const pocket = view.pockets[money];
+    const amount = pocket.bank + pocket.cash;
+    return sum + (money === currency ? amount : money === "NGN" ? mulDiv(amount, 100, local) : mulDiv(amount, view.rates[money].official, local));
+  }, 0);
   const due = view.obligations.reduce((sum, item) => sum + (content.obligation[item.entry]?.currency === currency ? item.due : 0), 0);
-  return pocket.bank + pocket.cash < due;
+  return held < due;
 }
 
 /** The fees a settled life abroad meets, read from the world's variables by country. */
@@ -166,8 +176,9 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
   const seed = `balance-${life.name}-${String(n)}`;
   const pivot = style === "free-pivot" || style === "paid-pivot";
   const tradeStyle = style === "trade-loyal" || pivot;
-  // A pivot works toward the developer's ways out as well as its trade's.
-  const routes = pivot ? [...new Set([...life.routes, CANADA, TALENT])] : life.routes;
+  // A pivot is a careful player (scenario:economy-meets-its-targets): it works the careful player's ways, Canada its plan as the developer's
+  // (design page 13 section 5), and takes no Gulf contract.
+  const routes = pivot ? [CANADA, MASTERS, CARE, SKILLED, TALENT] : life.routes;
   const run: BalanceRun = {
     life: life.name,
     band: life.band,
@@ -231,7 +242,9 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
     months: crash ? CRASH_MONTH : world === CALM_WORLD ? MONTHS : MONTHS + STUDENT_MONTHS,
     worldSeed: world,
     ...(tradeStyle
-      ? { play: { trade: life.trade, routes, plan: life.routes[0]!, ...(life.fallback === undefined ? {} : { fallback: life.fallback }), ...(life.pledgeMasters === true ? { pledgeMasters: true } : {}) } }
+      ? pivot
+        ? { play: { trade: life.trade, routes, plan: CANADA } }
+        : { play: { trade: life.trade, routes, plan: life.routes[0]!, ...(life.fallback === undefined ? {} : { fallback: life.fallback }), ...(life.pledgeMasters === true ? { pledgeMasters: true } : {}) } }
       : {}),
     ...(life.preset === null ? {} : { prologue: (step: string, answers: readonly { id: string; allowed: boolean }[]) => preset(life.preset!, life.home, step, answers) }),
     onEvents: (events, game) => {
