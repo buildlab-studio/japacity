@@ -968,6 +968,8 @@ function abroadMoney(view: PlayerView, content: Content, habits: Habits, currenc
   let keep = dues * (habits.bufferMonths + 1);
   if (habits.renews && status?.renew !== null && status?.renew !== undefined) keep += status.renew.fee + status.renew.surcharge;
   if (habits.renews && status !== null && status.settleMonths !== null) keep += varStart(content, "var.uk-settle-fee") + varStart(content, "var.uk-citizen-fee");
+  // status:graduate-visa-applied-for: from the month its cost shows, the Graduate visa's fee and surcharge are kept back.
+  if (habits.renews && status?.graduate !== null && status?.graduate !== undefined) keep += status.graduate.fee + status.graduate.surcharge;
   const fare = view.place.fareHome?.amount ?? 0;
   if (habits.keepsFareOnly) keep = 0;
   if (habits.homeWhenUnlawful) keep += fare;
@@ -1023,6 +1025,12 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
       if (command !== null) commands.push(command);
       continue;
     }
+    // abroad-money:missed-tuition-runs-in-stages: a student in arrears takes the university's plan when its fee can be paid.
+    if (offer.entry === "offer.fee-payment-plan") {
+      const command = chooseFirst(offer, ["agree"]);
+      if (command !== null) commands.push(command);
+      continue;
+    }
     const common = commonOffer(view, content, habits, offer);
     if (common !== undefined && common !== null) commands.push(common);
     else if (common === undefined) {
@@ -1030,6 +1038,8 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
       if (first !== undefined && offer.entry.startsWith("offer.sponsor-licence")) commands.push({ type: "offer/choose", offer: offer.id, choice: first.id });
     }
   }
+  // status:graduate-visa-applied-for: the course passed, the Graduate visa is applied for as soon as it can be paid, before any thought of home.
+  if (playable(view, "activity.apply-graduate")) commands.push({ type: "activity/now", activity: "activity.apply-graduate", param: null });
   if (goesHome(view, habits)) commands.push({ type: "return/home" });
   if (habits.keepsFareOnly) commands.push(...spendSavings(view));
   if (currency !== null) commands.push(...abroadMoney(view, content, habits, currency));
