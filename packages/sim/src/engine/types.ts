@@ -911,7 +911,7 @@ export interface StatusEntry {
   banMonths: number;
   detectBp: number;
   holdsPassport: boolean;
-  /** The overstayer's fields (status.md, "Entries: overstaying, country by country"), read on the overstayer only; missing reads as 0 or none. Months of grace after the lapse (status:grace-before-overstaying). */
+  /** The overstayer's fields (status.md, "Entries: overstaying, country by country"), read on the overstayer only; missing reads as 0 or none. Months of grace, the lapse's own month the first (status:grace-before-overstaying). */
   graceMonths?: number;
   /** Months a notice gives before removal (status:detection-gives-notice). */
   noticeMonths?: number;
