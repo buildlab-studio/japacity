@@ -84,14 +84,42 @@ function paperIn(state: State, document: Id<"document">): boolean {
   return held !== undefined && (held.state === "held" || held.state === "pending");
 }
 
+/** The papers of each checklist item that any one of several papers meets: the English, by the degree's statement or the test. */
+function paperChoices(read: ReadCtx, route: Id<"route">): Id<"document">[][] {
+  return (read.content.route[route]?.checklist ?? []).flatMap((item) => {
+    const { requirement } = item;
+    if (requirement.type !== "any" || requirement.of.length < 2) return [];
+    const papers = requirement.of.flatMap((option) => (option.type === "document/held" ? [option.document] : []));
+    return papers.length === requirement.of.length ? [papers] : [];
+  });
+}
+
+/**
+ * The one act a choice of papers counts (document:who-sits-the-english-test): none once any of its papers is held or on its way; else the
+ * cheapest act at home asking for one of them whose qualities the life meets (the statement asks a degree), else the cheapest.
+ */
+function chosenAct(read: ReadCtx, papers: readonly Id<"document">[]): Id<"activity"> | null {
+  if (papers.some((paper) => paperIn(read.state, paper))) return null;
+  const acts = Object.values(read.content.activity).filter(
+    (entry): entry is ActivityEntry => entry !== undefined && entry.cost.length > 0 && entry.where !== "abroad" && entry.effects.some((effect) => effect.type === "document/request" && papers.includes(effect.document)),
+  );
+  const open = acts.filter((entry) => entry.requires.every((need) => need.type !== "quality/min" || check(read, need).met));
+  let best: ActivityEntry | null = null;
+  for (const entry of open.length > 0 ? open : acts) if (best === null || actCost(read, entry) < actCost(read, best)) best = entry;
+  return best?.id ?? null;
+}
+
 /**
  * The fees still ahead on a way, in kobo, in every money: each act at home with a price that sends its application or asks
  * for a paper, among the acts that count toward it and those asking for a paper its checklist wants, less what is done
- * (the application sent, the paper held or on its way). An act done over and over (a day's study) is the living, not a fee.
+ * (the application sent, the paper held or on its way). An item any of several papers meets counts one act, the cheaper
+ * that applies. An act done over and over (a day's study) is the living, not a fee.
  */
 function feesAhead(read: ReadCtx, route: Id<"route">, state: RouteStateName): number {
   const sent = !BEFORE_APPLYING.includes(state);
   const papers = papersAsked(read, route);
+  // A paper of a choice counts by one act alone, the cheaper that applies: never the degree's statement and the test together.
+  const choices = paperChoices(read, route).map((choice) => ({ papers: choice, act: chosenAct(read, choice) }));
   let sum = 0;
   for (const entry of Object.values(read.content.activity)) {
     if (entry === undefined || entry.cost.length === 0 || entry.repeat === true || entry.where === "abroad") continue;
@@ -101,6 +129,7 @@ function feesAhead(read: ReadCtx, route: Id<"route">, state: RouteStateName): nu
     if (!counts && !asked.some((paper) => papers.includes(paper))) continue;
     if (applies && sent) continue;
     if (asked.length > 0 && asked.some((paper) => paperIn(read.state, paper))) continue;
+    if (choices.some((choice) => choice.act !== entry.id && asked.some((paper) => choice.papers.includes(paper)))) continue;
     sum += actCost(read, entry);
   }
   return sum;

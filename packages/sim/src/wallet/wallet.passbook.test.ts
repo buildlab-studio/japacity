@@ -103,15 +103,30 @@ describe("[wallet:passbook-against-plan-cost] the money held for the road and th
     expect(passbook(game).target?.route).toBe(CARE_ROUTE);
   });
 
-  test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given the nurse whose plan is health care, when the passbook is read, then the target is every paper the life still needs, the visa's fee and the flight, all in naira", () => {
+  test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] [document:who-sits-the-english-test] given the nurse whose plan is health care, when the passbook is read, then the target is every paper the life still needs, the English counted once by the cheaper way, the visa's fee and the flight, all in naira", () => {
     const game = planOn(nurse(), CARE_ROUTE);
     const view = game.view();
     const target = passbook(game).target!;
-    // The life holds its passport and licence; the verification, the English (the degree's statement or the test, either of which the
-    // route takes, route-gates:sponsor-application-needs), the TB test, the police paper and the visa are ahead.
-    const fees = ["activity.request-verification", "activity.degree-english", "activity.sit-english-test", "activity.tb-test", "activity.get-police-certificate", "activity.apply-uk-care"].reduce((sum, act) => sum + priceOf(view, act), 0);
+    // The life holds its passport and licence; the verification, the English, the TB test, the police paper and the visa are ahead.
+    // The English is one way, the cheaper that applies: a graduate's degree statement, not the test as well
+    // (route-gates:sponsor-application-needs, document:who-sits-the-english-test).
+    expect(priceOf(view, "activity.degree-english")).toBeLessThan(priceOf(view, "activity.sit-english-test"));
+    const fees = ["activity.request-verification", "activity.degree-english", "activity.tb-test", "activity.get-police-certificate", "activity.apply-uk-care"].reduce((sum, act) => sum + priceOf(view, act), 0);
     const { flight } = content.tuning.route;
     expect(target).toEqual({ route: CARE_ROUTE, funds: 0, fees, flight: kobo(view, flight.amount as number, flight.currency), total: fees + kobo(view, flight.amount as number, flight.currency) });
+  });
+
+  test("[wallet:passbook-against-plan-cost] [document:who-sits-the-english-test] [document:degree-english-statement] given the care route's English, met by the degree's statement or the test, when the passbook is read, then a life with no degree counts the test alone, and once either paper is asked for neither is ahead", () => {
+    const game = planOn(nurse(), CARE_ROUTE);
+    const graduate = passbook(game).target!.fees;
+    const statement = priceOf(game.view(), "activity.degree-english");
+    const sitting = priceOf(game.view(), "activity.sit-english-test");
+    // Without the degree the statement is closed to the life, so the test is the English it needs.
+    applyEffects(game, [{ type: "quality/add", quality: "quality.education-level", amount: -1 }]);
+    expect(passbook(game).target!.fees).toBe(graduate - statement + sitting);
+    game.accept({ type: "activity/now", activity: "activity.sit-english-test", param: null });
+    expect(game.state.document["document.english-test"]?.state).toMatch(/pending|held/);
+    expect(passbook(game).target!.fees).toBe(graduate - statement);
   });
 
   test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given the nurse's plan, when a paper is asked for, then its fee is no longer ahead", () => {
@@ -300,7 +315,9 @@ describe("[wallet:roads-to-the-target] the roads to it", () => {
     const lend = (game.state.quality["quality.family-means"] ?? 0) * 5000000;
     const family = road(game, "family")!;
     const book = passbook(game);
-    expect(family).toMatchObject({ via: "activity.ask-family-loan", state: "open", lump: lend, months: divCeil(book.target!.total - book.held - lend, book.pace!) });
+    // The months are the gap left after the lump over the pace, and none once the lump covers the gap (wallet:saving-pace).
+    const left = book.target!.total - book.held - lend;
+    expect(family).toMatchObject({ via: "activity.ask-family-loan", state: "open", lump: lend, months: left <= 0 ? 0 : divCeil(left, book.pace!) });
     game.accept({ type: "activity/now", activity: "activity.ask-family-loan", param: null });
     const instance = Object.entries(game.state.offer.items).find(([, item]) => item.entry === "offer.family-loan")?.[0];
     expect(road(game, "family")).toMatchObject({ via: "offer.family-loan", state: "open", offer: instance, lump: lend });
