@@ -21,7 +21,7 @@ An obligation is anything owed on a schedule: upkeep, money sent home, a loan, f
 
 **obligation:missed-interest-recalls-held-funds** If a month's interest on held funds is missed, the lender takes the locked principal back at once, the obligation closes, and its `onMiss` effects apply.
 
-**obligation:paying-down-obligations** `obligation/pay` on a loan takes any amount up to what is owed, with the reason `loan-repay`. On held funds the amount must be the whole principal: the locked money goes back to the lender and the obligation closes. A car follows car:missed-payments-take-the-car and car:car-handed-back-after-half, and a sponsor's undertaking undertaking:missed-charges-lead-to-default. On anything else, the guarantee held as an undertaking included, it is rejected with `not-legal`.
+**obligation:paying-down-obligations** `obligation/pay` on a loan takes any amount up to what is owed, with the reason `loan-repay`. On held funds the amount must be the whole principal: the locked money goes back to the lender and the obligation closes. On tuition the amount must be every charge missed and not yet paid, under `fee-school`: it clears the arrears and what they set in motion (abroad-money:missed-tuition-runs-in-stages). A car follows car:missed-payments-take-the-car and car:car-handed-back-after-half, and a sponsor's undertaking undertaking:missed-charges-lead-to-default. On anything else, the guarantee held as an undertaking included, it is rejected with `not-legal`.
 
 **obligation:closed-obligation-removed** A closed obligation is removed from the state.
 
@@ -50,11 +50,14 @@ An obligation is anything owed on a schedule: upkeep, money sent home, a loan, f
 | `obligation.group-loan` | Group loan | | 1.7% flat (15% over 9 months) | 9 months | 2 | the ladder in obligation:group-covers-misses-at-cost | seize: tech -10, portfolio -1; standing -15; credit mark +1 |
 | `obligation.ajo` | Savings circle (`luck.md`) | ₦20,000 | | 10 months | 0 | closes with standing -6 | |
 | `obligation.upkeep-compound` | Upkeep (home:compound-room-is-a-home) | ₦50,000 | | | | Standing -3, wellbeing -5 | |
-| `obligation.rent-compound` | Rent (home:compound-room-is-a-home), every 12 months, prepaid (obligation:prepaid-entries-skip-first-charge) | ₦400,000 a year | | | 2 | Standing -3, wellbeing -5 | closes it; the character goes back to the family house (home:rent-default-returns-to-family) |
+| `obligation.rent-compound` | Rent (home:compound-room-is-a-home), every 12 months, prepaid (obligation:prepaid-entries-skip-first-charge) | ₦350,000 a year | | | 2 | Standing -3, wellbeing -5 | closes it; the character goes back to the family house (home:rent-default-returns-to-family) |
+| `obligation.tech-diploma` | Course fee, as `activity.masters-at-home`'s (activity:paid-tech-courses) | ₦40,000 | | 12 months | | that month gives no gain and does not count | |
+| `obligation.bootcamp` | Loan, owed after a developer job (activity:bootcamp-paid-after-a-job) | | 0 | 36 months | 2 | Standing -4 | Standing -10, credit mark +1 |
+| `obligation.education-loan` | Loan in pounds, paid to the school (route:education-loan-pays-the-school) | nothing while studying, then from the repayment's start | 0.8% flat | 180 months | 2 | Standing -4 | Standing -10, credit mark +1 |
 
 Upkeep is food, transport, phone and what you give at home. Its reason is `upkeep`. Support's reason is `family`.
 
-The loan rates, against `../research/09-uk-masters-numbers.md`, the Borrowing section: a large bank's salary advance is 2% a month flat, the game's figure; the quick loan's 20% a month sits among the loan apps' 2.5% to 36% a month, well above the bank's own quick loan at 2.95%; held funds at 5% a month are the microfinance proof-of-funds loans' rate. The agent's 3% is a working value.
+The loan rates, against `../research/09-uk-masters-numbers.md`, the Borrowing section: a large bank's salary advance is 2% a month flat, the game's figure; the quick loan's 20% a month sits among the loan apps' 2.5% to 36% a month, well above the bank's own quick loan at 2.95%; held funds at 5% a month are the microfinance proof-of-funds loans' rate. The agent's 3% is a working value. The education loan's 0.8% a month flat on what was lent, over 180 months, charges about £149 a month on £11,000, against about £143 for a loan at the lender's representative 13.48% a year over the same fifteen years (factor about 1.04; route.md, Numbers).
 
 ## Numbers for the group loan
 

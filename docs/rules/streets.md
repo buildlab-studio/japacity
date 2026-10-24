@@ -9,9 +9,9 @@ Each of these places has something real to do. Every act here is a thing in the 
 
 **streets:buy-phone-at-computer-village** A phone can be bought at Computer Village: `activity.buy-phone`, slot `none` (a purchase done now, activity:now-acts-and-month-acts), cost `tuning.street.phonePrice` from the naira, by its size (decision 0014: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it), staged at `place.computer-village`. It lifts `quality.wellbeing` by `tuning.street.phoneMood` and `quality.network` by `tuning.street.phoneNetwork`. It can be bought again; each is a new phone.
 
-**streets:phone-sales-job** Selling phones is a job: `activity.job-phone-sales`, a main-slot job hunted and held like any other (`activity.md`), pay `tuning.street.salesPay` a month, hire chance `tuning.street.salesHireBp`, needing `quality.education-level` 2 or more, staged at `place.computer-village`. Each month held raises `quality.tech` by 1 and lowers `quality.wellbeing` by 1.
+**streets:phone-sales-job** Selling phones is a job: `activity.job-phone-sales`, a main-slot job hunted and held like any other (`activity.md`), pay `tuning.street.salesPay` a month, hire chance `tuning.street.salesHireBp`, needing `quality.education-level` 2 or more, staged at `place.computer-village`. Each month held raises `quality.tech` by 1 and lowers `quality.wellbeing` by 1. It is the first rung of the shop's ladder, with the shop supervisor above it and your own stall at the top, and its side job is weekend phone repairs at Computer Village (`activity.phone-repairs`, tech 20; activity:each-trade-climbs-its-ladder); its employer is `informal` (activity:naira-pay-reviewed-yearly).
 
-**streets:apprentice-learns-repair** The trade can be learned as an apprentice: `activity.apprentice-repair`, a free slot, no pay, staged at `place.computer-village`. Each month raises `quality.tech` by `tuning.street.apprenticeTech` and lowers `quality.wellbeing` by 1. It is allowed while `quality.tech` is under `tuning.street.apprenticeUntil`.
+**streets:apprentice-learns-repair** The trade can be learned as an apprentice: `activity.apprentice-repair`, a free slot, no pay, staged at `place.computer-village`. Each month raises `quality.tech` by `tuning.street.apprenticeTech` (2) and lowers `quality.wellbeing` by 1. It is allowed while `quality.tech` is under `tuning.street.apprenticeUntil` (30): enough for a hardware trade and the repairs side job, never a free road to the developer's jobs, which the bands of quality:skill-bands-slow-gains keep for study and work.
 
 ## Rules: Third Mainland Bridge
 
@@ -53,7 +53,7 @@ Every figure here is a working value.
 |---|---|---|---|
 | A phone | ₦45,000; mood +6; network +3 | streets:buy-phone-at-computer-village | `tuning.street.phonePrice`, `phoneMood`, `phoneNetwork` |
 | Phone sales | ₦70,000 a month; hire 60%; tech +1, mood -1 a month | streets:phone-sales-job | `tuning.street.salesPay`, `salesHireBp` 6000 |
-| Apprentice | tech +4 a month, mood -1, until tech 60 | streets:apprentice-learns-repair | `tuning.street.apprenticeTech`, `apprenticeUntil` |
+| Apprentice | tech +2 a month, mood -1, until tech 30. Real: employed phone technicians earn ₦50,000 to ₦150,000 full time (Profolio salary guide, read 24 Oct 2026), a hardware trade, not a developer's | streets:apprentice-learns-repair | `tuning.street.apprenticeTech` 2, `apprenticeUntil` 30 |
 | Sleeping rough | free; rest as an empty slot; theft 20% of ₦5,000; mosquitoes 35%, run-down +1; a bad night 30%, mood -8 | streets:sleeping-under-the-bridge | `tuning.street.theftBp` 2000, `theftNaira`, `mosquitoBp` 3500, `harassBp` 3000, `harassMood` |
 | Shopping abroad | £20 or AED 80; mood +5 | streets:street-shopping-abroad | `tuning.street.shoppingGbp` 2000, `shoppingAed` 8000, `shoppingMood` |
 | Something interesting | 15% a month; mood +4 | streets:street-finds-abroad | `tuning.street.findBp` 1500, `findMood` |

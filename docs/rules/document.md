@@ -27,6 +27,8 @@ A document is something the character can show: a passport, a test result, a cer
 
 **document:paper-on-its-way** A paper is on its way while a copy is being made: pending, or held with a new copy requested (document:one-pending-copy). The view carries each paper's `onItsWay`, the month that copy is due, or null when none is being made, and every screen that says a paper is coming reads it (the papers list, Japa and its reminders, the coming list). A held paper on its way is not warned of as expiring soon: its new copy is coming. The phone's Papers app (world:phone-holds-what-phones-hold) is the papers list, and it says a paper on its way the same way for a first copy and a renewal. The requests that are a call or a message (the transcript, the credential assessment, the council's verification, the licence's renewal, the degree's English statement) are made from Papers; the passport is asked for at the passport office in Ikoyi; the other papers at their places. A paper issued, run out, made void, requested or brought forward at the month's end is told on the phone (world:month-passes-as-lived).
 
+**document:trade-papers** The papers of a trade, each the key to a rung (activity:each-trade-climbs-its-ladder). `document.trcn`, the teaching registration, is requested from the Papers app by `activity.get-trcn` (a bachelor's degree; ₦25,000 under `fee-document`; a wait of 2 months) and never expires; the senior teacher's rung asks it. `document.ican`, the chartered exams, is earned by `activity.ican-exams`, a month-act holding one slot for 18 months (a bachelor's degree): at its 6th, 12th and 18th month a sitting, each paid on the day (₦50,000 under `fee-test`) and sat as a short quiz set piece of three questions from the trade's facts with a pass at two, as the nurse's certification is (activity:waiting-months-build-profile); a failed sitting is sat again six months on, and a sitting that cannot be paid waits for the next. Passing the third requests `document.ican` with no wait; it never expires, the chartered accountant's rung asks it, and it adds nothing to Canada's points table, which reads degrees. `document.gift-deed` is the family gift's paper (route-gates:family-gift-counts-with-deed).
+
 ## Entries
 
 | Id | Name | Wait | Valid for | Value |
@@ -39,8 +41,10 @@ A document is something the character can show: a passport, a test result, a cer
 | `document.cas` | Confirmation from the university | Granted by the route | For good | |
 | `document.police-certificate` | Police character certificate | 1 to 3 months (`activity.get-police-certificate`, ₦5,000, document:police-certificate-for-routes) | 12 months | |
 | `document.nurse-certificate` | Nursing certification | 2 months (`activity.nurse-certification`, activity:waiting-months-build-profile) | For good | |
+| `document.trcn` | Teaching registration | 2 months (`activity.get-trcn`, ₦25,000, document:trade-papers) | For good | |
+| `document.ican` | Chartered accountant | None, on passing the third sitting (`activity.ican-exams`, document:trade-papers) | For good | |
 
-The other eight documents are entered on the pages of the routes and things that ask for them: `document.eca`, `document.endorsement`, `document.medical`, `document.nursing-licence` and `document.nmcn-verification` in `route-gates.md`, `document.nmc-pin` in `ladders.md`, and `document.home-licence` and `document.uk-licence` in `car.md`. All sixteen are in `packages/content/src/document/document.data.ts`.
+The other nine documents are entered on the pages of the routes and things that ask for them: `document.eca`, `document.endorsement`, `document.medical`, `document.nursing-licence`, `document.nmcn-verification` and `document.gift-deed` in `route-gates.md`, `document.nmc-pin` in `ladders.md`, and `document.home-licence` and `document.uk-licence` in `car.md`. All nineteen are in `packages/content/src/document/document.data.ts`.
 
 ## Numbers
 
@@ -54,12 +58,19 @@ The other eight documents are entered on the pages of the routes and things that
 | The English test's fee | ₦295,000 | `activity.sit-english-test` cost 29500000 | IELTS for UKVI from 15 Jul 2025 (IELTS on computer ₦279,500), British Council Nigeria (`../research/01-japa-journey.md`); the real fee, factor 1.0 |
 | The degree's English statement | ₦150,000 and 1 month | `activity.degree-english` cost 15000000; `document.degree-english` wait [1, 1] | Real: Ecctis, £252 (about ₦458,800) and 20 working days (Gherson, 7 May 2025); the game charges about a third of the fee and keeps the wait |
 
+| Teaching registration | ₦25,000 and 2 months | `activity.get-trcn` cost 2500000; `document.trcn` wait [2, 2] | Working value; the real fee was not found (Not verified) |
+| The chartered exams | ₦50,000 a sitting, three sittings 6 months apart, a pass at two of three questions | `activity.ican-exams` | Working value; no official 2026 schedule was found, and unofficial figures give ₦8,500 to ₦9,800 a paper plus ₦15,000 registration (Not verified) |
+
 English 60 gives band 6.0 on an even draw. English 72 gives 6.5. English 86 gives 7.0.
 
 ## Sources
 
 - [British Council Nigeria: IELTS questions](https://www.britishcouncil.org.ng/exam/ielts/book-test/ielts-faqs-frequently-asked-questions), the fees from 15 Jul 2025, as `../research/01-japa-journey.md` gives them
 - [Gherson: Ecctis update, new qualification and language service and higher fees, 7 May 2025](https://www.gherson.com/blog/ecctis-update-new-qualification-and-language-service-and-higher-fees)
+
+## Not verified
+
+- The teaching registration's fee and wait, and the chartered exams' fees and schedule, are working values: no official figure for 2026 was found.
 
 ## Effects and requirements this kind handles
 
