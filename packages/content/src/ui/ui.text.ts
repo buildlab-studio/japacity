@@ -950,6 +950,11 @@ export const uiText: Record<string, string> = {
   "ui.status.no-settle": "Time on this status does not count toward settling.",
   "ui.status.next": "The way up:",
   "ui.status.renew-title": "Renew for {months} months",
+  // status:graduate-visa-applied-for: what the Graduate application costs, from course month 9, and the ask to apply.
+  "ui.status.graduate-fees": "Fee {fee}, surcharge {surcharge}: {total} in all",
+  "ui.status.graduate-later": "You can apply once the course is passed, from course month 13. Save for it from the full-time months.",
+  "ui.status.graduate-apply": "Apply for the Graduate visa",
+  "ui.status.graduate-yes": "Apply and pay {total}",
   "ui.status.renew-fees": "Fee {fee}, surcharge {surcharge}: {total} in all",
   "ui.status.renew-naira": "What this currency cannot cover is bought from naira: about {naira} with the bank's charge.",
   "ui.status.renew-short": "Short by {short} in the naira bank.",

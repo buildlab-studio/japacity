@@ -67,6 +67,17 @@ export function nextTakenAhead(owed: Owed, month: number): number | null {
   return null;
 }
 
+/**
+ * A bill's line: a loan whose charges wait says so and when they start (route:education-loan-pays-the-school); a bill with words of its own
+ * says what it is (the bootcamp's fee, activity:bootcamp-paid-after-a-job); else when it is taken, unless it is paid from the slip.
+ */
+function billLine(owed: Owed, pay: ReturnType<typeof payNow>, month: number): string | null {
+  if (owed.deferred !== undefined) return say("phone.bills.deferred");
+  const why = `phone.bills.why.${owed.entry}`;
+  if (hasWords(why)) return say(why);
+  return pay === null ? (nextTaken(owed, month) ?? say("phone.bills.auto")) : null;
+}
+
 // The notice words are content's: `<obligation id>.notice` with `{amount}` is the key read here.
 /** The notice as the phone shows it: the story's words for the bill when content has them. */
 function noticeWords(owed: Owed, currency: Currency): string {
@@ -129,12 +140,12 @@ export function Bills() {
               const pay = view.ended ? null : payNow(bill);
               const kind = content.obligation[bill.entry]?.type;
               return (
-                <li key={bill.id} data-bill={bill.id} data-due={bill.due > 0 ? "true" : "false"}>
+                <li key={bill.id} data-bill={bill.id} data-bill-entry={bill.entry} data-due={bill.due > 0 ? "true" : "false"}>
                   <PicCard
                     pic="phone.bill"
                     tint={bill.missed > 0 ? "food" : "plain"}
                     title={bill.due > 0 ? noticeWords(bill, currency) : nameOf(bill.entry)}
-                    line={pay === null ? (nextTaken(bill, view.month) ?? say("phone.bills.auto")) : null}
+                    line={billLine(bill, pay, view.month)}
                     chips={
                       bill.outstanding <= 0 && bill.missed <= 0 && bill.state === "active" ? null : (
                         <>

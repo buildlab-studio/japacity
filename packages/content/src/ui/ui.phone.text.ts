@@ -161,6 +161,10 @@ export const uiPhoneText: Record<string, string> = {
   "phone.papers.notice.voided": "Your {paper} is no longer valid.",
 
   "phone.bills.title": "What you owe",
+  // route:education-loan-pays-the-school: the loan's charges wait on the course.
+  "phone.bills.deferred": "Nothing to pay while you study. Repayments start the month after your Graduate visa, or after the course ends without it.",
+  // activity:bootcamp-paid-after-a-job: the bootcamp's fee, owed from the first developer job.
+  "phone.bills.why.obligation.bootcamp": "The bootcamp's fee, owed now a developer job is yours. No interest.",
   "phone.jobs.held": "Your job",
   // The raise from being noticed, and when it landed: "Raised last month" (activity:waiting-months-build-profile).
   "phone.jobs.raised": "Raised {when}",
