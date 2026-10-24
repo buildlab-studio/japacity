@@ -280,8 +280,11 @@ export type Requirement =
   | { type: "chapter/plan"; route: Id<"route"> }
   // whole life
   | { type: "place/is"; where: Where; country?: Id<"country"> }
-  /** With `grace`, the status is also in an overstay's grace (status:grace-allows-in-country-applications). */
-  | { type: "status/is"; statuses: Id<"status">[]; grace?: true }
+  /**
+   * With `grace`, the status is also in an overstay's grace (status:grace-allows-in-country-applications); with `withdrawn`, it is a withdrawn
+   * student's, in the months its permission is cut to (status:course-passed-or-withdrawn).
+   */
+  | { type: "status/is"; statuses: Id<"status">[]; grace?: true; withdrawn?: true }
   /** A status is held whose clock is running and under this many months. */
   | { type: "status/clock-under"; months: number }
   /** The credit mark in the current country. */
@@ -393,6 +396,10 @@ export type Effect =
   | { type: "route/withdraw"; route: Id<"route"> }
   /** Permission in the country is lost: every route into it that was flown is known again (route:lapsed-route-known-again). */
   | { type: "route/lapse"; country: Id<"country"> }
+  /** A student in the country is withdrawn: the study route flown is known again, its course set aside (status:course-passed-or-withdrawn). */
+  | { type: "route/set-aside"; country: Id<"country"> }
+  /** A withdrawn student is reinstated: the course set aside is the route's again, and it is departed (status:course-passed-or-withdrawn). */
+  | { type: "route/reinstate"; country: Id<"country"> }
   /** The application just sent on this route, resting on this bond, opens the genuineness interview (interview:partner-application-opens-interview, interview:thin-record-triggers-interview). */
   | { type: "interview/open"; route: Id<"route">; bond: string }
   /** The interview open for this route closes unscored (person:joint-collapses-with-bond, interview:players-answer-at-own-pace). */
@@ -1950,6 +1957,23 @@ export interface RouteState {
   authorisedMonth?: number;
   /** The month the route was last granted (chapter.md, `chapter.secure`). Missing: a grant before the month was kept, read as after any return. */
   grantedMonth?: number;
+  /**
+   * status:course-passed-or-withdrawn: the course a withdrawn student flew for, set aside while the route is known again in the cut months, so paying
+   * everything owed puts the route back as it was. `open` turns false once a new school is applied to or paid on the route, which shuts reinstatement.
+   * Missing: nothing set aside.
+   */
+  withdrawn?: SetAside;
+}
+
+/** A withdrawn student's course as the route held it at the flight (status:course-passed-or-withdrawn). */
+export interface SetAside {
+  open: boolean;
+  knownMonth: number | null;
+  schools: Record<Id<"school">, SchoolApplication>;
+  school: Id<"school"> | null;
+  depositPaid: number;
+  funds: RouteState["funds"];
+  visa: VisaApplication | null;
 }
 
 /** State the gates keep beyond the study fields: docs/rules/route-gates.md. */

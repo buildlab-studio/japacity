@@ -562,9 +562,40 @@ function lapse(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/lapse") throw new Error(`route/lapse cannot carry out ${effect.type}.`);
   const events: BaseEvent[] = [];
   for (const entry of Object.values(ctx.content.route)) {
-    if (entry.country !== effect.country || routeOf(ctx.state, entry.id).state !== "departed") continue;
+    const held = routeOf(ctx.state, entry.id);
+    // A withdrawn student's course set aside goes with the permission (status:course-passed-or-withdrawn).
+    if (entry.country !== effect.country || (held.state !== "departed" && held.withdrawn === undefined)) continue;
     events.push(...record(ctx, { type: "route/lapsed", route: entry.id }));
-    if (entry.gate === "study") ctx.apply([{ type: "document/void", document: CAS }], cause);
+    if (entry.gate === "study" && held.state === "departed") ctx.apply([{ type: "document/void", document: CAS }], cause);
+  }
+  return events;
+}
+
+/**
+ * status:course-passed-or-withdrawn, status:grace-allows-in-country-applications: a withdrawn student's study route is known again for the cut
+ * months, so a new school's offer and deposit may be sought from inside the country; its course is set aside, and the university's confirmation
+ * goes with it, so the old course cannot be applied on again.
+ */
+function setAside(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/set-aside") throw new Error(`route/set-aside cannot carry out ${effect.type}.`);
+  const events: BaseEvent[] = [];
+  for (const entry of Object.values(ctx.content.route)) {
+    if (entry.country !== effect.country || entry.gate !== "study" || routeOf(ctx.state, entry.id).state !== "departed") continue;
+    events.push(...record(ctx, { type: "route/set-aside", route: entry.id }));
+    ctx.apply([{ type: "document/void", document: CAS }], cause);
+  }
+  return events;
+}
+
+/** status:course-passed-or-withdrawn: paying everything owed puts the course set aside back, while no new school has been sought on the route. */
+function reinstate(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/reinstate") throw new Error(`route/reinstate cannot carry out ${effect.type}.`);
+  const events: BaseEvent[] = [];
+  for (const entry of Object.values(ctx.content.route)) {
+    const held = routeOf(ctx.state, entry.id);
+    if (entry.country !== effect.country || held.state !== "known" || held.withdrawn?.open !== true) continue;
+    events.push(...record(ctx, { type: "route/reinstated", route: entry.id }));
+    ctx.apply([{ type: "document/grant", document: CAS }], cause);
   }
   return events;
 }
@@ -962,6 +993,11 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
 // Evolve
 // ---------------------------------------------------------------------------
 
+/** status:course-passed-or-withdrawn: a new school sought on a route with a course set aside shuts its reinstatement. */
+function shutAside(held: RouteState): RouteState {
+  return held.withdrawn === undefined ? held : { ...held, withdrawn: { ...held.withdrawn, open: false } };
+}
+
 function withRoute(slice: RouteSlice, id: Id<"route">, change: (held: RouteState) => RouteState): RouteSlice {
   const held = slice[id];
   if (held === undefined) throw new Error(`The state holds no route ${id}.`);
@@ -984,11 +1020,17 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
         if (to === "known") return { ...held, state: to, knownMonth: month };
         // chapter.md, `chapter.secure`'s `second`: the month of the grant, read against the latest return home.
         if (to === "granted") return { ...held, state: to, grantedMonth: month };
+        if (to === "departed") {
+          // A new course flown in country leaves nothing to reinstate (status:course-passed-or-withdrawn).
+          const flown: RouteState = { ...held, state: to };
+          delete flown.withdrawn;
+          return flown;
+        }
         return { ...held, state: to };
       });
     case "route/school-applied":
       return withRoute(slice, event.route, (held) => ({
-        ...held,
+        ...shutAside(held),
         schools: { ...held.schools, [event.school]: { state: "pending", readyMonth: event.readyMonth, discount: 0 } },
       }));
     case "route/school-answered":
@@ -999,7 +1041,7 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
         return { ...held, schools: { ...held.schools, [event.school]: answered } };
       });
     case "route/deposit-paid":
-      return withRoute(slice, event.route, (held) => ({ ...held, school: event.school, depositPaid: event.amount }));
+      return withRoute(slice, event.route, (held) => ({ ...shutAside(held), school: event.school, depositPaid: event.amount }));
     case "route/funds-checked":
       return withRoute(slice, event.route, (held) => ({ ...held, funds: event.funds }));
     case "route/applied":
@@ -1046,18 +1088,45 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
     case "route/unbanned":
       return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "known", event.route), bannedUntil: null }));
     case "route/lapsed":
+      return withRoute(slice, event.route, (held) => {
+        const kept: RouteState = { ...held };
+        delete kept.withdrawn;
+        // A route known again by a withdrawal keeps what it has sought since; only the course set aside goes.
+        if (held.state !== "departed") return kept;
+        return {
+          ...kept,
+          state: arrow(held, "known", event.route),
+          knownMonth: month,
+          schools: {},
+          school: null,
+          depositPaid: 0,
+          funds: { ...held.funds, heldMonths: 0, covered: false },
+          visa: null,
+          gate: held.gate === null ? null : GATES[held.gate.gate].initial(),
+          secret: { sponsorFraud: null },
+        };
+      });
+    case "route/set-aside":
       return withRoute(slice, event.route, (held) => ({
         ...held,
         state: arrow(held, "known", event.route),
         knownMonth: month,
+        withdrawn: { open: true, knownMonth: held.knownMonth, schools: held.schools, school: held.school, depositPaid: held.depositPaid, funds: held.funds, visa: held.visa },
         schools: {},
         school: null,
         depositPaid: 0,
         funds: { ...held.funds, heldMonths: 0, covered: false },
         visa: null,
-        gate: held.gate === null ? null : GATES[held.gate.gate].initial(),
-        secret: { sponsorFraud: null },
       }));
+    case "route/reinstated":
+      return withRoute(slice, event.route, (held) => {
+        const aside = held.withdrawn;
+        // The one arrow from known to departed: a reinstatement, while the course set aside is still open.
+        if (held.state !== "known" || aside?.open !== true) throw new Error(`${event.route} has no course set aside to reinstate.`);
+        const kept: RouteState = { ...held };
+        delete kept.withdrawn;
+        return { ...kept, state: "departed", knownMonth: aside.knownMonth, schools: aside.schools, school: aside.school, depositPaid: aside.depositPaid, funds: aside.funds, visa: aside.visa };
+      });
     case "route/authorised":
       return withRoute(slice, event.route, (held) => ({ ...held, authorisedMonth: event.month }));
     case "route/withdrawn":
@@ -1182,6 +1251,10 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("withdrawn", { route: event.route }, "bad", true)];
     case "route/lapsed":
       return [line("lapsed", { route: event.route }, "plain")];
+    // The withdrawal and the reinstatement are told by the university's letters and the status.
+    case "route/set-aside":
+    case "route/reinstated":
+      return [];
     case "route/authorised":
       return [line("authorised", { route: event.route }, "plain")];
     case "route/sponsor-missed":
@@ -1321,6 +1394,8 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
     "route/lapse": lapse,
+    "route/set-aside": setAside,
+    "route/reinstate": reinstate,
     // Each gate's own effects (route-gates:route-runs-its-gate-steps): the sponsor's record, the road's steps.
     ...gateEffects(),
   },

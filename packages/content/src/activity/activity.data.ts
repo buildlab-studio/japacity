@@ -44,14 +44,16 @@ function held(document: Id<"document">, min?: number): Requirement {
 const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
 
 /**
- * status:grace-allows-in-country-applications: an application made from home, or from inside the UK in an overstay's grace, with no
- * flight. The act is `where: "any"` so it may stand abroad, and this keeps it to those two.
+ * status:grace-allows-in-country-applications: an application made from home, or from inside the UK in an overstay's grace or in the months a
+ * withdrawn student's permission is cut to (status:course-passed-or-withdrawn), with no flight. The act is `where: "any"` so it may stand
+ * abroad, and this keeps it to those.
  */
 const HOME_OR_UK_GRACE: Requirement = {
   type: "any",
   of: [
     { type: "place/is", where: "home" },
     { type: "status/is", statuses: ["status.uk-overstayer"], grace: true },
+    { type: "status/is", statuses: ["status.uk-student"], withdrawn: true },
   ],
 };
 /** route:visa-application-needs, route-gates:sponsor-application-needs: the TB certificate, not asked of an application made in the UK. */

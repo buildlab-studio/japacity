@@ -462,12 +462,14 @@ const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge
 
 /**
  * person:partner-route-in-country, status:grace-allows-in-country-applications: a family route applied for from home, or from inside its
- * country on the country's overstayer status (a partner at any time, a dependant only in the grace). The act is `where: "any"`
+ * country on the country's overstayer status (a partner at any time, a dependant only in the grace), or in the months a withdrawn
+ * student's permission is cut to (status:course-passed-or-withdrawn), where the country has a student status. The act is `where: "any"`
  * so it may stand abroad, and this keeps it to those.
  */
-function fromHomeOr(overstayer: Id<"status">, grace: boolean): Requirement {
+function fromHomeOr(overstayer: Id<"status">, grace: boolean, student?: Id<"status">): Requirement {
   const there: Requirement = grace ? { type: "status/is", statuses: [overstayer], grace: true } : { type: "status/is", statuses: [overstayer] };
-  return { type: "any", of: [{ type: "place/is", where: "home" }, there] };
+  const cut: Requirement[] = student === undefined ? [] : [{ type: "status/is", statuses: [student], withdrawn: true }];
+  return { type: "any", of: [{ type: "place/is", where: "home" }, there, ...cut] };
 }
 
 /** The TB certificate, not asked of an application made in the UK (person:partner-route-in-country). */
@@ -506,7 +508,7 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       { type: "any", of: [DEGREE, STATEMENT, held("document.english-test", 30)] },
       TB_UNLESS_IN_UK,
       held("document.passport"),
-      fromHomeOr("status.uk-overstayer", false),
+      fromHomeOr("status.uk-overstayer", false, "status.uk-student"),
     ],
     [{ currency: "GBP", amount: { var: "var.uk-partner-fee" }, reason: "fee-visa" }, SURCHARGE_YEAR, SURCHARGE_YEAR, SURCHARGE_YEAR],
   ),
@@ -529,7 +531,7 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(UK_DEPENDANT, "lead"),
       held("document.passport"),
       TB_UNLESS_IN_UK,
-      fromHomeOr("status.uk-overstayer", true),
+      fromHomeOr("status.uk-overstayer", true, "status.uk-student"),
       // The maintenance at one month end, or nothing required once the lead has a year in the UK (person:dependant-gate-needs).
       { type: "route/funds", route: UK_DEPENDANT, heldMonths: 1 },
     ],

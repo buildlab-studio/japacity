@@ -71,6 +71,10 @@ export type RouteKindEvent =
    * cleared, its refusals and record kept.
    */
   | { type: "route/lapsed"; route: Id<"route"> }
+  /** status:course-passed-or-withdrawn: the student is withdrawn, so the route flown is known again with its course set aside and the confirmation gone. */
+  | { type: "route/set-aside"; route: Id<"route"> }
+  /** status:course-passed-or-withdrawn: everything owed is paid, so the course set aside is the route's again and it is departed, the confirmation back. */
+  | { type: "route/reinstated"; route: Id<"route"> }
   /** route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs were paid with this application. */
   | { type: "route/authorised"; route: Id<"route">; month: number };
 

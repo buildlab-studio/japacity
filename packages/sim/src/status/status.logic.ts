@@ -412,18 +412,31 @@ function lose(ctx: Ctx): BaseEvent[] {
   return lapse(ctx, "lost");
 }
 
-/** status:course-passed-or-withdrawn: the sponsor reports the withdrawal and the permission is cut to end `curtailMonths` on; the work rule stays. */
+/**
+ * status:course-passed-or-withdrawn: the sponsor reports the withdrawal and the permission is cut to end `curtailMonths` on; the work rule stays.
+ * The study route flown is known again for the cut months, so a new school may be sought from inside (status:grace-allows-in-country-applications).
+ */
 function withdraw(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null || now.entry.course === undefined || now.held.withdrawn !== undefined) return [];
-  return record(ctx, [{ type: "status/withdrawn", expiresMonth: ctx.state.turn.month + ctx.content.tuning.status.curtailMonths, own: now.held.expiresMonth }]);
+  const events = record(ctx, [{ type: "status/withdrawn", expiresMonth: ctx.state.turn.month + ctx.content.tuning.status.curtailMonths, own: now.held.expiresMonth }]);
+  ctx.apply([{ type: "route/set-aside", country: now.entry.country }], { source: now.held.entry, param: null, terms: {} });
+  return events;
 }
 
-/** status:course-passed-or-withdrawn: everything owed paid inside the cut months reinstates the student with the status's own end. */
+/**
+ * status:course-passed-or-withdrawn: everything owed paid inside the cut months reinstates the student with the status's own end, and the course
+ * set aside is the route's again; once a new school has been applied to or paid on that route, the old course is gone and nothing reinstates.
+ */
 function reinstate(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null || now.held.withdrawn === undefined) return [];
-  return record(ctx, [{ type: "status/reinstated", expiresMonth: now.held.withdrawn.expiresMonth }]);
+  const country = now.entry.country;
+  const shut = Object.values(ctx.content.route).some((entry) => entry.country === country && ctx.state.route[entry.id]?.withdrawn?.open === false);
+  if (shut) return [];
+  const events = record(ctx, [{ type: "status/reinstated", expiresMonth: now.held.withdrawn.expiresMonth }]);
+  ctx.apply([{ type: "route/reinstate", country }], { source: now.held.entry, param: null, terms: {} });
+  return events;
 }
 
 /** status:lost-job-starts-clock; status:gulf-status-holds-passport lapses a status that goes with the job at once. */
@@ -764,7 +777,14 @@ function judgeIs(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "status/is") throw new Error(`status/is cannot judge ${requirement.type}.`);
   const current = read.state.status.current;
   // status:grace-allows-in-country-applications: with `grace`, the status must also be in an overstay's grace.
-  return { met: current !== null && requirement.statuses.includes(current.entry) && (requirement.grace !== true || inGrace(read)) };
+  // status:course-passed-or-withdrawn: with `withdrawn`, the status must be a withdrawn student's, in the months its permission is cut to.
+  return {
+    met:
+      current !== null &&
+      requirement.statuses.includes(current.entry) &&
+      (requirement.grace !== true || inGrace(read)) &&
+      (requirement.withdrawn !== true || current.withdrawn !== undefined),
+  };
 }
 
 function judgeClockUnder(read: ReadCtx, requirement: Requirement): RequirementResult {

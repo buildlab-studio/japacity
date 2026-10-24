@@ -100,6 +100,19 @@ describe("the partner route from inside the country", () => {
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY });
   });
 
+  test("[status:grace-allows-in-country-applications] [status:course-passed-or-withdrawn] given a UK student married to a settled partner, when the partner and dependant acts are read, then their in-country condition holds only once the student is withdrawn, in the months the permission is cut to", () => {
+    const game = flown(content);
+    joint(game, UK_PARTNER, "them", { stage: "married", facts: SETTLED_SPONSOR });
+    applyEffects(game, [{ type: "route/hear", route: UK_PARTNER, via: "test" }, { type: "route/look-into", route: UK_PARTNER }]);
+    const inCountry = (act: Id<"activity">) => content.activity[act]!.requires.find((requirement) => requirement.type === "any" && JSON.stringify(requirement).includes("status/is"))!;
+    const missing = (act: Id<"activity">): boolean => (game.view().activities.find((option) => option.id === act)?.missing ?? []).some((requirement) => JSON.stringify(requirement) === JSON.stringify(inCountry(act)));
+    const acts: Id<"activity">[] = [APPLY_UK, "activity.apply-uk-dependant"];
+    for (const act of acts) expect({ act, missing: missing(act) }).toEqual({ act, missing: true });
+    applyEffects(game, [{ type: "status/withdraw" }]);
+    expect(game.state.status.current?.withdrawn).toBeDefined();
+    for (const act of acts) expect({ act, missing: missing(act) }).toEqual({ act, missing: false });
+  });
+
   test("[person:partner-route-in-country] [status:grace-allows-in-country-applications] given a UK overstayer, when the dependant route's act is read, then its in-country condition holds in the grace and not after it", () => {
     const game = lapsedAndMarried(0);
     const inCountry = content.activity["activity.apply-uk-dependant"]!.requires.find((requirement) => requirement.type === "any" && JSON.stringify(requirement).includes("grace"))!;

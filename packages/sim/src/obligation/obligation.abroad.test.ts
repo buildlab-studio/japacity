@@ -12,7 +12,7 @@ import { eventsOf, readOf } from "../testing/read";
 import { carPaid, carTerms, carView } from "./obligation.logic";
 import { abroad, closeTypes, isOpen, markBy, markOf, nextMonth, openOwed, owedOf, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
-import { AGENT_DEBT, CAR, OVERSTAYER, RENT_FLAT, RENT_ROOM, SHORTFALL, STANDING, STUDENT, TUITION, UK_PHONE, UK_ROUTE, UK_UPKEEP, WELLBEING } from "../testing/ids";
+import { AGENT_DEBT, ASHBY, CAR, CAS, OVERSTAYER, RENT_FLAT, RENT_ROOM, SHORTFALL, STANDING, STUDENT, TUITION, UK_PHONE, UK_ROUTE, UK_UPKEEP, WELLBEING } from "../testing/ids";
 import { officialRates } from "../wallet/wallet.rates";
 
 const CREDIT = content.tuning.credit;
@@ -352,6 +352,46 @@ describe("tuition", () => {
     expect(charges(nextMonth(game), tuition.id)).toEqual([mulDiv(PRINCIPAL, 8750, 10000) - mulDiv(PRINCIPAL, 7500, 10000)]);
   });
 
+  test("[status:course-passed-or-withdrawn] [status:grace-allows-in-country-applications] given a student withdrawn, when the cut months begin, then the master's is known again with its school, deposit and confirmation gone, and a new school may be applied to from inside the country", () => {
+    const { game } = student();
+    expect(game.state.route[UK_ROUTE]).toMatchObject({ state: "departed" });
+    expect(game.state.route[UK_ROUTE]!.school).not.toBeNull();
+    missedMonths(game, 4);
+    expect(game.state.status.current?.withdrawn).toBeDefined();
+    expect(game.state.route[UK_ROUTE]).toMatchObject({ state: "known", school: null, schools: {}, depositPaid: 0, visa: null });
+    expect(check(readOf(game), { type: "document/held", document: CAS }).met).toBe(false);
+    expect(checkInvariants(game.state, content)).toEqual([]);
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
+    expect(game.state.route[UK_ROUTE]!.schools[ASHBY]?.state).toBe("pending");
+  });
+
+  test("[status:course-passed-or-withdrawn] given a student withdrawn, when everything owed is paid inside the two months, then the master's is departed again with its school, offers, deposit and confirmation as they were", () => {
+    const { game, tuition } = student();
+    const flownRoute = game.state.route[UK_ROUTE]!;
+    missedMonths(game, 4);
+    setPockets(game, { GBP: 2000000 });
+    game.accept({ type: "obligation/pay", obligation: tuition.id, amount: mulDiv(PRINCIPAL, 7500, 10000) });
+    expect(game.state.status.current?.withdrawn).toBeUndefined();
+    expect(game.state.route[UK_ROUTE]).toMatchObject({ state: "departed", school: flownRoute.school, schools: flownRoute.schools, depositPaid: flownRoute.depositPaid, visa: flownRoute.visa });
+    expect(game.state.route[UK_ROUTE]!.withdrawn).toBeUndefined();
+    expect(check(readOf(game), { type: "document/held", document: CAS }).met).toBe(true);
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
+  test("[status:course-passed-or-withdrawn] given a student withdrawn who has applied to a new school, when everything owed is paid, then the student is not reinstated: the permission stays cut and the master's stays with the new application", () => {
+    const { game, tuition } = student();
+    missedMonths(game, 4);
+    const cut = game.state.status.current!.expiresMonth;
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
+    setPockets(game, { GBP: 2000000 });
+    game.accept({ type: "obligation/pay", obligation: tuition.id, amount: mulDiv(PRINCIPAL, 7500, 10000) });
+    expect(game.state.status.current).toMatchObject({ entry: STUDENT, expiresMonth: cut });
+    expect(game.state.status.current?.withdrawn).toBeDefined();
+    expect(game.state.route[UK_ROUTE]).toMatchObject({ state: "known" });
+    expect(game.state.route[UK_ROUTE]!.schools[ASHBY]?.state).toBe("pending");
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
   test("[status:course-passed-or-withdrawn] given a withdrawn student who pays nothing, when the two months pass, then the status lapses as any status does, its grace after, and the tuition stays on record", () => {
     const { game } = student();
     missedMonths(game, 4);
@@ -360,6 +400,9 @@ describe("tuition", () => {
     playMonths(game, 1);
     expect(game.state.status.current?.entry).toBe(OVERSTAYER);
     expect(owedOf(game, TUITION).state).toBe("defaulted");
+    // The course set aside at the withdrawal goes with the permission: nothing is left to reinstate.
+    expect(game.state.route[UK_ROUTE]).toMatchObject({ state: "known", school: null });
+    expect(game.state.route[UK_ROUTE]!.withdrawn).toBeUndefined();
   });
 
   test("[route:family-pledge-pays-tuition] given the family's pledge standing and no pounds, when a tuition charge falls, then the pledge pays the school: the shortfall in naira at the day's rate comes off the pledge, lands in the pound bank under gift unflagged, and the charge is paid whole", () => {
