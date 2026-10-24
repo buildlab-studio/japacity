@@ -25,7 +25,7 @@ An offer is anything that comes to the character with choices and a date: a fami
 
 ## How to read the tables
 
-Every family request lapses after one month into its last choice. "Not when broke" means the condition: at least ₦150,000 in naira, bank and cash together. This is the "no kicking while down" damper.
+Every family request lapses after one month into its last choice. "Not when broke" means the condition: at least ₦150,000 in naira, bank and cash together. It keeps the family's asks off a character who is broke, beside luck:no-kicking-while-down.
 
 ## Family requests
 
@@ -95,11 +95,12 @@ Signs for `offer.held-funds-agent`, each shown or not when the offer opens:
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Most offers that can open by roll in a month | 2 | `tuning.offer.maxNewPerMonth` |
-| No rolls while this many are open | 4 | `tuning.offer.maxOpen` |
-| The day's arrivals, shares of the free time | 33.33%, 66.67% | `tuning.turn.arrivalsBp` (offer:day-arrivals-roll-offers) |
+| Setting | Value | Source | In content as |
+|---|---|---|---|
+| Most offers that can open by roll in a month | 2 | Working value | `tuning.offer.maxNewPerMonth` |
+| No rolls while this many are open | 4 | Working value | `tuning.offer.maxOpen` |
+| The day's arrivals, shares of the free time | 33.33%, 66.67% | Working value | `tuning.turn.arrivalsBp` (offer:day-arrivals-roll-offers) |
+| "Not when broke" | ₦150,000 in naira, bank and cash together | Working value | each family request's `when` |
 
 ## Effects and requirements this kind handles
 
