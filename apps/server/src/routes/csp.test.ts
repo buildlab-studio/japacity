@@ -112,14 +112,17 @@ describe("the page's policy reports", () => {
     expect(ENFORCED.get("script-src")?.[0]).toBe("'self'");
     for (const [name, sources] of ENFORCED) {
       for (const loose of ["'unsafe-eval'", "'unsafe-hashes'", "*", "https:", "http:", "data:"]) expect({ name, loose, allowed: sources.includes(loose) }).toEqual({ name, loose, allowed: (name === "img-src" || name === "font-src") && loose === "data:" });
-      if (name.startsWith("script-src")) expect({ name, inline: sources.includes("'unsafe-inline'") }).toEqual({ name, inline: false });
-      for (const source of sources) if (source.startsWith("https://")) expect({ name, source, host: /^https:\/\/[a-z0-9.-]+$/.test(source) }).toEqual({ name, source, host: true });
+      expect({ name, inlineScript: name.startsWith("script-src") && sources.includes("'unsafe-inline'") }).toEqual({ name, inlineScript: false });
+      // An outside source is a whole host, never a path or a wildcard under it.
+      const outside = sources.filter((source) => source.startsWith("https://"));
+      expect({ name, outside: outside.filter((source) => !/^https:\/\/[a-z0-9.-]+$/.test(source)) }).toEqual({ name, outside: [] });
     }
   });
 
   test("[server:csp-reports-to-own-origin] given the stricter policy beside it, when its directives are read, then it is the enforced one that also asks for Trusted Types from the page's one policy, inline styles only by the build's hashes and no style attribute", () => {
     const stricter = new Set(["style-src", "style-src-attr", "require-trusted-types-for", "trusted-types"]);
-    for (const [name, sources] of ENFORCED) if (!stricter.has(name)) expect({ name, sources: REPORTED.get(name) }).toEqual({ name, sources });
+    const shared = [...ENFORCED].filter(([name]) => !stricter.has(name));
+    expect(shared.map(([name]) => [name, REPORTED.get(name)])).toEqual(shared);
     expect([...REPORTED.keys()].filter((name) => !ENFORCED.has(name) && !stricter.has(name))).toEqual([]);
     expect(REPORTED.get("require-trusted-types-for")).toEqual(["'script'"]);
     expect(REPORTED.get("trusted-types")).toEqual(["japacity"]);
