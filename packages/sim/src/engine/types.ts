@@ -588,7 +588,7 @@ export interface RouteEntry {
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
   sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
   /** Points gate. `spouseTable`: the lead's columns with a spouse and the spouse's factors (person:canada-spouse-points). Null: no spouse counts. */
-  points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
+  points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; educationCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
@@ -619,6 +619,10 @@ export interface PointsEntry {
   spouse?: { education: { level: number; points: number }[]; language: { band: number; points: number }[]; canadianWork: { years: number; points: number }[]; cap: number };
   /** `quality.care` at or above this reads the care cut-off (route-gates:pool-draws-invite). */
   careMin: number;
+  /** Months across `educationJobs` that read the education cut-off while it stands (route-gates:pool-draws-invite). */
+  educationMonths: number;
+  /** The teacher jobs whose months the education cut-off reads. */
+  educationJobs: Id<"activity">[];
 }
 
 export interface SetpieceAnswer {
@@ -2377,7 +2381,7 @@ export interface RouteView {
 export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
   /** `invites` (route-gates:points-view-carries-invites): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
-  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
+  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; educationCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
   | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
   | { gate: "dependant"; bond: string | null; lead: RouteStateName | null }

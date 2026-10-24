@@ -50,6 +50,20 @@ function developer(options: LifeOptions = {}): Game {
   return readyLife(content, { from: DEVELOPER, quiet: true, documents: ECA_PAPERS, pockets: POCKETS, ...options });
 }
 
+const EDUCATION_CUTOFF = block.educationCutoffVar!;
+
+/** The developer's life with `months` of its 18 months of work in the teacher's job and the rest in its own, so the score stays the page's 404. */
+function teacher(months: number, vars: Record<Id<"var">, number>): Game {
+  return developer({
+    vars: () => vars,
+    change: (used) => {
+      const ready = used.scenario[READY]!;
+      const tenure = months >= 18 ? { "activity.job-teacher": months } : { "activity.job-teacher": months, [JUNIOR_DEV]: 18 - months };
+      return { ...used, scenario: { ...used.scenario, [READY]: { ...ready, tenure } } };
+    },
+  });
+}
+
 function canada(game: Game): RouteState {
   return game.state.route[CANADA_ROUTE]!;
 }
@@ -348,6 +362,66 @@ describe("the points gate", () => {
         const viewed = game.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate;
         expect(viewed).toMatchObject({ gate: "points", invites: invited });
       }
+    });
+
+    test.each([
+      [12, true],
+      [11, false],
+    ])("[route-gates:pool-draws-invite] given %i months across the teacher jobs and the education cut-off at the score while the general one is above it, when the clocks run, then an invitation comes: %s", (months, invited) => {
+      const game = teacher(months, { [EDUCATION_CUTOFF]: DEVELOPER_SCORE });
+      toPool(game);
+      expect(pointsScore(readOf(game), CANADA_ROUTE)).toBe(DEVELOPER_SCORE);
+      expect(invites(readOf(game), CANADA_ROUTE)).toBe(invited);
+      expect(canada(game).state).toBe(invited ? "applying" : "known");
+    });
+
+    test("[route-gates:pool-draws-invite] given a teacher with the months and the education cut-off at its start, when the clocks run, then no invitation comes: the cut-off stands only while the education draw holds it", () => {
+      expect(startVar(EDUCATION_CUTOFF)).toBe(9999);
+      expect(table.educationMonths).toBe(12);
+      expect(table.educationJobs).toContain("activity.job-teacher");
+      const game = teacher(18, {});
+      toPool(game);
+      game.endTurn();
+      expect(invites(readOf(game), CANADA_ROUTE)).toBe(false);
+      expect(canada(game).state).toBe("known");
+    });
+
+    test("[route-gates:points-view-carries-invites] given a teacher with the months and the education cut-off at the score, when the gate is viewed, then it says an invitation will come and carries the teachers' cut-off; with no draw it carries none", () => {
+      const game = teacher(12, { [EDUCATION_CUTOFF]: DEVELOPER_SCORE });
+      toKnown(game);
+      const viewed = game.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate;
+      expect(viewed).toMatchObject({ gate: "points", points: DEVELOPER_SCORE, invites: true, educationCutoff: DEVELOPER_SCORE });
+      const none = teacher(12, {});
+      toKnown(none);
+      expect(none.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate).toMatchObject({ gate: "points", invites: false, educationCutoff: null });
+    });
+
+    test("[route-gates:pool-draws-invite] given a live profile at the cut-off but the funds short when the invitation comes, when the clocks run, then nothing is sent or paid and the invitation holds a month; still short, it lapses and the profile goes on", () => {
+      let vars: Record<Id<"var">, number> = { [CUTOFF]: DEVELOPER_SCORE + 1 };
+      const game = developer({ vars: () => vars });
+      toPool(game);
+      const pool = gate(game).poolMonth;
+      vars = { [CUTOFF]: DEVELOPER_SCORE, [block.fundsVar]: pointsFunds(readOf(game), CANADA_ROUTE).shown + 100000 };
+      const cad = game.state.wallet.pockets.CAD.bank;
+      expect(routeKeys(game.endTurn().lines)).toContain("line.route.invite-short");
+      expect(canada(game).state).toBe("known");
+      expect(gate(game).invitedMonth).toBe(game.state.turn.month);
+      expect(game.state.wallet.pockets.CAD.bank).toBe(cad);
+      expect(routeKeys(game.endTurn().lines)).toContain("line.route.invite-lapsed-short");
+      expect(gate(game)).toEqual({ poolMonth: pool, invitedMonth: null });
+    });
+
+    test("[route-gates:pool-draws-invite] given an invitation held for funds short, when the money is back by the next month, then the application goes then", () => {
+      let vars: Record<Id<"var">, number> = { [CUTOFF]: DEVELOPER_SCORE + 1 };
+      const game = developer({ vars: () => vars });
+      toPool(game);
+      const line = pointsFunds(readOf(game), CANADA_ROUTE).shown + 100000;
+      vars = { [CUTOFF]: DEVELOPER_SCORE, [block.fundsVar]: line };
+      game.endTurn();
+      expect(canada(game).state).toBe("known");
+      applyEffects(game, [{ type: "money/add", currency: "CAD", pocket: "bank", amount: 200000, reason: "gift" }]);
+      expect(routeKeys(game.endTurn().lines)).toContain("line.route.applied");
+      expect(canada(game).state).toBe("applying");
     });
 
     test("[route-gates:pool-draws-invite] given two seeds, when the cut-off comes down to the score, then both are invited the same month and no visa draw is made: the cut-off decides", () => {

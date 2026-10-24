@@ -205,6 +205,8 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       fundsVar: "var.canada-funds",
       cutoffVar: "var.canada-cutoff",
       careCutoffVar: "var.canada-care-cutoff",
+      // route-gates:pool-draws-invite: the education cut-off stands only while the director's education draw is in force.
+      educationCutoffVar: "var.canada-education-cutoff",
       feeVar: "var.canada-apply-fee",
       decisionVar: "var.canada-decision-months",
       // A profile lasts 12 months (route-gates:entering-the-pool and route-gates:profile-lapses-and-score-ages).

@@ -38,6 +38,7 @@ export const varText: Record<string, string> = {
   "var.canada-apply-fee.name": "Canada application fee",
   "var.canada-cutoff.name": "Canada points cut-off",
   "var.canada-care-cutoff.name": "Canada healthcare cut-off",
+  "var.canada-education-cutoff.name": "Canada teachers' cut-off",
   "var.canada-decision-months.name": "Months to a Canada decision",
 
   "var.uk-talent-endorse-fee.name": "Endorsement fee",

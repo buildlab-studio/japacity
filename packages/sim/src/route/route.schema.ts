@@ -52,6 +52,7 @@ export const RouteEntrySchema = z.strictObject({
       fundsVar: idOf("var"),
       cutoffVar: idOf("var"),
       careCutoffVar: idOf("var").nullable(),
+      educationCutoffVar: idOf("var").nullable(),
       feeVar: idOf("var"),
       decisionVar: idOf("var"),
       profileMonths: CountSchema,
@@ -121,6 +122,8 @@ export const PointsEntrySchema = z.strictObject({
     })
     .exactOptional(),
   careMin: CountSchema,
+  educationMonths: CountSchema,
+  educationJobs: z.array(idOf("activity")),
 });
 
 export type ChecklistItemMatches = Proof<Same<z.infer<typeof ChecklistItemSchema>, ChecklistItem>>;

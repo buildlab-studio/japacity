@@ -2,6 +2,9 @@
 // holds from its figure up to the next row's; the last row is a floor.
 import type { Id, PointsEntry } from "@japacity/sim";
 
+/** The teacher jobs whose months the education cut-off reads (route-gates:pool-draws-invite). */
+const TEACHER_JOBS: Id<"activity">[] = ["activity.job-teacher"];
+
 export const pointsTable: Record<Id<"points">, PointsEntry> = {
   "points.canada": {
     id: "points.canada",
@@ -58,6 +61,9 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
     },
     // The care cut-off is read at care 60 or more (route-gates:pool-draws-invite).
     careMin: 60,
+    // route-gates:pool-draws-invite: IRCC's education category asks 12 months in one of its occupations (factor 1.0 on the months).
+    educationMonths: 12,
+    educationJobs: TEACHER_JOBS,
   },
 
   // docs/rules/person.md, "Entry: points.canada-spouse": the lead's columns with
@@ -138,5 +144,7 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
       cap: 40,
     },
     careMin: 60,
+    educationMonths: 12,
+    educationJobs: TEACHER_JOBS,
   },
 };

@@ -72,6 +72,8 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   // and no work (289) never reaches either. The care cut-off sits below by the share of the real ones, 475 of 520.
   "var.canada-cutoff": { id: "var.canada-cutoff", start: 405 },
   "var.canada-care-cutoff": { id: "var.canada-care-cutoff", start: 370 },
+  // director:education-draw-opens-for-a-time: no education draw until the story sets one; 365 while it stands, the general start times 470 over 520.
+  "var.canada-education-cutoff": { id: "var.canada-education-cutoff", start: 9999 },
   "var.canada-decision-months": { id: "var.canada-decision-months", start: 6 },
   // route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs repaid, in Canadian cents.
   "var.canada-arc-fee": { id: "var.canada-arc-fee", start: 49250 },

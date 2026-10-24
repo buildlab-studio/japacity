@@ -224,13 +224,31 @@ export function pointsUnexplainedBp(read: ReadCtx, route: Id<"route">): number {
   return required <= 0 ? BP_WHOLE : Math.min(BP_WHOLE, mulDiv(lots, BP_WHOLE, required));
 }
 
-/** route-gates:pool-draws-invite: the general cut-off at or below the score, or the care cut-off for a carer. */
+/**
+ * route-gates:pool-draws-invite: the education cut-off, while it stands, for a teacher with the table's months across its teacher jobs. It stands
+ * while the director's draw holds it below the general cut-off (director:education-draw-opens-for-a-time); otherwise null.
+ */
+export function educationCutoff(read: ReadCtx, route: Id<"route">): number | null {
+  const block = blockOf(routeEntry(read.content, route));
+  if (block.educationCutoffVar === null) return null;
+  const cutoff = worldVar(read, block.educationCutoffVar);
+  return cutoff < worldVar(read, block.cutoffVar) ? cutoff : null;
+}
+
+/** route-gates:pool-draws-invite: the months across the table's teacher jobs reach its education months. */
+function teaches(read: ReadCtx, table: PointsEntry): boolean {
+  return table.educationJobs.length > 0 && tenureAcross(read.state, table.educationJobs) >= table.educationMonths;
+}
+
+/** route-gates:pool-draws-invite: the general cut-off at or below the score, the care cut-off for a carer, or the education cut-off for a teacher while it stands. */
 export function invites(read: ReadCtx, route: Id<"route">): boolean {
   const block = blockOf(routeEntry(read.content, route));
+  const table = tableOf(read.content, block);
   const score = pointsScore(read, route);
   if (worldVar(read, block.cutoffVar) <= score) return true;
-  const careMin = tableOf(read.content, block).careMin;
-  return block.careCutoffVar !== null && (read.state.quality[CARE] ?? 0) >= careMin && worldVar(read, block.careCutoffVar) <= score;
+  if (block.careCutoffVar !== null && (read.state.quality[CARE] ?? 0) >= table.careMin && worldVar(read, block.careCutoffVar) <= score) return true;
+  const education = educationCutoff(read, route);
+  return education !== null && teaches(read, table) && education <= score;
 }
 
 function windowClosed(read: ReadCtx, entry: RouteEntry): boolean {
@@ -262,6 +280,18 @@ function canPayFee(ctx: Ctx, block: PointsBlock): boolean {
   return ctx.check({ type: "money/can-pay", currency: FUNDS_CURRENCY, amount: feeOf(block) }).met;
 }
 
+/** route-gates:pool-draws-invite: the funds are asked when you apply, so `fundsVar` must be covered as the invitation is used, before its fee is taken. */
+function fundsCovered(read: ReadCtx, route: Id<"route">): boolean {
+  const { shown, required } = pointsFunds(read, route);
+  return shown >= required;
+}
+
+/** Why an invitation cannot be used now: the fee or the funds; null when it can. */
+function invitationShort(ctx: Ctx, entry: RouteEntry, block: PointsBlock): "fee" | "funds" | null {
+  if (!canPayFee(ctx, block)) return "fee";
+  return fundsCovered(readOf(ctx), entry.id) ? null : "funds";
+}
+
 /**
  * route-gates:pool-draws-invite, route:application-fixes-figures: pay the fee as a foreign fee in Canadian cents
  * and send the application, decided `decisionVar` months later. The caller has
@@ -291,7 +321,7 @@ function payAndSend(ctx: Ctx, entry: RouteEntry, block: PointsBlock): BaseEvent[
 
 /**
  * The monthly work, in this order: a used invitation is cleared after a
- * refusal, a pick of the pool slot is judged, an unpaid invitation is paid or
+ * refusal, a pick of the pool slot is judged, an invitation held for its fee or its funds is used or
  * lapses, a profile lapses at `profileMonths`, and a live profile is invited.
  *
  * A profile entered in month m is live in months m to m + 11 and
@@ -315,8 +345,9 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   }
   if (gate.poolMonth === null) return events;
   if (gate.invitedMonth !== null) {
-    if (canPayFee(ctx, block)) return [...events, ...payAndSend(ctx, entry, block)];
-    return [...events, ...updated(ctx, route, { ...gate, invitedMonth: null }, "invite-lapsed")];
+    const held = invitationShort(ctx, entry, block);
+    if (held === null) return [...events, ...payAndSend(ctx, entry, block)];
+    return [...events, ...updated(ctx, route, { ...gate, invitedMonth: null }, held === "fee" ? "invite-lapsed" : "invite-lapsed-short")];
   }
   if (month >= gate.poolMonth + block.profileMonths) {
     return [...events, ...updated(ctx, route, { gate: "points", poolMonth: null, invitedMonth: null }, "profile-lapsed")];
@@ -324,9 +355,10 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const read = readOf(ctx);
   if (windowClosed(read, entry) || !invites(read, route)) return events;
   // The invitation is recorded before the application, so the step is reached when it is sent.
-  const paid = canPayFee(ctx, block);
-  events.push(...updated(ctx, route, { ...gate, invitedMonth: month }, paid ? "invited" : "invite-unpaid"));
-  return paid ? [...events, ...payAndSend(ctx, entry, block)] : events;
+  const held = invitationShort(ctx, entry, block);
+  const note = held === null ? "invited" : held === "fee" ? "invite-unpaid" : "invite-short";
+  events.push(...updated(ctx, route, { ...gate, invitedMonth: month }, note));
+  return held === null ? [...events, ...payAndSend(ctx, entry, block)] : events;
 }
 
 export const pointsGate: Gate = {
@@ -362,6 +394,8 @@ export const pointsGate: Gate = {
       points: pointsScore(read, entry.id),
       cutoff: worldVar(read, block.cutoffVar),
       careCutoff: block.careCutoffVar === null ? null : worldVar(read, block.careCutoffVar),
+      // route-gates:points-view-carries-invites: the teachers' cut-off while the draw stands.
+      educationCutoff: educationCutoff(read, entry.id),
       // route-gates:points-view-carries-invites: the clocks' own test, the care cut-off for a carer among it.
       invites: invites(read, entry.id),
       poolMonth: gate.poolMonth,

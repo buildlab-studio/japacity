@@ -59,6 +59,8 @@ export const routeText: Record<string, string> = {
   "line.route.invited": "You were invited to apply for {route}. The fee goes with the application.",
   "line.route.invite-unpaid": "You were invited to apply for {route}, but the fee could not be paid. The invitation holds one more month.",
   "line.route.invite-lapsed": "The invitation for {route} has lapsed. The fee was never paid. Your profile stays in the pool.",
+  "line.route.invite-short": "You were invited to apply for {route}, but the money you must show is short. The invitation holds one more month.",
+  "line.route.invite-lapsed-short": "The invitation for {route} has lapsed. The money you must show was short. Your profile stays in the pool.",
   "line.route.profile-lapsed": "Your profile for {route} has run out without an invitation. You can enter the pool again.",
   // The endorsement gate (route-gates:endorsement-decided-by-draw).
   "line.route.endorsement-refused": "The endorsing body did not back you for {route}. The letter was withdrawn. Build the work up, then ask again.",
