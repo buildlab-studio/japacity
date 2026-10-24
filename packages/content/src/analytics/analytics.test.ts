@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { content, CSP_BLOCKED_KINDS, CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "../index";
+import { content, CSP_BLOCKED_KINDS, CSP_DIRECTIVES, CSP_DISPOSITIONS, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "../index";
 
 /** analytics:nightly-game-counters: the admin's numbers. */
 const LAUNCH = [
@@ -63,12 +63,14 @@ describe("the counter list", () => {
     expect(MONTH_BANDS.map((band) => band.from)).toEqual([1, 4, 13]);
   });
 
-  test("[analytics:nightly-game-counters] [server:csp-reports-to-own-origin] given the page policy's reports, when the list is read, then the blocked counter is the server's, keyed by each directive and each kind of blocked thing, from a fixed list with no address in it", () => {
+  test("[analytics:nightly-game-counters] [server:csp-reports-to-own-origin] given the page policy's reports, when the list is read, then the blocked counter is the server's, keyed by whether the policy enforced or only reported, each directive and each kind of blocked thing, from fixed lists with no address in them", () => {
+    expect(CSP_DISPOSITIONS).toEqual(["enforce", "report", "other"]);
     expect(CSP_BLOCKED_KINDS).toEqual(["inline", "eval", "wasm-eval", "trusted-types-policy", "trusted-types-sink", "data", "blob", "extension", "self", "challenges.cloudflare.com", "static.cloudflareinsights.com", "cloudflareinsights.com", "other-host", "other"]);
-    const keys = CSP_DIRECTIVES.flatMap((directive) => CSP_BLOCKED_KINDS.map((kind) => `${directive}:${kind}`));
+    const keys = CSP_DISPOSITIONS.flatMap((disposition) => CSP_DIRECTIVES.flatMap((directive) => CSP_BLOCKED_KINDS.map((kind) => `${disposition}:${directive}:${kind}`)));
     expect(named("client/csp-blocked")).toEqual({ name: "client/csp-blocked", keys, source: "server" });
-    expect(named("client/csp-blocked")?.keys).toContain("script-src-elem:inline");
-    expect(named("client/csp-blocked")?.keys).toContain("other:other");
+    expect(named("client/csp-blocked")?.keys).toContain("enforce:script-src-elem:inline");
+    expect(named("client/csp-blocked")?.keys).toContain("report:require-trusted-types-for:trusted-types-sink");
+    expect(named("client/csp-blocked")?.keys).toContain("other:other:other");
     // A kind is a word or a host the policy names, never a path, a query or a scheme with something after it.
     expect(CSP_BLOCKED_KINDS.filter((kind) => !/^[a-z][a-z0-9.-]*$/.test(kind))).toEqual([]);
   });

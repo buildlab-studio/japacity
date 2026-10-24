@@ -6,7 +6,7 @@
 // and the document's path, and nothing else (never the user agent, the full address, the referrer, the sample, the
 // policy or a query string; server:secrets-stay-on-server, analytics:store-holds-nothing-personal).
 import type { ServerRejection } from "@japacity/api";
-import { CSP_BLOCKED_KINDS, CSP_DIRECTIVES } from "@japacity/content";
+import { CSP_BLOCKED_KINDS, CSP_DIRECTIVES, CSP_DISPOSITIONS } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import type { MiddlewareHandler } from "hono";
@@ -34,7 +34,7 @@ export const CSP_REPORTS_PER_REQUEST = 20;
 /** The counter each violation adds one to, keyed by its directive. Counts only (analytics:admin-stats-for-admins-only). */
 export const CSP_COUNTER = "client/csp";
 
-/** The counter each violation also adds one to, keyed `<directive>:<kind>` from content's two fixed lists. */
+/** The counter each violation also adds one to, keyed `<disposition>:<directive>:<kind>` from content's three fixed lists. */
 export const CSP_BLOCKED_COUNTER = "client/csp-blocked";
 
 /** The directives a report may name, from the content's counter list (analytics:nightly-game-counters); any other is `other`. */
@@ -42,6 +42,7 @@ export { CSP_DIRECTIVES };
 
 type CspDirective = (typeof CSP_DIRECTIVES)[number];
 type CspBlockedKind = (typeof CSP_BLOCKED_KINDS)[number];
+type CspDisposition = (typeof CSP_DISPOSITIONS)[number];
 
 /** The browser's words a kind keeps as they are: a thing with no address of its own. */
 const WORD_KINDS: ReadonlySet<string> = new Set<CspBlockedKind>(["inline", "eval", "wasm-eval", "trusted-types-policy", "trusted-types-sink", "data", "blob", "self"]);
@@ -126,6 +127,13 @@ function kindOf(rawBlocked: unknown, rawDocument: unknown): CspBlockedKind {
   return "other-host";
 }
 
+/** Whether the policy enforced or only reported, so a report of the stricter report-only policy is told from a refusal. */
+function dispositionOf(raw: unknown): CspDisposition {
+  if (typeof raw !== "string") return "other";
+  const value = raw.trim().toLowerCase();
+  return value === "enforce" || value === "report" ? value : "other";
+}
+
 function pathOf(raw: unknown): string {
   if (typeof raw !== "string") return "other";
   let url: URL;
@@ -148,17 +156,18 @@ function record(value: unknown): Record<string, unknown> | null {
 interface ReadViolation {
   violation: CspViolation;
   kind: CspBlockedKind;
+  disposition: CspDisposition;
 }
 
-function readOne(directive: unknown, blocked: unknown, document: unknown): ReadViolation {
-  return { violation: { directive: directiveOf(directive), blocked: blockedOf(blocked), path: pathOf(document) }, kind: kindOf(blocked, document) };
+function readOne(directive: unknown, blocked: unknown, document: unknown, disposition: unknown): ReadViolation {
+  return { violation: { directive: directiveOf(directive), blocked: blockedOf(blocked), path: pathOf(document) }, kind: kindOf(blocked, document), disposition: dispositionOf(disposition) };
 }
 
 function readViolations(type: (typeof CSP_REPORT_TYPES)[number], body: unknown): ReadViolation[] | null {
   if (type === "application/csp-report") {
     const report = record(record(body)?.["csp-report"]);
     if (report === null) return null;
-    return [readOne(report["effective-directive"] ?? report["violated-directive"], report["blocked-uri"], report["document-uri"])];
+    return [readOne(report["effective-directive"] ?? report["violated-directive"], report["blocked-uri"], report["document-uri"], report["disposition"])];
   }
   if (!Array.isArray(body)) return null;
   const found: ReadViolation[] = [];
@@ -167,7 +176,7 @@ function readViolations(type: (typeof CSP_REPORT_TYPES)[number], body: unknown):
     const inner = record(report?.["body"]);
     // The Reporting API sends other kinds of report to the same address (deprecations, interventions); only these count.
     if (report?.["type"] !== "csp-violation" || inner === null) continue;
-    found.push(readOne(inner["effectiveDirective"], inner["blockedURL"], inner["documentURL"]));
+    found.push(readOne(inner["effectiveDirective"], inner["blockedURL"], inner["documentURL"], inner["disposition"]));
   }
   return found;
 }
@@ -225,9 +234,9 @@ export function cspReportRoute(deps: ServerDeps): Hono {
       const region = requestRegion(country);
       const counts = new Map<string, number>();
       const add = (key: string) => counts.set(key, (counts.get(key) ?? 0) + 1);
-      for (const { violation, kind } of kept) {
+      for (const { violation, kind, disposition } of kept) {
         add(`${CSP_COUNTER}\n${violation.directive}`);
-        add(`${CSP_BLOCKED_COUNTER}\n${violation.directive}:${kind}`);
+        add(`${CSP_BLOCKED_COUNTER}\n${disposition}:${violation.directive}:${kind}`);
       }
       const rows: CounterTotal[] = [...counts].map(([both, count]) => {
         const [name = "", key = ""] = both.split("\n");

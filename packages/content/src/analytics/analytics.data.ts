@@ -200,8 +200,14 @@ export const CSP_BLOCKED_KINDS = [
   "other",
 ] as const;
 
-/** `client/csp-blocked`'s keys: each directive with each kind, as `script-src-elem:inline`. */
-const CSP_BLOCKED_KEYS = CSP_DIRECTIVES.flatMap((directive) => CSP_BLOCKED_KINDS.map((kind) => `${directive}:${kind}`));
+/**
+ * analytics:nightly-game-counters, server:csp-reports-to-own-origin: whether the policy that made a report enforced it or only
+ * reported it, as the report says; `other` when it says neither.
+ */
+export const CSP_DISPOSITIONS = ["enforce", "report", "other"] as const;
+
+/** `client/csp-blocked`'s keys: each disposition with each directive and each kind, as `enforce:script-src-elem:inline`. */
+const CSP_BLOCKED_KEYS = CSP_DISPOSITIONS.flatMap((disposition) => CSP_DIRECTIVES.flatMap((directive) => CSP_BLOCKED_KINDS.map((kind) => `${disposition}:${directive}:${kind}`)));
 
 /** analytics:server-checks-every-batch: why a row or a batch was dropped. */
 const DROP_REASONS = ["signed-out", "size", "shape", "rate", "name", "key", "count"];

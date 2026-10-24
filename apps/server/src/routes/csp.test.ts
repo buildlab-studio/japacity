@@ -159,11 +159,11 @@ async function countedBlocked(server: ReturnType<typeof testServer>): Promise<{ 
 }
 
 describe("the blocked thing's kind", () => {
-  test("[server:csp-reports-to-own-origin] given a report-uri report of an inline script, when it is posted, then the blocked counter adds one under the directive and the kind inline, beside the directive's own count", async () => {
+  test("[server:csp-reports-to-own-origin] given a report-uri report of an inline script the policy only reported, when it is posted, then the blocked counter adds one under report, the directive and the kind inline, beside the directive's own count", async () => {
     const server = testServer();
     expect((await post(server, legacyReport({ "blocked-uri": "inline" }), "application/csp-report")).status).toBe(204);
     expect(await counted(server)).toEqual([{ region: "NG", key: "script-src-elem", count: 1 }]);
-    expect(await countedBlocked(server)).toEqual([{ region: "NG", key: "script-src-elem:inline", count: 1 }]);
+    expect(await countedBlocked(server)).toEqual([{ region: "NG", key: "report:script-src-elem:inline", count: 1 }]);
   });
 
   test("[server:csp-reports-to-own-origin] given violations of every kind on the list, when they are posted, then each is counted under its kind: the browser's word, the scheme, an extension, the page's own origin, a host the policy names, or any other host", async () => {
@@ -190,11 +190,11 @@ describe("the blocked thing's kind", () => {
       ["", "media-src:other"],
     ];
     expect(blocked.length).toBeLessThanOrEqual(CSP_REPORTS_PER_REQUEST);
-    const body = blocked.map(([blockedURL, key]) => violation({ effectiveDirective: key.split(":")[0], blockedURL, documentURL: PAGE }));
+    const body = blocked.map(([blockedURL, key]) => violation({ effectiveDirective: key.split(":")[0], blockedURL, documentURL: PAGE, disposition: "enforce" }));
     expect((await post(server, JSON.stringify(body), "application/reports+json")).status).toBe(204);
-    const wanted = blocked.map(([, key]) => ({ region: "NG", key, count: 1 })).sort((a, b) => a.key.localeCompare(b.key));
+    const wanted = blocked.map(([, key]) => ({ region: "NG", key: `enforce:${key}`, count: 1 })).sort((a, b) => a.key.localeCompare(b.key));
     expect(await countedBlocked(server)).toEqual(wanted);
-    for (const row of await countedBlocked(server)) expect(CSP_BLOCKED_KINDS as readonly string[]).toContain(row.key.slice(row.key.indexOf(":") + 1));
+    for (const row of await countedBlocked(server)) expect(CSP_BLOCKED_KINDS as readonly string[]).toContain(row.key.split(":")[2]);
   });
 
   test("[server:csp-reports-to-own-origin] given a blocked address on a host the policy does not name, or the page's host on another scheme, when it is counted, then its key holds other-host and nothing of the address", async () => {
@@ -207,9 +207,28 @@ describe("the blocked thing's kind", () => {
     ];
     await post(server, JSON.stringify(body), "application/reports+json");
     expect(await countedBlocked(server)).toEqual([
-      { region: "NG", key: "connect-src:other-host", count: 1 },
-      { region: "NG", key: "img-src:other-host", count: 1 },
-      { region: "NG", key: "script-src-elem:other-host", count: 2 },
+      { region: "NG", key: "report:connect-src:other-host", count: 1 },
+      { region: "NG", key: "report:img-src:other-host", count: 1 },
+      { region: "NG", key: "report:script-src-elem:other-host", count: 2 },
+    ]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given reports the policy enforced, only reported, or said nothing of, in both shapes, when they are counted, then each is kept under enforce, report, or other", async () => {
+    const server = testServer();
+    await post(server, legacyReport({ "blocked-uri": "inline", disposition: "enforce" }), "application/csp-report");
+    await post(server, legacyReport({ "blocked-uri": "inline", disposition: undefined }), "application/csp-report");
+    const body = [
+      violation({ effectiveDirective: "img-src", blockedURL: "data", disposition: "report" }),
+      violation({ effectiveDirective: "img-src", blockedURL: "data", disposition: "ENFORCE" }),
+      violation({ effectiveDirective: "img-src", blockedURL: "data", disposition: "made-up\n{}" }),
+    ];
+    await post(server, JSON.stringify(body), "application/reports+json");
+    expect(await countedBlocked(server)).toEqual([
+      { region: "NG", key: "enforce:img-src:data", count: 1 },
+      { region: "NG", key: "enforce:script-src-elem:inline", count: 1 },
+      { region: "NG", key: "other:img-src:data", count: 1 },
+      { region: "NG", key: "other:script-src-elem:inline", count: 1 },
+      { region: "NG", key: "report:img-src:data", count: 1 },
     ]);
   });
 
