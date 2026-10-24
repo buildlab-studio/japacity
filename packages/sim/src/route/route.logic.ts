@@ -516,6 +516,15 @@ function pledgePay(ctx: Ctx, effect: Effect): BaseEvent[] {
   return events;
 }
 
+/** route:family-pledge-pays-tuition: how much of a charge in pounds the pledge standing on the route would pay now, valued at the day's official rate. */
+function pledgeCoverOf(read: ReadCtx, route: Id<"route">, amount: number): number {
+  const support = routeOf(read.state, route).support;
+  if (support === null || support.amount <= 0) return 0;
+  const rates = officialRates(read.world);
+  const asked = convertMinor(amount, FUNDS_CURRENCY, support.currency, rates);
+  return asked <= support.amount ? amount : convertMinor(support.amount, support.currency, FUNDS_CURRENCY, rates);
+}
+
 /** route:education-loan-pays-the-school: the loan's amount paid to the school, recorded on the route; one loan a route. */
 function loan(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/loan") throw new Error(`route/loan cannot carry out ${effect.type}.`);
@@ -627,10 +636,13 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (held.schools[school.id]?.state !== "offer") return reject("not-legal", `There is no offer from ${school.id}.`);
   if (held.school !== null) return reject("not-legal", `A deposit is already paid on ${entry.id}, to ${held.school}.`);
   // route:closed-window-blocks-applying does not apply: a deposit is paid to a school, not with a visa application.
-  if (!ctx.check({ type: "money/can-pay", currency: FUNDS_CURRENCY, amount: school.deposit }).met) {
+  // route:family-pledge-pays-tuition: the family's pledge pays the school first, the deposit at home included; the student's own money the rest.
+  const pledged = pledgeCoverOf(ctx, entry.id, school.deposit);
+  if (!ctx.check({ type: "money/can-pay", currency: FUNDS_CURRENCY, amount: school.deposit - pledged }).met) {
     return reject("cannot-afford", `The deposit of ${String(school.deposit)} pence cannot be paid.`);
   }
   const cause: Cause = { source: command.type, param: school.id, terms: {} };
+  if (pledged > 0) ctx.apply([{ type: "route/pledge-pay", currency: FUNDS_CURRENCY, amount: school.deposit }], cause);
   ctx.apply([{ type: "money/pay-fee", currency: FUNDS_CURRENCY, amount: school.deposit, reason: "fee-school" }], cause);
   const events = record(ctx, { type: "route/deposit-paid", route: entry.id, school: school.id, amount: school.deposit });
   ctx.apply([{ type: "document/grant", document: CAS }], cause);

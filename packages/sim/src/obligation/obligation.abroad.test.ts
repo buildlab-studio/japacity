@@ -405,25 +405,28 @@ describe("tuition", () => {
     expect(game.state.route[UK_ROUTE]!.withdrawn).toBeUndefined();
   });
 
-  test("[route:family-pledge-pays-tuition] given the family's pledge standing and no pounds, when a tuition charge falls, then the pledge pays the school: the shortfall in naira at the day's rate comes off the pledge, lands in the pound bank under gift unflagged, and the charge is paid whole", () => {
+  test("[route:family-pledge-pays-tuition] given the family's pledge standing and pounds of the student's own, when a tuition charge falls, then the pledge pays the school first: the whole charge in naira at the day's rate comes off the pledge, lands in the pound bank under gift unflagged, the charge is paid whole and the student's own pounds are left for the living", () => {
     const { game, tuition } = student();
     const pledge = 50000000000;
     applyEffects(game, [{ type: "route/support", route: UK_ROUTE, currency: "NGN", amount: pledge }]);
     setPockets(game, { GBP: 100000 });
     const lots = game.state.wallet.lots.length;
+    const schoolBefore = game.state.wallet.totals.out["fee-school"]?.GBP ?? 0;
     const half = mulDiv(PRINCIPAL, 5000, 10000);
     // The day's rate is the month's own, before the tick moves on.
     const rates = officialRates(game.world());
     const result = nextMonth(game);
     expect(charges(result, tuition.id)).toEqual([half]);
-    const short = half - 100000;
-    const naira = convertMinor(short, "GBP", "NGN", rates);
+    const naira = convertMinor(half, "GBP", "NGN", rates);
     expect(game.state.route[UK_ROUTE]!.support).toEqual({ currency: "NGN", amount: pledge - naira });
-    expect(game.state.wallet.totals.in.gift?.GBP).toBe(short);
+    expect(game.state.wallet.totals.in.gift?.GBP).toBe(half);
     expect(game.state.wallet.lots.length).toBe(lots);
-    expect(result.lines.find((line) => line.key === "line.route.pledge-paid")).toMatchObject({ params: { amount: { currency: "GBP", amount: short } } });
+    expect(result.lines.find((line) => line.key === "line.route.pledge-paid")).toMatchObject({ params: { amount: { currency: "GBP", amount: half } } });
     expect(text["line.route.pledge-paid"]).toBe("Your father paid the school {amount}.");
     expect(owedOf(game, TUITION).missed).toBe(0);
+    // The student's own pounds meet only the living: the month's other dues, nothing of the school's.
+    expect((game.state.wallet.totals.out["fee-school"]?.GBP ?? 0) - schoolBefore).toBe(half);
+    expect(game.state.wallet.pockets.GBP.bank + game.state.wallet.pockets.GBP.cash).toBeGreaterThanOrEqual(100000 - game.view().obligations.filter((owed) => owed.entry !== TUITION).reduce((sum, owed) => sum + owed.due, 0));
   });
 
   test("[route:family-pledge-pays-tuition] given a pledge too small for the shortfall, when the charge falls, then what is left of it is paid in, the pledge is spent to nothing and the charge is still missed; a pledge at nothing pays nothing more", () => {

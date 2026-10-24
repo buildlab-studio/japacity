@@ -477,6 +477,21 @@ describe("the deposit", () => {
     expect(routeLines(result.lines)).toEqual([{ key: "line.route.deposit-paid", params: { school: NORTHGATE, amount: { currency: "GBP", amount: deposit } }, tone: "good", attention: false, counts: [] }]);
   });
 
+  test("[route:family-pledge-pays-tuition] [route:deposit-secures-school] given the family's pledge standing on an offer, when the deposit is paid, then the pledge pays it first: the deposit in naira at the day's rate comes off the pledge and the student's own pounds are left whole", () => {
+    const game = life();
+    toOffer(game);
+    const pledge = 50000000000;
+    applyEffects(game, [{ type: "route/support", route: UK_ROUTE, currency: "NGN", amount: pledge }]);
+    const before = game.state.wallet.pockets.GBP.bank;
+    const rates = game.world().rates;
+    const deposit = school(NORTHGATE).deposit;
+    const result = game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE });
+    expect(game.state.wallet.pockets.GBP.bank).toBe(before);
+    expect(uk(game).support).toEqual({ currency: "NGN", amount: pledge - convertMinor(deposit, "GBP", "NGN", { GBP: rates.GBP.official, USD: rates.USD.official, CAD: rates.CAD.official, AED: rates.AED.official, EUR: rates.EUR.official }) });
+    expect(uk(game)).toMatchObject({ school: NORTHGATE, depositPaid: deposit });
+    expect(result.lines.some((line) => line.key === "line.route.pledge-paid")).toBe(true);
+  });
+
   test("[route:deposit-secures-school] given no offer from a school, a deposit already paid, or a school not on the route, when a deposit is paid, then it is rejected and nothing changes", () => {
     const game = life();
     toOffer(game);

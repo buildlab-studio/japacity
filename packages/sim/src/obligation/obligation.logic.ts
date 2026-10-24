@@ -530,15 +530,13 @@ function missTuition(ctx: Ctx, item: ObligationState, entry: ObligationEntry, ch
 }
 
 /**
- * route:family-pledge-pays-tuition: a tuition charge abroad the student's own pounds cannot meet is met from the family's pledge first, while it stands,
- * so the charge may be paid whole. True when the charge can be taken now.
+ * route:family-pledge-pays-tuition: a tuition charge abroad is met from the family's pledge first, while any of it is left, and the student's own
+ * money meets only what the pledge no longer covers, so the student's pay is left for the living. True when the charge can be taken now.
  */
 function pledgeCovers(ctx: Ctx, item: ObligationState, entry: ObligationEntry, total: number): boolean {
-  if (canTake(ctx, entry.currency, total)) return true;
-  if (entry.type !== "tuition" || entry.currency === "NGN" || ctx.state.place.where !== "abroad") return false;
-  const pockets = ctx.state.wallet.pockets[entry.currency];
-  const short = total - (pockets.bank + pockets.cash);
-  if (short > 0) ctx.apply([{ type: "route/pledge-pay", currency: entry.currency, amount: short }], causeOf(item));
+  if (entry.type === "tuition" && entry.currency !== "NGN" && ctx.state.place.where === "abroad" && total > 0) {
+    ctx.apply([{ type: "route/pledge-pay", currency: entry.currency, amount: total }], causeOf(item));
+  }
   return canTake(ctx, entry.currency, total);
 }
 
