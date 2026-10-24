@@ -1,4 +1,4 @@
-// The front door in three screens with everything chosen (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in its lively dress:
+// The front door in three screens with everything chosen (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in the game's look:
 // You (a name filled from the pool for the look's sex, a dice, the look strip as face stickers), Your life so far (the
 // lives as cards, the first chosen, with the age under them) and Where you live (the homes as postcards, with the strip
 // of who you are so far at the top, the look as its face), then Begin; the page prints after Begin. Next, Next, Begin

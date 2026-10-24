@@ -48,7 +48,7 @@ describe("the fan", () => {
     expect(screen.getByRole("group", { name: "The cooking corner" }).dataset.fanSide).toBe("right");
     const first = document.querySelector<HTMLElement>('[data-fan-act="a"]');
     expect(first?.querySelector("[data-fan-price]")?.textContent).toBe("₦1,500");
-    // Chips earn their place (design page 09 section 2): no balance pair, no "No cost" beside a button in the scene.
+    // Chips earn their place (docs/design/09-the-lively-layer.md section 2): no balance pair, no "No cost" beside a button in the scene.
     expect(first?.querySelector("[data-balance-before], [data-balance]")).toBeNull();
     expect(document.querySelector("[data-fan]")?.textContent).not.toContain("No cost");
     const free = document.querySelector<HTMLElement>('[data-fan-act="b"]');
@@ -108,7 +108,7 @@ describe("the fan", () => {
 
 // The fan's own rule is world:fan-of-sticker-buttons; these tests cite it beside world:things-are-tappable-models.
 describe("world:fan-of-sticker-buttons the fan's pictures", () => {
-  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given a thing fanned, when its buttons show, then each picture is the act's tile cut as the lively sticker", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given a thing fanned, when its buttons show, then each picture is the act's tile cut as the look's sticker", () => {
     fanOf([entry("activity.cook-at-home", { picture: "activity.cook-at-home" })], "cooking-tile");
     act(() => anchorFan("cooking-tile", { x: 100, y: 380 }));
     const picture = document.querySelector<HTMLElement>('[data-fan-act="activity.cook-at-home"] [data-fan-picture]');

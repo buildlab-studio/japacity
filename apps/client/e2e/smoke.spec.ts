@@ -27,7 +27,7 @@ async function shownText(page: Page): Promise<string> {
   });
 }
 
-/** The band's age, "23 yrs 2 mo": the clock a month lived moves on (world:top-band-is-lively-pill). */
+/** The band's age, "23 yrs 2 mo": the clock a month lived moves on (world:top-band-is-a-pill). */
 async function bandAge(page: Page): Promise<string> {
   const said = (await page.locator("[data-band]").textContent()) ?? "";
   return /\d+ yrs \d+ mo/.exec(said)?.[0] ?? "";

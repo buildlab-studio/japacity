@@ -8,7 +8,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 
 import { useView } from "../../../authority/GameProvider";
 import { Tile } from "../../../shared/tiles/Tile";
-import { Face } from "../../../shared/ui/lively/Face";
+import { Face } from "../../../shared/ui/look/Face";
 import { openingKey } from "../../../shared/words/sixteen";
 import { hasWords, say, words } from "../../../shared/words/text";
 import { type Brief, baseOf, briefDots, briefOf, nextBase } from "./brief";
@@ -38,7 +38,7 @@ function Dots({ brief }: { brief: Brief }) {
 /** The brief carried now: its card as it was handed, the giver's words, each thing with its place, ticked once it is in. */
 function Carried({ brief }: { brief: Brief }) {
   return (
-    <li className="lively-card phone-picked flex flex-col gap-2.5 p-3" data-brief-log="carried" data-brief-log-chapter={brief.chapter}>
+    <li className="look-card phone-picked flex flex-col gap-2.5 p-3" data-brief-log="carried" data-brief-log-chapter={brief.chapter}>
       <div className="flex items-center gap-3">
         <Picture of={brief.picture} size={60} soft />
         <div className="min-w-0 flex-1">
@@ -82,7 +82,7 @@ function Carried({ brief }: { brief: Brief }) {
 /** A brief already done: stamped, its giver's closing words telling what was done. */
 function Done({ brief }: { brief: Brief }) {
   return (
-    <li className="lively-card relative flex items-center gap-3 p-3" data-brief-log="done" data-brief-log-chapter={brief.chapter}>
+    <li className="look-card relative flex items-center gap-3 p-3" data-brief-log="done" data-brief-log-chapter={brief.chapter}>
       <Picture of={brief.picture} size={48} />
       <div className="min-w-0 flex-1 pr-12">
         <p className="text-[16px] leading-tight font-bold">{brief.title}</p>
@@ -99,7 +99,7 @@ function Done({ brief }: { brief: Brief }) {
 /** The brief after the carried one, faint: its title and who will hand it. */
 function Next({ brief }: { brief: Brief }) {
   return (
-    <li className="lively-card flex items-center gap-3 p-3 opacity-60" data-brief-log="next" data-brief-log-chapter={brief.chapter}>
+    <li className="look-card flex items-center gap-3 p-3 opacity-60" data-brief-log="next" data-brief-log-chapter={brief.chapter}>
       <Picture of={brief.picture} size={48} />
       <div className="min-w-0 flex-1">
         <p className="text-[16px] leading-tight font-bold">{brief.title}</p>

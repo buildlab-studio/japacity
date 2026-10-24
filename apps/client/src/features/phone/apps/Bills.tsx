@@ -30,7 +30,7 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
 }
 
 /**
- * When a bill taken every few months comes next, said as months away (world:top-band-is-lively-pill), in a month none is
+ * When a bill taken every few months comes next, said as months away (world:top-band-is-a-pill), in a month none is
  * taken: "Next instalment in 2 months." Null for a bill due now,
  * one behind, or one taken every month.
  */

@@ -45,7 +45,7 @@ function storyPicture(id: string): string {
 
 /**
  * When the era began and when it is due to end (director:one-era-at-a-time), as months ago and months from now, never a
- * month's number (world:top-band-is-lively-pill): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
+ * month's number (world:top-band-is-a-pill): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
  */
 function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
   const began = era.sinceMonth < 0 ? say("ui.news.era-before") : say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });

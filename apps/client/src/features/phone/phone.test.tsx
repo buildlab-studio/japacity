@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 async function openPhone(view: PlayerView, extra: { talk?: PairTalk; onClose?: () => void } = {}) {
-  // The shell hands the phone its Calendar (world:top-band-is-lively-pill), as App does; the phone knows only that it is a screen.
+  // The shell hands the phone its Calendar (world:top-band-is-a-pill), as App does; the phone knows only that it is a screen.
   return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} calendar={(opening) => <div data-phone-app="calendar" data-opening={opening ?? ""} />} />, view);
 }
 

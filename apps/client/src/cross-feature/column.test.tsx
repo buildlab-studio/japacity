@@ -24,7 +24,7 @@ function inColumn(selector: string): boolean {
 }
 
 describe("the centred column", () => {
-  test("[world:top-band-is-lively-pill] given the band with its nudge under it, when it draws, then both stand in the column", () => {
+  test("[world:top-band-is-a-pill] given the band with its nudge under it, when it draws, then both stand in the column", () => {
     render(<TopBand when="23 yrs" name="The family house" money={0} formatMoney={String} more={<Nudge nudge={{ key: "ui.world.whole" }} />} />);
     expect(inColumn("[data-band] > *")).toBe(true);
     expect(inColumn("[data-nudge]")).toBe(true);

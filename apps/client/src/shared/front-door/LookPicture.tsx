@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { assetUrl, loadManifest } from "../three/manifest";
 import { offer, picturePath, usePublishManifest } from "../tiles/published";
-import { type Tint, TINTS } from "../ui/lively/tint";
+import { type Tint, TINTS } from "../ui/look/tint";
 import { canDraw } from "./Gate";
 import { lookOf } from "./looks";
 import { isMade, type LookStyle, styleKey } from "./style";

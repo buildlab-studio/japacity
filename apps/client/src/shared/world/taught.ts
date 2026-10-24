@@ -1,4 +1,4 @@
-// What a life has been shown once (chapter:first-chapter-mission-card; world:top-band-is-lively-pill, world:things-are-tappable-models, world:sleep-ends-the-month;
+// What a life has been shown once (chapter:first-chapter-mission-card; world:top-band-is-a-pill, world:things-are-tappable-models, world:sleep-ends-the-month;
 // home:moves-carry-cost-and-reason): the first chapter's title, the Calendar's teach card, a place's labels on its first entry, a home's
 // blurb and the first night's card. Kept on the device beside the save and the person, under one key of its own that goes when the life ends
 // (authority/ended.ts), so a reload never shows a mark again and a new life starts with none. The life's scenario is

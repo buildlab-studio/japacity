@@ -1,4 +1,4 @@
-// world:sheets-one-frame: the one frame every sheet stands in (the lively sheet, the world sheet, the account sheet and the
+// world:sheets-one-frame: the one frame every sheet stands in (the look's sheet, the world sheet, the account sheet and the
 // ask's card): built on Base UI's dialog for the focus trap; a handle that closes the sheet when dragged down past a third of
 // its height or flicked down, and does nothing on a tap; one close at the top right with a 44 px hit area; on a laptop the
 // sheet rises in the centre at a phone's width, as on a phone. world:back-closes-topmost: an open sheet is a layer Back closes.

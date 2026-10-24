@@ -2,9 +2,9 @@
 // attributes, such as a data- mark for tests and pictures, pass through to the box.
 import type { ComponentProps } from "react";
 
-export function LivelyCard({ className = "", children, ...rest }: ComponentProps<"div">) {
+export function LookCard({ className = "", children, ...rest }: ComponentProps<"div">) {
   return (
-    <div {...rest} className={`lively-card ${className}`} data-lively-card>
+    <div {...rest} className={`look-card ${className}`} data-look-card>
       {children}
     </div>
   );

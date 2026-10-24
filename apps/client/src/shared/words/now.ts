@@ -1,5 +1,5 @@
 // The month in hand, for words that tell a month the simulation stamped as months away
-// (world:top-band-is-lively-pill). The game store sets it whenever the view changes and the
+// (world:top-band-is-a-pill). The game store sets it whenever the view changes and the
 // provider clears it when the game leaves the screen; with no game around it is null, and a
 // stamped month keeps its number. Beside it, where the life on screen is from (prologue.md
 // prologue:family-draw-on-first-answer), which fills `{hometown}` in content's lines; and the names a computer person

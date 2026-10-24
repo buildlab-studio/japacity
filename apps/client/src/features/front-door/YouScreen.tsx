@@ -12,7 +12,7 @@ import { LOOKS } from "../../shared/front-door/looks";
 import { OwnColoursRows } from "../../shared/front-door/OwnColours";
 import { isMade, type LookStyle, ownOf, reportOwn, useOwnColours } from "../../shared/front-door/style";
 import { bringIntoView } from "../../shared/front-door/view";
-import type { Tint } from "../../shared/ui/lively/tint";
+import type { Tint } from "../../shared/ui/look/tint";
 import { say } from "../../shared/words/text";
 
 /** The face stickers' discs, in turn along the strip. */

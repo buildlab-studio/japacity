@@ -11,8 +11,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { optionWords } from "../../shared/view/person";
 import { Tile } from "../../shared/tiles/Tile";
-import { Face } from "../../shared/ui/lively/Face";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { Face } from "../../shared/ui/look/Face";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 
 const ENTRY = "interview.genuineness";

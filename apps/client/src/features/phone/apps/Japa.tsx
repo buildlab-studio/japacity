@@ -62,7 +62,7 @@ function ChapterSteps({ view }: { view: PlayerView }) {
   return (
     <div data-chapter-steps={current}>
       <Head>{nameOf(current)}</Head>
-      <ul className="lively-card flex flex-col divide-y divide-sheet-line py-1">
+      <ul className="look-card flex flex-col divide-y divide-sheet-line py-1">
         {chapter.items.flatMap((item) => {
           const own = `${current}.item.${item.id}`;
           // The months on the ward, counted while they run.
@@ -103,7 +103,7 @@ function ClosedLine({ view, route }: { view: PlayerView; route: RouteView | null
   if (route === null || route.window !== "closed") return null;
   const every = everyRouteClosed(view);
   return (
-    <p className="lively-card mt-2 px-3.5 py-2.5 text-[15px] font-bold text-out" data-japa-closed={every ? "every" : route.id}>
+    <p className="look-card mt-2 px-3.5 py-2.5 text-[15px] font-bold text-out" data-japa-closed={every ? "every" : route.id}>
       {say(every ? "phone.japa.closed.every" : "phone.japa.closed")}
     </p>
   );
@@ -278,7 +278,7 @@ function statementMeets(requirement: Requirement | undefined): boolean {
 
 function NextStep({ step }: { step: string }) {
   return (
-    <p className="lively-card phone-picked mt-2 flex items-center gap-2 px-3.5 py-2.5 text-[15px] font-bold" data-japa-next>
+    <p className="look-card phone-picked mt-2 flex items-center gap-2 px-3.5 py-2.5 text-[15px] font-bold" data-japa-next>
       <ChevronRight size={16} className="shrink-0" aria-hidden />
       {say("phone.japa.next", { step })}
     </p>
@@ -309,7 +309,7 @@ function fromInside(view: PlayerView, said: OverstayWords): string[] {
 function Overstay({ view, said, onCard }: { view: PlayerView; said: OverstayWords; onCard: ((activity: string) => void) | null }) {
   const acts = onCard === null ? [] : fromInside(view, said);
   return (
-    <section className="lively-card mt-2 flex flex-col gap-2 p-3.5" data-japa-overstay={said.stage}>
+    <section className="look-card mt-2 flex flex-col gap-2 p-3.5" data-japa-overstay={said.stage}>
       <p className={`text-[17px] leading-tight font-bold ${said.stage === "grace" ? "" : "text-out"}`}>{said.title}</p>
       <p className="text-[14px] leading-snug">{said.line}</p>
       {said.pending === null ? null : <p className="text-[14px] text-text-2">{said.pending}</p>}
@@ -375,7 +375,7 @@ function Abroad({ view, onPapers, cards }: { view: PlayerView; onPapers: () => v
         <div data-landing={ahead.now ? "now" : "soon"}>
           <Head>{nameOf(ahead.id)}</Head>
           {ahead.now ? null : <p className="mb-1 text-[13px] text-text-2">{say("phone.japa.chapter.soon")}</p>}
-          <ul className="lively-card flex flex-col divide-y divide-sheet-line py-1">
+          <ul className="look-card flex flex-col divide-y divide-sheet-line py-1">
             {ahead.items.map((item) => (
               <Step key={item.id} met={item.met}>
                 {words(`${ahead.id}.item.${item.id}`)}
@@ -420,7 +420,7 @@ function PlanHead({ route }: { route: Id<"route"> }) {
 function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }) {
   const held = view.documents.filter((paper) => paper.state === "held").length;
   return (
-    <button type="button" onClick={onOpen} className="lively-card press mt-3 flex w-full items-center gap-3 p-3 text-left" data-open-papers>
+    <button type="button" onClick={onOpen} className="look-card press mt-3 flex w-full items-center gap-3 p-3 text-left" data-open-papers>
       <PicTile of="thing.papers-box" size={48} tint="plain" />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5 text-[16px] font-bold">
@@ -493,7 +493,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
         disabled={planned}
         // activity:now-acts-and-month-acts: the official page is read at once, and the phone says the page's line.
         onClick={() => void actOnCard({ activity: OFFICIAL, param: lookInto }, { send, addToPlan }).then((acted) => said(acted === "planned" ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : acted === "full" ? say("ui.world.full") : acted === "answered" ? nowSaid(OFFICIAL, lookInto) : ""))}
-        className="lively-card press mt-3 flex w-full items-center gap-3 p-3 text-left disabled:opacity-70"
+        className="look-card press mt-3 flex w-full items-center gap-3 p-3 text-left disabled:opacity-70"
         data-official-page={lookInto}
         data-official-other={otherWay ? "true" : undefined}
       >
@@ -516,7 +516,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
     <div data-phone-app="japa">
       {/* The way out as a card: its picture, "Your way out", the way's name and its file, and how
           ready the character is to go as a bar that fills, never a percentage. */}
-      <div className="lively-card p-3.5" data-japa-head>
+      <div className="look-card p-3.5" data-japa-head>
         <div className="flex items-start gap-3">
           <PicTile of={head === null ? "place.airport-lagos" : head.id} size={60} tint="money" />
           <div className="min-w-0 flex-1">
@@ -544,7 +544,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
       {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
       {kept.length === 0 ? null : (
-        <div className="lively-card mt-3 flex flex-col gap-1 p-3 text-[14px]" data-japa-kept>
+        <div className="look-card mt-3 flex flex-col gap-1 p-3 text-[14px]" data-japa-kept>
           {kept.map((said) => (
             <p key={said}>{said}</p>
           ))}
@@ -559,7 +559,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
           <ul className="grid grid-cols-2 gap-2.5">
             {others.map((way) => (
               <li key={way.route}>
-                <button type="button" onClick={() => setPage(way.route)} className="lively-card press flex h-full w-full flex-col items-start gap-2 p-2.5 text-left" data-other-way={way.route}>
+                <button type="button" onClick={() => setPage(way.route)} className="look-card press flex h-full w-full flex-col items-start gap-2 p-2.5 text-left" data-other-way={way.route}>
                   <PicTile of={way.route} size={52} tint="study" />
                   <span className="text-[15px] leading-tight font-bold">{nameOf(way.route)}</span>
                   <span className="sticker-chip bg-tint-study" style={{ rotate: "-1.5deg" }}>
@@ -579,7 +579,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
             {coming.map((row) => {
               const Icon = REMINDER_ICONS[row.kind];
               return (
-                <li key={`${row.kind}-${row.what}`} className="lively-card flex items-center gap-3 px-3 py-2.5" data-reminder={row.kind}>
+                <li key={`${row.kind}-${row.what}`} className="look-card flex items-center gap-3 px-3 py-2.5" data-reminder={row.kind}>
                   <span className="phone-pic flex size-10 shrink-0 items-center justify-center bg-tint-study" aria-hidden>
                     <Icon size={20} className="text-text" />
                   </span>
@@ -598,7 +598,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
       {costs.length === 0 ? null : (
         <>
           <Head>{say("ui.japa.cost.title")}</Head>
-          <dl className="lively-card flex flex-col px-3.5 py-1.5" data-move-costs>
+          <dl className="look-card flex flex-col px-3.5 py-1.5" data-move-costs>
             {costs.map((cost) => (
               <div key={cost.key} className={`flex items-baseline justify-between gap-3 py-1.5 text-[15px] ${cost.key === "ui.japa.cost.funds" ? "border-t border-sheet-line font-bold" : ""}`} data-cost={cost.key}>
                 <dt className="min-w-0">{say(cost.key)}</dt>
@@ -615,7 +615,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
         </>
       ) : null}
       <Head>{say("phone.japa.steps")}</Head>
-      <ul className={`flex flex-col ${route === null || route.state === "heard" ? "" : "lively-card divide-y divide-sheet-line py-1"}`} data-steps>
+      <ul className={`flex flex-col ${route === null || route.state === "heard" ? "" : "look-card divide-y divide-sheet-line py-1"}`} data-steps>
         {route === null || route.state === "heard"
           ? null
           : route.checklist.map((item) => (

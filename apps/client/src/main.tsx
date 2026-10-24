@@ -7,10 +7,10 @@ import { App } from "./app/App";
 import { tilesAsked } from "./shared/tiles/asked";
 import { sayBuild } from "./shared/build-stamp/stamp";
 import { installSoundWake } from "./shared/sound/sound";
-import { livelyAsked } from "./shared/ui/lively/preview";
+import { lookAsked } from "./shared/ui/look/preview";
 
-/** The lively layer's preview, development only: its own chunk, and none at all in a build for players. */
-const LivelyPreview = import.meta.env.DEV ? lazy(() => import("./shared/ui/lively/LivelyPreview").then((page) => ({ default: page.LivelyPreview }))) : null;
+/** The preview of the game's look, development only: its own chunk, and none at all in a build for players. */
+const LookPreview = import.meta.env.DEV ? lazy(() => import("./shared/ui/look/LookPreview").then((page) => ({ default: page.LookPreview }))) : null;
 
 const container = document.getElementById("root");
 if (container === null) {
@@ -31,9 +31,9 @@ createRoot(container).render(
       <Suspense fallback={null}>
         <TileSheet />
       </Suspense>
-    ) : LivelyPreview !== null && livelyAsked(location.search) ? (
+    ) : LookPreview !== null && lookAsked(location.search) ? (
       <Suspense fallback={null}>
-        <LivelyPreview />
+        <LookPreview />
       </Suspense>
     ) : (
       <App />

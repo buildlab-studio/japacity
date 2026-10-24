@@ -69,7 +69,7 @@ const PILL = /(?<![\w-])rounded-full(?![\w-])/;
 const PILLS_ALLOWED = 8;
 /**
  * The front door's rounds apart from the budget (world:colours-are-role-tokens's exception): its colour swatches and the page's round
- * stamp, one round each. The header is DoorFrame, whose round buttons are the lively layer's own class
+ * stamp, one round each. The header is DoorFrame, whose round buttons are a round class of the game's look
  * (`.round-button`, as the band's thumbs are `.thumb-round`), so it draws no round of its own here.
  */
 const DOOR_ROUNDS: Readonly<Record<string, number>> = {

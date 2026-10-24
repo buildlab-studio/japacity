@@ -18,7 +18,7 @@ export const uiCityText: Record<string, string> = {
   "city.map.lagos": "Lagos",
   "city.map.no-visa": "No visa yet",
   "city.map.not-open": "Not in this life yet",
-  // The band says what a home is, in few words (world:top-band-is-lively-pill).
+  // The band says what a home is, in few words (world:top-band-is-a-pill).
   "city.home.compound-room": "Your room, Ojuelegba",
   "city.home.hostel-room": "Your hostel room, Yaba",
   "city.home.family-house": "The family house",

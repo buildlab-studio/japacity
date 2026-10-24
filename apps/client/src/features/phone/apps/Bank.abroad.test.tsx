@@ -1,4 +1,4 @@
-// The Bank abroad (world:top-band-is-lively-pill, world:phone-holds-what-phones-hold): on the graduate's recorded life, landed in London with £1,560
+// The Bank abroad (world:top-band-is-a-pill, world:phone-holds-what-phones-hold): on the graduate's recorded life, landed in London with £1,560
 // (the figure follows the recording) while rent, living costs and a tuition instalment of £7,102 fall due (the UK
 // upkeep includes the phone's £15, abroad-money:arrival-opens-upkeep-and-room), the app leads with the gap and the way to close it, then the pounds,
 // then the naira and the dollars each with Change money. Once flown, there is no move to save toward.
@@ -58,7 +58,7 @@ describe("the month's dues abroad", () => {
     expect(duesGap(game.view())).toBeNull();
   });
 
-  test("[world:top-band-is-lively-pill] given the gap on landing, when the band counts, then it stays the country's money", () => {
+  test("[world:top-band-is-a-pill] given the gap on landing, when the band counts, then it stays the country's money", () => {
     const view = landed();
     expect(duesGap(view)).not.toBeNull();
     const band = bandMoney(view);

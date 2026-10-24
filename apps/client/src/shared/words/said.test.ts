@@ -32,7 +32,7 @@ describe("words that fit", () => {
     expect(landing).not.toMatch(/\bin United\b/);
   });
 
-  test("[world:top-band-is-lively-pill] given a chapter closed, when its line is read, then it names the chapter and says nothing of turns", () => {
+  test("[world:top-band-is-a-pill] given a chapter closed, when its line is read, then it names the chapter and says nothing of turns", () => {
     const said = words("line.chapter.closed", { chapter: "chapter.find-your-feet" });
     expect(said).toContain(nameOf("chapter.find-your-feet"));
     expect(said).not.toMatch(/turn/i);

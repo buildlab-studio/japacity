@@ -17,7 +17,7 @@ export const uiText: Record<string, string> = {
   "ui.month.planning": "Month {month}",
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
-  // The month's name and phase on the band (world:top-band-is-lively-pill, turn:month-lived-in-half-days; decision 0011): month 0 of a
+  // The month's name and phase on the band (world:top-band-is-a-pill, turn:month-lived-in-half-days; decision 0011): month 0 of a
   // life is the month of the year it began in; the phase says the month's free time in words, never a count.
   "ui.month.name.0": "January",
   "ui.month.name.1": "February",
@@ -481,7 +481,7 @@ export const uiText: Record<string, string> = {
   "ui.prologue.parents.not": "Your parents did not get far in school.",
   "ui.prologue.money": "Money of your own: {amount}",
   "ui.prologue.money.none": "No money of your own yet.",
-  // The handover's one button: Go, never a month number (world:top-band-is-lively-pill; prologue:archetype-presets-answers).
+  // The handover's one button: Go, never a month number (world:top-band-is-a-pill; prologue:archetype-presets-answers).
   "ui.prologue.start": "Go",
 
   // A new life

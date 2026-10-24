@@ -1,4 +1,4 @@
-// The phone's apps in the lively dress (docs/design/09-the-lively-layer.md section 2): the same apps with the same jobs,
+// The phone's apps in the game's look (docs/design/09-the-lively-layer.md section 2): the same apps with the same jobs,
 // told in cards, tiles and chips rather than document headers and paragraphs; and the words a player reads on the phone
 // never say slots, a turn, banked, pages, days left or a percentage.
 import type { PlayerView } from "@japacity/sim";
@@ -40,7 +40,7 @@ function back(): void {
 /** The words no player reads (text:bands-not-figures): the engine's counting, never the life's. */
 const NEVER = /\b(slots?|turns?|banked|pages?|days left)\b|%/i;
 
-describe("the phone in the lively dress", () => {
+describe("the phone in the game's look", () => {
   test("[world:phone-rises-over-scene] given the phone opens, when its lock screen shows, then the wallpaper is the plain navy with no pattern, the day is said in words, and the place stands in a pill", async () => {
     await openPhone(engineView());
     const glass = document.querySelector<HTMLElement>("[data-phone-glass]");
@@ -98,7 +98,7 @@ describe("the phone in the lively dress", () => {
     const rows = [...papers.querySelectorAll<HTMLElement>("[data-paper]")];
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
-      expect(row.querySelector("[data-lively-card]")).not.toBeNull();
+      expect(row.querySelector("[data-look-card]")).not.toBeNull();
       expect(row.querySelector("[data-tile]")).not.toBeNull();
       expect(row.querySelector("[data-paper-state]")?.className).toContain("sticker-chip");
     }

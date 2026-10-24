@@ -1,4 +1,4 @@
-// The world as the game, in a real browser at phone size (world:world-fills-the-screen, world:top-band-is-lively-pill, world:nudge-says-one-thing, world:thumb-buttons-carry-dots, world:things-are-tappable-models, world:one-action-one-sheet, world:month-acts-carry-on, world:month-end-results-sheet, world:no-classic-view-kept, world:sleep-ends-the-month, world:month-passes-as-lived): the
+// The world as the game, in a real browser at phone size (world:world-fills-the-screen, world:top-band-is-a-pill, world:nudge-says-one-thing, world:thumb-buttons-carry-dots, world:things-are-tappable-models, world:one-action-one-sheet, world:month-acts-carry-on, world:month-end-results-sheet, world:no-classic-view-kept, world:sleep-ends-the-month, world:month-passes-as-lived): the
 // default address opens the world with the band and the two thumb buttons and nothing else, nothing under the band; ?classic
 // opens the world as any address does; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
@@ -62,7 +62,7 @@ test("[world:world-fills-the-screen] [world:no-classic-view-kept] [world:nudge-s
   // The journey's step shows only in the moment (world:nudge-says-one-thing): nothing under the band by default.
   await expect(page.locator("[data-nudge]")).toHaveCount(0);
   // The band: the name over the age opens the data page (prologue:front-door-builds-a-person; the name itself is that same button for a screen
-  // reader), and the month's part of the day opens the Calendar (world:top-band-is-lively-pill); then the two thumbs, and over Phone the
+  // reader), and the month's part of the day opens the Calendar (world:top-band-is-a-pill); then the two thumbs, and over Phone the
   // round button that turns the wide home a quarter round. No Next month: the bed turns the month
   // (world:month-passes-as-lived).
   const buttons = await visibleButtons(page);
@@ -85,7 +85,7 @@ test("[world:no-classic-view-kept] ?classic opens the world as any address does,
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toHaveCount(0);
 });
 
-test("[world:top-band-is-lively-pill] [world:month-acts-carry-on] [world:month-end-results-sheet] [world:sleep-ends-the-month] [world:month-passes-as-lived] the band's month opens the Calendar with nothing to end; the bed's Sleep turns the month, the results show over the scene, and the button goes back to the place a month older", async ({ page }, info) => {
+test("[world:top-band-is-a-pill] [world:month-acts-carry-on] [world:month-end-results-sheet] [world:sleep-ends-the-month] [world:month-passes-as-lived] the band's month opens the Calendar with nothing to end; the bed's Sleep turns the month, the results show over the scene, and the button goes back to the place a month older", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(150_000);
   await startLife(page);
@@ -121,7 +121,7 @@ test("[world:top-band-is-lively-pill] [world:month-acts-carry-on] [world:month-e
 
   await expect(results.locator("[data-results-back]")).toHaveText(new RegExp(`^Back to ${place.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"));
   await backFromResults(page);
-  // The band's clock is the age, never a month number (world:top-band-is-lively-pill): a month on, it reads one month older, in the next month.
+  // The band's clock is the age, never a month number (world:top-band-is-a-pill): a month on, it reads one month older, in the next month.
   await expect(page.locator("[data-band]")).not.toHaveText(bandBefore);
   await expect(page.locator("[data-band]")).toContainText(/\d+ yrs \d+ mo/);
   await expect(page.locator("[data-band-month]")).not.toHaveAttribute("aria-label", monthBefore);

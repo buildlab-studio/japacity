@@ -58,7 +58,7 @@ function road(view: PlayerView, city: ReactNode = null) {
 }
 
 describe("the road's one panel", () => {
-  test("[world:top-band-is-lively-pill] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
+  test("[world:top-band-is-a-pill] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
     await road(onTheRoad([offer("offer-9", EXIT_OFFER, [ASK])]));
     expect(screen.getByRole("heading", { name: say("ui.road.month-done") })).toBeDefined();
     expect(document.body.textContent).not.toMatch(/Month \d+/);

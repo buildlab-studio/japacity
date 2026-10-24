@@ -9,7 +9,7 @@
 @import "@fontsource/rubik/latin-700.css";
 
 /* The role tokens (world:colours-are-role-tokens). A component names a role, never a colour. One look, two paints
-   (decision 0025, the lively layer): the day's pale sky here, and the night's navy under data-paint="night" on <html>,
+   (decision 0025, the game's look): the day's pale sky here, and the night's navy under data-paint="night" on <html>,
    set from the world's clock (shared/world/paint.ts). The 3D world keeps its own colours in both. */
 :root {
   color-scheme: light;
@@ -29,7 +29,7 @@
   --text: #131a33;
   --text-2: #56607e;
   --sheet-line: rgba(28, 42, 94, 0.12);
-  /* The lively layer's edge: a thin navy line round a card, a pill and a sticker button. */
+  /* The edge of the game's look: a thin navy line round a card, a pill and a sticker button. */
   --edge: #1c2a5e;
   --edge-width: 1px;
   /* Soft tints by kind of act: food peach, study blue, money green, body lilac, people rose; anything else the sheet's. */
@@ -41,7 +41,7 @@
   --tint-plain: #eaf3fb;
   /* The white a sticker is cut from, round a picture and a sticker chip. */
   --cut: #ffffff;
-  /* A person's flat mark beside their name (the lively Face), picked by the name; the same in both paints. */
+  /* A person's flat mark beside their name (the look's Face), picked by the name; the same in both paints. */
   --face-1: #c2185b;
   --face-2: #2a8656;
   --face-3: #2c3f87;
@@ -120,7 +120,7 @@
 .reach-down::after { top: 0; translate: -50% 0; }
 
 /* The night paint: the same shapes in navy, cream ink and cream edges, the yellow action unchanged; its underside turns
-   cream with the edges so the press still reads on navy. A part of the page may carry the attribute too (the lively
+   cream with the edges so the press still reads on navy. A part of the page may carry the attribute too (the look's
    preview shows the two paints side by side), so every token that reads another is set again here. */
 :root[data-paint="night"],
 [data-paint="night"] {
@@ -200,7 +200,7 @@
   --font-display: "Danfo", system-ui, sans-serif;
 }
 
-/* The lively layer's three sizes (docs/design/09-the-lively-layer.md, section 2): titles and money, the body, chips. */
+/* The three sizes of the game's look (docs/design/09-the-lively-layer.md, section 2): titles and money, the body, chips. */
 @theme {
   --text-title: 22px;
   --text-title--line-height: 1.15;
@@ -245,7 +245,7 @@ body {
   .sleep-bar { animation: sleep-bar calc(var(--seconds) * 1s) steps(var(--seconds)) both !important; }
 }
 
-/* The world's bands, chips and the one main button (world:top-band-is-lively-pill, world:one-action-one-sheet, world:colours-are-role-tokens, world:motions-under-half-second). */
+/* The world's bands, chips and the one main button (world:top-band-is-a-pill, world:one-action-one-sheet, world:colours-are-role-tokens, world:motions-under-half-second). */
 .band { background-color: var(--strong); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
 .band-2 { background-color: var(--strong-2); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
 /* The adire circles over a band, where they stay (decision 0025): the travel data page, behind the wordmark, the door. */
@@ -262,7 +262,7 @@ body {
 .btn-main:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--action-edge); }
 .btn-main:disabled { opacity: 0.5; }
 .btn-dark { background: var(--strong); color: var(--on-strong); border-radius: 5px; font-weight: 800; outline: var(--band-outline); outline-offset: -1px; }
-/* Every tappable thing squashes a little on press and springs back (the lively layer, section 7; world:motions-under-half-second). On its own
+/* Every tappable thing squashes a little on press and springs back (the game's look, decision 0025; world:motions-under-half-second). On its own
    scale, so a tilt or a move it already has stays; in the components layer, so an element's own transition utility wins. */
 @layer components {
   .press { transition-property: scale; transition-duration: 120ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1.3); }
@@ -294,7 +294,7 @@ body {
 .google-button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .google-button:disabled { opacity: 0.38; cursor: not-allowed; }
 
-/* The lively layer's primitives (docs/design/09-the-lively-layer.md, section 2; shared/ui/lively). A sticker is a picture
+/* The primitives of the game's look (docs/design/09-the-lively-layer.md, section 2; shared/ui/look). A sticker is a picture
    cut with a 3 px edge and a soft shadow; a sticker chip is a tilted pill with the same edge; the one action is yellow
    with a 4 px underside that flattens on press; a pill and a card are white with the thin edge. */
 .sticker-cut {
@@ -352,9 +352,9 @@ body {
   line-height: 1.2;
   white-space: nowrap;
 }
-/* A person's flat round mark beside their name (the lively Face). */
+/* A person's flat round mark beside their name (the look's Face). */
 .face-mark { border-radius: 50%; }
-.lively-card {
+.look-card {
   border: var(--edge-width) solid var(--edge);
   border-radius: 20px;
   background: var(--sheet-2);
@@ -362,7 +362,7 @@ body {
   box-shadow: 0 6px 16px rgba(19, 26, 51, 0.1);
 }
 /* On a laptop the band, the nudge, the thumbs, the toasts, the teaching cards and the phone stand in a centred column of
-   phone width, and the world fills the screen around it (section 2; the lively column). In the components layer, so a
+   phone width, and the world fills the screen around it (section 2; the centred column). In the components layer, so a
    caller's own utilities win. */
 @layer components {
   .centred-column { width: 100%; max-width: 430px; margin-inline: auto; }
@@ -374,7 +374,7 @@ body {
 @keyframes drop { from { transform: translateY(-14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes phone-up { from { transform: translateY(105%) rotate(5deg); } to { transform: none; } }
 @keyframes chip-in { from { transform: translateY(8px) scale(0.9); opacity: 0; } to { transform: none; opacity: 1; } }
-/* The lively layer's appear and refuse (section 7): a sticker wobbles in and settles; a refusal shakes sideways three
+/* The appear and refuse of the game's look (section 7): a sticker wobbles in and settles; a refusal shakes sideways three
    times, short and quick. A sticker's tilt is its own rotate, so these transforms leave it be. */
 @keyframes wobble-in { 0% { transform: scale(0.6) rotate(-14deg); opacity: 0; } 55% { transform: scale(1.06) rotate(5deg); opacity: 1; } 80% { transform: scale(0.98) rotate(-2deg); } 100% { transform: none; opacity: 1; } }
 @keyframes shake { 0%, 100% { transform: none; } 16% { transform: translateX(-6px); } 33% { transform: translateX(6px); } 50% { transform: translateX(-5px); } 66% { transform: translateX(5px); } 83% { transform: translateX(-3px); } 92% { transform: translateX(3px); } }
@@ -402,7 +402,7 @@ body {
 /* A sheet rises from the foot and goes back the same way, on a phone and in the laptop's centre alike (world:sheets-one-frame). */
 .motion-sheet { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 .motion-sheet[data-starting-style], .motion-sheet[data-ending-style] { transform: translateY(100%); }
-/* A lively sheet rises from the foot and sinks back the same way, on a phone and in the laptop's column alike. */
+/* A sheet of the game's look rises from the foot and sinks back the same way, on a phone and in the laptop's column alike. */
 .motion-rise { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
 .motion-rise[data-starting-style], .motion-rise[data-ending-style] { transform: translateY(100%); }
 /* A world sheet rises (.rise); closing, it sinks back the same way. */
@@ -528,7 +528,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   }
 }
 
-/* The lively band (docs/design/09-the-lively-layer.md, section 2): a white pill by day and navy at
+/* The band in the game's look (docs/design/09-the-lively-layer.md, section 2): a white pill by day and navy at
    night, a thin edge with its underside, the money in green, the part of the day after a dot. No pattern (decision 0025). */
 :root { --money-ink: #0f7343; }
 :root[data-paint="night"], [data-paint="night"] { --money-ink: #9be3b9; }
@@ -615,7 +615,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   .marker-bounce, .marker-ring { animation: none !important; }
   .brief-chip-tuck { transition: opacity 200ms ease !important; transform: none; }
 }
-/* The talk (the talk budget, design page 09 section 5): the lively bubble with its edge and underside, its tail; the
+/* The talk (the talk budget, docs/design/09-the-lively-layer.md section 5): the look's bubble with its edge and underside, its tail; the
    corner's pill for the player's own act's answer; and the emotes, a picture in a round bubble over a person. */
 .talk-bubble {
   border-radius: 16px;
@@ -686,11 +686,11 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @keyframes coin-fly { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); } 20% { opacity: 1; } 100% { opacity: 0.2; transform: translate(calc(-50% + var(--tx, 0px)), var(--ty, 0px)) scale(1); } }
 .coin-fly { animation: coin-fly 0.42s cubic-bezier(0.4, 0, 0.2, 1) both; }
 @media (prefers-reduced-motion: reduce) { .coin-fly { animation: fade 0.2s ease both !important; } }
-/* The lively layer's own round shapes, round by design as the pill and the sticker chip are (world:colours-are-role-tokens with
+/* The round shapes of the game's look, round by design as the pill and the sticker chip are (world:colours-are-role-tokens with
    decision 0025): the band's sky, a chip's picture, the road's dots and tick, the thumbs' first words and an asker's mark. */
 .band-sky, .chip-pic, .brief-dot, .brief-tick, .ask-mark, .first-label { border-radius: 9999px; }
 .first-label { border: 1px solid var(--edge); background: var(--sheet-2); color: var(--text); }
-/* The phone's apps in the lively dress (design page 09, section 2): the wallpaper a plain
+/* The phone's apps in the game's look (docs/design/09-the-lively-layer.md section 2): the wallpaper a plain
    navy, the place a soft pill on it, each app's icon cut with a white edge, the app's head a small tile of its colour; in
    an app, white cards with the thin edge, a picture on a soft tile, chips for money and words, and a white button with
    the navy underside for a way out of the app (the one yellow action stays the surface's main act). */

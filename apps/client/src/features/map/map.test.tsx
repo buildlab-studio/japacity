@@ -223,7 +223,7 @@ describe("the ride", () => {
     expect(main.textContent).toContain(mapWords("map.short", { amount: "" }).trim());
   });
 
-  test("[world:top-band-is-lively-pill] [text:show-then-tell] given a ride to a place with a long name, when its band shows, then the title says the whole name, wrapping to a second line rather than cut", () => {
+  test("[world:top-band-is-a-pill] [text:show-then-tell] given a ride to a place with a long name, when its band shows, then the title says the whole name, wrapping to a second line rather than cut", () => {
     render(<Ride way="danfo" place="Murtala Muhammed International Airport" drawing={false} onDone={() => undefined} />);
     const title = document.querySelector<HTMLElement>("[data-ride-title]");
     expect(title?.textContent).toBe("Danfo to Murtala Muhammed International Airport");

@@ -8,7 +8,7 @@ export const uiTurnText: Record<string, string> = {
   "turn.month.side": "Side job: {job}",
   "turn.month.hint": "Tap a thing in the world to start something. It carries on each month until you stop it.",
   "turn.month.end": "Next month",
-  // The Calendar app (world:top-band-is-lively-pill, world:month-acts-carry-on): the month on the phone, in order.
+  // The Calendar app (world:top-band-is-a-pill, world:month-acts-carry-on): the month on the phone, in order.
   "turn.calendar.work": "Work",
   // What carries on into next month until it is stopped, and a month held by a burial or a stay in hospital (world:month-acts-carry-on).
   "turn.calendar.carrying": "Carrying on",
@@ -24,7 +24,7 @@ export const uiTurnText: Record<string, string> = {
   "turn.calendar.pass.country.canada": "Transit pass bought: the bus and the CTrain are free till the month ends",
   "turn.calendar.pass.country.uae": "Zone pass bought: the bus and the metro are free till the month ends",
   "turn.calendar.at": "At {place}",
-  // Where a dated ask is attended when no place of the city stages it (world:top-band-is-lively-pill).
+  // Where a dated ask is attended when no place of the city stages it (world:top-band-is-a-pill).
   "turn.calendar.where.offer.village-burial": "In the village",
   // home:compound-room-is-a-home: the room's year falls due at this month's end and is not held.
   "turn.month.rent-short": "Rent {amount} due this month. You hold {held}.",

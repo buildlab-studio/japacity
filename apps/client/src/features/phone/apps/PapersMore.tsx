@@ -228,7 +228,7 @@ export function PapersYou() {
   return (
     <section data-papers-you>
       <Head>{say("ui.profile.title")}</Head>
-      <div className="lively-card flex flex-col gap-3 p-3" data-lively-card>
+      <div className="look-card flex flex-col gap-3 p-3" data-look-card>
         <dl className="grid grid-cols-2 gap-3">
           {now.map(({ id, value }) => (
             <Quality key={id} id={id} value={value} />

@@ -101,7 +101,7 @@ export function HomeCard() {
     });
 
   return (
-    <section className="lively-card mb-3 p-3.5" data-home-card data-home-place={home.place ?? "none"} aria-label={say("phone.home.title")}>
+    <section className="look-card mb-3 p-3.5" data-home-card data-home-place={home.place ?? "none"} aria-label={say("phone.home.title")}>
       {/* Where you live: the home's picture, its name, what it costs as a chip, its
           line; then the other homes as picture tiles, each with its move and what is paid on it. */}
       <div className="flex items-start gap-3">

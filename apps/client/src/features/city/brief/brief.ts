@@ -164,7 +164,7 @@ export function doneToast(left: number): string {
 }
 
 /**
- * The things of the world the road never touches (design page 09 section 4): the joint, the barber, the suya man and
+ * The things of the world the road never touches (docs/design/09-the-lively-layer.md section 4): the joint, the barber, the suya man and
  * the club. No brief, chip, marker or toast stands on them, ever.
  */
 export const FUN_ACTS: ReadonlySet<string> = new Set(["activity.beer-joint", "activity.barber", "activity.buy-suya", "activity.night-out"]);

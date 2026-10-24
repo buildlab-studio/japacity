@@ -117,7 +117,7 @@ test("[world:map-is-painted-lagos] [world:ride-sheet-shows-fares] given a life a
   await shot(page, "08-ride");
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
   await page.waitForFunction((id) => (window as unknown as { __city?: CityProbe }).__city?.place === id, target, { timeout: 30_000 });
-  // The band names the place small (world:top-band-is-lively-pill), by its short name where content gives one.
+  // The band names the place small (world:top-band-is-a-pill), by its short name where content gives one.
   await expect(page.locator("[data-band] h2")).toHaveText(text[`${target}.short`] ?? text[`${target}.name`] ?? target);
   await shot(page, "09-arrived");
 });

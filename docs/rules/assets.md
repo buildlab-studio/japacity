@@ -1,6 +1,6 @@
 # Assets
 
-> Rests on `../design/06-assets-and-visuals.md` (budgets, the palette rule, scale, the register, the review method, the rules for AI-made media) and its four asset experiments. The pipeline that applies these rules is `../decisions/0009-models-are-code.md`.
+> Rests on `../design/06-assets-and-visuals.md` (budgets, the palette rule, scale, the register, the review method, the rules for AI-made media) and the four experiments it records. The pipeline that applies these rules is `../decisions/0009-models-are-code.md`.
 > No kind of the simulation. These are the fixed conventions every contributor follows, and the sheet every piece is judged on. The places that use the assets are in `city.md`.
 
 Every model in the game is built on one palette, at one scale, under one budget, and judged on one sheet by someone who did not build it. The examples (a kit of parts, two buildings from it, two shopfronts with signboards, the National Stadium, and the Third Mainland Bridge) are judged on the same sheet as every other piece, and as accepted examples they are what each new piece is compared with.
@@ -9,13 +9,13 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:colours-from-named-palette** Every colour in every model is a named entry in the one palette file, and the model refers to it by name. A colour enters the palette only by a named addition the maintainer accepts, with a one-line reason. Textures are allowed only for fabric patterns (assets:fabric-pattern-from-seed) and sign text (assets:sign-text-drawn-in-code).
 
-**assets:starting-palette-frozen** The starting palette is the 37 colours of the asset experiments, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. The four scene colours the experiments hard-coded (sand, asphalt, road marking, sky) are named entries.
+**assets:starting-palette-frozen** The starting palette is the 37 colours of the four experiments of `../design/06-assets-and-visuals.md`, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. Four scene colours are named entries: sand, asphalt, road marking and sky.
 
 **assets:metre-units-and-origin** One unit is one metre. +Y is up. A model faces +Z (the glTF convention). Its origin is the centre of its footprint at ground level, and its lowest point is at y = 0 within 0.01 m.
 
-**assets:people-and-door-sizes** Adults are 1.7 m nominal; built people run from 1.59 m to 1.82 m before hair and headwear, as the asset experiments measured. A single door is 2.1 m high and 0.9 m wide; a double door is 2.1 m by 1.2 m. Every part in the kit takes its sizes from the part table below.
+**assets:people-and-door-sizes** Adults are 1.7 m nominal; built people run from 1.59 m to 1.82 m before hair and headwear, as measured in the people experiments of `../design/06-assets-and-visuals.md`. A single door is 2.1 m high and 0.9 m wide; a double door is 2.1 m by 1.2 m. Every part in the kit takes its sizes from the part table below.
 
-**assets:flat-and-smooth-shading** Flat shading on hard-edged things; smooth shading on round parts (heads, hair, wheels, pots, domes), named per part in the node extras by the contributor who builds the model. The game's loader sets `flatShading` on every material it loads except the parts so named, because the setting does not survive compression (a known fault, seen in the asset experiments). Soft organic shapes are blended from simple shapes, thinned and shown smooth at build time (design 06 section 5 rule 3); the loader never blends. An asset has at most two materials: one opaque vertex-coloured material, and at most one more for a pattern or a sign texture. Glass is a dark palette colour, not a transparent material.
+**assets:flat-and-smooth-shading** Flat shading on hard-edged things; smooth shading on round parts (heads, hair, wheels, pots, domes), named per part in the node extras by the contributor who builds the model. The game's loader sets `flatShading` on every material it loads except the parts so named, because the setting does not survive compression (a known fault of the compression). Soft organic shapes are blended from simple shapes, thinned and shown smooth at build time (`../design/06-assets-and-visuals.md` section 5); the loader never blends. An asset has at most two materials: one opaque vertex-coloured material, and at most one more for a pattern or a sign texture. Glass is a dark palette colour, not a transparent material.
 
 **assets:lighting-set-by-place** One sun and one sky light, set by the place, never by an asset. Shadows are cast only by characters and vehicles, and only in the high mode (`city.md`, city:two-graphics-modes). Every place takes the layer's light by its kind (`lightKindOf`). A home, a place whose file sets `light.room`, gets the rooms' light: a pale sky (0xdfe8f4), a warm floor bounce, a pale backdrop (0xeef1f8), a warm sun at 2.3 and a sky light at 1.35, no haze. An office, any other indoor place, takes the rooms' numbers, a warm floor bounce and no haze. A street takes the pale cool sky light, a warm sun, sun 2.15 and sky 1.25 at noon, its own ground's bounce, and the fog fading into the pale sky. The backdrop and fog are the pale sky everywhere, tinted by the clock. A lamp may carry a real point light, scaled by the world's clock and kept at zero by day so no shader recompiles; a street or an office has at most two a place.
 
@@ -39,7 +39,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:variants-are-numbers-not-code** A new outfit, hairstyle, vehicle variant or building is a set of numbers given to existing builder code, not new builder code. New builder code is a new part, and a new part goes through the review like an asset.
 
-**assets:ai-media-recorded-and-credited** Media made with an AI tool records the tool and the plan in its register row, is approved by a person before it ships, and is named on the credits screen (`../design/06` section 9). A model or picture written as code is the makers' own work, not generated, with no tool named; the register's authors are the makers.
+**assets:ai-media-recorded-and-credited** Media made with an AI tool records the tool and the plan in its register row, is approved by a person before it ships, and is named on the credits screen (`../design/06-assets-and-visuals.md` section 9). A model or picture written as code is the makers' own work, not generated, with no tool named; the register's authors are the makers.
 
 ## Rules: the kit of parts
 
@@ -96,10 +96,10 @@ Additions, accepted under assets:colours-from-named-palette. Painted block walls
 
 | Name | Value | For |
 |---|---|---|
-| `sand` | #d9b27c | Ground (a scene colour of the experiments) |
-| `asphalt` | #4a4a4f | Road (a scene colour of the experiments) |
-| `marking` | #e9e3d2 | Road lines (a scene colour of the experiments) |
-| `sky` | #f3d9a4 | Sky and fog (a scene colour of the experiments) |
+| `sand` | #d9b27c | Ground |
+| `asphalt` | #4a4a4f | Road |
+| `marking` | #e9e3d2 | Road lines |
+| `sky` | #f3d9a4 | Sky and fog |
 | `laterite` | #b5653a | Red earth, unpaved ground |
 | `concrete` | #9a958c | Slabs, kerbs, fence walls, unpainted render |
 | `concreteWorn` | #6e6a63 | Stains, damp, lower walls |
@@ -124,16 +124,16 @@ Additions, accepted under assets:colours-from-named-palette. Painted block walls
 
 | Prefix | What | Triangles | Draw calls | Materials | Compressed size | Height | Source |
 |---|---|---|---|---|---|---|---|
-| `person_` | A person with clothes and hair | 3,000 | 3 | 2 | 150 KB | 1.55 m to 2.3 m with headwear | `../design/06` section 6 |
-| `vehicle_` | A vehicle | 3,000 | 2 | 2 | 100 KB | | `../design/06` section 6 |
-| `building_` | An ordinary building from the kit | 1,500 | 1 | 1 | 40 KB | 3 m to 13 m (one to four storeys) | Working value: the experiments' market stall (664 triangles, 14.2 KB) is a third of it; a wide home's shell has one draw call more per wall pair (assets:assets-and-places-within-budget) |
+| `person_` | A person with clothes and hair | 3,000 | 3 | 2 | 150 KB | 1.55 m to 2.3 m with headwear | `../design/06-assets-and-visuals.md` section 6 |
+| `vehicle_` | A vehicle | 3,000 | 2 | 2 | 100 KB | | `../design/06-assets-and-visuals.md` section 6 |
+| `building_` | An ordinary building from the kit | 1,500 | 1 | 1 | 40 KB | 3 m to 13 m (one to four storeys) | Working value: the market stall of the vehicles and props experiment (664 triangles, 14.2 KB) is a third of it; a wide home's shell has one draw call more per wall pair (assets:assets-and-places-within-budget) |
 | `shopfront_` | A shopfront bay with its awning | 1,200 | 2 (body, sign) | 2 | 30 KB | 3 m to 4 m | Working value |
 | `landmark_` | A landmark | 8,000 | 2 | 2 | 250 KB | | Working value: a tenth of an exterior's triangles |
-| `prop_` | A prop: stall, tank, generator, pole, crate | 800 | 1 | 1 | 25 KB | | Working value, the experiments' market stall fits |
+| `prop_` | A prop: stall, tank, generator, pole, crate | 800 | 1 | 1 | 25 KB | | Working value: the experiment's market stall fits |
 
 ## Budgets for one place
 
-From `../design/06` section 6:
+From `../design/06-assets-and-visuals.md` section 6:
 
 | Scope | Draw calls | Triangles in view | Download |
 |---|---|---|---|
@@ -142,7 +142,7 @@ From `../design/06` section 6:
 | An exterior | 80 | 80,000 | 1.5 MB |
 | The whole game | | | 40 MB |
 
-How an exterior's 80 draw calls and 80,000 triangles are shared. Working values, from the experiments' measured people (1 to 3 draw calls, 684 to 1,566 triangles) and vehicles:
+How an exterior's 80 draw calls and 80,000 triangles are shared. Working values, from the people and vehicles measured in the experiments (1 to 3 draw calls, 684 to 1,566 triangles a person):
 
 | Part | Draw calls, low | Draw calls, high | Triangles, high |
 |---|---|---|---|
@@ -242,10 +242,10 @@ Acceptance is assets:acceptance-score-thresholds. A landmark adds the outline sc
 | Thin outline growth | 2% of the frame, below 10% fill | So bridges and masts are scorable | `thinFillPct`, `thinGrowPct` |
 | Acceptance | No criterion under 3, phone size 4, mean 3.5 | Working value: the experiments' people were accepted at 3 to 4 | `minEach`, `minPhone`, `minMean` |
 | Phone shot | 360 by 640 CSS px, device scale 2, 12 m | The experiments' phone shot | `phoneShot` |
-| Per-asset and per-place budgets | The tables above | `../design/06` section 6, and working values | `models/budgets.json` |
-| Thinned soft shape, most of the raw triangles kept | 50% | Working value. The blended afro of the curves experiment of 8 Oct 2026 went from 1,420 triangles raw to 636 thinned, 45% | `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts` |
-| A pot spun from a curve | 336 triangles | The same experiment; for comparison with the `prop_` budget | the reason for assets:organic-shapes-baked-at-build |
-| A ball, flat or smooth | 168 triangles either way | The same experiment: smooth shading costs no triangles | the reason for assets:flat-and-smooth-shading |
+| Per-asset and per-place budgets | The tables above | `../design/06-assets-and-visuals.md` section 6, and working values | `models/budgets.json` |
+| Thinned soft shape, most of the raw triangles kept | 50% | Working value: a blended afro thinned from 1,420 triangles raw to 636 keeps 45% | `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts` |
+| A pot spun from a curve | 336 triangles | Measured on the same build tool; for comparison with the `prop_` budget | the reason for assets:organic-shapes-baked-at-build |
+| A ball, flat or smooth | 168 triangles either way | Measured on the same build tool: smooth shading costs no triangles | the reason for assets:flat-and-smooth-shading |
 
 ## Sources
 

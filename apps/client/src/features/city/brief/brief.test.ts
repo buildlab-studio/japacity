@@ -1,6 +1,6 @@
 // The brief, its chip and its marker, read from the view (docs/design/09-the-lively-layer.md section 4): the giver
 // and the things with their places, the dots, the toast, and the fun the road never touches.
-import { content, text, uiLivelyText } from "@japacity/content";
+import { content, text, uiLookText } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../../shared/testing/fixtures";
@@ -31,7 +31,7 @@ describe("the brief", () => {
       for (const key of [`${chapter.id}.brief.title`, `${chapter.id}.brief.giver`, `${chapter.id}.brief.giver.where`]) expect({ key, words: (text[key] ?? "").length > 0 }).toEqual({ key, words: true });
       expect(briefOf({ chapter: { current: chapter.id, items: [], done: [], closes: false, next: null } }, "")?.title).toBe(text[`${chapter.id}.brief.title`]);
     }
-    expect(Object.keys(uiLivelyText).filter((key) => /^ui\.brief\.(giver|at\.|toast\.|count\.)/.test(key) || Object.keys(content.chapter).some((id) => key.startsWith(`ui.brief.${id.replace(/^chapter\./, "")}.`)))).toEqual([]);
+    expect(Object.keys(uiLookText).filter((key) => /^ui\.brief\.(giver|at\.|toast\.|count\.)/.test(key) || Object.keys(content.chapter).some((id) => key.startsWith(`ui.brief.${id.replace(/^chapter\./, "")}.`)))).toEqual([]);
   });
 
   test("[world:nudge-says-one-thing] given a place under each thing, when the places are read, then each is at most two words: the stop, the phone or the month", () => {

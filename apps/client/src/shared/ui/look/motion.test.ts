@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 const CSS = readFileSync(join(import.meta.dirname, "..", "..", "..", "index.css"), "utf8");
-const LIVELY = ["wobble-in", "pop", "shake"] as const;
+const LOOK_MOTIONS = ["wobble-in", "pop", "shake"] as const;
 
 /** The animation's duration in ms for a class written `.name { animation: name 0.26s ... }`. */
 function durationOf(name: string): number {
@@ -33,8 +33,8 @@ function keyframeProperties(name: string): string[] {
   return [...new Set([...body.matchAll(/([a-z-]+)\s*:/g)].map((match) => match[1] ?? ""))];
 }
 
-describe("the lively motion", () => {
-  test.each(LIVELY)("[world:motions-under-half-second] given .%s, then it lasts under 300 ms and moves transform and opacity alone", (name) => {
+describe("the look's motion", () => {
+  test.each(LOOK_MOTIONS)("[world:motions-under-half-second] given .%s, then it lasts under 300 ms and moves transform and opacity alone", (name) => {
     expect(durationOf(name)).toBeLessThan(300);
     for (const property of keyframeProperties(name)) expect({ name, property, ok: property === "transform" || property === "opacity" }).toEqual({ name, property, ok: true });
   });
@@ -56,6 +56,6 @@ describe("the lively motion", () => {
   test("[world:motions-under-half-second] given reduced motion, then the wobble, the pop and the shake are each the fade", () => {
     const line = /\n {2}([^\n{]*) \{ animation: fade ([\d.]+)s ease both !important; \}/.exec(CSS);
     const classes = (line?.[1] ?? "").split(",").map((each) => each.trim());
-    for (const name of LIVELY) expect(classes).toContain(`.${name}`);
+    for (const name of LOOK_MOTIONS) expect(classes).toContain(`.${name}`);
   });
 });
