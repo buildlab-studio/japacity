@@ -105,6 +105,7 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0031](0031-each-trade-climbs-its-own-ladder.md) | Each trade climbs its own ladder |
 | [0032](0032-learning-in-bands.md) | Learning in bands |
 | [0033](0033-the-students-money-flow.md) | The student's money flow |
+| [0034](0034-certain-stories-start-first.md) | Certain stories start first |
 
 ### The city
 
