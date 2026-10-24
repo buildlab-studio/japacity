@@ -15,7 +15,7 @@
 - A cost factor below real on the routes' fees or funds: the gaps are on the income side (section 10).
 - Borrowed money for Canada's funds: IRCC refuses it.
 - Money that tops itself up: every catch-up road is chosen and has a price.
-- A UK teacher's route. From 9 Sep 2026 teachers trained in Nigeria cannot use the "Apply for qualified teacher status in England" service, so the game builds none; the teacher's levers are her own ladder, Canada's education draw and the master's.
+- A UK teacher's route. From 9 Sep 2026 teachers trained in Nigeria cannot use the "Apply for qualified teacher status in England" service, so the game builds none; the teacher's levers are the trade's own ladder, Canada's education draw and the master's.
 - A cap on months or a timer: the targets are tuned to a time, never enforced by a limit.
 
 ## 1. The decision in one line
@@ -40,7 +40,7 @@ Months to the first flight for a careful player who stays in the trade, without 
 
 Reading the table:
 
-- **The teacher is the hardest trade, on purpose.** Lagos pays teachers the least of the graduate trades: ₦25,000 to ₦250,000, with ₦100,000 a common figure. Her faster ladder (the senior rung at 18 months, the head of department at 48) and home lessons at up to ₦120,000 bring her Canada road to about 60 months with the family's gift; the director's education draw is the lever that can bring it sooner.
+- **The teacher is the hardest trade, on purpose.** Lagos pays teachers the least of the graduate trades: ₦25,000 to ₦250,000, with ₦100,000 a common figure. The teacher's faster ladder (the senior rung at 18 months, the head of department at 48) and home lessons at up to ₦120,000 bring the Canada road to about 60 months with the family's gift; the director's education draw is the lever that can bring it sooner.
 - **The master's is the dearest road for every naira trade.** About ₦49.3m in all at the start rates, about $37,000, which is real. It is reached through the family (the pledge, which pays the school), a dollar rung, the land, or the education loan. It is no one's first road below the senior bank officer.
 - **The tech pivot.** A non-developer who pivots by the free path flies at about month 45 to 50 (section 5): inside every trade's dearer band and slower than every trade's cheap one.
 - **A crash** (world-b, the pound 2.36 times dearer in 36 months). The Gulf and the UK nurse's route stay reachable in 7 to 22 months of money. Every formal route priced in foreign money runs away from naira pay even with the review. That is honest for a crash: the dollar rungs, remote support and the remote developer, are what survive it, as in 2023 and 2024.
@@ -85,7 +85,7 @@ A ₦5,000 day of class that gives +2 and repeats as long as the body allows wou
 - **The paid paths** (activity:paid-tech-courses): a short course (₦45,000), a year's diploma (₦40,000 a month), a full-time bootcamp paid after a job (₦3,000,000 over 36 months once a developer job is held, activity:bootcamp-paid-after-a-job) and a free internship for the junior-ready. One tech study at a time.
 - **The apprenticeship** at Computer Village stops at tech 30 and gives +2 (streets:apprentice-learns-repair): a hardware trade, not a free road to tech 60.
 
-A teacher who pivots by the free path is junior-ready at month 9 or 10 and hired at about month 12; the job and the path give tech 50 by about month 17 and 60 by about 21; the mid-level rung at about month 26 after its 12 months; strong (75) at about 33; the remote hunt lands at about month 40 to 45, and Canada's funds follow about 5 months later. She flies at about month 45 to 50, inside her trade's dearer band, and the life abroad is richer: the trade-off a pivot should be.
+A teacher who pivots by the free path is junior-ready at month 9 or 10 and hired at about month 12; the job and the path give tech 50 by about month 17 and 60 by about 21; the mid-level rung at about month 26 after its 12 months; strong (75) at about 33; the remote hunt lands at about month 40 to 45, and Canada's funds follow about 5 months later. The teacher flies at about month 45 to 50, inside the trade's dearer band, and the life abroad is richer: the trade-off a pivot should be.
 
 ## 6. The family's gift for Canada
 

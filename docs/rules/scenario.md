@@ -64,7 +64,7 @@ A ready life has no name and no sex of its own: the player gives the name and th
 | 5 | The pivot's pace | the two pivot styles against trade-loyal, golden | The pivot's median first flight is never sooner than 0.8 times trade-loyal's for any trade, and for the teacher no later than 1.5 times |
 | 6 | The mix of routes | every style, golden | No route over 50% of formal flights; the master's, the skilled worker, Canada's points, care or the nurse, and the Gulf each 5% or more |
 | 7 | Students | careful, risky, borrower | Careful: 90% or more reach `status.uk-graduate`; risky: 70% or more; every withdrawal follows a reminder, a plan offered and two plan payments missed in a row, or the four months in arrears with no plan (all of them); the median from the first miss to withdrawal is 3 months or more |
-| 8 | Tech's pace to junior-ready (30) | the pivot styles | The free path 8 to 12 months, the short course 6 to 10, the diploma 7 to 9, the bootcamp 4 to 6; no life reaches tech 30 by study before month 4 |
+| 8 | Tech's pace to junior-ready (30) | the pivot styles | The free path 8 to 12 months, the short course 6 to 8, the diploma 7 to 9, the bootcamp 4 to 6; no life reaches tech 30 by study before month 4 |
 | 9 | The money floor and the sinks | careful, golden | No careful life under the broke line more than 2 months in a row; at the rung that fits abroad, settlement, renewal and citizenship each take 0.5 to 6 months of what the month keeps |
 | 10 | A crash | trade-loyal, world-b | The Gulf from the shop and the racks, and the UK nurse's route from the nurse, reached by month 36 for 60% or more; naira pay at month 36 under the review about 1.21 times its start in the golden world, and lower in pounds than at the start in world-b |
 

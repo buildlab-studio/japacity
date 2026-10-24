@@ -16,7 +16,7 @@ A day's coding class at ₦5,000 that gives tech +2 and repeats as long as the b
 
 ## Consequences
 
-- Every life that studied tech learns more slowly and pays more or waits longer, so every golden and recorded life that uses the day's class moves from the month it first does; the teacher, who starts at tech 32 with no portfolio, no longer meets the junior job at once.
+- Every life that studied tech learns more slowly and pays more or waits longer, so every golden and recorded life that uses the day's class moves from the month it first does; the teacher, who starts at tech 32 with no portfolio, does not meet the junior job at once.
 - New state: the free path's streak and the bootcamp's debt on the activity slice; new content: the paths, their band gains and the bootcamp's obligation.
 - The developer's road stays the richest, and a pivot to it lands inside a trade's dearer band (scenario:economy-meets-its-targets, the fifth measure).
 - The study acts abroad keep their flat figures.
