@@ -2,7 +2,8 @@
 // start screen and the offline door's first screen each fetch their pictures inside a budget, and no PNG from the
 // published assets. Many players come on mobile data, so the first screen's pictures are most of what a first visit
 // waits for. Every image response is counted, the published ones and the client's own, by the bytes of its body.
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { ONLINE, SIGNED_OUT, fakeServer } from "./support/api";
 

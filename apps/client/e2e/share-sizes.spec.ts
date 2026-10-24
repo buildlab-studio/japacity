@@ -3,7 +3,8 @@
 // encoded at the first quality tried, under the limit with room to spare, with
 // the marks of share:card-never-looks-official drawn on. The send-off's ticket stub too, for every
 // country a way out flies to and every japa type.
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The kinds, the chapters with art of their own and the tuning are the content's own data.
 import { content } from "../../../packages/content/src/index";

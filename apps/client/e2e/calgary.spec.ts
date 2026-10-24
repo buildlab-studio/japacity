@@ -3,7 +3,8 @@
 // `canada` player lands in Calgary and takes the warehouse job, buys the month's transit pass at the CTrain station's ticket
 // machine, rides the bus to the superstore for nothing and does the weekly shop, rides the CTrain to the warehouse, where
 // the clock-in says On shift, and rides home, and the pass covers every ride of the month.
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./support/abroad";

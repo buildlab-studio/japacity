@@ -4,7 +4,8 @@
 // where the browser has no share sheet.
 import { readFileSync } from "node:fs";
 
-import { devices, expect, test, type Page } from "@playwright/test";
+import { devices, expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The recorded lives and the tuning are the simulation's and the content's own data.
 import { content } from "../../../packages/content/src/index";

@@ -4,7 +4,8 @@
 // both modes, the cut into the house is dark for under half a second, and a wide home turns a quarter at a time with
 // its walls following the view. WebGL runs on the software
 // renderer, so times here are the page's own, not a phone's.
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../models/budgets.json" with { type: "json" };

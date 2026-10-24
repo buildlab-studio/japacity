@@ -3,7 +3,8 @@ import type { Command, Id } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
-import { expect, test, type Page, type Route } from "@playwright/test";
+import { expect, type Page, type Route } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The online start that never dies (engine:browser-authority-for-dev-only, account:session-is-secure-cookie): a reload at each
 // step of the door comes back where the run or the life stands; a request with no answer shows the card, never the

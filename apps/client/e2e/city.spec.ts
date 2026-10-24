@@ -2,7 +2,8 @@
 // on a person opens their card at the foot of the screen, and the street stays inside its draw call and triangle budget
 // on the phone.
 // WebGL runs on the software renderer, so frame times here compare runs, not phones.
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import budgets from "../../../models/budgets.json" with { type: "json" };
 import { SOFTWARE_WEBGL } from "./support/browser";

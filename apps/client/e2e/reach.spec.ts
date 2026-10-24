@@ -4,7 +4,8 @@
 // server, as online.spec.ts is.
 import { start } from "@japacity/sim/testing";
 
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { content } from "../../../packages/content/src/index";
 import { accountView } from "../src/shared/testing/fixtures";

@@ -1,7 +1,8 @@
 import type { Game } from "@japacity/sim/testing";
 import { start } from "@japacity/sim/testing";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // Lives with people in them are played by the simulation's own test handle and handed to the client as a save, so the
 // local authority replays them. The people live in the world (world:nobody-picked-from-list): met in a place, their

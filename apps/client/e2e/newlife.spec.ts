@@ -3,7 +3,8 @@ import type { Command, Id } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // "Start a new life" online (account:start-a-new-life): a guest in the world opens Settings, the sheet
 // names the character, a tap does nothing and a hold ends the life through the server's own route; the front door

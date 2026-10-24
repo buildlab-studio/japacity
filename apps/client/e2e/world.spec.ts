@@ -4,7 +4,8 @@
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
 // the band and a tap on it opens what is asked. With PREVIEW_DIR set, each step leaves a picture there.
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords, startReadyLife } from "./support/door";

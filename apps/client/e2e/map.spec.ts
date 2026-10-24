@@ -3,7 +3,8 @@
 // map, a pin there folds it back on its card with the stop picked, the route runs from the player's
 // stop to the stop, the ride sheet rises, and the ride plays and lands in the place. With MAP_SHOTS
 // set to a folder, the pictures of each step are saved there.
-import { devices, expect, type Page, test } from "@playwright/test";
+import { devices, expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";

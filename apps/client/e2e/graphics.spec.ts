@@ -3,7 +3,8 @@
 // paint is read for the pixel ratio and antialiasing of the canvas it lands on: nothing draws in low on the way through
 // the door, the city's first frame is high and the first place stays high once it has settled. On Where you live each
 // home's picture has a picture pixel for every device pixel it covers.
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";

@@ -4,7 +4,8 @@
 // set, each motion is also saved as frames every 40 ms, held still on the motion's own clock, and as one strip of them.
 import { join } from "node:path";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { passCards } from "./support/live";

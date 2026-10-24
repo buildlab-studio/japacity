@@ -1,7 +1,8 @@
 import type { Id } from "@japacity/sim";
 import { standInWorld } from "@japacity/sim";
 import { start } from "@japacity/sim/testing";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
 // world (world:sleep-ends-the-month, world:month-passes-as-lived): acts on the home's things, the bed's Sleep turning it, the results

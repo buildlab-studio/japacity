@@ -3,7 +3,8 @@
 // loading and without a sideways scroll, naming who runs the game from
 // content's one constant.
 import { OPERATOR } from "@japacity/content";
-import { devices, expect, test } from "@playwright/test";
+import { devices, expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { fakeServer, ONLINE, SIGNED_OUT } from "./support/api";
 

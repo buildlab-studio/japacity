@@ -5,7 +5,8 @@
 // the returns service, which asks once more before it goes, and the life lands at home.
 import { lastSegment, lifeStart, savedCommands, type FlatSave } from "@japacity/sim";
 import { lifeSaves, start } from "@japacity/sim/testing";
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { content, text } from "../../../packages/content/src/index";
 import { clear, pickStop, rideBy } from "./support/abroad";

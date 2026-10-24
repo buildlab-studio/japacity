@@ -3,7 +3,8 @@
 // player lands in Dubai holding the guard's job, buys the month's zone pass at Union station's Nol machine, rides the bus
 // to the hypermarket for nothing and does the weekly shop, rides the labour bus to the site, where the guard's post says
 // On shift, and back to the camp, and the shuttle asks nothing either way.
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./support/abroad";

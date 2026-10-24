@@ -1,6 +1,7 @@
 import { start } from "@japacity/sim/testing";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The guest start and keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email, account:guest-floods-are-capped, account:idle-guests-cleaned-by-hand and account:guest-reminded-to-secure), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.

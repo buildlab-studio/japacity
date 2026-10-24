@@ -3,7 +3,8 @@ import { FIRST_SESSION_MONTHS, start, type Game } from "@japacity/sim/testing";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // Nothing is asked of the player before the early win (docs/rules/guide.md
 // guide:nothing-asked-before-early-win). A new life is played online against a faked server that runs

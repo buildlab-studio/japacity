@@ -2,7 +2,8 @@ import type { Command, World } from "@japacity/sim";
 import { standInWorld, time } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The client built against a server is played here against a faked one: every
 // /api route is answered by the page's own route handler, in the shapes of
