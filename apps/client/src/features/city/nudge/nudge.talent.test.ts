@@ -129,7 +129,9 @@ function talentLife(options: { documents?: { document: Id<"document">; monthsLef
 
 describe("the talent file in its order", () => {
   test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] [route-gates:talent-visa-needs-endorsement] given the ready developer, when the nudge is followed as the play driver follows it for 36 months, then the passport is held before the endorsement is paid, the endorsement is paid once for each answer and never runs out unused, and the TB test and the application are paid for when it is", () => {
-    const game = start({ scenario: "scenario.developer", seed: "ready-developer", content, worldSeed: "world-1" });
+    // A world whose talent route is open while the file comes together within the 36 months (the pool's draws moved when Canada's
+    // education draw joined it, director:education-draw-opens-for-a-time, and shut it through most of the second year in world-1).
+    const game = start({ scenario: "scenario.developer", seed: "ready-developer", content, worldSeed: "world-3" });
     expect(game.view().documents.some((paper) => paper.id === "document.passport")).toBe(false);
     const { paid, refused, ranOut, passportMonth } = followTheNudge(game, 36);
     expect(passportMonth).not.toBeNull();

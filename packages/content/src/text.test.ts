@@ -115,7 +115,8 @@ describe("words for every entry", () => {
     // Plus the ended stage of the refusals story and the Canadian draw, which each have an end, and the
     // rumour of the UAE lifting, whose talk runs while the ban's 18 ticks run out: 236. Plus the one-chance story's
     // announced and in-force stages (wallet:cash-pile-warning): 240. Plus the UAE's amnesty, its four stages (status:uae-amnesty): 248.
-    expect(keys).toHaveLength(248);
+    // Plus Canada's education draw, its four stages (director:education-draw-opens-for-a-time): 256.
+    expect(keys).toHaveLength(256);
     expect(missingWords(keys)).toEqual([]);
   });
 
