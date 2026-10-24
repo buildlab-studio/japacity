@@ -2,7 +2,7 @@
 // and who, over four boards that each have their own switch on the server.
 // A board's lines are loaded only after the server answers with one; a board
 // switched off is a quiet note, and its screen is never fetched. Dressed as
-// the phone's apps (docs/design/09-the-lively-layer.md section 2): the pickers
+// the phone's apps (docs/design/09-the-games-look.md section 2): the pickers
 // as segmented pills, each line a card, a note in a card with its one button.
 import type { BoardName } from "@japacity/api";
 import { Suspense, useCallback, useEffect, useState } from "react";

@@ -1,4 +1,4 @@
-// The fan (docs/design/09-the-lively-layer.md section 3; world:fan-of-sticker-buttons): every thing's acts fanned out of the thing
+// The fan (docs/design/09-the-games-look.md section 3; world:fan-of-sticker-buttons): every thing's acts fanned out of the thing
 // itself, the thing's name in a pill over it, round sticker buttons on a curve into the larger free side, a name pill
 // outside the curve, the yellow price pill where a price stands, or what stands in the way. The scene's frame loop moves
 // the fan with its thing every frame (CityScene, `[data-fan]`, as the marks and the speech bubble); the layout is read once
@@ -32,7 +32,7 @@ export interface FanProps {
   going?: string | null;
   /**
    * While a priced button is pressed, what the band's counter should show is left after it; null when it is let go
-   * (chips earn their place: the band's money counter is the balance, docs/design/09-the-lively-layer.md section 2).
+   * (chips earn their place: the band's money counter is the balance, docs/design/09-the-games-look.md section 2).
    */
   onPreview?: (after: number | null) => void;
 }

@@ -1,4 +1,4 @@
-// The primitives of the game's look (docs/design/09-the-lively-layer.md, section 2; decision 0025): a sticker, a sticker chip,
+// The primitives of the game's look (docs/design/09-the-games-look.md, section 2; decision 0025): a sticker, a sticker chip,
 // the pressed yellow action, a pill, a card, a sheet with its handle, a person's name pill and the centred column. Each
 // carries a data attribute for tests and pictures and takes a className.
 import { fireEvent, render, screen } from "@testing-library/react";

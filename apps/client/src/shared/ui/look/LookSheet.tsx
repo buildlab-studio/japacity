@@ -1,4 +1,4 @@
-// A sheet of the game's look (docs/design/09-the-lively-layer.md, section 2): the sheet colour, rising from the foot with its handle,
+// A sheet of the game's look (docs/design/09-the-games-look.md, section 2): the sheet colour, rising from the foot with its handle,
 // a picture, a title of a few words and one line under it, then what it holds. It stands in the one sheet frame
 // (world:sheets-one-frame): the handle drags it down, the close stands at the top right, and on a laptop it rises in the
 // centred column. It rises and sinks by a short transition on transform (index.css .motion-rise, world:motions-under-half-second),

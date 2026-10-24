@@ -1,4 +1,4 @@
-// A bond's parts in the game's look (person:proposing-a-step, person:view-shows-people; docs/design/09-the-lively-layer.md section 2): the
+// A bond's parts in the game's look (person:proposing-a-step, person:view-shows-people; docs/design/09-the-games-look.md section 2): the
 // person's face sticker over what is known of them, the mark and the facts as sticker chips, what waits on a white card,
 // the pressed yellow button for the one action and ghost buttons for the rest. What each part says and sends is
 // PeopleOnPhone.test's; this proves the dress and the face.

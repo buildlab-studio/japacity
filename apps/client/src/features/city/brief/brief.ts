@@ -1,4 +1,4 @@
-// The brief and the marker (docs/design/09-the-lively-layer.md section 4): a
+// The brief and the marker (docs/design/09-the-games-look.md section 4): a
 // chapter is handed over as a mission card by the person who sets it, in their voice, with its things as sticker tiles,
 // the place of each under it, the reward as picture chips and the next brief faint. In the world the road shows only in
 // the moment: the chip under the band for a moment after the card is handed, and while the player stands at the step's
@@ -164,7 +164,7 @@ export function doneToast(left: number): string {
 }
 
 /**
- * The things of the world the road never touches (docs/design/09-the-lively-layer.md section 4): the joint, the barber, the suya man and
+ * The things of the world the road never touches (docs/design/09-the-games-look.md section 4): the joint, the barber, the suya man and
  * the club. No brief, chip, marker or toast stands on them, ever.
  */
 export const FUN_ACTS: ReadonlySet<string> = new Set(["activity.beer-joint", "activity.barber", "activity.buy-suya", "activity.night-out"]);

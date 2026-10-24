@@ -2,7 +2,7 @@
 // fills, shown as a friend will see it, and taken back with the same command.
 // The card carries the character's name and japacity, never the account's,
 // never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the cards of the game's look
-// (docs/design/09-the-lively-layer.md section 2): a white card with the looking line as a sticker chip, the character's
+// (docs/design/09-the-games-look.md section 2): a white card with the looking line as a sticker chip, the character's
 // face sticker beside the maker's heading (never on the card, which carries no look to the friend), the pressed yellow
 // button for the one action and a ghost button for taking the card back. Once the link is got it goes on through the
 // device's share sheet, or, where there is none or it fails, onto the clipboard (pair:invite-link-single-use).

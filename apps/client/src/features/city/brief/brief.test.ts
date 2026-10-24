@@ -1,4 +1,4 @@
-// The brief, its chip and its marker, read from the view (docs/design/09-the-lively-layer.md section 4): the giver
+// The brief, its chip and its marker, read from the view (docs/design/09-the-games-look.md section 4): the giver
 // and the things with their places, the dots, the toast, and the fun the road never touches.
 import { content, text, uiLookText } from "@japacity/content";
 import { describe, expect, test } from "vitest";

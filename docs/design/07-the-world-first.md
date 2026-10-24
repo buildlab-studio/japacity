@@ -1,6 +1,6 @@
 # The world first
 
-**Context and scope.** How the game is shown and touched: the player always stands in a 3D place and plays by tapping it, and everything else opens over that place. This page is the screen's design, not a rule of the life: nothing below changes the money, the server or the commands. Other pages hold parts of it: the look is `09-the-lively-layer.md`'s, the month is lived by hand (`08-the-lived-month.md`), and the map is the painted map that folds (decision 0026). The rules that hold this page are on `../rules/world.md`.
+**Context and scope.** How the game is shown and touched: the player always stands in a 3D place and plays by tapping it, and everything else opens over that place. This page is the screen's design, not a rule of the life: nothing below changes the money, the server or the commands. Other pages hold parts of it: the look is `09-the-games-look.md`'s, the month is lived by hand (`08-the-lived-month.md`), and the map is the painted map that folds (decision 0026). The rules that hold this page are on `../rules/world.md`.
 
 **Goals.**
 

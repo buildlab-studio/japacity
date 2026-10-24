@@ -1,5 +1,5 @@
 // The Blocked list (moderation:blocked-list-in-settings): every account the player blocked, newest first, each line a card
-// as a board's line is (docs/design/09-the-lively-layer.md section 2): the face drawn from the shown name, the username,
+// as a board's line is (docs/design/09-the-games-look.md section 2): the face drawn from the shown name, the username,
 // the day of the block and an Unblock button. An unblock that goes takes its line away; the list is read again each time
 // the sheet opens. Loaded only when the sheet opens, so a first visit carries none of it (engine:first-download-has-budget).
 import type { BlockedLine } from "@japacity/api";

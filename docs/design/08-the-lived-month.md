@@ -7,7 +7,7 @@
 - Gameplay first: every month is played, as many in a sitting as the player likes.
 - The chapters carry the journey at the player's own pace.
 - Money reads as a passbook, a savings book with stamps, not a ledger.
-- The look stays: the world, the band, the phone and the sheets of `07-the-world-first.md` and `09-the-lively-layer.md`.
+- The look stays: the world, the band, the phone and the sheets of `07-the-world-first.md` and `09-the-games-look.md`.
 
 **Non-goals.** A month that turns by itself, a timer the player waits on, a paid skip or anything that sells time, a meter or a percentage for the body, a "Next month" button, and robbery between players.
 

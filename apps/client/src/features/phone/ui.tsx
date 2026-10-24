@@ -1,4 +1,4 @@
-// The phone's apps in the game's look (docs/design/09-the-lively-layer.md section 2): a
+// The phone's apps in the game's look (docs/design/09-the-games-look.md section 2): a
 // card is white with the thin edge, a picture of the thing on a soft tile at its left, a title of a few words, one line
 // under it, and the chips that earn their place (money in green, a word in a pill). A way out of the app (to the map, to
 // another app) is a white button with the navy underside; the one yellow action stays each surface's own.

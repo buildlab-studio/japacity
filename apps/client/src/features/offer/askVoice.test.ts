@@ -1,4 +1,4 @@
-// Ask titles in the person's voice (docs/design/09-the-lively-layer.md section 4): every ask names who asks, its title is at most three words in their voice and never a rule's label, its line is
+// Ask titles in the person's voice (docs/design/09-the-games-look.md section 4): every ask names who asks, its title is at most three words in their voice and never a rule's label, its line is
 // one sentence, and the registers hold (text:voice-by-surface): an office abroad, a bank, a school or a court speaks plain English,
 // never Pidgin. The scam text's shout is the one exception text:voice-by-surface allows, and it stays an unknown number.
 import { content, text } from "@japacity/content";

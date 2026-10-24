@@ -1,4 +1,4 @@
-// The two paints of the game's look (docs/design/09-the-lively-layer.md, section 2; decision 0025): the same shapes in
+// The two paints of the game's look (docs/design/09-the-games-look.md, section 2; decision 0025): the same shapes in
 // navy when the world's clock (clock:game-day-on-real-time) says night, set as one attribute on <html>.
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";

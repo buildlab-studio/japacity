@@ -34,7 +34,7 @@ export const CUES: Record<Cue, readonly Tone[]> = {
     { wave: "triangle", from: 659, to: 659, at: 0.1, long: 0.12, gain: 0.07 },
     { wave: "triangle", from: 784, to: 784, at: 0.2, long: 0.22, gain: 0.08 },
   ],
-  // The answers of the game's look (docs/design/09-the-lively-layer.md, section 7), each over inside 300 ms: a bright ding
+  // The answers of the game's look (docs/design/09-the-games-look.md, section 7), each over inside 300 ms: a bright ding
   // for a thing done, a low thud for a stamp landing with weight, a low double note falling for a refusal.
   ding: [
     { wave: "sine", from: 1318, to: 1318, at: 0, long: 0.2, gain: 0.07 },

@@ -1,4 +1,4 @@
-// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/09-the-lively-layer.md
+// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/09-the-games-look.md
 // section 5): a person's words in a bubble over their head that follows them and goes on a tap, at most eight words for
 // about four seconds, a longer line clipped to two lines that opens whole in a sheet with their name; the street's talk as an ambient bubble
 // over the resident nearest, with twenty seconds of quiet after; the bottom corner for the player's own act's answer alone,

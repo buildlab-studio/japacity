@@ -1,4 +1,4 @@
-/* The fan's look (docs/design/09-the-lively-layer.md sections 2, 3 and 7): round sticker buttons with a white ring and a
+/* The fan's look (docs/design/09-the-games-look.md sections 2, 3 and 7): round sticker buttons with a white ring and a
    navy edge and underside, tinted by kind; a white name pill; the yellow price pill with its navy underside; the balance
    small beside it. Every colour reads the system's token first (`--tint-food`, `--edge`, `--action`), with a fixed value
    behind it for where the token is missing.

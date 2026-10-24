@@ -1,6 +1,6 @@
 # London
 
-**Context and scope.** The UK as the player lives it: London's places, its ways and fares, the money of a month lived by hand, and its painted map (`apps/client/src/features/map/paper/london.tsx`). Abroad is lived the way Lagos is: it rests on `07-the-world-first.md` (the world is the game), `08-the-lived-month.md` (living by hand) and `09-the-lively-layer.md` (the look). Calgary, Dubai and Castel Volturno are drawn the same way (`11-calgary-dubai-and-castel-volturno.md`). The rules are world:painted-maps-abroad, world:ride-abroad-and-workplace, streets:london-life-by-hand and place:country-pass-covers-ways.
+**Context and scope.** The UK as the player lives it: London's places, its ways and fares, the money of a month lived by hand, and its painted map (`apps/client/src/features/map/paper/london.tsx`). Abroad is lived the way Lagos is: it rests on `07-the-world-first.md` (the world is the game), `08-the-lived-month.md` (living by hand) and `09-the-games-look.md` (the look). Calgary, Dubai and Castel Volturno are drawn the same way (`11-calgary-dubai-and-castel-volturno.md`). The rules are world:painted-maps-abroad, world:ride-abroad-and-workplace, streets:london-life-by-hand and place:country-pass-covers-ways.
 
 **Goals.**
 

@@ -1,4 +1,4 @@
-// The lively layer's motion (docs/design/09-the-lively-layer.md, section 7; world:motions-under-half-second): every tappable thing
+// The motion of the game's look (docs/design/09-the-games-look.md, section 7; world:motions-under-half-second): every tappable thing
 // squashes on press, a sticker wobbles in, a chip pops, a refusal shakes three times; each on transform and opacity
 // alone, under 300 ms, and a fade under reduced motion.
 import { readFileSync } from "node:fs";

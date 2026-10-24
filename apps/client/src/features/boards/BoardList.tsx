@@ -4,7 +4,7 @@
 // only after the server has answered with a board, so a switched-off board's
 // screen is never fetched. Each line is a card with a face sticker (shared/ui/look/FaceTile.tsx), the name,
 // and the figure as a chip: this week's rise in green; the player's own line
-// ringed (docs/design/09-the-lively-layer.md section 2).
+// ringed (docs/design/09-the-games-look.md section 2).
 import type { BoardReply, BoardRow } from "@japacity/api";
 
 import { lookForName } from "../../shared/front-door/looks";

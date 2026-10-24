@@ -1,4 +1,4 @@
-// The fan as a component (docs/design/09-the-lively-layer.md section 3; world:things-are-tappable-models, world:one-action-one-sheet): it
+// The fan as a component (docs/design/09-the-games-look.md section 3; world:things-are-tappable-models, world:one-action-one-sheet): it
 // lays out once the scene says where its thing stands, a tap on a button that can be had acts, a refusal shakes and sends
 // nothing, a thing with no room beside it hands over to the sheet, and a long list drags along its curve.
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -48,7 +48,7 @@ describe("the fan", () => {
     expect(screen.getByRole("group", { name: "The cooking corner" }).dataset.fanSide).toBe("right");
     const first = document.querySelector<HTMLElement>('[data-fan-act="a"]');
     expect(first?.querySelector("[data-fan-price]")?.textContent).toBe("₦1,500");
-    // Chips earn their place (docs/design/09-the-lively-layer.md section 2): no balance pair, no "No cost" beside a button in the scene.
+    // Chips earn their place (docs/design/09-the-games-look.md section 2): no balance pair, no "No cost" beside a button in the scene.
     expect(first?.querySelector("[data-balance-before], [data-balance]")).toBeNull();
     expect(document.querySelector("[data-fan]")?.textContent).not.toContain("No cost");
     const free = document.querySelector<HTMLElement>('[data-fan-act="b"]');

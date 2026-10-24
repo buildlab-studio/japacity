@@ -1,4 +1,4 @@
-// The phone's apps in the game's look (docs/design/09-the-lively-layer.md section 2): the same apps with the same jobs,
+// The phone's apps in the game's look (docs/design/09-the-games-look.md section 2): the same apps with the same jobs,
 // told in cards, tiles and chips rather than document headers and paragraphs; and the words a player reads on the phone
 // never say slots, a turn, banked, pages, days left or a percentage.
 import type { PlayerView } from "@japacity/sim";

@@ -1,4 +1,4 @@
-// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/09-the-lively-layer.md
+// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/09-the-games-look.md
 // section 5). Two channels and nothing more: pictures over the crowd cost no reading, and words over a
 // person come one bubble at a time, at most eight words, for about four seconds, an ambient line then at least twenty of
 // quiet. A longer line never floats whole: its bubble clips it to two lines and a tap opens it in a sheet with their name. The bottom corner

@@ -174,7 +174,7 @@ function choiceMoney(offer: Offer, choice: string): { currency: Currency; amount
 /**
  * One reply as a row: its words, then the balance before struck and after and
  * the price as a yellow pill, or "Free" alone when it costs nothing, never beside a "No cost" that says the same
- * (docs/design/09-the-lively-layer.md section 2). Its name is the reply with its cost, so it never hides its price.
+ * (docs/design/09-the-games-look.md section 2). Its name is the reply with its cost, so it never hides its price.
  */
 function ReplyRow({ offer, choice, disabled, main, freeShown, onPick }: { offer: Offer; choice: Offer["choices"][number]; disabled: boolean; main: boolean; freeShown: boolean; onPick: () => void }) {
   const view = useView();
@@ -281,7 +281,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
             choice={choice}
             // An honest ask keeps its main answer, the first; an ask that may be a scam has none (advice:scams-show-their-tells).
             main={index === 0 && !scam}
-            // "Free" only where another answer has a price, so it says something (docs/design/09-the-lively-layer.md section 2).
+            // "Free" only where another answer has a price, so it says something (docs/design/09-the-games-look.md section 2).
             freeShown={offer.choices.some((other) => other.pick !== null || (choiceMoney(offer, other.id)?.amount ?? 0) > 0)}
             disabled={!choice.allowed || busy || ended}
             onPick={() =>
