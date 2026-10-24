@@ -4,9 +4,10 @@
 import { Dialog } from "@base-ui/react/dialog";
 import type { Currency } from "@japacity/sim";
 import { TriangleAlert } from "lucide-react";
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
+import { Button } from "../ui/Button";
 import { StickerChip } from "../ui/lively/StickerChip";
 import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
@@ -113,7 +114,37 @@ function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main
   );
 }
 
+/**
+ * The card's second way (the bag's returns service): quiet under the main button with its own line. A tap asks once more
+ * and names what it costs (world:costly-acts-confirmed): the safe choice takes the main button's place, and the way itself
+ * wears the warning colour, apart under it.
+ */
+function OtherWay({ other, sure, onSure }: { other: NonNullable<Ask["other"]>; sure: boolean; onSure: (sure: boolean) => void }) {
+  if (!sure) {
+    return (
+      <div className="mt-4 border-t border-sheet-line pt-3" data-ask-other>
+        <p className="text-[14px] leading-snug text-text-2">{other.line}</p>
+        <Button variant="quiet" className="mt-1 w-full" onClick={() => onSure(true)}>
+          {other.button}
+        </Button>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-3" data-ask-sure>
+      <p className="text-[15px] leading-snug font-bold">{other.sure.line}</p>
+      <button type="button" className="press-button mt-4 w-full" style={CENTRED} onClick={() => onSure(false)}>
+        {other.sure.keep}
+      </button>
+      <Button variant="warning" className="mt-6 w-full" onClick={other.act}>
+        {other.sure.go}
+      </Button>
+    </div>
+  );
+}
+
 function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMoney: AskSheetProps["formatMoney"]; icon: AskSheetProps["icon"] }) {
+  const [sure, setSure] = useState(false);
   return (
     // The lively card (docs/design/09-the-lively-layer.md section 2): the sheet's pale sky with its handle, the picture on a
     // soft tile, a small line for who and where, the title of a few words; navy at night.
@@ -161,8 +192,9 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
         )}
         {ask.spent === undefined ? (
           <>
-            <MainButton ask={ask} main={main} label={labelOf(ask, formatMoney)} />
-            {main.balance === undefined ? null : <BalanceOf balance={main.balance} formatMoney={formatMoney} className="mt-2.5 justify-center" />}
+            {sure ? null : <MainButton ask={ask} main={main} label={labelOf(ask, formatMoney)} />}
+            {sure || main.balance === undefined ? null : <BalanceOf balance={main.balance} formatMoney={formatMoney} className="mt-2.5 justify-center" />}
+            {ask.other === undefined ? null : <OtherWay other={ask.other} sure={sure} onSure={setSure} />}
           </>
         ) : (
           <p className="mt-4 rounded-[6px] bg-sheet-muted px-4 py-3.5 text-center text-[15px] font-bold" data-ask-spent>

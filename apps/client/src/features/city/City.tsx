@@ -1334,6 +1334,11 @@ export function City({
           void send({ type: GO_HOME }).then((reply) => cue(reply?.ok === true ? "whoosh" : "no"));
           setPicked(null);
         },
+        // place:returns-service-takes-you-home: the card's second way, once confirmed, asks for the returns service.
+        scheme: () => {
+          void send({ type: GO_HOME, scheme: true }).then((reply) => cue(reply?.ok === true ? "whoosh" : "no"));
+          setPicked(null);
+        },
         dismiss: () => setPicked(null),
       });
     }

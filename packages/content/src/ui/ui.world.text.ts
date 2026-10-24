@@ -90,6 +90,16 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.go-home.december": "December fare",
   "ui.world.go-home.short": "Short of the fare",
   "ui.world.go-home.none": "No way home today",
+  // The way home from an overstay (place:leaving-an-overstay-bans, place:returns-service-takes-you-home, world:costly-acts-confirmed).
+  "ui.world.go-home.ban": "You can come back after {months} months",
+  "ui.world.go-home.ban.none": "No ban: you are leaving in time",
+  "ui.world.go-home.fine": "The fine is in the fare: {fine}",
+  "ui.world.go-home.fine-home": "The fine of {fine} follows you home",
+  "ui.world.go-home.scheme": "Ask the returns service",
+  "ui.world.go-home.scheme.line": "The returns service pays the ticket, and {grant} reaches your bank at home to start again. You can come back after {months} months.",
+  "ui.world.go-home.scheme.sure": "Go with the returns service? You cannot come back for {months} months.",
+  "ui.world.go-home.scheme.keep": "Not yet",
+  "ui.world.go-home.scheme.go": "Go with the service",
 
   "ui.nudge.setpiece": "Answer what you were asked",
   "ui.nudge.offer": "Answer the person asking",

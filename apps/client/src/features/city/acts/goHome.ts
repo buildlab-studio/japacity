@@ -1,9 +1,13 @@
 // The bag's Go home in the room abroad (docs/rules/return.md; place:view-carries-way-home): the world's one way home by choice.
 // The card says the shape the return would take today in one line, what ends and what waits as chips (return:return-reopens-home-charges: the
 // status ends and the family house takes you back; return:standing-by-return-shape: standing moves by the shape), and the fare stands on the
-// one yellow button. The engine's forecast is the only source: the client never works out a shape or a fare.
+// one yellow button. On an overstay the card says the ban the way would bring in words (place:leaving-an-overstay-bans) and the UAE's fine
+// as money, and where the status has the returns service it is a second, quiet way with its own line, asked once more before
+// it goes (place:returns-service-takes-you-home, world:costly-acts-confirmed). The engine's forecast is the only source: the client never
+// works out a shape, a fare or a ban.
 import type { PlayerView } from "@japacity/sim";
 
+import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import type { Ask } from "../../../shared/world/contract";
 
@@ -19,8 +23,39 @@ function standingWords(standing: number): string {
   return say(standing > 0 ? "ui.world.go-home.standing.up" : standing < 0 ? "ui.world.go-home.standing.down" : "ui.world.go-home.standing.same");
 }
 
-/** The card, or null when there is no way home to forecast (not abroad). */
-export function goHomeAsk(view: Pick<PlayerView, "place" | "ended">, hands: { who: string; go: () => void; dismiss: () => void }): Ask | null {
+/** The ban a way home would bring, in words: none, or when the life may come back (place:leaving-an-overstay-bans). */
+function banWords(months: number): string {
+  return months === 0 ? say("ui.world.go-home.ban.none") : say("ui.world.go-home.ban", { months });
+}
+
+/** What an overstay adds to the card's chips: the ban the way would bring, and the UAE's fine within the fare or carried home. */
+function overstayFacts(view: Pick<PlayerView, "status">, home: NonNullable<PlayerView["place"]["wayHome"]>): string[] {
+  const overstay = view.status?.overstay ?? null;
+  if (overstay === null || home.shape === null) return [];
+  const fine =
+    home.fine !== null && home.fine.amount > 0
+      ? [say("ui.world.go-home.fine", { fine: formatMoney(home.fine.amount, home.fine.currency) })]
+      : home.shape === "assisted" && overstay.fine !== null && overstay.fine.amount > 0
+        ? [say("ui.world.go-home.fine-home", { fine: formatMoney(overstay.fine.amount, overstay.fine.currency) })]
+        : [];
+  return [banWords(home.banMonths), ...fine];
+}
+
+/** The returns service as the card's second way, where the status has one and the main way is not already it (place:returns-service-takes-you-home). */
+function schemeWay(home: NonNullable<PlayerView["place"]["wayHome"]>, act: () => void): Ask["other"] {
+  const scheme = home.scheme;
+  if (scheme === null || home.shape === "assisted") return undefined;
+  const grant = formatMoney(scheme.grant.amount, scheme.grant.currency);
+  return {
+    button: say("ui.world.go-home.scheme"),
+    line: say("ui.world.go-home.scheme.line", { grant, months: scheme.banMonths }),
+    sure: { line: say("ui.world.go-home.scheme.sure", { months: scheme.banMonths }), keep: say("ui.world.go-home.scheme.keep"), go: say("ui.world.go-home.scheme.go") },
+    act,
+  };
+}
+
+/** The card, or null when there is no way home to forecast (not abroad). `scheme` sends the return by the returns service. */
+export function goHomeAsk(view: Pick<PlayerView, "place" | "ended" | "status">, hands: { who: string; go: () => void; scheme?: () => void; dismiss: () => void }): Ask | null {
   const home = view.place.wayHome;
   if (home === null || view.place.where !== "abroad") return null;
   const { fare, offPeak, paidFrom, naira, shape, standing } = home;
@@ -29,7 +64,8 @@ export function goHomeAsk(view: Pick<PlayerView, "place" | "ended">, hands: { wh
   // The assisted ticket is the agency's; any other return pays the fare here, or buys it from naira (place:view-carries-way-home).
   const cost = assisted || shape === null ? null : paidFrom === "naira" ? { amount: naira, currency: "NGN" } : { amount: fare.amount, currency: fare.currency };
   const blocked = shape === null ? say("ui.world.go-home.none") : !assisted && paidFrom === null ? say("ui.world.go-home.short") : undefined;
-  const facts = shape === null ? [] : [say("ui.world.go-home.status"), say("ui.world.go-home.family"), standingWords(standing), ...(december && !assisted ? [say("ui.world.go-home.december")] : [])];
+  const facts = shape === null ? [] : [say("ui.world.go-home.status"), say("ui.world.go-home.family"), standingWords(standing), ...overstayFacts(view, home), ...(december && !assisted ? [say("ui.world.go-home.december")] : [])];
+  const other = hands.scheme === undefined ? undefined : schemeWay(home, hands.scheme);
   return {
     form: "card",
     icon: "plane",
@@ -46,5 +82,6 @@ export function goHomeAsk(view: Pick<PlayerView, "place" | "ended">, hands: { wh
     button: say(assisted ? "ui.world.go-home.button.assisted" : "ui.world.go-home"),
     act: hands.go,
     dismiss: hands.dismiss,
+    ...(other === undefined ? {} : { other }),
   };
 }

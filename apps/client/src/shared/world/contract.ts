@@ -157,6 +157,12 @@ export interface Ask {
   facts?: string[];
   /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (return:return-reopens-home-charges). */
   dues?: false;
+  /**
+   * A second way, quiet under the main button, with its own line: the bag's returns service (place:returns-service-takes-you-home).
+   * It costs what cannot be got back, so a tap asks once more and names it (world:costly-acts-confirmed): the safe choice is then
+   * the main button, and `go` wears the warning colour apart from it.
+   */
+  other?: { button: string; line: string; sure: { line: string; keep: string; go: string }; act: () => void };
 }
 
 /** A pin on the map (world:map-is-painted-lagos). */
