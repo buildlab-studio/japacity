@@ -1166,6 +1166,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     when: [
       ...sponsorWhen("route.uk-skilled", "var.uk-skilled-window"),
       { type: "quality/min", quality: "quality.tech", value: 60 },
+      // A UK firm sponsors a developer with experience: two years across the developer jobs (a working value).
+      { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"], months: 24 },
     ],
     chanceBp: pct(4),
     cooldown: 4,

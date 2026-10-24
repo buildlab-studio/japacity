@@ -55,7 +55,7 @@ A sponsor is an employer abroad who holds a licence and gives you a certificate.
 |---|---|---|---|---|---|---|---|---|
 | `offer.sponsor-care-home` | uk-care | 8% | 3 | 2 | 25% | `salary` a draw £25,000 to £29,000 by £500; `fee` ₦0 honest, the fraud asks `fee` ₦4,500,000 | `pays-for-cos` (10, 85), `licensed-register` (85, 20), `video-interview` (80, 30), `whatsapp-only` (15, 75), `start-date` (70, 20) | `take`: record the sponsor; a fraud takes the fee from cash. `decline` |
 | `offer.sponsor-trust` | uk-care | 4% | 6 | 2 | 0% | `salary` £31,300 (a nurse's band) | none | `take`, `decline`. Needs the licence and the verification held, `quality.care` 60; open with the window shut (route-gates:nurses-sponsored-while-care-shut) |
-| `offer.sponsor-tech-firm` | uk-skilled | 4% | 4 | 2 | 15% | `salary` a draw £42,000 to £60,000 by £1,000; `fee` ₦6,000,000 if a fraud | `pays-for-cos` (5, 80), `licensed-register` (90, 25), `video-interview` (90, 40), `whatsapp-only` (10, 70), `start-date` (80, 30) | `take`, `decline`. Needs `quality.tech` 60 or more |
+| `offer.sponsor-tech-firm` | uk-skilled | 4% | 4 | 2 | 15% | `salary` a draw £42,000 to £60,000 by £1,000; `fee` ₦6,000,000 if a fraud | `pays-for-cos` (5, 80), `licensed-register` (90, 25), `video-interview` (90, 40), `whatsapp-only` (10, 70), `start-date` (80, 30) | `take`, `decline`. Needs `quality.tech` 60 or more and 24 months across the developer jobs (`activity.job-junior-developer`, `-mid-developer`, `-remote-developer`, read as the endorsement's track record is; a working value): a UK firm sponsors a developer with experience |
 | `offer.sponsor-agency` | uk-skilled | 6% | 3 | 1 | 50% | `salary` a draw £38,000 to £45,000 by £500; `fee` ₦5,000,000 | the same five signs | `take`, `decline`. The one that beats the others on every visible number |
 
 Sign words: `pays-for-cos` "They want you to pay for the certificate." `licensed-register` "The company is on the public register of licensed sponsors." `video-interview` "There was an interview on video with the manager." `whatsapp-only` "Everything happens in a chat app." `start-date` "They gave a start date and a rota."
@@ -202,6 +202,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Care cut-off read from | care 60 | Working value | `points.canada.careMin` 60 |
 | Talent endorsement fee | £561 | Apr 2026 | `var.uk-talent-endorse-fee` 56100 |
 | Talent visa fee | £205 | Apr 2026 | `var.uk-talent-visa-fee` 20500 |
+| A tech firm's sponsored developer | 24 months across the developer jobs | Working value: no source found for what UK employers list for sponsored developer posts | `offer.sponsor-tech-firm` when |
 | Endorsement track record | 36 months across the developer jobs | Working value: the digital technology criteria ask a proven track record of innovation or recognition in the sector, which a first two years in work does not give | `activity.apply-endorsement` requires |
 | Endorsement wait | 1 to 2 months | Tech Nation guidance, 5 to 8 weeks | `document.endorsement` wait [1, 2] |
 | Endorsement validity | 3 months | gov.uk | `document.endorsement` validMonths 3 |

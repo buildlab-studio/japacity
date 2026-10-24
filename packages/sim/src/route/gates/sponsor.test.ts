@@ -178,6 +178,18 @@ describe("route-gates:sponsor-offers-come-up: sponsor offers and looking for one
     expect(when.every((requirement) => judge(shut, requirement))).toBe(false);
   });
 
+  test("[route-gates:sponsor-offers-come-up] given a developer at tech 70 with two years of other work and the skilled route known, when its months across the developer jobs are 23 and then 24, then the tech firm's offer may come up only from 24", () => {
+    const when = content.offer["offer.sponsor-tech-firm"]!.when;
+    const developer = (months: number): Game =>
+      readyLife(content, { documents: SKILLED_PAPERS, quiet: true, qualities: { "quality.tech": 70 }, tenure: { "activity.job-teacher": 24, "activity.job-junior-developer": months }, vars: () => ({ "var.uk-skilled-window": 2 }) });
+    const short = developer(23);
+    toKnown(short, SKILLED);
+    expect(when.every((requirement) => judge(short, requirement))).toBe(false);
+    const met = developer(24);
+    toKnown(met, SKILLED);
+    expect(when.every((requirement) => judge(met, requirement))).toBe(true);
+  });
+
   test("[route-gates:sponsor-offers-come-up] given a route's find figure, when the chance is worked out, then it adds 20 for each point of network and stops at 9500", () => {
     const quality = content.tuning.quality;
     expect(findChanceBp(care, 0, quality)).toBe(care.sponsor!.findBp);
