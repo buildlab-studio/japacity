@@ -248,7 +248,7 @@ const SHOWN_MOMENTS = 3;
 
 /** A moment's picture by what it is, since the kinds of line have no tiles of their own. */
 function momentPicture(key: string): string {
-  if (key.startsWith("line.route.granted") || key.includes("granted")) return "🛂";
+  if (key.startsWith("line.route.granted") || key.includes("granted") || key === "line.route.switched") return "🛂";
   if (key.startsWith("line.offer")) return "📨";
   if (key.startsWith("line.news")) return "📻";
   if (key.startsWith("line.job") || key.startsWith("line.activity.job")) return "💼";

@@ -65,6 +65,10 @@ export const BOND_ENDED: ReadonlySet<string> = new Set(["line.people.drifted", "
 
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
+/** route-gates:in-country-grant-switches-status: a grant made in the country, the new permission with no flight, leads as the visa granted does. */
+const SWITCHED = "line.route.switched";
+/** The lines that lead the results alone: a visa granted, from home or from inside the country. */
+const GRANTS: ReadonlySet<string> = new Set([GRANTED, SWITCHED]);
 
 /** The settlement cleared (home:makoko-eviction-draw), with cash lost or none: it leads the month, before anything else. */
 const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
@@ -94,7 +98,7 @@ const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatM
  */
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
   isEvicted,
-  (line) => line.key === GRANTED,
+  (line) => GRANTS.has(line.key),
   // The passbook's stamps: money held for the road is told beside the visa, before the month's troubles.
   (line) => line.key.startsWith("line.passbook."),
   isUnpaid,
@@ -209,7 +213,7 @@ export function runningOut(view: Pick<PlayerView, "documents" | "month" | "route
 
 /** True for the line that leads the results alone: the visa granted. */
 export function leadsAlone(line: ReportLine): boolean {
-  return line.key === GRANTED;
+  return GRANTS.has(line.key);
 }
 
 /** A change at the bank whose charge is too small to show: its `amount` is the charge, which stays money out with no line of its own. */
