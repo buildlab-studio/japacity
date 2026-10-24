@@ -7,6 +7,7 @@ import { testDeps } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../dependencies";
 import { moneyJob } from "../scheduled/money";
+import { sendAuthority } from "../authority/command";
 import { activeOn } from "./active";
 import { ALARM_ROWS, listAlarms, noteDiverged } from "./alarm";
 import { createLife, life, playRows, storeWorlds } from "./ops.testing";
@@ -275,13 +276,15 @@ describe("the draw's alarm", () => {
     }
   });
 
-  test("[lottery:money-report-checks-draws] given a payout logged with any house part, when the draw is checked, then the world alarm is raised for the house part against 0; a part of 0 raises nothing", async () => {
-    const house = testDeps();
-    await drawn(house, BUYS, { amount: 500, topUp: 1 }, { count: 3, owed: 500 });
-    expect(await drawAlarms(house, time.utcDay(close))).toEqual([{ kind: "draw", day: time.utcDay(close), draw: 0, check: "top-up", total: 1, limit: 0 }]);
-
-    const none = testDeps();
-    await drawn(none, BUYS, { amount: 500, topUp: 0 }, { count: 3, owed: 500 });
-    expect(await drawAlarms(none, time.utcDay(close))).toEqual([]);
+  test("[lottery:money-report-checks-draws] given a payout that carries a house part, when the authority sends it, then it is refused and never logged, so the draw's check meets only the win the result gives", async () => {
+    const deps = testDeps();
+    await storeWorlds(deps, SAVE);
+    await createLife(deps, "character.a", SAVE);
+    const prizes = [{ tier: "jackpot", amount: 500, topUp: 1 }] as unknown as { tier: "jackpot"; amount: number }[];
+    const outcome = await sendAuthority(deps, "character.a", { type: "lottery/pay", draw: 0, prizes, basedOn: 0 });
+    expect(outcome.kind === "rejected" ? outcome.rejection.code : outcome.kind).toBe("not-legal");
+    const held = await deps.stores.player.load("character.a");
+    const log = await deps.stores.player.log("character.a", held?.segments[0]?.fromV ?? 0);
+    expect(log.filter((row) => row.command.type === "lottery/pay")).toEqual([]);
   });
 });

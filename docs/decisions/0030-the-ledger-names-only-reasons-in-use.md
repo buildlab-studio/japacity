@@ -23,7 +23,7 @@ Alternatives weighed:
 
 - **The union holds only reasons a rule uses.** `pot-top-up`, `ransom` and `build` are not in `Reason` or `ReasonSchema`, and their report lines (`line.wallet.pot-top-up`, `line.wallet.ransom`, `line.wallet.build`) are not in `REASON_LINE` or in content's words.
 - **A name that is no reason can make nothing.** In the money report a total under any name outside `ReasonSchema` has a ceiling of 0, so one kobo under it names the account as suspect (wallet:ledger-report-raises-alarms).
-- **The house part is refused.** A `lottery/pay` whose prize carries a house part is refused whole, and the server's draw check raises the world alarm for a logged payout that carries one (lottery:winners-paid-by-authority, lottery:money-report-checks-draws). These read the payout's own field, not a ledger reason.
+- **The house part is refused at the step.** A `lottery/pay` whose prize carries a house part is refused whole with `not-legal` and never reaches a life's log (lottery:winners-paid-by-authority), so the server's draw check reads the `win` paid and the `ticket` taken and nothing else (lottery:money-report-checks-draws).
 
 ## Consequences
 
