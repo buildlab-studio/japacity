@@ -9,7 +9,7 @@ import { countWords } from "./count";
 import { hasWords } from "./text";
 import { afterPrologue, isUnpaid, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
-import { type BandView, bandResultFor, ISSUED_BAND_MET, ISSUED_BAND_SHORT } from "./englishTest";
+import { type BandView, bandResultFor, ISSUED_BAND, ISSUED_BAND_MET, ISSUED_BAND_SHORT } from "./englishTest";
 
 /** A piece added to the portfolio, as the results tell the portfolio's own line. */
 export const PIECE = "line.activity.piece-built";
@@ -61,7 +61,7 @@ function answered(line: ReportLine): ReportLine {
 export function toldOnResults(line: ReportLine, pays: PayView & BandView): ReportLine {
   const { job } = line.params;
   // The English result against the plan's own band.
-  if (line.key === ISSUED_BAND_MET || line.key === ISSUED_BAND_SHORT) return bandResultFor(line, pays);
+  if (line.key === ISSUED_BAND || line.key === ISSUED_BAND_MET || line.key === ISSUED_BAND_SHORT) return bandResultFor(line, pays);
   if (line.key === TAKEN) return answered(line);
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (text:bands-not-figures).
   // An act sat as a set piece is told in its own words where content has them: the talk, how it went.

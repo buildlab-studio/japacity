@@ -8,7 +8,7 @@ import { engineView, richView } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatBand } from "../../../shared/words/format";
 import { tidyLines } from "../../../shared/words/lines";
-import { bandNeeded } from "../../../shared/words/englishTest";
+import { bandNeeded, bandResultLine, routeBand } from "../../../shared/words/englishTest";
 import { blurbOf, inMonths, say, words } from "../../../shared/words/text";
 import { City } from "../City";
 import { nudgeOf } from "./nudge";
@@ -83,11 +83,15 @@ describe("the English test as a long shot", () => {
 });
 
 describe("the English result told", () => {
-  test("[world:month-end-results-sheet] given a band that meets the route's, when the result is told, then it says the band and that it meets the route's band", () => {
+  test("[world:month-end-results-sheet] given a band that meets the route's, when the result is told against the route's band, then it says the band and that it meets the route's band; with no band asked, the band alone", () => {
     const needed = bandNeeded();
-    const [told] = tidyLines([{ key: "line.document.issued-band", params: { document: PAPER, band: needed + 5 }, tone: "good", attention: false, counts: [] }]);
+    expect(routeBand("route.canada-points")).toBe(needed);
+    const [tidy] = tidyLines([{ key: "line.document.issued-band", params: { document: PAPER, band: needed + 5 }, tone: "good", attention: false, counts: [] }]);
     const plain = words("line.document.issued-band", { document: PAPER, band: needed + 5 });
-    expect(words(told?.key ?? "", told?.params)).toBe(`${plain} That meets the route's ${formatBand(needed)}.`);
+    // The month's lines know no plan, so they say the band alone (world:month-end-results-sheet); told against the pool's band, it meets it.
+    expect(words(tidy?.key ?? "", tidy?.params)).toBe(plain);
+    const told = bandResultLine(tidy!, routeBand("route.canada-points"));
+    expect(words(told.key, told.params)).toBe(`${plain} That meets the route's ${formatBand(needed)}.`);
     expect(plain).toContain(`Band ${formatBand(needed + 5)}.`);
   });
 

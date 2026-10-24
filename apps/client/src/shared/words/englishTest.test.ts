@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { newGame, recordedGame, viewAfter } from "../testing/fixtures";
 import { formatBand } from "./format";
 import { tidyLines } from "./lines";
-import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND_MET, ISSUED_BAND_SHORT, possibleBands, testChance } from "./englishTest";
+import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND, ISSUED_BAND_MET, ISSUED_BAND_SHORT, possibleBands, routeBand, testChance } from "./englishTest";
 import { say, words } from "./text";
 
 const PAPER = "document.english-test";
@@ -78,9 +78,12 @@ describe("the English test's chance", () => {
 
 describe("the English result", () => {
   const issued = (band: number): ReportLine => ({ key: "line.document.issued-band", params: { document: PAPER, band }, tone: "good", attention: true, counts: [] });
+  /** Canada's pool asks band 6.0, the band these results are told against: with no route's band the result says the band alone. */
+  const POOL = routeBand("route.canada-points");
 
-  test("[world:month-end-results-sheet] given a band under 6.0, when the result is told, then it says the band, that the route needs 6.0, and to study and sit again", () => {
-    const line = bandResultLine(issued(50));
+  test("[world:month-end-results-sheet] given a band under the pool's 6.0, when the result is told against it, then it says the band, that the route needs 6.0, and to study and sit again", () => {
+    expect(POOL).toBe(60);
+    const line = bandResultLine(issued(50), POOL);
     expect(line.key).toBe(ISSUED_BAND_SHORT);
     expect(line.tone).toBe("bad");
     expect(line.attention).toBe(true);
@@ -88,16 +91,18 @@ describe("the English result", () => {
   });
 
   // A pass says it meets the route's band, not only the band.
-  test("[world:month-end-results-sheet] given a band of 6.0 or more, when the result is told, then it says the band and that it meets the route's 6.0, in the plain line's tone", () => {
-    expect(bandResultLine(issued(60))).toEqual({ ...issued(60), key: ISSUED_BAND_MET, params: { ...issued(60).params, needed: formatBand(bandNeeded()) } });
-    expect(words(ISSUED_BAND_MET, bandResultLine(issued(65)).params)).toMatch(/Band 6\.5\. That meets the route's 6\.0\.$/);
-    expect(bandResultLine(issued(55)).key).toBe(ISSUED_BAND_SHORT);
+  test("[world:month-end-results-sheet] given a band of 6.0 or more, when the result is told against the pool's 6.0, then it says the band and that it meets the route's 6.0, in the plain line's tone", () => {
+    expect(bandResultLine(issued(60), POOL)).toEqual({ ...issued(60), key: ISSUED_BAND_MET, params: { ...issued(60).params, needed: formatBand(POOL!) } });
+    expect(words(ISSUED_BAND_MET, bandResultLine(issued(65), POOL).params)).toMatch(/Band 6\.5\. That meets the route's 6\.0\.$/);
+    expect(bandResultLine(issued(55), POOL).key).toBe(ISSUED_BAND_SHORT);
   });
 
-  test("[world:month-end-results-sheet] given the graduate's careful life, when its result is told by the engine, then it reaches 6.0 and its line says it meets the route's band", () => {
+  test("[world:month-end-results-sheet] given the graduate's careful life, when its result is told by the engine, then it reaches 6.0, its line told against the pool's band says it meets it, and with no band asked the line says the band alone", () => {
     const game = recordedGame("graduate-careful");
     expect(game.view().documents.find((paper) => paper.id === PAPER)?.value).toBeGreaterThanOrEqual(bandNeeded());
     // The tidy lines that reach the results say a band that reaches the route's meets it.
-    expect(tidyLines([issued(60)]).map((line) => bandResultLine(line).key)).toEqual([ISSUED_BAND_MET]);
+    expect(tidyLines([issued(60)]).map((line) => bandResultLine(line, POOL).key)).toEqual([ISSUED_BAND_MET]);
+    // With no plan the month's lines name no route's figure (world:month-end-results-sheet).
+    expect(tidyLines([issued(60)]).map((line) => line.key)).toEqual([ISSUED_BAND]);
   });
 });

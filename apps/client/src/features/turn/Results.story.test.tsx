@@ -73,8 +73,8 @@ describe("the month's story on the results", () => {
       line("line.chapter.closed", {}, "good"),
       line("line.activity.rested", { slots: 2 }),
     ];
-    // A band that reaches the route's is told as meeting it.
-    expect(storyLines(lines).map((each) => each.key)).toEqual(["line.document.issued", "line.document.issued-band-met", "line.wallet.flagged", "line.chapter.closed"]);
+    // The story knows no plan, so the band is told alone (world:month-end-results-sheet); the results tell it again against the plan's band.
+    expect(storyLines(lines).map((each) => each.key)).toEqual(["line.document.issued", "line.document.issued-band", "line.wallet.flagged", "line.chapter.closed"]);
   });
 
   test("[world:month-end-results-sheet] given more story than fits, when the results show, then the story holds six, and on the sheet five stand beside Kept, offers and ways out first, and the rest is left to News", async () => {

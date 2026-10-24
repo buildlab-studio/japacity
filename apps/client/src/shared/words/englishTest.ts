@@ -15,7 +15,7 @@ const ENGLISH_PAPER = "document.english-test";
 const ENGLISH = "quality.english";
 /** English is held out of 100; the band adds its per-hundred figure for each 100 (document.logic.ts). */
 const ENGLISH_PER = 100;
-const ISSUED_BAND = "line.document.issued-band";
+export const ISSUED_BAND = "line.document.issued-band";
 export const ISSUED_BAND_SHORT = "line.document.issued-band-short";
 export const ISSUED_BAND_MET = "line.document.issued-band-met";
 
@@ -62,6 +62,15 @@ export function bandNeeded(view: BandView = {}): number {
   );
   // route:applying-to-a-school: no school asks a band, so with none asked the lowest band a test gives stands.
   return asked.length > 0 ? Math.min(...asked) : content.tuning.english.min;
+}
+
+/**
+ * The band a result is told against (world:month-end-results-sheet): the plan's route's own, or null with no plan or a plan that asks none
+ * (the master's, whose English is the degree, route:degree-meets-masters-english), when the result says the band alone.
+ */
+export function bandAsked(view: BandView = {}): number | null {
+  const lean = view.plan?.route ?? null;
+  return lean === null ? null : routeBand(lean);
 }
 
 /** The band a sitting gives at one draw of the noise, as the simulation sets it (document:english-test-band-value). */
@@ -111,21 +120,22 @@ export function testChance(view: { qualities: readonly { id: string; value: numb
 
 /**
  * The English result as the results say it (world:month-end-results-sheet): a band under the one the route needs says so
- * and what next, in content's words; a band that reaches it says it meets the route's band.
+ * and what next, in content's words; a band that reaches it says it meets the route's band; with no band asked, the
+ * band alone.
  */
-export function bandResultLine(line: ReportLine, needed: number = bandNeeded()): ReportLine {
+export function bandResultLine(line: ReportLine, needed: number | null = null): ReportLine {
   if (line.key !== ISSUED_BAND || line.params.document !== ENGLISH_PAPER) return line;
   const band = line.params.band;
-  if (typeof band !== "number") return line;
+  if (typeof band !== "number" || needed === null) return line;
   if (band >= needed) return { ...line, key: ISSUED_BAND_MET, params: { ...line.params, needed: formatBand(needed) } };
   return { ...line, key: ISSUED_BAND_SHORT, tone: "bad", params: { ...line.params, needed: formatBand(needed) } };
 }
 
 /**
- * A result already told against the band with no plan, told again against the plan's own:
- * the nurse's "That meets the route's 6.0." on a care plan that asks 4.0. The engine's line is always good in tone.
+ * A result as the month's lines tell it, told again against the plan's own band: the nurse's 5.0 on a care plan says
+ * the route needs 5.5; with no band asked it says the band alone. The engine's line is always good in tone.
  */
 export function bandResultFor(line: ReportLine, view: BandView): ReportLine {
-  if (line.key !== ISSUED_BAND_MET && line.key !== ISSUED_BAND_SHORT) return line;
-  return bandResultLine({ ...line, key: ISSUED_BAND, tone: "good" }, bandNeeded(view));
+  if (line.key !== ISSUED_BAND && line.key !== ISSUED_BAND_MET && line.key !== ISSUED_BAND_SHORT) return line;
+  return bandResultLine({ ...line, key: ISSUED_BAND, tone: "good" }, bandAsked(view));
 }

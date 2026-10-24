@@ -27,7 +27,7 @@ describe("one band for the route", () => {
     expect(routeBand(CARE)).toBe(55);
   });
 
-  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is health care, when the centre's sheet and its result are read, then both say the care route's band, never the master's 6.0", () => {
+  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is health care, when the centre's sheet and its result are read, then both say the care route's band, never the master's 6.0, and with no plan the result says the band alone", () => {
     const game = newGame("scenario.nurse");
     viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     const view = game.view();
@@ -42,8 +42,9 @@ describe("one band for the route", () => {
     expect(told.tone).toBe("good");
     const [tidy] = tidyLines([issued(50)]);
     expect(words(toldOnResults(tidy!, view).key, toldOnResults(tidy!, view).params)).toBe("Band 5.0. The route needs 5.5: study and sit again.");
-    // With no plan, the chapter's own 6.0 stands.
+    // With no plan, the result says the band alone and names no route's figure.
     const none = toldOnResults(tidy!, newGame("scenario.nurse").view());
-    expect(words(none.key, none.params)).toBe("Band 5.0. The route needs 6.0: study and sit again.");
+    expect(words(none.key, none.params)).toBe(words("line.document.issued-band", tidy!.params));
+    expect(words(none.key, none.params)).not.toMatch(/route/);
   });
 });
