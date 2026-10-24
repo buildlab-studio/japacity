@@ -8,6 +8,7 @@
 import type { PlayerView } from "@japacity/sim";
 
 import { formatMoney } from "../../../shared/words/format";
+import { keptOnGoingHome } from "../../../shared/words/kept";
 import { say } from "../../../shared/words/text";
 import type { Ask } from "../../../shared/world/contract";
 
@@ -54,8 +55,14 @@ function schemeWay(home: NonNullable<PlayerView["place"]["wayHome"]>, act: () =>
   };
 }
 
-/** The card, or null when there is no way home to forecast (not abroad). `scheme` sends the return by the returns service. */
-export function goHomeAsk(view: Pick<PlayerView, "place" | "ended" | "status">, hands: { who: string; go: () => void; scheme?: () => void; dismiss: () => void }): Ask | null {
+/**
+ * The card, or null when there is no way home to forecast (not abroad). `scheme` sends the return by the returns service; `beganAt`, when the life
+ * began, names the month a kept status runs to, read from the clock when it is not given.
+ */
+export function goHomeAsk(
+  view: Pick<PlayerView, "place" | "ended" | "status" | "month">,
+  hands: { who: string; go: () => void; scheme?: () => void; dismiss: () => void; beganAt?: number },
+): Ask | null {
   const home = view.place.wayHome;
   if (home === null || view.place.where !== "abroad") return null;
   const { fare, offPeak, paidFrom, naira, shape, standing } = home;
@@ -64,7 +71,9 @@ export function goHomeAsk(view: Pick<PlayerView, "place" | "ended" | "status">, 
   // The assisted ticket is the agency's; any other return pays the fare here, or buys it from naira (place:view-carries-way-home).
   const cost = assisted || shape === null ? null : paidFrom === "naira" ? { amount: naira, currency: "NGN" } : { amount: fare.amount, currency: fare.currency };
   const blocked = shape === null ? say("ui.world.go-home.none") : !assisted && paidFrom === null ? say("ui.world.go-home.short") : undefined;
-  const facts = shape === null ? [] : [say("ui.world.go-home.status"), say("ui.world.go-home.family"), standingWords(standing), ...overstayFacts(view, home), ...(december && !assisted ? [say("ui.world.go-home.december")] : [])];
+  // return:papers-return-keeps-status: a return with papers keeps the status, so the card says what it keeps in place of the status ending.
+  const status = shape === "with-papers" ? keptOnGoingHome(view, hands.beganAt ?? Date.now()) : [say("ui.world.go-home.status")];
+  const facts = shape === null ? [] : [...status, say("ui.world.go-home.family"), standingWords(standing), ...overstayFacts(view, home), ...(december && !assisted ? [say("ui.world.go-home.december")] : [])];
   const other = hands.scheme === undefined ? undefined : schemeWay(home, hands.scheme);
   return {
     form: "card",

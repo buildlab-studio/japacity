@@ -186,6 +186,35 @@ export function abroadGame(): Game {
   return game;
 }
 
+/**
+ * The graduate landed and holding `status` (return:papers-return-keeps-status: the Graduate visa by default), with pounds for the fare and naira
+ * well above the broke line, so the way home is a return with papers.
+ */
+export function keptStatusGame(status: Id<"status"> = "status.uk-graduate"): Game {
+  const game = abroadGame();
+  applyEffects(game, [{ type: "status/grant", status }]);
+  setPockets(game, { GBP: 2_000_000, NGN: 5_000_000_000 });
+  return game;
+}
+
+/** Plays `months` months with every slot resting, granting turns as needed. */
+function playResting(game: Game, months: number): void {
+  for (let month = 0; month < months; month += 1) {
+    if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
+    if (game.state.setpiece.open !== null) throw new Error("A set piece is open.");
+    game.endTurn([]);
+  }
+}
+
+/** `keptStatusGame` with `abroad` months lived on the status, gone home with it kept, and `months` played at home after. */
+export function keptAtHomeGame(status: Id<"status"> = "status.uk-graduate", months = 0, abroad = 0): Game {
+  const game = keptStatusGame(status);
+  playResting(game, abroad);
+  game.accept({ type: "return/home" });
+  playResting(game, months);
+  return game;
+}
+
 /** The money of each country abroad, for a life landed there. */
 const MONEY_OF: Readonly<Record<string, Currency>> = { "country.uk": "GBP", "country.canada": "CAD", "country.uae": "AED", "country.italy": "EUR" };
 

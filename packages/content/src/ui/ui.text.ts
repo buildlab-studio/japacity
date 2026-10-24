@@ -859,6 +859,8 @@ export const uiText: Record<string, string> = {
   "ui.place.months-here.one": "1 month here",
   "ui.place.months-here.zero": "You arrived this month",
   "ui.place.token": "You still hold {status}. The door is open if you go back.",
+  "ui.place.kept.until": "Your {status} runs to {to}: you can fly back on it.",
+  "ui.place.kept.restarts": "You have been home {months} months or more, so the road to settling starts again when you fly back.",
   "ui.place.returns": "Times you came home",
   "ui.place.road-name": "the road",
   "ui.place.return-item": "Month {month}: home from {country}, {shape}",

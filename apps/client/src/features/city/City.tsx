@@ -1340,6 +1340,7 @@ export function City({
           setPicked(null);
         },
         dismiss: () => setPicked(null),
+        beganAt,
       });
     }
     // world:nobody-picked-from-list, person:courting-opens-a-bond: talking to a person met here opens their card; its one button courts them.

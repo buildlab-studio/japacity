@@ -147,8 +147,7 @@ export function keptForFlight(read: ReadCtx, token: { status: Id<"status">; sinc
   const { absenceMonths, absenceWindowMonths } = read.content.tuning.status;
   const spans = [...(months.away ?? []), { from: sinceMonth, to: month }];
   if (mostAwayInWindow(spans, absenceWindowMonths) >= absenceMonths) {
-    const { away: _away, ...rest } = months;
-    return { ...rest, lawfulMonths: 0 };
+    return { monthsHeld: months.monthsHeld, lawfulMonths: 0, ...(months.expiresMonth === undefined ? {} : { expiresMonth: months.expiresMonth }), ...(months.settleMonths === undefined ? {} : { settleMonths: months.settleMonths }) };
   }
   const kept = stillInWindow(spans, month, absenceWindowMonths);
   return { ...months, ...(kept.length === 0 ? {} : { away: kept }) };
