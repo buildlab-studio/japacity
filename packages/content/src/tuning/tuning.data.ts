@@ -111,6 +111,9 @@ export const tuning: Tuning = {
     decisionMonths: 1,
     flight: { currency: "NGN", amount: naira(1100000) },
     hintPrep: 40,
+    // route:education-loan-pays-the-school: the lender's $500 processing fee, £380 at the start rates, and its 4.2% administration fee added to the loan.
+    loanProcessing: pounds(380),
+    loanFeeBp: 420,
   },
 
   // offer.md

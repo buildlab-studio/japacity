@@ -285,6 +285,8 @@ function carArrears(item: ObligationState, entry: ObligationEntry): Charge & { m
  * takes to clear them (car:missed-payments-take-the-car).
  */
 function dueNext(read: ReadCtx, item: ObligationState, entry: ObligationEntry): number {
+  // route:education-loan-pays-the-school: nothing is due while the charges wait.
+  if (item.deferred !== undefined) return 0;
   // undertaking:view-lists-undertaking: what is owed now, all of it asked for at once.
   if (isSponsorUndertaking(entry)) return item.outstanding;
   if (item.state === "defaulted") return COLLECTED_TYPES.includes(entry.type) ? item.outstanding : 0;
@@ -585,6 +587,18 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
   return events;
 }
 
+/**
+ * route:education-loan-pays-the-school: a loan whose charges wait on a status charges nothing before that status is held, nor while it is. The month it is
+ * first found ended, the charges are set to start, and the first falls the month after.
+ */
+function deferral(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
+  const waits = entry.deferWhile;
+  const holding = waits !== undefined && ctx.state.status.current?.entry === waits;
+  if (holding && item.deferred?.seen !== true) return record(ctx, { type: "obligation/deferral-seen", id: item.id, entry: item.entry });
+  if (holding || item.deferred?.seen !== true) return [];
+  return record(ctx, { type: "obligation/started", id: item.id, entry: item.entry, month: ctx.state.turn.month });
+}
+
 /** Everything owed this month, oldest first (obligation:due-phase-charges-oldest-first). */
 function due(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
@@ -604,6 +618,10 @@ function due(ctx: Ctx): BaseEvent[] {
     }
     if (inCourt(item, entry)) {
       events.push(...courtMonth(ctx, item, entry));
+      continue;
+    }
+    if (item.deferred !== undefined) {
+      events.push(...deferral(ctx, item, entry));
       continue;
     }
     if (!dueIn(item, entry, ctx.state.turn.month)) continue;
@@ -661,13 +679,16 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
     outstanding: principal,
     monthsLeft: entry.term,
     missed: 0,
-        bond: null,
-        charged: 0,
+    bond: null,
+    charged: 0,
+    // route:education-loan-pays-the-school: charges wait on the status the entry names.
+    ...(entry.deferWhile === undefined ? {} : { deferred: { seen: false } }),
   };
   const events = record(ctx, { type: "obligation/opened", item });
   if (!lent) return events;
   const credit = { source: item.entry, param: null, terms: cause.terms };
-  if (entry.type === "loan") {
+  // route:education-loan-pays-the-school: a loan paid to the school credits nothing to the borrower.
+  if (entry.type === "loan" && entry.paysSchool !== true) {
     ctx.apply([{ type: "money/add", currency: entry.currency, pocket: "bank", amount: principal, reason: "loan", flagged: true }], credit);
   }
   if (entry.type === "held-funds") {
@@ -708,7 +729,7 @@ function closeEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const events: BaseEvent[] = [];
   for (const item of openItems(ctx.state)) {
     const entry = entryOf(ctx.content, item.entry);
-    if (entry.type !== effect.obligationType) continue;
+    if (entry.type !== effect.obligationType || (effect.obligation !== undefined && item.entry !== effect.obligation)) continue;
     if (entry.type === "car") {
       events.push(...closeCar(ctx, item, entry, cause));
       continue;
@@ -933,6 +954,14 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
       return withItem(slice, event.id, (item) => ({ ...item, state: "active", missed: 0 }));
     case "obligation/planned":
       return withItem(slice, event.id, (item) => ({ ...item, state: "active", missed: 0, plan: event.plan }));
+    case "obligation/deferral-seen":
+      return withItem(slice, event.id, (item) => ({ ...item, deferred: { seen: true } }));
+    case "obligation/started":
+      return withItem(slice, event.id, (item) => {
+        const started = { ...item };
+        delete started.deferred;
+        return started;
+      });
     case "obligation/staged":
       return slice;
     case "obligation/relieved": {
@@ -1056,6 +1085,10 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
       return [line("cleared", { obligation: event.entry }, "good", true)];
     case "obligation/staged":
       return [line(`tuition-${event.stage}`, { obligation: event.entry }, "bad", true)];
+    case "obligation/started":
+      return [line("repayments-start", { obligation: event.entry }, "plain", true)];
+    case "obligation/deferral-seen":
+      return [];
     case "obligation/planned":
       return [line("tuition-plan", { obligation: event.entry, amount: money(event.entry, divFloor(event.plan.total, event.plan.months)), months: event.plan.months }, "good", false)];
     case "obligation/taken-back":

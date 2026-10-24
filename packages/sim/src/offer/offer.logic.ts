@@ -46,6 +46,7 @@ import { HASTEN_TERM } from "../document/document.logic";
 import type { AgentKind, Look, Pitch } from "./offer.agent";
 import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, paperToMove, pitchMonths, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
 import { officialRates } from "../wallet/wallet.rates";
+import { tuitionLeft } from "../route/route.logic";
 
 /**
  * The groups that are rolled, in the order offer:come-up-rolls-in-order takes them. `job` is
@@ -113,6 +114,8 @@ function fixTerm(ctx: Ctx, spec: TermSpec): number {
       return (ctx.state.quality[spec.quality] ?? 0) * spec.times;
     case "pay":
       return Math.min(spec.cap, payInNaira(readOf(ctx)) * spec.times);
+    case "tuition-left":
+      return tuitionLeft(readOf(ctx), spec.route);
     default: {
       const never: never = spec;
       throw new Error(`Unknown term ${JSON.stringify(never)}.`);

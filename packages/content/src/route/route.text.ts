@@ -61,6 +61,8 @@ export const routeText: Record<string, string> = {
   "line.route.invite-lapsed": "The invitation for {route} has lapsed. The fee was never paid. Your profile stays in the pool.",
   // route:family-pledge-pays-tuition, in the family's words.
   "line.route.pledge-paid": "Your father paid the school {amount}.",
+  // route:education-loan-pays-the-school.
+  "line.route.loan-paid": "The lender paid {amount} to the university for {route}. It comes off the money you must show.",
   "line.route.gifted": "Canada will not count your family's gift of {amount} until a notary's deed says it is not a loan.",
   "line.route.gift-deeded": "The gift deed is in your file. Canada counts your family's gift as your own money now.",
   "line.route.invite-short": "You were invited to apply for {route}, but the money you must show is short. The invitation holds one more month.",

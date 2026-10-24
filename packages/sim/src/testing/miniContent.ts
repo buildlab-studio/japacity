@@ -350,6 +350,8 @@ export const miniContent: Content = {
       decisionMonths: 1,
       flight: { currency: "NGN", amount: 160000000 },
       hintPrep: 40,
+      loanProcessing: 38000,
+      loanFeeBp: 420,
     },
     offer: { maxNewPerMonth: 2, maxOpen: 4 },
     place: { brokeLine: 50000000, fareFromNaira: true },

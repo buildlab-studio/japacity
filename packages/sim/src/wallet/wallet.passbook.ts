@@ -23,7 +23,7 @@ import type {
   Terms,
   World,
 } from "../engine/types";
-import { fundsCurrency, fundsRequired } from "../route/route.logic";
+import { fundsCurrency, fundsRequired, tuitionLeft } from "../route/route.logic";
 import { CURRENCIES, officialRates } from "./wallet.rates";
 
 /** The street's savings circle (luck:savings-circle-holds-pot), the road the passbook names as the ajo. */
@@ -285,6 +285,8 @@ function termValue(read: ReadCtx, spec: TermSpec): number {
       return spec.min;
     case "pay":
       return 0;
+    case "tuition-left":
+      return tuitionLeft(read, spec.route);
     default: {
       const never: never = spec;
       throw new Error(`Unknown term ${JSON.stringify(never)}.`);

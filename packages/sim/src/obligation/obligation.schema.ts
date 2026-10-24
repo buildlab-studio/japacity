@@ -48,6 +48,8 @@ export const ObligationEntrySchema = z.strictObject({
   onDefault: z.array(EffectSchema),
   schedule: z.array(BpSchema).min(1).exactOptional(),
   onCut: z.array(EffectSchema).exactOptional(),
+  paysSchool: z.literal(true).exactOptional(),
+  deferWhile: idOf("status").exactOptional(),
 });
 
 export type ObligationEntryMatches = Proof<Same<z.infer<typeof ObligationEntrySchema>, ObligationEntry>>;

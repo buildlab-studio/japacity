@@ -368,6 +368,8 @@ export type Effect =
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }
+  /** route:education-loan-pays-the-school: what a regulated education loan paid the school on this route, in pence. */
+  | { type: "route/loan"; route: Id<"route">; amount: Amount }
   /** route:family-pledge-pays-tuition: a charge abroad the student's own money cannot meet, in its currency, met from the family's pledge while it stands. */
   | { type: "route/pledge-pay"; currency: ForeignCurrency; amount: number }
   /** The family's gift for the route is recorded on it, in naira (route-gates:family-gift-counts-with-deed). */
@@ -411,7 +413,8 @@ export type Effect =
   /** The day's arrivals (offer:day-arrivals-roll-offers): rolls as the come-up phase does and opens at most `max` offers inside the month's cap. */
   | { type: "offer/come-up"; max: number }
   // obligation, whole life
-  | { type: "obligation/close"; obligationType: ObligationType }
+  /** With `obligation`, only that entry's (route:education-loan-pays-the-school: the loan closed by a refusal). */
+  | { type: "obligation/close"; obligationType: ObligationType; obligation?: Id<"obligation"> }
   /** The next charge of the open obligation of this type that applies where the character lives falls by `bp` of its amount, once (obligation:cooking-and-fetching-water). */
   | { type: "obligation/relief"; obligationType: ObligationType; bp: number }
   // place (docs/rules/place.md)
@@ -756,13 +759,19 @@ export interface ObligationEntry {
   schedule?: number[];
   /** abroad-money:missed-tuition-runs-in-stages: applied when access is cut, the second month in arrears with no plan. */
   onCut?: Effect[];
+  /** route:education-loan-pays-the-school: the loan is paid to the school, so opening it credits nothing. */
+  paysSchool?: true;
+  /** route:education-loan-pays-the-school: nothing is charged before this status is held, nor while it is; charges start the month after it ends. */
+  deferWhile?: Id<"status">;
 }
 
 export type TermSpec =
   | number
   | { from: "quality"; quality: Id<"quality">; times: number }
   | { from: "pay"; times: number; cap: number }
-  | { from: "range"; min: number; max: number; step: number };
+  | { from: "range"; min: number; max: number; step: number }
+  /** route:education-loan-pays-the-school: the tuition the route's school still asks: its tuition less its discount, the deposit and what a loan paid. */
+  | { from: "tuition-left"; route: Id<"route"> };
 
 export interface OfferChoice {
   id: string;
@@ -1330,6 +1339,9 @@ export interface Tuning {
     decisionMonths: number;
     flight: Money;
     hintPrep: number;
+    /** route:education-loan-pays-the-school: the lender's processing fee, in pence, and its fee added to the loan, in basis points. */
+    loanProcessing: number;
+    loanFeeBp: number;
   };
   offer: { maxNewPerMonth: number; maxOpen: number };
   place: { brokeLine: number; fareFromNaira: boolean };
@@ -1861,6 +1873,8 @@ export interface RouteState {
   depositPaid: number;
   /** Money in a parent's account that counts by consent. It never leaves that account. */
   support: { currency: Currency; amount: number } | null;
+  /** route:education-loan-pays-the-school: what an education loan paid the school, in pence. Missing: none. */
+  loanPaid?: number;
   /** The family's gift for this route, in naira, and whether its deed is held so it counts (route-gates:family-gift-counts-with-deed). Missing: none given. */
   gift?: { amount: number; deeded: boolean };
   /** The last month-end funds check. */
@@ -1956,6 +1970,8 @@ export interface ObligationState {
    * the last rounded so the whole is paid. Absent with no plan.
    */
   plan?: { month: number; total: number; months: number };
+  /** route:education-loan-pays-the-school: charges wait on `deferWhile`; `seen` once that status has been held. Absent once charges have started, or for an entry that never waits. */
+  deferred?: { seen: boolean };
 }
 
 /** One share off an obligation's next charge, in basis points of it, and the activity that earned it (obligation:cooking-and-fetching-water). */
@@ -2438,6 +2454,8 @@ export interface RouteView {
   schools: { id: Id<"school">; state: SchoolApplication["state"]; readyMonth: number; discount: number }[];
   school: Id<"school"> | null;
   depositPaid: number;
+  /** route:education-loan-pays-the-school: what an education loan paid the school, in pence; 0 with none. */
+  loanPaid: number;
   support: { currency: Currency; amount: number } | null;
   funds: RouteState["funds"];
   unexplainedBp: number;

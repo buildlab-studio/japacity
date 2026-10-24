@@ -335,6 +335,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("route/gift"), route: idOf("route"), amount: AmountSchema }),
   z.strictObject({ type: z.literal("route/pledge-pay"), currency: ForeignCurrencySchema, amount: CountSchema }),
+  z.strictObject({ type: z.literal("route/loan"), route: idOf("route"), amount: AmountSchema }),
   z.strictObject({ type: z.literal("route/interview-scored"), route: idOf("route"), score: IntSchema }),
   z.strictObject({ type: z.literal("people/moment"), kind: z.enum(["met", "call", "said", "wedding"]) }),
   z.strictObject({ type: z.literal("route/withdraw"), route: idOf("route") }),
@@ -364,7 +365,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("offer/open"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("offer/close"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("offer/come-up"), max: CountSchema }),
-  z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema }),
+  z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema, obligation: idOf("obligation").exactOptional() }),
   z.strictObject({ type: z.literal("obligation/plan"), obligation: idOf("obligation") }),
   z.strictObject({ type: z.literal("obligation/relief"), obligationType: ObligationTypeSchema, bp: BpSchema }),
   z.strictObject({ type: z.literal("place/move"), to: WhereSchema, country: idOf("country").nullable() }),
@@ -413,6 +414,7 @@ export const TermSpecSchema = z.union([
   z.discriminatedUnion("from", [
     z.strictObject({ from: z.literal("quality"), quality: idOf("quality"), times: CountSchema }),
     z.strictObject({ from: z.literal("pay"), times: CountSchema, cap: CountSchema }),
+    z.strictObject({ from: z.literal("tuition-left"), route: idOf("route") }),
     z
       .strictObject({ from: z.literal("range"), min: CountSchema, max: CountSchema, step: z.int().positive() })
       .check(z.refine((range) => range.min <= range.max, { error: "A range's min must not be above its max" })),
@@ -506,6 +508,8 @@ export const TuningSchema = z.strictObject({
     decisionMonths: CountSchema,
     flight: MoneySchema,
     hintPrep: CountSchema,
+    loanProcessing: CountSchema,
+    loanFeeBp: BpSchema,
   }),
   offer: z.strictObject({ maxNewPerMonth: CountSchema, maxOpen: CountSchema }),
   place: z.strictObject({ brokeLine: CountSchema, fareFromNaira: z.boolean() }),

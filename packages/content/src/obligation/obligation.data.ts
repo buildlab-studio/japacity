@@ -360,6 +360,29 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     ],
   },
 
+  // route:education-loan-pays-the-school: a regulated education loan in pounds, paid to the school. 0.8% a month flat on what was lent over 180 months
+  // charges about £149 a month on £11,000, against about £143 at the lender's representative 13.48% a year over fifteen years (factor about 1.04).
+  // Nothing is charged before the student status, nor while it holds; a default is recovered as any loan's is.
+  "obligation.education-loan": {
+    id: "obligation.education-loan",
+    type: "loan",
+    where: "any",
+    currency: "GBP",
+    amount: 0,
+    rateBp: 80,
+    term: 180,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 2,
+    onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -4 }],
+    onDefault: [
+      { type: "quality/add", quality: "quality.standing", amount: -10 },
+      { type: "quality/add", quality: "quality.credit-mark", amount: 1 },
+    ],
+    paysSchool: true,
+    deferWhile: "status.uk-student",
+  },
+
   // activity:waiting-months-build-profile: a master's at home, ₦1,800,000 in twelve monthly instalments, the
   // principal handed over by the activity's first month. The page gives no default, so the grace
   // is the whole term: fees fall behind and stay owed, and no school withdraws you from a course at home.

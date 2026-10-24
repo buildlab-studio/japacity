@@ -35,6 +35,7 @@ export const obligationText: Record<string, string> = {
   "obligation.phone-canada.name": "Phone contract in Canada",
   "obligation.tuition.name": "Tuition instalments",
   "obligation.masters-at-home.name": "Master's fees",
+  "obligation.education-loan.name": "Education loan",
   "obligation.car.name": "Car on finance",
   "obligation.car-shortfall.name": "What is still owed on the car",
   "obligation.car-shortfall-home.name": "What is still owed on the car you left",
@@ -63,6 +64,8 @@ export const obligationText: Record<string, string> = {
   "line.obligation.tuition-reminder": "A letter from the fees office: your tuition payment is overdue. Please pay it as soon as you can.",
   "line.obligation.tuition-cut": "A letter from the fees office: the tuition is still unpaid, so your library and coursework access is cut. A payment plan is open to you.",
   "line.obligation.tuition-warning": "A letter from the fees office: this is a final warning. Pay the tuition owed or you are liable for withdrawal.",
+  // route:education-loan-pays-the-school: the loan's charges start the month after the course's status ends.
+  "line.obligation.repayments-start": "{obligation}: the course is behind you, so the repayments start next month.",
   "line.obligation.tuition-plan": "{obligation}: on a plan now, {amount} a month for {months} months.",
   "line.obligation.group-covered": "You could not pay. The group covered the {amount} for you, and now you owe them that as well.",
   "line.obligation.group-visit": "The loan officer came to the house with two women from the group. The whole street saw.",

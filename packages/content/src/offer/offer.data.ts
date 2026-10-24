@@ -939,6 +939,41 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
+  // route:education-loan-pays-the-school: a lender that funds Nigerian students' master's abroad pays the school direct, with no collateral or co-signer;
+  // it comes up once the deposit is paid, for no more than the tuition left, while the visa is not yet granted.
+  "offer.education-loan": {
+    id: "offer.education-loan",
+    group: "money",
+    where: "home",
+    when: [
+      { type: "route/deposit", route: UK },
+      { type: "not", of: { type: "route/state", route: UK, in: ["granted", "departed"] } },
+      CREDIT_CLEAN,
+      { type: "not", of: { type: "obligation/has", obligationType: "loan", obligation: "obligation.education-loan" } },
+    ],
+    chanceBp: pct(100),
+    cooldown: 3,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: { min: pounds(1000), max: { from: "tuition-left", route: UK }, fee: tuning.route.loanProcessing },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [{ type: "money/can-pay", currency: "GBP", amount: { term: "fee" } }],
+        pick: { minTerm: "min", maxTerm: "max" },
+        effects: [
+          { type: "money/pay-fee", currency: "GBP", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "obligation/open", obligation: "obligation.education-loan", principal: { term: "amount", bp: 10000 + tuning.route.loanFeeBp } },
+          { type: "route/loan", route: UK, amount: { term: "amount" } },
+        ],
+        fraudEffects: null,
+      },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
   // abroad-money:missed-tuition-runs-in-stages: the university's payment plan, opened only by the cut of access. The instalment arrives with the
   // effect that opens it; agreeing pays the fee and spreads what is owed over the course months left (the plan's fee is a working value).
   "offer.fee-payment-plan": {

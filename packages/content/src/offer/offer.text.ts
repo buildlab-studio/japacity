@@ -145,7 +145,7 @@ export const offerText: Record<string, string> = {
   "offer.held-funds.name": "Olokun Microfinance: proof of funds",
   "offer.held-funds.title": "Funds to show",
   "offer.held-funds.body":
-    "“We place the funds in your account for as long as you need, to show, not to spend: ₦5,000 a month on every ₦100,000, and ₦1,000 to arrange it.”",
+    "“We place the funds in your account for as long as you need, to show, not to spend: ₦5,000 a month on every ₦100,000, and ₦1,000 to arrange it.” The small print: the money comes back to them before you fly, and your school fees will still be yours to pay.",
   "offer.held-funds.choice.take": "Take the funds",
   "offer.held-funds.choice.no": "No, thank you",
 
@@ -217,6 +217,15 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.choice.decline": "Tell them to keep it",
   "offer.family-pledge-small.said.accept": "You took what your parents could give, with thanks. Their account now stands behind your file.",
   "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
+
+  "offer.education-loan.name": "A study lender",
+  "offer.education-loan.title": "We pay the school",
+  "offer.education-loan.body":
+    "“We fund master's students from Nigeria and pay your fees straight to the university, up to {max}. About 13.5% a year, a 4.2% fee added to the loan, {fee} to process. Repay over fifteen years, starting after your course.”",
+  "offer.education-loan.choice.take": "Take the loan",
+  "offer.education-loan.choice.no": "No, thank you",
+  "offer.education-loan.said.take": "The lender paid the university. You owe the lender now, from after your course.",
+  "offer.education-loan.said.no": "You left the lender's offer. The fees are yours to find.",
 
   "offer.fee-payment-plan.name": "A payment plan for your fees",
   "offer.fee-payment-plan.title": "Clear it on a plan",
@@ -477,6 +486,7 @@ export const offerText: Record<string, string> = {
   "offer.family-loan.who": "Papa",
   "offer.family-gift-canada.who": "Papa",
   "offer.fee-payment-plan.who": "The university's fees office",
+  "offer.education-loan.who": "A study lender",
   "offer.sponsor-care-home.who": "A care home",
   "offer.sponsor-trust.who": "A hospital trust",
   "offer.sponsor-tech-firm.who": "A tech firm",

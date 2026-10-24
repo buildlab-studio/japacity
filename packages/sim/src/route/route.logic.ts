@@ -49,6 +49,8 @@ import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
+/** route:education-loan-pays-the-school: the regulated education loan, closed with nothing owed when the visa is refused. */
+const EDUCATION_LOAN: Id<"obligation"> = "obligation.education-loan";
 /** The university's confirmation, granted with the deposit and voided by a refusal. */
 const CAS: Id<"document"> = "document.cas";
 const LIVING_LINE: Id<"var"> = "var.uk-living-line";
@@ -190,12 +192,23 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
   if (gate.funds !== undefined) return gate.funds(read, entry, held)?.required ?? 0;
   const living = ukVar(read, LIVING_LINE) * ukVar(read, LIVING_MONTHS);
   let course: number;
-  if (held.school !== null) course = courseOf(read, held, held.school) - held.depositPaid;
+  // route:education-loan-pays-the-school: what a loan paid the school comes off the funds required.
+  if (held.school !== null) course = tuitionLeft(read, route);
   else {
     const offers = entry.schools.filter((id) => held.schools[id]?.state === "offer");
     course = (offers.length > 0 ? cheapest(read, held, offers, true) : cheapest(read, held, entry.schools, false)) ?? 0;
   }
   return Math.max(0, course) + living;
+}
+
+/**
+ * route:education-loan-pays-the-school, abroad-money:tuition-paid-in-instalments: the tuition the route's school still asks, in pence: its tuition less its
+ * discount, the deposit paid and what an education loan paid it; 0 with no school.
+ */
+export function tuitionLeft(read: ReadCtx, route: Id<"route">): number {
+  const held = routeOf(read.state, route);
+  if (held.school === null) return 0;
+  return Math.max(0, courseOf(read, held, held.school) - held.depositPaid - (held.loanPaid ?? 0));
 }
 
 /**
@@ -503,6 +516,15 @@ function pledgePay(ctx: Ctx, effect: Effect): BaseEvent[] {
   return events;
 }
 
+/** route:education-loan-pays-the-school: the loan's amount paid to the school, recorded on the route; one loan a route. */
+function loan(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/loan") throw new Error(`route/loan cannot carry out ${effect.type}.`);
+  const held = routeOf(ctx.state, effect.route);
+  const amount = ctx.amount(effect.amount, cause.terms);
+  if (amount <= 0 || (held.loanPaid ?? 0) > 0) return [];
+  return [own({ type: "route/loan-paid", route: effect.route, amount })];
+}
+
 /** route-gates:family-gift-counts-with-deed: the family's gift recorded on the route in naira, uncounted until its deed is held. */
 function gift(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/gift") throw new Error(`route/gift cannot carry out ${effect.type}.`);
@@ -791,6 +813,8 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const cause: Cause = { source: route, param: null, terms: {} };
   if (held.visa.surchargePaid > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: held.visa.surchargePaid, reason: "refund" }], cause);
   if (entry.gate === "study") ctx.apply([{ type: "document/void", document: CAS }], cause);
+  // route:education-loan-pays-the-school: the school sends the loan's money back to the lender, so the loan closes with nothing owed; the processing fee is lost.
+  if ((held.loanPaid ?? 0) > 0 && ctx.content.obligation[EDUCATION_LOAN] !== undefined) ctx.apply([{ type: "obligation/close", obligationType: "loan", obligation: EDUCATION_LOAN }], cause);
   // route-gates:deception-bans-country: deception bans every route into the country for the country's months.
   if (decision.override !== null && decision.bans && entry.country !== null) {
     const months = ctx.content.country[entry.country]?.deceptionBanMonths ?? 0;
@@ -993,6 +1017,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
         lastRefusal: { month: event.month, reasons: event.reasons },
         school: null,
         depositPaid: 0,
+        // route:education-loan-pays-the-school: the school sends a loan's money back to the lender.
+        loanPaid: 0,
         funds: { ...held.funds, heldMonths: 0 },
         visa: null,
         depositRefund: event.depositRefund,
@@ -1007,6 +1033,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => (held.gift === undefined ? held : { ...held, gift: { ...held.gift, deeded: true } }));
     case "route/pledge-paid":
       return withRoute(slice, event.route, (held) => (held.support === null ? held : { ...held, support: { ...held.support, amount: held.support.amount - event.spent } }));
+    case "route/loan-paid":
+      return withRoute(slice, event.route, (held) => ({ ...held, loanPaid: event.amount }));
     case "route/gate-updated":
       return withRoute(slice, event.route, (held) => (event.secret === undefined ? { ...held, gate: event.gate } : { ...held, gate: event.gate, secret: event.secret }));
     case "route/sponsor-missed":
@@ -1139,6 +1167,8 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("gift-deeded", { route: event.route }, "good", true)];
     case "route/pledge-paid":
       return [line("pledge-paid", { route: event.route, amount: event.paid }, "good", false)];
+    case "route/loan-paid":
+      return [line("loan-paid", { route: event.route, amount: pounds(event.amount) }, "good", false)];
     case "route/gate-updated":
       // road:road-earns-nothing: the chain's lines are tone `bad`.
       return event.note === null ? [] : [line(event.note, { route: event.route }, event.gate?.gate === "road" ? "bad" : "plain", true)];
@@ -1204,6 +1234,7 @@ function routeView(read: ReadCtx, id: Id<"route">, held: RouteState): RouteView 
     })),
     school: held.school,
     depositPaid: held.depositPaid,
+    loanPaid: held.loanPaid ?? 0,
     support: held.support,
     funds: held.funds,
     unexplainedBp: unexplainedBp(read, id),
@@ -1286,6 +1317,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/support": support,
     "route/gift": gift,
     "route/pledge-pay": pledgePay,
+    "route/loan": loan,
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
     "route/lapse": lapse,
