@@ -35,6 +35,8 @@ export const obligationText: Record<string, string> = {
   "obligation.phone-canada.name": "Phone contract in Canada",
   "obligation.tuition.name": "Tuition instalments",
   "obligation.masters-at-home.name": "Master's fees",
+  "obligation.tech-diploma.name": "Diploma fees",
+  "obligation.bootcamp.name": "Bootcamp fee",
   "obligation.car.name": "Car on finance",
   "obligation.car-shortfall.name": "What is still owed on the car",
   "obligation.car-shortfall-home.name": "What is still owed on the car you left",

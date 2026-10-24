@@ -14,6 +14,10 @@ export const documentText: Record<string, string> = {
   "document.home-licence.name": "Nigerian driving licence",
   "document.uk-licence.name": "UK driving licence",
   "document.nmc-pin.name": "UK nursing registration",
+  "document.trcn.name": "Teaching registration",
+  "document.trcn.blurb": "Your registration as a teacher. A better school asks for it. It lasts for good.",
+  "document.ican.name": "Chartered accountant",
+  "document.ican.blurb": "Three sittings of the chartered exams, passed. The chartered accountant's job asks for it.",
 
   "document.nursing-licence.name": "Nursing licence",
   "document.nursing-licence.blurb": "Your licence to practise as a nurse at home. It runs out every three years.",

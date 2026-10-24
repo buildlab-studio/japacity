@@ -144,9 +144,16 @@ describe("Computer Village: selling phones", () => {
 });
 
 describe("Computer Village: the apprentice", () => {
+  test("[streets:apprentice-learns-repair] given the apprenticeship's figures, when the tuning is read, then it gives tech +2 a month and stops at tech 30, a hardware trade's bar and never the developer's", () => {
+    expect([street.apprenticeTech, street.apprenticeUntil]).toEqual([2, 30]);
+    expect(content.activity[APPRENTICE]?.bandGains).toEqual([street.apprenticeTech]);
+  });
+
   test("[streets:apprentice-learns-repair] given tech under the bar, when the apprenticeship is played, then it costs nothing, raises tech by the tuning's figure and lowers wellbeing by 1", () => {
-    expect(option(graduate(), APPRENTICE)).toMatchObject({ allowed: true, cost: [] });
-    const { played, rested } = againstRest(() => undefined, APPRENTICE);
+    const under = graduate();
+    setQuality(under, TECH, street.apprenticeUntil - 10);
+    expect(option(under, APPRENTICE)).toMatchObject({ allowed: true, cost: [] });
+    const { played, rested } = againstRest((game) => setQuality(game, TECH, street.apprenticeUntil - 10), APPRENTICE);
     expect(changed(played, TECH, APPRENTICE)).toEqual([street.apprenticeTech]);
     expect(changed(played, WELLBEING, APPRENTICE)).toEqual([-1]);
     expect(debits(played)).toEqual(debits(rested));

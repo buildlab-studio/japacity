@@ -388,16 +388,19 @@ describe("the params a free activity may take now", () => {
   test("[activity:illegal-slot-rejects-turn] [activity:job-hunt-lands-offer] [activity:side-job-holds-a-slot] given a life, when the jobs to hunt are listed, then they are the jobs and side jobs whose requirements hold, less the one held", () => {
     const graduate = start({ content, scenario: "scenario.graduate" });
     const huntEntry = content.activity["activity.job-hunt"]!;
+    // The junior developer asks a piece of work to show and night support English 60 (activity:each-trade-climbs-its-ladder): the graduate has neither.
     expect(paramsFor(readWith(graduate, (state) => state), huntEntry)).toEqual([
       "activity.job-teacher",
       "activity.job-customer-service",
-      "activity.job-junior-developer",
       "activity.job-bank-officer",
       // Side jobs are hunted like jobs (activity:side-job-holds-a-slot).
-      "activity.night-support",
       "activity.weekend-tutoring",
       // Computer Village's sales job (streets:phone-sales-job).
       "activity.job-phone-sales",
+      // The first rungs and side jobs of the trades a degree and tech 20 open.
+      "activity.job-accounts-officer",
+      "activity.phone-repairs",
+      "activity.bookkeeping",
     ]);
     const banker = start({ content, scenario: "scenario.banker" });
     expect(paramsFor(readWith(banker, (state) => state), huntEntry)).toEqual([
@@ -407,6 +410,8 @@ describe("the params a free activity may take now", () => {
       "activity.weekend-tutoring",
       "activity.ride-driving",
       "activity.job-phone-sales",
+      "activity.job-accounts-officer",
+      "activity.bookkeeping",
     ]);
   });
 
@@ -665,7 +670,8 @@ describe("starting and leaving a job", () => {
     expect(banker.game.state.activity.job).toBe("activity.job-teacher");
     expect(banker.game.state.activity.tenure["activity.job-bank-officer"]).toBe(48);
     // wallet:view-carries-month-pay: the view carries the job's month as the wallet will book it; a job at home is paid after tax.
-    expect(banker.game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: content.activity["activity.job-teacher"]!.pay, sidePay: null });
+    // activity:naira-pay-reviewed-yearly: the teacher's pay is reviewed, first after its first twelve months.
+    expect(banker.game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: content.activity["activity.job-teacher"]!.pay, sidePay: null, review: 13 });
   });
 
   test("[activity:new-job-replaces-held] given a job named by a term, when it is started, then the job is read from the terms in hand", () => {

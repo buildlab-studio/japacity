@@ -20,6 +20,8 @@ export const tuning: Tuning = {
     arrivalsBp: [3333, 6667],
     // activity:acts-may-repeat-in-month: a weekly thing kept as a commitment is three of it a month.
     repeatPerSlot: 3,
+    // activity:study-days-capped: three days of class a month, together the free path's month.
+    studyDaysCap: 3,
     // quality:body-belly-and-energy (decision 0011): each half-day lived takes a little off the belly and the energy; the month's rest brings
     // each back toward 60; a month that ends hungry or spent takes it out of wellbeing.
     // activity:spent-body-refuses-acts: under `spentBelow` energy, an act that takes effort waits for sleep.
@@ -40,6 +42,8 @@ export const tuning: Tuning = {
     skillSoftBp: pct(50),
     // activity:side-job-holds-a-slot: a side job halves every skill gain.
     sideJobSkillBp: pct(50),
+    // quality:skill-bands-slow-gains: starting, junior-ready (the junior developer's bar), working, strong and senior.
+    techBands: [0, 30, 50, 70, 85],
   },
 
   // wallet.md
@@ -122,7 +126,7 @@ export const tuning: Tuning = {
   // place.md
   place: { brokeLine: naira(500000), fareFromNaira: true },
   // streets.md: the life of the city's other places (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:street-shopping-abroad, streets:street-finds-abroad, streets:peckham-talks-like-lagos and streets:stadium-morning-run).
-  street: { phonePrice: naira(45000), phoneMood: 6, phoneNetwork: 3, salesPay: naira(70000), salesHireBp: 6000, apprenticeTech: 4, apprenticeUntil: 60, theftBp: 2000, theftNaira: naira(5000), mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
+  street: { phonePrice: naira(45000), phoneMood: 6, phoneNetwork: 3, salesPay: naira(70000), salesHireBp: 6000, apprenticeTech: 2, apprenticeUntil: 30, theftBp: 2000, theftNaira: naira(5000), mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
   // Things shipped home and collected at the cargo office on Bode Thomas Street (offer.parcel.data.ts).
   // The handling is the clerk's charge; a laptop lifts the mood, clothes stand you up a little at an interview.
   parcel: { handling: naira(1500), laptopMood: 8, clothesPrep: 10 },
@@ -232,7 +236,24 @@ export const tuning: Tuning = {
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
   // obligation:cooking-and-fetching-water: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting figures.
   // activity:waiting-months-build-profile: being noticed raises the job's pay 10%, once, on a 30% draw.
-  activity: { raiseBp: pct(10), raiseChanceBp: pct(30) },
+  activity: {
+    raiseBp: pct(10),
+    raiseChanceBp: pct(30),
+    // activity:naira-pay-reviewed-yearly: a formal employer 10% plus half the dollar's rise beyond 10%, at most 30%; an informal one 5%.
+    // Set under 2025's rises of about 13% a head at four banks and under inflation of 15% to 25%.
+    reviewFormalBp: pct(10),
+    reviewShareBp: pct(50),
+    reviewCapBp: pct(30),
+    reviewInformalBp: pct(5),
+    // activity:free-path-keeps-a-streak: MTN's 15GB a month, ₦6,500 from Feb 2025; a certificate each fifth month in a row.
+    freePathData: naira(6500),
+    freeStreakMonths: 5,
+    freeCertTech: 2,
+    // activity:bootcamp-paid-after-a-job: Decagon's ₦3,000,000 repaid after a job (2020); the hunt's help for six months after it.
+    bootcampFee: naira(3000000),
+    bootcampHireBp: 2000,
+    bootcampHireMonths: 6,
+  },
   room: { cookedBp: pct(15), waterBp: pct(4) },
 
   // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.

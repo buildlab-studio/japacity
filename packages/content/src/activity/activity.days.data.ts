@@ -16,6 +16,12 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.build-portfolio": 4,
   "activity.fetch-water": 2,
   "activity.fill-drum": 1,
+  // document:trade-papers: a call to the council, as the degree's statement is.
+  "activity.get-trcn": 1,
+  // activity:capital-opens-own-work: a day to set the work up.
+  "activity.buy-kiln": 2,
+  "activity.start-fish-trade": 2,
+  "activity.open-pos-stand": 2,
   // The street's enjoyment and spending (streets:lagos-street-spending): the water is a purchase and spends none.
   "activity.buy-suya": 1,
   "activity.mallam-tea": 1,

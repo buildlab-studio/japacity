@@ -14,6 +14,7 @@ import { ASK_AROUND, BET, BUY_PHONE, GULF_ROUTE, HUNT, LOTTO, ROAD_PARK } from "
 const PASSPORT: Id<"activity"> = "activity.get-passport";
 const MEETUP: Id<"activity"> = "activity.meetup";
 const LEARN: Id<"activity"> = "activity.learn-tech";
+const ENGLISH_STUDY: Id<"activity"> = "activity.study-english";
 
 /** The rule's two lists. Every entry not named a now-act is a month-act. */
 const NOW_ACTS: readonly string[] = [
@@ -231,8 +232,9 @@ describe("a now-act", () => {
     game.expectRejected({ type: "turn/end", slots: [slot(MEETUP)] }, "not-legal");
     game.expectRejected({ type: "turn/end", slots: [slot(LOTTO, "1")] }, "not-legal");
     now(game, MEETUP);
-    const month = game.endTurn([slot(LEARN), slot(LEARN), slot(LEARN)]);
-    expect(eventsOf(month, "activity/slot-played").map((played) => played.activity)).toEqual([LEARN, LEARN, LEARN]);
+    // A repeat act may stand as a commitment in every slot; the day's class is capped (activity:study-days-capped), so English study stands here.
+    const month = game.endTurn([slot(ENGLISH_STUDY), slot(ENGLISH_STUDY), slot(ENGLISH_STUDY)]);
+    expect(eventsOf(month, "activity/slot-played").map((played) => played.activity)).toEqual([ENGLISH_STUDY, ENGLISH_STUDY, ENGLISH_STUDY]);
     expect(eventsOf(month, "activity/rested")).toEqual([]);
   });
 });

@@ -37,4 +37,9 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   "document.medical": { id: "document.medical", wait: [1, 1], validMonths: 3, result: null },
   // The nurse's certification (activity:waiting-months-build-profile): asked for by a pass at the clinic's quiz, two months, for good.
   "document.nurse-certificate": { id: "document.nurse-certificate", wait: [2, 2], validMonths: null, result: null },
+
+  // document:trade-papers: the teaching registration, two months from the Papers app, for good; the chartered exams' paper, issued on
+  // passing the third sitting, for good.
+  "document.trcn": { id: "document.trcn", wait: [2, 2], validMonths: null, result: null },
+  "document.ican": { id: "document.ican", wait: [0, 0], validMonths: null, result: null },
 };

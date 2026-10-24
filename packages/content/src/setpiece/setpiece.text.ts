@@ -138,6 +138,21 @@ export const setpieceText: Record<string, string> = {
   "setpiece.nurse-exam.a.sponsorship.nobody": "Nobody. A nurse needs none",
   "setpiece.nurse-exam.a.sponsorship.employer": "The employer that sponsors her",
 
+  // document:trade-papers. The sitting's facts are the accountant's trade.
+  "setpiece.ican-exam.name": "The chartered exams",
+  "setpiece.ican-exam.q.body": "Which body makes an accountant chartered in Nigeria?",
+  "setpiece.ican-exam.a.body.ican": "The Institute of Chartered Accountants of Nigeria",
+  "setpiece.ican-exam.a.body.cbn": "The Central Bank",
+  "setpiece.ican-exam.a.body.firs": "The tax office",
+  "setpiece.ican-exam.q.entry": "In double entry, what does every debit have?",
+  "setpiece.ican-exam.a.entry.credit": "A credit of the same amount",
+  "setpiece.ican-exam.a.entry.receipt": "A receipt from the bank",
+  "setpiece.ican-exam.a.entry.signature": "The manager's signature",
+  "setpiece.ican-exam.q.balance": "What does a balance sheet show?",
+  "setpiece.ican-exam.a.balance.day": "What a business owns and owes on one day",
+  "setpiece.ican-exam.a.balance.year": "What it sold over the year",
+  "setpiece.ican-exam.a.balance.till": "The cash in the till",
+
   "setpiece.conference-talk.name": "The talk",
   "setpiece.conference-talk.q.open": "The room at the hub is full and the screen is on. You have twenty minutes. How do you start?",
   "setpiece.conference-talk.a.open.demo": "Run the code live",

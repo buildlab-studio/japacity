@@ -98,7 +98,7 @@ function transferPoints(read: ReadCtx, table: PointsEntry, educated: boolean, ba
   if (band === null || low === undefined || band < low) return 0;
   const t = table.transfer;
   const high = band >= t.highBand;
-  const months = tenureAcross(read.state, []);
+  const months = tenureAcross(read.state, read.content, []);
   const education = !educated ? 0 : high ? t.educationHighBand : t.educationLowBand;
   let work = 0;
   if (months >= t.longMonths) work = high ? t.workLongHighBand : t.workLongLowBand;

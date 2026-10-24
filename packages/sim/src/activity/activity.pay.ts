@@ -13,11 +13,6 @@ const WEEKS_PER_YEAR = 52;
 export const DRIVING_TEST: Id<"activity"> = "activity.driving-test";
 /** The rented courier account: `tuning.ladder.accountRent` a week comes off its pay. */
 const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
-/**
- * The trader's own shop: its takings grow a little with each month it has stood.
- * Tuning has no key for the shop's growth, so it reads `tuning.activity.raiseBp` as the share a full year adds.
- */
-const SHOP: Id<"activity"> = "activity.run-shop";
 
 /** A job: the main one or a side job (activity:side-job-holds-a-slot). */
 export function isJob(entry: ActivityEntry | undefined): entry is ActivityEntry {
@@ -61,14 +56,14 @@ export function carHolds(read: ReadCtx, entry: ActivityEntry): boolean {
 }
 
 /**
- * activity:side-jobs-pay-by-tier: the best-paying tier whose `min` the character meets, as a figure in the pay's
+ * activity:side-jobs-pay-by-tier: the best-paying tier whose `needs` all hold, as a figure in the pay's
  * currency, or null when no tier is met. A tier paid in another currency than the job's is a content error.
  */
 function tierFigure(read: ReadCtx, entry: ActivityEntry): number | null {
   let best: number | null = null;
   for (const tier of entry.tiers ?? []) {
     if (entry.pay !== null && tier.pay.currency !== entry.pay.currency) throw new Error(`${entry.id} has a tier paid in ${tier.pay.currency}, not ${entry.pay.currency}.`);
-    if (!check(read, { type: "quality/min", quality: tier.min.quality, value: tier.min.value }).met) continue;
+    if (!tier.needs.every((need) => check(read, need).met)) continue;
     const figure = resolveAmount(read, tier.pay.amount, {});
     if (best === null || figure > best) best = figure;
   }
@@ -80,10 +75,13 @@ export function raisedJob(state: State, job: Id<"activity">): boolean {
   return (state.activity.raised ?? []).includes(job);
 }
 
-/** The shop's growth on its written takings: the yearly share, pro rata for the months it has stood before this one. */
-function shopGrowth(read: ReadCtx, entry: ActivityEntry, written: number): number {
-  if (entry.id !== SHOP) return 0;
-  const months = read.state.activity.tenure[SHOP] ?? 0;
+/**
+ * Own work's growth on its written takings (activity:capital-opens-own-work, activity:trader-opens-own-shop): `tuning.activity.raiseBp` a
+ * full year, pro rata for the months it has stood before this one.
+ */
+function ownGrowth(read: ReadCtx, entry: ActivityEntry, written: number): number {
+  if (entry.employer !== "own") return 0;
+  const months = read.state.activity.tenure[entry.id] ?? 0;
   return mulDiv(bp(written, read.content.tuning.activity.raiseBp), months, MONTHS_PER_YEAR);
 }
 
@@ -96,8 +94,10 @@ function payFigure(read: ReadCtx, entry: ActivityEntry, terms: Terms): number | 
   const { amount } = entry.pay;
   // A sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing.
   if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
-  const written = resolveAmount(read, amount, terms);
-  const figure = Math.max(written, tierFigure(read, entry) ?? written) + shopGrowth(read, entry, written);
+  // activity:naira-pay-reviewed-yearly: the held job pays what its reviews have left it.
+  const held = read.state.activity.job === entry.id ? read.state.activity.pay : undefined;
+  const written = held ?? resolveAmount(read, amount, terms);
+  const figure = Math.max(written, tierFigure(read, entry) ?? written) + ownGrowth(read, entry, written);
   return raisedJob(read.state, entry.id) ? figure + bp(figure, read.content.tuning.activity.raiseBp) : figure;
 }
 

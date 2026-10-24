@@ -31,8 +31,8 @@ export type ActivityEvent =
   | { type: "activity/side-started"; side: Id<"activity">; previous: Id<"activity"> | null }
   /** The side job was left. `why` is `quit` for the command, or why it could not go on. */
   | { type: "activity/side-ended"; side: Id<"activity">; why: string }
-  /** A month in the side job. */
-  | { type: "activity/side-worked"; side: Id<"activity">; pay: MoneyParam | null }
+  /** A month in the side job: its months are now `tenure` (activity:each-trade-climbs-its-ladder, night support toward remote support). */
+  | { type: "activity/side-worked"; side: Id<"activity">; pay: MoneyParam | null; tenure: number }
   /** The bus home was a robbery (activity:one-chance-bus-robbery): the cash and the phone went. */
   | { type: "activity/robbed"; cash: number; phone: number }
   /** Overtime paid this much (ladders.md "Free slots abroad"). Changes nothing itself. */
@@ -67,6 +67,22 @@ export type ActivityEvent =
    * from `was` to `pay` a month. `month`: the month it was played, kept with a raise for the Jobs app.
    */
   | { type: "activity/noticed"; job: Id<"activity">; raised: boolean; pay: MoneyParam; was: MoneyParam; month: number }
+  /** activity:naira-pay-reviewed-yearly: the reviewed job's pay as held from its start, and the official dollar rate that day (kobo for one dollar). */
+  | { type: "activity/pay-held"; job: Id<"activity">; pay: number; rate: number }
+  /** activity:naira-pay-reviewed-yearly: a year's review moved the held pay from `was` to `pay` a month, at the official dollar rate `rate`. */
+  | { type: "activity/reviewed"; job: Id<"activity">; was: MoneyParam; pay: MoneyParam; rate: number }
+  /** activity:free-path-keeps-a-streak: the free path's months in a row are now `months`; 0 after a month without it. */
+  | { type: "activity/streak"; months: number }
+  /** activity:free-path-keeps-a-streak: a fifth month in a row finished a certificate. Its gains follow. */
+  | { type: "activity/certificate" }
+  /** activity:paid-tech-courses: a month of the tech study path held; `months` counted toward it so far. */
+  | { type: "activity/course-month"; activity: Id<"activity">; months: number }
+  /** activity:paid-tech-courses: the path's months are done. Its closing gains follow. */
+  | { type: "activity/course-finished"; activity: Id<"activity"> }
+  /** activity:bootcamp-paid-after-a-job: the bootcamp finished in `month`, leaving `owed` to pay once a developer job is held. */
+  | { type: "activity/bootcamp-done"; owed: number; month: number }
+  /** activity:bootcamp-paid-after-a-job: the first developer job opened the bootcamp's loan; nothing is owed on the slice any more. */
+  | { type: "activity/bootcamp-billed"; owed: number }
   /** activity:waiting-months-build-profile: a course at home in progress ended with the flight; its fees close with it. */
   | { type: "activity/course-ended"; activity: Id<"activity"> }
   /** activity:waiting-months-build-profile: a month of open source that added no piece; `first` for the life's first. Changes nothing. */

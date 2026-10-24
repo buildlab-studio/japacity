@@ -191,7 +191,7 @@ function madeUp(id: Id<"place">, country: Id<"country">, city: string, nameKind:
 
 const entries: PlaceEntry[] = [
   // Lagos: public places.
-  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers", "activity.buy-suya", "activity.mallam-tea", "activity.pure-water"], crowd: PACKED, traditionalBp: ROADSIDE }),
+  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers", "activity.buy-suya", "activity.mallam-tea", "activity.pure-water", "activity.open-pos-stand"], crowd: PACKED, traditionalBp: ROADSIDE }),
   // streets:stadium-morning-run: a morning run, and nothing else; it is a landmark.
   lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { stages: ["activity.morning-run"], crowd: QUIET, traditionalBp: STREET }),
   lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip", "offer.parcel-shipped", "activity.barber", "activity.viewing-centre", "activity.beer-joint", "activity.night-out"], crowd: BUSY, traditionalBp: STREET }),
@@ -228,6 +228,14 @@ const entries: PlaceEntry[] = [
       "setpiece.conference-talk",
       "activity.masters-at-home",
       "activity.be-noticed",
+      // quality:skill-bands-slow-gains: the free path and the paid paths at the hub's desks; the chartered exams' study beside them.
+      "activity.learn-free",
+      "activity.online-course",
+      "activity.tech-diploma",
+      "activity.bootcamp",
+      "activity.free-internship",
+      "activity.ican-exams",
+      "setpiece.ican-exam",
     ],
     crowd: BUSY,
     traditionalBp: OFFICE,
@@ -320,7 +328,7 @@ const entries: PlaceEntry[] = [
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   // Home opens in the compound; the house door cuts to the parlour (world:opens-where-last-stopped).
   // home:home-is-the-home-point: the settlement on the lagoon the character may live in.
-  lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks"] }),
+  lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks", "activity.buy-kiln", "activity.start-fish-trade", "activity.canoe-deliveries"] }),
   // On a made-up street in Surulere near the hub: the spot the map and the fares read (city:positions-rough-on-purpose). The house
   // is one wide floor seen whole, its yard and carport inside its walls (decision 0018), so it stays an exterior.
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
