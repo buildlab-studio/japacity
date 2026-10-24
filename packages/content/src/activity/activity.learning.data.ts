@@ -77,7 +77,7 @@ export const learningActivityTable: Record<Id<"activity">, ActivityEntry> = {
     pay: null,
     hireBp: null,
     effects: [],
-    bandGains: [7, 5, 5],
+    bandGains: [6, 5, 5],
     bandUntil: 54,
     course: {
       months: 6,

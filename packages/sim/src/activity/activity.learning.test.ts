@@ -228,7 +228,7 @@ describe("the paid paths", () => {
     expect(game.state.activity.study?.months).toBe(2);
   });
 
-  test("[activity:paid-tech-courses] [activity:bootcamp-paid-after-a-job] given the bootcamp, when it starts, then the job held ends, nothing is paid now, it gives +7 while starting and +5 up to 54, and after six months ends with portfolio +3, network +10 and the debt recorded", () => {
+  test("[activity:paid-tech-courses] [activity:bootcamp-paid-after-a-job] given the bootcamp, when it starts, then the job held ends, nothing is paid now, it gives +6 while starting and +5 up to 54, and after six months ends with portfolio +3, network +10 and the debt recorded", () => {
     const game = start({ content, scenario: "scenario.graduate" });
     applyEffects(game, [{ type: "activity/start-job", job: "activity.job-customer-service" }]);
     setTo(game, TECH, 10);
@@ -236,7 +236,7 @@ describe("the paid paths", () => {
     const first = month(game, [slot(BOOTCAMP)]);
     expect(game.state.activity.job).toBeNull();
     expect(moneyOf(first, "study")).toEqual([]);
-    expect(gained(first, TECH, BOOTCAMP)).toBe(7);
+    expect(gained(first, TECH, BOOTCAMP)).toBe(6);
     expect(hunted(game)).not.toContain("activity.job-customer-service");
     setTo(game, TECH, 52);
     month(game, [slot(BOOTCAMP)]);
