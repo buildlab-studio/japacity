@@ -284,7 +284,8 @@ export function carViewOf(owed: Omit<PlayerView["obligations"][number], "car">, 
 export function richAbroadView(): PlayerView {
   const base = abroadView();
   const owed = {
-    id: "obligation-40",
+    // An id no instance the engine numbers reaches, so the car never shares a card with a real bill.
+    id: "obligation-car-by-hand",
     entry: "obligation.car" as const,
     state: "grace" as const,
     openedMonth: 40,

@@ -292,8 +292,8 @@ describe("cash paid in over a month", () => {
 });
 
 describe("the bank abroad", () => {
-  /** Enough dollars for the first month's bills, the tuition's instalment among them, and more than a month of the Lagos allowance. */
-  const DOLLARS = 1200000;
+  /** Enough dollars for the first month's bills, half the tuition among them (abroad-money:tuition-paid-in-instalments), and more than a month of the Lagos allowance. */
+  const DOLLARS = 2000000;
 
   test("[wallet:monthly-fx-allowance] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded life just landed with dollars and no pounds, when it changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and its rent, tuition and living are paid", () => {
     const game = graduateAbroad();
