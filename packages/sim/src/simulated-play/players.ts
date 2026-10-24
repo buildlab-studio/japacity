@@ -24,7 +24,7 @@ const POUND_TARGET = 600000;
 
 const SAFE_CASH_MOVE = 50000000;
 
-export type StrategyName = "careful" | "borrower" | "risky" | "honest-home" | "spender" | "canada" | "road";
+export type StrategyName = "careful" | "borrower" | "risky" | "honest-home" | "spender" | "canada" | "road" | "careful-masters" | "borrower-masters";
 
 export const STRATEGY_NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 
@@ -77,6 +77,8 @@ interface Habits {
   road: string[];
   /** Which allowed prologue answer is picked. */
   prologue: "first" | "last";
+  /** Makes the master's the plan at the first chance (decision 0022) and takes the education loan when offered. Missing: neither. */
+  plansMasters?: boolean;
 }
 
 const CAREFUL_DECEMBER = ["stay", "none", "home", "plain", "small", "some"];
@@ -234,7 +236,7 @@ const PLAYED = {
     road: LEAVE_ROAD,
     prologue: "first",
   },
-} satisfies Record<Exclude<StrategyName, "canada" | "road">, Habits>;
+} satisfies Record<Exclude<StrategyName, "canada" | "road" | "careful-masters" | "borrower-masters">, Habits>;
 
 /**
  * The two recorded lives for the countries beyond the UK (tools/goldens/record-lives.ts, docs/design/11-calgary-dubai-and-castel-volturno.md section 7) play the careful
@@ -245,6 +247,9 @@ const HABITS: Record<StrategyName, Habits> = {
   ...PLAYED,
   canada: { ...PLAYED.careful, studies: false, otherRoutes: ["route.canada-points"] },
   road: { ...PLAYED.risky, studies: false, otherRoutes: [], takesGulf: false },
+  // The master's recordings (tools/goldens/record-lives.ts): a player who has chosen the master's, and otherwise plays as careful or borrower does.
+  "careful-masters": { ...PLAYED.careful, plansMasters: true },
+  "borrower-masters": { ...PLAYED.borrower, plansMasters: true },
 };
 
 // ---------------------------------------------------------------------------
@@ -404,7 +409,8 @@ function studyOn(view: PlayerView, habits: Habits): boolean {
   if (!habits.leaves || !habits.studies) return false;
   const uk = route(view);
   if (uk === undefined) return false;
-  if (!habits.prefersSettling) return true;
+  // A player who made the master's the plan sees it through.
+  if (!habits.prefersSettling || habits.plansMasters === true) return true;
   // Once money is down on the study route it is seen through.
   if (uk.school !== null || uk.state === "applying" || uk.state === "granted") return true;
   // activity:now-acts-and-month-acts: the family meeting is held at once, so the pledge comes sooner; given on an offer held, it is money down too.
@@ -566,6 +572,10 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
         command ??= choose(offer, "no");
         break;
       }
+      case "offer.education-loan":
+        // route:education-loan-pays-the-school: the loan pays the school direct, so the whole of the tuition left is taken.
+        if (habits.plansMasters === true) command = choose(offer, "take", Number.MAX_SAFE_INTEGER);
+        break;
       case "offer.held-funds-agent":
         command = study && habits.takesAgent && gapKobo > 0 ? choose(offer, "take", gapKobo + mulDiv(gapKobo, 1000, 10000)) : choose(offer, "walk-away");
         break;
@@ -1050,6 +1060,12 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
   return commands;
 }
 
+/** Decision 0022: the master's made the plan as soon as it is one of the ways heard of, and again whenever another way has taken its place. */
+function planCommands(view: PlayerView, habits: Habits): Loose[] {
+  if (habits.plansMasters !== true || view.plan.route === UK || !view.plan.ways.some((way) => way.route === UK)) return [];
+  return [{ type: "chapter/lean", route: UK }];
+}
+
 /** A strategy from a set of habits: answer, settle offers, handle money, then end the month. */
 function strategyOf(name: StrategyName): Strategy {
   const habits = HABITS[name];
@@ -1065,7 +1081,7 @@ function strategyOf(name: StrategyName): Strategy {
       });
       return view.turns.banked > 0 ? [...commands, { type: "turn/end", slots: [] }] : commands;
     }
-    const commands = [...(habits.leaves ? cashForTerms(view, habits) : []), ...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
+    const commands = [...planCommands(view, habits), ...(habits.leaves ? cashForTerms(view, habits) : []), ...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
     if (view.turns.banked > 0) {
       commands.push(...monthCommands(view, slotPlan(view, content, habits)));
       commands.push({ type: "turn/end", slots: [] });
@@ -1082,6 +1098,8 @@ export const strategies: Record<StrategyName, Strategy> = {
   spender: strategyOf("spender"),
   canada: strategyOf("canada"),
   road: strategyOf("road"),
+  "careful-masters": strategyOf("careful-masters"),
+  "borrower-masters": strategyOf("borrower-masters"),
 };
 
 // ---------------------------------------------------------------------------

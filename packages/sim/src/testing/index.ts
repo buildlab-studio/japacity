@@ -35,6 +35,6 @@ export { goldenScripts } from "../goldens/scripts";
 export { lifeSaves } from "../goldens/lives.data";
 export { simulatedLifeSaves } from "../simulated-play/lives.data";
 export { countryLifeSaves } from "../simulated-play/lives.countries.data";
-export { FLIGHT_WINDOW, MONTHS_ABROAD } from "../simulated-play/lives.window";
+export { FLIGHT_WINDOW, flightWindowOf, MASTERS_WINDOW, MONTHS_ABROAD } from "../simulated-play/lives.window";
 export { runLife } from "../simulated-play/players";
 export type { StrategyName } from "../simulated-play/players";

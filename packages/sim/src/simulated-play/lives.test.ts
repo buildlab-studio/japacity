@@ -10,7 +10,7 @@ import { goldens } from "../goldens";
 import { lifeScripts } from "../goldens/scripts";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-import { FLIGHT_WINDOW, MONTHS_ABROAD } from "./lives.window";
+import { flightWindowOf, MONTHS_ABROAD } from "./lives.window";
 
 /** The second recording of each life carries on abroad; the first ends on the flight. */
 const flights = lifeScripts.filter((script) => !script.name.endsWith("-abroad"));
@@ -37,8 +37,9 @@ describe("the three real lives as golden scripts", () => {
       expect(state.turn.ended).toBe(false);
       expect(state.place).toMatchObject({ where: "abroad", country: "country.uk" });
       expect(state.route["route.uk-masters"]?.state).toBe("departed");
-      expect(state.turn.month).toBeGreaterThanOrEqual(FLIGHT_WINDOW.first);
-      expect(state.turn.month).toBeLessThanOrEqual(FLIGHT_WINDOW.last);
+      const window = flightWindowOf(script.name);
+      expect(state.turn.month).toBeGreaterThanOrEqual(window.first);
+      expect(state.turn.month).toBeLessThanOrEqual(window.last);
       // Chapter 3 is left out on purpose: a borrower whose held funds lapse while the visa is decided flies with it open.
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 

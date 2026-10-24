@@ -14,7 +14,7 @@
 import type { FlatSave, Id } from "@japacity/sim";
 import { lastSegment, lifeStart, savedCommands } from "@japacity/sim";
 import type { StrategyName } from "@japacity/sim/testing";
-import { lifeSaves, countryLifeSaves, simulatedLifeSaves, FLIGHT_WINDOW, MONTHS_ABROAD, runLife, start } from "@japacity/sim/testing";
+import { lifeSaves, countryLifeSaves, simulatedLifeSaves, flightWindowOf, MONTHS_ABROAD, runLife, start } from "@japacity/sim/testing";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -23,12 +23,13 @@ import { REPO_ROOT } from "../repo";
 
 const WORLD = "golden-world";
 const WANTED: { name: string; life: Id<"scenario">; strategy: StrategyName; refusedFirst: boolean }[] = [
-  { name: "graduate-careful", life: "scenario.graduate", strategy: "careful", refusedFirst: false },
+  // The master's lives play a player who has chosen the master's (decision 0022's plan), the pledge and the education loan taken.
+  { name: "graduate-careful", life: "scenario.graduate", strategy: "careful-masters", refusedFirst: false },
   { name: "banker-borrower", life: "scenario.banker", strategy: "borrower", refusedFirst: true },
   { name: "developer-remote", life: "scenario.developer", strategy: "risky", refusedFirst: false },
 ];
 /** The simulated lives played beside the goldens. */
-const SIMULATED: (typeof WANTED)[number][] = [{ name: "teacher-borrower", life: "scenario.teacher", strategy: "borrower", refusedFirst: false }];
+const SIMULATED: (typeof WANTED)[number][] = [{ name: "teacher-borrower", life: "scenario.teacher", strategy: "borrower-masters", refusedFirst: false }];
 const ABROAD: { name: string; life: Id<"scenario"> }[] = [
   { name: "graduate-abroad", life: "scenario.graduate" },
   { name: "banker-abroad", life: "scenario.banker" },
@@ -51,12 +52,16 @@ const MONTHS_IN_COUNTRY = 12;
 /** The first seed tried, so a life whose first in-window seed fails a coupled test can be recorded on the next (RECORD_FROM=<n>). */
 const FROM = Number(process.env["RECORD_FROM"] ?? 0);
 
+/** The seeds a life to the flight is looked for in. */
+const PICK_SEEDS = 300;
+
 function pick(want: (typeof WANTED)[number]): { seed: string; save: FlatSave; departed: number } {
+  const window = flightWindowOf(want.name);
   let fallback: { seed: string; save: FlatSave; departed: number } | null = null;
-  for (let n = FROM; n < FROM + 80; n += 1) {
+  for (let n = FROM; n < FROM + PICK_SEEDS; n += 1) {
     const seed = `golden-${want.life.slice("scenario.".length)}-${String(n)}`;
-    const { record, game } = runLife(want.strategy, want.life, seed, content, { months: FLIGHT_WINDOW.last, worldSeed: WORLD, keepSave: true });
-    if (record.departed === null || record.departed < FLIGHT_WINDOW.first || record.departed > FLIGHT_WINDOW.last || record.flown !== "route.uk-masters") continue;
+    const { record, game } = runLife(want.strategy, want.life, seed, content, { months: window.last, worldSeed: WORLD, keepSave: true });
+    if (record.departed === null || record.departed < window.first || record.departed > window.last || record.flown !== "route.uk-masters") continue;
     // The golden ends on the flight: the strategies' months abroad are not its business.
     const commands = savedCommands(game.save);
     const flight = commands.findIndex((entry) => entry.command.type === "route/depart");
@@ -69,7 +74,7 @@ function pick(want: (typeof WANTED)[number]): { seed: string; save: FlatSave; de
     if (!want.refusedFirst || refusedFirst) return found;
     fallback ??= found;
   }
-  if (fallback === null) throw new Error(`No seed in 80 gives ${want.name} a flight within ${String(FLIGHT_WINDOW.first)} to ${String(FLIGHT_WINDOW.last)} months.`);
+  if (fallback === null) throw new Error(`No seed in ${String(PICK_SEEDS)} gives ${want.name} a flight within ${String(window.first)} to ${String(window.last)} months.`);
   return fallback;
 }
 

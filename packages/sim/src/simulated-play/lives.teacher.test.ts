@@ -8,7 +8,7 @@ import { lifeStart, loadSave, replay, savedCommands } from "../engine/replay";
 import { lifeSaves } from "../goldens/lives.data";
 import { standInWorld } from "../world/standIn";
 import { simulatedLifeSaves } from "./lives.data";
-import { FLIGHT_WINDOW } from "./lives.window";
+import { flightWindowOf } from "./lives.window";
 
 const recorded = Object.entries(simulatedLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
@@ -32,8 +32,9 @@ describe("the simulated lives played beside the goldens", () => {
       expect(state.turn.ended).toBe(false);
       expect(state.place).toMatchObject({ where: "abroad", country: "country.uk" });
       expect(state.route["route.uk-masters"]?.state).toBe("departed");
-      expect(state.turn.month).toBeGreaterThanOrEqual(FLIGHT_WINDOW.first);
-      expect(state.turn.month).toBeLessThanOrEqual(FLIGHT_WINDOW.last);
+      const window = flightWindowOf(script.name);
+      expect(state.turn.month).toBeGreaterThanOrEqual(window.first);
+      expect(state.turn.month).toBeLessThanOrEqual(window.last);
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 
       const saved = savedCommands(script.save);
