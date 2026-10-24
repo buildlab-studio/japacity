@@ -66,6 +66,8 @@ describe("News keeps the month's lines", () => {
 describe("a bill missed, as News tells it", () => {
   test("[world:month-end-results-sheet] [abroad-money:missed-tuition-runs-in-stages] given the graduate abroad holding no pounds, when a tuition instalment goes unpaid, then News tells the fees office's reminder with the sum, not the generic hit to standing and mood", async () => {
     const game = abroadGame();
+    // route:family-pledge-pays-tuition: the recorded life's family pledge would meet the charge, so this student holds none.
+    applyEffects(game, [{ type: "route/support", route: "route.uk-masters", currency: "NGN", amount: 0 }]);
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
     if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
     game.endTurn();
@@ -107,6 +109,8 @@ describe("for you in News", () => {
 describe("the order of the month's lines in News", () => {
   test("[world:month-end-results-sheet] given a missed instalment told after the month's wellbeing lines, when News shows the report, then the miss comes first", async () => {
     const game = abroadGame();
+    // route:family-pledge-pays-tuition: the recorded life's family pledge would meet the charge, so this student holds none.
+    applyEffects(game, [{ type: "route/support", route: "route.uk-masters", currency: "NGN", amount: 0 }]);
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
     if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
     game.endTurn();

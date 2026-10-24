@@ -22,34 +22,34 @@ function line(key: string, params: ReportLine["params"], extra: Partial<ReportLi
   return { key, params, tone: "plain", attention: false, counts: [], ...extra };
 }
 
-// Each moment sits at its own command of a recorded life: the graduate's 264th closes its chapter on building the file.
-const AT_HOME = played("graduate-careful", 263).view;
+// Each moment sits at its own command of a recorded life: the graduate's 79th closes its chapter on building the file.
+const AT_HOME = played("graduate-careful", 78).view;
 const naira = (amount: number) => ({ currency: "NGN" as const, amount });
 
 describe("which outcomes are moments", () => {
   test("[moment:outcomes-that-are-moments] given the graduate's decision day, when the visa is granted and the chapter closes in one report, then one card is due, the grant's", () => {
-    const { lines, view } = played("graduate-careful", 351);
+    const { lines, view } = played("graduate-careful", 396);
     expect(lines.map((told) => told.key)).toEqual(expect.arrayContaining(["line.route.granted", "line.chapter.closed"]));
     expect(momentLine(lines, view)?.key).toBe("line.route.granted");
   });
 
   // In the recorded lives the banker's borrower life has its first application refused on its funds; the developer's does not.
   test("[moment:outcomes-that-are-moments] given the banker's first application refused on its funds, then the refusal is the card", () => {
-    const { lines, view } = played("banker-borrower", 103);
+    const { lines, view } = played("banker-borrower", 123);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.route.refused", params: { route: "route.uk-masters", reason: "funds" } });
   });
 
   test("[moment:outcomes-that-are-moments] given the graduate's flight, when it lands, then the landing is the card, made by the flight's own line", () => {
-    const { lines, view } = played("graduate-careful", 356);
+    const { lines, view } = played("graduate-careful", 402);
     expect(momentLine(lines, view)?.key).toBe("line.route.departed");
   });
 
   test("[moment:outcomes-that-are-moments] given a chapter closing with nothing bigger beside it, then the chapter is the card; of two closed at once the last is told", () => {
-    const { lines, view } = played("graduate-careful", 263);
+    const { lines, view } = played("graduate-careful", 78);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.build-the-file" } });
-    // In the recorded lives it is the graduate abroad whose flight closes decision day and the send-off at once.
-    const both = played("graduate-abroad", 292);
-    expect(momentLine(both.lines, both.view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.send-off" } });
+    // No recorded life closes two chapters in one report, so the two are told here from the lines themselves.
+    const closed = (chapter: string) => line("line.chapter.closed", { chapter });
+    expect(momentLine([closed("chapter.decision-day"), closed("chapter.send-off")], AT_HOME)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.send-off" } });
   });
 
   test("[moment:outcomes-that-are-moments] given the agent, the bus home and the draw, then each is its card, the draw only when it is staged as a big win", () => {
@@ -99,10 +99,12 @@ function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: Play
 
 // The endorsement refused and the cousin's ₦300,000 deposit each make a card.
 describe("the biggest losses get their card", () => {
-  // In the recorded lives the banker abroad is one refused an endorsement, in the month its skilled worker's visa is granted.
-  test("[moment:outcomes-that-are-moments] given the endorsement refused by the body (the banker's recorded life abroad), when the month's lines come, then the refusal is the card, told by the body's own line, before the grant beside it", () => {
-    for (const [life, index] of [["banker-abroad", 148]] as const) {
-      const { lines, view, before } = played(life, index);
+  // In the recorded lives the graduate is one refused an endorsement; no grant comes in that month, so one is told beside it from the line.
+  test("[moment:outcomes-that-are-moments] given the endorsement refused by the body (the graduate's recorded life), when the month's lines come with a grant beside them, then the refusal is the card, told by the body's own line, before the grant", () => {
+    for (const [life, index] of [["graduate-careful", 234]] as const) {
+      const month = played(life, index);
+      const { view, before } = month;
+      const lines = [...month.lines, line("line.route.granted", { route: "route.uk-skilled" }, { tone: "good", big: true })];
       expect(lines.map((told) => told.key)).toContain("line.route.endorsement-refused");
       expect(lines.map((told) => told.key)).toContain("line.route.granted");
       const shot = momentLine(lines, view);
@@ -160,7 +162,7 @@ describe("the biggest losses get their card", () => {
 
 describe("what a card holds", () => {
   test("[moment:moment-card-contents] given the graduate's grant, then the card names the route, says the route's line, and the figure is the months played", () => {
-    const { lines, view } = played("graduate-careful", 351);
+    const { lines, view } = played("graduate-careful", 396);
     const face = momentFace(momentLine(lines, view)!, view)!;
     expect(face).toMatchObject({ kind: "granted", tone: "good", kicker: say("moment.granted.kicker"), title: say("route.uk-masters.name"), line: say("moment.granted.line.route.uk-masters"), chip: null });
     expect(face.figure).toEqual({ value: view.month, unit: { kind: "count" }, caption: say("moment.granted.caption") });
@@ -168,15 +170,15 @@ describe("what a card holds", () => {
     expect(face.address).toBe("japacity.app");
   });
 
-  // The recorded refusal on the funds is the banker's borrower life's, on a file 70% untraced (decision 0012).
+  // The recorded refusal on the funds is the banker's borrower life's, on a file 31% untraced (decision 0012).
   test("[moment:moment-card-contents] given the banker's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
-    const { lines, view, before } = played("banker-borrower", 103);
+    const { lines, view, before } = played("banker-borrower", 123);
     const face = momentFace(momentLine(lines, view)!, view, before)!;
     expect(face).toMatchObject({ kind: "refused", tone: "bad", line: say("moment.refused.line.funds"), chip: null });
     const filed = before.routes.find((held) => held.id === "route.uk-masters")!;
     expect(filed.state).toBe("applying");
     expect(face.figure).toEqual({ value: Math.floor(filed.unexplainedBp / 100), unit: { kind: "percent" }, caption: say("moment.refused.caption.funds") });
-    expect(figureWords(face.figure, face.figure.value)).toBe("70%");
+    expect(figureWords(face.figure, face.figure.value)).toBe("31%");
     // Without the file as it was decided, the months stand instead: the share worked out after the refusal is another file's.
     expect(momentFace(momentLine(lines, view)!, view)!.figure).toEqual({ value: view.month, unit: { kind: "count" }, caption: say("moment.refused.caption") });
     // From the second refusal on the route, its count stands beside the figure.
@@ -213,25 +215,25 @@ describe("what a card holds", () => {
   });
 
   test("[moment:moment-card-contents] given the graduate's landing, then the title is the country, the line is the country's, and the figure the months from Lagos", () => {
-    const { lines, view } = played("graduate-careful", 356);
+    const { lines, view } = played("graduate-careful", 402);
     const face = momentFace(momentLine(lines, view)!, view)!;
     expect(face).toMatchObject({ kind: "landed", title: say("country.uk.name"), line: say("moment.landed.line.country.uk") });
     expect(face.figure).toMatchObject({ value: view.month, unit: { kind: "count" } });
   });
 
   test("[moment:moment-card-contents] given a chapter at home, then the figure is japacity; given one after the flight, the months played", () => {
-    const home = played("graduate-careful", 263);
+    const home = played("graduate-careful", 78);
     const face = momentFace(momentLine(home.lines, home.view)!, home.view)!;
     expect(face).toMatchObject({ title: say("chapter.build-the-file.title"), line: say("chapter.build-the-file.close") });
     expect(face.figure).toEqual({ value: home.view.japacity.percent, unit: { kind: "percent" }, caption: say("moment.chapter.caption.japacity") });
-    const abroad = played("graduate-abroad", 294);
+    const abroad = played("graduate-abroad", 605);
     const landed = momentFace(momentLine(abroad.lines, abroad.view)!, abroad.view)!;
     expect(landed.title).toBe(say("chapter.landing.title"));
     expect(landed.figure).toEqual({ value: abroad.view.month, unit: { kind: "count" }, caption: say("moment.chapter.caption") });
   });
 
   test("[moment:words-in-game-voice] given every card these lives and lines make, then the line never repeats the figure the card shows, and a loss carries no joke version", () => {
-    const faces = [played("graduate-careful", 351), played("banker-borrower", 103), played("graduate-careful", 356), played("graduate-careful", 263)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
+    const faces = [played("graduate-careful", 396), played("banker-borrower", 123), played("graduate-careful", 402), played("graduate-careful", 78)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
     faces.push(momentFace(line("line.activity.robbed", { cash: naira(14_200_000), phone: naira(6_000_000) }, { tone: "bad" }), AT_HOME)!);
     faces.push(momentFace(line("line.offer.agent-scam", { agent: "offer.agent-stop.who.1", amount: naira(2_500_000) }, { tone: "bad" }), AT_HOME)!);
     for (const face of faces) {

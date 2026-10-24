@@ -4,6 +4,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
+import { divCeil } from "../engine/int";
 import type { Id, PlayerView } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { flownGraduate, monthAbroad, playUntil } from "../testing/goal.journey";
@@ -58,7 +59,10 @@ describe("the send-off card", () => {
 
   test("[chapter:send-off-card-on-close] [activity:months-played-counted] given the months each activity was played, when the most played are counted, then the most come first, ties by id, three at most, and nothing played abroad is among them", () => {
     const game = flownGraduate(content);
+    // activity:acts-may-repeat-in-month: a repeat act's `played` counts each time it was done, read as months by the slot's repeats.
+    const months = (id: Id<"activity">, count: number): number => (content.activity[id]?.repeat === true ? divCeil(count, content.tuning.turn.repeatPerSlot) : count);
     const expected = (Object.entries(game.state.activity.played) as [Id<"activity">, number][])
+      .map(([id, count]) => [id, months(id, count)] as [Id<"activity">, number])
       .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : 1))
       .slice(0, 3)
       .map(([id]) => id);
@@ -215,11 +219,15 @@ describe("months abroad", () => {
   test("[chapter:items-are-live-requirements] given Landing in hand, when the view is read each month, then each item shows met or not as the state is", () => {
     const game = flownGraduate(content);
     game.endTurn();
-    for (let month = 0; month < 3; month += 1) {
+    // Each month Landing stands, up to three: the recorded life closes it once its items are met.
+    let read = 0;
+    for (let month = 0; month < 3 && game.view().chapter.current === LANDING; month += 1) {
       const items = game.view().chapter.items;
       const entry = content.chapter[LANDING]!;
       expect(items).toEqual(entry.items.map((item) => ({ id: item.id, met: check(readOf(game), item.requirement).met })));
+      read += 1;
       monthAbroad(game);
     }
+    expect(read).toBeGreaterThanOrEqual(2);
   });
 });

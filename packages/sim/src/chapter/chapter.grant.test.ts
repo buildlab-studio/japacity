@@ -65,9 +65,9 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card?.kind).not.toBe("send-off");
   });
 
-  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given the graduate's abroad life flying with decision day still open, when it flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
-    // The graduate's abroad life is granted while building the file (month 40) and flies that month.
-    const { game, commands } = replayedGame("graduate-abroad", content);
+  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given the developer's abroad life flying with decision day still open, when it flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
+    // The developer's abroad life is granted while building the file (month 14) and flies that month.
+    const { game, commands } = replayedGame("developer-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     // The grant's turn closed the file: one close a turn until the flight.
     expect(game.state.chapter).toMatchObject({ current: DECISION, done: ["chapter.find-your-feet", FILE] });
@@ -103,9 +103,9 @@ describe("the plan follows the grant", () => {
 });
 
 describe("the flight's report has one card", () => {
-  test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given the graduate's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
-    // The graduate's abroad life is the one whose flight turn closes both.
-    const { game, commands } = replayedGame("graduate-abroad", content);
+  test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given the developer's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
+    // The developer's abroad life is the one whose flight turn closes both.
+    const { game, commands } = replayedGame("developer-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     const month = game.state.turn.month;
     playTo(game, commands, flight.next, (now) => now.state.turn.month > month);

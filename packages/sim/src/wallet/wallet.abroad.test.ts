@@ -316,7 +316,7 @@ describe("the bank abroad", () => {
     for (const reason of ["rent", "upkeep", "fee-school"]) {
       expect(debitsOf(month, reason).filter((event) => event.currency === "GBP").map((event) => event.reason)).toContain(reason);
     }
-    expect(Object.values(game.state.obligation.items).map((owed) => owed.missed)).toEqual([0, 0, 0]);
+    expect(Object.values(game.state.obligation.items).map((owed) => owed.missed)).toEqual([0, 0, 0, 0]);
   });
 
   test("[wallet:bank-queue-delays-purchases] given a bank queue in the world, when the graduate changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {

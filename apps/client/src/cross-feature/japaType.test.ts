@@ -117,29 +117,27 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then the graduate and the banker are family anchors, the teacher the hustler and the developer the long way round (a return)", () => {
-    // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not
-    // lead the things done most. The teacher's refusals are on the Gulf contract, not the way taken; looking for a
-    // sponsor leads its things done most, its standing is high but short of the top with no family act among them, and
-    // it kept fewer than two thirds of its months, so nothing reads before the hustler.
+  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then the graduate, the banker and the teacher are family anchors and the developer the long way round (a return)", () => {
+    // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not lead the things done most.
+    // The teacher (seed golden-teacher-54) ends at the top of its standing, with time with the family first among the things
+    // done most, and is never refused on the way it takes: the family anchor before the careful saver its kept months would make it.
     const teacher = sendOff("teacher-borrower");
     expect(teacher.routes.find((route) => route.id === teacher.card!.route)?.refusals ?? 0).toBe(0);
-    expect(teacher.card!.topActivities[0]).toBe("activity.find-sponsor");
-    expect(teacher.card!.topActivities).not.toContain("activity.family-time");
-    expect(teacher.card!.standing).toBeLessThan(content.quality["quality.standing"]!.max);
-    expect(teacher.keptMonths * 3).toBeLessThan(teacher.card!.months * 2);
-    expect(japaTypeOf(teacher)).toBe("hustler");
-    // The graduate (seed golden-graduate-0): its standing ends at the top, 100 with decision 0012's arrivals, with time with the
-    // family first among the things done most, so it is the family anchor before the careful saver its kept months would make it.
+    expect(teacher.card!.topActivities[0]).toBe("activity.family-time");
+    expect(teacher.card!.standing).toBe(content.quality["quality.standing"]!.max);
+    expect(japaTypeOf(teacher)).toBe("family-anchor");
+    // The graduate (seed golden-graduate-465): its standing ends at the top, 100, so it is the family anchor before the careful
+    // saver its kept months would make it, though the hunt leads the things it did most.
     const graduate = sendOff("graduate-careful");
-    expect(graduate.card).toMatchObject({ months: 33, standing: 100 });
-    expect(graduate.card!.topActivities[0]).toBe("activity.family-time");
+    expect(graduate.card).toMatchObject({ months: 49, standing: 100 });
+    expect(graduate.card!.topActivities[0]).toBe("activity.job-hunt");
     expect(japaTypeOf(graduate)).toBe("family-anchor");
-    // The banker: the senior bank job leads its things done most; its standing at the top of its range makes it the
-    // family anchor before the refusal on the funds its way met first would make it the long way round.
+    // The banker: the senior bank job leads its things done most; its standing in the top band with time with the family among
+    // them makes it the family anchor before the refusal on the funds its way met first would make it the long way round.
     const banker = sendOff("banker-borrower");
     expect(banker.card!.topActivities[0]).toBe("activity.job-bank-senior");
-    expect(banker.card!.standing).toBe(content.quality["quality.standing"]!.max);
+    expect(banker.card!.topActivities).toContain("activity.family-time");
+    expect(banker.card!.standing).toBeLessThan(content.quality["quality.standing"]!.max);
     expect(banker.routes.find((route) => route.id === banker.card!.route)?.refusals).toBe(1);
     expect(japaTypeOf(banker)).toBe("family-anchor");
     // The developer came home once and went again: the long way round, before anything else.

@@ -84,6 +84,8 @@ describe("money that was not paid", () => {
 
   test("[world:month-end-results-sheet] [abroad-money:missed-tuition-runs-in-stages] given the graduate abroad holding no pounds, when a tuition instalment goes unpaid, then the results lead with the fees office's reminder and its sum, and nothing more is lost that month", () => {
     const game = abroadGame();
+    // route:family-pledge-pays-tuition: the recorded life's family pledge would meet the charge, so this student holds none.
+    applyEffects(game, [{ type: "route/support", route: "route.uk-masters", currency: "NGN", amount: 0 }]);
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
     if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
     const { lines } = game.endTurn();
@@ -99,15 +101,15 @@ describe("money that was not paid", () => {
 
 describe("a hunt's answer on the results", () => {
   test("[world:month-end-results-sheet] given a hunt that found nothing, when the results show, then it says the job and not this time, among the story lines", async () => {
-    // On this seed the first draw for a junior developer finds nothing; the hunt is past the
+    // On this seed the first draw for a bank officer finds nothing; the hunt is past the
     // sure first months (guide:early-win-in-three-turns), so the draw stands.
     const game = newGame("scenario.graduate");
     for (let month = 0; month < 3; month += 1) game.endTurn([]);
-    const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-junior-developer")]);
+    const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-bank-officer")]);
     expect(lines.some((line) => line.key === "line.activity.hunt-missed")).toBe(true);
     await showResults(game, lines);
-    expect(storyRows().map((row) => row.textContent)).toContain(words("ui.results.hunt-missed", { job: "activity.job-junior-developer" }));
-    expect(words("ui.results.hunt-missed", { job: "activity.job-junior-developer" })).toBe(`${nameOf("activity.job-junior-developer")}: not this time.`);
+    expect(storyRows().map((row) => row.textContent)).toContain(words("ui.results.hunt-missed", { job: "activity.job-bank-officer" }));
+    expect(words("ui.results.hunt-missed", { job: "activity.job-bank-officer" })).toBe(`${nameOf("activity.job-bank-officer")}: not this time.`);
   });
 
   test("[world:month-end-results-sheet] given a hunt that found a job, when the results show, then it says an offer with the job and its pay a month, ranked with the offers", async () => {

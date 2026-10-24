@@ -62,17 +62,20 @@ describe("the gate on each way in Japa", () => {
   });
 
   test("[route-gates:taking-sponsor-records-it] given no sponsor yet, then the gate says how one is found", async () => {
-    await renderWithView(<Japa />, withRoute("route.uk-skilled", null));
+    // The recorded life has a sponsor on file by now, so the gate is set with none.
+    await renderWithView(<Japa />, withRoute("route.uk-skilled", { gate: "sponsor", employer: null, salary: null, underBar: false }));
     expect(screen.getByText(say("ui.gate.sponsor.none"))).toBeDefined();
   });
 
   test("[route-gates:endorsement-decided-by-draw] given an endorsement refused, then the month and the end of the cooldown show", async () => {
-    const view = withRoute("route.uk-talent", { gate: "endorsement", refusedMonth: 30, cooledFromMonth: 42 });
+    // A refusal eleven months back whose cooldown ends next month, read from the life's own month.
+    const now = abroadView().month;
+    const view = withRoute("route.uk-talent", { gate: "endorsement", refusedMonth: now - 11, cooledFromMonth: now + 1 });
     await renderWithView(<Japa />, view);
-    // Said as months ago and away (world:top-band-is-a-pill). The refusal is stamped as month 30 ends; asking again is judged while
-    // planning, so from 42 months played, the month the header calls 43.
-    expect(screen.getByText(say("phone.japa.endorsement.refused", { when: agoWords(30, view.month) }))).toBeDefined();
-    expect(screen.getByText(say("phone.japa.endorsement.again", { when: inMonths(42, view.month) }))).toBeDefined();
+    // Said as months ago and away (world:top-band-is-a-pill). The refusal is stamped as its month ends; asking again is judged while
+    // planning, so from the cooldown's month played, the month the header calls one later.
+    expect(screen.getByText(say("phone.japa.endorsement.refused", { when: agoWords(now - 11, view.month) }))).toBeDefined();
+    expect(screen.getByText(say("phone.japa.endorsement.again", { when: inMonths(now + 1, view.month) }))).toBeDefined();
     expect(document.querySelector('[data-gate="endorsement"]')?.textContent).not.toMatch(/month \d+/i);
   });
 

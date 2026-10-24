@@ -115,8 +115,8 @@ describe("the months kept", () => {
   });
 
   test("[world:month-end-results-sheet] [wallet:months-kept-counted] given a month in hand, when the developer's remote dollars are changed into naira before it ends, then the change's two sides count nothing, the bank's charge is held as the month's net in dollars, and nothing is counted until the month closes", () => {
-    // A month late in the life at home, before the flight, whichever month the cut flies in.
-    const game = replay("developer-remote", upToMonth("developer-remote", Math.min(30, monthsOf("developer-remote") - 2)));
+    // A month late in the life at home, before the flight, whichever month the cut flies in: the month before it, when the remote job's dollars are held.
+    const game = replay("developer-remote", upToMonth("developer-remote", Math.min(30, monthsOf("developer-remote") - 1)));
     const before = game.view().keptMonths;
     const dollars = game.state.wallet.pockets.USD.bank;
     expect(dollars).toBeGreaterThan(0);

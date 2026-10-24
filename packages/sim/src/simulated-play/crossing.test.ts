@@ -279,6 +279,8 @@ describe("whole-life rules that cross kinds", () => {
     applyEffects(game, [
       ...(game.state.wallet.pockets.GBP.bank > 0 ? [{ type: "money/take", currency: "GBP", pocket: "bank", amount: game.state.wallet.pockets.GBP.bank, reason: "mishap" } as const] : []),
       ...(game.state.wallet.pockets.GBP.cash > 0 ? [{ type: "money/take", currency: "GBP", pocket: "cash", amount: game.state.wallet.pockets.GBP.cash, reason: "mishap" } as const] : []),
+      // route:family-pledge-pays-tuition: the recorded life's family pledge would meet the charges, so this student holds none.
+      { type: "route/support", route: "route.uk-masters", currency: "NGN", amount: 0 },
     ]);
     expect(game.state.status.current?.entry).toBe(STUDENT);
     let withdrawn: Accepted | null = null;
