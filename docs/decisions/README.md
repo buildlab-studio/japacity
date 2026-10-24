@@ -98,6 +98,14 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0016](0016-the-friday-draw.md) | The Friday draw: a kind of its own, fixed odds and a rolling jackpot |
 | [0030](0030-the-ledger-and-the-rejections-name-only-what-a-rule-uses.md) | The ledger and the rejections name only what a rule uses |
 
+### The economy
+
+| No. | Decision |
+|---|---|
+| [0031](0031-each-trade-climbs-its-own-ladder.md) | Each trade climbs its own ladder |
+| [0032](0032-learning-in-bands.md) | Learning in bands |
+| [0033](0033-the-students-money-flow.md) | The student's money flow |
+
 ### The city
 
 | No. | Decision |
