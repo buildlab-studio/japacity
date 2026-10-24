@@ -19,8 +19,8 @@ The single giant design document has fallen out of favour. Practitioners recomme
 | [07](07-the-world-first.md) | The world first |
 | [08](08-the-lived-month.md) | The lived month |
 | [09](09-the-lively-layer.md) | The lively layer |
-| [10](10-london-on-the-lagos-mold.md) | London on the Lagos mold |
-| [11](11-the-three-countries-on-the-mold.md) | Calgary, Dubai and Castel Volturno on the mold |
+| [10](10-london.md) | London |
+| [11](11-calgary-dubai-and-castel-volturno.md) | Calgary, Dubai and Castel Volturno |
 | [12](12-overstaying.md) | Overstaying: the grace, the overstay, the notice and the ways out |
 
 ## Conventions

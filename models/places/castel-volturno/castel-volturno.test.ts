@@ -1,4 +1,4 @@
-// Castel Volturno's models and stage files (docs/design/11-the-three-countries-on-the-mold.md sections 3 and 6): the
+// Castel Volturno's models and stage files (docs/design/11-calgary-dubai-and-castel-volturno.md sections 3 and 6): the
 // pieces of the roundabout, the Domitiana and the fields, the coast road's bus and the gangmaster's van, each standing on
 // y = 0 with its footprint and only palette colours, the two vehicles built to be sat in with the ride's seat inside the
 // body on the kerb side, and the three stage files held beside their sources inside the world's limits.

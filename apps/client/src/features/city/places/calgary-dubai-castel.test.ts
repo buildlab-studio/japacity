@@ -1,4 +1,4 @@
-// Calgary, Dubai and Castel Volturno on the mold (docs/design/11-the-three-countries-on-the-mold.md; world:ride-abroad-and-workplace,
+// Calgary, Dubai and Castel Volturno (docs/design/11-calgary-dubai-and-castel-volturno.md; world:ride-abroad-and-workplace,
 // streets:calgary-life-by-hand, streets:dubai-life-by-hand, streets:castel-volturno-by-hand and place:country-pass-covers-ways): each
 // country's frontages with their things, its workplaces with a door, the interiors it shares with London under its own entry and its own stage
 // file, its colleagues' lines in turn and the talk overheard in every place.

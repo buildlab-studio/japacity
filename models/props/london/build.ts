@@ -1,4 +1,4 @@
-// The things of London's places (docs/design/10-london-on-the-lagos-mold.md section 4; docs/rules/world.md
+// The things of London's places (docs/design/10-london.md section 4; docs/rules/world.md
 // world:things-are-tappable-models, world:ride-abroad-and-workplace): what stands on Rye Lane and at the station, and what furnishes the big shop, the
 // care home, the ward, the office, the warehouse and the church. Each is its own model so a label can stand
 // over it, written from the kit's shapes, standing on its base at y = 0 and facing +Z (assets:metre-units-and-origin), its tops

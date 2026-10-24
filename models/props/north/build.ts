@@ -1,4 +1,4 @@
-// The things of Calgary's and Dubai's places (docs/design/11-the-three-countries-on-the-mold.md section 3; docs/rules/
+// The things of Calgary's and Dubai's places (docs/design/11-calgary-dubai-and-castel-volturno.md section 3; docs/rules/
 // world:things-are-tappable-models, world:ride-abroad-and-workplace): the bare trees of a Calgary winter, the CTrain's shelter, the
 // library's shelves, tables and course desk, Union station's Nol machine and escalator, and the site's hoarding, crane,
 // guard's post, cleaner's trolley and water cooler. Each is its own model so a label can stand over it, written from
