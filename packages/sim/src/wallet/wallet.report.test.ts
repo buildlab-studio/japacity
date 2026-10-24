@@ -5,6 +5,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp, divCeil } from "../engine/int";
+import { ReasonSchema } from "../engine/language.schema";
 import type { Currency, Reason, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import { replay } from "../engine/replay";
@@ -81,12 +82,18 @@ describe("the ledger report", () => {
     expect(ledgerReport(doctored(state, "opening", "NGN", richest + 1), content).alarms).toEqual([{ reason: "opening", currency: "NGN", total: richest + 1, ceiling: richest }]);
   });
 
-  test("[wallet:ledger-report-raises-alarms] given decision 0016, under which pot-top-up is never credited, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
-    const state = banker();
-    expect(ceilingOf(state, "pot-top-up", "NGN")).toBe(0);
-    expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 0), content).alarms).toEqual([]);
-    expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 1), content).alarms).toEqual([{ reason: "pot-top-up", currency: "NGN", total: 1, ceiling: 0 }]);
-  });
+  test.each(["pot-top-up", "ransom", "build"])(
+    "[wallet:ledger-report-raises-alarms] given a total under %s, a name the ledger's reasons do not hold (decision 0030), when the report is made, then its ceiling is 0: none is clean and one kobo names the account",
+    (name) => {
+      expect(ReasonSchema.options).not.toContain(name);
+      // A tampered account can carry any name in its totals.
+      const reason = name as Reason;
+      const state = banker();
+      expect(ceilingOf(state, reason, "NGN")).toBe(0);
+      expect(ledgerReport(doctored(state, reason, "NGN", 0), content).alarms).toEqual([]);
+      expect(ledgerReport(doctored(state, reason, "NGN", 1), content).alarms).toEqual([{ reason, currency: "NGN", total: 1, ceiling: 0 }]);
+    },
+  );
 
   test.each([
     ["salary", "GBP"],

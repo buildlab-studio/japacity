@@ -287,8 +287,8 @@ function creditedReasons(events: readonly { type: string }[]): unknown[] {
   return events.flatMap((event) => (event.type === "wallet/credited" && "reason" in event ? [event.reason] : []));
 }
 
-describe("pot-top-up is refused", () => {
-  test("[lottery:winners-paid-by-authority] given a payout that still carries a house part, when it is paid, then it is refused with not-legal and nothing is paid; a part of 0 credits only win", () => {
+describe("a house part is refused", () => {
+  test("[lottery:winners-paid-by-authority] given a payout that carries a house part, when it is paid, then it is refused with not-legal and nothing is paid; a part of 0 credits only win", () => {
     const { game } = play();
     const bank = game.state.wallet.pockets.NGN.bank;
     for (const topUp of [1, 99000, -1, Number("0.5")]) {
@@ -302,12 +302,12 @@ describe("pot-top-up is refused", () => {
   });
 
   test.prop([fc.array(fc.record({ tier: fc.constantFrom("jackpot" as const, "mid" as const, "small" as const), amount: fc.integer({ min: 1, max: 40_000_000 }) }), { minLength: 1, maxLength: 6 })])(
-    "[lottery:winners-paid-by-authority] given any payout, when it is paid, then every prize is credited as win and nothing as pot-top-up",
+    "[lottery:winners-paid-by-authority] given any payout, when it is paid, then every prize is credited as win and nothing as a house part",
     (prizes) => {
       const { game } = play();
       const result = game.accept({ type: "lottery/pay", draw: 7, prizes }, "authority");
       expect(creditedReasons(result.events)).toEqual(prizes.map(() => "win"));
-      expect(game.state.wallet.totals.in["pot-top-up"]).toBeUndefined();
+      expect(Object.keys(game.state.wallet.totals.in)).not.toContain("pot-top-up");
     },
   );
 });

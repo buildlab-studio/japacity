@@ -275,7 +275,7 @@ describe("the draw's alarm", () => {
     }
   });
 
-  test("[lottery:money-report-checks-draws] given a payout logged with any house part, when the draw is checked, then the world alarm is raised for pot-top-up against 0; a part of 0 raises nothing", async () => {
+  test("[lottery:money-report-checks-draws] given a payout logged with any house part, when the draw is checked, then the world alarm is raised for the house part against 0; a part of 0 raises nothing", async () => {
     const house = testDeps();
     await drawn(house, BUYS, { amount: 500, topUp: 1 }, { count: 3, owed: 500 });
     expect(await drawAlarms(house, time.utcDay(close))).toEqual([{ kind: "draw", day: time.utcDay(close), draw: 0, check: "top-up", total: 1, limit: 0 }]);

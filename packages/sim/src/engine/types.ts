@@ -106,15 +106,11 @@ export type Reason =
   | "cash-work"
   | "tax"
   | "agent-debt"
-  | "ransom"
   | "fare"
   /** The UAE's overstay fine, paid with the fare home (status:uae-fine-accrues, decision 0028), a sink. */
   | "fine"
-  | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
-  /** Decision 0016: credited by nothing, its ceiling in the money report zero. Kept so earlier ledger rows and saves still read. */
-  | "pot-top-up"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
   /** A thing bought from the market for the home, a sink; selling it back comes in under `sale`. */

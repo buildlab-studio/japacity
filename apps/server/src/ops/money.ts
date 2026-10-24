@@ -151,8 +151,8 @@ function housePart(prize: object): number {
  * A `win` belongs to the draw its `lottery/pay` command names; a `ticket` to
  * the draw on sale at the tick its `lottery/buy` was stepped at. All are read
  * from the logs of the characters on the draw's ticket list. The `win` paid
- * must be what lottery:fixed-prizes-shared-jackpot gives the result, `pot-top-up` must be 0
- * (decision 0016), and the tickets taken must be the sales: the tickets sold
+ * must be what lottery:fixed-prizes-shared-jackpot gives the result, no payout may carry a
+ * house part (decision 0016), and the tickets taken must be the sales: the tickets sold
  * at the current price.
  */
 export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]> {
