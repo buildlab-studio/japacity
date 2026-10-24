@@ -2,7 +2,8 @@
 // section can open below the fold. Opened, the section comes whole into the door's body once the figure is read and its
 // rows stand; a colour picked brings the next part to choose whole into view the same way. Both sizes; and under
 // reduced motion the same, at once.
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
 

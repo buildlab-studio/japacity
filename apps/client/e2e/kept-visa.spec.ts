@@ -4,7 +4,8 @@
 // the life can fly back on it, and the airport's gate flies it back to London on the same visa, the flight alone paid.
 import { lastSegment, lifeStart, savedCommands, type FlatSave } from "@japacity/sim";
 import { runLife } from "@japacity/sim/testing";
-import { devices, expect, test } from "@playwright/test";
+import { devices, expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { content, text } from "../../../packages/content/src/index";
 import { clear, pickStop, rideBy } from "./support/abroad";

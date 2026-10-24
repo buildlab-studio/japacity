@@ -4,7 +4,8 @@
 // the ones that draw pictures large: the door's three steps and its page, the data page in the world, and every beat of
 // the send-off in every country it lands in. The rest of the game draws its pictures as small tiles, which the screen
 // catalog measures at every screen (CATALOG_RASTERS=1 pnpm catalog). The whole catalog takes minutes, so it is not here.
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { content, text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";

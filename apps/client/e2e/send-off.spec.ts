@@ -4,7 +4,8 @@
 // Window or aisle, the gate where Board the plane sends the flight once, the plane over the night map, the landing in
 // Peckham with the bus, the top deck with the pings, the card saved and the Phone's badge; Ring the bell and the life
 // stands in the room abroad, the card kept where the phone keeps it.
-import { devices, expect, test, type Page } from "@playwright/test";
+import { devices, expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";

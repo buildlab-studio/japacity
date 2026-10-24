@@ -2,7 +2,8 @@
 // place:rides-between-city-places, place:country-pass-covers-ways; streets:london-life-by-hand): the graduate's recorded life lands in London, walks to Peckham Rye,
 // buys the month's bus pass at the ticket machine, rides the bus free to the big shop, does the weekly shop, takes the
 // train to the office at London Bridge for its fare, and rides the bus home to the room, the long walk greyed with the pass in hand.
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { clear, money as pounds, pickStop, rideBy } from "./support/abroad";
 import { SOFTWARE_WEBGL } from "./support/browser";

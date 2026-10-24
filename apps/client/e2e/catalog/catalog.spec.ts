@@ -5,7 +5,8 @@
 // (`window.__city`, `__map`, `__sendOff`, `?clock=`). A screen that cannot be reached is written down as not reached,
 // with why, and the test goes on. Nothing here asserts how a screen should look: the look is the review's.
 import { start } from "@japacity/sim/testing";
-import { devices, expect, test, type Page } from "@playwright/test";
+import { devices, expect, type Page } from "@playwright/test";
+import { test, watchPolicy } from "../support/policy";
 
 import { content } from "../../../../packages/content/src/index";
 import { ADMIN_GETS } from "../../src/features/admin/admin.testing";
@@ -1358,7 +1359,7 @@ function water(): { account: string; id: string; name: string; approved: boolean
   return Array.from({ length: 305 }, (_, at) => ({ account: `account.other-${String(at)}`, id: `light.o${String(at)}`, name: named[at] ?? `Someone ${String(at)}`, approved: at < named.length, litAt: 1000 + at, from: null, to: null }));
 }
 
-test("dedication: the page online over a faked server, a light named and lit, and the admin's lights list", async ({ page, browser }) => {
+test("dedication: the page online over a faked server, a light named and lit, and the admin's lights list", async ({ page, browser, policyWatch }) => {
   const kept = water();
   const account = "account.ada";
   const game = start({ scenario: "scenario.banker", content });
@@ -1417,7 +1418,9 @@ test("dedication: the page online over a faked server, a light named and lit, an
 
   // The admin's page, signed in as an admin, its own fixtures and the lights awaiting a look.
   await attempt(page, "dedication-admin-lights", async () => {
-    const admin = await (await browser.newContext({ ...devices["Pixel 7"], deviceScaleFactor: Number(process.env.CATALOG_SCALE ?? "3") })).newPage();
+    const adminContext = await browser.newContext({ ...devices["Pixel 7"], deviceScaleFactor: Number(process.env.CATALOG_SCALE ?? "3") });
+    await watchPolicy(adminContext, policyWatch);
+    const admin = await adminContext.newPage();
     await admin.route(
       (url) => url.pathname.startsWith("/api/"),
       (route) => {

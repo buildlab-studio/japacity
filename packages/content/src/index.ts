@@ -104,7 +104,7 @@ export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about
 export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/about.light";
 export type { Light, LightAsked, LightChecked, LightProblem } from "./about/about.light";
 export { blockedWords, reservedNames } from "./account/account.data";
-export { CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "./analytics/analytics.data";
+export { CSP_BLOCKED_KINDS, CSP_DIRECTIVES, CSP_DISPOSITIONS, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "./analytics/analytics.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
 export { OPERATOR, type Operator } from "./legal/legal.operator";
 export { LICENCES_PATH, LICENCES_URL, REGISTER_URL, REPOSITORY_URL } from "./legal/legal.repository";

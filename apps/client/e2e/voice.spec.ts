@@ -1,5 +1,6 @@
 
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The visa interview, spoken (docs/design/05-audio.md, section 7), inside a faked in-app browser:
 // most players arrive through one. The graduate's recorded life is loaded just as its application went in; the interview waits in

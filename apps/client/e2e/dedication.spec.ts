@@ -6,7 +6,8 @@
 // taps on Settings' version line open the page offline. Phone only: the design is drawn for a phone.
 import { start } from "@japacity/sim/testing";
 
-import { type Browser, devices, expect, test, type Page } from "@playwright/test";
+import { type Browser, devices, expect, type Page } from "@playwright/test";
+import { noViolations, test, type Violation, watchPolicy } from "./support/policy";
 
 import { content } from "../../../packages/content/src/index";
 import { ADMIN_GETS } from "../src/features/admin/admin.testing";
@@ -237,14 +238,18 @@ async function admin(page: Page, kept: Kept[]): Promise<void> {
   await expect(page.getByRole("heading", { name: "Admin", level: 1 })).toBeVisible({ timeout: 30_000 });
 }
 
-async function context(browser: Browser) {
-  return browser.newContext({ ...devices["Pixel 7"], ...SIZE });
+/** A phone's own context, watched for the content policy's refusals into `refused`. */
+async function context(browser: Browser, refused: Violation[]) {
+  const made = await browser.newContext({ ...devices["Pixel 7"], ...SIZE });
+  await watchPolicy(made, refused);
+  return made;
 }
 
 test("[account:dedication-page-and-its-doors] [account:name-a-light-for-yours] [moderation:dedication-lights-await-approval] [world:lantern-canoe-on-map] online: an account lights a light from the canoe's page and sees its name; another sees one more bare light and no name until the admin approves it; Put it out takes it away", async ({ browser }) => {
   test.setTimeout(300_000);
+  const refused: Violation[] = [];
   const kept = water();
-  const ada = await (await context(browser)).newPage();
+  const ada = await (await context(browser, refused)).newPage();
   await online(ada, "account.ada", kept);
   await openTheMap(ada);
   await ada.getByRole("button", { name: "A canoe with a lantern" }).click();
@@ -284,7 +289,7 @@ test("[account:dedication-page-and-its-doors] [account:name-a-light-for-yours] [
   });
 
   // Another account: one more light on the water, bare, and no name.
-  const bola = await (await context(browser)).newPage();
+  const bola = await (await context(browser, refused)).newPage();
   await online(bola, "account.bola", kept);
   await openTheMap(bola);
   await expect(bola.locator("[data-canoe]")).toHaveAttribute("data-lanterns", "1");
@@ -295,7 +300,7 @@ test("[account:dedication-page-and-its-doors] [account:name-a-light-for-yours] [
   await seen.getByRole("button", { name: "Close" }).click();
 
   // The admin approves it on the admin page's moderation tab.
-  const moderator = await (await context(browser)).newPage();
+  const moderator = await (await context(browser, refused)).newPage();
   await admin(moderator, kept);
   await moderator.getByRole("tab", { name: "Moderation" }).click();
   const list = moderator.getByRole("list", { name: "Lights awaiting a look" });
@@ -321,4 +326,5 @@ test("[account:dedication-page-and-its-doors] [account:name-a-light-for-yours] [
   await expect(page.locator("[data-dedication-count]")).toContainText("305 lights");
   await page.getByRole("button", { name: "Close" }).click();
   await expect(ada.locator("[data-canoe]")).toHaveAttribute("data-lanterns", "1");
+  noViolations(refused);
 });

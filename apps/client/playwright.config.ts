@@ -11,6 +11,11 @@
 //   a look against e2e/catalog/CHECKLIST.md. A tool run by hand. The pictures go to CATALOG_DIR, else to
 //   `.catalog/<short commit>/` in the main checkout, which git ignores (e2e/catalog/where.ts); so does Playwright's own output.
 //
+// With E2E_BUILD set to `development` or `production`, the suite and the catalog run against a build served by
+// `vite preview` with the shipped `_headers` instead of the dev server, so every page is held to the content policy
+// (server:csp-holds-every-page, e2e/support/policy.ts). `development` keeps the dev-only hooks most specs drive;
+// `production` is the build players get, its beacon and bot check stood in for, for the specs that need no hook.
+//
 // Only the browser suite runs when no project is named. None of them is part of `pnpm check`.
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -27,6 +32,28 @@ const PORT = Number(process.env.E2E_PORT ?? "5179");
 /** The client built against a server, for online.spec.ts: the server is this same origin, every /api route faked by the spec. */
 const ONLINE_PORT = Number(process.env.E2E_ONLINE_PORT ?? "5180");
 const CATALOG_WORKERS = Number(process.env.CATALOG_WORKERS ?? "3");
+/** Which build the servers serve, or none for the dev server. */
+const BUILD = process.env.E2E_BUILD ?? "";
+if (!["", "development", "production"].includes(BUILD)) throw new Error(`E2E_BUILD is development, production or unset, not ${BUILD}.`);
+/** Cloudflare's always-pass test key for the bot check, and a site token of the beacon's shape: neither reaches Cloudflare in a test. */
+const TEST_TURNSTILE_KEY = "1x00000000000000000000AA";
+const TEST_ANALYTICS_TOKEN = "0123456789abcdef0123456789abcdef";
+
+/** The command that serves the client on a port: the dev server, or a build of it with the platform's headers. */
+function served(port: number, env: Record<string, string>): { command: string; env: Record<string, string>; timeout: number } {
+  if (BUILD === "") return { command: `pnpm --filter @japacity/client exec vite --port ${String(port)} --strictPort`, env, timeout: 60_000 };
+  const outDir = join(tmpdir(), `japacity-e2e-${BUILD}-${String(port)}`);
+  const vite = "pnpm --filter @japacity/client exec vite";
+  const built =
+    BUILD === "development"
+      ? { ...env, NODE_ENV: "development" }
+      : { ...env, VITE_ANALYTICS_TOKEN: TEST_ANALYTICS_TOKEN, ...(env["VITE_SERVER_URL"] === undefined ? { VITE_ALLOW_LOCAL_AUTHORITY: "1" } : { VITE_TURNSTILE_SITE_KEY: TEST_TURNSTILE_KEY }) };
+  return {
+    command: `${vite} build --mode ${BUILD} --outDir ${outDir} --emptyOutDir && ${vite} preview --outDir ${outDir} --port ${String(port)} --strictPort`,
+    env: built,
+    timeout: 240_000,
+  };
+}
 
 /** The projects named on the command line with --project; none named runs the default ones. */
 function askedProjects(argv: readonly string[]): string[] {
@@ -119,18 +146,7 @@ export default defineConfig({
   webServer: realOnly
     ? []
     : [
-        {
-          command: `pnpm --filter @japacity/client exec vite --port ${String(PORT)} --strictPort`,
-          url: `http://localhost:${String(PORT)}`,
-          reuseExistingServer: true,
-          timeout: 60_000,
-        },
-        {
-          command: `pnpm --filter @japacity/client exec vite --port ${String(ONLINE_PORT)} --strictPort`,
-          url: `http://localhost:${String(ONLINE_PORT)}`,
-          env: { VITE_SERVER_URL: `http://localhost:${String(ONLINE_PORT)}` },
-          reuseExistingServer: true,
-          timeout: 60_000,
-        },
+        { ...served(PORT, {}), url: `http://localhost:${String(PORT)}`, reuseExistingServer: true },
+        { ...served(ONLINE_PORT, { VITE_SERVER_URL: `http://localhost:${String(ONLINE_PORT)}` }), url: `http://localhost:${String(ONLINE_PORT)}`, reuseExistingServer: true },
       ],
 });

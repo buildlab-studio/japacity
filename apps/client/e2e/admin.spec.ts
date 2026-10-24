@@ -1,6 +1,7 @@
 import { generateKeyPairSync } from "node:crypto";
 
-import { expect, test, type Page, type Route } from "@playwright/test";
+import { expect, type Page, type Route } from "@playwright/test";
+import { noViolations, test, watchPolicy } from "./support/policy";
 
 // The admin routes are answered in the browser from the page's own fixtures: the dev server has no server behind it.
 import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.testing";
@@ -130,11 +131,15 @@ test("[moderation:admin-view-for-admin-list] [server:unknown-address-becomes-roo
   };
   for (const [who, account] of Object.entries(accounts)) {
     const one = await browser.newContext();
+    const refusedOne = await watchPolicy(one);
     const unknown = await visit(await one.newPage(), "/somewhere-else", account);
     await one.close();
+    noViolations(refusedOne);
     const other = await browser.newContext();
+    const refusedOther = await watchPolicy(other);
     const admin = await visit(await other.newPage(), "/admin", account);
     await other.close();
+    noViolations(refusedOther);
     expect({ who, ...admin }).toEqual({ who, ...unknown });
     expect({ who, modules: admin.modules, adminApi: admin.api.filter((request) => request.includes("/api/admin")) }).toEqual({ who, modules: [], adminApi: [] });
   }

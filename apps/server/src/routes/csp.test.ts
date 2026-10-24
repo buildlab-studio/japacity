@@ -1,5 +1,6 @@
 // server:csp-reports-to-own-origin: the page's content policy reports to the server, and
 // each report leaves one log line of three fields and one count, nothing of the person who met it.
+import { CSP_BLOCKED_KINDS } from "@japacity/content";
 import { time } from "@japacity/sim";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -11,9 +12,19 @@ import { NO_REGION } from "../analytics/list";
 import { testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
-import { CSP_COUNTER, CSP_REPORT_BYTES, CSP_REPORT_PATH, CSP_REPORTS_PER_REQUEST, cspLogLine, violationsOf } from "./csp";
+import { CSP_BLOCKED_COUNTER, CSP_COUNTER, CSP_REPORT_BYTES, CSP_REPORT_PATH, CSP_REPORTS_PER_REQUEST, cspLogLine, violationsOf } from "./csp";
 
 const HEADERS = readFileSync(fileURLToPath(new URL("../../../client/public/_headers", import.meta.url).href), "utf8");
+
+/** One policy header of the page, as its directives and their sources. */
+function policyOf(header: string): Map<string, string[]> {
+  const policy = new RegExp(`^\\s+${header}: (.*)$`, "m").exec(HEADERS)?.[1] ?? "";
+  return new Map(policy.split(";").map((part) => part.trim().split(/\s+/)).map(([name = "", ...sources]) => [name, sources]));
+}
+
+/** The policy the browser enforces, and the stricter one it only reports. */
+const ENFORCED = policyOf("Content-Security-Policy");
+const REPORTED = policyOf("Content-Security-Policy-Report-Only");
 
 /** What a person's browser would put in a report, each a sentinel that must never reach a log line. */
 const PERSONAL = {
@@ -80,15 +91,45 @@ afterEach(() => {
 });
 
 describe("the page's policy reports", () => {
-  test("[server:csp-reports-to-own-origin] given the page's _headers, when they are read, then the policy still only reports, and reports to /api/csp-report by report-to through Reporting-Endpoints and by report-uri", () => {
-    const policy = /^\s+Content-Security-Policy-Report-Only: (.*)$/m.exec(HEADERS)?.[1] ?? "";
-    const directives = new Map(policy.split(";").map((part) => part.trim().split(/\s+/)).map(([name = "", ...sources]) => [name, sources]));
-    expect(directives.get("report-uri")).toEqual([CSP_REPORT_PATH]);
-    expect(directives.get("report-to")).toEqual(["csp"]);
+  test("[server:csp-reports-to-own-origin] given the page's _headers, when they are read, then one policy is enforced and a stricter one beside it only reports, each once, both to /api/csp-report by report-to through Reporting-Endpoints and by report-uri", () => {
+    expect(HEADERS.match(/^\s+Content-Security-Policy: /gm)).toHaveLength(1);
+    expect(HEADERS.match(/^\s+Content-Security-Policy-Report-Only: /gm)).toHaveLength(1);
+    for (const policy of [ENFORCED, REPORTED]) {
+      expect(policy.get("report-uri")).toEqual([CSP_REPORT_PATH]);
+      expect(policy.get("report-to")).toEqual(["csp"]);
+    }
     expect(/^\s+Reporting-Endpoints: (.*)$/m.exec(HEADERS)?.[1]).toBe(`csp="${CSP_REPORT_PATH}"`);
-    expect(HEADERS).not.toMatch(/^\s+Content-Security-Policy:/m);
     // A path on the page's own origin: the one file serves every deployment and names none.
     expect(CSP_REPORT_PATH.startsWith("/api/")).toBe(true);
+  });
+
+  test("[server:csp-reports-to-own-origin] given the enforced policy, when its directives are read, then nothing loads from anywhere not named, no string runs as script, no inline script runs, and no page may frame it, change its base, embed a plugin or send a form anywhere", () => {
+    expect(ENFORCED.get("default-src")).toEqual(["'self'"]);
+    expect(ENFORCED.get("object-src")).toEqual(["'none'"]);
+    expect(ENFORCED.get("base-uri")).toEqual(["'none'"]);
+    expect(ENFORCED.get("frame-ancestors")).toEqual(["'none'"]);
+    expect(ENFORCED.get("form-action")).toEqual(["'none'"]);
+    expect(ENFORCED.get("script-src")?.[0]).toBe("'self'");
+    for (const [name, sources] of ENFORCED) {
+      for (const loose of ["'unsafe-eval'", "'unsafe-hashes'", "*", "https:", "http:", "data:"]) expect({ name, loose, allowed: sources.includes(loose) }).toEqual({ name, loose, allowed: (name === "img-src" || name === "font-src") && loose === "data:" });
+      expect({ name, inlineScript: name.startsWith("script-src") && sources.includes("'unsafe-inline'") }).toEqual({ name, inlineScript: false });
+      // An outside source is a whole host, never a path or a wildcard under it.
+      const outside = sources.filter((source) => source.startsWith("https://"));
+      expect({ name, outside: outside.filter((source) => !/^https:\/\/[a-z0-9.-]+$/.test(source)) }).toEqual({ name, outside: [] });
+    }
+  });
+
+  test("[server:csp-reports-to-own-origin] given the stricter policy beside it, when its directives are read, then it is the enforced one that also asks for Trusted Types from the page's one policy, inline styles only by the build's hashes and no style attribute", () => {
+    const stricter = new Set(["style-src", "style-src-attr", "require-trusted-types-for", "trusted-types"]);
+    const shared = [...ENFORCED].filter(([name]) => !stricter.has(name));
+    expect(shared.map(([name]) => [name, REPORTED.get(name)])).toEqual(shared);
+    expect([...REPORTED.keys()].filter((name) => !ENFORCED.has(name) && !stricter.has(name))).toEqual([]);
+    expect(REPORTED.get("require-trusted-types-for")).toEqual(["'script'"]);
+    expect(REPORTED.get("trusted-types")).toEqual(["japacity"]);
+    expect(REPORTED.get("style-src")).toEqual(["'self'", "{inline-style-hashes}"]);
+    expect(REPORTED.get("style-src-attr")).toEqual(["'none'"]);
+    // What the stricter one reports is not already refused: the enforced policy still lets inline styles in.
+    expect(ENFORCED.get("style-src")).toEqual(["'self'", "'unsafe-inline'"]);
   });
 
   test("[server:csp-reports-to-own-origin] given a report-uri report, when it is posted, then it is answered 204 and leaves one line of the directive, the blocked origin and the page's path, and one count under the request's region", async () => {
@@ -145,6 +186,96 @@ describe("the page's policy reports", () => {
     expect((await post(server, JSON.stringify(many), "application/reports+json")).status).toBe(204);
     expect(logged).toHaveBeenCalledTimes(CSP_REPORTS_PER_REQUEST);
     expect(await counted(server)).toEqual([{ region: "NG", key: "img-src", count: CSP_REPORTS_PER_REQUEST }]);
+  });
+});
+
+async function countedBlocked(server: ReturnType<typeof testServer>): Promise<{ region: string; key: string; count: number }[]> {
+  const day = time.dayName(time.utcDay(server.deps.now()));
+  const rows = await server.deps.stores.counters.days(day, day);
+  return rows
+    .filter((row) => row.name === CSP_BLOCKED_COUNTER)
+    .map(({ region, key, count }) => ({ region, key, count }))
+    .sort((a, b) => a.key.localeCompare(b.key));
+}
+
+describe("the blocked thing's kind", () => {
+  test("[server:csp-reports-to-own-origin] given a report-uri report of an inline script the policy only reported, when it is posted, then the blocked counter adds one under report, the directive and the kind inline, beside the directive's own count", async () => {
+    const server = testServer();
+    expect((await post(server, legacyReport({ "blocked-uri": "inline" }), "application/csp-report")).status).toBe(204);
+    expect(await counted(server)).toEqual([{ region: "NG", key: "script-src-elem", count: 1 }]);
+    expect(await countedBlocked(server)).toEqual([{ region: "NG", key: "report:script-src-elem:inline", count: 1 }]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given violations of every kind on the list, when they are posted, then each is counted under its kind: the browser's word, the scheme, an extension, the page's own origin, a host the policy names, or any other host", async () => {
+    const server = testServer();
+    const blocked: [string, string][] = [
+      ["inline", "script-src-elem:inline"],
+      ["eval", "script-src:eval"],
+      ["wasm-eval", "script-src:wasm-eval"],
+      ["trusted-types-sink", "require-trusted-types-for:trusted-types-sink"],
+      ["trusted-types-policy", "trusted-types:trusted-types-policy"],
+      ["data", "img-src:data"],
+      ["data:image/png;base64,c2VjcmV0", "font-src:data"],
+      [`blob:https://game.japacity.test/${PERSONAL.invite}`, "worker-src:blob"],
+      ["chrome-extension://abcdefghijklmnop/inject.js", "script-src-elem:extension"],
+      ["moz-extension://0a1b2c3d-4e5f/content.js", "style-src-elem:extension"],
+      ["safari-web-extension://ABCDEF/script.js", "connect-src:extension"],
+      [`https://game.japacity.test/assets/index.js?${PERSONAL.query}`, "script-src-elem:self"],
+      ["self", "style-src-attr:self"],
+      ["https://challenges.cloudflare.com/turnstile/v0/api.js", "frame-src:challenges.cloudflare.com"],
+      ["https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516", "script-src-elem:static.cloudflareinsights.com"],
+      ["https://cloudflareinsights.com/cdn-cgi/rum", "connect-src:cloudflareinsights.com"],
+      [`https://ads.example.test${PERSONAL.blockedPath}?${PERSONAL.query}`, "img-src:other-host"],
+      ["about:blank", "frame-src:other"],
+      ["", "media-src:other"],
+    ];
+    expect(blocked.length).toBeLessThanOrEqual(CSP_REPORTS_PER_REQUEST);
+    const body = blocked.map(([blockedURL, key]) => violation({ effectiveDirective: key.split(":")[0], blockedURL, documentURL: PAGE, disposition: "enforce" }));
+    expect((await post(server, JSON.stringify(body), "application/reports+json")).status).toBe(204);
+    const wanted = blocked.map(([, key]) => ({ region: "NG", key: `enforce:${key}`, count: 1 })).sort((a, b) => a.key.localeCompare(b.key));
+    expect(await countedBlocked(server)).toEqual(wanted);
+    for (const row of await countedBlocked(server)) expect(CSP_BLOCKED_KINDS as readonly string[]).toContain(row.key.split(":")[2]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given a blocked address on a host the policy does not name, or the page's host on another scheme, when it is counted, then its key holds other-host and nothing of the address", async () => {
+    const server = testServer();
+    const body = [
+      violation({ effectiveDirective: "connect-src", blockedURL: `wss://user:pass@socket.example.test:8443${PERSONAL.blockedPath}?${PERSONAL.query}` }),
+      violation({ effectiveDirective: "img-src", blockedURL: "http://game.japacity.test/assets/a.png" }),
+      violation({ effectiveDirective: "script-src-elem", blockedURL: "https://challenges.cloudflare.com.example.test/api.js" }),
+      violation({ effectiveDirective: "script-src-elem", blockedURL: "http://static.cloudflareinsights.com/beacon.min.js" }),
+    ];
+    await post(server, JSON.stringify(body), "application/reports+json");
+    expect(await countedBlocked(server)).toEqual([
+      { region: "NG", key: "report:connect-src:other-host", count: 1 },
+      { region: "NG", key: "report:img-src:other-host", count: 1 },
+      { region: "NG", key: "report:script-src-elem:other-host", count: 2 },
+    ]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given reports the policy enforced, only reported, or said nothing of, in both shapes, when they are counted, then each is kept under enforce, report, or other", async () => {
+    const server = testServer();
+    await post(server, legacyReport({ "blocked-uri": "inline", disposition: "enforce" }), "application/csp-report");
+    await post(server, legacyReport({ "blocked-uri": "inline", disposition: undefined }), "application/csp-report");
+    const body = [
+      violation({ effectiveDirective: "img-src", blockedURL: "data", disposition: "report" }),
+      violation({ effectiveDirective: "img-src", blockedURL: "data", disposition: "ENFORCE" }),
+      violation({ effectiveDirective: "img-src", blockedURL: "data", disposition: "made-up\n{}" }),
+    ];
+    await post(server, JSON.stringify(body), "application/reports+json");
+    expect(await countedBlocked(server)).toEqual([
+      { region: "NG", key: "enforce:img-src:data", count: 1 },
+      { region: "NG", key: "enforce:script-src-elem:inline", count: 1 },
+      { region: "NG", key: "other:img-src:data", count: 1 },
+      { region: "NG", key: "other:script-src-elem:inline", count: 1 },
+      { region: "NG", key: "report:img-src:data", count: 1 },
+    ]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given the shipped policy, when its hosts are read, then each is a kind the blocked counter names, so a report against an allowed host is never lost in other-host", () => {
+    const hosts = new Set([...HEADERS.matchAll(/https:\/\/([a-z0-9.-]+)/g)].map((match) => match[1] ?? ""));
+    expect(hosts.size).toBeGreaterThan(0);
+    for (const host of hosts) expect(CSP_BLOCKED_KINDS as readonly string[]).toContain(host);
   });
 });
 

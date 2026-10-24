@@ -1,6 +1,7 @@
 import { start } from "@japacity/sim/testing";
 
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The boards (city:boards-switch-when-and-who, city:board-line-and-ranking) on the client built
 // against a server, every /api route faked here in the shapes

@@ -1,6 +1,7 @@
 import { standInWorld } from "@japacity/sim";
 import { finishPrologue, start } from "@japacity/sim/testing";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 // The start screen online (account:start-screen-over-live-city), played against a faked server on the online dev server: every
 // /api route is answered here, in the shapes of @japacity/api, and the

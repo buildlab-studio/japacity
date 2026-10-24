@@ -3,7 +3,8 @@
 // player, lands on the coast holding the farm's cash job. Italy has no pass, so the bus is paid each time: the van to the
 // fields asks nothing and the gangmaster's table says On shift, the van back to the roundabout asks nothing, the coast
 // road's bus to the discount supermarket asks its flat fare, and the weekly shop takes euros.
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy, standing } from "./support/abroad";

@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { devices, expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import { devices, expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import { test } from "../support/policy";
 
 // The online game end to end on the local stack (server:production-and-staging): the client as the local
 // Worker serves it, Postgres and Mailpit in Docker Compose, Turnstile's always-pass test keys, and

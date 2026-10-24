@@ -178,6 +178,37 @@ export const CSP_DIRECTIVES = [
   "other",
 ] as const;
 
+/**
+ * analytics:nightly-game-counters, server:csp-reports-to-own-origin: what kind of thing a report of the page's content
+ * policy says was blocked: the browser's word for a thing with no address, a scheme, a browser extension's own address,
+ * the page's own origin, one of the hosts the policy names, or any other host. A kind never holds an address.
+ */
+export const CSP_BLOCKED_KINDS = [
+  "inline",
+  "eval",
+  "wasm-eval",
+  "trusted-types-policy",
+  "trusted-types-sink",
+  "data",
+  "blob",
+  "extension",
+  "self",
+  "challenges.cloudflare.com",
+  "static.cloudflareinsights.com",
+  "cloudflareinsights.com",
+  "other-host",
+  "other",
+] as const;
+
+/**
+ * analytics:nightly-game-counters, server:csp-reports-to-own-origin: whether the policy that made a report enforced it or only
+ * reported it, as the report says; `other` when it says neither.
+ */
+export const CSP_DISPOSITIONS = ["enforce", "report", "other"] as const;
+
+/** `client/csp-blocked`'s keys: each disposition with each directive and each kind, as `enforce:script-src-elem:inline`. */
+const CSP_BLOCKED_KEYS = CSP_DISPOSITIONS.flatMap((disposition) => CSP_DIRECTIVES.flatMap((directive) => CSP_BLOCKED_KINDS.map((kind) => `${disposition}:${directive}:${kind}`)));
+
 /** analytics:server-checks-every-batch: why a row or a batch was dropped. */
 const DROP_REASONS = ["signed-out", "size", "shape", "rate", "name", "key", "count"];
 
@@ -220,6 +251,7 @@ export const counterTable: CounterDef[] = [
   { name: "feedback/sent", keys: "region", source: "server" },
   // analytics:nightly-game-counters, server:csp-reports-to-own-origin: the page policy's reports, counted by the server as they arrive.
   { name: "client/csp", keys: [...CSP_DIRECTIVES], source: "server" },
+  { name: "client/csp-blocked", keys: CSP_BLOCKED_KEYS, source: "server" },
   // analytics:nightly-game-counters, account:two-lights-and-wink-lines: the lives being played as the day ends, by where each stands, for the two lights.
   { name: "lives/playing", keys: ["home", "abroad", "road"], source: "server" },
 

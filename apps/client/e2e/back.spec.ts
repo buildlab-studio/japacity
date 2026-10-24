@@ -2,7 +2,8 @@
 // the same address: a ride's sheet and then the map; a sheet, the app under it and then the phone. Before Begin, Back at the age
 // screen returns to the start screen, and an age already answered is not asked again on the way back in.
 import { standInWorld } from "@japacity/sim";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 
 import { content } from "../../../packages/content/src/index";
 import { clockAt, fakeServer, ONLINE, SIGNED_OUT } from "./support/api";

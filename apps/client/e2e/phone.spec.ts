@@ -1,7 +1,8 @@
 // The phone in a real browser at phone size (world:phone-rises-over-scene): it rises over the
 // world with the wallpaper and the apps, the Calendar first, grows and comes back, opens Bank, Chats, Japa and Papers,
 // and still fits a small phone of 360 by 640. With PREVIEW_DIR set, each step is saved as a picture.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/policy";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { passCards } from "./support/live";
