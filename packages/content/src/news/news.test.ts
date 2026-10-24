@@ -1,12 +1,12 @@
-import { standInWorld, type Id, type NewsEntry, type NewsSource, type NewsStage, type Requirement } from "@japacity/sim";
+import { standInWorld, standInWorlds, type Id, type NewsEntry, type NewsSource, type NewsStage, type Requirement } from "@japacity/sim";
 import { NewsEntrySchema } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
 import { badNews } from "../comedy/comedy.check";
 import { content, text } from "../index";
 
-/** The five stories of news.md, the 26 of director.md's pool, the one-chance story of wallet:cash-pile-warning and one for each of the seven eras. */
-const STORY_COUNT = 5 + 26 + 1 + 7;
+/** The five stories of news.md, the 27 of director.md's pool, the one-chance story of wallet:cash-pile-warning and one for each of the seven eras. */
+const STORY_COUNT = 5 + 27 + 1 + 7;
 
 /** Every variable a requirement reads, through `not` and `any`. */
 function varsRead(requirements: Requirement[]): Id<"var">[] {
@@ -144,6 +144,38 @@ describe("the director's pool", () => {
     expect(pandemic.sets.filter((set) => set.var.endsWith("-window")).every((set) => set.value === 0)).toBe(true);
     expect(pandemic.sets.filter((set) => set.var.endsWith("-window"))).toHaveLength(6);
     expect(pandemic.sets).toContainEqual({ var: "var.flight-factor", value: 20000 });
+  });
+});
+
+describe("[director:education-draw-opens-for-a-time] Canada's education draw", () => {
+  const EDUCATION: Id<"var"> = "var.canada-education-cutoff";
+
+  test("[director:education-draw-opens-for-a-time] given the story, when it is read, then it is an opening that needs Canada's window open, comes 3 in 100 a tick, sets the education cut-off to 365 for 6 ticks and reverts it, and waits 24 ticks to come again", () => {
+    const entry = story("news.canada-education-draw");
+    expect(content.var[EDUCATION]?.start).toBe(9999);
+    expect(entry.touches).toEqual(["route.canada-points"]);
+    expect(entry.director).toMatchObject({ group: "openings", needs: [{ type: "var/min", var: "var.canada-window", value: 2 }], cooldown: 24, once: false, adds: [] });
+    expect(entry.standIn).toMatchObject({ chanceBp: 300, rumourLead: 1, forceLag: 2, endsAfter: 6, sets: [{ var: EDUCATION, value: 365 }], revert: true });
+    expect(content.route["route.canada-points"]?.points?.educationCutoffVar).toBe(EDUCATION);
+  });
+
+  test("[director:education-draw-opens-for-a-time] given the stand-in world's walk, when the story is in force, then the education cut-off is 365, and when it has ended it is back at 9999", () => {
+    const walk = standInWorlds("world-1", 240, content);
+    const inForce = walk.filter((world) => world.news.some((told) => told.id === "news.canada-education-draw" && told.stage === "in-force"));
+    const ended = walk.filter((world) => world.news.some((told) => told.id === "news.canada-education-draw" && told.stage === "ended"));
+    expect(inForce.length).toBeGreaterThan(0);
+    expect(ended.length).toBeGreaterThan(0);
+    for (const world of inForce) expect(world.vars[EDUCATION]).toBe(365);
+    for (const world of ended) expect(world.vars[EDUCATION]).toBe(9999);
+    for (const world of walk.filter((one) => !one.news.some((told) => told.id === "news.canada-education-draw" && told.stage === "in-force"))) expect(world.vars[EDUCATION]).toBe(9999);
+  });
+
+  test("[director:education-draw-opens-for-a-time] given each stage, when News tells it, then it is Canada inviting teachers", () => {
+    for (const stage of ["rumour", "announced", "in-force", "ended"] as const) {
+      expect(text[`news.canada-education-draw.${stage}.head`]).toBeTruthy();
+      expect(text[`news.canada-education-draw.${stage}.body`]).toBeTruthy();
+    }
+    expect(text["news.canada-education-draw.announced.body"]).toMatch(/teach/i);
   });
 });
 

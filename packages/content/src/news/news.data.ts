@@ -75,6 +75,8 @@ interface PoolStory {
   shock?: boolean;
   endedBy?: Id<"news">;
   announce?: NewsEntry["standIn"]["announce"];
+  /** Ticks before it may come again, where the page gives one. Missing: the repeat cooldown. */
+  cooldown?: number;
 }
 
 /** A story of the director's pool, as the page's table reads. */
@@ -87,7 +89,7 @@ function pool(story: PoolStory): NewsEntry {
     director: {
       group: story.group,
       needs: story.needs,
-      cooldown: once ? 0 : REPEAT_COOLDOWN,
+      cooldown: once ? 0 : (story.cooldown ?? REPEAT_COOLDOWN),
       once,
       shock: story.shock ?? false,
       endedBy: story.endedBy ?? null,
@@ -473,6 +475,21 @@ const stories: Record<Id<"news">, NewsEntry> = {
     adds: [{ var: "var.canada-care-cutoff", value: -20 }],
     revert: true,
   }),
+  // director:education-draw-opens-for-a-time: the education category's rounds come now and then (1 May and 17 Sep 2025, none since to 16 Oct 2026),
+  // so the draw is a story that opens the cut-off for a time. The chance a tick and the cooldown are working values.
+  "news.canada-education-draw": pool({
+    id: "news.canada-education-draw",
+    touches: [CANADA],
+    group: "openings",
+    needs: [atLeast("var.canada-window", 2)],
+    chanceBp: 300,
+    rumourLead: 1,
+    forceLag: 2,
+    endsAfter: 6,
+    sets: [{ var: "var.canada-education-cutoff", value: 365 }],
+    revert: true,
+    cooldown: 24,
+  }),
   "news.canada-general-stops": pool({
     id: "news.canada-general-stops",
     touches: [CANADA],
@@ -703,6 +720,7 @@ const SOURCES: Record<Id<"news">, Sources> = {
   "news.uk-talent-body-closes": told("official"),
   "news.uk-talent-reappointed": told("official"),
   "news.canada-care-draw": told("official"),
+  "news.canada-education-draw": told("official"),
   "news.canada-general-stops": told("official"),
   "news.canada-points-overhaul": told("official"),
   "news.canada-funds-rise": told("official"),

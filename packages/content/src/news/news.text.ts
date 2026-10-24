@@ -177,6 +177,16 @@ export const newsText: Record<string, string> = {
 
   "news.canada-care-draw.ended.head": "The healthcare round closes",
   "news.canada-care-draw.ended.body": "The cut-off for health workers is back where it was until the next round.",
+  "news.canada-education-draw.name": "Canada invites teachers",
+  "news.canada-education-draw.rumour.head": "Canada may hold a draw for teachers",
+  "news.canada-education-draw.rumour.body": "Teachers in a forum say Ottawa is short of them again.",
+  "news.canada-education-draw.announced.head": "Canada invites teachers",
+  "news.canada-education-draw.announced.body": "Profiles with a year of teaching will be invited at a lower score.",
+  "news.canada-education-draw.in-force.head": "The cut-off for teachers falls",
+  "news.canada-education-draw.in-force.body": "Invitations went out to teachers at a lower score this round.",
+  "news.canada-education-draw.ended.head": "The teachers' round closes",
+  "news.canada-education-draw.ended.body": "There is no cut-off for teachers until the next round.",
+
   "news.canada-general-stops.name": "Canada pauses general draws",
   "news.canada-general-stops.rumour.head": "General draws may pause",
   "news.canada-general-stops.rumour.body": "Consultants say Canada will stop inviting people without a job offer for a while.",
