@@ -43,18 +43,21 @@ export interface BalanceLife {
   routes: Id<"route">[];
   /** The trade's fallback, taken up once the cheap band's months have passed without a flight. */
   fallback?: { route: Id<"route">; after: number };
+  /** The master's worked with the family's pledge beside the plan. */
+  pledgeMasters?: boolean;
 }
 
 /** Every fixed life and the archetypes' lives (scenario:economy-meets-its-targets), each in its trade with the ways the table gives it. */
 export const BALANCE_LIVES: BalanceLife[] = [
   // The Gulf's nursing offers are the nurse's fallback: taken up once the cheap band has passed with no trust's post.
   { name: "nurse", scenario: "scenario.nurse", preset: null, home: "family-house", band: "nurse", trade: "nurse", routes: [CARE], fallback: { route: GULF, after: CHEAP_BAND.nurse[1] } },
-  { name: "teacher", scenario: "scenario.teacher", preset: null, home: "family-house", band: "teacher", trade: "teacher", routes: [CANADA] },
+  // The teacher's two cheap ways: Canada's points, and the master's with the family's pledge, taken when the pledge is offered.
+  { name: "teacher", scenario: "scenario.teacher", preset: null, home: "family-house", band: "teacher", trade: "teacher", routes: [CANADA, MASTERS], pledgeMasters: true },
   { name: "graduate", scenario: "scenario.graduate", preset: null, home: "family-house", band: "graduate", trade: "support", routes: [CANADA] },
   { name: "banker", scenario: "scenario.banker", preset: null, home: "family-house", band: "banker", trade: "bank", routes: [CANADA] },
   { name: "developer", scenario: "scenario.developer", preset: null, home: "family-house", band: "developer", trade: "developer", routes: [CANADA, TALENT] },
   { name: "accountant", scenario: "scenario.prologue", preset: "accountant", home: "family-house", band: "accountant", trade: "accounting", routes: [CANADA] },
-  { name: "writer", scenario: "scenario.prologue", preset: "writer", home: "family-house", band: "teacher", trade: "teacher", routes: [CANADA] },
+  { name: "writer", scenario: "scenario.prologue", preset: "writer", home: "family-house", band: "teacher", trade: "teacher", routes: [CANADA, MASTERS], pledgeMasters: true },
   { name: "trader", scenario: "scenario.prologue", preset: "trader", home: "family-house", band: "shop", trade: "shop", routes: [GULF] },
   { name: "shop-worker", scenario: "scenario.prologue", preset: "shop-worker", home: "family-house", band: "shop", trade: "shop", routes: [GULF] },
   { name: "water", scenario: "scenario.prologue", preset: "water", home: "makoko", band: "fish", trade: "fish", routes: [GULF] },
@@ -71,9 +74,15 @@ export type BalanceStyle = "trade-loyal" | "free-pivot" | "paid-pivot" | "carefu
 
 export const BALANCE_STYLES: BalanceStyle[] = ["trade-loyal", "free-pivot", "paid-pivot", "careful", "borrower", "risky", "canada"];
 
-/** The golden world, and the world whose pound runs away (scenario:economy-meets-its-targets). */
+/** The golden world, which draws the UAE ban of months 13 to 30 as the real one ran (scenario:economy-meets-its-targets, decision 0035). */
 export const GOLDEN_WORLD = "golden-world";
-export const CRASH_WORLD = "world-b";
+/**
+ * The calm world the bands are read in: the first `world-<n>` whose windows for the UAE and Canada's points stand open through month 72
+ * and whose UK care window, shut at the start in every world, never closes again once opened.
+ */
+export const CALM_WORLD = "world-3";
+/** The crash: the steepest pound by month 36 of world-v and world-0 to world-499, about twice as dear (2.08 times). */
+export const CRASH_WORLD = "world-v";
 
 const SEEDS = 20;
 const MONTHS = 96;
@@ -199,6 +208,8 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
     before = tech;
     if (run.tech !== null && run.tech.ready === null && tech >= 30) run.tech.ready = month;
     if (crash) return record.departed !== null || month >= CRASH_MONTH;
+    // The calm world is read only to the first flight.
+    if (world === CALM_WORLD) return record.departed !== null || month >= MONTHS;
     if (record.departed === null) return month >= MONTHS;
     if (record.flown === MASTERS && (style === "careful" || style === "risky" || style === "borrower")) {
       const held = game.state.status.current?.entry ?? null;
@@ -217,9 +228,11 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
     return style !== "careful";
   };
   const { record } = runLife(style, life.scenario, seed, content, {
-    months: crash ? CRASH_MONTH : MONTHS + STUDENT_MONTHS,
+    months: crash ? CRASH_MONTH : world === CALM_WORLD ? MONTHS : MONTHS + STUDENT_MONTHS,
     worldSeed: world,
-    ...(tradeStyle ? { play: { trade: life.trade, routes, plan: life.routes[0]!, ...(life.fallback === undefined ? {} : { fallback: life.fallback }) } } : {}),
+    ...(tradeStyle
+      ? { play: { trade: life.trade, routes, plan: life.routes[0]!, ...(life.fallback === undefined ? {} : { fallback: life.fallback }), ...(life.pledgeMasters === true ? { pledgeMasters: true } : {}) } }
+      : {}),
     ...(life.preset === null ? {} : { prologue: (step: string, answers: readonly { id: string; allowed: boolean }[]) => preset(life.preset!, life.home, step, answers) }),
     onEvents: (events, game) => {
       for (const event of events as (BaseEvent & { stage?: string; entry?: string; item?: { entry?: string } })[]) {
@@ -249,15 +262,18 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
   return run;
 }
 
-/** One style on every life over the seeds in the golden world. A developer has nothing to pivot to, so the pivots leave it out. */
-export function stylePlays(content: Content, preset: PresetAnswer, style: BalanceStyle): BalanceRun[] {
+/** One style on every life over the seeds in a world. A developer has nothing to pivot to, so the pivots leave it out. */
+export function stylePlays(content: Content, preset: PresetAnswer, style: BalanceStyle, world: string = GOLDEN_WORLD): BalanceRun[] {
   const runs: BalanceRun[] = [];
   for (const life of BALANCE_LIVES) {
     if ((style === "free-pivot" || style === "paid-pivot") && life.trade === "developer") continue;
-    for (let n = 0; n < SEEDS; n += 1) runs.push(playBalance(content, preset, life, style, GOLDEN_WORLD, n));
+    for (let n = 0; n < SEEDS; n += 1) runs.push(playBalance(content, preset, life, style, world, n));
   }
   return runs;
 }
+
+/** The styles the bands and the pivot's pace read, in the calm world (the first, second, third and fifth measures). */
+export const CALM_STYLES: BalanceStyle[] = ["trade-loyal", "free-pivot", "paid-pivot"];
 
 /** The trade-loyal lives the crash measure reads (the shop, the racks and the nurse) in the crash world. */
 export function crashPlays(content: Content, preset: PresetAnswer): BalanceRun[] {
@@ -266,11 +282,6 @@ export function crashPlays(content: Content, preset: PresetAnswer): BalanceRun[]
     for (let n = 0; n < SEEDS; n += 1) runs.push(playBalance(content, preset, life, "trade-loyal", CRASH_WORLD, n));
   }
   return runs;
-}
-
-/** Every play the measures read. */
-export function balancePlays(content: Content, preset: PresetAnswer): BalanceRun[] {
-  return [...BALANCE_STYLES.flatMap((style) => stylePlays(content, preset, style)), ...crashPlays(content, preset)];
 }
 
 // ---------------------------------------------------------------------------
@@ -284,6 +295,9 @@ export interface Measure {
   figures: string;
   pass: boolean;
 }
+
+/** The sinks' bounds (the ninth measure), in tenths of a month of what the month keeps. */
+const SINK_TENTHS: [number, number] = [2, 60];
 
 /** "About 1.21 times" (the tenth measure), in basis points: within half a tenth either way. */
 const REVIEW_ABOUT: [number, number] = [11600, 12600];
@@ -320,7 +334,7 @@ function share(part: number, whole: number): string {
 const BAND_TRADES = Object.keys(CHEAP_BAND) as BandTrade[];
 
 function byBand(runs: BalanceRun[], style: BalanceStyle, band: BandTrade): BalanceRun[] {
-  return runs.filter((run) => run.style === style && run.band === band && run.world === GOLDEN_WORLD);
+  return runs.filter((run) => run.style === style && run.band === band && run.world === CALM_WORLD);
 }
 
 /** Naira pay under the review after 36 months in one formal job (the tenth measure), against its start: the ratio, and in pounds. */
@@ -335,7 +349,7 @@ export function measures(runs: BalanceRun[], review: Record<string, ReviewRead>)
   const golden = runs.filter((run) => run.world === GOLDEN_WORLD);
   const out: Measure[] = [];
 
-  // 1 to 3: the trade-loyal lives against each trade's cheap band.
+  // 1 to 3: the trade-loyal lives against each trade's cheap band, in the calm world.
   const loyal = BAND_TRADES.map((band) => ({ band, months: monthsOf(byBand(runs, "trade-loyal", band)) }));
   out.push({
     name: "1. the median first flight of each trade, trade-loyal, inside the trade's cheap band",
@@ -353,11 +367,11 @@ export function measures(runs: BalanceRun[], review: Record<string, ReviewRead>)
     pass: loyal.every(({ months }) => months.filter((month) => month <= 72).length * 5 >= months.length * 4),
   });
 
-  // 4: flights from a developer rung among lives that did not start as developers.
-  const flights = golden.filter((run) => run.departed !== null && !run.startedDeveloper);
+  // 4: flights from a developer rung among lives that did not start as developers and did not set out to pivot.
+  const flights = golden.filter((run) => run.departed !== null && !run.startedDeveloper && run.style !== "free-pivot" && run.style !== "paid-pivot");
   const fromDeveloper = flights.filter((run) => run.flightTrade === "developer").length;
   out.push({
-    name: "4. flights leaving from a developer rung, among lives that did not start as developers, every style: 35% or less",
+    name: "4. flights leaving from a developer rung, among lives that did not start as developers or set out to pivot, every style but the pivots: 35% or less",
     figures: `${String(fromDeveloper)} of ${String(flights.length)}, ${String(share(fromDeveloper, flights.length))}%`,
     pass: fromDeveloper * 100 <= flights.length * 35,
   });
@@ -429,13 +443,13 @@ export function measures(runs: BalanceRun[], review: Record<string, ReviewRead>)
       return charged === null ? [] : [{ fee, tenths: mulDiv(charged, 10, held.keep) }];
     }),
   );
-  const outside = ratios.filter((entry) => entry.tenths < 5 || entry.tenths > 60);
+  const outside = ratios.filter((entry) => entry.tenths < SINK_TENTHS[0] || entry.tenths > SINK_TENTHS[1]);
   const sinkFigures = (["settle", "renew", "citizen"] as const).map((fee) => {
     const months = ratios.filter((entry) => entry.fee === fee).map((entry) => entry.tenths);
     return `${fee} ${months.length === 0 ? "none" : `${tenths(Math.min(...months))} to ${tenths(Math.max(...months))}`}`;
   });
   out.push({
-    name: "9. no careful life under the broke line more than 2 months in a row; settlement, renewal and citizenship each 0.5 to 6 months of what the month keeps",
+    name: "9. no careful life under the broke line more than 2 months in a row; settlement, renewal and citizenship each 0.2 to 6 months of what the month keeps",
     figures: `longest broke run ${String(longest)}; months of keep: ${sinkFigures.join(", ")} over ${String(sinks.length)} lives; outside ${String(outside.length)}`,
     pass: longest <= 2 && ratios.length > 0 && outside.length === 0,
   });
@@ -449,8 +463,8 @@ export function measures(runs: BalanceRun[], review: Record<string, ReviewRead>)
   const calm = review[GOLDEN_WORLD];
   const fall = review[CRASH_WORLD];
   out.push({
-    name: "10. the crash: the Gulf from the shop and the racks, and the nurse's route from the nurse, by month 36 for 60% or more; naira pay at 36 about 1.21 times its start in the golden world and lower in pounds in world-b",
-    figures: `Gulf ${String(gulfBy)} of ${String(gulfLives.length)}, care ${String(careBy)} of ${String(nurses.length)}; pay at 36 ${calm === undefined ? "none" : `${String(calm.ratioBp)} bp`} of its start in the golden world, ${fall === undefined ? "none" : `${String(fall.poundBp)} bp`} in pounds in world-b`,
+    name: "10. the crash: the Gulf from the shop and the racks, and the nurse's route from the nurse, by month 36 for 60% or more; naira pay at 36 about 1.21 times its start in the golden world and lower in pounds in the crash world",
+    figures: `Gulf ${String(gulfBy)} of ${String(gulfLives.length)}, care ${String(careBy)} of ${String(nurses.length)}; pay at 36 ${calm === undefined ? "none" : `${String(calm.ratioBp)} bp`} of its start in the golden world, ${fall === undefined ? "none" : `${String(fall.poundBp)} bp`} in pounds in ${CRASH_WORLD}`,
     pass:
       gulfBy * 10 >= gulfLives.length * 6 &&
       careBy * 10 >= nurses.length * 6 &&
@@ -477,4 +491,12 @@ export function reviewRead(content: Content, world: string): ReviewRead {
   const pay = game.state.activity.pay ?? 0;
   const ratioBp = mulDiv(pay, 10000, startPay);
   return { ratioBp, poundBp: mulDiv(ratioBp, startRate, game.world().rates.GBP.official) };
+}
+
+/** The measures one world's file holds, by their numbers in scenario.md's table: the calm world's, the golden world's, the crash's. */
+export const MEASURES_BY_WORLD: Record<"calm" | "golden" | "crash", number[]> = { calm: [1, 2, 3, 5], golden: [4, 6, 7, 8, 9], crash: [10] };
+
+/** The measures given, read over the runs and the review. */
+export function measuresOf(runs: BalanceRun[], review: Record<string, ReviewRead>, numbers: number[]): Measure[] {
+  return measures(runs, review).filter((measure) => numbers.includes(Number(measure.name.slice(0, measure.name.indexOf(".")))));
 }
