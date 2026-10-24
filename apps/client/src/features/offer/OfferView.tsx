@@ -17,7 +17,7 @@ import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
 import { routeKeptBy } from "../../shared/words/keepJob";
 import { byMonths, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
-import { offerParams } from "./terms";
+import { choiceCurrency, offerParams } from "./terms";
 
 /** A content amount as a figure, when the offer's terms or the entry say it outright. */
 function figure(amount: Amount, terms: Terms): number | null {
@@ -84,7 +84,7 @@ function JobFigures({ terms }: { terms: Terms }) {
 /** Whole naira steps for the picker; the engine takes kobo. */
 const STEP_MAJOR = 1000;
 
-function AmountPicker({ min, max, value, onChange }: { min: number; max: number; value: number; onChange: (value: number) => void }) {
+function AmountPicker({ min, max, value, currency, onChange }: { min: number; max: number; value: number; currency: Currency; onChange: (value: number) => void }) {
   const id = useId();
   const minMajor = Math.ceil(toMajor(min));
   const maxMajor = Math.floor(toMajor(max));
@@ -92,7 +92,7 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-sm font-medium">
-        {say("ui.offer.amount")}: <span className="font-semibold">{formatMoney(value, "NGN")}</span>
+        {say("ui.offer.amount")}: <span className="font-semibold">{formatMoney(value, currency)}</span>
       </label>
       <input
         type="range"
@@ -115,7 +115,32 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
         className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3 tabular-nums"
       />
       <p id={`${id}-bounds`} className="text-xs text-text-2">
-        {say("ui.offer.bounds", { min: formatMoney(min, "NGN"), max: formatMoney(max, "NGN") })}
+        {say("ui.offer.bounds", { min: formatMoney(min, currency), max: formatMoney(max, currency) })}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * route:education-loan-pays-the-school: for the amount picked, what the lender pays the university and what is owed with its fee added, and
+ * that nothing is charged until the course is over, then over the loan's years. Shown for a choice that pays a route's school by a loan.
+ */
+function LoanFigures({ offer, choice, amount }: { offer: Offer; choice: string; amount: number }) {
+  const effects = content.offer[offer.entry]?.choices.find((each) => each.id === choice)?.effects ?? [];
+  if (!effects.some((effect) => effect.type === "route/loan")) return null;
+  const opened = effects.find((effect) => effect.type === "obligation/open");
+  if (opened?.type !== "obligation/open") return null;
+  const loan = content.obligation[opened.obligation];
+  if (loan === undefined) return null;
+  const principal = opened.principal;
+  const share = typeof principal === "object" && principal !== null && "bp" in principal && typeof principal.bp === "number" ? principal.bp : 10_000;
+  const owed = int.mulDiv(amount, share, 10_000);
+  const years = loan.term === null ? 0 : Math.floor(loan.term / 12);
+  return (
+    <div className="flex flex-col gap-1 text-[15px] leading-snug" data-loan>
+      <p className="font-semibold">{say("ui.offer.loan.pays", { amount: formatMoney(amount, loan.currency), owed: formatMoney(owed, loan.currency) })}</p>
+      <p className="text-text-2" data-loan-starts>
+        {say("ui.offer.loan.starts", { years })}
       </p>
     </div>
   );
@@ -228,6 +253,8 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
   const { ended, month } = useView();
   const picking = offer.choices.find((choice) => choice.pick !== null);
   const [amount, setAmount] = useState<number>(picking?.pick?.min ?? 0);
+  // An amount is picked in the money its choice pays or owes in: the study lender's pounds, the show-money's naira.
+  const pickCurrency = (picking === undefined ? null : choiceCurrency(content.offer[offer.entry]?.choices.find((choice) => choice.id === picking.id)?.effects ?? [])) ?? "NGN";
   const params = offerParams(offer);
   const asker = askerOf(offer);
   const mark = faceMark(asker);
@@ -271,7 +298,10 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
         )}
       </div>
       {picking === undefined || picking.pick === null ? null : (
-        <AmountPicker min={picking.pick.min} max={picking.pick.max} value={amount} onChange={setAmount} />
+        <>
+          <AmountPicker min={picking.pick.min} max={picking.pick.max} value={amount} currency={pickCurrency} onChange={setAmount} />
+          <LoanFigures offer={offer} choice={picking.id} amount={amount} />
+        </>
       )}
       <div className="flex flex-col gap-2.5">
         {shownChoices(offer).map((choice, index) => (

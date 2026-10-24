@@ -421,6 +421,9 @@ export const uiText: Record<string, string> = {
   "ui.months-ago.zero": "This month",
   "ui.offer.amount": "How much",
   "ui.offer.bounds": "From {min} up to {max}",
+  // route:education-loan-pays-the-school: what the lender pays the university for the amount picked, and when it is repaid.
+  "ui.offer.loan.pays": "The lender pays the university {amount}. You owe {owed} with its fee added.",
+  "ui.offer.loan.starts": "Nothing to pay while you study. Repayments start the month after your Graduate visa, or after the course ends without it, and run {years} years.",
   "ui.offer.job": "{job}, paying {amount} a month",
   "ui.offer.job-ends": "Taking it ends your months as a nurse. The health care route needs twenty-four of them.",
   "ui.offer.choice-cost": "{choice}: {amount}",
