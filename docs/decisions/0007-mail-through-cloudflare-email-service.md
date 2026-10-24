@@ -18,7 +18,10 @@ The codes and the notices leave through Cloudflare Email Service, by a `send_ema
 ## Consequences
 
 - A binding, so there is no API key to keep, rotate or leak.
-- It is included with the Workers Paid plan, with a monthly allowance and a charge per thousand past it, and a new account starts on a small daily quota that grows with good sending.
 - It sends transactional mail only, which is all the game sends.
 - The sending subdomain keeps the reputation of what the game sends apart from the apex `japacity.app`, which only receives mail.
 - Tests never send: the binding is faked there.
+
+## Alternatives
+
+- An outside mail provider's HTTP API, called from the Worker: it works the same, but needs an API key kept as a secret and rotated, and a sending domain set up with that provider.

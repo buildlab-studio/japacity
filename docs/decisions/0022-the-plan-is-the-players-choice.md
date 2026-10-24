@@ -14,6 +14,6 @@ The chapters follow the way out a life leans to (chapter:chapters-follow-lean-ro
 
 ## Consequences
 
-- Making a heard way the plan does not make it known: the official page still has to be looked into.
-- A heard route still has no figure in `routes`; the figure lives in `plan.ways` only.
-- The chapter object's shape is unchanged, so the tests that fix it stand.
+- Making a heard way the plan does not make it known: the official page has to be looked into.
+- A heard route has no figure in `routes`; the figure lives in `plan.ways` only.
+- The chapter object keeps its own shape: the choice lives on the slice and the plan on the view, so the tests that fix the chapter object hold.
