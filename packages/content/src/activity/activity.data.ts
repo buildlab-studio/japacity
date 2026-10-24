@@ -713,7 +713,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     // route-gates:sponsor-application-needs and route-gates:care-route-needs-verification. Each gate route has its own apply activity, as apply-for-visa is the study route's.
     requires: [
       known(CARE),
-      windowOpen("var.uk-care-window"),
+      // route-gates:nurses-sponsored-while-care-shut: the window open, or a trust's post recorded, which may sponsor a nurse with it shut.
+      { type: "route/gate-step", route: CARE, step: "open" },
       { type: "route/gate-step", route: CARE, step: "sponsor" },
       { type: "route/gate-step", route: CARE, step: "salary" },
       held("document.nursing-licence"),

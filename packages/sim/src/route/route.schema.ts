@@ -43,6 +43,7 @@ export const RouteEntrySchema = z.strictObject({
       strictnessVar: idOf("var"),
       surchargeYears: CountSchema,
       job: idOf("activity"),
+      openWhileShut: z.array(z.string().min(1)),
     })
     .exactOptional(),
   points: z

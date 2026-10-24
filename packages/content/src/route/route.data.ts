@@ -128,6 +128,8 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // The care route is exempt from the surcharge.
       surchargeYears: 0,
       job: "activity.job-uk-care",
+      // route-gates:nurses-sponsored-while-care-shut: the closure of 22 Jul 2025 was to care workers; a trust still sponsors a registered nurse.
+      openWhileShut: ["trust"],
     },
   },
   "route.uk-skilled": {
@@ -169,6 +171,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // Three years of status (route-gates:sponsor-application-needs).
       surchargeYears: 3,
       job: "activity.job-uk-skilled",
+      openWhileShut: [],
     },
   },
 

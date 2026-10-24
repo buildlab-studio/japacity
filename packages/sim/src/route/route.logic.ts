@@ -423,7 +423,8 @@ function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const entry = entryOf(ctx.content, route);
   const held = routeOf(ctx.state, route);
   if (held.state !== "known" || !GATES[entry.gate].mayApply(ctx, entry, held, cause)) return [];
-  if (windowOf(readOf(ctx), route) === "closed" || !conditionsHold(ctx, held, cause)) return [];
+  const shut = windowOf(readOf(ctx), route) === "closed" && GATES[entry.gate].appliesShut?.(readOf(ctx), entry, held) !== true;
+  if (shut || !conditionsHold(ctx, held, cause)) return [];
   return sendApplication(ctx, entry, cause);
 }
 

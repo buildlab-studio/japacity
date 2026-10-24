@@ -1017,12 +1017,17 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.sponsor-trust",
     group: "money",
     where: "home",
-    // "Needs care 60" is a condition for the offer coming up.
+    // route-gates:nurses-sponsored-while-care-shut: a trust's post reads no window. It asks the licence, the council's verification and
+    // care 60, and no English figure; the nurse meets English as any applicant does. 4% a month, below the care homes' 8%, for the
+    // fall in international hiring (joiners to the NMC's register fell 47% in 2025 to 2026).
     when: [
-      ...sponsorWhen("route.uk-care", "var.uk-care-window"),
+      { type: "place/is", where: "home" },
+      { type: "route/state", route: "route.uk-care", in: ["known"] },
+      { type: "document/held", document: "document.nursing-licence" },
+      { type: "document/held", document: "document.nmcn-verification" },
       { type: "quality/min", quality: "quality.care", value: 60 },
     ],
-    chanceBp: pct(3),
+    chanceBp: pct(4),
     cooldown: 6,
     maxTimes: null,
     expiresAfter: 2,

@@ -37,6 +37,8 @@ export interface Gate {
   initial(): RouteGateState;
   /** route-gates:route-runs-its-gate-steps: whether the named step is reached, for the requirement `route/gate-step`. */
   reached(read: ReadCtx, entry: RouteEntry, held: RouteState, step: string): boolean;
+  /** True when an application may go with the route's window shut (route-gates:nurses-sponsored-while-care-shut). Missing: never. */
+  appliesShut?(read: ReadCtx, entry: RouteEntry, held: RouteState): boolean;
   /** The gate's own conditions on `route/apply`, beyond the slot's requirements and the window. */
   mayApply(ctx: Ctx, entry: RouteEntry, held: RouteState, cause: Cause): boolean;
   /** What the decision reads (route-gates:gate-decision-draw-terms) and any override. */

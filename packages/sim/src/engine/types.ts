@@ -586,7 +586,18 @@ export interface RouteEntry {
   schools: Id<"school">[];
   interview: Id<"setpiece"> | null;
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
-  sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
+  sponsor?: {
+    salaryVar: Id<"var">;
+    maintenanceVar: Id<"var"> | null;
+    findBp: number;
+    bandMin: number;
+    documents: Id<"document">[];
+    strictnessVar: Id<"var">;
+    surchargeYears: number;
+    job: Id<"activity">;
+    /** The employers who may sponsor while the route's window is shut (route-gates:nurses-sponsored-while-care-shut). Empty: none. */
+    openWhileShut: string[];
+  };
   /** Points gate. `spouseTable`: the lead's columns with a spouse and the spouse's factors (person:canada-spouse-points). Null: no spouse counts. */
   points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; educationCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
