@@ -62,7 +62,7 @@ Sign words: `pays-for-cos` "They want you to pay for the certificate." `licensed
 
 **route-gates:points-score-from-table** A character's score is the sum of the points table below over age, education, language and foreign work, with the transferability part capped at 100. It is worked out from the state each time it is asked for and shown on the route from the moment it is known.
 
-**route-gates:entering-the-pool** Entering the pool (`activity.enter-pool`) needs: the route known with its window at 1 or more, `document.eca` held, the English result at band 60 or more (CLB 7), 12 months of tenure across every job, and the funds `var.canada-funds` covered now (route:funds-shown-exclude-cash with the Canadian line, valued in Canadian cents). It records `poolMonth` on the route and a profile that lasts 12 months. Japa's way file says the window and the pool in months ago or away.
+**route-gates:entering-the-pool** Entering the pool (`activity.enter-pool`) needs: the route known with its window at 1 or more, `document.eca` held, the English result at band 60 or more (CLB 7), 12 months of tenure across every job, and the funds `var.canada-funds` covered now (route:funds-shown-exclude-cash with the Canadian line, valued in Canadian cents). It records `poolMonth` on the route and a profile that lasts 12 months. The way's file in the phone's Japa app says the window and the pool in months ago or away.
 
 **route-gates:pool-draws-invite** In the `clocks` phase, while a profile is live, a draw of the world invites the character when `var.canada-cutoff` is at or below the score, or when the character holds `quality.care` at 60 or more and `var.canada-care-cutoff` is at or below the score. The draw is not random: the world's cut-offs are. An invitation moves the route to `applying` with the decision `var.canada-decision-months` later, and the application fee is taken as a foreign fee in Canadian cents with the reason `fee-visa`. If it cannot be paid the invitation lapses after one month and the profile goes on.
 
@@ -128,9 +128,7 @@ Worked example: the developer at 25 with a bachelor's, band 7.0 and 18 months in
 
 **route-gates:applying-for-endorsement** `activity.apply-endorsement` needs the route known with its window at 1 or more, `quality.tech` 75 or more, `quality.portfolio` 3 or more, `quality.network` 50 or more, and no endorsement pending or held. It costs `var.uk-talent-endorse-fee` as a foreign fee with reason `fee-document`, and requests `document.endorsement`, wait 1 to 2 months. Each need not yet met names its act and place under it in Japa (tech: the coding course at the hub; the pieces: work at the hub's desk, or a talk; the people who will write: the meetups at the hub, or a talk), and the nudge names the first unmet need's act (world:nudge-says-one-thing). The talk moves the network and the portfolio, not tech, so tech's line names the course alone. The endorsement lasts 3 months (route-gates:talent-visa-needs-endorsement), so the nudge names it only once the passport is held and the naira held pays it with the TB test and the application, else the passport or the gap (world:nudge-says-one-thing); a developer who follows the nudge never asks for it with no passport, and never lets one run out unused for want of the rest.
 
-**route-gates:endorsement-decided-by-draw** When the endorsement document is issued, one draw on stream `visa` decides it: the chance of endorsement is 2500 plus 700 for each portfolio point above 3 plus 10 for each network point above 50, capped at 8500. A refused endorsement is voided at once, the route records a refusal with the reason `endorsement` (it counts among the earlier refusals of route-gates:talent-visa-needs-endorsement), and `activity.apply-endorsement` is not legal for the block's `cooldown` months, which the activity reads as the gate step `cooled`. A refused endorsement is told in Japa's way file in words.
-
-> guide:first-meetup-hears-fitting-route: the first meetup of a life hears of the talent route for sure at tech 40; the later hears keep this page's bar.
+**route-gates:endorsement-decided-by-draw** When the endorsement document is issued, one draw on stream `visa` decides it: the chance of endorsement is 2500 plus 700 for each portfolio point above 3 plus 10 for each network point above 50, capped at 8500. A refused endorsement is voided at once, the route records a refusal with the reason `endorsement` (it counts among the earlier refusals of route-gates:talent-visa-needs-endorsement), and `activity.apply-endorsement` is not legal for the block's `cooldown` months, which the activity reads as the gate step `cooled`. A refused endorsement is told in words in the way's file in the phone's Japa app.
 
 **route-gates:talent-visa-needs-endorsement** Applying for the visa needs the endorsement held (it is valid 3 months), the passport, the TB certificate, and the fee `var.uk-talent-visa-fee` plus the surcharge for 60 months. The decision is route-gates:gate-decision-draw-terms with earlier refusals only, base 300. A grant gives `status.uk-talent`.
 
@@ -139,7 +137,7 @@ Worked example: the developer at 25 with a bachelor's, band 7.0 and 18 months in
 | Field | Value |
 |---|---|
 | Hear if | `quality.tech` 60 or more and `quality.portfolio` 2 or more |
-| Hear by | never by itself: through `activity.meetup` at 20% and `news.uk-talent-reappointed` |
+| Hear by | never by itself: through `activity.meetup` at 20% (the first meetup of a life hears it for sure at tech 40, guide:first-meetup-hears-fitting-route; later meetups keep this page's bar) and `news.uk-talent-reappointed` |
 | Window | `var.uk-talent-window`, start 2 |
 | Country, status | uk, `status.uk-talent` |
 | Base refusal | 300 |
@@ -167,7 +165,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 
 ## Numbers
 
-| Setting | Value | Date | In content as |
+| Setting | Value | Source and date | In content as |
 |---|---|---|---|
 | Skilled worker salary bar | £41,700 a year | 22 Jul 2025 | `var.uk-skilled-salary` 4170000 |
 | Care worker salary bar | £25,000 a year, nurses £31,300 | 22 Jul 2025 | `var.uk-care-salary` 2500000 |
@@ -176,10 +174,10 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Health surcharge, workers, a year | £1,035 | In force | `var.uk-surcharge-year` 103500 |
 | Skilled worker maintenance | £1,270 held 28 days | In force | `var.uk-skilled-maintenance` 127000 |
 | Nurse verification wait after licence | 24 months | 1 Mar 2024 | `document.nmcn-verification` requires tenure 24 |
-| Care route closed to applicants abroad | 22 Jul 2025 | | `var.uk-care-window` start 0 |
+| Care route closed to applicants abroad | Closed | 22 Jul 2025 (Centuro Global) | `var.uk-care-window` start 0 |
 | Canada proof of funds, one person | C$15,263 | 7 Jul 2025 | `var.canada-funds` 1526300 |
 | Canada credential assessment | C$329 | 2025 | `var.canada-eca-fee` 32900 |
-| Canada application fee | C$1,590: C$990 processing plus C$600 right of permanent residence (was C$1,525) | 30 Apr 2026 | `var.canada-apply-fee` 159000 |
+| Canada application fee | C$1,590: C$990 processing plus C$600 right of permanent residence | IRCC fee list, from 30 Apr 2026 | `var.canada-apply-fee` 159000 |
 | English for the UK work routes | B2 for new applicants since 8 Jan 2026 (B1 before), shown by a UK degree, a degree from abroad taught in English and confirmed by Ecctis, or a SELT. B2 is IELTS for UKVI 5.5 in each part. The game: band 55, or the degree's statement (document:degree-english-statement) | gov.uk, Skilled Worker and Health and Care Worker visas, knowledge of English; Statement of Changes HC 1333 | `route.uk-care` and `route.uk-skilled` `bandMin` 55 |
 | Nurses' English | Real: a nurse who passed the English test the NMC accepts (IELTS Academic 7.0 or OET B) needs no other proof. The game leaves this way out: the nurse meets English as any applicant does | gov.uk, Health and Care Worker visa | none |
 | English for Canada | CLB 7 in each of four abilities, from CELPIP-General, IELTS General Training or PTE Core, under 2 years old, with no exemption by degree or nationality. The game: one test stands for the three, band 60 (factor 1.0) | canada.ca, Express Entry language tests | route-gates:entering-the-pool |
@@ -196,7 +194,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Endorsement validity | 3 months | gov.uk | `document.endorsement` validMonths 3 |
 | Gulf agent fee | ₦900,000 to ₦1,800,000 | Working value from a reported loss of ₦450,000; charging workers recruitment fees is illegal in the UAE | `offer.gulf-agent` terms |
 | Gulf guard pay | AED 1,500 to 2,200 a month, accommodation included | 2024 to 2025 listings | `offer.gulf-agent` terms |
-| UAE window for Nigerians | Closed Oct 2022 to Jul 2024, open since | | `var.uae-window` start 2; the director's story closes it |
+| UAE window for Nigerians | Open; it was closed from Oct 2022 to Jul 2024 | Africanews, 17 Jul 2024 | `var.uae-window` start 2; the director's story closes it |
 | Deception ban | 120 months | gov.uk | `country.uk.deceptionBanMonths` 120 |
 
 ## Qualities, documents and a starting life of the gates

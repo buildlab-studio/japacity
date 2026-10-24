@@ -18,9 +18,12 @@ stateDiagram-v2
   applying --> known: refused, and it goes on your record
   granted --> departed: you fly
   departed --> known: the status it gave is lost
+  known --> refused: a deception ban
+  applying --> refused: a deception ban
+  refused --> known: the ban lifts
 ```
 
-`refused` is kept for a route closed to one character by a ban. A deception ban sets it (route-gates:deception-bans-country, until `bannedUntil`); no rule of this page does.
+`refused` is the state of a route closed to one character by a ban: a deception ban sets it until `bannedUntil` (route-gates:deception-bans-country); no rule of this page does.
 
 ## Rules: hearing and knowing
 
@@ -155,35 +158,35 @@ Three questions are asked. Scores are hidden from the player.
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Refusal chance, base | 9% for the UK master's, 0 for the road | each route's `refusalBaseBp` |
-| For each point of strictness | 0.1% | `refusalPerStrictnessBp` = 10 |
-| For each percent of unexplained share | 0.4% | `refusalPerUnexplainedBp` = 40 |
-| For each earlier refusal | 8% | `refusalPerRefusalBp` = 800 |
-| For each interview point | -1.5% | `refusalPerInterviewPointBp` = 150 |
-| Second upper or better | -2% | `refusalGoodGradeBp` = 200 |
-| Floor and ceiling | 3% and 80% | `refusalMinBp`, `refusalMaxBp` |
-| Grade that takes the good-grade figure off | Second upper or better | `goodGrade` = 4 |
-| Unexplained share that makes `funds` a refusal reason | 30% | `fundsReasonBp` = 3000 |
-| Offer chance for each grade above the school's minimum | 5% | `offerPerGradeBp` = 500 |
-| Offer chance at most | 95% | `offerMaxBp` = 9500 |
-| Months from application to decision | 1 | `decisionMonths` |
-| Fee kept from a refunded deposit | £500. Real: Essex keeps £500 of a refunded deposit, and £2,000 when the refusal was the applicant's own doing; Leicester refunds nothing after a refusal for misleading papers or credibility. The game keeps £500 on every refusal (factor 1.0 for the common case) | `depositAdminFee` = 50000 |
-| Months until the deposit refund arrives | 2. Real: York aims to decide in 14 working days and pay within 28 working days of approval (factor 1.0) | `depositRefundMonths` |
-| Flight, Lagos to London, one way | ₦1,100,000, about US$810 at ₦1,361.34 to the dollar: a direct one-way in the September rush with bags. Real: Royal Air Maroc returns from US$579 through Casablanca and Virgin Atlantic direct returns from US$1,134 (Nov and Dec 2026), a one way averaging about US$521, so about ₦700,000 to ₦1,200,000 one way; the game about 1.0 to 1.5 times | `flight` |
-| Interview prep that reveals weak answers | 40 | `hintPrep` |
-| Months before a school that refused takes a new application | 6 | `reapplyMonths` |
+| Setting | Value | In content as | Source |
+|---|---|---|---|
+| Refusal chance, base | 9% for the UK master's, 0 for the road | each route's `refusalBaseBp` | Working value |
+| For each point of strictness | 0.1% | `refusalPerStrictnessBp` = 10 | Working value |
+| For each percent of unexplained share | 0.4% | `refusalPerUnexplainedBp` = 40 | Working value |
+| For each earlier refusal | 8% | `refusalPerRefusalBp` = 800 | Working value |
+| For each interview point | -1.5% | `refusalPerInterviewPointBp` = 150 | Working value |
+| Second upper or better | -2% | `refusalGoodGradeBp` = 200 | Working value |
+| Floor and ceiling | 3% and 80% | `refusalMinBp`, `refusalMaxBp` | Working value |
+| Grade that takes the good-grade figure off | Second upper or better | `goodGrade` = 4 | Working value |
+| Unexplained share that makes `funds` a refusal reason | 30% | `fundsReasonBp` = 3000 | Working value |
+| Offer chance for each grade above the school's minimum | 5% | `offerPerGradeBp` = 500 | Working value |
+| Offer chance at most | 95% | `offerMaxBp` = 9500 | Working value |
+| Months from application to decision | 1 | `decisionMonths` | Working value |
+| Fee kept from a refunded deposit | £500. Real: Essex keeps £500 of a refunded deposit, and £2,000 when the refusal was the applicant's own doing; Leicester refunds nothing after a refusal for misleading papers or credibility. The game keeps £500 on every refusal (factor 1.0 for the common case) | `depositAdminFee` = 50000 | Universities' deposit policies (Sources) |
+| Months until the deposit refund arrives | 2. Real: York aims to decide in 14 working days and pay within 28 working days of approval (factor 1.0) | `depositRefundMonths` | Universities' deposit policies (Sources) |
+| Flight, Lagos to London, one way | ₦1,100,000, about US$810 at ₦1,361.34 to the dollar: a direct one-way in the September rush with bags. Real: Royal Air Maroc returns from US$579 through Casablanca and Virgin Atlantic direct returns from US$1,134 (Nov and Dec 2026), a one way averaging about US$521, so about ₦700,000 to ₦1,200,000 one way; the game about 1.0 to 1.5 times | `flight` | Royal Air Maroc, Virgin Atlantic and FareCompare (Sources) |
+| Interview prep that reveals weak answers | 40 | `hintPrep` | Working value |
+| Months before a school that refused takes a new application | 6 | `reapplyMonths` | Working value |
 
-A clean file with a good interview is refused about 6 times in 100. A file resting on borrowed funds, with a poor interview, is refused more often than not. The real rate for Nigerian applicants was about 21 in 100 in early 2026.
+A clean file with a good interview is refused about 6 times in 100. A file resting on borrowed funds, with a poor interview, is refused more often than not. The real rate for Nigerian applicants was about 21 in 100 from January to March 2026 (Times Higher Education, on Home Office data; `../research/09-uk-masters-numbers.md`, Refusals and interviews).
 
 ## Sources
 
 Read on 23 Oct 2026, beside `../research/09-uk-masters-numbers.md`:
 
 - [GOV.UK: Student visa, knowledge of English](https://www.gov.uk/student-visa/knowledge-of-english): the university may assess English for a degree-level course
-- The universities' pages for Nigerian applicants: Birmingham, Manchester, Leicester and Heriot-Watt on English; Essex (deposit policy for 2027 to 2028, sections 3.2, 5.1.1 and 5.1.2), UEA, Keele, Nottingham, Brighton, York and King's College London on deposits and refunds (named, not each linked)
-- Royal Air Maroc and Virgin Atlantic fare pages for Nigeria, Nov and Dec 2026; FareCompare's average one way (named, not linked); the dollar at ₦1,361.34, official, 23 Oct 2026 (`../research/09-uk-masters-numbers.md`)
+- The universities' pages for Nigerian applicants: Birmingham, Manchester, Leicester and Heriot-Watt on English; Essex (deposit policy for 2027 to 2028, sections 3.2, 5.1.1 and 5.1.2), UEA, Keele, Nottingham, Brighton, York and King's College London on deposits and refunds
+- Royal Air Maroc and Virgin Atlantic fare pages for Nigeria, Nov and Dec 2026; FareCompare's average one way; the dollar at ₦1,361.34, official, 23 Oct 2026 (`../research/09-uk-masters-numbers.md`)
 
 ## Effects and requirements this kind handles
 
@@ -202,7 +205,7 @@ The part before the slash names the kind that carries an effect out or judges a 
 | `route/state` | requirement | The route's state is one of `in` |
 | `route/offer` | requirement | An offer from at least one school on the route is held |
 | `route/deposit` | requirement | A school's deposit on the route is paid |
-| `route/funds` | requirement | The funds check passed at the last month end for `heldMonths` in a row, and passes now (route:deposit-secures-school) |
-| `route/unexplained-max` | requirement | The share of shown funds from flagged sources is at most `bp` (route:funds-required) |
+| `route/funds` | requirement | The funds check passed at the last month end for `heldMonths` in a row, and passes now (route:funds-held-month-count) |
+| `route/unexplained-max` | requirement | The share of shown funds from flagged sources is at most `bp` (route:unexplained-share-of-funds) |
 | `setpiece/answered` | requirement | The set piece has closed at least `times` times, default 1 (route:answers-carry-effects). Judged by the `setpiece` kind |
 | `setpiece/answered-with` | requirement | The last answer to this question of this set piece was this one (route:last-answers-remembered). Judged by the `setpiece` kind |

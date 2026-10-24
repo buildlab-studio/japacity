@@ -1,7 +1,7 @@
 # News
 
-> Five stories on a seeded schedule, the smallest set that lets the world move. The director (`director.md`) fires stories from the state of the world.
-> Kind: `news`. Scope: world, with a small record for each character of what they have been shown. Background: `../design/01-concept.md` sections 7 and 8.
+> The stories of the world, how they move through their stages and how a character is told of them. The director (`director.md`) fires every story of the pool from the state of the world; this page holds the five stories of the UK master's route and the naira, and `director.md` holds the rest of the pool and the eras.
+> Kind: `news`. Scope: world, with a small record for each character of what they have been shown. Background: `../design/01-concept.md` sections 7 and 8. Sources: `../research/09-uk-masters-numbers.md` (living money) and `../research/06-naira-rates-and-currency.md` (the bank and the float).
 
 ## Rules
 
@@ -19,15 +19,25 @@
 
 ## Stories
 
-| Id | Happens | Announced | Rumour first | In force after | Ends | While in force |
-|---|---|---|---|---|---|---|
-| `news.uk-unis-recruit` | Always | Tick 1 to 3 | No | 2 ticks | Never | Nothing changes. Hearing it tells you of the UK master's route |
-| `news.uk-living-rise` | Always | Tick 4 to 14 | 2 ticks | 4 ticks | Never | Living line 120300 |
-| `news.uk-refusals-up` | 30% a tick while the study surge is over 40 and strictness is 80 or under, 18 ticks apart (director.md) | Tick 8 to 30 | 3 ticks | 2 ticks | 6 ticks | Strictness +10, study surge -30 |
-| `news.dollar-scarcity` | 1.5% a tick while the supply is 80 or more (director.md) | Tick 6 to 26 | 2 ticks | 2 ticks | When the float comes into force | Supply 40, bank queue 2, bank allowance 20000 |
-| `news.naira-float` | Only after the scarcity is in force | 3 to 6 ticks after that | 1 tick | 2 ticks | Never | Supply 90, bank queue 0, bank allowance 50000. The official rate jumps: rate:float-jumps-official-rate |
+The five stories below are in the director's pool. Each tick the director rolls each one whose needs hold (director:stories-start-by-roll); the chance is multiplied by the running era's weight for the story's group. A story with no director fields would run on the seeded schedule of news:story-fate-drawn-from-seed instead; every story in content has them. The other stories of the pool, with their own stages, are in `director.md`, "The story pool", and all of them are in `packages/content/src/news/news.data.ts`.
 
-All five touch the UK master's route.
+| Id | Group | Needs (`director.md`) | Chance a tick | Rumour first | In force after | Ends | While in force |
+|---|---|---|---|---|---|---|---|
+| `news.uk-unis-recruit` | openings | Nothing | 100%, once | No | 2 ticks | Never | Nothing changes. Hearing it tells you of the UK master's route |
+| `news.uk-living-rise` | strictness | `var.uk-study-window` 1 or more | 100%, once | 2 ticks | 4 ticks | Never | `var.uk-living-line` 120300 (£1,203 a month) |
+| `news.uk-refusals-up` | strictness | `var.uk-study-surge` over 40 and `var.uk-study-strictness` 80 or under | 30%, again 18 ticks after it fired | 3 ticks | 2 ticks | 6 ticks | Strictness +10, study surge -30 |
+| `news.dollar-scarcity` | fx | `var.fx-supply` 80 or more | 1.5%, again 12 ticks after it fired | 2 ticks | 2 ticks | When the float comes into force | Supply 40, bank queue 2 months, bank allowance 20000 US cents ($200); its values go back when it ends |
+| `news.naira-float` | fx | `var.fx-supply` 40 or under (the scarcity in force) | 100%, again 12 ticks after it fired | 1 tick | 2 ticks | Never | Supply 90, bank queue 0, bank allowance 50000 US cents ($500). The official rate jumps: rate:float-jumps-official-rate |
+
+Each of the five touches the UK master's route.
+
+## Numbers
+
+| Figure | In the game | Source |
+|---|---|---|
+| UK living money outside London | £1,171 a month (`var.uk-living-line` 117100), raised to £1,203 (120300) by `news.uk-living-rise` | gov.uk, Student visa: money; Statement of Changes HC 584 for £1,203 on or after 30 Nov 2026 (`../research/09-uk-masters-numbers.md`, Living money). The real rise has a date; in the game it comes when the story is rolled |
+| The bank's monthly allowance | $500, cut to $200 in a scarcity | Working value (`../research/06-naira-rates-and-currency.md`, The bank) |
+| Chances, lags and cooldowns | As in the table | Working values, `packages/content/src/news/news.data.ts` |
 
 ## Words
 

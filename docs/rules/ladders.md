@@ -3,7 +3,7 @@
 > Pay figures are the real ones at the dates given, as working values; where the game differs from real life, the real value and the factor stand beside it. Sources at the end.
 > Kind: `activity`, extended with `where`, `part`, `cash`, `needsCar`, `carBonus`. Background: `../design/01-concept.md` section 12, `../research/03` sections 3 and 4.
 
-Abroad, a month still has a main activity and two or three free slots. What is on offer depends on the status you hold and the country you are in.
+Abroad, as at home, a month has a main activity and two or three free slots. What is on offer depends on the status you hold and the country you are in.
 
 ## Rules
 
@@ -49,32 +49,32 @@ The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,17
 |---|---|---|---|---|
 | `activity.rest` | any | | | wellbeing +12 |
 | `activity.call-home` | abroad | | the phone is in upkeep | standing +3, wellbeing +2 |
-| `activity.community` | abroad | | £10 / C$15 / AED 20 social | network +4, wellbeing +4. Hear of the sponsor and professional jobs: the church, the mosque, the association |
+| `activity.community-uk`, `-canada`, `-uae`, `-italy` | in that country | | £10 / C$15 / AED 20 social; nothing in Italy | network +4, wellbeing +4. Hear of the sponsor and professional jobs: the church, the mosque, the association |
 | `activity.overtime` | abroad, with a job that is not `part` | | | pay +25% of the month's pay before tax, untaxed (a cash job's to cash under `cash-work`, any other job's to the bank under `salary`), wellbeing -8 |
 | `activity.job-hunt` | any | | | hunt, as at home, filtered by the status's work rule |
-| `activity.learn-tech` | any | | £40 / C$60 study | tech +4, wellbeing -2 |
-| `activity.study-english` | any | | £30 study | english +6, wellbeing -2 (the English test's band, for Canada or a UK route without the degree's statement; the game asks no English at settlement) |
+| `activity.learn-tech-uk`, `activity.learn-tech-canada` | in that country | | £40 / C$60 study | tech +4, wellbeing -2 |
+| `activity.study-english-uk` | uk | | £30 study | english +6, wellbeing -2 (the English test's band, for Canada or a UK route without the degree's statement; the game asks no English at settlement) |
 | `activity.nmc-tests` | uk | care 60, no pin pending | £1,170 fee-test | request `document.nmc-pin` |
 | `activity.driving-test` | uk | see `car.md` | | |
 | `activity.buy-car-finance` | uk | see `car.md` | the deposit | |
-| `activity.rent-flat` | abroad | credit 20 | one month's rent as deposit | see `abroad-money.md` |
-| `activity.phone-contract` | abroad | credit 10 | | opens the country's phone obligation (`obligation.phone-uk`, `obligation.phone-canada`) |
+| `activity.rent-flat-uk`, `activity.rent-flat-canada` | in that country | credit 20 | one month's rent as deposit | see `abroad-money.md` |
+| `activity.phone-contract-uk`, `activity.phone-contract-canada` | in that country | credit 10 | | opens the country's phone obligation (`obligation.phone-uk`, `obligation.phone-canada`) |
 | `activity.send-money` | abroad | | | opens the remit sheet: the interface's name for `wallet/remit` |
-| `activity.december-home-uk`, `-ca`, `-uae` | in that country, in the tick `var.season-december` is 1, not on its overstayer status | the fare both ways | the fare times the December factor, reason `fare` | standing +12, wellbeing +6; no set piece (return:december-visit-set-piece) |
+| `activity.december-home-uk`, `activity.december-home-canada`, `activity.december-home-uae` | in that country, in the tick `var.season-december` is 1, not on its overstayer status | the fare both ways | the fare times the December factor, reason `fare` | standing +12, wellbeing +6; no set piece (return:december-visit-set-piece) |
 
 ## Numbers
 
-| Setting | Value | Date | In content as |
+| Setting | Value | Source and date | In content as |
 |---|---|---|---|
 | UK care worker pay | £25,000 to £29,000 | Salary bar Jul 2025; care home pay bands 2026 | `offer.sponsor-care-home` terms |
 | UK band 5 nurse | £31,300 bar; NHS band 5 starts about £31,000 | 2026 | `activity.job-uk-nurse` |
-| UK national living wage | £12.71 an hour, 21 and over (was £12.21); 20 hours for 52 weeks is about £13,200 | 1 Apr 2026, gov.uk minimum wage rates | `activity.job-uk-retail-part` pay 1320000 pence a year |
-| UK warehouse | about £23,000 | 2026 listings | working value |
-| Cash kitchen work | about £7 an hour reported, below the minimum | Reporting 2024 | `withheldBp` 1500 |
+| UK national living wage | £12.71 an hour, 21 and over; 20 hours for 52 weeks is about £13,200 | gov.uk minimum wage rates, from 1 Apr 2026 | `activity.job-uk-retail-part` pay 1320000 pence a year |
+| UK warehouse | about £23,000 | Working value from 2026 listings, set against the rents in `abroad-money.md` so a survival job leaves something over | `activity.job-uk-warehouse` |
+| Cash kitchen work | about £7 an hour reported, below the minimum | Reporting 2024 (Context) | `withheldBp` 1500 |
 | Courier account rent | £60 a week reported | The Conversation, 2023 | `tuning.ladder.accountRent` 6000 |
-| Canada warehouse | C$38,000 | Working value | |
-| Gulf guard pay | AED 1,800 a month, accommodation included | 2024 to 2025 listings | `activity.job-gulf-guard` |
-| NMC tests | £1,170 | NMC fee page 2026 | `activity.nmc-tests` cost 117000 |
+| Canada pay | C$38,000 warehouse to C$95,000 developer | Working values, set against the rents in `abroad-money.md` so a survival job leaves something over and a professional one leaves a lot | `activity.job-canada-warehouse`, `-care-aide`, `-professional`, `-developer` |
+| Gulf guard pay | AED 1,800 a month, accommodation included | 2024 to 2025 listings (Pakistan Bureau of Emigration) | `activity.job-gulf-guard` |
+| NMC tests | £1,170 | NMC fee page, 2026 | `activity.nmc-tests` cost 117000 |
 | Cash work raises detection by | 1 point a month, on top of the overstayer's detection (status:overstayer-risks-detection) | Working value | `tuning.ladder.cashDetectBp` 100 |
 
 ## Sources
@@ -87,5 +87,4 @@ The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,17
 
 ## Not verified
 
-- What English UK settlement asks in 2026 (B1 in force, or a raise to B2) was not settled from a primary source; the game asks none at settlement.
-- Canada pay figures and the UK warehouse figure are working values. They are set against the rents in `abroad-money.md` so a survival job leaves something over and a professional one leaves a lot.
+- What English UK settlement asks in 2026 (B1, or B2): no primary source found. The game asks none at settlement.

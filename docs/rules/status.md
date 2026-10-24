@@ -46,6 +46,10 @@ A status is the permission you hold abroad: what you may do, when it runs out, a
 
 **status:absence-breaks-settlement** While a UK status that counts toward settlement or citizenship is kept from home (return:papers-return-keeps-status), its months at home add no lawful months, and a stay at home of 6 months or more inside any 12 sets the lawful months counted toward settlement back to 0, so the road to settling starts again from the next month lived in the country; the months toward citizenship on `status.uk-settled` count only months lived in the UK. Real life: absences of more than 180 days in any 12 months break continuous residence for settlement (Appendix Continuous Residence, CR 3.1 and 4.1), and absences inside that limit still count as residence; citizenship asks no more than 90 days away in the last 12 months. The game: 6 months, about 182 days, breaks it (factor 1.0), and months at home count nothing, which is stricter than real life. For `status.uk-partner` the line is a stand-in: Appendix Continuous Residence does not cover the five-year partner route, which asks instead that the couple has lived together in the UK. A Canadian resident's absence is read by return:papers-return-keeps-status.
 
+**status:course-passed-or-withdrawn** The course is passed when, at the student status's expiry, the character held the student status for at least `tuning.status.courseMonths` (12) months and the tuition obligation was never in default. A student whose tuition defaulted is withdrawn: the status lapses at once, as Nigerian students at Teesside University were withdrawn and reported to the Home Office over missed fees in 2024 (BusinessDay, Sources).
+
+**status:one-renewability-test** One test says whether a status may be renewed at the player's asking, and both `status/renew` and the view's `renew` (status:view-shows-status) read it: the status renews (`renewMonths` above 0, an expiry month, a `renewFeeVar`); a one-employer status is held with its job (status:renewing-a-status); and a status tied to a partner has a bond at `partner` or `married` whose sponsor meets the floor (person:partner-status-renews). Where it refuses, the view's `renew` is null, so terms show only where the renewal would be taken.
+
 ## Entries
 
 | Id | Country | Months | Work | Clock on job loss | Renew | Next, if | Counts to settlement | Ban on removal |
@@ -66,7 +70,7 @@ A status is the permission you hold abroad: what you may do, when it runs out, a
 
 ### Entries: overstaying, country by country
 
-The fields of each country's overstayer status (status:grace-before-overstaying to status:uae-amnesty, place:leaving-an-overstay-bans, place:returns-service-takes-you-home, abroad-money:right-to-rent-check). Every status of a country carries the country's `banMonths` and `detectBp`, as today; the other fields are read on the overstayer only.
+The fields of each country's overstayer status (status:grace-before-overstaying to status:uae-amnesty, place:leaving-an-overstay-bans, place:returns-service-takes-you-home, abroad-money:right-to-rent-check). Every status of a country carries the country's `banMonths` and `detectBp`; the other fields are read on the overstayer only.
 
 | Field | `status.uk-overstayer` | `status.canada-overstayer` | `status.uae-irregular` | `status.eu-irregular` |
 |---|---|---|---|---|
@@ -80,13 +84,9 @@ The fields of each country's overstayer status (status:grace-before-overstaying 
 | `returnGrant` | £1,500 (150000 pence) | none | none | none |
 | `finePerMonth` | none | none | AED 1,500 (150000 fils) | none |
 
-**status:course-passed-or-withdrawn** The course is passed when, at the student status's expiry, the character held the student status for at least `tuning.status.courseMonths` (12) months and the tuition obligation was never in default. A student whose tuition defaulted is withdrawn: the status lapses at once (the Teesside case, May 2024).
-
-**status:one-renewability-test** One test says whether a status may be renewed at the player's asking, and both `status/renew` and the view's `renew` (status:view-shows-status) read it: the status renews (`renewMonths` above 0, an expiry month, a `renewFeeVar`); a one-employer status is held with its job (status:renewing-a-status); and a status tied to a partner has a bond at `partner` or `married` whose sponsor meets the floor (person:partner-status-renews). Where it refuses, the view's `renew` is null, so terms show only where the renewal would be taken.
-
 ## Numbers
 
-| Setting | Value | Date | In content as |
+| Setting | Value | Source and date | In content as |
 |---|---|---|---|
 | UK sponsored worker clock | 60 days, 2 turns | In force 2026 | `status.uk-sponsored.clockMonths` = 2 |
 | UK graduate visa length | 24 months, 18 from applications on or after 1 Jan 2027 | gov.uk, Oct 2026 | `var.uk-graduate-months` start 24; the director's story sets 18 |
@@ -95,11 +95,11 @@ The fields of each country's overstayer status (status:grace-before-overstaying 
 | UK settlement fee | £3,226 | 8 Apr 2026 | `var.uk-settle-fee` = 322600 pence |
 | UK citizenship fee | £1,709, including the ceremony | 8 Apr 2026 | `var.uk-citizen-fee` = 170900 |
 | UK skilled worker extension fee, over 3 years | £1,865 | 8 Apr 2026 | `var.uk-skilled-renew-fee` = 186500 |
-| Gulf contract renewed by the employer | 60 in 100 | working value | `status.gulf-worker.renewBp` = 6000 |
+| Gulf contract renewed by the employer | 60 in 100 | Working value | `status.gulf-worker.renewBp` = 6000 |
 | UK health surcharge, workers | £1,035 a year | In force | `var.uk-surcharge-year` = 103500 |
 | UK health surcharge, students | £776 a year | In force since Feb 2024 | included in `var.uk-surcharge` as the 1.5-year sum |
 | Canada citizenship presence | 1,095 days in five years, modelled as 36 lawful months | IRCC, 2026 | `var.canada-settle-months` start 36 |
-| Canada citizenship fee | C$630 | IRCC | `var.canada-citizen-fee` = 63000 cents |
+| Canada citizenship fee | C$630. Real: C$653 for an adult, the processing fee and the right of citizenship fee of C$123; the game about 4% under | IRCC fee list, read 24 Oct 2026 | `var.canada-citizen-fee` = 63000 cents |
 | UK refusal periods after an overstay | Real: none after 30 days or less at your own expense; 12 months at your own expense after that; 2 years at public expense within 6 months of a notice, 5 years later; 10 years removed; 10 years for deception. The game: none in the grace, 12, 24 (always the shorter public-expense period), 120 | Part Suitability SUI 11.5 and 12.1, in force from 11 Nov 2025 | `status.uk-overstayer` `ownFareBanMonths` 12, `assistedBanMonths` 24, `banMonths` 120 |
 | UK grace | Real: an application within 14 days with a good reason (SUI 13.1), leaving within 30 days at your own expense (SUI 11.5). The game: 1 month, no reason asked; about twice as kind for applying, the same for leaving | Part Suitability, 2026 | `status.uk-overstayer.graceMonths` 1 |
 | UK notice before removal | Real: none set; removal may follow the notice of liability at any time. The game: 3 months, kinder | Home Office enforcement practice | `status.uk-overstayer.noticeMonths` 3 |
@@ -114,7 +114,7 @@ The fields of each country's overstayer status (status:grace-before-overstaying 
 | UAE overstay fine | AED 50 a day, so AED 1,500 a month (factor 1.0) | Gulf News, on the unified fine | `status.uae-irregular.finePerMonth` 150000 fils |
 | UAE labour ban | Real: a new work permit is barred for one year after an absconding report, from the day the worker leaves. The game: 12 months on routes into the UAE, the Gulf contract being the only one | u.ae, banning a new work permit for one year | `status.uae-irregular` `ownFareBanMonths` 12, `assistedBanMonths` 12 |
 | UAE amnesty | No fines and no entry ban, 1 Sep to 31 Dec 2024 (four months) | The National, 1 Nov 2024 | `news.uae-amnesty`, `var.uae-amnesty` |
-| UAE removal ban | 5 years, working value | not verified | `status.uae-irregular.banMonths` 60 |
+| UAE removal ban | 5 years | Working value (Not verified) | `status.uae-irregular.banMonths` 60 |
 | Italy expulsion | Real: 7 to 30 days to leave by choice; a re-entry ban of 3 to 5 years, which can be revoked on proof of leaving in time; an assisted return suspends the order. The game: 1 month; no ban for leaving in it; 36 months removed, the real minimum | D.lgs. 286/1998, Art. 13 c.5 and c.14, Art. 14-ter | `status.eu-irregular` `noticeMonths` 1, `banMonths` 36 |
 | Student work cap | 20 hours a week in term | gov.uk | `work: part` |
 | Months of student status for the course to count as passed | 12 | A one-year master's | `tuning.status.courseMonths` |
@@ -124,7 +124,7 @@ The fields of each country's overstayer status (status:grace-before-overstaying 
 
 - The student's clock is the course. The graduate's clock is the hunt for a sponsor. The sponsored worker's clock only starts when the job goes, and then it is two months.
 - Losing status is not the end. The grace month is the last door from inside: a new sponsor, a partner, a new course. After it, life gets narrower (cash work, a room that can go, a dear hospital), and the ways out stay on the table with a price on each. Removal comes last, after a notice, and only for someone who chose nothing.
-- Settlement is a long bar that can be moved by the world: the ten-year story, when it fires, doubles what is left for anyone not yet settled. Applications already granted keep their rules (fairness rule 3).
+- Settlement is a long bar that can be moved by the world: the ten-year story, when it fires, doubles what is left for anyone not yet settled. Applications already sent keep their rules (route:application-fixes-figures, the third fairness rule of `../design/01-concept.md` section 7).
 
 ## Sources
 
@@ -148,12 +148,16 @@ Read on 23 Oct 2026, for overstaying (`../research/07-status-cliffs-and-restarts
 - [GOV.UK: UK and Nigeria partnership to speed up removals, Mar 2026](https://www.gov.uk/government/news/new-uk-nigeria-partnership-to-speed-up-removals)
 - [Canada.ca: who needs an Authorization to Return to Canada](https://www.canada.ca/en/immigration-refugees-citizenship/services/admissibility-enforcement/authorization-return-canada/who-needs-authorization.html)
 - [IRCC: fee list](https://ircc.canada.ca/english/information/fees/fees.asp)
-- Gulf News on the UAE's unified overstay fine; u.ae on the one-year ban on a new work permit; The National, 1 Nov 2024, on the amnesty (named, not linked)
-- D.lgs. 286/1998, Art. 13 c.5 and c.14 and Art. 14-ter, read through Brocardi (named, not linked)
+- Gulf News on the UAE's unified overstay fine; u.ae on the one-year ban on a new work permit; The National, 1 Nov 2024, on the amnesty
+- D.lgs. 286/1998, Art. 13 c.5 and c.14 and Art. 14-ter, read through Brocardi
+
+Read on 24 Oct 2026:
+
+- [IRCC: fee list](https://ircc.canada.ca/english/information/fees/fees.asp), the adult citizenship fee of C$653 and the restoration fee of C$246.25
+- [BusinessDay: the Federal Government wades into the deportation controversy at Teesside University](https://businessday.ng/news/article/fg-wades-into-deportation-controversy-at-uk-teesside-university/), 2024
 
 ## Not verified
 
-- The Canada citizenship fee of C$630 is from memory of the IRCC fee page and must be checked before tuning.
 - Detection chances are working values set against the UK's enforced returns. At 1% a month an overstayer who does nothing is noticed after about 100 months on average, about 50 with cash work every month; the notice then gives three months more.
 - The UK hospital charge rests on sources from 2016 to 2018, not reconfirmed against gov.uk in 2026. The UAE's grace periods conflict between sources (0, 10 or 30 days); its removal ban of 60 months is a working value.
 - The Canadian removal cost of C$3,840 and the authorisation fee of C$492.50 are from the research's reading of the fee list and IRPR s. 243, not from a second source.
