@@ -12,7 +12,7 @@ Models are written as code, built and compressed in Node, shot headless in the P
 
 ### 1. The renderer and the tools
 
-`three` with `@types/three` at the matching release, `@react-three/fiber` 9, the `@gltf-transform` packages (core, functions, extensions) and `meshoptimizer`, each pinned exactly in `package.json`. React Three Fiber 9 accepts React only below 19.4 by its peer range, so React and React Three Fiber move together, by decision. The WebGL renderer, not WebGPU: the WebGPU path changes most from release to release, and the phones that matter most are cheap Android phones.
+`three` with `@types/three` at the matching release, `@react-three/fiber` 9, the `@gltf-transform` packages (core, functions, extensions) and `meshoptimizer`, each pinned exactly in `package.json`. React Three Fiber 9 accepts React only below 19.4 by its peer range, so React and React Three Fiber are upgraded together. The renderer is three's WebGL renderer.
 
 ### 2. What to know about these versions
 
@@ -27,12 +27,13 @@ Models are written as code, built and compressed in Node, shot headless in the P
 4. **Shot headless.** The shooter opens the stage page in the Chromium that `pnpm exec playwright install chromium` installs, with no browser path in the code, and writes the fixed views, the phone shot and the outline masks (assets:contributor-renders-fixed-views, assets:landmarks-match-reference-outlines). It renders in software (SwiftShader through ANGLE), so the same model gives the same pixels on every run.
 5. **Reviewed** on its sheet as `../rules/assets.md` sets out (assets:acceptance-score-thresholds). Whoever made the model writes nothing into `review.json`.
 6. **Registered.** The export writes the measured figures into the asset's register row.
+7. **Published.** `pnpm assets:publish` publishes each model's tile render and each look's portraits as WebP pictures under `tiles/` (assets:pictures-shipped-light), copies every shipped file to a name that carries the hash of its contents, and writes the manifest the city's loader reads (city:places-load-on-entry). `pnpm assets:credits` writes `credits.json` from the register and the map data.
 
 ### 4. Where things live
 
 ```
-packages/model-kit/                     the palette (assets:colours-from-named-palette), the kit of parts, the pattern code, the loader
-models/                          never shipped
+packages/model-kit/                  the palette (assets:colours-from-named-palette), the kit of parts, the pattern code, the loader
+models/                              never shipped
   <category>/<name>/                 build.ts or spec.json, outline.json, review.json, renders/
   people/                            bodies, clothes, hair, poses
   stage/                             the shooting page: lights, sky, ground, the phone street
@@ -42,11 +43,13 @@ models/                          never shipped
 apps/client/public/assets/           shipped; called public/assets/ in the rule pages
   shared/<category>/                 characters, props, vehicles
   places/<place>/                    buildings, shops, signs, landmarks, and place.json
+  tiles/                             the WebP pictures of the models and the looks
   credits.json                       written from the register and the map data (city:credits-screen-attributions)
-tools/assets/                        export, shoot, outline and the build check
+  manifest.json                      every shipped file and its hashed copy, which sits beside it
+tools/assets/                        export, shoot, outline, publish, credits and the build check
 ```
 
-Shipped GLB files are committed, so building the client needs neither a browser nor the export; the check proves they still match their register rows. Commands: `pnpm assets:export <name>`, `pnpm assets:shoot <name>`, `pnpm assets:outline <name>` and `pnpm check:assets`, which `pnpm check` runs.
+Shipped GLB files are committed, so building the client needs neither a browser nor the export; the check proves they match their register rows. Commands: `pnpm assets:export <name>`, `pnpm assets:shoot <name>`, `pnpm assets:outline <name>`, `pnpm assets:publish`, `pnpm assets:credits` and `pnpm check:assets`, which `pnpm check` runs. The check passes over the hashed copies and the manifest.
 
 ### 5. What the build check verifies
 
@@ -56,5 +59,10 @@ Names (assets:shipped-file-naming); a register row for every shipped file and a 
 
 - The method needs no artist's tool: a model is a function, reproducible, reviewable as code.
 - Building in Node and checking from files keeps `pnpm check` fast and runnable where only the one installed Chromium is present.
-- Every asset change follows one order: export, shoot, review, register.
-- The simulation, its contract and the ledger are untouched: the city reads the view (city:places-change-no-state).
+- Every asset change follows one order: export, shoot, review, register, publish.
+- The simulation, its contract and the ledger know nothing of the models: the city reads the view (city:places-change-no-state).
+
+## Alternatives
+
+- Models made in an artist's tool, Blender among them: the files would not be reproducible from the repository, and `pnpm check` could not rebuild or prove them without the tool.
+- three's WebGPU renderer: its path changes most from release to release, and the phones that matter most are cheap Android phones, where WebGL is the sure one.

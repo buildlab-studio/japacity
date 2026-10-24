@@ -9,13 +9,13 @@ The engine has a way for naira to arrive from outside play: a top-up, credited o
 ## Decision
 
 - The wallet keeps `marked`, the topped-up naira not yet spent, absent while zero; the view carries `wallet.marked` (wallet:top-ups-are-marked).
-- The ledger has the money-in reason `top-up`. The pure effect and the authority command `wallet/top-up { amount }` credit the naira bank, record a lot and raise `marked` (decision 0005).
+- The ledger has the money-in reason `top-up`. The pure effect and the authority command `wallet/top-up { amount }` credit the naira bank, record it as a lot, a deposit a visa officer would ask about (wallet:large-deposits-record-lots), and raise `marked` (decision 0005).
 - Every naira debit takes earned naira first and lowers `marked` only by what it takes beyond the earned share; a move between pockets never touches it; a prize never touches it.
 - A Friday ticket or the kiosk's slip is paid from earned naira only (bank plus cash less `marked`), refused with `cannot-afford` when that is short (lottery:tickets-bought-with-earned-naira).
 - The ledger report takes a ceiling for `top-up` that defaults to zero (wallet:ledger-report-raises-alarms).
 
 ## Consequences
 
-- Every debit path already respects the mark, so no other code needs to know where a top-up came from.
-- No server route sends `wallet/top-up` and no content entry carries the effect (a test proves it); there is no cap and no Bank screen for it, and a life with no top-up is unchanged.
+- Every debit path respects the mark, so no other code needs to know where a top-up came from.
+- No server route sends `wallet/top-up` and no content entry carries the effect (a test proves it); there is no cap and no Bank screen for it, and a life with no top-up carries no `marked` at all.
 - Naira changed into a foreign currency and back comes back as earned naira less the bank's charge or the street's spread; with the ticket cap, that path is worth nothing to a cheat and is left as it is.

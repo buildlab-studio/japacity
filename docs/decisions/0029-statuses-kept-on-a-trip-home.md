@@ -6,7 +6,7 @@ Status: Accepted
 
 A move back to Nigeria (`return/home`) is a different thing for each kind of permission. A UK permission stays in force outside the UK until it ends or until two years in a row away (Immigration (Leave to Enter and Remain) Order 2000, article 13), and the eVisa shows it at the border. What ends a temporary permission on a move home is the reason it was given: a job or a course left behind. Settlement and citizenship then read how long the holder was away.
 
-The real rules, as read on the dates in `return.md` and `status.md`:
+The real rules, as read on the dates in `../rules/return.md` and `../rules/status.md`:
 
 | Status | Real life | The game | Factor |
 |---|---|---|---|
@@ -32,10 +32,9 @@ Settlement: absences of more than 180 days in any 12 months break continuous res
 
 ## Consequences
 
-- The contract grows by: `heldAbroad` carrying the kept status's end month, its settlement months and the months away; `StatusState.away`; `RouteState.grantedMonth`; the requirement `route/state` with `afterReturn`; the view's `place.kept` (`until`, `restarts`); the event `place/token-ended`; and the tuning `tuning.status.absenceMonths`, `tuning.status.absenceWindowMonths`, `tuning.return.ukKeptLapseMonths` and `tuning.return.residentLapseMonths`.
+- The contract holds `heldAbroad`, which carries the kept status's end month, its settlement months and the months away; `StatusState.away`; `RouteState.grantedMonth`; the requirement `route/state` with `afterReturn`; the view's `place.kept` (`until`, `restarts`); the event `place/token-ended`; and the tuning `tuning.status.absenceMonths`, `tuning.status.absenceWindowMonths`, `tuning.return.ukKeptLapseMonths` and `tuning.return.residentLapseMonths`.
 - A kept status gives way to the status of a route granted at home; a settled status outranks any route.
-
-- The Secure chapter's `home` path is reached by a `with-papers` return on these statuses as well as a settled one, and its `second` path reads only a route granted after the latest return (chapter.md row 6).
+- The Secure chapter's `home` path is reached by a `with-papers` return on these statuses as well as a settled one, and its `second` path reads only a route granted after the latest return (`../rules/chapter.md`, row 6).
 - The view and the screens say a kept status's end month and that the character can fly back on it; a stay past six months says the road to settling starts again.
-- Recorded lives that move home on one of these statuses replay differently from that month: they are re-recorded and blessed with the change.
+- Recorded lives that move home on one of these statuses replay these rules from the month they do.
 - The tuning carries the lines (`tuning.return.residentLapseMonths` 36, `tuning.return.ukKeptLapseMonths` 24), so they can be tuned without a rule change.

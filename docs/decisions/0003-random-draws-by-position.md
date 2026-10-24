@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-engine:randomness-from-named-streams says a draw from one stream never changes another, and that the nth draw depends only on the seed, the stream and n. Generators that carry internal state, pure-rand among them, give a sequence, not a draw at a position, and storing a generator's state for each stream would put hidden numbers in every save.
+engine:randomness-from-named-streams says a draw from one stream never changes another, and that the nth draw depends only on the seed, the stream and n. Generators that carry internal state give a sequence, not a draw at a position, and storing a generator's state for each stream would put hidden numbers in every save.
 
 ## Decision
 
@@ -12,7 +12,11 @@ Random numbers in the simulation come from our own small module, `engine/random.
 
 ## Consequences
 
-- About thirty lines we own and test, with a fixed table of expected outputs so any change is caught.
+- About a hundred lines we own and test, with a fixed table of expected outputs so any change is caught.
 - A stream repeats after about four billion draws, which no life reaches.
 - A save carries counts, never generator state.
 - fast-check keeps its own generator inside itself for test generation; that is not the simulation's randomness.
+
+## Alternatives
+
+- A library generator that carries internal state, pure-rand among them: it gives a sequence, so a draw at a position means replaying every draw before it, and a save would have to store each stream's generator state.

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-A new life's prologue is a run of `prologue/choose` steps answered by the archetype picked at the door. Offline the steps run in a fraction of a second. Online each step is a command, and the command limit that guards the authority against floods (server:per-account-rate-limits) would make a new player wait several seconds on the first minute of play.
+A new life's prologue is a run of `prologue/choose` steps answered by the archetype picked at the front door, the three screens that start a life (an archetype is a preset of the prologue's answers, prologue:archetype-presets-answers). Offline the steps run in a fraction of a second. Online each step is a command, and the command limit that guards the authority against floods (server:per-account-rate-limits) would make a new player wait several seconds on the first minute of play.
 
 ## Decision
 
@@ -12,7 +12,12 @@ Online, Begin sends the archetype's preset as one request, `POST /api/prologue/p
 
 ## Consequences
 
-- The simulation's commands and view are unchanged: the batch is the server's, and the commands inside it are the ones the client would send one by one.
+- The batch is the server's: the simulation has no preset command, and the commands inside the batch are the ones the client would send one by one.
 - The preset's answers live in one place, read by both sides, and the trail is what was actually stepped.
-- The flood guard is not weakened: one request carries at most the prologue's steps, for one character, once.
-- Offline nothing changes.
+- The flood guard holds: one request carries at most the prologue's steps, for one character, once.
+- Offline the client sends the steps one by one, with no limit to wait on.
+
+## Alternatives
+
+- A higher command limit: it would weaken the flood guard for every command to serve one minute of play.
+- The steps played on the client and the result sent up: the prologue's draws need the seed, which never leaves the authority (engine:seed-never-leaves-authority).
