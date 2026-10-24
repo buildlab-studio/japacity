@@ -17,7 +17,7 @@ const FIXED: Id<"scenario">[] = ["scenario.graduate", "scenario.banker", "scenar
 // master's the plan.
 const CAREFUL_SEEDS = 32;
 const OTHER_SEEDS = 8;
-const MASTERS_SEEDS = 16;
+const MASTERS_SEEDS = 48;
 const MONTHS = 60;
 
 function runs(strategy: StrategyName, seeds: number): RunRecord[] {
