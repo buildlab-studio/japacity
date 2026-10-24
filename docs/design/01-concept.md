@@ -308,7 +308,7 @@ Canada's arrivals hold permanent residence, so a lost job starts no clock.
 | Car on finance (UK) | Jobs that need a car, the visiting round's bonus | See the chain below |
 | Phone contract | A credit file | Marks on the file |
 | Visa fees and the health surcharge | Staying legal. Charged as a lump at each application and renewal | Status lapses |
-| Tuition instalments | The student visa | Withdrawn, visa cancelled |
+| Tuition instalments | The student visa | A reminder, a plan, a final warning, then withdrawal with two months to put it right ([page 13](13-the-economy.md)) |
 | The family at home | Standing | Trust falls |
 | Agent debt | Nothing. It only drains | It follows you |
 
