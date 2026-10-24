@@ -58,6 +58,7 @@ import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
 import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
+import { courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "../../shared/words/study";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts/acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lottoLines";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./acts/actLines";
@@ -1443,7 +1444,12 @@ export function City({
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     // Chips earn their place (docs/design/09-the-games-look.md section 2): the time only past a morning, at most two effects.
     const time = chipTimeOf(activity, option.halfDays);
-    const does = chipEffectsLine(activity);
+    // quality:skill-bands-slow-gains: a tech study says its gain at the band the character is in.
+    const does = studyDoesWords(view, activity) ?? chipEffectsLine(activity);
+    // activity:study-days-capped, activity:paid-tech-courses: a study held back says why where its button was.
+    const held = heldBackWords(option);
+    // activity:capital-opens-own-work, world:costly-acts-confirmed: the capital for own work is not given back when the work ends, so the sheet names it.
+    const capital = ownWorkCapital(activity);
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1471,7 +1477,7 @@ export function City({
                   activity === "activity.play-lotto" && kioskCapReached(monthLines)
                   ? words(KIOSK_CAP)
                   : // activity:waiting-months-build-profile: the card says what the act counts toward.
-                    [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
+                    [blurbOf(activity), countsWords(activity), courseWords(activity), studyPaysWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
       // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
@@ -1482,7 +1488,8 @@ export function City({
       // world:one-action-one-sheet: the act's button says the act and its price.
       ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
-      ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
+      ...(option.allowed ? {} : { blocked: held ?? needsWords(option.missing) }),
+      ...(capital ? { facts: [say("ui.world.capital-kept")] } : {}),
       // wallet:top-ups-are-marked: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.
       ...(activity === KIOSK && cost !== null && earnedShort(view, cost.amount) ? { blocked: say("ui.lottery.earned-only") } : {}),
       // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk's button is shut with the kiosk man's line.

@@ -52,7 +52,7 @@ describe("the pay review on the results", () => {
     let told: string[] = [];
     for (let turned = 0; turned < 14; turned += 1) {
       await month(store, game);
-      const reviewed = store.getState().view?.report.lines.find((line) => line.key === "line.activity.reviewed");
+      const reviewed = store.getState().view?.report?.lines.find((line) => line.key === "line.activity.reviewed");
       if (reviewed === undefined) continue;
       told = results(store);
       expect(told).toContain(words("line.activity.reviewed", reviewed.params));

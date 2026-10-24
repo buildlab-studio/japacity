@@ -300,6 +300,11 @@
             "stages": "activity.learn-tech",
             "more": [
               "activity.build-portfolio",
+              "activity.learn-free",
+              "activity.online-course",
+              "activity.tech-diploma",
+              "activity.bootcamp",
+              "activity.free-internship",
               "activity.interview-prep",
               "activity.open-source",
               "activity.conference-talk"

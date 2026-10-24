@@ -208,6 +208,12 @@ const entries: PlaceEntry[] = [
     stages: [
       "activity.meetup",
       "activity.learn-tech",
+      // activity:paid-tech-courses, activity:free-path-keeps-a-streak: the ways to learn tech, at the desk beside the day's class.
+      "activity.learn-free",
+      "activity.online-course",
+      "activity.tech-diploma",
+      "activity.bootcamp",
+      "activity.free-internship",
       "activity.build-portfolio",
       "activity.interview-prep",
       "activity.job-junior-developer",

@@ -134,6 +134,21 @@ export const uiWorldText: Record<string, string> = {
   "ui.nudge.night": "Night. Go to bed",
   // activity:spent-body-refuses-acts: where an act's button was, once the body is spent.
   "ui.act.spent": "You are spent. Sleep.",
+  // Learning tech in bands (quality:skill-bands-slow-gains, activity:study-days-capped, activity:paid-tech-courses): what a study gives at your level,
+  // how long a course runs, what it costs when nothing is paid now, and why one waits.
+  // activity:capital-opens-own-work: the capital stays in the work.
+  "ui.world.capital-kept": "Not given back if the work ends",
+  "ui.act.capped": "Three days of class this month already.",
+  "ui.act.on-course": "You are on a course. One study at a time.",
+  "ui.act.does.taught": "Teaches you nothing more at your level",
+  "ui.act.does.skill-month": "+{amount} {skill} a month",
+  "ui.act.does.days": "+{amount} {skill} over three days of class",
+  "ui.act.course.months": "{count} months",
+  "ui.act.course.months.one": "One month",
+  "ui.act.course.only": "{months}.",
+  "ui.act.course.ends": "{months}. It ends with {gains}.",
+  "ui.act.course.monthly": "{amount} a month for {months} months, as a bill.",
+  "ui.act.course.after-job": "Nothing now. {amount} over {months} months once a developer job is yours.",
   // The first night of a life, told once on a small card before the first sleep (world:sleep-ends-the-month).
   "ui.night.first": "Each night you sleep is a month of your life.",
   "ui.night.first.ok": "Sleep",
