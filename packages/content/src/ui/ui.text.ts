@@ -763,6 +763,7 @@ export const uiText: Record<string, string> = {
   "ui.req.var-max": "{var} at most {value}",
   "ui.req.month-min": "Month {value} or later",
   "ui.req.chapter-done": "Finish \"{chapter}\"",
+  "ui.req.chapter-plan": "Make {route} your plan",
   "ui.req.not": "Not while this holds: {inner}",
   "ui.req.not-pending": "Your {document} is already on the way",
   "ui.req.not-held": "Only without {document} in hand",

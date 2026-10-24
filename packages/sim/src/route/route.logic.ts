@@ -483,6 +483,15 @@ function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return [own({ type: "route/supported", route: effect.route, support: { currency: effect.currency, amount } })];
 }
 
+/** route-gates:family-gift-counts-with-deed: the family's gift recorded on the route in naira, uncounted until its deed is held. */
+function gift(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/gift") throw new Error(`route/gift cannot carry out ${effect.type}.`);
+  entryOf(ctx.content, effect.route);
+  const amount = ctx.amount(effect.amount, cause.terms);
+  if (amount <= 0) return [];
+  return [own({ type: "route/gifted", route: effect.route, amount })];
+}
+
 /**
  * person:joint-collapses-with-bond: an application resting on a bond goes back to known, the fee
  * kept, the surcharge refunded to the pound bank pocket, where a refusal
@@ -869,6 +878,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "var/max":
     case "month/min":
     case "chapter/done":
+    case "chapter/plan":
     case "place/is":
     case "status/is":
     case "status/clock-under":
@@ -970,6 +980,10 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, depositRefund: null }));
     case "route/supported":
       return withRoute(slice, event.route, (held) => ({ ...held, support: event.support }));
+    case "route/gifted":
+      return withRoute(slice, event.route, (held) => ({ ...held, gift: { amount: event.amount, deeded: false } }));
+    case "route/gift-deeded":
+      return withRoute(slice, event.route, (held) => (held.gift === undefined ? held : { ...held, gift: { ...held.gift, deeded: true } }));
     case "route/gate-updated":
       return withRoute(slice, event.route, (held) => (event.secret === undefined ? { ...held, gate: event.gate } : { ...held, gate: event.gate, secret: event.secret }));
     case "route/sponsor-missed":
@@ -1095,6 +1109,11 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("deposit-refunded", { route: event.route, amount: pounds(event.amount) }, "good")];
     case "route/supported":
       return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
+    case "route/gifted":
+      // The wallet's line tells the money; this one says what the gift still needs before it counts.
+      return [line("gifted", { route: event.route, amount: { currency: "NGN", amount: event.amount } }, "plain", true)];
+    case "route/gift-deeded":
+      return [line("gift-deeded", { route: event.route }, "good", true)];
     case "route/gate-updated":
       // road:road-earns-nothing: the chain's lines are tone `bad`.
       return event.note === null ? [] : [line(event.note, { route: event.route }, event.gate?.gate === "road" ? "bad" : "plain", true)];
@@ -1201,6 +1220,8 @@ function routeProblems(id: Id<"route">, held: RouteState, content: Content): str
   ] as const) {
     if (!Number.isSafeInteger(value) || value < 0) problems.push(`${id} has ${name} ${String(value)}.`);
   }
+  // route-gates:family-gift-counts-with-deed: a gift recorded is whole naira above nothing.
+  if (held.gift !== undefined && (!Number.isSafeInteger(held.gift.amount) || held.gift.amount <= 0)) problems.push(`${id} records a gift of ${String(held.gift.amount)}.`);
   return problems;
 }
 
@@ -1238,6 +1259,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply-school": applySchool,
     "route/apply": applyVisa,
     "route/support": support,
+    "route/gift": gift,
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
     "route/lapse": lapse,

@@ -90,6 +90,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.get-police-certificate": 2,
   "activity.gulf-medical": 2,
   "activity.get-eca": 1,
+  "activity.gift-deed": 1,
   "activity.request-verification": 1,
   "activity.apply-endorsement": 2,
   "activity.renew-licence": 1,

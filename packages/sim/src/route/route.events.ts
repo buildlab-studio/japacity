@@ -39,6 +39,10 @@ export type RouteKindEvent =
   | { type: "route/deposit-refunded"; route: Id<"route">; amount: number }
   /** Family money that counts by consent toward the route's funds (route:funds-shown-exclude-cash). */
   | { type: "route/supported"; route: Id<"route">; support: { currency: Currency; amount: number } }
+  /** The family's gift recorded on the route, in naira, not yet counted (route-gates:family-gift-counts-with-deed). */
+  | { type: "route/gifted"; route: Id<"route">; amount: number }
+  /** The gift's deed is held: the gift counts as the applicant's own money (route-gates:family-gift-counts-with-deed). */
+  | { type: "route/gift-deeded"; route: Id<"route"> }
   /**
    * A gate's own state moved (docs/rules/route-gates.md): a sponsor recorded, the
    * pool entered, an invitation, a step on the road. `note` names the line to

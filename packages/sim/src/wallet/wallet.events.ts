@@ -16,6 +16,8 @@ export type WalletEvent =
   | { type: "wallet/lot-recorded"; lot: Lot }
   /** Lots from before `keepFrom` were forgotten (wallet:large-deposits-record-lots). */
   | { type: "wallet/lots-dropped"; keepFrom: number; count: number }
+  /** route-gates:family-gift-counts-with-deed: one lot whose source a paper now explains, dropped before its months are up. */
+  | { type: "wallet/lot-dropped"; lot: Lot }
   /** A bank purchase used this much of the month's allowance, in US cents (wallet:monthly-fx-allowance). */
   | { type: "wallet/bought"; month: number; cents: number }
   /** A new month: the allowance is whole again (wallet:monthly-fx-allowance). */

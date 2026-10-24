@@ -26,6 +26,8 @@ export const documentText: Record<string, string> = {
   "document.endorsement.blurb": "A letter from the endorsing body saying your work leads the field. It lasts three months.",
   // A paper judged when it is issued (route-gates:endorsement-decided-by-draw): its wait says who answers and when, never that it will be ready.
   "document.endorsement.requested": "The endorsing body answers {month}.",
+  "document.gift-deed.name": "Gift deed",
+  "document.gift-deed.blurb": "A notary's paper that says your family's money is a gift to you, not a loan.",
   "document.medical.name": "Work medical",
   "document.medical.blurb": "The medical the Gulf employer asks for: blood tests, a chest X-ray and a stamp.",
   "document.nurse-certificate.name": "Nursing certificate",

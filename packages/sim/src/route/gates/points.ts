@@ -29,6 +29,8 @@ type PointsBlock = NonNullable<RouteEntry["points"]>;
 type PointsState = Extract<RouteGateState, { gate: "points" }>;
 
 const CARE: Id<"quality"> = "quality.care";
+/** route-gates:family-gift-counts-with-deed: the notary's deed that makes the family's gift count as the applicant's own money. */
+const GIFT_DEED: Id<"document"> = "document.gift-deed";
 /** The Canadian line is counted in Canadian cents (route-gates:entering-the-pool). */
 const FUNDS_CURRENCY: ForeignCurrency = "CAD";
 const MONTHS_PER_YEAR = 12;
@@ -202,14 +204,36 @@ export function pointsScore(read: ReadCtx, route: Id<"route">): number {
 export function pointsFunds(read: ReadCtx, route: Id<"route">): { shown: number; required: number } {
   const block = blockOf(routeEntry(read.content, route));
   const rates = officialRates(read.world);
+  const unproved = giftUncounted(read, route);
   let shown = 0;
   for (const currency of CURRENCIES) {
     const pocket = read.state.wallet.pockets[currency];
-    shown += convertMinor(pocket.bank, currency, FUNDS_CURRENCY, rates) + convertMinor(pocket.locked, currency, FUNDS_CURRENCY, rates);
+    // route-gates:family-gift-counts-with-deed: the gift is left out of the naira bank until its deed is held, never more than the bank holds.
+    const bank = currency === "NGN" ? pocket.bank - Math.min(unproved, pocket.bank) : pocket.bank;
+    shown += convertMinor(bank, currency, FUNDS_CURRENCY, rates) + convertMinor(pocket.locked, currency, FUNDS_CURRENCY, rates);
   }
   const support = read.state.route[route]?.support ?? null;
   if (support !== null) shown += convertMinor(support.amount, support.currency, FUNDS_CURRENCY, rates);
   return { shown, required: worldVar(read, block.fundsVar) };
+}
+
+/** route-gates:family-gift-counts-with-deed: the naira of the family's gift that does not count yet, 0 once its deed is held or with none given. */
+function giftUncounted(read: ReadCtx, route: Id<"route">): number {
+  const gift = read.state.route[route]?.gift;
+  return gift === undefined || gift.deeded ? 0 : gift.amount;
+}
+
+/**
+ * route-gates:family-gift-counts-with-deed: once the deed is held the gift counts, and its lot is dropped, so it adds nothing to the unexplained share.
+ * Read in the `clocks` phase after the papers are issued.
+ */
+function deedClock(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
+  const gift = ctx.state.route[entry.id]?.gift;
+  if (gift === undefined || gift.deeded || !ctx.check({ type: "document/held", document: GIFT_DEED }).met) return [];
+  const event: RouteKindEvent = { type: "route/gift-deeded", route: entry.id };
+  const events = emit(ctx, "route", [event]);
+  ctx.apply([{ type: "money/drop-lot", currency: "NGN", amount: gift.amount, reason: "gift" }], { source: entry.id, param: null, terms: {} });
+  return events;
 }
 
 /**
@@ -340,9 +364,10 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const block = blockOf(entry);
   const route = entry.id;
   const month = ctx.state.turn.month;
+  const deeded = deedClock(ctx, entry);
   const start = ctx.state.route[route];
-  if (start === undefined || start.state !== "known") return [];
-  const events: BaseEvent[] = [];
+  if (start === undefined || start.state !== "known") return deeded;
+  const events: BaseEvent[] = [...deeded];
   let gate = gateOf(start);
   // After a refusal the invitation is spent; the pool is entered again from the start.
   if (gate.invitedMonth !== null && start.lastRefusal !== null && start.lastRefusal.month > gate.invitedMonth) {
@@ -369,13 +394,14 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 
 export const pointsGate: Gate = {
   gate: "points",
-  steps: ["pool", "invited"],
+  steps: ["pool", "invited", "gift"],
   initial: () => ({ gate: "points", poolMonth: null, invitedMonth: null }),
-  // `pool` is a profile in the pool; `invited` an invitation, unpaid or used.
+  // `pool` is a profile in the pool; `invited` an invitation, unpaid or used; `gift` the family's gift taken (route-gates:family-gift-counts-with-deed).
   reached: (_read, _entry, held, step) => {
     const gate = gateOf(held);
     if (step === "pool") return gate.poolMonth !== null;
     if (step === "invited") return gate.invitedMonth !== null;
+    if (step === "gift") return held.gift !== undefined;
     return false;
   },
   // route-gates:pool-draws-invite: the invitation sends the application; no slot does.

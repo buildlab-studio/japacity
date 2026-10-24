@@ -297,6 +297,15 @@ function lotOf(state: State, currency: Currency, amount: number, reason: Reason)
   return { type: "wallet/lot-recorded", lot };
 }
 
+/** route-gates:family-gift-counts-with-deed: the oldest lot of this currency, amount and reason is dropped, its source explained; with none, nothing. */
+function dropLot(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "money/drop-lot") throw new Error(`money/drop-lot cannot carry out ${effect.type}.`);
+  const lot = ctx.state.wallet.lots.find((held) => held.currency === effect.currency && held.amount === effect.amount && held.reason === effect.reason);
+  if (lot === undefined) return [];
+  const dropped: WalletEvent = { type: "wallet/lot-dropped", lot };
+  return [dropped];
+}
+
 function addMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "money/add") throw new Error(`money/add cannot carry out ${effect.type}.`);
   const amount = effectAmount(ctx, effect.amount, cause.terms);
@@ -706,6 +715,10 @@ function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSli
       return { ...slice, lots: [...slice.lots, event.lot] };
     case "wallet/lots-dropped":
       return { ...slice, lots: slice.lots.filter((lot) => lot.month >= event.keepFrom) };
+    case "wallet/lot-dropped": {
+      const at = slice.lots.findIndex((lot) => lot.currency === event.lot.currency && lot.amount === event.lot.amount && lot.reason === event.lot.reason && lot.month === event.lot.month);
+      return at < 0 ? slice : { ...slice, lots: [...slice.lots.slice(0, at), ...slice.lots.slice(at + 1)] };
+    }
     case "wallet/bought": {
       const sofar = slice.bought.month === event.month ? slice.bought.cents : 0;
       return { ...slice, bought: { month: event.month, cents: sofar + event.cents } };
@@ -783,6 +796,7 @@ function lines(event: WalletEvent): ReportLine[] {
       return [];
     case "wallet/arrived":
     case "wallet/lots-dropped":
+    case "wallet/lot-dropped":
     case "wallet/bought":
     case "wallet/allowance-reset":
     case "wallet/cash-paid-in":
@@ -894,6 +908,7 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     "money/add": addMoney,
     "money/take": takeMoney,
     "money/pay-fee": payFee,
+    "money/drop-lot": dropLot,
     "wallet/top-up": topUpEffect,
   },
   phases: { settle, close: closeMonth },

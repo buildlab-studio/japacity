@@ -271,6 +271,8 @@ export type Requirement =
   | { type: "var/max"; var: Id<"var">; value: number }
   | { type: "month/min"; value: number }
   | { type: "chapter/done"; chapter: Id<"chapter"> }
+  /** The way the plan follows is this route (decision 0022, chapter:chapters-follow-lean-route); with none heard of, the master's is read as the plan (route-gates:family-gift-counts-with-deed). */
+  | { type: "chapter/plan"; route: Id<"route"> }
   // whole life
   | { type: "place/is"; where: Where; country?: Id<"country"> }
   /** With `grace`, the status is also in an overstay's grace (status:grace-allows-in-country-applications). */
@@ -336,6 +338,8 @@ export type Effect =
   | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
   /** Pay a foreign-currency fee from whatever the character holds: see wallet:foreign-fee-payment-order. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
+  /** The lot of this currency, amount and reason is dropped: its source is explained by a paper (route-gates:family-gift-counts-with-deed). */
+  | { type: "money/drop-lot"; currency: Currency; amount: number; reason: Reason }
   /** Naira bought with real money (wallet:top-ups-are-marked): to the naira bank as `top-up`, a lot recorded, and the marked figure raised by the amount. Only the authority's `wallet/top-up` applies it. */
   | { type: "wallet/top-up"; amount: number }
   // quality
@@ -359,6 +363,8 @@ export type Effect =
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }
+  /** The family's gift for the route is recorded on it, in naira (route-gates:family-gift-counts-with-deed). */
+  | { type: "route/gift"; route: Id<"route">; amount: Amount }
   /** The set piece finished: its score goes on the route's open visa application (route:answers-score-and-close). */
   | { type: "route/interview-scored"; route: Id<"route">; score: number }
   /** A sponsor, agent or connection is recorded on a gate route. `fraud` is hidden on the route. */
@@ -1814,6 +1820,8 @@ export interface RouteState {
   depositPaid: number;
   /** Money in a parent's account that counts by consent. It never leaves that account. */
   support: { currency: Currency; amount: number } | null;
+  /** The family's gift for this route, in naira, and whether its deed is held so it counts (route-gates:family-gift-counts-with-deed). Missing: none given. */
+  gift?: { amount: number; deeded: boolean };
   /** The last month-end funds check. */
   funds: { heldMonths: number; covered: boolean; shown: number; required: number };
   visa: VisaApplication | null;

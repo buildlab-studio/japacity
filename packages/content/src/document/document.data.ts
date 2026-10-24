@@ -35,6 +35,8 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   // The medical for the contract route (route-gates:gulf-application-needs).
   // Valid 3 months, as a Gulf work medical is; the page gives no validity.
   "document.medical": { id: "document.medical", wait: [1, 1], validMonths: 3, result: null },
+  // route-gates:family-gift-counts-with-deed: the notary's gift deed, a month (working value); a deed of gift does not run out.
+  "document.gift-deed": { id: "document.gift-deed", wait: [1, 1], validMonths: null, result: null },
   // The nurse's certification (activity:waiting-months-build-profile): asked for by a pass at the clinic's quiz, two months, for good.
   "document.nurse-certificate": { id: "document.nurse-certificate", wait: [2, 2], validMonths: null, result: null },
 };

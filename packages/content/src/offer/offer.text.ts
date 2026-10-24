@@ -218,6 +218,15 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.said.accept": "You took what your parents could give, with thanks. Their account now stands behind your file.",
   "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
 
+  "offer.family-gift-canada.name": "The family's gift for Canada",
+  "offer.family-gift-canada.title": "Not a loan",
+  "offer.family-gift-canada.body":
+    "“Canada wants to see the money is yours. We will give you {gift}. Not a loan, a gift. Get the paper from the notary so they believe it.”",
+  "offer.family-gift-canada.choice.accept": "Accept, with thanks",
+  "offer.family-gift-canada.choice.decline": "Tell him to keep it",
+  "offer.family-gift-canada.said.accept": "Papa sent the gift the same week. Canada counts it once the notary's deed is in your file.",
+  "offer.family-gift-canada.said.decline": "You told your father to keep it. He said the offer stands no longer.",
+
   "offer.family-loan.name": "Papa's loan",
   "offer.family-loan.title": "We can lend",
   "offer.family-loan.body":
@@ -457,6 +466,7 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge.who": "Papa",
   "offer.family-pledge-small.who": "Mama",
   "offer.family-loan.who": "Papa",
+  "offer.family-gift-canada.who": "Papa",
   "offer.sponsor-care-home.who": "A care home",
   "offer.sponsor-trust.who": "A hospital trust",
   "offer.sponsor-tech-firm.who": "A tech firm",

@@ -27,6 +27,7 @@ const REQUIREMENT_TYPES = [
   "var/max",
   "month/min",
   "chapter/done",
+  "chapter/plan",
   "place/is",
   "status/is",
   "status/clock-under",

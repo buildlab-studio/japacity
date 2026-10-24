@@ -423,8 +423,15 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.family-meeting": {
     id: "activity.family-meeting",
     slot: "free",
+    // route-gates:family-gift-counts-with-deed: a school's offer for the master's, or a Canada plan with the credential assessment held.
     requires: [
-      { type: "route/offer", route: UK },
+      {
+        type: "any",
+        of: [
+          { type: "route/offer", route: UK },
+          { type: "not", of: { type: "any", of: [{ type: "not", of: known(CANADA) }, { type: "not", of: held("document.eca") }] } },
+        ],
+      },
       { type: "quality/min", quality: "quality.standing", value: 30 },
       { type: "quality/max", quality: "quality.family-stake", value: 0 },
     ],
@@ -432,12 +439,13 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [],
     pay: null,
     hireBp: null,
-    // Each pledge has its own standing band, so at most one of these opens.
+    // Each pledge has its own standing band, and the gift asks the Canada plan picked (decision 0022), so at most one of these opens.
     effects: [
       { type: "offer/open", offer: "offer.family-pledge" },
       { type: "offer/open", offer: "offer.family-pledge-small" },
+      { type: "offer/open", offer: "offer.family-gift-canada" },
     ],
-    counts: [UK],
+    counts: [UK, CANADA],
   },
   // The family's loan (the passbook's family road): a call to Papa from home, once
   // the life stands well with the house and the house has something to give. No deadline, so nothing is charged; the
@@ -783,6 +791,19 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     pay: null,
     hireBp: null,
     effects: [{ type: "document/request", document: "document.eca" }],
+    counts: [CANADA],
+  },
+  // route-gates:family-gift-counts-with-deed: the notary's deed for the family's gift, ₦20,000 and a month (working values, not verified).
+  "activity.gift-deed": {
+    id: "activity.gift-deed",
+    slot: "free",
+    where: "home",
+    requires: [{ type: "route/gate-step", route: CANADA, step: "gift" }, { type: "document/absent", document: "document.gift-deed" }],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(20000), reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.gift-deed" }],
     counts: [CANADA],
   },
   "activity.enter-pool": {

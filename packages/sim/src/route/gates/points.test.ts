@@ -605,9 +605,10 @@ describe("the points gate", () => {
   });
 
   describe("the gate", () => {
-    test("[route-gates:route-runs-its-gate-steps] given the points route, when its steps are listed, then they are pool and invited, and any other step is never reached", () => {
+    test("[route-gates:route-runs-its-gate-steps] [route-gates:family-gift-counts-with-deed] given the points route, when its steps are listed, then they are pool, invited and the family's gift taken, and any other step is never reached", () => {
       const game = developer({ vars: () => ({ [CUTOFF]: DEVELOPER_SCORE }) });
-      expect(GATES.points.steps).toEqual(["pool", "invited"]);
+      expect(GATES.points.steps).toEqual(["pool", "invited", "gift"]);
+      expect(stepMet(game, "gift")).toBe(false);
       toPool(game);
       expect(stepMet(game, "pool")).toBe(true);
       expect(stepMet(game, "sponsor")).toBe(false);

@@ -29,6 +29,21 @@ const CREDIT_CLEAN: Requirement = { type: "quality/max", quality: "quality.credi
 const SIX_MONTHS_IN_ANY_JOB: Requirement = { type: "activity/tenure", activities: [], months: 6 };
 
 /** A sponsor or agent comes up while its route is known and its window is not closed (route-gates:sponsor-offers-come-up, route-gates:gulf-agent-offer). */
+/** route-gates:family-gift-counts-with-deed: a Canada plan fits the family meeting once its page is looked into and the credential assessment is held. */
+const CANADA_FITS: Requirement[] = [
+  { type: "route/state", route: "route.canada-points", in: ["known"] },
+  { type: "document/held", document: "document.eca" },
+];
+/** The master's fits the family meeting while a school's offer is held (offer.md, the pledges). */
+const MASTERS_FITS: Requirement = { type: "route/offer", route: UK };
+/** Decision 0022: with both ways fitting, the plan's way picks; with no plan, the master's. The gift asks Canada to be picked. */
+const CANADA_PICKED: Requirement = { type: "any", of: [{ type: "chapter/plan", route: "route.canada-points" }, { type: "not", of: MASTERS_FITS }] };
+/** The pledges ask the master's to be picked: Canada does not fit, or it is not the plan. */
+const MASTERS_PICKED: Requirement = {
+  type: "any",
+  of: [...CANADA_FITS.map((requirement): Requirement => ({ type: "not", of: requirement })), { type: "not", of: { type: "chapter/plan", route: "route.canada-points" } }],
+};
+
 function sponsorWhen(route: Id<"route">, window: Id<"var">): Requirement[] {
   return [
     { type: "place/is", where: "home" },
@@ -850,7 +865,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.family-pledge": {
     id: "offer.family-pledge",
     group: "money",
-    when: [{ type: "quality/min", quality: "quality.standing", value: 50 }],
+    when: [{ type: "quality/min", quality: "quality.standing", value: 50 }, MASTERS_PICKED],
     chanceBp: 0,
     cooldown: 0,
     maxTimes: 1,
@@ -890,6 +905,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     when: [
       { type: "quality/min", quality: "quality.standing", value: 30 },
       { type: "quality/max", quality: "quality.standing", value: 49 },
+      MASTERS_PICKED,
     ],
     chanceBp: 0,
     cooldown: 0,
@@ -921,6 +937,37 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         fraudEffects: null,
       },
     ],
+    onExpire: null,
+  },
+  // route-gates:family-gift-counts-with-deed: the family meeting's gift for a Canada plan, family means times ₦100,000, a third of the
+  // pledge's show and a gift where the pledge is a signature (working value). Opened only by the meeting, once; it lapses into nothing.
+  "offer.family-gift-canada": {
+    id: "offer.family-gift-canada",
+    group: "money",
+    where: "home",
+    when: [...CANADA_FITS, { type: "quality/min", quality: "quality.standing", value: 40 }, { type: "quality/max", quality: "quality.family-stake", value: 0 }, CANADA_PICKED],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: 1,
+    expiresAfter: 3,
+    terms: { gift: { from: "quality", quality: "quality.family-means", times: naira(100000) } },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "accept",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "money/add", currency: "NGN", pocket: "bank", amount: { term: "gift" }, reason: "gift", flagged: true },
+          { type: "route/gift", route: "route.canada-points", amount: { term: "gift" } },
+          { type: "quality/add", quality: "quality.family-stake", amount: 1 },
+        ],
+        fraudEffects: null,
+      },
+      { id: "decline", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.standing", amount: -2 }], fraudEffects: null },
+    ],
+    // offer:lapsed-offer-removed: an unanswered gift lapses into nothing, as both pledges do.
     onExpire: null,
   },
   // The family's loan (the passbook's family road): opened only by the call to Papa. The house lends what it can, by its

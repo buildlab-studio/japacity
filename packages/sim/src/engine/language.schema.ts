@@ -223,6 +223,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("var/max"), var: idOf("var"), value: IntSchema }),
   z.strictObject({ type: z.literal("month/min"), value: CountSchema }),
   z.strictObject({ type: z.literal("chapter/done"), chapter: idOf("chapter") }),
+  z.strictObject({ type: z.literal("chapter/plan"), route: idOf("route") }),
   z.strictObject({ type: z.literal("place/is"), where: WhereSchema, country: idOf("country").exactOptional() }),
   z.strictObject({ type: z.literal("status/is"), statuses: z.array(idOf("status")), grace: z.literal(true).exactOptional() }),
   z.strictObject({ type: z.literal("status/clock-under"), months: CountSchema }),
@@ -300,6 +301,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     amount: AmountSchema,
     reason: ReasonSchema,
   }),
+  z.strictObject({ type: z.literal("money/drop-lot"), currency: CurrencySchema, amount: CountSchema, reason: ReasonSchema }),
   // wallet:top-ups-are-marked: the authority's top-up alone applies it; a test proves no content entry carries it.
   z.strictObject({ type: z.literal("wallet/top-up"), amount: z.int().positive() }),
   z.strictObject({ type: z.literal("quality/add"), quality: idOf("quality"), amount: IntSchema }),
@@ -330,6 +332,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     currency: CurrencySchema,
     amount: AmountSchema,
   }),
+  z.strictObject({ type: z.literal("route/gift"), route: idOf("route"), amount: AmountSchema }),
   z.strictObject({ type: z.literal("route/interview-scored"), route: idOf("route"), score: IntSchema }),
   z.strictObject({ type: z.literal("people/moment"), kind: z.enum(["met", "call", "said", "wedding"]) }),
   z.strictObject({ type: z.literal("route/withdraw"), route: idOf("route") }),

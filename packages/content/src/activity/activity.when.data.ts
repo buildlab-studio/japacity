@@ -56,6 +56,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.get-police-certificate": "once",
   "activity.gulf-medical": "once",
   "activity.get-eca": "once",
+  "activity.gift-deed": "once",
   "activity.request-verification": "once",
   "activity.apply-endorsement": "once",
   "activity.renew-licence": "once",
