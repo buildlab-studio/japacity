@@ -5,22 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1791727804978,
+      "when": 1792100287451,
       "tag": "0000_japacity",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1791727812173,
-      "tag": "0001_functions-and-triggers",
+      "when": 1792608413994,
+      "tag": "0001_person",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1792095279329,
-      "tag": "0002_dedication-lights",
+      "when": 1792696620931,
+      "tag": "0002_switch-log-insert-only",
       "breakpoints": true
     }
   ]

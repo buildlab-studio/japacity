@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1792100287451,
+      "when": 1792844207714,
       "tag": "0000_japacity",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1792608413994,
-      "tag": "0001_person",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1792696620931,
-      "tag": "0002_switch-log-insert-only",
       "breakpoints": true
     }
   ]

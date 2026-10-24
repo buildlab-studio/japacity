@@ -426,6 +426,17 @@ CREATE TABLE "board_figures" (
 	"week_start" integer
 );
 --> statement-breakpoint
+CREATE TABLE "dedication_lights" (
+	"account_id" text PRIMARY KEY NOT NULL,
+	"id" text NOT NULL,
+	"name" text NOT NULL,
+	"from_year" integer,
+	"to_year" integer,
+	"lit_at" bigint NOT NULL,
+	"approved_at" bigint,
+	"approved_by" text
+);
+--> statement-breakpoint
 ALTER TABLE "campaigns" ADD CONSTRAINT "campaigns_advertiser_advertisers_id_fk" FOREIGN KEY ("advertiser") REFERENCES "public"."advertisers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "creatives" ADD CONSTRAINT "creatives_campaign_campaigns_id_fk" FOREIGN KEY ("campaign") REFERENCES "public"."campaigns"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -437,6 +448,7 @@ ALTER TABLE "snapshots" ADD CONSTRAINT "snapshots_character_characters_id_fk" FO
 ALTER TABLE "draw_tickets" ADD CONSTRAINT "draw_tickets_draw_draws_draw_fk" FOREIGN KEY ("draw") REFERENCES "public"."draws"("draw") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "holds" ADD CONSTRAINT "holds_report_reports_id_fk" FOREIGN KEY ("report") REFERENCES "public"."reports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "board_figures" ADD CONSTRAINT "board_figures_character_characters_id_fk" FOREIGN KEY ("character") REFERENCES "public"."characters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "dedication_lights" ADD CONSTRAINT "dedication_lights_account_id_accounts_id_fk" FOREIGN KEY ("account_id") REFERENCES "public"."accounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "accounts_username_idx" ON "accounts" USING btree (lower("username"));--> statement-breakpoint
 CREATE INDEX "accounts_idle_guests_idx" ON "accounts" USING btree ("last_played_at") WHERE "accounts"."state" = 'guest';--> statement-breakpoint
 CREATE UNIQUE INDEX "deletions_pending_idx" ON "deletions" USING btree ("account") WHERE "deletions"."completed_at" is null;--> statement-breakpoint
@@ -476,4 +488,12 @@ CREATE INDEX "reports_status_idx" ON "reports" USING btree ("status","at");--> s
 CREATE INDEX "board_figures_figure_idx" ON "board_figures" USING btree ("figure" DESC NULLS LAST,"joined_at","character") WHERE "board_figures"."listed" and "board_figures"."figure" is not null;--> statement-breakpoint
 CREATE INDEX "board_figures_week_idx" ON "board_figures" USING btree ("week");--> statement-breakpoint
 CREATE INDEX "board_figures_account_idx" ON "board_figures" USING btree ("account");--> statement-breakpoint
-CREATE INDEX "board_figures_joined_week_idx" ON "board_figures" USING btree ("joined_week");
+CREATE INDEX "board_figures_joined_week_idx" ON "board_figures" USING btree ("joined_week");--> statement-breakpoint
+CREATE UNIQUE INDEX "dedication_lights_id_idx" ON "dedication_lights" USING btree ("id");--> statement-breakpoint
+CREATE INDEX "dedication_lights_shared_idx" ON "dedication_lights" USING btree (("approved_at" is not null) desc,"lit_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "dedication_lights_pending_idx" ON "dedication_lights" USING btree ("lit_at") WHERE "dedication_lights"."approved_at" is null;
+--> statement-breakpoint
+-- What the Drizzle schema cannot say, written by hand and carried in from the old 0001_functions-and-triggers when the
+-- three migrations became this one file (15 Oct 2026): the admin log is insert only (moderation.md contract).
+CREATE FUNCTION "moderation_log_insert_only"() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'moderation_log is insert only'; END $$;--> statement-breakpoint
+CREATE TRIGGER "moderation_log_insert_only" BEFORE UPDATE OR DELETE ON "moderation_log" FOR EACH ROW EXECUTE FUNCTION "moderation_log_insert_only"();
