@@ -24,7 +24,93 @@ const POUND_TARGET = 600000;
 
 const SAFE_CASH_MOVE = 50000000;
 
-export type StrategyName = "careful" | "borrower" | "risky" | "honest-home" | "spender" | "canada" | "road" | "careful-masters" | "borrower-masters";
+export type StrategyName =
+  | "careful"
+  | "borrower"
+  | "risky"
+  | "honest-home"
+  | "spender"
+  | "canada"
+  | "road"
+  | "careful-masters"
+  | "borrower-masters"
+  | "trade-loyal"
+  | "free-pivot"
+  | "paid-pivot";
+
+/** The trades at home, each with its own ladder (activity:each-trade-climbs-its-ladder). */
+export type TradeName = "nurse" | "teacher" | "support" | "shop" | "fish" | "bank" | "accounting" | "developer";
+
+/** A trade as a player who stays in it reads it: its rungs, its side job, the own work it opens, its papers and what its rungs ask. */
+export interface Trade {
+  /** The rungs a hunt lands, first to top. */
+  jobs: Id<"activity">[];
+  /** The own work opened with its capital, never hunted (activity:capital-opens-own-work, activity:trader-opens-own-shop): the act and the job it starts. */
+  opens: { act: Id<"activity">; job: Id<"activity"> }[];
+  side: Id<"activity"> | null;
+  /** The trade's papers, sought once the life is in the trade. */
+  papers: Id<"activity">[];
+  /** The English the trade's rungs and side job ask at their best. */
+  english: number;
+  /** The tech the trade's own rungs ask; a tech trade studies on to the top. */
+  tech: number;
+}
+
+const DEVELOPER_JOBS: Id<"activity">[] = ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"];
+
+export const TRADES: Record<TradeName, Trade> = {
+  nurse: { jobs: ["activity.job-nurse", "activity.job-senior-nurse", "activity.job-ward-manager"], opens: [], side: "activity.home-care-visits", papers: [], english: 0, tech: 0 },
+  teacher: {
+    jobs: ["activity.job-teacher", "activity.job-senior-teacher", "activity.job-head-of-department"],
+    opens: [],
+    side: "activity.weekend-tutoring",
+    papers: ["activity.get-trcn"],
+    english: 70,
+    tech: 0,
+  },
+  // The remote rung asks tech 20 of a support agent, so the trade studies that far and no further.
+  support: { jobs: ["activity.job-customer-service", "activity.job-team-lead", "activity.job-remote-support"], opens: [], side: "activity.night-support", papers: [], english: 75, tech: 20 },
+  shop: { jobs: ["activity.job-phone-sales", "activity.job-shop-supervisor"], opens: [{ act: "activity.open-shop", job: "activity.run-shop" }], side: "activity.phone-repairs", papers: [], english: 0, tech: 20 },
+  fish: {
+    jobs: ["activity.job-fish-racks"],
+    opens: [
+      { act: "activity.buy-kiln", job: "activity.job-fish-smoker" },
+      { act: "activity.start-fish-trade", job: "activity.job-fish-trader" },
+    ],
+    side: "activity.canoe-deliveries",
+    papers: [],
+    english: 0,
+    tech: 0,
+  },
+  bank: { jobs: ["activity.job-bank-officer", "activity.job-bank-senior", "activity.job-relationship-manager"], opens: [{ act: "activity.open-pos-stand", job: "activity.pos-stand" }], side: "activity.pos-stand", papers: [], english: 0, tech: 0 },
+  accounting: {
+    jobs: ["activity.job-accounts-officer", "activity.job-chartered-accountant", "activity.job-finance-manager"],
+    opens: [],
+    side: "activity.bookkeeping",
+    papers: ["activity.ican-exams"],
+    english: 0,
+    tech: 0,
+  },
+  developer: { jobs: DEVELOPER_JOBS, opens: [], side: null, papers: [], english: 60, tech: 75 },
+};
+
+/** The trade a job belongs to, or null for a job of no trade at home. */
+export function tradeOfJob(job: string | null): TradeName | null {
+  if (job === null) return null;
+  for (const [name, trade] of Object.entries(TRADES) as [TradeName, Trade][]) {
+    if (trade.jobs.includes(job as Id<"activity">) || trade.opens.some((opened) => opened.job === job)) return name;
+  }
+  return null;
+}
+
+/** A balance style played in one trade, toward the ways out that fit it, with the way it makes its plan (decision 0022). */
+export interface TradePlay {
+  trade: TradeName;
+  routes: Id<"route">[];
+  plan: Id<"route">;
+  /** A way taken up only once the months given have passed without a flight: the trade's fallback. */
+  fallback?: { route: Id<"route">; after: number };
+}
 
 export const STRATEGY_NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 
@@ -79,6 +165,16 @@ interface Habits {
   prologue: "first" | "last";
   /** Makes the master's the plan at the first chance (decision 0022) and takes the education loan when offered. Missing: neither. */
   plansMasters?: boolean;
+  /** The trade this player stays in: it hunts only its rungs and its side job. Missing: any job that pays more. */
+  trade?: Trade;
+  /** The way made the plan at the first chance (decision 0022). Missing: the plan is left to the order heard. */
+  plan?: Id<"route">;
+  /** Takes the family's gift for Canada and its deed (route-gates:family-gift-counts-with-deed). */
+  takesGift?: boolean;
+  /** How tech is learned: the free path, or a paid path. Missing: the day's class. */
+  learns?: "free" | "paid";
+  /** A way taken up only from the month given (TradePlay's fallback). */
+  fallback?: { route: Id<"route">; after: number };
 }
 
 const CAREFUL_DECEMBER = ["stay", "none", "home", "plain", "small", "some"];
@@ -236,7 +332,7 @@ const PLAYED = {
     road: LEAVE_ROAD,
     prologue: "first",
   },
-} satisfies Record<Exclude<StrategyName, "canada" | "road" | "careful-masters" | "borrower-masters">, Habits>;
+} satisfies Record<Exclude<StrategyName, "canada" | "road" | "careful-masters" | "borrower-masters" | "trade-loyal" | "free-pivot" | "paid-pivot">, Habits>;
 
 /**
  * The two recorded lives for the countries beyond the UK (tools/goldens/record-lives.ts, docs/design/11-calgary-dubai-and-castel-volturno.md section 7) play the careful
@@ -250,7 +346,26 @@ const HABITS: Record<StrategyName, Habits> = {
   // The master's recordings (tools/goldens/record-lives.ts): a player who has chosen the master's, and otherwise plays as careful or borrower does.
   "careful-masters": { ...PLAYED.careful, plansMasters: true },
   "borrower-masters": { ...PLAYED.borrower, plansMasters: true },
+  // The balance styles of scenario:economy-meets-its-targets. Played without a trade they read the life's own from the job held (tradeHabits).
+  "trade-loyal": { ...PLAYED.careful, takesGift: true },
+  "free-pivot": { ...PLAYED.careful, takesGift: true, learns: "free" },
+  "paid-pivot": { ...PLAYED.careful, takesGift: true, learns: "paid" },
 };
+
+/**
+ * scenario:economy-meets-its-targets: a balance style played in a trade toward the ways that fit it. The trade-loyal player hunts only the
+ * trade's rungs and side job and studies tech only as far as its trade asks; the pivots are careful players who learn their way to the
+ * developer's jobs. Each makes its plan the trade's cheapest way at the first chance and works only the ways given.
+ */
+function tradeHabits(name: StrategyName, play: TradePlay): Habits {
+  const base = HABITS[name];
+  const studies = play.routes.includes(UK);
+  const others = play.routes.filter((route) => route !== UK);
+  // Canada's points pay for the band, so a player making Canada the plan practises to the top of the scale before sitting.
+  const english = play.plan === CANADA ? CANADA_ENGLISH : base.englishBeforeTest;
+  const routed: Habits = { ...base, plan: play.plan, studies, otherRoutes: others, takesGulf: others.includes(GULF), englishBeforeTest: english, ...(play.fallback === undefined ? {} : { fallback: play.fallback }) };
+  return name === "trade-loyal" ? { ...routed, trade: TRADES[play.trade] } : routed;
+}
 
 // ---------------------------------------------------------------------------
 // Reading the view
@@ -502,7 +617,9 @@ function commonOffer(view: PlayerView, content: Content, habits: Habits, offer: 
       return chooseFirst(offer, habits.takesGulf ? ["take", "walk-away"] : ["walk-away"]);
     case "offer.job": {
       const job = offer.terms.job;
-      return choose(offer, typeof job === "string" && payOf(view, content, job) > payOf(view, content, view.job.id) ? "accept" : "decline");
+      const inTrade = habits.trade === undefined || (typeof job === "string" && (habits.trade.jobs.includes(job as Id<"activity">) || habits.trade.side === job));
+      const pivot = habits.learns !== undefined && typeof job === "string" && DEVELOPER_JOBS.includes(job as Id<"activity">) && !DEVELOPER_JOBS.includes(view.job.id as Id<"activity">);
+      return choose(offer, pivot || (inTrade && typeof job === "string" && payOf(view, content, job) > payOf(view, content, view.job.id)) ? "accept" : "decline");
     }
     default:
       break;
@@ -551,6 +668,9 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
       case "offer.family-pledge-small":
         command = choose(offer, "accept");
         break;
+      case "offer.family-gift-canada":
+        if (habits.takesGift === true) command = choose(offer, "accept");
+        break;
       case "offer.land-buyer":
         command = choose(offer, gapKobo > 0 && study ? "sell" : "hold");
         break;
@@ -591,15 +711,21 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
 // The month's slots at home
 // ---------------------------------------------------------------------------
 
-function bestJobParam(view: PlayerView, content: Content): string | null {
+function bestJobParam(view: PlayerView, content: Content, habits: Habits): string | null {
   const hunt = option(view, "activity.job-hunt");
   if (hunt === undefined || !hunt.allowed || hunt.params === null) return null;
-  const current = payOf(view, content, view.job.id);
+  // A pivot takes a developer's job as soon as one is open to it, whatever the trade it leaves pays, and climbs from there.
+  const pivoting = habits.learns !== undefined && hunt.params.some((job) => DEVELOPER_JOBS.includes(job as Id<"activity">));
+  const onDeveloper = view.job.id !== null && DEVELOPER_JOBS.includes(view.job.id);
+  const current = pivoting && !onDeveloper ? 0 : payOf(view, content, view.job.id);
   let best: string | null = null;
   let bestPay = current;
   for (const job of hunt.params) {
     // A side job is hunted the same way and is not a better job (activity:side-job-holds-a-slot).
     if (content.activity[job as Id<"activity">]?.slot !== "main") continue;
+    // A player who stays in a trade hunts its rungs only, and a pivot the developer's jobs once it can.
+    if (habits.trade !== undefined && !habits.trade.jobs.includes(job as Id<"activity">)) continue;
+    if (pivoting && !DEVELOPER_JOBS.includes(job as Id<"activity">)) continue;
     const pay = payOf(view, content, job);
     if (pay > bestPay) {
       best = job;
@@ -634,6 +760,8 @@ const ITEM_ACTIVITY: Record<string, string> = {
   network: "activity.meetup",
 };
 
+const CARE_ROUTE: Id<"route"> = "route.uk-care";
+
 const APPLY: Record<string, string> = {
   "route.uk-care": "activity.apply-uk-care",
   "route.uk-skilled": "activity.apply-uk-skilled",
@@ -651,7 +779,9 @@ function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
     .filter((item) => habits.otherRoutes.includes(item.id) && (item.state === "known" || item.state === "applying"))
     .sort((left, right) => (right.percent ?? 0) - (left.percent ?? 0));
   for (const item of routes) {
-    if (item.state !== "known" || item.window === "closed") continue;
+    // route-gates:nurses-sponsored-while-care-shut: a nurse works the care route's file while its window is shut, for a trust's post.
+    const trustOpen = item.id === CARE_ROUTE && documentState(view, "document.nursing-licence") !== undefined;
+    if (item.state !== "known" || (item.window === "closed" && !trustOpen)) continue;
     const apply = APPLY[item.id];
     if (apply !== undefined && playable(view, apply)) add(apply);
     for (const entry of item.checklist) {
@@ -682,6 +812,66 @@ function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
   return picks;
 }
 
+/** The month's acts of a trade beyond the hunt for a rung: its side job, its own work opened, its papers. */
+function tradePicks(view: PlayerView, content: Content, trade: Trade, habits: Habits, hunting: boolean): SlotPick[] {
+  const picks: SlotPick[] = [];
+  const hunt = option(view, "activity.job-hunt");
+  // The side job is hunted the same way, in a month no rung is.
+  if (!hunting && trade.side !== null && view.job.id !== null && view.job.side === null && hunt?.allowed === true && (hunt.params ?? []).includes(trade.side)) {
+    picks.push({ activity: "activity.job-hunt", param: trade.side });
+  }
+  // Own work is opened only when it is the next step up: a main job paying more than the one held, or a side job with none held.
+  for (const { act, job } of trade.opens) {
+    const side = content.activity[job]?.slot === "side";
+    const better = side ? view.job.side === null : payOf(view, content, job) > payOf(view, content, view.job.id);
+    if (better && canSpendOn(view, act, habits)) picks.push({ activity: act, param: null });
+  }
+  for (const paper of trade.papers) if (view.job.id !== null && trade.jobs.includes(view.job.id) && canSpendOn(view, paper, habits, true)) picks.push({ activity: paper, param: null });
+  return picks;
+}
+
+const CANADA: Id<"route"> = "route.canada-points";
+/** The English a Canada plan practises to before sitting the test (document:english-test-band-value: the band's top). */
+const CANADA_ENGLISH = 96;
+
+/** route-gates:family-gift-counts-with-deed: the family meeting called for a Canada plan, then the notary's deed for the gift. */
+function giftPicks(view: PlayerView): SlotPick[] {
+  const picks: SlotPick[] = [];
+  if (view.plan.route === CANADA && playable(view, "activity.family-meeting")) picks.push({ activity: "activity.family-meeting", param: null });
+  if (playable(view, "activity.gift-deed")) picks.push({ activity: "activity.gift-deed", param: null });
+  return picks;
+}
+
+const PAID_PATHS: Id<"activity">[] = ["activity.bootcamp", "activity.tech-diploma", "activity.online-course"];
+const STUDY_PATHS: Id<"activity">[] = [...PAID_PATHS, "activity.learn-free", "activity.free-internship"];
+/** Naira, in kobo, the diploma's twelve instalments come to (activity:paid-tech-courses). */
+const DIPLOMA_FEES = 48000000;
+/** The months of what is due a player keeps before the bootcamp, which leaves it with no job for its six months. */
+const BOOTCAMP_MONTHS = 6;
+
+/**
+ * The tech study a pivot plays this month (activity:free-path-keeps-a-streak, activity:paid-tech-courses): a path held is played on;
+ * the free pivot works the free path until it teaches nothing more; the paid pivot, until junior-ready, takes the bootcamp when the
+ * money holds out its months, else the diploma when its fees fit, else the short course.
+ */
+function learningPick(view: PlayerView, habits: Habits): Id<"activity"> | null {
+  if (habits.learns === undefined) return null;
+  const tech = quality(view, "quality.tech");
+  const held = STUDY_PATHS.find((id) => {
+    const found = option(view, id);
+    return found !== undefined && found.onCourse !== true && found.allowed && view.activities.some((other) => other.onCourse === true);
+  });
+  if (held !== undefined) return held;
+  if (habits.learns === "free") return tech < 70 && canSpendOn(view, "activity.learn-free", habits) ? "activity.learn-free" : null;
+  // A paid path is for reaching junior-ready; past it the developer's job does the teaching.
+  if (tech >= 30) return null;
+  const spare = naira(view) - buffer(view, habits);
+  if (playable(view, "activity.bootcamp") && spare >= monthlyDue(view) * BOOTCAMP_MONTHS) return "activity.bootcamp";
+  if (playable(view, "activity.tech-diploma") && spare >= DIPLOMA_FEES) return "activity.tech-diploma";
+  if (canSpendOn(view, "activity.online-course", habits)) return "activity.online-course";
+  return null;
+}
+
 function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[] {
   const picks: SlotPick[] = [];
   const room = monthRoom(view);
@@ -705,8 +895,13 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
   if (wellbeing < 30) add("activity.rest");
   if (habits.leaves && uk?.state === "heard" && playable(view, "activity.look-into-route")) add("activity.look-into-route", UK);
 
-  const job = bestJobParam(view, content);
+  const job = bestJobParam(view, content, habits);
   if (job !== null) add("activity.job-hunt", job);
+  if (habits.trade !== undefined) for (const pick of tradePicks(view, content, habits.trade, habits, job !== null)) add(pick.activity, pick.param);
+  if (habits.takesGift === true) for (const pick of giftPicks(view)) add(pick.activity, pick.param);
+  // A pivot's study is its plan, so it comes before the routes' errands.
+  const learning = learningPick(view, habits);
+  if (learning !== null) add(learning);
 
   if (known && study) {
     if (canSpendOn(view, "activity.get-passport", habits, true)) add("activity.get-passport");
@@ -748,8 +943,10 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
   // What fills the rest: wellbeing first, then the skills that lead to better pay.
   for (let guard = 0; guard < 3 && picks.length < room; guard += 1) {
     if (wellbeing < 45) add("activity.rest");
-    else if (tech >= 40 && portfolio < 3 && playable(view, "activity.build-portfolio")) add("activity.build-portfolio");
-    else if (tech < 75 && canSpendOn(view, "activity.learn-tech", habits)) add("activity.learn-tech");
+    else if (tech >= 40 && portfolio < 3 && (habits.trade === undefined || habits.trade.tech >= 75) && playable(view, "activity.build-portfolio")) add("activity.build-portfolio");
+    else if (learning !== null && !picks.some((pick) => pick.activity === learning)) add(learning);
+    else if (tech < (habits.trade?.tech ?? 75) && canSpendOn(view, "activity.learn-tech", habits)) add("activity.learn-tech");
+    else if (habits.trade !== undefined && english < habits.trade.english && canSpendOn(view, "activity.study-english", habits)) add("activity.study-english");
     else if (habits.leaves && habits.prefersSettling && tech >= 60 && playable(view, "activity.meetup")) add("activity.meetup");
     else if (playable(view, "activity.side-gig")) add("activity.side-gig");
     else if (playable(view, "activity.family-time")) add("activity.family-time");
@@ -837,7 +1034,8 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
   const knownish = uk.state === "known" || uk.state === "applying";
   if (habits.buysPounds && knownish && view.pockets.GBP.bank < POUND_TARGET && view.bankAllowanceLeft !== null && view.bankAllowanceLeft > 0 && view.queued.length === 0) {
     const most = mulDiv(view.bankAllowanceLeft, view.rates.USD.official, 100) - 100;
-    const amount = Math.min(most, view.pockets.NGN.bank - buffer(view, habits) - due * 3);
+    // The broke line stays in naira: pounds bought ahead never leave the life broke at home.
+    const amount = Math.min(most, view.pockets.NGN.bank - buffer(view, habits) - due * 3 - BROKE_BELOW);
     if (amount >= 1000000) commands.push({ type: "wallet/convert", from: "NGN", to: "GBP", amount, via: "bank" });
   }
   return commands;
@@ -1060,16 +1258,25 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
   return commands;
 }
 
-/** Decision 0022: the master's made the plan as soon as it is one of the ways heard of, and again whenever another way has taken its place. */
+/** Decision 0022: the way chosen made the plan as soon as it is one of the ways heard of, and again whenever another way has taken its place. */
 function planCommands(view: PlayerView, habits: Habits): Loose[] {
-  if (habits.plansMasters !== true || view.plan.route === UK || !view.plan.ways.some((way) => way.route === UK)) return [];
-  return [{ type: "chapter/lean", route: UK }];
+  const plan = habits.plansMasters === true ? UK : (habits.plan ?? null);
+  if (plan === null || view.place.where !== "home" || view.plan.route === plan || !view.plan.ways.some((way) => way.route === plan)) return [];
+  return [{ type: "chapter/lean", route: plan }];
 }
 
 /** A strategy from a set of habits: answer, settle offers, handle money, then end the month. */
 function strategyOf(name: StrategyName): Strategy {
-  const habits = HABITS[name];
+  return habitsStrategy(HABITS[name]);
+}
+
+function habitsStrategy(fixed: Habits): Strategy {
   return (view, content) => {
+    const fallback = fixed.fallback;
+    const habits: Habits =
+      fallback === undefined || view.month < fallback.after
+        ? fixed
+        : { ...fixed, otherRoutes: [...fixed.otherRoutes, fallback.route], takesGulf: fixed.takesGulf || fallback.route === GULF };
     if (view.ended) return [];
     if (view.prologue !== null) return prologueAnswers(view, habits);
     if (view.setpiece !== null) return answer(view, habits);
@@ -1100,7 +1307,15 @@ export const strategies: Record<StrategyName, Strategy> = {
   road: strategyOf("road"),
   "careful-masters": strategyOf("careful-masters"),
   "borrower-masters": strategyOf("borrower-masters"),
+  "trade-loyal": strategyOf("trade-loyal"),
+  "free-pivot": strategyOf("free-pivot"),
+  "paid-pivot": strategyOf("paid-pivot"),
 };
+
+/** A style played in a trade toward the ways given (scenario:economy-meets-its-targets). */
+export function tradeStrategy(name: StrategyName, play: TradePlay): Strategy {
+  return habitsStrategy(tradeHabits(name, play));
+}
 
 // ---------------------------------------------------------------------------
 // The runner
@@ -1194,6 +1409,12 @@ export interface RunOptions {
   keepSave?: boolean;
   /** Stops the run early once this holds after a turn. */
   stopWhen?: (game: Game, record: RunRecord) => boolean;
+  /** Plays the style in a trade toward the ways given, in place of the style's own habits. */
+  play?: TradePlay;
+  /** Sees the events of every command accepted, with the game after it. */
+  onEvents?: (events: BaseEvent[], game: Game) => void;
+  /** Answers the prologue's cards in place of the style, as an archetype's preset does: the answer to send, or null for the style's own. */
+  prologue?: (step: string, answers: readonly { id: string; allowed: boolean }[]) => string | null;
 }
 
 const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.canada-resident"];
@@ -1299,7 +1520,16 @@ export function runLife(
 ): { record: RunRecord; game: Game } {
   const months = options.months ?? 60;
   const game = start({ scenario: life, seed, worldSeed: options.worldSeed ?? `world-${seed}`, content });
-  const strategy = strategies[name];
+  const played = options.play === undefined ? strategies[name] : tradeStrategy(name, options.play);
+  const answerer = options.prologue;
+  const strategy: Strategy =
+    answerer === undefined
+      ? played
+      : (view, content) => {
+          const card = view.prologue;
+          const answer = card === null ? null : answerer(card.step, card.answers);
+          return card !== null && answer !== null ? [{ type: "prologue/choose", step: card.step, answer }] : played(view, content);
+        };
   const record: RunRecord = {
     strategy: name,
     life,
@@ -1361,7 +1591,9 @@ export function runLife(
     }
     if (view.setpiece === null && view.prologue === null && (!restingTurnAccepted(game) || legalCommands(view).length === 0)) record.stuck += 1;
     const before = game.state;
-    const wanted = sentThisMonth > 12 && view.setpiece === null && view.prologue === null ? [{ type: "turn/end", slots: [] } as Loose] : strategy(view, content);
+    // Past a dozen commands in a month the month ends, with the slots the strategy wants: a now-act that repeats stops there.
+    const asked = strategy(view, content);
+    const wanted = sentThisMonth > 12 && view.setpiece === null && view.prologue === null ? [...asked.filter((command) => command.type === "turn/end"), { type: "turn/end", slots: [] } as Loose] : asked;
     let sent: Loose | null = null;
     let events: BaseEvent[] = [];
     for (const command of wanted) {
@@ -1386,6 +1618,7 @@ export function runLife(
       events = rest.events;
     }
     readEvents(events, record);
+    options.onEvents?.(events, game);
     const after = game.state;
     record.car = carFate(after, events, record.car);
     const was = before.route[UK];
