@@ -162,6 +162,9 @@ export const uiPhoneText: Record<string, string> = {
 
   "phone.bills.title": "What you owe",
   // route:education-loan-pays-the-school: the loan's charges wait on the course.
+  // obligation:paying-down-obligations: tuition behind, paid back whole, ends the fees office's stages and can reinstate a withdrawn student.
+  "phone.bills.tuition.line": "Pay what you missed and the fees office's letters stop. Paid within your two months, it reinstates you.",
+  "phone.bills.tuition.button": "Pay the arrears",
   "phone.bills.deferred": "Nothing to pay while you study. Repayments start the month after your Graduate visa, or after the course ends without it.",
   // activity:bootcamp-paid-after-a-job: the bootcamp's fee, owed from the first developer job.
   "phone.bills.why.obligation.bootcamp": "The bootcamp's fee, owed now a developer job is yours. No interest.",
