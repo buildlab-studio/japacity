@@ -1,12 +1,30 @@
 # Japacity: concept
 
-> What the game is: its concept. Where another page differs on the concept, this page wins.
-> Sections 9 and 15 pace the life by a budget of turns. In the game the month is lived by hand (`08-the-lived-month.md`, decision 0011), and the bank of turns gates nothing (`../rules/turn.md`). The 3D city is set out in `07-the-world-first.md`.
-> Evidence: the research pages in `../research/`. The rules for the dangerous route: `../rules/road.md`, "What the road holds to".
+## Context and scope
+
+This page says what the game is: a whole life, the world it is lived in, and the ways out of Nigeria and back. Where another design page differs on the concept, this page wins. The month as it is lived is on [page 08](08-the-lived-month.md), the 3D city on [page 07](07-the-world-first.md), overstaying on [page 12](12-overstaying.md). Each rule is stated once on its rule page in `../rules/`, and the facts behind the numbers are in `../research/`.
+
+**Japacity** is the game's name and its headline number: how ready a character is to japa, to leave, as a percentage (section 4).
+
+## Goals and non-goals
+
+**Goals.** The pillars in section 2: a life that is built, not a route that is picked; a world that moves for everyone at once; a main journey that can be finished early, then a life to keep living; honest dangerous routes; coming back as part of the game.
+
+**Non-goals.** The game does not have:
+
+- a matchmaker that pairs strangers, or typed free text between players (section 16);
+- voiced radio;
+- the United States as a destination: the countries are the UK, Canada, the UAE and Italy;
+- a relative played as a second character, or children;
+- bringing parents over;
+- timed medal tests or replays of real history;
+- money moved from one player to another (section 6, safety rule 4);
+- live real exchange rates (section 13);
+- a turn budget that paces play (section 19).
 
 ## 1. The game in one paragraph
 
-A shared online world where you live a Nigerian life a month at a time. You do not pick a way out. You study, work, hustle, build things, meet people, and marry, and ways out appear as your life comes to match them. The world keeps changing for everyone at once: a pandemic, a new government abroad, a currency crash, a labour shortage that opens a door and a scandal that shuts it. Getting out is the main journey, and it can be finished in the first few sessions. After that the game opens up: a job to keep, a car on finance, a credit file, family to bring over, December at home, and the way back.
+A shared online world where you live a Nigerian life a month at a time. You do not pick a way out. You study, work, hustle, save, meet people and marry, and ways out appear as your life comes to match them. The world keeps changing for everyone at once: a currency crash, a new government abroad, a labour shortage that opens a door and a scandal that shuts it. Getting out is the main journey, and it can be finished in the first few sessions. After that the game opens up: a job to keep, a car on finance, a credit file, a partner to bring over, December at home, and the way back.
 
 ## 2. Pillars
 
@@ -20,67 +38,73 @@ A shared online world where you live a Nigerian life a month at a time. You do n
 
 ## 3. The profile
 
-Everything the game knows about a character. Routes, offers, and news all read from it.
+Everything the game knows about a character. Routes, offers and news all read from it.
 
 | Group | Qualities |
 |---|---|
-| Education | Level, field, grade, standing of the school |
-| Work | Occupation, years in each occupation, seniority |
-| Skills | English test band, French, German, technical, care, trade, driving |
-| Proof | Things you can show: products launched, talks given, press, awards, publications, references |
-| Money | Naira, hard currency, debts, assets, and abroad a credit file |
-| People | Partner, siblings, parents, dependants, contacts (a professor, a mentor, an agent) |
-| Record | Travel history, refusals, overstays, arrests |
-| Self | Age, wellbeing, standing at home |
+| Education | Level and grade |
+| Work | The job held, months in each job, and abroad the months worked in that country |
+| Skills | English band, tech, care, driving |
+| Proof | Portfolio and network: talks, launches, open-source work, people who know your name |
+| Money | A wallet per currency, bank and cash; obligations; abroad a credit file |
+| People | Partner, siblings and parents, each a slot (section 6) |
+| Record | Refusals, returns, overstays and bans |
+| Self | Age, wellbeing, energy, standing at home, the family's means |
 
-The standing of the school decides what its degree is worth abroad, so a dearer school is more than a higher fee. A life's traits, what it carries from its background and prologue, stand on its data page.
+A life's traits, what it carries from its background and prologue, stand on its travel data page.
 
-Every gain is tagged with the routes it counts toward, and the game shows the tags. A talk at a tech event reads "counts toward: talent route, scholarship essays".
+Every gain names the routes it counts toward, and the game shows them (quality:gains-name-their-routes). A talk at a tech meetup reads "Counts toward: the talent route".
 
 ## 4. Routes as eligibility
 
-A route is a set of requirements over the profile, plus a window that the world opens and closes. Nobody selects a route at the start.
+A route is a checklist over the profile, plus a window that the world opens and closes. Nobody selects a route at the start.
 
-**Three states per route:**
+**The states of a route:**
 
 | State | What the player sees | How it changes |
 |---|---|---|
-| Unknown | Nothing | You hear of it from news, a person, or a place |
-| Heard of | A name and a rough idea, possibly wrong | You look into it: ask someone who went, pay a consultant, read the official page |
-| Known | A checklist with met items crossed out, and clocks for slow items like savings and years of experience | Stays known. The checklist updates when rules change |
+| Unknown | Nothing | You hear of it from news, a person or a place |
+| Heard of | A name and a rough idea | You look into it: the official page, someone who went, an adviser, an agent |
+| Known | A checklist with met items ticked, and slow items such as savings filling as they grow | Stays known. The checklist reads the state as it is |
+| Applying, granted, refused, departed | The application and its answer | A refusal puts the route back to known |
 
 **Rules:**
 
-- Where you spend time decides what you hear. Tech meetups carry talk of talent visas. The salon and the motor park carry talk of Dubai. The campus carries talk of professors and funding.
-- When several routes qualify, the player chooses. The game never assigns one.
-- Every route is guaranteed to reach every near-qualifier through at least one story or contact. Hiding things is pointless in a multiplayer game. Timing is what matters.
-- A refusal on one route goes on the record and is asked about on every later one.
+- Where you spend time decides what you hear. Tech meetups carry talk of the talent route. The salon and the motor park carry talk of the Gulf.
+- When several routes qualify, the player chooses which the chapters follow (decision 0022). The game never assigns one.
+- A route can name the month by which a life that meets its hearing conditions has heard of it (`hearBy`), so a route reaches everyone close to it. Timing is what matters.
+- An earlier refusal weighs on every later decision (route:visa-refusal-chance).
 
-**Japacity, the headline number.** A percentage for how ready a character is to leave. The game is named after it.
+**Japacity, the headline number.**
 
-- Every known route has its own percentage: how much of its checklist is met, with harder items counting for more.
-- Your japacity is the highest of those among routes whose window is open.
-- It moves with the world. A window closing can drop it overnight. A new route can lift it.
-- After leaving it keeps counting, toward the next status: settlement, then a passport.
+- Every known route has its own figure: how much of its checklist is met, with harder items weighing more. A granted or departed route scores 100.
+- Your japacity is the highest figure among known routes whose window is not closed, and routes applying, granted or departed (japacity:best-open-route-is-japacity).
+- It moves with the world. A window closing can drop it. A new route can lift it.
+- Abroad, the status shows the lawful months counted toward settlement and then citizenship.
 
-**Worked example.** A student plans a US student visa and builds grades and an English score. She never applies. She takes a job, speaks at events, and launches a product. At a meetup she hears of a talent visa. Her checklist shows two of three proofs already met, from things she did for other reasons. Meanwhile her husband, a nurse, qualifies for a healthcare draw. They now have two ways out and must choose who leads and who goes as the dependant.
+**Worked example.** A graduate means to do the UK master's and builds savings for it. She never applies. She takes a job, gives talks and ships open-source work. At a meetup she hears of the talent route. Its checklist shows most of the proof already met, from things she did for other reasons. Her husband qualifies for Canada's points. They have two ways out and must choose who leads and who goes as the dependant.
 
-**Routes that run through people**, added to the catalogue:
+**Routes that run through people:**
 
 | Route | What it needs | Real rule behind it |
 |---|---|---|
-| Dependant on a partner's route | A partner who qualifies, and dependant rules that allow it | Dependant bans on student and care routes |
-| Partner visa | A partner already abroad earning above a threshold, and evidence the relationship is real | An income bar. The visa is cut to 60 days if the relationship ends |
-| Sibling abroad | A sibling with settled status | A small fixed points bonus, 15 in the real system |
-| Bringing parents | Settled status and a place in a lottery | Sponsorship by lottery, sometimes paused, with a signed undertaking in both countries |
+| Dependant on a partner's route (`route.uk-dependant`, `route.canada-accompany`) | A partner who leads a route that allows a dependant | The UK master's and care routes take no dependant |
+| Partner visa (`route.uk-partner`, `route.canada-spouse`) | A partner settled abroad, above the UK's earnings floor of £29,000, and a relationship the interview finds real | The partner status is cut to 60 days if the relationship ends |
+
+A sibling settled in Canada adds 15 points to a Canadian score (person:canada-sibling-bonus). It is a bonus, not a route.
+
+The route's shape in content, abridged from `RouteEntry` in `packages/sim/src/engine/types.ts`:
 
 ```ts
-interface Route {
+interface RouteEntry {
   id: Id<"route">;
-  hearIf: Requirement[];     // when talk of it starts reaching this profile
-  checklist: Requirement[];  // shown once known, each item met or not
-  window: Id<"world-var">;   // open, narrowing, or closed, set by the director
-  grants: Id<"status">;      // the status you hold abroad if it succeeds
+  gate: RouteGate;              // the steps it runs: study, sponsor, points, endorsement, contract, partner, dependant or road
+  country: Id<"country"> | null;
+  status: Id<"status"> | null;  // the status held abroad after departure
+  hearIf: Requirement[];        // when talk of it reaches this profile
+  hearBy: number | null;        // the month by which a life that meets hearIf has heard of it
+  window: Id<"var"> | null;     // open, narrowing or closed, set by the world; null for the road
+  checklist: ChecklistItem[];   // weighted items, shown once known
 }
 ```
 
@@ -88,63 +112,62 @@ interface Route {
 
 Background is drawn and then played. It is never picked from a menu.
 
-- **The draw**: family money, city or town, family size and obligations. Random, weighted to real distributions.
-- **The prologue**: ages 16 to 22 in about eight minutes. A dozen choices: subjects, the admission exam, a course, a strike that costs a year, a side skill, a first hustle. News passes while you play. A route opens and closes before you are old enough to use it. A friend leaves.
-- **The result** is a starting profile, and with it the set of offers that will find you. A graduate from a comfortable Lagos family hears about master's degrees. A school leaver in a small town with five siblings hears from a recruiter.
-- **The hometown and the capital are journeys from Lagos**: the bus home to the hometown, and a trip to Abuja.
-- **A friend who joins as your sibling skips the draw.** They inherit your family: same parents, same town, same obligations.
+- **The draw**: the family's means, city or town, siblings, the parents' schooling. Random, on the prologue's own stream.
+- **The prologue**: a dozen steps from sixteen, through secondary school, the entrance exam, a course or a trade, to the end of the service year. Two headlines pass as flavour, and a friend's route is heard of at step 10.
+- **The front door** builds the person: a look, a first name, one archetype and an age from 18 to 29 (prologue:front-door-builds-a-person). An archetype is a preset of the prologue's answers; Begin plays them, the draws still run, and the travel data page prints how the years went. The life starts at the age picked, to the year (decision 0023).
+- **The result** is a starting profile, and with it the offers that will find you. A graduate from a comfortable Lagos family hears about master's degrees. A school leaver from a town with a big family hears from a recruiter.
+- **A friend who joins as your sibling shares your family's draw**: same means, same town, same parents (person:real-sibling-shares-family-draw).
 
 ## 6. People
 
-Partner, siblings, and parents are slots. A slot holds a real player or a computer character. **Nobody is ever blocked for lack of real friends.**
+Partner, siblings and parents are slots. A slot holds a real player or a computer character. **Nobody is ever blocked for lack of real friends** (person:nobody-real-is-needed).
 
-**Three ways a slot gets filled:**
+**Two ways a slot gets filled:**
 
 | Way | How it works |
 |---|---|
-| Invite | You share a card with your japacity and what you need: "Looking for: a sibling already in Canada" or "a partner who is a nurse". The link drops your friend straight into that slot |
-| The matchmaker | An aunty who keeps looking. She offers computer characters at once and real players who fit when she finds them, which can take days or weeks. Not part of the game (section 16) |
+| Invite | You share a card with what you are looking for: "a sibling already in Canada" or "a partner who is a nurse". The link brings your friend into that slot |
 | Computer character | Always available, always labelled as one |
 
 **What people give you**, all drawn from real rules:
 
 - A partner's profile can lead the application, with you as the dependant.
-- A partner abroad opens the partner route.
-- A sibling abroad adds a small fixed bonus on points routes, a couch when you land, and news from there before it reaches home.
+- A partner settled abroad opens the partner route.
+- A sibling abroad adds a fixed bonus on Canada's points, a couch when you land, and news from there before it reaches home.
 - Siblings share the family's requests for money. One sibling abroad raises what the family expects of them.
 
 **People can let you down. That is the point.**
 
-- Either side can end a relationship. If a joint application is in progress, it collapses. The dependant gets a 60-day clock to find another way, as in the real rule.
-- The one who leaves pays a cost in standing. The one left gets a recovery path, and never loses anything they earned alone.
+- Either side can end a relationship. A joint application in progress collapses. The dependant gets a 60-day clock to find another way, as in the real rule.
+- The one who ends it pays in standing. The one left loses nothing they earned alone.
 - Courting more than one person is possible. Word travels through gossip.
-- A partner who stops playing gets a warning at 7 real days. At 14 a labelled stand-in takes over so the other player's plan keeps moving.
+- A partner who stops playing gets a warning at 7 real days. At 14 a labelled stand-in takes over, so the other player's plan keeps moving.
 
 **The genuineness interview.** Any route that rests on a relationship ends in an interview where both partners answer questions about their shared history separately, and the answers are compared. A marriage made only for papers is a choice players can make. If it is caught, both carry a long ban on their record.
 
 **Sponsoring someone is a long promise**, as it is in the real rules:
 
-- The sponsor must earn above a floor, or meet it the other ways the real rules allow, such as savings.
-- The financial undertaking outlives the relationship. A divorce does not end it.
-- Someone who arrived through a partner cannot sponsor a new partner for five years, which is 60 turns.
+- The sponsor must be settled in the country and, for the UK, earn above the floor.
+- Canada's undertaking outlives the relationship. A divorce does not end it.
+- Someone who arrived through a partner cannot sponsor a new partner for five years, 60 months (undertaking:sponsored-arrivals-wait-to-sponsor).
 
-**Safety rules.** These come from the cases in research file 05.
+**Safety rules.** These come from the cases in `../research/05-real-people-family-and-safety.md`.
 
 1. Adults only, checked by the same date-of-birth screen for everyone: section 16.
 2. Characters only. No real names or photos. The game matches characters and is not a dating service.
-3. Friends who invite each other already have their own way to talk. Strangers matched by the game get preset phrases and in-game actions only. There is no free text. It would open only by mutual consent, with phone numbers, links, and payment details blocked.
-4. **Money is counted together and never moved.** A couple's funds are added up for an application without leaving either wallet. No shared wallets and no sending spendable money to another player. "My partner abroad needs money for fees" is the standard romance scam. Money can move between characters in your own family, through the channels in section 13.
+3. Contact is only between friends who joined through each other's invites, and even they talk in the game only in preset phrases and in-game actions (pair:preset-phrases-only). There is no free text.
+4. **Money is counted together and never moved.** A couple's funds are added up for an application without leaving either wallet (person:money-counted-never-moved). No shared wallets and no sending spendable money to another player. "My partner abroad needs money for fees" is the standard romance scam.
 5. Family requests are paid to the computer-run family, never to another player.
 6. Invite rewards come from what the friend goes on to do, never from sending, and never anything worth cash.
 7. Block and report on every interaction.
 
 ## 7. The world director
 
-Events are not a replay of history. They come from a pool of things that have really happened, fired in an order that cause and effect allows.
+The world director is the part of the simulation's world step that decides which stories happen. Events are not a replay of history. They come from a pool of things that have really happened, fired in an order that cause and effect allows. The world is built from the world seed and the tick, the same for every player (director:world-stepped-from-seed).
 
-**World variables** per destination: labour shortage by sector, public mood on migration, government stance, economy. At home: exchange rate, inflation, security, strikes.
+**World variables**: for each route a window (open, narrowing, closed), a strictness and a surge of applicants; the exchange rates and the supply of official dollars; at home inflation and the December season; and the fees and thresholds the routes read (director:world-variables-per-route).
 
-**The policy cycle** that the director runs for each route:
+**The policy cycle** the director runs for each route:
 
 ```mermaid
 flowchart LR
@@ -157,226 +180,195 @@ flowchart LR
   C -.-> B
 ```
 
-**Eras.** One at a time, announced by name, about four real weeks each:
+**Eras.** One at a time, announced by name. An era tilts which stories fire; it sets no rule of its own. Online an era lasts from about ten real days to about a month.
 
-| Era | What changes for everyone |
+| Era | What it tilts |
 |---|---|
-| Open door | Shortages abroad. Routes open faster than people can qualify |
-| Pandemic | Borders shut, exams move online, flights stop. Health workers and remote workers gain. People abroad cannot get home |
-| Hard line | A new government abroad changes rules every few days. Players spread their bets across countries |
-| Crash at home | The naira falls. Fees double. Anyone holding hard currency is suddenly rich at home |
-| Scandal | Abuse on a popular route is exposed. That route narrows or closes. Scams multiply as it does |
-| Strike | Universities shut. Transcripts and graduations slip. Study routes stall |
+| Calm | Nothing: every group of stories weighs the same. The world starts here |
+| Open door | Openings weigh three times, closures not at all |
+| Hard line | Closures and stricter decisions |
+| Crash at home | Rate stories and stories at home. Anyone holding hard currency is suddenly rich at home |
+| Scandal | Closures, and stories about life abroad |
+| Strike | Stories at home and about study |
+| Pandemic | Closures, remote work and the rates. It comes once |
 
 **What keeps the order sensible:**
 
-- An event fires only when its world variables allow it. A route cannot close before it has opened and surged.
-- Effects arrive with a delay. Every rule change passes through rumour, announcement, and in force.
-- One shock per era, with a minimum gap. Most checks produce nothing.
-- Personal offers follow the same logic. An offer reaches you because of who you are right now. A funded PhD holder does not meet the recruiter from the motor park. Someone who has lost status and owes money does.
+- A story fires only when the world's variables allow it. A route cannot close before it has opened and surged.
+- Effects arrive with a delay. Every rule change passes through rumour, announcement and in force.
+- Shocks keep a minimum gap, and most rolls produce nothing.
+- Personal offers follow the same logic. An offer reaches you because of who you are right now. Someone who has lost status and owes money meets the recruiter from the motor park.
 
 **Fairness rules**, from the cases where server-wide changes drove players away:
 
 1. Every era is named and has an end.
-2. Nothing earned is deleted. Qualifications, experience, and proofs survive every era.
-3. Applications already submitted are decided under the old rules.
+2. Nothing earned is deleted. Qualifications, experience and proofs survive every era (director:stories-never-undo-player-gains).
+3. Applications already submitted are decided under the figures recorded when they were sent (route:application-fixes-figures).
 4. Nothing takes effect less than two real days after it is announced.
 
 ## 8. News
 
-| Part | What it carries | Same for everyone? |
-|---|---|---|
-| Front page | Era-level stories and shocks | Yes |
-| For you | Stories ranked by relevance: routes you are close to, your occupation, your partner's and siblings' profiles, countries you follow | No |
-| World | Everything else | Yes |
-
-- Each "for you" story says why it was picked.
-- Ranking decides what you see first. It does not tell you what is true. Sources still differ in reliability, and rumours can be false.
-- Alerts can be dismissed and return while they still matter.
-- **Luck in the news**: a Canadian draw can come in two points under the score, the director lowering the cut-off for one tick (group `openings`, luck:japa-luck-in-existing-systems).
-- **Voiced radio**: news bulletins read aloud in Nigerian English or Pidgin, with the text always shown. It is not part of the game. Detail in `05-audio.md`.
+- Each story moves through rumour, announced, in force and ended, and a character is told of each stage once (news:changed-stages-delivered-once).
+- A story is marked "for you" when it touches a route the character has heard of or knows (news:for-you-when-touching-route). Era stories go to everyone's front page.
+- Ranking decides what you see first. It does not tell you what is true: rumours can be false.
+- **Luck in the news**: a Canadian care draw can lower the care cut-off for a while (`news.canada-care-draw`, group `openings`).
 
 ## 9. Time
 
-**Your life moves when you play. The world moves in real time.** The month is lived by hand (page 08), and the bank of turns below is kept but gates nothing (`../rules/turn.md`). The reasons below are why a life moves by play and not by the wall clock.
+**Your life moves when you play. The world moves in real time.**
 
 | Clock | Runs on | What it drives |
 |---|---|---|
-| Your life | Turns. One turn is one month of your character's life | Work, study, savings, experience, age, applications, payments due |
-| The world | Real time, the same for everyone | Rumours becoming law, eras, prices and the exchange rate, festivals on the real calendar. Real December is December |
+| Your life | Months, lived by hand. A month's free time is spent in half-days, and the month ends when you sleep (turn:month-lived-in-half-days, world:sleep-ends-the-month) | Work, study, savings, experience, age, applications, payments due |
+| The world's day | Real time, the same for everyone: one game day every 105 real minutes (clock:game-day-on-real-time) | The city's light, what is open, who is about |
+| The world's tick | Real time online: one tick every 12 real hours | The rates, the stories and the eras. Real December is December |
 
-**The turn budget:**
+**The bank of turns.** Each life keeps a bank of turns, and real time fills it: one turn every 2 real hours, 12 a real day, up to 24, which is two real days of filling, so two days away lose nothing. A new life starts with 24, and a closed chapter fills the bank. Each month lived takes one while it holds any, and it never holds a month back: the month turns at sleep whatever the bank holds (turn:month-turns-on-empty-bank). Its one use is the bank-full notice, sent once when it fills while the player is away (clock:full-bank-push-notification). No screen shows it.
 
-| Setting | Working number |
-|---|---|
-| New turns | One every 2 real hours, 12 a day |
-| Most you can bank | 24, which is two days away with nothing lost |
-| Starting bank | 24 |
-| Refills | A full refill at the end of each chapter of the main journey |
+**Why a life moves by play and not by the wall clock:**
 
-**Why this model:**
-
-- On any wall clock a first departure sits days away. On turns, a keen player can reach it in one sitting, and a player who comes by for a few minutes still moves forward.
-- It is the one pacing model with 15 to 20 years of precedent in shared browser games. In each the character moves on a budget and the world's events run on the real calendar.
+- On any wall clock a first departure sits days away. Lived by play, a keen player can reach it in one sitting, and a player who comes by for a few minutes still moves forward.
 - Absence costs nothing. Your character stands still while you are away. Only the world moves.
-- It matches how returning players behave: 4 to 5 visits a day of about 5 minutes is two or three turns a visit.
-- Energy systems are disliked when they block play, so the early game is generous: the starting bank plus chapter refills allow about an hour on day one.
+- The early game is generous: nothing makes the player wait to play.
 
-**What a turn is.** Plan the month: the main activity, plus two or three free slots for study, a hustle, an event, a date, paperwork, or rest. Resolve it. Read what it earned, what happened, and what the world did since you last looked. Quiet months can be run several at a time and stop when something needs a decision. Exams, interviews, and negotiations are set pieces inside a turn.
-
-**Every turn is a month of your life.** Twelve turns age the character a year, and points routes favour the young. The budget is therefore a real resource, and a wasted turn costs youth.
-
-**Walking around is free.** The city, other players, and live events cost no turns.
-
-**Ageing.** Age counts turns played and affects only the routes that really use it, such as points systems. It never ends a character. Nothing resets and nothing earned is lost. A player who wants a fresh start adds a relative (section 11). There is no handing over to an heir and no forced ageing.
+**Ageing.** Age moves with the months played and matters only to the routes that really use it, such as points tables. It never ends a character, and nothing earned is lost. A player who wants a fresh start ends the life and starts a new one (account:start-a-new-life); every bond with the old life ends (person:leaving-player-ends-bonds).
 
 ## 10. The main journey
 
-A short guided sequence that every player can finish, modelled on a racing game's menu books: each chapter is a small checklist, teaches one system, and ends with a reward and a refill.
+A short guided sequence that every player can finish: each chapter is a small checklist, teaches one system, and fills the bank of turns as it closes (chapter:met-items-close-the-chapter). The chapters follow the way out the player made the plan (decision 0022).
 
-| Chapter | What you do | What it teaches | Reached by |
-|---|---|---|---|
-| Prologue | Ages 16 to 22 in a dozen choices | The profile, the news, a window opening and closing | Minute 8 |
-| 1. Find your feet | First job, first pay, hear of a route and look into it | Turns, the routine, routes and checklists | Session one |
-| 2. Build the file | A test, the documents, the savings | Requirements, clocks, queues, agents | Day one or two |
-| 3. Decision day | Apply, hold the funds, the interview, the answer | Windows, set pieces, refusal and regrouping | Day one to three |
-| **The send-off** | The airport. A card to share, with your route and your japacity | **First ending.** About 45 to 60 minutes of play | |
-| 4. Landing | A room, a job, the first rule of your status, the first request from home | Status, obligations, the credit file | Week one |
-| 5. Secure | Settlement or a passport, or a chosen return | The long clocks | Weeks two to four |
+| Chapter | What you do | What it teaches |
+|---|---|---|
+| Prologue | The front door and the presets, from sixteen to the service year's end | The profile, the family's draw |
+| 1. Find your feet | First job, first pay, hear of a route and look into it | The lived month, routes and checklists |
+| 2. Build the file | The passport, the transcript, the English, an offer | Requirements, waits, agents |
+| 3. Decision day | The deposit, the funds held, the application, the answer | Windows, set pieces, refusal and regrouping |
+| 4. The send-off | The flight. A card to share | **The first ending** |
+| 5. Landing | A room, a job held a month, the first rule of your status, the first request from home | Status, obligations, the credit file |
+| 6. Secure | Settlement, a citizenship, a chosen return, or a second route | The long clocks |
+
+A set piece is a scene that holds the month until it is answered: an exam, an interview, the December visit.
 
 - A refusal in chapter 3 is part of the journey. Regrouping onto another route counts as progress.
-- Even paid games see only 20 to 55% of players reach the credits. The send-off has to sit inside the first few sessions.
+- The send-off has to sit inside the first few sessions, since most players of any game never reach its end.
 
 ## 11. The long game
 
-What stays open after the main journey, like the extra menus, licence tests, and free play in the games this is modelled on.
+What stays open after the main journey.
 
 | Menu | Contents |
 |---|---|
-| Life goals | A car, a home, a career ladder, a business, the house back home, bringing family over, December visits. Free-form and in any order |
-| Tests | Fixed-profile timed scenarios with bronze, silver, and gold: "Get out before the care route closes", "Survive a sponsor losing its licence". This is where real history is replayed exactly, using the timeline in research file 02 |
-| Collections | A passport stamp for every route experienced, endings seen, and the "real story" cards |
-| Family | Siblings, a partner, children, parents to bring over, and a relative you play yourself |
-| Sponsor | Once settled, bring a partner or a relative over, and carry the undertaking that comes with it |
-| Live world | Eras, festivals on the real calendar, in-game elections |
-| Roles | Mentor, referee for someone else's talent application, host for a new arrival, organiser of a savings circle |
-
-The cards a life collects go past the moment cards: Japa Wrapped at the send-off (four or five cards), each achievement stamp in its numbered series, the data page as a scrapbook page, the weekly shared-world result, and "Started as" at the front door (share:cards-due-at-set-moments).
-
-**A relative as a second character.** This is the restart for players who want one, and it loses nothing.
-
-- It unlocks through the real rules: once your first character is settled, a sibling or cousin at home can be started.
-- The relative inherits the family: the house, the standing, the obligations, and a sibling abroad.
-- Both characters share one turn budget, so a second character is never an advantage in turns.
-- Money sent home to them goes through the remittance channels and the rate, like any other.
-- The first character keeps living. Nothing is traded away.
-
-Test scores are checked on the server. Leaderboards with client-trusted scores fill with fakes.
+| Life goals | A car, your own door, a step up the ladder, a clean credit file, the house back home, money sent home, December at home, settling, a second route, a return with capital (`../rules/goal.md`). In any order |
+| Cards | A card at each set moment: a chapter closed, a visa granted, the send-off and its ticket stub, the first pay abroad, a status secured, the December visit, a Friday draw won, the real-story card after the road (share:cards-due-at-set-moments). The japa type once it is read (decision 0024). The stamps on the travel data page |
+| Family | Siblings, a partner and parents, real or computer |
+| Sponsor | Once settled, bring a partner over, and in Canada carry the undertaking that comes with it |
+| Live world | Eras, December on the real calendar, the Friday draw |
+| Hosting | A real friend who lands can stay with you, and your upkeep rises while they do (home:hosting-costs-the-host) |
 
 ## 12. Abroad
 
-**The route you arrived on sets the rules you live under.**
+**The route you arrived on sets the rules you live under** (status:status-sets-work-rule).
 
 | Status | Work | What it hangs on | Way up |
 |---|---|---|---|
-| Student | Capped weekly hours | Fees paid on time | Find a sponsor before the post-study period ends |
-| Sponsored worker | One employer only | That employer keeping its licence | Switch sponsor, then settle |
-| Talent | Anyone, or your own company | Little | Fastest settlement |
-| Dependant | Anyone | The relationship, and dependant rules | Your own route |
-| Resident through points | Anyone | Little | Citizenship clock |
-| Gulf contract | One employer only | The employer | None. No settlement exists |
-| Overstayed visitor | Cash work only | Not being found | Almost none |
-| No status | Whatever the handler allows | The debt | Rescue or return |
+| UK student | One part-time job, the 20-hour cap | Fees paid on time, the course passed | The graduate status, then a sponsor |
+| UK graduate | Any | 24 months, 18 once the shortening story is in force | A sponsor before it runs out |
+| UK sponsored worker | One employer only | The job | Settlement after 60 lawful months |
+| UK talent | Any | Little | Settlement after 36 months |
+| UK partner or dependant | Any | The relationship, or the lead's status | Settlement |
+| Canada permanent resident | Any | Little | Citizenship after 36 lawful months |
+| Gulf contract worker | One employer only; the employer holds the passport | The employer | None. No settlement exists |
+| Overstayer, in any of the four countries | Cash work only | Not being found | The grace's ways out, or home (page 12) |
 
-**When a sponsored job goes, a clock starts.** The numbers are the real ones.
+The road ends, when it arrives, in Italy with no papers (road:sea-arrival-in-italy).
+
+**When a sponsored job goes, a clock starts** (status:lost-job-starts-clock):
 
 | Country | The clock | Inside it |
 |---|---|---|
-| US | 60 days, 2 turns | A new employer files and you start at once. Or switch to dependant, student, or visitor with no right to work. Or leave, with the employer owing the fare |
-| UK | 60 days, 2 turns, with no right to work | A new sponsor, another visa, or leave |
-| Canada | The permit runs to its end date but only for that employer. Then 90 days, 3 turns, to restore status, with no work | A new permit, restoration, or leave |
+| UK | 60 days, 2 months | A job with a sponsor's certificate, which grants a new status, or leave (ladders:sponsor-job-ties-status) |
+| UAE | None: the status lapses at once | Leave, or overstay |
 
-**The US work visa** adds a lottery to get in, weighted toward higher pay, and in a hard-line era a fee large enough that employers stop sponsoring.
+Canada's arrivals hold permanent residence, so a lost job starts no clock.
 
-**Past the clock is a slope:**
+**Past the clock is a staged overstay** (decision 0028, [page 12](12-overstaying.md)):
 
-- A short overstay, then leaving by choice, costs little. In the UK, 30 days or less carries no ban.
-- A long one closes the country: in the US, over 180 days means a 3-year bar on leaving, and a year or more means 10.
-- Cash work is what is left: kitchens, care shifts, deliveries on a rented account. It pays badly, pay can be withheld, and the threat of being reported is the employer's leverage. In the US it also blocks most later routes, except marriage to a citizen.
-- Being removed is the worst exit: 10 years for the UK, up to 20 for the US.
+- First a grace: the UK 1 month, Canada 3, the UAE 1, Italy none. Leaving inside it at your own fare carries no ban, and some ways stay open from inside the country.
+- After the grace, each month may bring detection, and detection brings a notice. Every way out stays open while it stands.
+- Removal comes only at the notice's end, with the country's ban: 120 months for the UK and Canada, 60 for the UAE, 36 for Italy (status:notice-ends-in-removal).
+- Cash work is what is left: kitchens, deliveries on a rented account, farm work in Italy. It pays badly, and part of the pay can be withheld.
 
-**Ladders**: care home shifts to senior carer to nursing conversion. Survival job to professional job once local experience counts. Tech or finance to a high salary, a house in Texas, a passport, and trips home only in December.
+**Ladders**: care shifts to senior carer, or to nursing with the NMC pin. A survival job to a professional job once local experience counts. A skilled job to senior developer, and settlement. Trips home in December.
 
-**Obligations.** Everything owed on a schedule is one kind of record: an amount, how often, a grace period, a ladder of consequences, and what it makes possible.
+**Obligations.** Everything owed on a schedule is one kind of record: an amount, how often, a grace, what a miss does, and what it makes possible.
 
 | Obligation | Makes possible | If it slips |
 |---|---|---|
 | Rent | An address, which everything else needs | Arrears, then eviction |
-| Car on finance | Jobs that need a car, more shifts, less commuting | See the chain below |
-| Phone contract, starter card | A credit file | Marks on the file |
-| Health surcharge and visa fees | Staying legal. Charged as a lump at each renewal | Status lapses |
+| Car on finance (UK) | Jobs that need a car, the visiting round's bonus | See the chain below |
+| Phone contract | A credit file | Marks on the file |
+| Visa fees and the health surcharge | Staying legal. Charged as a lump at each application and renewal | Status lapses |
 | Tuition instalments | The student visa | Withdrawn, visa cancelled |
 | The family at home | Standing | Trust falls |
 | Agent debt | Nothing. It only drains | It follows you |
 
-**The credit file** starts empty for every arrival, whatever they earned at home. Small on-time payments build it. It decides whether a landlord, a phone company, or a car dealer says yes, and at what rate: from about 6% for the best files to over 20% for the worst. No mainstream game found has one.
+**The credit file** starts empty for every arrival, whatever they earned at home (credit:file-starts-at-zero-abroad). Small on-time payments build it. It decides whether a landlord, a phone company or a car dealer says yes, and at what rate: about 9% a year for the best files to about 22% for the worst (credit:rate-follows-credit-ladder).
 
 **The car chain**, as a worked example with the real thresholds:
 
-1. A home carer needs a car to take the better-paid visiting work. The home licence is valid for 12 months, then the local test must be passed.
-2. With a thin credit file the finance is expensive: a deposit, monthly payments, and a large final payment.
+1. A home carer needs a car to take the better-paid visiting work. The licence from home is valid for 12 months after arrival, then the UK test must be passed.
+2. With a thin credit file the finance is expensive: a deposit, monthly payments and a final payment.
 3. The sponsor loses its licence. The job goes, and a 60-day clock starts on the visa.
-4. Two missed payments bring a notice. **Under a third paid, the car can simply be taken. Over a third, the lender needs a court. At half paid, you can hand it back and owe nothing more.**
-5. Without the car it is the bus: fewer shifts reachable, a longer day, less money, and a mark on the file for six years.
+4. Two missed payments in a row bring a notice. **On the third, under a third paid, the car is taken at once. A third or more paid, the lender needs a court. Once half is paid, you can hand it back and owe nothing more** (car:missed-payments-take-the-car, car:car-handed-back-after-half).
+5. Without the car it is the bus: fewer shifts reachable and less money. A shortfall left after the car is taken goes to court, and the judgment stays on the file for six years.
 6. There is no state safety net. Most visas bar public funds.
 
-**Spiral dampers**, built in from the start because falling behind with no way back is why players quit this kind of game:
+**Brakes on a downward spiral**, built in because falling behind with no way back is why players quit this kind of game:
 
-- A grace period before any penalty.
-- A soft exit on every obligation: hand it back, downsize, renegotiate.
-- No kicking while down: when a character is struggling, events tilt toward help.
-- One rescue per life: a whip-round from the church, the mosque, or the town association.
-- Going home is always available and is never game over.
+- A grace before any penalty.
+- A way out at every stage: pay ahead, hand back, move somewhere cheaper (obligation:way-out-at-every-stage).
+- No kicking while down: when a character is struggling, bad luck rolls at half its chance and good luck at double (luck:no-kicking-while-down).
+- One rescue per life: a whip-round from the church, the mosque or the town association (luck:whip-round-once-per-life).
+- Going home is always open and is never game over.
 
-**Debt at home works differently.** Cars are bought with cash. Loan apps shame borrowers to their contacts. Savings circles run on trust, and the collector can vanish.
+**Debt at home works differently.** Cars are bought with cash. Quick loan apps shame borrowers to their contacts. Savings circles run on trust, and the collector can vanish.
 
 ## 13. Money and the rate
 
-**Money is held per currency.** Naira, and the currency of each country in the game: dollars, pounds, Canadian dollars, euros, dirhams. Each is either **in the bank** (documented) or **cash**.
+**Money is held per currency**: naira, pounds, dollars, Canadian dollars, dirhams and euros. Each is either **in the bank** (documented) or **cash**.
 
 **Two naira rates for each currency**, both moving:
 
 | | Official rate | Street rate |
 |---|---|---|
-| Where | The bank | Aboki |
-| Speed | Slow. Queues from days to months in a crisis | Instant |
-| Limits | Quotas: a travel allowance that needs a ticket and visa, school fees paid straight to the school | None |
-| Price | Lower | Higher by a premium that runs from about 3% in calm times to about 65% in a crisis |
+| Where | The bank | The aboki |
+| Speed | Queued for months while the world's bank queue stands | Instant |
+| Limits | A monthly allowance on buying foreign currency (wallet:monthly-fx-allowance) | None |
+| Price | Lower, with a 1.5% charge | Higher by a premium |
 | What you get | Documented money | Cash |
-| Risk | Rules and quotas change | A short count, a raid |
+| Risk | The allowance and the queue change with the world | A short count |
 
 **How the rates move:**
 
-- They belong to the world, not to your turns. Both tick twice a real day, on a weekly pattern players can learn.
-- The gap between them comes from one world variable: how many official dollars are being supplied. The director moves it. A crash era blows the gap open. A float closes it by dropping the official rate to meet the street.
-- **Simulated, calibrated to real history.** The game never shows live real street rates. The real past appears only in dated tests.
+- They belong to the world, not to your months. Online they tick twice a real day.
+- The street premium follows one world variable: how many official dollars are being supplied. It never falls under 2%, sits near 4% at the start, and heads for about 45% when supply falls to 40 (rate:street-premium-tracks-target). A crash era blows the gap open. A float closes it by moving the official rate to meet the street.
+- **Simulated, calibrated to real history.** The game never shows live real rates.
 
 **Why it matters in play:**
 
 - **Fees abroad are in foreign currency. Savings start in naira.** A crash can double the bill mid-plan.
-- **Proof of funds must be documented, held for 28 days, and valued at the official rate on the day.** Street cash paid in as a lump is a red flag until it has a history. A falling naira can push a balance under the line mid-window.
-- **Dollars are the hedge.** A dollar account at home protects savings, with the risk that the rules on such accounts change.
-- **Sending money home is a choice of channel**: an app with a fee and its own rate, or informal routes that pay more and leave no record. Payout rules flip between dollars and naira.
-- **Coming home with foreign savings after a crash makes you rich in naira.** The same $10,000 was worth over three times as much naira eight months after the 2023 float.
-- **Round-tripping** is a hustle: take a travel allowance at the official rate and sell it on the street. It pays best when the gap is widest, which is also when names get published and accounts frozen.
+- **Proof of funds must be documented, held for a month, and valued at the official rate.** Large cash paid into the bank is recorded as a lot, and the unexplained share of the funds raises the chance of refusal (route:unexplained-share-of-funds).
+- **Dollars are the hedge.** A remote job pays into a dollar account, documented, with nothing to explain later.
+- **Sending money home is a choice of channel**: an app with a fee and its own rate, the bank at the official rate a month later, or informal routes that pay the street rate as cash and sometimes do not arrive (abroad-money:remit-sends-money-home).
+- **Coming home with foreign savings after a crash makes you rich in naira.**
 
 **Keeping it a part of the game and not the whole game:**
 
-- Quotas, spreads, and a cap on conversions per turn limit what trading can earn.
-- Rates are computed on the server, so the pattern cannot be read from the client.
+- The allowance, the spread and the charges limit what trading can earn.
+- The world is built on the server from a seed that never leaves it, so the rates cannot be read ahead from the client (engine:seed-never-leaves-authority).
 - The rate is a small choice to weigh on a short visit, and it must never become a chore.
 
-**Topped-up naira.** The wallet can hold naira that came from outside play as a top-up, marked apart from naira earned (wallet:top-ups-are-marked, decision 0015). Every debit spends earned naira first, and topped-up naira never buys a ticket, since the draw is fair only when every ticket is bought with money earned in the game. Only the authority's command credits a top-up; no server route sends it and no content entry carries it, so there is no cap and no Bank screen for it, and a life with no top-up is unchanged.
+**Topped-up naira.** The wallet can hold naira that came from outside play as a top-up, marked apart from naira earned (wallet:top-ups-are-marked, decision 0015). Every debit spends earned naira first, and topped-up naira never buys a ticket, since the draw is fair only when every ticket is bought with money earned in the game. Only the authority's command credits a top-up, and a life with no top-up is unchanged.
 
 **Naming.** Street changers are called aboki in the game, as they are in everyday speech.
 
@@ -384,51 +376,53 @@ Test scores are checked on the server. Leaderboards with client-trusted scores f
 
 | Shape of return | What it carries |
 |---|---|
-| Removed | A ban on the record. Nothing saved |
-| Assisted | A free flight and a small grant, only for those with no status left |
-| Broke | Must first earn the fare. The cheap ticket has long layovers and costs a turn |
-| Burnt out, by choice | Savings in hard currency that go far at home, and questions from everyone |
-| With capital | A business, a house, standing |
-| With a passport | Any of the above, with the door still open |
+| Removed | A ban on the record. Standing falls hardest |
+| Assisted | A free flight, for those with no status or fare left; from the UK the returns service adds a grant of £1,500 |
+| Broke | The fare was paid, and little is left |
+| By choice | Savings that go far at home, and questions from everyone |
+| With papers | A settled or citizen status, or a status a trip home keeps, with the door still open |
 
-- **The family house is always there.** Whatever happens abroad, the home you started in takes you back, rent-free, with the family's opinions included.
+The shapes are decided at the moment of return (place:return-shape-decided-at-once). A return with capital is a goal, not a shape.
+
+- **The family house is always there.** Whatever happens abroad, the family house takes you back, with the family's opinions included (place:family-takes-you-back).
 - **How you leave decides whether you can go back.** Leaving by choice keeps doors open. Being removed closes that country for years.
-- **Fares swing with the real calendar.** December is several times the off-peak price.
+- **Fares swing with the real calendar.** December costs several times the off-peak fare.
 - **The December visit is a set piece**: inflated prices, pressure to look successful, a chance to raise standing or burn a year of savings.
-- **The house back home** is a long project with one hard decision: who supervises it.
-- **Stigma** rises with visible failure and falls with visible capital. Returnees still have to work, and some leave again.
+- **The house back home** is a long goal: land, then the money held for it.
+- **Standing** moves with the shape of the return. Returnees still have to work, and some leave again: every route runs again from home.
 
 ## 15. What play looks like
 
 | When | What happens |
 |---|---|
-| First 8 minutes | The prologue, then arrival in the live world with a full bank of turns |
-| First sitting, if keen | Chapters 1 to 3 and the send-off, in about an hour |
-| A visit, 5 minutes | Two or three turns. What the months earned, a few stories, one decision, maybe a set piece |
-| A real day | Up to a game year. The rate moves twice |
-| A real week | Landed and working. The first obligations |
-| A real month | Status secured or a return chosen. The long game open. A new era begins |
+| The first minute | The front door: three screens, Next, Next, Begin. The page prints, and the life starts in Lagos |
+| A sitting | A few lived months: acts spent in half-days, a sleep to end each month, what the month earned, a few stories, one decision, maybe a set piece |
+| A first keen sitting | Chapters 1 to 3 and the send-off |
+| A real day | The city's day turns about fourteen times. The rates move twice. Stories move on |
+| A real month | An era or two. Status secured or a return chosen. The long game open |
 
-Places still matter. The 3D city is where set pieces happen, where other players are, and where you overhear the routes you did not know existed.
+Places matter. The 3D city is where set pieces happen, where other players are, and where you overhear the routes you did not know existed.
 
 ## 16. Who can play, and how players meet
 
 Every player, from any country. A neutral date-of-birth screen turns away under-18s, and sign-up is open everywhere. Contact is only between players who joined through each other's invites, in preset phrases, with block, report, and complaints under clear terms. The game has no matchmaker for strangers and no typed text; either would need the date-of-birth screen, a one-time acknowledgement that the player is responsible for who they talk to, and block and report.
 
-**So**: one game for everyone. There is no table of regions and nothing a player may do turns on their country; contact is fixed behaviour in the server (`../rules/region.md`). No strong age check is asked for.
+**So**: one game for everyone. There is no table of regions and nothing a player may do turns on their country; contact is fixed behaviour in the server (`../rules/region.md`, decision 0021). No strong age check is asked for.
 
 ## 17. What is in the game
 
-The game holds the full baseline: accounts, the whole life from prologue to securing status, six routes, the shared world, both rates, life abroad, friends as partners and siblings, the 3D city, and sound. Voiced radio is not part of the game. The other design pages are listed in `README.md`.
+Accounts, the whole life from the prologue to securing status and coming back, the shared world, both rates, life abroad, friends as partners and siblings, the 3D city, and sound. The other design pages are listed in `README.md`.
 
-The matchmaker for strangers and free text are not part of the game (section 16). Every country plays the same game. **Desert then sea is the dangerous route.** How it works:
+The ways out: six of the player's own effort (the UK master's, care, skilled work and talent, Canada's points, the Gulf contract), four through a partner (the UK dependant and partner routes, Canada's accompanying spouse and spousal sponsorship), and the road. Every country plays the same game.
 
-- It is never labelled. It arrives as an offer, on the radio or at the motor park, that beats the formal routes on every number the player can see.
+**The road, desert then sea, is the dangerous route.** How it works:
+
+- It is never labelled. It arrives as an offer, on the radio, at the motor park or through a cousin, that beats the formal routes on every number the player can see.
 - The truth comes in steps: a deposit, a night meeting, the news that it is by road, then more money. Turning back early costs the deposit. After that the choices shrink.
 - Some cheap offers are the road, some are fraud, a few are real.
-- **Anyone can take it.** It is ranked like the news: low down for a player with better options, nearer the top for one without. A curious player can go and ask for it. The game never pushes it.
+- **Anyone at home can take it.** It is ranked like the news: seen less often and lower down by a player with better options. The game never pushes it.
 - Every dealer is a computer character. No player profits from another.
-- An account can turn the road off for itself, as the content switch turns it off for everyone (road:road-route-has-no-figure).
+- A content switch, `tuning.road.enabled`, turns the road off for everyone.
 - The chain under way has a screen of its own.
 - The full rules are in `../rules/road.md`, "What the road holds to".
 
@@ -436,22 +430,22 @@ The matchmaker for strangers and free text are not part of the game (section 16)
 
 | What could go wrong | How the design answers it |
 |---|---|
-| A second character becomes a feeder for the first, or feels compulsory | One shared turn budget. Transfers pay the same fees and rates as anyone's. The main journey never needs one |
-| The rate becomes a chore, or trading becomes the whole game | Quotas, spreads, a cap per turn, and a pattern that rewards two looks a day, not twenty |
+| The rate becomes a chore, or trading becomes the whole game | The monthly allowance, the spread and the charges, and rates that move only twice a real day |
 | The game reads as a source of real street rates | Simulated rates only, never a live feed of real ones |
 | Matching strangers as partners invites scams and harassment | The safety rules in section 6. Contact only between friends who invited each other; no matchmaker and no typed text |
 | Family points with no check would teach fraud | The genuineness interview and long bans |
-| Debt chains become spirals with no way out | The dampers in section 12 |
-| Many qualities and routes are hard to write and balance | Storylet model. Simulated profiles run through the system to find dead ends |
-| A personal feed hides the wider world | Fixed shared front page |
+| Debt chains become spirals with no way out | The brakes in section 12 |
+| Many qualities and routes are hard to write and balance | Content is plain data checked before play, and simulated players run lives on the real content to find dead ends (engine:player-never-stuck) |
+| A personal feed hides the wider world | The shared front page |
 | A change to the whole world undoes what a player has built | The four fairness rules |
 
-## 19. Decisions
+## 19. Alternatives considered
 
-1. The name is Japacity, at `japacity.app`.
-2. Licences are chosen: code MIT, docs CC BY 4.0, content and art CC BY-SA 4.0, name reserved. See `../../LICENSES.md`.
-3. The platform is Cloudflare at the edge with Postgres on Neon, London (`04-where-things-live.md`).
-4. Six formal routes and the unlabelled road (`../rules/route.md`, `../rules/route-gates.md`, `../rules/road.md`).
-5. Traditional clothing and hair are written as code from reference photos (`06-assets-and-visuals.md` sections 3 and 4).
-6. Real place names stay, at home and abroad, with the notice (`../rules/city.md`; the research is `../research/08-real-places-and-map-data.md`).
-7. One game for every player, from any country: sign-up open everywhere and the same contact for all (section 16, `../rules/region.md`).
+| Instead of | The game does | Why |
+|---|---|---|
+| Picking a route at the start | Routes found through the life | A picked route makes the life a checklist; a found one makes the life the game |
+| Pacing by the wall clock | Months lived by play | A first departure on any wall clock sits days away |
+| A turn budget as the pacing: a month costs a turn, and an empty bank stops play | A month lived by hand that ends at sleep; the bank never holds a month back | A month lived by hand needs no budget, and a budget would stop a player mid-sitting |
+| A relative as a second character for a restart | A new life | One life at a time keeps the people rules simple, and a second character would feed the first |
+| Live real rates | Simulated rates calibrated to real history | A live feed would read as a source of real street rates |
+| A matchmaker for strangers, or typed text | Invites and preset phrases | Each would open the romance scam and harassment the safety rules close |
