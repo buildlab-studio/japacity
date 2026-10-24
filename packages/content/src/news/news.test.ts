@@ -252,7 +252,7 @@ describe("the one-chance story (wallet:cash-pile-warning)", () => {
   });
 
   test("[wallet:cash-pile-warning] [director:stories-start-by-roll] given forty worlds, when their first months are walked, then each announces the one-chance story by its third tick, and never before the recruiting fair, which it never pushes back", () => {
-    // The pool is rolled in id order under a cap of new stories a tick: the fair comes first, so the story never takes its place.
+    // Certain stories are rolled first, in id order, under a cap of new stories a tick: the fair comes first, so the story never takes its place.
     expect(ONE_CHANCE > RECRUIT).toBe(true);
     for (let seed = 0; seed < 40; seed += 1) {
       const first: Partial<Record<Id<"news">, number>> = {};

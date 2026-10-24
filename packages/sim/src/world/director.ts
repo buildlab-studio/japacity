@@ -457,41 +457,49 @@ function heldNow(book: DirectorBook, reading: Reading, variable: Id<"var">, held
   return back;
 }
 
-/** director:stories-start-by-roll: each story of the pool, in id order, rolled on its own position of `shock`. */
+/**
+ * director:stories-start-by-roll: the pool in two passes, the certain stories first and then the rolled ones, each pass in id
+ * order and each story on its own position of `shock`, so a rolled story with an earlier id never takes a certain one's place
+ * under the cap.
+ */
 function rollStories(book: DirectorBook, worldSeed: string, content: Content, reading: Reading, tick: number, scale: number): void {
   const { director } = content.tuning;
   const weights = book.era === null ? null : (content.era[book.era.id]?.weights ?? null);
+  const chanceOf = (entry: NewsEntry): number => Math.min(BP_WHOLE, entry.standIn.chanceBp * (weights?.[entry.director!.group] ?? 1));
   let started = 0;
-  for (const [place, index] of reading.pool.entries()) {
-    if (started >= director.maxNewPerTick) break;
-    const story = reading.stories[index]!;
-    const { id, entry, reopens } = story;
-    const held = storyIn(book, id);
-    const rules = entry.director!;
-    const last = held.lastFired;
-    if (last !== null && (rules.once || tick - last < rules.cooldown * scale)) continue;
-    if (!free(book, story, tick)) continue;
-    if (rules.shock && (book.shocksThisEra.includes(id) || (book.lastShock !== null && tick - book.lastShock < director.shockGapTicks * scale))) continue;
-    if (reopens !== null) {
-      const since = book.closedSince[reopens];
-      if (since === undefined || since === null || tick - since < director.closedTicks * scale) continue;
+  for (const certainPass of [true, false]) {
+    for (const [place, index] of reading.pool.entries()) {
+      if (started >= director.maxNewPerTick) return;
+      const story = reading.stories[index]!;
+      const { id, entry, reopens } = story;
+      const chance = chanceOf(entry);
+      if ((chance >= BP_WHOLE) !== certainPass) continue;
+      const held = storyIn(book, id);
+      const rules = entry.director!;
+      const last = held.lastFired;
+      if (last !== null && (rules.once || tick - last < rules.cooldown * scale)) continue;
+      if (!free(book, story, tick)) continue;
+      if (rules.shock && (book.shocksThisEra.includes(id) || (book.lastShock !== null && tick - book.lastShock < director.shockGapTicks * scale))) continue;
+      if (reopens !== null) {
+        const since = book.closedSince[reopens];
+        if (since === undefined || since === null || tick - since < director.closedTicks * scale) continue;
+      }
+      if (!rules.needs.every((need) => holds(need, book))) continue;
+      // The same draw `chance` makes, read at this story's own position for the tick.
+      if (scaleDraw(drawAt(worldSeed, SHOCK, reading.base + tick * reading.pool.length + place), BP_WHOLE) >= chance) continue;
+      // The roll starts the story at its first stage. With a rumour lead the rumour runs from now
+      // and the announcement follows the lead later; director:stories-pass-through-stages counts the lead back from the announcement.
+      const { rumourLead, forceLag, endsAfter } = entry.standIn;
+      const announced = tick + rumourLead * scale;
+      const inForce = announced + forceLag * scale;
+      held.pass = { rumour: rumourLead > 0 ? tick : null, announced, inForce, ended: endsAfter === null ? null : inForce + endsAfter * scale };
+      held.lastFired = tick;
+      if (rules.shock) {
+        book.lastShock = tick;
+        book.shocksThisEra.push(id);
+      }
+      started += 1;
     }
-    if (!rules.needs.every((need) => holds(need, book))) continue;
-    const chance = Math.min(BP_WHOLE, entry.standIn.chanceBp * (weights?.[rules.group] ?? 1));
-    // The same draw `chance` makes, read at this story's own position for the tick.
-    if (scaleDraw(drawAt(worldSeed, SHOCK, reading.base + tick * reading.pool.length + place), BP_WHOLE) >= chance) continue;
-    // The roll starts the story at its first stage. With a rumour lead the rumour runs from now
-    // and the announcement follows the lead later; director:stories-pass-through-stages counts the lead back from the announcement.
-    const { rumourLead, forceLag, endsAfter } = entry.standIn;
-    const announced = tick + rumourLead * scale;
-    const inForce = announced + forceLag * scale;
-    held.pass = { rumour: rumourLead > 0 ? tick : null, announced, inForce, ended: endsAfter === null ? null : inForce + endsAfter * scale };
-    held.lastFired = tick;
-    if (rules.shock) {
-      book.lastShock = tick;
-      book.shocksThisEra.push(id);
-    }
-    started += 1;
   }
 }
 

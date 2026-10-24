@@ -135,6 +135,29 @@ describe("the story roll", () => {
     expect(three[1]?.started).toEqual(["news.t-a", "news.t-b", "news.t-c"]);
   });
 
+  test("[director:stories-start-by-roll] given two rolled stories that succeed and a certain one with a later id, when a tick is rolled under the cap, then the certain one starts first and one rolled story takes the place left", () => {
+    const rolled = ["news.t-a", "news.t-b"].map((id) => pooled(id as Id<"news">, { once: true }, { chanceBp: 9999 }));
+    const certain = pooled("news.t-z", { once: true });
+    expect(director.maxNewPerTick).toBe(2);
+    for (const seed of SEEDS) {
+      const ticks = directorTicks(seed, 6, withPool([...rolled, certain]));
+      expect(ticks[1]?.started).toContain("news.t-z");
+      expect(ticks[1]?.started).toHaveLength(2);
+    }
+  });
+
+  test("[director:stories-start-by-roll] given a story made certain by the era's weight, when a tick is rolled under the cap, then it starts before rolled stories with earlier ids", () => {
+    const eras = { [CALM]: era(CALM, [400, 400], {}, { heavy: 2 }) };
+    const rolled = ["news.t-a", "news.t-b"].map((id) => pooled(id as Id<"news">, { once: true }, { chanceBp: 9999 }));
+    const weighted = pooled("news.t-z", { group: "heavy", once: true }, { chanceBp: 5000 });
+    const short = pooled("news.t-y", { group: "plain", once: true }, { chanceBp: 9999 });
+    for (const seed of SEEDS) {
+      const ticks = directorTicks(seed, 6, withPool([...rolled, short, weighted], { eras }));
+      expect(ticks[1]?.started).toContain("news.t-z");
+      expect(ticks[1]?.started).not.toContain("news.t-y");
+    }
+  });
+
   test("[director:stories-start-by-roll] given two shocks that may always fire, when one era runs, then the second waits out the gap and neither fires twice in the era", () => {
     const pool = [pooled("news.t-shock-a", { shock: true }), pooled("news.t-shock-b", { shock: true })];
     const ticks = directorTicks("w", 100, withPool(pool));
