@@ -86,7 +86,8 @@ const CRASH_MONTH = 36;
 /** Naira, in kobo, under which offer.md calls a character broke at home. */
 const BROKE_BELOW = 15000000;
 
-const STUDY_ACTS: Id<"activity">[] = ["activity.learn-free", "activity.online-course", "activity.tech-diploma", "activity.bootcamp", "activity.free-internship", "activity.learn-tech"];
+/** The tech study paths (activity:free-path-keeps-a-streak, activity:paid-tech-courses); the day's class is no path. */
+const STUDY_PATHS: Id<"activity">[] = ["activity.learn-free", "activity.online-course", "activity.tech-diploma", "activity.bootcamp", "activity.free-internship"];
 const GRADUATE: Id<"status"> = "status.uk-graduate";
 /** A formal employer's job the review is read on. */
 const REVIEWED_JOB: Id<"activity"> = "activity.job-customer-service";
@@ -112,8 +113,8 @@ export interface BalanceRun {
   flightTrade: TradeName | null;
   /** For a master's student: whether the Graduate status was reached, and each withdrawal. */
   student: { graduate: boolean; withdrawals: Withdrawal[] } | null;
-  /** For a life that starts under tech 30: the first study path, the month it began and the month tech reached 30, if it did. */
-  tech: { path: Id<"activity">; from: number; ready: number | null } | null;
+  /** For a life under tech 30 when it begins a study path: that path, the month and the tech it began at, and the month tech reached 30, if it did. */
+  tech: { path: Id<"activity">; from: number; at: number; ready: number | null } | null;
   /** The longest run of month ends under the broke line. */
   brokeRun: number;
   /** For a careful life abroad on a work status: what a month keeps and the fees it meets, in the local currency's smallest unit. */
@@ -175,7 +176,8 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
   };
   let homeJob: string | null = null;
   let broke = 0;
-  let startTech: number | null = null;
+  /** Tech at the last month's end, so a path begun this month is read from where it started; null before the first month ends. */
+  let before: number | null = null;
   let played: Record<string, number> = {};
   let firstMiss: number | null = null;
   let stages: string[] = [];
@@ -188,11 +190,13 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
     if (game.state.place.where === "home" && record.departed === null) homeJob = game.state.activity.job;
     // The tech pace (the eighth measure): from the first month of study to the month tech reaches 30.
     const tech = game.state.quality["quality.tech"] ?? 0;
-    if (startTech === null && !game.state.prologue.open) startTech = tech;
     const now = game.state.activity.played;
-    const studied = STUDY_ACTS.find((id) => (now[id] ?? 0) > (played[id] ?? 0));
+    const studied = STUDY_PATHS.find((id) => (now[id] ?? 0) > (played[id] ?? 0));
     played = { ...now };
-    if (startTech !== null && startTech < 30 && run.tech === null && studied !== undefined) run.tech = { path: studied, from: month, ready: null };
+    // A path begun in the first month is read back from its gain in the starting band.
+    const at = before ?? tech - (studied === undefined ? 0 : (content.activity[studied]?.bandGains?.[0] ?? 0));
+    if (run.tech === null && studied !== undefined && at < 30) run.tech = { path: studied, from: month, at, ready: null };
+    before = tech;
     if (run.tech !== null && run.tech.ready === null && tech >= 30) run.tech.ready = month;
     if (crash) return record.departed !== null || month >= CRASH_MONTH;
     if (record.departed === null) return month >= MONTHS;
@@ -402,8 +406,10 @@ export function measures(runs: BalanceRun[], review: Record<string, ReviewRead>)
   // 8: tech's pace to junior-ready by path.
   const PACE: Record<string, [number, number]> = { "activity.learn-free": [8, 12], "activity.online-course": [6, 8], "activity.tech-diploma": [7, 9], "activity.bootcamp": [4, 6] };
   const learners = golden.filter((run) => (run.style === "free-pivot" || run.style === "paid-pivot") && run.tech !== null);
+  // The months a path took to junior-ready, read as from nothing: the starting band gains the same each month, so a life that
+  // began at 10 and took 3 months would have taken 4.5 from 0 (activity.md's paces are from nothing).
   const pace = Object.entries(PACE).map(([path, band]) => {
-    const ready = learners.filter((run) => run.tech!.path === path && run.tech!.ready !== null).map((run) => run.tech!.ready! - run.tech!.from + 1);
+    const ready = learners.filter((run) => run.tech!.path === path && run.tech!.ready !== null).map((run) => divCeil((run.tech!.ready! - run.tech!.from + 1) * 30, 30 - run.tech!.at));
     return { path, band, ready, median: ready.length === 0 ? null : median(ready) };
   });
   const early = learners.filter((run) => run.tech!.ready !== null && run.tech!.ready < 4).length;

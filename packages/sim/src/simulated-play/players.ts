@@ -618,8 +618,12 @@ function commonOffer(view: PlayerView, content: Content, habits: Habits, offer: 
     case "offer.job": {
       const job = offer.terms.job;
       const inTrade = habits.trade === undefined || (typeof job === "string" && (habits.trade.jobs.includes(job as Id<"activity">) || habits.trade.side === job));
-      const pivot = habits.learns !== undefined && typeof job === "string" && DEVELOPER_JOBS.includes(job as Id<"activity">) && !DEVELOPER_JOBS.includes(view.job.id as Id<"activity">);
-      return choose(offer, pivot || (inTrade && typeof job === "string" && payOf(view, content, job) > payOf(view, content, view.job.id)) ? "accept" : "decline");
+      const developer = typeof job === "string" && DEVELOPER_JOBS.includes(job as Id<"activity">);
+      const onDeveloper = view.job.id !== null && DEVELOPER_JOBS.includes(view.job.id);
+      // A pivot takes the developer's first job whatever it pays, and once on the ladder leaves it for nothing else.
+      const pivot = habits.learns !== undefined && developer && !onDeveloper;
+      const stays = habits.learns !== undefined && onDeveloper && !developer;
+      return choose(offer, !stays && (pivot || (inTrade && typeof job === "string" && payOf(view, content, job) > payOf(view, content, view.job.id))) ? "accept" : "decline");
     }
     default:
       break;
@@ -715,8 +719,8 @@ function bestJobParam(view: PlayerView, content: Content, habits: Habits): strin
   const hunt = option(view, "activity.job-hunt");
   if (hunt === undefined || !hunt.allowed || hunt.params === null) return null;
   // A pivot takes a developer's job as soon as one is open to it, whatever the trade it leaves pays, and climbs from there.
-  const pivoting = habits.learns !== undefined && hunt.params.some((job) => DEVELOPER_JOBS.includes(job as Id<"activity">));
   const onDeveloper = view.job.id !== null && DEVELOPER_JOBS.includes(view.job.id);
+  const pivoting = habits.learns !== undefined && (onDeveloper || hunt.params.some((job) => DEVELOPER_JOBS.includes(job as Id<"activity">)));
   const current = pivoting && !onDeveloper ? 0 : payOf(view, content, view.job.id);
   let best: string | null = null;
   let bestPay = current;
@@ -769,6 +773,14 @@ const APPLY: Record<string, string> = {
   "route.gulf-contract": "activity.apply-gulf-contract",
 };
 
+/** document:english-test-band-value: the band the English gives before the draw, and whether the result held drew under it. */
+function unluckyBand(view: PlayerView): boolean {
+  const held = documentState(view, "document.english-test");
+  if (held?.state !== "held" || held.value === null) return false;
+  const base = 40 + mulDiv(35, quality(view, "quality.english"), 100);
+  return held.value < base - (base % 5);
+}
+
 /** Slots that move the other routes this player works toward, the most advanced route first. */
 function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
   const picks: SlotPick[] = [];
@@ -779,6 +791,10 @@ function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
     .filter((item) => habits.otherRoutes.includes(item.id) && (item.state === "known" || item.state === "applying"))
     .sort((left, right) => (right.percent ?? 0) - (left.percent ?? 0));
   for (const item of routes) {
+    // Canada's points pay for the band: a result that drew under what the English would give is sat again while the points fall short.
+    if (item.gate?.gate === "points" && !item.gate.invites && item.state === "known" && !habits.studies && unluckyBand(view) && canSpendOn(view, "activity.sit-english-test", habits, true)) {
+      add("activity.sit-english-test");
+    }
     // route-gates:nurses-sponsored-while-care-shut: a nurse works the care route's file while its window is shut, for a trust's post.
     const trustOpen = item.id === CARE_ROUTE && documentState(view, "document.nursing-licence") !== undefined;
     if (item.state !== "known" || (item.window === "closed" && !trustOpen)) continue;
@@ -848,6 +864,11 @@ const STUDY_PATHS: Id<"activity">[] = [...PAID_PATHS, "activity.learn-free", "ac
 const DIPLOMA_FEES = 48000000;
 /** The months of what is due a player keeps before the bootcamp, which leaves it with no job for its six months. */
 const BOOTCAMP_MONTHS = 6;
+/** The bootcamp's entry test (activity:paid-tech-courses). */
+const BOOTCAMP_TECH = 10;
+const BOOTCAMP_ENGLISH = 55;
+/** The tech under which a life too poor for the diploma starts the short course; past it the free path goes on. */
+const SHORT_COURSE_UNTIL = 12;
 
 /**
  * The tech study a pivot plays this month (activity:free-path-keeps-a-streak, activity:paid-tech-courses): a path held is played on;
@@ -866,10 +887,15 @@ function learningPick(view: PlayerView, habits: Habits): Id<"activity"> | null {
   // A paid path is for reaching junior-ready; past it the developer's job does the teaching.
   if (tech >= 30) return null;
   const spare = naira(view) - buffer(view, habits);
-  if (playable(view, "activity.bootcamp") && spare >= monthlyDue(view) * BOOTCAMP_MONTHS) return "activity.bootcamp";
+  if (spare >= monthlyDue(view) * BOOTCAMP_MONTHS && tech >= BOOTCAMP_TECH) {
+    if (playable(view, "activity.bootcamp")) return "activity.bootcamp";
+    // Short only of the bootcamp's English (55), the life practises for it first.
+    if (quality(view, "quality.english") < BOOTCAMP_ENGLISH && canSpendOn(view, "activity.study-english", habits)) return "activity.study-english";
+  }
   if (playable(view, "activity.tech-diploma") && spare >= DIPLOMA_FEES) return "activity.tech-diploma";
-  if (canSpendOn(view, "activity.online-course", habits)) return "activity.online-course";
-  return null;
+  // The short course and then the free path, for a life the diploma's fees do not fit.
+  if (tech < SHORT_COURSE_UNTIL && canSpendOn(view, "activity.online-course", habits)) return "activity.online-course";
+  return canSpendOn(view, "activity.learn-free", habits) ? "activity.learn-free" : null;
 }
 
 function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[] {
@@ -1176,8 +1202,9 @@ function abroadMoney(view: PlayerView, content: Content, habits: Habits, currenc
   let keep = dues * (habits.bufferMonths + 1);
   if (habits.renews && status?.renew !== null && status?.renew !== undefined) keep += status.renew.fee + status.renew.surcharge;
   if (habits.renews && status !== null && status.settleMonths !== null) keep += varStart(content, "var.uk-settle-fee") + varStart(content, "var.uk-citizen-fee");
-  // status:graduate-visa-applied-for: from the month its cost shows, the Graduate visa's fee and surcharge are kept back.
-  if (habits.renews && status?.graduate !== null && status?.graduate !== undefined) keep += status.graduate.fee + status.graduate.surcharge;
+  // status:graduate-visa-applied-for: from the month its cost shows, the Graduate visa's fee and surcharge are kept back, by every
+  // student, since it is the course's own next step rather than a renewal.
+  if (status?.graduate !== null && status?.graduate !== undefined) keep += status.graduate.fee + status.graduate.surcharge;
   const fare = view.place.fareHome?.amount ?? 0;
   if (habits.keepsFareOnly) keep = 0;
   if (habits.homeWhenUnlawful) keep += fare;
