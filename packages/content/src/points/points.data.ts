@@ -2,8 +2,8 @@
 // holds from its figure up to the next row's; the last row is a floor.
 import type { Id, PointsEntry } from "@japacity/sim";
 
-/** The teacher jobs whose months the education cut-off reads (route-gates:pool-draws-invite). */
-const TEACHER_JOBS: Id<"activity">[] = ["activity.job-teacher"];
+// The teacher jobs whose months the education cut-off reads (route-gates:pool-draws-invite): the teacher's whole ladder.
+import { TEACHER_JOBS } from "../activity/activity.ladder.data";
 
 export const pointsTable: Record<Id<"points">, PointsEntry> = {
   "points.canada": {

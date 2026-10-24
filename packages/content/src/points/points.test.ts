@@ -67,3 +67,11 @@ describe("the Canada cut-offs", () => {
     expect([CUTOFF, CARE_CUTOFF, GENERAL_PAUSE, CARE_DRAW]).toEqual([405, 370, 20, -20]);
   });
 });
+
+describe("the teacher jobs the education cut-off reads", () => {
+  test("[route-gates:pool-draws-invite] given both points tables, when their teacher jobs are read, then they are the teacher, the senior teacher and the head of department, so months up the teacher's ladder still count", () => {
+    const teachers = ["activity.job-teacher", "activity.job-senior-teacher", "activity.job-head-of-department"];
+    for (const id of ["points.canada", "points.canada-spouse"] as const) expect(content.points[id]?.educationJobs).toEqual(teachers);
+    for (const job of teachers) expect(content.activity[job]).toBeDefined();
+  });
+});
