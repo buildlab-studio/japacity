@@ -261,7 +261,7 @@ export function educationCutoff(read: ReadCtx, route: Id<"route">): number | nul
 
 /** route-gates:pool-draws-invite: the months across the table's teacher jobs reach its education months. */
 function teaches(read: ReadCtx, table: PointsEntry): boolean {
-  return table.educationJobs.length > 0 && tenureAcross(read.state, table.educationJobs) >= table.educationMonths;
+  return table.educationJobs.length > 0 && tenureAcross(read.state, read.content, table.educationJobs) >= table.educationMonths;
 }
 
 /** route-gates:pool-draws-invite: the general cut-off at or below the score, the care cut-off for a carer, or the education cut-off for a teacher while it stands. */
