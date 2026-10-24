@@ -3,6 +3,7 @@ import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
 import { check } from "../engine/check";
+import { bp, divFloor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Registry } from "../engine/kind";
 import type { ActivityEntry, BaseEvent, Content, Ctx, Id, ReadCtx, ReportLine, StatusEntry } from "../engine/types";
@@ -472,7 +473,7 @@ describe("the Graduate visa", () => {
     const where = game.state.place;
     game.accept({ type: "activity/now", activity: APPLY, param: null });
     expect(totalOut(game, "fee-visa") - visa).toBe(GRADUATE_FEE);
-    expect(totalOut(game, "fee-surcharge") - surcharge).toBe((SURCHARGE_YEAR * months) / 12);
+    expect(totalOut(game, "fee-surcharge") - surcharge).toBe(mulDiv(SURCHARGE_YEAR, months, 12));
     expect(current(game)).toMatchObject({ entry: UK_GRADUATE, grantedMonth: game.state.turn.month, expiresMonth: game.state.turn.month + months });
     expect(game.state.place).toEqual(where);
   });
@@ -494,7 +495,7 @@ describe("the Graduate visa", () => {
     expect(game.view().status?.graduate).toBeNull();
     playMonths(game, 1);
     const months = game.world().vars["var.uk-graduate-months"]!;
-    expect(game.view().status?.graduate).toEqual({ currency: "GBP", fee: GRADUATE_FEE, surcharge: (SURCHARGE_YEAR * months) / 12 });
+    expect(game.view().status?.graduate).toEqual({ currency: "GBP", fee: GRADUATE_FEE, surcharge: mulDiv(SURCHARGE_YEAR, months, 12) });
   });
 
   test("[status:graduate-visa-applied-for] given the course not passed, when course month 13 comes, then the application is not legal", () => {
@@ -520,8 +521,8 @@ describe("the student's work rule", () => {
     applyEffects(game, [{ type: "activity/start-job", job: PART }]);
     playMonths(game, month - 1);
     const entry = content.activity[PART]!;
-    const written = Math.floor(entry.pay!.amount as number / 12);
-    expect(monthlyPay(readOf(game), entry)).toEqual({ currency: "GBP", amount: full ? Math.floor((written * content.tuning.status.vacationPayBp) / 10000) : written });
+    const written = divFloor(entry.pay!.amount as number, 12);
+    expect(monthlyPay(readOf(game), entry)).toEqual({ currency: "GBP", amount: full ? bp(written, content.tuning.status.vacationPayBp) : written });
   });
 
   test("[status:status-sets-work-rule] [ladders:student-holds-one-part-job] given a student, when course month 13 comes, then any job may be held; in month 12 only a part job", () => {

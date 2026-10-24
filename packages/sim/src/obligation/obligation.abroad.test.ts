@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import { bp, convertMinor, divCeil } from "../engine/int";
+import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { BaseEvent, Id, ObligationEntry, ObligationState, ReportLine } from "../engine/types";
 import { playMonths } from "../testing/place.journey";
@@ -247,8 +247,8 @@ describe("tuition", () => {
     const fees = game.state.wallet.totals.out["fee-school"]?.GBP ?? 0;
     const charged: number[][] = [];
     for (let month = 1; month <= 8; month += 1) charged.push(charges(nextMonth(game), tuition.id));
-    const eighth = Math.floor((PRINCIPAL * 1250) / 10000);
-    const half = Math.floor((PRINCIPAL * 5000) / 10000);
+    const eighth = mulDiv(PRINCIPAL, 1250, 10000);
+    const half = mulDiv(PRINCIPAL, 5000, 10000);
     expect(charged).toEqual([[half], [], [eighth], [eighth], [eighth], [PRINCIPAL - half - 3 * eighth], [], []]);
     expect(isOpen(game, TUITION)).toBe(false);
     expect((game.state.wallet.totals.out["fee-school"]?.GBP ?? 0) - fees).toBe(PRINCIPAL);
@@ -280,7 +280,7 @@ describe("tuition", () => {
     const id = planOpen(game);
     expect(id).not.toBeNull();
     const months = 12 - 2;
-    expect(game.state.offer.items[id!]!.terms).toMatchObject({ instalment: Math.floor(PRINCIPAL / months), fee: PLAN_FEE });
+    expect(game.state.offer.items[id!]!.terms).toMatchObject({ instalment: divFloor(PRINCIPAL, months), fee: PLAN_FEE });
     expect(content.offer[PLAN]).toMatchObject({ chanceBp: 0, expiresAfter: 1, onExpire: null });
     expect(PLAN_FEE).toBe(5000);
   });
@@ -295,7 +295,7 @@ describe("tuition", () => {
     expect(owedOf(game, TUITION)).toMatchObject({ missed: 0, plan: { month: 2, total: PRINCIPAL, months: 10 } });
     const charged: number[] = [];
     for (let month = 3; month <= 13; month += 1) charged.push(...charges(nextMonth(game), tuition.id));
-    const part = Math.floor(PRINCIPAL / 10);
+    const part = divFloor(PRINCIPAL, 10);
     expect(charged).toEqual([...Array<number>(9).fill(part), PRINCIPAL - 9 * part]);
     expect(isOpen(game, TUITION)).toBe(false);
   });
@@ -317,7 +317,7 @@ describe("tuition", () => {
     missedMonths(game, 1);
     setPockets(game, { GBP: 2000000 });
     const paid = nextMonth(game);
-    expect(charges(paid, tuition.id)).toEqual([Math.floor((PRINCIPAL * 5000) / 10000)]);
+    expect(charges(paid, tuition.id)).toEqual([mulDiv(PRINCIPAL, 5000, 10000)]);
     expect(stageKeys(paid)).toEqual([]);
     expect(owedOf(game, TUITION).missed).toBe(0);
   });
@@ -325,7 +325,7 @@ describe("tuition", () => {
   test("[obligation:paying-down-obligations] [abroad-money:missed-tuition-runs-in-stages] given tuition in arrears, when obligation/pay is sent, then only every charge missed and not yet paid is taken, under fee-school, and it clears the stage; with nothing missed it is not legal", () => {
     const { game, tuition } = student();
     missedMonths(game, 2);
-    const arrears = Math.floor((PRINCIPAL * 5000) / 10000);
+    const arrears = mulDiv(PRINCIPAL, 5000, 10000);
     game.expectRejected({ type: "obligation/pay", obligation: tuition.id, amount: arrears }, "cannot-afford");
     setPockets(game, { GBP: 2000000 });
     game.expectRejected({ type: "obligation/pay", obligation: tuition.id, amount: arrears - 1 }, "bad-amount");
@@ -344,12 +344,12 @@ describe("tuition", () => {
     setPockets(game, { GBP: 2000000 });
     // Nothing was paid, so everything owed is the shares of course months 1 to 4: three quarters.
     expect(owedOf(game, TUITION).outstanding).toBe(PRINCIPAL);
-    const owed = Math.floor((PRINCIPAL * 7500) / 10000);
+    const owed = mulDiv(PRINCIPAL, 7500, 10000);
     game.accept({ type: "obligation/pay", obligation: tuition.id, amount: owed });
     expect(owedOf(game, TUITION).state).toBe("active");
     expect(game.state.status.current).toMatchObject({ entry: STUDENT, expiresMonth: expires });
     expect(game.state.status.current?.withdrawn).toBeUndefined();
-    expect(charges(nextMonth(game), tuition.id)).toEqual([Math.floor((PRINCIPAL * 8750) / 10000) - Math.floor((PRINCIPAL * 7500) / 10000)]);
+    expect(charges(nextMonth(game), tuition.id)).toEqual([mulDiv(PRINCIPAL, 8750, 10000) - mulDiv(PRINCIPAL, 7500, 10000)]);
   });
 
   test("[status:course-passed-or-withdrawn] given a withdrawn student who pays nothing, when the two months pass, then the status lapses as any status does, its grace after, and the tuition stays on record", () => {
@@ -368,7 +368,7 @@ describe("tuition", () => {
     applyEffects(game, [{ type: "route/support", route: UK_ROUTE, currency: "NGN", amount: pledge }]);
     setPockets(game, { GBP: 100000 });
     const lots = game.state.wallet.lots.length;
-    const half = Math.floor((PRINCIPAL * 5000) / 10000);
+    const half = mulDiv(PRINCIPAL, 5000, 10000);
     // The day's rate is the month's own, before the tick moves on.
     const rates = officialRates(game.world());
     const result = nextMonth(game);

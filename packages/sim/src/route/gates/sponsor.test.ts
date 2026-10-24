@@ -275,7 +275,7 @@ describe("route-gates:nurses-sponsored-while-care-shut: a trust's nursing post w
     ["no verification", false, 60, { documents: without(CARE_PAPERS, "document.nmcn-verification") }],
     ["no licence", false, 60, { documents: without(CARE_PAPERS, "document.nursing-licence") }],
   ] as const)("[route-gates:nurses-sponsored-while-care-shut] given the care window at 0 and %s, when the trust's conditions are judged, then it may come up: %s", (_name, open, care, options) => {
-    const game = shut(options as LifeOptions);
+    const game = shut(options);
     toKnown(game, CARE_ROUTE);
     applyEffects(game, [{ type: "quality/add", quality: "quality.care", amount: care - (game.state.quality["quality.care"] ?? 0) }]);
     expect(content.offer[TRUST]!.when.every((requirement) => judge(game, requirement))).toBe(open);

@@ -11,6 +11,7 @@ import { ALWAYS_GRANTED, offeredSeed, playMonths } from "../testing/place.journe
 import { readOf, routeOf } from "../testing/read";
 import { answerFirst, applyEffects, readyLife, slot, toDeposit } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
+import { divCeil, mulDiv } from "../engine/int";
 import { fundsRequired } from "./route.logic";
 import { NORTHGATE, STUDENT, UK_GRADUATE, UK_ROUTE } from "../testing/ids";
 
@@ -94,7 +95,7 @@ describe("route:education-loan-pays-the-school: the education loan", () => {
     game.accept({ type: "offer/choose", offer: id, choice: "take", amount: LENT });
     expect(game.state.wallet.totals.out["fee-agent"]?.GBP).toBe(loanProcessing);
     expect(game.state.wallet.pockets.GBP.bank + game.state.wallet.pockets.GBP.cash).toBe(pounds.bank + pounds.cash - loanProcessing);
-    expect(loanOf(game)).toMatchObject({ principal: LENT + (LENT * loanFeeBp) / 10000, outstanding: LENT + (LENT * loanFeeBp) / 10000 });
+    expect(loanOf(game)).toMatchObject({ principal: LENT + mulDiv(LENT, loanFeeBp, 10000), outstanding: LENT + mulDiv(LENT, loanFeeBp, 10000) });
     expect(routeOf(game, UK_ROUTE).loanPaid).toBe(LENT);
     expect(fundsRequired(readOf(game), UK_ROUTE)).toBe(required - LENT);
     // A loan is not money shown: it records no lot, so it adds nothing to the unexplained share.
@@ -124,7 +125,7 @@ describe("route:education-loan-pays-the-school: the education loan", () => {
     playMonths(game, 1);
     expect(loanOf(game)!.outstanding).toBe(owed);
     playMonths(game, 1);
-    expect(loanOf(game)!.outstanding).toBe(owed - Math.ceil(owed / 180));
+    expect(loanOf(game)!.outstanding).toBe(owed - divCeil(owed, 180));
   });
 
   test("[route:education-loan-pays-the-school] [route:refusal-refunds-and-resets] given the loan taken, when the visa is refused, then the school sends the money back to the lender: the loan closes with nothing owed, the route's loan is cleared, and only the processing fee is lost", () => {

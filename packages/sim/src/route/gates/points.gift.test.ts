@@ -93,15 +93,14 @@ describe("route-gates:family-gift-counts-with-deed: the family's gift for Canada
       applyEffects(game, [{ type: "quality/add", quality: "quality.standing", amount: standing - (game.state.quality["quality.standing"] ?? 0) }]);
       game.accept({ type: "activity/now", activity: MEETING, param: null });
       const id = openOf(game, GIFT);
-      expect(id !== null).toBe(opens);
-      if (id !== null) expect(game.state.offer.items[id]!.terms["gift"]).toBe(MEANS * PER_MEANS);
+      expect(id === null ? null : game.state.offer.items[id]!.terms["gift"]).toBe(opens ? MEANS * PER_MEANS : null);
     }
   });
 
   test("[route-gates:family-gift-counts-with-deed] given Canada known but no credential assessment, and no school's offer, when the family meeting is asked for, then it is not legal", () => {
     const game = developer({ documents: READY_PAPERS });
     canadaKnown(game);
-    game.expectRejected({ type: "activity/now", activity: MEETING, param: null }, "not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: MEETING, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[route-gates:family-gift-counts-with-deed] [wallet:roads-to-the-target] given the gift taken, when it lands, then the naira bank gains it under gift, flagged, the route records it, and the family's stake rises so the meeting and Papa's loan are shut", () => {
@@ -154,12 +153,13 @@ describe("route-gates:family-gift-counts-with-deed: the family's gift for Canada
   test("[route-gates:family-gift-counts-with-deed] given the deed act, when it is asked for before any gift, or once the deed is held, then it is not legal", () => {
     const none = developer();
     canadaKnown(none);
-    none.expectRejected({ type: "activity/now", activity: DEED_ACT, param: null }, "not-legal");
+    expect(none.expectRejected({ type: "activity/now", activity: DEED_ACT, param: null }, "not-legal").code).toBe("not-legal");
     const twice = developer();
     canadaKnown(twice);
     takeGift(twice);
     twice.accept({ type: "activity/now", activity: DEED_ACT, param: null });
     twice.endTurn();
+    expect(check(readOf(twice), { type: "document/held", document: DEED }).met).toBe(true);
     twice.expectRejected({ type: "activity/now", activity: DEED_ACT, param: null }, "not-legal");
   });
 
