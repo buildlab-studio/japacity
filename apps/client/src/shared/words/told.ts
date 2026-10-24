@@ -66,8 +66,9 @@ export function toldOnResults(line: ReportLine, pays: PayView & BandView): Repor
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (text:bands-not-figures).
   // An act sat as a set piece is told in its own words where content has them: the talk, how it went.
   const own = EXAM_MARKED.has(line.key) && typeof line.params.activity === "string" ? `${line.key}.${line.params.activity}` : null;
-  if (own !== null && hasWords(own)) return { ...line, key: own };
-  if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value])) };
+  const counted = (): ReportLine["params"] => Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value]));
+  if (own !== null && hasWords(own)) return { ...line, key: own, params: counted() };
+  if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: counted() };
   if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
   if (line.key === "line.activity.hunt-hired" && typeof job === "string") {

@@ -135,6 +135,11 @@ export const uiPhoneText: Record<string, string> = {
   // A paper asked on the phone, before it is asked: its fee and its wait (document:degree-english-statement).
   "phone.papers.costs": "{fee}. It comes in {months} months.",
   "phone.papers.costs.one": "{fee}. It comes in a month.",
+  // document:trade-papers: the chartered exams are paid a sitting at a time; a trade's paper names the rung it opens.
+  "phone.papers.sittings": "{fee} a sitting, {count} sittings, one every {months} months.",
+  "phone.papers.opens": "Asked for by: {job}",
+  // route-gates:family-gift-counts-with-deed: the deed is what makes the gift count as your own money.
+  "phone.papers.opens.document.gift-deed": "Canada counts the family's gift once this is in your file.",
   "phone.papers.visa": "Granted",
   "phone.papers.for": "Counts toward {routes}",
   "phone.papers.for.and": "{first} and {last}",

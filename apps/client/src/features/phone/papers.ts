@@ -14,7 +14,18 @@ import { inMonths, runningName, say } from "../../shared/words/text";
  * The paper acts that are a call or a message in real life, taken on the phone: the transcript asked of the registry,
  * the degree sent for assessment, the council's verification and the licence's renewal.
  */
-export const PHONE_ACTS: ReadonlySet<string> = new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence", "activity.degree-english"]);
+export const PHONE_ACTS: ReadonlySet<string> = new Set([
+  "activity.get-transcript",
+  "activity.get-eca",
+  "activity.request-verification",
+  "activity.renew-licence",
+  "activity.degree-english",
+  // document:trade-papers: the teachers' council's form and the institute's exams, asked for and studied from the phone.
+  "activity.get-trcn",
+  "activity.ican-exams",
+  // route-gates:family-gift-counts-with-deed: the notary's deed for the family's gift.
+  "activity.gift-deed",
+]);
 
 /** Where a paper stands: held and in date, on its way (a renewal of one held among them), run out, or not yet asked for. */
 type PaperState = "held" | "coming" | "expired" | "not-yet";
@@ -39,6 +50,8 @@ export interface PaperRow {
   counts: string[];
   /** The act that moves it now, or null when there is none to take. */
   act: PaperAct | null;
+  /** What it opens beside the ways out: the trade's rung that asks it (document:trade-papers), or the paper itself when it opens a way's money (the gift's deed). Null otherwise. */
+  opens?: string;
 }
 
 type PapersView = PlayerView;
@@ -84,10 +97,30 @@ function papersAsked(view: PapersView, route: string): string[] {
   return (entry?.checklist ?? []).flatMap((item) => itemPapers(view, item.requirement));
 }
 
-/** The activity that requests a document, from content: the one whose effects ask for it. */
+/** The activity that requests a document, from content: the one whose effects ask for it, or whose exam's pass does (the chartered exams, document:trade-papers). */
 export function requestOf(document: string): string | null {
-  const entry = Object.values(content.activity).find((activity) => activity.effects.some((effect) => effect.type === "document/request" && effect.document === document));
+  const asks = (effects: readonly { type: string; document?: string }[]) => effects.some((effect) => effect.type === "document/request" && effect.document === document);
+  const entry = Object.values(content.activity).find((activity) => asks(activity.effects) || (activity.exam !== undefined && asks(activity.exam.effects)));
   return entry?.id ?? null;
+}
+
+const GIFT_DEED = "document.gift-deed";
+
+/**
+ * document:trade-papers: the papers the held job's next rung asks (the passbook's ladder road, when it asks months in the job held), each with
+ * the rung it opens; and route-gates:family-gift-counts-with-deed: the gift's deed while its act is offered, the family's gift taken.
+ */
+function beyondRoutes(view: PapersView): { id: string; opens: string }[] {
+  const held = view.job.id;
+  const road = view.passbook?.roads.find((each) => each.road === "ladder");
+  const rung = road === undefined ? undefined : content.activity[road.via as keyof typeof content.activity];
+  const trade =
+    held === null || rung === undefined || !rung.requires.some((need) => need.type === "activity/tenure" && need.activities.includes(held))
+      ? []
+      : rung.requires.flatMap((need) => (need.type === "document/held" ? [{ id: need.document as string, opens: rung.id as string }] : []));
+  const deedAct = requestOf(GIFT_DEED);
+  const deed = deedAct !== null && view.activities.some((option) => option.id === deedAct && option.allowed) ? [{ id: GIFT_DEED, opens: GIFT_DEED }] : [];
+  return [...trade, ...deed];
 }
 
 /** The first place on this side of the flight that stages an act, or null. */
@@ -138,14 +171,18 @@ function visaRow(view: PapersView): PaperRow | null {
 export function papersOf(view: PapersView): PaperRow[] {
   const plan = planOf(view);
   const asked = plan === null ? [] : papersAsked(view, plan);
+  const beyond = beyondRoutes(view);
+  const opened = beyond.filter((paper) => !asked.includes(paper.id)).map((paper) => paper.id);
   const held = view.documents.map((paper) => paper.id as string);
-  const order = [...asked, ...held.filter((id) => !asked.includes(id))];
+  const order = [...asked, ...opened, ...held.filter((id) => !asked.includes(id) && !opened.includes(id))];
   const rows: PaperRow[] = order.map((id) => {
     const paper = view.documents.find((candidate) => candidate.id === id);
     const counts = countsOf(view, id, plan);
     const act = actOf(view, id);
-    if (paper === undefined) return { id, kind: "document", state: "not-yet", onItsWay: null, expiresMonth: null, value: null, counts, act };
-    return { id, kind: "document", state: stateOf(paper), onItsWay: paper.onItsWay, expiresMonth: paper.expiresMonth, value: paper.value, counts, act };
+    const opens = beyond.find((each) => each.id === id)?.opens;
+    const extra = opens === undefined ? {} : { opens };
+    if (paper === undefined) return { id, kind: "document", state: "not-yet", onItsWay: null, expiresMonth: null, value: null, counts, act, ...extra };
+    return { id, kind: "document", state: stateOf(paper), onItsWay: paper.onItsWay, expiresMonth: paper.expiresMonth, value: paper.value, counts, act, ...extra };
   });
   const visa = visaRow(view);
   return visa === null ? rows : [visa, ...rows];
