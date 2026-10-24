@@ -66,11 +66,12 @@ describe("the free path's certificate on the results", () => {
   test("[activity:free-path-keeps-a-streak] [world:month-end-results-sheet] given the free path played month after month, when the fifth month in a row ends, then the results say the certificate", async () => {
     const game = newGame("scenario.graduate");
     const store = await storeOf(game);
+    const months: string[][] = [];
     for (let played = 1; played <= 5; played += 1) {
       await month(store, game, [FREE_PATH]);
-      const rows = results(store);
-      if (played < 5) expect(rows).not.toContain(words("line.activity.certificate"));
-      else expect(rows).toContain(words("line.activity.certificate"));
+      months.push(results(store));
     }
+    const told = months.map((rows) => rows.includes(words("line.activity.certificate")));
+    expect(told).toEqual([false, false, false, false, true]);
   });
 });

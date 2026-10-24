@@ -90,7 +90,8 @@ describe("a side job to take, in Jobs", () => {
     if (pay === null) throw new Error("The side job has no pay.");
     expect(side?.textContent).toContain(say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }));
     const lift = liftWords(view, road.via);
-    if (lift !== null) expect(side?.textContent).toContain(lift);
+    expect(lift).not.toBeNull();
+    expect(side?.textContent).toContain(lift ?? "");
     expect(road.state).toBe("open");
     expect(side?.textContent).toContain(say("phone.jobs.rung.open"));
   });

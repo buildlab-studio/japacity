@@ -117,7 +117,7 @@ function beyondRoutes(view: PapersView): { id: string; opens: string }[] {
   const trade =
     held === null || rung === undefined || !rung.requires.some((need) => need.type === "activity/tenure" && need.activities.includes(held))
       ? []
-      : rung.requires.flatMap((need) => (need.type === "document/held" ? [{ id: need.document as string, opens: rung.id as string }] : []));
+      : rung.requires.flatMap((need) => (need.type === "document/held" ? [{ id: need.document, opens: rung.id }] : []));
   const deedAct = requestOf(GIFT_DEED);
   const deed = deedAct !== null && view.activities.some((option) => option.id === deedAct && option.allowed) ? [{ id: GIFT_DEED, opens: GIFT_DEED }] : [];
   return [...trade, ...deed];
