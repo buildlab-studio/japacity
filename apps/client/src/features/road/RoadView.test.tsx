@@ -99,6 +99,17 @@ describe("the road's one panel", () => {
   });
 });
 
+describe("waiting on the road", () => {
+  test("[turn:month-turns-on-empty-bank] given no turn banked on the road, when the player waits, then Wait is open and turn/end is sent", async () => {
+    const view = onTheRoad([RANSOM]);
+    const { authority } = await road({ ...view, turns: { ...view.turns, banked: 0 } });
+    const wait = screen.getByRole("button", { name: say("ui.road.wait") });
+    expect((wait as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(wait);
+    expect(authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(1);
+  });
+});
+
 describe("the city behind the road", () => {
   test("[city:enterable-places-follow-view] given the character on the road, when the road screen shows, then the city the shell hands in stands behind its panel", async () => {
     await road(onTheRoad([RANSOM]), <div data-city="place.motor-park" />);
