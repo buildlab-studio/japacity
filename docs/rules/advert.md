@@ -52,7 +52,7 @@ An advert is a picture a real business pays to put in the world: a billboard on 
 | 7 | Dating, companionship and adult content | The game matches characters and is not a dating service (`../design/01-concept.md` section 6, safety rule 2) |
 | 8 | Political parties, candidates, campaigns, religious bodies | The game's news shows governments as part of the world; a paid political advert inside it would take a side |
 | 9 | Weapons, dangerous goods, counterfeit goods, hacking and surveillance tools | Prohibited on every large ad platform |
-| 10 | Other games, game stores and game currencies | Keeps "nothing from another game goes in" true on screen too |
+| 10 | Other games, game stores and game currencies | No other game's names or goods appear in the world (`AGENTS.md`, Never) |
 | 11 | Anything impersonating a person, a brand, a bank or an official body | Misrepresentation is prohibited on the large platforms; advert:adverts-never-mimic-the-game |
 
 **advert:restricted-categories-need-conditions** An advert in a restricted category shows only when its condition is met and recorded at review:
@@ -68,7 +68,7 @@ An advert is a picture a real business pays to put in the world: a billboard on 
 
 ## Rules: a real business as a named place
 
-**advert:real-name-only-by-agreement** A private place in the city keeps its made-up name from content unless a real business has signed an agreement for it. Then the server sends the real name and sign with the world as a place overlay, and the public content never holds the real name (`AGENTS.md`: no real business in content).
+**advert:real-name-only-by-agreement** A private place in the city keeps its made-up name from content unless a real business has signed an agreement for it. Then the server sends the real name and sign with the world as a place overlay, and the public content never holds that sponsored name (`AGENTS.md`, Never: a real business name in content stands only as neutral scenery, city:sponsor-shows-name-only).
 
 **advert:sponsored-place-hosts-no-harm** A place under a real name hosts no bad event: no fraud, no robbery, no illness, no refusal. Its offers, prices and rules are the same as under its made-up name.
 
@@ -84,24 +84,24 @@ An advert is a picture a real business pays to put in the world: a billboard on 
 
 ## Entries: slots
 
-Working values. The places are the city's (`city.md`); a slot names a place id that page defines.
+Working values. The places are the city's (`city.md`); a slot names a place id that page defines, and the phone's tile names `phone` (`packages/content/src/advert/advert.data.ts`).
 
 | Id | Surface | Where | Size (px) | Byte limit |
 |---|---|---|---|---|
-| `advert.road-billboard` | billboard | the main road into the island | 1024 x 512 | 200 KB |
-| `advert.park-billboard` | billboard | the motor park (never shown while `where` is `road`) | 1024 x 512 | 200 KB |
-| `advert.airport-poster` | poster | the departures hall | 512 x 768 | 150 KB |
-| `advert.arrivals-poster` | poster | the arrivals hall abroad | 512 x 768 | 150 KB |
-| `advert.phone-tile` | phone-tile | the phone's app grid | 256 x 256 | 50 KB |
-| `advert.food-spot` | shopfront | a food spot on the market street | sign 768 x 192 | 100 KB |
+| `advert.road-billboard` | billboard | Third Mainland Bridge, `place.third-mainland-bridge` | 1024 x 512 | 200 KB |
+| `advert.park-billboard` | billboard | Jibowu's coach terminals, `place.jibowu` (the motor park is stylised and holds no slot, city:road-places-are-stylised) | 1024 x 512 | 200 KB |
+| `advert.airport-poster` | poster | the airport in Lagos, `place.airport-lagos` | 512 x 768 | 150 KB |
+| `advert.arrivals-poster` | poster | Heathrow, where most flights from Lagos land, `place.heathrow` | 512 x 768 | 150 KB |
+| `advert.phone-tile` | phone-tile | the phone's app grid, `phone` | 256 x 256 | 50 KB |
+| `advert.food-spot` | shopfront | a food spot on Ogba's market street, `place.ogba` | sign 768 x 192 | 100 KB |
 
 ## Numbers
 
-| Setting | Value | Source | In content as |
+| Setting | Value | Source | Held in |
 |---|---|---|---|
 | Slots per place at most | 2 | working value | `tuning.advert.maxSlotsPerPlace` |
 | Sponsored phone tiles at most | 1 | working value | `tuning.advert.maxPhoneTiles` |
-| Time on screen for an impression | 1,000 ms, half visible | working value, after common industry practice (not sourced) | `tuning.advert.impressionMs` |
+| Time on screen for an impression | 1,000 ms, half visible | working value | `tuning.advert.impressionMs` |
 | Impressions one account adds to a slot in a day | 200 | working value (advert:advertiser-records-stored) | `advert.countsPerAccountDay.impressions` (server config) |
 | Taps one account adds to a slot in a day | 20 | working value (advert:advertiser-records-stored) | `advert.countsPerAccountDay.taps` (server config) |
 

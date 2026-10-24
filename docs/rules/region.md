@@ -1,7 +1,7 @@
 # Who can play, and who runs the game
 
 > Rests on `../design/01-concept.md` sections 16 to 18.
-> Kind: `region`, server behaviour. `account.md` holds the age screen and sign-up; `pair.md` holds how two players meet; this page holds who may play, what contact every player has, and who runs the game.
+> Kind: `region`, server behaviour. The region is only the country a request comes from, which counts play by country and chooses an advert region; nothing a player may do turns on it. `account.md` holds the age screen and sign-up; `pair.md` holds how two players meet; this page holds who may play, what contact every player has, and who runs the game.
 
 Every player, from any country, plays the same game. Sign-up is open everywhere, the date-of-birth screen is the same for everyone, and contact between players is the same for everyone: preset phrases and pair records between accounts connected by an invite, with block and report. Nothing a player may do turns on where they are.
 
@@ -17,9 +17,9 @@ Every player, from any country, plays the same game. Sign-up is open everywhere,
 
 ## Who runs the game, and its two pages
 
-The game is run from Nigeria by the operator that content's one constant names: `OPERATOR` in `packages/content/src/legal/legal.operator.ts`, with the operator's name, place and the one address for help, privacy requests and complaints. The privacy notice follows Nigeria's data protection law of 2023 and names the operator as the data controller. The terms are governed by the law of Nigeria, with the courts of Lagos State for disputes.
+The game is run from Nigeria by the operator that region:operator-named-once names. The privacy notice follows Nigeria's data protection law of 2023 and names the operator as the data controller. The terms are governed by the law of Nigeria, with the courts of Lagos State for disputes.
 
-Two pages are the whole of the legal surface: the terms of play at `/terms` and the privacy notice at `/privacy`, served beside the game and linked from the start screen, the settings and the guides menu. Both read the operator from the constant, and no other file in `apps/` or `packages/` spells the name or the place. A change of operator, to a business or anyone else, is a change to that one constant.
+Two pages are the whole of the legal surface: the terms of play at `/terms` and the privacy notice at `/privacy`, served beside the game and linked from the start screen, the settings and the guides menu. Both read the operator from the one constant (region:operator-named-once).
 
 ## Numbers
 

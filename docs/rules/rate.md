@@ -1,6 +1,6 @@
 # Rates and the stand-in world
 
-> Numbers are working values. The start rates are the real ones for late September 2026 in `../research/09-uk-masters-numbers.md`. After that the rates are simulated: the game never shows live street rates.
+> The start rates are real: the pound's official rate of 24 Sep 2026 and the dollar's of 7 Oct 2026 (`../research/09-uk-masters-numbers.md`, Exchange rates the game starts from), the Canadian dollar and the euro from the cross rates of 7 Oct 2026, and the dirham on the dollar's peg. After tick 0 the rates are simulated, with working values: the game never shows live street rates.
 > Scope: world. Code: `packages/sim/src/world/`. Background: `../design/01-concept.md` sections 7 and 13.
 
 The world is the same for everyone at one tick: two naira rates for each foreign currency, the world's variables, and the news. Online the server builds it one tick at a time (`clock.md`); for the in-browser authority a stand-in (`world/standIn.ts`) builds it from a world seed and a tick.
@@ -21,6 +21,8 @@ The world is the same for everyone at one tick: two naira rates for each foreign
 
 ## Variables
 
+The variables the rates and the UK master's route read. Content holds 67 in all (`packages/content/src/var/var.data.ts`); the windows, strictnesses and surges of the other routes are in `director.md` (director:world-variables-per-route), and the status and fee variables are on the pages that read them.
+
 | Id | Start | Meaning |
 |---|---|---|
 | `var.fx-supply` | 97 | How freely the banks have foreign currency, 0 to 100 |
@@ -35,18 +37,21 @@ The world is the same for everyone at one tick: two naira rates for each foreign
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Pound, official, at tick 0 | ₦1,758.00 | `tuning.rate.start.GBP` = 175800 |
-| Dollar, official, at tick 0 | ₦1,331.50 | `tuning.rate.start.USD` = 133150 |
-| Drift a tick | 0.4% | `tuning.rate.driftBp` = 40 |
-| Noise a tick | Up to 1.2% either way | `tuning.rate.noiseBp` = 120 |
-| Premium floor | 2% | `tuning.rate.premiumFloorBp` = 200 |
-| Premium for each point of missing supply | 0.72% | `tuning.rate.premiumPerSupplyBp` = 72 |
-| Premium noise | Up to 0.5% either way | `tuning.rate.premiumNoiseBp` = 50 |
-| Premium after a float | 3% | `tuning.rate.floatPremiumBp` = 300 |
+| Setting | Value | In content as | Source |
+|---|---|---|---|
+| Pound, official, at tick 0 | ₦1,758.00 | `tuning.rate.start.GBP` = 175800 | CBN selling rate ₦1,758.36, 24 Sep 2026 (`../research/09-uk-masters-numbers.md`) |
+| Dollar, official, at tick 0 | ₦1,331.50 | `tuning.rate.start.USD` = 133150 | NFEM close, 7 Oct 2026, TechEconomy and Vanguard (`../research/09-uk-masters-numbers.md`) |
+| Canadian dollar, official, at tick 0 | ₦970.00 | `tuning.rate.start.CAD` = 97000 | Cross rate of 7 Oct 2026 |
+| Dirham, official, at tick 0 | ₦362.55 | `tuning.rate.start.AED` = 36255 | The dollar's rate over the dirham's peg (abroad-money:foreign-currencies-join-wallet) |
+| Euro, official, at tick 0 | ₦1,558.00 | `tuning.rate.start.EUR` = 155800 | Cross rate of 7 Oct 2026 |
+| Drift a tick | 0.4% | `tuning.rate.driftBp` = 40 | Working value |
+| Noise a tick | Up to 1.2% either way | `tuning.rate.noiseBp` = 120 | Working value |
+| Premium floor | 2% | `tuning.rate.premiumFloorBp` = 200 | Working value; the street gap was 2% on 7 Oct 2026 (`../research/06-naira-rates-and-currency.md`) |
+| Premium for each point of missing supply | 0.72% | `tuning.rate.premiumPerSupplyBp` = 72 | Working value |
+| Premium noise | Up to 0.5% either way | `tuning.rate.premiumNoiseBp` = 50 | Working value |
+| Premium after a float | 3% | `tuning.rate.floatPremiumBp` = 300 | Working value; after the float of 14 Jun 2023 the gap closed (`../research/06-naira-rates-and-currency.md`) |
 
-With supply at 97 the premium settles near 4.2%, close to the 4% gap of early October 2026. With supply at 40 it heads for about 45%, and with 90 after a float about 9%.
+With supply at 97 the premium settles near 4.2%, close to the calm gap of 3% to 5% of 2 Oct 2026 (`../research/06-naira-rates-and-currency.md`). With supply at 40 it heads for about 45%, near the crisis gap of 47% in Dec 2023, and with 90 after a float about 9%.
 
 ## The stand-in's clock
 

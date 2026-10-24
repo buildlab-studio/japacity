@@ -28,15 +28,13 @@ These hold for every step of the road and for every rule below. They have no ids
 
 ## Rules
 
-**road:road-route-has-no-figure** `route.road` has the gate `road`, no checklist, no window var, no japacity figure, and never appears in the routes view. Its state moves only through the offers below. japacity:best-open-route-is-japacity skips it. The content switch `tuning.road.enabled` turns the whole pool off.
-
-The road variant of `RouteGateView` (`gate: "road"`, `step`, `monthsHere`) is built by the road gate but never sent: the routes view drops every route whose gate is `road` before the gate's part is read, so road:road-route-has-no-figure holds. While the chain runs the player sees it through `place.where` (`road`), the report lines and the card.
+**road:road-route-has-no-figure** `route.road` has the gate `road`, no checklist, no window var, no japacity figure, and never appears in the routes view. Its state moves only through the offers below. japacity:best-open-route-is-japacity skips it. The content switch `tuning.road.enabled` turns the whole pool off. The road variant of `RouteGateView` (`gate: "road"`, `step`, `monthsHere`) is built by the road gate but never sent: the routes view drops every route whose gate is `road` before the gate's part is read. While the chain runs the player sees it through `place.where` (`road`), the report lines and the card.
 
 **road:pitch-rises-with-pressure** The pitch is an offer in group `road`: `offer.road-radio`, `offer.road-park`, `offer.road-cousin`. Each is rolled as any offer, with its chance raised by the character's situation (offer:come-up-rolls-in-order reads `chanceBp` plus the entry's `pressure` terms: +200 per earlier refusal, +300 if any loan is in default, +200 if standing under 30, +100 per year of age over 30) and lowered by it (-400 if any formal route is known with a japacity figure of 60 or more). `activity.ask-around` at the motor park (a now-act, `where: home`) opens `offer.road-park` at once for the curious. The pitch never says desert, sea, road or danger.
 
 **road:taking-pitch-pays-deposit** Taking the pitch pays its `deposit` term from the naira, by its size (decision 0014: cash first at or under `tuning.wallet.cashUpTo`, the bank first above it) (reason `fee-agent`). Which of three the offer is stays hidden: `fraud` (money gone, nothing follows), `realish` (a connection that moves), or `road` (the thing itself). The shares are the entry's `kinds` basis points. The fraud is drawn when the pitch opens, at the entry's `fraudBp`, which is the `fraud` share (offer:opening-fixes-terms-and-fraud), so the signs follow it; taking an honest pitch splits it between `realish` and `road` by their shares, one draw on the `road` stream. `fraud` ends there with a line a month later. The other two open `setpiece.road-night`.
 
-**road:road-night-allows-turn-back** `setpiece.road-night` asks one question with two answers: `go` and `turn-back`. Turning back costs the deposit and nothing else, and closes the chain with standing -2. Going opens the next step. From here on every set piece in the chain keeps at least one `exit` answer. While a road scene is open, `turn/end` is rejected with `setpiece-open`, as for every set piece (route:open-set-piece-holds-month); between scenes none is open, so the months pass while you wait.
+**road:road-night-allows-turn-back** `setpiece.road-night` asks one question with two answers: `go` and `turn-back`. Turning back costs the deposit and nothing else, and closes the chain with standing -2. Going opens the next step. From here on every set piece in the chain keeps at least one `exit` answer. While a road scene is open, `turn/end` is rejected with `setpiece-open`, as for every set piece (route:open-set-piece-holds-month); between scenes none is open, so the months pass while you wait, and the road's Wait ends the month whatever the bank of turns holds (turn:month-turns-on-empty-bank).
 
 **road:road-truth-asks-more** `setpiece.road-truth` tells the player it is by road and asks for `more` money: `pay` (from the naira, by its size, decision 0014, reason `fee-agent`), `call-home` (the family pays: `quality.family-means` falls by the amount over ₦100,000, `quality.family-stake` set to 1, standing -5), or `exit` (home with standing -4, the money gone). Paying or calling moves the route to `applying` and the character to the place `road` for the chain's remaining steps; the home obligations are suspended and no free slots exist: the month's activities are the chain's own.
 
@@ -55,9 +53,9 @@ The road variant of `RouteGateView` (`gate: "road"`, `step`, `monthsHere`) is bu
 | Key | Credit | Link |
 |---|---|---|
 | `credit.1` | Foundation for Investigative Journalism, an undercover journey north, 2026 | the FIJ's part I |
-| `credit.2` | The Sun, an undercover Sahara trek, 2010 (the Daily Sun, December 2010; the page carries both years and the text's own date reads 2010) | the award copy, award.wscij.org/?p=8058 |
-| `credit.3` | CNN, migrants auctioned in Libya, 2017 | CNN, 14 Nov 2017, edition.cnn.com/2017/11/14/africa/libya-migrant-auctions/index.html, in place of the archive link that no longer answers |
-| `credit.4` | BBC News, women held by debt and an oath, 2019 (in place of a BBC Panorama of 2017 that the research could not find) | the BBC News video of Feb 2019 |
+| `credit.2` | The Sun, an undercover Sahara trek, December 2010 | the award copy, award.wscij.org/?p=8058 |
+| `credit.3` | CNN, migrants auctioned in Libya, 2017 | CNN, 14 Nov 2017, edition.cnn.com/2017/11/14/africa/libya-migrant-auctions/index.html |
+| `credit.4` | BBC News, women held by debt and an oath, 2019 | the BBC News video of Feb 2019 |
 
 **road:pitch-reaches-anyone-at-home** The pitch offers reach every character who meets `tuning.road.enabled` and is at home, and `take` needs the character at home when it is chosen: a pitch left open through a flight cannot start the chain abroad. Nothing on the profile locks them. A player with better options sees them less often (road:pitch-rises-with-pressure) and lower in the offer list (the offer view sorts by group, `road` last).
 
@@ -90,18 +88,20 @@ Read as the record reads: of those who set out, well under half arrive; most com
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Content switch | on; an account switch turns it off (road:road-route-has-no-figure) | `tuning.road.enabled` true |
-| Family means fall one point for each | ₦100,000 the family pays | `tuning.road.meansStep` 10000000 |
-| Pressure terms | refusal +200, default +300, standing under 30 +200, age over 30 +100 a year, a strong formal route -400 | each road offer's `pressure` field (`refusalBp`, `defaultBp`, `lowStandingBp`, `perYearOver30Bp`, `strongRouteBp`); the lines standing 30, age 30 and route figure 60 are constants in `offer.logic.ts` |
-| Deposit, more, ransom | stylised ranges above | the offer terms |
-| Death share across the chain | about 2 in 100 of those who set out | the outcome tables |
+Every figure here is stylised on purpose (rule 7 of "What the road holds to"): none is a real price or a real rate.
+
+| Setting | Value | In content as | Source |
+|---|---|---|---|
+| Content switch | on; off turns the whole pool off (road:road-route-has-no-figure) | `tuning.road.enabled` true | Game choice |
+| Family means fall one point for each | ₦100,000 the family pays | `tuning.road.meansStep` 10000000 | Working value |
+| Pressure terms | refusal +200, default +300, standing under 30 +200, age over 30 +100 a year, a strong formal route -400 | each road offer's `pressure` field (`refusalBp`, `defaultBp`, `lowStandingBp`, `perYearOver30Bp`, `strongRouteBp`); the lines standing 30, age 30 and route figure 60 are `tuning.road.pressureStandingUnder`, `pressureAgeOver` and `pressureStrongRoute` | Working values |
+| Deposit, more, ransom | stylised ranges above | the offer terms | Stylised |
+| Death share across the chain | about 2 in 100 of those who set out | the outcome tables | Stylised on the record of `../research/02-all-routes-and-timeline.md` section 2: most do not arrive, most come back, some die |
 
 ## Sources
 
 - The record: `../research/02-all-routes-and-timeline.md` section 2 (the undercover journey, deaths at sea and in the desert, detention, ransom, return and stigma), with its sources. Nothing from them is reproduced here.
-- [IOM: Nigerian returns from Libya, 2026 flights](https://www.arise.tv/additional-180-nigerians-return-from-libya-under-iom-repatriation-programme/)
+- [Arise TV: 180 more Nigerians return from Libya under IOM, 2026](https://www.arise.tv/additional-180-nigerians-return-from-libya-under-iom-repatriation-programme/)
 
 ## Effects and requirements this kind handles
 

@@ -1,6 +1,6 @@
 # Qualities
 
-> Numbers are working values.
+> Numbers are working values unless a source is given.
 > Kind: `quality`. Many per character. Background: `../design/01-concept.md` section 3.
 
 A quality is one whole number about the character: a skill, a grade, how the family sees them. Routes, offers and jobs all read qualities.
@@ -39,17 +39,29 @@ A quality is one whole number about the character: a skill, a grade, how the fam
 | `quality.standing` | self | 0 to 100 | Yes | | How the family and the street see you |
 | `quality.wellbeing` | self | 0 to 100 | Yes | | Rest, health and mood together |
 | `quality.credit-mark` | self | 0 to 3 | Yes | | Loans gone bad. Lenders check it |
+| `quality.care` | skills | 0 to 100 | Yes | | Nursing and care skill; a nurse starts at 60, a care assistant at 30 (`route-gates.md`) |
+| `quality.belly` | self | 0 to 100 | No | | How fed the character is today; starts at 60 (quality:body-belly-and-energy) |
+| `quality.energy` | self | 0 to 100 | No | | How rested the character is today; starts at 70 (quality:body-belly-and-energy) |
+| `quality.driving` | self | 0 to 1 | No | | 1 for a life that can drive (`car.md`) |
+| `quality.run-down-months` | self | 0 to 3 | No | | Months in a row under the run-down line (health:low-wellbeing-warns-first) |
+| `quality.illness-course` | self | 0 to 4 | No | | Where the last illness stands: 0 nothing pending, 1 treated at the chemist, 2 ignored, 3 worse and not answered, 4 worse and answered (health:illness-rolls-when-run-down, health:worse-illness-locks-slots) |
+| `quality.forced-wait` | self | 0 to 12 | No | | Months before another forced month may come (health:forced-months-spaced-apart) |
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Wellbeing drifts toward | 60 | `tuning.quality.wellbeingDriftTo` |
-| Drift a month | 2 | `tuning.quality.wellbeingDrift` |
-| Slot lost below wellbeing | 25 | `tuning.quality.burnoutBelow` |
-| Skill gains halve at | 70 | `tuning.quality.skillSoftAt` |
-| Share of a skill gain kept from there, rounding up | 50% | `tuning.quality.skillSoftBp` = 5000 |
-| Wellbeing back for an empty slot | 12 | `tuning.quality.wellbeingRest` |
+| Setting | Value | Source | In content as |
+|---|---|---|---|
+| Wellbeing drifts toward | 60 | Working value | `tuning.quality.wellbeingDriftTo` |
+| Drift a month | 2 | Working value | `tuning.quality.wellbeingDrift` |
+| Slot lost below wellbeing | 25 | Working value | `tuning.quality.burnoutBelow` |
+| Skill gains halve at | 70 | Working value | `tuning.quality.skillSoftAt` |
+| Share of a skill gain kept from there, rounding up | 50% | Working value | `tuning.quality.skillSoftBp` = 5000 |
+| Wellbeing back for an empty slot | 12 | Working value, the same as `activity.rest` | `tuning.quality.wellbeingRest` |
+| Belly and energy lost for each half-day lived | 2 and 1 | Working value | `tuning.turn.body.bellyPerHalfDay`, `energyPerHalfDay` |
+| Low body line | under 30 | Working value | `tuning.turn.body.lowBelow` |
+| Wellbeing lost to a hungry or a spent body at the month's turn | 6 and 4 | Working value | `tuning.turn.body.hungryWellbeing`, `spentWellbeing` |
+| The night's rest brings the body toward | 60, by at most 25 | Working value | `tuning.turn.body.restTo`, `restBy` |
+| Spent mark: an act that takes time waits for sleep under it | 10 energy | Working value (activity:spent-body-refuses-acts) | `tuning.turn.body.spentBelow` |
 
 ## Effects and requirements this kind handles
 

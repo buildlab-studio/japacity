@@ -19,7 +19,7 @@ A document is something the character can show: a passport, a test result, a cer
 
 **document:degree-english-statement** The degree's English statement. `document.degree-english` is requested by `activity.degree-english`, a now-act made from the Papers app (document:paper-on-its-way), which needs a bachelor's degree and the statement neither held nor being made, and costs ₦150,000 with the reason `fee-document`. It is issued after 1 month, never expires and carries no value: it always passes. It meets the English of the UK work routes (route-gates:sponsor-application-needs) and of the partner route (person:partner-gate-needs). Real: Ecctis confirms that a degree from abroad was taught in English for £210 plus £42 VAT (£252, about ₦458,800 at ₦1,820.79 to the pound on 23 Oct 2026) in 20 working days, with no fast track. The game charges about a third of the real fee and keeps the real wait (factor 1.0).
 
-**document:who-sits-the-english-test** The English test is for the routes that still ask a band: Canada's pool at band 60 (route-gates:entering-the-pool), the UK work routes at band 55 for an applicant with no degree statement, and the partner route at band 30 for one with no degree. A graduate needs it for none of the UK routes (route:degree-meets-masters-english, document:degree-english-statement, person:partner-gate-needs). `activity.sit-english-test` costs ₦295,000, the fee for IELTS for UKVI from 15 Jul 2025; one test stands for every test each country accepts.
+**document:who-sits-the-english-test** The English test is for the routes that ask a band: Canada's pool at band 60 (route-gates:entering-the-pool), the UK work routes at band 55 for an applicant with no degree statement, and the partner route at band 30 for one with no degree. A graduate needs it for none of the UK routes (route:degree-meets-masters-english, document:degree-english-statement, person:partner-gate-needs). `activity.sit-english-test` costs ₦295,000, the fee for IELTS for UKVI from 15 Jul 2025; one test stands for every test each country accepts.
 
 **document:grant-and-void-commands** `document/grant` issues a document at once. `document/void` removes it, held or pending.
 
@@ -40,23 +40,25 @@ A document is something the character can show: a passport, a test result, a cer
 | `document.police-certificate` | Police character certificate | 1 to 3 months (`activity.get-police-certificate`, ₦5,000, document:police-certificate-for-routes) | 12 months | |
 | `document.nurse-certificate` | Nursing certification | 2 months (`activity.nurse-certification`, activity:waiting-months-build-profile) | For good | |
 
+The other eight documents are entered on the pages of the routes and things that ask for them: `document.eca`, `document.endorsement`, `document.medical`, `document.nursing-licence` and `document.nmcn-verification` in `route-gates.md`, `document.nmc-pin` in `ladders.md`, and `document.home-licence` and `document.uk-licence` in `car.md`. All sixteen are in `packages/content/src/document/document.data.ts`.
+
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Band base | 40 | `tuning.english.base` |
-| Band for every 100 points of English | 35 | `tuning.english.perHundred` |
-| Noise steps of 5 either way | 1 | `tuning.english.noiseSteps` |
-| Lowest and highest band | 40 and 90 | `tuning.english.min`, `tuning.english.max` |
-| Band step, the band times ten | 5 | `tuning.english.bandStep` |
-| The English test's fee | ₦295,000, IELTS for UKVI from 15 Jul 2025 (IELTS on computer ₦279,500); was ₦285,500 from Mar 2024 (factor 1.0) | `activity.sit-english-test` cost 29500000 |
-| The degree's English statement | ₦150,000 and 1 month. Real: £252 (about ₦458,800) and 20 working days; the game about a third of the fee, the same wait | `activity.degree-english` cost 15000000; `document.degree-english` wait [1, 1] |
+| Setting | Value | In content as | Source |
+|---|---|---|---|
+| Band base | 40 | `tuning.english.base` | Working value |
+| Band for every 100 points of English | 35 | `tuning.english.perHundred` | Working value |
+| Noise steps of 5 either way | 1 | `tuning.english.noiseSteps` | Working value |
+| Lowest and highest band | 40 and 90 | `tuning.english.min`, `tuning.english.max` | Working value; real IELTS bands run 0 to 9 |
+| Band step, the band times ten | 5 | `tuning.english.bandStep` | IELTS reports half bands |
+| The English test's fee | ₦295,000 | `activity.sit-english-test` cost 29500000 | IELTS for UKVI from 15 Jul 2025 (IELTS on computer ₦279,500), British Council Nigeria (`../research/01-japa-journey.md`); the real fee, factor 1.0 |
+| The degree's English statement | ₦150,000 and 1 month | `activity.degree-english` cost 15000000; `document.degree-english` wait [1, 1] | Real: Ecctis, £252 (about ₦458,800) and 20 working days (Gherson, 7 May 2025); the game charges about a third of the fee and keeps the wait |
 
 English 60 gives band 6.0 on an even draw. English 72 gives 6.5. English 86 gives 7.0.
 
 ## Sources
 
-- [British Council Nigeria: IELTS questions](https://www.britishcouncil.org.ng/exam/ielts/book-test/ielts-faqs-frequently-asked-questions), the fees from 15 Jul 2025 (the page timed out on 23 Oct 2026; the fee is from its search summary and `../research/01-japa-journey.md`)
+- [British Council Nigeria: IELTS questions](https://www.britishcouncil.org.ng/exam/ielts/book-test/ielts-faqs-frequently-asked-questions), the fees from 15 Jul 2025, as `../research/01-japa-journey.md` gives them
 - [Gherson: Ecctis update, new qualification and language service and higher fees, 7 May 2025](https://www.gherson.com/blog/ecctis-update-new-qualification-and-language-service-and-higher-fees)
 
 ## Effects and requirements this kind handles

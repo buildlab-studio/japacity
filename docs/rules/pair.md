@@ -1,9 +1,9 @@
 # Pairs: the shared record, invites, phrases, block and report
 
-> Rest on `person.md`, `engine.md` and `../design/04-where-things-live.md` section 4. All numbers here are working values except where a source is named.
+> Rests on `person.md`, `engine.md` and `../design/04-where-things-live.md` section 4. All numbers here are working values except where a source is named.
 > Kind: `pair`, held by the server, one record per pair of characters, with the content table `phrase`. Background: `../design/01-concept.md` sections 6 and 16, `../design/03-structure-and-conventions.md` section 5, `../research/05-real-people-family-and-safety.md`.
 
-Anything between two players lives in one record, never a copy on each side. The record is what the two have done together: when they met, what they said, what they agreed, and how it ended. Each life sees it only through the authority commands of `person.md`. This page also covers the invite card that starts a pair, the preset phrases a pair uses to talk, and the block and report that every interaction carries.
+Anything between two players lives in one record, never a copy on each side. The record is what the two have done together: when they met, what they said, what they agreed, and how it ended. Each life sees it only through the authority commands of `person.md`. This page also covers the invite card that starts a pair, the preset phrases a pair uses to talk, and the block and report that every interaction carries; the block's reach and the report queue are `moderation.md`'s.
 
 ## The pair record
 
@@ -41,7 +41,7 @@ Anything between two players lives in one record, never a copy on each side. The
 
 **pair:block-and-report-one-tap** Every surface that shows another player (an invite card, a pair view, a conversation, a phrase heard in a place, a person met in a place, and their Chats thread) carries block and report, one tap from where the other player appears. A player's Chats thread carries block and report in its head.
 
-**pair:block-ends-every-bond** A block is immediate and one-sided. The blocked side can no longer send phrases to the blocker, see the blocker in a place, propose, or use a card of theirs. Every bond between the two ends as a block end in both lives (`people/ended` with `why: "block"`), costing nobody standing (person:ender-pays-in-standing), and every joint collapses (person:joint-collapses-with-bond). The blocked side is told only that the bond ended. Lifting a block restores nothing: a new invite is needed.
+**pair:block-ends-every-bond** A block takes effect at once and refuses, both ways, every phrase, sighting in a place, proposal and card between the two (moderation:block-refuses-both-ways). Every bond between the two ends as a block end in both lives (`people/ended` with `why: "block"`), costing nobody standing (person:ender-pays-in-standing), and every joint collapses (person:joint-collapses-with-bond). The blocked side is told only that the bond ended. Lifting a block restores nothing: a new invite is needed.
 
 **pair:report-holds-conversation** A report cites the pair id and, for a conversation, the message ids. The reported conversation is held (`held` true) until a moderator closes the report: nothing is deleted while held. The reporter may block in the same step. A report changes nothing in either life.
 
@@ -118,4 +118,4 @@ The pair types live where the server and the simulation both reach them, in the 
 5. `ConversationRow` (pair:conversation-phrases-stored): `{ id: string; conversation: string; sender: string; phrase: Id<"phrase">; fill: string | null; sentAt: number; readAt: number | null }`. Times are the server's real time and never enter a state.
 6. `KindName` has `phrase` for the content table; `PhraseEntry` (pair:preset-phrases-only, pair:conversation-phrases-stored, pair:place-phrases-not-stored and pair:phrase-checks-before-send): `{ id: Id<"phrase">; fill: "spot" | "route" | "news" | "event" | "thing" | null; options?: string[]; where: "conversation" | "place" | "both" }`. `Content` has `phrase: Record<Id<"phrase">, PhraseEntry>` and `people.spots: string[]`.
 7. Tuning: `pair: { inviteDays: number; maxOpenInvites: number; rewardFriends: number; phrasesPerHour: number; placePhrasesPerMinute: number }`.
-8. Server types, outside the simulation: `Invite`: `{ code: string; from: string; slot: string; looking: string; fill: string | null; expires: number; used: boolean }`; `Report`: `{ id: string; by: string; pair: string; messages: string[]; open: boolean }`.
+8. Server types, outside the simulation (`packages/store/src/pair.types.ts`): `InviteRow`: `{ code: string; from: string; account: string; slot: string; looking: "partner" | "sibling"; fill: string | null; card: unknown; madeAt: number; expires: number; used: boolean; by: string | null; pair: string | null; usedAt: number | null; before: InviteMilestone[] }`; a report is moderation.md's `ReportRow`.

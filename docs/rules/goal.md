@@ -11,7 +11,7 @@ A goal is a thing worth doing that the game notices: a car, a home, a career ste
 
 **goal:goals-need-the-real-deed** `goal.december` is done only when the visit was taken: its `doneIf` reads `setpiece/answered-with` for the going answer (route:last-answers-remembered), so staying home one December does not finish it. `goal.own-door` is done only in a flat in the character's own name (`obligation/has` with type `rent` whose entry is a flat), never a shared room.
 
-**goal:done-goal-stays-done** A done goal stays done. Goals do not refill the turn bank and do not gate anything. They are the view's "what you could do next" once the chapters are over.
+**goal:done-goal-stays-done** A done goal stays done. Goals do not refill the bank of turns (`turn.md`) and gate nothing. They are the view's "what you could do next" once the chapters are over.
 
 **goal:view-shows-goal-items** The view shows open goals with their items (each `doneIf` requirement as met or not, the way the chapter view does) and the done list with the month each was done.
 
@@ -30,13 +30,7 @@ A goal is a thing worth doing that the game notices: a car, a home, a career ste
 | `goal.the-house` | any | ₦5,000,000 in naira in the bank | `quality.land` 1 or more and ₦15,000,000 or more in the naira bank | standing +10 |
 | `goal.second-route` | home | a return recorded | any route granted after the return | wellbeing +8 |
 
-`goal.the-house` reads land and the money held for the house; no building project pays under the reason `build`.
-
-## Numbers
-
-| Setting | Value | In content as |
-|---|---|---|
-| Goals shown at once | all open ones, the view sorts by the month they opened | none |
+`goal.the-house` reads land and the money held for the house. The view shows every open goal, sorted by the month it opened.
 
 ## Effects and requirements this kind handles
 

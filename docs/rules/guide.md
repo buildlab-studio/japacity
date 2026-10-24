@@ -25,11 +25,11 @@ The game is built on real rules, simplified. The guides say what the real rules 
 
 ## Rules: credits
 
-**guide:credits-screen-in-game** The credits are the Credits screen in the game, reached from the phone's Settings and from the city's menu (city:credits-screen-attributions); they are not a public page of their own. The screen carries every third-party asset from the assets register with its source, author and licence, the fonts with their licences, the map data attribution of guide:credits-carry-map-line and the licence statement of guide:credits-state-licences. The makers and the shipped code's licences are the repository's account: `LICENSE` names the makers, `LICENSES.md` gives the licence of each part, and `NOTICES.md` lists every package the client ships with its version and licence, written by `pnpm notices` (`tools/notices.ts`) and proven current by a test that fails when the client's dependencies and the file disagree. The guide pages link no credits page. The shipped page carries `licenses.txt` beside it with every bundled library's licence text, besides NOTICES.md.
+**guide:credits-screen-in-game** The credits are the Credits screen in the game, reached from the phone's Settings and, on the road, from the menu of Look around (city:credits-screen-attributions); they are not a public page of their own. The screen carries every third-party asset from the assets register with its source, author and licence, the fonts with their licences, the map data attribution of guide:credits-carry-map-line and the licence statement of guide:credits-state-licences. The makers and the shipped code's licences are the repository's account: `LICENSE` names the makers, `LICENSES.md` gives the licence of each part, and `NOTICES.md` lists every package the client ships with its version and licence, written by `pnpm notices` (`tools/notices.ts`) and proven current by a test that fails when the client's dependencies and the file disagree. The guide pages link no credits page. The shipped page carries `licenses.txt` beside it with every bundled library's licence text, besides NOTICES.md.
 
 **guide:credits-carry-map-line** Where the city uses OpenStreetMap or Overture data, the Credits screen carries the map data line of city:credits-screen-attributions ("Map data from OpenStreetMap, available under the Open Database Licence", with "OpenStreetMap" linked to the copyright page), which the guidelines accept for a game's credits screen, plus each Overture source's own "Data from" line as the Overture attribution page lists them; with no map data used, the screen has no map line. The same attribution also appears on the first screen of the city, small, in a corner. The credits screen alone meets the guideline for a game, and the corner line costs nothing.
 
-**guide:credits-state-licences** The credits state the licences of the game itself (code MIT, docs CC BY 4.0, content and art CC BY-SA 4.0) and that the name and logo are reserved (`../../LICENSES.md`). They are stated on the Credits screen ("Code: MIT. Docs: CC BY 4.0. Game content and art: CC BY-SA 4.0. The name Japacity and its logo are reserved.") and in `LICENSES.md` itself. The Credits screen links the licence file the build for players writes beside the page (`licenses.txt`, engine:view-holds-no-hidden-field: "The full list: every package the game ships, with its licence."), and the terms' Licences section says the Credits say the licences in short and link the full list. The repository's address is one constant, `REPOSITORY_URL` in `packages/content/src/legal/legal.repository.ts`, with `LICENCES_URL` and `REGISTER_URL` built from it, written out nowhere else in the game's code; the game's screens link the licence file, not the repository. The generated-media line names the faces, the painted map and the picture tiles beside the models, the mark and the share previews.
+**guide:credits-state-licences** The credits state the licences of the game itself (code MIT, docs CC BY 4.0, content and art CC BY-SA 4.0) and that the name and logo are reserved (`../../LICENSES.md`). They are stated on the Credits screen ("Code: MIT. Docs: CC BY 4.0. Game content and art: CC BY-SA 4.0. The name Japacity and its logo are reserved.") and in `LICENSES.md` itself. The Credits screen links the licence file the build for players writes beside the page (`licenses.txt`, engine:first-download-has-budget: "The full list: every package the game ships, with its licence."), and the terms' Licences section says the Credits say the licences in short and link the full list. The repository's address is one constant, `REPOSITORY_URL` in `packages/content/src/legal/legal.repository.ts`, with `LICENCES_URL` and `REGISTER_URL` built from it, written out nowhere else in the game's code; the game's screens link the licence file, not the repository. The generated-media line names the faces, the painted map and the picture tiles beside the models, the mark and the share previews.
 
 ## Rules: where generated media is used
 
@@ -39,9 +39,9 @@ The game is built on real rules, simplified. The guides say what the real rules 
 
 ## Rules: the first session
 
-No other page owns the first session, so it sits here beside the how-to-play guide. Mobile simulation games keep about 30 in 100 players on day 1 and 9 in 100 on day 7; the first few turns decide most of that.
+No other page owns the first session, so it sits here. Mobile simulation games keep about 30 in 100 players on day 1 and 9 in 100 on day 7; the first few turns decide most of that.
 
-**guide:early-win-in-three-turns** The first three turns are built around an early win. In every starting life (`scenario.md`, and each path through the prologue), playing the first three `turn/end` after the prologue as the view's next step suggests gives at least one report line of tone `good` that follows from the player's own choice: pay from a job or a gig (the activity's line or the ledger's salary line), the job a hunt lands, a chapter item or a goal met, or a route heard or read on the official page. The first such line is the early win. A scenario test plays every starting life this way and fails a life with no early win by the third turn. The win is made sure, not hoped for: the first job hunt of a starting life in its first three months always finds work, so every starting life sees a `good` line by the third month. The job landed is the lowest wage among those that cover the naira the life owes a month (upkeep, rent, support, instalments), and only when none covers it the lowest of all, since a job under the dues traps a life whose chapter has stopped asking it to hunt. `activity.logic.ts` makes the sure hunt from the roll, and activity:job-hunt-lands-offer says how the board reads it.
+**guide:early-win-in-three-turns** The first three turns are built around an early win. In every starting life (`scenario.md`, and each path through the prologue), playing the first three `turn/end` after the prologue as the view's next step suggests gives at least one report line of tone `good` that follows from the player's own choice: pay from a job or a gig (the activity's line or the ledger's salary line), the job a hunt lands, a chapter item or a goal met, or a route heard or read on the official page. The first such line is the early win. A scenario test plays every starting life this way and fails a life with no early win by the third turn. The win is made sure, not hoped for: the first job hunt of a starting life in its first three months always finds work (activity:job-hunt-lands-offer says which job it lands and how the board reads it), so every starting life sees a `good` line by the third month.
 
 **guide:nothing-asked-before-early-win** Nothing is asked of the player before the early win: no sign-in method, no email, no notification permission (clock:full-bank-push-notification), no invite and no share. The age screen (account:age-screen-refuses-minors) and the bot check (account:bot-check-on-guest-creation) come first, because the law and abuse control need them, and they are not asks. The first ask, to secure the account with a sign-in method, comes after the early win. A browser test plays a new account to its early win and finds no ask on any screen before it. The world shell mounts the notice's ask (`NotifyAsk`), so it is asked once after the early win.
 
@@ -49,7 +49,7 @@ No other page owns the first session, so it sits here beside the how-to-play gui
 
 ## Entries: the guides
 
-One per route, plus four general ones. Titles are working values.
+One for each route, the two UK family routes sharing one and the two Canadian family routes another, plus four general ones: thirteen guides for eleven routes. Titles are working values.
 
 | Id | Title |
 |---|---|
@@ -64,13 +64,15 @@ One per route, plus four general ones. Titles are working values.
 | `guide.rates` | The official rate and the street rate: why they differ |
 | `guide.agents` | How to tell a real agent from a fraud |
 | `guide.numbers` | Where the game's numbers come from |
+| `guide.uk-family` | Joining a partner in the UK, or going with them: the income floor, the fee, the interview |
+| `guide.canada-family` | Sponsoring a spouse to Canada, or going with a worker or student: the undertaking and the points |
 
 ## Numbers
 
 | Setting | Value | Source | In content as |
 |---|---|---|---|
-| Months before a guide is marked possibly out of date | 6 | working value | `tuning.guide.staleMonths` |
-| Turns by which the early win comes | 3 | a working value; benchmarks below | the scenario test of guide:early-win-in-three-turns |
+| Months before a guide is marked possibly out of date | 6 | Working value | `tuning.guide.staleMonths` |
+| Turns by which the early win comes | 3 | Working value; the benchmarks below | the scenario test of guide:early-win-in-three-turns |
 | Players kept, mobile simulation games | 30.1% on day 1, 8.7% on day 7, 3.0% on day 30 | Segwise, from Mistplay's benchmarks | the reason for guide:early-win-in-three-turns |
 
 ## Sources

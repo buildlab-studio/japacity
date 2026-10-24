@@ -23,18 +23,18 @@ Credit history does not cross borders. Everyone arrives with an empty file, and 
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| On-time payment | +3 | `tuning.credit.onTime` |
-| Missed payment | -12 | `tuning.credit.onMiss` |
-| Default | -30 | `tuning.credit.onDefault` |
-| Drift a month with a clean year | +1 up to 40 | `tuning.credit.drift`, `driftTo` |
-| Judgment lasts | 72 months (six years) | `tuning.credit.judgmentMonths` |
-| Highest `credit/min` met under a judgment | 20 | `tuning.credit.judgmentCap` |
-| Returning to the same country | mark less 20 | `tuning.credit.returnPenalty` |
-| Car finance needs | 30 | `obligation.car.creditMin` |
-| A flat in your own name needs | 20 | `obligation.rent-flat-uk.creditMin`, `obligation.rent-flat-canada.creditMin` |
-| A phone contract needs | 10 | `obligation.phone-uk.creditMin`, `obligation.phone-canada.creditMin` |
+| Setting | Value | Source | In content as |
+|---|---|---|---|
+| On-time payment | +3 | Working value | `tuning.credit.onTime` |
+| Missed payment | -12 | Working value | `tuning.credit.onMiss` |
+| Default | -30 | Working value | `tuning.credit.onDefault` |
+| Drift a month with a clean year | +1 up to 40 | Working value | `tuning.credit.drift`, `driftTo` |
+| Judgment lasts | 72 months (six years) | A UK court judgment stays on the file six years (National Debtline), factor 1.0 | `tuning.credit.judgmentMonths` |
+| Highest `credit/min` met under a judgment | 20 | Working value | `tuning.credit.judgmentCap` |
+| Returning to the same country | mark less 20 | Working value | `tuning.credit.returnPenalty` |
+| Car finance needs | 30 | Working value | `obligation.car.creditMin` |
+| A flat in your own name needs | 20 | Working value | `obligation.rent-flat-uk.creditMin`, `obligation.rent-flat-canada.creditMin` |
+| A phone contract needs | 10 | Working value | `obligation.phone-uk.creditMin`, `obligation.phone-canada.creditMin` |
 
 Content: the car's `rateByCredit` stops at 1.2% a month (about 22% APR) from mark 30, with no rung below, and no loan abroad has a ladder.
 

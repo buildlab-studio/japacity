@@ -27,7 +27,7 @@ Settings is the last app on the phone. It holds the few choices a player makes a
 **Graphics.** The city has two modes. Left to the game, a phone starts low and rises to high when its frames keep up, and drops back for the session when they do not; a desktop starts high. Low or High fixes the mode on this device. Low also means fewer people in a place.
 
 ::: details The account, online
-When the life is online, an Account heading and button open the account's own settings: the username and its change, sending usage counts (on by default; off stops the interface's counters at once), being told when your months are full, a passkey once the life is secured, signing out, deleting the account, and the links to the terms and privacy pages. A guest sees a quiet reminder that the life lives only on this phone until it is secured. Offline there is no Account heading at all. See [Accounts](./accounts.md).
+When the life is online, an Account heading and button open the account's own settings: the username and its change, sending usage counts (on by default; off stops the interface's counters at once), a notice on this device when your months are full after a while away (the switch reads Tell me when my months are full), a passkey once the life is secured, signing out, deleting the account, and the links to the terms and privacy pages. A guest sees a quiet reminder that the life lives only on this phone until it is secured. Offline there is no Account heading at all. See [Accounts](./accounts.md).
 :::
 
 ::: details Feedback and From the team, online
@@ -81,4 +81,4 @@ Online, a guest who starts again gets the new life under the same guest account 
 - [Guides, sources and credits](../../rules/guide.md): the Credits (guide:credits-screen-in-game, guide:credits-carry-map-line, guide:credits-state-licences), reached from here and from the menu of Look around on the road (city:credits-screen-attributions).
 - [Analytics](../../rules/analytics.md): sending usage counts (analytics:player-can-stop-usage-counts).
 - [Moderation](../../rules/moderation.md): the feedback box (moderation:feedback-box-in-settings) and the team's notice (moderation:actioned-player-told-and-appeals).
-- [The clock](../../rules/clock.md): being told when your months are full (clock:full-bank-push-notification).
+- [The clock](../../rules/clock.md): the notice when your months are full after a while away (clock:full-bank-push-notification).

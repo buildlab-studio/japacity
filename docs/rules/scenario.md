@@ -13,7 +13,7 @@
 
 ## The graduate, the banker and the developer
 
-A ready life has no name and no sex of its own: the player gives the name and the look at the door (prologue:front-door-builds-a-person), and a line told by sex takes its neutral form (streets:sex-optional-with-neutral-path). Each one's family is of one people, so the family's names are (person:one-mixed-name-pool).
+A ready life has no name and no sex of its own: the player gives the name and the look at the door (prologue:front-door-builds-a-person), and a line told by sex takes its neutral form (streets:sex-optional-with-neutral-path). Each one's family is of one people, and the family's names come from that people (person:one-mixed-name-pool).
 
 | | `scenario.graduate` | `scenario.banker` | `scenario.developer` |
 |---|---|---|---|
@@ -42,10 +42,11 @@ A ready life has no name and no sex of its own: the player gives the name and th
 
 ## The teacher
 
-`scenario.teacher`: 26, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank, upkeep ₦80,000 and ₦25,000 sent home; cannot drive. Its family is Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool). Recorded as `teacher-borrower` in `simulated-play/lives.data.ts` (a master's flight in month 33). The nurse, `scenario.nurse`, is in `route-gates.md`; its family is Igbo.
+`scenario.teacher`: 26, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank and ₦20,000 cash, upkeep ₦80,000 and ₦25,000 sent home; cannot drive. Its family is Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool). Recorded as `teacher-borrower` in `simulated-play/lives.data.ts` (a master's flight in month 24). The nurse, `scenario.nurse`, is defined in `route-gates.md` (its last table); its family is Igbo.
 
 ## What each one tests
 
 - **The graduate** has nothing built yet: everything has to be built, and the family can carry part of the weight.
 - **The banker** has money and a job on day one and a harder file: a lower grade, an older face, land that the family thinks of as theirs.
 - **The developer** is closest to the dollar salary that makes the funds easy, and furthest from any help.
+- **The teacher** has a small steady wage and some tech: a maths teacher who codes after marking, with a way into tech if the portfolio is built.

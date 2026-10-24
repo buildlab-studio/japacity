@@ -65,7 +65,7 @@ flowchart LR
 
 ## One month
 
-Most commands cost nothing and resolve at once: moving money, paying a bill, answering a question. `turn/end` is different. It runs the month. The month is lived (decision 0011): the acts done now spend its free time in half-days through the effect `turn/spend-days`, and the month turns only when the character sleeps (world:sleep-ends-the-month, decision 0011); the time spent shuts nothing. `turn/end` needs no banked turn; it takes one off only while the bank holds any (turn:month-turns-on-empty-bank, turn:month-lived-in-half-days).
+Most commands cost nothing and resolve at once: moving money, paying a bill, answering a question. `turn/end` is different. It runs the month. The month is lived (decision 0011): the acts done now spend its free time in half-days through the effect `turn/spend-days`, and the month turns only when the character sleeps (world:sleep-ends-the-month, decision 0011), whatever free time is left (turn:month-lived-in-half-days). The life also keeps a bank of turns: real time fills it, one turn every two real hours up to 24, a closed chapter fills it at once, and each month lived takes one while it holds any. It never holds a month back (turn:month-turns-on-empty-bank); its one use is the bank-full notice that tells a player who is away (clock:full-bank-push-notification).
 
 First every kind that has a `turn/end` validator checks the command, in registry order: no set piece may be open, no more slots may be filled than the month has free, and every free slot must hold an activity the character may do now. A validator only refuses or allows; it never changes anything. Then fourteen phases run in a fixed order (`PHASES` in `engine/kind.ts`), and in each phase every kind that has it runs in registry order, its events applied before the next kind runs.
 
@@ -211,6 +211,6 @@ Golden files and recorded lives are never edited by hand, and a failing golden i
 ## Rules this page rests on
 
 - [The engine contract](../../rules/engine.md)
-- [Turns](../../rules/turn.md): the month, lived in half-days, and the bank it does not need
+- [Turns](../../rules/turn.md): the month, lived in half-days, and the bank of turns
 - [The clock](../../rules/clock.md): turns on real time, the world tick
 - [Rates and the stand-in world](../../rules/rate.md)

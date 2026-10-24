@@ -26,7 +26,7 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 | Id | Values |
 |---|---|
 | `obligation.car` | type `car`; currency GBP; price £9,500 (`car.price` 950000 pence); deposit 10% (`car.depositBp` 1000); term 36 months; final payment 30% of the price (`car.finalBp` 3000); rate by credit: mark 70 or more 0.5% a month (about 9% APR), 50 to 69 0.9% (about 16% APR), 30 to 49 1.2% (about 22% APR), under 30 not offered; the rate is flat on the opening principal, so the APR is about one and a half times the monthly rate times twelve; sink `car-payment`, interest sink `loan-interest`; grace 2; reportsToCredit true |
-| `obligation.car-shortfall` | type `loan`, principal the shortfall, 12 months, 0% interest, sink `loan-repay`; opened with a judgment |
+| `obligation.car-shortfall` | the loan for what is still owed after the car goes (`obligation.car.car.shortfall`): type `loan`, principal the shortfall, 12 months, 0% interest, sink `loan-repay`; opened with a judgment |
 | `activity.buy-car-finance` | abroad, UK; needs credit 30 and a licence in force; cost the deposit; effect opens the car |
 | `activity.driving-test` | abroad, UK; cost `tuning.car.testFee` and, the first time, `tuning.car.lessons`; effect the pass draw |
 | `document.home-licence` | valid 12 months from arrival, never requested |
@@ -35,7 +35,7 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 
 ## Numbers
 
-| Setting | Value | Date | In content as |
+| Setting | Value | Source and date | In content as |
 |---|---|---|---|
 | Used car price | £9,500 | Working value for a seven-year-old hatchback, 2026 | `obligation.car.car.price` |
 | Deposit | 10% | Common dealer plan | `obligation.car.car.depositBp` |
@@ -47,16 +47,15 @@ A car abroad is a work tool. For a home carer it is the difference between the v
 | Court delay when over a third is paid | 3 months | Working value | `obligation.car.car.courtMonths` 3 |
 | Hand back owing nothing at | half the total | Voluntary termination | `obligation.car.car.handBackBp` 5000 |
 | Resale value on repossession | 55% of the price | Working value | `obligation.car.car.resaleBp` 5500 |
-| Judgment on the file | 72 months | | `tuning.credit.judgmentMonths` |
+| Judgment on the file | 72 months | A UK court judgment stays six years (National Debtline), factor 1.0 | `tuning.credit.judgmentMonths` |
 | Home licence valid for | 12 months after arrival | gov.uk | `document.home-licence` |
-| Learning to drive | £2,200 lessons, then £62 a test attempt (practical £62 weekday, theory £23) | 2026 | `tuning.car.lessons` 220000, `tuning.car.testFee` 6200 |
+| Learning to drive | £2,200 lessons, then £62 a test attempt (practical £62 weekday, theory £23) | Cost of learning to drive, 2026 (passrates.uk) | `tuning.car.lessons` 220000, `tuning.car.testFee` 6200 |
 | Pass chance | 55% first attempt, +5% each later attempt, capped 90% | UK first-time pass rate about 50% | `tuning.car.passBp` 5500, `passPerAttemptBp` 500 |
-| The loan for what is still owed after the car goes | `obligation.car-shortfall` | | `obligation.car.car.shortfall` |
 
 ## Why it is built this way
 
 - **A third and a half are the two decisions.** Under a third, two bad months lose the car and leave a debt with a judgment. Over a half, you can walk away clean. Between, you have time but it costs.
-- **The car and the visa are one chain.** The sponsor loses its licence, the job goes, the 60-day clock starts, the payments stop, and the car follows. The dampers are the grace, the hand-back and the notice.
+- **The car and the visa are one chain.** The sponsor loses its licence, the job goes, the 60-day clock starts, the payments stop, and the car follows. What softens it is the grace, the hand-back and the notice.
 
 ## Sources
 
