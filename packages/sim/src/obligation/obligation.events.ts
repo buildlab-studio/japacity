@@ -60,7 +60,7 @@ export type ObligationEvent =
   /** Everything owed on an undertaking is paid: the misses and any default are lifted (undertaking:missed-charges-lead-to-default). */
   | { type: "obligation/cleared"; id: string; entry: Id<"obligation"> }
   /** A stage of a missed tuition payment, told as the university's letter (abroad-money:missed-tuition-runs-in-stages); withdrawal is the default. */
-  | { type: "obligation/staged"; id: string; entry: Id<"obligation">; stage: TuitionStage }
+  | { type: "obligation/staged"; id: string; entry: Id<"obligation">; stage: TuitionStage; total: number }
   /** route:education-loan-pays-the-school: the status the loan waits on is held; its charges start once it ends. */
   | { type: "obligation/deferral-seen"; id: string; entry: Id<"obligation"> }
   /** route:education-loan-pays-the-school: the status the loan waited on has ended in `month`; its charges start the month after. */

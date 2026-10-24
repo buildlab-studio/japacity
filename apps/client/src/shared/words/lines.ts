@@ -303,7 +303,17 @@ function unpaidCost(obligation: string): string {
 }
 
 /** A charge that fell due and could not be paid: no money moved, but the month went wrong (world:month-end-results-sheet). */
-const UNPAID: ReadonlySet<string> = new Set(["line.obligation.missed", "line.obligation.missed-part", "line.obligation.car-notice", "line.obligation.group-visit", "line.obligation.group-covered"]);
+const UNPAID: ReadonlySet<string> = new Set([
+  "line.obligation.missed",
+  "line.obligation.missed-part",
+  "line.obligation.car-notice",
+  "line.obligation.group-visit",
+  "line.obligation.group-covered",
+  // abroad-money:missed-tuition-runs-in-stages: a tuition charge missed is told by the fees office's letter for its stage.
+  "line.obligation.tuition-reminder",
+  "line.obligation.tuition-cut",
+  "line.obligation.tuition-warning",
+]);
 
 export function isUnpaid(line: ReportLine): boolean {
   return UNPAID.has(line.key);

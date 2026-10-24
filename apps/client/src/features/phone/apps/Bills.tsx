@@ -44,6 +44,16 @@ function nextTaken(owed: Owed, month: number): string | null {
 /** How many months on from the month in hand a bill taken every few months comes next, or null as `nextTaken` says none. */
 export function nextTakenAhead(owed: Owed, month: number): number | null {
   const entry = content.obligation[owed.entry];
+  // abroad-money:tuition-paid-in-instalments: a tuition by its schedule comes next in the first course month ahead with a share; a plan or arrears is due now.
+  const schedule = entry?.schedule;
+  if (schedule !== undefined) {
+    if (owed.due > 0 || owed.missed > 0 || owed.outstanding <= 0 || owed.plan !== undefined) return null;
+    for (let ahead = 1; ahead <= schedule.length; ahead += 1) {
+      const course = month + ahead - owed.openedMonth;
+      if (course >= 1 && (schedule[course - 1] ?? 0) > 0) return ahead;
+    }
+    return null;
+  }
   const every = entry?.everyMonths;
   // A rent owes nothing between its years, so it is said whatever is outstanding.
   if (every === undefined || every <= 1 || owed.due > 0 || owed.missed > 0 || (owed.outstanding <= 0 && entry?.type !== "rent")) return null;

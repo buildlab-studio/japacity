@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { abroadGame, abroadView } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
+import { formatMoney } from "../../../shared/words/format";
 import { say, words } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
 import { reloadSeen } from "../seen";
@@ -63,7 +64,7 @@ describe("News keeps the month's lines", () => {
 });
 
 describe("a bill missed, as News tells it", () => {
-  test("[world:month-end-results-sheet] [status:course-passed-or-withdrawn] given the graduate abroad holding no pounds, when a tuition instalment goes unpaid, then News says what the miss costs, not the generic hit to standing and mood", async () => {
+  test("[world:month-end-results-sheet] [abroad-money:missed-tuition-runs-in-stages] given the graduate abroad holding no pounds, when a tuition instalment goes unpaid, then News tells the fees office's reminder with the sum, not the generic hit to standing and mood", async () => {
     const game = abroadGame();
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
     if (tuition === undefined) throw new Error("No tuition falls due in the graduate's first month abroad.");
@@ -71,7 +72,9 @@ describe("a bill missed, as News tells it", () => {
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, game.view());
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);
     const report = document.querySelector("[data-report]")?.textContent ?? "";
-    expect(report).toMatch(/withdraws you/);
+    // The first month in arrears is a reminder and nothing else.
+    expect(report).toMatch(/fees office/);
+    expect(report).toContain(formatMoney(tuition.due, "GBP"));
     // The content's one line for every miss is never shown as it is: each miss says its own cost.
     expect(report).not.toContain("You could not pay");
   });

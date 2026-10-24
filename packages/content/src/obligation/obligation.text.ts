@@ -61,9 +61,9 @@ export const obligationText: Record<string, string> = {
   "line.obligation.cut-off": "The phone company has ended the contract. You are back on pay as you go.",
   "line.obligation.withdrawn": "The university has withdrawn you over the unpaid tuition. Your visa now runs only two more months: pay what is owed to be reinstated.",
   // abroad-money:missed-tuition-runs-in-stages: each stage is a letter from the university's fees office.
-  "line.obligation.tuition-reminder": "A letter from the fees office: your tuition payment is overdue. Please pay it as soon as you can.",
-  "line.obligation.tuition-cut": "A letter from the fees office: the tuition is still unpaid, so your library and coursework access is cut. A payment plan is open to you.",
-  "line.obligation.tuition-warning": "A letter from the fees office: this is a final warning. Pay the tuition owed or you are liable for withdrawal.",
+  "line.obligation.tuition-reminder": "A letter from the fees office: {amount} of your tuition went unpaid. Please pay it as soon as you can.",
+  "line.obligation.tuition-cut": "A letter from the fees office: {amount} of tuition is still unpaid, so your library and coursework access is cut. A payment plan is open to you.",
+  "line.obligation.tuition-warning": "A letter from the fees office: {amount} of tuition is still unpaid. This is a final warning: pay it or you are liable for withdrawal.",
   // route:education-loan-pays-the-school: the loan's charges start the month after the course's status ends.
   "line.obligation.repayments-start": "{obligation}: the course is behind you, so the repayments start next month.",
   "line.obligation.tuition-plan": "{obligation}: on a plan now, {amount} a month for {months} months.",

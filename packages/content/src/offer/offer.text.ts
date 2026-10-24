@@ -219,18 +219,18 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
 
   "offer.education-loan.name": "A study lender",
-  "offer.education-loan.title": "We pay the school",
+  "offer.education-loan.title": "Fees paid direct",
   "offer.education-loan.body":
-    "“We fund master's students from Nigeria and pay your fees straight to the university, up to {max}. About 13.5% a year, a 4.2% fee added to the loan, {fee} to process. Repay over fifteen years, starting after your course.”",
+    "“We pay your fees straight to the university, up to {max}, with interest each year, our fee added to the loan and {fee} to process, and you repay over fifteen years from after your course.”",
   "offer.education-loan.choice.take": "Take the loan",
   "offer.education-loan.choice.no": "No, thank you",
   "offer.education-loan.said.take": "The lender paid the university. You owe the lender now, from after your course.",
   "offer.education-loan.said.no": "You left the lender's offer. The fees are yours to find.",
 
   "offer.fee-payment-plan.name": "A payment plan for your fees",
-  "offer.fee-payment-plan.title": "Clear it on a plan",
+  "offer.fee-payment-plan.title": "A payment plan",
   "offer.fee-payment-plan.body":
-    "“You can clear the arrears on a plan: {instalment} a month until the end of the course, and a {fee} fee. Miss a plan payment and we will write to you before we withdraw you.”",
+    "“You can clear the arrears on a plan of {instalment} a month to the end of the course for a {fee} fee, and if you miss a plan payment we will write to you before we withdraw you.”",
   "offer.fee-payment-plan.choice.agree": "Agree to the plan",
   "offer.fee-payment-plan.choice.no": "Not now",
   "offer.fee-payment-plan.said.agree": "You signed the plan. The fees office spread what you owe to the end of the course.",
@@ -239,7 +239,7 @@ export const offerText: Record<string, string> = {
   "offer.family-gift-canada.name": "The family's gift for Canada",
   "offer.family-gift-canada.title": "Not a loan",
   "offer.family-gift-canada.body":
-    "“Canada wants to see the money is yours. We will give you {gift}. Not a loan, a gift. Get the paper from the notary so they believe it.”",
+    "“Canada wants to see the money is yours, so we will give you {gift}, a gift and not a loan, and you must get the paper from the notary so they believe it.”",
   "offer.family-gift-canada.choice.accept": "Accept, with thanks",
   "offer.family-gift-canada.choice.decline": "Tell him to keep it",
   "offer.family-gift-canada.said.accept": "Papa sent the gift the same week. Canada counts it once the notary's deed is in your file.",

@@ -520,7 +520,7 @@ function missTuition(ctx: Ctx, item: ObligationState, entry: ObligationEntry, ch
     ctx.apply(entry.onDefault, cause);
     return events;
   }
-  events.push(...record(ctx, { type: "obligation/staged", id: item.id, entry: item.entry, stage }));
+  events.push(...record(ctx, { type: "obligation/staged", id: item.id, entry: item.entry, stage, total: totalOf(charge) }));
   if (stage === "cut") {
     // The plan's offer reads what a plan agreed now would ask a month, and its fee.
     const months = planMonths(ctx, item);
@@ -1084,7 +1084,7 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
     case "obligation/cleared":
       return [line("cleared", { obligation: event.entry }, "good", true)];
     case "obligation/staged":
-      return [line(`tuition-${event.stage}`, { obligation: event.entry }, "bad", true)];
+      return [line(`tuition-${event.stage}`, { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
     case "obligation/started":
       return [line("repayments-start", { obligation: event.entry }, "plain", true)];
     case "obligation/deferral-seen":
