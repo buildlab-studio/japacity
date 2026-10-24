@@ -46,8 +46,8 @@ Both authorities fit one interface, `StoreAuthority`: `view()` and `send(command
 
 The store holds the current view, the month's plan, the last refusal, the lines of the last command and of the month so far, the staged wins waiting to be shown, the clock, the world and who else is in the place, and whether the player is choosing a life or signed out. Its actions are the game's verbs: `send`, `endMonth`, `addToPlan`, `stopPick`, `clearPlan`, `chooseLife`, `endLife`.
 
-::: info Commitments, not a plan each month
-A month-act the player starts (a course, study, the portfolio) carries on into every month until it is stopped or ends itself. The client keeps the plan across the month's end and sends it with each `turn/end`; the simulation is unchanged (world:month-acts-carry-on in [the world rules](../../rules/world.md)).
+::: info Month-acts carry on
+A month-act the player starts (a course, study, the portfolio) carries on into every month until it is stopped or ends itself. The client keeps the plan across the month's end and sends it with each `turn/end`, so the simulation reads the month's slots as it reads any month's (world:month-acts-carry-on in [the world rules](../../rules/world.md)).
 :::
 
 ## The world on screen
@@ -121,7 +121,7 @@ Every big outcome is one clean card over the scene, the screen a player posts: a
 
 - **Results and moments** (`src/features/turn/`): the staged wins (the first salary, the visa grant, the send-off) each get the whole screen first, then the month's results sheet.
 - **Accounts** (`src/features/account/`): what a signed-out player sees online, the age screen, the guest start and securing an account. Online only.
-- **One month view.** The world is the only month view; every address opens it (world:no-classic-view-kept).
+- **The month's view** is the world: every address opens it (world:no-classic-view-kept).
 - **Development addresses** (`?lively`, `?tiles`, `?paint=`, `?clock=`, `?sleep=`, `?morning=`) are read only under `import.meta.env.DEV`, so a build for players leaves them and their code out.
 - **The lively layer** (`src/shared/ui/lively/`, `src/shared/tiles/`, decision 0025): the role tokens in `index.css`, the Rubik type, the primitives every surface is built from (the sticker, the sticker chip, the pressed button, the pill, the card and the sheet), and the picture tiles cut from the game's own models by the shooter's `tile` view (`tools/assets/shoot.ts`). The night paint follows the world's clock (`src/shared/world/paint.ts`).
 - **Words** (`src/shared/words/`): `say`, the formatters and the functions that read a view into words, with each feature's reader in its `<kind>.words.ts`. The interface's string tables are content's, in `packages/content/src/ui/`. See [The content](./content.md) for how a key becomes a line.

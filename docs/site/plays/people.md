@@ -112,7 +112,7 @@ sequenceDiagram
 ```
 
 - **The invite card** shows the character's name (never the account's), the japacity figure and best route, what the slot is looking for from a fixed list, and the words "Japacity is a game". It never carries a photo, a sum or a contact.
-- **The link** is single-use, valid for a few days, and fills only the slot it was made for. A sibling link always starts a new life with your family; a partner link needs a grown-up life.
+- **The link** is single-use, valid for 14 days, and fills only the slot it was made for. A sibling link always starts a new life with your family; a partner link needs a grown-up life.
 - **Rewards** come from what the friend goes on to do (finishing the years before, closing a chapter, departing), never from the sending, and are never worth cash.
 - **Talking** is preset phrases only, each with at most one fill-in from a fixed list. No phrase asks for or offers money, a document or a contact.
 - **Block and report** are one tap from anywhere another player appears. A block is immediate and ends every bond between the two at no cost to either.
@@ -131,7 +131,7 @@ A computer partner stands still in the place where they are met, a small dot ove
 
 ## The interview practice
 
-Once the UK master's route is known, the hub in Yaba offers **Practise for the interview**, a free-time act: a friend plays the officer and you rehearse until the answers sound like you. Each month of it raises interview prep. In the credibility interview that comes with the visa, better answers open once prep reaches 20, and more at 40.
+Once the UK master's route is known, the hub in Yaba offers **Practise for the interview**, a free-time act: a friend plays the officer and you rehearse until the answers sound like you. Each month of it raises interview prep. In the visa interview that comes with the application, better answers open once prep reaches 20, and more at 40.
 
 The genuineness interview for a partner route is a different thing: both partners answer the same questions from memory, apart, and the answers are compared. See [The interview and the set pieces](./interview.md).
 

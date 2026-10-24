@@ -57,7 +57,7 @@ The team works in an admin view reached only by accounts on the admin list, each
 
 No action edits a balance, a state or a world value directly. Every action goes into a log that can only be added to.
 
-A life is never lost to a change in the game's rules. Before a version that changes the game's rules goes live, every life is saved whole as it stands (`pnpm snapshot:all`, server:snapshot-before-deploy), so the new rules carry it on from there and never play its past again; a life that does not come out the same is left as it was and listed for the team. If a life ever needs checking, the phone says "Your life needs checking on our side. Try again in a while." with a Retry that asks for it again, and the team checks and mends that one life with the correction tool on the game's database (`pnpm rollback check|apply <character>`, server:rollback-check-finds-divergence, server:rollback-apply-one-account), one life at a time, while everyone else plays on.
+A life is never lost to a change in the game's rules. Before a version that changes the game's rules goes live, every life is saved whole as it stands, so the new rules carry it on from there and never play its past again; a life that does not come out the same is left as it was and listed for the team. If a life ever needs checking, the phone says "Your life needs checking on our side. Try again in a while." with a Retry that asks for it again, and the team checks and mends that one life with the correction tool on the game's database, one life at a time, while everyone else plays on.
 
 ::: warning Under 18
 An upheld report that an account is under 18 closes it and deletes its data, keeping only what the hold and the log need. A new date-of-birth answer from the same sign-in does not reopen it.
@@ -95,3 +95,4 @@ They are linked from the start screen, the age screen, the invite page, the acco
 - [Accounts](../../rules/account.md): account:age-screen-refuses-minors (the age screen), account:player-deletes-account (deletion).
 - [Who can play, and who runs the game](../../rules/region.md).
 - [Adverts](../../rules/advert.md): advert reports and the queue.
+- [The server](../../rules/server.md): every life saved whole before a change of rules goes live (server:snapshot-before-deploy, `pnpm snapshot:all`), and the correction tool for one life (server:rollback-check-finds-divergence, server:rollback-apply-one-account, `pnpm rollback check|apply <character>`).

@@ -36,7 +36,7 @@ Online, a **Feedback** row opens a short box that only the team reads. When the 
 
 ## The Credits
 
-The Credits row, under its own heading near the foot of Settings (About the game) beside the guides, opens the same short screen as the city's menu: the map data line with OpenStreetMap linked, sound and art from others, the fonts, one plain line on where generated media is used, and the game's own licences, with a link to the full list in the repository (`LICENSES.md`, and `NOTICES.md` for every package the game ships). It is in Settings for every player, online or not.
+The Credits row, under its own heading near the foot of Settings (About the game) beside the guides, opens the same short screen as the menu of Look around on the road: the map data line with OpenStreetMap linked, sound and art from others, the fonts, one plain line on where generated media is used, and the game's own licences, with a link to the full list in the repository (`LICENSES.md`, and `NOTICES.md` for every package the game ships). It is in Settings for every player, online or not.
 
 ## Start from a ready life
 
@@ -78,7 +78,7 @@ Online, a guest who starts again gets the new life under the same guest account 
 - [People](../../rules/person.md): a restart ends a bond at no cost (person:leaving-player-ends-bonds).
 - [The prologue](../../rules/prologue.md): the ready lives reached from Settings (prologue:front-door-three-screens), a new family draw (prologue:tile-path-open-from-start).
 - [The city](../../rules/city.md): the graphics modes (city:two-graphics-modes) and people in a place in each mode (world:place-is-one-screen on the world page).
-- [Guides, sources and credits](../../rules/guide.md): the Credits (guide:credits-screen-in-game, guide:credits-carry-map-line, guide:credits-state-licences), reached from here and from the city's menu (city:credits-screen-attributions).
+- [Guides, sources and credits](../../rules/guide.md): the Credits (guide:credits-screen-in-game, guide:credits-carry-map-line, guide:credits-state-licences), reached from here and from the menu of Look around on the road (city:credits-screen-attributions).
 - [Analytics](../../rules/analytics.md): sending usage counts (analytics:player-can-stop-usage-counts).
 - [Moderation](../../rules/moderation.md): the feedback box (moderation:feedback-box-in-settings) and the team's notice (moderation:actioned-player-told-and-appeals).
 - [The clock](../../rules/clock.md): being told when your months are full (clock:full-bank-push-notification).

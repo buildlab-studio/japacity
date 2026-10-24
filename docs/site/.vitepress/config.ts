@@ -133,7 +133,7 @@ export default withMermaid({
   description: "How Japacity is built and how it plays.",
   lang: "en-GB",
   srcDir: "..",
-  srcExclude: [...leftOut, "README.md", "site/README.md"],
+  srcExclude: leftOut,
   rewrites: { "site/:rest*": ":rest*" },
   cleanUrls: true,
   // A diagram's labels are measured at mermaid's own line height; the page's taller paragraph line would clip them.

@@ -97,7 +97,7 @@ Every value comes from `.env.example`, which is commented line by line. To chang
 
 To stop: Ctrl+C stops Vite and wrangler. `docker compose stop` stops Postgres and Mailpit; `docker compose down --volumes` also deletes the local database and the inbox.
 
-The migrations start from one file (`packages/db/README.md`). A local database whose journal names a migration file the repository does not hold fails the migration step. Reset it once: `docker compose down -v`, then `pnpm dev:full`, which makes a fresh volume and migrates it.
+If the migration step fails because the local database's journal names a file this checkout does not hold (a database migrated from another branch, for one), reset it: `docker compose down -v`, then `pnpm dev:full`, which makes a fresh volume and migrates it.
 
 To run a cron by hand, for the midnight jobs for instance:
 
@@ -110,7 +110,7 @@ That is wrangler's local explorer, at `/cdn-cgi/local/explorer/api/local/schedul
 
 `pnpm dev:full` also passes wrangler `--local-upstream localhost:8787` (SITE_URL's host). Without it, `wrangler dev` rewrites each request's address and origin to the route in `wrangler.jsonc`, `japacity.app`, and the sign-in library refuses every write as coming from another origin. Run `wrangler dev` by hand only with that flag.
 
-What does not work locally: Google sign-in (its client is registered for the game's own addresses only; use an email code), the bank-full push notices (no VAPID keys are set) and the drand beacon when the machine is offline. The admin page opens only once your own account id is in `ADMIN_ACCOUNTS` in `.env.local`.
+What does not work locally: Google sign-in (its client is registered for the game's own addresses only; use an email code), the bank-full push notices (no VAPID keys are set) and, when the machine is offline, the public randomness beacon (drand) the Friday draw reads. The admin page opens only once your own account id is in `ADMIN_ACCOUNTS` in `.env.local`.
 
 ### The real browser tests
 
@@ -164,7 +164,7 @@ flowchart LR
 | check:types | `pnpm check:types` | The type file `wrangler types` generated for the server is not stale |
 | typecheck | `pnpm typecheck` | Every package's types, the browser tests' and this site's config too |
 | lint | `pnpm lint` | ESLint with no warnings allowed, including the simulation's purity rules: no clock, no randomness of its own, no network, no division outside `int.ts`, no decimal literal |
-| test | `pnpm test` | Every unit test project: sim, content, store, db, tools, assets, server, the Workers' tests, the client and the teaser |
+| test | `pnpm test` | Every unit test project: sim, content, store, db, tools, models, server, the Workers' tests, the client and the teaser |
 | check:rules | `pnpm check:rules` | Every rule name in `docs/rules/` has a test that cites it, and every cited name exists |
 | check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version, or the version was raised and sealed with `pnpm content:seal` (server:content-version-sealed) |
 | check:assets | `pnpm check:assets` | The city's models and pictures match their manifest. Its last step opens Playwright's Chromium |
@@ -218,8 +218,8 @@ flowchart LR
   b1 -->|"report"| review["Lead reviews against the code"]
   b2 -->|"report"| review
   r -->|"findings by harm"| lead
-  review --> wave["One merge branch per wave"]
-  wave --> staging["Staging"] --> production["Production"]
+  review --> batch["One merge branch per batch"]
+  batch --> staging["Staging"] --> production["Production"]
 ```
 
 ### The roles
@@ -285,11 +285,11 @@ Each worktree uses its own dev server port, the one its brief gives. The main ch
   A lock folder older than any check could take, with no check running, is stale and removed.
 - **Browser suites wait for a quiet machine.** A loaded machine makes timing tests fail that are not broken, so the browser suite runs when nothing else heavy does, and a failure is run again alone before it is believed.
 
-### Landing in waves
+### Landing together
 
-Finished pieces land together, in waves, so the expensive steps run once per wave and not once per piece:
+Finished pieces land together, in batches, so the expensive steps run once per batch and not once per piece:
 
-1. The lead merges the wave's branches, in the order set, into one merge branch.
+1. The lead merges the batch's branches, in the order set, into one merge branch.
 2. One full check and one browser suite run on that branch.
 3. The branch lands in `main`, and a push to `main` deploys staging once CI passes.
 4. Staging is looked at, then production is deployed from a release tag.
@@ -366,10 +366,10 @@ Each recipe starts the same way: the entry and its rules are on the kind's rule 
 
 ## How rules, decisions and designs are written
 
-Four kinds of page hold what the game is and why, each in a standard shape. Every one states what holds now and the reason for it. None records who asked for a change, who decided it or when; the history of a page is in git.
+Four kinds of page hold what the game is and why, each in a standard shape. Every one states what holds and the reason for it. None records who asked for a change, who decided it or when; the history of a page is in git.
 
 - **A rule** (`docs/rules/<kind>.md`) is an entry in a business-rule catalogue: a bold id `kind:slug` at the start of one paragraph that states the rule in the present tense, so a test can cite it and `pnpm check:rules` can hold both. A number lives in the page's Numbers table with its value, its source, and, where the game departs from real life, the real figure and the factor applied ("Real: 14 days with a good reason; the game: one month, about twice as kind").
-- **A decision record** (`docs/decisions/NNNN-title.md`) is an architecture decision record: Status, Context, Decision, Consequences. An accepted record is not rewritten; a later one supersedes it and both say so.
+- **A decision record** (`docs/decisions/NNNN-title.md`) is an architecture decision record: Status, Context, Decision, Consequences, and the alternatives where the record weighed some. It states the decision that holds; where a later record changes part of an earlier one, the earlier one is worded to what holds and names the later. Its number is its id and never changes.
 - **A design page** (`docs/design/`) is a design doc: the context and scope, what the design is for and not for, the design itself, and the alternatives weighed.
 - **A research note** (`docs/research/`) keeps only facts the game rests on, each with its source and the date it was read.
 
