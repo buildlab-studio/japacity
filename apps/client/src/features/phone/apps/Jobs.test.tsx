@@ -40,15 +40,16 @@ describe("Jobs abroad", () => {
     const month = payAMonth(SHOP);
     if (month === null) throw new Error("The shop job has no pay");
     const { taxFreeLine, taxBp } = content.country["country.uk"]!;
-    const year = month.amount * 12;
-    expect(year).toBeGreaterThan(taxFreeLine);
-    const tax = int.divFloor(int.bp(content.activity[SHOP]!.pay!.amount - taxFreeLine, taxBp), 12);
+    const written = content.activity[SHOP]?.pay?.amount;
+    if (typeof written !== "number") throw new Error("The shop job's pay is no written figure");
+    expect(written).toBeGreaterThan(taxFreeLine);
+    const tax = int.divFloor(int.bp(written - taxFreeLine, taxBp), 12);
     expect(tax).toBeGreaterThan(0);
     const offered = view.offers.find((offer) => offer.terms.job === SHOP);
     expect(offered?.pay).toEqual({ currency: month.currency, amount: month.amount - tax });
     const row = document.querySelector("[data-job-offers]");
     expect(row?.textContent).toContain(say("ui.job.pay", { amount: formatMoney(month.amount - tax, month.currency) }));
-    expect(row?.textContent).not.toContain(formatMoney(content.activity[SHOP]!.pay!.amount, month.currency));
+    expect(row?.textContent).not.toContain(formatMoney(written, month.currency));
   });
 });
 
