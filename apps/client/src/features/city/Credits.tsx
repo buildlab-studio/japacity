@@ -108,7 +108,7 @@ export function CreditsRow() {
     <>
       <button
         type="button"
-        className="lively-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left"
+        className="look-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left"
         onClick={() => setOpen(true)}
         data-credits-row
       >

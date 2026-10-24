@@ -79,7 +79,7 @@ describe("a life from sixteen in the app", () => {
     localStorage.setItem("japacity.city.last", JSON.stringify(["place.yaba"]));
     worldDraws();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    // The world opens on month 1 (world:world-fills-the-screen): its band, with no month number on it (world:top-band-is-lively-pill).
+    // The world opens on month 1 (world:world-fills-the-screen): its band, with no month number on it (world:top-band-is-a-pill).
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
     expect(playerMonth(store.getState().view?.month ?? -1)).toBe(1);
 

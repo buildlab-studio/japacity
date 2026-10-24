@@ -15,11 +15,11 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { PhoneNav } from "../../../shared/phone/nav";
 import { cue } from "../../../shared/sound/cues";
 import { Tile } from "../../../shared/tiles/Tile";
-import { LivelyCard } from "../../../shared/ui/lively/LivelyCard";
-import { Sticker } from "../../../shared/ui/lively/Sticker";
-import { StickerChip } from "../../../shared/ui/lively/StickerChip";
-import type { Tint } from "../../../shared/ui/lively/tint";
-import { TINTS } from "../../../shared/ui/lively/tint";
+import { LookCard } from "../../../shared/ui/look/LookCard";
+import { Sticker } from "../../../shared/ui/look/Sticker";
+import { StickerChip } from "../../../shared/ui/look/StickerChip";
+import type { Tint } from "../../../shared/ui/look/tint";
+import { TINTS } from "../../../shared/ui/look/tint";
 import { requirementSentence } from "../../../shared/words/requirement";
 import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
@@ -208,7 +208,7 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
     set(value);
   };
   return (
-    <div ref={shown} className="lively-card flex flex-col gap-2.5 p-3" data-chooser="change">
+    <div ref={shown} className="look-card flex flex-col gap-2.5 p-3" data-chooser="change">
       <Chips shown label={say("phone.bank.where")} value={via} onChange={pick(setVia)} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
       <Chips shown label={say("phone.bank.from")} value={from} onChange={pick(setFrom)} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
       <Chips shown label={say("phone.bank.into")} value={to} onChange={pick(setTo)} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
@@ -279,7 +279,7 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const source = to === "bank" ? view.pockets[currency].cash : view.pockets[currency].bank;
   const amount = shareOf(source, share);
   return (
-    <div className="lively-card flex flex-col gap-2.5 p-3" data-chooser="move">
+    <div className="look-card flex flex-col gap-2.5 p-3" data-chooser="move">
       <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={currencies.map((value) => ({ value, label: currencyWords(value) }))} />
       <Chips shown label={say("ui.wallet.to")} value={to} onChange={setTo} options={[{ value: "bank", label: say("phone.bank.to-bank") }, { value: "cash", label: say("phone.bank.to-cash") }]} />
       <Chips shown label={say("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: say(`phone.bank.${value}`) }))} />
@@ -342,13 +342,13 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const [channel, setChannel] = useState<RemitChannel>("app");
   const [share, setShare] = useState<Share>("quarter");
   const currency = chosen !== null && options.includes(chosen) ? chosen : (options[0] ?? null);
-  if (currency === null) return <p className="lively-card p-3 text-[14px] text-text-2" data-chooser="send">{say("ui.remit.nothing")}</p>;
+  if (currency === null) return <p className="look-card p-3 text-[14px] text-text-2" data-chooser="send">{say("ui.remit.nothing")}</p>;
   const amount = shareOf(view.pockets[currency].bank, share);
   const quote = amount > 0 ? remitQuote(view.rates, content.tuning.remit, currency, amount) : null;
   const terms = quote?.[channel] ?? null;
   const sent = formatMoney(amount, currency);
   return (
-    <div className="lively-card flex flex-col gap-2.5 p-3" data-chooser="send">
+    <div className="look-card flex flex-col gap-2.5 p-3" data-chooser="send">
       {options.length > 1 ? <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={options.map((value) => ({ value, label: currencyWords(value) }))} /> : null}
       <div role="radiogroup" aria-label={say("ui.remit.channel")} className="flex flex-col gap-1.5">
         <span className="label text-text-2" aria-hidden>
@@ -423,7 +423,7 @@ function DuesGapCard({ onChange }: { onChange: (start: ChangeStart) => void }) {
   if (gap === null) return null;
   const from = changeFirst(gap.from);
   return (
-    <div className="lively-card px-3 py-2.5 shadow-[inset_5px_0_0_var(--out)]" role="alert" data-dues-gap={gap.currency}>
+    <div className="look-card px-3 py-2.5 shadow-[inset_5px_0_0_var(--out)]" role="alert" data-dues-gap={gap.currency}>
       <p className="text-[15px] font-bold">{say("phone.bank.dues", { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) })}</p>
       {from === null ? null : (
         <button type="button" className="press mt-2 flex min-h-11 w-full items-center gap-2 rounded-[14px] btn-dark px-3 text-left text-[14px] font-bold" onClick={() => onChange({ from, to: gap.currency })}>
@@ -446,7 +446,7 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
   const held = heldElsewhere(view, local);
   if (held.length === 0) return null;
   return (
-    <LivelyCard className="p-3" data-change-pairs>
+    <LookCard className="p-3" data-change-pairs>
       <Part>{say("ui.wallet.convert")}</Part>
       <ul className="flex flex-col divide-y divide-sheet-line">
         {held.map((currency) => (
@@ -462,7 +462,7 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
           </li>
         ))}
       </ul>
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -558,7 +558,7 @@ function AlsoHeld({ view, others }: { view: PlayerView; others: Currency[] }) {
 
 function PassbookCard({ view, book, shown, others }: { view: PlayerView; book: PassbookView; shown: Currency; others: Currency[] }) {
   return (
-    <LivelyCard className="rise p-3" data-passbook>
+    <LookCard className="rise p-3" data-passbook>
       <div className="text-[12px] font-bold text-text-2">{say("passbook.held")}</div>
       <div className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5">
         <span className="num text-[26px] font-bold leading-tight" data-passbook-held={book.held}>
@@ -581,7 +581,7 @@ function PassbookCard({ view, book, shown, others }: { view: PlayerView; book: P
         </StickerChip>
         <AlsoHeld view={view} others={others} />
       </div>
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -718,7 +718,7 @@ function RoadCard({ view, road, onTap }: { view: PlayerView; road: PassbookRoad;
     <li>
       <button
         type="button"
-        className={`lively-card press flex w-full items-center gap-2.5 p-2.5 text-left ${refused ? "shake" : ""}`}
+        className={`look-card press flex w-full items-center gap-2.5 p-2.5 text-left ${refused ? "shake" : ""}`}
         onClick={() => {
           const acted = onTap(road);
           if (!acted) {
@@ -822,14 +822,14 @@ function Roads({ view, book, onAsk }: { view: PlayerView; book: PassbookView; on
 /** The balance as a card: abroad, where the country's money stands first, and in a life that has ended. */
 function BalanceCard({ view, shown, others }: { view: PlayerView; shown: Currency; others: Currency[] }) {
   return (
-    <LivelyCard className="rise p-3" data-bank-balance={shown}>
+    <LookCard className="rise p-3" data-bank-balance={shown}>
       <div className="text-[12px] font-bold text-text-2">{say("phone.bank.balance")}</div>
       <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} className="num block text-[26px] font-bold leading-tight" />
       <div className="mt-2 flex flex-wrap gap-1.5">
         <StickerChip tilt={-1.5}>{say("phone.bank.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</StickerChip>
         <AlsoHeld view={view} others={others} />
       </div>
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -837,7 +837,7 @@ function BalanceCard({ view, shown, others }: { view: PlayerView; shown: Currenc
 function OnTheWay({ view }: { view: PlayerView }) {
   if (view.queued.length === 0) return null;
   return (
-    <LivelyCard className="p-3" data-bank-queued>
+    <LookCard className="p-3" data-bank-queued>
       <Part>{say("ui.wallet.queued")}</Part>
       <div className="flex flex-wrap gap-1.5">
         {view.queued.map((item, index) => (
@@ -846,7 +846,7 @@ function OnTheWay({ view }: { view: PlayerView }) {
           </StickerChip>
         ))}
       </div>
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -855,7 +855,7 @@ function FamilyCard({ view }: { view: PlayerView }) {
   const naira = view.pockets.NGN;
   const support = view.obligations.filter((owed) => content.obligation[owed.entry]?.type === "support");
   return (
-    <LivelyCard className="flex items-start gap-3 p-3" data-family>
+    <LookCard className="flex items-start gap-3 p-3" data-family>
       <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-people">
         <Sticker emoji="🏠" alt="" size={30} tilt={-5} />
       </span>
@@ -873,7 +873,7 @@ function FamilyCard({ view }: { view: PlayerView }) {
           </div>
         )}
       </div>
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -894,7 +894,7 @@ function CreditCard({ view, file }: { view: PlayerView; file: NonNullable<Player
   const next = file.needs.filter((need) => need.creditMin > file.mark && need.creditMin <= file.mark + MARK_STEP && reachable(need.creditMin));
   const later = file.needs.filter((need) => need.creditMin > file.mark + MARK_STEP || !reachable(need.creditMin));
   return (
-    <LivelyCard className="p-3" data-credit>
+    <LookCard className="p-3" data-credit>
       <Part>{say("ui.credit.title")}</Part>
       <p className="flex items-baseline gap-1.5">
         <span className="num text-[26px] leading-tight font-bold">{file.mark}</span>
@@ -941,7 +941,7 @@ function CreditCard({ view, file }: { view: PlayerView; file: NonNullable<Player
           {later.map((need) => say("ui.credit.need", { name: nameOf(need.id), min: need.creditMin })).join(", ")}
         </p>
       )}
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -956,7 +956,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const { open, sheet } = useAsk();
   const [choosing, setChoosing] = useState<"change" | "move" | "send" | null>(openOn);
   const [start, setStart] = useState<ChangeStart | undefined>(undefined);
-  // The money the character lives on: the naira at home, the country's own abroad (world:top-band-is-lively-pill).
+  // The money the character lives on: the naira at home, the country's own abroad (world:top-band-is-a-pill).
   const local = localCurrency(view);
   const abroad = local !== "NGN";
   // Once flown, the move is made and has no target. The figure is the results' own, from the month the plan is set (its
@@ -999,7 +999,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
       )}
 
       {abroad ? null : (
-        <LivelyCard className="p-3" data-bank-saved>
+        <LookCard className="p-3" data-bank-saved>
           <Part>{say("phone.bank.savings")}</Part>
           {savings === null ? (
             <p className="text-[14px] text-text-2" data-savings-none>
@@ -1015,12 +1015,12 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
               </p>
             </div>
           )}
-        </LivelyCard>
+        </LookCard>
       )}
 
       <OnTheWay view={view} />
 
-      <LivelyCard className="p-3" data-bank-lately>
+      <LookCard className="p-3" data-bank-lately>
         <Part>{say("phone.bank.lines")}</Part>
         {lately.length === 0 ? (
           <p className="text-[14px] text-text-2">{say("phone.bank.lines.none")}</p>
@@ -1033,7 +1033,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
             ))}
           </ul>
         )}
-      </LivelyCard>
+      </LookCard>
 
       {view.ended || choosing === null ? null : (
         <div key={choosing} ref={chooser} className="motion-reveal">

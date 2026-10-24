@@ -243,7 +243,7 @@ describe("undertaking:social-assistance-offer: social assistance", () => {
       expect(offered).toBeDefined();
       game.accept({ type: "offer/choose", offer: offered!.id, choice: "take" });
     };
-    // Calgary's street find (design page 11) rolls before the abroad group and may take the month's rolls;
+    // Calgary's street find (docs/design/11-calgary-dubai-and-castel-volturno.md) rolls before the abroad group and may take the month's rolls;
     // it is kept from rolling here so each month's roll is the assistance's.
     const noFind: LifeOptions = { change: (base) => ({ ...base, offer: { ...base.offer, "offer.street-find-canada": { ...base.offer["offer.street-find-canada"]!, chanceBp: 0 } } }) };
     const arrived = sponsor({ bank: under - 1, cash: 0 }, noFind);

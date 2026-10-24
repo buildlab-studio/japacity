@@ -36,7 +36,7 @@ async function pixelsOf(image: ReturnType<typeof sharp>): Promise<Pixels> {
 
 /**
  * How far a published picture may stray from its render: the mean difference of each colour channel, weighted by
- * the cover (so what shows counts, and colour under a clear pixel does not), in steps of 255. On the 23 Oct 2026
+ * the cover (so what shows counts, and colour under a clear pixel does not), in steps of 255. On the shipped
  * renders quality 85 strays 1.3 to 6.5 (the busiest face), the small sizes up to 6.3; a different render has a
  * different cover and fails on the transparency first.
  */

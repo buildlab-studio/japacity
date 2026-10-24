@@ -2,13 +2,13 @@
 // the top lines, then the player's own line wherever it ranks. The name is the
 // account's username on every board, friends too. Loaded
 // only after the server has answered with a board, so a switched-off board's
-// screen is never fetched. Each line is a card with a face sticker (shared/ui/lively/FaceTile.tsx), the name,
+// screen is never fetched. Each line is a card with a face sticker (shared/ui/look/FaceTile.tsx), the name,
 // and the figure as a chip: this week's rise in green; the player's own line
-// ringed (docs/design/09-the-lively-layer.md section 2).
+// ringed (docs/design/09-the-games-look.md section 2).
 import type { BoardReply, BoardRow } from "@japacity/api";
 
 import { lookForName } from "../../shared/front-door/looks";
-import { FaceTile } from "../../shared/ui/lively/FaceTile";
+import { FaceTile } from "../../shared/ui/look/FaceTile";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import type { When } from "./boards";
@@ -60,7 +60,7 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
   const name = nameOf(row);
   const rise = when === "this-week" && row.figure > 0;
   return (
-    <li data-board-line={row.rank} data-me={row.me ? "true" : undefined} className={`lively-card flex min-h-14 items-center gap-3 px-3 py-2 ${row.me ? "phone-picked" : ""}`}>
+    <li data-board-line={row.rank} data-me={row.me ? "true" : undefined} className={`look-card flex min-h-14 items-center gap-3 px-3 py-2 ${row.me ? "phone-picked" : ""}`}>
       <span className="w-7 shrink-0 text-right text-[16px] font-bold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}
       </span>
@@ -92,7 +92,7 @@ export default function BoardList({ reply, when, friends }: { reply: BoardReply;
     <div className="flex flex-col gap-1.5" data-board-own>
       <p className="px-0.5 text-[15px] font-semibold text-text-2">{say("ui.boards.your-place")}</p>
       {own === null ? (
-        <p className="lively-card p-3 text-[15px]">{say("ui.boards.no-route")}</p>
+        <p className="look-card p-3 text-[15px]">{say("ui.boards.no-route")}</p>
       ) : (
         <ol>
           <Line row={own} when={when} />
@@ -104,7 +104,7 @@ export default function BoardList({ reply, when, friends }: { reply: BoardReply;
     <div className="flex flex-col gap-2.5" data-board={reply.board}>
       {ownLine}
       {reply.rows.length === 0 ? (
-        <p className="lively-card p-3 text-[15px] text-text-2">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
+        <p className="look-card p-3 text-[15px] text-text-2">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
       ) : (
         <ol className="flex flex-col gap-2" data-board-lines>
           {reply.rows.map((row) => (

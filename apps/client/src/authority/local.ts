@@ -52,7 +52,7 @@ export interface LocalAuthority extends Authority {
    * The client shows them on the lock screen and tells their lines.
    */
   morning(): Envelope[];
-  /** The real time this life began, so the band can name the month of the year the life is in (world:top-band-is-lively-pill). */
+  /** The real time this life began, so the band can name the month of the year the life is in (world:top-band-is-a-pill). */
   beganAt(): number;
   /**
    * account:start-a-new-life: ends this life for good. The save and the person kept beside it are cleared, and nothing is
@@ -74,7 +74,7 @@ function randomSeed(): string {
   return Array.from(words, (word) => word.toString(16).padStart(8, "0")).join("");
 }
 
-/** A save in segments, or a flat one written before saves had segments (decision 0004). */
+/** A save in segments, or a flat one with no segments (decision 0004). */
 function isSave(value: unknown): value is Save | FlatSave {
   if (typeof value !== "object" || value === null) return false;
   const save = value as Record<string, unknown>;
@@ -290,8 +290,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       const before = command.type === "turn/end" ? currentView() : null;
       const result = apply(command, "player");
       if (!result.ok) return Promise.resolve(result);
-      // clock:envelopes-show-real-waits: a result real life makes you wait for is sealed until the next morning in Lagos.
-      // Decision 0011: a sealed result opens with the world's next morning, at most one game day away.
+      // clock:envelopes-show-real-waits: a result real life makes you wait for is sealed until the world's next morning,
+      // at most one game day away (decision 0011).
       if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextGameMorning(now()))];
       earnTurns();
       persist();

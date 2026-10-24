@@ -1,6 +1,6 @@
 # The Japacity mark
 
-The mark is the seal, a J in two rings, with two bulbs on a wire across the top, a warm one for home and a cool one for abroad, and no dots and no booklet. The wordmark beside it is the name in the plain bold face, drawn to paths so no font is needed. The game's own work; the name and its logo are reserved, and no licence in `LICENSES.md` covers them.
+The mark is the seal, a J in two rings, with two bulbs on a wire across the top, a warm one for home and a cool one for abroad. The wordmark beside it is the name in the plain bold face, drawn to paths so no font is needed. The game's own work; the name and its logo are reserved, and no licence in `LICENSES.md` covers them.
 
 ## Files
 

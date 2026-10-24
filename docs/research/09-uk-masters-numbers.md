@@ -2,7 +2,7 @@
 
 Sources checked October 2026.
 
-The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.md`, `../rules/activity.md` and `../rules/obligation.md`. The game's three universities are invented; the real ones below set their price, deposit and English levels.
+The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.md`, `../rules/activity.md` and `../rules/obligation.md`. The game's three universities are invented; the real ones below set their price and deposit.
 
 ## Fees paid to the UK government
 
@@ -20,7 +20,7 @@ The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.m
 
 | Figure | Value | Holds for | Source |
 |---|---|---|---|
-| Outside London | £1,171 a month, up to 9 months: £10,539 | Applications now | gov.uk, Student visa: money; ST 12.3 |
+| Outside London | £1,171 a month, up to 9 months: £10,539 | Applications before 30 Nov 2026 | gov.uk, Student visa: money; ST 12.3 |
 | Outside London, raised | £1,203 a month, up to 9 months: £10,827 | Applications on or after 30 Nov 2026 | Statement of Changes HC 584, 3 Sep 2026; UKCISA |
 
 - In the game: `var.uk-living-line` starts at 117100 pence and `news.uk-living-rise` sets 120300.
@@ -63,10 +63,9 @@ The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.m
 | Leicester, Finance MSc | IELTS 6.5 | University of Leicester (archived May 2026) |
 | Manchester, MSc Data Science and AI | IELTS 7.0, no part below 6.5 | University of Manchester |
 | How long a secure English test result is valid | "2 years from the date the test is awarded" | gov.uk, secure English language tests |
-| IELTS for UKVI fee in Nigeria | ₦285,500 from 1 Mar 2024 | News Central, on the British Council's notice |
+| IELTS for UKVI fee in Nigeria | ₦295,000 from 15 Jul 2025 (IELTS on computer ₦279,500) | British Council Nigeria |
 
-- In the game: the schools ask 6.0, 6.5 and 7.0; `document.english-test` is valid 24 months; `activity.sit-english-test` costs ₦285,500.
-- A later fee is not confirmed. The British Council Nigeria pages would not load in October 2026.
+- In the game: the schools ask no band, since a degree's statement meets the master's English (route:degree-meets-masters-english); `document.english-test` is valid 24 months; `activity.sit-english-test` costs ₦295,000.
 
 ## TB test
 
@@ -98,7 +97,7 @@ The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.m
 | Teesside Global Excellence | £2,000 | On grades | Teesside University |
 | Teesside Vice Chancellor's | £7,000 | Competitive | Teesside University |
 
-- In the game: Northgate £17,000 and £4,000, Ashby £24,250 and £6,000, Kingsmere £35,200 and £7,500. The deposits of Ashby and Kingsmere sit inside the real range of £2,500 to £8,000 for Nigerian applicants; no single source gives them. The discounts of £2,000 to £5,000 sit inside the real £2,000 to £7,000.
+- In the game: Northgate £17,000 and £4,000, Ashby £24,250 and £5,000, Kingsmere £35,200 and £6,000. Northgate's deposit is the common real figure; Ashby's and Kingsmere's are 1.25 and 1.5 times it, a game choice (`../rules/route.md`), inside the real range of £2,500 to £8,000 for Nigerian applicants. The discounts of £2,000 to £5,000 sit inside the real £2,000 to £7,000.
 
 ## Refusals and interviews
 
@@ -170,7 +169,7 @@ The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.m
 
 - In the game: `tuning.rate.start` is ₦1,758.00 for the pound and ₦1,331.50 for the dollar. After tick 0 the rates are simulated. The gap over time is in `06-naira-rates-and-currency.md`.
 
-## B17. Borrowing
+## Borrowing
 
 | Product | Rate | Date | Source |
 |---|---|---|---|
@@ -197,10 +196,10 @@ The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.m
 | School | Tuition less deposit | Plus living money from 30 Nov 2026 | To show | At ₦1,758 to £1 |
 |---|---|---|---|---|
 | Northgate | £13,000 | £10,827 | £23,827 | about ₦41.9m |
-| Ashby | £18,250 | £10,827 | £29,077 | about ₦51.1m |
-| Kingsmere | £27,700 | £10,827 | £38,527 | about ₦67.7m |
+| Ashby | £19,250 | £10,827 | £30,077 | about ₦52.9m |
+| Kingsmere | £29,200 | £10,827 | £40,027 | about ₦70.4m |
 
-- Cash out before the visa at Northgate: deposit £4,000, visa £558, surcharge £1,164, so £5,722 (about ₦10.1m), plus the TB test ₦120,000, IELTS ₦285,500 and passport ₦100,000.
+- Cash out before the visa at Northgate: deposit £4,000, visa £558, surcharge £1,164, so £5,722 (about ₦10.1m), plus the TB test ₦120,000, IELTS ₦295,000 and passport ₦100,000.
 - At the official rate of 23 Oct 2026, ₦1,820.79, the Northgate total is about ₦43.4m.
 
 ## Sources
@@ -234,7 +233,7 @@ The figures behind `../rules/route.md`, `../rules/document.md`, `../rules/rate.m
 - [Coventry University: how to apply and deposits](https://www.coventry.ac.uk/international-students-hub/apply/)
 - [Coventry University: Group Scholarship](https://www.coventry.ac.uk/international-students-hub/apply-for-a-scholarship/coventry-university-group-scholarship/)
 - [Northumbria University: scholarship for Nigerian applicants, 2026 to 2027](https://www.northumbria.ac.uk/study-at-northumbria/fees-funding/international-fees-funding/26-27-pgt-international-scholarships-nigeria)
-- [News Central: IELTS fees from 1 Mar 2024](https://newscentraltv.com/?p=207196)
+- [British Council Nigeria: IELTS questions](https://www.britishcouncil.org.ng/exam/ielts/book-test/ielts-faqs-frequently-asked-questions), the fees from 15 Jul 2025
 - [Voice of Nigeria: passport fees from 1 Sep 2025](https://von.gov.ng/nigeria-immigration-service-reviews-passport-application-fees/)
 - [BusinessDay: private-school teachers' pay, Feb 2024](https://businessday.ng/?p=811018)
 - [Jobberman: customer service jobs, Lagos](https://www.jobberman.com/jobs/customer-service-support/lagos)

@@ -1,4 +1,4 @@
-// The band's money by where the character is (world:top-band-is-lively-pill): the naira at home,
+// The band's money by where the character is (world:top-band-is-a-pill): the naira at home,
 // and abroad the country's own money, bank and cash together, from content's country table. And the month's name with
 // the world's part of the day where the pages were (decision 0011; clock:game-day-on-real-time): no Next month, no count of
 // anything, never a clock time.
@@ -32,14 +32,14 @@ function landed(): PlayerView {
 }
 
 describe("the band's money", () => {
-  test("[world:top-band-is-lively-pill] given a life at home, when the band's money is read, then it is the naira in cash and bank together", () => {
+  test("[world:top-band-is-a-pill] given a life at home, when the band's money is read, then it is the naira in cash and bank together", () => {
     const view = engineView();
     const money = bandMoney(view);
     expect(money.money).toBe(view.pockets.NGN.cash + view.pockets.NGN.bank);
     expect(money.formatMoney(15_000_000)).toBe(formatMoney(15_000_000, "NGN"));
   });
 
-  test("[world:top-band-is-lively-pill] given the graduate landed in London with naira still at home, when the band's money is read, then it is the life's pounds, bank and cash together, and the naira is left to the Bank app", () => {
+  test("[world:top-band-is-a-pill] given the graduate landed in London with naira still at home, when the band's money is read, then it is the life's pounds, bank and cash together, and the naira is left to the Bank app", () => {
     const view = landed();
     expect(view.place).toMatchObject({ where: "abroad", country: "country.uk" });
     expect(view.pockets.NGN.bank).toBeGreaterThan(0);
@@ -50,7 +50,7 @@ describe("the band's money", () => {
     expect(money.formatMoney(money.money)).toContain("£");
   });
 
-  test("[world:top-band-is-lively-pill] given each country abroad, when the band's money is read, then it is that country's currency in content, cash and bank together, and never the naira", () => {
+  test("[world:top-band-is-a-pill] given each country abroad, when the band's money is read, then it is that country's currency in content, cash and bank together, and never the naira", () => {
     const base = landed();
     for (const country of ABROAD) {
       const currency: Currency = content.country[country]?.currency ?? "NGN";
@@ -63,7 +63,7 @@ describe("the band's money", () => {
 });
 
 describe("the band's place", () => {
-  test("[world:top-band-is-lively-pill] given a place whose name is long, when the band says it, then it says the place's own short name; a short name stands as it is", () => {
+  test("[world:top-band-is-a-pill] given a place whose name is long, when the band says it, then it says the place's own short name; a short name stands as it is", () => {
     expect(bandPlace(nameOf("place.bode-thomas"))).toBe("Bode Thomas");
     expect(bandPlace("Your room in Ojuelegba")).toBe("Your room");
     expect(bandPlace(say("ui.inside.hub"))).toBe("The hub");
@@ -76,7 +76,7 @@ describe("the band's place", () => {
 
 
 describe("the band's month", () => {
-  test("[world:top-band-is-lively-pill] [clock:game-day-on-real-time] given a life begun in March at month 1 and the world's clock in the evening, when the band renders, then a small chip says April and Evening, with no digit, no count of days, no clock time and no end-month button, and a tap on it opens the Calendar", () => {
+  test("[world:top-band-is-a-pill] [clock:game-day-on-real-time] given a life begun in March at month 1 and the world's clock in the evening, when the band renders, then a small chip says April and Evening, with no digit, no count of days, no clock time and no end-month button, and a tap on it opens the Calendar", () => {
     const view: PlayerView = { ...engineView(), month: 1, halfDays: { spent: 2, free: 60 } };
     const month = bandMonth(view, MARCH, { part: "evening" });
     expect(month).toEqual({ name: "April", part: "Evening" });
@@ -94,7 +94,7 @@ describe("the band's month", () => {
     expect(onMonth).toHaveBeenCalledTimes(1);
   });
 
-  test("[clock:game-day-on-real-time] [world:top-band-is-lively-pill] given the month's time all spent or none of it, when the band's month is read, then the part of the day is the world's clock's whichever way the month stands", () => {
+  test("[clock:game-day-on-real-time] [world:top-band-is-a-pill] given the month's time all spent or none of it, when the band's month is read, then the part of the day is the world's clock's whichever way the month stands", () => {
     const parts = [["morning", "Morning"], ["afternoon", "Afternoon"], ["evening", "Evening"], ["night", "Night"]] as const;
     for (const [part, words] of parts) {
       const spent: PlayerView = { ...engineView(), month: 0, halfDays: { spent: 20, free: 20 } };
@@ -153,7 +153,7 @@ describe("the band's month", () => {
     expect(dayClockOf(null, clock, null)).toBe(clock);
   });
 
-  test("[world:top-band-is-lively-pill] given a life begun on this device in March, when the store starts it, then the store holds the time it began, read from the authority", async () => {
+  test("[world:top-band-is-a-pill] given a life begun on this device in March, when the store starts it, then the store holds the time it began, read from the authority", async () => {
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "band-month", now: () => MARCH });
     const store = createGameStore(authority, { life: authority, choosingLife: true });
     await store.getState().chooseLife("scenario.graduate");

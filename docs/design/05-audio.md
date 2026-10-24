@@ -1,61 +1,58 @@
 # Audio
 
-> The game carries the synthesised interface cues (`apps/client/src/shared/sound/cues.ts`), the mute switch and the notice, and the officers' spoken lines (section 7). Place ambience and voiced radio are designed below and are not part of the game.
-> Library download figures are for the week of 28 Sep 2026.
+**Context and scope.** The game's sound: the interface's small sounds, the visa officer's spoken lines, and how both behave inside a phone's browser, where sound may start only after a tap and may be refused at any time. The rules that hold it are world:interface-sounds-made-live, world:motions-under-half-second and assets:ai-media-recorded-and-credited. The code is in `apps/client/src/shared/sound/`.
+
+**Goals.**
+
+- Sound adds to a scene and never holds it up. Every scene plays the same in text.
+- A first visit downloads no sound file.
+- One mute switch for everything, remembered on the device.
+
+**Non-goals.** Music, a loop of background sound per place, sound placed in the 3D city, voiced radio (the radio is a source of news in words, `../rules/news.md`), adverts in sound (advert:no-radio-adverts), a volume slider or separate levels, clips kept for offline play, and commercial music without a licence.
 
 ## 1. The pattern
 
-- **The simulation never plays a sound.** It writes sound cues to a list, and the interface plays them.
-- **Sound effects are synthesised in the browser** where they can be, so the base bundle carries no sound files.
-- **Radio is content.** Bulletins are written once and voiced once, and the written version is always shown.
+- **The simulation never plays or names a sound.** The interface picks each sound from what happens on screen, so the simulation stays pure and its tests never touch audio.
+- **The interface's sounds are made in the browser** from tones, so they cost no download.
+- **The text is the scene.** A spoken line is always shown as text too, and sound is added only when the browser allows it.
 
-## 2. In the baseline
+## 2. The interface cues
 
-Cheap to build, and the game feels unfinished without it.
+A cue is one short sound the interface plays when something happens on screen. There are eleven (`Cue` in `cues.ts`):
 
-| Part | What |
-|---|---|
-| Interface sounds | About a dozen: tap, turn resolved, money in, money out, checklist item met, japacity up, japacity down, news alert, granted, refused, the send-off |
-| Place ambience | A short loop per place: market, office, embassy queue, airport |
-| Controls | Mute, separate levels for effects and ambience, remembered on the device. Silent until the first tap, as browsers require |
-| Radio you can hear | The radio is a news source in the design. Each bulletin is written once, voiced once in Nigerian English or Pidgin, and cached for everyone. About 90 KB per 30 seconds. The written version is always shown too |
-
-**How it is built:**
-
-- The simulation emits a cue name, such as `money/in`. It never touches audio. This keeps it pure and testable.
-- A cue is a row in a table: name, sound, volume. Adding a sound is a data change.
-- Sounds are synthesised, or taken from packs under a licence that allows any use. Each one is recorded in the assets file.
-
-## 3. Not part of the game
-
-| Part | What | What it needs |
+| Cue | Plays when | Length |
 |---|---|---|
-| Music stations | Tracks that are commissioned, openly licensed, or submitted by artists | Clear rights for every track |
-| Artists paying for airtime | An advert surface with a review step | The advert review (`../rules/advert.md`) carried over to sound |
-| Sound that comes from places in the city | Louder as you walk closer | Sound sources placed in the city |
+| `tap` | A main button is pressed: the band's month button, the brief's Let's go, a step of the send-off, a road in the Bank app, a buy in the Market app, waking from sleep | 50 ms |
+| `open` | A brief is handed over, and the send-off opens | 120 ms |
+| `close` | The results sheet or the send-off is left, a kiosk's answer is closed, an agent's offer is turned down, or an act carried on in the month is stopped | 110 ms |
+| `done` | The family's ring on the first ride abroad | 220 ms |
+| `coin` | Money lands or leaves on the money toast, a buy or a sale in the Market app, an agent's offer taken | 220 ms |
+| `whoosh` | A thing's acts fan out, and the plane leaves at the send-off | 420 ms |
+| `month` | The results sheet opens as the month turns | 420 ms |
+| `ding` | A step of the chapter is done, a brief closes, the interview's last answer is in | 200 ms |
+| `thud` | The stamp lands as a brief closes, 260 ms after its `ding` | 160 ms |
+| `no` | A refusal: a road the Bank app cannot take, a buy the Market app refuses, a thing that will not fit where it is set down | 270 ms |
+| `pop` | A thing you own is lifted in buy mode, the mode in which the things in your room are moved (world:room-things-and-buy-mode) | 80 ms |
 
-## 4. Voiced radio
+The three cues of the game's look, `ding`, `thud` and `no`, are each under 300 ms (world:motions-under-half-second). Every cue ends inside half a second.
 
-Bulletins are shared by all players, so each is generated once. At 10 to 30 a week that is about 15 minutes of audio a month.
+## 3. How a cue is made
 
-- A native speaker hears every voice, since a generated voice can stumble on numbers such as years.
-- Format: Opus at 24 kbps, with an MP3 fallback for old phones.
-- A person approves every voice before it ships.
+A cue is a row in `CUES`: one or more tones, each a wave (sine, triangle, square, or a filtered noise) gliding from one pitch to another, with its start, its length and its loudness. Adding a cue is adding a row. The noise is a fixed pattern, so the same cue sounds the same every time. The cues keep their own small audio context, made inside the first tap that plays one. Muted, a cue returns before anything is made, and a browser that refuses stays quiet with no error.
 
-## 5. Left out
+## 4. Mute
 
-Commercial Nigerian music without a licence, however much it would add.
+One switch mutes every cue and every spoken line. It is in the phone's Settings app and in the interview room. Sound is on by default. The choice is remembered on the device; a phone that keeps nothing still mutes for the session. Muted, no audio context is made and no clip is fetched.
 
-## 6. Tools
+## 5. The spoken lines
 
-| Job | Choice | Weekly downloads |
-|---|---|---|
-| Sound in the 3D city | The audio built into three.js, already in the stack | 24.3m |
-| Interface sounds | The browser's own Web Audio, with no library | |
+The visa interview's officer is the one voice in the game: sixteen lines, from the greeting to the close (`setpiece.credibility-interview.*`). Each line's clip and its length in milliseconds sit beside its words key in `packages/content/src/setpiece/setpiece.voice.ts`; the clips are in `apps/client/public/voice/officer/`, about 320 KB for every line in both formats. A line with no clip, or whose clip is missing, plays a short voice-like sound in its place. It costs no data.
+
+## 6. Where the sounds come from
+
+The cues are written as code, so they are the makers' own work and need no licence or credit. The officer's voice is generated: Kokoro-82M (Apache 2.0), voice `bf_emma`, run on the makers' machine, one clip per line, encoded as Opus at 24 kbps and MP3 at 32 kbps, mono. The assets register (`models/register.json`) names the model, the voice and the licence for each clip, and the credits say the voice is generated (assets:ai-media-recorded-and-credited, guide:generated-media-named-plainly). A recording by a person replaces a clip by its path.
 
 ## 7. Spoken lines and the browser
-
-> Built for the visa interview; the same layer serves every spoken scene and the interface sounds.
 
 **The rule above the others: a scene never waits on sound.** The text is the scene. Sound is added when the browser allows it, and if anything about it fails, the player gets the same scene in text.
 
@@ -70,15 +67,13 @@ Commercial Nigerian music without a licence, however much it would add.
 | Phones limit loading | Only the clips the scene will use are fetched, ahead from the moment the application is sent, so the first line plays the moment the player walks in. Muted or saving data, nothing is fetched |
 | Cached audio | Clips are not cached for offline play. The browser's own cache keeps them |
 | A call or an app switch | Hiding the page stops the clip and puts sound to sleep. On return the rest of the clip is skipped and the text is there |
-| A page cannot set the volume on a phone | A mute switch, remembered on the device. No volume slider. Sound is on by default; muted, nothing is fetched, and unmuting fetches from then on |
-| In-app browsers | The browser tests run the interview inside faked Instagram and Facebook in-app browsers |
+| A page cannot set the volume on a phone | A mute switch, remembered on the device (section 4). No volume slider. Sound is on by default; muted, nothing is fetched, and unmuting fetches from then on |
+| In-app browsers | The browser tests run the interview inside Instagram's and Facebook's in-app browsers, faked by their user agents (`apps/client/e2e/voice.spec.ts`) |
 | The iPhone silent switch | Spoken lines play through Web Audio, which stays quiet when the switch is on. Not checked on a real iPhone |
-
-A line with no clip, or whose clip is missing, plays a short voice-like sound in its place. It costs no data.
 
 ### The notice
 
-One small notice for the whole game, in the top corner. It never covers the question or the answers, never needs closing, goes by itself after five seconds, shows at most once a scene, never stacks, has no motion, and is read out to screen readers without taking the focus.
+The notice is the game's one small message about sound, in the top corner. It never covers the question or the answers, never needs closing, goes by itself after five seconds, shows at most once a scene, never stacks, has no motion, and is read out to screen readers without taking the focus.
 
 | When | It says | Tapping it |
 |---|---|---|
@@ -87,6 +82,10 @@ One small notice for the whole game, in the top corner. It never covers the ques
 | Data-saver or low-data mode is on | "Sound is off to save data. Tap to turn it on" | Fetches the clips and speaks the line |
 | The browser cannot play the clips | "Playing in text on this browser" | Nothing |
 
-### The voices
+## 8. Alternatives considered
 
-Every officer has one generated voice: Kokoro-82M (Apache 2.0), voice `bf_emma`, run on the machine, one clip per line. A recording by a person replaces a clip by its path. The credits say the voices are generated, and the register names the model, the voice and the licence for each clip (assets:ai-media-recorded-and-credited).
+- **Sound files for the cues.** A pack of recorded sounds would cost a download and a licence for each; tones made in the browser cost neither.
+- **The audio built into three.js.** It places sound in the 3D scene, which the game has no use for; the browser's own Web Audio, with no library, does everything above.
+- **A volume slider.** A page cannot set a phone's volume, so a slider would promise what it cannot do; the mute switch is the one control.
+- **Keeping clips for offline play.** It would fill a phone's storage for one scene that the text already carries; the browser's own cache is enough.
+- **A person's recording for every line.** A generated line is made again whenever its words change; a recording replaces a clip by its path wherever one is made.

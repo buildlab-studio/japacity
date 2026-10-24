@@ -39,7 +39,7 @@ export interface Budget {
 export interface BudgetFile {
   about: string;
   parts: Record<Part, Budget>;
-  /** One dated line for every change to a budget: "11 Oct 2026: ...". */
+  /** One line for every change to a budget: the part that moved and what for, "main raised to 1050 for ...". Git keeps the date. */
   changes: string[];
 }
 
@@ -52,7 +52,8 @@ const LOADER = /\/packages\/model-kit\/src\/load\.ts$|\/apps\/client\/src\/share
 /** The admin page's modules. Only its address may be in the game's own chunks. */
 const ADMIN = /\/apps\/client\/src\/features\/admin\//;
 const ADMIN_ADDRESS = /\/apps\/client\/src\/features\/admin\/adminPath\.ts$/;
-const DATED = /^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}: \S/;
+/** A change line opens on the part that moved and says what for. A date in front is refused: git keeps when. */
+const REASON = /^(?:main|three|content-sim|loader|shared|total)\b.*\bfor\b\s+\S/;
 
 /**
  * Which part a first-visit chunk is: the entry is the main chunk; then by what it holds: the simulation (with
@@ -106,7 +107,7 @@ export function overBudget(sizes: Record<Part, number>, budgets: BudgetFile): st
   );
 }
 
-/** What the budget file itself must hold: whole numbers, every budget at most its measured size plus the headroom, and a dated line for each change. */
+/** What the budget file itself must hold: whole numbers, every budget at most its measured size plus the headroom, and a line for each change naming the part and what for. */
 export function budgetFileProblems(budgets: BudgetFile): string[] {
   const problems: string[] = [];
   for (const part of PARTS) {
@@ -118,8 +119,8 @@ export function budgetFileProblems(budgets: BudgetFile): string[] {
     if (!Number.isSafeInteger(entry.budget) || !Number.isSafeInteger(entry.measured) || entry.budget < 0 || entry.measured < 0) problems.push(`${part}: the budget and the measured size are whole numbers of bytes.`);
     else if (entry.budget * 100 > entry.measured * (100 + HEADROOM_PERCENT)) problems.push(`${part}: the budget ${String(entry.budget)} is more than the measured ${String(entry.measured)} plus ${String(HEADROOM_PERCENT)} percent.`);
   }
-  if (budgets.changes.length === 0) problems.push("The budget file has no dated line for its changes.");
-  for (const line of budgets.changes) if (!DATED.test(line)) problems.push(`A change line starts with its date ("11 Oct 2026: ..."): ${line}`);
+  if (budgets.changes.length === 0) problems.push("The budget file has no line for its changes.");
+  for (const line of budgets.changes) if (!REASON.test(line)) problems.push(`A change line names the part that moved and says what for ("main raised to 1050 for ..."), with no date: ${line}`);
   return problems;
 }
 
@@ -180,7 +181,7 @@ function main(): void {
   }
   if (problems.length > 0) {
     for (const problem of problems) console.log(`  ${problem}`);
-    console.log(`\nThe size check failed. A budget is lowered on purpose and never raised quietly: ${BUDGET_FILE} says why, with a dated line.`);
+    console.log(`\nThe size check failed. A budget is lowered on purpose and never raised quietly: ${BUDGET_FILE} says why, with a line naming the part that moved and what for.`);
     process.exit(1);
   }
   console.log("Every part of a first visit is inside its budget.");

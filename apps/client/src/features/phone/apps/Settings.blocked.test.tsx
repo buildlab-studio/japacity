@@ -60,7 +60,7 @@ describe("the Blocked list in Settings", () => {
       expect(within(line as HTMLElement).getByRole("button", { name: words("ui.blocked.unblock", { name }) })).toBeTruthy();
     }
     // Dressed as the boards' lines: each a card.
-    for (const line of lines) expect(line.className).toContain("lively-card");
+    for (const line of lines) expect(line.className).toContain("look-card");
   });
 
   test("[moderation:blocked-list-in-settings] given a line, when Unblock is pressed, then the account on that line is unblocked and the line goes from the list", async () => {

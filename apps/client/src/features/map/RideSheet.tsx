@@ -6,7 +6,7 @@ import { Footprints } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { LEVEL, useBackLayer } from "../../shared/back/back";
-import { PressButton } from "../../shared/ui/lively/PressButton";
+import { PressButton } from "../../shared/ui/look/PressButton";
 import { blurbOf, say, words } from "../../shared/words/text";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
 import type { RideChoice } from "../../shared/world/contract";

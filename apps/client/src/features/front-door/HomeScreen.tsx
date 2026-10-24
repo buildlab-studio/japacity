@@ -11,7 +11,7 @@ import { type Archetype, type Home, homesFor, moneyDrawn } from "../../shared/fr
 import { homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/front-door/homes";
 import { homePicture, LIFE_THINGS } from "../../shared/front-door/lives";
 import { FaceSticker, ModelPicture } from "../../shared/front-door/LookPicture";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { Mark } from "../../shared/ui/Wordmark";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";

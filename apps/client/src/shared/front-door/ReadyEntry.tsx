@@ -14,14 +14,14 @@ export function ReadyEntry() {
   return (
     <button
       type="button"
-      className="lively-card press mt-3 flex w-full items-center gap-3 p-3 text-left"
+      className="look-card press mt-3 flex w-full items-center gap-3 p-3 text-left"
       onClick={() => {
         askReadyLives();
         open();
       }}
       data-ready-entry
     >
-      {/* A card in Settings' lively dress: the hub where a ready life starts, at work. */}
+      {/* A card in Settings' look: the hub where a ready life starts, at work. */}
       <span className="flex size-[52px] shrink-0 items-center justify-center rounded-[16px] bg-tint-plain" aria-hidden>
         <span className="sticker-cut" style={{ rotate: "-5deg" }}>
           <Tile of="place.yaba" size={36} />

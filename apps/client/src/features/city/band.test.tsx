@@ -1,4 +1,4 @@
-// The place's name on the band (world:top-band-is-lively-pill): the band
+// The place's name on the band (world:top-band-is-a-pill): the band
 // starts the name with a capital, "The clinic", while a sentence keeps content's casing.
 import { content } from "@japacity/content";
 import { fireEvent, screen, within } from "@testing-library/react";
@@ -25,13 +25,13 @@ async function standingAt(place: string, extra: Partial<Parameters<typeof City>[
 }
 
 describe("the place's name on the band", () => {
-  test("[world:top-band-is-lively-pill] given the player at the clinic, whose name content gives as \"the clinic\", when the band shows, then it reads \"The clinic\"", async () => {
+  test("[world:top-band-is-a-pill] given the player at the clinic, whose name content gives as \"the clinic\", when the band shows, then it reads \"The clinic\"", async () => {
     expect(content.place[CLINIC as keyof typeof content.place]).toBeDefined();
     const band = await standingAt(CLINIC);
     expect(band.querySelector("h2")?.textContent).toBe("The clinic");
   });
 
-  test("[world:top-band-is-lively-pill] [world:one-action-one-sheet] given the player at the clinic and an ask that belongs at the visa centre, when the asks open, then the sentence keeps \"the visa centre\" in content's casing", async () => {
+  test("[world:top-band-is-a-pill] [world:one-action-one-sheet] given the player at the clinic and an ask that belongs at the visa centre, when the asks open, then the sentence keeps \"the visa centre\" in content's casing", async () => {
     await standingAt(CLINIC, { asks: [<p key="a">the send-off</p>], asksAt: ["place.visa-centre"] });
     fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
     const sheet = screen.getByRole("dialog");

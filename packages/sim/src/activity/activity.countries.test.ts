@@ -1,4 +1,4 @@
-// Calgary, Dubai and Castel Volturno lived by hand with the real content: streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand (design page 11 section 5), abroad-money:arrival-opens-upkeep-and-room, home:living-by-hand and
+// Calgary, Dubai and Castel Volturno lived by hand with the real content: streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand (docs/design/11-calgary-dubai-and-castel-volturno.md section 5), abroad-money:arrival-opens-upkeep-and-room, home:living-by-hand and
 // obligation:cooking-and-fetching-water. Food is bought and cooked in each country's money as it is
 // eaten, the evenings are paid as they are had, and each upkeep is the prepaid phone alone.
 import { content, text } from "@japacity/content";

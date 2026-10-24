@@ -12,7 +12,7 @@ import { papersMarkOf } from "./papers";
 import { browserStorage, SEEN_KEY } from "../../shared/storage/storage";
 import { listeners } from "../../shared/listeners/listeners";
 
-// The Calendar sits first among the apps: the month lives on the phone (world:top-band-is-lively-pill). Papers sits beside Japa: the
+// The Calendar sits first among the apps: the month lives on the phone (world:top-band-is-a-pill). Papers sits beside Japa: the
 // plan's papers, held and on their way (world:phone-holds-what-phones-hold).
 export const APP_IDS = ["calendar", "bank", "chats", "japa", "papers", "jobs", "market", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];
@@ -40,7 +40,7 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
     calendar: "",
     bank: "",
     chats,
-    // The brief last handed (design page 09 section 4): the dot until Japa is opened.
+    // The brief last handed (docs/design/09-the-games-look.md section 4): the dot until Japa is opened.
     japa: japaMark(view.scenario),
     // A paper that landed or moved this month (world:month-passes-as-lived): the dot until Papers is opened.
     papers: papersMarkOf(view),

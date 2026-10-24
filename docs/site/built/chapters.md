@@ -49,7 +49,7 @@ The player can choose: `chapter/lean` makes a heard-of way the plan, while the c
 ```mermaid
 flowchart TD
   F["Build the file"] --> L{"the lean"}
-  L -->|"the UK master's, the base"| MA["passport held<br/>transcript held<br/>English at band 6.0 or better<br/>an offer from a school"]
+  L -->|"the UK master's, the base"| MA["passport held<br/>transcript held<br/>English met by the degree<br/>an offer from a school"]
   L -->|"UK health care"| CA["24 months as a nurse<br/>the nursing council's verification<br/>a sponsor found<br/>the visa applied for"]
   L -->|"UK talent"| TA["a portfolio of 3 or more<br/>the endorsement held<br/>the visa applied for"]
   L -->|"Canada's points"| PO["the credential assessment<br/>English at band 6.0 or better<br/>in the pool<br/>invited to apply"]

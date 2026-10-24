@@ -270,7 +270,7 @@ describe("the rejections tab", () => {
   test("[server:rejections-write-nothing] given rejections counted, when the tab opens, then each code shows with its count", async () => {
     page("rejections");
     const table = await screen.findByRole("table", { name: words("admin.rejections.title") });
-    expect(within(table).getAllByRole("row").map((row) => row.textContent)).toEqual(["CodeCount", "no-turns17", "rate-limited3", "stale41"]);
+    expect(within(table).getAllByRole("row").map((row) => row.textContent)).toEqual(["CodeCount", "rate-limited3", "setpiece-open17", "stale41"]);
   });
 });
 

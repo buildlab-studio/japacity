@@ -108,7 +108,7 @@ export const BANK_REFILLS_IN_MS = 2 * DAY_MS;
 /** Online, a world tick is half a real day: the rates "tick twice a real day". docs/design/01-concept.md section 13. */
 export const WORLD_TICK_MS = 12 * HOUR_MS;
 
-/** An era lasts about four real weeks. docs/design/01-concept.md section 7, "Eras". */
+/** Twenty-eight real days, read by nothing: an era's length online is set by the world's own schedule (docs/design/01-concept.md section 7, "Eras"). */
 export const ERA_MS = 28 * DAY_MS;
 
 /** Nothing takes effect less than two real days after it is announced. docs/design/01-concept.md section 7, fairness rule 4. */

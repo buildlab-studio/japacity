@@ -94,7 +94,7 @@ describe("the prologue screen", () => {
 
     expect(await screen.findByRole("heading", { name: words("line.prologue.closed") })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    // The world opens on month 1 (world:world-fills-the-screen): its band, with no month number on it (world:top-band-is-lively-pill).
+    // The world opens on month 1 (world:world-fills-the-screen): its band, with no month number on it (world:top-band-is-a-pill).
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull());
     expect(playerMonth(game.view().month)).toBe(1);
   });

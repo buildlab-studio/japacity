@@ -8,7 +8,7 @@ The interface over the world has to read as a game, light and quick to scan on a
 
 ## Decision
 
-The interface over the world is one light system (`../design/09-the-lively-layer.md`): pale sky surfaces, white cards with a navy edge, danfo yellow for the one action, Rubik, sticker-cut pictures of the game's own models on every choice, tilted sticker chips, soft tints by kind of act, and the same shapes in navy at the world's night; a centred column on a laptop. The acts of a thing fan out of the thing in the scene (the fan, world:fan-of-sticker-buttons) with a sheet as the fallback. A journey step is a mission card handed over by a person, with a marker at the place. Street talk keeps a budget of two channels and three callouts (world:street-talk-budget).
+The interface over the world is one light system (`../design/09-the-games-look.md`): pale sky surfaces, white cards with a navy edge, danfo yellow for the one action, Rubik, sticker-cut pictures of the game's own models on every choice, tilted sticker chips, soft tints by kind of act, and the same shapes in navy at the world's night; a centred column on a laptop. The acts of a thing fan out of the thing in the scene (the fan, world:fan-of-sticker-buttons) with a sheet as the fallback. A journey step is a mission card handed over by a person, with a marker at the place. Street talk keeps a budget of two channels and three callouts (world:street-talk-budget).
 
 The gameplay, the simulation and every structure stay: the handset with its apps, the band, the map and the ride, the world and its things, the data page, the two lights, the lamps.
 

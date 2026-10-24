@@ -47,8 +47,8 @@ import { Corner, hush, murmur, resetLines, speak, SpeechBubble, tell, useLines, 
 import { calloutsShown } from "../../shared/world/callouts";
 import { Emotes } from "./scene/emotes";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
-import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
-import { PressButton } from "../../shared/ui/lively/PressButton";
+import { CentredColumn } from "../../shared/ui/look/CentredColumn";
+import { PressButton } from "../../shared/ui/look/PressButton";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
 import { type Arranged, arrangedIn, keepArranged, keepTurn, turnIn } from "../../shared/world/arranged";
@@ -198,7 +198,7 @@ const TEACH_MS = 2000;
 export const RESULTS_BEAT_MS = 300;
 
 /**
- * The giver's words on a chapter's mission card (the brief, design page 09 section 4): the first chapter's opening for this
+ * The giver's words on a chapter's mission card (the brief, docs/design/09-the-games-look.md section 4): the first chapter's opening for this
  * life's path, a later chapter's own opening.
  */
 function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
@@ -233,7 +233,7 @@ export const ARRIVE_QUIET_MS = 3000;
 const UP_NEPA_MS = 2200;
 
 /**
- * The band's chip names the nudge's own wait (world:top-band-is-lively-pill, world:nudge-says-one-thing): the nudge "Ask for the endorsement
+ * The band's chip names the nudge's own wait (world:top-band-is-a-pill, world:nudge-says-one-thing): the nudge "Ask for the endorsement
  * again in 6 months" over the chip "You can ask for the endorsement again, in 6 months". A step's wait carries its `when`;
  * a chip for something to wait on in that same month is the same wait, so the row peeks with the nudge alone.
  */
@@ -291,7 +291,7 @@ function keep(key: string, value: string[]): void {
 }
 
 /**
- * The band's place line for a home (world:top-band-is-lively-pill): what the home is, in few words, so a
+ * The band's place line for a home (world:top-band-is-a-pill): what the home is, in few words, so a
  * room drawn alone is never read as a whole compound: "Your room, Ojuelegba", "The family house", "The
  * room on the water", abroad "The shared room, Peckham". Makoko is the room on the water only for a life that lives
  * there. Null for any other place, which keeps its own name.
@@ -511,7 +511,7 @@ export function City({
   const endMonth = useGame((state) => state.endMonth);
   const stopPick = useGame((state) => state.stopPick);
   const beganAt = useGame((state) => state.beganAt);
-  // world:top-band-is-lively-pill: the band's clock is the character's age, with the month's name beside it and the world's part of the day
+  // world:top-band-is-a-pill: the band's clock is the character's age, with the month's name beside it and the world's part of the day
   // (clock:game-day-on-real-time), moving on the device each minute; the simulation still counts months.
   const dayClock = useDayClock();
   const ageMonths = qualityIn(view, "quality.age-months");
@@ -557,7 +557,7 @@ export function City({
       setResultsShown(false);
       return;
     }
-    // world:top-band-is-lively-pill: a short beat in the room first, then the cut and the results.
+    // world:top-band-is-a-pill: a short beat in the room first, then the cut and the results.
     const timer = window.setTimeout(() => cutTo(() => setResultsShown(true)), RESULTS_BEAT_MS);
     return () => window.clearTimeout(timer);
     // The cut runs once as the report opens.
@@ -673,7 +673,7 @@ export function City({
   // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (world:nothing-roams).
   const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
   const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
-  // While a fan's button is pressed the band's counter shows what would be left (design page 09 section 2).
+  // While a fan's button is pressed the band's counter shows what would be left (docs/design/09-the-games-look.md section 2).
   const [bandPreview, setBandPreview] = useState<number | null>(null);
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // The fan's act last sent and when: the scene may report the walk's arrival twice under load, and the second must not open the act's card over an act already done.
@@ -997,7 +997,7 @@ export function City({
       setPicked(null);
       return;
     }
-    // A fan's button, once the walk has reached its thing: the act is sent as its sheet's button sends it (docs/design/09-the-lively-layer.md section 3).
+    // A fan's button, once the walk has reached its thing: the act is sent as its sheet's button sends it (docs/design/09-the-games-look.md section 3).
     if (going !== null && going.thing === thing.id && going.activity === act.stages) {
       setPicked(null);
       fanSent.current = { thing: thing.id, activity: going.activity, at: Date.now() };
@@ -1270,7 +1270,7 @@ export function City({
       }
     }
   };
-  // world:top-band-is-lively-pill: the band's second row opens from its handle and peeks for a few seconds when its words change.
+  // world:top-band-is-a-pill: the band's second row opens from its handle and peeks for a few seconds when its words change.
   const [bandOpen, setBandOpen] = useState(false);
   const [peek, setPeek] = useState(true);
   const nudgeKey = nudge?.key ?? "";
@@ -1441,7 +1441,7 @@ export function City({
     const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
-    // Chips earn their place (design page 09 section 2): the time only past a morning, at most two effects.
+    // Chips earn their place (docs/design/09-the-games-look.md section 2): the time only past a morning, at most two effects.
     const time = chipTimeOf(activity, option.halfDays);
     const does = chipEffectsLine(activity);
     return {
@@ -1620,7 +1620,7 @@ export function City({
     for (const line of toTell) tell(line);
     setToTell([]);
   }, [toTell, worldFree, homeTeachShown]);
-  // Toasts that answer every tap (design page 09 sections 2 and 7): money in from something done in the world slides in
+  // Toasts that answer every tap (docs/design/09-the-games-look.md sections 2 and 7): money in from something done in the world slides in
   // under the band with a picture and the figure, and a coin flies to the counter. Never at the month's turn, which the
   // results tell, and never from the phone, which tells its own.
   const money = bandMoney(view).money;
@@ -1634,7 +1634,7 @@ export function City({
     const act = said === null ? "" : nowActOf(said);
     setMoneyIn({ at: Date.now(), title: act === "" ? say("ui.toast.money-in") : nameOf(act), amount: `+${bandMoney(view).formatMoney(money - before)}`, picture: act === "" ? "activity.side-gig" : act });
   }, [money]);
-  // The road in the world, only in the moment (design page 09 section 4). The brief of the chapter the life
+  // The road in the world, only in the moment (docs/design/09-the-games-look.md section 4). The brief of the chapter the life
   // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
   const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
   const [handed, setHanded] = useState<string | null>(null);
@@ -1882,7 +1882,7 @@ export function City({
               cue("tap");
               openCalendar(null);
             }}
-            // The band stays through the beat before the results, and steps back once they are up (world:top-band-is-lively-pill).
+            // The band stays through the beat before the results, and steps back once they are up (world:top-band-is-a-pill).
             hidden={map || (resultsOpen && resultsShown)}
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
@@ -1930,7 +1930,7 @@ export function City({
             </div>
           ) : null}
           {/* A sleeper hears nothing: the corner keeps its lines until they wake (world:sleep-ends-the-month), and leaves Wake up clear. */}
-          {/* An open fan keeps the corner clear: the fan's buttons may run down to the thumbs (docs/design/09-the-lively-layer.md section 5). */}
+          {/* An open fan keeps the corner clear: the fan's buttons may run down to the thumbs (docs/design/09-the-games-look.md section 5). */}
           <Corner hidden={!worldFree || homeTeachShown || nightTeach !== null || asleep !== null || fanned !== null} />
           {asleep !== null && !asleep.due ? (
             <>
@@ -1956,7 +1956,7 @@ export function City({
             <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+84px)] z-[38] px-3">
             {/* The first night's card: the moon on a soft tile, a title of a
                 few words, the line, Not yet and the yellow Sleep. */}
-            <div className="lively-card pop pointer-events-auto mx-auto flex flex-col gap-3 p-3.5" role="note" data-night-teach>
+            <div className="look-card pop pointer-events-auto mx-auto flex flex-col gap-3 p-3.5" role="note" data-night-teach>
               <div className="flex items-center gap-3">
                 <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-tint-body">
                   <span className="sticker-cut text-[36px] leading-none" style={{ rotate: "-8deg" }} aria-hidden>
@@ -1989,7 +1989,7 @@ export function City({
           ) : null}
           {homeTeachShown && homeTeach !== null ? (
             <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] px-3">
-            <div className="lively-card pop pointer-events-auto mx-auto flex items-start gap-2 p-3" role="note" data-home-teach={homeTeach}>
+            <div className="look-card pop pointer-events-auto mx-auto flex items-start gap-2 p-3" role="note" data-home-teach={homeTeach}>
               <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>
               <button
                 type="button"
@@ -2025,7 +2025,7 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
-          {/* The chapter's brief is handed as a mission card by its person (design page 09 section 4; chapter:first-chapter-mission-card as the hand
+          {/* The chapter's brief is handed as a mission card by its person (docs/design/09-the-games-look.md section 4; chapter:first-chapter-mission-card as the hand
               redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
           {/* The card's wait for the first frame is marked, so the keep-this-life ask (account:guest-secures-the-life) and the suite's helpers wait with it. */}
           {openingUp && brief !== null && !briefUp ? <span data-brief-pending hidden /> : null}

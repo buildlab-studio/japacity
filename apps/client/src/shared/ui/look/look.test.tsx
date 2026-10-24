@@ -1,4 +1,4 @@
-// The lively layer's primitives (docs/design/09-the-lively-layer.md, section 2; decision 0025): a sticker, a sticker chip,
+// The primitives of the game's look (docs/design/09-the-games-look.md, section 2; decision 0025): a sticker, a sticker chip,
 // the pressed yellow action, a pill, a card, a sheet with its handle, a person's name pill and the centred column. Each
 // carries a data attribute for tests and pictures and takes a className.
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -7,8 +7,8 @@ import { describe, expect, test, vi } from "vitest";
 import { say } from "../../words/text";
 import { CentredColumn, COLUMN_PX } from "./CentredColumn";
 import { Face, faceMark } from "./Face";
-import { LivelyCard } from "./LivelyCard";
-import { LivelySheet } from "./LivelySheet";
+import { LookCard } from "./LookCard";
+import { LookSheet } from "./LookSheet";
 import { Pill } from "./Pill";
 import { PressButton } from "./PressButton";
 import { Sticker } from "./Sticker";
@@ -114,13 +114,13 @@ describe("the pill and the card", () => {
 
   test("[world:colours-are-role-tokens] given content, when the card draws, then it is the white card with the 20 px radius and the edge, and passes its attributes on", () => {
     render(
-      <LivelyCard className="extra" data-job="job.developer">
+      <LookCard className="extra" data-job="job.developer">
         Junior developer
-      </LivelyCard>,
+      </LookCard>,
     );
-    const card = one("[data-lively-card]");
+    const card = one("[data-look-card]");
     expect(card.textContent).toBe("Junior developer");
-    expect(card.className).toContain("lively-card");
+    expect(card.className).toContain("look-card");
     expect(card.className).toContain("extra");
     expect(card.getAttribute("data-job")).toBe("job.developer");
   });
@@ -130,11 +130,11 @@ describe("the sheet", () => {
   test("[world:colours-are-role-tokens] given an open sheet, when it draws, then it rises in the sheet colour with its handle, its title and its line, and its close at the top right closes it (world:sheets-one-frame: the handle only drags)", () => {
     const change = vi.fn();
     render(
-      <LivelySheet open onOpenChange={change} title="Your study table" line="One leg shorter. Still works." picture={<Sticker emoji="📚" alt="Books" />} className="extra">
+      <LookSheet open onOpenChange={change} title="Your study table" line="One leg shorter. Still works." picture={<Sticker emoji="📚" alt="Books" />} className="extra">
         <p>Inside</p>
-      </LivelySheet>,
+      </LookSheet>,
     );
-    const sheet = one("[data-lively-sheet]");
+    const sheet = one("[data-look-sheet]");
     expect(sheet.className).toContain("motion-rise");
     expect(sheet.className).toContain("bg-sheet");
     expect(sheet.className).toContain("extra");
@@ -148,11 +148,11 @@ describe("the sheet", () => {
 
   test("[world:colours-are-role-tokens] given a closed sheet, then nothing of it is drawn", () => {
     render(
-      <LivelySheet open={false} onOpenChange={() => undefined} title="Hidden">
+      <LookSheet open={false} onOpenChange={() => undefined} title="Hidden">
         <p>Inside</p>
-      </LivelySheet>,
+      </LookSheet>,
     );
-    expect(document.querySelector("[data-lively-sheet]")).toBeNull();
+    expect(document.querySelector("[data-look-sheet]")).toBeNull();
   });
 });
 

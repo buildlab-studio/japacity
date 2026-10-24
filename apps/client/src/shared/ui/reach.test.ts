@@ -117,7 +117,7 @@ describe("focus, reach and size (world:reach-and-read)", () => {
   });
 
   test("[world:reach-and-read] given the client's source, then no text is set under 12 px (the development-only sheets aside)", () => {
-    const DEV_ONLY = new Set(["shared/tiles/TileSheet.tsx", "shared/ui/lively/LivelyPreview.tsx"]);
+    const DEV_ONLY = new Set(["shared/tiles/TileSheet.tsx", "shared/ui/look/LookPreview.tsx"]);
     const small: string[] = [];
     const walk = (dir: string): void => {
       for (const name of readdirSync(dir)) {

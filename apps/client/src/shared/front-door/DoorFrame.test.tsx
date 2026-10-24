@@ -3,7 +3,7 @@
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { SHEET_COLUMN_PX } from "../ui/lively/SheetColumn";
+import { SHEET_COLUMN_PX } from "../ui/look/SheetColumn";
 import { DoorFrame } from "./DoorFrame";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";

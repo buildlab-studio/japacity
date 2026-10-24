@@ -140,20 +140,13 @@ function contentAt(deps: Pick<ServerDeps, "contents">, segments: readonly Segmen
   return (segment === undefined ? null : contentNamed(deps, segment.content, segment.overlay)) ?? deps.contents.current;
 }
 
-/** The house part a logged payout carries, 0 when it has none; decision 0016 allows none, so the check raises any other. */
-function housePart(prize: object): number {
-  const { topUp } = prize as { topUp?: unknown };
-  return typeof topUp === "number" ? topUp : 0;
-}
-
 /**
  * lottery:money-report-checks-draws: checks every draw that closed on the day and has a result.
  * A `win` belongs to the draw its `lottery/pay` command names; a `ticket` to
  * the draw on sale at the tick its `lottery/buy` was stepped at. All are read
  * from the logs of the characters on the draw's ticket list. The `win` paid
- * must be what lottery:fixed-prizes-shared-jackpot gives the result, `pot-top-up` must be 0
- * (decision 0016), and the tickets taken must be the sales: the tickets sold
- * at the current price.
+ * must be what lottery:fixed-prizes-shared-jackpot gives the result, and the tickets taken
+ * must be the sales: the tickets sold at the current price.
  */
 export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]> {
   const alarms: Alarm[] = [];
@@ -163,7 +156,6 @@ export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]>
     if (result === null) continue;
     const holders = [...new Set((await deps.stores.world.tickets(draw)).map((ticket) => ticket.character))];
     let won = 0;
-    let house = 0;
     let sold = 0;
     for (const character of holders) {
       const held = await deps.stores.player.load(character);
@@ -173,7 +165,6 @@ export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]>
         const { command } = entry;
         if (command.type === "lottery/pay" && command.draw === draw) {
           won += command.prizes.reduce((sum, prize) => sum + prize.amount, 0);
-          house += command.prizes.reduce((sum, prize) => sum + housePart(prize), 0);
         }
         if (command.type === "lottery/buy" && entry.tick >= draw * TICKS_PER_DRAW && entry.tick < (draw + 1) * TICKS_PER_DRAW) {
           sold += command.tickets * contentAt(deps, held.segments, entry.v).tuning.lottery.ticket;
@@ -182,7 +173,6 @@ export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]>
     }
     const owed = prizesOwed(result.winners);
     if (won !== owed) alarms.push({ kind: "draw", day, draw, check: "win", total: won, limit: owed });
-    if (house !== 0) alarms.push({ kind: "draw", day, draw, check: "top-up", total: house, limit: 0 });
     const sales = result.count * deps.contents.current.tuning.lottery.ticket;
     if (sold !== sales) alarms.push({ kind: "draw", day, draw, check: "ticket", total: sold, limit: sales });
   }

@@ -91,7 +91,7 @@ The chance of a refusal starts at a base and moves with how strict the world is,
 
 ## The visa and the flight
 
-A grant moves the route to granted and japacity to 100. The decision day card opens over the world. That month the family house offers a send-off: a party, a quiet last dinner, or no time. Japa's next step is "Board the plane": the airport opens as the send-off scene (the queue, the counter, the gate), and Board the plane at the gate is what sends the flight. Flying needs the held-funds loan paid back, if one was taken, and the flight, ₦1,600,000 in naira, unless the employer pays it (the Gulf contract). Then the life carries on abroad: see [Abroad](./abroad.md).
+A grant moves the route to granted and japacity to 100. The decision day card opens over the world. That month the family house offers a send-off: a party, a quiet last dinner, or no time. Japa's next step is "Board the plane": the airport opens as the send-off scene (the queue, the counter, the gate), and Board the plane at the gate is what sends the flight. Flying needs the held-funds loan paid back, if one was taken, and the flight, ₦1,100,000 in naira, unless the employer pays it (the Gulf contract). Then the life carries on abroad: see [Abroad](./abroad.md).
 
 ::: details Exceptions
 - **A refusal.** The route goes back to known and its refusals go up by one. The health surcharge comes back at once; the deposit, less a £500 fee, two months later. The school's offer stands, so the deposit can be paid again. The reasons are recorded, most telling first: the funds, the interview, an earlier refusal, or credibility.

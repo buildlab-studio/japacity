@@ -2,7 +2,7 @@
 // that changes with it; then the front card's picture grows on a firm spring until it fills the frame and is the game's own
 // world (the family house turning), and the world shrinks back into the next card (the Bank counting) with a sticker chip
 // riding along. The night house grows out of the deck the same way, and the night shrinks into the seal for the name.
-// Ten seconds, built from the dress (design page 09) and the wide recordings already under apps/teaser/clips.
+// Ten seconds, built from the dress (docs/design/09-the-games-look.md) and the wide recordings already under apps/teaser/clips.
 import type { CSSProperties, ReactNode } from "react";
 import { AbsoluteFill, interpolate, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 

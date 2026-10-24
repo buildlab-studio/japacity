@@ -176,7 +176,7 @@ export const ROOMS = {
     ],
     seed: 9229,
   },
-  // London on the Lagos mold (design page 10 section 4): the big shop and the workplaces, each about 16 by 9 metres
+  // London, built as Lagos is (docs/design/10-london.md section 4): the big shop and the workplaces, each about 16 by 9 metres
   // seen down its length (world:place-is-one-screen, world:room-seen-down-its-length), the side wall on the right as the room abroad's, so one camera
   // recipe serves them all; the church's on the left, where its banner hangs behind the front. Plain London walls,
   // a pane window where the room has one.
@@ -284,7 +284,7 @@ export const ROOMS = {
     ],
     seed: 9406,
   },
-  // Calgary's library (design page 11 section 3): a reading room of about 16 by 9 metres seen down its length, the
+  // Calgary's library (docs/design/11-calgary-dubai-and-castel-volturno.md section 3): a reading room of about 16 by 9 metres seen down its length, the
   // side wall on the right as the London rooms', pale walls over a wood dado, tall pane windows on the back wall and a
   // notice board by the door.
   library: {

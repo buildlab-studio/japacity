@@ -215,7 +215,7 @@ describe("what he leaves behind", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-2", choice: "decline" }));
   });
 
-  test("[advice:agent-kind-drawn-on-offer] given his promise, when its card opens, then it shows the month he named as months away (world:top-band-is-lively-pill) and sends nothing", async () => {
+  test("[advice:agent-kind-drawn-on-offer] given his promise, when its card opens, then it shows the month he named as months away (world:top-band-is-a-pill) and sends nothing", async () => {
     const promise: Offer = { id: "offer-3", entry: PROMISE, openedMonth: 3, expiresMonth: 5, terms: { agent: AGENT }, signs: [], choices: allowed("wait") };
     const view = withOffers(promise);
     const { authority } = await renderWithView(sheet([PROMISE]), view);

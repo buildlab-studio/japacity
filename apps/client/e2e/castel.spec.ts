@@ -1,4 +1,4 @@
-// Castel Volturno on the mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace;
+// Castel Volturno, built as Lagos is, in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace;
 // place:rides-between-city-places, place:employer-shuttle-rides-free; streets:castel-volturno-by-hand): a life that took the road, played by a simulated
 // player, lands on the coast holding the farm's cash job. Italy has no pass, so the bus is paid each time: the van to the
 // fields asks nothing and the gangmaster's table says On shift, the van back to the roundabout asks nothing, the coast

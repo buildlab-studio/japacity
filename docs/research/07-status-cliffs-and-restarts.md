@@ -37,7 +37,7 @@ Source: [Home Office: mandatory refusal periods (re-entry bans), Part Suitabilit
 | Exclusion order | Barred for 1 year, or 5 years for misrepresentation |
 | Deportation order | Barred for good, unless an Authorization to Return to Canada is granted |
 
-The game models a removal from Canada as a 240-month (20-year) ban, since the real bar has no end date.
+The game models a removal from Canada as a 120-month (10-year) ban, since the real bar has no end date; after it, the first application into Canada asks the authorisation to return and the removal costs (route-gates:canada-return-asks-authorisation).
 
 Source: [Canada.ca: who needs an Authorization to Return to Canada](https://www.canada.ca/en/immigration-refugees-citizenship/services/admissibility-enforcement/authorization-return-canada/who-needs-authorization.html).
 

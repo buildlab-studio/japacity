@@ -58,7 +58,7 @@ function road(view: PlayerView, city: ReactNode = null) {
 }
 
 describe("the road's one panel", () => {
-  test("[world:top-band-is-lively-pill] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
+  test("[world:top-band-is-a-pill] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
     await road(onTheRoad([offer("offer-9", EXIT_OFFER, [ASK])]));
     expect(screen.getByRole("heading", { name: say("ui.road.month-done") })).toBeDefined();
     expect(document.body.textContent).not.toMatch(/Month \d+/);
@@ -96,6 +96,17 @@ describe("the road's one panel", () => {
     expect(screen.queryByText(words("line.offer.opened", { offer: "offer.mum-shop" }))).toBeNull();
     expect(screen.queryByText(words("line.news.delivered", { story: "news.era-calm", stage: "announced", forYou: 1 }))).toBeNull();
     expect(screen.queryByText(words("line.route.heard", { route: "route.canada-points" }))).toBeNull();
+  });
+});
+
+describe("waiting on the road", () => {
+  test("[turn:month-turns-on-empty-bank] given no turn banked on the road, when the player waits, then Wait is open and turn/end is sent", async () => {
+    const view = onTheRoad([RANSOM]);
+    const { authority } = await road({ ...view, turns: { ...view.turns, banked: 0 } });
+    const wait = screen.getByRole("button", { name: say("ui.road.wait") });
+    expect((wait as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(wait);
+    expect(authority.sent.filter((command) => command.type === "turn/end")).toHaveLength(1);
   });
 });
 

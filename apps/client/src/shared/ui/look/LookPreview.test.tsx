@@ -1,25 +1,25 @@
-// The lively layer's preview page (development only, `?lively` at the boot): every primitive in both paints with sample
+// The preview page of the game's look (development only, `?look` at the boot): every primitive in both paints with sample
 // words, to judge each one apart from the screens (decision 0025).
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { LivelyPreview } from "./LivelyPreview";
-import { livelyAsked } from "./preview";
+import { LookPreview } from "./LookPreview";
+import { lookAsked } from "./preview";
 // Registers Testing Library's cleanup for this file.
 import "../../testing/render";
 
-const PRIMITIVES = ["data-sticker", "data-sticker-chip", "data-press-button", "data-pill", "data-lively-card", "data-face", "data-lively-sheet"] as const;
+const PRIMITIVES = ["data-sticker", "data-sticker-chip", "data-press-button", "data-pill", "data-look-card", "data-face", "data-look-sheet"] as const;
 
-describe("the lively preview", () => {
-  test("[world:colours-are-role-tokens] given the address, when the boot asks, then ?lively opens the preview in a development build only", () => {
-    expect(livelyAsked("?lively", true)).toBe(true);
-    expect(livelyAsked("?clock=night&lively", true)).toBe(true);
-    expect(livelyAsked("", true)).toBe(false);
-    expect(livelyAsked("?lively", false)).toBe(false);
+describe("the look preview", () => {
+  test("[world:colours-are-role-tokens] given the address, when the boot asks, then ?look opens the preview in a development build only", () => {
+    expect(lookAsked("?look", true)).toBe(true);
+    expect(lookAsked("?clock=night&look", true)).toBe(true);
+    expect(lookAsked("", true)).toBe(false);
+    expect(lookAsked("?look", false)).toBe(false);
   });
 
   test("[world:colours-are-role-tokens] given the preview, when it draws, then each paint has a panel and each panel shows every primitive", () => {
-    render(<LivelyPreview />);
+    render(<LookPreview />);
     const panels = [...document.querySelectorAll<HTMLElement>("[data-preview-paint]")];
     expect(panels.map((panel) => panel.getAttribute("data-paint"))).toEqual(["day", "night"]);
     for (const panel of panels) {

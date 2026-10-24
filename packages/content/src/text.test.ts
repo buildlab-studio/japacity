@@ -21,7 +21,6 @@ const EN_DASH = "–";
 const REJECTION_CODES = [
   "stale",
   "clock-went-back",
-  "no-turns",
   "setpiece-open",
   "not-legal",
   "cannot-afford",

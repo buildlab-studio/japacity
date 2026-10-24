@@ -48,7 +48,7 @@ function loadAfresh(): void {
 
 /**
  * clock:envelopes-show-real-waits, development only: `?morning=now` on the address opens every sealed result at once and `?morning=off`
- * lets them wait for seven in Lagos again, so a tester on a phone needs no console.
+ * lets them wait for the game's own morning, so a tester on a phone needs no console.
  */
 function takeMorningSwitch(): void {
   if (!import.meta.env.DEV || typeof location === "undefined") return;

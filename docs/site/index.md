@@ -7,7 +7,7 @@ hero:
   tagline: A browser life-sim about leaving Nigeria. You live a Nigerian life a month at a time, in Lagos, and ways out appear as your life comes to match them.
   image:
     src: /pictures/dev-06-the-world.webp
-    alt: The family house seen whole from above on the first visit, the band showing the name, the part of the day, the age and the money, the home's card at the foot, and the round Map and Phone buttons
+    alt: The family house seen whole from above on the first visit, the band showing the name, the part of the day, the age, the place and the money, a line from the brother, and the round Map and Phone buttons with their hints
   actions:
     - theme: brand
       text: How it plays

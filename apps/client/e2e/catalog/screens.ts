@@ -111,7 +111,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "place-the-room-night", what: "The room abroad, by night" },
   { key: "place-peckham-day", what: "Peckham, the street abroad, by day" },
   { key: "place-peckham-night", what: "Peckham by night" },
-  // London on the Lagos mold (world:ride-abroad-and-workplace): Rye Lane, the station and the workplaces with a door.
+  // London, built as Lagos is (world:ride-abroad-and-workplace): Rye Lane, the station and the workplaces with a door.
   { key: "place-rye-lane-day", what: "Rye Lane: the chicken shop, the Nigerian shop, the barber, the clothes shop, the transfer, the pub, by day" },
   { key: "place-rye-lane-night", what: "Rye Lane by night" },
   { key: "place-peckham-rye-station-day", what: "Peckham Rye station: the ticket machine, the platform, the courier's bike, by day" },
@@ -126,7 +126,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "london-fan", what: "A London thing's fan: Rye Lane's chicken shop" },
   { key: "london-colleague", what: "A colleague at the care home's tea point says a line" },
   { key: "london-pass", what: "The bus pass bought at the station's ticket machine" },
-  // Dubai on the mold (world:ride-abroad-and-workplace): a contract life played to Dubai by a simulated player.
+  // Dubai, built as Lagos is (world:ride-abroad-and-workplace): a contract life played to Dubai by a simulated player.
   { key: "place-deira-day", what: "Deira, Dubai's street: the exchange house, the African foods shop, the cafeteria, the typing centre, the barber" },
   { key: "place-deira-night", what: "Deira by night" },
   { key: "place-naif-day", what: "Naif: the souq's stall, the tailor, the laundry" },
@@ -138,7 +138,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "place-the-room-uae-day", what: "The bed space at the camp" },
   { key: "dubai-pass", what: "The zone pass bought at Union station's Nol machine" },
   { key: "dubai-colleague", what: "A colleague at the site's water cooler says a line" },
-  // Castel Volturno on the mold: a life that took the road, played to the coast by a simulated player.
+  // Castel Volturno, built as Lagos is: a life that took the road, played to the coast by a simulated player.
   { key: "place-castel-volturno-day", what: "Castel Volturno's roundabout: the vans' corner, the bar, the African shop, the call shop" },
   { key: "place-castel-volturno-night", what: "The roundabout by night" },
   { key: "place-via-domitiana-day", what: "Via Domitiana: the stop, the pickup point, the Nigerian shop, the barber, the stall" },
@@ -147,7 +147,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "place-church-italy-day", what: "The church in Castel Volturno" },
   { key: "place-the-room-italy-day", what: "The room in a shared flat on the Domitiana" },
   { key: "castel-colleague", what: "A day labourer at the fields' tap says a line" },
-  // Calgary on the mold: the canada player's developer, landed and on the warehouse job.
+  // Calgary, built as Lagos is: the canada player's developer, landed and on the warehouse job.
   { key: "place-calgary-north-east-day", what: "The strip mall in north-east Calgary: the coffee shop, the African store and its counter, the barber" },
   { key: "place-ctrain-station-canada-day", what: "The CTrain station: the ticket machine, the platform" },
   { key: "place-library-canada-day", what: "The library: the course desk, the shelves" },

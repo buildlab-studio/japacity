@@ -1,4 +1,4 @@
-// The mission card and the chapter close (docs/design/09-the-lively-layer.md section 4): a
+// The mission card and the chapter close (docs/design/09-the-games-look.md section 4): a
 // brief handed by its person in their voice, the things as
 // sticker tiles with the place under each, the reward as picture chips, the next brief faint, one button "Let's go"; and
 // at the close the same card with every tick, the stamp landing with a thud, confetti, and the next briefs as picture cards.
@@ -6,9 +6,9 @@ import { useEffect } from "react";
 
 import { cue } from "../../../shared/sound/cues";
 import { Tile } from "../../../shared/tiles/Tile";
-import { CentredColumn } from "../../../shared/ui/lively/CentredColumn";
-import { Face } from "../../../shared/ui/lively/Face";
-import { PressButton } from "../../../shared/ui/lively/PressButton";
+import { CentredColumn } from "../../../shared/ui/look/CentredColumn";
+import { Face } from "../../../shared/ui/look/Face";
+import { PressButton } from "../../../shared/ui/look/PressButton";
 import { say } from "../../../shared/words/text";
 import type { Brief, BriefItem } from "./brief";
 
@@ -183,7 +183,7 @@ export function ChapterClose({ brief, line, next, after, onGo }: { brief: Brief;
         {next === null ? null : (
           <>
             <p className="px-1 text-[16px] font-bold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.5)]">{say("ui.brief.next-road")}</p>
-            <div className="lively-card rise flex items-center gap-3 p-3" data-brief-next-card={next.chapter}>
+            <div className="look-card rise flex items-center gap-3 p-3" data-brief-next-card={next.chapter}>
               <span className="flex size-[72px] shrink-0 items-center justify-center rounded-[16px] bg-[var(--soft)]">
                 <span className="sticker-cut" style={{ rotate: "-5deg" }}>
                   <Tile of={next.picture} size={48} />
@@ -202,7 +202,7 @@ export function ChapterClose({ brief, line, next, after, onGo }: { brief: Brief;
               </div>
             </div>
             {after === null ? null : (
-              <div className="lively-card flex items-center gap-3 p-3 opacity-60" data-brief-after={after.chapter}>
+              <div className="look-card flex items-center gap-3 p-3 opacity-60" data-brief-after={after.chapter}>
                 <p className="text-[18px] font-bold">{say("ui.brief.then", { title: after.title })}</p>
               </div>
             )}

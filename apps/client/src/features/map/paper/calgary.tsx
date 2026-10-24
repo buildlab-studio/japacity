@@ -1,4 +1,4 @@
-// Calgary as a painted city (world:painted-maps-abroad; design page 11 sections 2 and 6): the north-east
+// Calgary as a painted city (world:painted-maps-abroad; docs/design/11-calgary-dubai-and-castel-volturno.md sections 2 and 6): the north-east
 // on paper, the wide grid of its avenues and trails, the CTrain line from the north-east down to downtown, the airport to
 // the north, the Bow along the south with downtown across it, three neighbourhood cards, every built place of Canada as
 // its sticker and the home sticker at the country's home spot from content. Its own chunk, loaded only when the map shows
@@ -27,7 +27,7 @@ export const CALGARY_PAPER = { width: 680, height: 900 } as const;
 
 const { at, ring, label, decor } = paperPen(CALGARY_FIT);
 
-/** The home's spot on the map, from content's country table: the room abroad has no position of its own (design page 11 section 3). */
+/** The home's spot on the map, from content's country table: the room abroad has no position of its own (docs/design/11-calgary-dubai-and-castel-volturno.md section 3). */
 export const CALGARY_HOME_SPOT: Position = content.country[CANADA]?.homeSpot ?? { latE3: 51088, lonE3: -113955 };
 
 /** The Bow's two banks, from the west past downtown's north side, then bending south-east toward Inglewood. */

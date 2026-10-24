@@ -106,15 +106,11 @@ export type Reason =
   | "cash-work"
   | "tax"
   | "agent-debt"
-  | "ransom"
   | "fare"
   /** The UAE's overstay fine, paid with the fare home (status:uae-fine-accrues, decision 0028), a sink. */
   | "fine"
-  | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
-  /** Decision 0016: credited by nothing, its ceiling in the money report zero. Kept so earlier ledger rows and saves still read. */
-  | "pot-top-up"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
   /** A thing bought from the market for the home, a sink; selling it back comes in under `sale`. */
@@ -812,7 +808,7 @@ export interface CounterDef {
   source: "server" | "client";
 }
 
-/** The fixed emote set of a player's own figure (design page 09, section 5); no screen uses it. */
+/** The fixed emote set of a player's own figure (docs/design/09-the-games-look.md, section 5); no screen uses it. */
 export type Emote = "wave" | "clap" | "sit" | "dance";
 
 export interface VarEntry {
@@ -1393,7 +1389,7 @@ export interface Tuning {
   /** docs/rules/analytics.md Numbers. */
   analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
-  city: { crowdLow: number; crowdHigh: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; walkMmPerS: number; stopShortMm: number; roam: boolean; flyover: boolean; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number; lonMetresPerE3: number; abroad: Record<Id<"country">, CountryRides> } };
+  city: { crowdLow: number; crowdHigh: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; walkMmPerS: number; stopShortMm: number; roam: boolean; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; farePerKmKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number; walkMetres: number; lonMetresPerE3: number; abroad: Record<Id<"country">, CountryRides> } };
   /** The people around the character (docs/rules/person.md Numbers). */
   people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
@@ -1452,7 +1448,7 @@ export interface CountryRides {
   /** The ways the month's pass makes ask nothing (place:country-pass-covers-ways): the UK the bus, Canada and the UAE the bus and the train, Italy none. */
   passWays: AbroadWay[];
   lonMetresPerE3: number;
-  /** Metres a minute on foot in that country (design page 11 section 4: the UAE 60, elsewhere 80). */
+  /** Metres a minute on foot in that country (docs/design/11-calgary-dubai-and-castel-volturno.md section 4: the UAE 60, elsewhere 80). */
   walkMetresPerMinute: number;
 }
 
@@ -2136,7 +2132,7 @@ export type Command = { basedOn: number } & (
   | { type: "wallet/remit"; currency: ForeignCurrency; amount: number; channel: "app" | "bank" | "informal" }
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
-  /** `scheme`: ask the returns service (place:returns-service-takes-you-home, decision 0028). Missing: the return as before. */
+  /** `scheme`: ask the returns service (place:returns-service-takes-you-home, decision 0028). Missing or false: home at the character's own fare, or the assisted return when no status is held and nothing covers the fare (place:return-home-paid-or-assisted). */
   | { type: "return/home"; scheme?: boolean }
   /** A ride between two places of the city (place:rides-between-city-places, world:ride-sheet-shows-fares, decision 0017). */
   | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: RideWay }
@@ -2194,7 +2190,6 @@ export type CommandType = Command["type"];
 export type RejectionCode =
   | "stale"
   | "clock-went-back"
-  | "no-turns"
   | "setpiece-open"
   | "not-legal"
   | "cannot-afford"

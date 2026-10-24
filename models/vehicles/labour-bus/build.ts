@@ -1,5 +1,5 @@
 // A labour bus of the kind that carries workers between the camps and the sites (city.md
-// place.deira; design page 11: the employer's shuttle to the site, place:employer-shuttle-rides-free): a long white coach
+// place.deira; docs/design/11-calgary-dubai-and-castel-volturno.md: the employer's shuttle to the site, place:employer-shuttle-rides-free): a long white coach
 // body with a row of small windows, a roof hatch, the door at the front kerb side, a plain blue band;
 // no operator's name or colours (assets:no-real-brands-on-assets). Built to be sat in for the ride (world:ride-abroad-and-workplace),
 // as London's bus is: the walls, the floor and the roof are thin slabs, each

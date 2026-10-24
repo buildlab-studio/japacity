@@ -111,7 +111,7 @@ export function isPortrayed(name: string): boolean {
   return DOOR_LOOKS.has(name);
 }
 
-/** The kinds of model a picture tile is cut from (design page 09, the pictures): never a person, whose tile is a name pill. */
+/** The kinds of model a picture tile is cut from (docs/design/09-the-games-look.md, the pictures): never a person, whose tile is a name pill. */
 const TILED_KINDS = /^(prop|shopfront|vehicle|landmark|building)_/;
 /** Models no player is shown as a thing: the rooms' and the homes' shells, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
 const UNTILED = /^(building_room_|building_home-|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
@@ -638,7 +638,7 @@ ENTRIES.push(
   homePiece("prop_tv", "shared", things.buildTv),
 );
 
-/** London on the Lagos mold (design page 10): the bus and the train for the ride abroad, the frontages and the rooms of its places. */
+/** London, built as Lagos is (docs/design/10-london.md): the bus and the train for the ride abroad, the frontages and the rooms of its places. */
 const LONDON = "The makers, written as code from the kit";
 ENTRIES.push(
   { name: "vehicle_london-bus", file: "shared/vehicle/vehicle_london-bus.glb", place: "shared", source: "models/vehicles/london-bus", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_london-bus", buildLondonBus()) },
@@ -686,7 +686,7 @@ ENTRIES.push(
   placePiece("prop_altar", "church-uk", london.buildAltar),
 );
 
-/** Castel Volturno on the mold (design page 11): the coast road's bus and the gangmaster's van for the ride, the roundabout, the Domitiana and the fields. */
+/** Castel Volturno, built as Lagos is (docs/design/11-calgary-dubai-and-castel-volturno.md): the coast road's bus and the gangmaster's van for the ride, the roundabout, the Domitiana and the fields. */
 const ITALY = "The makers, written as code from the kit";
 /** Every dish at the roundabout and on the Domitiana faces one way (assets:dishes-face-one-satellite); their blocks all stand square to the road. */
 const CASTEL_DISH_YAW = 2.1;
@@ -723,7 +723,7 @@ ENTRIES.push(
   italyPiece("prop_shade-tree", "farm-italy", "shade-tree", farm.buildShadeTree),
 );
 
-/** Calgary and Dubai on the mold (design page 11): the vehicles for their rides, the frontages and the library. */
+/** Calgary and Dubai, built as Lagos is (docs/design/11-calgary-dubai-and-castel-volturno.md): the vehicles for their rides, the frontages and the library. */
 const NORTH = "The makers, written as code from the kit";
 ENTRIES.push(
   { name: "vehicle_calgary-bus", file: "shared/vehicle/vehicle_calgary-bus.glb", place: "shared", source: "models/vehicles/calgary-bus", author: NORTH, views: [...ELEVATIONS, "phone"], build: () => staticModel("vehicle_calgary-bus", buildCalgaryBus()) },

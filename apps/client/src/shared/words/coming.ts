@@ -1,4 +1,4 @@
-// What is coming with a month to it (world:top-band-is-lively-pill): the soonest under the band, and
+// What is coming with a month to it (world:top-band-is-a-pill): the soonest under the band, and
 // the whole list from the chip, soonest first, each as months away and never as a month number. Only
 // dates the player can act on or is waiting on: an ask's deadline, a paper on its way, a visa decision,
 // the next birthday, and a route's age limit once it is near. In shared/ so the

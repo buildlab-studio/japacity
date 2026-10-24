@@ -1,4 +1,4 @@
-// Bills in a month no instalment is taken (world:phone-holds-what-phones-hold, world:top-band-is-lively-pill): tuition says
+// Bills in a month no instalment is taken (world:phone-holds-what-phones-hold, world:top-band-is-a-pill): tuition says
 // when the next one comes, as months away, never "Taken at the month's end." in a month none is taken.
 import { fireEvent, render } from "@testing-library/react";
 import { setPockets } from "@japacity/sim/testing";

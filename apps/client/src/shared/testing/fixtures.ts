@@ -348,9 +348,10 @@ export function newGame(scenario: Id<"scenario"> = "scenario.graduate", seed?: s
 }
 
 /**
- * The content with the living at home charged whole as the month turns, as it was before decision 0013 (home:living-by-hand
- * leaves it all to be lived by hand). For the screens that tell such a charge, its relief or its miss, which still
- * stand for whatever is charged; the simulation's own relief tests charge it the same way.
+ * The content with none of the living at home lived by hand (`livingByHandBp` 0), so the whole of it is charged as the
+ * month turns, where home:living-by-hand (decision 0013) leaves it all to be lived by hand. For the screens that tell
+ * such a charge, its relief or its miss, which stand for whatever is charged; the simulation's own relief tests charge
+ * it the same way.
  */
 export const chargedLivingContent: Content = { ...content, tuning: { ...content.tuning, home: { ...content.tuning.home, livingByHandBp: 0 } } };
 

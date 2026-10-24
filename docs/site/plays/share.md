@@ -94,4 +94,4 @@ Every card, the terms, the privacy notice and the guides link to one page, `/off
 - [The road](../../rules/road.md): the real-story card (road:road-earns-nothing, road:real-story-card-after-chain).
 - [Money](../../rules/wallet.md): the months kept that the Careful Saver reads (wallet:months-kept-counted).
 - [People](../../rules/person.md): no computer character shown as a player (person:computers-never-shown-as-players).
-- Decision 0024, the japa type, in `docs/decisions/`.
+- The japa type: decision 0024, `docs/decisions/0024-the-japa-type.md`.

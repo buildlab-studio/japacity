@@ -40,8 +40,8 @@ describe("the person's own colours, kept", () => {
   });
 });
 
-describe("a kept look the game no longer knows", () => {
-  test("[prologue:front-door-builds-a-person] given a person kept with an old chr_ look, or any look the game does not ship, when it is read back, then only the look is dropped: the name, the archetype, the colours and the photo stand", () => {
+describe("a kept look outside the shipped looks", () => {
+  test("[prologue:front-door-builds-a-person] given a person kept with a chr_ look, or any look the game does not ship, when it is read back, then only the look is dropped: the name, the archetype, the colours and the photo stand", () => {
     const storage = memoryStorage();
     for (const look of ["chr_ada", "person_nobody", ""]) {
       storage.setItem(PERSON_KEY, JSON.stringify({ look, name: "Bola", archetype: "nurse", style: { top: "wine" }, photo: PHOTO, photoPx: 258 }));
@@ -68,7 +68,7 @@ describe("the person kept with the character", () => {
     expect(personToSend(storage)).toBeNull();
   });
 
-  test("[account:person-kept-with-character] given what the server sends, when it is taken onto the phone, then anything not a person is refused, a photo it carries is never kept, and a look the game no longer ships drops alone", () => {
+  test("[account:person-kept-with-character] given what the server sends, when it is taken onto the phone, then anything not a person is refused, a photo it carries is never kept, and a look outside the shipped looks drops alone", () => {
     const storage = memoryStorage();
     expect(adoptPerson({ look: "person_ada" }, storage)).toBe(false);
     expect(readPerson(storage)).toBeNull();

@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 async function openPhone(view: PlayerView, extra: { talk?: PairTalk; onClose?: () => void } = {}) {
-  // The shell hands the phone its Calendar (world:top-band-is-lively-pill), as App does; the phone knows only that it is a screen.
+  // The shell hands the phone its Calendar (world:top-band-is-a-pill), as App does; the phone knows only that it is a screen.
   return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} calendar={(opening) => <div data-phone-app="calendar" data-opening={opening ?? ""} />} />, view);
 }
 
@@ -374,7 +374,7 @@ describe("settings", () => {
 });
 
 describe("the brief's dot on Japa", () => {
-  test("[world:phone-rises-over-scene] [world:thumb-buttons-carry-dots] given a brief handed (design page 09 section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
+  test("[world:phone-rises-over-scene] [world:thumb-buttons-carry-dots] given a brief handed (docs/design/09-the-games-look.md section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
     const view = engineView();
     expect(waitingOf(marksOf(view), {}).japa).toBe(false);
     handBrief(view.scenario, "chapter.find-your-feet");

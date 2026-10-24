@@ -81,7 +81,7 @@ export function monthEnding(raw: number): number {
   return playerMonth(raw - 1);
 }
 
-/** The real date for the phone's wallpaper and a slip's reference, since the world runs on the real calendar (world:top-band-is-lively-pill). */
+/** The real date for the phone's wallpaper and a slip's reference, since the world runs on the real calendar (world:top-band-is-a-pill). */
 export function todayWords(now: Date = new Date()): string {
   // The day in words as the lock screen says it ("Tuesday 13 October"), the British order Nigeria writes dates in.
   return new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "numeric", month: "long" }).format(now);

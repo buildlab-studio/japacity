@@ -1,4 +1,4 @@
-// The Calendar app (world:top-band-is-lively-pill, world:month-acts-carry-on, world:phone-rises-over-scene; turn:free-slots-per-month, turn:month-lived-in-half-days;
+// The Calendar app (world:top-band-is-a-pill, world:month-acts-carry-on, world:phone-rises-over-scene; turn:free-slots-per-month, turn:month-lived-in-half-days;
 // decision 0011): the month on the phone, in order, with the job, the things started carrying on until they
 // are stopped, the chores done and what they saved, and what is coming opening where it is dealt with. The month turns
 // when it is lived, so the Calendar holds no plan to fill, no pages, no Next month and no Until news.
@@ -222,7 +222,7 @@ describe("the Calendar's other sections", () => {
     expect(passWords(engineView("scenario.graduate"))).toBeNull();
   });
 
-  test("[world:top-band-is-lively-pill] [world:phone-holds-what-phones-hold] given what is coming, when a paper on its way or the room's rent is tapped in the Calendar, then Papers or Bills opens; an ask names where it is answered", async () => {
+  test("[world:top-band-is-a-pill] [world:phone-holds-what-phones-hold] given what is coming, when a paper on its way or the room's rent is tapped in the Calendar, then Papers or Bills opens; an ask names where it is answered", async () => {
     const openApp = vi.fn();
     const rich = richView();
     const view = {
@@ -245,7 +245,7 @@ describe("the Calendar's other sections", () => {
     expect(document.querySelector("[data-calendar='coming']")).not.toBeNull();
   });
 
-  test("[world:top-band-is-lively-pill] given a burial in the village to answer next month, when the Calendar shows what is coming, then its row says the months away and where it is attended", async () => {
+  test("[world:top-band-is-a-pill] given a burial in the village to answer next month, when the Calendar shows what is coming, then its row says the months away and where it is attended", async () => {
     const rich = richView();
     const [ask] = rich.offers;
     if (ask === undefined) throw new Error("No ask in the rich view.");
@@ -257,7 +257,7 @@ describe("the Calendar's other sections", () => {
     expect(row?.querySelector("[data-coming-note]")?.textContent).toBe("In the village");
   });
 
-  test("[world:top-band-is-lively-pill] given the phone asked to open the Calendar, when its opening is read, then only its coming list is a place to open on; anything else opens the month as it is", () => {
+  test("[world:top-band-is-a-pill] given the phone asked to open the Calendar, when its opening is read, then only its coming list is a place to open on; anything else opens the month as it is", () => {
     expect(calendarOpening("coming")).toBe("coming");
     expect(calendarOpening("teach")).toBeNull();
     expect(calendarOpening("send")).toBeNull();

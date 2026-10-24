@@ -121,7 +121,7 @@ export const tuning: Tuning = {
 
   // place.md
   place: { brokeLine: naira(500000), fareFromNaira: true },
-  // streets.md: the hidden places' life (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:street-shopping-abroad, streets:street-finds-abroad, streets:peckham-talks-like-lagos and streets:stadium-morning-run).
+  // streets.md: the life of the city's other places (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:street-shopping-abroad, streets:street-finds-abroad, streets:peckham-talks-like-lagos and streets:stadium-morning-run).
   street: { phonePrice: naira(45000), phoneMood: 6, phoneNetwork: 3, salesPay: naira(70000), salesHireBp: 6000, apprenticeTech: 4, apprenticeUntil: 60, theftBp: 2000, theftNaira: naira(5000), mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
   // Things shipped home and collected at the cargo office on Bode Thomas Street (offer.parcel.data.ts).
   // The handling is the clerk's charge; a laptop lifts the mood, clothes stand you up a little at an interview.
@@ -260,17 +260,17 @@ export const tuning: Tuning = {
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
   city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 40, maxPixelRatio: 2, desktopMinWidth: 1024, walkMmPerS: 1400, stopShortMm: 300,
-    // world.md: nothing roams and there is no fly-over (world:nothing-roams, world:map-is-painted-lagos); the rides' fares in kobo and pace, and how far a walk goes (world:ride-sheet-shows-fares, place:rides-between-city-places: beyond it a fare is the only way).
-    roam: false, flyover: false,
+    // world.md: nothing roams (world:nothing-roams); the rides' fares in kobo and pace, and how far a walk goes (world:ride-sheet-shows-fares, place:rides-between-city-places: beyond it a fare is the only way).
+    roam: false,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,
       // place:rides-between-city-places: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
       lonMetresPerE3: 111,
-      // place:rides-between-city-places and place:country-pass-covers-ways (decision 0017, design page 10 section 5): each
+      // place:rides-between-city-places and place:country-pass-covers-ways (decision 0017, docs/design/10-london.md section 5): each
       // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
       // (place:country-pass-covers-ways, decision 0017), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
       // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
-      // design page 11 section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
+      // docs/design/11-calgary-dubai-and-castel-volturno.md section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
       // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
       // slower walk in the heat; the coast road's bus at one flat fare, and no train, taxi or pass in Castel Volturno.
       abroad: {

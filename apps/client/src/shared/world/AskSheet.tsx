@@ -8,7 +8,7 @@ import { type CSSProperties, type ReactNode, useState } from "react";
 
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
-import { StickerChip } from "../ui/lively/StickerChip";
+import { StickerChip } from "../ui/look/StickerChip";
 import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
 import { say } from "../words/text";
@@ -146,9 +146,9 @@ function OtherWay({ other, sure, onSure }: { other: NonNullable<Ask["other"]>; s
 function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMoney: AskSheetProps["formatMoney"]; icon: AskSheetProps["icon"] }) {
   const [sure, setSure] = useState(false);
   return (
-    // The lively card (docs/design/09-the-lively-layer.md section 2): the sheet's pale sky with its handle, the picture on a
+    // The card of the game's look (docs/design/09-the-games-look.md section 2): the sheet's pale sky with its handle, the picture on a
     // soft tile, a small line for who and where, the title of a few words; navy at night.
-    <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
+    <div className="rise mx-auto w-full max-w-[430px] overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-look-frame>
       <SheetHandle />
       <div className="relative flex items-center gap-3 px-4 pt-1 pr-14 pb-1">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-plain text-text">{icon?.(ask.icon)}</div>

@@ -42,7 +42,7 @@ const ALARMS: AlarmsReply = {
   ],
 };
 
-const REJECTIONS: RejectionsReply = { ok: true, counts: { stale: 41, "no-turns": 17, "rate-limited": 3 } };
+const REJECTIONS: RejectionsReply = { ok: true, counts: { stale: 41, "setpiece-open": 17, "rate-limited": 3 } };
 
 export const ROLLBACK: RollbackCheck = {
   ok: true,

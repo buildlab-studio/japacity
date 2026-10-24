@@ -1,11 +1,18 @@
-# Calgary, Dubai and Castel Volturno on the mold
+# Calgary, Dubai and Castel Volturno
 
-> The three countries beside London, each giving players the glimpse of the abroad life they look toward. It rests on `10-london-on-the-lagos-mold.md` (the mold: a painted map, rides paid at the stop, food bought and cooked, a workplace with a door) and changes nothing of the rules of money, visas, jobs and the family. Each country has what London has, cut to its size: fewer places, its own ways, its own staple.
-> The game carries the three countries as this page draws them: the ways with `passWays` and `shuttle` (decision 0017), the places, the acts, the phone as each country's upkeep, the three painted maps (`apps/client/src/features/map/paper/calgary.tsx`, `dubai.tsx`, `castel.tsx`) and the rides in each country's vehicles.
+**Context and scope.** The three countries beside the UK as the player lives them: Canada's Calgary on the points, spouse and accompanying routes, the UAE's Dubai on the Gulf contract, and Italy's Castel Volturno at the end of the road, the journey overland and by sea (`../rules/road.md`). Each is drawn as London is (`10-london.md`): a painted map, rides paid at the stop, food bought and cooked, a workplace with a door. The code is the ways with `passWays` and `shuttle` (decision 0017), the places, the acts, the three painted maps (`apps/client/src/features/map/paper/calgary.tsx`, `dubai.tsx`, `castel.tsx`) and the rides in each country's vehicles. The rules are world:painted-maps-abroad, world:ride-abroad-and-workplace, streets:calgary-life-by-hand, streets:dubai-life-by-hand, streets:castel-volturno-by-hand, place:country-pass-covers-ways and place:employer-shuttle-rides-free.
+
+**Goals.**
+
+- Each country gives players its own glimpse of the life abroad they look toward: the cut of its days and its money that tells what that life is like.
+- Each country has what London has, cut to its size: fewer places, its own ways, its own staple vehicle.
+- What a country shares with London is London's scene under the country's own entry, so only what is that country's has models of its own.
+
+**Non-goals.** Any change to the rules of money, visas, jobs and the family; a driving licence or a test sat in Canada or the UAE; a train, a taxi or a pass in Castel Volturno.
 
 ## 1. The decision in one line
 
-Each country is lived on London's mold with its own glimpse: Calgary is the cold, the CTrain and a strip mall with an African store; Dubai is the heat, the labour bus at dawn, the camp and the exchange house; Castel Volturno is the roundabout at dawn, the van to the fields and the bus on the coast road. The interiors a country shares with London (a care home, a warehouse, an office, a big shop, a church) reuse London's scenes under the country's own entry, so only what is that country's has models of its own.
+Each country is lived as London is, with its own glimpse: Calgary is the cold, the CTrain and a strip mall with an African store; Dubai is the heat, the labour bus at dawn, the camp and the exchange house; Castel Volturno is the roundabout at dawn, the van to the fields and the bus on the coast road. The interiors a country shares with London (a care home, a warehouse, an office, a big shop, a church) reuse London's scenes under the country's own entry, so only what is that country's has models of its own.
 
 ## 2. What a player sees
 
@@ -17,7 +24,7 @@ Each country is lived on London's mold with its own glimpse: Calgary is the cold
 
 ## 3. The places
 
-Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up spots marked. A place with `assets` named reuses that scene under its own entry (city:places-stage-their-acts: a country's own place stages what it stages). No `place.workplace-abroad` or `place.test-centre-abroad` exists: the places below stage those acts.
+Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up spots marked. A place with `assets` named reuses that scene under its own entry (city:places-stage-their-acts: a country's own place stages what it stages). The room's bag is the bag by its door (world:japacity-bag-by-door), where the way home and December's flight are taken. The find is a street find, something interesting seen on the street that the player may stop and look at (`offer.street-find-canada`, `-uae`, `-italy`).
 
 ### Calgary (ten stops)
 
@@ -32,7 +39,6 @@ Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up 
 | `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-canada-professional`), the glass office (`activity.job-canada-developer`), the kitchen |
 | `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-canada`), the shelves, the notice |
 | `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-canada`), the hall (the people a life can meet, world:nobody-picked-from-list) |
-| `place.registry-canada` | The registry | not in content: `activity.driving-test` is the UK's alone (car:licence-and-driving-test), and no licence act reaches Canada | | | |
 | `place.calgary-airport` | Calgary International Airport | the airport | 51122, -114014, on the paper | interior | the arrival; December's flight and the way home stay on the room's bag |
 
 ### Dubai (seven stops)
@@ -45,10 +51,9 @@ Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up 
 | `place.metro-station-uae` | Union station | its own scene | 25266, 55312 | exterior | the Nol machine (`activity.transit-pass-uae`), the platform (the metro's stop) |
 | `place.big-shop-uae` | The hypermarket | on the scene `big-shop-uk` | 25265, 55320 (made up, Al Rigga) | interior | the trolley (`activity.weekly-shop-uae`) |
 | `place.site-uae` | The site | its own scene; `shuttle: true` | 25186, 55263 (made up, the towers across the creek) | exterior | the guard's post (`activity.job-gulf-guard`), the cleaner's trolley (`activity.job-gulf-cleaner`), the rota board (`activity.overtime`), the labour bus at the gate, the water cooler (a colleague's line) |
-| `place.test-centre-uae` | The typing centre's test room | not in content: no act abroad is a test in Dubai | | | |
 | `place.dubai-airport` | Dubai International Airport | the airport | 25252, 55367, on the paper | interior | the arrival; December's flight and the way home stay on the room's bag |
 
-The UAE has no test centre: the Gulf route sits no test there.
+The UAE has no test centre: the Gulf route sits no test there. Canada has no registry: the driving test is the UK's alone (car:licence-and-driving-test).
 
 ### Castel Volturno (seven stops)
 
@@ -64,7 +69,7 @@ The UAE has no test centre: the Gulf route sits no test there.
 
 ## 4. The ways and the fares
 
-Each in the country's smallest unit, rounded up to its step; 2025 figures, rounded. The pass covers the ways the country names (`passWays`), bought once a month at the station's machine with the reason `fare` (place:country-pass-covers-ways). A place marked `shuttle` is reached by the employer's bus for nothing on the `bus` way, the fare pill saying so (place:employer-shuttle-rides-free): the labour bus to the site, the gangmaster's van to the fields.
+Each in the country's smallest unit, rounded up to its step; 2025 figures, rounded. The pass covers the ways the country names (`passWays`), bought once a month at the station's machine with the reason `fare` (place:country-pass-covers-ways). A place marked `shuttle` (a place the employer's own transport serves) is reached by the employer's bus for nothing on the `bus` way, the fare pill saying so (place:employer-shuttle-rides-free): the labour bus to the site, the gangmaster's van to the fields.
 
 ### Calgary
 
@@ -76,7 +81,7 @@ Each in the country's smallest unit, rounded up to its step; 2025 figures, round
 | Walk | nothing | nothing | 80 m a minute | Within `walkMetres`; home always |
 | The transit pass | C$118 a month | | | `activity.transit-pass-canada`, the station's machine; covers bus and train |
 
-Step 5 cents. `lonMetresPerE3` 71.
+Step 5 cents. `lonMetresPerE3` 71: a thousandth of a degree of longitude is 71 metres at Calgary's latitude, which sets walking distances on its map.
 
 ### Dubai
 
@@ -99,11 +104,11 @@ Step 25 fils. `lonMetresPerE3` 100.
 | Walk | nothing | nothing | 80 m a minute | |
 | The van | nothing | | | `place.farm-italy` is `shuttle`: the bus way to it asks nothing, "€0, the van" |
 
-No train, no taxi, no pass. Step 5 cents. `lonMetresPerE3` 84. Naples airport is reached by bus at the flat fare (the design's airport on an inset keeps its stop reachable; the December flight and the return stay on the bag).
+No train, no taxi, no pass. Step 5 cents. `lonMetresPerE3` 84. Naples airport, on an inset, is reached by bus at the flat fare; the December flight and the return are taken at the bag.
 
 ## 5. The money of a month, by hand
 
-Priced now-acts in the country's money, each spending its time (turn:month-lived-in-half-days), repeating unless said, the body moving as quality:body-belly-and-energy says; content in `packages/content/src/activity/activity.calgary.data.ts`, `activity.dubai.data.ts` and `activity.castel.data.ts` (streets:calgary-life-by-hand, streets:dubai-life-by-hand, streets:castel-volturno-by-hand). The upkeep of each country is the prepaid phone alone (abroad-money:arrival-opens-upkeep-and-room); the rent is as `../rules/abroad-money.md` sets it.
+Priced acts done on the spot (now-acts) in the country's money, each spending its time (turn:month-lived-in-half-days), repeating unless said, the body moving as quality:body-belly-and-energy says; content in `packages/content/src/activity/activity.calgary.data.ts`, `activity.dubai.data.ts` and `activity.castel.data.ts` (streets:calgary-life-by-hand, streets:dubai-life-by-hand, streets:castel-volturno-by-hand). The upkeep of each country is the prepaid phone alone (abroad-money:arrival-opens-upkeep-and-room); the rent is as `../rules/abroad-money.md` sets it.
 
 ### Calgary
 
@@ -160,3 +165,8 @@ Three descriptors in `apps/client/src/features/map/paper/city.ts`, as London's: 
 ## 7. The recorded lives
 
 The recorded lives that go abroad (graduate-abroad, banker-abroad and developer-abroad) all fly to the UK, so no golden of theirs rests on these countries or their upkeep figures. `packages/sim/src/simulated-play/lives.countries.data.ts` records a points life to Calgary (`developer-canada`) and a contract life to Dubai (`banker-gulf`); no recorded life takes the road to Castel Volturno.
+
+## 8. Alternatives considered
+
+- **One model per place in every country.** Each country's care home, warehouse, office, big shop and church built anew. It costs models and download for rooms that look alike the world over; London's scenes under each country's own entry keep only what is that country's to build.
+- **A workplace abroad shared by every country.** One country-less workplace for all jobs abroad. It would make every country's job the same door; each country's workplaces stage its own jobs.

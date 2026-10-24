@@ -24,7 +24,7 @@ export function reloadPage(): void {
  */
 export function FaultCard({ line, detail, named = false, children, ...rest }: { line: string; detail: string; named?: boolean; children: ReactNode; role?: string }) {
   return (
-    <div className="lively-card w-full max-w-[420px] p-4 text-left" {...rest}>
+    <div className="look-card w-full max-w-[420px] p-4 text-left" {...rest}>
       {named ? <Wordmark ground="light" className="mb-3" /> : null}
       <p className="text-[18px] leading-snug font-bold">{line}</p>
       <p className="mt-1 text-[14px] leading-snug text-text-2" data-trouble-detail>

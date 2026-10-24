@@ -1,4 +1,4 @@
-// The boards in the lively dress on Chats' people page (city:boards-switch-when-and-who, city:board-line-and-ranking; design page 09
+// The boards in the game's look on Chats' people page (city:boards-switch-when-and-who, city:board-line-and-ranking; docs/design/09-the-games-look.md
 // section 2): the two pickers as segmented pills, each line a card with a face sticker, the name and the figure as a
 // chip, this week's rise in green, the player's own line ringed; no look travels on a board, so another player's face
 // is picked from the name the line shows, and the player's own is the look they built at the door.
@@ -35,7 +35,7 @@ function show(rows: BoardRow[], allTime: BoardRow[] = rows) {
 
 const lineCards = () => Array.from(document.querySelectorAll<HTMLElement>("[data-board-lines] > li"));
 
-describe("the boards in the lively dress", () => {
+describe("the boards in the game's look", () => {
   test("[city:boards-switch-when-and-who] given the boards, when they show, then each picker is one segmented pill with its choice lit, and a pick moves the light", async () => {
     show([row(1, "zainab_b", 12), row(2, "ada_lagos", 5, true)], [row(1, "zainab_b", 80), row(2, "ada_lagos", 70, true)]);
     await waitFor(() => expect(lineCards()).toHaveLength(2));
@@ -55,7 +55,7 @@ describe("the boards in the lively dress", () => {
     show([row(1, "zainab_b", 12), row(2, "tunde_k", 0), row(3, "ada_lagos", 5, true)]);
     await waitFor(() => expect(lineCards()).toHaveLength(3));
     for (const card of lineCards()) {
-      expect(card.className).toContain("lively-card");
+      expect(card.className).toContain("look-card");
       expect(card.querySelector("[data-face-sticker]")).not.toBeNull();
     }
     const [first, second, mine] = lineCards();

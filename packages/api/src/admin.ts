@@ -18,12 +18,10 @@ export type Alarm =
   /** server:ledger-alarm-lists-suspects: `ledgerReport` named the character as suspect. */
   | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
   /**
-   * lottery:money-report-checks-draws: `win` paid for the draw other than its result gives (`win`),
-   * any `pot-top-up` paid for it (`top-up`, which decision 0016 does not pay), or
-   * `ticket` taken for it other than its sales (`ticket`); `limit` is the
-   * figure it should have been.
+   * lottery:money-report-checks-draws: `win` paid for the draw other than its result gives (`win`), or
+   * `ticket` taken for it other than its sales (`ticket`); `limit` is the figure it should have been.
    */
-  | { kind: "draw"; day: number; draw: number; check: "win" | "top-up" | "ticket"; total: number; limit: number }
+  | { kind: "draw"; day: number; draw: number; check: "win" | "ticket"; total: number; limit: number }
   /** server:log-rows-hash-state: a load found the replay's hash differs from the stored one; the character waits for the rollback tool. */
   | { kind: "diverged"; day: number; character: string; v: number };
 

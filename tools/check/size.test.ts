@@ -24,7 +24,7 @@ function budgets(budget: number): BudgetFile {
   return {
     about: "",
     parts: Object.fromEntries(PARTS.map((part) => [part, { budget, measured: budget }])) as BudgetFile["parts"],
-    changes: ["11 Oct 2026: set for the test."],
+    changes: ["total set for the test."],
   };
 }
 
@@ -56,22 +56,25 @@ describe("the size check", () => {
     expect(overBudget(sizes, file)).toEqual([]);
   });
 
-  test("[engine:first-download-has-budget] given a budget set above the measured size plus five percent, a fraction or no dated line, then the budget file is refused", () => {
+  test("[engine:first-download-has-budget] given a budget set above the measured size plus five percent, a fraction, a change line with no part or no reason, a dated one, or none, then the budget file is refused", () => {
     expect(budgetFor(1000)).toBe(1050);
     expect(budgetFor(999)).toBe(1048);
     const file = budgets(1000);
     expect(budgetFileProblems(file)).toEqual([]);
     file.parts.three = { budget: 1051, measured: 1000 };
     file.parts.loader = { budget: 10.5, measured: 10 };
-    file.changes = ["Raised because it grew."];
+    file.changes = ["Raised because it grew.", "main raised to 1050.", "11 Oct 2026: main raised to 1050 for the test."];
     expect(budgetFileProblems(file)).toEqual([
       "three: the budget 1051 is more than the measured 1000 plus 5 percent.",
       "loader: the budget and the measured size are whole numbers of bytes.",
-      'A change line starts with its date ("11 Oct 2026: ..."): Raised because it grew.',
+      'A change line names the part that moved and says what for ("main raised to 1050 for ..."), with no date: Raised because it grew.',
+      'A change line names the part that moved and says what for ("main raised to 1050 for ..."), with no date: main raised to 1050.',
+      'A change line names the part that moved and says what for ("main raised to 1050 for ..."), with no date: 11 Oct 2026: main raised to 1050 for the test.',
     ]);
+    expect(budgetFileProblems({ ...budgets(1000), changes: [] })).toEqual(["The budget file has no line for its changes."]);
   });
 
-  test("[engine:first-download-has-budget] given the committed budget file, then every budget is a whole number at most its measured size plus five percent, and every change is dated", () => {
+  test("[engine:first-download-has-budget] given the committed budget file, then every budget is a whole number at most its measured size plus five percent, and every change names its part and what it was for", () => {
     const file = readJson<BudgetFile>(join(REPO_ROOT, BUDGET_FILE));
     expect(budgetFileProblems(file)).toEqual([]);
     expect(Object.keys(file.parts).sort()).toEqual([...PARTS].sort());

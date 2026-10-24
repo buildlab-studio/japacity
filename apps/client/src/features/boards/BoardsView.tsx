@@ -2,13 +2,13 @@
 // and who, over four boards that each have their own switch on the server.
 // A board's lines are loaded only after the server answers with one; a board
 // switched off is a quiet note, and its screen is never fetched. Dressed as
-// the phone's apps (docs/design/09-the-lively-layer.md section 2): the pickers
+// the phone's apps (docs/design/09-the-games-look.md section 2): the pickers
 // as segmented pills, each line a card, a note in a card with its one button.
 import type { BoardName } from "@japacity/api";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
 import { softLazy } from "../../shared/net/parts";
-import { LivelyCard } from "../../shared/ui/lively/LivelyCard";
+import { LookCard } from "../../shared/ui/look/LookCard";
 import { say } from "../../shared/words/text";
 import { boardOf, useBoardsApi, WHENS, WHOS, type BoardAnswer, type BoardsApi, type When, type Who } from "./boards";
 
@@ -63,14 +63,14 @@ function Picker<T extends string>({ legend, options, chosen, words, onChoose }: 
 
 function Note({ children, action }: { children: string; action?: { label: string; run: () => void } }) {
   return (
-    <LivelyCard className="flex flex-col items-start gap-2.5 p-3" data-board-note>
+    <LookCard className="flex flex-col items-start gap-2.5 p-3" data-board-note>
       <p className="text-[15px] leading-snug">{children}</p>
       {action === undefined ? null : (
         <button type="button" className="phone-ghost" onClick={action.run}>
           {action.label}
         </button>
       )}
-    </LivelyCard>
+    </LookCard>
   );
 }
 

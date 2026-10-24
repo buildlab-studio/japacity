@@ -1,4 +1,4 @@
-// The things a life owns at home (home:things-a-life-owns; design page 08 sections 2 and 3). The market sells a
+// The things a life owns at home (home:things-a-life-owns; docs/design/08-the-lived-month.md sections 2 and 3). The market sells a
 // thing delivered at once; it stands in the home lived in when that home may hold it (the family house only the small
 // things, in your corner, and the car in its carport), and while it stands it does something in life: a lift once, a
 // lift each month it is lived with, and a change to acts the simulation already has. Some cost to run a month, taken at

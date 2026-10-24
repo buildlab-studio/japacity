@@ -78,7 +78,7 @@ export const uiPhoneText: Record<string, string> = {
   // The two rates, said where a change between naira and a foreign money is chosen: the bank's in whole naira, the FX man's to the kobo.
   "phone.bank.rate.bank": "At the bank, {one} is {rate}.",
   "phone.bank.rate.aboki": "With the FX man, {one} is {rate}.",
-  // A change the bank makes later, while it is on its way (months away, never a month number: world:top-band-is-lively-pill).
+  // A change the bank makes later, while it is on its way (months away, never a month number: world:top-band-is-a-pill).
   "phone.bank.queued.item": "{paid} into {to}, ready {when}",
   // The credit file abroad (credit:judgment-blocks-credit, credit:view-shows-credit-file), the month it clears said as months away.
   "phone.bank.credit.judgment": "A court judgment is on the file. It clears {when}; until then nothing that needs more than {cap} can be had.",
@@ -96,7 +96,7 @@ export const uiPhoneText: Record<string, string> = {
   "phone.chats.pick": "Pick what to say",
   "phone.chats.computer": "Your talk with {name} happens when you meet. Their news reaches you here.",
 
-  // The way files' dates, as months ago or away, never a month's number (world:top-band-is-lively-pill).
+  // The way files' dates, as months ago or away, never a month's number (world:top-band-is-a-pill).
   "phone.japa.invited": "Invited to apply {when}.",
   "phone.japa.pool": "In the pool since {since}. The profile ends {ends}.",
   "phone.japa.endorsement.refused": "Endorsement refused {when}.",

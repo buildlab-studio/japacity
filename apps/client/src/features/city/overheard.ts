@@ -32,7 +32,7 @@ export function placeLines(place: string): string[] {
 /** A place's own short set in the city's words (city.words.ts), beside content's lines: the room abroad's landlord, radiator and neighbour. */
 const OWN_SET: Readonly<Record<string, readonly string[]>> = {
   "place.the-room": ["city.overheard.room.1", "city.overheard.room.2", "city.overheard.room.3", "city.overheard.room.4"],
-  // London's places on the Lagos mold (world:ride-abroad-and-workplace; streets:peckham-talks-like-lagos's spirit): content's three lines each and these.
+  // London's places, built as Lagos's are (world:ride-abroad-and-workplace; streets:peckham-talks-like-lagos's spirit): content's three lines each and these.
   ...londonSets(["rye-lane", "peckham-rye-station", "big-shop-uk", "care-home-uk", "ward-uk", "office-uk", "warehouse-uk", "church-uk", "test-centre-uk"]),
   // Calgary's, Dubai's and Castel Volturno's places (world:ride-abroad-and-workplace): a line beside content's three where
   // content has them, four of the city's own where it has none, so every place says at least four.

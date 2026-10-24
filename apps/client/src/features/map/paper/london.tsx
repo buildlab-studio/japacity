@@ -1,4 +1,4 @@
-// London as a painted city (world:painted-maps-abroad; design page 10 section 3): south-east London on paper, the
+// London as a painted city (world:painted-maps-abroad; docs/design/10-london.md section 3): south-east London on paper, the
 // Thames across the top with the City across the water, the railway through Peckham Rye, the main roads, the district
 // names, five neighbourhood cards, every built place of the UK as its sticker, the home sticker at the home spot off
 // Choumert Road, and Heathrow on an inset in the paper's south-west corner with its plane, since it lies far to the west.
@@ -24,7 +24,7 @@ export const LONDON_PAPER = { width: 680, height: 992 } as const;
 
 const { at, ring, label, decor } = paperPen(LONDON_FIT);
 
-/** The home's spot on the map, off Choumert Road: the room abroad has no position of its own (design page 10 section 4). */
+/** The home's spot on the map, off Choumert Road: the room abroad has no position of its own (docs/design/10-london.md section 4). */
 export const LONDON_HOME_SPOT: Position = { latE3: 51471, lonE3: -73 };
 
 /** The Thames's two banks, west to east, as it bends from Blackfriars past London Bridge and Tower Bridge to Rotherhithe. */

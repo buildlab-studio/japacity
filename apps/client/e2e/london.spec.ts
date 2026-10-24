@@ -1,4 +1,4 @@
-// London on the Lagos mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
+// London, built as Lagos is, in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
 // place:rides-between-city-places, place:country-pass-covers-ways; streets:london-life-by-hand): the graduate's recorded life lands in London, walks to Peckham Rye,
 // buys the month's bus pass at the ticket machine, rides the bus free to the big shop, does the weekly shop, takes the
 // train to the office at London Bridge for its fare, and rides the bus home to the room, the long walk greyed with the pass in hand.

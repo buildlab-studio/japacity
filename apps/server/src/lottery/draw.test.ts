@@ -119,7 +119,8 @@ async function wallets(server: TestServer, lives: { character: string }[]): Prom
     const { totals } = (await stateOf(server, life.character)).wallet;
     won += totals.in.win?.NGN ?? 0;
     staked += totals.out.ticket?.NGN ?? 0;
-    house += totals.in["pot-top-up"]?.NGN ?? 0;
+    // The ledger has no reason for a house part (decision 0030), so a credit of one is looked for by its name.
+    house += (totals.in as Partial<Record<string, { NGN?: number }>>)["pot-top-up"]?.NGN ?? 0;
   }
   return { won, staked, house };
 }

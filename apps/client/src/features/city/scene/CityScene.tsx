@@ -68,7 +68,7 @@ const LIE_Y = 0.5;
 const BACK_DEPTH = 0.12;
 /** The length of the lying body, feet to head, so it is centred on the seat. */
 const LIE_LENGTH = 1.6;
-/** The fan's hinge stands on the thing's body, under its label (docs/design/09-the-lively-layer.md section 3). */
+/** The fan's hinge stands on the thing's body, under its label (docs/design/09-the-games-look.md section 3). */
 const FAN_Y = 0.9;
 /** How high over the bed the sleep mark floats, clear of the lying figure (world:sleep-ends-the-month). */
 const SLEEP_MARK_Y = 1.5;
@@ -429,7 +429,7 @@ function Place(props: PlaceProps) {
   };
   const actForRef = useRef(actFor);
   actForRef.current = actFor;
-  // A button of the fan, which the shell draws, hands its act here to walk for (docs/design/09-the-lively-layer.md section 3).
+  // A button of the fan, which the shell draws, hands its act here to walk for (docs/design/09-the-games-look.md section 3).
   const actOn = props.actOn ?? null;
   useEffect(() => {
     if (actOn !== null) actForRef.current(actOn.thing, actOn.act);
@@ -948,7 +948,7 @@ function Place(props: PlaceProps) {
       if (at !== null) node.style.transform = `translate(${String(at.x)}px, ${String(at.y)}px)`;
     }
     // The fan follows its thing as the camera eases, as the marks do, and says where the thing first stood so the fan can
-    // lay out its buttons once (docs/design/09-the-lively-layer.md section 3); off the screen it hides until the thing is back.
+    // lay out its buttons once (docs/design/09-the-games-look.md section 3); off the screen it hides until the thing is back.
     const fan = document.querySelector<HTMLElement>("[data-fan]");
     const fanned = fan === null ? undefined : things.find((thing) => thing.id === fan.dataset.fan);
     if (fan !== null) {

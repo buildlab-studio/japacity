@@ -120,7 +120,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.the-house",
     where: "any",
     openIf: [{ type: "money/min", currency: "NGN", amount: naira(5000000), pocket: "bank" }],
-    // Land and ₦15,000,000 held for the house: no building project pays under the reason `build`.
+    // Land and ₦15,000,000 held for the house: the goal reads what is held, and nothing is spent on a building.
     doneIf: [
       { type: "quality/min", quality: "quality.land", value: 1 },
       { type: "money/min", currency: "NGN", amount: naira(15000000), pocket: "bank" },

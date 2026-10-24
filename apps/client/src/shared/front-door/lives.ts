@@ -1,7 +1,7 @@
 // What the door's pictures stand for (prologue:front-door-three-screens): each life's own
 // thing on its card, from the game's own models, in the soft tint of its kind; each way a tile opens as a picture chip;
 // and each home's picture, the room as the game draws it, or a model's tile where the home has no room to show.
-import type { Tint } from "../ui/lively/tint";
+import type { Tint } from "../ui/look/tint";
 import type { ArchetypeId, Home } from "./archetypes";
 
 /** A life's thing: the model whose tile stands big on the life's card, and the card's tint. */

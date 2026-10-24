@@ -1,4 +1,4 @@
-// Rides abroad: place:rides-between-city-places (decision 0017, design page 10 section 5). A ride
+// Rides abroad: place:rides-between-city-places (decision 0017, docs/design/10-london.md section 5). A ride
 // is accepted in the country the character is in, between two places of that country, on the ways it lists or on foot,
 // the fare taken from the country's money; the scarcity factor is Lagos's only.
 import { content } from "@japacity/content";
@@ -42,7 +42,7 @@ describe("the fare abroad", () => {
   test("[place:rides-between-city-places] given the UK's ways, when their figures are read, then the bus is £1.75 flat at 250 m a minute, the train £2.80 and 10p a kilometre at 600 m a minute, fares in fives of pence, and the pass £95", () => {
     // Decision 0017: the pass covers the bus alone, and on foot is 80 m a minute.
     expect(rides).toEqual({ ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: 9500, passWays: ["bus"], lonMetresPerE3: 69, walkMetresPerMinute: 80 });
-    // Canada, the UAE and Italy list their ways too (design page 11 section 4; place.ride.countries.test.ts).
+    // Canada, the UAE and Italy list their ways too (docs/design/11-calgary-dubai-and-castel-volturno.md section 4; place.ride.countries.test.ts).
     for (const country of ["country.canada", "country.uae", "country.italy"] as const) expect(Object.keys(content.tuning.city.ride.abroad[country]?.ways ?? {}).length).toBeGreaterThan(0);
     expect(content.tuning.city.ride.abroad["country.uae"]?.step).toBe(25);
   });
@@ -132,7 +132,7 @@ describe("a ride abroad", () => {
   });
 
   test("[place:rides-between-city-places] given a country-less place abroad, when a ride goes there, then it is accepted at the flag-down figure, and walked to with no fare", () => {
-    // There is no country-less test centre (design page 11); the room is the country-less place abroad with no position.
+    // There is no country-less test centre (docs/design/11-calgary-dubai-and-castel-volturno.md); the room is the country-less place abroad with no position.
     const game = flown(content);
     pounds(game, 5000);
     expect(content.place[ROOM]).toMatchObject({ where: "abroad", country: null, position: null });
@@ -226,7 +226,7 @@ describe("a ride abroad", () => {
   });
 
   test("[place:rides-between-city-places] given a country that lists no ways, when any ride is sent there, then it is refused, and the view lists no way", () => {
-    // Every country lists its ways (design page 11), so Canada's are taken away for this edge.
+    // Every country lists its ways (docs/design/11-calgary-dubai-and-castel-volturno.md), so Canada's are taken away for this edge.
     const canada = content.tuning.city.ride.abroad["country.canada"]!;
     const none = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...content.tuning.city.ride.abroad, "country.canada": { ...canada, ways: {} } } } } } };
     const game = start({ content: none });

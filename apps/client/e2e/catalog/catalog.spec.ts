@@ -587,7 +587,7 @@ test("places: abroad", async ({ page }) => {
   ]);
 });
 
-test("places: London on the Lagos mold, its things, a colleague and the bus pass", async ({ page }) => {
+test("places: London built as Lagos is, its things, a colleague and the bus pass", async ({ page }) => {
   await openLife(page, "graduate-abroad", GRADUATE_IN_LONDON, DAY);
   await shootPlaces(page, [
     { id: "place.rye-lane", key: "place-rye-lane", night: true },
@@ -629,7 +629,7 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Calgary, Dubai and Castel Volturno on the mold (design page 11): each life is
+// Calgary, Dubai and Castel Volturno, built as Lagos is (docs/design/11-calgary-dubai-and-castel-volturno.md): each life is
 // played to its country by a simulated player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -678,7 +678,7 @@ async function countryRide(page: Page, vehicle: string, way: string, stop: strin
   await clearAbroad(page);
 }
 
-test("abroad on the mold: Dubai, its places, the zone pass, a colleague, its map and its rides", async ({ page }) => {
+test("abroad, built as Lagos is: Dubai, its places, the zone pass, a colleague, its map and its rides", async ({ page }) => {
   await openAbroad(page, GULF, DAY);
   await shootPlaces(page, [
     { id: "place.deira", key: "place-deira", night: true },
@@ -732,7 +732,7 @@ test("abroad on the mold: Dubai, its places, the zone pass, a colleague, its map
   await countryRide(page, "labour-bus", "bus", "place.site-uae");
 });
 
-test("abroad on the mold: Castel Volturno, its places, a colleague, its map and its rides", async ({ page }) => {
+test("abroad, built as Lagos is: Castel Volturno, its places, a colleague, its map and its rides", async ({ page }) => {
   await openAbroad(page, ROAD, DAY);
   await shootPlaces(page, [
     { id: "place.castel-volturno", key: "place-castel-volturno", night: true },
@@ -770,7 +770,7 @@ test("abroad on the mold: Castel Volturno, its places, a colleague, its map and 
   await countryRide(page, "van", "bus", "place.farm-italy");
 });
 
-test("abroad on the mold: Calgary, its places, its map and its rides", async ({ page }) => {
+test("abroad, built as Lagos is: Calgary, its places, its map and its rides", async ({ page }) => {
   await openAbroad(page, POINTS, DAY);
   await shootPlaces(page, [
     { id: "place.calgary-north-east", key: "place-calgary-north-east", night: false },

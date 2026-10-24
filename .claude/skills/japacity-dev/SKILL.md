@@ -34,7 +34,7 @@ It runs these in order and stops at the first failure, ending with `CHECK PASSED
 | check:types | `pnpm check:types` | The Workers' generated bindings and runtime types still match each `wrangler.jsonc` |
 | typecheck | `pnpm typecheck` | Every package's types, the browser tests' too |
 | lint | `pnpm lint` | Zero warnings. Holds the simulation's purity rules |
-| test | `pnpm test` | Every unit test project: sim, content, store, db, tools, assets, server, server-workers, client, teaser |
+| test | `pnpm test` | Every unit test project: sim, content, store, db, tools, models, server, server-workers, client, teaser |
 | check:rules | `pnpm check:rules` | Every rule name in `docs/rules/` has a test that cites it, and every cited name exists. `tools/rules-pending.json` lists the rules waiting for a test |
 | check:version | `pnpm check:version` | The content's data and the simulation's code match the fingerprint sealed with the content version; after a change, `pnpm content:freeze` first, then raise the version and run `pnpm content:seal` (server:content-version-sealed, server:older-content-frozen) |
 | check:assets | `pnpm check:assets` | The city's models and pictures match their manifest |
@@ -75,7 +75,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 
 - Money is a whole number of kobo, pence or cents. Rates are kobo for one pound or one dollar. Chances are basis points: 10000 is 100%.
 - No `/`, `**`, decimal literal, `Math.random`, `Date`, `setTimeout`, `globalThis` or `console` in the simulation.
-- Division only through `packages/sim/src/engine/int.ts`: `divFloor`, `divCeil`, `mulDiv`, `mulDivCeil`, `bp` (an amount times basis points), `clamp`, `roundDownTo`, and the money helpers `minorToKobo`, `koboToMinor`, `valueInKobo`, `convertMinor`. They round down unless the name says otherwise and throw on anything not a safe whole number.
+- Division only through `packages/sim/src/engine/int.ts`: `divFloor`, `divCeil`, `mulDiv`, `mulDivCeil`, `bp` (an amount times basis points), `clamp`, `roundDownTo`, `roundUpTo`, `isqrt`, `rateOf`, `isWhole`, and the money helpers `minorToKobo`, `koboToMinor`, `valueInKobo`, `convertMinor`. They round down unless the name says otherwise and throw on anything not a safe whole number.
 - Random numbers only through `ctx.random`, on the named stream the rule page gives.
 - Ids are `kind.slug`. Events are `kind/what-happened`, past tense. Files are `kind.role.ts`.
 - Changes to determinism, the ledger's reasons, or the command and view types need a decision record in `docs/decisions/`. Only the maintainer writes those.
@@ -124,7 +124,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
   Use the dev server port your task gives (`pnpm --filter @japacity/client exec vite --port <n> --strictPort`). Never use another piece's port.
 - **Stay in your folders.** Your task names them. Anything else you need changed goes in your report, with file, line and why.
 - **Commits**: small, a subject that says what changed and where, `git add` with explicit paths.
-- **Push your branch** only when `pnpm check` ends `CHECK PASSED` and your task says to. Never force-push, never touch `main`, never deploy. The maintainer merges.
+- **Push your branch** only when `pnpm check` ends `CHECK PASSED` and your task says to. Never force-push, never touch `main`, never deploy. Each pull request merges by itself once the check passes.
 - **The report** (`REPORT.md` at the worktree's root, never committed): what you built by rule name; the last lines of `pnpm check`; every change outside your folders and why; rules you could not build or test; what you would look at next. Update it after each piece is done, so a restart loses nothing.
 
 ## Before you say done

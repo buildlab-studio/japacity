@@ -11,7 +11,6 @@ const REFUSAL_REASONS = ["funds", "interview", "history", "credibility", "sponso
 const REJECTION_CODES = [
   "stale",
   "clock-went-back",
-  "no-turns",
   "setpiece-open",
   "not-legal",
   "cannot-afford",

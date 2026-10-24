@@ -43,7 +43,7 @@ pnpm tsx tools/load/verify.ts
 
 `wrangler dev` writes `apps/server/.wrangler/`, which git and the lint skip.
 
-## What a local run showed (8 Oct 2026, a tenth of the target, memory stores)
+## What a local run shows (a tenth of the target, memory stores)
 
 - Every command goes through the memory store's one lock and replays up to `snapshotEvery` rows, so the Worker serves one command at a time. Numbers taken while other work loads the machine measure the machine.
 - At about 350 requests a second (the reads scenario), `wrangler dev`'s own proxy in front of the Worker drops connections ("Network connection lost" in its log), and the request fails as a 5xx or a failed read. That is the local runtime's limit, not the app's; the reads scenario is reported, not a gate (load:peak-reads-reported-only).

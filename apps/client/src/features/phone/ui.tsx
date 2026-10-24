@@ -1,12 +1,12 @@
-// The phone's apps in the lively dress (docs/design/09-the-lively-layer.md section 2): a
+// The phone's apps in the game's look (docs/design/09-the-games-look.md section 2): a
 // card is white with the thin edge, a picture of the thing on a soft tile at its left, a title of a few words, one line
 // under it, and the chips that earn their place (money in green, a word in a pill). A way out of the app (to the map, to
 // another app) is a white button with the navy underside; the one yellow action stays each surface's own.
 import type { ComponentProps, ReactNode } from "react";
 
 import { Tile } from "../../shared/tiles/Tile";
-import type { Tint } from "../../shared/ui/lively/tint";
-import { TINTS } from "../../shared/ui/lively/tint";
+import type { Tint } from "../../shared/ui/look/tint";
+import { TINTS } from "../../shared/ui/look/tint";
 
 /** A thing's picture on its soft tile, cut as a sticker: the tile of the id, tilted a little. */
 export function PicTile({ of, size = 64, tint = "plain", tilt = -5 }: { of: string; size?: number; tint?: Tint; tilt?: number }) {
@@ -42,7 +42,7 @@ export interface PicCardProps extends Omit<ComponentProps<"div">, "title"> {
 /** A card of an app: the picture, the words, the chips, and anything at its side or its foot. */
 export function PicCard({ pic, tint = "plain", over, title, line, chips, side, picked = false, foot, muted = false, className = "", ...rest }: PicCardProps) {
   return (
-    <div {...rest} className={`lively-card p-3 ${picked ? "phone-picked" : ""} ${muted ? "opacity-70" : ""} ${className}`} data-lively-card data-picked={picked ? "true" : undefined}>
+    <div {...rest} className={`look-card p-3 ${picked ? "phone-picked" : ""} ${muted ? "opacity-70" : ""} ${className}`} data-look-card data-picked={picked ? "true" : undefined}>
       <div className="flex items-center gap-3">
         {pic === undefined ? null : <PicTile of={pic} tint={tint} size={60} />}
         <div className="min-w-0 flex-1">
@@ -81,4 +81,4 @@ export function WordChip({ children, tone = "study", ...rest }: { children: Reac
 }
 
 /** A way out of the app (to the map, to another app): the layer's ghost button, filling the row (`wide`). */
-export { GhostButton } from "../../shared/ui/lively/GhostButton";
+export { GhostButton } from "../../shared/ui/look/GhostButton";

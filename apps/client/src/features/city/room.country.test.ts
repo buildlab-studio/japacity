@@ -1,5 +1,5 @@
-// The room abroad named per country (world:painted-maps-abroad, design page 11 section 3): content keeps its full
-// name for each country, and the band says it short enough to stand beside the age (world:top-band-is-lively-pill).
+// The room abroad named per country (world:painted-maps-abroad, docs/design/11-calgary-dubai-and-castel-volturno.md section 3): content keeps its full
+// name for each country, and the band says it short enough to stand beside the age (world:top-band-is-a-pill).
 import { roomName } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -7,7 +7,7 @@ import { engineView } from "../../shared/testing/fixtures";
 import { homeLine } from "./City";
 
 describe("the room per country", () => {
-  test("[world:painted-maps-abroad] [world:top-band-is-lively-pill] given a life in each country abroad, when the band's line for the room is read, then it is the country's room said short: the basement in Calgary, the bed space in Dubai, the shared flat at Castel Volturno, London's by its hub; each within the band's room", () => {
+  test("[world:painted-maps-abroad] [world:top-band-is-a-pill] given a life in each country abroad, when the band's line for the room is read, then it is the country's room said short: the basement in Calgary, the bed space in Dubai, the shared flat at Castel Volturno, London's by its hub; each within the band's room", () => {
     const base = engineView();
     const line = (country: "country.uk" | "country.canada" | "country.uae" | "country.italy") => homeLine("place.the-room", { ...base, place: { ...base.place, where: "abroad", country } });
     expect(line("country.canada")).toBe("The basement, Calgary");

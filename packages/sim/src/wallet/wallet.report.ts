@@ -3,6 +3,7 @@
 // authority can run it over every saved account.
 import { jobTerms, MONTHS_PER_YEAR, paidYearly } from "../activity/activity.pay";
 import { bp, divCeil } from "../engine/int";
+import { ReasonSchema } from "../engine/language.schema";
 import type { ActivityEntry, Content, Currency, Effect, Reason, State } from "../engine/types";
 
 type Totals = State["wallet"]["totals"]["in"];
@@ -100,8 +101,9 @@ function working(main: number, state: State, content: Content): number {
  * main job's month, plus overtime in every free slot, plus the best side job paid
  * to the bank. Cash work: the best cash job the same way. Gig: a side gig in every
  * free slot and the best side job paid in cash, plus what the prologue pays.
- * Opening: the richest starting life. Pot-top-up: nothing (decision 0016).
- * A reason with no ceiling here raises no alarm.
+ * Opening: the richest starting life. A reason with no ceiling here raises no
+ * alarm; a name in the totals that is no reason at all can make nothing, so its
+ * ceiling is 0 (decision 0030).
  */
 const CEILINGS: Partial<Record<Reason, Ceiling>> = {
   salary: (currency, state, content) =>
@@ -118,8 +120,9 @@ const CEILINGS: Partial<Record<Reason, Ceiling>> = {
       const pocket = life.pockets[currency];
       return Math.max(best, pocket === undefined ? 0 : pocket.bank + pocket.cash);
     }, 0),
-  "pot-top-up": () => 0,
 };
+
+const REASONS: ReadonlySet<string> = new Set(ReasonSchema.options);
 
 /**
  * wallet:ledger-report-raises-alarms: money created and destroyed by reason and currency, and the alarms that name an account as suspect.
@@ -131,7 +134,8 @@ export function ledgerReport(state: State, content: Content, topUp = 0): LedgerR
   const alarms: LedgerAlarm[] = [];
   for (const [reason, byCurrency] of Object.entries(created)) {
     for (const [currency, total] of Object.entries(byCurrency ?? {})) {
-      const ceiling = reason === "top-up" ? (currency === "NGN" ? topUp : 0) : (CEILINGS[reason as Reason]?.(currency as Currency, state, content) ?? null);
+      const ceiling =
+        reason === "top-up" ? (currency === "NGN" ? topUp : 0) : !REASONS.has(reason) ? 0 : (CEILINGS[reason as Reason]?.(currency as Currency, state, content) ?? null);
       if (ceiling !== null && (total ?? 0) > ceiling) alarms.push({ reason: reason as Reason, currency: currency as Currency, total: total ?? 0, ceiling });
     }
   }

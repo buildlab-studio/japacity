@@ -11,7 +11,6 @@ import { countRejected } from "./rejected";
 const CODES: Record<ServerCode, true> = {
   stale: true,
   "clock-went-back": true,
-  "no-turns": true,
   "setpiece-open": true,
   "not-legal": true,
   "cannot-afford": true,

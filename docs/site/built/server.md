@@ -40,7 +40,7 @@ The Hono app is built in `apps/server/src/app.ts` from its dependencies, so a te
 | The start screen | `/api/lights`, `/api/dedication/lights`, `/api/dedication/light` | The two lights of the lives being played (account:two-lights-and-wink-lines), and the dedication's lights (server:dedication-routes) |
 | Other | `/api/health`, `/api/counters`, `/api/csp-report`, `/api/adverts`, `/api/boards/*` | Liveness, usage counts, the page policy's reports (server:csp-reports-to-own-origin), adverts, the place boards |
 
-::: tip The guest start needs no server
+::: tip The offline game needs no server
 Without `VITE_SERVER_URL` the client runs the same simulation in the browser as a local authority. That is how development, the tests and the play driver work. A production build refuses the local authority unless it is told otherwise in so many words. See [the client](./client.md).
 :::
 
@@ -259,4 +259,4 @@ A change to the schema is one command, and the committed migration files are nev
 pnpm --filter @japacity/db db:generate --name <what-changed>
 ```
 
-That writes a new SQL file into `packages/db/migrations/` from `src/schema/`; it needs no database. Applying the migrations to a real branch is `db:migrate` in the same package, which reads the branch's direct connection string from the environment (`DATABASE_URL_UNPOOLED`). The deploys run it themselves before the build and the Worker, so a migration must only add: a column or table is removed only in a later migration, once no deployed Worker reads it (server:migration-before-deploy). The set starts from one file, `0000_japacity.sql`: every table in full, then the functions and triggers written by hand for what the generator cannot say. `src/squash.test.ts` proves it builds the same structure as the earlier migrations it stands for, which it keeps as a fixture. See [from the browser to Postgres](./infrastructure.md) for where the databases are.
+That writes a new SQL file into `packages/db/migrations/` from `src/schema/`; it needs no database. Applying the migrations to a real branch is `db:migrate` in the same package, which reads the branch's direct connection string from the environment (`DATABASE_URL_UNPOOLED`). The deploys run it themselves before the build and the Worker, so a migration must only add: a column or table is removed only in a later migration, once no deployed Worker reads it (server:migration-before-deploy). The first migration, `0000_japacity.sql`, holds every table in full and then the functions and triggers written by hand for what the generator cannot say; each later file adds one change. `src/squash.test.ts` holds that first file to the structure built by the three migrations kept in `src/__fixtures__/`. See [from the browser to Postgres](./infrastructure.md) for where the databases are.

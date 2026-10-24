@@ -1,4 +1,4 @@
-// The emotes (the talk budget, docs/design/09-the-lively-layer.md section 5): pictures over the crowd carry
+// The emotes (the talk budget, docs/design/09-the-games-look.md section 5): pictures over the crowd carry
 // the ambient life and cost no reading. Two residents at a time show a picture of what they are about, chosen by what they
 // do, and the pair moves on every few seconds. The scene stands each over its resident (`[data-emote-slot]`).
 import { useEffect, useState } from "react";

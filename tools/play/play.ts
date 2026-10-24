@@ -403,7 +403,7 @@ async function stepByMap(run: Run, month: number): Promise<boolean> {
 async function followNudge(run: Run, month: number): Promise<void> {
   const { page } = run;
   const nudge = page.locator("[data-nudge]");
-  // The step's thing or person carries the marker, a pill with two words and an arrow (design page 09 section 4); its tap
+  // The step's thing or person carries the marker, a pill with two words and an arrow (docs/design/09-the-games-look.md section 4); its tap
   // takes the step's act in one go. The nudge's chip shows only in the moment.
   const marker = page.locator("[data-marker-tap]");
   if (!(await shown(nudge))) {
@@ -658,7 +658,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
-  // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-lively-pill).
+  // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-a-pill).
   const calendar = page.locator("[data-app-screen='calendar']");
   log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
   if (await tap(run, page.locator("[data-band] [data-band-month]"), "the band's month")) {

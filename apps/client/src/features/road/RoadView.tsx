@@ -121,9 +121,9 @@ function Wait() {
   const view = useView();
   const busy = useGame((state) => state.busy);
   const endMonth = useGame((state) => state.endMonth);
-  const blocked = view.ended || view.turns.banked < 1;
+  // The bank never holds the month back (turn:month-turns-on-empty-bank).
   return (
-    <Button className="sm:flex-1" onClick={() => void endMonth()} disabled={busy || blocked || view.setpiece !== null} data-road-wait>
+    <Button className="sm:flex-1" onClick={() => void endMonth()} disabled={busy || view.ended || view.setpiece !== null} data-road-wait>
       <Hourglass size={18} />
       {say("ui.road.wait")}
     </Button>

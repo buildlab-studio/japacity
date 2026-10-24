@@ -28,7 +28,7 @@ import { Full, type FullCheck } from "./Full";
 import { cookiesOff, GuestForm, LAPSES_TOLD, useGuestDoor, type GuestDoor } from "./GuestStart";
 import { inAppBrowser } from "./inApp";
 import { doneWaysBackIn, keptHere, waysBackInAsked } from "./marks";
-import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
+import { SheetColumn } from "../../shared/ui/look/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { SignIn, type SignedInBy } from "./SignIn";

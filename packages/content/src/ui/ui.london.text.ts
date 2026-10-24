@@ -4,7 +4,7 @@
 // client's late words once the life is in the UK (apps/client/src/shared/words/late.ts), so a first visit at home
 // carries none of them (engine:first-download-has-budget).
 export const uiLondonText: Readonly<Record<string, string>> = {
-  // London on the Lagos mold (world:ride-abroad-and-workplace, streets:london-life-by-hand, place:country-pass-covers-ways): Rye Lane's shops, the
+  // London, built as Lagos is (world:ride-abroad-and-workplace, streets:london-life-by-hand, place:country-pass-covers-ways): Rye Lane's shops, the
   // station, and the workplaces with a door, each with its things; a job held shows On shift on its thing.
   "city.thing.chicken-shop": "Chicken shop",
   "city.thing.kitchen-door": "Kitchen door",

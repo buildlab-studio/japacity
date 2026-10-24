@@ -60,7 +60,7 @@ describe("one count for months", () => {
     const view = game.view();
     await openPapers(view);
     const promised = monthEnding(pending.readyMonth);
-    // The phone says it as months away from now (world:top-band-is-lively-pill): one for each month's end from the header's month to the
+    // The phone says it as months away from now (world:top-band-is-a-pill): one for each month's end from the header's month to the
     // promised one, so a paper the end of this month brings is ready "next month".
     expect(paperState(PASSPORT)).toBe(say("phone.papers.pending", { when: inMonths(pending.readyMonth, view.month) }));
     expect(promised - header(view) + 1).toBe(pending.readyMonth - view.month);
@@ -84,7 +84,7 @@ describe("one count for months", () => {
     // It stops counting from the start of the month after `expiresMonth` months played: the header's next number.
     const last = monthEnding(held.expiresMonth);
     expect(playerMonth(held.expiresMonth)).toBe(last + 1);
-    // The phone says it as how long it holds (world:top-band-is-lively-pill): one for each month's end from the header's month to `last`.
+    // The phone says it as how long it holds (world:top-band-is-a-pill): one for each month's end from the header's month to `last`.
     expect(paperState(held.id)).toBe(say("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(last - header(view) + 1).toBe(held.expiresMonth - view.month);
   });
@@ -94,7 +94,7 @@ describe("one count for months", () => {
     const done = view.goals.done[0];
     if (done === undefined) throw new Error("No goal done in the view.");
     const report = { month: done.month, lines: [], japacityBefore: null, japacityAfter: null, attention: false };
-    // Japa's goals. The world shows no month number (world:top-band-is-lively-pill), so the date
+    // Japa's goals. The world shows no month number (world:top-band-is-a-pill), so the date
     // is said as months ago, counted from the report's own month: a goal done as the report's month ended reads as its
     // report does, "this month" when the report is this month's, and so on back.
     await renderWithView(<Japa />, { ...view, report });

@@ -1,4 +1,4 @@
-// The front door (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in its lively dress (a sticker board, the homes stacked as
+// The front door (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in the game's look (a sticker board, the homes stacked as
 // postcards), with everything already chosen so Next, Next, Begin starts a life. You (the name filled from the pool
 // for the look's sex, a dice for another, the look strip as round face stickers, your own colours) stands you whole on a
 // photo card; Your life so far is the lives swiped sideways with the age under them; Where you live is the homes as

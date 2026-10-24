@@ -53,7 +53,7 @@ export interface StoreAuthority {
   vars?(): Readonly<Record<string, number>>;
   /** clock:envelopes-show-real-waits: the envelopes whose morning has come, each given once, for one that keeps them (the local one). */
   morning?(): Envelope[];
-  /** The real time the life began, for one that keeps it (the local one): the band names the month of the year by it (world:top-band-is-lively-pill). */
+  /** The real time the life began, for one that keeps it (the local one): the band names the month of the year by it (world:top-band-is-a-pill). */
   beganAt?(): number;
 }
 
@@ -154,7 +154,7 @@ export interface GameState {
   /** Counts the `messages` nudges heard, so an open conversation fetches what is new (pair:conversation-phrases-stored). */
   messageNudges: number;
   /**
-   * The real time the life began (world:top-band-is-lively-pill): month 0 of the life is that month of the year, so the band names the month.
+   * The real time the life began (world:top-band-is-a-pill): month 0 of the life is that month of the year, so the band names the month.
    * Read from the authority as the life loads or starts; an authority that keeps none (online) leaves the time the game
    * loaded.
    */
@@ -386,7 +386,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
     if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed && state.opened === before.opened) return;
     writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed, opened: state.opened });
   });
-  // world:top-band-is-lively-pill: the words tell a stamped month as months away from the view's month, kept beside them; and
+  // world:top-band-is-a-pill: the words tell a stamped month as months away from the view's month, kept beside them; and
   // prologue:family-draw-on-first-answer: a line's `{hometown}` names where this life is from.
   store.subscribe((state, before) => {
     if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null, swapsFor(playerName(state.view)));

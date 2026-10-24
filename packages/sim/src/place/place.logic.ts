@@ -623,7 +623,7 @@ function waysHere(read: ReadCtx): RideWayView[] {
     const figures = rides.ways[way];
     return figures === undefined ? [] : [{ way, currency, ...figures, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: passCovers(read, rides, way) }];
   });
-  // On foot at the country's own pace (design page 11 section 4: the Gulf's heat slows a walk).
+  // On foot at the country's own pace (docs/design/11-calgary-dubai-and-castel-volturno.md section 4: the Gulf's heat slows a walk).
   return [...listed, { way: "walk", currency, ...walk, metresPerMinute: rides.walkMetresPerMinute, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: false }];
 }
 

@@ -1,4 +1,4 @@
-// Union station in Deira (design page 11 section 3: the Nol machine, the platform): the metro's way in at street level,
+// Union station in Deira (docs/design/11-calgary-dubai-and-castel-volturno.md section 3: the Nol machine, the platform): the metro's way in at street level,
 // a glass hall under a sweeping silver shell with the station's name board under its lip (assets:sign-text-drawn-in-code), and the
 // viaduct the line runs on, its piers and deck over the street with a metro car standing on it as decor, since a
 // place's models stand on the ground and the car must be up on its deck. A public station's plain description, no

@@ -98,7 +98,7 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
   const landing = landingOf(scene.country);
   const ageMonths = qualityIn(view, "quality.age-months");
   const age = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
-  // Before the plane the band counts the naira; after it, the landing country's own money (world:top-band-is-lively-pill abroad).
+  // Before the plane the band counts the naira; after it, the landing country's own money (world:top-band-is-a-pill abroad).
   const abroad = scene.beat === "plane" || scene.beat === "landing" || scene.beat === "ride";
   const currency = abroad ? (content.country[scene.country]?.currency ?? "NGN") : "NGN";
   const pocket = view.pockets[currency];

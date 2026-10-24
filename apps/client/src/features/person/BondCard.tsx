@@ -1,7 +1,7 @@
 // One bond: its stage, who it is with and how they are marked, what is known
 // of them, the proposals both ways, the joint and
 // its consents, the stand-in, and ending it with its cost said first
-// (person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:joint-application-proposed, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:leaving-player-ends-bonds, person:gossip-when-two-timing, person:computer-partner-drifts, person:stand-in-after-absence, person:stand-in-acts-narrowly, person:computers-need-no-stand-in, person:view-shows-people). Dressed as the lively layer's cards (design page 09
+// (person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:joint-application-proposed, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:leaving-player-ends-bonds, person:gossip-when-two-timing, person:computer-partner-drifts, person:stand-in-after-absence, person:stand-in-acts-narrowly, person:computers-need-no-stand-in, person:view-shows-people). Dressed as the cards of the game's look (docs/design/09-the-games-look.md
 // section 2): the person's face sticker over what is known of them, the mark and the facts as sticker chips, white cards
 // for what waits, the pressed yellow button for the one action and ghost buttons for the rest.
 import { content } from "@japacity/content";
@@ -13,9 +13,9 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { FaceSticker } from "../../shared/front-door/LookPicture";
 import { lookForName } from "../../shared/front-door/looks";
 import { bondName, endCost, interviewName, jointRoutes, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/view/person";
-import { GhostButton } from "../../shared/ui/lively/GhostButton";
-import { PressButton } from "../../shared/ui/lively/PressButton";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { GhostButton } from "../../shared/ui/look/GhostButton";
+import { PressButton } from "../../shared/ui/look/PressButton";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatBand, formatBp, formatMoney, formatNumber } from "../../shared/words/format";
 import { countryWords, jobWords } from "../../shared/words/person";
@@ -94,7 +94,7 @@ export function Pending({ bond }: { bond: BondView }) {
   const { mine, theirs } = bond.pending;
   if (mine === null && theirs === null) return null;
   return (
-    <div className="lively-card flex flex-col gap-2.5 p-3 text-[14px]" data-bond-pending>
+    <div className="look-card flex flex-col gap-2.5 p-3 text-[14px]" data-bond-pending>
       {mine === null ? null : (
         <div className="flex flex-wrap items-center gap-2">
           <p className="flex-1 leading-snug">
@@ -138,7 +138,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
   const chosen = route !== null && routes.includes(route) ? route : (routes[0] ?? null);
   return (
     <form
-      className="lively-card flex flex-col gap-2 p-3 text-[14px]"
+      className="look-card flex flex-col gap-2 p-3 text-[14px]"
       aria-label={say("ui.people.propose.joint")}
       onSubmit={(event) => {
         event.preventDefault();
@@ -151,7 +151,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
       <label htmlFor={`${id}-route`} className="font-bold">
         {say("ui.people.propose.joint.route")}
       </label>
-      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="lively-card min-h-12 px-3 text-[16px] font-semibold">
+      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="look-card min-h-12 px-3 text-[16px] font-semibold">
         {routes.map((value) => (
           <option key={value} value={value}>
             {nameOf(value)}
@@ -260,7 +260,7 @@ export function Joint({ bond }: { bond: BondView }) {
       if (change.standInMay !== undefined) setStandIn(change.standInMay);
     });
   return (
-    <div className="lively-card flex flex-col gap-2 p-3 text-[14px]" data-joint>
+    <div className="look-card flex flex-col gap-2 p-3 text-[14px]" data-joint>
       <h4 className="text-[16px] font-bold">{say("ui.people.joint")}</h4>
       <p>{say("ui.people.joint.on", { route: nameOf(joint.route), lead: say(`ui.people.joint.lead.${joint.lead}`) })}</p>
       {joint.myScore === null || joint.theirScore === null ? null : <p>{say("ui.people.joint.scores", { mine: formatNumber(joint.myScore), theirs: formatNumber(joint.theirScore) })}</p>}
@@ -323,7 +323,7 @@ export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: b
     );
   }
   return (
-    <div role="group" aria-label={say("ui.people.end")} className="lively-card flex flex-col gap-2 p-3 text-[14px]" data-bond-end>
+    <div role="group" aria-label={say("ui.people.end")} className="look-card flex flex-col gap-2 p-3 text-[14px]" data-bond-end>
       <p className="text-[16px] leading-snug font-bold">{costWords}</p>
       {cost.joint ? <p>{say("ui.people.end.joint")}</p> : null}
       <div className="flex flex-wrap gap-2">
@@ -362,7 +362,7 @@ export function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
   return (
     <ul className="flex flex-col gap-1.5 text-[14px]" data-bond-warnings>
       {warnings.map((warning) => (
-        <li key={warning} className="lively-card flex items-start gap-2 p-2.5 leading-snug">
+        <li key={warning} className="look-card flex items-start gap-2 p-2.5 leading-snug">
           <TriangleAlert size={16} className="mt-0.5 shrink-0 text-bad" />
           {warning}
         </li>
@@ -379,7 +379,7 @@ export function Answered({ lines }: { lines: ReportLine[] }) {
   const declined = lines.some((line) => line.key === DECLINED);
   const months = content.tuning.people.proposeCooldown;
   return (
-    <div role="status" className="lively-card flex flex-col gap-1 p-3 text-[14px]">
+    <div role="status" className="look-card flex flex-col gap-1 p-3 text-[14px]">
       <ReportLines lines={lines} />
       {declined ? <p className="text-text-2">{sayCount("ui.people.declined.cooldown", months, { months })}</p> : null}
     </div>

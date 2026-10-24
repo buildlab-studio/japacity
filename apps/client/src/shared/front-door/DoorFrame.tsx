@@ -7,7 +7,7 @@
 import { ChevronLeft, Shuffle } from "lucide-react";
 import { type ReactNode, type RefObject, useEffect, useRef, useState } from "react";
 
-import { SheetColumn } from "../ui/lively/SheetColumn";
+import { SheetColumn } from "../ui/look/SheetColumn";
 import { Wordmark } from "../ui/Wordmark";
 import { usePaint } from "../world/paint";
 import { say } from "../words/text";

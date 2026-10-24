@@ -3,7 +3,7 @@
 // question waits the month cannot end. Once this side has answered it waits
 // for the other, and the player carries on. After scoring: the result and how
 // many answers agreed, never which (interview:answers-taken-in-order, interview:one-question-at-a-time, interview:players-answer-at-own-pace). Dressed as
-// the ask (design page 09 section 4): the officer's pill and the desk's tile
+// the ask (docs/design/09-the-games-look.md section 4): the officer's pill and the desk's tile
 // at the head, the question as the title, the options as the ask's replies.
 import type { PlayerView } from "@japacity/sim";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -11,8 +11,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { optionWords } from "../../shared/view/person";
 import { Tile } from "../../shared/tiles/Tile";
-import { Face } from "../../shared/ui/lively/Face";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { Face } from "../../shared/ui/look/Face";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 
 const ENTRY = "interview.genuineness";
@@ -23,7 +23,7 @@ export const INTERVIEW_DESK = "activity.interview-prep";
 type Interview = NonNullable<PlayerView["interview"]>;
 
 /**
- * The ask's head (design page 09 section 4): the desk's tile on its soft tile, the
+ * The ask's head (docs/design/09-the-games-look.md section 4): the desk's tile on its soft tile, the
  * officer's name pill with the flat mark, and the title of the moment in the officer's plain English.
  */
 function Head({ title }: { title: ReactNode }) {

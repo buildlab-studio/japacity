@@ -1,4 +1,4 @@
-// The picture on a choice (design page 09, the pictures): a model's published tile, or the emoji standing in for one.
+// The picture on a choice (docs/design/09-the-games-look.md, the pictures): a model's published tile, or the emoji standing in for one.
 import { render, waitFor } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 

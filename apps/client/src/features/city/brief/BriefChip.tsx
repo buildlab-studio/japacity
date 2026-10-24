@@ -1,11 +1,11 @@
-// The road in the world, only in the moment (design page 09 section 4): the chip under the band
+// The road in the world, only in the moment (docs/design/09-the-games-look.md section 4): the chip under the band
 // with the brief's picture, its title and a dot for each thing; the toast in the giver's voice under it when a thing comes
 // in; and the marker on the thing to do, a white pill with its words and an arrow over a breathing yellow ring. The chip
 // says which brief; the marker says what to do.
 import { useEffect, useRef, useState } from "react";
 
 import { Tile } from "../../../shared/tiles/Tile";
-import { Face } from "../../../shared/ui/lively/Face";
+import { Face } from "../../../shared/ui/look/Face";
 import { type Brief, briefDots, TUCK_MS, TUCK_SLIDE_MS } from "./brief";
 
 /** How the chip stands: just handed and tucking into the phone, at the step's place, or a thing just done. */

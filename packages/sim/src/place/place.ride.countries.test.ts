@@ -57,7 +57,7 @@ function ride(game: Game, from: Id<"place">, to: Id<"place">, way: RideWay): Acc
 }
 
 describe("the three countries' ways", () => {
-  test("[place:rides-between-city-places] given the tuning, when Canada's, the UAE's and Italy's rides are read, then each has design page 11's ways, figures, step, pass, covered ways and walking pace", () => {
+  test("[place:rides-between-city-places] given the tuning, when Canada's, the UAE's and Italy's rides are read, then each has its ways, figures, step, pass, covered ways and walking pace as docs/design/11-calgary-dubai-and-castel-volturno.md gives them", () => {
     expect(ridesOf(CANADA_COUNTRY)).toEqual({
       ways: { bus: { fare: 380, farePerKm: 0, metresPerMinute: 300 }, train: { fare: 380, farePerKm: 0, metresPerMinute: 700 }, taxi: { fare: 380, farePerKm: 200, metresPerMinute: 600 } },
       step: 5,
