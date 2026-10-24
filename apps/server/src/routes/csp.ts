@@ -6,7 +6,7 @@
 // and the document's path, and nothing else (never the user agent, the full address, the referrer, the sample, the
 // policy or a query string; server:secrets-stay-on-server, analytics:store-holds-nothing-personal).
 import type { ServerRejection } from "@japacity/api";
-import { CSP_DIRECTIVES } from "@japacity/content";
+import { CSP_BLOCKED_KINDS, CSP_DIRECTIVES } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import type { MiddlewareHandler } from "hono";
@@ -34,10 +34,23 @@ export const CSP_REPORTS_PER_REQUEST = 20;
 /** The counter each violation adds one to, keyed by its directive. Counts only (analytics:admin-stats-for-admins-only). */
 export const CSP_COUNTER = "client/csp";
 
+/** The counter each violation also adds one to, keyed `<directive>:<kind>` from content's two fixed lists. */
+export const CSP_BLOCKED_COUNTER = "client/csp-blocked";
+
 /** The directives a report may name, from the content's counter list (analytics:nightly-game-counters); any other is `other`. */
 export { CSP_DIRECTIVES };
 
 type CspDirective = (typeof CSP_DIRECTIVES)[number];
+type CspBlockedKind = (typeof CSP_BLOCKED_KINDS)[number];
+
+/** The browser's words a kind keeps as they are: a thing with no address of its own. */
+const WORD_KINDS: ReadonlySet<string> = new Set<CspBlockedKind>(["inline", "eval", "wasm-eval", "trusted-types-policy", "trusted-types-sink", "data", "blob", "self"]);
+
+/** The hosts the policy names, kept by name: a report against one says an allowed source was still refused. */
+const HOST_KINDS: ReadonlySet<string> = new Set<CspBlockedKind>(["challenges.cloudflare.com", "static.cloudflareinsights.com", "cloudflareinsights.com"]);
+
+/** The schemes browsers give their extensions' own files; what an extension adds is the visitor's, not the page's. */
+const EXTENSION_SCHEMES: ReadonlySet<string> = new Set(["chrome-extension:", "moz-extension:", "safari-extension:", "safari-web-extension:", "ms-browser-extension:", "extension:"]);
 
 /** The words a browser writes for a blocked thing that has no address of its own. */
 const BLOCKED_WORDS: ReadonlySet<string> = new Set(["inline", "eval", "wasm-eval", "trusted-types-policy", "trusted-types-sink", "self", "data", "blob", "about"]);
@@ -80,6 +93,39 @@ function blockedOf(raw: unknown): string {
   return /^[a-z][a-z0-9+.-]{0,30}$/.test(scheme) ? scheme : "other";
 }
 
+function originOf(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  try {
+    const url = new URL(raw);
+    return ["http:", "https:"].includes(url.protocol) ? url.origin : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The kind of thing blocked, from the fixed list: never the address itself. */
+function kindOf(rawBlocked: unknown, rawDocument: unknown): CspBlockedKind {
+  if (typeof rawBlocked !== "string") return "other";
+  const value = rawBlocked.trim();
+  if (WORD_KINDS.has(value.toLowerCase())) return value.toLowerCase() as CspBlockedKind;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return "other";
+  }
+  if (url.protocol === "data:") return "data";
+  if (url.protocol === "blob:") return "blob";
+  if (EXTENSION_SCHEMES.has(url.protocol)) return "extension";
+  if (!["http:", "https:", "ws:", "wss:"].includes(url.protocol)) return "other";
+  const page = originOf(rawDocument);
+  // The page's own origin, and its socket on the same host and the matching secure scheme, as CSP's 'self' reads them.
+  if (page !== null && (url.origin === page || (url.protocol === "wss:" && page === `https://${url.host}`) || (url.protocol === "ws:" && page === `http://${url.host}`))) return "self";
+  // A named host only over https and on its default port, as the policy names it.
+  if (url.protocol === "https:" && url.port === "" && HOST_KINDS.has(url.hostname)) return url.hostname as CspBlockedKind;
+  return "other-host";
+}
+
 function pathOf(raw: unknown): string {
   if (typeof raw !== "string") return "other";
   let url: URL;
@@ -98,23 +144,37 @@ function record(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
-/** The violations in a report body, by its content type; null when the body is not a report of that type. */
-export function violationsOf(type: (typeof CSP_REPORT_TYPES)[number], body: unknown): CspViolation[] | null {
+/** One violation as read: what is logged, and the kind of thing blocked, which is counted. */
+interface ReadViolation {
+  violation: CspViolation;
+  kind: CspBlockedKind;
+}
+
+function readOne(directive: unknown, blocked: unknown, document: unknown): ReadViolation {
+  return { violation: { directive: directiveOf(directive), blocked: blockedOf(blocked), path: pathOf(document) }, kind: kindOf(blocked, document) };
+}
+
+function readViolations(type: (typeof CSP_REPORT_TYPES)[number], body: unknown): ReadViolation[] | null {
   if (type === "application/csp-report") {
     const report = record(record(body)?.["csp-report"]);
     if (report === null) return null;
-    return [{ directive: directiveOf(report["effective-directive"] ?? report["violated-directive"]), blocked: blockedOf(report["blocked-uri"]), path: pathOf(report["document-uri"]) }];
+    return [readOne(report["effective-directive"] ?? report["violated-directive"], report["blocked-uri"], report["document-uri"])];
   }
   if (!Array.isArray(body)) return null;
-  const found: CspViolation[] = [];
+  const found: ReadViolation[] = [];
   for (const item of body as unknown[]) {
     const report = record(item);
     const inner = record(report?.["body"]);
     // The Reporting API sends other kinds of report to the same address (deprecations, interventions); only these count.
     if (report?.["type"] !== "csp-violation" || inner === null) continue;
-    found.push({ directive: directiveOf(inner["effectiveDirective"]), blocked: blockedOf(inner["blockedURL"]), path: pathOf(inner["documentURL"]) });
+    found.push(readOne(inner["effectiveDirective"], inner["blockedURL"], inner["documentURL"]));
   }
   return found;
+}
+
+/** The violations in a report body, by its content type; null when the body is not a report of that type. */
+export function violationsOf(type: (typeof CSP_REPORT_TYPES)[number], body: unknown): CspViolation[] | null {
+  return readViolations(type, body)?.map((read) => read.violation) ?? null;
 }
 
 /** The report's content type, its parameters left off, when it is one of the two. */
@@ -153,19 +213,26 @@ export function cspReportRoute(deps: ServerDeps): Hono {
     } catch {
       return refuse(400, MALFORMED_DETAIL);
     }
-    const violations = type === null ? null : violationsOf(type, body);
-    if (violations === null) return refuse(400, MALFORMED_DETAIL);
-    const kept = violations.slice(0, CSP_REPORTS_PER_REQUEST);
+    const read = type === null ? null : readViolations(type, body);
+    if (read === null) return refuse(400, MALFORMED_DETAIL);
+    const kept = read.slice(0, CSP_REPORTS_PER_REQUEST);
     // The log line first, so a report is seen even if the count cannot be written; written through log.ts, the
     // Worker's one console writer (server:shared-observability-block).
-    for (const violation of kept) writeLine(cspLogLine(violation));
+    for (const { violation } of kept) writeLine(cspLogLine(violation));
     if (kept.length > 0) {
       const day = time.dayName(time.utcDay(deps.now()));
       const country = countryOf(c.req.raw);
       const region = requestRegion(country);
-      const counts = new Map<CspDirective, number>();
-      for (const violation of kept) counts.set(violation.directive, (counts.get(violation.directive) ?? 0) + 1);
-      const rows: CounterTotal[] = [...counts].map(([key, count]) => ({ day, region, name: CSP_COUNTER, key, count }));
+      const counts = new Map<string, number>();
+      const add = (key: string) => counts.set(key, (counts.get(key) ?? 0) + 1);
+      for (const { violation, kind } of kept) {
+        add(`${CSP_COUNTER}\n${violation.directive}`);
+        add(`${CSP_BLOCKED_COUNTER}\n${violation.directive}:${kind}`);
+      }
+      const rows: CounterTotal[] = [...counts].map(([both, count]) => {
+        const [name = "", key = ""] = both.split("\n");
+        return { day, region, name, key, count };
+      });
       await deps.stores.counters.add(rows);
     }
     return c.body(null, 204);

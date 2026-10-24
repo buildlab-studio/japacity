@@ -1,5 +1,6 @@
 // server:csp-reports-to-own-origin: the page's content policy reports to the server, and
 // each report leaves one log line of three fields and one count, nothing of the person who met it.
+import { CSP_BLOCKED_KINDS } from "@japacity/content";
 import { time } from "@japacity/sim";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -11,7 +12,7 @@ import { NO_REGION } from "../analytics/list";
 import { testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
-import { CSP_COUNTER, CSP_REPORT_BYTES, CSP_REPORT_PATH, CSP_REPORTS_PER_REQUEST, cspLogLine, violationsOf } from "./csp";
+import { CSP_BLOCKED_COUNTER, CSP_COUNTER, CSP_REPORT_BYTES, CSP_REPORT_PATH, CSP_REPORTS_PER_REQUEST, cspLogLine, violationsOf } from "./csp";
 
 const HEADERS = readFileSync(fileURLToPath(new URL("../../../client/public/_headers", import.meta.url).href), "utf8");
 
@@ -145,6 +146,77 @@ describe("the page's policy reports", () => {
     expect((await post(server, JSON.stringify(many), "application/reports+json")).status).toBe(204);
     expect(logged).toHaveBeenCalledTimes(CSP_REPORTS_PER_REQUEST);
     expect(await counted(server)).toEqual([{ region: "NG", key: "img-src", count: CSP_REPORTS_PER_REQUEST }]);
+  });
+});
+
+async function countedBlocked(server: ReturnType<typeof testServer>): Promise<{ region: string; key: string; count: number }[]> {
+  const day = time.dayName(time.utcDay(server.deps.now()));
+  const rows = await server.deps.stores.counters.days(day, day);
+  return rows
+    .filter((row) => row.name === CSP_BLOCKED_COUNTER)
+    .map(({ region, key, count }) => ({ region, key, count }))
+    .sort((a, b) => a.key.localeCompare(b.key));
+}
+
+describe("the blocked thing's kind", () => {
+  test("[server:csp-reports-to-own-origin] given a report-uri report of an inline script, when it is posted, then the blocked counter adds one under the directive and the kind inline, beside the directive's own count", async () => {
+    const server = testServer();
+    expect((await post(server, legacyReport({ "blocked-uri": "inline" }), "application/csp-report")).status).toBe(204);
+    expect(await counted(server)).toEqual([{ region: "NG", key: "script-src-elem", count: 1 }]);
+    expect(await countedBlocked(server)).toEqual([{ region: "NG", key: "script-src-elem:inline", count: 1 }]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given violations of every kind on the list, when they are posted, then each is counted under its kind: the browser's word, the scheme, an extension, the page's own origin, a host the policy names, or any other host", async () => {
+    const server = testServer();
+    const blocked: [string, string][] = [
+      ["inline", "script-src-elem:inline"],
+      ["eval", "script-src:eval"],
+      ["wasm-eval", "script-src:wasm-eval"],
+      ["trusted-types-sink", "require-trusted-types-for:trusted-types-sink"],
+      ["trusted-types-policy", "trusted-types:trusted-types-policy"],
+      ["data", "img-src:data"],
+      ["data:image/png;base64,c2VjcmV0", "font-src:data"],
+      [`blob:https://game.japacity.test/${PERSONAL.invite}`, "worker-src:blob"],
+      ["chrome-extension://abcdefghijklmnop/inject.js", "script-src-elem:extension"],
+      ["moz-extension://0a1b2c3d-4e5f/content.js", "style-src-elem:extension"],
+      ["safari-web-extension://ABCDEF/script.js", "connect-src:extension"],
+      [`https://game.japacity.test/assets/index.js?${PERSONAL.query}`, "script-src-elem:self"],
+      ["self", "style-src-attr:self"],
+      ["https://challenges.cloudflare.com/turnstile/v0/api.js", "frame-src:challenges.cloudflare.com"],
+      ["https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516", "script-src-elem:static.cloudflareinsights.com"],
+      ["https://cloudflareinsights.com/cdn-cgi/rum", "connect-src:cloudflareinsights.com"],
+      [`https://ads.example.test${PERSONAL.blockedPath}?${PERSONAL.query}`, "img-src:other-host"],
+      ["about:blank", "frame-src:other"],
+      ["", "media-src:other"],
+    ];
+    expect(blocked.length).toBeLessThanOrEqual(CSP_REPORTS_PER_REQUEST);
+    const body = blocked.map(([blockedURL, key]) => violation({ effectiveDirective: key.split(":")[0], blockedURL, documentURL: PAGE }));
+    expect((await post(server, JSON.stringify(body), "application/reports+json")).status).toBe(204);
+    const wanted = blocked.map(([, key]) => ({ region: "NG", key, count: 1 })).sort((a, b) => a.key.localeCompare(b.key));
+    expect(await countedBlocked(server)).toEqual(wanted);
+    for (const row of await countedBlocked(server)) expect(CSP_BLOCKED_KINDS as readonly string[]).toContain(row.key.slice(row.key.indexOf(":") + 1));
+  });
+
+  test("[server:csp-reports-to-own-origin] given a blocked address on a host the policy does not name, or the page's host on another scheme, when it is counted, then its key holds other-host and nothing of the address", async () => {
+    const server = testServer();
+    const body = [
+      violation({ effectiveDirective: "connect-src", blockedURL: `wss://user:pass@socket.example.test:8443${PERSONAL.blockedPath}?${PERSONAL.query}` }),
+      violation({ effectiveDirective: "img-src", blockedURL: "http://game.japacity.test/assets/a.png" }),
+      violation({ effectiveDirective: "script-src-elem", blockedURL: "https://challenges.cloudflare.com.example.test/api.js" }),
+      violation({ effectiveDirective: "script-src-elem", blockedURL: "http://static.cloudflareinsights.com/beacon.min.js" }),
+    ];
+    await post(server, JSON.stringify(body), "application/reports+json");
+    expect(await countedBlocked(server)).toEqual([
+      { region: "NG", key: "connect-src:other-host", count: 1 },
+      { region: "NG", key: "img-src:other-host", count: 1 },
+      { region: "NG", key: "script-src-elem:other-host", count: 2 },
+    ]);
+  });
+
+  test("[server:csp-reports-to-own-origin] given the shipped policy, when its hosts are read, then each is a kind the blocked counter names, so a report against an allowed host is never lost in other-host", () => {
+    const hosts = new Set([...HEADERS.matchAll(/https:\/\/([a-z0-9.-]+)/g)].map((match) => match[1] ?? ""));
+    expect(hosts.size).toBeGreaterThan(0);
+    for (const host of hosts) expect(CSP_BLOCKED_KINDS as readonly string[]).toContain(host);
   });
 });
 

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { content, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "../index";
+import { content, CSP_BLOCKED_KINDS, CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "../index";
 
 /** analytics:nightly-game-counters: the admin's numbers. */
 const LAUNCH = [
@@ -24,7 +24,7 @@ const LAUNCH = [
   "feedback/sent",
 ];
 /** analytics:nightly-game-counters (server:csp-reports-to-own-origin): the page policy's reports, counted by the server. */
-const REPORTS = ["client/csp"];
+const REPORTS = ["client/csp", "client/csp-blocked"];
 /** analytics:nightly-game-counters (account:two-lights-and-wink-lines): the lives being played, for the two lights. */
 const LIVES = ["lives/playing"];
 const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH, ...REPORTS, ...LIVES];
@@ -61,6 +61,16 @@ describe("the counter list", () => {
     expect(named("economy/held")?.keys).toContain("13+:over-500k");
     expect(HELD_BANDS.map((band) => band.from)).toEqual([0, 1, 5_000_000, 50_000_001]);
     expect(MONTH_BANDS.map((band) => band.from)).toEqual([1, 4, 13]);
+  });
+
+  test("[analytics:nightly-game-counters] [server:csp-reports-to-own-origin] given the page policy's reports, when the list is read, then the blocked counter is the server's, keyed by each directive and each kind of blocked thing, from a fixed list with no address in it", () => {
+    expect(CSP_BLOCKED_KINDS).toEqual(["inline", "eval", "wasm-eval", "trusted-types-policy", "trusted-types-sink", "data", "blob", "extension", "self", "challenges.cloudflare.com", "static.cloudflareinsights.com", "cloudflareinsights.com", "other-host", "other"]);
+    const keys = CSP_DIRECTIVES.flatMap((directive) => CSP_BLOCKED_KINDS.map((kind) => `${directive}:${kind}`));
+    expect(named("client/csp-blocked")).toEqual({ name: "client/csp-blocked", keys, source: "server" });
+    expect(named("client/csp-blocked")?.keys).toContain("script-src-elem:inline");
+    expect(named("client/csp-blocked")?.keys).toContain("other:other");
+    // A kind is a word or a host the policy names, never a path, a query or a scheme with something after it.
+    expect(CSP_BLOCKED_KINDS.filter((kind) => !/^[a-z][a-z0-9.-]*$/.test(kind))).toEqual([]);
   });
 
   test("[analytics:nightly-game-counters] [account:two-lights-and-wink-lines] given the lives being played, when the list is read, then the counter is the server's, keyed by where a life stands", () => {
