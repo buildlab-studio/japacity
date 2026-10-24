@@ -1,13 +1,14 @@
-// server:migration-before-deploy: one migration file, 0000_japacity, holds what three files built (a clean set of two and
-// 0002_dedication-lights), the hand-written function and trigger at its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
-// three, another with the one, and a walk of each catalog compared.
+// server:migration-before-deploy: the first migration, 0000_japacity, holds every table in full and then the
+// hand-written function and trigger. It stands for three migrations (a clean set of two and 0002_dedication-lights), and
+// this proves it builds the very structure the three build: one fresh PGlite migrated with the three, another with the
+// one, and a walk of each catalog compared.
 //
 // The three are kept for this test in __fixtures__/migrations-before-squash-2 (their SQL and journal unedited; the
 // snapshots are not needed to migrate). They are read from the tree and not from git because the check
 // in CI checks out one commit with no history, and a test that needs history would fail or skip there.
 //
-// Only the clean file itself is compared, never a migration added after it, so the test keeps proving the squash after
-// the set grows again.
+// Only the first file itself is compared, never a migration added after it, so the proof holds however many
+// migrations follow it.
 import { createHash } from "node:crypto";
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -22,10 +23,10 @@ import { afterAll, describe, expect, test } from "vitest";
 const BEFORE = fileURLToPath(new URL("./__fixtures__/migrations-before-squash-2", import.meta.url));
 const CLEAN = fileURLToPath(new URL("../migrations", import.meta.url));
 
-/** The three, in the order they ran on both Neon branches before the squash. */
+/** The three, in the order they run. */
 const OLD_TAGS = ["0000_japacity", "0001_functions-and-triggers", "0002_dedication-lights"];
 
-/** The SHA-256 of the three SQL files in order, as they stood before the squash, so the fixture cannot be edited to match. */
+/** The SHA-256 of the three SQL files in order, so the fixture cannot be edited to match. */
 const OLD_SQL_SHA256 = "86e1258543b51ff830e539f6f04cd860ba10f3c45258595c367af19511eedaa2";
 
 /** The clean set: one file, the generator's with the hand-written function and trigger at its end. */
@@ -128,7 +129,7 @@ async function walk(client: PGlite): Promise<Catalog> {
 }
 
 describe("the squashed clean set", () => {
-  test("[server:migration-before-deploy] given the three migrations kept as a fixture, when they are read, then they are the three as they stood before the squash, unedited", () => {
+  test("[server:migration-before-deploy] given the three migrations kept as a fixture, when they are read, then they are the three unedited: the same tags, the same files and the same SQL", () => {
     expect(journalOf(BEFORE).entries.map((entry) => entry.tag)).toEqual(OLD_TAGS);
     expect(readdirSync(BEFORE).filter((name) => name.endsWith(".sql")).sort()).toEqual(OLD_TAGS.map((tag) => `${tag}.sql`));
     const hash = createHash("sha256");
@@ -136,7 +137,7 @@ describe("the squashed clean set", () => {
     expect(hash.digest("hex")).toBe(OLD_SQL_SHA256);
   });
 
-  test("[server:migration-before-deploy] given the committed migrations, when their journal is read, then they start again at 0000 with the clean set's one file", () => {
+  test("[server:migration-before-deploy] given the committed migrations, when their journal is read, then they start at 0000 with the clean set's one file", () => {
     const entries = journalOf(CLEAN).entries;
     expect(entries.slice(0, CLEAN_TAGS.length).map((entry) => [entry.idx, entry.tag])).toEqual(CLEAN_TAGS.map((tag, idx) => [idx, tag]));
     // Drizzle's migrator applies an entry only when it is newer than the last one a database holds, so every later

@@ -135,7 +135,7 @@ function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void
   );
 }
 
-/** The picture for each part of the world's day, a stand-in until the sky has a tile of its own. */
+/** The picture for each part of the world's day, an emoji. */
 const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", afternoon: "☀️", evening: "🌇", night: "🌙" };
 
 /**

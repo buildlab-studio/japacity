@@ -74,7 +74,7 @@ function randomSeed(): string {
   return Array.from(words, (word) => word.toString(16).padStart(8, "0")).join("");
 }
 
-/** A save in segments, or a flat one written before saves had segments (decision 0004). */
+/** A save in segments, or a flat one with no segments (decision 0004). */
 function isSave(value: unknown): value is Save | FlatSave {
   if (typeof value !== "object" || value === null) return false;
   const save = value as Record<string, unknown>;

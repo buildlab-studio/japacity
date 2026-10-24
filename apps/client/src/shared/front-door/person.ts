@@ -10,7 +10,7 @@ import { readStyle, styleKey, type LookStyle } from "./style";
 import { browserStorage, PERSON_KEY } from "../storage/storage";
 
 export interface KeptPerson {
-  /** A shipped person's file name, `person_ada`: a whole look, never a stat. Absent where the look kept is one the game no longer ships: each reader then shows the look it shows with no person kept. */
+  /** A shipped person's file name, `person_ada`: a whole look, never a stat. Absent where the look kept is not among the shipped looks: each reader then shows the look it shows with no person kept. */
   look?: string;
   /** The character's first name, from the pool. Never the account's. */
   name: string;
@@ -30,7 +30,7 @@ const PHOTO = /^data:image\/(png|webp|jpeg);base64,/;
 type Read = Pick<Storage, "getItem">;
 type Write = Pick<Storage, "setItem">;
 
-/** The name and the archetype a kept person needs; the look is read on its own, so a look the game no longer ships drops alone. */
+/** The name and the archetype a kept person needs; the look is read on its own, so a look outside the shipped looks drops alone. */
 function isPerson(value: unknown): value is Record<string, unknown> & Pick<KeptPerson, "name" | "archetype"> {
   if (typeof value !== "object" || value === null) return false;
   const { name, archetype } = value as Record<string, unknown>;
@@ -52,11 +52,11 @@ export function readPerson(storage: Read | null = browserStorage()): KeptPerson 
   }
 }
 
-/** A person read from what was kept or sent; a look the game no longer ships drops alone. */
+/** A person read from what was kept or sent; a look outside the shipped looks drops alone. */
 function personFrom(parsed: unknown): KeptPerson | null {
   if (!isPerson(parsed)) return null;
   const { name, archetype } = parsed;
-  // A look the game no longer ships (an old `chr_` name, any name not of the looks) is dropped, never the person with it.
+  // A look outside the shipped looks (a `chr_` name, any other) is dropped, never the person with it.
   const look = typeof parsed.look === "string" && isLook(parsed.look) ? parsed.look : undefined;
   const style = readStyle(parsed.style);
   // A photo is kept as made too; one drawn in a style that does not read back is not the figure's.

@@ -74,7 +74,7 @@ function TurnGlyph() {
   );
 }
 
-/** A thumb's picture: a stand-in until the map and the phone have tiles of their own. */
+/** A thumb's picture, an emoji. */
 function ThumbPicture({ emoji }: { emoji: string }) {
   return (
     <span className="text-[22px] leading-none" aria-hidden data-thumb-picture>
