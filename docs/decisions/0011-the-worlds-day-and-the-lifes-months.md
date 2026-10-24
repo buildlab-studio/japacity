@@ -17,7 +17,7 @@ The month is lived in the simulation. The turn slice keeps `spent`, the month's 
 
 The body bounds a day. `quality.belly` and `quality.energy` move with acts and with the time lived, fold into wellbeing as the month turns and rest toward a middle figure, said in words and never as a meter (quality:body-belly-and-energy). Under the spent mark, an act that takes time waits for sleep (activity:spent-body-refuses-acts).
 
-The bank of turns is a count of banked turns, kept in state and filled by the server's grants (`turns/grant`), and it gates nothing: `turn/end` is never refused for an empty bank (turn:month-turns-on-empty-bank). It stays in state because no slice is removed (decision 0001), every recorded life replays its grants, and turns are what the server gives when players are owed for an outage (server:apologies-never-currency).
+The bank of turns is a count kept in state. Real time fills it, one turn every two real hours up to 24, by the server's `turns/grant` (clock:turns-earned-from-refill-time); a closed chapter fills it (turn:refill-fills-the-bank); each month lived takes one while it holds any. It never holds a month back: `turn/end` is never refused for an empty bank (turn:month-turns-on-empty-bank). Its one use is the bank-full notice (clock:full-bank-push-notification), and no screen shows it (clock:no-month-countdown-shown).
 
 ## Consequences
 
