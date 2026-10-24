@@ -9,6 +9,8 @@
 // as Cloudflare's client-side errors page asks: https://developers.cloudflare.com/turnstile/troubleshooting/client-side-errors/
 import { useEffect, useRef } from "react";
 
+import { trustedScriptUrl } from "../../shared/policy/trusted";
+
 export interface TurnstileOptions {
   sitekey: string;
   /** Returned by siteverify, which the server checks (account:bot-check-on-guest-creation). */
@@ -45,7 +47,8 @@ let loading: Promise<TurnstileApi> | null = null;
 export const loadTurnstile: LoadTurnstile = () => {
   loading ??= new Promise<TurnstileApi>((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = SCRIPT;
+    // Through the page's Trusted Types policy, which the content policy asks for (server:csp-holds-every-page).
+    script.src = trustedScriptUrl(SCRIPT);
     script.async = true;
     script.onload = () => {
       const api = (window as unknown as { turnstile?: TurnstileApi }).turnstile;
