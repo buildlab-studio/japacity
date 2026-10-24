@@ -37,8 +37,13 @@ describe("the file's needs name their acts", () => {
   });
 
   test("[route-gates:applying-for-endorsement] given each need of the endorsement, when its way is read, then it names an act that moves that need and the place it is taken", () => {
-    // The act each way names moves the quality the need reads (activity:waiting-months-build-profile): the course tech, the meetup and the talk the network.
-    const moves = (activity: string, quality: string) => (content.activity[activity as Id<"activity">]?.effects ?? []).some((effect) => effect.type === "quality/add" && effect.quality === quality && effect.amount > 0);
+    // The act each way names moves the quality the need reads (activity:waiting-months-build-profile): the course tech, by its band gains
+    // (quality:skill-bands-slow-gains), the meetup and the talk the network.
+    const moves = (activity: string, quality: string) => {
+      const entry = content.activity[activity as Id<"activity">];
+      const banded = quality === "quality.tech" && (entry?.bandGains ?? []).some((gain) => gain > 0);
+      return banded || (entry?.effects ?? []).some((effect) => effect.type === "quality/add" && effect.quality === quality && effect.amount > 0);
+    };
     expect(moves("activity.learn-tech", "quality.tech")).toBe(true);
     expect(moves("activity.meetup", "quality.network")).toBe(true);
     expect(moves("activity.conference-talk", "quality.network")).toBe(true);

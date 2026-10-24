@@ -145,7 +145,9 @@ const BODY_QUALITIES: ReadonlySet<string> = new Set(["quality.energy", "quality.
 export function tintOf(activity: string): FanTint {
   const entry = content.activity[activity as Id<"activity">];
   if (entry === undefined) return "plain";
-  const adds = entry.effects.flatMap((effect) => (effect.type === "quality/add" && effect.amount > 0 ? [effect.quality as string] : []));
+  // quality:skill-bands-slow-gains: a tech study's gain is its band gains, not an effect.
+  const banded = (entry.bandGains ?? []).some((gain) => gain > 0) ? ["quality.tech"] : [];
+  const adds = [...entry.effects.flatMap((effect) => (effect.type === "quality/add" && effect.amount > 0 ? [effect.quality as string] : [])), ...banded];
   if (entry.effects.some((effect) => effect.type === "activity/gig" || effect.type === "activity/start-job")) return "money";
   if (entry.cost.some((part) => part.reason === "food") || adds.includes("quality.belly")) return "food";
   if (adds.some((quality) => PEOPLE_QUALITIES.has(quality)) || entry.effects.some((effect) => effect.type === "people/moment")) return "people";

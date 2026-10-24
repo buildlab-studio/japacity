@@ -241,14 +241,15 @@ describe("rules that cross kinds", () => {
     // wallet:view-carries-month-pay: the offer and the job held say the month's pay as the wallet will book it.
     expect(offer?.pay).toEqual({ currency: "NGN", amount: pay });
     game.accept({ type: "offer/choose", offer: offer!.id, choice: "accept" });
-    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null });
+    // activity:naira-pay-reviewed-yearly: the teacher's pay is reviewed after its first twelve months.
+    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null, review: 13 });
     const salaryBefore = game.state.wallet.totals.in.salary?.NGN ?? 0;
 
     const month = game.endTurn();
 
     expect(month.events).toContainEqual(expect.objectContaining({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: pay, reason: "salary" }));
     expect((game.state.wallet.totals.in.salary?.NGN ?? 0) - salaryBefore).toBe(pay);
-    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 1, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null });
+    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 1, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null, review: 12 });
   });
 });
 
