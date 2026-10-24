@@ -101,7 +101,7 @@ export function englishOf(view: { qualities: readonly { id: string; value: numbe
 export interface TestChance {
   /** The chance of `bandNeeded`, which the nudge's long shot reads too. */
   band: ChanceBand;
-  /** "Band 6.0 this sitting: a long shot.", or with no band asked the band alone: "Your band this sitting: about 5.5." */
+  /** "Band 6.0 this sitting: a long shot.", or with no band asked the band alone: "Likely overall band score: 6.5" */
   words: string;
   /** "Study first: a month of study lifts the chance." on a long shot of a band asked, else null. */
   study: string | null;
