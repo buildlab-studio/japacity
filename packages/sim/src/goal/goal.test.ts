@@ -217,8 +217,11 @@ describe("goals open and are done in the chapter phase", () => {
 
   test("[goal:goals-open-and-complete] given the graduate home by choice, when the month ends and then ten and a half million naira is in the bank, then home with capital opens and then is done", () => {
     const game = homeByChoice();
+    // The recorded life comes home with more naira in the bank than the goal asks; it is spent first, so the goal opens undone.
+    applyEffects(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: game.state.wallet.pockets.NGN.bank, reason: "social" }]);
     game.endTurn();
     expect(isOpen(game, "goal.home-with-capital")).toBe(true);
+    expect(isDone(game, "goal.home-with-capital")).toBe(false);
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 1050000000, reason: "gift" }]);
     const result = game.endTurn();
     expect(isDone(game, "goal.home-with-capital")).toBe(true);

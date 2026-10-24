@@ -1,6 +1,6 @@
 // The cards after the flight (share:card-contents): the japacity
 // figure is how ready the move is, so once flown no card carries it. The graduate's recorded life, landed in
-// London, hunts the shop job twice, takes it and works a month: the first pay card abroad comes with
+// London, hunts the shop job four times, answers the December visit on the way, takes the job and works a month: the first pay card abroad comes with
 // no "100% Ready to go", and speaks of the landing instead.
 import type { PlayerView } from "@japacity/sim";
 import { render } from "@testing-library/react";
@@ -17,18 +17,21 @@ import { ShareCardFace } from "./ShareCard";
 
 type Card = NonNullable<PlayerView["card"]>;
 
-/** The graduate's careful life to its first pay abroad: two hunts for the shop job, the offer taken, a month worked. */
+/** The graduate's careful life to its first pay abroad: four hunts for the shop job, the December visit answered by staying, the offer taken, a month worked. */
 function firstPayCard(): Card {
   const game = recordedGame("graduate-careful");
   // Pounds enough that the landing's bills are paid and nothing but the work moves the story.
   setPockets(game, { GBP: 2_000_000 });
-  for (let month = 0; month < 4 && game.view().card?.kind !== "first-pay-abroad"; month += 1) {
+  for (let month = 0; month < 6 && game.view().card?.kind !== "first-pay-abroad"; month += 1) {
+    for (let question = game.view().setpiece?.question; question !== undefined && question !== null; question = game.view().setpiece?.question) {
+      game.accept({ type: "setpiece/answer", question: question.id, answer: question.allowed[0]! });
+    }
     const offer = game.view().offers.find((open) => open.entry === "offer.job");
     if (offer !== undefined) game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });
     game.endTurn(game.view().job.id === null ? [{ activity: "activity.job-hunt", param: "activity.job-uk-retail-part" }] : []);
   }
   const card = game.view().card;
-  if (card?.kind !== "first-pay-abroad") throw new Error("The graduate's first pay abroad did not come within four months.");
+  if (card?.kind !== "first-pay-abroad") throw new Error("The graduate's first pay abroad did not come within six months.");
   return card;
 }
 

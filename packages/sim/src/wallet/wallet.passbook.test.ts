@@ -177,13 +177,15 @@ describe("[wallet:savings-stamps] the stamps", () => {
 
   test("[wallet:savings-stamps] [moment:new-moments-join-same-way] given the money for the whole road held, when the month closes, then the road's own stamp is told with the way and its figure, after every fixed one it passed", () => {
     const game = planOn(nurse(), CARE_ROUTE);
-    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 300000000, reason: "gift" }]);
+    const [million, twoAndHalf] = content.tuning.wallet.stamps;
+    // Health care's whole cost lies between the first two fixed figures: ₦50,000 over it is held, past the million and short of the two and a half.
+    const before = passbook(game);
+    expect(before.target!.total).toBeGreaterThan(million!);
+    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: before.target!.total - before.held + 5000000, reason: "gift" }]);
     const result = game.endTurn();
     const stamped = result.events.filter((event): event is BaseEvent & Extract<WalletEvent, { type: "wallet/stamped" }> => event.type === "wallet/stamped");
-    const [million, twoAndHalf, five] = content.tuning.wallet.stamps;
-    // About ₦3.7m held: past the million and the two and a half, short of five.
-    expect(passbook(game).held).toBeLessThan(five!);
-    expect(stamped.filter((event) => !event.target).map((event) => event.at)).toEqual([million, twoAndHalf]);
+    expect(passbook(game).held).toBeLessThan(twoAndHalf!);
+    expect(stamped.filter((event) => !event.target).map((event) => event.at)).toEqual([million]);
     expect(stamped.at(-1)).toMatchObject({ target: true, route: CARE_ROUTE });
     const ready = linesOf(result.lines, "line.passbook.ready");
     expect(ready).toHaveLength(1);
