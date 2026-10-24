@@ -2,7 +2,7 @@
 
 Sources checked October 2026.
 
-Backs `../rules/city.md`, `../rules/advert.md` (section 3) and `../rules/guide.md` (sections 2 and 5).
+Backs `../rules/city.md`; section 3 backs `../rules/advert.md`, and sections 2 and 5 back `../rules/guide.md`.
 
 ## 1. The answer in short
 
