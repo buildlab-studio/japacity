@@ -129,7 +129,7 @@ export function mostAwayInWindow(spans: readonly MonthsAway[], window: number): 
   return most;
 }
 
-/** status:absence-breaks-settlement: the spans that may still share a window with months to come; older ones can no longer count. */
+/** status:absence-breaks-settlement: the spans that may still share a window with months to come; an older one cannot. */
 function stillInWindow(spans: readonly MonthsAway[], month: number, window: number): MonthsAway[] {
   return spans.filter((span) => span.to > month - window);
 }
@@ -153,7 +153,7 @@ export function keptForFlight(read: ReadCtx, token: { status: Id<"status">; sinc
   return { ...months, ...(kept.length === 0 ? {} : { away: kept }) };
 }
 
-/** return:papers-return-keeps-status: what the status held now carries home to be kept, with the months away still inside the window. */
+/** return:papers-return-keeps-status: what the status held carries home to be kept, with the months away still inside the window. */
 export function keptMonthsOf(read: ReadCtx, held: StatusState): KeptStatusMonths {
   const away = stillInWindow(held.away ?? [], read.state.turn.month, read.content.tuning.status.absenceWindowMonths);
   return {

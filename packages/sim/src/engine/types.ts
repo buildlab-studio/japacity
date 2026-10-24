@@ -180,7 +180,7 @@ export interface WayHome {
 
 /**
  * The status kept from a return with papers, as the view carries it beside `heldAbroad` (return:papers-return-keeps-status, status:absence-breaks-settlement):
- * `until`, the month it ends, null for one that never does; `restarts`, whether a flight back now would set the lawful months toward settlement back to 0.
+ * `until`, the month it ends, null for one that never does; `restarts`, whether a flight back this month would set the lawful months toward settlement back to 0.
  * Missing while nothing is kept.
  */
 export interface KeptView {
