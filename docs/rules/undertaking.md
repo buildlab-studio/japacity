@@ -1,6 +1,6 @@
 # Sponsoring a partner: the long promise
 
-> Every immigration number is the real UK or Canadian one, read online on 8 Oct 2026; the rest are working values. Sources at the end.
+> Every immigration number is the real UK or Canadian one, from the Sources at the end; the rest are working values.
 > Kinds: `person` (the sponsor's checks and the bar) and `obligation` (the undertaking, type `undertaking`). Rests on `person.md` (the partner gate, facts, person:partner-gate-needs, person:partner-application-decided, person:partner-status-renews and person:tied-status-clock-on-breakup), `obligation.md`, `abroad-money.md`, `credit.md`. Background: `../design/01-concept.md` section 6, `../research/05-real-people-family-and-safety.md` section 5.
 > For game design. Not immigration advice.
 
@@ -49,7 +49,7 @@ Sponsoring someone is a long promise, as it is in the real rules. The sponsor mu
 
 | Setting | Value | Source or "working value" | In content as |
 |---|---|---|---|
-| UK partner earnings floor | £29,000 a year, since 11 Apr 2024; no later change found | gov.uk, proof of income | `var.uk-partner-income` 2900000 |
+| UK partner earnings floor | £29,000 a year, since 11 Apr 2024 | gov.uk, proof of income | `var.uk-partner-income` 2900000 |
 | UK floor recommended by the advisory committee | £23,000 to £25,000, not adopted | committee report, 10 Jun 2025 (secondary) | a director story may move the var |
 | Canada floor for a spouse with no dependent children | none | IRPR s. 133(4) | `route.canada-spouse` `floorVar` null |
 | Canada undertaking for a spouse or partner | 3 years from permanent residence | IRPR s. 132(1) | `tuning.undertaking.months` 36 |
@@ -58,7 +58,7 @@ Sponsoring someone is a long promise, as it is in the real rules. The sponsor mu
 | Five-year bar after arriving through a partner | 5 years | IRPR s. 130(3) | `country.canada.partnerBarMonths` 60 |
 | Earlier spouse's undertaking still running | bars a new spousal sponsorship | canada.ca, spouse sponsorship eligibility | undertaking:defaults-bar-sponsoring |
 | Default on an undertaking | bars sponsoring | IRPR s. 133(1)(g) | undertaking:defaults-bar-sponsoring |
-| Social assistance, single adult, Ontario | C$733 a month, unchanged since 2018 | adviser summary, 2026; not checked on ontario.ca | `var.canada-assistance` 73300 |
+| Social assistance, single adult, Ontario | C$733 a month, unchanged since 2018 | Wealth North, 2026, a secondary source (Not verified) | `var.canada-assistance` 73300 |
 | Assistance offered under | C$1,000 in the bank and cash | working value | `tuning.undertaking.assistanceUnder` 100000 |
 | Grace on undertaking charges | 2 | working value | `obligation.undertaking-canada.grace` |
 | Standing on a miss, on default | -3, -10 | working values | the obligation's `onMiss`, `onDefault` |
