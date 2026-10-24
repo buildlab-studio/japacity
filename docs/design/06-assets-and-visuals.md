@@ -1,6 +1,6 @@
 # Assets and visuals
 
-**Context and scope.** How the game's 3D city, its people and its vehicles are made, kept small, and kept looking like one game: where each kind of model comes from, how a model is checked, the rules every model follows, the budgets, and the rules for generated media. The models are code in `../../models/` and `../../packages/model-kit/` (decision 0009); the rules are on `../rules/assets.md`; the budgets are in `../../models/budgets.json`.
+**Context and scope.** How the game's 3D city, its people and its vehicles are made, kept small, and kept looking like one game: where each kind of model comes from, how a model is checked, the rules every model follows, the budgets, and the rules for generated media. The models are code in `../../models/` and `../../packages/model-kit/` (decision 0009); the rules are on `../rules/assets.md`; the budgets are in `../../models/budgets.json`; the experiments the choice of code rests on are in `../research/12-models-written-as-code.md`.
 
 **Goals.**
 
