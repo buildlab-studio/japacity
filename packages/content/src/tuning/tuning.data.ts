@@ -260,8 +260,8 @@ export const tuning: Tuning = {
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
   city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 40, maxPixelRatio: 2, desktopMinWidth: 1024, walkMmPerS: 1400, stopShortMm: 300,
-    // world.md: nothing roams and there is no fly-over (world:nothing-roams, world:map-is-painted-lagos); the rides' fares in kobo and pace, and how far a walk goes (world:ride-sheet-shows-fares, place:rides-between-city-places: beyond it a fare is the only way).
-    roam: false, flyover: false,
+    // world.md: nothing roams (world:nothing-roams); the rides' fares in kobo and pace, and how far a walk goes (world:ride-sheet-shows-fares, place:rides-between-city-places: beyond it a fare is the only way).
+    roam: false,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,
       // place:rides-between-city-places: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
