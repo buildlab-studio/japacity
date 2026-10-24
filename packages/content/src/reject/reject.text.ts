@@ -2,7 +2,6 @@
 export const rejectText: Record<string, string> = {
   "reject.stale": "Something changed while you were deciding. Look again and try once more.",
   "reject.clock-went-back": "The clock went back. Try again.",
-  "reject.no-turns": "You have no months left to play. More come with time.",
   "reject.setpiece-open": "Answer what is in front of you first.",
   "reject.not-legal": "You cannot do that now.",
   "reject.cannot-afford": "You do not have enough money for that.",

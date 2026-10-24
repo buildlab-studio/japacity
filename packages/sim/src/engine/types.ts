@@ -2190,7 +2190,6 @@ export type CommandType = Command["type"];
 export type RejectionCode =
   | "stale"
   | "clock-went-back"
-  | "no-turns"
   | "setpiece-open"
   | "not-legal"
   | "cannot-afford"

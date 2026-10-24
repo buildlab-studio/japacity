@@ -36,10 +36,10 @@ describe("the month's end in the world", () => {
 
   test("given the authority rejects the month, then the rejection's words from content are shown on the Calendar", async () => {
     const { authority, store } = await renderWithView(<Calendar />, engineView());
-    authority.rejectNext({ code: "no-turns", detail: "No turn is banked." });
+    authority.rejectNext({ code: "setpiece-open", detail: "A set piece is open." });
     await act(() => store.getState().endMonth());
     const alert = await screen.findByRole("alert");
-    expect(alert.textContent).toContain(text["reject.no-turns"]);
+    expect(alert.textContent).toContain(text["reject.setpiece-open"]);
   });
 
   test("given a split payment and a doubled salary, then the results tell each once: one salary line, and the living once in what was kept", async () => {
