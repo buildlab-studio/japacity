@@ -9,7 +9,7 @@ Losing status is a hard turn, not an ending: a month to fix it from inside, then
 
 ## 2. Why
 
-Before this page a lapsed status turned into a detection draw of 3% a month, and a hit sent the character home at once, banned for ten years. That is harsher than life in two ways. Real enforcement is slow: the UK removed about 9,914 people in 2025 against an estimated 700,000 to 900,000 without papers, about 1% to 1.5% a year, where the game's 3% a month was about 25 times that. And real life keeps doors open: a late application within days, leaving by choice for a short ban, the returns service, a partner who is settled. So the game removes no one at once: the player can still redo a master's, go with someone on a visa, or go home by choice, and removal is the last case.
+Real enforcement is slow: the UK removed about 9,914 people in 2025 against an estimated 700,000 to 900,000 without papers, about 1% to 1.5% a year. Real life also keeps doors open: a late application within days, leaving by choice for a short ban, the returns service, a partner who is settled. So the game removes no one at once: the player can still redo a master's, go with someone on a visa, or go home by choice, and removal is the last case. Detection is 1% a month, 2% with cash work: about eight times real enforcement, so the risk is felt without ending lives at random.
 
 ## 3. The three stages
 
