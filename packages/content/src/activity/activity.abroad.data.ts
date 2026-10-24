@@ -370,13 +370,13 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     cost: [{ currency: "GBP", amount: pounds(30), reason: "study" }],
     effects: [gain("quality.english", 6), wellbeing(-2)],
   }),
-  // The NMC tests: care 60, no pin held or pending, £1,170.
+  // The NMC tests: care 60, no pin held or pending, £1,226: the evaluation £167, the computer test £83, the clinical exam £794, registration £182.
   "activity.nmc-tests": free(
     "activity.nmc-tests",
     "country.uk",
     [IN_UK, { type: "quality/min", quality: "quality.care", value: 60 }, { type: "document/absent", document: "document.nmc-pin" }],
     {
-      cost: [{ currency: "GBP", amount: pounds(1170), reason: "fee-test" }],
+      cost: [{ currency: "GBP", amount: pounds(1226), reason: "fee-test" }],
       effects: [{ type: "document/request", document: "document.nmc-pin" }],
     },
   ),
@@ -434,7 +434,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   // The interface's name for wallet/remit: it opens the remit sheet. Nothing happens in the slot itself.
   "activity.send-money": free("activity.send-money", null, [ABROAD], { cost: [], effects: [] }),
   // return:december-visit-set-piece: in the December tick, the fare both ways times the December factor:
-  // £380 x 2 x 1.7, C$1,350 x 2 x 2.2, AED 1,300 x 2 x 1.8 (place.md).
+  // £380 x 2 x 1.7, C$1,350 x 2 x 1.2, AED 1,300 x 2 x 1.4 (place:december-factor-from-the-real-median).
   // An overstayer cannot fly out and back, so not on the overstayer status; and
   // none from Italy, where the only status is irregular. These slots open no set piece:
   // the place kind opens the December set piece in the same tick.
@@ -475,7 +475,7 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
     "country.canada",
     [IN_CANADA, { type: "var/min", var: "var.season-december", value: 1 }, { type: "not", of: { type: "status/is", statuses: ["status.canada-overstayer"] } }],
     {
-      cost: [{ currency: "CAD", amount: cad(5940), reason: "fare" }],
+      cost: [{ currency: "CAD", amount: cad(3240), reason: "fare" }],
       effects: [gain("quality.standing", 12), wellbeing(6)],
     },
   ),
@@ -484,7 +484,7 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
     "country.uae",
     [IN_UAE, { type: "var/min", var: "var.season-december", value: 1 }, { type: "not", of: { type: "status/is", statuses: ["status.uae-irregular"] } }],
     {
-      cost: [{ currency: "AED", amount: aed(4680), reason: "fare" }],
+      cost: [{ currency: "AED", amount: aed(3640), reason: "fare" }],
       effects: [gain("quality.standing", 12), wellbeing(6)],
     },
   ),

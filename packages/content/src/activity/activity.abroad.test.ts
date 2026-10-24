@@ -121,17 +121,17 @@ describe("activities abroad", () => {
     // The Gulf contract's salary is a month: twelve of them make the year.
     expect(activity["activity.job-gulf-guard"]?.pay).toEqual({ currency: "AED", amount: { term: "salary", bp: 120000 } });
     expect(activity["activity.job-uk-kitchen-cash"]).toMatchObject({ cash: true, withheldBp: 1500 });
-    // The NMC tests cost £1,170.
-    expect(activity["activity.nmc-tests"]?.cost).toEqual([{ currency: "GBP", amount: 117000, reason: "fee-test" }]);
+    // The NMC tests cost £1,226: the evaluation £167, the computer test £83, the clinical exam £794 and registration £182.
+    expect(activity["activity.nmc-tests"]?.cost).toEqual([{ currency: "GBP", amount: 122600, reason: "fee-test" }]);
     // The car: 10% of £9,500 down, the rest on finance.
     expect(activity["activity.buy-car-finance"]?.cost).toEqual([{ currency: "GBP", amount: 95000, reason: "car-deposit" }]);
     expect(activity["activity.buy-car-finance"]?.effects).toEqual([{ type: "obligation/open", obligation: "obligation.car", principal: 855000 }]);
     // A flat's deposit is one month: £950.
     expect(activity["activity.rent-flat-uk"]?.cost).toEqual([{ currency: "GBP", amount: 95000, reason: "rent" }]);
-    // December home: the fare both ways times the factor. £380 x 2 x 1.7, C$1,350 x 2 x 2.2, AED 1,300 x 2 x 1.8.
+    // December home: the fare both ways times the factor. £380 x 2 x 1.7, C$1,350 x 2 x 1.2, AED 1,300 x 2 x 1.4.
     expect(activity["activity.december-home-uk"]?.cost).toEqual([{ currency: "GBP", amount: 129200, reason: "fare" }]);
-    expect(activity["activity.december-home-canada"]?.cost).toEqual([{ currency: "CAD", amount: 594000, reason: "fare" }]);
-    expect(activity["activity.december-home-uae"]?.cost).toEqual([{ currency: "AED", amount: 468000, reason: "fare" }]);
+    expect(activity["activity.december-home-canada"]?.cost).toEqual([{ currency: "CAD", amount: 324000, reason: "fare" }]);
+    expect(activity["activity.december-home-uae"]?.cost).toEqual([{ currency: "AED", amount: 364000, reason: "fare" }]);
     // The nurse's pay: a staff nurse at ₦180,000 a month (route-gates.md).
     expect(activity["activity.job-nurse"]?.pay).toEqual({ currency: "NGN", amount: 18000000 });
   });

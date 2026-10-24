@@ -9,7 +9,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     id: "country.uk",
     currency: "GBP",
     fare: pounds(380),
-    // 1.7, in basis points.
+    // 1.7, in basis points (place:december-factor-from-the-real-median): £1,108 times 1.15 over £760.
     decemberFactorBp: 17000,
     // 2026/27: personal allowance, basic rate plus employee national insurance.
     taxFreeLine: pounds(12570),
@@ -28,8 +28,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     id: "country.canada",
     currency: "CAD",
     fare: cad(1350),
-    // 2.2
-    decemberFactorBp: 22000,
+    // 1.2 (place:december-factor-from-the-real-median): C$2,895 times 1.15 over C$2,700.
+    decemberFactorBp: 12000,
     // A flat working band: 25% above C$16,000.
     taxFreeLine: cad(16000),
     taxBp: 2500,
@@ -49,8 +49,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     id: "country.uae",
     currency: "AED",
     fare: aed(1300),
-    // 1.8
-    decemberFactorBp: 18000,
+    // 1.4 (place:december-factor-from-the-real-median): AED 3,147 times 1.15 over AED 2,600.
+    decemberFactorBp: 14000,
     // No income tax.
     taxFreeLine: 0,
     taxBp: 0,
@@ -69,8 +69,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     id: "country.italy",
     currency: "EUR",
     fare: euros(480),
-    // 2.0
-    decemberFactorBp: 20000,
+    // 1.2 (place:december-factor-from-the-real-median): €967 times 1.15 over €960.
+    decemberFactorBp: 12000,
     // Italy's only job is cash work, and cash work is untaxed (ladders:cash-jobs-paid-in-hand),
     // so the page gives Italy no tax line and none is entered.
     taxFreeLine: 0,
