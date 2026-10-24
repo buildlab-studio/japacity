@@ -126,18 +126,18 @@ describe("the japa type, read at the send-off", () => {
     expect(teacher.card!.topActivities[0]).toBe("activity.family-time");
     expect(teacher.card!.standing).toBe(content.quality["quality.standing"]!.max);
     expect(japaTypeOf(teacher)).toBe("family-anchor");
-    // The graduate (seed golden-graduate-465): its standing ends at the top, 100, so it is the family anchor before the careful
+    // The graduate (seed golden-graduate-238): its standing ends at the top, 100, so it is the family anchor before the careful
     // saver its kept months would make it, though the hunt leads the things it did most.
     const graduate = sendOff("graduate-careful");
-    expect(graduate.card).toMatchObject({ months: 49, standing: 100 });
+    expect(graduate.card).toMatchObject({ months: 51, standing: 100 });
     expect(graduate.card!.topActivities[0]).toBe("activity.job-hunt");
     expect(japaTypeOf(graduate)).toBe("family-anchor");
-    // The banker: the senior bank job leads its things done most; its standing in the top band with time with the family among
-    // them makes it the family anchor before the refusal on the funds its way met first would make it the long way round.
+    // The banker: the senior bank job leads its things done most, time with the family among them; its standing at the top of its
+    // range makes it the family anchor before the refusal on the funds its way met first would make it the long way round.
     const banker = sendOff("banker-borrower");
     expect(banker.card!.topActivities[0]).toBe("activity.job-bank-senior");
     expect(banker.card!.topActivities).toContain("activity.family-time");
-    expect(banker.card!.standing).toBeLessThan(content.quality["quality.standing"]!.max);
+    expect(banker.card!.standing).toBe(content.quality["quality.standing"]!.max);
     expect(banker.routes.find((route) => route.id === banker.card!.route)?.refusals).toBe(1);
     expect(japaTypeOf(banker)).toBe("family-anchor");
     // The developer came home once and went again: the long way round, before anything else.

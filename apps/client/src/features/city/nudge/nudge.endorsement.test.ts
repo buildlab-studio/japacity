@@ -25,7 +25,8 @@ function neverEndorsed(used: Content): Content {
 
 /** A developer at the endorsement's bars, the talent route heard of and looked into. */
 function talentLife(): Game {
-  const game = readyLife(content, { quiet: true, change: neverEndorsed, qualities: { "quality.tech": 85, "quality.portfolio": 5, "quality.network": 70 } });
+  // Three years across the developer jobs: the track record the endorsement asks (route-gates:applying-for-endorsement).
+  const game = readyLife(content, { quiet: true, change: neverEndorsed, tenure: { "activity.job-junior-developer": 36 }, qualities: { "quality.tech": 85, "quality.portfolio": 5, "quality.network": 70 } });
   for (let month = 0; month < 4 && game.state.route["route.uk-masters"]!.state === "unknown"; month += 1) game.endTurn();
   applyEffects(game, [{ type: "route/hear", route: TALENT, via: "meetup" }]);
   game.endTurn([slot("activity.look-into-route", TALENT)]);

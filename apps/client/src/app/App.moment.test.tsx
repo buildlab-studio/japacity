@@ -16,8 +16,8 @@ import { renderWithView } from "../shared/testing/render";
 import { cardKey } from "../shared/ui/stage";
 import { say } from "../shared/words/text";
 
-// The graduate's month that closes its first chapter, finding its feet, is its 25th command: nothing else is told that month.
-const CLOSE = 24;
+// The graduate's month that closes its second chapter, building the file, is its 61st command: nothing bigger is told that month.
+const CLOSE = 60;
 
 const REFUSED: ReportLine = { key: "line.route.refused", params: { route: "route.uk-masters", reason: "interview" }, tone: "bad", attention: true, counts: [] };
 

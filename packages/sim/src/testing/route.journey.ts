@@ -21,6 +21,8 @@ export interface LifeOptions {
   from?: Id<"scenario">;
   /** Qualities over the ready life's. */
   qualities?: Partial<Record<Id<"quality">, number>>;
+  /** Months already worked in each job, over the ready life's own: a track record with no job held now. */
+  tenure?: Partial<Record<Id<"activity">, number>>;
   pockets?: ScenarioEntry["pockets"];
   documents?: ScenarioEntry["documents"];
   seed?: string;
@@ -58,6 +60,7 @@ export function readyContent(base: Content, options: LifeOptions = {}): Content 
     ...life,
     id: READY,
     qualities: { ...life.qualities, ...options.qualities } as ScenarioEntry["qualities"],
+    tenure: { ...life.tenure, ...options.tenure } as ScenarioEntry["tenure"],
     pockets: options.pockets ?? { NGN: { bank: 2000000 * UNIT, cash: 1500000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } },
     documents: options.documents ?? READY_PAPERS,
   };
