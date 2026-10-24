@@ -49,6 +49,8 @@ export const activityText: Record<string, string> = {
   "activity.look-into-route.blurb": "The route's full list of requirements, as it stands today. It says nothing about your chances.",
   "activity.get-passport.name": "Apply for a passport",
   "activity.get-passport.blurb": "You fill the form and pay the fee. The office has it now.",
+  "activity.degree-english.name": "Ask for your degree's English statement",
+  "activity.degree-english.blurb": "You pay to have your degree confirmed as taught in English. It stands in for the English test on the UK work routes.",
   "activity.get-transcript.name": "Chase your transcript",
   "activity.get-transcript.blurb": "You go back to your university and push until they send it.",
   "activity.sit-english-test.name": "Sit the English test",

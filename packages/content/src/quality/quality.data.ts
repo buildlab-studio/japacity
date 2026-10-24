@@ -2,12 +2,16 @@
 import type { Id, QualityEntry } from "@japacity/sim";
 
 const UK: Id<"route"> = "route.uk-masters";
+const CANADA: Id<"route"> = "route.canada-points";
+const CARE: Id<"route"> = "route.uk-care";
+const SKILLED: Id<"route"> = "route.uk-skilled";
 
 export const qualityTable:Record<Id<"quality">, QualityEntry> = {
   "quality.age-months": { id: "quality.age-months", group: "self", min: 192, max: 1200, shown: true, counts: [] },
   "quality.education-level": { id: "quality.education-level", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
   "quality.education-grade": { id: "quality.education-grade", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
-  "quality.english": { id: "quality.english", group: "skills", min: 0, max: 100, shown: true, counts: [UK] },
+  // document:who-sits-the-english-test: the band counts for Canada's points, health care and the skilled worker; the master's English is the degree.
+  "quality.english": { id: "quality.english", group: "skills", min: 0, max: 100, shown: true, counts: [CANADA, CARE, SKILLED] },
   "quality.tech": { id: "quality.tech", group: "skills", min: 0, max: 100, shown: true, counts: [] },
   // The body (quality:body-belly-and-energy, decision 0011): moved by what you do today and said in words, never as a meter.
   "quality.belly": { id: "quality.belly", group: "self", min: 0, max: 100, shown: false, counts: [], start: 60 },

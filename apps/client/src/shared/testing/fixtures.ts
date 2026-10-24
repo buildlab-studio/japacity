@@ -285,6 +285,7 @@ export function richAbroadView(): PlayerView {
       work: "one-employer",
       nextStep: "status.next.settle",
       renew: { months: 24, currency: "GBP", fee: 186_500, surcharge: 207_000 },
+      overstay: null,
     },
     credit: {
       mark: 24,

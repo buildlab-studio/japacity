@@ -544,6 +544,20 @@ const stories: Record<Id<"news">, NewsEntry> = {
     announce: after("news.uae-ban", [8, 16]),
   }),
 
+  // status:uae-amnesty: four months in which anyone on the UAE's irregular status may leave with no fine and no ban (Sep to Dec 2024).
+  "news.uae-amnesty": pool({
+    id: "news.uae-amnesty",
+    touches: [GULF],
+    group: "abroad",
+    needs: [],
+    chanceBp: 100,
+    rumourLead: 1,
+    forceLag: 2,
+    endsAfter: 4,
+    sets: [{ var: "var.uae-amnesty", value: 1 }],
+    revert: true,
+  }),
+
   // Home.
 
   "news.passport-fee-doubles": pool({
@@ -694,6 +708,7 @@ const SOURCES: Record<Id<"news">, Sources> = {
   "news.canada-funds-rise": told("official"),
   "news.uae-ban": told("paper", "street", "paper"),
   "news.uae-lifted": told("official", "street"),
+  "news.uae-amnesty": told("official", "street"),
   "news.passport-fee-doubles": told("official"),
   "news.fuel-subsidy": told("radio", "street"),
   "news.inflation-eases": told("official", "paper"),

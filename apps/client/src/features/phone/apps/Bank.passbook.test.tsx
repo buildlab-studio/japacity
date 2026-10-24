@@ -55,7 +55,8 @@ describe("the Bank's first page, the passbook", () => {
     expect(pace).toContain(say("passbook.pace", { months: book.months! }));
     const best = book.roads.find((road) => road.road === book.best)!;
     expect(document.querySelector("[data-pace-best]")?.getAttribute("data-pace-best")).toBe(String(best.months));
-    expect(pace).toContain(`${String(best.months)}.`);
+    // A road that covers the whole cost at once says so in words, not as a nought.
+    expect(pace).toContain(best.months === 0 ? `${say("passbook.with.now")}.` : `${String(best.months)}.`);
     // The first page comes before the rest of the bank.
     const order = ["[data-passbook]", "[data-stamps]", "[data-roads]", "[data-bank-saved]", "[data-bank-lately]"].map((selector) => document.querySelector(selector));
     expect(order.slice(1).every((element, index) => (order[index]!.compareDocumentPosition(element!) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)).toBe(true);
@@ -180,7 +181,12 @@ describe("the Bank's first page, the passbook", () => {
 describe("a stamp as a moment", () => {
   test("[wallet:savings-stamps] [moment:new-moments-join-same-way] [moment:outcomes-that-are-moments] given a month whose close reached stamps, when its lines are read, then the highest is the one card, the sum held as its figure", () => {
     const game = nurse();
-    viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 250_000_000, reason: "gift" }]);
+    // Enough that the month's close passes the road's own cost and no fixed stamp above it, so the road's is the highest reached.
+    const before = passbookOf(game.view());
+    const above = content.tuning.wallet.stamps.find((stamp) => stamp > before.target!.total)!;
+    const gift = before.target!.total - before.held + 1_000_000;
+    expect(before.target!.total + 1_000_000).toBeLessThan(above);
+    viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: gift, reason: "gift" }]);
     const lines = game.endTurn().lines;
     const view = game.view();
     const line = momentLine(lines, view);

@@ -585,15 +585,20 @@ describe("the view and the record", () => {
       expect(moved).toBe(forecast.standing);
       if (forecast.paidFrom === "local") expect(game.state.wallet.pockets.GBP.bank).toBe(pounds - forecast.fare.amount);
       if (forecast.paidFrom === "naira") expect(game.state.wallet.pockets.NGN.bank).toBe(naira - forecast.naira);
-      if (forecast.paidFrom === null) expect(game.state.wallet.pockets.NGN.bank).toBe(naira);
+      // place:returns-service-takes-you-home: an assisted return from the UK brings the returns service's grant, which the forecast names.
+      const grant = shape === "assisted" ? (forecast.scheme?.grant.amount ?? 0) : 0;
+      if (forecast.paidFrom === null) expect(game.state.wallet.pockets.NGN.bank).toBe(naira + grant);
     },
   );
 
-  test("[return:routes-run-again-from-home] given a return, when the routes are read, then the departed route and its record are as they were", () => {
+  test("[return:routes-run-again-from-home] [route:lapsed-route-known-again] given a return, when the routes are read, then the route flown is known again with its record kept, and every other route is as it was", () => {
     const game = flown(content);
     const before = game.state.route;
     comeHome(game);
-    expect(game.state.route).toEqual(before);
+    const { [UK_ROUTE]: flownBefore, ...others } = before;
+    const { [UK_ROUTE]: flownAfter, ...othersAfter } = game.state.route;
+    expect(othersAfter).toEqual(others);
+    expect(flownAfter).toMatchObject({ state: "known", refusals: flownBefore!.refusals, lastRefusal: flownBefore!.lastRefusal, heardMonth: flownBefore!.heardMonth, school: null, depositPaid: 0 });
   });
 });
 

@@ -8,9 +8,9 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
   "country.uk": {
     id: "country.uk",
     currency: "GBP",
-    fare: pounds(620),
-    // 2.5, in basis points.
-    decemberFactorBp: 25000,
+    fare: pounds(380),
+    // 1.7, in basis points.
+    decemberFactorBp: 17000,
     // 2026/27: personal allowance, basic rate plus employee national insurance.
     taxFreeLine: pounds(12570),
     taxBp: 2800,
@@ -48,7 +48,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
   "country.uae": {
     id: "country.uae",
     currency: "AED",
-    fare: aed(1900),
+    fare: aed(1300),
     // 1.8
     decemberFactorBp: 18000,
     // No income tax.

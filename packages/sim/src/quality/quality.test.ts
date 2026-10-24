@@ -266,14 +266,16 @@ describe("report lines", () => {
   test("[quality:gains-name-their-routes] given a gain to a quality that counts toward a route, when it is reported, then the line carries the route", () => {
     const game = graduate();
     const result = applyEffects(game, [add("quality.english", 6)]);
-    expect(content.quality["quality.english"]!.counts).toEqual([UK_ROUTE]);
+    // document:who-sits-the-english-test: the band counts for the routes that still ask one.
+    const routes: Id<"route">[] = ["route.canada-points", "route.uk-care", "route.uk-skilled"];
+    expect(content.quality["quality.english"]!.counts).toEqual(routes);
     expect(result.lines).toEqual([
       {
         key: "line.quality.gain",
         params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]!, source: "offer.test.yes" },
         tone: "good",
         attention: false,
-        counts: [UK_ROUTE],
+        counts: routes,
       },
     ]);
   });

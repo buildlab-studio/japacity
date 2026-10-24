@@ -1,6 +1,6 @@
 # Route gates: sponsor, points, endorsement, contract
 
-> Numbers are the real ones at the dates given, as working values. Sources at the end.
+> Numbers are the real ones at the dates given, as working values; where the game differs from real life, the real value and the factor stand beside it. Sources at the end.
 > Kind: `route`. The study gate is `route.md`. Background: `../research/01-japa-journey.md`, `../research/02-all-routes-and-timeline.md`, `../research/03-life-abroad-and-return.md`, `../research/07-status-cliffs-and-restarts.md`.
 > For game design. Not immigration advice. The sponsors, agents and employers are invented.
 
@@ -16,7 +16,11 @@ Every route moves through the states in `route.md`, keeps a checklist and a wind
 
 **route-gates:route-entry-gate-block** A route entry carries `country`, `status`, `refusalBaseBp` and its gate's block: the sponsor block names the salary and maintenance vars, the find chance, the English band, the qualification documents, the strictness var, the surcharge years and the job held on arrival; the endorsement block names its document, chances, cooldown, fee var and surcharge years; the points block its table, funds, cut-off, fee and decision vars and the profile months. The application records the gate's own strictness and surcharge (route:application-fixes-figures), and the funds a route shows are the gate's own line in its own currency (the maintenance line in pence, the Canadian funds in cents; the talent and contract routes show none). Its checklist weights still add up to 100 (japacity:figure-is-whole-percent).
 
-**route-gates:deception-bans-country** A refusal for deception (a sponsor that was a fraud, route-gates:fraud-sponsor-refused) moves every known or applying route into that country to `refused` until the month plus the country's `deceptionBanMonths`, and the ban lifts in that month with the route known again. A removal's ban (place:removal-bans-the-country) stops a route into that country being heard of or looked into, and a partner route into it being applied for, until the ban lifts; no route moves. The fraud agent's refusal (route-gates:gulf-application-needs) bans nothing.
+**route-gates:deception-bans-country** A refusal for deception (a sponsor that was a fraud, route-gates:fraud-sponsor-refused) moves every known or applying route into that country to `refused` until the month plus the country's `deceptionBanMonths`, and the ban lifts in that month with the route known again. A removal's ban (place:removal-bans-the-country), and the ban a return from an overstay records (place:leaving-an-overstay-bans), stop a route into that country being heard of or looked into, and a partner route into it being applied for, until the ban lifts; no route moves. The fraud agent's refusal (route-gates:gulf-application-needs) bans nothing.
+
+**route-gates:in-country-grant-switches-status** An application made in the country it is for (status:grace-allows-in-country-applications, person:partner-route-in-country) is not flown. Its grant moves the route from `granted` to `departed` in the same `clocks` phase, with no `route/depart`, no flight and no `place/move`, and applies `status/grant` for the route's status, which replaces the overstayer status and clears its notice (status:notice-ends-in-removal). The line says the new permission in a person's words. Real: a switch of permission inside the UK, or an inland application in Canada.
+
+**route-gates:canada-return-asks-authorisation** After a removal from Canada's ban lifts (place:removal-bans-the-country), the first application into Canada (the pool's invitation fee, route-gates:pool-draws-invite, or a partner or accompanying application's fee) adds the authorisation to return, `var.canada-arc-fee` (C$492.50), and the removal costs repaid, `var.canada-removal-cost` (C$3,840), taken once as foreign fees with the reason `fee-visa`; the slice keeps the removal as owing until they are paid, and the route's view names them. Real: a deportation order bars return for good unless an Authorization to Return to Canada is granted, at the officer's discretion, after the removal costs are repaid; the game ends the bar at 120 months and makes the authorisation certain.
 
 ## The sponsor gate: `route.uk-care`, `route.uk-skilled`
 
@@ -26,7 +30,7 @@ A sponsor is an employer abroad who holds a licence and gives you a certificate.
 
 **route-gates:taking-sponsor-records-it** Taking a sponsor offer records the sponsor on the route: the offer's `salary` term (in pence a year), the employer key, and hidden whether it is a fraud (offer:opening-fixes-terms-and-fraud decides that when the offer opens). An honest sponsor costs nothing: the employer pays the certificate and the skills charge, and a sponsor that asks for money is a sign. A fraud takes its `fee` term from cash with the reason `fee-agent` and records a sponsor all the same.
 
-**route-gates:sponsor-application-needs** Applying needs: the route known and its window at 1 or more; a sponsor recorded; the sponsor's salary at or above the route's salary bar (`var.uk-skilled-salary` or `var.uk-care-salary`); the route's qualification documents held (below); the English result at or above the route's band; the TB certificate; the passport; and for `uk-skilled` the maintenance funds `var.uk-skilled-maintenance` covered at one month end (route:funds-held-month-count with the sponsor route's own funds line). The visa fee and the surcharge for the status's months are the activity's cost.
+**route-gates:sponsor-application-needs** Applying needs: the route known and its window at 1 or more; a sponsor recorded; the sponsor's salary at or above the route's salary bar (`var.uk-skilled-salary` or `var.uk-care-salary`); the route's qualification documents held (below); the English met, by the degree's English statement held (document:degree-english-statement) or by the English result at or above the route's band, 55 (B2); the TB certificate (not asked of an application made in country, status:grace-allows-in-country-applications); the passport; and for `uk-skilled` the maintenance funds `var.uk-skilled-maintenance` covered at one month end (route:funds-held-month-count with the sponsor route's own funds line). The visa fee and the surcharge for the status's months are the activity's cost.
 
 **route-gates:fraud-sponsor-refused** The decision uses route-gates:gate-decision-draw-terms with the strictness, earlier refusals and the sponsor's honesty: a fraud sponsor is refused with the reason `sponsor` whatever the draw, and route-gates:deception-bans-country applies. An honest sponsor's draw uses the route's base, plus 10 per strictness point, plus 800 per earlier refusal, minus 200 for a second upper or better. The unexplained share is not read.
 
@@ -40,8 +44,8 @@ A sponsor is an employer abroad who holds a licence and gives you a certificate.
 
 | Route | Hear if | Hear by | Window var | Country | Status | Base refusal | Salary bar | Visa fee | Surcharge | Band | Qualification | Checklist (weight) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `route.uk-care` | `quality.care` 30 or more | 4 | `var.uk-care-window`, start 0 | uk | `status.uk-sponsored` | 500 | `var.uk-care-salary` 2500000 pence | `var.uk-care-visa-fee` 32400 | none (exempt) | 40 (B1) | licence, verification | licence 10, verification 14, certificate 5, passport 6, english 10, sponsor 25, tb 5, police 5, salary 10, applied 10 |
-| `route.uk-skilled` | bachelor's and 24 months in any job | 6 | `var.uk-skilled-window`, start 2 | uk | `status.uk-sponsored` | 500 | `var.uk-skilled-salary` 4170000 pence | `var.uk-skilled-visa-fee` 81900 | `var.uk-surcharge-year` times 3 | 40 (B1) | degree | degree 8, passport 6, english 10, sponsor 30, salary 10, funds 10 (partial), tb 6, police 5, applied 15 |
+| `route.uk-care` | `quality.care` 30 or more | 4 | `var.uk-care-window`, start 0 | uk | `status.uk-sponsored` | 500 | `var.uk-care-salary` 2500000 pence | `var.uk-care-visa-fee` 32400 | none (exempt) | 55 (B2), or the degree's statement | licence, verification | licence 10, verification 14, certificate 5, passport 6, english 10 (the statement, or band 55), sponsor 25, tb 5, police 5, salary 10, applied 10 |
+| `route.uk-skilled` | bachelor's and 24 months in any job | 6 | `var.uk-skilled-window`, start 2 | uk | `status.uk-sponsored` | 500 | `var.uk-skilled-salary` 4170000 pence | `var.uk-skilled-visa-fee` 81900 | `var.uk-surcharge-year` times 3 | 55 (B2), or the degree's statement | degree | degree 8, passport 6, english 10 (the statement, or band 55), sponsor 30, salary 10, funds 10 (partial), tb 6, police 5, applied 15 |
 
 ### Entries: sponsor offers
 
@@ -175,7 +179,12 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Care route closed to applicants abroad | 22 Jul 2025 | | `var.uk-care-window` start 0 |
 | Canada proof of funds, one person | C$15,263 | 7 Jul 2025 | `var.canada-funds` 1526300 |
 | Canada credential assessment | C$329 | 2025 | `var.canada-eca-fee` 32900 |
-| Canada application fee | C$1,525 | 2025 | `var.canada-apply-fee` 152500 |
+| Canada application fee | C$1,590: C$990 processing plus C$600 right of permanent residence (was C$1,525) | 30 Apr 2026 | `var.canada-apply-fee` 159000 |
+| English for the UK work routes | B2 for new applicants since 8 Jan 2026 (B1 before), shown by a UK degree, a degree from abroad taught in English and confirmed by Ecctis, or a SELT. B2 is IELTS for UKVI 5.5 in each part. The game: band 55, or the degree's statement (document:degree-english-statement) | gov.uk, Skilled Worker and Health and Care Worker visas, knowledge of English; Statement of Changes HC 1333 | `route.uk-care` and `route.uk-skilled` `bandMin` 55 |
+| Nurses' English | Real: a nurse who passed the English test the NMC accepts (IELTS Academic 7.0 or OET B) needs no other proof. The game leaves this way out: the nurse meets English as any applicant does | gov.uk, Health and Care Worker visa | none |
+| English for Canada | CLB 7 in each of four abilities, from CELPIP-General, IELTS General Training or PTE Core, under 2 years old, with no exemption by degree or nationality. The game: one test stands for the three, band 60 (factor 1.0) | canada.ca, Express Entry language tests | route-gates:entering-the-pool |
+| Nursing council verification fee | ₦66,875 | NMCN, 2026 | `activity.request-verification` cost 6687500 |
+| Canada's authorisation to return | C$492.50, after repaying removal costs of C$3,840 (unescorted, from 1 Apr 2025) | IRCC fee list; IRPR s. 243 | `var.canada-arc-fee` 49250, `var.canada-removal-cost` 384000 (route-gates:canada-return-asks-authorisation) |
 | Canada general cut-off, start | 405 | A working value: a bachelor's, band 7.0, a year of work and under thirty is one short and reaches it within two years; the game's scale, not the real one, where 2026 draws ran 508 to 547 | `var.canada-cutoff` 405 |
 | Canada healthcare cut-off, start | 370 | The general start times 475 over 520, the real ratio of Jun to Sep 2026 | `var.canada-care-cutoff` 370 |
 | Canada decision months | 6 | Working value | `var.canada-decision-months` 6 |
@@ -196,7 +205,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 |---|---|---|
 | `quality.care` | quality, skills, 0 to 100, counts toward no route | Nursing and care skill. A nurse starts at 60, a care assistant at 30 |
 | `document.nursing-licence` | document | Never requested: a starting life holds it. Valid 36 months, renewed by `activity.renew-licence` at ₦25,000 |
-| `document.nmcn-verification` | document | wait [6, 12], valid 24, requested by `activity.request-verification` at ₦150,000 (reason `fee-document`), needs 24 months of nursing tenure |
+| `document.nmcn-verification` | document | wait [6, 12], valid 24, requested by `activity.request-verification` at ₦66,875, the council's verification fee (reason `fee-document`), needs 24 months of nursing tenure |
 | `document.eca`, `document.endorsement`, `document.medical` | document | As above |
 | `scenario.nurse` | scenario | The nurse, 27 (324), a staff nurse 30 months in (`activity.job-nurse`, ₦180,000), second upper, English 58, care 60, network 25, family means 30, standing 65, wellbeing 50, ₦650,000 bank, ₦30,000 cash, passport 40 months left, nursing licence 30 months left, upkeep ₦120,000, home support ₦40,000 |
 
@@ -216,9 +225,15 @@ All read on 7 Oct 2026.
 - [Pakistan Bureau of Emigration: UAE security guard listings, AED 1,200 to 2,267](https://beoe.gov.pk/foreign-jobs/1279899/1498048/55-security-guards-required-in-united-arab-emirates-salary-1200-2267-dirham-aed), [Legit: a Nigerian's ₦450,000 loss to a Dubai agent](https://www.legit.ng/people/1472165-i-got-scammed-lied-my-parents-nigerian-lady-uaes-first-female-delivery-rider-opens-video/), [UAE government: charging workers recruitment fees is illegal](https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/labour-rights)
 - [Africanews: UAE lifts the 2022 visa ban](https://africanews.com/2024/07/17/uae-lifts-2022-visa-ban-on-nigerians)
 
+Read on 23 Oct 2026:
+
+- [GOV.UK: Skilled Worker visa, knowledge of English](https://www.gov.uk/skilled-worker-visa/knowledge-of-english), [GOV.UK: Health and Care Worker visa, knowledge of English](https://www.gov.uk/health-care-worker-visa/knowledge-of-english)
+- [Canada.ca: Express Entry language tests](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/language-test.html)
+- [IRCC: fee list](https://ircc.canada.ca/english/information/fees/fees.asp), the application fee from 30 Apr 2026 and the authorisation to return
+- [NMCN: verification](https://www.nmcn.gov.ng/verify.html)
+
 ## Not verified
 
-- The Canada application fee of C$1,525 (C$950 processing plus C$575 right of permanent residence) is from memory of the IRCC fee page.
 - The endorsement chance and the sponsor offer rates are working values with no source. Simulated play tunes them.
 - Whether the UK care route's closure to applicants abroad will be reopened. The window var models it either way.
 

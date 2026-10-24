@@ -11,7 +11,11 @@ export type PlaceEvent =
       month: number;
       kept: Id<"status"> | null;
       keptMonths: { monthsHeld: number; lawfulMonths: number } | null;
+      /** place:leaving-an-overstay-bans, status:overstay-counts-as-refusal: a return from an overstay past the grace or with a ban. */
+      overstay?: { banMonths: number; pastGrace: boolean };
     }
+  /** place:returns-service-takes-you-home: the returns service's grant arrived in the naira bank. */
+  | { type: "place/grant-received"; amount: number }
   /** return:papers-return-keeps-status: the character flew back to the country the token is for. */
   | { type: "place/token-used"; status: Id<"status"> }
   /** return:papers-return-keeps-status: a resident token lapses after too long away. */

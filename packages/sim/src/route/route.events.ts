@@ -57,7 +57,14 @@ export type RouteKindEvent =
   | { type: "route/withdrawn"; route: Id<"route">; refunded: number }
   /** A sponsor was looked for and none answered this month (route-gates:sponsor-offers-come-up): nothing moves but the line. */
   | { type: "route/sponsor-missed"; route: Id<"route"> }
-  | { type: "route/unbanned"; route: Id<"route"> };
+  | { type: "route/unbanned"; route: Id<"route"> }
+  /**
+   * route:lapsed-route-known-again: the permission the route gave is gone, so it is known again: its school, deposit, sponsor and months held
+   * cleared, its refusals and record kept.
+   */
+  | { type: "route/lapsed"; route: Id<"route"> }
+  /** route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs were paid with this application. */
+  | { type: "route/authorised"; route: Id<"route">; month: number };
 
 /**
  * news.test.ts stands in for the route kind with the stub's `route/moved`

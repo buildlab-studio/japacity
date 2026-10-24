@@ -1,7 +1,7 @@
 // Routes and schools: docs/rules/route.md. A school has no
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
-import { heldBand, takesApplication } from "../activity/activity.logic";
+import { takesApplication } from "../activity/activity.logic";
 import { check, worldVar, worldVarOr } from "../engine/check";
 import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
@@ -40,7 +40,8 @@ import type {
 } from "../engine/types";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { routePercent } from "../japacity/japacity.logic";
-import { bannedNow } from "../place/place.logic";
+import { bannedNow, overstaysIn } from "../place/place.logic";
+import { countryEntry, removalBanMonths } from "../status/status.logic";
 import { GATES } from "./gates";
 import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
@@ -63,7 +64,10 @@ const BP_PER_PERCENT = 100;
 /** route:friend-tells-by-month: how talk of a route reaches a character who has not heard by `hearBy`. */
 export const FRIEND = "friend";
 
-/** The arrows of the page's diagram (route:routes-move-along-arrows). A ban moves a route to `refused`, and its lifting back to `known` (route-gates:deception-bans-country). */
+/**
+ * The arrows of the page's diagram (route:routes-move-along-arrows). A ban moves a route to `refused`, and its lifting back to `known` (route-gates:deception-bans-country);
+ * a route flown whose permission is lost is `known` again (route:lapsed-route-known-again, decision 0028).
+ */
 const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   unknown: ["heard"],
   heard: ["known"],
@@ -71,8 +75,13 @@ const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   applying: ["granted", "known", "refused"],
   granted: ["departed"],
   refused: ["known"],
-  departed: [],
+  departed: ["known"],
 };
+
+/** route-gates:canada-return-asks-authorisation: the country whose removal asks an authorisation to return, and its two fees in Canadian cents. */
+const AUTHORISING: Id<"country"> = "country.canada";
+const ARC_FEE: Id<"var"> = "var.canada-arc-fee";
+const REMOVAL_COST: Id<"var"> = "var.canada-removal-cost";
 
 export function unknownRoute(gate: RouteGate = "study"): RouteState {
   return {
@@ -257,6 +266,30 @@ export function refusalReasons(visa: VisaApplication, earlierRefusals: number, n
   return reasons.length > 0 ? reasons : ["credibility"];
 }
 
+/**
+ * status:overstay-counts-as-refusal: the earlier refusals a decision counts: the route's own, and one for each overstay in its country
+ * that went past the grace and for each removal from it.
+ */
+export function earlierRefusals(read: ReadCtx, entry: RouteEntry, held: RouteState): number {
+  if (entry.country === null) return held.refusals;
+  return held.refusals + overstaysIn(read, entry.country);
+}
+
+/**
+ * route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs the first application into Canada owes after a
+ * removal, or null when nothing is owed: no removal from Canada, or one paid for since.
+ */
+export function authorisationOwed(read: ReadCtx, entry: RouteEntry): { arc: MoneyParam; removal: MoneyParam } | null {
+  if (entry.country !== AUTHORISING) return null;
+  const removals = read.state.status.removals.filter((removal) => removal.country === AUTHORISING);
+  const last = removals.at(-1);
+  if (last === undefined) return null;
+  const paid = Object.entries(read.state.route).some(([id, held]) => read.content.route[id as Id<"route">]?.country === AUTHORISING && (held.authorisedMonth ?? -1) >= last.month);
+  if (paid || removalBanMonths(read.content, AUTHORISING) <= 0) return null;
+  const currency = countryEntry(read.content, AUTHORISING).currency;
+  return { arc: { currency, amount: worldVarOr(read.world, ARC_FEE) }, removal: { currency, amount: worldVarOr(read.world, REMOVAL_COST) } };
+}
+
 // ---------------------------------------------------------------------------
 // Effects
 // ---------------------------------------------------------------------------
@@ -362,8 +395,8 @@ function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   if (held.state !== "known" || !entryOf(ctx.content, school.route).schools.includes(id)) return [];
   if (windowOf(read, school.route) === "closed") return [];
   if (!takesApplication(held.schools[id], ctx.state.turn.month, ctx.content.tuning.route)) return [];
-  const band = heldBand(read);
-  if (grade(ctx.state) < school.minGrade || band === null || band < school.minBand) return [];
+  // route:applying-to-a-school, route:degree-meets-masters-english: no school asks an English band.
+  if (grade(ctx.state) < school.minGrade) return [];
   const wait = ctx.random.between("school", school.answerMonths[0], school.answerMonths[1]);
   return [own({ type: "route/school-applied", route: school.route, school: id, readyMonth: ctx.state.turn.month + wait })];
 }
@@ -408,7 +441,10 @@ function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[]
   const route = entry.id;
   const read = readOf(ctx);
   const month = ctx.state.turn.month;
+  const owing = authorisationOwed(read, entry);
+  if (owing !== null && !ctx.check({ type: "money/can-pay", currency: owing.arc.currency, amount: owing.arc.amount + owing.removal.amount }).met) return [];
   const figures = GATES[entry.gate].application?.(read, entry, routeOf(ctx.state, route)) ?? studyFigures(read);
+  const { where, country } = ctx.state.place;
   const visa: VisaApplication = {
     submittedMonth: month,
     decisionMonth: month + figures.decisionMonths,
@@ -416,8 +452,21 @@ function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[]
     unexplainedBp: unexplainedBp(read, route),
     interviewScore: null,
     surchargePaid: figures.surchargePaid,
+    // status:grace-allows-in-country-applications, person:partner-route-in-country: made from inside its country, a grant needs no flight.
+    ...(where === "abroad" && country !== null && country === entry.country ? { inCountry: true as const } : {}),
   };
   const events = record(ctx, { type: "route/applied", route, visa });
+  if (owing !== null) {
+    // route-gates:canada-return-asks-authorisation: taken once, with the first application after the removal.
+    ctx.apply(
+      [
+        { type: "money/pay-fee", currency: owing.arc.currency as ForeignCurrency, amount: owing.arc.amount, reason: "fee-visa" },
+        { type: "money/pay-fee", currency: owing.removal.currency as ForeignCurrency, amount: owing.removal.amount, reason: "fee-visa" },
+      ],
+      cause,
+    );
+    events.push(...record(ctx, { type: "route/authorised", route, month }));
+  }
   // A gate with no interview (every gate but study) scores nothing and waits for the decision.
   if (entry.interview !== null) ctx.apply([{ type: "setpiece/open", setpiece: entry.interview, route }], cause);
   GATES[entry.gate].onSend?.(ctx, entry, cause);
@@ -450,6 +499,21 @@ function withdraw(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const events = record(ctx, { type: "route/withdrawn", route: effect.route, refunded });
   if (refunded > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: refunded, reason: "refund" }], { ...cause, source: effect.route });
   ctx.apply([{ type: "interview/close", route: effect.route }], cause);
+  return events;
+}
+
+/**
+ * route:lapsed-route-known-again: permission in the country is gone (a lapse to the overstayer, a removal, a return home but with papers), so every route
+ * into it that was flown is known again. The university's confirmation goes with the school.
+ */
+function lapse(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/lapse") throw new Error(`route/lapse cannot carry out ${effect.type}.`);
+  const events: BaseEvent[] = [];
+  for (const entry of Object.values(ctx.content.route)) {
+    if (entry.country !== effect.country || routeOf(ctx.state, entry.id).state !== "departed") continue;
+    events.push(...record(ctx, { type: "route/lapsed", route: entry.id }));
+    if (entry.gate === "study") ctx.apply([{ type: "document/void", document: CAS }], cause);
+  }
   return events;
 }
 
@@ -663,13 +727,17 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   // route-gates:gate-decision-draw-terms: the gate says which terms the draw reads, and whether something refuses before any draw.
   const decision = withPapers(readOf(ctx), entry, GATES[entry.gate].decision(readOf(ctx), entry, held));
   if (decision.wait === true) return [];
+  const refusals = earlierRefusals(readOf(ctx), entry, held);
   const chance = refusalChanceBp(
     numbers,
     entry.refusalBaseBp + (decision.addBp ?? 0),
-    { strictness: visa.rules.strictness, unexplainedBp: visa.unexplainedBp, refusals: held.refusals, interviewScore: visa.interviewScore ?? 0, grade: grade(ctx.state) },
+    { strictness: visa.rules.strictness, unexplainedBp: visa.unexplainedBp, refusals, interviewScore: visa.interviewScore ?? 0, grade: grade(ctx.state) },
     decision.terms,
   );
-  if (decision.override === null && !ctx.random.chance("visa", chance)) return record(ctx, moved(route, "granted"));
+  if (decision.override === null && !ctx.random.chance("visa", chance)) {
+    const granted = record(ctx, moved(route, "granted"));
+    return visa.inCountry === true ? [...granted, ...switchInCountry(ctx, entry)] : granted;
+  }
   const back = Math.max(0, held.depositPaid - numbers.depositAdminFee);
   // A refund still on its way is kept, not lost, should a second refusal come first.
   const owed = back + (held.depositRefund?.amount ?? 0);
@@ -677,7 +745,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
     type: "route/refused",
     route,
     month,
-    reasons: decision.override === null ? refusalReasons(visa, held.refusals, numbers) : [decision.override, ...refusalReasons(visa, held.refusals, numbers)],
+    reasons: decision.override === null ? refusalReasons(visa, refusals, numbers) : [decision.override, ...refusalReasons(visa, refusals, numbers)],
     depositRefund: owed === 0 ? null : { amount: owed, readyMonth: month + numbers.depositRefundMonths },
   };
   const events = record(ctx, refused);
@@ -697,6 +765,27 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   }
   return events;
 }
+
+/**
+ * route-gates:in-country-grant-switches-status: an application made inside its country is not flown. Its grant departs in the same phase with no flight and
+ * no move, and the route's status replaces the overstay, with the job a sponsor gives and what the gate opens on arrival, as a flight would.
+ */
+function switchInCountry(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
+  if (ctx.state.place.where !== "abroad" || ctx.state.place.country !== entry.country) return [];
+  const held = routeOf(ctx.state, entry.id);
+  const cause: Cause = { source: entry.id, param: null, terms: {} };
+  const gate = GATES[entry.gate];
+  const job = gate.departureJob?.(entry, held) ?? null;
+  const events = record(ctx, moved(entry.id, "departed", IN_COUNTRY));
+  if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
+  if (job !== null) ctx.apply([{ type: "activity/start-job", job }], cause);
+  if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
+  gate.onDepart?.(ctx, entry, held, cause);
+  return events;
+}
+
+/** route-gates:in-country-grant-switches-status: the `via` of a departure made with no flight, so its line says the new permission. */
+const IN_COUNTRY = "in-country";
 
 /** route-gates:deception-bans-country: a ban lifts in the month it names, and the route is known again. */
 function unban(ctx: Ctx, route: Id<"route">): BaseEvent[] {
@@ -867,6 +956,21 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "refused", event.route), visa: null, bannedUntil: event.until }));
     case "route/unbanned":
       return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "known", event.route), bannedUntil: null }));
+    case "route/lapsed":
+      return withRoute(slice, event.route, (held) => ({
+        ...held,
+        state: arrow(held, "known", event.route),
+        knownMonth: month,
+        schools: {},
+        school: null,
+        depositPaid: 0,
+        funds: { ...held.funds, heldMonths: 0, covered: false },
+        visa: null,
+        gate: held.gate === null ? null : GATES[held.gate.gate].initial(),
+        secret: { sponsorFraud: null },
+      }));
+    case "route/authorised":
+      return withRoute(slice, event.route, (held) => ({ ...held, authorisedMonth: event.month }));
     case "route/withdrawn":
       // person:joint-collapses-with-bond adds the one arrow the diagram lacks: a dependant's unused grant back to known.
       return withRoute(slice, event.route, (held) => ({
@@ -920,6 +1024,8 @@ function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): Re
     case "granted":
       return [{ ...line("granted", { route }, "good", true), big: true }];
     case "departed":
+      // route-gates:in-country-grant-switches-status: no flight, so the line says the new permission.
+      if (event.via === IN_COUNTRY) return [{ ...line("switched", { route }, "good", true), big: true }];
       return [{ ...line("departed", { route }, "good", true), big: true }];
     case "unknown":
     case "applying":
@@ -976,6 +1082,10 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("unbanned", { route: event.route }, "plain", true)];
     case "route/withdrawn":
       return [line("withdrawn", { route: event.route }, "bad", true)];
+    case "route/lapsed":
+      return [line("lapsed", { route: event.route }, "plain")];
+    case "route/authorised":
+      return [line("authorised", { route: event.route }, "plain")];
     case "route/sponsor-missed":
       // Health care's sponsors are trusts and care homes; the skilled route's are employers.
       return [line(event.route === CARE_ROUTE ? "sponsor-missed" : "sponsor-missed-employer", { route: event.route }, "plain")];
@@ -1034,7 +1144,14 @@ function routeView(read: ReadCtx, id: Id<"route">, held: RouteState): RouteView 
     lastRefusal: held.lastRefusal,
     depositRefund: held.depositRefund,
     gate: GATES[entry.gate].view?.(read, entry, held) ?? null,
+    ...authorisationView(read, entry),
   };
+}
+
+/** route-gates:canada-return-asks-authorisation: the route's view names what its first application still owes. */
+function authorisationView(read: ReadCtx, entry: RouteEntry): Pick<RouteView, "authorisation"> {
+  const owing = authorisationOwed(read, entry);
+  return owing === null ? {} : { authorisation: owing };
 }
 
 // ---------------------------------------------------------------------------
@@ -1099,6 +1216,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/support": support,
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
+    "route/lapse": lapse,
     // Each gate's own effects (route-gates:route-runs-its-gate-steps): the sponsor's record, the road's steps.
     ...gateEffects(),
   },

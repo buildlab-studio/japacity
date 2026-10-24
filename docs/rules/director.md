@@ -65,6 +65,7 @@ The five stories of `news.md` are in the pool, with these preconditions: `news.d
 | `news.canada-funds-rise` | closures | any | 300 | 1, 3, never | `var.canada-funds` 1600000 | | Jul 2025 |
 | `news.uae-ban` | closures | `var.uae-window` 2 | 200 | 1, 2, 18 or the lifting | `var.uae-window` 0, revert | shock | Oct 2022 |
 | `news.uae-lifted` | openings | `var.uae-window` 0 for 8 ticks | 10000 | 8, 2, never | `var.uae-window` 2 | | Jul 2024 |
+| `news.uae-amnesty` | abroad | any | 100 | 1, 2, 4 | `var.uae-amnesty` 1 (status:uae-amnesty), revert | | Sep to Dec 2024 |
 | `news.passport-fee-doubles` | home | any | 200 | 2, 3, never | `var.passport-fee` 20000000 | once | Sep 2025 |
 | `news.fuel-subsidy` | home | era crash or calm | 200 | 1, 2, never | `var.inflation` +2000 | once, shock | Jun 2023 |
 | `news.inflation-eases` | home | `var.inflation` over 1000 | 300 | 2, 3, never | `var.inflation` -800 | | 2026 |
@@ -75,7 +76,7 @@ The five stories of `news.md` are in the pool, with these preconditions: `news.d
 
 Content: `offer.sponsor-licence-lost` takes `var.uk-care-sponsor-risk` as its chance a month (`CHANCE_VARS` in `offer.logic.ts`), 300 and 1200 while the revocations are in force.
 
-The variables this page defines, with their starts: `var.uk-study-surge` 20, `var.uk-care-surge` 0, `var.uk-skilled-surge` 10, `var.uk-talent-surge` 0, `var.canada-surge` 30, `var.uae-surge` 0, `var.uk-care-strictness` 50, `var.uk-skilled-strictness` 40, `var.canada-strictness` 50, `var.inflation` 0, `var.season-december` 0, `var.uk-care-sponsor-risk` 300, `var.passport-fee` 10000000, `var.transcript-wait-extra` 0, `var.flight-factor` 10000, `var.remote-hire-bonus` 0.
+The variables this page defines, with their starts: `var.uk-study-surge` 20, `var.uk-care-surge` 0, `var.uk-skilled-surge` 10, `var.uk-talent-surge` 0, `var.canada-surge` 30, `var.uae-surge` 0, `var.uk-care-strictness` 50, `var.uk-skilled-strictness` 40, `var.canada-strictness` 50, `var.inflation` 0, `var.season-december` 0, `var.uk-care-sponsor-risk` 300, `var.passport-fee` 10000000, `var.transcript-wait-extra` 0, `var.flight-factor` 10000, `var.remote-hire-bonus` 0, `var.uae-amnesty` 0.
 
 ## Numbers
 

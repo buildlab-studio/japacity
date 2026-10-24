@@ -22,7 +22,7 @@ A chapter is a short checklist that teaches one part of the game and ends with a
 | Order | Id | Title | Items |
 |---|---|---|---|
 | 1 | `chapter.find-your-feet` | Find your feet | `job`: have a job. `pay`: one month in any job. `heard`: have heard of a route of your own effort (the UK master's, care, talent or skilled, Canada's points, the Gulf contract: any of them). `known`: have looked into it |
-| 2 | `chapter.build-the-file` | Build the file | `passport`: passport held. `transcript`: transcript held. `english`: English result at band 6.0 or better. `offer`: an offer from a school |
+| 2 | `chapter.build-the-file` | Build the file | `passport`: passport held. `transcript`: transcript held. `english`: a bachelor's degree, which is the master's English (route:degree-meets-masters-english), met from the start and shown ticked so the player sees the degree counts. `offer`: an offer from a school |
 | 3 | `chapter.decision-day` | Decision day | `deposit`: deposit paid. `held`: funds covered for a month. `tb`: TB certificate held. `applied`: application sent. `granted`: the visa is granted |
 | 4 | `chapter.send-off` | The send-off | `departed`: you have flown |
 | 5 | `chapter.landing` | Landing | `room`: a roof (an open `rent` obligation, or `status.gulf-worker` held, since the employer houses the Gulf worker). `job`: a job abroad held one month. `status`: the first rule of your status read (the `status/is` requirement holds). `request`: the first request from home answered, read as ₦150,000 or more in naira, bank and cash together (a family request comes only then, "not when broke" in `offer.md`, and is answered or lapses within a month). `file`: a first mark on the credit file (credit 3 or more) |

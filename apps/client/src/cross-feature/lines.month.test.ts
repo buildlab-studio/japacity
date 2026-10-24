@@ -83,9 +83,9 @@ describe("one line for one thing", () => {
 
 /** The graduate's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
 function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before: string[] } {
-  // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
-  // since the one-chance story joined the pool and moved every world's draws, wallet:cash-pile-warning).
-  const game = start({ scenario: "scenario.graduate", seed: "s", worldSeed: "w-1", content: on });
+  // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 11
+  // since the UAE's amnesty story joined the pool and moved every world's draws, status:uae-amnesty).
+  const game = start({ scenario: "scenario.graduate", seed: "s", worldSeed: "w-6", content: on });
   applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500_000_000, reason: "gift" }]);
   let risen: ReportLine[] | null = null;
   let before: string[] = [];

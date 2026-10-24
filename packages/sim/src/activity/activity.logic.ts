@@ -249,10 +249,8 @@ export function takesApplication(application: SchoolApplication | undefined, mon
   return from !== null && month >= from;
 }
 
-/** The schools on known routes whose grade and band minimums the character meets, each with its application. */
+/** The schools on known routes whose grade minimum the character meets, each with its application (route:applying-to-a-school: no school asks a band). */
 function reachableSchools(read: ReadCtx): { id: Id<"school">; application: SchoolApplication | undefined }[] {
-  const band = heldBand(read);
-  if (band === null) return [];
   const grade = read.state.quality[QUALITY.eduGrade] ?? 0;
   const schools: { id: Id<"school">; application: SchoolApplication | undefined }[] = [];
   for (const route of Object.values(read.content.route)) {
@@ -260,7 +258,7 @@ function reachableSchools(read: ReadCtx): { id: Id<"school">; application: Schoo
     if (held?.state !== "known") continue;
     for (const id of route.schools) {
       const school = read.content.school[id];
-      if (school !== undefined && grade >= school.minGrade && band >= school.minBand) schools.push({ id, application: held.schools[id] });
+      if (school !== undefined && grade >= school.minGrade) schools.push({ id, application: held.schools[id] });
     }
   }
   return schools;
@@ -268,7 +266,7 @@ function reachableSchools(read: ReadCtx): { id: Id<"school">; application: Schoo
 
 /**
  * Schools that may be applied to (route:applying-to-a-school): on a known route, the grade
- * and the band held meet the school's minimums, and there is no application
+ * meets the school's minimum, and there is no application
  * or offer there already, unless it refused and its wait has run.
  */
 function openSchools(read: ReadCtx): string[] {

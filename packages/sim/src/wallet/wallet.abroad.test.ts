@@ -292,8 +292,8 @@ describe("cash paid in over a month", () => {
 });
 
 describe("the bank abroad", () => {
-  /** Enough dollars for the first month's bills, and more than a month of the Lagos allowance. */
-  const DOLLARS = 800000;
+  /** Enough dollars for the first month's bills, the tuition's instalment among them, and more than a month of the Lagos allowance. */
+  const DOLLARS = 1200000;
 
   test("[wallet:monthly-fx-allowance] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded life just landed with dollars and no pounds, when it changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and its rent, tuition and living are paid", () => {
     const game = graduateAbroad();
@@ -310,6 +310,8 @@ describe("the bank abroad", () => {
     expect(game.view().bankAllowanceLeft).toBeNull();
     game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: DOLLARS, via: "bank" });
     expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(0);
+    // The change covers every bill the month brings.
+    expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThanOrEqual(game.view().obligations.reduce((sum, owed) => sum + owed.due, 0));
     const month = game.endTurn();
     for (const reason of ["rent", "upkeep", "fee-school"]) {
       expect(debitsOf(month, reason).filter((event) => event.currency === "GBP").map((event) => event.reason)).toContain(reason);

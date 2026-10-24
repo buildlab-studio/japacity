@@ -214,6 +214,14 @@ const TAKEN = "line.offer.taken";
 const LAPSED = "line.offer.lapsed";
 
 /**
+ * True for the place's answer to an act done at once, the last of its lines (activity:now-acts-and-month-acts): money
+ * before it is the act's, and an offer answered after it is another command whose money comes after.
+ */
+function endsAct(line: ReportLine): boolean {
+  return line.key.startsWith("line.activity.") && line.key.endsWith(".now");
+}
+
+/**
  * Money an answer moved, said as what it was for, from the answer the offer's line gives after it:
  * a family request as what it paid for ("The NEPA bill"), and any other offer with words for its
  * money as that offer ("A thirteenth month's pay"), so it never reads as the month's own salary
@@ -223,7 +231,7 @@ function paidFor(lines: readonly ReportLine[]): ReportLine[] {
   return lines.map((line, index) => {
     if (!line.key.startsWith(WALLET)) return line;
     const later = lines.slice(index + 1);
-    const next = later.find((other) => other.key === TAKEN || other.key.startsWith(WALLET));
+    const next = later.find((other) => other.key === TAKEN || other.key.startsWith(WALLET) || endsAct(other));
     const reason = line.key.slice(WALLET.length);
     if (next?.key !== TAKEN) return withMoneyAfter(line, later);
     const { offer } = next.params;

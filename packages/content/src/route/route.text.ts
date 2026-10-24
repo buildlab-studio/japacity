@@ -7,7 +7,7 @@ export const routeText: Record<string, string> = {
   "route.uk-masters.item.grade": "Second class lower or better",
   "route.uk-masters.item.passport": "Passport held",
   "route.uk-masters.item.transcript": "Transcript held",
-  "route.uk-masters.item.english": "English result at band 6.0 or better",
+  "route.uk-masters.item.english": "A bachelor's degree: it is your English",
   "route.uk-masters.item.offer": "An offer from a university",
   "route.uk-masters.item.deposit": "Deposit paid",
   "route.uk-masters.item.funds": "Funds shown cover the funds required",
@@ -41,6 +41,9 @@ export const routeText: Record<string, string> = {
   "line.route.deposit-refunded": "The deposit for {route} came back, less the fee: {amount}.",
   "line.route.supported": "Your family agreed to show {amount} for you.",
   "line.route.departed": "You flew out on {route}. Home is a phone call away now.",
+  "line.route.switched": "Granted from inside the country: {route}. Your new permission starts now, with no flight.",
+  "line.route.lapsed": "Your permission from {route} is gone. You can apply for it again once any ban lifts.",
+  "line.route.authorised": "With this application you paid for the authorisation to return to Canada and the cost of your removal.",
   // The job at home that ends with the flight, told beside the plane (the interface's variant of line.activity.job-ended).
   "line.route.departed-job-ended": "The job at home ended with the flight: {job}.",
   // The sponsor and contract gates (route-gates.md).
@@ -66,7 +69,7 @@ export const routeText: Record<string, string> = {
   "route.uk-care.item.verification": "Council verification held (it needs 24 months as a nurse first)",
   "route.uk-care.item.certificate": "Nursing certificate held",
   "route.uk-care.item.passport": "Passport held",
-  "route.uk-care.item.english": "English result at band 4.0 or better",
+  "route.uk-care.item.english": "Your degree's English statement, or band 5.5 or better",
   "route.uk-care.item.sponsor": "A sponsor's certificate",
   "route.uk-care.item.tb": "TB certificate held",
   "route.uk-care.item.salary": "The sponsor pays at or above the bar",
@@ -89,7 +92,7 @@ export const routeText: Record<string, string> = {
     "A skilled worker visa with a sponsor who pays above the salary bar. A degree and two years of work first.",
   "route.uk-skilled.item.degree": "A bachelor's degree",
   "route.uk-skilled.item.passport": "Passport held",
-  "route.uk-skilled.item.english": "English result at band 4.0 or better",
+  "route.uk-skilled.item.english": "Your degree's English statement, or band 5.5 or better",
   "route.uk-skilled.item.sponsor": "A sponsor's certificate",
   "route.uk-skilled.item.salary": "The sponsor pays at or above the bar",
   "route.uk-skilled.item.funds": "Money to show for the first month",
@@ -191,12 +194,14 @@ export const routeText: Record<string, string> = {
     "The road in this game follows reporting on the journey north through the desert and across the sea. Read their work.",
   // Credited by outlet, work and year. The reporters' names are left out (AGENTS.md: no real person in content).
   "road.real-story.credit.1": "Foundation for Investigative Journalism, an undercover journey north, 2026",
-  "road.real-story.credit.2": "The Sun, an undercover Sahara trek, 2009",
+  "road.real-story.credit.2": "The Sun, an undercover Sahara trek, 2010",
   "road.real-story.credit.3": "CNN, migrants auctioned in Libya, 2017",
-  "road.real-story.credit.4": "BBC Panorama, the debt behind the journey, 2017",
+  "road.real-story.credit.4": "BBC News, women held by debt and an oath, 2019",
   // Each credit's link, where the research found one (docs/research/02, Sources): a credit with no link key is named only.
   "road.real-story.link.1": "https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/",
-  "road.real-story.link.3": "https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14851",
+  "road.real-story.link.2": "https://award.wscij.org/?p=8058",
+  "road.real-story.link.3": "https://edition.cnn.com/2017/11/14/africa/libya-migrant-auctions/index.html",
+  "road.real-story.link.4": "https://www.youtube.com/watch?v=epfED62IA8Q",
 
   // docs/rules/person.md: the partner and dependant routes, their apply activities and the withdrawal.
   "route.uk-partner.name": "Joining your partner in the UK",
@@ -204,7 +209,7 @@ export const routeText: Record<string, string> = {
   "route.uk-partner.item.married": "Married, or two years together",
   "route.uk-partner.item.sponsor": "Your partner is settled or British, in the UK",
   "route.uk-partner.item.floor": "Your partner earns above the floor",
-  "route.uk-partner.item.english": "English result at band 3.0 or better",
+  "route.uk-partner.item.english": "A degree, its English statement, or band 3.0 or better",
   "route.uk-partner.item.passport": "Passport held",
   "route.uk-partner.item.tb": "TB certificate held",
   "route.uk-partner.item.applied": "Visa application sent",

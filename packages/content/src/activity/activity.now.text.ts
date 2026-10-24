@@ -68,6 +68,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.safe-ride.now": "The driver says: I will carry you home every night this month.",
   "line.activity.get-passport.now": "Passport applied for. It is on its way, {month}.",
   "line.activity.get-transcript.now": "The registry says: your transcript is on its way, {month}.",
+  "line.activity.degree-english.now": "Sent. Your degree's English statement comes {month}.",
   "line.activity.sit-english-test.now": "Booked. The result comes {month}.",
   "line.activity.tb-test.now": "The nurse says: the certificate comes {month}.",
   "line.activity.get-police-certificate.now": "The officer takes your prints. The certificate comes {month}.",

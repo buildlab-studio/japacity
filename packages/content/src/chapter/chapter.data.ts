@@ -67,8 +67,8 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
     items: [
       { id: "passport", requirement: { type: "document/held", document: "document.passport" } },
       { id: "transcript", requirement: { type: "document/held", document: "document.transcript" } },
-      // Band 6.0, held as the band times ten.
-      { id: "english", requirement: { type: "document/held", document: "document.english-test", min: 60 } },
+      // route:degree-meets-masters-english: a bachelor's degree is the master's English, met from the start and shown ticked.
+      { id: "english", requirement: { type: "quality/min", quality: "quality.education-level", value: 3 } },
       { id: "offer", requirement: { type: "route/offer", route: UK } },
     ],
   },

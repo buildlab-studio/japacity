@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 import { richView } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { nairaForFee } from "../../../shared/words/cost";
-import { formatBand, formatMoney } from "../../../shared/words/format";
+import { formatMoney } from "../../../shared/words/format";
 import { checklistWords } from "../../../shared/words/requirement";
 import { byMonths, nameOf, say, sayCount } from "../../../shared/words/text";
 import { Japa } from "./Japa";
@@ -53,15 +53,16 @@ describe("the ways out in Japa", () => {
     expect(document.querySelector("[data-way-file]")?.textContent).not.toMatch(/month \d+/i);
   });
 
-  test("given a route looked into with no application yet, then every university's deposit, tuition and minimums show before anything is paid", async () => {
+  test("[route:applying-to-a-school] given a route looked into with no application yet, then every university's deposit, tuition and grade minimum show before anything is paid, and no band in English", async () => {
     const rich = richView();
     const view: PlayerView = { ...rich, routes: rich.routes.map((route) => ({ ...route, schools: [], school: null })) };
     await renderWithView(<Japa />, view);
     expect(screen.getByText(say("ui.route.schools.before"))).toBeDefined();
     for (const school of Object.values(content.school)) {
       expect(screen.getByText(say("ui.route.school.costs", { deposit: formatMoney(school.deposit, "GBP"), tuition: formatMoney(school.tuition, "GBP") }))).toBeDefined();
-      expect(screen.getAllByText(new RegExp(`band ${formatBand(school.minBand).replace(".", "\\.")} in English`)).length).toBeGreaterThan(0);
     }
+    expect(screen.queryAllByText(/in English/)).toEqual([]);
+    expect(screen.getAllByText(/or better\./).length).toBeGreaterThan(0);
     expect(screen.getByText(say("ui.route.foreign-fee"))).toBeDefined();
   });
 

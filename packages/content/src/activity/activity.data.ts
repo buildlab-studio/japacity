@@ -41,6 +41,23 @@ function held(document: Id<"document">, min?: number): Requirement {
 /** The health surcharge for one year of a worker's visa, in pounds. */
 const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
 
+/**
+ * status:grace-allows-in-country-applications: an application made from home, or from inside the UK in an overstay's grace, with no
+ * flight. The act is `where: "any"` so it may stand abroad, and this keeps it to those two.
+ */
+const HOME_OR_UK_GRACE: Requirement = {
+  type: "any",
+  of: [
+    { type: "place/is", where: "home" },
+    { type: "status/is", statuses: ["status.uk-overstayer"], grace: true },
+  ],
+};
+/** route:visa-application-needs, route-gates:sponsor-application-needs: the TB certificate, not asked of an application made in the UK. */
+const TB_UNLESS_IN_UK: Requirement = {
+  type: "any",
+  of: [held("document.tb-certificate"), { type: "place/is", where: "abroad", country: "country.uk" }],
+};
+
 export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   // Jobs
 
@@ -339,6 +356,21 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "document/request", document: "document.passport" }],
     counts: [UK],
   },
+  // document:degree-english-statement: asked from the Papers app with a bachelor's degree, for good once held.
+  "activity.degree-english": {
+    id: "activity.degree-english",
+    slot: "free",
+    requires: [
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
+      { type: "document/absent", document: "document.degree-english" },
+    ],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(150000), reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.degree-english" }],
+    counts: [SKILLED, CARE],
+  },
   "activity.get-transcript": {
     id: "activity.get-transcript",
     slot: "free",
@@ -361,15 +393,17 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "not", of: { type: "document/pending", document: "document.english-test" } },
     ],
     param: null,
-    cost: [{ currency: "NGN", amount: naira(285500), reason: "fee-test" }],
+    cost: [{ currency: "NGN", amount: naira(295000), reason: "fee-test" }],
     pay: null,
     hireBp: null,
     effects: [{ type: "document/request", document: "document.english-test" }],
-    counts: [UK],
+    // document:who-sits-the-english-test: the routes that still ask a band; the master's English is the degree.
+    counts: [CANADA, CARE, SKILLED],
   },
   "activity.apply-to-school": {
     id: "activity.apply-to-school",
     slot: "free",
+    where: "any",
     // "Route known" means the state `known` only, here and for
     // interview prep and the land buyer. Applying, granted and departed are left out.
     requires: [
@@ -377,7 +411,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "var/min", var: WINDOW, value: 1 },
       { type: "document/held", document: "document.passport" },
       { type: "document/held", document: "document.transcript" },
-      { type: "document/held", document: "document.english-test" },
+      HOME_OR_UK_GRACE,
     ],
     param: "school",
     cost: [],
@@ -464,14 +498,16 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.apply-for-visa": {
     id: "activity.apply-for-visa",
     slot: "free",
-    // route:visa-application-needs, item by item.
+    where: "any",
+    // route:visa-application-needs, item by item. route:degree-meets-masters-english: the degree is the English, which the route is heard of by.
     requires: [
       { type: "route/state", route: UK, in: ["known"] },
       { type: "var/min", var: WINDOW, value: 1 },
+      HOME_OR_UK_GRACE,
       { type: "route/deposit", route: UK },
       { type: "document/held", document: "document.passport" },
-      { type: "document/held", document: "document.english-test" },
-      { type: "document/held", document: "document.tb-certificate" },
+      { type: "quality/min", quality: "quality.education-level", value: 3 },
+      TB_UNLESS_IN_UK,
       { type: "document/held", document: "document.cas" },
       { type: "route/funds", route: UK, heldMonths: 1 },
     ],
@@ -647,7 +683,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "document/absent", document: "document.nmcn-verification" },
     ],
     param: null,
-    cost: [{ currency: "NGN", amount: naira(150000), reason: "fee-document" }],
+    cost: [{ currency: "NGN", amount: naira(66875), reason: "fee-document" }],
     pay: null,
     hireBp: null,
     effects: [{ type: "document/request", document: "document.nmcn-verification" }],
@@ -673,7 +709,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.apply-uk-care": {
     id: "activity.apply-uk-care",
     slot: "free",
-    where: "home",
+    where: "any",
     // route-gates:sponsor-application-needs and route-gates:care-route-needs-verification. Each gate route has its own apply activity, as apply-for-visa is the study route's.
     requires: [
       known(CARE),
@@ -682,9 +718,11 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/gate-step", route: CARE, step: "salary" },
       held("document.nursing-licence"),
       held("document.nmcn-verification"),
-      held("document.english-test", 40),
-      held("document.tb-certificate"),
+      // route-gates:sponsor-application-needs: the degree's English statement, or band 5.5.
+      { type: "any", of: [held("document.degree-english"), held("document.english-test", 55)] },
+      TB_UNLESS_IN_UK,
       held("document.passport"),
+      HOME_OR_UK_GRACE,
     ],
     param: null,
     // The care route is exempt from the surcharge.
@@ -697,7 +735,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.apply-uk-skilled": {
     id: "activity.apply-uk-skilled",
     slot: "free",
-    where: "home",
+    where: "any",
     // route-gates:sponsor-application-needs and route-gates:skilled-route-needs-degree.
     requires: [
       known(SKILLED),
@@ -706,9 +744,10 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/gate-step", route: SKILLED, step: "salary" },
       { type: "quality/min", quality: "quality.education-level", value: 3 },
       { type: "activity/tenure", activities: [], months: 24 },
-      held("document.english-test", 40),
-      held("document.tb-certificate"),
+      { type: "any", of: [held("document.degree-english"), held("document.english-test", 55)] },
+      TB_UNLESS_IN_UK,
       held("document.passport"),
+      HOME_OR_UK_GRACE,
       { type: "route/funds", route: SKILLED, heldMonths: 1 },
     ],
     param: null,

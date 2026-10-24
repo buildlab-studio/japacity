@@ -84,6 +84,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.safe-ride": 1,
   "activity.get-passport": 4,
   "activity.get-transcript": 2,
+  "activity.degree-english": 1,
   "activity.sit-english-test": 2,
   "activity.tb-test": 2,
   "activity.get-police-certificate": 2,

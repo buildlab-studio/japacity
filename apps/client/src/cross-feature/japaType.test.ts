@@ -117,25 +117,30 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then the teacher, the graduate and the banker are family anchors and the developer the long way round (a return)", () => {
+  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then the graduate and the banker are family anchors, the teacher the hustler and the developer the long way round (a return)", () => {
     // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not
-    // lead the things done most. The teacher's refusals are on the Gulf contract, not the way taken; the junior
-    // developer's job leads its things done most, and with no reading before it its standing makes it the family anchor.
+    // lead the things done most. The teacher's refusals are on the Gulf contract, not the way taken; looking for a
+    // sponsor leads its things done most, its standing is high but short of the top with no family act among them, and
+    // it kept fewer than two thirds of its months, so nothing reads before the hustler.
     const teacher = sendOff("teacher-borrower");
     expect(teacher.routes.find((route) => route.id === teacher.card!.route)?.refusals ?? 0).toBe(0);
-    expect(teacher.card!.topActivities[0]).toBe("activity.job-junior-developer");
-    expect(japaTypeOf(teacher)).toBe("family-anchor");
-    // The graduate (seed golden-ada-0): its standing ends high, 91 with decision 0012's arrivals, with time with the
+    expect(teacher.card!.topActivities[0]).toBe("activity.find-sponsor");
+    expect(teacher.card!.topActivities).not.toContain("activity.family-time");
+    expect(teacher.card!.standing).toBeLessThan(content.quality["quality.standing"]!.max);
+    expect(teacher.keptMonths * 3).toBeLessThan(teacher.card!.months * 2);
+    expect(japaTypeOf(teacher)).toBe("hustler");
+    // The graduate (seed golden-graduate-0): its standing ends at the top, 100 with decision 0012's arrivals, with time with the
     // family first among the things done most, so it is the family anchor before the careful saver its kept months would make it.
     const graduate = sendOff("graduate-careful");
-    expect(graduate.card).toMatchObject({ months: 28, standing: 91 });
+    expect(graduate.card).toMatchObject({ months: 33, standing: 100 });
     expect(graduate.card!.topActivities[0]).toBe("activity.family-time");
     expect(japaTypeOf(graduate)).toBe("family-anchor");
-    // The banker: time with the family leads its things done most under decision 0012 (gist takes no time, so its
-    // lived months hold more of it), the senior bank job behind it; no reading before the family anchor holds.
+    // The banker: the senior bank job leads its things done most; its standing at the top of its range makes it the
+    // family anchor before the refusal on the funds its way met first would make it the long way round.
     const banker = sendOff("banker-borrower");
-    expect(banker.card!.topActivities[0]).toBe("activity.family-time");
-    expect(banker.card!.topActivities).toContain("activity.job-bank-senior");
+    expect(banker.card!.topActivities[0]).toBe("activity.job-bank-senior");
+    expect(banker.card!.standing).toBe(content.quality["quality.standing"]!.max);
+    expect(banker.routes.find((route) => route.id === banker.card!.route)?.refusals).toBe(1);
     expect(japaTypeOf(banker)).toBe("family-anchor");
     // The developer came home once and went again: the long way round, before anything else.
     const developer = sendOff("developer-remote");

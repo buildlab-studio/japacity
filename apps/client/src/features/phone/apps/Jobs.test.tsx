@@ -19,8 +19,12 @@ function shopOffered() {
   const game = abroadGame();
   // Decision 0013: in the recorded life the hunt misses its first months, and landed with no pounds the unpaid dues
   // would take its student status, and the shop job with it, before an offer comes. So each month's pound dues are
-  // covered before it hunts, and it stays a student who may work part time.
+  // covered before it hunts, and it stays a student who may work part time. The December visit opens within the
+  // months of the hunt; it is answered by staying, so the hunt goes on.
   for (let month = 0; month < 24 && !game.view().offers.some((offer) => offer.terms.job === SHOP); month += 1) {
+    for (let question = game.view().setpiece?.question; question !== undefined && question !== null; question = game.view().setpiece?.question) {
+      game.accept({ type: "setpiece/answer", question: question.id, answer: question.allowed[0]! });
+    }
     setPockets(game, { GBP: game.view().obligations.reduce((sum, owed) => sum + owed.due, 0) });
     game.endTurn([{ activity: HUNT, param: SHOP }]);
   }
@@ -30,14 +34,22 @@ function shopOffered() {
 }
 
 describe("Jobs abroad", () => {
-  test("[world:one-action-one-sheet] given the part-time shop job offered in the UK, when Jobs opens, then the offer says its pay a month, the year's figure over twelve, and never the year's figure", async () => {
+  test("[world:one-action-one-sheet] [wallet:view-carries-month-pay] [abroad-money:salary-abroad-taxed-locally] given the part-time shop job offered in the UK, when Jobs opens, then the offer says its pay a month as the wallet will book it, the year's figure over twelve less the month's tax on the part above the line, and never the year's figure", async () => {
     const { view } = shopOffered();
     await renderWithView(<Jobs />, view);
     const month = payAMonth(SHOP);
     if (month === null) throw new Error("The shop job has no pay");
+    const { taxFreeLine, taxBp } = content.country["country.uk"]!;
+    const written = content.activity[SHOP]?.pay?.amount;
+    if (typeof written !== "number") throw new Error("The shop job's pay is no written figure");
+    expect(written).toBeGreaterThan(taxFreeLine);
+    const tax = int.divFloor(int.bp(written - taxFreeLine, taxBp), 12);
+    expect(tax).toBeGreaterThan(0);
+    const offered = view.offers.find((offer) => offer.terms.job === SHOP);
+    expect(offered?.pay).toEqual({ currency: month.currency, amount: month.amount - tax });
     const row = document.querySelector("[data-job-offers]");
-    expect(row?.textContent).toContain(say("ui.job.pay", { amount: formatMoney(month.amount, month.currency) }));
-    expect(row?.textContent).not.toContain(formatMoney(month.amount * 12, month.currency));
+    expect(row?.textContent).toContain(say("ui.job.pay", { amount: formatMoney(month.amount - tax, month.currency) }));
+    expect(row?.textContent).not.toContain(formatMoney(written, month.currency));
   });
 });
 

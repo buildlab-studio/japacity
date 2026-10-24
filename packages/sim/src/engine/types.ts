@@ -108,6 +108,8 @@ export type Reason =
   | "agent-debt"
   | "ransom"
   | "fare"
+  /** The UAE's overstay fine, paid with the fare home (status:uae-fine-accrues, decision 0028), a sink. */
+  | "fine"
   | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
@@ -168,6 +170,12 @@ export interface WayHome {
   naira: number;
   shape: ReturnShape | null;
   standing: number;
+  /** The ban the return would record on the country, in months, 0 for none (place:leaving-an-overstay-bans). */
+  banMonths: number;
+  /** How much of `fare` is the UAE's overstay fine (status:uae-fine-accrues); null where none is asked. */
+  fine: MoneyParam | null;
+  /** The returns service's way, where the status has one: the grant in naira at the day's rate and its ban (place:returns-service-takes-you-home); null elsewhere. */
+  scheme: { grant: MoneyParam; banMonths: number } | null;
 }
 
 /** The shapes of a return home: place:return-shape-decided-at-once. */
@@ -258,7 +266,8 @@ export type Requirement =
   | { type: "chapter/done"; chapter: Id<"chapter"> }
   // whole life
   | { type: "place/is"; where: Where; country?: Id<"country"> }
-  | { type: "status/is"; statuses: Id<"status">[] }
+  /** With `grace`, the status is also in an overstay's grace (status:grace-allows-in-country-applications). */
+  | { type: "status/is"; statuses: Id<"status">[]; grace?: true }
   /** A status is held whose clock is running and under this many months. */
   | { type: "status/clock-under"; months: number }
   /** The credit mark in the current country. */
@@ -360,6 +369,8 @@ export type Effect =
   | { type: "people/moment"; kind: Moment["kind"] }
   /** Withdraws an application in progress (person:one-left-keeps-own-gains). */
   | { type: "route/withdraw"; route: Id<"route"> }
+  /** Permission in the country is lost: every route into it that was flown is known again (route:lapsed-route-known-again). */
+  | { type: "route/lapse"; country: Id<"country"> }
   /** The application just sent on this route, resting on this bond, opens the genuineness interview (interview:partner-application-opens-interview, interview:thin-record-triggers-interview). */
   | { type: "interview/open"; route: Id<"route">; bond: string }
   /** The interview open for this route closes unscored (person:joint-collapses-with-bond, interview:players-answer-at-own-pace). */
@@ -532,8 +543,6 @@ export interface SchoolEntry {
   tuition: number;
   deposit: number;
   minGrade: number;
-  /** The English band times ten: 65 is band 6.5. */
-  minBand: number;
   offerBp: number;
   /** Given to everyone at or above the grade. Pence. */
   autoDiscount: { minGrade: number; amount: number } | null;
@@ -902,6 +911,20 @@ export interface StatusEntry {
   banMonths: number;
   detectBp: number;
   holdsPassport: boolean;
+  /** The overstayer's fields (status.md, "Entries: overstaying, country by country"), read on the overstayer only; missing reads as 0 or none. Months of grace after the lapse (status:grace-before-overstaying). */
+  graceMonths?: number;
+  /** Months a notice gives before removal (status:detection-gives-notice). */
+  noticeMonths?: number;
+  /** The ban for going home at one's own fare after the grace (place:leaving-an-overstay-bans). */
+  ownFareBanMonths?: number;
+  /** The ban for the assisted return or the returns service (place:leaving-an-overstay-bans). */
+  assistedBanMonths?: number;
+  /** The landlord's check a month past the grace, in basis points (abroad-money:right-to-rent-check). */
+  rentCheckBp?: number;
+  /** The returns service's grant, in the country's smallest unit (place:returns-service-takes-you-home). */
+  returnGrant?: number;
+  /** The overstay fine a month past the grace, in the country's smallest unit (status:uae-fine-accrues). */
+  finePerMonth?: number;
 }
 
 export interface GoalEntry {
@@ -1256,7 +1279,7 @@ export interface Tuning {
   street: { phonePrice: number; phoneMood: number; phoneNetwork: number; salesPay: number; salesHireBp: number; apprenticeTech: number; apprenticeUntil: number; theftBp: number; theftNaira: number; mosquitoBp: number; harassBp: number; harassMood: number; shoppingGbp: number; shoppingAed: number; shoppingMood: number; findBp: number; findMood: number; runMood: number };
   /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
   parcel: { handling: number; laptopMood: number; clothesPrep: number };
-  status: { courseMonths: number };
+  status: { courseMonths: number; hospitalChargeBp: number; overstayPartnerSettleMonths: number; rentCheckWellbeing: number };
   /**
    * `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit).
    * `cleanMonths`: months without a miss before the file drifts up (credit:clean-mark-drifts-up).
@@ -1752,6 +1775,8 @@ export interface VisaApplication {
   interviewScore: number | null;
   /** Pence of surcharge paid with the application, refunded on a refusal (route:refusal-refunds-and-resets). */
   surchargePaid: number;
+  /** Made from inside the route's country (status:grace-allows-in-country-applications, person:partner-route-in-country): no flight on a grant (route-gates:in-country-grant-switches-status). */
+  inCountry?: true;
 }
 
 export interface RouteState {
@@ -1776,6 +1801,8 @@ export interface RouteState {
   secret: { sponsorFraud: boolean | null };
   /** Months the route stays `refused` from a ban. Null: no ban. */
   bannedUntil: number | null;
+  /** The month the authorisation to return into Canada was paid on this route (route-gates:canada-return-asks-authorisation). Missing: never. */
+  authorisedMonth?: number;
 }
 
 /** State the gates keep beyond the study fields: docs/rules/route-gates.md. */
@@ -1910,6 +1937,11 @@ export interface PlaceSlice {
   heldAbroad: { status: Id<"status">; sinceMonth: number; monthsHeld: number; lawfulMonths: number } | null;
   /** The month the December visit opened, null before (place:view-shows-place-and-returns). */
   decemberMonth: number | null;
+  /**
+   * Each return home from an overstay past the grace, or with a ban (place:leaving-an-overstay-bans, status:overstay-counts-as-refusal):
+   * the country, the month, the ban in months and whether the grace had passed. Missing: none yet.
+   */
+  overstays?: { country: Id<"country">; month: number; banMonths: number; pastGrace: boolean }[];
 }
 
 export interface StatusState {
@@ -1922,6 +1954,22 @@ export interface StatusState {
   monthsHeld: number;
   /** The job a one-employer status is tied to. */
   job: Id<"activity"> | null;
+  /** An overstayer status's stages (status:overstayer-risks-detection): missing on any other status. */
+  overstay?: OverstayState;
+  /** Settlement months that replace the entry's, for a partner status granted in country past the grace (person:partner-route-in-country). */
+  settleMonths?: number;
+}
+
+/**
+ * An overstay (status:grace-before-overstaying, status:detection-gives-notice, status:uae-fine-accrues): the month it began, the last
+ * month of the grace (held on by an application made in country), the month a notice ends (null with none) and the
+ * fine owed in the country's smallest unit.
+ */
+export interface OverstayState {
+  since: number;
+  graceUntil: number;
+  noticeUntil: number | null;
+  fine: number;
 }
 
 export interface StatusSlice {
@@ -2053,7 +2101,8 @@ export type Command = { basedOn: number } & (
   | { type: "wallet/remit"; currency: ForeignCurrency; amount: number; channel: "app" | "bank" | "informal" }
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
-  | { type: "return/home" }
+  /** `scheme`: ask the returns service (place:returns-service-takes-you-home, decision 0028). Missing: the return as before. */
+  | { type: "return/home"; scheme?: boolean }
   /** A ride between two places of the city (place:rides-between-city-places, world:ride-sheet-shows-fares, decision 0017). */
   | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: RideWay }
   // online (docs/rules/lottery.md)
@@ -2288,6 +2337,8 @@ export interface RouteView {
   depositRefund: RouteState["depositRefund"];
   /** What the gate shows: docs/rules/route-gates.md. Null for the study gate. */
   gate: RouteGateView | null;
+  /** The authorisation to return and the removal costs a Canadian route's first application still owes (route-gates:canada-return-asks-authorisation). Missing: nothing owed. */
+  authorisation?: { arc: MoneyParam; removal: MoneyParam };
 }
 
 /** The gate's own part of a route's view. Nothing hidden: no fraud, no draw. */
@@ -2413,6 +2464,8 @@ export interface PlayerView {
     nextStep: string | null;
     /** What `status/renew` would cost today from the world's variables, or null when the status cannot be renewed by asking (status:view-shows-status). */
     renew: { months: number; currency: ForeignCurrency; fee: number; surcharge: number } | null;
+    /** On an overstayer status (status:view-shows-status): the grace left, the notice left, the UAE's fine owed and whether an application made in country holds them; null on any other. */
+    overstay: { graceLeft: number; noticeLeft: number | null; fine: MoneyParam | null; pending: boolean } | null;
   } | null;
   credit: { mark: number; onTime: number; missed: number; judgmentUntil: number | null; needs: { id: Id<"obligation">; creditMin: number }[] } | null;
   goals: { open: { id: Id<"goal">; items: { id: string; met: boolean }[] }[]; done: { id: Id<"goal">; month: number }[] };

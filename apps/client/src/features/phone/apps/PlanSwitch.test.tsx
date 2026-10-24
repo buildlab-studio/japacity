@@ -48,15 +48,16 @@ function percentOf(game: Game, route: Id<"route">): number {
 }
 
 describe("the switch on another way's page", () => {
-  test("[chapter:chapters-follow-lean-route] given the nurse on care, when the master's page is read, then the switch says the fall in japacity against health care, with Keep mine and Make this the plan", async () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse on care, when the master's page is read, then the switch says the rise in japacity against health care, with Keep mine and Make this the plan", async () => {
     const game = nurseOnCare();
     const change = percentOf(game, UK) - percentOf(game, CARE);
-    expect(change).toBeLessThan(0);
+    // route:degree-meets-masters-english: the nurse's degree is the master's English, so the master's stands above care for now.
+    expect(change).toBeGreaterThan(0);
     expect(switchOf(game.view(), UK)).toEqual({ plan: CARE, change });
     await showPage(game, UK);
     const block = document.querySelector("[data-plan-switch]");
     expect(block?.getAttribute("data-plan-switch")).toBe(UK);
-    expect(block?.textContent).toContain(say("route.plan.instead", { plan: "health care", change: `-${String(-change)}` }));
+    expect(block?.textContent).toContain(say("route.plan.instead", { plan: "health care", change: `+${String(change)}` }));
     expect(block?.querySelector("[data-plan-keep]")?.textContent).toBe("Keep mine");
     expect(block?.querySelector("[data-plan-make]")?.textContent).toBe("Make this the plan");
   });

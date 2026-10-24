@@ -12,6 +12,8 @@ import { recordAgent, recordedSalary } from "./contract";
 import type { DecisionTerms, Gate } from "./gate";
 
 const FIND: Id<"activity"> = "activity.find-sponsor";
+/** document:degree-english-statement: the degree's English statement, which always passes. */
+const STATEMENT: Id<"document"> = "document.degree-english";
 
 type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Sponsor = { employer: string; salary: number };
@@ -187,7 +189,7 @@ export const sponsorGate: Gate = {
   },
   /**
    * route-gates:sponsor-application-needs: the sponsor at the bar, the route's qualification papers,
-   * the English band and, with a maintenance line, the funds covered at one
+   * the English (the degree's statement or the band) and, with a maintenance line, the funds covered at one
    * month end. As on the study route (route:visa-application-needs), the month end stands for
    * "covered", since the activity's fees come out of the funds shown.
    */
@@ -195,8 +197,9 @@ export const sponsorGate: Gate = {
     const { documents, bandMin, maintenanceVar } = settings(entry);
     if (!sponsorGate.reached(ctx, entry, held, "salary")) return false;
     if (!documents.every((document) => ctx.check({ type: "document/held", document }).met)) return false;
+    // The degree's English statement meets the English (document:degree-english-statement), or else the band.
     const band = heldBand(ctx);
-    if (band === null || band < bandMin) return false;
+    if (!ctx.check({ type: "document/held", document: STATEMENT }).met && (band === null || band < bandMin)) return false;
     return maintenanceVar === null || held.funds.heldMonths >= 1;
   },
   /** route-gates:fraud-sponsor-refused and route-gates:deception-bans-country: a fraud sponsor is refused with the reason `sponsor` before any draw, and that refusal bans. */

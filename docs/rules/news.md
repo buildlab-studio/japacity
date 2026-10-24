@@ -44,7 +44,7 @@ Each story has a headline and one line of body for each stage it passes through.
 | uk-refusals-up, announced | UK tells officers to look harder at student files | Interviews will be longer and bank statements checked more closely. |
 | uk-refusals-up, in force | Refusals climb | One in three, an agent says. The official figure is lower. It is still higher than last year. |
 | dollar-scarcity, rumour | Banks go quiet on dollars | Two people in your office were told to "check back next week" for their allowance. |
-| dollar-scarcity, announced | Banks ration foreign currency | Personal allowances are cut to a fifth. School fees will be "processed in order of receipt". |
+| dollar-scarcity, announced | Banks ration foreign currency | Personal allowances are cut from $500 a month to $200. School fees will be "processed in order of receipt". |
 | dollar-scarcity, in force | The queue is now two months | The aboki has dollars today. At his price. |
 | dollar-scarcity, ended | The rationing is over | Banks are selling again. |
 | naira-float, rumour | "They will float it" | Everybody on the bus has a theory and a date. |

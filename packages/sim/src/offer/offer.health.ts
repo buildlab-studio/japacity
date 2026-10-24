@@ -8,9 +8,11 @@
 // which the choices' own effects move: the chemist and ignoring each mark a
 // relapse to draw, and either answer to the worse turn marks it answered.
 import { QUALITY } from "../engine/ids";
+import { bp } from "../engine/int";
 import { readOf } from "../engine/kind";
 import type { BaseEvent, Ctx, Effect, Id, OfferEntry, ReadCtx, State, Terms } from "../engine/types";
 import { FORCED_WAIT, runDownSinceWarning } from "../quality/quality.logic";
+import { hospitalShareBp } from "../status/status.logic";
 
 const ILLNESS: Id<"offer"> = "offer.illness";
 const ILLNESS_WORSE: Id<"offer"> = "offer.illness-worse";
@@ -44,14 +46,15 @@ export function isOpen(state: State, entry: Id<"offer">): boolean {
 /**
  * The prices come from `tuning.health`, so an overlay of the tuning moves them
  * (engine:numbers-read-from-content). health.md gives no place for illness, so it is rolled
- * abroad too, at the naira prices; the page gives no prices abroad.
+ * abroad too, at the naira prices; the page gives no prices abroad. status:overstayer-hospital-charged: the hospital's
+ * answers cost the share the status kind gives; the chemist costs what it costs.
  */
-function illnessTerms(read: ReadCtx): Terms {
-  return { hospital: read.content.tuning.health.hospital, chemist: read.content.tuning.health.chemist };
+export function illnessTerms(read: ReadCtx): Terms {
+  return { hospital: bp(read.content.tuning.health.hospital, hospitalShareBp(read)), chemist: read.content.tuning.health.chemist };
 }
 
-function worseTerms(read: ReadCtx): Terms {
-  return { hospital: read.content.tuning.health.hospitalWorse };
+export function worseTerms(read: ReadCtx): Terms {
+  return { hospital: bp(read.content.tuning.health.hospitalWorse, hospitalShareBp(read)) };
 }
 
 function addQuality(ctx: Ctx, quality: Id<"quality">, amount: number): BaseEvent[] {

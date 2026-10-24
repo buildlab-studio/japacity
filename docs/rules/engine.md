@@ -90,7 +90,7 @@ Every command has `type`, `basedOn` (the state version) and its own fields. The 
 | `wallet/remit` | `currency` (a foreign one), `amount`, `channel`: app, bank or informal (abroad-money:remit-sends-money-home) | No |
 | `prologue/choose` | `step`, `answer` (prologue:steps-offer-legal-answers) | No |
 | `status/renew` | (status:renewing-a-status, status:view-shows-status) | No |
-| `return/home` | None. The shape of the return is worked out, not sent (place:return-home-paid-or-assisted, place:return-shape-decided-at-once) | No |
+| `return/home` | `scheme`: true asks the UK's returns service (place:returns-service-takes-you-home); otherwise nothing. The shape of the return is worked out, not sent (place:return-home-paid-or-assisted, place:return-shape-decided-at-once) | No |
 | `place/ride` | `from`, `to`, `way`: danfo, keke or okada (place:rides-between-city-places) | No |
 | `activity/now` | `activity`, `param`: a now-act answered at once where it is staged (activity:now-acts-and-month-acts) | No |
 | `chapter/lean` | `route`: make a way out heard of or looked into the plan the chapters follow (chapter.md) | No |
@@ -168,7 +168,7 @@ Each kind is one module of plain functions. A kind adds only what it needs.
 | `fraud` | Whether an agent is honest |
 | `street` | What happens at the aboki, and the informal remittance that may not arrive (abroad-money:remit-sends-money-home) |
 | `prologue` | The prologue's opening draw and the draws after its answers (prologue:family-draw-on-first-answer, prologue:steps-offer-legal-answers) |
-| `status` | The overstayer's detection (status:overstayer-risks-detection), cash pay withheld (ladders:cash-jobs-paid-in-hand), the driving test (car:licence-and-driving-test) |
+| `status` | The overstayer's detection (status:overstayer-risks-detection), then the landlord's check in the same month (abroad-money:right-to-rent-check, decision 0028), cash pay withheld (ladders:cash-jobs-paid-in-hand), the driving test (car:licence-and-driving-test) |
 | `credit` | Reserved for the credit kind. No rule draws on it |
 | `road` | The road pitch's hidden kind (road:taking-pitch-pays-deposit) and each step of the chain (road:chain-steps-monthly) |
 | `lotto` | The kiosk, the bet slip and the savings circle's pot (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds, luck:savings-circle-holds-pot) |

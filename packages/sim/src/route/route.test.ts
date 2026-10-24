@@ -319,17 +319,19 @@ describe("schools", () => {
     }
   });
 
-  test("[route:applying-to-a-school] given a band exactly at a school's minimum, when it is applied to, then it is accepted; a step under, the turn is refused", () => {
-    const at = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: school(ASHBY).minBand } : paper)) });
-    toKnown(at);
+  test("[route:applying-to-a-school] [route:degree-meets-masters-english] given a low English band, or no English result at all, when Ashby and Northgate are applied to, then each is accepted: no school asks a band", () => {
+    const low = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: 40 } : paper)) });
+    toKnown(low);
     // activity:now-acts-and-month-acts: the application is sent at once, and is pending in the month it is sent.
-    at.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
-    expect(uk(at).schools[ASHBY]?.state).toBe("pending");
-    const under = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: school(ASHBY).minBand - 5 } : paper)) });
-    toKnown(under);
-    under.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY }, "not-legal");
-    under.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
-    expect(uk(under).schools[NORTHGATE]?.state).toBe("pending");
+    low.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
+    expect(uk(low).schools[ASHBY]?.state).toBe("pending");
+    // activity:now-acts-and-month-acts: one application a month, so each school is tried in a life of its own.
+    for (const id of [ASHBY, NORTHGATE]) {
+      const none = life({ documents: READY_PAPERS.filter((paper) => paper.document !== "document.english-test") });
+      toKnown(none);
+      none.accept({ type: "activity/now", activity: "activity.apply-to-school", param: id });
+      expect(uk(none).schools[id]?.state).toBe("pending");
+    }
   });
 
   test("[route:applying-to-a-school] given a grade under a school's minimum, when it is applied to, then the turn is refused; at the minimum, it is accepted", () => {
@@ -682,11 +684,12 @@ describe("the visa application", () => {
         {},
       ],
       [
-        "no English result",
-        which("document/held", "document.english-test"),
+        // route:degree-meets-masters-english: the degree is the English.
+        "no bachelor's degree",
+        which("quality/min"),
         (game) => {
           toHeld(game);
-          applyEffects(game, [{ type: "document/void", document: "document.english-test" }]);
+          applyEffects(game, [{ type: "quality/add", quality: "quality.education-level", amount: -1 }]);
         },
         {},
       ],

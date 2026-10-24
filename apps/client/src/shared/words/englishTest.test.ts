@@ -20,9 +20,11 @@ function graduateWith(english: number, seed = "probe") {
 }
 
 describe("the English test's chance", () => {
-  test("[world:one-action-one-sheet] given the band the route asks for, when it is read, then it is the chapter's English item, band 6.0, the nudge's figure", () => {
+  test("[world:one-action-one-sheet] [route:degree-meets-masters-english] given the band the route asks for, when it is read, then it is the English item of the file that still asks a band, Canada's pool at band 6.0, and the master's file says the degree instead", () => {
     expect(bandNeeded()).toBe(60);
-    expect(text["chapter.build-the-file.item.english"]).toContain(formatBand(bandNeeded()));
+    expect(text["chapter.build-the-file-points.item.english"]).toContain(formatBand(bandNeeded()));
+    expect(text["chapter.build-the-file.item.english"]).not.toContain(formatBand(bandNeeded()));
+    expect(text["chapter.build-the-file.item.english"]).toContain("degree");
   });
 
   test("[world:one-action-one-sheet] given English at each edge of the noise, when the chance of 6.0 is read, then none, one, two and all three of the draws reach it", () => {

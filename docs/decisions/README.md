@@ -70,3 +70,4 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0025](0025-the-lively-layer.md) | The lively layer |
 | [0026](0026-the-painted-map-that-folds.md) | The painted map that folds |
 | [0027](0027-one-contract-for-the-client-and-the-server.md) | One contract for the client and the server |
+| [0028](0028-overstaying-in-stages.md) | Overstaying in stages |

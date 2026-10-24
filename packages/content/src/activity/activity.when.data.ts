@@ -50,6 +50,7 @@ const NOW_ACTS: Record<string, Now> = {
   // Every paper's request: made now, the wait starting now.
   "activity.get-passport": "once",
   "activity.get-transcript": "once",
+  "activity.degree-english": "once",
   "activity.sit-english-test": "once",
   "activity.tb-test": "once",
   "activity.get-police-certificate": "once",

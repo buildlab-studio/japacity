@@ -112,8 +112,8 @@ describe("a route's figure", () => {
   test("[japacity:figure-sums-checklist-items] given the graduate with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
     const game = graduateKnown();
     const read = readOf(game);
-    // Its degree and its second upper are met; nothing else on the list is yet.
-    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade"));
+    // Its degree, its second upper and the English its degree is (route:degree-meets-masters-english) are met; nothing else on the list is yet.
+    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("english"));
     const items = checklistView(read, UK_ROUTE, judgeWith(read));
     expect(items.map((item) => item.id)).toEqual(uk.checklist.map((item) => item.id));
     expect(items.find((item) => item.id === "degree")).toEqual({ id: "degree", weight: weight("degree"), met: true, have: null, need: null, earned: weight("degree") });
@@ -124,10 +124,10 @@ describe("a route's figure", () => {
     const game = graduateKnown();
     carryOut(game, [{ type: "document/grant", document: "document.passport" }]);
     let read = readOf(game);
-    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport"));
+    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("english") + weight("passport"));
     carryOut(game, [{ type: "document/grant", document: "document.transcript" }]);
     read = readOf(game);
-    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport") + weight("transcript"));
+    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("english") + weight("passport") + weight("transcript"));
   });
 
   test("[japacity:figure-sums-checklist-items] given a slow item, when have moves from 0 to the need, then it earns weight times have over need rounded down, and its whole weight once met", () => {
@@ -185,7 +185,7 @@ describe("a route's figure", () => {
 describe("the character's japacity", () => {
   test("[japacity:best-open-route-is-japacity] given a known route, when the window is open, narrowing or closed, then it counts at 2 and 1 and not at 0", () => {
     const game = graduateKnown();
-    const figure = weight("degree") + weight("grade");
+    const figure = weight("degree") + weight("grade") + weight("english");
     for (const window of [2, 1]) {
       const read = readOf(game, window);
       expect(japacity(read, judgeWith(read))).toEqual({ percent: figure, route: UK_ROUTE });

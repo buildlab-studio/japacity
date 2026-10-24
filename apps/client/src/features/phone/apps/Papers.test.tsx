@@ -70,13 +70,14 @@ describe("the Papers app", () => {
     expect(PHONE_ACTS).toEqual(new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence"]));
   });
 
-  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office", async () => {
+  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] [route:degree-meets-masters-english] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office, and no English result, since the degree is the master's English", async () => {
     const view = graduatePlanned();
     const onMap = vi.fn();
     await openPhone(view, null, onMap);
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
     const rows = [...document.querySelectorAll<HTMLElement>("[data-paper]")];
-    expect(rows.map((row) => row.dataset.paper)).toEqual(expect.arrayContaining([PASSPORT, TRANSCRIPT, "document.english-test"]));
+    expect(rows.map((row) => row.dataset.paper)).toEqual(expect.arrayContaining([PASSPORT, TRANSCRIPT, "document.tb-certificate"]));
+    expect(rows.map((row) => row.dataset.paper)).not.toContain("document.english-test");
     for (const row of rows) {
       expect(row.dataset.state).toBe("not-yet");
       expect(row.textContent).toContain(say("phone.papers.not-yet"));
@@ -91,8 +92,10 @@ describe("the Papers app", () => {
     expect(passport?.textContent).toBe(say("phone.papers.at", { place: say("place.passport-office.name") }));
     fireEvent.click(passport!);
     expect(onMap).toHaveBeenCalledWith("place.passport-office");
-    // The English result waits on the passport: no act is offered for it yet.
-    expect(document.querySelector('[data-paper="document.english-test"] [data-paper-act]')).toBeNull();
+    // The TB certificate waits on the passport: no act is offered for it yet.
+    expect(document.querySelector('[data-paper="document.tb-certificate"] [data-paper-act]')).toBeNull();
+    // The master's asks no English result: the degree meets it, so no row and no act for the test.
+    expect(document.querySelector('[data-paper="document.english-test"]')).toBeNull();
     // An act's words wrap and the button grows with them, never cut with an ellipsis.
     for (const words of document.querySelectorAll<HTMLElement>("[data-paper-act-words]")) expect(words.className).not.toContain("truncate");
   });

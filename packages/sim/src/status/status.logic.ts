@@ -1,7 +1,8 @@
 // Status abroad: docs/rules/status.md. One current status,
 // held only abroad, with its clocks: expiry, the job clock, settling.
-import { worldVar } from "../engine/check";
-import { mulDiv } from "../engine/int";
+import { worldVar, worldVarOr } from "../engine/check";
+import { COUNTRY, STATUS, VAR } from "../engine/ids";
+import { BP_WHOLE, convertMinor, mulDiv } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -18,6 +19,7 @@ import type {
   ForeignCurrency,
   Id,
   MoneyParam,
+  OverstayState,
   PlayerView,
   ReadCtx,
   Rejection,
@@ -31,6 +33,7 @@ import type {
 } from "../engine/types";
 import { cashWorkedThisMonth } from "../activity/activity.pay";
 import { leadStatusMonths } from "../route/gates/dependant";
+import { officialRates } from "../wallet/wallet.rates";
 import type { GrantWhy, LapseWhy, StatusEvent } from "./status.events";
 
 const MONTHS_PER_YEAR = 12;
@@ -90,7 +93,8 @@ export function workAllows(read: ReadCtx, job: ActivityEntry): boolean {
     case "one-employer":
       return job.id === current.job || job.sponsor === true;
     case "cash":
-      return job.cash === true;
+      // status:grace-allows-in-country-applications, ladders:sponsor-job-ties-status: in the grace a sponsor's job may be hunted too.
+      return job.cash === true || (job.sponsor === true && inGrace(read));
     case "none":
       return false;
     default: {
@@ -123,6 +127,73 @@ export function coursePassed(read: ReadCtx): boolean {
 export function removalBanMonths(content: Content, country: Id<"country">): number {
   const overstayer = countryEntry(content, country).overstayer;
   return overstayer === null ? 0 : statusEntry(content, overstayer).banMonths;
+}
+
+/**
+ * status:overstayer-risks-detection: the overstay's stages on the current status, or null on any other. A state written before
+ * the stages were kept reads its overstay as beginning the month the status was granted.
+ */
+export function overstayOf(read: ReadCtx): { entry: StatusEntry; overstay: OverstayState } | null {
+  const held = read.state.status.current;
+  if (held === null || !isOverstayer(read.content, held.entry)) return null;
+  const entry = statusEntry(read.content, held.entry);
+  return { entry, overstay: held.overstay ?? freshOverstay(entry, held.grantedMonth) };
+}
+
+function freshOverstay(entry: StatusEntry, month: number): OverstayState {
+  return { since: month, graceUntil: month + (entry.graceMonths ?? 0), noticeUntil: null, fine: 0 };
+}
+
+/** status:grace-before-overstaying: on an overstayer status, through the last month of its grace. */
+export function inGrace(read: ReadCtx): boolean {
+  const now = overstayOf(read);
+  return now !== null && read.state.turn.month <= now.overstay.graceUntil;
+}
+
+/** status:grace-before-overstaying: on an overstayer status, past its grace: the overstay itself. */
+export function pastGrace(read: ReadCtx): boolean {
+  const now = overstayOf(read);
+  return now !== null && read.state.turn.month > now.overstay.graceUntil;
+}
+
+/** status:uae-amnesty: the amnesty holds for the UAE's irregular status. */
+export function amnestyHolds(read: ReadCtx, status: Id<"status">): boolean {
+  return status === STATUS.uaeIrregular && worldVarOr(read.world, VAR.uaeAmnesty) === 1;
+}
+
+/**
+ * status:grace-allows-in-country-applications, person:partner-route-in-country: an application made from inside the country the character is in,
+ * still waiting for its answer. Sent in `sentBy` or before, when given.
+ */
+export function pendingInCountry(read: ReadCtx, sentBy: number | null = null): boolean {
+  const { country } = read.state.place;
+  return Object.entries(read.state.route).some(([id, held]) => {
+    const visa = held.visa;
+    if (held.state !== "applying" || visa === null || visa.inCountry !== true) return false;
+    if (sentBy !== null && visa.submittedMonth > sentBy) return false;
+    return read.content.route[id as Id<"route">]?.country === country;
+  });
+}
+
+/** An application into the country the character is in was refused this month (status:notice-ends-in-removal, status:grace-before-overstaying). */
+function refusedHereThisMonth(read: ReadCtx): boolean {
+  const { country } = read.state.place;
+  const month = read.state.turn.month;
+  return Object.entries(read.state.route).some(([id, held]) => held.lastRefusal?.month === month && read.content.route[id as Id<"route">]?.country === country);
+}
+
+/** status:overstayer-hospital-charged: what share of the hospital's figure the character pays, in basis points. */
+export function hospitalShareBp(read: ReadCtx): number {
+  const now = overstayOf(read);
+  if (now === null || now.entry.country !== COUNTRY.uk || !pastGrace(read)) return BP_WHOLE;
+  return read.content.tuning.status.hospitalChargeBp;
+}
+
+/** The fine owed on the UAE's irregular status, in fils, 0 elsewhere or while the amnesty holds (status:uae-fine-accrues, status:uae-amnesty). */
+export function fineOwed(read: ReadCtx): number {
+  const now = overstayOf(read);
+  if (now === null || amnestyHolds(read, now.entry.id)) return 0;
+  return now.overstay.fine;
 }
 
 // ---------------------------------------------------------------------------
@@ -174,6 +245,8 @@ function grant(
   const month = ctx.state.turn.month;
   const length = lengthOf(ctx, entry);
   const before = ctx.state.status.current;
+  // person:partner-route-in-country: a status that settles, granted over an overstay past its grace, is on the ten-year route.
+  const tenYears = entry.countsToSettlement && pastGrace(ctx);
   const events = record(ctx, [
     {
       type: "status/granted",
@@ -185,6 +258,8 @@ function grant(
       job,
       why,
       fee,
+      ...(isOverstayer(ctx.content, status) ? { overstay: freshOverstay(entry, month) } : {}),
+      ...(tenYears ? { settleMonths: ctx.content.tuning.status.overstayPartnerSettleMonths } : {}),
     },
   ]);
   housing(ctx, before?.entry ?? null, status);
@@ -199,6 +274,8 @@ function lapse(ctx: Ctx, why: LapseWhy): BaseEvent[] {
   const overstayer = countryEntry(ctx.content, now.entry.country).overstayer;
   if (overstayer !== null) events.push(...grant(ctx, overstayer, null, "lapsed", null));
   housing(ctx, now.held.entry, overstayer);
+  // route:lapsed-route-known-again: the permission is gone, so a route into the country that was flown is known again.
+  ctx.apply([{ type: "route/lapse", country: now.entry.country }], { source: now.held.entry, param: null, terms: {} });
   return events;
 }
 
@@ -237,6 +314,7 @@ function clockStart(ctx: Ctx): BaseEvent[] {
 function remove(ctx: Ctx, cause: Cause): BaseEvent[] {
   const { where, country } = ctx.state.place;
   if (where !== "abroad" || country === null) return [];
+  const fine = fineOwed(ctx);
   const events = record(ctx, [
     {
       type: "status/removed",
@@ -247,7 +325,21 @@ function remove(ctx: Ctx, cause: Cause): BaseEvent[] {
     },
   ]);
   ctx.apply([{ type: "place/move", to: "home", country: null }], cause);
+  carryFineHome(ctx, country, fine);
   return events;
+}
+
+/** The UAE's fine left owing on a removal or an assisted return follows the character home (status:uae-fine-accrues). */
+const FINE_HOME: Id<"obligation"> = "obligation.uae-fine-home";
+
+/**
+ * status:uae-fine-accrues, return:return-reopens-home-charges: a fine left owing opens at home as a debt in naira at the day's official rate. It is
+ * the fine taken over, never money lent, so the debt is opened under its own name and credits nothing.
+ */
+export function carryFineHome(ctx: Ctx, country: Id<"country">, fine: number): void {
+  if (fine <= 0 || ctx.content.obligation[FINE_HOME] === undefined) return;
+  const naira = convertMinor(fine, countryEntry(ctx.content, country).currency, "NGN", officialRates(ctx.world));
+  ctx.apply([{ type: "obligation/open", obligation: FINE_HOME, principal: naira }], { source: FINE_HOME, param: null, terms: {} });
 }
 
 // ---------------------------------------------------------------------------
@@ -311,14 +403,66 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** status:overstayer-risks-detection and ladders:cash-jobs-paid-in-hand: cash work this month raises the detection chance. */
-function detect(ctx: Ctx): BaseEvent[] {
-  const now = currentOf(ctx);
-  if (now === null || !isOverstayer(ctx.content, now.held.entry)) return [];
+/**
+ * The overstay's month in the `clocks` phase, in the rules' order: an application made in country holds the grace and the notice
+ * (status:grace-before-overstaying, status:notice-ends-in-removal); a notice at its end removes (status:notice-ends-in-removal); past the grace and with no
+ * notice, nothing pending and no amnesty, detection is drawn and gives a notice (status:overstayer-risks-detection, status:detection-gives-notice,
+ * status:uae-amnesty); then the landlord's check, drawn after detection on the same stream (abroad-money:right-to-rent-check, decision 0028); then the fine (status:uae-fine-accrues).
+ */
+function overstayMonth(ctx: Ctx): BaseEvent[] {
+  const now = overstayOf(ctx);
+  if (now === null) return [];
+  const month = ctx.state.turn.month;
+  const events: BaseEvent[] = [];
+  const refused = refusedHereThisMonth(ctx);
+  const { graceUntil, noticeUntil } = now.overstay;
+  if (graceUntil === month - 1 && (refused || pendingInCountry(ctx, graceUntil))) events.push(...record(ctx, [{ type: "status/grace-held", graceUntil: month }]));
+  if (noticeUntil !== null && noticeUntil <= month && (refused || pendingInCountry(ctx))) events.push(...record(ctx, [{ type: "status/notice-held", noticeUntil: month + 1 }]));
+  const held = overstayOf(ctx);
+  if (held === null) return events;
+  if (held.overstay.noticeUntil !== null && held.overstay.noticeUntil <= month) return [...events, ...remove(ctx, { source: held.entry.id, param: null, terms: {} })];
+  if (!pastGrace(ctx)) return events;
+  events.push(...detect(ctx, held.entry, held.overstay));
+  events.push(...rentCheck(ctx, held.entry));
+  const perMonth = held.entry.finePerMonth ?? 0;
+  if (perMonth > 0) events.push(...record(ctx, [{ type: "status/fined", amount: perMonth }]));
+  return events;
+}
+
+/** status:overstayer-risks-detection, status:detection-gives-notice and ladders:cash-jobs-paid-in-hand: cash work this month raises the chance, and a hit gives a notice. */
+function detect(ctx: Ctx, entry: StatusEntry, overstay: OverstayState): BaseEvent[] {
+  if (overstay.noticeUntil !== null || pendingInCountry(ctx) || amnestyHolds(ctx, entry.id)) return [];
   const cash = cashWorkedThisMonth(ctx);
-  const chance = now.entry.detectBp + (cash ? ctx.content.tuning.ladder.cashDetectBp : 0);
+  const chance = entry.detectBp + (cash ? ctx.content.tuning.ladder.cashDetectBp : 0);
   if (!ctx.random.chance("status", chance)) return [];
-  return remove(ctx, { source: now.held.entry, param: null, terms: {} });
+  const months = entry.noticeMonths ?? 0;
+  return record(ctx, [{ type: "status/noticed", country: entry.country, noticeUntil: ctx.state.turn.month + months, months }]);
+}
+
+/** abroad-money:right-to-rent-check: the room let with no papers asked, which the check never reaches. */
+const CASH_ROOM: Id<"obligation"> = "obligation.rent-cash-room-uk";
+
+/**
+ * abroad-money:right-to-rent-check: while the room is the country's shared room or a flat in the character's name, the landlord's check is drawn. On it the room
+ * closes with nothing owed, under the room's own name so a flat's deposit is kept as on an eviction, and the room with no papers opens.
+ */
+function rentCheck(ctx: Ctx, entry: StatusEntry): BaseEvent[] {
+  const chance = entry.rentCheckBp ?? 0;
+  if (chance <= 0) return [];
+  const { rentRoom, rentFlat } = countryEntry(ctx.content, entry.country);
+  const room = Object.values(ctx.state.obligation.items).find((item) => item.entry === rentRoom || item.entry === rentFlat);
+  if (room === undefined) return [];
+  if (!ctx.random.chance("status", chance)) return [];
+  const events = record(ctx, [{ type: "status/rent-checked" }]);
+  ctx.apply([{ type: "obligation/close", obligationType: "rent" }], { source: room.entry, param: null, terms: {} });
+  ctx.apply(
+    [
+      { type: "obligation/open", obligation: CASH_ROOM },
+      { type: "quality/add", quality: "quality.wellbeing", amount: ctx.content.tuning.status.rentCheckWellbeing },
+    ],
+    { source: entry.id, param: null, terms: {} },
+  );
+  return events;
 }
 
 /** status:lost-job-starts-clock: the clock runs a month at a time and lapses the status at zero, unless an allowed job is held again. */
@@ -347,6 +491,11 @@ function expire(ctx: Ctx): BaseEvent[] {
   return lapse(ctx, "expired");
 }
 
+/** status:lawful-months-reach-settlement, person:partner-route-in-country: the months to settle, the ten-year route's where the status carries it. */
+function settleMonthsOf(read: ReadCtx, held: StatusState, settleVar: Id<"var">): number {
+  return held.settleMonths ?? worldVar(read, settleVar);
+}
+
 /** Pays a settling or citizenship fee as a foreign fee and grants the status, or does nothing while it cannot be paid. */
 function moveUp(ctx: Ctx, entry: StatusEntry, to: Id<"status">, feeVar: Id<"var"> | null, why: GrantWhy): BaseEvent[] {
   const currency = foreignCurrencyOf(ctx.content, entry.country);
@@ -366,7 +515,7 @@ function settle(ctx: Ctx): BaseEvent[] {
   if (now === null) return [];
   const { held, entry } = now;
   if (entry.countsToSettlement && entry.settled !== null && entry.settleMonthsVar !== null) {
-    if (held.lawfulMonths < worldVar(ctx, entry.settleMonthsVar)) return [];
+    if (held.lawfulMonths < settleMonthsOf(ctx, held, entry.settleMonthsVar)) return [];
     return moveUp(ctx, entry, entry.settled, entry.settleFeeVar, "settled");
   }
   if (entry.citizen !== null && entry.citizenAfter !== null && held.monthsHeld >= entry.citizenAfter) {
@@ -390,9 +539,9 @@ function employerRenew(ctx: Ctx): BaseEvent[] {
   return record(ctx, [{ type: "status/employer-renewed", status: held.entry, expiresMonth: held.expiresMonth + entry.renewMonths, months: entry.renewMonths }]);
 }
 
-/** Detection first, so a status that lapses this month is not also found out this month. */
+/** The overstay first, so a status that lapses this month is not also found out this month. */
 function clocks(ctx: Ctx): BaseEvent[] {
-  return [...detect(ctx), ...runClock(ctx), ...employerRenew(ctx), ...expire(ctx), ...settle(ctx)];
+  return [...overstayMonth(ctx), ...runClock(ctx), ...employerRenew(ctx), ...expire(ctx), ...settle(ctx)];
 }
 
 /** status:lawful-months-reach-settlement: a month held, and a lawful month where the status counts. */
@@ -409,7 +558,8 @@ function month(ctx: Ctx): BaseEvent[] {
 function judgeIs(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "status/is") throw new Error(`status/is cannot judge ${requirement.type}.`);
   const current = read.state.status.current;
-  return { met: current !== null && requirement.statuses.includes(current.entry) };
+  // status:grace-allows-in-country-applications: with `grace`, the status must also be in an overstay's grace.
+  return { met: current !== null && requirement.statuses.includes(current.entry) && (requirement.grace !== true || inGrace(read)) };
 }
 
 function judgeClockUnder(read: ReadCtx, requirement: Requirement): RequirementResult {
@@ -427,6 +577,11 @@ function withCurrent(slice: StatusSlice, event: StatusEvent, change: (held: Stat
   return { ...slice, current: change(slice.current) };
 }
 
+/** An overstay's stages changed; a state that kept none reads it from the month the status was granted. */
+function withOverstay(slice: StatusSlice, event: StatusEvent, change: (overstay: OverstayState) => OverstayState): StatusSlice {
+  return withCurrent(slice, event, (held) => ({ ...held, overstay: change(held.overstay ?? { since: held.grantedMonth, graceUntil: held.grantedMonth, noticeUntil: null, fine: 0 }) }));
+}
+
 function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
   switch (event.type) {
     case "status/granted":
@@ -440,8 +595,19 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
           lawfulMonths: event.lawfulMonths,
           monthsHeld: event.monthsHeld,
           job: event.job,
+          ...(event.overstay === undefined ? {} : { overstay: event.overstay }),
+          ...(event.settleMonths === undefined ? {} : { settleMonths: event.settleMonths }),
         },
       };
+    case "status/grace-held":
+      return withOverstay(slice, event, (overstay) => ({ ...overstay, graceUntil: event.graceUntil }));
+    case "status/noticed":
+    case "status/notice-held":
+      return withOverstay(slice, event, (overstay) => ({ ...overstay, noticeUntil: event.noticeUntil }));
+    case "status/fined":
+      return withOverstay(slice, event, (overstay) => ({ ...overstay, fine: overstay.fine + event.amount }));
+    case "status/rent-checked":
+      return slice;
     case "status/lapsed":
     case "status/closed":
       return { ...slice, current: null };
@@ -533,6 +699,15 @@ function lines(event: StatusEvent): ReportLine[] {
       return [line("removed", { country: event.country, months: event.banMonths }, "bad", true)];
     case "status/closed":
       return [line("closed", { status: event.status }, "plain", false)];
+    case "status/noticed":
+      return [line("noticed", { country: event.country, months: event.months }, "bad", true)];
+    case "status/rent-checked":
+      return [line("rent-checked", {}, "bad", true)];
+    // The grace and the notice held, and the fine, show in the view (status:view-shows-status); a line each month would only repeat it.
+    case "status/grace-held":
+    case "status/notice-held":
+    case "status/fined":
+      return [];
     default: {
       const never: never = event;
       throw new Error(`Unknown status event ${JSON.stringify(never)}.`);
@@ -564,11 +739,27 @@ function view(read: ReadCtx): Pick<PlayerView, "status"> {
       monthsLeft: current.expiresMonth === null ? null : Math.max(0, current.expiresMonth - read.state.turn.month),
       clock: current.clock,
       lawfulMonths: current.lawfulMonths,
-      settleMonths: entry.settleMonthsVar === null ? null : worldVar(read, entry.settleMonthsVar),
+      settleMonths: entry.settleMonthsVar === null ? null : settleMonthsOf(read, current, entry.settleMonthsVar),
       work: entry.work,
       nextStep: nextStepOf(read.content, entry),
       renew: renewTerms(read, current, entry),
+      overstay: overstayView(read),
     },
+  };
+}
+
+/** status:view-shows-status: the overstay's stages as the screens say them; never the detection chance. */
+function overstayView(read: ReadCtx): NonNullable<PlayerView["status"]>["overstay"] {
+  const now = overstayOf(read);
+  if (now === null) return null;
+  const month = read.state.turn.month;
+  const { graceUntil, noticeUntil } = now.overstay;
+  const currency = countryEntry(read.content, now.entry.country).currency;
+  return {
+    graceLeft: Math.max(0, graceUntil - month),
+    noticeLeft: noticeUntil === null ? null : Math.max(0, noticeUntil - month),
+    fine: (now.entry.finePerMonth ?? 0) > 0 ? { currency, amount: fineOwed(read) } : null,
+    pending: pendingInCountry(read),
   };
 }
 

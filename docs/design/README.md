@@ -21,6 +21,7 @@ The single giant design document has fallen out of favour. Practitioners recomme
 | [09](09-the-lively-layer.md) | The lively layer |
 | [10](10-london-on-the-lagos-mold.md) | London on the Lagos mold |
 | [11](11-the-three-countries-on-the-mold.md) | Calgary, Dubai and Castel Volturno on the mold |
+| [12](12-overstaying.md) | Overstaying: the grace, the overstay, the notice and the ways out |
 
 ## Conventions
 

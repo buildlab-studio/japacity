@@ -9,6 +9,7 @@ export const placeText: Record<string, string> = {
   "line.place.returned-broke": "You came home from {country} with the fare and not much more. Everyone noticed.",
   "line.place.returned-road": "You came home from the road on a ticket someone else paid for. Nobody asked where you went.",
   "line.place.returned-assisted": "You came home from {country} on a ticket someone else paid for. Nobody said it, but everyone knew.",
+  "line.place.returns-grant": "The returns service paid {amount} into your bank at home, to start again.",
   "line.place.returned-removed": "You were sent home from {country}. There is no way back in for years.",
   "line.place.token-used": "You flew back on {status}. No new visa, only the ticket.",
   "line.place.token-lapsed": "{months} months away and {status} has lapsed. You would have to start again.",

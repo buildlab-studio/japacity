@@ -2,7 +2,7 @@
 // needs before the fee is paid, and a result that says it fell short and what next. Beside jobs.ts, whose
 // chance words it shares, so the card and the results read one band of words.
 import { content } from "@japacity/content";
-import type { ReportLine, Tuning } from "@japacity/sim";
+import type { ReportLine, Requirement, Tuning } from "@japacity/sim";
 import { int, qualityIn } from "@japacity/sim";
 
 import { formatBand } from "./format";
@@ -30,8 +30,19 @@ export interface BandView {
  */
 export function routeBand(route: string): number | null {
   for (const item of content.route[route as keyof typeof content.route]?.checklist ?? []) {
-    const requirement = item.requirement;
-    if (requirement.type === "document/held" && requirement.document === ENGLISH_PAPER && requirement.min !== undefined) return requirement.min;
+    const band = bandIn(item.requirement);
+    if (band !== null) return band;
+  }
+  return null;
+}
+
+/** The English result's band a requirement asks, inside an either-or too (the degree's statement or the band, route-gates:sponsor-application-needs). */
+function bandIn(requirement: Requirement): number | null {
+  if (requirement.type === "document/held" && requirement.document === ENGLISH_PAPER && requirement.min !== undefined) return requirement.min;
+  if (requirement.type !== "any") return null;
+  for (const inner of requirement.of) {
+    const band = bandIn(inner);
+    if (band !== null) return band;
   }
   return null;
 }
@@ -49,7 +60,8 @@ export function bandNeeded(view: BandView = {}): number {
   const asked = Object.values(content.chapter).flatMap((chapter) =>
     chapter.items.flatMap((item) => (item.requirement.type === "document/held" && item.requirement.document === ENGLISH_PAPER && item.requirement.min !== undefined ? [item.requirement.min] : [])),
   );
-  return Math.min(...(asked.length > 0 ? asked : Object.values(content.school).map((school) => school.minBand)));
+  // route:applying-to-a-school: no school asks a band, so with none asked the lowest band a test gives stands.
+  return asked.length > 0 ? Math.min(...asked) : content.tuning.english.min;
 }
 
 /** The band a sitting gives at one draw of the noise, as the simulation sets it (document:english-test-band-value). */

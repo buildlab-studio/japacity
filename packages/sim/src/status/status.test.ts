@@ -9,7 +9,7 @@ import type { ActivityEntry, BaseEvent, Content, Ctx, Id, ReadCtx, ReportLine, S
 import { hiddenPaths } from "../engine/view";
 import { registry } from "../kinds";
 import { flown, playMonths } from "../testing/place.journey";
-import { applyEffects } from "../testing/route.journey";
+import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
@@ -187,9 +187,17 @@ describe("the overstayer", () => {
     expect(current(game).entry).toBe(OVERSTAYER);
   });
 
-  test("[status:overstayer-risks-detection] [status:removal-sends-home-banned] given an overstayer certain to be found, when a month ends, then the status is removed and the character is home with the removal on record", () => {
+  test("[status:overstayer-risks-detection] [status:removal-sends-home-banned] given an overstayer certain to be found, when months end, then detection gives a notice and never removes at once; at the notice's end the character is home with the removal on record", () => {
     const game = flown(content, { change: sure });
     applyEffects(game, [{ type: "status/lose" }]);
+    playMonths(game, 2);
+    expect(game.state.status.removals).toEqual([]);
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY });
+    const until = current(game).overstay?.noticeUntil ?? 0;
+    expect(until).toBe(game.state.turn.month + (entryOf(OVERSTAYER).noticeMonths ?? 0));
+    while (game.state.turn.month < until - 1) playMonths(game, 1);
+    if (game.state.setpiece.open !== null) answerFirst(game);
+    if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     const result = game.endTurn();
     const month = game.state.turn.month;
     expect(game.state.status).toEqual({ current: null, removals: [{ country: UK_COUNTRY, month }] });
@@ -206,12 +214,14 @@ describe("the overstayer", () => {
     expect(current(game).entry).toBe(OVERSTAYER);
   });
 
-  test("[status:overstayer-risks-detection] given an overstayer with a 3% chance, when months pass, then each month draws once on the status stream and nothing else", () => {
+  test("[status:overstayer-risks-detection] [status:grace-before-overstaying] given an overstayer at the real chance, when months pass, then the grace month draws nothing on the status stream and the month after it draws once for detection, then once for the landlord's check", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/lose" }]);
     const before = game.state.draws.status ?? 0;
     game.endTurn();
-    expect((game.state.draws.status ?? 0) - before).toBe(1);
+    expect((game.state.draws.status ?? 0) - before).toBe(0);
+    game.endTurn();
+    expect((game.state.draws.status ?? 0) - before).toBe(2);
   });
 });
 
@@ -369,7 +379,7 @@ describe("removal and the Gulf contract", () => {
 describe("the view", () => {
   test("[status:view-shows-status] given a student, a settled and a citizen, when the view is read, then it shows the entry, months left, clock, lawful months, the bar, the work rule and the way up, and never the detection chance", () => {
     const game = flown(content);
-    expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course", renew: null });
+    expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course", renew: null, overstay: null });
     playMonths(game, 1);
     expect(game.view().status?.monthsLeft).toBe(15);
     expect(JSON.stringify(game.view().status)).not.toContain("detect");

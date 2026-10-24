@@ -89,11 +89,14 @@ describe("the three real lives as golden scripts", () => {
   );
 
   test.each(abroad.map((script) => [script.name, script] as const))(
-    "[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] given %s, which flies on the skilled worker's route it never leaned to, when its save is replayed through the real content, then its chapters end past the send-off: the send-off and Landing are done and Secure is current",
+    "[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] [route:lapsed-route-known-again] given %s, which flies on the skilled worker's route it never leaned to, when its save is replayed through the real content, then its chapters end past the send-off: the send-off and Landing are done and Secure is current, and the route it flew on is known again once it is home",
     (_name, script) => {
       const first = lifeStart(script.save)!;
+      expect(savedCommands(script.save).filter((entry) => entry.command.type === "route/depart").map((entry) => entry.command)).toEqual([expect.objectContaining({ route: "route.uk-skilled" })]);
       const { state } = replay(script.save, content, (tick) => standInWorld(first.worldSeed, tick, content));
-      expect(state.route["route.uk-skilled"]?.state).toBe("departed");
+      // The return by choice gives up the permission the flight gave, so the skilled worker's route can be tried again.
+      expect(state.place.where).toBe("home");
+      expect(state.route["route.uk-skilled"]?.state).toBe("known");
       expect(state.chapter.done).toEqual(["chapter.find-your-feet", "chapter.build-the-file", "chapter.decision-day", "chapter.send-off", "chapter.landing"]);
       expect(state.chapter.current).toBe("chapter.secure");
     },

@@ -23,7 +23,7 @@ const KEYS = {
   "wallet/remit": ["currency", "amount", "channel"],
   "prologue/choose": ["step", "answer"],
   "status/renew": [],
-  "return/home": [],
+  "return/home": ["scheme"],
   "place/ride": ["from", "to", "way"],
   "lottery/buy": ["tickets"],
   "lottery/pay": ["draw", "prizes"],

@@ -31,18 +31,18 @@ const CARE_FEE = content.var["var.uk-care-visa-fee"]!.start;
 /** The floor and the ceiling of route:visa-refusal-chance pinned together: never refused, or always. */
 const ALWAYS_REFUSED: Partial<Tuning["route"]> = { refusalMinBp: 10000, refusalMaxBp: 10000 };
 
-/** Everything the care route asks for, in date: passport, licence, verification, English at band 4.0, TB. */
+/** Everything the care route asks for, in date: passport, licence, verification, English at band 5.5, TB. */
 type Papers = ScenarioEntry["documents"];
 const CARE_PAPERS: Papers = [
   { document: "document.passport", monthsLeft: 40, value: null },
   { document: "document.nursing-licence", monthsLeft: 30, value: null },
   { document: "document.nmcn-verification", monthsLeft: 24, value: null },
-  { document: "document.english-test", monthsLeft: 24, value: 40 },
+  { document: "document.english-test", monthsLeft: 24, value: 55 },
   { document: "document.tb-certificate", monthsLeft: 24, value: null },
 ];
 const SKILLED_PAPERS: Papers = [
   { document: "document.passport", monthsLeft: 40, value: null },
-  { document: "document.english-test", monthsLeft: 24, value: 40 },
+  { document: "document.english-test", monthsLeft: 24, value: 55 },
   { document: "document.tb-certificate", monthsLeft: 24, value: null },
 ];
 
@@ -339,12 +339,22 @@ describe("route-gates:sponsor-application-needs: applying with a sponsor", () =>
     expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[route-gates:sponsor-application-needs] given an English band one under the route's 40, when the nurse applies, then the turn is rejected; at 40 it goes in", () => {
+  test("[route-gates:sponsor-application-needs] given an English band one under the route's 55, when the nurse applies, then the turn is rejected; at 55 it goes in", () => {
+    expect(care.sponsor!.bandMin).toBe(55);
     const under = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin - 1) });
     expect(under.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
     const at = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin) });
     at.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
     expect(routeOf(at, CARE_ROUTE).state).toBe("applying");
+  });
+
+  test("[route-gates:sponsor-application-needs] [document:degree-english-statement] given the degree's English statement held and a band under 55, or no English result at all, when the nurse applies, then the statement meets the English and the application goes in", () => {
+    const statement = { document: "document.degree-english" as const, monthsLeft: null, value: null };
+    for (const papers of [[...withEnglish(CARE_PAPERS, 40), statement], [...without(CARE_PAPERS, "document.english-test"), statement]]) {
+      const game = readyToApply({ documents: papers });
+      game.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
+      expect(routeOf(game, CARE_ROUTE).state).toBe("applying");
+    }
   });
 
   test("[route-gates:sponsor-application-needs] given a sponsor one penny a year under the care bar, when the nurse applies, then the turn is rejected; at the bar it goes in", () => {

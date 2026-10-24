@@ -54,17 +54,17 @@ describe("countries", () => {
 
   test("[engine:content-checked-before-play] given the countries, when figures from place.md and abroad-money.md are read back, then each matches the page", () => {
     const uk = content.country["country.uk"];
-    // place.md: £620 one way, a December factor of 2.5.
-    expect(uk?.fare).toBe(62000);
-    expect(uk?.decemberFactorBp).toBe(25000);
+    // place.md: £380 one way, a December factor of 1.7.
+    expect(uk?.fare).toBe(38000);
+    expect(uk?.decemberFactorBp).toBe(17000);
     // abroad-money.md: the personal allowance of £12,570 and 20% plus 8% above it.
     expect(uk?.taxFreeLine).toBe(1257000);
     expect(uk?.taxBp).toBe(2800);
     expect(uk?.deceptionBanMonths).toBe(120);
     // Canada: C$1,350, 2.2, 25% above C$16,000.
     expect(content.country["country.canada"]).toMatchObject({ currency: "CAD", fare: 135000, decemberFactorBp: 22000, taxFreeLine: 1600000, taxBp: 2500 });
-    // UAE: AED 1,900, 1.8, no tax.
-    expect(content.country["country.uae"]).toMatchObject({ currency: "AED", fare: 190000, decemberFactorBp: 18000, taxBp: 0, rentFlat: null });
+    // UAE: AED 1,300, 1.8, no tax.
+    expect(content.country["country.uae"]).toMatchObject({ currency: "AED", fare: 130000, decemberFactorBp: 18000, taxBp: 0, rentFlat: null });
     // Italy: €480, 2.0.
     expect(content.country["country.italy"]).toMatchObject({ currency: "EUR", fare: 48000, decemberFactorBp: 20000 });
   });

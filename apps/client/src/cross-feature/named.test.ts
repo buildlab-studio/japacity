@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 
-import { moneyLines, otherLines } from "../features/turn/month.results";
+import { kept, moneyLines, otherLines } from "../features/turn/month.results";
 import { newGame, openOffer } from "../shared/testing/fixtures";
 import { formatMoney } from "../shared/words/format";
 import { words } from "../shared/words/text";
@@ -59,5 +59,15 @@ describe("money named for the blow that took it", () => {
     expect(said).toContain(`${formatMoney(200_000, "NGN")} sent to claim the prize.`);
     expect(said).toContain(`The prize came through: ${formatMoney(content.tuning.luck.promo, "NGN")}.`);
     expect(said.some((line) => line.includes("agent") || line.includes("never came"))).toBe(false);
+  });
+  // An act done at once and an offer answered after it are two commands: the act's pay is never the answer's money.
+  test("[world:month-end-results-sheet] [wallet:months-kept-counted] given a side gig done at once and then an offer with words for its money answered in the same month, when the month's money is read, then the gig's pay is told once as the gig, never as the offer's, and kept is the wallet's own count", () => {
+    const game = newGame("scenario.developer");
+    const gig = game.accept({ type: "activity/now", activity: "activity.side-gig", param: null }).lines;
+    const offer = openOffer(game, "offer.fuel-scarcity");
+    const trek = game.accept({ type: "offer/choose", offer: offer.id, choice: "trek" }).lines;
+    const money = moneyLines([...gig, ...trek]);
+    expect(money.map((entry) => entry.line.key)).toEqual(["line.activity.gig"]);
+    expect(kept(money)).toEqual([{ currency: "NGN", amount: game.state.wallet.monthNet?.NGN ?? 0 }]);
   });
 });
