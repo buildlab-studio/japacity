@@ -336,21 +336,28 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // abroad-money:tuition-paid-in-instalments: the tuition less the deposit and discount is the principal, opened on
   // arrival, paid in three parts in months 1, 4 and 7 of the course.
+  // abroad-money:tuition-paid-in-instalments: half at enrolment, then an eighth in each of course months 3 to 6, as Sunderland and Greenwich run it.
+  // A miss runs abroad-money:missed-tuition-runs-in-stages, never a grace count: the reminder, the cut of access with the plan, the final warning, then withdrawal.
   "obligation.tuition": {
     id: "obligation.tuition",
     type: "tuition",
     where: "abroad",
     currency: "GBP",
-    everyMonths: 3,
     amount: 0,
     rateBp: 0,
-    term: 3,
+    term: null,
     sink: "fee-school",
     interestSink: "fee-school",
-    grace: 1,
+    grace: 0,
     onMiss: [],
-    // The student is withdrawn: the status lapses at once (status:course-passed-or-withdrawn).
-    onDefault: [{ type: "status/lose" }],
+    // status:course-passed-or-withdrawn: the sponsor reports the withdrawal and the permission is cut to two months on.
+    onDefault: [{ type: "status/withdraw" }],
+    schedule: [5000, 0, 1250, 1250, 1250, 1250],
+    // The library, the computers and coursework cut off, and the plan offered.
+    onCut: [
+      { type: "quality/add", quality: "quality.wellbeing", amount: -3 },
+      { type: "offer/open", offer: "offer.fee-payment-plan" },
+    ],
   },
 
   // activity:waiting-months-build-profile: a master's at home, ₦1,800,000 in twelve monthly instalments, the

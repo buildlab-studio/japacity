@@ -28,6 +28,7 @@ const REQUIREMENT_TYPES = [
   "month/min",
   "chapter/done",
   "chapter/plan",
+  "status/course-done",
   "place/is",
   "status/is",
   "status/clock-under",

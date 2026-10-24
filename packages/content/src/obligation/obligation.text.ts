@@ -58,7 +58,12 @@ export const obligationText: Record<string, string> = {
   "line.obligation.rent-lost": "Three months and the year's rent still not paid. The landlord wants the room back.",
   "line.obligation.rent-default": "Three months of rent missed. The landlord has reported you, and your credit file shows it.",
   "line.obligation.cut-off": "The phone company has ended the contract. You are back on pay as you go.",
-  "line.obligation.withdrawn": "The university has withdrawn you over the unpaid tuition. Your student visa has gone with it.",
+  "line.obligation.withdrawn": "The university has withdrawn you over the unpaid tuition. Your visa now runs only two more months: pay what is owed to be reinstated.",
+  // abroad-money:missed-tuition-runs-in-stages: each stage is a letter from the university's fees office.
+  "line.obligation.tuition-reminder": "A letter from the fees office: your tuition payment is overdue. Please pay it as soon as you can.",
+  "line.obligation.tuition-cut": "A letter from the fees office: the tuition is still unpaid, so your library and coursework access is cut. A payment plan is open to you.",
+  "line.obligation.tuition-warning": "A letter from the fees office: this is a final warning. Pay the tuition owed or you are liable for withdrawal.",
+  "line.obligation.tuition-plan": "{obligation}: on a plan now, {amount} a month for {months} months.",
   "line.obligation.group-covered": "You could not pay. The group covered the {amount} for you, and now you owe them that as well.",
   "line.obligation.group-visit": "The loan officer came to the house with two women from the group. The whole street saw.",
   "line.obligation.group-default": "The group has called the loan in. They took what they could carry, and they will take the {amount} still owed from your account.",

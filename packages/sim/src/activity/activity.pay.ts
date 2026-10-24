@@ -117,7 +117,19 @@ export function monthlyPay(read: ReadCtx, entry: ActivityEntry, terms: Terms = j
   const bonus = carBonusNow(read, entry);
   let amount = paidYearly(entry) ? divFloor(figure + bonus, MONTHS_PER_YEAR) : figure + divFloor(bonus, MONTHS_PER_YEAR);
   if (entry.id === COURIER) amount = Math.max(0, amount - mulDiv(read.content.tuning.ladder.accountRent, WEEKS_PER_YEAR, MONTHS_PER_YEAR));
+  if (entry.part === true && inVacation(read)) amount = bp(amount, read.content.tuning.status.vacationPayBp);
   return { currency: entry.pay.currency, amount };
+}
+
+/**
+ * status:status-sets-work-rule, ladders:student-holds-one-part-job: the month in play is a vacation of the course the status runs (the Christmas and Easter
+ * months), when a `part` job pays full time. The course month is the months the status has been held plus the one in play. Read from the slices here,
+ * as the status kind reads this file.
+ */
+function inVacation(read: ReadCtx): boolean {
+  const held = read.state.status.current;
+  const course = held === null ? undefined : read.content.status[held.entry]?.course;
+  return held !== null && course !== undefined && course.vacations.includes(held.monthsHeld + 1);
 }
 
 /**

@@ -53,4 +53,12 @@ export type StatusEvent =
   /** status:uae-fine-accrues: a month's fine added. */
   | { type: "status/fined"; amount: number }
   /** abroad-money:right-to-rent-check: the landlord's check ended the room. */
-  | { type: "status/rent-checked" };
+  | { type: "status/rent-checked" }
+  /** status:course-passed-or-withdrawn: the student is withdrawn; the permission now ends `expiresMonth`, and `own` is the status's own end. */
+  | { type: "status/withdrawn"; expiresMonth: number; own: number | null }
+  /** status:course-passed-or-withdrawn: everything owed is paid; the status's own end is restored. */
+  | { type: "status/reinstated"; expiresMonth: number | null }
+  /** status:course-passed-or-withdrawn: a status with a course is granted, and its course starts from nothing. */
+  | { type: "status/course-began" }
+  /** status:course-passed-or-withdrawn: a course month played: the months counted, those waiting on a cut of access, and whether the course is passed. */
+  | { type: "status/course-month"; counted: number; waiting: number; passed: boolean };

@@ -95,7 +95,8 @@ describe("statuses", () => {
     const sponsored = content.status["status.uk-sponsored"];
     // 36 months, one employer, a 60-day clock, renewed for 24 months.
     expect(sponsored).toMatchObject({ months: 36, work: "one-employer", clockMonths: 2, renewMonths: 24, settled: "status.uk-settled" });
-    expect(content.status["status.uk-student"]).toMatchObject({ months: 16, work: "part", next: "status.uk-graduate" });
+    // status:graduate-visa-applied-for: no status follows the student by the clock; the course leads to the Graduate visa by application.
+    expect(content.status["status.uk-student"]).toMatchObject({ months: 16, work: "part", next: null, course: { vacations: [4, 8], anyFrom: 13, graduate: "status.uk-graduate", feeVar: "var.uk-graduate-fee", surchargeYearVar: "var.uk-surcharge-year", costFrom: 9 } });
     expect(content.status["status.uk-graduate"]?.months).toBe("var.uk-graduate-months");
     expect(content.status["status.uk-settled"]).toMatchObject({ months: null, citizenAfter: 12, citizen: "status.uk-citizen" });
     // The Gulf worker: 24 months, lapses at once, the employer holds the passport.

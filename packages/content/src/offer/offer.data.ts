@@ -939,6 +939,36 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
+  // abroad-money:missed-tuition-runs-in-stages: the university's payment plan, opened only by the cut of access. The instalment arrives with the
+  // effect that opens it; agreeing pays the fee and spreads what is owed over the course months left (the plan's fee is a working value).
+  "offer.fee-payment-plan": {
+    id: "offer.fee-payment-plan",
+    group: "money",
+    where: "abroad",
+    when: [],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: null,
+    expiresAfter: 1,
+    // The instalment is handed over by the cut of access that opens it; 0 stands until then.
+    terms: { fee: tuning.status.planFee, instalment: 0 },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "agree",
+        requires: [{ type: "money/can-pay", currency: "GBP", amount: { term: "fee" } }],
+        pick: null,
+        effects: [
+          { type: "money/pay-fee", currency: "GBP", amount: { term: "fee" }, reason: "fee-school" },
+          { type: "obligation/plan", obligation: "obligation.tuition" },
+        ],
+        fraudEffects: null,
+      },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
   // route-gates:family-gift-counts-with-deed: the family meeting's gift for a Canada plan, family means times ₦100,000, a third of the
   // pledge's show and a gift where the pledge is a signature (working value). Opened only by the meeting, once; it lapses into nothing.
   "offer.family-gift-canada": {

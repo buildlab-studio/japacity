@@ -218,6 +218,15 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.said.accept": "You took what your parents could give, with thanks. Their account now stands behind your file.",
   "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
 
+  "offer.fee-payment-plan.name": "A payment plan for your fees",
+  "offer.fee-payment-plan.title": "Clear it on a plan",
+  "offer.fee-payment-plan.body":
+    "“You can clear the arrears on a plan: {instalment} a month until the end of the course, and a {fee} fee. Miss a plan payment and we will write to you before we withdraw you.”",
+  "offer.fee-payment-plan.choice.agree": "Agree to the plan",
+  "offer.fee-payment-plan.choice.no": "Not now",
+  "offer.fee-payment-plan.said.agree": "You signed the plan. The fees office spread what you owe to the end of the course.",
+  "offer.fee-payment-plan.said.no": "You left the plan. The arrears still stand.",
+
   "offer.family-gift-canada.name": "The family's gift for Canada",
   "offer.family-gift-canada.title": "Not a loan",
   "offer.family-gift-canada.body":
@@ -467,6 +476,7 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.who": "Mama",
   "offer.family-loan.who": "Papa",
   "offer.family-gift-canada.who": "Papa",
+  "offer.fee-payment-plan.who": "The university's fees office",
   "offer.sponsor-care-home.who": "A care home",
   "offer.sponsor-trust.who": "A hospital trust",
   "offer.sponsor-tech-firm.who": "A tech firm",

@@ -380,6 +380,12 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
       effects: [{ type: "document/request", document: "document.nmc-pin" }],
     },
   ),
+  // status:graduate-visa-applied-for: the Graduate visa, applied for in the UK from course month 13 or in the grace after the student status, the course
+  // passed; £937 and the surcharge for the Graduate months, paid by the effect as foreign fees, and the status switched in country with no flight.
+  "activity.apply-graduate": free("activity.apply-graduate", "country.uk", [IN_UK, { type: "status/course-done" }], {
+    cost: [],
+    effects: [{ type: "status/graduate" }],
+  }),
   // car:licence-and-driving-test: the lessons once (tuning.car.lessons), then the fee for each attempt
   // (tuning.car.testFee), and the pass draw. The costs depend on earlier attempts
   // and the draw has no effect type, so both belong to the kind that runs the test;

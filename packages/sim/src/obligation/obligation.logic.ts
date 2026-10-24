@@ -5,7 +5,7 @@
 import { rateFor } from "../credit/credit.logic";
 import { worldVarOr } from "../engine/check";
 import { QUALITY } from "../engine/ids";
-import { bp, convertMinor, divCeil, divFloor, isWhole, mulDiv } from "../engine/int";
+import { BP_WHOLE, bp, convertMinor, divCeil, divFloor, isWhole, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, oldestFirst, ownOf } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -36,7 +36,7 @@ import type {
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
 import { couchEnds, onTheCouch } from "./obligation.couch";
-import type { ClosedWhy, ObligationEvent } from "./obligation.events";
+import type { ClosedWhy, ObligationEvent, TuitionStage } from "./obligation.events";
 import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./obligation.undertaking";
 import { officialRates, spendable } from "../wallet/wallet.rates";
 
@@ -125,9 +125,55 @@ function modulo(value: number, every: number): number {
  */
 function dueIn(item: ObligationState, entry: ObligationEntry, month: number): boolean {
   if (isOwned(item, entry)) return false;
+  // abroad-money:tuition-paid-in-instalments: a scheduled tuition is due whenever its schedule, its plan or its arrears ask for something.
+  if (entry.schedule !== undefined) return tuitionDue(item, entry, month) > 0;
   if (entry.everyMonths === undefined || item.missed > 0) return true;
   const age = month - item.openedMonth - (entry.prepaid === true ? entry.everyMonths : 1);
   return age >= 0 && modulo(age, entry.everyMonths) === 0;
+}
+
+// ---------------------------------------------------------------------------
+// The scheduled tuition: abroad-money:tuition-paid-in-instalments, abroad-money:missed-tuition-runs-in-stages
+// ---------------------------------------------------------------------------
+
+/** The course month a month is: the months since the tuition opened with the flight, the first month abroad being 1. */
+function courseMonthOf(item: ObligationState, month: number): number {
+  return month - item.openedMonth;
+}
+
+/**
+ * abroad-money:tuition-paid-in-instalments, abroad-money:missed-tuition-runs-in-stages: what should have been paid by the end of course month `month`. By the
+ * schedule, each month's share of the principal rounded down and the whole by its last month; on a plan, what was paid before it, then an even part a
+ * month of what was owed, the last month the rest.
+ */
+export function tuitionOwedBy(item: ObligationState, entry: ObligationEntry, month: number): number {
+  const plan = item.plan;
+  if (plan !== undefined) {
+    const before = item.principal - plan.total;
+    const parts = month - plan.month;
+    if (parts <= 0) return before;
+    return before + (parts >= plan.months ? plan.total : parts * divFloor(plan.total, plan.months));
+  }
+  const schedule = entry.schedule ?? [];
+  if (month <= 0) return 0;
+  if (month >= schedule.length) return item.principal;
+  const share = schedule.slice(0, month).reduce((sum, part) => sum + part, 0);
+  return mulDiv(item.principal, share, BP_WHOLE);
+}
+
+/** What the month's charge asks of a scheduled tuition: what should be paid by its course month less what has been, the arrears among it. */
+function tuitionDue(item: ObligationState, entry: ObligationEntry, month: number): number {
+  return Math.max(0, tuitionOwedBy(item, entry, courseMonthOf(item, month)) - (item.principal - item.outstanding));
+}
+
+/** obligation:paying-down-obligations: every charge missed and not yet paid, read after the last month played. */
+export function tuitionArrears(read: ReadCtx, item: ObligationState, entry: ObligationEntry): number {
+  return entry.schedule === undefined ? 0 : tuitionDue(item, entry, read.state.turn.month);
+}
+
+/** abroad-money:missed-tuition-runs-in-stages: the plan's months, the course months left to its last, never fewer than one. */
+function planMonths(read: ReadCtx, item: ObligationState): number {
+  return Math.max(1, read.content.tuning.status.courseMonths - courseMonthOf(item, read.state.turn.month));
 }
 
 /** One month's charge, split by the sink it is paid under (obligation:due-phase-charges-oldest-first). */
@@ -191,7 +237,8 @@ function scheduledCharge(read: ReadCtx, item: ObligationState, entry: Obligation
   const interest = bp(item.principal, entry.rateBp);
   // Held funds are returned whole (obligation:paying-down-obligations); only these types repay principal on a schedule.
   const scheduled = SCHEDULED_TYPES.includes(entry.type) && entry.term !== null ? divCeil(item.principal, entry.term) : 0;
-  const principal = Math.min(scheduled, item.outstanding);
+  // abroad-money:tuition-paid-in-instalments: a scheduled tuition charges its course month's share and its arrears together.
+  const principal = entry.schedule !== undefined ? Math.min(tuitionDue(item, entry, read.state.turn.month), item.outstanding) : Math.min(scheduled, item.outstanding);
   switch (entry.type) {
     case "car":
       return carCharge(item, entry);
@@ -242,6 +289,7 @@ function dueNext(read: ReadCtx, item: ObligationState, entry: ObligationEntry): 
   if (isSponsorUndertaking(entry)) return item.outstanding;
   if (item.state === "defaulted") return COLLECTED_TYPES.includes(entry.type) ? item.outstanding : 0;
   if (entry.type === "car" && item.missed > 0 && item.monthsLeft !== 0) return totalOf(carArrears(item, entry));
+  if (entry.schedule !== undefined) return tuitionDue(item, entry, read.state.turn.month + 1);
   if (!dueIn(item, entry, read.state.turn.month + 1)) return 0;
   return totalOf(chargeOf(read, item, entry));
 }
@@ -454,6 +502,44 @@ function groupMissEffects(ctx: Ctx, entry: ObligationEntry, missed: number): Eff
   return [];
 }
 
+/**
+ * abroad-money:missed-tuition-runs-in-stages: a scheduled tuition's miss is a stage, never a grace count. With no plan: a reminder, then the cut of
+ * access with the plan offered, then the final warning, then withdrawal; on a plan: the final warning, then withdrawal. Withdrawal is told as the
+ * default and applies `onDefault` (status:course-passed-or-withdrawn).
+ */
+function missTuition(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Charge): BaseEvent[] {
+  const missed = item.missed + 1;
+  const cause = causeOf(item);
+  const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed });
+  const stages: readonly (TuitionStage | "withdrawn")[] = item.plan !== undefined ? ["warning", "withdrawn"] : ["reminder", "cut", "warning", "withdrawn"];
+  const stage = stages[Math.min(missed, stages.length) - 1] ?? "withdrawn";
+  if (stage === "withdrawn") {
+    events.push(...record(ctx, { type: "obligation/defaulted", id: item.id, entry: item.entry, outstanding: item.outstanding }));
+    ctx.apply(entry.onDefault, cause);
+    return events;
+  }
+  events.push(...record(ctx, { type: "obligation/staged", id: item.id, entry: item.entry, stage }));
+  if (stage === "cut") {
+    // The plan's offer reads what a plan agreed now would ask a month, and its fee.
+    const months = planMonths(ctx, item);
+    ctx.apply(entry.onCut ?? [], { ...cause, terms: { ...cause.terms, instalment: divFloor(item.outstanding, months), fee: ctx.content.tuning.status.planFee } });
+  }
+  return events;
+}
+
+/**
+ * route:family-pledge-pays-tuition: a tuition charge abroad the student's own pounds cannot meet is met from the family's pledge first, while it stands,
+ * so the charge may be paid whole. True when the charge can be taken now.
+ */
+function pledgeCovers(ctx: Ctx, item: ObligationState, entry: ObligationEntry, total: number): boolean {
+  if (canTake(ctx, entry.currency, total)) return true;
+  if (entry.type !== "tuition" || entry.currency === "NGN" || ctx.state.place.where !== "abroad") return false;
+  const pockets = ctx.state.wallet.pockets[entry.currency];
+  const short = total - (pockets.bank + pockets.cash);
+  if (short > 0) ctx.apply([{ type: "route/pledge-pay", currency: entry.currency, amount: short }], causeOf(item));
+  return canTake(ctx, entry.currency, total);
+}
+
 /** A charge that could not be paid (obligation:miss-applies-its-effects, obligation:upkeep-never-defaults, obligation:loan-default-and-recovery, obligation:missed-interest-recalls-held-funds, obligation:group-covers-misses-at-cost, abroad-money:arrival-opens-upkeep-and-room, abroad-money:phone-contract-builds-credit, abroad-money:tuition-paid-in-instalments, luck:savings-circle-holds-pot). */
 function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Charge): BaseEvent[] {
   const cause = causeOf(item);
@@ -467,6 +553,7 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
     return events;
   }
   if (entry.type === "car") return missCar(ctx, item, entry, charge);
+  if (entry.schedule !== undefined) return missTuition(ctx, item, entry, charge);
   const missed = item.missed + 1;
   if (entry.type === "ajo") {
     // luck:savings-circle-holds-pot: a missed month closes the circle, and no pot.
@@ -521,7 +608,7 @@ function due(ctx: Ctx): BaseEvent[] {
     }
     if (!dueIn(item, entry, ctx.state.turn.month)) continue;
     const charge = chargeOf(ctx, item, entry);
-    const paid = canTake(ctx, entry.currency, totalOf(charge));
+    const paid = pledgeCovers(ctx, item, entry, totalOf(charge));
     events.push(...(paid ? pay(ctx, item, entry, charge) : miss(ctx, item, entry, charge)));
   }
   // person:sibling-couch-delays-rent: after the month's charges, so the couch's months are free.
@@ -633,6 +720,19 @@ function closeEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
+ * abroad-money:missed-tuition-runs-in-stages: agreeing the payment plan turns the open tuition of the entry into it: what is owed now, spread evenly over
+ * the course months left to the last. The cut of access ends with the misses.
+ */
+function planEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "obligation/plan") throw new Error(`obligation/plan cannot carry out ${effect.type}.`);
+  const item = openItems(ctx.state).find((open) => open.entry === effect.obligation && open.state !== "defaulted");
+  const entry = item === undefined ? undefined : entryOf(ctx.content, item.entry);
+  if (item === undefined || entry?.schedule === undefined || item.outstanding === 0) return [];
+  const plan = { month: courseMonthOf(item, ctx.state.turn.month), total: item.outstanding, months: planMonths(ctx, item) };
+  return record(ctx, { type: "obligation/planned", id: item.id, entry: item.entry, plan });
+}
+
+/**
  * obligation:cooking-and-fetching-water: a share off the next charge of the open obligation of the type that applies where
  * the character lives, the oldest when there are several. A source already on the item adds nothing,
  * so cooking twice in a month takes the share once. With nothing open of the type, nothing happens.
@@ -684,6 +784,23 @@ function payCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount:
   return record(ctx, { type: "obligation/caught-up", id: item.id, entry: item.entry, months: arrears.months, total: amount, principal: arrears.principal });
 }
 
+/**
+ * obligation:paying-down-obligations: a scheduled tuition takes every charge missed and not yet paid, whole, under its sink. It clears the arrears and
+ * what they set in motion (abroad-money:missed-tuition-runs-in-stages): the stage ends, access is restored, and a withdrawn student is reinstated (status:course-passed-or-withdrawn).
+ */
+function payTuition(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount: unknown): BaseEvent[] | Rejection {
+  const arrears = tuitionArrears(ctx, item, entry);
+  if (arrears === 0) return reject("not-legal", `${entry.id} has no arrears. It is paid month by month.`);
+  if (!isGoodAmount(amount) || amount !== arrears) return reject("bad-amount", `The arrears are ${String(arrears)}, paid whole.`);
+  if (!canTake(ctx, entry.currency, amount)) return reject("cannot-afford", "There is not that much in cash and the bank together.");
+  const cause = causeOf(item);
+  take(ctx, cause, entry.currency, "any", amount, entry.sink);
+  const events = record(ctx, { type: "obligation/caught-up", id: item.id, entry: item.entry, months: 0, total: amount, principal: amount });
+  if (item.state === "defaulted") ctx.apply([{ type: "status/reinstate" }], cause);
+  if (item.outstanding - amount === 0) events.push(...close(ctx, item, "paid"));
+  return events;
+}
+
 function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "obligation/pay") throw new Error(`obligation/pay cannot handle ${command.type}.`);
   // person:stand-in-acts-narrowly: a stand-in never spends.
@@ -718,6 +835,8 @@ function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
       if (isSponsorUndertaking(entry)) return payUndertaking(ctx, item, entry, amount);
       return reject("not-legal", `${entry.id} is paid month by month and cannot be paid ahead.`);
     case "tuition":
+      if (entry.schedule !== undefined) return payTuition(ctx, item, entry, amount);
+      return reject("not-legal", `${entry.id} is paid month by month and cannot be paid ahead.`);
     case "agent-debt":
     case "ajo":
       return reject("not-legal", `${entry.id} is paid month by month and cannot be paid ahead.`);
@@ -812,6 +931,10 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
       }));
     case "obligation/cleared":
       return withItem(slice, event.id, (item) => ({ ...item, state: "active", missed: 0 }));
+    case "obligation/planned":
+      return withItem(slice, event.id, (item) => ({ ...item, state: "active", missed: 0, plan: event.plan }));
+    case "obligation/staged":
+      return slice;
     case "obligation/relieved": {
       const relief: Relief = { source: event.source, bp: event.bp };
       return withItem(slice, event.id, (item) => ({ ...item, relief: [...(item.relief ?? []), relief] }));
@@ -913,6 +1036,8 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
         ...(event.relief ?? []).filter((relief) => relief.amount > 0).map((relief) => line(reliefKey(relief.source), { obligation: event.entry, amount: money(event.entry, relief.amount) }, "good", false)),
       ];
     case "obligation/missed":
+      // abroad-money:missed-tuition-runs-in-stages: a scheduled tuition's miss is told by its stage's letter.
+      if (entryOf(content, event.entry).schedule !== undefined) return [];
       if (event.paid !== undefined && event.paid > 0) return [line("missed-part", { obligation: event.entry, amount: money(event.entry, event.total), paid: money(event.entry, event.paid), short: money(event.entry, event.total - event.paid) }, "bad", true)];
       return [line(missKey(entryOf(content, event.entry), event.missed), { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
     case "obligation/covered":
@@ -929,6 +1054,10 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
       return [line("assessed", { obligation: event.entry, months: event.months, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/cleared":
       return [line("cleared", { obligation: event.entry }, "good", true)];
+    case "obligation/staged":
+      return [line(`tuition-${event.stage}`, { obligation: event.entry }, "bad", true)];
+    case "obligation/planned":
+      return [line("tuition-plan", { obligation: event.entry, amount: money(event.entry, divFloor(event.plan.total, event.plan.months)), months: event.plan.months }, "good", false)];
     case "obligation/taken-back":
       return [line("taken-back", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/closed":
@@ -1071,7 +1200,7 @@ export const obligationKind: RegisteredKind<ObligationSlice, ObligationEvent> = 
     return { items };
   },
   commands: { "obligation/pay": payCommand },
-  effects: { "obligation/open": openEffect, "obligation/close": closeEffect, "obligation/relief": reliefEffect },
+  effects: { "obligation/open": openEffect, "obligation/close": closeEffect, "obligation/relief": reliefEffect, "obligation/plan": planEffect },
   phases: { due },
   evolve,
   lines,

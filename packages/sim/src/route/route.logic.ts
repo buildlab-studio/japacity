@@ -483,6 +483,26 @@ function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return [own({ type: "route/supported", route: effect.route, support: { currency: effect.currency, amount } })];
 }
 
+/**
+ * route:family-pledge-pays-tuition: the pledge pays the school. A charge abroad the student's pounds cannot meet is valued in naira at the day's
+ * official rate and lowered from the pledge's `show` on the study route it stands on, and that much lands in the bank of the charge's currency
+ * under `gift`, unflagged: the parent's account the visa counted is the account the fees come from. A pledge too small pays what is left of it.
+ */
+function pledgePay(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "route/pledge-pay") throw new Error(`route/pledge-pay cannot carry out ${effect.type}.`);
+  const rates = officialRates(ctx.world);
+  const standing = Object.values(ctx.content.route).find((entry) => entry.gate === "study" && (routeOf(ctx.state, entry.id).support?.amount ?? 0) > 0);
+  if (standing === undefined || effect.amount <= 0) return [];
+  const support = routeOf(ctx.state, standing.id).support!;
+  const asked = convertMinor(effect.amount, effect.currency, support.currency, rates);
+  const naira = Math.min(asked, support.amount);
+  const paid = naira === asked ? effect.amount : convertMinor(naira, support.currency, effect.currency, rates);
+  if (naira <= 0) return [];
+  const events = record(ctx, { type: "route/pledge-paid", route: standing.id, spent: naira, paid: { currency: effect.currency, amount: paid } });
+  if (paid > 0) ctx.apply([{ type: "money/add", currency: effect.currency, pocket: "bank", amount: paid, reason: "gift" }], { source: standing.id, param: null, terms: {} });
+  return events;
+}
+
 /** route-gates:family-gift-counts-with-deed: the family's gift recorded on the route in naira, uncounted until its deed is held. */
 function gift(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/gift") throw new Error(`route/gift cannot carry out ${effect.type}.`);
@@ -881,6 +901,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "chapter/plan":
     case "place/is":
     case "status/is":
+    case "status/course-done":
     case "status/clock-under":
     case "credit/min":
     case "goal/done":
@@ -984,6 +1005,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, gift: { amount: event.amount, deeded: false } }));
     case "route/gift-deeded":
       return withRoute(slice, event.route, (held) => (held.gift === undefined ? held : { ...held, gift: { ...held.gift, deeded: true } }));
+    case "route/pledge-paid":
+      return withRoute(slice, event.route, (held) => (held.support === null ? held : { ...held, support: { ...held.support, amount: held.support.amount - event.spent } }));
     case "route/gate-updated":
       return withRoute(slice, event.route, (held) => (event.secret === undefined ? { ...held, gate: event.gate } : { ...held, gate: event.gate, secret: event.secret }));
     case "route/sponsor-missed":
@@ -1114,6 +1137,8 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("gifted", { route: event.route, amount: { currency: "NGN", amount: event.amount } }, "plain", true)];
     case "route/gift-deeded":
       return [line("gift-deeded", { route: event.route }, "good", true)];
+    case "route/pledge-paid":
+      return [line("pledge-paid", { route: event.route, amount: event.paid }, "good", false)];
     case "route/gate-updated":
       // road:road-earns-nothing: the chain's lines are tone `bad`.
       return event.note === null ? [] : [line(event.note, { route: event.route }, event.gate?.gate === "road" ? "bad" : "plain", true)];
@@ -1260,6 +1285,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply": applyVisa,
     "route/support": support,
     "route/gift": gift,
+    "route/pledge-pay": pledgePay,
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
     "route/lapse": lapse,

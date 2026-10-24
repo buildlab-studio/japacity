@@ -14,6 +14,9 @@ import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
+import { monthlyPay } from "../activity/activity.pay";
+import { tuitionArrears } from "../obligation/obligation.logic";
+import { setPockets } from "../testing/wallet";
 import { UK_GRADUATE, JUNIOR_DEV, OVERSTAYER, SETTLED, SPONSORED, STUDENT, UK_COUNTRY } from "../testing/ids";
 
 const CITIZEN: Id<"status"> = "status.uk-citizen";
@@ -146,14 +149,15 @@ describe("the sponsored worker's clock", () => {
 });
 
 describe("expiry and the next status", () => {
-  test("[status:expiry-lapses-or-moves-on] given a student, when 16 months pass, then the status becomes the graduate status for the graduate months, not a month before", () => {
+  test("[status:expiry-lapses-or-moves-on] [status:graduate-visa-applied-for] given a student who passed the course and never applies, when 16 months pass, then the status lapses into the grace like any other, not a month before: no status follows by the clock", () => {
     const game = flown(content);
-    const start = game.state.turn.month;
+    expect(entryOf(STUDENT).next).toBeNull();
     playMonths(game, 15);
     expect(current(game).entry).toBe(STUDENT);
+    expect(coursePassed(readOf(game))).toBe(true);
     playMonths(game, 1);
-    // The graduate months are the world's var on the day (a story may have shortened them).
-    expect(current(game)).toMatchObject({ entry: UK_GRADUATE, grantedMonth: start + 16, expiresMonth: start + 16 + game.world().vars["var.uk-graduate-months"]! });
+    expect(current(game).entry).toBe(OVERSTAYER);
+    expect(coursePassed(readOf(game))).toBe(true);
   });
 
   test("[status:expiry-lapses-or-moves-on] given the graduate route closed (its months at 0), when the student status runs out, then it lapses instead", () => {
@@ -201,7 +205,8 @@ describe("the overstayer", () => {
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     const result = game.endTurn();
     const month = game.state.turn.month;
-    expect(game.state.status).toEqual({ current: null, removals: [{ country: UK_COUNTRY, month }] });
+    // status:course-passed-or-withdrawn: the course begun with the student status is kept after it ends; it never counted a month.
+    expect(game.state.status).toEqual({ current: null, removals: [{ country: UK_COUNTRY, month }], course: { counted: 0, waiting: 0, passed: false } });
     expect(game.state.place).toMatchObject({ where: "home", country: null });
     expect(game.state.place.returns.at(-1)).toEqual({ month, shape: "removed", country: UK_COUNTRY });
     expect(statusLines(result.lines)).toContainEqual({ key: "line.status.removed", params: { country: UK_COUNTRY, months: entryOf(OVERSTAYER).banMonths }, tone: "bad", attention: true, counts: [] });
@@ -397,7 +402,7 @@ describe("removal and the Gulf contract", () => {
 describe("the view", () => {
   test("[status:view-shows-status] given a student, a settled and a citizen, when the view is read, then it shows the entry, months left, clock, lawful months, the bar, the work rule and the way up, and never the detection chance", () => {
     const game = flown(content);
-    expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course", renew: null, overstay: null });
+    expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course", renew: null, overstay: null, graduate: null });
     playMonths(game, 1);
     expect(game.view().status?.monthsLeft).toBe(15);
     expect(JSON.stringify(game.view().status)).not.toContain("detect");
@@ -414,25 +419,118 @@ describe("the view", () => {
 });
 
 describe("the course", () => {
-  test("[status:course-passed-or-withdrawn] given a student, when the months held are 11 and then 12, then the course counts as passed only from 12", () => {
+  test("[status:course-passed-or-withdrawn] given a student paying in full, when 11 and then 12 course months are counted, then the course counts as passed only from 12", () => {
     const game = flown(content);
     playMonths(game, content.tuning.status.courseMonths - 1);
+    expect(game.state.status.course).toEqual({ counted: 11, waiting: 0, passed: false });
     expect(coursePassed(readOf(game))).toBe(false);
     playMonths(game, 1);
     expect(coursePassed(readOf(game))).toBe(true);
   });
 
-  test("[status:course-passed-or-withdrawn] given a tuition obligation in default, when the student status runs out, then the course is not passed and the status lapses", () => {
+  test("[status:course-passed-or-withdrawn] [abroad-money:missed-tuition-runs-in-stages] given access cut, when a month passes it waits, and once the arrears are paid it counts with the month after", () => {
     const game = flown(content);
-    playMonths(game, 15);
-    // The tuition default is written in, too large for the bank to clear.
-    const tuition = { id: "obligation-tuition", entry: "obligation.tuition" as const, state: "defaulted" as const, openedMonth: 1, amount: 0, principal: 1000000000, outstanding: 1000000000, monthsLeft: 1, missed: 2, bond: null, charged: 0 };
-    game.state = { ...game.state, obligation: { items: { ...game.state.obligation.items, [tuition.id]: tuition } } };
+    const pounds = game.state.wallet.pockets.GBP.bank;
+    setPockets(game, { GBP: 0 });
+    playMonths(game, 2);
+    expect(game.state.status.course).toEqual({ counted: 1, waiting: 1, passed: false });
+    setPockets(game, { GBP: pounds });
+    const tuition = Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.tuition")!;
+    const arrears = game.view().obligations.find((item) => item.id === tuition.id)!;
+    expect(arrears.due).toBeGreaterThan(0);
+    game.accept({ type: "obligation/pay", obligation: tuition.id, amount: tuitionArrears(readOf(game), tuition, content.obligation[tuition.entry]!) });
+    playMonths(game, 1);
+    expect(game.state.status.course).toEqual({ counted: 3, waiting: 0, passed: false });
+  });
+
+  test("[status:course-passed-or-withdrawn] given a student withdrawn after the stages, when the months pass, then they count for nothing and the course is not passed", () => {
+    const game = flown(content);
+    setPockets(game, { GBP: 0 });
+    playMonths(game, 4);
+    expect(current(game).withdrawn).toBeDefined();
+    const course = game.state.status.course;
+    playMonths(game, 1);
+    expect(game.state.status.course).toEqual(course);
     expect(coursePassed(readOf(game))).toBe(false);
-    if (game.state.turn.banked < 1) game.grant(1);
-    const result = game.endTurn();
+  });
+});
+
+describe("the Graduate visa", () => {
+  const GRADUATE_FEE = content.var["var.uk-graduate-fee"]!.start;
+  const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
+  const APPLY: Id<"activity"> = "activity.apply-graduate";
+
+  test("[status:graduate-visa-applied-for] given the course passed, when course month 13 comes, then the application is legal, costs £937 under fee-visa and the surcharge for the Graduate months under fee-surcharge, and switches the status in country, its months from that day", () => {
+    const game = flown(content);
+    playMonths(game, 11);
+    game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+    playMonths(game, 1);
+    expect(coursePassed(readOf(game))).toBe(true);
+    const visa = totalOut(game, "fee-visa");
+    const surcharge = totalOut(game, "fee-surcharge");
+    const months = game.world().vars["var.uk-graduate-months"]!;
+    const where = game.state.place;
+    game.accept({ type: "activity/now", activity: APPLY, param: null });
+    expect(totalOut(game, "fee-visa") - visa).toBe(GRADUATE_FEE);
+    expect(totalOut(game, "fee-surcharge") - surcharge).toBe((SURCHARGE_YEAR * months) / 12);
+    expect(current(game)).toMatchObject({ entry: UK_GRADUATE, grantedMonth: game.state.turn.month, expiresMonth: game.state.turn.month + months });
+    expect(game.state.place).toEqual(where);
+  });
+
+  test("[status:graduate-visa-applied-for] given the course passed and the student status lapsed into its grace, when the application is asked for, then it is legal; with the Graduate months at 0 it is not", () => {
+    const game = flown(content);
+    playMonths(game, 16);
     expect(current(game).entry).toBe(OVERSTAYER);
-    expect(statusLines(result.lines)).toContainEqual({ key: "line.status.lapsed-expired", params: { status: STUDENT }, tone: "bad", attention: true, counts: [] });
+    game.accept({ type: "activity/now", activity: APPLY, param: null });
+    expect(current(game).entry).toBe(UK_GRADUATE);
+    const shut = flown(content, { vars: () => ({ "var.uk-graduate-months": 0 }) });
+    playMonths(shut, 13);
+    shut.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+  });
+
+  test("[status:graduate-visa-applied-for] given a student, when the status is viewed, then the application's cost shows from course month 9 and not before", () => {
+    const game = flown(content);
+    playMonths(game, 7);
+    expect(game.view().status?.graduate).toBeNull();
+    playMonths(game, 1);
+    const months = game.world().vars["var.uk-graduate-months"]!;
+    expect(game.view().status?.graduate).toEqual({ currency: "GBP", fee: GRADUATE_FEE, surcharge: (SURCHARGE_YEAR * months) / 12 });
+  });
+
+  test("[status:graduate-visa-applied-for] given the course not passed, when course month 13 comes, then the application is not legal", () => {
+    const game = flown(content);
+    setPockets(game, { GBP: 0 });
+    playMonths(game, 4);
+    expect(current(game).withdrawn).toBeDefined();
+    game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+  });
+});
+
+describe("the student's work rule", () => {
+  const PART: Id<"activity"> = "activity.job-uk-retail-part";
+
+  test.each([
+    [3, false],
+    [4, true],
+    [5, false],
+    [8, true],
+    [10, false],
+  ])("[status:status-sets-work-rule] [ladders:student-holds-one-part-job] given a student in a part job, when course month %i is paid, then it pays full time: %s", (month, full) => {
+    const game = flown(content);
+    applyEffects(game, [{ type: "activity/start-job", job: PART }]);
+    playMonths(game, month - 1);
+    const entry = content.activity[PART]!;
+    const written = Math.floor(entry.pay!.amount as number / 12);
+    expect(monthlyPay(readOf(game), entry)).toEqual({ currency: "GBP", amount: full ? Math.floor((written * content.tuning.status.vacationPayBp) / 10000) : written });
+  });
+
+  test("[status:status-sets-work-rule] [ladders:student-holds-one-part-job] given a student, when course month 13 comes, then any job may be held; in month 12 only a part job", () => {
+    const game = flown(content);
+    const warehouse = content.activity["activity.job-uk-warehouse"]!;
+    playMonths(game, 11);
+    expect(workAllows(readOf(game), warehouse)).toBe(false);
+    playMonths(game, 1);
+    expect(workAllows(readOf(game), warehouse)).toBe(true);
   });
 });
 

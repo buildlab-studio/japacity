@@ -43,6 +43,8 @@ export type RouteKindEvent =
   | { type: "route/gifted"; route: Id<"route">; amount: number }
   /** The gift's deed is held: the gift counts as the applicant's own money (route-gates:family-gift-counts-with-deed). */
   | { type: "route/gift-deeded"; route: Id<"route"> }
+  /** route:family-pledge-pays-tuition: `spent` of the pledge's naira paid the school `paid` in the charge's currency. */
+  | { type: "route/pledge-paid"; route: Id<"route">; spent: number; paid: { currency: Currency; amount: number } }
   /**
    * A gate's own state moved (docs/rules/route-gates.md): a sponsor recorded, the
    * pool entered, an invitation, a step on the road. `note` names the line to

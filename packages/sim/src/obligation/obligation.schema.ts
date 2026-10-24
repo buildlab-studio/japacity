@@ -46,6 +46,8 @@ export const ObligationEntrySchema = z.strictObject({
   grace: CountSchema,
   onMiss: z.array(EffectSchema),
   onDefault: z.array(EffectSchema),
+  schedule: z.array(BpSchema).min(1).exactOptional(),
+  onCut: z.array(EffectSchema).exactOptional(),
 });
 
 export type ObligationEntryMatches = Proof<Same<z.infer<typeof ObligationEntrySchema>, ObligationEntry>>;

@@ -60,12 +60,11 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     // A one-year course plus four months.
     months: 16,
     work: "part",
-    next: "status.uk-graduate",
-    // status:course-passed-or-withdrawn: the course is passed after 12 months held with the tuition never in
-    // default. A default lapses the status at once (obligation.tuition), and the status
-    // runs 16 months, so a student still holding it at expiry has passed. What is left
-    // to check is that the graduate route is open.
-    nextIf: [{ type: "var/min", var: "var.uk-graduate-months", value: 1 }],
+    // status:expiry-lapses-or-moves-on: the student becomes a graduate only by applying and paying (status:graduate-visa-applied-for), so no
+    // status follows by the clock. status:status-sets-work-rule: full-time pay in the Christmas and Easter vacations of a September start, course
+    // months 4 and 8, and any job from course month 13, once the course has ended (Student Sponsor Guidance Doc 2, paras 4.46 and 6.3).
+    // status:graduate-visa-applied-for: the view carries the application's cost from course month 9.
+    course: { vacations: [4, 8], anyFrom: 13, graduate: "status.uk-graduate", feeVar: "var.uk-graduate-fee", surchargeYearVar: "var.uk-surcharge-year", costFrom: 9 },
   },
   "status.uk-graduate": {
     ...BASE,

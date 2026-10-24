@@ -776,6 +776,7 @@ export const uiText: Record<string, string> = {
   "ui.req.place-is": "Be {where}",
   "ui.req.status-is": "Hold {statuses}",
   "ui.req.status-clock-under": "A status clock with under {months} months left",
+  "ui.req.status-course-done": "Pass the course, and the fee and surcharge in hand",
   "ui.req.credit-min": "Credit file at {value} or more",
   "ui.req.goal-done": "Finish the goal \"{goal}\"",
   "ui.req.era-is": "While the era is {eras}",

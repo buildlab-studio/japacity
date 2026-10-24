@@ -180,6 +180,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.status-is", { statuses: list(requirement.statuses.map(runningName)) });
     case "status/clock-under":
       return say("ui.req.status-clock-under", { months: requirement.months });
+    case "status/course-done":
+      return say("ui.req.status-course-done");
     case "credit/min":
       return say("ui.req.credit-min", { value: requirement.value });
     case "goal/done":
