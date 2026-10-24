@@ -1,6 +1,6 @@
 // Where the life is in Papers (place:view-shows-place-and-returns, place:return-home-paid-or-assisted; return:return-record-in-words): the country and
 // the months here, the fare home as the view gives it with what it takes, and the times
-// the life came home, newest first, in words with no month number (world:top-band-is-lively-pill). The way home itself is the
+// the life came home, newest first, in words with no month number (world:top-band-is-a-pill). The way home itself is the
 // bag's Go home (features/city/acts/goHome.place.test.ts).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";

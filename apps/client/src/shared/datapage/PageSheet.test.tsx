@@ -75,7 +75,7 @@ describe("the page from the band", () => {
     expect(person.textContent.indexOf("Morenike")).toBeGreaterThanOrEqual(0);
     expect(person.textContent.indexOf("Morenike")).toBeLessThan(person.textContent.indexOf(clockWords(view.qualities)));
     expect(opener().textContent).toBe(clockWords(view.qualities));
-    // The place's name stays the band's heading, and a tap on it does nothing (world:top-band-is-lively-pill).
+    // The place's name stays the band's heading, and a tap on it does nothing (world:top-band-is-a-pill).
     expect(screen.getByRole("heading", { name: "The family house" })).toBeDefined();
     fireEvent.click(opener());
     const sheet = screen.getByRole("dialog", { name: say("prologue.door.page.title") });

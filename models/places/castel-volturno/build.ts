@@ -1,4 +1,4 @@
-// The roundabout at Castel Volturno (docs/design/11-the-three-countries-on-the-mold.md section 3; city.md
+// The roundabout at Castel Volturno (docs/design/11-calgary-dubai-and-castel-volturno.md section 3; city.md
 // place.castel-volturno): the town's hub, where the vans come at dawn. Low blocks of pastel plaster over shops, the
 // bar with its awning and its coffee counter at the door, the African shop and the call shop with their boards
 // (assets:sign-text-drawn-in-code), the roundabout's island at the road's end with its direction sign, the bus stop's pole and low

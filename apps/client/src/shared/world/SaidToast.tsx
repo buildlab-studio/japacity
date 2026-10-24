@@ -1,10 +1,10 @@
-// A toast in a person's voice (docs/design/09-the-lively-layer.md sections 2 and 4; the hand's toasts): under the band, a
+// A toast in a person's voice (docs/design/09-the-games-look.md sections 2 and 4; the hand's toasts): under the band, a
 // picture, the speaker's name pill and their few words, standing a few seconds and gone. The interview's close says
 // "Your answers are in." in the officer's voice this way (interview:answers-taken-in-order).
 import { useEffect, useRef } from "react";
 
 import { Tile } from "../tiles/Tile";
-import { Face } from "../ui/lively/Face";
+import { Face } from "../ui/look/Face";
 
 /** How long a said toast stands, as the brief's done toast does. */
 export const SAID_TOAST_MS = 3000;

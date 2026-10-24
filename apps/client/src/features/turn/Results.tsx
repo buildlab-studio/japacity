@@ -13,7 +13,7 @@ import { StateTag } from "../../shared/ui/StateTag";
 import { Counter } from "../../shared/world/TopBand";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { Tile } from "../../shared/tiles/Tile";
-import { PressButton } from "../../shared/ui/lively/PressButton";
+import { PressButton } from "../../shared/ui/look/PressButton";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
@@ -75,7 +75,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const shown = useResultsOpen();
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
-  // world:top-band-is-lively-pill: no month number; the character's age stands small beside what was kept, and a birthday is said.
+  // world:top-band-is-a-pill: no month number; the character's age stands small beside what was kept, and a birthday is said.
   const ageMonths = qualityIn(view, "quality.age-months");
   const clock = say("ui.world.age", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const birthday = ageMonths > 0 && ageMonths % 12 === 0;
@@ -268,7 +268,7 @@ function StoryRow({ line, hero }: { line: ReportLine; hero: boolean }) {
   const lead = leadsAlone(line);
   const tone = lead ? "text-[18px] leading-tight font-bold" : unpaid ? "text-[15px] leading-snug font-semibold text-out" : "text-[15px] leading-snug";
   return (
-    <li className={`flex items-center gap-3 ${hero ? "lively-card p-3" : "py-1"} ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined} {...(hero ? { "data-results-best": "" } : {})}>
+    <li className={`flex items-center gap-3 ${hero ? "look-card p-3" : "py-1"} ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined} {...(hero ? { "data-results-best": "" } : {})}>
       <span className={`flex shrink-0 items-center justify-center rounded-[14px] bg-tint-plain ${hero ? "size-16 text-[34px]" : "size-10 text-[22px]"}`} aria-hidden>
         {/* The picture is drawn from its attribute, so the line's words stay the row's only text. */}
         <span className="sticker-cut drawn-pic" style={{ rotate: "-5deg" }} data-pic={momentPicture(line.key)} />
@@ -287,7 +287,7 @@ function MoneyRow({ entry, mark }: { entry: MoneyLine; mark: "payday" | "rent" }
   const view = useView();
   if (mark === "payday") {
     return (
-      <div className="lively-card flex items-center gap-3 p-3" data-results-payday={amount} data-results-best data-sign={sign}>
+      <div className="look-card flex items-center gap-3 p-3" data-results-payday={amount} data-results-best data-sign={sign}>
         <span className="flex size-16 shrink-0 items-center justify-center rounded-[14px] bg-tint-money">
           <span className="sticker-cut" style={{ rotate: "-5deg" }}>
             {view.job.id === null ? <span className="drawn-pic text-[34px]" data-pic="💰" /> : <Tile of={view.job.id} size={46} />}

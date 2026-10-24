@@ -1,4 +1,4 @@
-// What each thing's fan holds, and what each button of the fan says (docs/design/09-the-lively-layer.md section 3; docs/rules/world.md
+// What each thing's fan holds, and what each button of the fan says (docs/design/09-the-games-look.md section 3; docs/rules/world.md
 // world:things-are-tappable-models, world:one-action-one-sheet, world:fan-of-sticker-buttons). Every thing fans its acts. The room's and the street's acts done at once (decision
 // 0012, streets:lagos-street-spending) are the simulation's own buttons: priced, balanced, refused as their sheet would, and sent on arrival.
 // Every other act (a pose, the bed's Sleep, a sheet that opens a card, a command, the way out, the papers, a word with

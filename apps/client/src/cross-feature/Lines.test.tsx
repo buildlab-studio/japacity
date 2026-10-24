@@ -1,4 +1,4 @@
-// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/09-the-lively-layer.md
+// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/09-the-games-look.md
 // section 5): a person's words in a bubble over their head that follows them and goes on a tap, at most eight words for
 // about four seconds, a longer line clipped to two lines that opens whole in a sheet with their name; the street's talk as an ambient bubble
 // over the resident nearest, with twenty seconds of quiet after; the bottom corner for the player's own act's answer alone,
@@ -183,7 +183,7 @@ describe("the talk budget's words", () => {
     expect(bubble()).toBeNull();
     const sheet = document.querySelector("[data-talk-open]");
     expect(sheet?.textContent).toContain(long);
-    expect(document.querySelector("[data-lively-sheet]")?.textContent).toContain("Mama");
+    expect(document.querySelector("[data-look-sheet]")?.textContent).toContain("Mama");
   });
 
   test("[world:street-talk-budget] given the street's talk, when a line comes, then it floats over the resident nearest the player, and the next waits at least twenty seconds of quiet; never over someone speaking", () => {

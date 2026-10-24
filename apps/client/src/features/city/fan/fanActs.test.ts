@@ -1,4 +1,4 @@
-// What each thing's fan holds and what each button says (docs/design/09-the-lively-layer.md section 3; docs/rules/world.md
+// What each thing's fan holds and what each button says (docs/design/09-the-games-look.md section 3; docs/rules/world.md
 // world:things-are-tappable-models, world:one-action-one-sheet, world:fan-of-sticker-buttons): every thing fans. The room's and the street's acts done at once are each their own
 // button, priced and balanced as the sheet counts them, or refused as the sheet would; a job, a route, an offer, a paper,
 // a pose, Sleep, a command or the way out is one button with its act's label and picture and no price.

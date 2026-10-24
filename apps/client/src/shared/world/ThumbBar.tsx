@@ -1,11 +1,11 @@
 // The two thumb buttons (world:thumb-buttons-carry-dots): Map at the left, Phone at the right,
-// a dot on Phone when an app has something new. Both hide while riding and while the results show. As the lively layer
-// draws them (docs/design/09-the-lively-layer.md): round white buttons with a picture each, navy at night, no pattern.
+// a dot on Phone when an app has something new. Both hide while riding and while the results show. As the game's look
+// draws them (docs/design/09-the-games-look.md): round white buttons with a picture each, navy at night, no pattern.
 // In a wide home a smaller round button stands over Phone with a turning arrow: each tap turns the house a quarter
 // round; it steps back while a sheet, the phone, the map or a fan is open.
 import type { ReactNode } from "react";
 
-import { CentredColumn } from "../ui/lively/CentredColumn";
+import { CentredColumn } from "../ui/look/CentredColumn";
 import { say } from "../words/text";
 
 export interface ThumbBarProps {

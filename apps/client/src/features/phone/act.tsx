@@ -96,7 +96,7 @@ export function Refused() {
   const dismiss = useGame((state) => state.dismissRejection);
   if (rejection === null) return null;
   return (
-    <div role="alert" className="shake lively-card mb-3 flex items-start gap-2 p-3 text-[15px] text-out">
+    <div role="alert" className="shake look-card mb-3 flex items-start gap-2 p-3 text-[15px] text-out">
       <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden />
       <p className="flex-1">{rejection.words}</p>
       <button type="button" onClick={dismiss} aria-label={say("ui.dismiss")} className="flex size-7 items-center justify-center">

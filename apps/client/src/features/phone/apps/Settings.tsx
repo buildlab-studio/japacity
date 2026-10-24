@@ -58,7 +58,7 @@ export function Settings({ account = null, about = null, dedication = null, secu
       {account === null ? null : <div data-account>{account}</div>}
       {/* The sound and the city's graphics in one card: each a name with its icon and one
           segmented pill. */}
-      <div className="lively-card flex flex-col gap-3 p-3.5" data-settings-card>
+      <div className="look-card flex flex-col gap-3 p-3.5" data-settings-card>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 text-[17px] font-bold">
           <Volume2 size={20} aria-hidden />
@@ -258,7 +258,7 @@ function NewLife() {
       <Head>{say("ui.life.end.heading")}</Head>
       <button
         type="button"
-        className="lively-card press flex w-full items-center gap-3 p-3 text-left"
+        className="look-card press flex w-full items-center gap-3 p-3 text-left"
         onClick={() => {
           setFailed(false);
           setOpen(true);

@@ -71,7 +71,7 @@ const MONEY_PARAMS = new Set([
 /**
  * Params that name a month in content's lines: each is a month whose end brings what the line
  * says. They read as months away from the month in hand ("in 2 months"), so no running month
- * number shows (world:top-band-is-lively-pill); `until` reads as how long it holds ("for 3 more months").
+ * number shows (world:top-band-is-a-pill); `until` reads as how long it holds ("for 3 more months").
  */
 const MONTH_PARAMS = new Set(["month", "until", "readyMonth"]);
 
@@ -325,25 +325,25 @@ export function say(key: string, params: Params = {}): string {
   });
 }
 
-/** A month the simulation stamps, told as months from the month in hand: "in 2 months", "next month", "this month" (world:top-band-is-lively-pill). */
+/** A month the simulation stamps, told as months from the month in hand: "in 2 months", "next month", "this month" (world:top-band-is-a-pill). */
 export function inMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.in-months", count, { count });
 }
 
-/** A deadline the month ends on, told as "by next month", "within 3 months", "this month" (world:top-band-is-lively-pill). */
+/** A deadline the month ends on, told as "by next month", "within 3 months", "this month" (world:top-band-is-a-pill). */
 export function byMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.by-months", count, { count });
 }
 
-/** How long something holds until a stamped month, told as "for 3 more months", "for one more month", "until this month ends" (world:top-band-is-lively-pill). */
+/** How long something holds until a stamped month, told as "for 3 more months", "for one more month", "until this month ends" (world:top-band-is-a-pill). */
 export function forMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.for-months", count, { count });
 }
 
-/** A month gone by, told as "2 months ago", "Last month", "This month" (world:top-band-is-lively-pill). */
+/** A month gone by, told as "2 months ago", "Last month", "This month" (world:top-band-is-a-pill). */
 export function monthsAgo(stamped: number, now: number): string {
   const count = Math.max(0, now - stamped);
   return sayCount("ui.months-ago", count, { count });

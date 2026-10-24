@@ -82,7 +82,7 @@ export function AccountButton({ more = null }: { more?: ReactNode }) {
     <>
       <button
         type="button"
-        className="lively-card press mt-1 mb-3 flex w-full items-center gap-3 p-3 text-left"
+        className="look-card press mt-1 mb-3 flex w-full items-center gap-3 p-3 text-left"
         onClick={() => {
           counting().count("screen/opened", "settings");
           // world:lazy-part-fails-softly: a sheet that cannot be fetched shows the connection card, and Retry opens it.

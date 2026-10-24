@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { Tile } from "../../../shared/tiles/Tile";
-import { PressButton } from "../../../shared/ui/lively/PressButton";
+import { PressButton } from "../../../shared/ui/look/PressButton";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { blurbOf, nameOf, say } from "../../../shared/words/text";
 
@@ -78,7 +78,7 @@ export function PlanSwitch({ route, onKeep, onSaid }: { route: Id<"route">; onKe
   }
 
   return (
-    <div className="lively-card mt-3 p-3.5" data-plan-switch={route}>
+    <div className="look-card mt-3 p-3.5" data-plan-switch={route}>
       <p className="num text-[15px] font-bold" data-plan-change={choice.change}>
         {switchWords(choice)}
       </p>
@@ -108,7 +108,7 @@ export function RoutePage({ route, onClose, back, onSaid }: { route: Id<"route">
       </button>
       {/* A way as a card: its picture, its name, what it is, how far the life has gone with it
           as a chip, and how ready it would make you as a bar that fills, never a percentage on screen. */}
-      <div className="lively-card p-3.5" data-route-head>
+      <div className="look-card p-3.5" data-route-head>
         <div className="flex items-start gap-3">
           <span className="flex size-[60px] shrink-0 items-center justify-center rounded-[16px] bg-tint-study" aria-hidden>
             <span className="sticker-cut" style={{ rotate: "-5deg" }}>

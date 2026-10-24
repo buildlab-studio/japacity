@@ -1,4 +1,4 @@
-// The world after the flight (world:top-band-is-lively-pill, world:map-is-painted-lagos, world:one-country-at-a-time, world:street-talk-budget): the band in the
+// The world after the flight (world:top-band-is-a-pill, world:map-is-painted-lagos, world:one-country-at-a-time, world:street-talk-budget): the band in the
 // country's money, the talk of the places abroad, and the map abroad as its list of stops. The scene
 // itself needs WebGL and is not drawn here; the graduate's recorded life is flown and landed in London.
 import { fireEvent, screen } from "@testing-library/react";
@@ -28,7 +28,7 @@ function band(): HTMLElement {
 }
 
 describe("the band abroad", () => {
-  test("[world:top-band-is-lively-pill] given the graduate landed in London with pounds and naira, when the world shows, then the band counts its pounds and not the naira", async () => {
+  test("[world:top-band-is-a-pill] given the graduate landed in London with pounds and naira, when the world shows, then the band counts its pounds and not the naira", async () => {
     const view = landed();
     expect(view.pockets.NGN.bank).toBeGreaterThan(0);
     await renderWithView(world(), view);

@@ -8,8 +8,8 @@ import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { Empty } from "../../shared/ui/Panel";
-import { Face, faceMark } from "../../shared/ui/lively/Face";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { Face, faceMark } from "../../shared/ui/look/Face";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { afterPaying, monthDues, plannedCosts } from "../../shared/words/cost";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { isSaid, tidyLines } from "../../shared/words/lines";
@@ -174,7 +174,7 @@ function choiceMoney(offer: Offer, choice: string): { currency: Currency; amount
 /**
  * One reply as a row: its words, then the balance before struck and after and
  * the price as a yellow pill, or "Free" alone when it costs nothing, never beside a "No cost" that says the same
- * (design page 09 section 2). Its name is the reply with its cost, so it never hides its price.
+ * (docs/design/09-the-games-look.md section 2). Its name is the reply with its cost, so it never hides its price.
  */
 function ReplyRow({ offer, choice, disabled, main, freeShown, onPick }: { offer: Offer; choice: Offer["choices"][number]; disabled: boolean; main: boolean; freeShown: boolean; onPick: () => void }) {
   const view = useView();
@@ -281,7 +281,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
             choice={choice}
             // An honest ask keeps its main answer, the first; an ask that may be a scam has none (advice:scams-show-their-tells).
             main={index === 0 && !scam}
-            // "Free" only where another answer has a price, so it says something (design page 09 section 2).
+            // "Free" only where another answer has a price, so it says something (docs/design/09-the-games-look.md section 2).
             freeShown={offer.choices.some((other) => other.pick !== null || (choiceMoney(offer, other.id)?.amount ?? 0) > 0)}
             disabled={!choice.allowed || busy || ended}
             onPick={() =>
@@ -329,7 +329,7 @@ export function OfferView({ only }: { only?: (offer: Offer) => boolean } = {}) {
   const offers = only === undefined ? view.offers : view.offers.filter(only);
   const [outcome, setOutcome] = useState<ReportLine[] | null>(null);
   return (
-    // The asks as the lively layer draws them: no tracked heading over the card, the sheet names what it holds.
+    // The asks as the game's look draws them: no tracked heading over the card, the sheet names what it holds.
     <section aria-label={say("ui.offer.title")} className="flex flex-col gap-3">
       {outcome === null ? null : <Outcome lines={outcome} onClose={() => setOutcome(null)} />}
       {offers.length === 0 ? (

@@ -1,99 +1,64 @@
 # Assets and visuals
 
-> Evidence: our own four experiments, below. Their builders are the code in `../../models/` and `../../packages/model-kit/`.
-> **Generate as much as possible.**
-> Budgets, the palette size, and the naming scheme are working values, set at or below published figures.
+**Context and scope.** How the game's 3D city, its people and its vehicles are made, kept small, and kept looking like one game: where each kind of model comes from, how a model is checked, the rules every model follows, the budgets, and the rules for generated media. The models are code in `../../models/` and `../../packages/model-kit/` (decision 0009); the rules are on `../rules/assets.md`; the budgets are in `../../models/budgets.json`; the experiments the choice of code rests on are in `../research/12-models-written-as-code.md`.
 
-## 1. Two aims
+**Goals.**
 
-1. **A 3D city and characters** at the standard players expect.
-2. **Beyond that**, a small number of touches a game built in a hurry will not have.
+- A 3D city and people that read as Lagos on a cheap phone's screen.
+- Every model written as code, so a change is a change of numbers and the whole city can be built again.
+- Every model inside its budget, and every shipped file in the register.
 
-## 2. The engine stays
+**Non-goals.** Video of any kind (reward clips, an opening clip, chapter cards that move, cutscenes, video made per player), portraits generated live, voiced radio, assets from another game, commercial music without a licence, and streaming formats for short clips.
 
-React Three Fiber on three.js. Babylon.js was checked and is not worth switching to: its React binding has about 15,000 weekly downloads against 7.1 million, and its strengths do not address our limits, which are download size and cheap phones.
+## 1. The aim
 
-**The three.js version is pinned**, and its migration notes are read before any upgrade. Recent releases renamed and removed features.
+The city, its people and its vehicles are drawn at the standard players of 3D phone games expect, inside a download a cheap phone on Nigerian data can take. A few touches a game made in a hurry would not have, such as dishes that all face one satellite (assets:dishes-face-one-satellite) or a gele copied from photos of real ones, are what make it look like itself.
+
+## 2. The engine
+
+React Three Fiber 9.8 on three.js 0.186. **The three.js version is pinned**, and its migration notes are read before any upgrade: its releases rename and remove features.
 
 ## 3. Where assets come from
 
-| Category | Try first | Fallback | Human time |
-|---|---|---|---|
-| Vehicles: danfo, keke, okada | **Written as code.** Proven in our own experiment below | An image-to-3D service, reduced and re-coloured | A 20-minute look at the render sheets |
-| Buildings, stalls, props | A kit of parts written as code, plus free pack pieces re-coloured onto our palette | Blender driven by script | A batch review |
-| Signage | Text drawn onto a texture in code, so spelling is exact | An image model for painted backgrounds | None |
-| Bodies and the skeleton | **Written as code**, on one skeleton of 17 bones. Proven in our own experiment below | A free base character on one shared rig, reduced to about 3,000 triangles | Approve three or four body types |
-| Everyday clothes, low cut, cornrows, braids | **Written as code.** Scored 3 to 4 out of 5 by an independent reviewer | Outfit pieces from a free pack | A batch review |
-| Agbada, gele, fila, afro, locs, faces | Written as code from reference photos. Code alone scored 2 to 3 out of 5 | Artist-made meshes on our skeleton | **The one place an artist's time pays most**: silhouette sketches and paint-overs |
-| Fabric patterns | Drawn in code from a seed, limited to the palette, tiling by construction | An image model with a tiling check | A spot check |
+Everything in the city is written as code. The register shows it: every model and picture is the makers' own code, and the one generated media is the officer's voice (`05-audio.md`).
 
-**Experiment 1: vehicles and props.** A danfo, a keke, and a market stall were written as three.js code in one pass and rendered in a headless browser.
-
-| Model | Triangles | Draw calls | Size after compression | Budget |
-|---|---|---|---|---|
-| Danfo | 816 | 1 | 12.7 KB | 3,000 triangles, 100 KB |
-| Keke | 668 | 1 | 10.8 KB | 3,000 triangles, 100 KB |
-| Market stall | 664 | 1 | 14.2 KB | |
-
-These are first drafts judged from two renders. They show the route works for vehicles and props.
-
-**Experiment 2: people.** Eight people were written as code: bodies, skin tones, five hairstyles, gele, fila, agbada, buba and iro, everyday clothes, and fabric patterns drawn from a seed. A separate reviewer who had not seen the code scored the renders, the code was fixed, and the reviewer scored them again.
-
-| Measure | Result | Budget |
+| Category | How it is made | Where |
 |---|---|---|
-| Triangles per person | 680 to 1,200 | 3,000 |
-| Draw calls | 1 to 3 | 3 |
-| File with skeleton and patterns, compressed | 9.9 to 32.2 KB | 150 KB |
-| Bones | 17, shared by everyone | |
-| Poses that work on every body | Stand, walk, arms raised, sit | |
+| Vehicles: the danfo, the keke, the okada, the buses, trains and vans abroad | Written as code | `models/vehicles/` |
+| Buildings, stalls, props | Assembled from the kit, a set of parts written as code (walls, floors, roofs, parapets, balconies, stairs, gates, tanks, generators, dishes, signboards), with numbers per building (assets:buildings-assembled-from-kit) | `packages/model-kit/src/kit/`, `models/buildings/`, `models/props/`, `models/places/` |
+| Signage | Text drawn onto a texture in code at run time, so the spelling is exact (assets:sign-text-drawn-in-code) | `packages/model-kit/src/sign.ts`, `models/signs.json` |
+| Bodies and the skeleton | Written as code, on one skeleton of 17 bones | `models/people/` |
+| Everyday clothes and hair: low cut, cornrows, braids | Written as code | `models/people/` |
+| Agbada, gele, fila, afro, locs, faces | Written as code from reference photos looked at, never kept (assets:no-reference-photos-kept); the soft shapes are blended and thinned when the model is built (assets:organic-shapes-baked-at-build) | `models/people/` |
+| Fabric patterns: ankara, adire, aso oke | Drawn in code from a seed, in palette colours only, tiling by construction (assets:fabric-pattern-from-seed) | `packages/model-kit/src/pattern.ts` |
 
-| Reviewer's score out of 5, after fixes | Parts |
-|---|---|
-| 4 | Everyday clothes, low cut, cornrows, readability at phone size |
-| 3 | Body, braids, locs, gele, fila, agbada, buba and iro, patterns, walk, sitting |
-| 2 | Afro, faces |
+**How a model is checked.**
 
-**What it means:**
-
-- **Bodies, the skeleton, everyday clothes, and patterns can be generated.** They are far under every budget.
-- **One round of code fixed or reduced what was broken in motion**: the robe when seated is fixed, the wrapper and the torn shoulders are better but not clean.
-- **Two rounds did not fix the shapes that carry the most identity**: the agbada's drape, the gele, the afro. The code needs a drawn silhouette to copy, and that is what an artist's hour buys.
-- The reviewer is an AI, not a Nigerian viewer.
-
-**How generated assets are kept good:**
-
-1. Block out, refine, then compare against a reference photo.
-2. Render fixed views in a headless browser and feed the screenshots back to whatever made the asset.
-3. A separate reviewer writes the report. Whatever made an asset never grades its own work.
-4. A script checks triangles, size, scale, and that only palette colours are used.
-5. **For shapes that must be recognised, score the outline against a reference outline** from a sketch or photo, and accept only above a threshold.
-6. A new outfit, hairstyle, or vehicle variant is a set of numbers, not new code.
-
-**Not used:**
-
-- One open AI 3D model whose licence excludes the UK.
-- Free tiers of AI 3D tools.
-- Any asset from another game.
-- Avatar services. The best known closed in January 2026.
+1. The model is blocked out, refined, then compared against a reference photo.
+2. Its builder renders fixed views with the shooter (`pnpm assets:shoot`; assets:contributor-renders-fixed-views).
+3. A reviewer who has not seen the code scores the views and writes the review (assets:blind-reviewer-scores-views). Whatever made a model never grades its own work. A model is accepted at the scores of assets:acceptance-score-thresholds.
+4. A script checks triangles, size, scale, and that only palette colours are used (`pnpm check:assets`).
+5. A landmark, a shape that must be recognised, is scored against reference outlines from a plan and an elevation (`pnpm assets:outline`; assets:landmarks-match-reference-outlines).
+6. A new outfit, hairstyle or vehicle variant is a set of numbers, not new code (assets:variants-are-numbers-not-code).
 
 ## 4. Characters
 
-- **One skeleton of 17 bones and one set of animations for everyone.** Poses are rotations only, so they work on every body.
-- **A character is data**: body, build, skin tone, hair, headwear, top, bottom, robe, pattern seeds.
+- **One skeleton of 17 bones and one set of poses for everyone.** Poses are rotations only, so they work on every body.
+- **A character is data**: body, build, skin tone, hair, headwear, top, bottom, robe, pattern seeds (`models/people/people.data.ts`).
 - Skin tone is a colour, with eight tones. Body types are numbers on the same skeleton.
 - Hair and headwear are rigid pieces on the head: low cut, afro, braids, cornrows, locs, gele, fila, cap.
 - Clothing is part of the body's mesh and moves with the same bones. Robes and wrappers follow the legs, so they survive sitting.
 - A long wrapper shortens the stride. Stride is a number on the outfit.
 - Patterns are small tiling textures drawn from a seed: ankara, adire, aso oke.
-- **People ship as model files** (`apps/client/public/assets/shared/person`), not built on the device from their data.
-- **Animations are written in code**, as the four poses were, with no animation library.
+- **People ship as model files** (`apps/client/public/assets/shared/person`), not built on the device from their data: 34 people, each 1,044 to 2,394 triangles, one or two draw calls and 23 to 46 KB.
+- **Poses are written in code**, with no animation library.
 
 **Who wears what.**
 
 - **A street is about half modern dress and half traditional.** The traditional cloth is part of what makes the game look like itself, so it stays visible.
 - **Everyday dress is mostly modern**: T-shirts, jeans, polos, shirts, office wear, crop tops, mini skirts, fitted dresses, wide-leg trousers.
 - **Daily traditional dress belongs to market women, traders, and older people.**
-- **Occasions bring out the rest**: aso ebi, gele, and agbada at weddings and faji nights. Jalamia and cap on Fridays.
+- **Occasions bring out the rest**: aso ebi, gele, and agbada at weddings and faji nights (the evening parties). Jalamia and cap on Fridays.
 - **Headgear and caps are on a minority**, never on everyone.
 - **Modern cuts in traditional cloth** sit between the two: an ankara two-piece, an adire corset top with denim. Lagos street style does this.
 
@@ -104,11 +69,11 @@ These are first drafts judged from two renders. They show the route works for ve
 | Friday | Jalamia, kaftan, cap |
 | Saturday wedding, faji night | Aso ebi, gele, agbada |
 
-The mix per place is a number in data. The world runs on the real calendar, so Friday and Saturday dress can change by itself.
+The mix per place is a number in data (`traditionalBp` on each place). The world runs on the real calendar, so Friday and Saturday dress changes by itself.
 
-**Built in a third experiment**: a body with a shape number from regular to figure 8, crop tops, a mini skirt, a fitted dress, wide-leg trousers, long hair, heels, a bag, sunglasses, and two poses. The reviewer scored the body 4 out of 5 and said a waist-to-hip width of about 0.55 is right for this style, with 0.48 too much. The gele was rebuilt from photos of real ones: a pleated fan behind the head, wrapped bands on the forehead, a knot by one ear.
+The gele is copied from photos of real ones: a pleated fan behind the head, wrapped bands on the forehead, a knot by one ear.
 
-**Bodies vary.** Modern women in particular must not all be one shape, and men come slim, gym fit, and big. Every person draws a few numbers, and a street mixes them. All are built:
+**Bodies vary.** Modern women in particular are not all one shape, and men come slim, gym fit, and big. Every person draws a few numbers, and a street mixes them:
 
 | Who | Numbers |
 |---|---|
@@ -119,17 +84,15 @@ The mix per place is a number in data. The world runs on the real calendar, so F
 - Plus-size and short women wear the same crop tops, minis, and fitted dresses as everyone else. Clothes are fitted to the body's numbers, never the other way round.
 - Arms, calves, and neck follow the same numbers, so a full body does not sit on thin limbs.
 
-**Built in a fourth experiment**, each after looking at reference photos: senator suits, jalamia and kufi, gym-fit and slim and everyday men, a market woman, three hawkers with loads on their heads, and an okada with a rider and passenger. That makes 34 people and 4 vehicles, all between 684 and 1,566 triangles and 10 to 34 KB each.
+No one in the game wears a school uniform, a hijab or an abaya, and there is no traffic officer.
 
-**Not in the game**: older people, school uniforms, hijab and abaya, a traffic officer.
+## 5. Rules that make every model look like one game
 
-## 5. Rules that make mixed sources look like one game
-
-1. One small shared colour texture for everything. No texture per asset, except patterns.
-2. One unit is one metre. Adults are 1.7 m. Doors are 2.1 m.
+1. Every colour is a named entry in the one palette, and no model has a texture of its own except fabric patterns and sign text (assets:colours-from-named-palette).
+2. One unit is one metre. Adults are 1.7 m. Doors are 2.1 m (assets:metre-units-and-origin, assets:people-and-door-sizes).
 3. Flat shading on hard-edged things (buildings, vehicles' panels, props); smooth shading on round parts (heads, hair, wheels, pots, domes). Soft organic shapes (an afro, locs, a gele, a face) are blended from simple shapes, thinned and shown smooth when the model is built, never on the phone. At most two materials per asset, shapes that read at phone size (assets:flat-and-smooth-shading).
-4. One sun and one sky light. Shadows only for characters and vehicles, and only in high-graphics mode.
-5. Every character shares one rig and one set of proportions.
+4. One sun and one sky light, set by the place. Shadows only for characters and vehicles, and only in the high graphics mode (assets:lighting-set-by-place).
+5. Every person shares one skeleton and one set of poses.
 
 The palette grows only by a named colour with a reason (assets:colours-from-named-palette). `lagoon` (#4f6f66) is one: the muddy grey green of the water under the Third Mainland Bridge, because `teal` is a cloth colour and makes the lagoon read as a swimming pool.
 
@@ -137,61 +100,59 @@ The palette grows only by a named colour with a reason (assets:colours-from-name
 
 | Scope | Draw calls | Triangles in view | Download |
 |---|---|---|---|
-| First load: code, the hub, one character | 60 | 60,000 | **5 MB** |
+| First load: code, the hub, one character | 60 | 60,000 | 5 MB |
 | An interior | 50 | 40,000 | 0.8 MB |
 | An exterior | 80 | 80,000 | 1.5 MB |
 | A character with clothes and hair | 3 | 3,000 | 150 KB |
-| A vehicle | 2 | 1,500 to 3,000 | 100 KB |
+| A vehicle | 2 | 3,000 | 100 KB |
 | The whole game | | | 40 MB |
 
-- **Why 5 MB**: data is about ₦6 per 10 MB, so money is not the issue. Abandonment is. A portal's data from a comparable market showed 60% of players reaching gameplay at 10 MB.
-- **Why it matters here**: Tecno, Infinix, and Itel make up about 42% of phones.
+These are `models/budgets.json`, where the build check reads them (assets:assets-and-places-within-budget). Of the first load, the code a first visit downloads is held tighter, at 894,000 gzipped bytes in all, by `tools/check/size-budget.json` (engine:first-download-has-budget).
+
+- **Why a small first load**: data is cheap in Nigeria next to the time a player waits; the risk is a player who leaves before the game starts. Cheap phones (Tecno, Infinix, Itel) are a large share of the market.
 - Each place loads when the player enters it, and is cached after.
-- The game starts in low-graphics mode and raises quality when the phone keeps up.
+- A phone with a coarse screen or little memory starts in the low graphics mode and rises when its frames keep up; a desktop or a sharp phone with enough memory starts in the high mode and drops if its frames are slow (city:two-graphics-modes).
 - **A build check fails** if any budget is exceeded or any file is missing from the register.
 
 ## 7. Files and the register
 
 ```
-models/<category>/<name>/        the code and the sheets that make a model. Never shipped
-public/assets/shared/<category>/     characters, props, vehicles
+models/<category>/<name>/            the code that builds a model and its render sheets. Never shipped
+public/assets/shared/<category>/     people, props, vehicles
 public/assets/places/<place>/        one place: its buildings and its place.json
-person_ada.glb, vehicle_danfo.glb, prop_bed.glb
+person_ada.glb, vehicle_danfo.glb, prop_street-bench.glb
 ```
 
-**The register** (`models/register.json`) has one row per file: file, place, source, author, licence, attribution text, whether generated and with which tool, who approved it, date, whether modified, triangles, draw calls, materials, bytes, the review and the status (assets:register-matches-every-file).
+A render sheet is the set of fixed views a model's builder renders for its review. A shipped file is named `<prefix>_<name>` (assets:shipped-file-naming).
 
-## 8. Beyond the baseline
+**The register** (`models/register.json`) has one row per shipped file: file, place, source, author, licence, attribution text, whether generated and with which tool, who approved it, date, whether modified, triangles, draw calls, materials, bytes, the review and the status (assets:register-matches-every-file).
 
-Six touches beyond the baseline, each with its weight and what to watch for.
+## 8. The share card and the atmosphere
 
-| # | Touch | Weight per player | Watch for |
-|---|---|---|---|
-| 1 | **The japacity card**: a shareable image at big moments and at the send-off, sized for WhatsApp | About 150 KB | Generated faces. Use composed artwork |
-| 2 | **Atmosphere made in code**: day and night, harmattan haze, rain, rim light, small motion on every action | Under 1 MB | Outdated three.js calls |
-| 3 | **Radio you can hear**: news bulletins in Nigerian English and Pidgin, driving the news mechanic | About 100 KB per 30 seconds | Stiff Pidgin. A native speaker reviews every voice |
-| 4 | **Faceless reward clips**, 3 to 6 seconds: the passport stamp, the embassy queue, the plane window, the arrivals hall | 0.5 to 1 MB each, fetched when earned | A shown face will never match the player's character |
-| 5 | **Chapter cards that move**: one image shifted with depth, for each chapter and each era | About 200 KB | Style drift. One locked style reference |
-| 6 | **One opening clip**, 15 to 20 seconds, skippable, and reused as the trailer | About 2.5 MB once | Passing it off as gameplay. Label it |
-
-**How the clips are made**: stills first, then animated. One locked style reference for every shot. Short takes, several per shot.
+| Touch | What | Weight per player |
+|---|---|---|
+| **The japacity card** | A shareable image at big moments and at the send-off, 1080 by 1920, drawn on the device from the game's own art, with no face (`../rules/share.md`) | Under 150 KB |
+| **Atmosphere made in code** | Day and night on the world's clock, the sky and the fog tinted by it, the wind in cloth and leaves, the weather of the landing abroad, small motion on every action; the far haze and the sky's atmosphere in the high mode | No download beyond the place |
 
 **How the visuals are checked**: the game exposes its state as text and a way to step time, and the play driver (`pnpm play`, `tools/play/`) plays it in a real browser so the screens are judged from screenshots.
 
-## 9. Rules for AI-made media
+## 9. Rules for generated media
 
-Generated media earns its place only when it is honest about what it is and never stands in for the play.
+Generated media earns its place only when it is honest about what it is and never stands in for the play. The game's one generated media is the officer's voice.
 
-1. **Say so.** The game states plainly where generated media is used. A player should never find it out later. A clip made with a generation tool carries a small "Made with AI tools" line in its corner while it plays, and the opening clip says so on its first frame: the EU's disclosure duty covers generated media that resembles real people, places or events, and labelling every clip is simpler than judging each.
-2. **No faces in clips.** Hands, places, objects, backs.
-3. **Clips reward moments. They do not tell the story.** The story is played.
-4. **Everything is skippable.**
-5. **A person approves every image, clip, and voice.**
+1. **Say so.** The game states plainly where generated media is used: the "How this game was made" page and the credits name it (guide:generated-media-named-plainly). The EU's disclosure duty covers generated media that resembles real people, places or events, and naming every piece is simpler than judging each.
+2. **No faces.** Nothing generated shows a face; a share card never shows one (share:card-art-shows-no-face).
+3. **Generated media never tells the story.** The story is played, and every spoken line is shown as text.
+4. **Everything is skippable.** A tap skips a spoken line.
+5. **A person approves it.** Each generated file's register row says who approved it (assets:ai-media-recorded-and-credited).
 
-## 10. Left out
+## 10. Alternatives considered
 
-- Video generated per player. Slow, costly, and needs moderation.
-- Portraits generated live.
-- Story cutscenes in AI video.
-- Streaming formats for short clips.
-- Commercial music without a licence.
+- **Babylon.js.** Checked and not worth switching to: its React binding is far less used than React Three Fiber, and its strengths do not address the game's limits, which are download size and cheap phones.
+- **An image-to-3D service** for vehicles, reduced and re-coloured. Vehicles written as code sit far under budget (484 to 2,432 triangles, 5 to 14 KB each), and code changes by numbers.
+- **Free packs of models**, re-coloured onto the palette. Every model would carry a licence and a look of its own; the kit in code gives one look.
+- **Blender driven by script.** A second tool to install and keep; the kit in code needs none.
+- **A free base character on a shared rig.** Bodies written as code on one 17-bone skeleton stay inside the budget and vary by numbers.
+- **Artist-made meshes** for the agbada, the gele, the afro and faces. These are the shapes that carry the most identity and the hardest to write as code; drawn silhouettes and paint-overs from an artist are where an artist's time pays most, given to the code to copy.
+- **Avatar services.** A third party's look and a third party's terms for every person in the game.
+- **Video clips** at moments and at the opening. Each would cost 0.5 to 2.5 MB, show faces that never match the player's character, and stand in for play; the game has none.

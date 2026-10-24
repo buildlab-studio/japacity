@@ -10,7 +10,7 @@ import { use, useEffect, useState } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { cue } from "../../../shared/sound/cues";
 import { marketTile } from "../../../shared/tiles/tiles.data";
-import { PressButton } from "../../../shared/ui/lively/PressButton";
+import { PressButton } from "../../../shared/ui/look/PressButton";
 import { formatMoney } from "../../../shared/words/format";
 import { nameOf, say } from "../../../shared/words/text";
 import { Balance } from "../../../shared/world/Balance";
@@ -60,7 +60,7 @@ export function Market({ here = null }: { here?: string | null }) {
   if (view.place.where !== "home") {
     return (
       <div data-phone-app="market" className="flex flex-col gap-2">
-        <div className="lively-card flex items-center gap-3 p-3" data-market-abroad>
+        <div className="look-card flex items-center gap-3 p-3" data-market-abroad>
           <PicTile of={marketTile("thing.fan")} size={56} />
           <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("phone.market.abroad")}</p>
         </div>
@@ -136,7 +136,7 @@ export function Market({ here = null }: { here?: string | null }) {
                 onClick={() => pick(offer)}
                 data-market-thing={offer.thing}
                 data-shut={offer.shut ?? undefined}
-                className={`lively-card press flex h-full w-full flex-col items-start gap-1 p-2.5 text-left ${on ? "phone-picked" : ""} ${shut !== null || !atHome ? "opacity-60" : ""} ${shaking === offer.thing ? "shake" : ""}`}
+                className={`look-card press flex h-full w-full flex-col items-start gap-1 p-2.5 text-left ${on ? "phone-picked" : ""} ${shut !== null || !atHome ? "opacity-60" : ""} ${shaking === offer.thing ? "shake" : ""}`}
               >
                 <span className="flex w-full justify-center">
                   <PicTile of={marketTile(offer.thing)} size={84} tilt={on ? -7 : -4} />

@@ -1,4 +1,4 @@
-// A bond's parts in the lively dress (person:proposing-a-step, person:view-shows-people; design page 09 section 2): the
+// A bond's parts in the game's look (person:proposing-a-step, person:view-shows-people; docs/design/09-the-games-look.md section 2): the
 // person's face sticker over what is known of them, the mark and the facts as sticker chips, what waits on a white card,
 // the pressed yellow button for the one action and ghost buttons for the rest. What each part says and sends is
 // PeopleOnPhone.test's; this proves the dress and the face.
@@ -28,7 +28,7 @@ function row(bond: string, id: string): HTMLElement {
   return found;
 }
 
-describe("a bond in the lively dress", () => {
+describe("a bond in the game's look", () => {
   test("[person:view-shows-people] given a computer partner courted, when the head's stage row opens, then the facts stand under the person's face sticker, picked from their name, each fact a sticker chip", async () => {
     const game = peopleGame();
     const bond = courted(game, DELE);
@@ -68,24 +68,24 @@ describe("a bond in the lively dress", () => {
     game.accept({ type: "people/proposal", pair: "pair-1", proposal: { step: "partner", route: null, lead: null } }, "authority");
     await renderWithGame(offline(<Head id={bond} />), game);
     const pending = row(bond, "pending").querySelector<HTMLElement>("[data-bond-pending]");
-    expect(pending?.className).toContain("lively-card");
+    expect(pending?.className).toContain("look-card");
     expect([...(pending?.querySelectorAll("[data-press-button]") ?? [])].map((button) => button.textContent)).toEqual([say("ui.people.answer.yes")]);
     expect(within(pending as HTMLElement).getByRole("button", { name: say("ui.people.answer.no") }).className).toContain("phone-ghost");
     const end = row(bond, "end").querySelector<HTMLElement>("[data-bond-end]");
-    expect(end?.className).toContain("lively-card");
+    expect(end?.className).toContain("look-card");
     expect(end?.querySelectorAll("[data-press-button]")).toHaveLength(0);
     for (const button of within(end as HTMLElement).getAllByRole("button")) expect(button.className).toContain("phone-ghost");
   });
 
-  test("[person:view-shows-people] given the People row, when a computer sibling and a parent show, then each slot is a lively card with the person's face sticker, and the quiet mark is a sticker chip", async () => {
+  test("[person:view-shows-people] given the People row, when a computer sibling and a parent show, then each slot is a look card with the person's face sticker, and the quiet mark is a sticker chip", async () => {
     const game = peopleGame();
     if (game.state.turn.banked === 0) game.grant(1);
     game.endTurn([]);
     await renderWithGame(offline(<PeopleSlots api={null} />), game);
     const mother = document.querySelector<HTMLElement>('[data-slot="mother"]');
-    expect(mother?.className).toContain("lively-card");
+    expect(mother?.className).toContain("look-card");
     const sibling = document.querySelector<HTMLElement>('[data-slot^="sibling-"][data-state="computer"]');
-    expect(sibling?.className).toContain("lively-card");
+    expect(sibling?.className).toContain("look-card");
     expect(sibling?.querySelector("[data-face-sticker]")).not.toBeNull();
     expect(sibling?.querySelector("[data-mark-label='computer'] [data-sticker-chip]")).not.toBeNull();
   });

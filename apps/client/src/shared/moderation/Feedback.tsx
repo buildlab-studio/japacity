@@ -121,7 +121,7 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
       {standing.actions.length === 0 ? null : (
         <ul className="flex flex-col gap-3">
           {standing.actions.map((action) => (
-            <li key={action.entry} className="lively-card flex flex-col gap-2 p-3.5">
+            <li key={action.entry} className="look-card flex flex-col gap-2 p-3.5">
               <p>{actionWords(action)}</p>
               {action.appeal === null ? (
                 <>

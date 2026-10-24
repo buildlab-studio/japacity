@@ -246,7 +246,7 @@ export const routeText: Record<string, string> = {
   "line.route.withdrawn": "Your application for {route} was withdrawn. The fee was not returned.",
 
   // The visa appointment and its reminders (world:phone-holds-what-phones-hold, story/story.notice.data.ts).
-  // {month} is the decision month, told as months away (world:top-band-is-lively-pill).
+  // {month} is the decision month, told as months away (world:top-band-is-a-pill).
   "route.uk-masters.reminder.appointment": "Visa appointment: take the file from under the bed, then go.",
   "route.uk-masters.reminder.interview": "Your interview is now. The officer will see you.",
   "route.uk-masters.reminder.decision": "Visa decision expected {month}.",

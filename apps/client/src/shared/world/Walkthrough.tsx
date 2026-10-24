@@ -4,7 +4,7 @@
 // are, that it has played.
 import { useEffect, useState } from "react";
 
-import { CentredColumn } from "../ui/lively/CentredColumn";
+import { CentredColumn } from "../ui/look/CentredColumn";
 import { say } from "../words/text";
 import { browserStorage, WALK_KEY } from "../storage/storage";
 

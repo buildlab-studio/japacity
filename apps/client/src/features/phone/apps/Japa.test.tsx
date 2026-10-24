@@ -1,6 +1,6 @@
 // The official page from the phone (advice:official-page-shows-checklist): Japa offers it whenever it
 // can be read, a route only heard of included, says it is free, and plans it; and the
-// papers' dates read as months away (world:top-band-is-lively-pill).
+// papers' dates read as months away (world:top-band-is-a-pill).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
@@ -67,7 +67,7 @@ describe("the official page in Japa", () => {
     expect(screen.queryByText(say("ui.world.full"))).toBeNull();
   });
 
-  test("[world:top-band-is-lively-pill] given a held paper that runs out, when the Papers app opens, then it says how long it is valid, with no month number", async () => {
+  test("[world:top-band-is-a-pill] given a held paper that runs out, when the Papers app opens, then it says how long it is valid, with no month number", async () => {
     // The papers are an app of their own, not a screen inside Japa.
     const view = richView();
     const held = view.documents.find((paper) => paper.state === "held" && paper.expiresMonth !== null);
@@ -82,7 +82,7 @@ describe("the official page in Japa", () => {
 });
 
 describe("Japa's reminders, from the one coming list", () => {
-  test("[world:top-band-is-lively-pill] [world:phone-holds-what-phones-hold] [text:show-then-tell] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, each a few words with when said once, and no ask, birthday or past date", () => {
+  test("[world:top-band-is-a-pill] [world:phone-holds-what-phones-hold] [text:show-then-tell] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, each a few words with when said once, and no ask, birthday or past date", () => {
     const base = richView();
     const view: PlayerView = {
       ...base,

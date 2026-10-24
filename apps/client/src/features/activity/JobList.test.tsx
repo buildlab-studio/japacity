@@ -158,7 +158,7 @@ describe("the jobs list as picture cards", () => {
       // chosen).
       expect(row.querySelector("input")).toBeNull();
       expect(row.querySelector("[data-tile]")?.getAttribute("data-tile")).toBe(row.getAttribute("data-job"));
-      const card = row.querySelector("[data-picked], .lively-card");
+      const card = row.querySelector("[data-picked], .look-card");
       expect(card?.className.includes("phone-picked")).toBe(row.getAttribute("aria-checked") === "true");
     }
     expect(rows.filter((row) => row.querySelector(".phone-picked") !== null)).toHaveLength(1);

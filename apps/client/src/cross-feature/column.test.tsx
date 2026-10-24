@@ -1,4 +1,4 @@
-// The centred column on a laptop (docs/design/09-the-lively-layer.md, section 2): the band and its nudge, the thumbs and
+// The centred column on a laptop (docs/design/09-the-games-look.md, section 2): the band and its nudge, the thumbs and
 // their first labels, the corner's toasts, the teaching cards and the phone's frame each stand in it, so on a wide
 // screen they sit in the middle with the world around them.
 import { act, render } from "@testing-library/react";
@@ -24,7 +24,7 @@ function inColumn(selector: string): boolean {
 }
 
 describe("the centred column", () => {
-  test("[world:top-band-is-lively-pill] given the band with its nudge under it, when it draws, then both stand in the column", () => {
+  test("[world:top-band-is-a-pill] given the band with its nudge under it, when it draws, then both stand in the column", () => {
     render(<TopBand when="23 yrs" name="The family house" money={0} formatMoney={String} more={<Nudge nudge={{ key: "ui.world.whole" }} />} />);
     expect(inColumn("[data-band] > *")).toBe(true);
     expect(inColumn("[data-nudge]")).toBe(true);

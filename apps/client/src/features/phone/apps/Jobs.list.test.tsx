@@ -1,4 +1,4 @@
-// The offers in Jobs in the lively dress (world:phone-rises-over-scene, world:colours-are-role-tokens): each offer a
+// The offers in Jobs in the game's look (world:phone-rises-over-scene, world:colours-are-role-tokens): each offer a
 // card with its picture, no radio circle, the offer picked ringed in yellow, and one yellow button at the foot that
 // repeats the pick.
 import { content } from "@japacity/content";
@@ -44,7 +44,7 @@ describe("the offers in Jobs", () => {
     expect(document.querySelector("[data-job-offers] input")).toBeNull();
     expect(rows().map((row) => row.getAttribute("aria-checked"))).toEqual(["true", "false"]);
     // A card each, the picked one ringed, never a hairline row filled with the pick colour.
-    const card = (row: HTMLElement): HTMLElement | null => row.querySelector("[data-lively-card]");
+    const card = (row: HTMLElement): HTMLElement | null => row.querySelector("[data-look-card]");
     expect(rows().map((row) => card(row)?.getAttribute("data-picked") ?? null)).toEqual(["true", null]);
     expect(card(rows()[0]!)?.className).toContain("phone-picked");
     expect(card(rows()[1]!)?.className).not.toContain("phone-picked");

@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { Tile } from "../../../shared/tiles/Tile";
-import { Face } from "../../../shared/ui/lively/Face";
+import { Face } from "../../../shared/ui/look/Face";
 import { type Brief, briefDots, TUCK_MS, TUCK_SLIDE_MS } from "./brief";
 
 /** How the chip stands: just handed and tucking into the phone, at the step's place, or a thing just done. */

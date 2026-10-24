@@ -1,4 +1,4 @@
-// The lively layer's preview (development only, `?lively` at the boot; decision 0025): every primitive in both paints,
+// The preview of the game's look (development only, `?look` at the boot; decision 0025): every primitive in both paints,
 // side by side on a laptop and one after the other on a phone, with sample words in the game's voice. Each paint is a
 // panel carrying data-paint, so the night's tokens hold inside it whatever the clock says. A tap on the motion and sound
 // chips plays each answer. Nothing here is shown to a player.
@@ -7,17 +7,17 @@ import { useEffect, useRef, useState } from "react";
 import { type Cue, cue } from "../../sound/cues";
 import type { Paint } from "../../world/paint";
 import { Face } from "./Face";
-import { LivelyCard } from "./LivelyCard";
-import { LivelySheet } from "./LivelySheet";
+import { LookCard } from "./LookCard";
+import { LookSheet } from "./LookSheet";
 import { Pill } from "./Pill";
 import { PressButton } from "./PressButton";
 import { Sticker } from "./Sticker";
 import { StickerChip } from "./StickerChip";
 import type { Tint } from "./tint";
 
-export function LivelyPreview() {
+export function LookPreview() {
   return (
-    <main className="min-h-dvh bg-device p-3 font-sans lg:p-5" data-lively-preview>
+    <main className="min-h-dvh bg-device p-3 font-sans lg:p-5" data-look-preview>
       <div className="mx-auto grid max-w-[1200px] gap-3 lg:grid-cols-2 lg:gap-5">
         <PaintPanel paint="day" />
         <PaintPanel paint="night" />
@@ -44,7 +44,7 @@ function Price({ price, before, after }: { price: string; before?: string; after
 
 function PreviewCard({ emoji, alt, tint, title, line, chips, price, before, after }: { emoji: string; alt: string; tint: Tint; title: string; line: string; chips: readonly { words: string; tint?: Tint }[]; price: string; before?: string; after?: string }) {
   return (
-    <LivelyCard className="press flex flex-col gap-1.5 p-2.5">
+    <LookCard className="press flex flex-col gap-1.5 p-2.5">
       <div className="flex h-[76px] items-center justify-center rounded-[14px] bg-tint-plain">
         <Sticker emoji={emoji} alt={alt} size={42} tint={tint} />
       </div>
@@ -58,7 +58,7 @@ function PreviewCard({ emoji, alt, tint, title, line, chips, price, before, afte
         ))}
       </div>
       <Price price={price} {...(before === undefined ? {} : { before })} {...(after === undefined ? {} : { after })} />
-    </LivelyCard>
+    </LookCard>
   );
 }
 
@@ -161,24 +161,24 @@ function PaintPanel({ paint }: { paint: Paint }) {
       {/* The sheet's stage: a box of world that holds the sheet as its containing block, so the sheet rises in it. */}
       <div ref={stage} className="relative h-[340px] overflow-hidden rounded-[20px] bg-strong-2 [transform:translateZ(0)]" data-preview-stage>
         {ready ? (
-          <LivelySheet open onOpenChange={() => undefined} container={stage} title="The cooking corner" line="Two burners. One works properly." picture={<Sticker emoji="🍳" alt="The cooking corner" size={42} />}>
+          <LookSheet open onOpenChange={() => undefined} container={stage} title="The cooking corner" line="Two burners. One works properly." picture={<Sticker emoji="🍳" alt="The cooking corner" size={42} />}>
             <div className="grid grid-cols-2 gap-2.5">
-              <LivelyCard className="flex items-center gap-2 p-2">
+              <LookCard className="flex items-center gap-2 p-2">
                 <Sticker emoji="🍜" alt="Indomie and egg" size={30} tint="food" />
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-bold">Indomie and egg</p>
                   <p className="num text-chip text-text-2">₦1,500</p>
                 </div>
-              </LivelyCard>
-              <LivelyCard className="flex items-center gap-2 p-2">
+              </LookCard>
+              <LookCard className="flex items-center gap-2 p-2">
                 <Sticker emoji="🧽" alt="Wash up" size={30} tint="body" tilt={5} />
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-bold">Wash up</p>
                   <p className="text-chip text-text-2">Free</p>
                 </div>
-              </LivelyCard>
+              </LookCard>
             </div>
-          </LivelySheet>
+          </LookSheet>
         ) : null}
       </div>
     </section>

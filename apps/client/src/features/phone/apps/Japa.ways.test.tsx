@@ -48,7 +48,7 @@ describe("the ways out in Japa", () => {
     expect(screen.queryByText(/1 times/)).toBeNull();
     expect(screen.getByText(say("ui.refusal.funds"))).toBeDefined();
     expect(screen.getByText(nameOf("school.northgate"))).toBeDefined();
-    // The answer's month as months away (world:top-band-is-lively-pill): the school answers as month 13 ends.
+    // The answer's month as months away (world:top-band-is-a-pill): the school answers as month 13 ends.
     expect(screen.getByText(say("phone.japa.school.pending", { when: byMonths(13, richView().month) }))).toBeDefined();
     expect(document.querySelector("[data-way-file]")?.textContent).not.toMatch(/month \d+/i);
   });

@@ -658,7 +658,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
-  // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-lively-pill).
+  // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-a-pill).
   const calendar = page.locator("[data-app-screen='calendar']");
   log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
   if (await tap(run, page.locator("[data-band] [data-band-month]"), "the band's month")) {

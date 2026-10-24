@@ -1,4 +1,4 @@
-// The fan's acts as a small sheet (docs/design/09-the-lively-layer.md section 3; world:fan-of-sticker-buttons): when the free side
+// The fan's acts as a small sheet (docs/design/09-the-games-look.md section 3; world:fan-of-sticker-buttons): when the free side
 // of the screen cannot hold a thing's fan, or its acts are a long list, the same buttons open as a sheet of sticker cards,
 // each the tap the fan's button is: the same picture, the same name, the same price pill or refusal, the same act on
 // arrival. A thing whose acts are all the simulation's own opens their activity sheet instead (City's fallback).
@@ -6,9 +6,9 @@ import { useState } from "react";
 
 import { cue } from "../../../shared/sound/cues";
 import { Tile } from "../../../shared/tiles/Tile";
-import { LivelySheet } from "../../../shared/ui/lively/LivelySheet";
-import { Sticker } from "../../../shared/ui/lively/Sticker";
-import { TINTS } from "../../../shared/ui/lively/tint";
+import { LookSheet } from "../../../shared/ui/look/LookSheet";
+import { Sticker } from "../../../shared/ui/look/Sticker";
+import { TINTS } from "../../../shared/ui/look/tint";
 import { say } from "../../../shared/words/text";
 import type { FanEntry } from "./fanActs";
 import "./fan.css";
@@ -36,7 +36,7 @@ export function FanSheet({ thing, title, entries, onAct, onClose, going = null }
     onAct(entry);
   };
   return (
-    <LivelySheet open onOpenChange={(open) => (open ? undefined : onClose())} title={title}>
+    <LookSheet open onOpenChange={(open) => (open ? undefined : onClose())} title={title}>
       <ul className="flex flex-col gap-2.5" data-fan-sheet={thing}>
         {entries.map((entry, index) => (
           <li key={entry.id} data-fan-act={entry.id} data-fan-from={entry.from} data-fan-kind={entry.kind} {...(entry.refusal === null ? {} : { "data-fan-refused": entry.refusal.kind })} {...(going === entry.id ? { "data-fan-going": "" } : {})}>
@@ -46,7 +46,7 @@ export function FanSheet({ thing, title, entries, onAct, onClose, going = null }
               onClick={() => tap(entry)}
               aria-label={entry.refusal !== null || entry.price !== null || entry.free === true ? `${entry.name}: ${entry.refusal?.words ?? entry.price ?? say("ui.world.free")}` : (entry.label ?? entry.name)}
               {...(entry.refusal === null ? {} : { "aria-disabled": true })}
-              className={`lively-card flex w-full items-center gap-3 p-2.5 text-left active:translate-y-px ${shaking?.id === entry.id ? "fan-shake" : ""}`}
+              className={`look-card flex w-full items-center gap-3 p-2.5 text-left active:translate-y-px ${shaking?.id === entry.id ? "fan-shake" : ""}`}
             >
               <span className={`inline-flex size-14 shrink-0 items-center justify-center rounded-[16px] ${TINTS[entry.tint]}`} aria-hidden>
                 <Sticker alt={entry.name} tilt={index % 2 === 0 ? -4 : 4}>
@@ -67,6 +67,6 @@ export function FanSheet({ thing, title, entries, onAct, onClose, going = null }
           </li>
         ))}
       </ul>
-    </LivelySheet>
+    </LookSheet>
   );
 }

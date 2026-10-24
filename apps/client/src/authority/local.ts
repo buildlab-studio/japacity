@@ -52,7 +52,7 @@ export interface LocalAuthority extends Authority {
    * The client shows them on the lock screen and tells their lines.
    */
   morning(): Envelope[];
-  /** The real time this life began, so the band can name the month of the year the life is in (world:top-band-is-lively-pill). */
+  /** The real time this life began, so the band can name the month of the year the life is in (world:top-band-is-a-pill). */
   beganAt(): number;
   /**
    * account:start-a-new-life: ends this life for good. The save and the person kept beside it are cleared, and nothing is

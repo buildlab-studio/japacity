@@ -1,8 +1,8 @@
 // The invite card (pair:invite-card-contents, pair:invite-link-single-use, person:invite-fills-a-slot): made from the fixed
 // fills, shown as a friend will see it, and taken back with the same command.
 // The card carries the character's name and japacity, never the account's,
-// never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the lively layer's cards
-// (docs/design/09-the-lively-layer.md section 2): a white card with the looking line as a sticker chip, the character's
+// never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the cards of the game's look
+// (docs/design/09-the-games-look.md section 2): a white card with the looking line as a sticker chip, the character's
 // face sticker beside the maker's heading (never on the card, which carries no look to the friend), the pressed yellow
 // button for the one action and a ghost button for taking the card back. Once the link is got it goes on through the
 // device's share sheet, or, where there is none or it fails, onto the clipboard (pair:invite-link-single-use).
@@ -17,9 +17,9 @@ import { rejectionWords } from "../../authority/store";
 import { FaceSticker } from "../../shared/front-door/LookPicture";
 import { lookForName, lookOf } from "../../shared/front-door/looks";
 import { slotKind } from "../../shared/view/person";
-import { GhostButton } from "../../shared/ui/lively/GhostButton";
-import { PressButton } from "../../shared/ui/lively/PressButton";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { GhostButton } from "../../shared/ui/look/GhostButton";
+import { PressButton } from "../../shared/ui/look/PressButton";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { AfterEarlyWin } from "../../shared/ui/stage";
 import { runningName, say, words } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
@@ -60,7 +60,7 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
   const { percent, route } = view.japacity;
   const name = cardName();
   return (
-    <figure className="lively-card flex flex-col gap-1.5 p-4" data-invite-card>
+    <figure className="look-card flex flex-col gap-1.5 p-4" data-invite-card>
       <p className="text-[22px] leading-tight font-bold">{name}</p>
       <p className="text-[14px] leading-snug">
         {percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(percent)}%` })}
@@ -120,7 +120,7 @@ function Link({ api, slot }: { api: PairApi; slot: string }) {
   if (link !== null) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="lively-card flex flex-col gap-1 p-3 text-[14px]" data-invite-link>
+        <div className="look-card flex flex-col gap-1 p-3 text-[14px]" data-invite-link>
           <p className="break-all font-semibold">{say("ui.people.invite.link", { link })}</p>
           <p className="text-text-2">{say("ui.people.invite.link-days", { days: content.tuning.pair.inviteDays })}</p>
         </div>
@@ -192,7 +192,7 @@ export function InviteMaker({ slot }: { slot: string }) {
       <label htmlFor={`${id}-fill`} className="text-[14px] font-bold">
         {say("ui.people.invite.fill")}
       </label>
-      <select id={`${id}-fill`} value={fill} onChange={(event) => setFill(event.target.value)} className="lively-card min-h-12 px-3 text-[16px] font-semibold">
+      <select id={`${id}-fill`} value={fill} onChange={(event) => setFill(event.target.value)} className="look-card min-h-12 px-3 text-[16px] font-semibold">
         <option value="">{say("ui.people.invite.fill.none")}</option>
         {fills.map((value) => (
           <option key={value} value={value}>

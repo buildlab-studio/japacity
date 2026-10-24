@@ -42,7 +42,7 @@ export const documentText: Record<string, string> = {
   "line.document.voided": "Your {document} is no longer valid.",
 
   // The phone's reminders (world:phone-holds-what-phones-hold, story/story.notice.data.ts). {month} is the month
-  // the paper is due, told as months away (world:top-band-is-lively-pill).
+  // the paper is due, told as months away (world:top-band-is-a-pill).
   "document.english-test.reminder.book": "English test: book it. Take your passport from the box first.",
   "document.english-test.reminder.due": "English test: your result comes {month}.",
   "document.tb-certificate.reminder.book": "TB test: take your passport to the clinic.",

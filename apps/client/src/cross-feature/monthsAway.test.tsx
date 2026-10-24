@@ -1,4 +1,4 @@
-// No running month number anywhere a player sees (world:top-band-is-lively-pill): a month the
+// No running month number anywhere a player sees (world:top-band-is-a-pill): a month the
 // simulation stamps into a report line reads as months away from the month in hand, which the
 // game store keeps beside the words while a game is on screen.
 import { text } from "@japacity/content";
@@ -26,7 +26,7 @@ function stampedKeys(): string[] {
 }
 
 describe("months away in the words", () => {
-  test("[world:top-band-is-lively-pill] given a month in hand, when every content line that carries a stamped month is told, then none shows a month number and each says months away", () => {
+  test("[world:top-band-is-a-pill] given a month in hand, when every content line that carries a stamped month is told, then none shows a month number and each says months away", () => {
     const keys = stampedKeys();
     expect(keys.length).toBeGreaterThan(5);
     setNow(7);
@@ -35,7 +35,7 @@ describe("months away in the words", () => {
     expect(told.filter(({ told: line }) => !line.includes(inMonths(9, 7)) && !line.includes(forMonths(9, 7)))).toEqual([]);
   });
 
-  test("[world:top-band-is-lively-pill] given a month in hand, when a stamped month is this month, next month or later, then the line says this month, next month or in so many months", () => {
+  test("[world:top-band-is-a-pill] given a month in hand, when a stamped month is this month, next month or later, then the line says this month, next month or in so many months", () => {
     setNow(4);
     expect(words("line.document.requested", { document: PASSPORT, month: 4 })).toContain("ready this month");
     expect(words("line.document.requested", { document: PASSPORT, month: 5 })).toContain("ready next month");
@@ -43,12 +43,12 @@ describe("months away in the words", () => {
     expect(words("line.credit.judgment", { country: "country.uk", until: 34 })).toContain("for 30 more months");
   });
 
-  test("[world:top-band-is-lively-pill] given no game on screen, when a stamped month is told, then it keeps its number, the month whose end brings it", () => {
+  test("[world:top-band-is-a-pill] given no game on screen, when a stamped month is told, then it keeps its number, the month whose end brings it", () => {
     expect(nowMonth()).toBeNull();
     expect(words("line.document.requested", { document: PASSPORT, month: 5 })).toContain(`in month ${String(monthEnding(5))}`);
   });
 
-  test("[world:top-band-is-lively-pill] [world:month-end-results-sheet] given a passport requested, when the month ends and News opens, then its line says when it is ready as months away, with no month number", async () => {
+  test("[world:top-band-is-a-pill] [world:month-end-results-sheet] given a passport requested, when the month ends and News opens, then its line says when it is ready as months away, with no month number", async () => {
     localStorage.clear();
     reloadSeen();
     const game = newGame("scenario.graduate");

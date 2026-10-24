@@ -5,7 +5,7 @@
 import { StartHook } from "../../shared/front-door/Hook";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { Trouble } from "../../authority/store";
-import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
+import { SheetColumn } from "../../shared/ui/look/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Loader } from "../../shared/ui/Loader";
 import { TroubleFace } from "../../shared/ui/Trouble";

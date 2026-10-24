@@ -49,9 +49,9 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
   return (
     <SheetFrame open={open} onClose={onClose} className="motion-sink" {...(mark === undefined ? {} : { attributes: { "data-world-sheet": mark } })}>
       <SheetClose.Provider value={onClose}>
-        {/* The lively sheet (docs/design/09-the-lively-layer.md section 2): the sheet's pale sky, a 26 px top, the handle,
+        {/* The sheet of the game's look (docs/design/09-the-games-look.md section 2): the sheet's pale sky, a 26 px top, the handle,
             a title of a few words over a small line, in the centred column on a laptop; navy at night. */}
-        <div className="rise mx-auto flex max-h-[min(86dvh,700px)] w-full max-w-[430px] flex-col overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-lively-frame>
+        <div className="rise mx-auto flex max-h-[min(86dvh,700px)] w-full max-w-[430px] flex-col overflow-hidden rounded-t-[26px] bg-sheet text-text shadow-[0_-10px_30px_rgba(0,0,0,0.22)]" data-look-frame>
           <div className={`relative shrink-0 px-4 pt-1 pr-14 pb-1 transition-opacity duration-200 ease-out ${covered ? "pointer-events-none opacity-0" : ""}`} aria-hidden={covered || undefined} data-world-sheet-head={covered ? "covered" : "shown"}>
             <SheetHandle className="-mr-10 mb-1" />
             <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{label}</Dialog.Description>

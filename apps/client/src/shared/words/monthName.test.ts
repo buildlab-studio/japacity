@@ -1,4 +1,4 @@
-// The month's name the band carries (world:top-band-is-lively-pill; decision 0011): month 0 of a life is the month of
+// The month's name the band carries (world:top-band-is-a-pill; decision 0011): month 0 of a life is the month of
 // the year it began in, in Lagos. The month's phase by its free time spent, read where it is needed, and the
 // world's part of the day the band says beside the name (clock:game-day-on-real-time), in words only.
 import { describe, expect, test } from "vitest";
@@ -9,7 +9,7 @@ import { dayPartWords, monthIndexOf, monthNameOf, phaseOf } from "./monthName";
 const MARCH = Date.UTC(2026, 2, 15, 11);
 
 describe("the month's name", () => {
-  test("[world:top-band-is-lively-pill] given a life begun in March, when the month's name is read at months 0, 1 and 10, then it is March, April and January, and the year turns over after December", () => {
+  test("[world:top-band-is-a-pill] given a life begun in March, when the month's name is read at months 0, 1 and 10, then it is March, April and January, and the year turns over after December", () => {
     expect(monthNameOf(MARCH, 0)).toBe("March");
     expect(monthNameOf(MARCH, 1)).toBe("April");
     expect(monthNameOf(MARCH, 10)).toBe("January");
@@ -17,11 +17,11 @@ describe("the month's name", () => {
     expect([monthIndexOf(MARCH, 22), monthIndexOf(MARCH, 23)]).toEqual([0, 1]);
   });
 
-  test("[world:top-band-is-lively-pill] given a life begun at half past eleven at night on the last day of March by the world's clock, when the month's name is read, then it is April: the month is Lagos's", () => {
+  test("[world:top-band-is-a-pill] given a life begun at half past eleven at night on the last day of March by the world's clock, when the month's name is read, then it is April: the month is Lagos's", () => {
     expect(monthNameOf(Date.UTC(2026, 2, 31, 23, 30), 0)).toBe("April");
   });
 
-  test("[world:top-band-is-lively-pill] given every month of the year, then each has its name in words, none a key or a number", () => {
+  test("[world:top-band-is-a-pill] given every month of the year, then each has its name in words, none a key or a number", () => {
     const names = Array.from({ length: 12 }, (_, month) => monthNameOf(Date.UTC(2026, 0, 15, 11), month));
     expect(names).toEqual(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]);
   });

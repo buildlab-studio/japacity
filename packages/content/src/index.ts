@@ -82,7 +82,7 @@ import { uiBoardsText } from "./ui/ui.boards.text";
 import { uiColoursText } from "./ui/ui.colours.text";
 import { uiDaysText } from "./ui/ui.days.text";
 import { uiJobsText } from "./ui/ui.jobs.text";
-import { uiLivelyText } from "./ui/ui.lively.text";
+import { uiLookText } from "./ui/ui.look.text";
 import { uiLotteryText } from "./ui/ui.lottery.text";
 import { uiOnlineText } from "./ui/ui.online.text";
 import { uiPersonText } from "./ui/ui.person.text";
@@ -238,7 +238,7 @@ export const textTables: Record<string, Record<string, string>> = {
   uiColours: uiColoursText,
   uiDays: uiDaysText,
   uiJobs: uiJobsText,
-  uiLively: uiLivelyText,
+  uiLook: uiLookText,
   uiLottery: uiLotteryText,
   uiOnline: uiOnlineText,
   uiPerson: uiPersonText,
@@ -286,7 +286,7 @@ export {
   uiColoursText,
   uiDaysText,
   uiJobsText,
-  uiLivelyText,
+  uiLookText,
   uiLotteryText,
   uiMapText,
   uiModerationText,

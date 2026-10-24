@@ -1,6 +1,6 @@
 // The front of News on the phone (news:stages-move-forward-only, news:changed-stages-delivered-once; director:one-era-at-a-time; lottery.md
 // lottery:draw-result-on-front-page), each assertion against the News app: the era with its months, the last Friday draw, the empty line, the stories and
-// where each was heard. The era's months are said as months ago and from now, never a month's number (world:top-band-is-lively-pill).
+// where each was heard. The era's months are said as months ago and from now, never a month's number (world:top-band-is-a-pill).
 import { content, text } from "@japacity/content";
 import type { LotteryResult, PlayerView } from "@japacity/sim";
 import { screen } from "@testing-library/react";
