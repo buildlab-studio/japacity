@@ -322,9 +322,8 @@ describe("cash work", () => {
         tuning: { ...used.tuning, ladder: { ...used.tuning.ladder, cashDetectBp } },
       });
       const game = holding(OVERSTAYER, job, { change });
-      // status:grace-before-overstaying: the grace month draws nothing; the month after it is the overstay.
+      // status:grace-before-overstaying: the month the status is granted is the UK's one month of grace; the month after it is the overstay.
       game.grant(game.content.tuning.turn.cap);
-      game.endTurn();
       return game.endTurn().events.some((event) => event.type === "status/noticed");
     };
     expect(tuning.ladder.cashDetectBp).toBe(100);

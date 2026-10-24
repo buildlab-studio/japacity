@@ -148,7 +148,8 @@ describe("the way home the view forecasts", () => {
     const game = flown(content, { change: quiet });
     game.accept({ type: "return/home" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: UAE }, { type: "status/grant", status: UAE_IRREGULAR }]);
-    playMonths(game, 2);
+    // status:grace-before-overstaying: the month of the grant is the UAE's one month of grace; the fine grows from the month after it.
+    playMonths(game, 1);
     const fine = entryOf(UAE_IRREGULAR).finePerMonth!;
     const fare = content.country[UAE]!.fare;
     expect(game.view().place.wayHome).toMatchObject({ fare: { currency: "AED", amount: fare + fine }, fine: { currency: "AED", amount: fine }, banMonths: 12, scheme: null });

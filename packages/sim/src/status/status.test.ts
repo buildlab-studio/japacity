@@ -190,7 +190,8 @@ describe("the overstayer", () => {
   test("[status:overstayer-risks-detection] [status:removal-sends-home-banned] given an overstayer certain to be found, when months end, then detection gives a notice and never removes at once; at the notice's end the character is home with the removal on record", () => {
     const game = flown(content, { change: sure });
     applyEffects(game, [{ type: "status/lose" }]);
-    playMonths(game, 2);
+    // status:grace-before-overstaying: the lapse's month is the UK's one month of grace; its end is the overstay's first draw.
+    playMonths(game, 1);
     expect(game.state.status.removals).toEqual([]);
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY });
     const until = current(game).overstay?.noticeUntil ?? 0;
@@ -214,12 +215,11 @@ describe("the overstayer", () => {
     expect(current(game).entry).toBe(OVERSTAYER);
   });
 
-  test("[status:overstayer-risks-detection] [status:grace-before-overstaying] given an overstayer at the real chance, when months pass, then the grace month draws nothing on the status stream and the month after it draws once for detection, then once for the landlord's check", () => {
+  test("[status:overstayer-risks-detection] [status:grace-before-overstaying] given an overstayer at the real chance, when the lapse's month, the UK's one month of grace, ends, then the month after it draws once for detection, then once for the landlord's check", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/lose" }]);
+    expect(entryOf(OVERSTAYER).graceMonths).toBe(1);
     const before = game.state.draws.status ?? 0;
-    game.endTurn();
-    expect((game.state.draws.status ?? 0) - before).toBe(0);
     game.endTurn();
     expect((game.state.draws.status ?? 0) - before).toBe(2);
   });

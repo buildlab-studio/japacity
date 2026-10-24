@@ -15,7 +15,7 @@ import { readOf } from "../testing/read";
 import type { LifeOptions } from "../testing/route.journey";
 import { answerFirst, applyEffects } from "../testing/route.journey";
 import { officialRates } from "../wallet/wallet.rates";
-import { workAllows } from "./status.logic";
+import { inGrace, workAllows } from "./status.logic";
 import { CANADA_COUNTRY, ITALY, OVERSTAYER, STUDENT, UAE, UK_COUNTRY, WELLBEING } from "../testing/ids";
 
 const CANADA_OVERSTAYER: Id<"status"> = "status.canada-overstayer";
@@ -76,21 +76,20 @@ function overstayerIn(country: Id<"country">, status: Id<"status">, options: Lif
 }
 
 describe("the grace", () => {
-  test("[status:grace-before-overstaying] given a UK lapse with detection certain, when the grace month ends, then nothing is drawn on the status stream; the month after the grace, detection is drawn", () => {
+  test("[status:grace-before-overstaying] given a UK lapse with detection certain, when the lapse's month is played, then it is the grace's one month: its end draws detection and gives a notice", () => {
     const game = lapsed({ change: SURE });
     const since = game.state.turn.month;
-    expect(overstay(game)).toEqual({ since, graceUntil: since + entryOf(OVERSTAYER).graceMonths!, noticeUntil: null, fine: 0 });
+    expect(overstay(game)).toEqual({ since, graceUntil: since + entryOf(OVERSTAYER).graceMonths! - 1, noticeUntil: null, fine: 0 });
+    expect(inGrace(readOf(game))).toBe(true);
     const draws = statusDraws(game);
     month(game);
     expect(game.state.turn.month).toBe(since + 1);
-    expect(statusDraws(game)).toBe(draws);
-    expect(overstay(game).noticeUntil).toBeNull();
-    month(game);
+    expect(inGrace(readOf(game))).toBe(false);
     expect(statusDraws(game)).toBeGreaterThan(draws);
     expect(overstay(game).noticeUntil).not.toBeNull();
   });
 
-  test("[status:grace-before-overstaying] given each country's overstayer status, when it is granted, then its grace runs its months from that month: the UK 1, Canada 3, the UAE 1, Italy none", () => {
+  test("[status:grace-before-overstaying] given each country's overstayer status, when it is granted, then its grace ends after its months counted from that month, the lapse's month the first: the UK 1, Canada 3, the UAE 1, Italy none", () => {
     expect([OVERSTAYER, CANADA_OVERSTAYER, UAE_IRREGULAR, EU_IRREGULAR].map((id) => entryOf(id).graceMonths)).toEqual([1, 3, 1, 0]);
     for (const [country, status] of [
       [CANADA_COUNTRY, CANADA_OVERSTAYER],
@@ -99,8 +98,44 @@ describe("the grace", () => {
     ] as const) {
       const game = overstayerIn(country, status);
       const since = game.state.turn.month;
-      expect(overstay(game)).toEqual({ since, graceUntil: since + entryOf(status).graceMonths!, noticeUntil: null, fine: 0 });
+      expect(overstay(game)).toEqual({ since, graceUntil: since + entryOf(status).graceMonths! - 1, noticeUntil: null, fine: 0 });
     }
+  });
+
+  test("[status:grace-before-overstaying] given Canada's lapse with detection certain, when months are played, then its three months from the lapse's are drawn on by nothing, and the month after them draws detection", () => {
+    const sure = (used: Content): Content => ({ ...used, status: { ...used.status, [CANADA_OVERSTAYER]: { ...used.status[CANADA_OVERSTAYER]!, detectBp: 10000 } } });
+    const game = overstayerIn(CANADA_COUNTRY, CANADA_OVERSTAYER, { change: sure });
+    const draws = statusDraws(game);
+    for (let played = 1; played < entryOf(CANADA_OVERSTAYER).graceMonths!; played += 1) {
+      month(game);
+      expect(statusDraws(game)).toBe(draws);
+    }
+    month(game);
+    expect(statusDraws(game)).toBeGreaterThan(draws);
+    expect(overstay(game).noticeUntil).not.toBeNull();
+  });
+
+  test("[status:grace-before-overstaying] given each country's overstayer status, when its months are played from the month it is granted, then the months played in the grace are its graceMonths: the UK 1, Canada 3, the UAE 1, Italy none", () => {
+    const NO_DETECTION = (used: Content): Content => ({
+      ...used,
+      status: Object.fromEntries(Object.entries(used.status).map(([id, entry]) => [id, { ...entry, detectBp: 0 }])),
+    });
+    const played: number[] = [];
+    for (const [country, status] of [
+      [UK_COUNTRY, OVERSTAYER],
+      [CANADA_COUNTRY, CANADA_OVERSTAYER],
+      [UAE, UAE_IRREGULAR],
+      [ITALY, EU_IRREGULAR],
+    ] as const) {
+      const game = overstayerIn(country, status, { change: NO_DETECTION });
+      let inside = 0;
+      for (let month_ = 0; month_ < 6; month_ += 1) {
+        if (inGrace(readOf(game))) inside += 1;
+        month(game);
+      }
+      played.push(inside);
+    }
+    expect(played).toEqual([1, 3, 1, 0]);
   });
 
   test("[status:grace-before-overstaying] given Italy's irregular status, which has no grace, when the month after the arrival ends with detection certain, then a notice is given at once", () => {
@@ -119,8 +154,6 @@ describe("what the grace allows", () => {
     expect(workAllows(readOf(game), sponsorJob)).toBe(true);
     expect(workAllows(readOf(game), cashJob)).toBe(true);
     month(game);
-    expect(workAllows(readOf(game), sponsorJob)).toBe(true);
-    month(game);
     expect(workAllows(readOf(game), sponsorJob)).toBe(false);
     expect(workAllows(readOf(game), cashJob)).toBe(true);
   });
@@ -129,8 +162,6 @@ describe("what the grace allows", () => {
     const game = lapsed({ change: NEVER });
     const grace: Requirement = { type: "status/is", statuses: [OVERSTAYER], grace: true };
     const judged = (): boolean => check(readOf(game), grace).met;
-    expect(judged()).toBe(true);
-    month(game);
     expect(judged()).toBe(true);
     month(game);
     expect(judged()).toBe(false);
@@ -142,7 +173,6 @@ describe("what the grace allows", () => {
 describe("detection and the notice", () => {
   test("[status:detection-gives-notice] [status:overstayer-risks-detection] given a UK overstayer past the grace with detection certain, when the month ends, then a notice of three months is told with attention and the character stays", () => {
     const game = lapsed({ change: SURE });
-    month(game);
     const found = month(game);
     const now = game.state.turn.month;
     expect(entryOf(OVERSTAYER).noticeMonths).toBe(3);
@@ -232,7 +262,6 @@ describe("the landlord's check", () => {
   test("[abroad-money:right-to-rent-check] given a UK overstayer past the grace in the shared room with the check certain, when the month ends, then the room ends, the room that asks no papers opens at £840 and wellbeing falls 6, told with attention", () => {
     const game = lapsed({ change: CHECKED });
     applyEffects(game, [{ type: "quality/add", quality: WELLBEING, amount: 50 - (game.state.quality[WELLBEING] ?? 0) }]);
-    month(game);
     const open = (): Id<"obligation">[] => Object.values(game.state.obligation.items).map((item) => item.entry);
     expect(open()).toContain(ROOM_UK);
     const wellbeing = game.state.quality[WELLBEING] ?? 0;
@@ -249,8 +278,8 @@ describe("the landlord's check", () => {
     expect(statusDraws(game) - draws).toBe(1);
   });
 
-  test("[abroad-money:right-to-rent-check] given the check certain, when a month in the grace ends, then nothing is drawn and the room stays", () => {
-    const game = lapsed({ change: CHECKED });
+  test("[abroad-money:right-to-rent-check] given the check certain and a grace of two months, when a month inside the grace ends, then nothing is drawn and the room stays", () => {
+    const game = lapsed({ change: ukOverstayer({ detectBp: 0, rentCheckBp: 10000, graceMonths: 2 }) });
     const draws = statusDraws(game);
     month(game);
     expect(statusDraws(game)).toBe(draws);
@@ -299,7 +328,7 @@ describe("the UAE's fine and the amnesty", () => {
   test("[status:uae-fine-accrues] given the UAE's irregular status, when months pass, then no fine grows in the grace and AED 1,500 grows each month after it", () => {
     expect(perMonth).toBe(150000);
     const game = overstayerIn(UAE, UAE_IRREGULAR, { change: NEVER_UAE });
-    month(game);
+    expect(inGrace(readOf(game))).toBe(true);
     expect(overstay(game).fine).toBe(0);
     month(game);
     expect(overstay(game).fine).toBe(perMonth);
@@ -310,7 +339,6 @@ describe("the UAE's fine and the amnesty", () => {
 
   test("[status:uae-fine-accrues] [place:return-home-paid-or-assisted] given a fine owed and the fare in dirhams, when the character goes home at their own fare, then the fare and the fine are both paid, the fine as `fine`", () => {
     const game = overstayerIn(UAE, UAE_IRREGULAR, { change: NEVER_UAE });
-    month(game);
     month(game);
     const fare = content.country[UAE]!.fare;
     applyEffects(game, [{ type: "money/add", currency: "AED", pocket: "bank", amount: fare + perMonth, reason: "gift" }]);
@@ -323,7 +351,6 @@ describe("the UAE's fine and the amnesty", () => {
 
   test("[status:uae-fine-accrues] [return:return-reopens-home-charges] given a fine owed and nothing to pay the fare, when the assisted return takes the character home, then the fine follows as a debt in naira at the day's official rate", () => {
     const game = overstayerIn(UAE, UAE_IRREGULAR, { change: NEVER_UAE });
-    month(game);
     month(game);
     for (const currency of ["NGN", "GBP", "AED"] as const) {
       const pocket = game.state.wallet.pockets[currency];
@@ -359,11 +386,9 @@ describe("the UAE's fine and the amnesty", () => {
 });
 
 describe("the view", () => {
-  test("[status:view-shows-status] given a UK overstayer, when the view is read through the grace and a notice, then the grace left counts the month in play, 1 in the grace's last month and 0 past it, with the notice left, no fine and nothing pending, and never the detection chance", () => {
+  test("[status:view-shows-status] given a UK overstayer, when the view is read through the grace and a notice, then the grace left counts the month in play, 1 in the grace's one month, the lapse's own, and 0 past it, with the notice left, no fine and nothing pending, and never the detection chance", () => {
     const game = lapsed({ change: SURE });
-    const grace = entryOf(OVERSTAYER).graceMonths!;
-    expect(game.view().status?.overstay).toEqual({ graceLeft: grace + 1, noticeLeft: null, fine: null, pending: false });
-    month(game);
+    expect(entryOf(OVERSTAYER).graceMonths).toBe(1);
     expect(game.state.turn.month).toBe(overstay(game).graceUntil);
     expect(game.view().status?.overstay).toEqual({ graceLeft: 1, noticeLeft: null, fine: null, pending: false });
     month(game);

@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { abroadView } from "../testing/fixtures";
-import { graceView, lastGraceView, noticeGame, overstayingGame } from "../testing/overstay";
+import { graceView, noticeGame, overstayingGame } from "../testing/overstay";
 import { overstayWords } from "./overstay";
 import { say, sayCount } from "./text";
 
@@ -15,8 +15,8 @@ describe("the overstay in words", () => {
   test("[status:grace-before-overstaying] [status:view-shows-status] given the graduate whose visa has just lapsed, when the stage is read, then it says the months of grace left and what can still be applied for from inside", () => {
     const view = graceView();
     const left = view.status?.overstay?.graceLeft ?? 0;
-    // The month the visa was lost counts, as the grace's months after it do.
-    expect(left).toBe(UK.graceMonths! + 1);
+    // The month the visa was lost is the grace's first.
+    expect(left).toBe(UK.graceMonths);
     const said = overstayWords(view);
     expect(said).toMatchObject({ stage: "grace", title: sayCount("ui.status.overstay.grace", left, { months: left }), line: say("ui.status.overstay.grace-line.country.uk") });
     expect(said?.line).toMatch(/sponsor/);
@@ -24,8 +24,8 @@ describe("the overstay in words", () => {
     expect(said?.line).toMatch(/partner/);
   });
 
-  test("[status:grace-before-overstaying] [status:view-shows-status] given the grace's last month, when the stage is read, then it is still the grace with 1 month left, never overstaying", () => {
-    const view = lastGraceView();
+  test("[status:grace-before-overstaying] [status:view-shows-status] given the grace's last month, in the UK the month the visa was lost, when the stage is read, then it is still the grace with 1 month left, never overstaying", () => {
+    const view = graceView();
     expect(view.status?.overstay?.graceLeft).toBe(1);
     const said = overstayWords(view);
     expect(said).toMatchObject({ stage: "grace", title: say("ui.status.overstay.grace.one"), line: say("ui.status.overstay.grace-line.country.uk") });

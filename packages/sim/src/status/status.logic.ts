@@ -140,8 +140,13 @@ export function overstayOf(read: ReadCtx): { entry: StatusEntry; overstay: Overs
   return { entry, overstay: held.overstay ?? freshOverstay(entry, held.grantedMonth) };
 }
 
+/**
+ * status:grace-before-overstaying: the grace is `graceMonths` played months, the lapse's own month the first, so it ends the month before
+ * `since` plus them. A lapse in the `clocks` phase comes after `spend` has moved the month on, so `since` is the month about to be played;
+ * a grace of none ends before it, and Italy's road arrival is past its grace from the month it lands.
+ */
 function freshOverstay(entry: StatusEntry, month: number): OverstayState {
-  return { since: month, graceUntil: month + (entry.graceMonths ?? 0), noticeUntil: null, fine: 0 };
+  return { since: month, graceUntil: month + (entry.graceMonths ?? 0) - 1, noticeUntil: null, fine: 0 };
 }
 
 /** status:grace-before-overstaying: on an overstayer status, through the last month of its grace. */

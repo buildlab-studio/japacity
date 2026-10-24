@@ -29,16 +29,9 @@ function play(game: Game, months: number): void {
   for (let month = 0; month < months; month += 1) game.endTurn([]);
 }
 
-/** In the grace: the month the visa was lost. */
+/** In the grace: the month the visa was lost, the UK's one month of grace and so its last. */
 export function graceView(): PlayerView {
   return lapsedGame().view();
-}
-
-/** The grace's last month: the month after the visa was lost, still in the grace. */
-export function lastGraceView(): PlayerView {
-  const game = lapsedGame();
-  play(game, 1);
-  return game.view();
 }
 
 /** Pounds in the bank for a fare home at any time of year. */
@@ -52,10 +45,10 @@ export function overstayingGame(): Game {
   return game;
 }
 
-/** Past the grace and noticed: a notice before removal, with the fare home in the bank. */
+/** Past the grace and noticed: a notice before removal, given as the grace's month ended, with the fare home in the bank. */
 export function noticeGame(): Game {
   const game = lapsedGame(true);
-  play(game, 2);
+  play(game, 1);
   setPockets(game, FARE_IN_HAND);
   return game;
 }

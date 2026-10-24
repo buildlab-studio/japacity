@@ -45,6 +45,27 @@ describe("the partner route from inside the country", () => {
     expect(game.view().status?.overstay?.pending).toBe(true);
   });
 
+  test("[status:grace-before-overstaying] [status:grace-allows-in-country-applications] given a partner application sent in country in the lapse's month, the UK's one month of grace, when months pass with detection certain, then the grace holds while it waits; after the refusal it ends at that month's end and detection follows", () => {
+    const game = lapsedAndMarried(10000);
+    const since = game.state.turn.month;
+    expect(overstay(game)?.graceUntil).toBe(since);
+    game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
+    const decision = routeOf(game, UK_PARTNER).visa!.decisionMonth;
+    expect(decision).toBeGreaterThan(since + 1);
+    answerInterview(game);
+    scored(game, UK_PARTNER, "fail");
+    while (game.state.turn.month < decision) {
+      playMonths(game, 1);
+      expect(overstay(game)?.noticeUntil).toBeNull();
+      expect(game.view().status?.overstay).toMatchObject({ graceLeft: 1, pending: game.state.turn.month < decision });
+    }
+    expect(routeOf(game, UK_PARTNER).state).toBe("known");
+    expect(overstay(game)?.graceUntil).toBe(decision);
+    playMonths(game, 1);
+    expect(overstay(game)?.graceUntil).toBe(decision);
+    expect(overstay(game)?.noticeUntil).not.toBeNull();
+  });
+
   test("[person:partner-route-in-country] [status:notice-ends-in-removal] [status:detection-gives-notice] given a notice standing and a partner application pending in country, when the notice's month comes, then it holds; after a refusal it ends at the next month's end", () => {
     const game = lapsedAndMarried(10000);
     playMonths(game, 2);
