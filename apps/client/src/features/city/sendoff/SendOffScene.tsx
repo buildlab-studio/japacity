@@ -19,6 +19,7 @@ import { type PlaneCutSlot, sendOff, useSeat, useSendOff } from "../../../shared
 import { formatMoney } from "../../../shared/words/format";
 import { nameOf, say, words } from "../../../shared/words/text";
 import { sendOffWords } from "../sendOff.words";
+import { gateShut } from "./shut";
 import { Counter, Departures, type Dress, Gate, LandingBeat, Plane, Ride, useStageScale } from "./beats";
 import { blindName, castFor, firstPings, flightCost, FRONT_MS, GATE_LINE, landingOf, PLANE_MS, queueLine, speakerName, stopLookFor } from "./plan";
 
@@ -150,15 +151,15 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
         );
       }
       case "gate": {
-        // Held funds still open stop the flight, as on the card (route/depart).
-        const held = view.obligations.some((owed) => content.obligation[owed.entry]?.type === "held-funds");
+        // Held funds still open, or Canada's funds short on the day, stop the flight before the tap (route/depart).
+        const shut = gateShut(view, scene.route);
         return (
           <Gate
             dress={dress}
             city={city}
             papa={{ name: words(`${GATE_LINE}.by`), words: words(GATE_LINE) }}
             board={say("ui.route.depart")}
-            blocked={held ? say("ui.world.depart-held") : null}
+            blocked={shut}
             busy={busy}
             rejection={
               <div className="so-abs" style={{ left: 16, right: 16, bottom: 186, zIndex: 8 }}>

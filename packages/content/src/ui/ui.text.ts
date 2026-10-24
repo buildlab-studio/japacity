@@ -42,6 +42,8 @@ export const uiText: Record<string, string> = {
   "ui.world.now": "Now",
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
+  // route-gates:canada-funds-checked-at-departure: the funds are asked again on the day of the flight.
+  "ui.world.depart-funds": "Canada checks your funds again on the day you fly. You are {amount} short: put the money back first.",
   "ui.inside.hub": "The hub, Yaba",
   "ui.inside.hub.short": "The hub",
   "ui.world.ask-away": "Someone is asking for you at {place}.",
