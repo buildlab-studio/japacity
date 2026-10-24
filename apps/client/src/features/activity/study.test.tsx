@@ -11,11 +11,13 @@ import { englishOf, ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared
 import { ActivityPicker } from "./ActivityView";
 import { studyMonths, studyWords } from "./study";
 
+/** The graduate with this much English and a passport, the plan Canada's pool, whose file asks a band to study toward. */
 function gameWith(english: number) {
   const game = newGame("scenario.graduate");
   viewAfter(game, [
     { type: "quality/add", quality: "quality.english", amount: english - englishOf(game.view()) },
     { type: "document/grant", document: "document.passport" },
+    { type: "route/hear", route: "route.canada-points", via: "meetup" },
   ]);
   return game;
 }

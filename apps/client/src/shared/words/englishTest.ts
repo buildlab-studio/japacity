@@ -99,17 +99,30 @@ export function englishOf(view: { qualities: readonly { id: string; value: numbe
 }
 
 export interface TestChance {
+  /** The chance of `bandNeeded`, which the nudge's long shot reads too. */
   band: ChanceBand;
-  /** "Chance of 6.0: a long shot." */
+  /** "Band 6.0 this sitting: a long shot.", or with no band asked the band alone: "Your band this sitting: about 5.5." */
   words: string;
-  /** "Study first: a month of study lifts the chance." on a long shot, else null. */
+  /** "Study first: a month of study lifts the chance." on a long shot of a band asked, else null. */
   study: string | null;
 }
 
-/** The sit-the-test card's chance of the band the route needs, in the jobs' words, and the advice to study first on a long shot. */
+/** The band a sitting most likely gives from this much English: the middle draw of the noise. */
+export function likelyBand(english: number): number {
+  const bands = possibleBands(english);
+  return bands[int.divFloor(bands.length, 2)] ?? content.tuning.english.min;
+}
+
+/**
+ * The sit-the-test card's chance of the band the route needs, in the jobs' words, and the advice to study first on a long
+ * shot. With no plan, or a plan that asks no band, the sheet says the band a sitting would likely give alone and names no
+ * route's figure (world:one-action-one-sheet), so there is no long shot to study for.
+ */
 export function testChance(view: { qualities: readonly { id: string; value: number }[] } & BandView): TestChance {
   const needed = bandNeeded(view);
-  const band = chanceBand(bandChanceBp(englishOf(view), needed));
+  const english = englishOf(view);
+  const band = chanceBand(bandChanceBp(english, needed));
+  if (bandAsked(view) === null) return { band, words: say("activity.sit-english-test.band-alone", { band: formatBand(likelyBand(english)) }), study: null };
   const chance = say(`jobs.chance.${band}`).toLowerCase();
   return {
     band,

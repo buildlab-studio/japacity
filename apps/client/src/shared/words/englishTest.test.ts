@@ -19,6 +19,12 @@ function graduateWith(english: number, seed = "probe") {
   return { game, view: viewAfter(game, [{ type: "quality/add", quality: "quality.english", amount: english - have }]) };
 }
 
+/** The same life with Canada's pool as the plan, the way whose file asks band 6.0, so the sheet tells the chance of 6.0. */
+function poolPlanWith(english: number) {
+  const { game } = graduateWith(english);
+  return viewAfter(game, [{ type: "route/hear", route: "route.canada-points", via: "meetup" }]);
+}
+
 describe("the English test's chance", () => {
   test("[world:one-action-one-sheet] [route:degree-meets-masters-english] given the band the route asks for, when it is read, then it is the English item of the file that still asks a band, Canada's pool at band 6.0, and the master's file says the degree instead", () => {
     expect(bandNeeded()).toBe(60);
@@ -55,14 +61,15 @@ describe("the English test's chance", () => {
     expect([...seen].some((band) => band < bandNeeded())).toBe(true);
   });
 
-  test("[world:one-action-one-sheet] given English at a long shot, a fair chance and likely, when the card's words are read, then each says the chance of 6.0 in the jobs' words and only the long shot says to study first", () => {
-    const long = testChance(graduateWith(40).view);
+  test("[world:one-action-one-sheet] given Canada's pool as the plan and English at a long shot, a fair chance and likely, when the card's words are read, then each says the chance of 6.0 in the jobs' words and only the long shot says to study first", () => {
+    expect(routeBand("route.canada-points")).toBe(60);
+    const long = testChance(poolPlanWith(40));
     expect(long.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.long").toLowerCase()}.`);
     expect(long.study).toBe("Study first: a month of study lifts the chance.");
-    const fair = testChance(graduateWith(55).view);
+    const fair = testChance(poolPlanWith(55));
     expect(fair.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.fair").toLowerCase()}.`);
     expect(fair.study).toBeNull();
-    const likely = testChance(graduateWith(75).view);
+    const likely = testChance(poolPlanWith(75));
     expect(likely.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.likely").toLowerCase()}.`);
     expect(likely.study).toBeNull();
   });

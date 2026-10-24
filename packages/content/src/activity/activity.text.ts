@@ -57,6 +57,8 @@ export const activityText: Record<string, string> = {
   "activity.sit-english-test.blurb": "You book a date and sit the test. Your band comes in.",
   // world:one-action-one-sheet: the chance of the band the route needs, said before the fee is paid ({chance} is likely, a fair chance or a long shot).
   "activity.sit-english-test.chance": "Band {band} this sitting: {chance}.",
+  // world:one-action-one-sheet: with no plan, or a plan that asks no band, the band a sitting would likely give, and no route's figure.
+  "activity.sit-english-test.band-alone": "Your band this sitting: about {band}.",
   "activity.sit-english-test.study-first": "Study first: a month of study lifts the chance.",
   // When one month of study cannot lift it, the card says how many.
   "activity.sit-english-test.study-months": "Study first: {count} months of study lift the chance.",
