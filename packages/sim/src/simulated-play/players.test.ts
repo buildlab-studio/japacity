@@ -12,9 +12,12 @@ import { runLife } from "./players";
 import { cleanFile } from "./report";
 
 const FIXED: Id<"scenario">[] = ["scenario.graduate", "scenario.banker", "scenario.developer", "scenario.nurse"];
-// Thirty-two careful seeds: under decision 0014 the risky players can pay for an agent's papers from the bank, so their files are not clean, and the clean study decisions come from the careful seeds alone.
+// Thirty-two careful seeds: under decision 0014 the risky players can pay for an agent's papers from the bank, so their files are not clean.
+// A careful player leaves the study route once a settling way is in reach, so most clean study decisions come from players who made the
+// master's the plan.
 const CAREFUL_SEEDS = 32;
 const OTHER_SEEDS = 8;
+const MASTERS_SEEDS = 16;
 const MONTHS = 60;
 
 function runs(strategy: StrategyName, seeds: number): RunRecord[] {
@@ -24,7 +27,7 @@ function runs(strategy: StrategyName, seeds: number): RunRecord[] {
 }
 
 const careful = runs("careful", CAREFUL_SEEDS);
-const others = [...runs("borrower", OTHER_SEEDS), ...runs("risky", OTHER_SEEDS), ...runs("honest-home", 2)];
+const others = [...runs("borrower", OTHER_SEEDS), ...runs("risky", OTHER_SEEDS), ...runs("honest-home", 2), ...runs("careful-masters", MASTERS_SEEDS)];
 
 describe("simulated players to the flight on the real content", () => {
   test.each(FIXED.map((life) => [life] as const))("[route:grant-moves-to-granted] given %s, when the seeds are run, then some strategy reaches a grant", (life: Id<"scenario">) => {

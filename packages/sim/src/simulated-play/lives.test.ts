@@ -25,7 +25,7 @@ describe("the three real lives as golden scripts", () => {
   });
 
   test.each(flights.map((script) => [script.name, script] as const))(
-    "[engine:same-inputs-same-result] [engine:state-is-plain-data] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player, both replays agree month by month, and the save ends on a flight within the recorder's window with the life going on abroad",
+    "[engine:same-inputs-same-result] [engine:state-is-plain-data] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player (the authority only granting turns), both replays agree month by month, and the save ends on a flight within the recorder's window with the life going on abroad",
     (_name, script) => {
       const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);
@@ -44,7 +44,8 @@ describe("the three real lives as golden scripts", () => {
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 
       const saved = savedCommands(script.save);
-      expect(new Set(saved.map((entry) => entry.sender))).toEqual(new Set(["player"]));
+      // A life that flies late runs its bank of turns dry, and the authority grants them, as the abroad recordings carry them.
+      expect(new Set(saved.filter((entry) => entry.sender !== "player").map((entry) => entry.command.type))).toEqual(new Set(saved.some((entry) => entry.sender !== "player") ? ["turns/grant"] : []));
       expect(saved[saved.length - 1]?.command).toEqual(expect.objectContaining({ type: "route/depart", route: "route.uk-masters" }));
       // The master's route flies only with the school's deposit paid (route:visa-application-needs) and the credibility interview answered (route:application-opens-interview).
       const types = new Set(saved.map((entry) => entry.command.type));
