@@ -96,6 +96,7 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0014](0014-naira-moves-as-it-would-in-lagos.md) | Naira is paid and lands as it would in Lagos |
 | [0015](0015-marked-money.md) | Marked money: a top-up is kept apart from money earned |
 | [0016](0016-the-friday-draw.md) | The Friday draw: a kind of its own, fixed odds and a rolling jackpot |
+| [0030](0030-the-ledger-and-the-rejections-name-only-what-a-rule-uses.md) | The ledger and the rejections name only what a rule uses |
 
 ### The city
 
@@ -126,5 +127,5 @@ An accepted record's decision is never edited. A record may have its wording, li
 
 | No. | Decision |
 |---|---|
-| [0025](0025-the-lively-layer.md) | The game's look |
+| [0025](0025-the-games-look.md) | The game's look |
 | [0024](0024-the-japa-type.md) | A life is shared as a japa type, never a score |

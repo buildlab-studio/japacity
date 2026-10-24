@@ -14,7 +14,7 @@ Each page is a design doc in the standard shape set out in [How rules, decisions
 | [06](06-assets-and-visuals.md) | Assets and visuals |
 | [07](07-the-world-first.md) | The world first |
 | [08](08-the-lived-month.md) | The lived month |
-| [09](09-the-lively-layer.md) | The game's look |
+| [09](09-the-games-look.md) | The game's look |
 | [10](10-london.md) | London |
 | [11](11-calgary-dubai-and-castel-volturno.md) | Calgary, Dubai and Castel Volturno |
 | [12](12-overstaying.md) | Overstaying: the grace, the overstay, the notice and the ways out |

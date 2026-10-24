@@ -1,6 +1,6 @@
 # The game's look
 
-**Context and scope.** The look of the interface over the world: its surfaces, type, pictures, the fan of acts, the briefs, how much people say, and how things move and sound. The game is visual and light, never serious and dense. The structures it dresses, the world, the map, the phone and the lived month, are drawn in `07-the-world-first.md` and `08-the-lived-month.md`. Decision record: `../decisions/0025-the-lively-layer.md`. The code is the system and the night paint in `apps/client/src/index.css`, the fan and the brief in `apps/client/src/features/city/fan/` and `brief/`, the cues in `apps/client/src/shared/sound/cues.ts`, and the market and buy mode (decision 0019).
+**Context and scope.** The look of the interface over the world: its surfaces, type, pictures, the fan of acts, the briefs, how much people say, and how things move and sound. The game is visual and light, never serious and dense. The structures it dresses, the world, the map, the phone and the lived month, are drawn in `07-the-world-first.md` and `08-the-lived-month.md`. Decision record: `../decisions/0025-the-games-look.md`. The code is the system and the night paint in `apps/client/src/index.css`, the fan and the brief in `apps/client/src/features/city/fan/` and `brief/`, the cues in `apps/client/src/shared/sound/cues.ts`, and the market and buy mode (decision 0019).
 
 **Goals.**
 

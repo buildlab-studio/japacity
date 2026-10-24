@@ -20,7 +20,7 @@ One file for each kind: `packages/content/src/<kind>/<kind>.text.ts`, a plain ta
 | A chapter | `<id>.title`, `<id>.open`, `<id>.close`, `<id>.item.<item>` | `chapter.send-off.close` |
 | A checklist item | `<route id>.item.<item>` | `route.uk-masters.item.funds` |
 | A report line | `line.<kind>.<what>` | `line.wallet.short-count` |
-| A rejection | `reject.<code>` | `reject.no-turns` |
+| A rejection | `reject.<code>` | `reject.setpiece-open` |
 | A place's name, blurb, signs and talk overheard | `<id>.name`, `<id>.blurb`, `<id>.sign.<n>`, `<id>.overheard.<n>`, in `place/place.text.ts` (city:place-words-are-text-keys) | `place.ojuelegba.sign.1` |
 
 Numbers go in with braces: `"Salary: {amount}"`. The interface formats money, months and bands. The text never contains a currency sign next to a brace.
