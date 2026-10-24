@@ -329,11 +329,14 @@ export function lastRound(sheet: ReviewSheet): Review | null {
   return "scores" in sheet ? sheet : null;
 }
 
-/** 7. An accepted row has a passing review (assets:acceptance-score-thresholds) and, for a landmark, passing outline scores (assets:landmarks-match-reference-outlines). */
+/** A sound is judged by listening, not on the review sheet, whose criteria are all things seen. */
+const SOUND = /\.(?:mp3|opus|ogg|wav)$/;
+
+/** 7. An accepted row has a passing review (assets:acceptance-score-thresholds) and, for a landmark, passing outline scores (assets:landmarks-match-reference-outlines). A sound needs only its approver (assets:ai-media-recorded-and-credited). */
 export function checkAccepted(rows: readonly RegisterRow[], reviews: ReadonlyMap<string, Review | null>, outlines: ReadonlyMap<string, Record<string, { passes: boolean }> | null>, config: ReviewConfig): string[] {
   const problems: string[] = [];
   for (const row of rows) {
-    if (row.status !== "accepted") continue;
+    if (row.status !== "accepted" || SOUND.test(row.file)) continue;
     const review = reviews.get(row.file) ?? null;
     if (review === null) {
       problems.push(`assets:acceptance-score-thresholds: ${row.file} is accepted with no review.json`);

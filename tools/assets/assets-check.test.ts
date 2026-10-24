@@ -300,6 +300,11 @@ describe("acceptance", () => {
     expect(checkAccepted(rows, new Map([["p/building_a.glb", null]]), none, config)[0]).toMatch(/no review.json/);
   });
 
+  test("[assets:acceptance-score-thresholds] given an accepted sound with no review sheet, when acceptance is checked, then it passes, since a sound is approved by listening", () => {
+    const sounds = [row("apps/client/public/voice/officer/greet.mp3", { status: "accepted" }), row("apps/client/public/voice/officer/greet.opus", { status: "accepted" })];
+    expect(checkAccepted(sounds, new Map(), none, config)).toEqual([]);
+  });
+
   test("[assets:landmarks-match-reference-outlines] given an accepted landmark, when its outline scores are missing or one view fails, then acceptance fails", () => {
     const lm = [row("p/landmark_a.glb", { status: "accepted" })];
     const reviews = new Map([["p/landmark_a.glb", review({})]]);
