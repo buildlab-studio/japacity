@@ -24,7 +24,7 @@ export const CHEAP_BAND: Record<BandTrade, [number, number]> = {
   support: [24, 36],
   shop: [18, 30],
   fish: [18, 30],
-  banker: [36, 48],
+  banker: [24, 48],
   accountant: [36, 54],
   developer: [18, 36],
   graduate: [36, 54],
@@ -57,7 +57,7 @@ export const BALANCE_LIVES: BalanceLife[] = [
   { name: "graduate", scenario: "scenario.graduate", preset: null, home: "family-house", band: "graduate", trade: "support", routes: [CANADA] },
   { name: "banker", scenario: "scenario.banker", preset: null, home: "family-house", band: "banker", trade: "bank", routes: [CANADA] },
   { name: "developer", scenario: "scenario.developer", preset: null, home: "family-house", band: "developer", trade: "developer", routes: [CANADA, TALENT] },
-  { name: "accountant", scenario: "scenario.prologue", preset: "accountant", home: "family-house", band: "accountant", trade: "accounting", routes: [CANADA] },
+  { name: "accountant", scenario: "scenario.prologue", preset: "accountant", home: "family-house", band: "accountant", trade: "accounting", routes: [SKILLED, CANADA] },
   { name: "writer", scenario: "scenario.prologue", preset: "writer", home: "family-house", band: "teacher", trade: "teacher", routes: [CANADA, MASTERS], pledgeMasters: true },
   { name: "trader", scenario: "scenario.prologue", preset: "trader", home: "family-house", band: "shop", trade: "shop", routes: [GULF] },
   { name: "shop-worker", scenario: "scenario.prologue", preset: "shop-worker", home: "family-house", band: "shop", trade: "shop", routes: [GULF] },
@@ -82,8 +82,8 @@ export const GOLDEN_WORLD = "golden-world";
  * and whose UK care window, shut at the start in every world, never closes again once opened.
  */
 export const CALM_WORLD = "world-3";
-/** The crash: the steepest pound by month 36 of world-v and world-0 to world-499, about twice as dear (2.08 times). */
-export const CRASH_WORLD = "world-v";
+/** The crash: the steepest pound by month 36 of world-v and world-0 to world-499 whose UAE window stays open through month 36, about twice as dear (1.99 times). */
+export const CRASH_WORLD = "world-99";
 
 const SEEDS = 20;
 const MONTHS = 96;

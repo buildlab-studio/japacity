@@ -33,8 +33,8 @@ Months to the first flight for a careful player who stays in the trade, without 
 | Customer service (the graduate's usual first job) | Remote support for foreign firms at $400 to $600 a month; outsourcing team leads | The Gulf, or Canada once on the dollar rung | 24 to 36 | The skilled worker (the sponsor is the gate) or the master's | 36 to 66 |
 | Shop worker, trader | The Gulf contract; UAE visas for Nigerians resumed on 15 Jul 2024 | The Gulf contract | 18 to 30 | The own stall is the rung; no degree-free formal route is invented | |
 | Fish (the child of the water) | As the shop, with Makoko's savings collectors | The Gulf contract | 18 to 30 | The fish trade at home is the rung | |
-| Banker (`scenario.banker`) | Finance in Express Entry; a UK master's in finance | Canada's points | 36 to 48 | The skilled worker, or the master's with the pledge | 30 to 66 |
-| Accountant (the accountant) | Chartered accountants on Canada's and the UK's lists | Canada's points | 36 to 54 | The skilled worker as a chartered accountant | 30 to 54 |
+| Banker (`scenario.banker`) | Finance in Express Entry; a UK master's in finance | Canada's points | 24 to 48 | The skilled worker, or the master's with the pledge | 30 to 66 |
+| Accountant (the accountant) | Chartered accountants on Canada's and the UK's lists | The skilled worker as a chartered accountant | 36 to 54 | Canada's points: its funds, C$15,263, outrun an accountant's naira pay | 48 to 72 |
 | Developer (`scenario.developer`, the developer) | Remote work in dollars, the UK talent route, Canada | Canada or the talent route once remote | 18 to 36 | The master's or the skilled worker | 24 to 48 |
 | Graduate (`scenario.graduate`) | 30,204 study grants to Nigerian main applicants in 2025 | Canada's points on the customer service ladder | 36 to 54 | The master's with the pledge | 48 to 72 |
 

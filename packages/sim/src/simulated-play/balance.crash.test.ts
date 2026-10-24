@@ -1,5 +1,5 @@
-// The balance targets in a crash (scenario:economy-meets-its-targets, decision 0035): the Gulf from the shop and the racks and
-// the nurse's route by month 36 in the crash world, and the naira pay review read in the golden world and the crash world.
+// The balance targets in a crash with the Gulf open (scenario:economy-meets-its-targets, decision 0035): the Gulf from the shop
+// and the racks and the nurse's route by month 36 in the crash world, and the naira pay review read in the golden world and the crash world.
 import { content, presetAnswer } from "@japacity/content";
 import { expect, test } from "vitest";
 
