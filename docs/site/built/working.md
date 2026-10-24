@@ -97,7 +97,7 @@ Every value comes from `.env.example`, which is commented line by line. To chang
 
 To stop: Ctrl+C stops Vite and wrangler. `docker compose stop` stops Postgres and Mailpit; `docker compose down --volumes` also deletes the local database and the inbox.
 
-If the migration step fails because the local database's journal names a file this checkout does not hold (a database migrated from another branch, for one), reset it: `docker compose down -v`, then `pnpm dev:full`, which makes a fresh volume and migrates it.
+If the migration step fails because the local database was migrated with files this checkout does not hold (another branch's, for one), so that its journal and this checkout's disagree or a table it would make already stands, reset it: `docker compose down -v`, then `pnpm dev:full`, which makes a fresh volume and migrates it.
 
 To run a cron by hand, for the midnight jobs for instance:
 

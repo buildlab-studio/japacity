@@ -1,36 +1,24 @@
-// server:migration-before-deploy: the first migration, 0000_japacity, holds every table in full and then the
-// hand-written function and trigger. It stands for three migrations (a clean set of two and 0002_dedication-lights), and
-// this proves it builds the very structure the three build: one fresh PGlite migrated with the three, another with the
-// one, and a walk of each catalog compared.
-//
-// The three are kept for this test in __fixtures__/migrations-before-squash-2 (their SQL and journal unedited; the
-// snapshots are not needed to migrate). They are read from the tree and not from git because the check
-// in CI checks out one commit with no history, and a test that needs history would fail or skip there.
-//
-// Only the first file itself is compared, never a migration added after it, so the proof holds however many
-// migrations follow it.
-import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+// server:migration-before-deploy: the migrations start from one file, 0000_japacity, every table generated from the
+// Drizzle schema and then the functions and triggers written by hand; every later migration only adds. These hold the
+// committed migrations to the schema: a database migrated with them and one built from a fresh generate of the schema
+// have the same structure, apart from the hand-written part, which is held to refuse what it is written to refuse.
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { PGlite } from "@electric-sql/pglite";
+import { generateDrizzleJson, generateMigration } from "drizzle-kit/api";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, describe, expect, test } from "vitest";
 
-const BEFORE = fileURLToPath(new URL("./__fixtures__/migrations-before-squash-2", import.meta.url));
-const CLEAN = fileURLToPath(new URL("../migrations", import.meta.url));
+import * as schema from "./schema";
 
-/** The three, in the order they run. */
-const OLD_TAGS = ["0000_japacity", "0001_functions-and-triggers", "0002_dedication-lights"];
+const COMMITTED = fileURLToPath(new URL("../migrations", import.meta.url));
 
-/** The SHA-256 of the three SQL files in order, so the fixture cannot be edited to match. */
-const OLD_SQL_SHA256 = "86e1258543b51ff830e539f6f04cd860ba10f3c45258595c367af19511eedaa2";
-
-/** The clean set: one file, the generator's with the hand-written function and trigger at its end. */
-const CLEAN_TAGS = ["0000_japacity"];
+/** The functions and triggers written by hand into 0000_japacity, which the schema cannot say. */
+const HAND_WRITTEN = ["moderation_log_insert_only", "switch_log_insert_only"];
 
 interface Journal {
   entries: { idx: number; tag: string; when: number }[];
@@ -43,15 +31,14 @@ afterAll(() => {
   for (const folder of scratch) rmSync(folder, { recursive: true, force: true });
 });
 
-/** A folder holding only the clean set's own entries, with a journal cut to them. */
-function cleanSetOnly(): string {
-  const folder = mkdtempSync(join(tmpdir(), "japacity-squash-"));
+/** A migrations folder holding one file generated now from the schema, as `db:generate` would write it on an empty folder. */
+async function freshFromSchema(): Promise<string> {
+  const statements = await generateMigration(generateDrizzleJson({}), generateDrizzleJson(schema));
+  const folder = mkdtempSync(join(tmpdir(), "japacity-migrations-"));
   scratch.push(folder);
   mkdirSync(join(folder, "meta"));
-  const journal = journalOf(CLEAN);
-  const entries = journal.entries.slice(0, CLEAN_TAGS.length);
-  writeFileSync(join(folder, "meta", "_journal.json"), JSON.stringify({ ...journal, entries }));
-  for (const entry of entries) copyFileSync(join(CLEAN, `${entry.tag}.sql`), join(folder, `${entry.tag}.sql`));
+  writeFileSync(join(folder, "0000_fresh.sql"), statements.join("\n--> statement-breakpoint\n"));
+  writeFileSync(join(folder, "meta", "_journal.json"), JSON.stringify({ version: "7", dialect: "postgresql", entries: [{ idx: 0, version: "7", when: 1, tag: "0000_fresh", breakpoints: true }] }));
   return folder;
 }
 
@@ -76,8 +63,9 @@ type Catalog = Record<"schemas" | "extensions" | "relations" | "columns" | "cons
 
 /**
  * The structure of one database, each part a sorted list of lines. Normalised in two ways only:
- * - Column positions are not compared. A column an earlier set added later with ALTER TABLE stands last in its table,
- *   while the clean set puts it where the schema declares it; nothing in the game reads a column by its position.
+ * - Column positions are not compared. A column a later migration adds with ALTER TABLE stands last in its table,
+ *   while one file made from the schema puts it where the schema declares it; nothing in the game reads a column by
+ *   its position.
  * - The NOT NULL constraints Postgres 18 lists in pg_constraint are named by Postgres itself, not by a migration, so
  *   their names are left out (their column and their place in the walk stay). Every other constraint, index and
  *   sequence name is the one the migration gave, and is compared as written.
@@ -128,42 +116,58 @@ async function walk(client: PGlite): Promise<Catalog> {
   };
 }
 
-describe("the squashed clean set", () => {
-  test("[server:migration-before-deploy] given the three migrations kept as a fixture, when they are read, then they are the three unedited: the same tags, the same files and the same SQL", () => {
-    expect(journalOf(BEFORE).entries.map((entry) => entry.tag)).toEqual(OLD_TAGS);
-    expect(readdirSync(BEFORE).filter((name) => name.endsWith(".sql")).sort()).toEqual(OLD_TAGS.map((tag) => `${tag}.sql`));
-    const hash = createHash("sha256");
-    for (const tag of OLD_TAGS) hash.update(readFileSync(join(BEFORE, `${tag}.sql`)));
-    expect(hash.digest("hex")).toBe(OLD_SQL_SHA256);
-  });
+const named = (lines: string[]): string[] => lines.map((line) => line.split(" | ").slice(0, 3).join(" | "));
 
-  test("[server:migration-before-deploy] given the committed migrations, when their journal is read, then they start at 0000 with the clean set's one file", () => {
-    const entries = journalOf(CLEAN).entries;
-    expect(entries.slice(0, CLEAN_TAGS.length).map((entry) => [entry.idx, entry.tag])).toEqual(CLEAN_TAGS.map((tag, idx) => [idx, tag]));
+describe("the committed migrations", () => {
+  test("[server:migration-before-deploy] given the committed migrations, when their journal is read, then they start at 0000_japacity and each later one comes after the one before", () => {
+    const entries = journalOf(COMMITTED).entries;
+    expect(entries[0]).toMatchObject({ idx: 0, tag: "0000_japacity" });
+    expect(entries.map((entry) => entry.idx)).toEqual(entries.map((_, idx) => idx));
     // Drizzle's migrator applies an entry only when it is newer than the last one a database holds, so every later
-    // migration must come after the clean set.
+    // migration must come after the one before it.
     const whens = entries.map((entry) => entry.when);
     expect(whens).toEqual([...new Set(whens)].sort((a, b) => a - b));
   });
 
-  test("[server:migration-before-deploy] given one database migrated with the three and one with the clean set, when both catalogs are walked, then every schema, table, column, constraint, index, sequence, function and trigger is the same", { timeout: 60000 }, async () => {
-    const before = await migrated(BEFORE);
-    const after = await migrated(cleanSetOnly());
+  test("[server:migration-before-deploy] given one database migrated with the committed migrations and one with a fresh generate of the Drizzle schema, when both catalogs are walked, then they are the same but for the hand-written functions and triggers", { timeout: 60000 }, async () => {
+    const committed = await migrated(COMMITTED);
+    const fresh = await migrated(await freshFromSchema());
     try {
-      const old = await walk(before);
-      const clean = await walk(after);
-      // The walk sees what it should, so two empty walks cannot pass: the auth library's tables, the analytics
-      // schema, the hand-written function and trigger, and drizzle's own journal table.
-      expect(old.schemas).toEqual(expect.arrayContaining(["analytics", "drizzle", "public"]));
-      expect(old.relations.filter((line) => /^public \| (user|session|account|verification|passkey|rate_limit) \|/.test(line))).toHaveLength(6);
-      expect(old.relations).toEqual(expect.arrayContaining(["analytics | counter_totals | r | p | false", "drizzle | __drizzle_migrations | r | p | false"]));
-      expect(old.functions.map((line) => line.split(" | ").slice(0, 2).join(" | "))).toEqual(["public | moderation_log_insert_only"]);
-      expect(old.triggers).toHaveLength(1);
-      expect(old.columns.length).toBeGreaterThan(200);
-      expect(clean).toEqual(old);
+      const fromMigrations = await walk(committed);
+      const fromSchema = await walk(fresh);
+      // The walk sees what it should, so two empty walks cannot pass.
+      expect(fromSchema.schemas).toEqual(expect.arrayContaining(["analytics", "drizzle", "public"]));
+      expect(fromSchema.relations.filter((line) => /^public \| (user|session|account|verification|passkey|rate_limit) \|/.test(line))).toHaveLength(6);
+      expect(fromSchema.columns.length).toBeGreaterThan(200);
+      // The hand-written part is all the migrations hold beyond the schema.
+      expect(fromSchema.functions).toEqual([]);
+      expect(fromSchema.triggers).toEqual([]);
+      expect(fromMigrations.functions.map((line) => line.split(" | ").slice(0, 2).join(" | "))).toEqual(HAND_WRITTEN.map((name) => `public | ${name}`));
+      expect(named(fromMigrations.triggers)).toEqual(["public | moderation_log | moderation_log_insert_only", "public | switch_log | switch_log_insert_only"]);
+      expect({ ...fromMigrations, functions: [], triggers: [] }).toEqual(fromSchema);
     } finally {
-      await before.close();
-      await after.close();
+      await committed.close();
+      await fresh.close();
+    }
+  });
+
+  test("[server:migration-before-deploy] [moderation:admin-actions-logged-append-only] [server:switch-log-insert-only] given a row in the admin log and one in the switch log, when an update or a delete is run on either, then the database refuses both and the rows are unchanged", { timeout: 60000 }, async () => {
+    const client = await migrated(COMMITTED);
+    try {
+      await client.exec(`insert into moderation_log (id, admin, at, item, action, params, reason, note) values ('entry.one', 'account.admin', 1000, 'report.one', 'warn', '{}', 'spam', null)`);
+      await client.exec(`insert into switch_log (at, admin, reason, change) values (1000, 'account.admin', 'a flood', '{"signups": false}')`);
+      const rows = async (table: string) => (await client.query(`select * from ${table} order by n`)).rows;
+      const before = { moderation: await rows("moderation_log"), switches: await rows("switch_log") };
+      expect(before.moderation).toHaveLength(1);
+      expect(before.switches).toHaveLength(1);
+
+      await expect(client.exec(`update moderation_log set reason = 'nothing'`)).rejects.toThrow("moderation_log is insert only");
+      await expect(client.exec(`delete from moderation_log`)).rejects.toThrow("moderation_log is insert only");
+      await expect(client.exec(`update switch_log set reason = 'nothing'`)).rejects.toThrow("switch_log is insert only");
+      await expect(client.exec(`delete from switch_log`)).rejects.toThrow("switch_log is insert only");
+      expect({ moderation: await rows("moderation_log"), switches: await rows("switch_log") }).toEqual(before);
+    } finally {
+      await client.close();
     }
   });
 });

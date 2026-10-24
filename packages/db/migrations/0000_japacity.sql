@@ -190,7 +190,8 @@ CREATE TABLE "characters" (
 	"refilled_at" bigint NOT NULL,
 	"segment" integer NOT NULL,
 	"full_at" bigint,
-	"full_notified_at" bigint
+	"full_notified_at" bigint,
+	"person" jsonb
 );
 --> statement-breakpoint
 CREATE TABLE "command_log" (
@@ -493,7 +494,10 @@ CREATE UNIQUE INDEX "dedication_lights_id_idx" ON "dedication_lights" USING btre
 CREATE INDEX "dedication_lights_shared_idx" ON "dedication_lights" USING btree (("approved_at" is not null) desc,"lit_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "dedication_lights_pending_idx" ON "dedication_lights" USING btree ("lit_at") WHERE "dedication_lights"."approved_at" is null;
 --> statement-breakpoint
--- What the Drizzle schema cannot say, written by hand and carried in from the old 0001_functions-and-triggers when the
--- three migrations became this one file (15 Oct 2026): the admin log is insert only (moderation.md contract).
+-- Written by hand, for what the Drizzle schema cannot say. The admin log is insert only
+-- (moderation:admin-actions-logged-append-only), so a trigger refuses every change and removal of a row.
 CREATE FUNCTION "moderation_log_insert_only"() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'moderation_log is insert only'; END $$;--> statement-breakpoint
-CREATE TRIGGER "moderation_log_insert_only" BEFORE UPDATE OR DELETE ON "moderation_log" FOR EACH ROW EXECUTE FUNCTION "moderation_log_insert_only"();
+CREATE TRIGGER "moderation_log_insert_only" BEFORE UPDATE OR DELETE ON "moderation_log" FOR EACH ROW EXECUTE FUNCTION "moderation_log_insert_only"();--> statement-breakpoint
+-- The switch log is insert only in the same way (server:switch-log-insert-only).
+CREATE FUNCTION "switch_log_insert_only"() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'switch_log is insert only'; END $$;--> statement-breakpoint
+CREATE TRIGGER "switch_log_insert_only" BEFORE UPDATE OR DELETE ON "switch_log" FOR EACH ROW EXECUTE FUNCTION "switch_log_insert_only"();

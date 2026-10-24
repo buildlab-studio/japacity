@@ -1,5 +1,5 @@
 {
-  "id": "b08b99d0-cc3b-4aeb-b939-3660ceb4b892",
+  "id": "f7e53b2d-5018-4397-8074-8c170b976e0b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1426,6 +1426,12 @@
         "full_notified_at": {
           "name": "full_notified_at",
           "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "person": {
+          "name": "person",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         }
