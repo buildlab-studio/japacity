@@ -188,6 +188,9 @@ describe("spot checks against route-gates.md and road.md", () => {
     expect(offer("offer.sponsor-tech-firm").terms.salary).toEqual({ from: "range", min: 4200000, max: 6000000, step: 100000 });
     expect(offer("offer.sponsor-agency")).toMatchObject({ chanceBp: 600, cooldown: 3, expiresAfter: 1, fraudBp: 5000 });
     expect(offer("offer.sponsor-agency").terms.fee).toBe(500000000);
+    // The accountancy firm: £46,000 to £56,000 by £1,000 about the chartered accountant's going rate of £49,200.
+    expect(offer("offer.sponsor-accounting-firm")).toMatchObject({ chanceBp: 400, cooldown: 4, expiresAfter: 2, fraudBp: 0 });
+    expect(offer("offer.sponsor-accounting-firm").terms).toEqual({ salary: { from: "range", min: 4600000, max: 5600000, step: 100000 } });
     // The Gulf agent: ₦900,000 to ₦1,800,000 by ₦100,000; AED 1,500 to 2,200 by 100, in fils.
     expect(offer("offer.gulf-agent")).toMatchObject({ chanceBp: 1000, cooldown: 4, expiresAfter: 2, fraudBp: 4000 });
     expect(offer("offer.gulf-agent").terms.fee).toEqual({ from: "range", min: 90000000, max: 180000000, step: 10000000 });

@@ -299,6 +299,13 @@ export const offerText: Record<string, string> = {
   "offer.sponsor-tech-firm.sign.whatsapp-only": "Everything happens in a chat app.",
   "offer.sponsor-tech-firm.sign.start-date": "They gave a start date and a rota.",
 
+  "offer.sponsor-accounting-firm.name": "An accountancy firm will sponsor you",
+  "offer.sponsor-accounting-firm.title": "Chartered, and we sponsor",
+  "offer.sponsor-accounting-firm.body":
+    "“Your chartered papers and your years in post are what we look for: {salary} a year in Birmingham, and we will sponsor the visa.”",
+  "offer.sponsor-accounting-firm.choice.take": "Take the offer",
+  "offer.sponsor-accounting-firm.choice.decline": "Decline",
+
   "offer.sponsor-agency.name": "An agency has a role for you",
   "offer.sponsor-agency.title": "Role in London",
   "offer.sponsor-agency.body":
@@ -490,6 +497,7 @@ export const offerText: Record<string, string> = {
   "offer.sponsor-care-home.who": "A care home",
   "offer.sponsor-trust.who": "A hospital trust",
   "offer.sponsor-tech-firm.who": "A tech firm",
+  "offer.sponsor-accounting-firm.who": "An accountancy firm",
   "offer.sponsor-agency.who": "An agency",
   "offer.gulf-agent.who": "An agent",
   "offer.papers-marriage.who": "A woman at the salon",

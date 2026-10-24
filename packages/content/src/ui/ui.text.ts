@@ -999,6 +999,7 @@ export const uiText: Record<string, string> = {
   "ui.gate.employer.care-home": "a care home",
   "ui.gate.employer.trust": "a hospital trust",
   "ui.gate.employer.tech-firm": "a tech firm",
+  "ui.gate.employer.accounting-firm": "an accountancy firm",
   "ui.gate.employer.agency": "a recruitment agency",
   "ui.gate.employer.gulf-agent": "an employer found by the agent",
   "ui.gate.employer.other": "an employer",

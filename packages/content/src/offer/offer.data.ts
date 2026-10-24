@@ -3,6 +3,7 @@
 // abroad and of coming home are in offer.abroad.data.ts and joined in at the end.
 import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
+import { ACCOUNTING_JOBS, CHARTERED_JOBS, TRADE_LADDERS } from "../activity/activity.ladder.data";
 import { routeTable } from "../route/route.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira, pct, pounds } from "../units";
@@ -53,6 +54,20 @@ function sponsorWhen(route: Id<"route">, window: Id<"var">): Requirement[] {
 }
 
 const DECLINE: OfferChoice = { id: "decline", requires: [], pick: null, effects: [], fraudEffects: null };
+
+/** Both met: neither fails, as requirements have `any` and `not` but no `all`. */
+function both(first: Requirement, second: Requirement): Requirement {
+  return { type: "not", of: { type: "any", of: [{ type: "not", of: first }, { type: "not", of: second }] } };
+}
+
+/**
+ * A recruitment agency places a worker in the trade of the job held, with 24 months across that trade's ladder (a working
+ * value): agencies place experienced workers, and a first job in a new trade is not that trade's record.
+ */
+const PLACED_IN_TRADE: Requirement = {
+  type: "any",
+  of: TRADE_LADDERS.map((jobs) => both({ type: "job/is", activities: jobs }, { type: "activity/tenure", activities: jobs, months: 24 })),
+};
 
 /**
  * Taking a sponsor records it (route-gates:taking-sponsor-records-it). A real sponsor costs nothing; a fraud takes its fee from cash.
@@ -1189,11 +1204,46 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     choices: [takeSponsor("route.uk-skilled", "tech-firm"), DECLINE],
     onExpire: "decline",
   },
+  // An accountancy firm sponsors a chartered accountant, as the tech firm sponsors a developer: chartered and certified
+  // accountants (2421) are an eligible skilled worker occupation. No fraud: a firm on the register hires its own.
+  "offer.sponsor-accounting-firm": {
+    id: "offer.sponsor-accounting-firm",
+    group: "money",
+    where: "home",
+    when: [
+      ...sponsorWhen("route.uk-skilled", "var.uk-skilled-window"),
+      { type: "job/is", activities: CHARTERED_JOBS },
+      // Two years across the accounting jobs, a working value as the tech firm's two developer years are.
+      { type: "activity/tenure", activities: ACCOUNTING_JOBS, months: 24 },
+    ],
+    // As the tech firm's, a working value.
+    chanceBp: pct(4),
+    cooldown: 4,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: {
+      // £46,000 to £56,000 by £1,000, about the occupation's going rate of £49,200 (a working value).
+      salary: { from: "range", min: pounds(46000), max: pounds(56000), step: pounds(1000) },
+    },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [],
+        pick: null,
+        effects: [{ type: "route/record-sponsor", route: "route.uk-skilled", employer: "accounting-firm", salary: 0, fraud: false }],
+        fraudEffects: null,
+      },
+      DECLINE,
+    ],
+    onExpire: "decline",
+  },
   "offer.sponsor-agency": {
     id: "offer.sponsor-agency",
     group: "money",
     where: "home",
-    when: [...sponsorWhen("route.uk-skilled", "var.uk-skilled-window")],
+    when: [...sponsorWhen("route.uk-skilled", "var.uk-skilled-window"), PLACED_IN_TRADE],
     chanceBp: pct(6),
     cooldown: 3,
     maxTimes: null,

@@ -190,6 +190,30 @@ describe("route-gates:sponsor-offers-come-up: sponsor offers and looking for one
     expect(when.every((requirement) => judge(met, requirement))).toBe(true);
   });
 
+  test("[route-gates:sponsor-offers-come-up] given the skilled route known, when the job held is a teacher's with 30 months across the teacher jobs, a teacher's with 12 beside 24 in support, or a junior developer's beside 30 months teaching, then the agency's offer may come up only for the first", () => {
+    const when = content.offer["offer.sponsor-agency"]!.when;
+    const placed = (job: Id<"activity">, tenure: Record<Id<"activity">, number>): boolean => {
+      const game = worker({ change: working(job, tenure) });
+      toKnown(game, SKILLED);
+      return when.every((requirement) => judge(game, requirement));
+    };
+    expect(placed("activity.job-teacher", { "activity.job-teacher": 30 })).toBe(true);
+    expect(placed("activity.job-teacher", { "activity.job-customer-service": 24, "activity.job-teacher": 12 })).toBe(false);
+    expect(placed("activity.job-junior-developer", { "activity.job-teacher": 30, "activity.job-junior-developer": 2 })).toBe(false);
+  });
+
+  test("[route-gates:sponsor-offers-come-up] given the skilled route known and 30 months across the accounting jobs, when the job held is the chartered accountant's or the accounts officer's, then the accountancy firm's offer may come up only for the chartered accountant", () => {
+    const when = content.offer["offer.sponsor-accounting-firm"]!.when;
+    const placed = (job: Id<"activity">): boolean => {
+      const game = worker({ change: working(job, { "activity.job-accounts-officer": 30 }) });
+      toKnown(game, SKILLED);
+      return when.every((requirement) => judge(game, requirement));
+    };
+    expect(placed("activity.job-chartered-accountant")).toBe(true);
+    expect(placed("activity.job-accounts-officer")).toBe(false);
+    expect(content.offer["offer.sponsor-accounting-firm"]).toMatchObject({ fraudBp: 0, signs: [] });
+  });
+
   test("[route-gates:sponsor-offers-come-up] given a route's find figure, when the chance is worked out, then it adds 20 for each point of network and stops at 9500", () => {
     const quality = content.tuning.quality;
     expect(findChanceBp(care, 0, quality)).toBe(care.sponsor!.findBp);

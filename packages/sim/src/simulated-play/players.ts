@@ -601,6 +601,7 @@ const SPONSOR_OFFERS: Record<string, Id<"route">> = {
   "offer.sponsor-care-home": "route.uk-care",
   "offer.sponsor-trust": "route.uk-care",
   "offer.sponsor-tech-firm": "route.uk-skilled",
+  "offer.sponsor-accounting-firm": "route.uk-skilled",
   "offer.sponsor-agency": "route.uk-skilled",
 };
 

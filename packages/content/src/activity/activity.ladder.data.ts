@@ -33,8 +33,24 @@ export const TEACHER_JOBS: Id<"activity">[] = [TEACHER, SENIOR_TEACHER, HEAD_OF_
 export const SUPPORT_JOBS: Id<"activity">[] = [AGENT, TEAM_LEAD, REMOTE_SUPPORT, NIGHT_SUPPORT];
 const FISH_JOBS: Id<"activity">[] = [RACKS, KILN, FISH_TRADER];
 /** The bank jobs count among the accounting jobs as well, since an accountant may start at the bank. */
-const ACCOUNTING_JOBS: Id<"activity">[] = [ACCOUNTS_OFFICER, CHARTERED, FINANCE_MANAGER, BANK_OFFICER, BANK_SENIOR, RELATIONSHIP_MANAGER];
+export const ACCOUNTING_JOBS: Id<"activity">[] = [ACCOUNTS_OFFICER, CHARTERED, FINANCE_MANAGER, BANK_OFFICER, BANK_SENIOR, RELATIONSHIP_MANAGER];
 const BANK_JOBS: Id<"activity">[] = [BANK_OFFICER, BANK_SENIOR, RELATIONSHIP_MANAGER];
+/** The chartered accountant's rung and the finance manager's above it, which an accountancy firm sponsors. */
+export const CHARTERED_JOBS: Id<"activity">[] = [CHARTERED, FINANCE_MANAGER];
+/**
+ * Each trade's ladder at home, from its first rung to its top: what a recruitment agency reads as a trade's record
+ * (route-gates:sponsor-offers-come-up). The bank's rungs are their own ladder and count among the accounting jobs too.
+ */
+export const TRADE_LADDERS: Id<"activity">[][] = [
+  NURSE_JOBS,
+  TEACHER_JOBS,
+  SUPPORT_JOBS,
+  [PHONE_SALES, "activity.job-shop-supervisor", "activity.run-shop"],
+  FISH_JOBS,
+  BANK_JOBS,
+  ACCOUNTING_JOBS,
+  ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"],
+];
 /** "Lives in Makoko" is the room on the lagoon being rented, as the racks read it. */
 const LIVES_IN_MAKOKO: Requirement = { type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-makoko" };
 
