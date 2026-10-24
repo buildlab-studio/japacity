@@ -180,6 +180,13 @@ export const uiPhoneText: Record<string, string> = {
   "phone.jobs.quit-side.line": "The side money stops this month.",
   "phone.jobs.taken": "You took the job",
   "phone.jobs.left": "You quit",
+  // The held job's next pay review, in months (activity:naira-pay-reviewed-yearly).
+  "phone.jobs.review": "Pay review in {count} months",
+  "phone.jobs.review.one": "Pay review next month",
+  // The trade's next rung and a side job to take, with what each still asks (activity:each-trade-climbs-its-ladder).
+  "phone.jobs.rung": "Next up in your trade",
+  "phone.jobs.rung.open": "You can ask for it on the board now.",
+  "phone.jobs.rung.needs": "Still needs {needs}.",
 
   "phone.lotto.next": "Next draw",
   // The context pill beside an app's name in its head: a few words of what is there now, never days.

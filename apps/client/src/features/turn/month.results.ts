@@ -81,10 +81,22 @@ export function isEvicted(line: ReportLine): boolean {
 
 /**
  * What the waiting months' acts came to (activity:waiting-months-build-profile): the exam's score, a piece for the portfolio,
- * open source's first merge or its quiet month, the raise or the month nobody said anything. Each is
+ * open source's first merge or its quiet month, the raise or the month nobody said anything, the year's pay review, a certificate or a course finished. Each is
  * told the month it happens, with the hunt's answer.
  */
-const ACTS: ReadonlySet<string> = new Set([...EXAM_MARKED, PIECE, PIECE_MORE, "line.activity.first-merged", "line.activity.contributed", "line.activity.raised", "line.activity.not-noticed"]);
+const ACTS: ReadonlySet<string> = new Set([
+  ...EXAM_MARKED,
+  PIECE,
+  PIECE_MORE,
+  "line.activity.first-merged",
+  "line.activity.contributed",
+  "line.activity.raised",
+  "line.activity.not-noticed",
+  // activity:naira-pay-reviewed-yearly, activity:free-path-keeps-a-streak and activity:paid-tech-courses: the year's review, a certificate and a course finished.
+  "line.activity.reviewed",
+  "line.activity.certificate",
+  "line.activity.course-finished",
+]);
 
 /** The set pieces an act's exam is sat in: once its score is told, "the exam is over" says nothing more. */
 const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatMap((entry) => (entry?.exam === undefined ? [] : [entry.exam.setpiece])));
