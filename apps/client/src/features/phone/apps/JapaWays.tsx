@@ -76,10 +76,27 @@ function Sponsor({ gate, currency }: { gate: Extract<RouteGateView, { gate: "spo
   );
 }
 
-function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points" }>; month: number }) {
+/**
+ * route-gates:points-view-carries-invites: the cut-off an invitation under the general one comes at. The care workers' for a carer
+ * with the table's care at it, else the teachers' while the education draw stands and the score is at it; the engine's `invites`
+ * already counted the teacher's months.
+ */
+function metCutoff(gate: Extract<RouteGateView, { gate: "points" }>, view: Pick<PlayerView, "qualities">, route: Id<"route">): "care" | "education" {
+  const block = content.route[route]?.points;
+  const careMin = block === undefined ? 0 : (content.points[block.table]?.careMin ?? 0);
+  const care = view.qualities.find((quality) => quality.id === "quality.care")?.value ?? 0;
+  if (gate.careCutoff !== null && gate.points >= gate.careCutoff && care >= careMin) return "care";
+  return gate.educationCutoff !== null && gate.points >= gate.educationCutoff ? "education" : "care";
+}
+
+function Points({ gate, month, view, route }: { gate: Extract<RouteGateView, { gate: "points" }>; month: number; view: Pick<PlayerView, "qualities">; route: Id<"route"> }) {
   const short = Math.max(0, gate.cutoff - gate.points);
-  // route-gates:points-view-carries-invites: whether an invitation will come is the engine's, the care cut-off for a carer among it.
-  const said = !gate.invites ? say("ui.gate.points.short", { short: formatNumber(short) }) : short > 0 ? say("ui.gate.points.over-care") : say("ui.gate.points.over");
+  // route-gates:points-view-carries-invites: whether an invitation will come is the engine's, the care or the teachers' cut-off among it.
+  const said = !gate.invites
+    ? say("ui.gate.points.short", { short: formatNumber(short) })
+    : short > 0
+      ? say(metCutoff(gate, view, route) === "education" ? "ui.gate.points.over-education" : "ui.gate.points.over-care")
+      : say("ui.gate.points.over");
   return (
     <>
       <p className="flex items-baseline gap-2 text-[14px]">
@@ -91,6 +108,18 @@ function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points"
       <StepBar have={gate.points} need={gate.cutoff} label={say("ui.gate.points.title")} />
       <Line tone={gate.invites ? "good" : "bad"}>{said}</Line>
       {gate.careCutoff === null ? null : <Line tone="quiet">{say("ui.gate.points.care", { cutoff: formatNumber(gate.careCutoff) })}</Line>}
+      {/* director:education-draw-opens-for-a-time: the teachers' cut-off stands only while Canada's education draw does. */}
+      {gate.educationCutoff === null ? null : (
+        <p className="text-[14px] leading-snug text-text-2" data-gate-education>
+          {say("ui.gate.points.education", { cutoff: formatNumber(gate.educationCutoff) })}
+        </p>
+      )}
+      {/* route-gates:canada-funds-checked-at-departure: the funds are asked at the pool, the invitation and the flight; what they lack today. */}
+      {gate.fundsShort <= 0 ? null : (
+        <p className="text-[14px] leading-snug text-out" data-gate-funds-short>
+          {say("ui.gate.points.funds-short", { amount: formatMoney(gate.fundsShort, "CAD") })}
+        </p>
+      )}
       {gate.invitedMonth !== null ? (
         <Line tone="good">{say("phone.japa.invited", { when: agoWords(gate.invitedMonth, month) })}</Line>
       ) : gate.poolMonth === null ? (
@@ -151,7 +180,7 @@ function Gate({ route, view }: { route: RouteView; view: PlayerView }) {
     <div className="mt-3 flex flex-col gap-1.5 rounded-[14px] bg-sheet-2 p-3" data-gate={gate.gate}>
       <h4 className="text-[15px] font-bold">{say(`ui.gate.${gate.gate}.title`)}</h4>
       {gate.gate === "sponsor" ? <Sponsor gate={gate} currency={currency} /> : null}
-      {gate.gate === "points" ? <Points gate={gate} month={view.month} /> : null}
+      {gate.gate === "points" ? <Points gate={gate} month={view.month} view={view} route={route.id} /> : null}
       {gate.gate === "endorsement" ? <Endorsement gate={gate} month={view.month} /> : null}
       {gate.gate === "contract" ? <Contract gate={gate} currency={currency} /> : null}
       {gate.gate === "partner" || gate.gate === "dependant" ? <Bond gate={gate} view={view} /> : null}
