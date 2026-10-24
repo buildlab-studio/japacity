@@ -19,15 +19,15 @@ function landed(): Game {
 }
 
 describe("the nudge on the month's dues abroad", () => {
-  // The recorded life lands holding £3,791 (activity:now-acts-and-month-acts, decisions 0014 and 0013), and the UK upkeep is the phone's
+  // The recorded life lands holding £4,716 (activity:now-acts-and-month-acts, decisions 0014 and 0013), and the UK upkeep is the phone's
   // £15 (abroad-money:arrival-opens-upkeep-and-room).
-  test("[world:nudge-says-one-thing] given the graduate landed in London with the month's news in and £5,685 due against £3,791 held, when the nudge is chosen, then its report line says the gap and is about the money", () => {
+  test("[world:nudge-says-one-thing] given the graduate landed in London with the month's news in and £5,685 due against £4,716 held, when the nudge is chosen, then its report line says the gap and is about the money", () => {
     const view = landed().view();
     expect(view.offers).toEqual([]);
     expect(view.chapter.items.every((item) => item.met)).toBe(true);
     const nudge = nudgeOf(view);
     expect(nudge).toEqual({ key: "ui.nudge.dues", params: { due: formatMoney(568_500, "GBP"), held: formatMoney(view.pockets.GBP.bank, "GBP") }, about: "dues" });
-    expect(say(nudge.key, nudge.params)).toBe("Find £5,685 this month: £3,791 held");
+    expect(say(nudge.key, nudge.params)).toBe("Find £5,685 this month: £4,716 held");
   });
 
   test("[world:nudge-says-one-thing] given the pounds held cover the month's dues, when the nudge is chosen, then it is the month's news", () => {

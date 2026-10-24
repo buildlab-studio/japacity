@@ -117,19 +117,21 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then the graduate, the banker and the teacher are family anchors and the developer the long way round (a return)", () => {
+  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then the graduate and the banker are family anchors, the teacher refused once below the top of its standing the long way round, and the developer the long way round (a return)", () => {
     // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not lead the things done most.
-    // The teacher (seed golden-teacher-54) ends at the top of its standing, with time with the family first among the things
-    // done most, and is never refused on the way it takes: the family anchor before the careful saver its kept months would make it.
+    // The teacher (seed golden-teacher-567) was refused once on the way it takes and ends just under the top of its standing, with
+    // the head of department's job first among the things done most: the refusal makes it the long way round, where the banker's
+    // standing at the top keeps it the family anchor.
     const teacher = sendOff("teacher-borrower");
-    expect(teacher.routes.find((route) => route.id === teacher.card!.route)?.refusals ?? 0).toBe(0);
-    expect(teacher.card!.topActivities[0]).toBe("activity.family-time");
-    expect(teacher.card!.standing).toBe(content.quality["quality.standing"]!.max);
-    expect(japaTypeOf(teacher)).toBe("family-anchor");
-    // The graduate (seed golden-graduate-238): its standing ends at the top, 100, so it is the family anchor before the careful
+    expect(teacher.routes.find((route) => route.id === teacher.card!.route)?.refusals).toBe(1);
+    expect(teacher.card!.topActivities[0]).toBe("activity.job-head-of-department");
+    expect(teacher.card!.standing).toBeLessThan(content.quality["quality.standing"]!.max);
+    expect(teacher.place.returns).toEqual([]);
+    expect(japaTypeOf(teacher)).toBe("long-way-round");
+    // The graduate (seed golden-graduate-274): its standing ends at the top, 100, so it is the family anchor before the careful
     // saver its kept months would make it, though the hunt leads the things it did most.
     const graduate = sendOff("graduate-careful");
-    expect(graduate.card).toMatchObject({ months: 51, standing: 100 });
+    expect(graduate.card).toMatchObject({ months: 48, standing: 100 });
     expect(graduate.card!.topActivities[0]).toBe("activity.job-hunt");
     expect(japaTypeOf(graduate)).toBe("family-anchor");
     // The banker: the senior bank job leads its things done most, time with the family among them; its standing at the top of its

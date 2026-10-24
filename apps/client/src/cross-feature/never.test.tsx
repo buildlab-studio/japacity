@@ -57,8 +57,8 @@ describe("the player's words never count the engine", () => {
   });
 
   test("[text:bands-not-figures] [world:one-action-one-sheet] given the asks of a life in the middle of its months, when the sheet is read, then nothing counts the engine and no line says a percentage", async () => {
-    // The recorded graduate with the deposit paid holds two lenders' cards open, each with its figures (route:education-loan-pays-the-school).
-    const game = recordedGame("graduate-careful", 211);
+    // The recorded banker with the deposit paid holds two lenders' cards open, each with its figures (route:education-loan-pays-the-school).
+    const game = recordedGame("banker-borrower", 85);
     const view = game.view();
     expect(view.offers.map((offer) => offer.entry)).toEqual(expect.arrayContaining(["offer.education-loan", "offer.held-funds"]));
     await renderWithView(<OfferView />, view);
