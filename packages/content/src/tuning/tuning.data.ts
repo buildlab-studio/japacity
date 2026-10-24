@@ -129,7 +129,8 @@ export const tuning: Tuning = {
   // status:course-passed-or-withdrawn: months a student status must be held for the course to count as passed.
   // status:overstayer-hospital-charged: the hospital at 150% of its figure past the grace in the UK. person:partner-route-in-country: the
   // ten-year partner route for a status granted in country past the grace. abroad-money:right-to-rent-check: the wellbeing a room lost to the check costs.
-  status: { courseMonths: 12, hospitalChargeBp: 15000, overstayPartnerSettleMonths: 120, rentCheckWellbeing: -6 },
+  // status:absence-breaks-settlement: more than 6 months at home inside any 12 starts the road to settling again (the 180 days of Appendix Continuous Residence).
+  status: { courseMonths: 12, hospitalChargeBp: 15000, overstayPartnerSettleMonths: 120, rentCheckWellbeing: -6, absenceMonths: 6, absenceWindowMonths: 12 },
 
   // credit.md
   // credit:clean-mark-drifts-up: a clean year before the file drifts.

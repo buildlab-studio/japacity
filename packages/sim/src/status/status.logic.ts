@@ -18,7 +18,9 @@ import type {
   Effect,
   ForeignCurrency,
   Id,
+  KeptStatusMonths,
   MoneyParam,
+  MonthsAway,
   OverstayState,
   PlayerView,
   ReadCtx,
@@ -73,6 +75,94 @@ export function isOverstayer(content: Content, id: Id<"status">): boolean {
  */
 export function isKept(content: Content, id: Id<"status">): boolean {
   return statusEntry(content, id).months === null && !isOverstayer(content, id);
+}
+
+/**
+ * return:papers-return-keeps-status: a status that is permission to be in the country for a time and is tied to no job and no course, which a trip
+ * home keeps until its end month. The contract has no field for it: it is a status with an end whose work rule is `any`, since a status tied to a job
+ * names one employer and the student's is part-time.
+ */
+export function keptOnTrip(content: Content, id: Id<"status">): boolean {
+  const entry = statusEntry(content, id);
+  return entry.months !== null && entry.work === "any" && !isOverstayer(content, id);
+}
+
+/**
+ * return:papers-return-keeps-status: a status whose length is the lead's (person:dependant-status-ends-with-lead) is kept only while the status it depends
+ * on is held: a bond at `partner` or `married` whose facts show the other in the status's country on a status that is not its overstayer.
+ */
+export function leadStillHolds(read: ReadCtx, id: Id<"status">): boolean {
+  const entry = statusEntry(read.content, id);
+  if (entry.months !== "lead") return true;
+  return Object.values(read.state.people.bonds).some((bond) => {
+    const facts = bond.facts;
+    if ((bond.stage !== "partner" && bond.stage !== "married") || facts === null) return false;
+    return facts.where === "abroad" && facts.country === entry.country && facts.status !== null && read.content.status[facts.status] !== undefined && !isOverstayer(read.content, facts.status);
+  });
+}
+
+/**
+ * place:return-shape-decided-at-once and return:papers-return-keeps-status: the status a return made this month would keep, or null. A settled, citizen or
+ * resident status always; one a trip home keeps while it has months left and, for a dependant's, while the lead's holds.
+ */
+export function keptByReturn(read: ReadCtx): Id<"status"> | null {
+  const current = read.state.status.current;
+  if (current === null) return null;
+  if (isKept(read.content, current.entry)) return current.entry;
+  if (!keptOnTrip(read.content, current.entry)) return null;
+  const monthsLeft = current.expiresMonth === null || current.expiresMonth > read.state.turn.month;
+  return monthsLeft && leadStillHolds(read, current.entry) ? current.entry : null;
+}
+
+/**
+ * status:absence-breaks-settlement: the most months at home inside any run of `window` months, the spans read as months from `from` up to `to`. The
+ * most is found in a window that starts where a span starts or ends where a span ends.
+ */
+export function mostAwayInWindow(spans: readonly MonthsAway[], window: number): number {
+  const starts = spans.flatMap((span) => [span.from, span.to - window]);
+  let most = 0;
+  for (const start of starts) {
+    const end = start + window;
+    const away = spans.reduce((sum, span) => sum + Math.max(0, Math.min(span.to, end) - Math.max(span.from, start)), 0);
+    most = Math.max(most, away);
+  }
+  return most;
+}
+
+/** status:absence-breaks-settlement: the spans that may still share a window with months to come; older ones can no longer count. */
+function stillInWindow(spans: readonly MonthsAway[], month: number, window: number): MonthsAway[] {
+  return spans.filter((span) => span.to > month - window);
+}
+
+/**
+ * return:papers-return-keeps-status and status:absence-breaks-settlement: what a kept status carries back on a flight in `month`. Its months at home add
+ * no lawful months; for a status with an end that counts toward settlement (the Canadian resident's absence is read by its own rule), more months at home
+ * than `absenceMonths` inside any `absenceWindowMonths` set the lawful months back to 0 and start the record of time away again.
+ */
+export function keptForFlight(read: ReadCtx, token: { status: Id<"status">; sinceMonth: number } & KeptStatusMonths, month: number): KeptStatusMonths {
+  const { status, sinceMonth, ...months } = token;
+  const entry = statusEntry(read.content, status);
+  if (!entry.countsToSettlement || entry.months === null) return months;
+  const { absenceMonths, absenceWindowMonths } = read.content.tuning.status;
+  const spans = [...(months.away ?? []), { from: sinceMonth, to: month }];
+  if (mostAwayInWindow(spans, absenceWindowMonths) > absenceMonths) {
+    const { away: _away, ...rest } = months;
+    return { ...rest, lawfulMonths: 0 };
+  }
+  const kept = stillInWindow(spans, month, absenceWindowMonths);
+  return { ...months, ...(kept.length === 0 ? {} : { away: kept }) };
+}
+
+/** return:papers-return-keeps-status: what the status held now carries home to be kept, with the months away still inside the window. */
+export function keptMonthsOf(read: ReadCtx, held: StatusState): KeptStatusMonths {
+  const away = stillInWindow(held.away ?? [], read.state.turn.month, read.content.tuning.status.absenceWindowMonths);
+  return {
+    monthsHeld: held.monthsHeld,
+    lawfulMonths: held.lawfulMonths,
+    ...(held.expiresMonth === null ? {} : { expiresMonth: held.expiresMonth }),
+    ...(held.settleMonths === undefined ? {} : { settleMonths: held.settleMonths }),
+    ...(away.length === 0 ? {} : { away }),
+  };
 }
 
 /**
@@ -244,11 +334,12 @@ function grant(
   job: Id<"activity"> | null,
   why: GrantWhy,
   fee: MoneyParam | null,
-  kept: { monthsHeld: number; lawfulMonths: number } | null = null,
+  kept: KeptStatusMonths | null = null,
 ): BaseEvent[] {
   const entry = statusEntry(ctx.content, status);
   const month = ctx.state.turn.month;
-  const length = lengthOf(ctx, entry);
+  // return:papers-return-keeps-status: a kept status keeps its own end month, which ran on while the character was home.
+  const length = kept?.expiresMonth !== undefined ? kept.expiresMonth - month : lengthOf(ctx, entry);
   const before = ctx.state.status.current;
   // person:partner-route-in-country: a status that settles, granted over an overstay past its grace, is on the ten-year route.
   const tenYears = entry.countsToSettlement && pastGrace(ctx);
@@ -264,7 +355,8 @@ function grant(
       why,
       fee,
       ...(isOverstayer(ctx.content, status) ? { overstay: freshOverstay(entry, month) } : {}),
-      ...(tenYears ? { settleMonths: ctx.content.tuning.status.overstayPartnerSettleMonths } : {}),
+      ...(tenYears ? { settleMonths: ctx.content.tuning.status.overstayPartnerSettleMonths } : kept?.settleMonths !== undefined ? { settleMonths: kept.settleMonths } : {}),
+      ...(kept?.away === undefined ? {} : { away: kept.away }),
     },
   ]);
   housing(ctx, before?.entry ?? null, status);
@@ -602,6 +694,7 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
           job: event.job,
           ...(event.overstay === undefined ? {} : { overstay: event.overstay }),
           ...(event.settleMonths === undefined ? {} : { settleMonths: event.settleMonths }),
+          ...(event.away === undefined ? {} : { away: event.away }),
         },
       };
     case "status/grace-held":

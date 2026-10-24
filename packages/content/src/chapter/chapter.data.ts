@@ -233,9 +233,9 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
             // `home`: a return with papers or by choice on the record. The chapter is current only
             // after Landing, which is met abroad, so the return is one made from there.
             { type: "place/returned", shapes: ["with-papers", "by-choice"] },
-            // `second`: a second route granted. A route flown is `departed`, and no route is applied
-            // for abroad (place:entries-legal-by-where), so a route `granted` now was granted after a return.
-            ...SECOND_ROUTES.map((route): Requirement => ({ type: "route/state", route, in: ["granted"] })),
+            // `second`: a second route granted after a return. A route flown is `departed`, so a grant from before
+            // the first flight, never used, does not count.
+            ...SECOND_ROUTES.map((route): Requirement => ({ type: "route/state", route, in: ["granted"], afterReturn: true })),
           ],
         },
       },

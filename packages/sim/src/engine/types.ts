@@ -178,6 +178,16 @@ export interface WayHome {
   scheme: { grant: MoneyParam; banMonths: number } | null;
 }
 
+/**
+ * The status kept from a return with papers, as the view carries it beside `heldAbroad` (return:papers-return-keeps-status, status:absence-breaks-settlement):
+ * `until`, the month it ends, null for one that never does; `restarts`, whether a flight back now would set the lawful months toward settlement back to 0.
+ * Missing while nothing is kept.
+ */
+export interface KeptView {
+  until: number | null;
+  restarts: boolean;
+}
+
 /** The shapes of a return home: place:return-shape-decided-at-once. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
 /** Why the home card's move is shut (home:moves-carry-cost-and-reason): a move made this month, or what the move takes at once not held. */
@@ -247,7 +257,8 @@ export type Requirement =
   | { type: "document/pending"; document: Id<"document"> }
   /** The document is held and did not come from a scammer (advice:agent-loss-is-the-fee). */
   | { type: "document/genuine"; document: Id<"document"> }
-  | { type: "route/state"; route: Id<"route">; in: RouteStateName[] }
+  /** With `afterReturn`, the route's grant also came in a month after the latest return home; with no return on record it is not met. */
+  | { type: "route/state"; route: Id<"route">; in: RouteStateName[]; afterReturn?: true }
   /** Holds an offer from at least one school on this route. */
   | { type: "route/offer"; route: Id<"route"> }
   /** The deposit for a school is paid. */
@@ -398,7 +409,7 @@ export type Effect =
   | { type: "place/return"; shape: ReturnShape }
   // status (docs/rules/status.md)
   /** `kept`: a status kept from a return with papers carries on with the months it had (return:papers-return-keeps-status). */
-  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity">; kept?: { monthsHeld: number; lawfulMonths: number } }
+  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity">; kept?: KeptStatusMonths }
   | { type: "status/lose" }
   | { type: "status/remove" }
   | { type: "status/clock-start" }
@@ -1279,7 +1290,8 @@ export interface Tuning {
   street: { phonePrice: number; phoneMood: number; phoneNetwork: number; salesPay: number; salesHireBp: number; apprenticeTech: number; apprenticeUntil: number; theftBp: number; theftNaira: number; mosquitoBp: number; harassBp: number; harassMood: number; shoppingGbp: number; shoppingAed: number; shoppingMood: number; findBp: number; findMood: number; runMood: number };
   /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
   parcel: { handling: number; laptopMood: number; clothesPrep: number };
-  status: { courseMonths: number; hospitalChargeBp: number; overstayPartnerSettleMonths: number; rentCheckWellbeing: number };
+  /** `absenceMonths` and `absenceWindowMonths`: more months at home than the first inside any run of the second sets the lawful months back to 0 (status:absence-breaks-settlement). */
+  status: { courseMonths: number; hospitalChargeBp: number; overstayPartnerSettleMonths: number; rentCheckWellbeing: number; absenceMonths: number; absenceWindowMonths: number };
   /**
    * `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit).
    * `cleanMonths`: months without a miss before the file drifts up (credit:clean-mark-drifts-up).
@@ -1803,6 +1815,8 @@ export interface RouteState {
   bannedUntil: number | null;
   /** The month the authorisation to return into Canada was paid on this route (route-gates:canada-return-asks-authorisation). Missing: never. */
   authorisedMonth?: number;
+  /** The month the route was last granted (chapter.md, `chapter.secure`). Missing: a grant before the month was kept, read as after any return. */
+  grantedMonth?: number;
 }
 
 /** State the gates keep beyond the study fields: docs/rules/route-gates.md. */
@@ -1933,8 +1947,8 @@ export interface PlaceSlice {
   movedMonth: number;
   /** The record of returns. `country` is null for a return from the road (road:exit-is-assisted-return). */
   returns: { month: number; shape: ReturnShape; country: Id<"country"> | null }[];
-  /** A settled or citizen status kept after a return with papers (return:papers-return-keeps-status). */
-  heldAbroad: { status: Id<"status">; sinceMonth: number; monthsHeld: number; lawfulMonths: number } | null;
+  /** A status kept after a return with papers (return:papers-return-keeps-status), from the month of the return. */
+  heldAbroad: ({ status: Id<"status">; sinceMonth: number } & KeptStatusMonths) | null;
   /** The month the December visit opened, null before (place:view-shows-place-and-returns). */
   decemberMonth: number | null;
   /**
@@ -1942,6 +1956,25 @@ export interface PlaceSlice {
    * the country, the month, the ban in months and whether the grace had passed. Missing: none yet.
    */
   overstays?: { country: Id<"country">; month: number; banMonths: number; pastGrace: boolean }[];
+}
+
+/** Months at home while a status was kept, from the return's month to the flight back's (status:absence-breaks-settlement). */
+export interface MonthsAway {
+  from: number;
+  to: number;
+}
+
+/**
+ * What a status kept from a return with papers carries back (return:papers-return-keeps-status, status:granting-a-status): its months held and lawful
+ * months, its end month where it has one, the settlement months it carries in place of the entry's, and the months spent at home while it was kept
+ * that still fall inside the rule's window (status:absence-breaks-settlement). A missing field: none.
+ */
+export interface KeptStatusMonths {
+  monthsHeld: number;
+  lawfulMonths: number;
+  expiresMonth?: number;
+  settleMonths?: number;
+  away?: MonthsAway[];
 }
 
 export interface StatusState {
@@ -1958,6 +1991,8 @@ export interface StatusState {
   overstay?: OverstayState;
   /** Settlement months that replace the entry's, for a partner status granted in country past the grace (person:partner-route-in-country). */
   settleMonths?: number;
+  /** Months at home while this status was kept, still inside the window status:absence-breaks-settlement reads. Missing: none. */
+  away?: MonthsAway[];
 }
 
 /**
@@ -2453,7 +2488,7 @@ export interface PlayerView {
    * `ways` (place:rides-between-city-places): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view a test writes by hand without it stays whole.
    * `shuttles` (place:employer-shuttle-rides-free, decision 0017): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`.
    */
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[]; shuttles?: Id<"place">[] };
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; kept?: KeptView; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[]; shuttles?: Id<"place">[] };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;

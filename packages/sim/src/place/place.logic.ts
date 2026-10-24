@@ -35,7 +35,7 @@ import type {
   WayHome,
   WhereEntry,
 } from "../engine/types";
-import { amnestyHolds, carryFineHome, countryEntry, fineOwed, inGrace, isKept, isOverstayer, overstayOf, removalBanMonths, statusEntry } from "../status/status.logic";
+import { amnestyHolds, carryFineHome, countryEntry, fineOwed, inGrace, isOverstayer, keptByReturn, keptForFlight, keptMonthsOf, leadStillHolds, overstayOf, removalBanMonths, statusEntry } from "../status/status.logic";
 import { FAMILY_HOUSE, homeCharges } from "../home/home.logic";
 import { drives } from "../thing/thing.logic";
 import type { PlaceEvent } from "./place.events";
@@ -119,7 +119,7 @@ export function returnShape(read: ReadCtx, farePaid: boolean): ReturnShape {
   if (status.removals.some((removal) => removal.country === place.country && removal.month === turn.month)) return "removed";
   if (holdsNoStatus(read) && !farePaid) return "assisted";
   if (farePaid && wealthInNaira(read) < read.content.tuning.place.brokeLine) return "broke";
-  if (status.current !== null && isKept(read.content, status.current.entry)) return "with-papers";
+  if (keptByReturn(read) !== null) return "with-papers";
   return "by-choice";
 }
 
@@ -246,7 +246,7 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   const { country } = ctx.state.place;
   if (country === null) throw new Error("A return needs a country to come home from.");
   const current = ctx.state.status.current;
-  const kept = shape === "with-papers" && current !== null && isKept(ctx.content, current.entry) ? current.entry : null;
+  const kept = shape === "with-papers" ? keptByReturn(ctx) : null;
   const month = ctx.state.turn.month;
   // place:leaving-an-overstay-bans and status:overstay-counts-as-refusal, read while the status still stands.
   const onOverstay = overstayOf(ctx) !== null;
@@ -257,7 +257,7 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   const fineLeft = shape === "assisted" ? fineOwed(ctx) : 0;
   const grant = shape === "assisted" ? returnGrant(ctx) : 0;
   const events = record(ctx, [
-    { type: "place/returned", shape, country, month, kept, keptMonths: kept === null || current === null ? null : { monthsHeld: current.monthsHeld, lawfulMonths: current.lawfulMonths }, ...overstay },
+    { type: "place/returned", shape, country, month, kept, keptMonths: kept === null || current === null ? null : keptMonthsOf(ctx, current), ...overstay },
     { type: "place/moved", to: "home", country: null, month },
   ]);
   ctx.apply([{ type: "status/lose" }], cause);
@@ -785,8 +785,22 @@ function decemberOpen(state: State): boolean {
   return state.setpiece.open?.entry === SETPIECE.december;
 }
 
+/**
+ * return:papers-return-keeps-status: a kept status with an end ends in its end month, and a dependant's when the status it depends on stops being
+ * held, with nothing after it and no overstay. The permission the flown route gave is gone with it (route:lapsed-route-known-again).
+ */
+function tokenEnd(ctx: Ctx): BaseEvent[] {
+  const token = ctx.state.place.heldAbroad;
+  if (token === null) return [];
+  const ended = (token.expiresMonth !== undefined && ctx.state.turn.month >= token.expiresMonth) || !leadStillHolds(ctx, token.status);
+  if (!ended) return [];
+  const events = record(ctx, [{ type: "place/token-ended", status: token.status }]);
+  ctx.apply([{ type: "route/lapse", country: statusEntry(ctx.content, token.status).country }], { source: token.status, param: null, terms: {} });
+  return events;
+}
+
 function month(ctx: Ctx): BaseEvent[] {
-  return [...tokenLapse(ctx), ...december(ctx)];
+  return [...tokenLapse(ctx), ...tokenEnd(ctx), ...december(ctx)];
 }
 
 // ---------------------------------------------------------------------------
@@ -834,10 +848,11 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
         ...(event.overstay === undefined || event.country === null
           ? {}
           : { overstays: [...(slice.overstays ?? []), { country: event.country, month: event.month, banMonths: event.overstay.banMonths, pastGrace: event.overstay.pastGrace }] }),
-        heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month, monthsHeld: event.keptMonths?.monthsHeld ?? 0, lawfulMonths: event.keptMonths?.lawfulMonths ?? 0 },
+        heldAbroad: event.kept === null ? slice.heldAbroad : { status: event.kept, sinceMonth: event.month, monthsHeld: 0, lawfulMonths: 0, ...event.keptMonths },
       };
     case "place/token-used":
     case "place/token-lapsed":
+    case "place/token-ended":
       return { ...slice, heldAbroad: null };
     case "place/december-opened":
       return { ...slice, decemberMonth: event.month };
@@ -879,6 +894,8 @@ function lines(event: PlaceEvent): ReportLine[] {
       return [line("token-used", { status: event.status }, "good", false)];
     case "place/token-lapsed":
       return [line("token-lapsed", { status: event.status, months: event.months }, "bad", true)];
+    case "place/token-ended":
+      return [line("token-ended", { status: event.status }, "bad", true)];
     // The set piece's own line tells the visit.
     case "place/december-opened":
       return [];
@@ -904,6 +921,7 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
       monthsHere: state.turn.month - state.place.movedMonth,
       returns: [...state.place.returns].reverse(),
       heldAbroad: state.place.heldAbroad?.status ?? null,
+      ...keptView(read),
       fareHome: fareHome(read),
       fareBp: fareBpOf(read),
       wayHome: wayHomeOf(read),
@@ -911,6 +929,17 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
       shuttles: shuttlesHere(read),
     },
   };
+}
+
+/**
+ * return:papers-return-keeps-status and status:absence-breaks-settlement: the kept status's end month and whether a flight back this month would start
+ * the road to settling again, read by the rule the flight applies. Nothing while no status is kept.
+ */
+function keptView(read: ReadCtx): Pick<PlayerView["place"], "kept"> {
+  const token = read.state.place.heldAbroad;
+  if (token === null) return {};
+  const back = keptForFlight(read, token, read.state.turn.month);
+  return { kept: { until: token.expiresMonth ?? null, restarts: token.lawfulMonths > 0 && back.lawfulMonths === 0 } };
 }
 
 /** The fuel scarcity's ask, which doubles the city's fares for the month it is on. */

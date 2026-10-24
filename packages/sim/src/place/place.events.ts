@@ -1,4 +1,4 @@
-import type { Currency, Id, ReturnShape, RideWay, Where } from "../engine/types";
+import type { Currency, Id, KeptStatusMonths, ReturnShape, RideWay, Where } from "../engine/types";
 
 export type PlaceEvent =
   /** place:departure-moves-abroad and place:return-home-paid-or-assisted: the character is somewhere new from this month. */
@@ -10,7 +10,7 @@ export type PlaceEvent =
       country: Id<"country"> | null;
       month: number;
       kept: Id<"status"> | null;
-      keptMonths: { monthsHeld: number; lawfulMonths: number } | null;
+      keptMonths: KeptStatusMonths | null;
       /** place:leaving-an-overstay-bans, status:overstay-counts-as-refusal: a return from an overstay past the grace or with a ban. */
       overstay?: { banMonths: number; pastGrace: boolean };
     }
@@ -20,6 +20,8 @@ export type PlaceEvent =
   | { type: "place/token-used"; status: Id<"status"> }
   /** return:papers-return-keeps-status: a resident token lapses after too long away. */
   | { type: "place/token-lapsed"; status: Id<"status">; months: number }
+  /** return:papers-return-keeps-status: a kept status with an end reached its end month, or a dependant's lost the status it depends on; nothing follows it. */
+  | { type: "place/token-ended"; status: Id<"status"> }
   /** return:december-visit-set-piece: the December visit opened in this month of the character's (place:view-shows-place-and-returns's `decemberMonth`). */
   | { type: "place/december-opened"; month: number }
   /** place:rides-between-city-places: a ride inside the city, its fare paid in `currency` (naira at home, the country's money abroad), 0 on foot or on this month's bus pass (place:country-pass-covers-ways). */

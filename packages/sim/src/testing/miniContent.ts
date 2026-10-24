@@ -355,7 +355,7 @@ export const miniContent: Content = {
     place: { brokeLine: 50000000, fareFromNaira: true },
     street: { phonePrice: 4500000, phoneMood: 6, phoneNetwork: 3, salesPay: 7000000, salesHireBp: 6000, apprenticeTech: 4, apprenticeUntil: 60, theftBp: 2000, theftNaira: 500000, mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
     parcel: { handling: 150000, laptopMood: 8, clothesPrep: 10 },
-    status: { courseMonths: 12, hospitalChargeBp: 15000, overstayPartnerSettleMonths: 120, rentCheckWellbeing: -6 },
+    status: { courseMonths: 12, hospitalChargeBp: 15000, overstayPartnerSettleMonths: 120, rentCheckWellbeing: -6, absenceMonths: 6, absenceWindowMonths: 12 },
     credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 },
     car: { lessons: 220000, testFee: 8500, passBp: 5500, passPerAttemptBp: 500, passCapBp: 9000 },
     remit: { appFeeBp: 0, appMarginBp: 200, bankFeeBp: 800, informalLossBp: 500, abroadBp: 30000 },
