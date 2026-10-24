@@ -144,9 +144,10 @@ describe("the sponsor gate's place in the route kind", () => {
     expect(routeOf(game, UK_ROUTE).gate).toEqual({ gate: "study" });
   });
 
-  test("[route-gates:route-runs-its-gate-steps] given the care route, when its steps are asked for, then only `sponsor` and `salary` are named and any other step is never reached", () => {
+  test("[route-gates:route-runs-its-gate-steps] [route-gates:nurses-sponsored-while-care-shut] given the care route, when its steps are asked for, then only `sponsor`, `salary` and `open` (the window, or a sponsor who may sponsor with it shut) are named and any other step is never reached", () => {
     const game = readyToApply();
-    expect(sponsorGate.steps).toEqual(["sponsor", "salary"]);
+    expect(sponsorGate.steps).toEqual(["sponsor", "salary", "open"]);
+    expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "open" })).toBe(true);
     expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "sponsor" })).toBe(true);
     expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "pool" })).toBe(false);
   });
@@ -236,8 +237,8 @@ describe("route-gates:sponsor-offers-come-up: sponsor offers and looking for one
     expect(text["line.route.sponsor-missed"]).toBe("No trust answered this month. The search goes on.");
   });
 
-  test("[route-gates:sponsor-offers-come-up] given the care window closed, when a sponsor is looked for, then nothing is drawn and nothing opens", () => {
-    const game = nurse({ vars: (tick) => ({ "var.uk-care-window": tick < 5 ? 2 : 0 }) });
+  test("[route-gates:sponsor-offers-come-up] [route-gates:nurses-sponsored-while-care-shut] given the care window closed and a life without the nursing council's verification, when a sponsor is looked for, then nothing is drawn and nothing opens", () => {
+    const game = nurse({ documents: without(CARE_PAPERS, "document.nmcn-verification"), vars: (tick) => ({ "var.uk-care-window": tick < 5 ? 2 : 0 }) });
     toKnown(game, CARE_ROUTE);
     for (let month = 0; month < 6; month += 1) game.endTurn();
     const position = game.state.draws.job ?? 0;
@@ -245,6 +246,72 @@ describe("route-gates:sponsor-offers-come-up: sponsor offers and looking for one
     runAsCommand(game, (ctx) => findSponsor(ctx, CARE_ROUTE));
     expect(game.state.draws.job ?? 0).toBe(position);
     expect(Object.keys(game.state.offer.items).length).toBe(before);
+  });
+});
+
+describe("route-gates:nurses-sponsored-while-care-shut: a trust's nursing post with the care window shut", () => {
+  const TRUST: Id<"offer"> = "offer.sponsor-trust";
+  const shut = (options: LifeOptions = {}): Game => nurse({ vars: () => ({ "var.uk-care-window": 0 }), ...options });
+
+  test("[route-gates:nurses-sponsored-while-care-shut] given the trust's entry, when it is read, then it comes up 4 in 100 a month, reads no window, asks the licence, the verification and care 60 and no English figure; the care home's still reads the window", () => {
+    const trust = content.offer[TRUST]!;
+    expect(trust.chanceBp).toBe(400);
+    const vars = trust.when.flatMap((requirement) => (requirement.type === "var/min" || requirement.type === "var/max" ? [requirement.var] : []));
+    expect(vars).toEqual([]);
+    expect(trust.when).toEqual(
+      expect.arrayContaining([
+        { type: "document/held", document: "document.nursing-licence" },
+        { type: "document/held", document: "document.nmcn-verification" },
+        { type: "quality/min", quality: "quality.care", value: 60 },
+      ]),
+    );
+    expect(JSON.stringify(trust.when)).not.toContain("english");
+    expect(content.offer["offer.sponsor-care-home"]!.when).toContainEqual({ type: "var/min", var: "var.uk-care-window", value: 1 });
+  });
+
+  test.each([
+    ["the nurse with both papers at care 60", true, 60, {}],
+    ["care 59", false, 59, {}],
+    ["no verification", false, 60, { documents: without(CARE_PAPERS, "document.nmcn-verification") }],
+    ["no licence", false, 60, { documents: without(CARE_PAPERS, "document.nursing-licence") }],
+  ] as const)("[route-gates:nurses-sponsored-while-care-shut] given the care window at 0 and %s, when the trust's conditions are judged, then it may come up: %s", (_name, open, care, options) => {
+    const game = shut(options);
+    toKnown(game, CARE_ROUTE);
+    applyEffects(game, [{ type: "quality/add", quality: "quality.care", amount: care - (game.state.quality["quality.care"] ?? 0) }]);
+    expect(content.offer[TRUST]!.when.every((requirement) => judge(game, requirement))).toBe(open);
+    expect(content.offer["offer.sponsor-care-home"]!.when.every((requirement) => judge(game, requirement))).toBe(false);
+  });
+
+  test("[route-gates:nurses-sponsored-while-care-shut] [route-gates:sponsor-offers-come-up] given the care window at 0 and the nurse with both papers, when a sponsor is looked for, then one draw on `job` decides and only the trust's post ever opens", () => {
+    let hits = 0;
+    for (let index = 0; index < 40; index += 1) {
+      const seed = `trust-${String(index)}`;
+      const game = shut({ seed });
+      toKnown(game, CARE_ROUTE);
+      const position = game.state.draws.job ?? 0;
+      const hit = draw(seed, "job", position, 10000) < findChanceBp(care, game.state.quality["quality.network"] ?? 0, content.tuning.quality);
+      const before = new Set(Object.keys(game.state.offer.items));
+      runAsCommand(game, (ctx) => findSponsor(ctx, CARE_ROUTE));
+      const fresh = Object.values(game.state.offer.items).filter((item) => !before.has(item.id)).map((item) => item.entry);
+      expect(fresh).toEqual(hit ? [TRUST] : []);
+      expect((game.state.draws.job ?? 0) - position).toBe(1);
+      hits += hit ? 1 : 0;
+    }
+    expect(hits).toBeGreaterThan(0);
+  });
+
+  test("[route-gates:nurses-sponsored-while-care-shut] given the care window at 0 and the trust recorded as the sponsor, when the nurse applies with everything else in hand, then the application goes; with a care home's sponsor it is refused", () => {
+    const trust = shut();
+    toKnown(trust, CARE_ROUTE);
+    applyEffects(trust, offerEffects(TRUST, false));
+    expect(routeOf(trust, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: content.offer[TRUST]!.terms["salary"] } });
+    trust.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
+    expect(routeOf(trust, CARE_ROUTE).state).toBe("applying");
+    const home = shut();
+    toKnown(home, CARE_ROUTE);
+    takeSponsor(home, CARE_ROUTE, CARE_BAR);
+    home.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal");
+    expect(routeOf(home, CARE_ROUTE).state).toBe("known");
   });
 });
 

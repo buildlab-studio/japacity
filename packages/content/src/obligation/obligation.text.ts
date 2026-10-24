@@ -35,6 +35,7 @@ export const obligationText: Record<string, string> = {
   "obligation.phone-canada.name": "Phone contract in Canada",
   "obligation.tuition.name": "Tuition instalments",
   "obligation.masters-at-home.name": "Master's fees",
+  "obligation.education-loan.name": "Education loan",
   "obligation.car.name": "Car on finance",
   "obligation.car-shortfall.name": "What is still owed on the car",
   "obligation.car-shortfall-home.name": "What is still owed on the car you left",
@@ -58,7 +59,14 @@ export const obligationText: Record<string, string> = {
   "line.obligation.rent-lost": "Three months and the year's rent still not paid. The landlord wants the room back.",
   "line.obligation.rent-default": "Three months of rent missed. The landlord has reported you, and your credit file shows it.",
   "line.obligation.cut-off": "The phone company has ended the contract. You are back on pay as you go.",
-  "line.obligation.withdrawn": "The university has withdrawn you over the unpaid tuition. Your student visa has gone with it.",
+  "line.obligation.withdrawn": "The university has withdrawn you over the unpaid tuition. Your visa now runs only two more months: pay what is owed to be reinstated.",
+  // abroad-money:missed-tuition-runs-in-stages: each stage is a letter from the university's fees office.
+  "line.obligation.tuition-reminder": "A letter from the fees office: {amount} of your tuition went unpaid. Please pay it as soon as you can.",
+  "line.obligation.tuition-cut": "A letter from the fees office: {amount} of tuition is still unpaid, so your library and coursework access is cut. A payment plan is open to you.",
+  "line.obligation.tuition-warning": "A letter from the fees office: {amount} of tuition is still unpaid. This is a final warning: pay it or you are liable for withdrawal.",
+  // route:education-loan-pays-the-school: the loan's charges start the month after the course's status ends.
+  "line.obligation.repayments-start": "{obligation}: the course is behind you, so the repayments start next month.",
+  "line.obligation.tuition-plan": "{obligation}: on a plan now, {amount} a month for {months} months.",
   "line.obligation.group-covered": "You could not pay. The group covered the {amount} for you, and now you owe them that as well.",
   "line.obligation.group-visit": "The loan officer came to the house with two women from the group. The whole street saw.",
   "line.obligation.group-default": "The group has called the loan in. They took what they could carry, and they will take the {amount} still owed from your account.",

@@ -158,6 +158,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.month-min", { value: playerMonth(requirement.value) });
     case "chapter/done":
       return say("ui.req.chapter-done", { chapter: nameOf(requirement.chapter) });
+    case "chapter/plan":
+      return say("ui.req.chapter-plan", { route: nameOf(requirement.route) });
     case "not":
       if (requirement.of.type === "document/pending") return say("ui.req.not-pending", { document: runningName(requirement.of.document) });
       if (requirement.of.type === "document/held") return say("ui.req.not-held", { document: runningName(requirement.of.document) });
@@ -178,6 +180,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.status-is", { statuses: list(requirement.statuses.map(runningName)) });
     case "status/clock-under":
       return say("ui.req.status-clock-under", { months: requirement.months });
+    case "status/course-done":
+      return say("ui.req.status-course-done");
     case "credit/min":
       return say("ui.req.credit-min", { value: requirement.value });
     case "goal/done":

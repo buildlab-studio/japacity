@@ -29,6 +29,21 @@ const CREDIT_CLEAN: Requirement = { type: "quality/max", quality: "quality.credi
 const SIX_MONTHS_IN_ANY_JOB: Requirement = { type: "activity/tenure", activities: [], months: 6 };
 
 /** A sponsor or agent comes up while its route is known and its window is not closed (route-gates:sponsor-offers-come-up, route-gates:gulf-agent-offer). */
+/** route-gates:family-gift-counts-with-deed: a Canada plan fits the family meeting once its page is looked into and the credential assessment is held. */
+const CANADA_FITS: Requirement[] = [
+  { type: "route/state", route: "route.canada-points", in: ["known"] },
+  { type: "document/held", document: "document.eca" },
+];
+/** The master's fits the family meeting while a school's offer is held (offer.md, the pledges). */
+const MASTERS_FITS: Requirement = { type: "route/offer", route: UK };
+/** Decision 0022: with both ways fitting, the plan's way picks; with no plan, the master's. The gift asks Canada to be picked. */
+const CANADA_PICKED: Requirement = { type: "any", of: [{ type: "chapter/plan", route: "route.canada-points" }, { type: "not", of: MASTERS_FITS }] };
+/** The pledges ask the master's to be picked: Canada does not fit, or it is not the plan. */
+const MASTERS_PICKED: Requirement = {
+  type: "any",
+  of: [...CANADA_FITS.map((requirement): Requirement => ({ type: "not", of: requirement })), { type: "not", of: { type: "chapter/plan", route: "route.canada-points" } }],
+};
+
 function sponsorWhen(route: Id<"route">, window: Id<"var">): Requirement[] {
   return [
     { type: "place/is", where: "home" },
@@ -850,7 +865,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.family-pledge": {
     id: "offer.family-pledge",
     group: "money",
-    when: [{ type: "quality/min", quality: "quality.standing", value: 50 }],
+    when: [{ type: "quality/min", quality: "quality.standing", value: 50 }, MASTERS_PICKED],
     chanceBp: 0,
     cooldown: 0,
     maxTimes: 1,
@@ -890,6 +905,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     when: [
       { type: "quality/min", quality: "quality.standing", value: 30 },
       { type: "quality/max", quality: "quality.standing", value: 49 },
+      MASTERS_PICKED,
     ],
     chanceBp: 0,
     cooldown: 0,
@@ -921,6 +937,102 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         fraudEffects: null,
       },
     ],
+    onExpire: null,
+  },
+  // route:education-loan-pays-the-school: a lender that funds Nigerian students' master's abroad pays the school direct, with no collateral or co-signer;
+  // it comes up once the deposit is paid, for no more than the tuition left, while the visa is not yet granted.
+  "offer.education-loan": {
+    id: "offer.education-loan",
+    group: "money",
+    where: "home",
+    when: [
+      { type: "route/deposit", route: UK },
+      { type: "not", of: { type: "route/state", route: UK, in: ["granted", "departed"] } },
+      CREDIT_CLEAN,
+      { type: "not", of: { type: "obligation/has", obligationType: "loan", obligation: "obligation.education-loan" } },
+    ],
+    chanceBp: pct(100),
+    cooldown: 3,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: { min: pounds(1000), max: { from: "tuition-left", route: UK }, fee: tuning.route.loanProcessing },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [{ type: "money/can-pay", currency: "GBP", amount: { term: "fee" } }],
+        pick: { minTerm: "min", maxTerm: "max" },
+        effects: [
+          { type: "money/pay-fee", currency: "GBP", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "obligation/open", obligation: "obligation.education-loan", principal: { term: "amount", bp: 10000 + tuning.route.loanFeeBp } },
+          { type: "route/loan", route: UK, amount: { term: "amount" } },
+        ],
+        fraudEffects: null,
+      },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
+  // abroad-money:missed-tuition-runs-in-stages: the university's payment plan, opened only by the cut of access. The instalment arrives with the
+  // effect that opens it; agreeing pays the fee and spreads what is owed over the course months left (the plan's fee is a working value).
+  "offer.fee-payment-plan": {
+    id: "offer.fee-payment-plan",
+    group: "money",
+    where: "abroad",
+    when: [],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: null,
+    expiresAfter: 1,
+    // The instalment is handed over by the cut of access that opens it; 0 stands until then.
+    terms: { fee: tuning.status.planFee, instalment: 0 },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "agree",
+        requires: [{ type: "money/can-pay", currency: "GBP", amount: { term: "fee" } }],
+        pick: null,
+        effects: [
+          { type: "money/pay-fee", currency: "GBP", amount: { term: "fee" }, reason: "fee-school" },
+          { type: "obligation/plan", obligation: "obligation.tuition" },
+        ],
+        fraudEffects: null,
+      },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
+  // route-gates:family-gift-counts-with-deed: the family meeting's gift for a Canada plan, family means times ₦100,000, a third of the
+  // pledge's show and a gift where the pledge is a signature (working value). Opened only by the meeting, once; it lapses into nothing.
+  "offer.family-gift-canada": {
+    id: "offer.family-gift-canada",
+    group: "money",
+    where: "home",
+    when: [...CANADA_FITS, { type: "quality/min", quality: "quality.standing", value: 40 }, { type: "quality/max", quality: "quality.family-stake", value: 0 }, CANADA_PICKED],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: 1,
+    expiresAfter: 3,
+    terms: { gift: { from: "quality", quality: "quality.family-means", times: naira(100000) } },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "accept",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "money/add", currency: "NGN", pocket: "bank", amount: { term: "gift" }, reason: "gift", flagged: true },
+          { type: "route/gift", route: "route.canada-points", amount: { term: "gift" } },
+          { type: "quality/add", quality: "quality.family-stake", amount: 1 },
+        ],
+        fraudEffects: null,
+      },
+      { id: "decline", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.standing", amount: -2 }], fraudEffects: null },
+    ],
+    // offer:lapsed-offer-removed: an unanswered gift lapses into nothing, as both pledges do.
     onExpire: null,
   },
   // The family's loan (the passbook's family road): opened only by the call to Papa. The house lends what it can, by its
@@ -1017,12 +1129,17 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.sponsor-trust",
     group: "money",
     where: "home",
-    // "Needs care 60" is a condition for the offer coming up.
+    // route-gates:nurses-sponsored-while-care-shut: a trust's post reads no window. It asks the licence, the council's verification and
+    // care 60, and no English figure; the nurse meets English as any applicant does. 4% a month, below the care homes' 8%, for the
+    // fall in international hiring (joiners to the NMC's register fell 47% in 2025 to 2026).
     when: [
-      ...sponsorWhen("route.uk-care", "var.uk-care-window"),
+      { type: "place/is", where: "home" },
+      { type: "route/state", route: "route.uk-care", in: ["known"] },
+      { type: "document/held", document: "document.nursing-licence" },
+      { type: "document/held", document: "document.nmcn-verification" },
       { type: "quality/min", quality: "quality.care", value: 60 },
     ],
-    chanceBp: pct(3),
+    chanceBp: pct(4),
     cooldown: 6,
     maxTimes: null,
     expiresAfter: 2,

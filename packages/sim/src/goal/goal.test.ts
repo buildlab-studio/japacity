@@ -282,7 +282,8 @@ describe("the December visit", () => {
   test("[return:december-visit-set-piece] given the graduate's first month abroad in the December tick, when it goes and spends on everything, then the fare and each answer's price leave its pounds as each is given and the page's standing comes", () => {
     const game = flownGraduate(content);
     applyEffects(game, [
-      { type: "money/add", currency: "GBP", pocket: "bank", amount: 10000 * POUNDS, reason: "gift" },
+      // Enough for the month's bills, half the tuition among them (abroad-money:tuition-paid-in-instalments), and every answer.
+      { type: "money/add", currency: "GBP", pocket: "bank", amount: 20000 * POUNDS, reason: "gift" },
       { type: "quality/add", quality: STANDING, amount: -40 },
     ]);
     game.endTurn();

@@ -9,6 +9,7 @@ import { createGameStore } from "../../../authority/store";
 import { ABROAD_POCKETS, abroadGame, gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { PhoneApps } from "../PhoneApps";
+import { inMonths, say } from "../../../shared/words/text";
 
 const TUITION = "obligation.tuition";
 
@@ -27,7 +28,7 @@ async function billsOf(game: ReturnType<typeof abroadGame>): Promise<string> {
 }
 
 describe("a bill taken every few months", () => {
-  test("[world:phone-holds-what-phones-hold] given tuition taken every three months abroad, when Bills is read the month after one was taken, then it says the next instalment comes in 2 months, not that one is taken this month", async () => {
+  test("[world:phone-holds-what-phones-hold] [abroad-money:tuition-paid-in-instalments] given tuition by its schedule abroad, when Bills is read the month after the half at enrolment, then it says the next instalment comes in course month 3, a month on, not that one is taken this month", async () => {
     const game = abroadGame();
     setPockets(game, { ...ABROAD_POCKETS, GBP: 10_000_000 });
     const dueOf = (): number | undefined => game.view().obligations.find((owed) => owed.entry === TUITION)?.due;
@@ -39,7 +40,8 @@ describe("a bill taken every few months", () => {
     game.endTurn([]);
     expect(dueOf()).toBe(0);
     const bill = await billsOf(game);
-    expect(bill).toContain("Next instalment in 2 months.");
+    // Course month 2 takes nothing; the first eighth falls in course month 3.
+    expect(bill).toContain(say("ui.obligation.next.obligation.tuition", { when: inMonths(2, 1) }));
     expect(bill).not.toContain("Taken at the month's end.");
   });
 

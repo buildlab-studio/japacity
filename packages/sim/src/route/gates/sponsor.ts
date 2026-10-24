@@ -46,6 +46,12 @@ function windowOpen(read: ReadCtx, entry: RouteEntry): boolean {
   return entry.window === null || worldVar(read, entry.window) >= 1;
 }
 
+/** route-gates:nurses-sponsored-while-care-shut: the sponsor recorded is one who may sponsor while the window is shut. */
+function sponsorsWhileShut(entry: RouteEntry, held: RouteState): boolean {
+  const sponsor = sponsorOf(held);
+  return sponsor !== null && settings(entry).openWhileShut.includes(sponsor.employer);
+}
+
 /** route-gates:sponsored-status-on-departure: the job a sponsor route gives on arrival. */
 export function sponsorJob(entry: RouteEntry): Id<"activity"> {
   return settings(entry).job;
@@ -83,11 +89,13 @@ function sponsorOffers(content: Content, route: Id<"route">): OfferEntry[] {
  */
 export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const entry = ctx.content.route[route];
-  if (entry?.gate !== "sponsor" || routeOf(ctx, route).state !== "known" || !windowOpen(ctx, entry)) return [];
+  if (entry?.gate !== "sponsor" || routeOf(ctx, route).state !== "known") return [];
+  const offers = sponsorOffers(ctx.content, route).filter((offer) => offer.when.every((requirement) => ctx.check(requirement).met));
+  // route-gates:nurses-sponsored-while-care-shut: with the window shut, only a post that reads no window may answer, so with none open nothing is drawn.
+  if (!windowOpen(ctx, entry) && offers.length === 0) return [];
   // A search that finds nobody says so on the month's results, as a job hunt's "not this time" does.
   const missed: RouteKindEvent = { type: "route/sponsor-missed", route };
   if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[QUALITY.network] ?? 0, ctx.content.tuning.quality))) return emit(ctx, "route", [missed]);
-  const offers = sponsorOffers(ctx.content, route).filter((offer) => offer.when.every((requirement) => ctx.check(requirement).met));
   const picked = offers.length > 1 ? offers[ctx.random.int("job", offers.length)] : offers[0];
   if (picked === undefined) return emit(ctx, "route", [missed]);
   ctx.apply([{ type: "offer/open", offer: picked.id }], { source: FIND, param: route, terms: {} });
@@ -179,14 +187,17 @@ function record(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 
 export const sponsorGate: Gate = {
   gate: "sponsor",
-  steps: ["sponsor", "salary"],
+  // `open`: the window at 1 or more, or a sponsor recorded who may sponsor while it is shut (route-gates:nurses-sponsored-while-care-shut).
+  steps: ["sponsor", "salary", "open"],
   initial: () => ({ gate: "sponsor", sponsor: null }),
   reached: (read, entry, held, step) => {
     const sponsor = sponsorOf(held);
     if (step === "sponsor") return sponsor !== null;
     if (step === "salary") return sponsor !== null && sponsor.salary >= salaryBar(read, entry);
+    if (step === "open") return windowOpen(read, entry) || sponsorsWhileShut(entry, held);
     return false;
   },
+  appliesShut: (_read, entry, held) => sponsorsWhileShut(entry, held),
   /**
    * route-gates:sponsor-application-needs: the sponsor at the bar, the route's qualification papers,
    * the English (the degree's statement or the band) and, with a maintenance line, the funds covered at one

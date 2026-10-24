@@ -1,5 +1,5 @@
 // The Bank abroad (world:top-band-is-a-pill, world:phone-holds-what-phones-hold): on the graduate's recorded life, landed in London with £1,560
-// (the figure follows the recording) while rent, living costs and a tuition instalment of £7,102 fall due (the UK
+// (the figure follows the recording) while rent, living costs and half the tuition, £10,310 in all, fall due (the UK
 // upkeep includes the phone's £15, abroad-money:arrival-opens-upkeep-and-room), the app leads with the gap and the way to close it, then the pounds,
 // then the naira and the dollars each with Change money. Once flown, there is no move to save toward.
 import type { PlayerView } from "@japacity/sim";
@@ -33,7 +33,7 @@ describe("the month's dues abroad", () => {
     expect(view.place.where).toBe("abroad");
     const gap = duesGap(view);
     expect(gap).toEqual({ currency: "GBP", due: dueOf(view), held: view.pockets.GBP.bank + view.pockets.GBP.cash, from: ["NGN", "USD"] });
-    expect(formatMoney(gap?.due ?? 0, "GBP")).toBe("£7,102");
+    expect(formatMoney(gap?.due ?? 0, "GBP")).toBe("£10,310");
     expect(formatMoney(gap?.held ?? 0, "GBP")).toBe("£1,560");
   });
 
@@ -46,8 +46,10 @@ describe("the month's dues abroad", () => {
     expect(duesGap(game.view())).toMatchObject({ currency: "GBP", due, held: due - 1 });
   });
 
-  test("[world:phone-holds-what-phones-hold] given the graduate changes all its dollars into pounds at the bank, when the dues are read, then the gap is closed", () => {
+  test("[world:phone-holds-what-phones-hold] given the graduate holding dollars enough for the month and changing them all into pounds at the bank, when the dues are read, then the gap is closed", () => {
     const game = recordedGame("graduate-careful");
+    // Half the tuition falls in the first month (abroad-money:tuition-paid-in-instalments), more than the recorded life's dollars cover.
+    setPockets(game, { USD: 2_000_000 });
     game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: game.view().pockets.USD.bank, via: "bank" });
     expect(duesGap(game.view())).toBeNull();
   });
@@ -81,8 +83,8 @@ describe("the Bank abroad", () => {
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
     // The recorded life lands with £1,560 (decision 0012).
-    expect(first?.textContent).toContain(say("phone.bank.dues", { due: "£7,102", held: "£1,560" }));
-    expect(say("phone.bank.dues", { due: "£7,102", held: "£1,560" })).toBe("Due this month: £7,102. You hold £1,560.");
+    expect(first?.textContent).toContain(say("phone.bank.dues", { due: "£10,310", held: "£1,560" }));
+    expect(say("phone.bank.dues", { due: "£10,310", held: "£1,560" })).toBe("Due this month: £10,310. You hold £1,560.");
     // The way names the pair only: Change money is said once on the screen.
     expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });

@@ -1,6 +1,6 @@
 // Status abroad: docs/rules/status.md. One current status,
 // held only abroad, with its clocks: expiry, the job clock, settling.
-import { worldVar, worldVarOr } from "../engine/check";
+import { check, worldVar, worldVarOr } from "../engine/check";
 import { COUNTRY, STATUS, VAR } from "../engine/ids";
 import { BP_WHOLE, convertMinor, mulDiv } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
@@ -178,8 +178,12 @@ export function workAllows(read: ReadCtx, job: ActivityEntry): boolean {
   switch (work) {
     case "any":
       return true;
-    case "part":
-      return job.part === true;
+    case "part": {
+      // status:status-sets-work-rule: from the course's `anyFrom` month any job may be held; a withdrawn student may take a sponsor's job (status:course-passed-or-withdrawn).
+      const course = statusEntry(read.content, current.entry).course;
+      if (course !== undefined && courseMonth(current) >= course.anyFrom) return true;
+      return job.part === true || (job.sponsor === true && current.withdrawn !== undefined);
+    }
     case "one-employer":
       return job.id === current.job || job.sponsor === true;
     case "cash":
@@ -204,13 +208,25 @@ export function passportHeldByEmployer(read: ReadCtx): boolean {
   return current !== null && statusEntry(read.content, current.entry).holdsPassport;
 }
 
-/** status:course-passed-or-withdrawn: held long enough, and no tuition obligation has gone into default. */
+/** status:course-passed-or-withdrawn: the course has counted its months with the student never withdrawn; kept after the status ends. */
 export function coursePassed(read: ReadCtx): boolean {
-  const current = read.state.status.current;
-  if (current === null || current.monthsHeld < read.content.tuning.status.courseMonths) return false;
-  return !Object.values(read.state.obligation.items).some(
-    (item) => item.state === "defaulted" && read.content.obligation[item.entry]?.type === "tuition",
-  );
+  return read.state.status.course?.passed === true;
+}
+
+/**
+ * abroad-money:missed-tuition-runs-in-stages: access to the course is cut: a scheduled tuition in arrears a second month or more, with no plan, the
+ * student not withdrawn. The obligation slice is read here, as the status kind may read any slice.
+ */
+export function accessCut(read: ReadCtx): boolean {
+  return Object.values(read.state.obligation.items).some((item) => {
+    const entry = read.content.obligation[item.entry];
+    return entry?.schedule !== undefined && item.state !== "defaulted" && item.plan === undefined && item.missed >= 2;
+  });
+}
+
+/** The course month of the month in play for a status with a course: the months it has been held, plus the one in play. */
+export function courseMonth(held: StatusState): number {
+  return held.monthsHeld + 1;
 }
 
 /** The ban on the country's routes after a removal, in months: the country's overstayer's figure (place:removal-bans-the-country). */
@@ -360,6 +376,8 @@ function grant(
     },
   ]);
   housing(ctx, before?.entry ?? null, status);
+  // status:course-passed-or-withdrawn: a new course starts from nothing; a status kept from a return carries no new course.
+  if (entry.course !== undefined && kept === null) events.push(...record(ctx, [{ type: "status/course-began" }]));
   return events;
 }
 
@@ -392,6 +410,20 @@ function lose(ctx: Ctx): BaseEvent[] {
   if (ctx.state.place.where !== "abroad") return record(ctx, [{ type: "status/closed", status: now.held.entry }]);
   if (isOverstayer(ctx.content, now.held.entry)) return [];
   return lapse(ctx, "lost");
+}
+
+/** status:course-passed-or-withdrawn: the sponsor reports the withdrawal and the permission is cut to end `curtailMonths` on; the work rule stays. */
+function withdraw(ctx: Ctx): BaseEvent[] {
+  const now = currentOf(ctx);
+  if (now === null || now.entry.course === undefined || now.held.withdrawn !== undefined) return [];
+  return record(ctx, [{ type: "status/withdrawn", expiresMonth: ctx.state.turn.month + ctx.content.tuning.status.curtailMonths, own: now.held.expiresMonth }]);
+}
+
+/** status:course-passed-or-withdrawn: everything owed paid inside the cut months reinstates the student with the status's own end. */
+function reinstate(ctx: Ctx): BaseEvent[] {
+  const now = currentOf(ctx);
+  if (now === null || now.held.withdrawn === undefined) return [];
+  return record(ctx, [{ type: "status/reinstated", expiresMonth: now.held.withdrawn.expiresMonth }]);
 }
 
 /** status:lost-job-starts-clock; status:gulf-status-holds-passport lapses a status that goes with the job at once. */
@@ -469,6 +501,17 @@ function renewRefusal(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, 
   return null;
 }
 
+/**
+ * status:renewing-a-status: what a renewal costs today, read by the job held. A job the entry's `renewByJob` names renews at its fee with no
+ * surcharge, since health and care workers who qualify for that visa pay none; any other at the entry's own fee plus the surcharge for the months.
+ */
+function renewCost(read: ReadCtx, entry: StatusEntry, feeVar: Id<"var">): { fee: number; surcharge: number } {
+  const job = read.state.activity.job;
+  if (entry.renewByJob !== undefined && job !== null && entry.renewByJob.jobs.includes(job)) return { fee: worldVar(read, entry.renewByJob.feeVar), surcharge: 0 };
+  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  return { fee: worldVar(read, feeVar), surcharge };
+}
+
 /** status:renewing-a-status, status:one-renewability-test. */
 function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "status/renew") throw new Error(`status/renew cannot handle ${command.type}.`);
@@ -480,8 +523,7 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const refused = renewRefusal(ctx, held, entry);
   if (refused !== null || held.expiresMonth === null || entry.renewFeeVar === null) return reject("not-legal", refused ?? `${held.entry} does not renew.`);
   const currency = foreignCurrencyOf(ctx.content, entry.country);
-  const fee = worldVar(ctx, entry.renewFeeVar);
-  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(ctx, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  const { fee, surcharge } = renewCost(ctx, entry, entry.renewFeeVar);
   if (!ctx.check({ type: "money/can-pay", currency, amount: fee + surcharge }).met) {
     return reject("cannot-afford", `The renewal costs ${String(fee + surcharge)} in ${currency} and cannot be paid.`);
   }
@@ -581,8 +623,10 @@ function runClock(ctx: Ctx): BaseEvent[] {
 function expire(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null || now.held.expiresMonth === null || ctx.state.turn.month < now.held.expiresMonth) return [];
+  // status:course-passed-or-withdrawn: the permission a withdrawal cut lapses as any status does.
+  if (now.held.withdrawn !== undefined) return lapse(ctx, "lost");
   const { next, nextIf } = now.entry;
-  if (next !== null && coursePassed(ctx) && nextIf.every((requirement) => ctx.check(requirement).met)) {
+  if (next !== null && nextIf.every((requirement) => ctx.check(requirement).met)) {
     return grant(ctx, next, now.held.job, "next", null);
   }
   return lapse(ctx, "expired");
@@ -645,7 +689,71 @@ function clocks(ctx: Ctx): BaseEvent[] {
 function month(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null) return [];
-  return record(ctx, [{ type: "status/aged", lawful: now.entry.countsToSettlement }]);
+  return [...record(ctx, [{ type: "status/aged", lawful: now.entry.countsToSettlement }]), ...courseMonthPlayed(ctx)];
+}
+
+/**
+ * status:course-passed-or-withdrawn: a month of the course counts while the student is not withdrawn; a month under a cut of access waits, and counts
+ * once its arrears are paid or moved into a plan. The course is passed at `courseMonths` counted.
+ */
+function courseMonthPlayed(ctx: Ctx): BaseEvent[] {
+  const held = ctx.state.status.current;
+  const course = ctx.state.status.course;
+  if (held === null || course === undefined || statusEntry(ctx.content, held.entry).course === undefined || held.withdrawn !== undefined || course.passed) return [];
+  const cut = accessCut(ctx);
+  const counted = cut ? course.counted : course.counted + course.waiting + 1;
+  const waiting = cut ? course.waiting + 1 : 0;
+  return record(ctx, [{ type: "status/course-month", counted, waiting, passed: counted >= ctx.content.tuning.status.courseMonths }]);
+}
+
+// ---------------------------------------------------------------------------
+// The Graduate application: status:graduate-visa-applied-for
+// ---------------------------------------------------------------------------
+
+/**
+ * The course the application reads: the current status's when it runs one, from its `anyFrom` month; else, in the grace, the course of the status
+ * that lapsed into it, read from the student entries of the country. Null when no application can be made now.
+ */
+function courseToApply(read: ReadCtx): NonNullable<StatusEntry["course"]> | null {
+  const held = read.state.status.current;
+  if (held === null || read.state.status.course?.passed !== true) return null;
+  const course = statusEntry(read.content, held.entry).course;
+  if (course !== undefined) return courseMonth(held) >= course.anyFrom ? course : null;
+  if (!inGrace(read)) return null;
+  const country = statusEntry(read.content, held.entry).country;
+  return Object.values(read.content.status).find((entry) => entry.course !== undefined && entry.country === country)?.course ?? null;
+}
+
+/** status:graduate-visa-applied-for: the fee and the surcharge for the months of the status applied for, today, in the country's money. */
+export function graduateCost(read: ReadCtx, course: NonNullable<StatusEntry["course"]>): { currency: ForeignCurrency; fee: number; surcharge: number; months: number } {
+  const entry = statusEntry(read.content, course.graduate);
+  const months = lengthOf(read, entry) ?? 0;
+  return { currency: foreignCurrencyOf(read.content, entry.country), fee: worldVar(read, course.feeVar), surcharge: mulDiv(worldVar(read, course.surchargeYearVar), months, MONTHS_PER_YEAR), months };
+}
+
+function judgeCourseDone(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "status/course-done") throw new Error(`status/course-done cannot judge ${requirement.type}.`);
+  const course = courseToApply(read);
+  if (course === null) return { met: false };
+  const cost = graduateCost(read, course);
+  if (cost.months <= 0) return { met: false };
+  return { met: check(read, { type: "money/can-pay", currency: cost.currency, amount: cost.fee + cost.surcharge }).met };
+}
+
+/** status:graduate-visa-applied-for: the fee under fee-visa and the surcharge under fee-surcharge, as foreign fees, then the status in country, its months from today. */
+function graduate(ctx: Ctx): BaseEvent[] {
+  const course = courseToApply(ctx);
+  if (course === null) return [];
+  const cost = graduateCost(ctx, course);
+  if (cost.months <= 0 || !ctx.check({ type: "money/can-pay", currency: cost.currency, amount: cost.fee + cost.surcharge }).met) return [];
+  ctx.apply(
+    [
+      { type: "money/pay-fee", currency: cost.currency, amount: cost.fee, reason: "fee-visa" },
+      { type: "money/pay-fee", currency: cost.currency, amount: cost.surcharge, reason: "fee-surcharge" },
+    ],
+    { source: course.graduate, param: null, terms: {} },
+  );
+  return grant(ctx, course.graduate, null, "granted", { currency: cost.currency, amount: cost.fee + cost.surcharge });
 }
 
 // ---------------------------------------------------------------------------
@@ -706,6 +814,18 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
       return withOverstay(slice, event, (overstay) => ({ ...overstay, fine: overstay.fine + event.amount }));
     case "status/rent-checked":
       return slice;
+    case "status/withdrawn":
+      return withCurrent(slice, event, (held) => ({ ...held, expiresMonth: event.expiresMonth, withdrawn: { expiresMonth: event.own } }));
+    case "status/reinstated":
+      return withCurrent(slice, event, (held) => {
+        const reinstated: StatusState = { ...held, expiresMonth: event.expiresMonth };
+        delete reinstated.withdrawn;
+        return reinstated;
+      });
+    case "status/course-began":
+      return { ...slice, course: { counted: 0, waiting: 0, passed: false } };
+    case "status/course-month":
+      return { ...slice, course: { counted: event.counted, waiting: event.waiting, passed: event.passed } };
     case "status/lapsed":
     case "status/closed":
       return { ...slice, current: null };
@@ -725,7 +845,7 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
         lawfulMonths: held.lawfulMonths + (event.lawful ? 1 : 0),
       }));
     case "status/removed":
-      return { current: null, removals: [...slice.removals, { country: event.country, month: event.month }] };
+      return { ...slice, current: null, removals: [...slice.removals, { country: event.country, month: event.month }] };
     default: {
       const never: never = event;
       throw new Error(`Unknown status event ${JSON.stringify(never)}.`);
@@ -801,6 +921,14 @@ function lines(event: StatusEvent): ReportLine[] {
       return [line("noticed", { country: event.country, months: event.months }, "bad", true)];
     case "status/rent-checked":
       return [line("rent-checked", {}, "bad", true)];
+    case "status/withdrawn":
+      return [line("withdrawn", { month: event.expiresMonth }, "bad", true)];
+    case "status/reinstated":
+      return [line("reinstated", {}, "good", true)];
+    // The course's months show in the view; a line each month would only repeat it.
+    case "status/course-began":
+    case "status/course-month":
+      return [];
     // The grace and the notice held, and the fine, show in the view (status:view-shows-status); a line each month would only repeat it.
     case "status/grace-held":
     case "status/notice-held":
@@ -821,7 +949,8 @@ function lines(event: StatusEvent): ReportLine[] {
 export function nextStepOf(content: Content, entry: StatusEntry): string | null {
   if (entry.citizen !== null) return "status.next.citizen";
   if (entry.countsToSettlement && entry.settled !== null) return "status.next.settle";
-  if (entry.next !== null) return "status.next.course";
+  // status:graduate-visa-applied-for: the way up from a course is the Graduate application once it is passed.
+  if (entry.next !== null || entry.course !== undefined) return "status.next.course";
   if (isOverstayer(content, entry.id)) return "status.next.home";
   if (entry.months !== null) return "status.next.stay";
   return null;
@@ -842,8 +971,18 @@ function view(read: ReadCtx): Pick<PlayerView, "status"> {
       nextStep: nextStepOf(read.content, entry),
       renew: renewTerms(read, current, entry),
       overstay: overstayView(read),
+      graduate: graduateView(read),
     },
   };
+}
+
+/** status:graduate-visa-applied-for: the application's cost from the course's `costFrom` month on a status with a course, so the months to save show. */
+function graduateView(read: ReadCtx): NonNullable<PlayerView["status"]>["graduate"] {
+  const held = read.state.status.current;
+  const course = held === null ? undefined : statusEntry(read.content, held.entry).course;
+  if (held === null || course === undefined || courseMonth(held) < course.costFrom) return null;
+  const { currency, fee, surcharge } = graduateCost(read, course);
+  return { currency, fee, surcharge };
 }
 
 /** status:view-shows-status: the overstay's stages as the screens say them; never the detection chance. */
@@ -866,8 +1005,7 @@ function overstayView(read: ReadCtx): NonNullable<PlayerView["status"]>["oversta
 function renewTerms(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): NonNullable<PlayerView["status"]>["renew"] {
   if (renewRefusal(read, held, entry) !== null || entry.renewFeeVar === null) return null;
   const currency = foreignCurrencyOf(read.content, entry.country);
-  const fee = worldVar(read, entry.renewFeeVar);
-  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  const { fee, surcharge } = renewCost(read, entry, entry.renewFeeVar);
   return { months: entry.renewMonths, currency, fee, surcharge };
 }
 
@@ -899,13 +1037,16 @@ export const statusKind: RegisteredKind<StatusSlice, StatusEvent> = {
   effects: {
     "status/grant": grantEffect,
     "status/lose": lose,
+    "status/withdraw": withdraw,
+    "status/graduate": graduate,
+    "status/reinstate": reinstate,
     "status/remove": (ctx, _effect, cause) => remove(ctx, cause),
     "status/clock-start": clockStart,
   },
   phases: { clocks, month },
   evolve,
   lines,
-  requirements: { "status/is": judgeIs, "status/clock-under": judgeClockUnder },
+  requirements: { "status/is": judgeIs, "status/clock-under": judgeClockUnder, "status/course-done": judgeCourseDone },
   invariants,
   view,
 };

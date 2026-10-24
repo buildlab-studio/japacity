@@ -1194,8 +1194,10 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "var/max":
     case "month/min":
     case "chapter/done":
+    case "chapter/plan":
     case "place/is":
     case "status/is":
+    case "status/course-done":
     case "status/clock-under":
     case "credit/min":
     case "goal/done":

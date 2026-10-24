@@ -23,13 +23,15 @@ import type {
   Terms,
   World,
 } from "../engine/types";
-import { fundsCurrency, fundsRequired } from "../route/route.logic";
+import { fundsCurrency, fundsRequired, tuitionLeft } from "../route/route.logic";
 import { CURRENCIES, officialRates } from "./wallet.rates";
 
 /** The street's savings circle (luck:savings-circle-holds-pot), the road the passbook names as the ajo. */
 const AJO_OFFER: Id<"offer"> = "offer.join-ajo";
-/** The family's road: the meeting for the master's (offer.md, the pledges), else the family's loan asked for by anyone. */
+/** The family's road: the meeting for the master's (offer.md, the pledges) or for Canada (the gift), else the family's loan asked for by anyone. */
 const FAMILY_ACTS: readonly Id<"activity">[] = ["activity.family-meeting", "activity.ask-family-loan"];
+/** The notary's deed that makes the family's gift for Canada count (route-gates:family-gift-counts-with-deed). */
+const DEED_ACT: Id<"activity"> = "activity.gift-deed";
 /** A scholarship that lands as money for the way it names (luck:japa-luck-in-existing-systems). */
 const SCHOLARSHIP_OFFERS: readonly Id<"offer">[] = ["offer.scholarship-round"];
 /** How many closed months the pace reads. */
@@ -283,6 +285,8 @@ function termValue(read: ReadCtx, spec: TermSpec): number {
       return spec.min;
     case "pay":
       return 0;
+    case "tuition-left":
+      return tuitionLeft(read, spec.route);
     default: {
       const never: never = spec;
       throw new Error(`Unknown term ${JSON.stringify(never)}.`);
@@ -322,6 +326,9 @@ function opensOffers(entry: ActivityEntry): Id<"offer">[] {
  * what the offer it opens would bring.
  */
 function familyRoad(read: ReadCtx, route: Id<"route"> | null, funds: number): RoadDraft | null {
+  // route-gates:family-gift-counts-with-deed: the gift taken for the plan's way and not yet counted, the road is its deed.
+  const deed = route === null ? null : deedRoad(read, route);
+  if (deed !== null) return deed;
   const act = FAMILY_ACTS.map((id) => read.content.activity[id]).find((entry): entry is ActivityEntry => entry !== undefined && (entry.counts.length === 0 || (route !== null && entry.counts.includes(route))));
   if (act === undefined) return null;
   const offers = opensOffers(act).flatMap((id) => {
@@ -334,6 +341,18 @@ function familyRoad(read: ReadCtx, route: Id<"route"> | null, funds: number): Ro
   const asked = offers.find((offer) => unmetOf(read, offer.entry.when).length === 0) ?? offers[0];
   const needs = unmetOf(read, act.requires);
   return { road: "family", via: act.id, state: needs.length === 0 && asked !== undefined ? "open" : "shut", needs, offer: null, monthly: 0, lump: asked === undefined ? 0 : offerLump(read, asked.entry, null, route, funds) };
+}
+
+/**
+ * wallet:roads-to-the-target, route-gates:family-gift-counts-with-deed: the family's gift taken on the plan's way and not yet counted names its deed, the act that
+ * makes it count: open while it can be asked for, shut while it is being made. It brings nothing more to the money held.
+ */
+function deedRoad(read: ReadCtx, route: Id<"route">): RoadDraft | null {
+  const gift = read.state.route[route]?.gift;
+  const act = read.content.activity[DEED_ACT];
+  if (gift === undefined || gift.deeded || act === undefined) return null;
+  const needs = unmetOf(read, act.requires);
+  return { road: "family", via: act.id, state: needs.length === 0 ? "open" : "shut", needs, offer: null, monthly: 0, lump: 0 };
 }
 
 /** A scholarship for the plan's way (luck:japa-luck-in-existing-systems): open while its offer stands, else waiting on what it asks and on the round. */

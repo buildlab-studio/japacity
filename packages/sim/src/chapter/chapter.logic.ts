@@ -319,6 +319,15 @@ function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
   return { met: read.state.chapter.done.some((id) => id === requirement.chapter || baseChapterOf(read.content, id) === requirement.chapter) };
 }
 
+/**
+ * `chapter/plan`: the way the chapters follow is this route (decision 0022): the grant, else the chosen way, else the order in time; with none
+ * heard of, the master's (route-gates:family-gift-counts-with-deed reads it when the master's and Canada both fit).
+ */
+function judgePlan(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "chapter/plan") throw new Error(`The chapter kind cannot judge ${requirement.type}.`);
+  return { met: leanRoute(read.state.route, read.content, read.state.chapter.chosen ?? null) === requirement.route };
+}
+
 // ---------------------------------------------------------------------------
 // The send-off card: chapter:send-off-card-on-close
 // ---------------------------------------------------------------------------
@@ -381,7 +390,7 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
   phases: { chapter: closeFinished },
   evolve,
   lines,
-  requirements: { "chapter/done": judgeDone },
+  requirements: { "chapter/done": judgeDone, "chapter/plan": judgePlan },
   invariants(state, content) {
     const problems: string[] = [];
     const { current, done } = state.chapter;

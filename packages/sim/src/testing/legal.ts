@@ -223,7 +223,9 @@ function fromRoute(view: PlayerView): Loose[] {
         if (school.state === "offer") commands.push({ type: "route/pay-deposit", route: route.id, school: school.id });
       }
     }
-    if (route.state === "granted" && !holding && naira >= FLIGHT_BOUND && view.place.where === "home") commands.push({ type: "route/depart", route: route.id });
+    // route-gates:canada-funds-checked-at-departure: a granted way whose funds are short on the day cannot be flown.
+    const short = route.gate?.gate === "points" && route.gate.fundsShort > 0;
+    if (route.state === "granted" && !holding && !short && naira >= FLIGHT_BOUND && view.place.where === "home") commands.push({ type: "route/depart", route: route.id });
   }
   return commands;
 }

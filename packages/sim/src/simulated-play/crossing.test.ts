@@ -273,21 +273,28 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.state.status.current).toMatchObject({ entry: OVERSTAYER, clock: null, expiresMonth: null });
   });
 
-  test("[status:course-passed-or-withdrawn] [obligation:loan-default-and-recovery] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded flight on the student status with no pounds to pay its tuition, when the instalment is missed past its grace, then the tuition defaults and the student is withdrawn the same month: the status lapses at once to the overstayer", () => {
+  test("[status:course-passed-or-withdrawn] [abroad-money:missed-tuition-runs-in-stages] [abroad-money:tuition-paid-in-instalments] given the graduate's recorded flight on the student status with no pounds to pay its tuition, when the stages run out, then the student is withdrawn only at the fourth month in arrears, the permission runs two months more, and then it lapses to the overstayer", () => {
     const game = replayTo("graduate-careful", content, (played) => played.state.place.where === "abroad");
+    applyEffects(game, [
+      ...(game.state.wallet.pockets.GBP.bank > 0 ? [{ type: "money/take", currency: "GBP", pocket: "bank", amount: game.state.wallet.pockets.GBP.bank, reason: "mishap" } as const] : []),
+      ...(game.state.wallet.pockets.GBP.cash > 0 ? [{ type: "money/take", currency: "GBP", pocket: "cash", amount: game.state.wallet.pockets.GBP.cash, reason: "mishap" } as const] : []),
+    ]);
     expect(game.state.status.current?.entry).toBe(STUDENT);
-    const grace = content.obligation[TUITION]?.grace ?? 0;
-    let defaulted: Accepted | null = null;
+    let withdrawn: Accepted | null = null;
     const statuses: (Id<"status"> | undefined)[] = [];
-    for (let played = 0; played <= grace + 1 && defaulted === null; played += 1) {
+    for (let played = 0; played < 4 && withdrawn === null; played += 1) {
       const result = month(game);
-      if (eventsOf(result, "obligation/defaulted").some((event) => event.entry === TUITION)) defaulted = result;
+      if (eventsOf(result, "obligation/defaulted").some((event) => event.entry === TUITION)) withdrawn = result;
       else statuses.push(game.state.status.current?.entry);
     }
-    // Every month before the default the student status stands.
-    expect(statuses.filter((status) => status !== STUDENT)).toEqual([]);
-    if (defaulted === null) throw new Error("The tuition never defaulted.");
-    expect(eventsOf(defaulted, "status/lapsed")).toEqual([expect.objectContaining({ status: STUDENT, why: "lost" })]);
+    // Every month of the warnings the student status stands.
+    expect(statuses).toEqual([STUDENT, STUDENT, STUDENT]);
+    if (withdrawn === null) throw new Error("The student was never withdrawn.");
+    expect(eventsOf(withdrawn, "status/withdrawn")).toHaveLength(1);
+    expect(game.state.status.current?.entry).toBe(STUDENT);
+    month(game);
+    const lapsed = month(game);
+    expect(eventsOf(lapsed, "status/lapsed")).toEqual([expect.objectContaining({ status: STUDENT, why: "lost" })]);
     expect(game.state.status.current?.entry).toBe(OVERSTAYER);
   });
 
@@ -350,7 +357,8 @@ describe("whole-life rules that cross kinds", () => {
     const game = flownGraduate(content);
     const country = content.country["country.uk"]!;
     expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: bp(country.fare, country.decemberFactorBp) });
-    setPockets(game, { GBP: 1000000 });
+    // Enough for the month's bills, half the tuition among them (abroad-money:tuition-paid-in-instalments), and the dearest visit.
+    setPockets(game, { GBP: 2000000 });
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     game.endTurn();
     expect(game.state.setpiece.open?.entry).toBe("setpiece.december");

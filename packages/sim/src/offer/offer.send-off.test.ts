@@ -177,8 +177,13 @@ describe("home's send-off, the month of the grant", () => {
     expect(party?.effects[0]).toEqual({ type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "social" });
   });
 
-  test("[chapter:family-marks-the-grant] [offer:come-up-rolls-in-order] given the month's rolls, when their order is read, then the send-off is rolled first of all, so the grant month's loan offers never take both of the month's places before it", () => {
-    expect(rollOrder(content)[0]?.id).toBe(SEND_OFF);
+  test("[chapter:family-marks-the-grant] [offer:come-up-rolls-in-order] [route:education-loan-pays-the-school] given the month's rolls, when their order is read, then the only offer rolled before the send-off is the education loan, which never comes up once a visa is granted, so the grant month's loan offers never take both of the month's places before it", () => {
+    const order = rollOrder(content).map((entry) => entry.id);
+    const before = order.slice(0, order.indexOf(SEND_OFF));
+    expect(before).toEqual(["offer.education-loan"]);
+    for (const id of before) {
+      expect(content.offer[id]!.when).toContainEqual({ type: "not", of: { type: "route/state", route: "route.uk-masters", in: ["granted", "departed"] } });
+    }
   });
 
   test("[chapter:family-marks-the-grant] given the house in content, when what it stages is read, then the send-off is staged there", () => {

@@ -95,7 +95,8 @@ describe("statuses", () => {
     const sponsored = content.status["status.uk-sponsored"];
     // 36 months, one employer, a 60-day clock, renewed for 24 months.
     expect(sponsored).toMatchObject({ months: 36, work: "one-employer", clockMonths: 2, renewMonths: 24, settled: "status.uk-settled" });
-    expect(content.status["status.uk-student"]).toMatchObject({ months: 16, work: "part", next: "status.uk-graduate" });
+    // status:graduate-visa-applied-for: no status follows the student by the clock; the course leads to the Graduate visa by application.
+    expect(content.status["status.uk-student"]).toMatchObject({ months: 16, work: "part", next: null, course: { vacations: [4, 8], anyFrom: 13, graduate: "status.uk-graduate", feeVar: "var.uk-graduate-fee", surchargeYearVar: "var.uk-surcharge-year", costFrom: 9 } });
     expect(content.status["status.uk-graduate"]?.months).toBe("var.uk-graduate-months");
     expect(content.status["status.uk-settled"]).toMatchObject({ months: null, citizenAfter: 12, citizen: "status.uk-citizen" });
     // The Gulf worker: 24 months, lapses at once, the employer holds the passport.
@@ -105,12 +106,15 @@ describe("statuses", () => {
     expect(content.status["status.canada-overstayer"]).toMatchObject({ banMonths: 120, detectBp: 100 });
     expect(content.status["status.uae-irregular"]?.detectBp).toBe(200);
     expect(content.status["status.eu-irregular"]).toMatchObject({ banMonths: 36, detectBp: 100 });
-    // Fees and months from the world: £3,226, £1,709, £1,865, £1,035 a year, C$630; 24, 60, 36, 36 months.
+    // Fees and months from the world: £3,226, £1,709, £943, £1,035 a year, C$653, the Graduate visa's £937; 24, 60, 36, 36 months.
     expect(content.var["var.uk-settle-fee"]?.start).toBe(322600);
     expect(content.var["var.uk-citizen-fee"]?.start).toBe(170900);
-    expect(content.var["var.uk-skilled-renew-fee"]?.start).toBe(186500);
+    expect(content.var["var.uk-skilled-renew-fee"]?.start).toBe(94300);
     expect(content.var["var.uk-surcharge-year"]?.start).toBe(103500);
-    expect(content.var["var.canada-citizen-fee"]?.start).toBe(63000);
+    expect(content.var["var.canada-citizen-fee"]?.start).toBe(65300);
+    expect(content.var["var.uk-graduate-fee"]?.start).toBe(93700);
+    // status:renewing-a-status: the care, senior care and nurse jobs renew at the Health and Care fee.
+    expect(content.status["status.uk-sponsored"]?.renewByJob).toEqual({ jobs: ["activity.job-uk-care", "activity.job-uk-senior-care", "activity.job-uk-nurse"], feeVar: "var.uk-care-visa-fee" });
     expect(content.var["var.uk-graduate-months"]?.start).toBe(24);
     expect(content.var["var.uk-settle-months"]?.start).toBe(60);
     expect(content.var["var.uk-talent-settle-months"]?.start).toBe(36);

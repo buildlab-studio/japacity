@@ -34,13 +34,17 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   // Fees in force from 8 Apr 2026, in pence.
   "var.uk-settle-fee": { id: "var.uk-settle-fee", start: pounds(3226) },
   "var.uk-citizen-fee": { id: "var.uk-citizen-fee", start: pounds(1709) },
-  "var.uk-skilled-renew-fee": { id: "var.uk-skilled-renew-fee", start: pounds(1865) },
+  // status:renewing-a-status: up to three years from inside the UK, £943 (gov.uk, Skilled Worker visa, how much it costs).
+  "var.uk-skilled-renew-fee": { id: "var.uk-skilled-renew-fee", start: pounds(943) },
+  // status:graduate-visa-applied-for: £937 (gov.uk, Graduate visa).
+  "var.uk-graduate-fee": { id: "var.uk-graduate-fee", start: pounds(937) },
   // The health surcharge for workers, a year.
   "var.uk-surcharge-year": { id: "var.uk-surcharge-year", start: pounds(1035) },
   // 1,095 days in five years, read as 36 lawful months.
   "var.canada-settle-months": { id: "var.canada-settle-months", start: 36 },
   // Canadian cents.
-  "var.canada-citizen-fee": { id: "var.canada-citizen-fee", start: cad(630) },
+  // C$653 for an adult: the processing fee and the right of citizenship fee together (IRCC fee list).
+  "var.canada-citizen-fee": { id: "var.canada-citizen-fee", start: cad(653) },
   // route-gates.md: windows. The care route is closed to applicants abroad (22 Jul 2025).
 
   "var.uk-care-window": { id: "var.uk-care-window", start: 0 },
@@ -68,6 +72,8 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   // and no work (289) never reaches either. The care cut-off sits below by the share of the real ones, 475 of 520.
   "var.canada-cutoff": { id: "var.canada-cutoff", start: 405 },
   "var.canada-care-cutoff": { id: "var.canada-care-cutoff", start: 370 },
+  // director:education-draw-opens-for-a-time: no education draw until the story sets one; 365 while it stands, the general start times 470 over 520.
+  "var.canada-education-cutoff": { id: "var.canada-education-cutoff", start: 9999 },
   "var.canada-decision-months": { id: "var.canada-decision-months", start: 6 },
   // route-gates:canada-return-asks-authorisation: the authorisation to return and the removal costs repaid, in Canadian cents.
   "var.canada-arc-fee": { id: "var.canada-arc-fee", start: 49250 },

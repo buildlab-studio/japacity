@@ -128,6 +128,8 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // The care route is exempt from the surcharge.
       surchargeYears: 0,
       job: "activity.job-uk-care",
+      // route-gates:nurses-sponsored-while-care-shut: the closure of 22 Jul 2025 was to care workers; a trust still sponsors a registered nurse.
+      openWhileShut: ["trust"],
     },
   },
   "route.uk-skilled": {
@@ -169,6 +171,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // Three years of status (route-gates:sponsor-application-needs).
       surchargeYears: 3,
       job: "activity.job-uk-skilled",
+      openWhileShut: [],
     },
   },
 
@@ -205,6 +208,8 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       fundsVar: "var.canada-funds",
       cutoffVar: "var.canada-cutoff",
       careCutoffVar: "var.canada-care-cutoff",
+      // route-gates:pool-draws-invite: the education cut-off stands only while the director's education draw is in force.
+      educationCutoffVar: "var.canada-education-cutoff",
       feeVar: "var.canada-apply-fee",
       decisionVar: "var.canada-decision-months",
       // A profile lasts 12 months (route-gates:entering-the-pool and route-gates:profile-lapses-and-score-ages).

@@ -111,6 +111,9 @@ export const tuning: Tuning = {
     decisionMonths: 1,
     flight: { currency: "NGN", amount: naira(1100000) },
     hintPrep: 40,
+    // route:education-loan-pays-the-school: the lender's $500 processing fee, £380 at the start rates, and its 4.2% administration fee added to the loan.
+    loanProcessing: pounds(380),
+    loanFeeBp: 420,
   },
 
   // offer.md
@@ -130,7 +133,19 @@ export const tuning: Tuning = {
   // status:overstayer-hospital-charged: the hospital at 150% of its figure past the grace in the UK. person:partner-route-in-country: the
   // ten-year partner route for a status granted in country past the grace. abroad-money:right-to-rent-check: the wellbeing a room lost to the check costs.
   // status:absence-breaks-settlement: 6 months or more at home inside any 12 starts the road to settling again (Appendix Continuous Residence).
-  status: { courseMonths: 12, hospitalChargeBp: 15000, overstayPartnerSettleMonths: 120, rentCheckWellbeing: -6, absenceMonths: 6, absenceWindowMonths: 12 },
+  // status:status-sets-work-rule: 37.5 hours for 20 in a vacation month. status:course-passed-or-withdrawn: a withdrawn student's permission is cut to 60
+  // days (cancellation guidance v12.0). abroad-money:missed-tuition-runs-in-stages: the plan's £50, a working value for "late fees at actual cost".
+  status: {
+    courseMonths: 12,
+    hospitalChargeBp: 15000,
+    overstayPartnerSettleMonths: 120,
+    rentCheckWellbeing: -6,
+    absenceMonths: 6,
+    absenceWindowMonths: 12,
+    vacationPayBp: 18750,
+    curtailMonths: 2,
+    planFee: pounds(50),
+  },
 
   // credit.md
   // credit:clean-mark-drifts-up: a clean year before the file drifts.

@@ -49,6 +49,8 @@ import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
+/** route:education-loan-pays-the-school: the regulated education loan, closed with nothing owed when the visa is refused. */
+const EDUCATION_LOAN: Id<"obligation"> = "obligation.education-loan";
 /** The university's confirmation, granted with the deposit and voided by a refusal. */
 const CAS: Id<"document"> = "document.cas";
 const LIVING_LINE: Id<"var"> = "var.uk-living-line";
@@ -190,12 +192,23 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
   if (gate.funds !== undefined) return gate.funds(read, entry, held)?.required ?? 0;
   const living = ukVar(read, LIVING_LINE) * ukVar(read, LIVING_MONTHS);
   let course: number;
-  if (held.school !== null) course = courseOf(read, held, held.school) - held.depositPaid;
+  // route:education-loan-pays-the-school: what a loan paid the school comes off the funds required.
+  if (held.school !== null) course = tuitionLeft(read, route);
   else {
     const offers = entry.schools.filter((id) => held.schools[id]?.state === "offer");
     course = (offers.length > 0 ? cheapest(read, held, offers, true) : cheapest(read, held, entry.schools, false)) ?? 0;
   }
   return Math.max(0, course) + living;
+}
+
+/**
+ * route:education-loan-pays-the-school, abroad-money:tuition-paid-in-instalments: the tuition the route's school still asks, in pence: its tuition less its
+ * discount, the deposit paid and what an education loan paid it; 0 with no school.
+ */
+export function tuitionLeft(read: ReadCtx, route: Id<"route">): number {
+  const held = routeOf(read.state, route);
+  if (held.school === null) return 0;
+  return Math.max(0, courseOf(read, held, held.school) - held.depositPaid - (held.loanPaid ?? 0));
 }
 
 /**
@@ -423,7 +436,8 @@ function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const entry = entryOf(ctx.content, route);
   const held = routeOf(ctx.state, route);
   if (held.state !== "known" || !GATES[entry.gate].mayApply(ctx, entry, held, cause)) return [];
-  if (windowOf(readOf(ctx), route) === "closed" || !conditionsHold(ctx, held, cause)) return [];
+  const shut = windowOf(readOf(ctx), route) === "closed" && GATES[entry.gate].appliesShut?.(readOf(ctx), entry, held) !== true;
+  if (shut || !conditionsHold(ctx, held, cause)) return [];
   return sendApplication(ctx, entry, cause);
 }
 
@@ -480,6 +494,44 @@ function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const amount = ctx.amount(effect.amount, cause.terms);
   if (amount < 0) throw new Error(`Support must not be negative, got ${String(amount)}.`);
   return [own({ type: "route/supported", route: effect.route, support: { currency: effect.currency, amount } })];
+}
+
+/**
+ * route:family-pledge-pays-tuition: the pledge pays the school. A charge abroad the student's pounds cannot meet is valued in naira at the day's
+ * official rate and lowered from the pledge's `show` on the study route it stands on, and that much lands in the bank of the charge's currency
+ * under `gift`, unflagged: the parent's account the visa counted is the account the fees come from. A pledge too small pays what is left of it.
+ */
+function pledgePay(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "route/pledge-pay") throw new Error(`route/pledge-pay cannot carry out ${effect.type}.`);
+  const rates = officialRates(ctx.world);
+  const standing = Object.values(ctx.content.route).find((entry) => entry.gate === "study" && (routeOf(ctx.state, entry.id).support?.amount ?? 0) > 0);
+  if (standing === undefined || effect.amount <= 0) return [];
+  const support = routeOf(ctx.state, standing.id).support!;
+  const asked = convertMinor(effect.amount, effect.currency, support.currency, rates);
+  const naira = Math.min(asked, support.amount);
+  const paid = naira === asked ? effect.amount : convertMinor(naira, support.currency, effect.currency, rates);
+  if (naira <= 0) return [];
+  const events = record(ctx, { type: "route/pledge-paid", route: standing.id, spent: naira, paid: { currency: effect.currency, amount: paid } });
+  if (paid > 0) ctx.apply([{ type: "money/add", currency: effect.currency, pocket: "bank", amount: paid, reason: "gift" }], { source: standing.id, param: null, terms: {} });
+  return events;
+}
+
+/** route:education-loan-pays-the-school: the loan's amount paid to the school, recorded on the route; one loan a route. */
+function loan(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/loan") throw new Error(`route/loan cannot carry out ${effect.type}.`);
+  const held = routeOf(ctx.state, effect.route);
+  const amount = ctx.amount(effect.amount, cause.terms);
+  if (amount <= 0 || (held.loanPaid ?? 0) > 0) return [];
+  return [own({ type: "route/loan-paid", route: effect.route, amount })];
+}
+
+/** route-gates:family-gift-counts-with-deed: the family's gift recorded on the route in naira, uncounted until its deed is held. */
+function gift(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/gift") throw new Error(`route/gift cannot carry out ${effect.type}.`);
+  entryOf(ctx.content, effect.route);
+  const amount = ctx.amount(effect.amount, cause.terms);
+  if (amount <= 0) return [];
+  return [own({ type: "route/gifted", route: effect.route, amount })];
 }
 
 /**
@@ -597,6 +649,9 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (ctx.state.place.where === "abroad") return reject("not-legal", "No flight leaves from abroad. The gate is at the Lagos airport.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
+  // route-gates:canada-funds-checked-at-departure: a gate that asks its funds again on the day refuses the flight while they are short; the grant stands.
+  const short = token === null ? (GATES[entry.gate].departureShort?.(readOf(ctx), entry, held) ?? 0) : 0;
+  if (short > 0) return reject("not-legal", `The money to show is ${String(short)} short of the line on the day of the flight.`, "funds");
   const flight = ctx.content.tuning.route.flight;
   const amount = ctx.amount(flight.amount);
   // route-gates:departure-grants-status: the employer's flight costs nothing. A flight on a kept status is the character's own.
@@ -758,6 +813,8 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const cause: Cause = { source: route, param: null, terms: {} };
   if (held.visa.surchargePaid > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: held.visa.surchargePaid, reason: "refund" }], cause);
   if (entry.gate === "study") ctx.apply([{ type: "document/void", document: CAS }], cause);
+  // route:education-loan-pays-the-school: the school sends the loan's money back to the lender, so the loan closes with nothing owed; the processing fee is lost.
+  if ((held.loanPaid ?? 0) > 0 && ctx.content.obligation[EDUCATION_LOAN] !== undefined) ctx.apply([{ type: "obligation/close", obligationType: "loan", obligation: EDUCATION_LOAN }], cause);
   // route-gates:deception-bans-country: deception bans every route into the country for the country's months.
   if (decision.override !== null && decision.bans && entry.country !== null) {
     const months = ctx.content.country[entry.country]?.deceptionBanMonths ?? 0;
@@ -865,8 +922,10 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "var/max":
     case "month/min":
     case "chapter/done":
+    case "chapter/plan":
     case "place/is":
     case "status/is":
+    case "status/course-done":
     case "status/clock-under":
     case "credit/min":
     case "goal/done":
@@ -958,6 +1017,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
         lastRefusal: { month: event.month, reasons: event.reasons },
         school: null,
         depositPaid: 0,
+        // route:education-loan-pays-the-school: the school sends a loan's money back to the lender.
+        loanPaid: 0,
         funds: { ...held.funds, heldMonths: 0 },
         visa: null,
         depositRefund: event.depositRefund,
@@ -966,6 +1027,14 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, depositRefund: null }));
     case "route/supported":
       return withRoute(slice, event.route, (held) => ({ ...held, support: event.support }));
+    case "route/gifted":
+      return withRoute(slice, event.route, (held) => ({ ...held, gift: { amount: event.amount, deeded: false } }));
+    case "route/gift-deeded":
+      return withRoute(slice, event.route, (held) => (held.gift === undefined ? held : { ...held, gift: { ...held.gift, deeded: true } }));
+    case "route/pledge-paid":
+      return withRoute(slice, event.route, (held) => (held.support === null ? held : { ...held, support: { ...held.support, amount: held.support.amount - event.spent } }));
+    case "route/loan-paid":
+      return withRoute(slice, event.route, (held) => ({ ...held, loanPaid: event.amount }));
     case "route/gate-updated":
       return withRoute(slice, event.route, (held) => (event.secret === undefined ? { ...held, gate: event.gate } : { ...held, gate: event.gate, secret: event.secret }));
     case "route/sponsor-missed":
@@ -1091,6 +1160,15 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("deposit-refunded", { route: event.route, amount: pounds(event.amount) }, "good")];
     case "route/supported":
       return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
+    case "route/gifted":
+      // The wallet's line tells the money; this one says what the gift still needs before it counts.
+      return [line("gifted", { route: event.route, amount: { currency: "NGN", amount: event.amount } }, "plain", true)];
+    case "route/gift-deeded":
+      return [line("gift-deeded", { route: event.route }, "good", true)];
+    case "route/pledge-paid":
+      return [line("pledge-paid", { route: event.route, amount: event.paid }, "good", false)];
+    case "route/loan-paid":
+      return [line("loan-paid", { route: event.route, amount: pounds(event.amount) }, "good", false)];
     case "route/gate-updated":
       // road:road-earns-nothing: the chain's lines are tone `bad`.
       return event.note === null ? [] : [line(event.note, { route: event.route }, event.gate?.gate === "road" ? "bad" : "plain", true)];
@@ -1156,6 +1234,7 @@ function routeView(read: ReadCtx, id: Id<"route">, held: RouteState): RouteView 
     })),
     school: held.school,
     depositPaid: held.depositPaid,
+    loanPaid: held.loanPaid ?? 0,
     support: held.support,
     funds: held.funds,
     unexplainedBp: unexplainedBp(read, id),
@@ -1197,6 +1276,8 @@ function routeProblems(id: Id<"route">, held: RouteState, content: Content): str
   ] as const) {
     if (!Number.isSafeInteger(value) || value < 0) problems.push(`${id} has ${name} ${String(value)}.`);
   }
+  // route-gates:family-gift-counts-with-deed: a gift recorded is whole naira above nothing.
+  if (held.gift !== undefined && (!Number.isSafeInteger(held.gift.amount) || held.gift.amount <= 0)) problems.push(`${id} records a gift of ${String(held.gift.amount)}.`);
   return problems;
 }
 
@@ -1234,6 +1315,9 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply-school": applySchool,
     "route/apply": applyVisa,
     "route/support": support,
+    "route/gift": gift,
+    "route/pledge-pay": pledgePay,
+    "route/loan": loan,
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
     "route/lapse": lapse,

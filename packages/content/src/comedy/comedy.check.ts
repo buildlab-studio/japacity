@@ -38,6 +38,10 @@ const ALSO_BAD: readonly string[] = [
   "line.wallet.flagged",
   "line.wallet.assistance",
   "line.obligation.group-visit",
+  // abroad-money:missed-tuition-runs-in-stages: the fees office's letters before a withdrawal.
+  "line.obligation.tuition-reminder",
+  "line.obligation.tuition-cut",
+  "line.obligation.tuition-warning",
   "line.quality.loss",
   "line.quality.worn",
   "line.credit.reopened",

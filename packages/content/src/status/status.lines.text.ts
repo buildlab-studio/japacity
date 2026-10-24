@@ -16,6 +16,9 @@ export const statusLinesText: Record<string, string> = {
   "line.status.employer-renewed": "The employer kept you on. {status} runs {months} months more, at their cost.",
   "line.status.removed": "They found you. You were put on a plane to Lagos, and {country} is closed to you for {months} months.",
   "line.status.noticed": "You have been found. A notice says you must leave {country} or put your papers right within {months} months.",
+  // status:course-passed-or-withdrawn: the withdrawal cuts the permission; paying everything owed restores it.
+  "line.status.withdrawn": "The Home Office cut your student visa to end {month}. Pay what you owe the university, take a new course or find a sponsor's job before then.",
+  "line.status.reinstated": "The university has reinstated you. Your student visa runs to its own end again.",
   "line.status.rent-checked": "The landlord checked your papers and ended your room. The room you found asks no papers, and it costs more.",
   "line.status.closed": "You no longer hold {status}.",
 };

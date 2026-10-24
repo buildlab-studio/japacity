@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import { bp, convertMinor, divCeil } from "../engine/int";
+import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { BaseEvent, Id, ObligationEntry, ObligationState, ReportLine } from "../engine/types";
 import { playMonths } from "../testing/place.journey";
@@ -12,7 +12,8 @@ import { eventsOf, readOf } from "../testing/read";
 import { carPaid, carTerms, carView } from "./obligation.logic";
 import { abroad, closeTypes, isOpen, markBy, markOf, nextMonth, openOwed, owedOf, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
-import { AGENT_DEBT, CAR, RENT_FLAT, RENT_ROOM, SHORTFALL, STANDING, STUDENT, TUITION, UK_PHONE, UK_UPKEEP, WELLBEING } from "../testing/ids";
+import { AGENT_DEBT, CAR, OVERSTAYER, RENT_FLAT, RENT_ROOM, SHORTFALL, STANDING, STUDENT, TUITION, UK_PHONE, UK_ROUTE, UK_UPKEEP, WELLBEING } from "../testing/ids";
+import { officialRates } from "../wallet/wallet.rates";
 
 const CREDIT = content.tuning.credit;
 
@@ -197,60 +198,201 @@ describe("the phone", () => {
 // ---------------------------------------------------------------------------
 
 describe("tuition", () => {
-  const PRINCIPAL = 1200000;
+  // An odd figure, so the last instalment's rounding shows.
+  const PRINCIPAL = 1200001;
+  const PLAN_FEE = content.tuning.status.planFee;
+  const PLAN: Id<"offer"> = "offer.fee-payment-plan";
 
   function student(): { game: Game; tuition: ObligationState } {
     const game = abroad(content);
     // The study gate opened the real tuition on departure (abroad-money:tuition-paid-in-instalments); these tests pin a round figure instead.
     closeTypes(game, "rent", "upkeep", "tuition");
+    expect(game.state.route[UK_ROUTE]!.support).toBeNull();
     return { game, tuition: openOwed(game, TUITION, PRINCIPAL) };
   }
 
-  test("[abroad-money:tuition-paid-in-instalments] given tuition in three instalments, when the course runs, then a third is charged in months 1, 4 and 7 and nothing between, and it closes paid", () => {
-    const { game, tuition } = student();
-    const part = divCeil(PRINCIPAL, entryOf(TUITION).term!);
-    const charged: number[] = [];
-    for (let month = 1; month <= 7; month += 1) {
-      const result = nextMonth(game);
-      const events = eventsOf(result, "obligation/charged").filter((event) => event.id === tuition.id);
-      if (events.length > 0) charged.push(month);
-      expect(events.map((event) => event.total)).toEqual(events.length > 0 ? [Math.min(part, PRINCIPAL - (charged.length - 1) * part)] : []);
-    }
-    expect(charged).toEqual([1, 4, 7]);
-    expect(isOpen(game, TUITION)).toBe(false);
-    expect(game.state.wallet.totals.out["fee-school"]?.GBP).toBeGreaterThanOrEqual(PRINCIPAL);
+  function charges(result: { events: BaseEvent[] }, id: string): number[] {
+    return eventsOf(result, "obligation/charged")
+      .filter((event) => event.id === id)
+      .map((event) => event.total as number);
+  }
+
+  function stageKeys(result: { lines: ReportLine[] }): string[] {
+    return keysOf(result.lines, "line.obligation.tuition-");
+  }
+
+  /** The months in arrears without a plan, with nothing in pounds: each month's results. */
+  function missedMonths(game: Game, count: number): { lines: ReportLine[]; events: BaseEvent[] }[] {
+    setPockets(game, { GBP: 0 });
+    const results = [];
+    for (let month = 0; month < count; month += 1) results.push(nextMonth(game));
+    return results;
+  }
+
+  function planOpen(game: Game): string | null {
+    return Object.values(game.state.offer.items).find((item) => item.entry === PLAN)?.id ?? null;
+  }
+
+  test("[abroad-money:tuition-paid-in-instalments] given the tuition's entry, when it is read, then it carries a schedule by course month, half then four eighths, and no grace count that could default it", () => {
+    const entry = entryOf(TUITION);
+    expect(entry.schedule).toEqual([5000, 0, 1250, 1250, 1250, 1250]);
+    expect(entry.schedule!.reduce((sum, share) => sum + share, 0)).toBe(10000);
+    expect(entry.everyMonths).toBeUndefined();
+    expect(entry.term).toBeNull();
+    expect(entry.sink).toBe("fee-school");
   });
 
-  test("[abroad-money:tuition-paid-in-instalments] given an instalment missed, when the next month pays it, then the student stays and the next instalment falls three months after the first", () => {
+  test("[abroad-money:tuition-paid-in-instalments] given tuition with the money to pay it, when the course runs, then half is charged in course month 1, nothing in month 2, an eighth in each of months 3 to 6 with the last rounded so the whole is paid, nothing after, and it closes paid", () => {
     const { game, tuition } = student();
-    const pounds = game.state.wallet.pockets.GBP.bank;
-    setPockets(game, { GBP: 0 });
-    nextMonth(game);
-    expect(owedOf(game, TUITION)).toMatchObject({ missed: 1, state: "grace" });
-    setPockets(game, { GBP: pounds });
+    const fees = game.state.wallet.totals.out["fee-school"]?.GBP ?? 0;
+    const charged: number[][] = [];
+    for (let month = 1; month <= 8; month += 1) charged.push(charges(nextMonth(game), tuition.id));
+    const eighth = mulDiv(PRINCIPAL, 1250, 10000);
+    const half = mulDiv(PRINCIPAL, 5000, 10000);
+    expect(charged).toEqual([[half], [], [eighth], [eighth], [eighth], [PRINCIPAL - half - 3 * eighth], [], []]);
+    expect(isOpen(game, TUITION)).toBe(false);
+    expect((game.state.wallet.totals.out["fee-school"]?.GBP ?? 0) - fees).toBe(PRINCIPAL);
+  });
+
+  test("[abroad-money:missed-tuition-runs-in-stages] given a charge missed with no plan, when the months pass in arrears, then the first month is a reminder alone, the second cuts access and opens the plan, the third is the final warning, and the fourth withdraws the student with two months left on the permission", () => {
+    const { game } = student();
+    const expires = game.state.status.current!.expiresMonth!;
+    const [first, second, third, fourth] = missedMonths(game, 4);
+    expect(stageKeys(first!)).toEqual(["line.obligation.tuition-reminder"]);
+    expect(first!.lines.find((line) => line.key === "line.obligation.tuition-reminder")).toMatchObject({ tone: "bad", attention: true });
+    expect(owedOf(game, TUITION).missed).toBe(4);
+    expect(stageKeys(second!)).toEqual(["line.obligation.tuition-cut"]);
+    expect(entryOf(TUITION).onCut).toEqual([
+      { type: "quality/add", quality: WELLBEING, amount: -3 },
+      { type: "offer/open", offer: PLAN },
+    ]);
+    expect(stageKeys(third!)).toEqual(["line.obligation.tuition-warning"]);
+    expect(keysOf(fourth!.lines, "line.obligation.")).toContain("line.obligation.withdrawn");
+    expect(owedOf(game, TUITION).state).toBe("defaulted");
+    // status:course-passed-or-withdrawn: the sponsor reports it and the permission is cut to two months on; the status has not lapsed.
+    expect(game.state.status.current).toMatchObject({ entry: STUDENT, expiresMonth: game.state.turn.month + content.tuning.status.curtailMonths, withdrawn: { expiresMonth: expires } });
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
+  test("[abroad-money:missed-tuition-runs-in-stages] given access cut, when the plan's offer is read, then it spreads the arrears and the rest evenly to course month 12 for £50, and lapses after a month", () => {
+    const { game } = student();
+    missedMonths(game, 2);
+    const id = planOpen(game);
+    expect(id).not.toBeNull();
+    const months = 12 - 2;
+    expect(game.state.offer.items[id!]!.terms).toMatchObject({ instalment: divFloor(PRINCIPAL, months), fee: PLAN_FEE });
+    expect(content.offer[PLAN]).toMatchObject({ chanceBp: 0, expiresAfter: 1, onExpire: null });
+    expect(PLAN_FEE).toBe(5000);
+  });
+
+  test("[abroad-money:missed-tuition-runs-in-stages] given the plan agreed, when it runs, then £50 is paid to the school, the tuition owed is spread over the months left to month 12 with the last rounded, and the cut of access ends", () => {
+    const { game, tuition } = student();
+    missedMonths(game, 2);
+    setPockets(game, { GBP: 2000000 });
+    const fees = game.state.wallet.totals.out["fee-school"]?.GBP ?? 0;
+    game.accept({ type: "offer/choose", offer: planOpen(game)!, choice: "agree" });
+    expect((game.state.wallet.totals.out["fee-school"]?.GBP ?? 0) - fees).toBe(PLAN_FEE);
+    expect(owedOf(game, TUITION)).toMatchObject({ missed: 0, plan: { month: 2, total: PRINCIPAL, months: 10 } });
+    const charged: number[] = [];
+    for (let month = 3; month <= 13; month += 1) charged.push(...charges(nextMonth(game), tuition.id));
+    const part = divFloor(PRINCIPAL, 10);
+    expect(charged).toEqual([...Array<number>(9).fill(part), PRINCIPAL - 9 * part]);
+    expect(isOpen(game, TUITION)).toBe(false);
+  });
+
+  test("[abroad-money:missed-tuition-runs-in-stages] given the plan agreed, when one plan payment is missed it is the final warning, and a second in a row withdraws the student", () => {
+    const { game } = student();
+    missedMonths(game, 2);
+    setPockets(game, { GBP: 2000000 });
+    game.accept({ type: "offer/choose", offer: planOpen(game)!, choice: "agree" });
+    const [warned, withdrawn] = missedMonths(game, 2);
+    expect(stageKeys(warned!)).toEqual(["line.obligation.tuition-warning"]);
+    expect(keysOf(withdrawn!.lines, "line.obligation.")).toContain("line.obligation.withdrawn");
+    expect(owedOf(game, TUITION).state).toBe("defaulted");
+    expect(game.state.status.current?.withdrawn).toBeDefined();
+  });
+
+  test("[abroad-money:missed-tuition-runs-in-stages] given a missed charge, when the next month's charge with the arrears is paid in full, then the stage ends and nothing more is told", () => {
+    const { game, tuition } = student();
+    missedMonths(game, 1);
+    setPockets(game, { GBP: 2000000 });
     const paid = nextMonth(game);
-    expect(eventsOf(paid, "obligation/charged").filter((event) => event.id === tuition.id)).toHaveLength(1);
+    expect(charges(paid, tuition.id)).toEqual([mulDiv(PRINCIPAL, 5000, 10000)]);
+    expect(stageKeys(paid)).toEqual([]);
+    expect(owedOf(game, TUITION).missed).toBe(0);
+  });
+
+  test("[obligation:paying-down-obligations] [abroad-money:missed-tuition-runs-in-stages] given tuition in arrears, when obligation/pay is sent, then only every charge missed and not yet paid is taken, under fee-school, and it clears the stage; with nothing missed it is not legal", () => {
+    const { game, tuition } = student();
+    missedMonths(game, 2);
+    const arrears = mulDiv(PRINCIPAL, 5000, 10000);
+    game.expectRejected({ type: "obligation/pay", obligation: tuition.id, amount: arrears }, "cannot-afford");
+    setPockets(game, { GBP: 2000000 });
+    game.expectRejected({ type: "obligation/pay", obligation: tuition.id, amount: arrears - 1 }, "bad-amount");
+    game.expectRejected({ type: "obligation/pay", obligation: tuition.id, amount: arrears + 1 }, "bad-amount");
+    const fees = game.state.wallet.totals.out["fee-school"]?.GBP ?? 0;
+    game.accept({ type: "obligation/pay", obligation: tuition.id, amount: arrears });
+    expect((game.state.wallet.totals.out["fee-school"]?.GBP ?? 0) - fees).toBe(arrears);
+    expect(owedOf(game, TUITION)).toMatchObject({ missed: 0, outstanding: PRINCIPAL - arrears, state: "active" });
+    game.expectRejected({ type: "obligation/pay", obligation: tuition.id, amount: 1 }, "not-legal");
+  });
+
+  test("[obligation:paying-down-obligations] [status:course-passed-or-withdrawn] given a withdrawn student inside the two months, when everything owed is paid, then the student is reinstated with the status's own end restored and the tuition goes on", () => {
+    const { game, tuition } = student();
+    const expires = game.state.status.current!.expiresMonth!;
+    missedMonths(game, 4);
+    setPockets(game, { GBP: 2000000 });
+    // Nothing was paid, so everything owed is the shares of course months 1 to 4: three quarters.
+    expect(owedOf(game, TUITION).outstanding).toBe(PRINCIPAL);
+    const owed = mulDiv(PRINCIPAL, 7500, 10000);
+    game.accept({ type: "obligation/pay", obligation: tuition.id, amount: owed });
+    expect(owedOf(game, TUITION).state).toBe("active");
+    expect(game.state.status.current).toMatchObject({ entry: STUDENT, expiresMonth: expires });
+    expect(game.state.status.current?.withdrawn).toBeUndefined();
+    expect(charges(nextMonth(game), tuition.id)).toEqual([mulDiv(PRINCIPAL, 8750, 10000) - mulDiv(PRINCIPAL, 7500, 10000)]);
+  });
+
+  test("[status:course-passed-or-withdrawn] given a withdrawn student who pays nothing, when the two months pass, then the status lapses as any status does, its grace after, and the tuition stays on record", () => {
+    const { game } = student();
+    missedMonths(game, 4);
+    playMonths(game, content.tuning.status.curtailMonths - 1);
     expect(game.state.status.current?.entry).toBe(STUDENT);
     playMonths(game, 1);
-    expect(owedOf(game, TUITION).monthsLeft).toBe(2);
-    const fourth = nextMonth(game);
-    expect(eventsOf(fourth, "obligation/charged").filter((event) => event.id === tuition.id)).toHaveLength(1);
+    expect(game.state.status.current?.entry).toBe(OVERSTAYER);
+    expect(owedOf(game, TUITION).state).toBe("defaulted");
   });
 
-  test("[abroad-money:tuition-paid-in-instalments] given an instalment missed twice, when the grace of one month is passed, then the tuition defaults and the student is withdrawn: the status lapses at once", () => {
+  test("[route:family-pledge-pays-tuition] given the family's pledge standing and no pounds, when a tuition charge falls, then the pledge pays the school: the shortfall in naira at the day's rate comes off the pledge, lands in the pound bank under gift unflagged, and the charge is paid whole", () => {
+    const { game, tuition } = student();
+    const pledge = 50000000000;
+    applyEffects(game, [{ type: "route/support", route: UK_ROUTE, currency: "NGN", amount: pledge }]);
+    setPockets(game, { GBP: 100000 });
+    const lots = game.state.wallet.lots.length;
+    const half = mulDiv(PRINCIPAL, 5000, 10000);
+    // The day's rate is the month's own, before the tick moves on.
+    const rates = officialRates(game.world());
+    const result = nextMonth(game);
+    expect(charges(result, tuition.id)).toEqual([half]);
+    const short = half - 100000;
+    const naira = convertMinor(short, "GBP", "NGN", rates);
+    expect(game.state.route[UK_ROUTE]!.support).toEqual({ currency: "NGN", amount: pledge - naira });
+    expect(game.state.wallet.totals.in.gift?.GBP).toBe(short);
+    expect(game.state.wallet.lots.length).toBe(lots);
+    expect(result.lines.find((line) => line.key === "line.route.pledge-paid")).toMatchObject({ params: { amount: { currency: "GBP", amount: short } } });
+    expect(text["line.route.pledge-paid"]).toBe("Your father paid the school {amount}.");
+    expect(owedOf(game, TUITION).missed).toBe(0);
+  });
+
+  test("[route:family-pledge-pays-tuition] given a pledge too small for the shortfall, when the charge falls, then what is left of it is paid in, the pledge is spent to nothing and the charge is still missed; a pledge at nothing pays nothing more", () => {
     const { game } = student();
+    applyEffects(game, [{ type: "route/support", route: UK_ROUTE, currency: "NGN", amount: 100000000 }]);
     setPockets(game, { GBP: 0 });
-    nextMonth(game);
-    expect(game.state.status.current?.entry).toBe(STUDENT);
+    const first = nextMonth(game);
+    expect(game.state.route[UK_ROUTE]!.support?.amount).toBe(0);
+    expect(first.lines.some((line) => line.key === "line.route.pledge-paid")).toBe(true);
+    expect(owedOf(game, TUITION).missed).toBe(1);
     const second = nextMonth(game);
-    expect(owedOf(game, TUITION).state).toBe("defaulted");
-    expect(game.state.status.current?.entry).not.toBe(STUDENT);
-    expect(second.lines.find((line) => line.key === "line.obligation.withdrawn")).toMatchObject({ tone: "bad", attention: true });
-    // Withdrawn, the tuition is on record and collected no further.
-    setPockets(game, { GBP: PRINCIPAL });
-    const after = nextMonth(game);
-    expect(eventsOf(after, "wallet/debited").filter((event) => event.reason === "fee-school")).toEqual([]);
-    expect(checkInvariants(game.state, content)).toEqual([]);
+    expect(second.lines.some((line) => line.key === "line.route.pledge-paid")).toBe(false);
   });
 });
 

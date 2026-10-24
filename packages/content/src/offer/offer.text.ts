@@ -145,7 +145,7 @@ export const offerText: Record<string, string> = {
   "offer.held-funds.name": "Olokun Microfinance: proof of funds",
   "offer.held-funds.title": "Funds to show",
   "offer.held-funds.body":
-    "“We place the funds in your account for as long as you need, to show, not to spend: ₦5,000 a month on every ₦100,000, and ₦1,000 to arrange it.”",
+    "“We place the funds in your account for as long as you need, to show, not to spend: ₦5,000 a month on every ₦100,000, and ₦1,000 to arrange it.” The small print: the money comes back to them before you fly, and your school fees will still be yours to pay.",
   "offer.held-funds.choice.take": "Take the funds",
   "offer.held-funds.choice.no": "No, thank you",
 
@@ -217,6 +217,33 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge-small.choice.decline": "Tell them to keep it",
   "offer.family-pledge-small.said.accept": "You took what your parents could give, with thanks. Their account now stands behind your file.",
   "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
+
+  "offer.education-loan.name": "A study lender",
+  "offer.education-loan.title": "Fees paid direct",
+  "offer.education-loan.body":
+    "“We pay your fees straight to the university, up to {max}, with interest each year, our fee added to the loan and {fee} to process, and you repay over fifteen years from after your course.”",
+  "offer.education-loan.choice.take": "Take the loan",
+  "offer.education-loan.choice.no": "No, thank you",
+  "offer.education-loan.said.take": "The lender paid the university. You owe the lender now, from after your course.",
+  "offer.education-loan.said.no": "You left the lender's offer. The fees are yours to find.",
+
+  "offer.fee-payment-plan.name": "A payment plan for your fees",
+  "offer.fee-payment-plan.title": "A payment plan",
+  "offer.fee-payment-plan.body":
+    "“You can clear the arrears on a plan of {instalment} a month to the end of the course for a {fee} fee, and if you miss a plan payment we will write to you before we withdraw you.”",
+  "offer.fee-payment-plan.choice.agree": "Agree to the plan",
+  "offer.fee-payment-plan.choice.no": "Not now",
+  "offer.fee-payment-plan.said.agree": "You signed the plan. The fees office spread what you owe to the end of the course.",
+  "offer.fee-payment-plan.said.no": "You left the plan. The arrears still stand.",
+
+  "offer.family-gift-canada.name": "The family's gift for Canada",
+  "offer.family-gift-canada.title": "Not a loan",
+  "offer.family-gift-canada.body":
+    "“Canada wants to see the money is yours, so we will give you {gift}, a gift and not a loan, and you must get the paper from the notary so they believe it.”",
+  "offer.family-gift-canada.choice.accept": "Accept, with thanks",
+  "offer.family-gift-canada.choice.decline": "Tell him to keep it",
+  "offer.family-gift-canada.said.accept": "Papa sent the gift the same week. Canada counts it once the notary's deed is in your file.",
+  "offer.family-gift-canada.said.decline": "You told your father to keep it. He said the offer stands no longer.",
 
   "offer.family-loan.name": "Papa's loan",
   "offer.family-loan.title": "We can lend",
@@ -457,6 +484,9 @@ export const offerText: Record<string, string> = {
   "offer.family-pledge.who": "Papa",
   "offer.family-pledge-small.who": "Mama",
   "offer.family-loan.who": "Papa",
+  "offer.family-gift-canada.who": "Papa",
+  "offer.fee-payment-plan.who": "The university's fees office",
+  "offer.education-loan.who": "A study lender",
   "offer.sponsor-care-home.who": "A care home",
   "offer.sponsor-trust.who": "A hospital trust",
   "offer.sponsor-tech-firm.who": "A tech firm",

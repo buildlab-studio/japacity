@@ -29,6 +29,8 @@ type PointsBlock = NonNullable<RouteEntry["points"]>;
 type PointsState = Extract<RouteGateState, { gate: "points" }>;
 
 const CARE: Id<"quality"> = "quality.care";
+/** route-gates:family-gift-counts-with-deed: the notary's deed that makes the family's gift count as the applicant's own money. */
+const GIFT_DEED: Id<"document"> = "document.gift-deed";
 /** The Canadian line is counted in Canadian cents (route-gates:entering-the-pool). */
 const FUNDS_CURRENCY: ForeignCurrency = "CAD";
 const MONTHS_PER_YEAR = 12;
@@ -202,14 +204,36 @@ export function pointsScore(read: ReadCtx, route: Id<"route">): number {
 export function pointsFunds(read: ReadCtx, route: Id<"route">): { shown: number; required: number } {
   const block = blockOf(routeEntry(read.content, route));
   const rates = officialRates(read.world);
+  const unproved = giftUncounted(read, route);
   let shown = 0;
   for (const currency of CURRENCIES) {
     const pocket = read.state.wallet.pockets[currency];
-    shown += convertMinor(pocket.bank, currency, FUNDS_CURRENCY, rates) + convertMinor(pocket.locked, currency, FUNDS_CURRENCY, rates);
+    // route-gates:family-gift-counts-with-deed: the gift is left out of the naira bank until its deed is held, never more than the bank holds.
+    const bank = currency === "NGN" ? pocket.bank - Math.min(unproved, pocket.bank) : pocket.bank;
+    shown += convertMinor(bank, currency, FUNDS_CURRENCY, rates) + convertMinor(pocket.locked, currency, FUNDS_CURRENCY, rates);
   }
   const support = read.state.route[route]?.support ?? null;
   if (support !== null) shown += convertMinor(support.amount, support.currency, FUNDS_CURRENCY, rates);
   return { shown, required: worldVar(read, block.fundsVar) };
+}
+
+/** route-gates:family-gift-counts-with-deed: the naira of the family's gift that does not count yet, 0 once its deed is held or with none given. */
+function giftUncounted(read: ReadCtx, route: Id<"route">): number {
+  const gift = read.state.route[route]?.gift;
+  return gift === undefined || gift.deeded ? 0 : gift.amount;
+}
+
+/**
+ * route-gates:family-gift-counts-with-deed: once the deed is held the gift counts, and its lot is dropped, so it adds nothing to the unexplained share.
+ * Read in the `clocks` phase after the papers are issued.
+ */
+function deedClock(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
+  const gift = ctx.state.route[entry.id]?.gift;
+  if (gift === undefined || gift.deeded || !ctx.check({ type: "document/held", document: GIFT_DEED }).met) return [];
+  const event: RouteKindEvent = { type: "route/gift-deeded", route: entry.id };
+  const events = emit(ctx, "route", [event]);
+  ctx.apply([{ type: "money/drop-lot", currency: "NGN", amount: gift.amount, reason: "gift" }], { source: entry.id, param: null, terms: {} });
+  return events;
 }
 
 /**
@@ -224,13 +248,31 @@ export function pointsUnexplainedBp(read: ReadCtx, route: Id<"route">): number {
   return required <= 0 ? BP_WHOLE : Math.min(BP_WHOLE, mulDiv(lots, BP_WHOLE, required));
 }
 
-/** route-gates:pool-draws-invite: the general cut-off at or below the score, or the care cut-off for a carer. */
+/**
+ * route-gates:pool-draws-invite: the education cut-off, while it stands, for a teacher with the table's months across its teacher jobs. It stands
+ * while the director's draw holds it below the general cut-off (director:education-draw-opens-for-a-time); otherwise null.
+ */
+export function educationCutoff(read: ReadCtx, route: Id<"route">): number | null {
+  const block = blockOf(routeEntry(read.content, route));
+  if (block.educationCutoffVar === null) return null;
+  const cutoff = worldVar(read, block.educationCutoffVar);
+  return cutoff < worldVar(read, block.cutoffVar) ? cutoff : null;
+}
+
+/** route-gates:pool-draws-invite: the months across the table's teacher jobs reach its education months. */
+function teaches(read: ReadCtx, table: PointsEntry): boolean {
+  return table.educationJobs.length > 0 && tenureAcross(read.state, table.educationJobs) >= table.educationMonths;
+}
+
+/** route-gates:pool-draws-invite: the general cut-off at or below the score, the care cut-off for a carer, or the education cut-off for a teacher while it stands. */
 export function invites(read: ReadCtx, route: Id<"route">): boolean {
   const block = blockOf(routeEntry(read.content, route));
+  const table = tableOf(read.content, block);
   const score = pointsScore(read, route);
   if (worldVar(read, block.cutoffVar) <= score) return true;
-  const careMin = tableOf(read.content, block).careMin;
-  return block.careCutoffVar !== null && (read.state.quality[CARE] ?? 0) >= careMin && worldVar(read, block.careCutoffVar) <= score;
+  if (block.careCutoffVar !== null && (read.state.quality[CARE] ?? 0) >= table.careMin && worldVar(read, block.careCutoffVar) <= score) return true;
+  const education = educationCutoff(read, route);
+  return education !== null && teaches(read, table) && education <= score;
 }
 
 function windowClosed(read: ReadCtx, entry: RouteEntry): boolean {
@@ -262,6 +304,24 @@ function canPayFee(ctx: Ctx, block: PointsBlock): boolean {
   return ctx.check({ type: "money/can-pay", currency: FUNDS_CURRENCY, amount: feeOf(block) }).met;
 }
 
+/** route-gates:pool-draws-invite: the funds are asked when you apply, so `fundsVar` must be covered as the invitation is used, before its fee is taken. */
+function fundsCovered(read: ReadCtx, route: Id<"route">): boolean {
+  const { shown, required } = pointsFunds(read, route);
+  return shown >= required;
+}
+
+/** route-gates:canada-funds-checked-at-departure: what the shown funds lack of `fundsVar` today, in Canadian cents; 0 when covered. */
+export function fundsShort(read: ReadCtx, route: Id<"route">): number {
+  const { shown, required } = pointsFunds(read, route);
+  return Math.max(0, required - shown);
+}
+
+/** Why an invitation cannot be used now: the fee or the funds; null when it can. */
+function invitationShort(ctx: Ctx, entry: RouteEntry, block: PointsBlock): "fee" | "funds" | null {
+  if (!canPayFee(ctx, block)) return "fee";
+  return fundsCovered(readOf(ctx), entry.id) ? null : "funds";
+}
+
 /**
  * route-gates:pool-draws-invite, route:application-fixes-figures: pay the fee as a foreign fee in Canadian cents
  * and send the application, decided `decisionVar` months later. The caller has
@@ -291,7 +351,7 @@ function payAndSend(ctx: Ctx, entry: RouteEntry, block: PointsBlock): BaseEvent[
 
 /**
  * The monthly work, in this order: a used invitation is cleared after a
- * refusal, a pick of the pool slot is judged, an unpaid invitation is paid or
+ * refusal, a pick of the pool slot is judged, an invitation held for its fee or its funds is used or
  * lapses, a profile lapses at `profileMonths`, and a live profile is invited.
  *
  * A profile entered in month m is live in months m to m + 11 and
@@ -304,9 +364,10 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const block = blockOf(entry);
   const route = entry.id;
   const month = ctx.state.turn.month;
+  const deeded = deedClock(ctx, entry);
   const start = ctx.state.route[route];
-  if (start === undefined || start.state !== "known") return [];
-  const events: BaseEvent[] = [];
+  if (start === undefined || start.state !== "known") return deeded;
+  const events: BaseEvent[] = [...deeded];
   let gate = gateOf(start);
   // After a refusal the invitation is spent; the pool is entered again from the start.
   if (gate.invitedMonth !== null && start.lastRefusal !== null && start.lastRefusal.month > gate.invitedMonth) {
@@ -315,8 +376,9 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   }
   if (gate.poolMonth === null) return events;
   if (gate.invitedMonth !== null) {
-    if (canPayFee(ctx, block)) return [...events, ...payAndSend(ctx, entry, block)];
-    return [...events, ...updated(ctx, route, { ...gate, invitedMonth: null }, "invite-lapsed")];
+    const held = invitationShort(ctx, entry, block);
+    if (held === null) return [...events, ...payAndSend(ctx, entry, block)];
+    return [...events, ...updated(ctx, route, { ...gate, invitedMonth: null }, held === "fee" ? "invite-lapsed" : "invite-lapsed-short")];
   }
   if (month >= gate.poolMonth + block.profileMonths) {
     return [...events, ...updated(ctx, route, { gate: "points", poolMonth: null, invitedMonth: null }, "profile-lapsed")];
@@ -324,20 +386,22 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const read = readOf(ctx);
   if (windowClosed(read, entry) || !invites(read, route)) return events;
   // The invitation is recorded before the application, so the step is reached when it is sent.
-  const paid = canPayFee(ctx, block);
-  events.push(...updated(ctx, route, { ...gate, invitedMonth: month }, paid ? "invited" : "invite-unpaid"));
-  return paid ? [...events, ...payAndSend(ctx, entry, block)] : events;
+  const held = invitationShort(ctx, entry, block);
+  const note = held === null ? "invited" : held === "fee" ? "invite-unpaid" : "invite-short";
+  events.push(...updated(ctx, route, { ...gate, invitedMonth: month }, note));
+  return held === null ? [...events, ...payAndSend(ctx, entry, block)] : events;
 }
 
 export const pointsGate: Gate = {
   gate: "points",
-  steps: ["pool", "invited"],
+  steps: ["pool", "invited", "gift"],
   initial: () => ({ gate: "points", poolMonth: null, invitedMonth: null }),
-  // `pool` is a profile in the pool; `invited` an invitation, unpaid or used.
+  // `pool` is a profile in the pool; `invited` an invitation, unpaid or used; `gift` the family's gift taken (route-gates:family-gift-counts-with-deed).
   reached: (_read, _entry, held, step) => {
     const gate = gateOf(held);
     if (step === "pool") return gate.poolMonth !== null;
     if (step === "invited") return gate.invitedMonth !== null;
+    if (step === "gift") return held.gift !== undefined;
     return false;
   },
   // route-gates:pool-draws-invite: the invitation sends the application; no slot does.
@@ -353,6 +417,8 @@ export const pointsGate: Gate = {
   },
   // route-gates:entering-the-pool: the settlement funds in Canadian cents are what this route shows.
   funds: (read, entry) => ({ required: worldVar(read, blockOf(entry).fundsVar), currency: FUNDS_CURRENCY }),
+  // route-gates:canada-funds-checked-at-departure: the funds must be held when the visa is issued, so the flight asks them again.
+  departureShort: (read, entry) => fundsShort(read, entry.id),
   // route-gates:points-score-from-table: the score shows from the moment the route is known.
   view: (read, entry, held) => {
     const block = blockOf(entry);
@@ -362,6 +428,10 @@ export const pointsGate: Gate = {
       points: pointsScore(read, entry.id),
       cutoff: worldVar(read, block.cutoffVar),
       careCutoff: block.careCutoffVar === null ? null : worldVar(read, block.careCutoffVar),
+      // route-gates:points-view-carries-invites: the teachers' cut-off while the draw stands.
+      educationCutoff: educationCutoff(read, entry.id),
+      // route-gates:canada-funds-checked-at-departure: the way's file says how much is missing.
+      fundsShort: fundsShort(read, entry.id),
       // route-gates:points-view-carries-invites: the clocks' own test, the care cut-off for a carer among it.
       invites: invites(read, entry.id),
       poolMonth: gate.poolMonth,

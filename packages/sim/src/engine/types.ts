@@ -271,6 +271,13 @@ export type Requirement =
   | { type: "var/max"; var: Id<"var">; value: number }
   | { type: "month/min"; value: number }
   | { type: "chapter/done"; chapter: Id<"chapter"> }
+  /**
+   * status:graduate-visa-applied-for: the course is passed and the application it leads to may be made now: from the course's `anyFrom` month on its status,
+   * or in the grace after it, with the status applied for lasting more than 0 months and its fee and surcharge payable.
+   */
+  | { type: "status/course-done" }
+  /** The way the plan follows is this route (decision 0022, chapter:chapters-follow-lean-route); with none heard of, the master's is read as the plan (route-gates:family-gift-counts-with-deed). */
+  | { type: "chapter/plan"; route: Id<"route"> }
   // whole life
   | { type: "place/is"; where: Where; country?: Id<"country"> }
   /** With `grace`, the status is also in an overstay's grace (status:grace-allows-in-country-applications). */
@@ -336,6 +343,8 @@ export type Effect =
   | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
   /** Pay a foreign-currency fee from whatever the character holds: see wallet:foreign-fee-payment-order. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
+  /** The lot of this currency, amount and reason is dropped: its source is explained by a paper (route-gates:family-gift-counts-with-deed). */
+  | { type: "money/drop-lot"; currency: Currency; amount: number; reason: Reason }
   /** Naira bought with real money (wallet:top-ups-are-marked): to the naira bank as `top-up`, a lot recorded, and the marked figure raised by the amount. Only the authority's `wallet/top-up` applies it. */
   | { type: "wallet/top-up"; amount: number }
   // quality
@@ -359,6 +368,12 @@ export type Effect =
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }
+  /** route:education-loan-pays-the-school: what a regulated education loan paid the school on this route, in pence. */
+  | { type: "route/loan"; route: Id<"route">; amount: Amount }
+  /** route:family-pledge-pays-tuition: a charge abroad the student's own money cannot meet, in its currency, met from the family's pledge while it stands. */
+  | { type: "route/pledge-pay"; currency: ForeignCurrency; amount: number }
+  /** The family's gift for the route is recorded on it, in naira (route-gates:family-gift-counts-with-deed). */
+  | { type: "route/gift"; route: Id<"route">; amount: Amount }
   /** The set piece finished: its score goes on the route's open visa application (route:answers-score-and-close). */
   | { type: "route/interview-scored"; route: Id<"route">; score: number }
   /** A sponsor, agent or connection is recorded on a gate route. `fraud` is hidden on the route. */
@@ -389,6 +404,8 @@ export type Effect =
   // obligation
   /** `bond`: the bond an undertaking is for (undertaking:landing-opens-undertaking). */
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount; bond?: string }
+  /** abroad-money:missed-tuition-runs-in-stages: the open obligation of this entry is turned into a payment plan to course month 12. */
+  | { type: "obligation/plan"; obligation: Id<"obligation"> }
   // offer: opens nothing when the offer's own `when` does not hold
   | { type: "offer/open"; offer: Id<"offer"> }
   /** Closes an open offer unanswered, as a family request handled in another life (person:family-requests-shared). */
@@ -396,7 +413,8 @@ export type Effect =
   /** The day's arrivals (offer:day-arrivals-roll-offers): rolls as the come-up phase does and opens at most `max` offers inside the month's cap. */
   | { type: "offer/come-up"; max: number }
   // obligation, whole life
-  | { type: "obligation/close"; obligationType: ObligationType }
+  /** With `obligation`, only that entry's (route:education-loan-pays-the-school: the loan closed by a refusal). */
+  | { type: "obligation/close"; obligationType: ObligationType; obligation?: Id<"obligation"> }
   /** The next charge of the open obligation of this type that applies where the character lives falls by `bp` of its amount, once (obligation:cooking-and-fetching-water). */
   | { type: "obligation/relief"; obligationType: ObligationType; bp: number }
   // place (docs/rules/place.md)
@@ -407,6 +425,12 @@ export type Effect =
   /** `kept`: a status kept from a return with papers carries on with the months it had (return:papers-return-keeps-status). */
   | { type: "status/grant"; status: Id<"status">; job?: Id<"activity">; kept?: KeptStatusMonths }
   | { type: "status/lose" }
+  /** status:graduate-visa-applied-for: the fee and the surcharge for the months are paid, and the status the course leads to is granted in country. */
+  | { type: "status/graduate" }
+  /** status:course-passed-or-withdrawn: the student is withdrawn: the permission is cut to end `tuning.status.curtailMonths` on. */
+  | { type: "status/withdraw" }
+  /** status:course-passed-or-withdrawn: everything owed is paid, the student is reinstated with the status's own end. */
+  | { type: "status/reinstate" }
   | { type: "status/remove" }
   | { type: "status/clock-start" }
   // credit (docs/rules/credit.md)
@@ -586,9 +610,20 @@ export interface RouteEntry {
   schools: Id<"school">[];
   interview: Id<"setpiece"> | null;
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
-  sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
+  sponsor?: {
+    salaryVar: Id<"var">;
+    maintenanceVar: Id<"var"> | null;
+    findBp: number;
+    bandMin: number;
+    documents: Id<"document">[];
+    strictnessVar: Id<"var">;
+    surchargeYears: number;
+    job: Id<"activity">;
+    /** The employers who may sponsor while the route's window is shut (route-gates:nurses-sponsored-while-care-shut). Empty: none. */
+    openWhileShut: string[];
+  };
   /** Points gate. `spouseTable`: the lead's columns with a spouse and the spouse's factors (person:canada-spouse-points). Null: no spouse counts. */
-  points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
+  points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; educationCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
@@ -619,6 +654,10 @@ export interface PointsEntry {
   spouse?: { education: { level: number; points: number }[]; language: { band: number; points: number }[]; canadianWork: { years: number; points: number }[]; cap: number };
   /** `quality.care` at or above this reads the care cut-off (route-gates:pool-draws-invite). */
   careMin: number;
+  /** Months across `educationJobs` that read the education cut-off while it stands (route-gates:pool-draws-invite). */
+  educationMonths: number;
+  /** The teacher jobs whose months the education cut-off reads. */
+  educationJobs: Id<"activity">[];
 }
 
 export interface SetpieceAnswer {
@@ -713,13 +752,26 @@ export interface ObligationEntry {
   grace: number;
   onMiss: Effect[];
   onDefault: Effect[];
+  /**
+   * abroad-money:tuition-paid-in-instalments: the share of the principal due in each course month, in basis points, the last rounded so the whole
+   * is paid. With a schedule a miss runs abroad-money:missed-tuition-runs-in-stages in place of the grace count. Missing: `term` and `everyMonths` set the charges.
+   */
+  schedule?: number[];
+  /** abroad-money:missed-tuition-runs-in-stages: applied when access is cut, the second month in arrears with no plan. */
+  onCut?: Effect[];
+  /** route:education-loan-pays-the-school: the loan is paid to the school, so opening it credits nothing. */
+  paysSchool?: true;
+  /** route:education-loan-pays-the-school: nothing is charged before this status is held, nor while it is; charges start the month after it ends. */
+  deferWhile?: Id<"status">;
 }
 
 export type TermSpec =
   | number
   | { from: "quality"; quality: Id<"quality">; times: number }
   | { from: "pay"; times: number; cap: number }
-  | { from: "range"; min: number; max: number; step: number };
+  | { from: "range"; min: number; max: number; step: number }
+  /** route:education-loan-pays-the-school: the tuition the route's school still asks: its tuition less its discount, the deposit and what a loan paid. */
+  | { from: "tuition-left"; route: Id<"route"> };
 
 export interface OfferChoice {
   id: string;
@@ -905,6 +957,14 @@ export interface StatusEntry {
   renewBp?: number;
   renewFeeVar: Id<"var"> | null;
   surchargeYearVar: Id<"var"> | null;
+  /**
+   * The course a student status runs (status:status-sets-work-rule, status:graduate-visa-applied-for): the course months whose `part` job pays full time,
+   * the course month from which any job may be held, the status applied for once the course is passed, with its fee and surcharge vars, and the
+   * course month from which the view carries the application's cost.
+   */
+  course?: { vacations: number[]; anyFrom: number; graduate: Id<"status">; feeVar: Id<"var">; surchargeYearVar: Id<"var">; costFrom: number };
+  /** status:renewing-a-status: held with one of these jobs, the renewal is at `feeVar` with no surcharge (the Health and Care fee). Missing: every job renews at `renewFeeVar`. */
+  renewByJob?: { jobs: Id<"activity">[]; feeVar: Id<"var"> };
   next: Id<"status"> | null;
   nextIf: Requirement[];
   countsToSettlement: boolean;
@@ -1279,6 +1339,9 @@ export interface Tuning {
     decisionMonths: number;
     flight: Money;
     hintPrep: number;
+    /** route:education-loan-pays-the-school: the lender's processing fee, in pence, and its fee added to the loan, in basis points. */
+    loanProcessing: number;
+    loanFeeBp: number;
   };
   offer: { maxNewPerMonth: number; maxOpen: number };
   place: { brokeLine: number; fareFromNaira: boolean };
@@ -1287,7 +1350,20 @@ export interface Tuning {
   /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
   parcel: { handling: number; laptopMood: number; clothesPrep: number };
   /** `absenceMonths` and `absenceWindowMonths`: the first or more months at home inside any run of the second sets the lawful months back to 0 (status:absence-breaks-settlement). */
-  status: { courseMonths: number; hospitalChargeBp: number; overstayPartnerSettleMonths: number; rentCheckWellbeing: number; absenceMonths: number; absenceWindowMonths: number };
+  status: {
+    courseMonths: number;
+    hospitalChargeBp: number;
+    overstayPartnerSettleMonths: number;
+    rentCheckWellbeing: number;
+    absenceMonths: number;
+    absenceWindowMonths: number;
+    /** status:status-sets-work-rule: what a `part` job pays in a vacation course month, in basis points of its month (37.5 hours for 20). */
+    vacationPayBp: number;
+    /** status:course-passed-or-withdrawn: the months a withdrawn student's permission runs on. */
+    curtailMonths: number;
+    /** abroad-money:missed-tuition-runs-in-stages: the payment plan's fee, in pence. */
+    planFee: number;
+  };
   /**
    * `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit).
    * `cleanMonths`: months without a miss before the file drifts up (credit:clean-mark-drifts-up).
@@ -1797,6 +1873,10 @@ export interface RouteState {
   depositPaid: number;
   /** Money in a parent's account that counts by consent. It never leaves that account. */
   support: { currency: Currency; amount: number } | null;
+  /** route:education-loan-pays-the-school: what an education loan paid the school, in pence. Missing: none. */
+  loanPaid?: number;
+  /** The family's gift for this route, in naira, and whether its deed is held so it counts (route-gates:family-gift-counts-with-deed). Missing: none given. */
+  gift?: { amount: number; deeded: boolean };
   /** The last month-end funds check. */
   funds: { heldMonths: number; covered: boolean; shown: number; required: number };
   visa: VisaApplication | null;
@@ -1885,6 +1965,13 @@ export interface ObligationState {
   charged: number;
   /** Shares off the next charge, each from the activity that earned it, spent by that charge (obligation:cooking-and-fetching-water). Absent when there are none. */
   relief?: Relief[];
+  /**
+   * abroad-money:missed-tuition-runs-in-stages: the payment plan agreed after course month `month`: `total`, what was owed then, spread evenly over `months`,
+   * the last rounded so the whole is paid. Absent with no plan.
+   */
+  plan?: { month: number; total: number; months: number };
+  /** route:education-loan-pays-the-school: charges wait on `deferWhile`; `seen` once that status has been held. Absent once charges have started, or for an entry that never waits. */
+  deferred?: { seen: boolean };
 }
 
 /** One share off an obligation's next charge, in basis points of it, and the activity that earned it (obligation:cooking-and-fetching-water). */
@@ -1989,6 +2076,8 @@ export interface StatusState {
   settleMonths?: number;
   /** Months at home while this status was kept, still inside the window status:absence-breaks-settlement reads. Missing: none. */
   away?: MonthsAway[];
+  /** status:course-passed-or-withdrawn: a withdrawn student's permission, cut to end `tuning.status.curtailMonths` on; `expiresMonth` is the status's own end, restored on reinstatement. Missing: not withdrawn. */
+  withdrawn?: { expiresMonth: number | null };
 }
 
 /**
@@ -2007,6 +2096,11 @@ export interface StatusSlice {
   current: StatusState | null;
   /** Removals, by country and month. */
   removals: { country: Id<"country">; month: number }[];
+  /**
+   * status:course-passed-or-withdrawn: the course of the last status with a course: the months counted, the months under a cut of access waiting to
+   * count once its arrears are paid or moved into a plan, and whether it is passed, kept after the status ends. Missing: no course begun.
+   */
+  course?: { counted: number; waiting: number; passed: boolean };
 }
 
 export interface CreditFile {
@@ -2204,6 +2298,8 @@ export interface Rejection {
   ok: false;
   code: RejectionCode;
   detail: string;
+  /** Why a granted way cannot be flown yet, where a rule names it (route-gates:canada-funds-checked-at-departure, decision 0033). Missing: no reason beyond the code. */
+  reason?: "funds";
 }
 
 /**
@@ -2358,6 +2454,8 @@ export interface RouteView {
   schools: { id: Id<"school">; state: SchoolApplication["state"]; readyMonth: number; discount: number }[];
   school: Id<"school"> | null;
   depositPaid: number;
+  /** route:education-loan-pays-the-school: what an education loan paid the school, in pence; 0 with none. */
+  loanPaid: number;
   support: { currency: Currency; amount: number } | null;
   funds: RouteState["funds"];
   unexplainedBp: number;
@@ -2375,7 +2473,7 @@ export interface RouteView {
 export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
   /** `invites` (route-gates:points-view-carries-invites): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
-  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
+  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; educationCutoff: number | null; fundsShort: number; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
   | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
   | { gate: "dependant"; bond: string | null; lead: RouteStateName | null }
@@ -2496,6 +2594,8 @@ export interface PlayerView {
     renew: { months: number; currency: ForeignCurrency; fee: number; surcharge: number } | null;
     /** On an overstayer status (status:view-shows-status): the grace left, the notice left, the UAE's fine owed and whether an application made in country holds them; null on any other. */
     overstay: { graceLeft: number; noticeLeft: number | null; fine: MoneyParam | null; pending: boolean } | null;
+    /** status:graduate-visa-applied-for: what the Graduate application costs today, from course month 9 on a status with a course, so the months to save show; null otherwise. */
+    graduate: { currency: ForeignCurrency; fee: number; surcharge: number } | null;
   } | null;
   credit: { mark: number; onTime: number; missed: number; judgmentUntil: number | null; needs: { id: Id<"obligation">; creditMin: number }[] } | null;
   goals: { open: { id: Id<"goal">; items: { id: string; met: boolean }[] }[]; done: { id: Id<"goal">; month: number }[] };

@@ -61,11 +61,21 @@ describe("countries", () => {
     expect(uk?.taxFreeLine).toBe(1257000);
     expect(uk?.taxBp).toBe(2800);
     expect(uk?.deceptionBanMonths).toBe(120);
-    // Canada: C$1,350, 2.2, 25% above C$16,000.
-    expect(content.country["country.canada"]).toMatchObject({ currency: "CAD", fare: 135000, decemberFactorBp: 22000, taxFreeLine: 1600000, taxBp: 2500 });
-    // UAE: AED 1,300, 1.8, no tax.
-    expect(content.country["country.uae"]).toMatchObject({ currency: "AED", fare: 130000, decemberFactorBp: 18000, taxBp: 0, rentFlat: null });
-    // Italy: €480, 2.0.
-    expect(content.country["country.italy"]).toMatchObject({ currency: "EUR", fare: 48000, decemberFactorBp: 20000 });
+    // Canada: C$1,350, 1.2, 25% above C$16,000.
+    expect(content.country["country.canada"]).toMatchObject({ currency: "CAD", fare: 135000, decemberFactorBp: 12000, taxFreeLine: 1600000, taxBp: 2500 });
+    // UAE: AED 1,300, 1.4, no tax.
+    expect(content.country["country.uae"]).toMatchObject({ currency: "AED", fare: 130000, decemberFactorBp: 14000, taxBp: 0, rentFlat: null });
+    // Italy: €480, 1.2.
+    expect(content.country["country.italy"]).toMatchObject({ currency: "EUR", fare: 48000, decemberFactorBp: 12000 });
+  });
+
+  test("[place:december-factor-from-the-real-median] given each city's real December return median from place.md, when it is taken times 1.15 over twice the fare home and rounded to the nearest tenth, then it is the country's December factor", () => {
+    // place.md, "Entries: countries": the December return medians, in each country's smallest unit.
+    const medians: Record<string, number> = { "country.uk": 110800, "country.canada": 289500, "country.uae": 314700, "country.italy": 96700 };
+    expect(Object.keys(medians)).toEqual(countries.map((country) => country.id));
+    for (const country of countries) {
+      const tenths = Math.round((medians[country.id]! * 115 * 10) / (100 * 2 * country.fare));
+      expect({ country: country.id, factor: country.decemberFactorBp }).toEqual({ country: country.id, factor: tenths * 1000 });
+    }
   });
 });

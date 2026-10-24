@@ -336,21 +336,51 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // abroad-money:tuition-paid-in-instalments: the tuition less the deposit and discount is the principal, opened on
   // arrival, paid in three parts in months 1, 4 and 7 of the course.
+  // abroad-money:tuition-paid-in-instalments: half at enrolment, then an eighth in each of course months 3 to 6, as Sunderland and Greenwich run it.
+  // A miss runs abroad-money:missed-tuition-runs-in-stages, never a grace count: the reminder, the cut of access with the plan, the final warning, then withdrawal.
   "obligation.tuition": {
     id: "obligation.tuition",
     type: "tuition",
     where: "abroad",
     currency: "GBP",
-    everyMonths: 3,
     amount: 0,
     rateBp: 0,
-    term: 3,
+    term: null,
     sink: "fee-school",
     interestSink: "fee-school",
-    grace: 1,
+    grace: 0,
     onMiss: [],
-    // The student is withdrawn: the status lapses at once (status:course-passed-or-withdrawn).
-    onDefault: [{ type: "status/lose" }],
+    // status:course-passed-or-withdrawn: the sponsor reports the withdrawal and the permission is cut to two months on.
+    onDefault: [{ type: "status/withdraw" }],
+    schedule: [5000, 0, 1250, 1250, 1250, 1250],
+    // The library, the computers and coursework cut off, and the plan offered.
+    onCut: [
+      { type: "quality/add", quality: "quality.wellbeing", amount: -3 },
+      { type: "offer/open", offer: "offer.fee-payment-plan" },
+    ],
+  },
+
+  // route:education-loan-pays-the-school: a regulated education loan in pounds, paid to the school. 0.8% a month flat on what was lent over 180 months
+  // charges about £149 a month on £11,000, against about £143 at the lender's representative 13.48% a year over fifteen years (factor about 1.04).
+  // Nothing is charged before the student status, nor while it holds; a default is recovered as any loan's is.
+  "obligation.education-loan": {
+    id: "obligation.education-loan",
+    type: "loan",
+    where: "any",
+    currency: "GBP",
+    amount: 0,
+    rateBp: 80,
+    term: 180,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 2,
+    onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -4 }],
+    onDefault: [
+      { type: "quality/add", quality: "quality.standing", amount: -10 },
+      { type: "quality/add", quality: "quality.credit-mark", amount: 1 },
+    ],
+    paysSchool: true,
+    deferWhile: "status.uk-student",
   },
 
   // activity:waiting-months-build-profile: a master's at home, ₦1,800,000 in twelve monthly instalments, the

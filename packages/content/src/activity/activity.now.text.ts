@@ -74,6 +74,8 @@ export const activityNowText: Record<string, string> = {
   "line.activity.get-police-certificate.now": "The officer takes your prints. The certificate comes {month}.",
   "line.activity.gulf-medical.now": "The clinic takes your blood. The result comes {month}.",
   "line.activity.get-eca.now": "Sent for assessment. The answer comes {month}.",
+  "line.activity.gift-deed.now": "The notary has the papers. The deed comes {month}.",
+  "line.activity.apply-graduate.now": "The Graduate visa was granted. You can stay on and work.",
   "line.activity.request-verification.now": "The council says: your verification goes out {month}.",
   "line.activity.apply-endorsement.now": "Sent to the endorsing body. Their answer comes {month}.",
   "line.activity.renew-licence.now": "The council says: your new licence comes {month}.",
