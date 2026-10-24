@@ -16,7 +16,7 @@ pnpm install
 pnpm dev
 ```
 
-`pnpm dev` runs the client with Vite. With no server named it runs the local authority: the whole simulation in the browser tab, the save on the device, no server, no account and no sign-in. In development the fast clock grants turns freely, so play never waits on real time. See [The client](./client.md) for how the authority is chosen.
+`pnpm dev` runs the client with Vite. With no server named it runs the local authority: the whole simulation in the browser tab, the save on the device, no server, no account and no sign-in. Play never waits on the bank of turns, which holds no month back (turn:month-turns-on-empty-bank). A sealed result, such as a test's band, waits for the world's next morning, at most one game day (105 real minutes) away; in development `?morning=now` on the address opens every one at once (`apps/client/src/authority/boot.ts`). See [The client](./client.md) for how the authority is chosen.
 
 ::: tip Pick your own port
 Vite's default port is likely taken when several checkouts run at once. Start the client on a port of your own:

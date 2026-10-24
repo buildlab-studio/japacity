@@ -149,7 +149,7 @@ A word bubble is placed from the whole scene, not from its speaker alone, and it
 
 ## Rules: the month's count, the quiet months and the room
 
-**world:no-months-left-count** There are no pages and no count of the months left (decision 0011): no calendar glyph, no flip and no Next month. The bank gates nothing (turn:month-turns-on-empty-bank). The player never reads "turn" or "banked". No button anywhere says "Add to month" or "Add to this month": a card's button says the act ("Buy a ticket", "Study"), and a small line under it says it uses this month's free time when it does. Nothing lectures before play (world:no-walkthrough-before-play).
+**world:no-months-left-count** Nothing on screen counts the months left or the months held (decision 0011): the month turns only at the bed's Sleep (world:sleep-ends-the-month), and the bank of turns behind it never holds a month back (turn:month-turns-on-empty-bank). The player never reads "turn" or "banked". A card's button says the act ("Buy a ticket", "Study"), never "Add to month" or "Add to this month", and a small line under it says it uses this month's free time when it does. Nothing lectures before play (world:no-walkthrough-before-play).
 
 **world:no-auto-run-months** Nothing runs months in a row for the player, and there is no Until news (decision 0011). A quiet month is lived in minutes by hand, with the room's free acts, and turns when the player sleeps (world:sleep-ends-the-month), whatever time is left. Abroad the same. The simulation has no batch command.
 

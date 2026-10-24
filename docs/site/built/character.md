@@ -106,7 +106,7 @@ The state is the twenty-one slices plus the engine's own fields: the save's shap
 
 | Slice | Holds |
 |---|---|
-| `turn` | The month, the free time spent so far this month in half-days, the turns banked (a figure that gates nothing), whether the life has ended, the last month's report, slot locks |
+| `turn` | The month, the free time spent so far this month in half-days, the turns banked (filled on real time, read by the bank-full notice, never holding a month back), whether the life has ended, the last month's report, slot locks |
 | `quality` | The qualities as whole numbers: age in months, education level and grade, English, tech, care, driving, portfolio, network, standing, wellbeing, family means and stake, credit mark, land, and a few counters |
 | `activity` | The job and side job, months in each, last month's slots, months each activity was done, raises, the acts done now this month |
 | `wallet` | The pockets: for each currency, bank, cash and locked. Queued conversions, lots, totals by reason, and the month's net |

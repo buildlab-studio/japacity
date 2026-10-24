@@ -3,7 +3,9 @@
 > Numbers are working values.
 > Kind: `turn`. One per character. Background: `../design/01-concept.md` section 9.
 
-A turn is one month of the character's life. The month is lived (decision 0011): now-acts spend its free time, and the month turns when the player sleeps (world:sleep-ends-the-month, decision 0011); the sleep rests what is left. The bank of turns below is kept in state and filled by the server's clock; it gates nothing.
+A turn is one month of the character's life. The month is lived (decision 0011): now-acts spend its free time, and the month turns when the player sleeps (world:sleep-ends-the-month); the sleep rests what is left.
+
+The life also keeps a bank of turns. Real time fills it, one turn every two real hours up to 24; a closed chapter fills it at once; each month lived takes one while it holds any. The bank never holds a month back (turn:month-turns-on-empty-bank). It is there for the player who is away: when it fills, the server sends the one bank-full notice (clock:full-bank-push-notification). No screen shows it (clock:no-month-countdown-shown).
 
 ## Rules
 
@@ -29,20 +31,21 @@ A turn is one month of the character's life. The month is lived (decision 0011):
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Starting bank | 24 | `tuning.turn.start` |
-| Most that can be banked | 24 | `tuning.turn.cap` |
-| Free slots with a job | 2 | `tuning.turn.freeSlots` |
-| Free slots without one | 3 | `tuning.turn.freeSlotsNoJob` |
-| Most locked slots at once | 2 | `tuning.turn.maxLocked` |
-| Free time with no job, half-days | 60 | `tuning.turn.halfDays.noJob` |
-| Free time with a job, half-days | 20 | `tuning.turn.halfDays.withJob` |
-| The day's arrivals, shares of the free time | 3333, 6667 bp | `tuning.turn.arrivalsBp` |
+| Setting | Value | In content as | Source |
+|---|---|---|---|
+| Starting bank | 24 | `tuning.turn.start` | Working value |
+| Most that can be banked | 24 | `tuning.turn.cap` | Working value: two real days of turns |
+| One turn earned every | 2 real hours | `time.TURN_REFILL_MS` (`packages/sim/src/engine/time.ts`), the server's `clock.turnRefillMs` | Working value |
+| Free slots with a job | 2 | `tuning.turn.freeSlots` | Working value |
+| Free slots without one | 3 | `tuning.turn.freeSlotsNoJob` | Working value |
+| Most locked slots at once | 2 | `tuning.turn.maxLocked` | Working value |
+| Free time with no job, half-days | 60 | `tuning.turn.halfDays.noJob` | Working value: the whole month |
+| Free time with a job, half-days | 20 | `tuning.turn.halfDays.withJob` | Working value: the ten days a job leaves |
+| The day's arrivals, shares of the free time | 3333, 6667 bp | `tuning.turn.arrivalsBp` | Working value: a third and two thirds |
 
 ## Outside the simulation
 
-The authority decides when to grant. Its working rule is one turn every two real hours. The local authority has a fast clock (`fastClock` in `authority/local.ts`) that refills an empty bank at once, for testing by hand. Online, the server's turn clock grants them: clock:turns-earned-from-refill-time, clock:earned-turns-granted-first, clock:full-bank-earns-nothing, clock:no-month-countdown-shown, clock:bonus-grants-keep-refill-time and clock:production-has-no-fast-clock (earning from `refilledAt`, the grant stepped before any command, nothing earned while the bank is full, the client's countdown, refills on top of the clock, and no fast clock in production).
+The authority decides when to grant: one turn every two real hours. Online, the server's turn clock grants them: clock:turns-earned-from-refill-time, clock:earned-turns-granted-first, clock:full-bank-earns-nothing, clock:no-month-countdown-shown, clock:bonus-grants-keep-refill-time and clock:production-has-no-fast-clock (earning from `refilledAt`, the grant stepped before any command, nothing earned while the bank is full, no countdown shown, refills on top of the clock, and no fast clock in production). The local authority (`apps/client/src/authority/local.ts`) earns turns the same way. In development it runs a fast clock (`fastClock`, set by `apps/client/src/authority/clock.ts`) that refills an empty bank at once; a production build never runs it.
 
 ## Effects and requirements this kind handles
 
