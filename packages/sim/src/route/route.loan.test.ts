@@ -84,7 +84,7 @@ describe("route:education-loan-pays-the-school: the education loan", () => {
     expect(content.offer[LOAN_OFFER]!.when.every((requirement) => check(readOf(early), requirement).met)).toBe(false);
   });
 
-  test("[route:education-loan-pays-the-school] given the loan taken, when it opens, then the processing fee is paid under fee-agent, the loan owes the amount plus the lender's fee, nothing is credited, and the route records it: the funds required fall by it and the unexplained share does not move", () => {
+  test("[route:education-loan-pays-the-school] [route:funds-required] given the loan taken, when it opens, then the processing fee is paid under fee-agent, the loan owes the amount plus the lender's fee, nothing is credited, and the route records it: the funds required fall by it and the unexplained share does not move", () => {
     const game = life();
     toDeposit(game, NORTHGATE);
     const id = openOffer(game, LOAN_OFFER)!;

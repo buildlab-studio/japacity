@@ -48,7 +48,7 @@ describe("the page's stamps", () => {
     const abroad = abroadView();
     const landed: PlayerView = { ...abroad, ...routeIn(abroad, UK_CARE, "departed") };
     expect(stampsOf(landed)).toEqual([visa, { words: say("ui.page.stamp.flight") }, { words: say("ui.page.stamp.landed") }]);
-    const status = landed.status ?? { entry: "status.uk-skilled", monthsLeft: null, clock: null, lawfulMonths: 0, settleMonths: null, work: "any" as const, nextStep: null, renew: null, overstay: null };
+    const status = landed.status ?? { entry: "status.uk-skilled", monthsLeft: null, clock: null, lawfulMonths: 0, settleMonths: null, work: "any" as const, nextStep: null, renew: null, overstay: null, graduate: null };
     const settled: PlayerView = { ...landed, status: { ...status, entry: "status.uk-settled" } };
     expect(stampsOf(settled)).toEqual([visa, { words: say("ui.page.stamp.flight") }, { words: say("ui.page.stamp.landed") }, { words: say("ui.page.stamp.secured") }]);
     // A status held on the way is not yet secured.
