@@ -71,3 +71,4 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0026](0026-the-painted-map-that-folds.md) | The painted map that folds |
 | [0027](0027-one-contract-for-the-client-and-the-server.md) | One contract for the client and the server |
 | [0028](0028-overstaying-in-stages.md) | Overstaying in stages |
+| [0029](0029-statuses-kept-on-a-trip-home.md) | Statuses kept on a trip home |
