@@ -1,11 +1,12 @@
-// The hashes of the built pages' inline styles, written into the built `_headers` in place of the token
-// `{inline-style-hashes}`, so the content policy can allow exactly these styles and no other inline one
+// The hashes of the built pages' inline styles (the build's own and those copied from public/), written into the
+// built `_headers` in place of the token `{inline-style-hashes}`, so the content policy can allow exactly these styles
+// and no other inline one
 // (server:csp-holds-every-page). The build rewrites each page's style (the splash in index.html, the legal and official
 // pages' own), so the hashes can only be taken from what it writes. A built page with a style attribute stops the
 // build: the policy allows none, and an attribute cannot be allowed by its hash without 'unsafe-hashes'. Runs in Node,
 // from vite.config.ts.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { Plugin } from "vite";
@@ -34,17 +35,26 @@ export function withStyleHashes(headers: string, hashes: readonly string[]): str
   return headers.split(STYLE_HASHES_TOKEN).join(hashes.join(" "));
 }
 
+/** Every page under the build's folder, read from disk once the build has written it, public/'s copies among them. */
+function builtPages(dir: string): { file: string; html: string }[] {
+  return readdirSync(dir, { recursive: true, encoding: "utf8" })
+    .filter((file) => file.endsWith(".html"))
+    .sort()
+    .map((file) => ({ file, html: readFileSync(join(dir, file), "utf8") }));
+}
+
 export function inlineStyleHashes(): Plugin {
   return {
     name: "japacity-inline-style-hashes",
     apply: "build",
     writeBundle: {
       order: "post",
-      handler(options, bundle) {
-        const pages = Object.values(bundle).flatMap((output) => (output.type === "asset" && output.fileName.endsWith(".html") ? [{ file: output.fileName, html: typeof output.source === "string" ? output.source : new TextDecoder().decode(output.source) }] : []));
+      handler(options) {
+        const dir = options.dir ?? "dist";
+        const pages = builtPages(dir);
         const attributes = pages.flatMap((page) => styleAttributes(page.html).map((element) => `${page.file}: ${element}`));
         if (attributes.length > 0) throw new Error(`A built page carries a style attribute, which the content policy refuses:\n${attributes.join("\n")}`);
-        const file = join(options.dir ?? "dist", "_headers");
+        const file = join(dir, "_headers");
         if (!existsSync(file)) return;
         writeFileSync(file, withStyleHashes(readFileSync(file, "utf8"), styleHashes(pages.map((page) => page.html))));
       },

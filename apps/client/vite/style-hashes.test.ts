@@ -1,10 +1,13 @@
 // server:csp-holds-every-page: the content policy allows the built pages' inline styles by their hashes and no other,
 // and no style attribute at all, so the hashes are taken from the build and a style attribute stops it.
 import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { STYLE_HASHES_TOKEN, styleAttributes, styleHashes, withStyleHashes } from "./style-hashes.plugin";
+import { inlineStyleHashes, STYLE_HASHES_TOKEN, styleAttributes, styleHashes, withStyleHashes } from "./style-hashes.plugin";
 
 const hashOf = (text: string) => `'sha256-${createHash("sha256").update(text, "utf8").digest("base64")}'`;
 
@@ -29,5 +32,22 @@ describe("the inline styles' hashes", () => {
     expect(styleAttributes('<svg style="position:absolute" aria-hidden="true"></svg>')).toEqual(["<svg style="]);
     expect(styleAttributes('<div class="a" STYLE = "x">')).toEqual(['<div class="a" STYLE =']);
     expect(styleAttributes('<style>p{}</style><p data-style="x">style="no"</p><svg class="splash-defs"></svg>')).toEqual([]);
+  });
+
+  test("[server:csp-holds-every-page] given a written build with pages at its top, in folders and copied from public, when the step runs, then the headers carry every page's style hash; a page with a style attribute stops the build", () => {
+    const dir = mkdtempSync(join(tmpdir(), "style-hashes-"));
+    try {
+      mkdirSync(join(dir, "official"));
+      writeFileSync(join(dir, "index.html"), "<style>a{}</style>");
+      writeFileSync(join(dir, "official", "index.html"), "<style>b{}</style>");
+      writeFileSync(join(dir, "_headers"), `/*\n  Content-Security-Policy-Report-Only: style-src 'self' ${STYLE_HASHES_TOKEN}\n`);
+      const step = inlineStyleHashes() as unknown as { writeBundle: { handler: (options: { dir: string }) => void } };
+      step.writeBundle.handler({ dir });
+      expect(readFileSync(join(dir, "_headers"), "utf8")).toBe(`/*\n  Content-Security-Policy-Report-Only: style-src 'self' ${[hashOf("a{}"), hashOf("b{}")].sort().join(" ")}\n`);
+      writeFileSync(join(dir, "official", "index.html"), '<p style="color:red">');
+      expect(() => step.writeBundle.handler({ dir })).toThrow(/official/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
