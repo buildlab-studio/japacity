@@ -905,6 +905,8 @@ export interface StatusEntry {
   renewBp?: number;
   renewFeeVar: Id<"var"> | null;
   surchargeYearVar: Id<"var"> | null;
+  /** status:renewing-a-status: held with one of these jobs, the renewal is at `feeVar` with no surcharge (the Health and Care fee). Missing: every job renews at `renewFeeVar`. */
+  renewByJob?: { jobs: Id<"activity">[]; feeVar: Id<"var"> };
   next: Id<"status"> | null;
   nextIf: Requirement[];
   countsToSettlement: boolean;

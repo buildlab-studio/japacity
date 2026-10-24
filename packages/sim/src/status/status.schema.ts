@@ -16,6 +16,7 @@ export const StatusEntrySchema = z.strictObject({
   renewBp: BpSchema.exactOptional(),
   renewFeeVar: idOf("var").nullable(),
   surchargeYearVar: idOf("var").nullable(),
+  renewByJob: z.strictObject({ jobs: z.array(idOf("activity")), feeVar: idOf("var") }).exactOptional(),
   next: idOf("status").nullable(),
   nextIf: z.array(RequirementSchema),
   countsToSettlement: z.boolean(),

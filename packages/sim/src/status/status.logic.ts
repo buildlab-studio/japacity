@@ -469,6 +469,17 @@ function renewRefusal(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, 
   return null;
 }
 
+/**
+ * status:renewing-a-status: what a renewal costs today, read by the job held. A job the entry's `renewByJob` names renews at its fee with no
+ * surcharge, since health and care workers who qualify for that visa pay none; any other at the entry's own fee plus the surcharge for the months.
+ */
+function renewCost(read: ReadCtx, entry: StatusEntry, feeVar: Id<"var">): { fee: number; surcharge: number } {
+  const job = read.state.activity.job;
+  if (entry.renewByJob !== undefined && job !== null && entry.renewByJob.jobs.includes(job)) return { fee: worldVar(read, entry.renewByJob.feeVar), surcharge: 0 };
+  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  return { fee: worldVar(read, feeVar), surcharge };
+}
+
 /** status:renewing-a-status, status:one-renewability-test. */
 function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "status/renew") throw new Error(`status/renew cannot handle ${command.type}.`);
@@ -480,8 +491,7 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const refused = renewRefusal(ctx, held, entry);
   if (refused !== null || held.expiresMonth === null || entry.renewFeeVar === null) return reject("not-legal", refused ?? `${held.entry} does not renew.`);
   const currency = foreignCurrencyOf(ctx.content, entry.country);
-  const fee = worldVar(ctx, entry.renewFeeVar);
-  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(ctx, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  const { fee, surcharge } = renewCost(ctx, entry, entry.renewFeeVar);
   if (!ctx.check({ type: "money/can-pay", currency, amount: fee + surcharge }).met) {
     return reject("cannot-afford", `The renewal costs ${String(fee + surcharge)} in ${currency} and cannot be paid.`);
   }
@@ -866,8 +876,7 @@ function overstayView(read: ReadCtx): NonNullable<PlayerView["status"]>["oversta
 function renewTerms(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): NonNullable<PlayerView["status"]>["renew"] {
   if (renewRefusal(read, held, entry) !== null || entry.renewFeeVar === null) return null;
   const currency = foreignCurrencyOf(read.content, entry.country);
-  const fee = worldVar(read, entry.renewFeeVar);
-  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  const { fee, surcharge } = renewCost(read, entry, entry.renewFeeVar);
   return { months: entry.renewMonths, currency, fee, surcharge };
 }
 

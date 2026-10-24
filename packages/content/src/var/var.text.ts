@@ -17,6 +17,7 @@ export const varText: Record<string, string> = {
   "var.uk-citizen-fee.name": "Citizenship fee",
   "var.uk-skilled-renew-fee.name": "Worker visa extension fee",
   "var.uk-surcharge-year.name": "Health surcharge a year",
+  "var.uk-graduate-fee.name": "Graduate visa fee",
   "var.canada-settle-months.name": "Months in Canada before citizenship",
   "var.canada-citizen-fee.name": "Canadian citizenship fee",
 

@@ -89,6 +89,8 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     renewMonths: 24,
     renewFeeVar: "var.uk-skilled-renew-fee",
     surchargeYearVar: "var.uk-surcharge-year",
+    // status:renewing-a-status: a care, senior care or nurse job renews at the Health and Care fee, £324 up to three years, with no surcharge.
+    renewByJob: { jobs: ["activity.job-uk-care", "activity.job-uk-senior-care", "activity.job-uk-nurse"], feeVar: "var.uk-care-visa-fee" },
     countsToSettlement: true,
     countsFromBefore: true,
     settleMonthsVar: "var.uk-settle-months",

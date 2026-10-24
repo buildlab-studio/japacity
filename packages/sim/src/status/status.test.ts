@@ -226,20 +226,38 @@ describe("the overstayer", () => {
 });
 
 describe("renewing", () => {
-  test("[status:renewing-a-status] given a sponsored worker in the job, when the status is renewed, then it runs 24 months more and the fee and the surcharge are paid in pounds", () => {
+  test("[status:renewing-a-status] given a sponsored worker in a job that is not care or nursing, when the status is renewed, then it runs 24 months more and the skilled renewal from inside the UK and the surcharge are paid in pounds", () => {
     const game = sponsored();
     const expires = current(game).expiresMonth ?? 0;
     const fee = totalOut(game, "fee-visa");
     const surcharge = totalOut(game, "fee-surcharge");
-    expect(game.view().status?.renew).toEqual({ months: 24, currency: "GBP", fee: 186500, surcharge: 207000 });
+    // £943 up to three years, and £1,035 a year for the 24 months: £3,013 in all.
+    expect(game.view().status?.renew).toEqual({ months: 24, currency: "GBP", fee: 94300, surcharge: 207000 });
     const result = game.accept({ type: "status/renew" });
     expect(current(game).expiresMonth).toBe(expires + 24);
-    expect(totalOut(game, "fee-visa") - fee).toBe(186500);
+    expect(totalOut(game, "fee-visa") - fee).toBe(94300);
     expect(totalOut(game, "fee-surcharge") - surcharge).toBe(207000);
     expect(statusLines(result.lines)).toEqual([
-      { key: "line.status.renewed", params: { months: 24, fee: { currency: "GBP", amount: 186500 }, surcharge: { currency: "GBP", amount: 207000 } }, tone: "good", attention: false, counts: [] },
+      { key: "line.status.renewed", params: { months: 24, fee: { currency: "GBP", amount: 94300 }, surcharge: { currency: "GBP", amount: 207000 } }, tone: "good", attention: false, counts: [] },
     ]);
   });
+
+  test.each(["activity.job-uk-care", "activity.job-uk-senior-care", "activity.job-uk-nurse"] as const)(
+    "[status:renewing-a-status] [status:one-renewability-test] given a sponsored worker held with %s, when the status is renewed, then it renews at the Health and Care fee with no surcharge, and the view says the same",
+    (job) => {
+      const game = flown(content, { from: "scenario.developer" });
+      applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SPONSORED, job }, { type: "activity/start-job", job }]);
+      expect(game.state.activity.job).toBe(job);
+      const expires = current(game).expiresMonth ?? 0;
+      const fee = totalOut(game, "fee-visa");
+      const surcharge = totalOut(game, "fee-surcharge");
+      expect(game.view().status?.renew).toEqual({ months: 24, currency: "GBP", fee: content.var["var.uk-care-visa-fee"]!.start, surcharge: 0 });
+      game.accept({ type: "status/renew" });
+      expect(current(game).expiresMonth).toBe(expires + 24);
+      expect(totalOut(game, "fee-visa") - fee).toBe(32400);
+      expect(totalOut(game, "fee-surcharge") - surcharge).toBe(0);
+    },
+  );
 
   test("[status:renewing-a-status] given a status that does not renew, a sponsored worker out of the job, or a renewal that cannot be paid, when renewal is asked for, then it is rejected", () => {
     const student = flown(content);
