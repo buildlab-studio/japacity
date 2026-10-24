@@ -1,4 +1,4 @@
-// Castel Volturno lived by hand: streets:castel-volturno-by-hand (design page 11 section 5). Each is a priced now-act
+// Castel Volturno lived by hand: streets:castel-volturno-by-hand (docs/design/11-calgary-dubai-and-castel-volturno.md section 5). Each is a priced now-act
 // in euros, paid as it is done, and the church's community is free; when each answers and the time it spends are in
 // activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts; place.data.ts
 // stages each at its Castel Volturno place. There is no pass here (place:country-pass-covers-ways): the bus is paid each time.

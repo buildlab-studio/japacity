@@ -92,7 +92,7 @@ export function defaultPaths(root: string): Paths {
   return { root, source: join(root, "models"), public: join(root, "apps", "client", "public", "assets"), dist: join(root, "apps", "client", "dist") };
 }
 
-/** Where the publish step puts each model's tile render, by the model's name (design page 09, the pictures). */
+/** Where the publish step puts each model's tile render, by the model's name (docs/design/09-the-games-look.md, the pictures). */
 export const TILES = "tiles";
 /** A look's portraits, published under tiles as `<asset>-<view>` beside the tiles (the front door's faces and figures; catalog.ts PORTRAITS). */
 export const PORTRAIT_VIEWS: readonly string[] = ["face", "figure", "cheer"];

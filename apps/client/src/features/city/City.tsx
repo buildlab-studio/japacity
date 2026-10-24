@@ -1620,7 +1620,7 @@ export function City({
     for (const line of toTell) tell(line);
     setToTell([]);
   }, [toTell, worldFree, homeTeachShown]);
-  // Toasts that answer every tap (design page 09 sections 2 and 7): money in from something done in the world slides in
+  // Toasts that answer every tap (docs/design/09-the-games-look.md sections 2 and 7): money in from something done in the world slides in
   // under the band with a picture and the figure, and a coin flies to the counter. Never at the month's turn, which the
   // results tell, and never from the phone, which tells its own.
   const money = bandMoney(view).money;

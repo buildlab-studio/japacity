@@ -1,4 +1,4 @@
-// Castel Volturno as a painted city (world:painted-maps-abroad; design page 11 sections 2 and 6): the
+// Castel Volturno as a painted city (world:painted-maps-abroad; docs/design/11-calgary-dubai-and-castel-volturno.md sections 2 and 6): the
 // coast on paper, the sea along the west, the Domitiana running the length of the paper by the pinewood, the Volturno
 // across the top, the fields inland, three neighbourhood cards, every built place of Italy as its sticker, the home
 // sticker at the country's home spot from content, and Naples airport on an inset in the paper's south-east corner with
@@ -27,7 +27,7 @@ export const CASTEL_PAPER = { width: 870, height: 1256 } as const;
 
 const { at, ring, label, decor } = paperPen(CASTEL_FIT);
 
-/** The home's spot on the map, from content's country table: the room in a shared flat on the Domitiana (design page 11 section 3). */
+/** The home's spot on the map, from content's country table: the room in a shared flat on the Domitiana (docs/design/11-calgary-dubai-and-castel-volturno.md section 3). */
 export const CASTEL_HOME_SPOT: Position = content.country[ITALY]?.homeSpot ?? { latE3: 40950, lonE3: 14010 };
 
 /** The shore, north-west to south-east, from beyond the river's mouth down past the pinewood to Licola. */

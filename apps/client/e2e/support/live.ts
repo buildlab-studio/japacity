@@ -162,7 +162,7 @@ export async function intoTheRoom(page: Page): Promise<void> {
 
 /**
  * The cards that stand over the world or over the results, each passed by its own button: a moment card (moment:card-shows-when-outcome-lands: a
- * landing, a chapter done, a staged win) by its Close, a brief handed or a chapter closed by its Let's go (design page 09
+ * landing, a chapter done, a staged win) by its Close, a brief handed or a chapter closed by its Let's go (docs/design/09-the-games-look.md
  * section 4). True when one was passed.
  */
 export async function passMomentCard(page: Page, seen?: () => Promise<void>): Promise<boolean> {

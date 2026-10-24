@@ -237,7 +237,7 @@ const PLAYED = {
 } satisfies Record<Exclude<StrategyName, "canada" | "road">, Habits>;
 
 /**
- * The two recorded lives for the countries beyond the UK (tools/goldens/record-lives.ts, design page 11 section 7) play the careful
+ * The two recorded lives for the countries beyond the UK (tools/goldens/record-lives.ts, docs/design/11-calgary-dubai-and-castel-volturno.md section 7) play the careful
  * habits with Canada as the one settling route and no study plan, and the risky habits with the road as the one way out; neither is among
  * simulated play's strategies (STRATEGY_NAMES), so its figures stand.
  */

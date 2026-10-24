@@ -1,4 +1,4 @@
-// The dress's motion (design page 09, section 7) at a trailer's scale: a pop with a short overshoot, a sticker's wobble that
+// The dress's motion (docs/design/09-the-games-look.md, section 7) at a trailer's scale: a pop with a short overshoot, a sticker's wobble that
 // settles, a slide that lands. Every value is read from the frame, so a render is the same every time.
 import { interpolate, spring, type SpringConfig } from "remotion";
 

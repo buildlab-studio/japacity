@@ -1,4 +1,4 @@
-// The emotes over the crowd (the talk budget, design page 09 section 5): a picture over a head is a tap on that person.
+// The emotes over the crowd (the talk budget, docs/design/09-the-games-look.md section 5): a picture over a head is a tap on that person.
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 

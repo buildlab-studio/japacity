@@ -64,10 +64,10 @@ export function servesHere(place: PlaceEntry, where: ViewPlace, places: readonly
 
 /**
  * The room abroad's spot on the map (world:painted-maps-abroad): a made-up spot a little off the country's hub, as its street
- * is made up; in London 51471, -73, off Choumert Road (design page 10 section 4). Null where the country has no hub.
+ * is made up; in London 51471, -73, off Choumert Road (docs/design/10-london.md section 4). Null where the country has no hub.
  */
 export function roomSpot(country: string | null, places: readonly PlaceEntry[], countries: Readonly<Record<string, { homeSpot: { latE3: number; lonE3: number } | null } | undefined>> = {}): { latE3: number; lonE3: number } | null {
-  // The country's home spot as content's country table keeps it (design page 11 section 3: north-east Calgary, the camp
+  // The country's home spot as content's country table keeps it (docs/design/11-calgary-dubai-and-castel-volturno.md section 3: north-east Calgary, the camp
   // east of Dubai, the Domitiana), else a little off its hub.
   const spot = country === null ? null : (countries[country]?.homeSpot ?? null);
   if (spot !== null) return spot;

@@ -266,11 +266,11 @@ export const tuning: Tuning = {
       // place:rides-between-city-places: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
       lonMetresPerE3: 111,
-      // place:rides-between-city-places and place:country-pass-covers-ways (decision 0017, design page 10 section 5): each
+      // place:rides-between-city-places and place:country-pass-covers-ways (decision 0017, docs/design/10-london.md section 5): each
       // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
       // (place:country-pass-covers-ways, decision 0017), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
       // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
-      // design page 11 section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
+      // docs/design/11-calgary-dubai-and-castel-volturno.md section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
       // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
       // slower walk in the heat; the coast road's bus at one flat fare, and no train, taxi or pass in Castel Volturno.
       abroad: {

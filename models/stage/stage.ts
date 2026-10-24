@@ -1,6 +1,6 @@
 // The stage every asset is shot on (assets:contributor-renders-fixed-views): one sun and one sky (assets:lighting-set-by-place), the
 // palette's sand ground, a standard street for the phone shot, and a clear ground for the tile
-// the interface cuts as a sticker (design page 09) and for a look's face and whole figure, which
+// the interface cuts as a sticker (docs/design/09-the-games-look.md) and for a look's face and whole figure, which
 // the front door cuts the same way. The shooter drives it
 // through `window.stage`; it renders on the software renderer, so a model gives the same
 // pixels every time. It loads the shipped file, as the client does, not the builder.

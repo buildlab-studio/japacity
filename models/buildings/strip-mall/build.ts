@@ -1,4 +1,4 @@
-// The strip mall in north-east Calgary (design page 11 sections 2 and 3: the hub, the jobs notice, the coffee shop, the
+// The strip mall in north-east Calgary (docs/design/11-calgary-dubai-and-castel-volturno.md sections 2 and 3: the hub, the jobs notice, the coffee shop, the
 // African store, the barber): one flat-roofed row of shop units behind a parking lot, as the newcomers' suburbs have
 // them. Each unit has its plate glass and glass door under a deep canopy on slim posts, a fascia sign over the canopy
 // with a text key (assets:sign-text-drawn-in-code), and posters in the window; the roof carries its grey heating units behind a parapet.

@@ -313,7 +313,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // abroad-money:arrival-opens-upkeep-and-room: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
   "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(15)),
-  // abroad-money:arrival-opens-upkeep-and-room (design page 11 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
+  // abroad-money:arrival-opens-upkeep-and-room (docs/design/11-calgary-dubai-and-castel-volturno.md section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
   "obligation.upkeep-canada": upkeepAbroad("obligation.upkeep-canada", "CAD", cad(30)),
   "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(50)),
   "obligation.upkeep-italy": upkeepAbroad("obligation.upkeep-italy", "EUR", euros(10)),

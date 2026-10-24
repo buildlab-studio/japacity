@@ -29,7 +29,7 @@ async function startLife(page: Page): Promise<void> {
 
 /**
  * The names of the buttons a player can see over the place. The marks and labels over things and the talk over the crowd
- * belong to the scene (world:things-are-tappable-models, the talk budget of design page 09 section 5), and the nudge is checked on its own.
+ * belong to the scene (world:things-are-tappable-models, the talk budget of docs/design/09-the-games-look.md section 5), and the nudge is checked on its own.
  */
 async function visibleButtons(page: Page): Promise<string[]> {
   return page.evaluate(() =>

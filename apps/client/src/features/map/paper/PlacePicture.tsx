@@ -1,4 +1,4 @@
-// A place's own picture on the painted map and the ride sheet (design page 09, the pictures): its tile from the table,
+// A place's own picture on the painted map and the ride sheet (docs/design/09-the-games-look.md, the pictures): its tile from the table,
 // or the emoji standing in, cut as a sticker; the passport office's counter with the flag flying behind it.
 import type { CSSProperties } from "react";
 

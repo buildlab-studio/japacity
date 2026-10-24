@@ -1,4 +1,4 @@
-// The room abroad named per country (world:painted-maps-abroad, design page 11 section 3): content keeps its full
+// The room abroad named per country (world:painted-maps-abroad, docs/design/11-calgary-dubai-and-castel-volturno.md section 3): content keeps its full
 // name for each country, and the band says it short enough to stand beside the age (world:top-band-is-a-pill).
 import { roomName } from "@japacity/content";
 import { describe, expect, test } from "vitest";

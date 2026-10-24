@@ -79,7 +79,7 @@ describe("the price and the balance", () => {
     expect(card.querySelector("[data-balance-before]")?.textContent).toBe("₦48,500");
     expect(card.querySelector("[data-balance-after]")?.textContent).toBe("₦47,000");
     expect(card.querySelector("[data-does]")?.textContent).toBe("Fills you, lifts you");
-    // Chips earn their place (design page 09 section 2): a morning is no chip; past a morning the time shows.
+    // Chips earn their place (docs/design/09-the-games-look.md section 2): a morning is no chip; past a morning the time shows.
     expect(card.querySelector("[data-time]")).toBeNull();
   });
 

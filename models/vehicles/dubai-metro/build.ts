@@ -1,4 +1,4 @@
-// A Dubai metro car for the ride abroad (world:ride-abroad-and-workplace; design page 11
+// A Dubai metro car for the ride abroad (world:ride-abroad-and-workplace; docs/design/11-calgary-dubai-and-castel-volturno.md
 // section 6): the leading car of a driverless train, silver with a red band, its nose one raked sweep of dark glass;
 // no operator's mark, line name or words (assets:no-real-brands-on-assets). With no driver, the front is the passengers': two pairs of
 // seats face the windscreen, and the ride sits there, on the right, the line ahead and the city out of the side

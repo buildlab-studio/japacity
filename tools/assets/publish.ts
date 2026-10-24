@@ -4,7 +4,7 @@
 // file for good. The build check skips the hashed copies and the manifest (assets-check.ts).
 // First it publishes each model's tile render as tiles/<name>.webp with its small size tiles/<name>-small.webp, each
 // look's portraits as tiles/<name>-face.webp, -figure.webp and -cheer.webp, and each poster as tiles/<name>-poster.webp,
-// so the interface's pictures are published as the models are (design page 09, the pictures; the front door's faces and
+// so the interface's pictures are published as the models are (docs/design/09-the-games-look.md, the pictures; the front door's faces and
 // figures), as WebP (assets:pictures-shipped-light).
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";

@@ -1,4 +1,4 @@
-// Dubai on the mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
+// Dubai, built as Lagos is, in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
 // place:rides-between-city-places, place:country-pass-covers-ways, place:employer-shuttle-rides-free; streets:dubai-life-by-hand): a contract life played by a simulated
 // player lands in Dubai holding the guard's job, buys the month's zone pass at Union station's Nol machine, rides the bus
 // to the hypermarket for nothing and does the weekly shop, rides the labour bus to the site, where the guard's post says

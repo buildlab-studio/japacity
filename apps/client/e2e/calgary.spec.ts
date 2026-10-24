@@ -1,4 +1,4 @@
-// Calgary on the mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
+// Calgary, built as Lagos is, in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
 // place:rides-between-city-places, place:country-pass-covers-ways; streets:calgary-life-by-hand, streets:dubai-life-by-hand): a points life played by a simulated
 // `canada` player lands in Calgary and takes the warehouse job, buys the month's transit pass at the CTrain station's ticket
 // machine, rides the bus to the superstore for nothing and does the weekly shop, rides the CTrain to the warehouse, where

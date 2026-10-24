@@ -84,7 +84,7 @@ describe("Deira", () => {
   });
 });
 
-// Work in Dubai (city:places-stage-their-acts, design page 11 section 3): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
+// Work in Dubai (city:places-stage-their-acts, docs/design/11-calgary-dubai-and-castel-volturno.md section 3): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
 // the site across the creek, at the guard's post and the cleaner's trolley. Both come by the agent's contract and the
 // hunt never asks for them (activity.abroad.data.ts: no hire chance), so each thing there is looked at, and its job act
 // opens only for a job the hunt can ask for. Deira's labour bus is looked at; the ride to the site is the site's own.

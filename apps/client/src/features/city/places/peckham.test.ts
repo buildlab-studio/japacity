@@ -1,7 +1,7 @@
 // Peckham as one frontage on Rye Lane (city.md place.peckham, world:place-is-one-screen): the
 // shops across the road with the grocer's produce out front and the hair shop beside it, and on the
 // near pavement the bus stop and a bench. It is the hub abroad in London; the community act is staged
-// in the room abroad, not here. London is on the Lagos mold (design page 10, world:ride-abroad-and-workplace, streets.md
+// in the room abroad, not here. London is built as Lagos is (docs/design/10-london.md, world:ride-abroad-and-workplace, streets.md
 // streets:street-shopping-abroad): the stalls are on Rye Lane and each job is at its own workplace's door, so the notice and the agency
 // start the hunt and the grocer is looked at.
 import { content } from "@japacity/content";

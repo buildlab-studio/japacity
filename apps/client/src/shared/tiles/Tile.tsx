@@ -1,4 +1,4 @@
-// The picture on a choice (design page 09, the pictures): a model's tile, found through the publish manifest as the
+// The picture on a choice (docs/design/09-the-games-look.md, the pictures): a model's tile, found through the publish manifest as the
 // place files are, offered at its small size and its own by the box's width (assets:pictures-sharp-at-three), or the
 // emoji standing in where no model exists. Plain; the sticker's cut wraps it.
 import { useMemo } from "react";

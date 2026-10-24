@@ -639,7 +639,7 @@ export const placeText: Record<string, string> = {
   "place.peckham-rye-station.overheard.1": "Stand back from the edge, please.",
   "place.peckham-rye-station.overheard.2": "My next drop is in Brixton. Twenty minutes.",
   "place.peckham-rye-station.overheard.3": "The train is cancelled. Of course it is.",
-  // London on the Lagos mold (city.md "Entries: abroad"). Businesses by made-up name on their signs, checked
+  // London, built as Lagos is (city.md "Entries: abroad"). Businesses by made-up name on their signs, checked
   // under city:made-up-names-checked and recorded in place.names.json; the ward, the church and the test centre by plain description.
   "place.big-shop-uk.name": "the big shop",
   "place.big-shop-uk.blurb": "A supermarket on the high street: trolleys by the door, long aisles, and a part-time job at the tills.",
@@ -689,7 +689,7 @@ export const placeText: Record<string, string> = {
   "place.calgary-airport.overheard.1": "Welcome to Calgary. Have you got gloves?",
   "place.calgary-airport.overheard.2": "The shuttle is outside. Do not wait without a hat.",
   "place.calgary-airport.overheard.3": "Your cousin is in the car park. He said wait here.",
-  // Calgary on the mold (city.md "Entries: abroad", design page 11 section 3). The hub is a strip mall in
+  // Calgary, built as Lagos is (city.md "Entries: abroad", docs/design/11-calgary-dubai-and-castel-volturno.md section 3). The hub is a strip mall in
   // the north-east, shown by description; the rooms it shares with London by plain description.
   "place.calgary-north-east.name": "the strip mall, north-east Calgary",
   "place.calgary-north-east.blurb": "A flat-roofed row by a wide road: a coffee shop, an African store, a barber and the jobs notice by the door. Snow at the kerb.",
@@ -865,7 +865,7 @@ export const placeText: Record<string, string> = {
   "place.warehouse-uk.short": "The warehouse",
   "place.church-uk.short": "The church",
   "place.test-centre-uk.short": "The test centre",
-  // Calgary's, Dubai's and Castel Volturno's own places (design page 11 section 3).
+  // Calgary's, Dubai's and Castel Volturno's own places (docs/design/11-calgary-dubai-and-castel-volturno.md section 3).
   "place.ctrain-station-canada.short": "The station",
   "place.warehouse-canada.short": "The warehouse",
   "place.office-canada.short": "The office",

@@ -36,7 +36,7 @@ const ABROAD: { name: string; life: Id<"scenario"> }[] = [
 ];
 
 /**
- * One life per country beyond the UK (design page 11 section 7; `pnpm record:lives developer-canada banker-gulf`):
+ * One life per country beyond the UK (docs/design/11-calgary-dubai-and-castel-volturno.md section 7; `pnpm record:lives developer-canada banker-gulf`):
  * the strategy that takes that route, played on until some months after the landing, and cut there; no return. They go to
  * packages/sim/src/simulated-play/lives.countries.data.ts and are replayed by their own test, never blessed into the goldens.
  */

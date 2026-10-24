@@ -1,4 +1,4 @@
-// London lived by hand: place:country-pass-covers-ways (the bus pass) and streets:london-life-by-hand (design page 10
+// London lived by hand: place:country-pass-covers-ways (the bus pass) and streets:london-life-by-hand (docs/design/10-london.md
 // section 6, decision 0017). Each is a priced now-act in pounds, paid as it is done; when each answers and the time it
 // spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts;
 // place.data.ts stages each at its London place.

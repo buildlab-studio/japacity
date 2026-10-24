@@ -1,4 +1,4 @@
-// The table from ids to pictures (design page 09, the pictures): every act, offer, place and home thing the
+// The table from ids to pictures (docs/design/09-the-games-look.md, the pictures): every act, offer, place and home thing the
 // interface shows a picture for has a row, each row a published model tile or an emoji standing in for one.
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
