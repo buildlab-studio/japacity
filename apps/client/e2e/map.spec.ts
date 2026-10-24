@@ -179,8 +179,8 @@ test("[world:ride-cuts-between-angles] given a life at home on a phone, when a d
   await page.locator('[data-way="danfo"]').click();
   await page.locator("[data-ride-main]").click();
   await expect(page.locator("[data-ride]")).toBeVisible();
-  // The card holds only Turn back and Skip: the ride picks its own angles.
-  await expect(page.locator("[data-ride] button")).toHaveText(["Turn back", "Skip"]);
+  // The card holds only Skip and, apart below it, Turn back (world:costly-acts-confirmed): the ride picks its own angles.
+  await expect(page.locator("[data-ride] button")).toHaveText(["Skip", "Turn back"]);
   // The probe goes with the ride, so its angles are read until it ends.
   let angles: string[] = [];
   let began = false;
