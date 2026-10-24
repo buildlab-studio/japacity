@@ -359,17 +359,41 @@ describe("the UAE's fine and the amnesty", () => {
 });
 
 describe("the view", () => {
-  test("[status:view-shows-status] given a UK overstayer, when the view is read through the grace and a notice, then it carries the grace left, the notice left, no fine and nothing pending, and never the detection chance", () => {
+  test("[status:view-shows-status] given a UK overstayer, when the view is read through the grace and a notice, then the grace left counts the month in play, 1 in the grace's last month and 0 past it, with the notice left, no fine and nothing pending, and never the detection chance", () => {
     const game = lapsed({ change: SURE });
+    const grace = entryOf(OVERSTAYER).graceMonths!;
+    expect(game.view().status?.overstay).toEqual({ graceLeft: grace + 1, noticeLeft: null, fine: null, pending: false });
+    month(game);
+    expect(game.state.turn.month).toBe(overstay(game).graceUntil);
     expect(game.view().status?.overstay).toEqual({ graceLeft: 1, noticeLeft: null, fine: null, pending: false });
     month(game);
-    expect(game.view().status?.overstay).toEqual({ graceLeft: 0, noticeLeft: null, fine: null, pending: false });
-    month(game);
+    expect(game.state.turn.month).toBe(overstay(game).graceUntil + 1);
     expect(game.view().status?.overstay).toEqual({ graceLeft: 0, noticeLeft: 3, fine: null, pending: false });
     month(game);
     expect(game.view().status?.overstay?.noticeLeft).toBe(2);
     expect(JSON.stringify(game.view().status)).not.toContain("detect");
     expect(flown(content).view().status?.overstay).toBeNull();
+  });
+
+  test("[status:view-shows-status] given each country's overstayer status, when months pass, then the grace left is the months to the grace's end counting the month in play, 1 in its last month and 0 from the month after", () => {
+    const NO_DETECTION = (used: Content): Content => ({
+      ...used,
+      status: Object.fromEntries(Object.entries(used.status).map(([id, entry]) => [id, { ...entry, detectBp: 0 }])),
+    });
+    for (const [country, status] of [
+      [UK_COUNTRY, OVERSTAYER],
+      [CANADA_COUNTRY, CANADA_OVERSTAYER],
+      [UAE, UAE_IRREGULAR],
+      [ITALY, EU_IRREGULAR],
+    ] as const) {
+      const game = overstayerIn(country, status, { change: NO_DETECTION });
+      const { since, graceUntil } = overstay(game);
+      for (let at = since; at <= graceUntil + 1; at += 1) {
+        expect(game.state.turn.month).toBe(at);
+        expect(game.view().status?.overstay?.graceLeft).toBe(at <= graceUntil ? graceUntil - at + 1 : 0);
+        month(game);
+      }
+    }
   });
 });
 

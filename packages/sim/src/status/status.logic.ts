@@ -756,7 +756,8 @@ function overstayView(read: ReadCtx): NonNullable<PlayerView["status"]>["oversta
   const { graceUntil, noticeUntil } = now.overstay;
   const currency = countryEntry(read.content, now.entry.country).currency;
   return {
-    graceLeft: Math.max(0, graceUntil - month),
+    // The month in play is still grace through `graceUntil` (inGrace), so it counts: 1 in the grace's last month.
+    graceLeft: Math.max(0, graceUntil - month + 1),
     noticeLeft: noticeUntil === null ? null : Math.max(0, noticeUntil - month),
     fine: (now.entry.finePerMonth ?? 0) > 0 ? { currency, amount: fineOwed(read) } : null,
     pending: pendingInCountry(read),

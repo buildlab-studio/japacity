@@ -34,6 +34,13 @@ export function graceView(): PlayerView {
   return lapsedGame().view();
 }
 
+/** The grace's last month: the month after the visa was lost, still in the grace. */
+export function lastGraceView(): PlayerView {
+  const game = lapsedGame();
+  play(game, 1);
+  return game.view();
+}
+
 /** Pounds in the bank for a fare home at any time of year. */
 const FARE_IN_HAND = { GBP: 200_000 } as const;
 
