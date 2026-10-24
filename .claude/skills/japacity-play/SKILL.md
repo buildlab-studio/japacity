@@ -23,11 +23,11 @@ From a fresh clone, install the browser once: `pnpm exec playwright install chro
 
 ## What a run does
 
-1. The front door, three screens with everything chosen (prologue:front-door-three-screens): Next on "Who are you?" with the name offered, the tile on "Your life so far" with its age and home as they stand, Begin on "Your page".
-2. The page fills as the handover (prologue:printed-page-hands-over): the family card turns over, the years' chips show, the stamp lands, and the world opens by itself.
+1. The front door, three screens with everything chosen (prologue:front-door-three-screens): Next on "Who are you?" with the name offered, the tile and its age on "Your life so far", then Next; Begin on "Where you live" with the home as it stands.
+2. The page fills as the handover (prologue:printed-page-hands-over): the family card turns over and the years' chips show; Go opens the world.
 3. The first chapter's title stands over the world for a moment (chapter:first-chapter-mission-card); the nudge gives the first step; the map with the stop picked, Go by danfo, the ride (a picture, then Skip), the place.
 4. The first-use labels at the Map and Phone thumbs, unless `--played` (world:no-walkthrough-before-play).
-5. Each month: the nudge is read and tapped; the act it floats over a thing is tapped; on the sheet that opens, the main button (or the first answer: an offer's Accept, a repair's Pay) is taken; then Next month, End month, any staged moment, the results, Back to the place. A card over the world (a toast's card, the chapter's words) is read and closed.
+5. Each month: the nudge is read and tapped; the act it floats over a thing is tapped; on the sheet that opens, the main button (or the first answer: an offer's Accept, a repair's Pay) is taken; then the ride home by the map, Sleep on the bed's fan, any staged moment, the results, and back to the place. A card over the world (a toast's card, the chapter's words) is read and closed.
 6. The phone: every app, one by one, each with a picture.
 
 ## Read the log
