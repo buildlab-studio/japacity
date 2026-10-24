@@ -1,19 +1,24 @@
 // server:migration-before-deploy: the migrations start from one file, 0000_japacity, every table generated from the
-// Drizzle schema and then the functions and triggers written by hand. This proves that file builds the very structure
-// the three migrations in __fixtures__/migrations-three build: one fresh PGlite migrated with the three, another with
-// the one, and a walk of each catalog compared.
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+// Drizzle schema and then the functions and triggers written by hand; every later migration only adds. These hold the
+// committed migrations to the schema: a database migrated with them and one built from a fresh generate of the schema
+// have the same structure, apart from the hand-written part, which is held to refuse what it is written to refuse.
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { PGlite } from "@electric-sql/pglite";
+import { generateDrizzleJson, generateMigration } from "drizzle-kit/api";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, describe, expect, test } from "vitest";
 
-const THREE = fileURLToPath(new URL("./__fixtures__/migrations-three", import.meta.url));
+import * as schema from "./schema";
+
 const COMMITTED = fileURLToPath(new URL("../migrations", import.meta.url));
+
+/** The functions and triggers written by hand into 0000_japacity, which the schema cannot say. */
+const HAND_WRITTEN = ["moderation_log_insert_only", "switch_log_insert_only"];
 
 interface Journal {
   entries: { idx: number; tag: string; when: number }[];
@@ -26,15 +31,14 @@ afterAll(() => {
   for (const folder of scratch) rmSync(folder, { recursive: true, force: true });
 });
 
-/** A folder holding only the committed 0000, with a journal cut to it. */
-function firstOnly(): string {
+/** A migrations folder holding one file generated now from the schema, as `db:generate` would write it on an empty folder. */
+async function freshFromSchema(): Promise<string> {
+  const statements = await generateMigration(generateDrizzleJson({}), generateDrizzleJson(schema));
   const folder = mkdtempSync(join(tmpdir(), "japacity-migrations-"));
   scratch.push(folder);
   mkdirSync(join(folder, "meta"));
-  const journal = journalOf(COMMITTED);
-  const entries = journal.entries.slice(0, 1);
-  writeFileSync(join(folder, "meta", "_journal.json"), JSON.stringify({ ...journal, entries }));
-  for (const entry of entries) copyFileSync(join(COMMITTED, `${entry.tag}.sql`), join(folder, `${entry.tag}.sql`));
+  writeFileSync(join(folder, "0000_fresh.sql"), statements.join("\n--> statement-breakpoint\n"));
+  writeFileSync(join(folder, "meta", "_journal.json"), JSON.stringify({ version: "7", dialect: "postgresql", entries: [{ idx: 0, version: "7", when: 1, tag: "0000_fresh", breakpoints: true }] }));
   return folder;
 }
 
@@ -112,26 +116,58 @@ async function walk(client: PGlite): Promise<Catalog> {
   };
 }
 
-describe("the one migration", () => {
-  test("[server:migration-before-deploy] given one database migrated with the three and one with 0000_japacity alone, when both catalogs are walked, then every schema, table, column, constraint, index, sequence, function and trigger is the same", { timeout: 60000 }, async () => {
-    expect(journalOf(THREE).entries.map((entry) => entry.tag)).toEqual(["0000_japacity", "0001_person", "0002_switch-log-insert-only"]);
-    expect(journalOf(COMMITTED).entries.map((entry) => entry.tag)).toEqual(["0000_japacity"]);
-    const before = await migrated(THREE);
-    const after = await migrated(firstOnly());
+const named = (lines: string[]): string[] => lines.map((line) => line.split(" | ").slice(0, 3).join(" | "));
+
+describe("the committed migrations", () => {
+  test("[server:migration-before-deploy] given the committed migrations, when their journal is read, then they start at 0000_japacity and each later one comes after the one before", () => {
+    const entries = journalOf(COMMITTED).entries;
+    expect(entries[0]).toMatchObject({ idx: 0, tag: "0000_japacity" });
+    expect(entries.map((entry) => entry.idx)).toEqual(entries.map((_, idx) => idx));
+    // Drizzle's migrator applies an entry only when it is newer than the last one a database holds, so every later
+    // migration must come after the one before it.
+    const whens = entries.map((entry) => entry.when);
+    expect(whens).toEqual([...new Set(whens)].sort((a, b) => a - b));
+  });
+
+  test("[server:migration-before-deploy] given one database migrated with the committed migrations and one with a fresh generate of the Drizzle schema, when both catalogs are walked, then they are the same but for the hand-written functions and triggers", { timeout: 60000 }, async () => {
+    const committed = await migrated(COMMITTED);
+    const fresh = await migrated(await freshFromSchema());
     try {
-      const three = await walk(before);
-      const one = await walk(after);
+      const fromMigrations = await walk(committed);
+      const fromSchema = await walk(fresh);
       // The walk sees what it should, so two empty walks cannot pass.
-      expect(three.schemas).toEqual(expect.arrayContaining(["analytics", "drizzle", "public"]));
-      expect(three.relations.filter((line) => /^public \| (user|session|account|verification|passkey|rate_limit) \|/.test(line))).toHaveLength(6);
-      expect(three.columns).toEqual(expect.arrayContaining([expect.stringMatching(/^public \| characters \| person \| jsonb \| false \|/)]));
-      expect(three.functions.map((line) => line.split(" | ").slice(0, 2).join(" | "))).toEqual(["public | moderation_log_insert_only", "public | switch_log_insert_only"]);
-      expect(three.triggers).toHaveLength(2);
-      expect(three.columns.length).toBeGreaterThan(200);
-      expect(one).toEqual(three);
+      expect(fromSchema.schemas).toEqual(expect.arrayContaining(["analytics", "drizzle", "public"]));
+      expect(fromSchema.relations.filter((line) => /^public \| (user|session|account|verification|passkey|rate_limit) \|/.test(line))).toHaveLength(6);
+      expect(fromSchema.columns.length).toBeGreaterThan(200);
+      // The hand-written part is all the migrations hold beyond the schema.
+      expect(fromSchema.functions).toEqual([]);
+      expect(fromSchema.triggers).toEqual([]);
+      expect(fromMigrations.functions.map((line) => line.split(" | ").slice(0, 2).join(" | "))).toEqual(HAND_WRITTEN.map((name) => `public | ${name}`));
+      expect(named(fromMigrations.triggers)).toEqual(["public | moderation_log | moderation_log_insert_only", "public | switch_log | switch_log_insert_only"]);
+      expect({ ...fromMigrations, functions: [], triggers: [] }).toEqual(fromSchema);
     } finally {
-      await before.close();
-      await after.close();
+      await committed.close();
+      await fresh.close();
+    }
+  });
+
+  test("[server:migration-before-deploy] [moderation:admin-actions-logged-append-only] [server:switch-log-insert-only] given a row in the admin log and one in the switch log, when an update or a delete is run on either, then the database refuses both and the rows are unchanged", { timeout: 60000 }, async () => {
+    const client = await migrated(COMMITTED);
+    try {
+      await client.exec(`insert into moderation_log (id, admin, at, item, action, params, reason, note) values ('entry.one', 'account.admin', 1000, 'report.one', 'warn', '{}', 'spam', null)`);
+      await client.exec(`insert into switch_log (at, admin, reason, change) values (1000, 'account.admin', 'a flood', '{"signups": false}')`);
+      const rows = async (table: string) => (await client.query(`select * from ${table} order by n`)).rows;
+      const before = { moderation: await rows("moderation_log"), switches: await rows("switch_log") };
+      expect(before.moderation).toHaveLength(1);
+      expect(before.switches).toHaveLength(1);
+
+      await expect(client.exec(`update moderation_log set reason = 'nothing'`)).rejects.toThrow("moderation_log is insert only");
+      await expect(client.exec(`delete from moderation_log`)).rejects.toThrow("moderation_log is insert only");
+      await expect(client.exec(`update switch_log set reason = 'nothing'`)).rejects.toThrow("switch_log is insert only");
+      await expect(client.exec(`delete from switch_log`)).rejects.toThrow("switch_log is insert only");
+      expect({ moderation: await rows("moderation_log"), switches: await rows("switch_log") }).toEqual(before);
+    } finally {
+      await client.close();
     }
   });
 });
