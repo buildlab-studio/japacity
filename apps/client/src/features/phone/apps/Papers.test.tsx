@@ -62,12 +62,12 @@ function withReport(view: PlayerView, lines: ReportLine[]): PlayerView {
 }
 
 describe("the Papers app", () => {
-  test("[world:phone-rises-over-scene] [world:phone-holds-what-phones-hold] given the phone, when its apps are read, then Papers sits beside Japa with its own tint, and the papers box's acts are in it", async () => {
+  test("[world:phone-rises-over-scene] [world:phone-holds-what-phones-hold] [document:degree-english-statement] given the phone, when its apps are read, then Papers sits beside Japa with its own tint, and the papers box's acts are in it, the degree's English statement among them", async () => {
     await openPhone(graduatePlanned());
     const apps = [...document.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"));
     expect(apps.indexOf("papers")).toBe(apps.indexOf("japa") + 1);
     expect(document.querySelector<HTMLElement>('[data-app="papers"]')?.style.background).toBe("var(--app-papers)");
-    expect(PHONE_ACTS).toEqual(new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence"]));
+    expect(PHONE_ACTS).toEqual(new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence", "activity.degree-english"]));
   });
 
   test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] [route:degree-meets-masters-english] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office, and no English result, since the degree is the master's English", async () => {

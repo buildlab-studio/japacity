@@ -132,6 +132,9 @@ export const uiPhoneText: Record<string, string> = {
   "phone.papers.pending": "Ready {when}",
   "phone.papers.valid": "Valid {when}",
   "phone.papers.not-yet": "Not yet",
+  // A paper asked on the phone, before it is asked: its fee and its wait (document:degree-english-statement).
+  "phone.papers.costs": "{fee}. It comes in {months} months.",
+  "phone.papers.costs.one": "{fee}. It comes in a month.",
   "phone.papers.visa": "Granted",
   "phone.papers.for": "Counts toward {routes}",
   "phone.papers.for.and": "{first} and {last}",
@@ -240,6 +243,9 @@ export const uiPhoneText: Record<string, string> = {
   "phone.japa.visa.none": "No visa here",
   "phone.japa.visa.lets": "What it lets you do",
   "phone.japa.visa.way-up": "The way up",
+  // Japa on an overstay (status:grace-allows-in-country-applications): the acts open from inside, and where the way home is.
+  "phone.japa.overstay.home": "Or go home: the bag in your room says what each way home costs.",
+  "phone.japa.overstay.back": "Japa",
   "phone.japa.chapter.soon": "Starts when this month ends.",
   // Jobs, for an application out.
   "phone.jobs.applied": "Applied: {job}. They answer at the month's end.",

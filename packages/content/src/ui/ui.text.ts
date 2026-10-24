@@ -371,6 +371,9 @@ export const uiText: Record<string, string> = {
   "ui.route.school.chosen": "Deposit paid",
   "ui.route.pay-deposit": "Pay the deposit",
   "ui.route.funds": "Funds",
+  // route-gates:canada-return-asks-authorisation: what the first application into Canada owes after a removal.
+  "ui.route.authorisation.title": "Coming back after a removal",
+  "ui.route.authorisation": "Your first application here also pays the authorisation to return, {arc}, and the cost of your removal, {removal}.",
   "ui.route.funds.line": "{shown} shown of {required} needed",
   "ui.route.funds.none-needed": "Nothing to show yet. The funds needed appear here once a university is in view.",
   "ui.route.funds.what": "Needed: the tuition still to pay and the living costs for the course. Money in the bank counts at the bank rate. Cash does not count.",
@@ -944,6 +947,21 @@ export const uiText: Record<string, string> = {
   "ui.status.renew-needs-job": "This status renews only while you hold the sponsor's job.",
   "ui.status.renew": "Renew",
   "ui.status.renew-yes": "Pay {total} and renew",
+  // The overstay's stages (status:view-shows-status, status:grace-before-overstaying, status:detection-gives-notice): the months and what each means, never a chance.
+  "ui.status.overstay.grace": "{months} months of grace left",
+  "ui.status.overstay.grace.one": "1 month of grace left",
+  "ui.status.overstay.grace-line": "You can still apply from here before the grace ends.",
+  "ui.status.overstay.grace-line.country.uk": "You can still apply from here before the grace ends: a job with a sponsor, a new course, or a visa with your partner.",
+  "ui.status.overstay.over": "Overstaying",
+  "ui.status.overstay.over-line": "Work is cash only now.",
+  "ui.status.overstay.over-line.country.uk": "Work is cash only now, and the landlord may check your papers.",
+  "ui.status.overstay.over-line.country.uae": "Work is cash only now, and the fine grows every month.",
+  "ui.status.overstay.notice": "{months} months before removal",
+  "ui.status.overstay.notice.one": "1 month before removal",
+  "ui.status.overstay.notice.zero": "Removal at the end of this month",
+  "ui.status.overstay.notice-line": "You have been given notice. Leave before it ends, or you will be removed.",
+  "ui.status.overstay.pending": "Your application from here holds this until its answer comes.",
+  "ui.status.overstay.fine": "Fine owed: {fine}",
 
   // The credit file (credit:view-shows-credit-file)
   "ui.credit.title": "Credit file",

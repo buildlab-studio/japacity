@@ -81,6 +81,8 @@ export const routeText: Record<string, string> = {
   "route.uk-care.item.certificate.way": "Sit the certification exam at the clinic",
   "route.uk-care.item.passport.way": "Apply at the passport office in Ikoyi",
   "route.uk-care.item.english.way": "Sit it at the English test centre",
+  // document:who-sits-the-english-test: a graduate asks for the degree's statement instead of sitting the test.
+  "route.uk-care.item.english.way.degree": "Ask for your degree's English statement in Papers",
   "route.uk-care.item.sponsor.way": "Look for one at the hub's desk",
   // The TB certificate runs out: taken last, when the application is near.
   "route.uk-care.item.tb.way": "At the clinic, last of all: it lasts {months} months, so take it when the application is near",
@@ -93,6 +95,7 @@ export const routeText: Record<string, string> = {
   "route.uk-skilled.item.degree": "A bachelor's degree",
   "route.uk-skilled.item.passport": "Passport held",
   "route.uk-skilled.item.english": "Your degree's English statement, or band 5.5 or better",
+  "route.uk-skilled.item.english.way.degree": "Ask for your degree's English statement in Papers",
   "route.uk-skilled.item.sponsor": "A sponsor's certificate",
   "route.uk-skilled.item.salary": "The sponsor pays at or above the bar",
   "route.uk-skilled.item.funds": "Money to show for the first month",

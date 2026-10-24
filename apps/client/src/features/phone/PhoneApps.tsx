@@ -91,7 +91,7 @@ function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Open
     case "chats":
       return <Chats />;
     case "japa":
-      return <Japa briefs={handed.briefs} />;
+      return <Japa briefs={handed.briefs} cards={handed.cards} />;
     case "papers":
       return <Papers opening={opening} cards={handed.cards} />;
     case "jobs":
@@ -166,7 +166,7 @@ export interface PhoneAppsProps {
   start?: string | null;
   /** The Calendar's screen, from the shell (world:top-band-is-lively-pill). */
   calendar?: CalendarScreen | null;
-  /** An act's card, from the shell, for Papers (world:phone-holds-what-phones-hold). */
+  /** An act's card, from the shell, for Papers and for Japa's acts from inside a country (world:phone-holds-what-phones-hold). */
   cards?: PaperCards | null;
   /** Puts the phone away onto the map at a stop, from the shell: a paper's visit (world:phone-holds-what-phones-hold). */
   onMap?: (stop: string) => void;

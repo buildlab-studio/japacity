@@ -278,6 +278,21 @@ function Record({ route, month }: { route: RouteView; month: number }) {
   );
 }
 
+/**
+ * What the first application into Canada still owes after a removal (route-gates:canada-return-asks-authorisation): the authorisation to return
+ * and the removal costs, as money, before the application is sent. Nothing when the view says none is owed.
+ */
+function Authorisation({ route }: { route: RouteView }) {
+  const owed = route.authorisation;
+  if (owed === undefined) return null;
+  return (
+    <div className="mt-3 flex flex-col gap-1 rounded-[14px] bg-sheet-2 p-3" data-way-authorisation>
+      <h4 className="text-[15px] font-bold">{say("ui.route.authorisation.title")}</h4>
+      <Line>{say("ui.route.authorisation", { arc: formatMoney(owed.arc.amount, owed.arc.currency), removal: formatMoney(owed.removal.amount, owed.removal.currency) })}</Line>
+    </div>
+  );
+}
+
 /** One way's file as a card: its picture, its name, its state and window as chips, then the gate, the universities, the funds and the record. */
 function WayFile({ route, view }: { route: RouteView; view: PlayerView }) {
   return (
@@ -295,6 +310,7 @@ function WayFile({ route, view }: { route: RouteView; view: PlayerView }) {
         </div>
       </div>
       <Gate route={route} view={view} />
+      <Authorisation route={route} />
       <Schools route={route} view={view} />
       <Funds route={route} view={view} />
       <Record route={route} month={view.month} />

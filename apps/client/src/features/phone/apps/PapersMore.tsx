@@ -11,6 +11,7 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { Meter } from "../../../shared/ui/Meter";
 import { shortfall } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
+import { type OverstayWords, overstayWords } from "../../../shared/words/overstay";
 import { AGE, valueWords } from "../../../shared/words/quality";
 import { blurbOf, hasWords, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, Refused } from "../act";
@@ -62,6 +63,18 @@ function Renew({ held }: { held: Held }) {
   );
 }
 
+/** The overstay's stage on the status card (status:view-shows-status): its months, what it means, an application holding it and the fine owed. */
+function OverstayStage({ said }: { said: OverstayWords }) {
+  return (
+    <div className="flex flex-col gap-1" data-overstay={said.stage}>
+      <p className={`text-[15px] font-bold ${said.stage === "grace" ? "" : "text-out"}`}>{said.title}</p>
+      <p className="text-[14px] leading-snug">{said.line}</p>
+      {said.pending === null ? null : <p className="text-[14px] text-text-2">{said.pending}</p>}
+      {said.fine === null ? null : <p className="num text-[14px] font-semibold text-out">{said.fine}</p>}
+    </div>
+  );
+}
+
 /** The status held abroad, or that none is held; nothing at home. */
 export function PapersStatus() {
   const view = useView();
@@ -76,6 +89,8 @@ export function PapersStatus() {
     );
   }
   const lawful = held.settleMonths === null ? null : say("ui.status.lawful", { months: held.lawfulMonths, need: held.settleMonths });
+  // An overstay's stage stands where the end date and the way up would: it has neither, and its ways out are its own.
+  const overstay = overstayWords(view);
   return (
     <section data-papers-status={held.entry}>
       <Head>{say("ui.status.title")}</Head>
@@ -88,13 +103,16 @@ export function PapersStatus() {
           <>
             {held.clock === null ? null : <WordChip tone="bad">{sayCount("ui.status.clock", held.clock, { months: held.clock })}</WordChip>}
             <WordChip tone={held.work === "none" || held.work === "cash" ? "bad" : "study"}>{say(`ui.status.work.${held.work}`)}</WordChip>
-            <WordChip tone={held.monthsLeft !== null && held.monthsLeft <= 3 ? "bad" : "plain"}>
-              {held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}
-            </WordChip>
+            {overstay === null ? (
+              <WordChip tone={held.monthsLeft !== null && held.monthsLeft <= 3 ? "bad" : "plain"}>
+                {held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}
+              </WordChip>
+            ) : null}
           </>
         }
         foot={
           <div className="flex flex-col gap-3">
+            {overstay === null ? null : <OverstayStage said={overstay} />}
             {lawful === null ? (
               <p className="text-[14px] text-text-2">{say("ui.status.no-settle")}</p>
             ) : (
@@ -103,7 +121,7 @@ export function PapersStatus() {
                 <Meter value={held.lawfulMonths} max={held.settleMonths ?? 0} label={lawful} tone="ink" />
               </div>
             )}
-            {held.nextStep === null || !hasWords(held.nextStep) ? null : (
+            {overstay !== null || held.nextStep === null || !hasWords(held.nextStep) ? null : (
               <p className="text-[14px]" data-way-up>
                 <span className="font-semibold">{say("ui.status.next")} </span>
                 {words(held.nextStep)}

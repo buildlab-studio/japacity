@@ -7,8 +7,8 @@
 // the plan the chapters follow with its file, and each other way heard of opens its page with the switch
 // (chapter:chapters-follow-lean-route).
 import { content } from "@japacity/content";
-import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
-import { Check, ChevronRight, Circle, FileClock, Flag, Stamp, type LucideIcon } from "lucide-react";
+import type { Currency, Id, PlayerView, Requirement, RouteView } from "@japacity/sim";
+import { Check, ChevronLeft, ChevronRight, Circle, FileClock, Flag, Send, Stamp, type LucideIcon } from "lucide-react";
 import { type ReactNode, use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
@@ -16,6 +16,7 @@ import { PhoneNav } from "../../../shared/phone/nav";
 import { Mark } from "../../../shared/ui/Mark";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { formatMoney } from "../../../shared/words/format";
+import { type OverstayWords, overstayWords } from "../../../shared/words/overstay";
 import { type Coming, comingOf } from "../../../shared/words/coming";
 import { everyRouteClosed } from "../../../shared/words/closed";
 import { checklistWords } from "../../../shared/words/requirement";
@@ -24,8 +25,9 @@ import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
-import { PicCard, PicTile, WordChip } from "../ui";
+import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
 import { Goals, StepBar, WayFiles } from "./JapaWays";
+import type { PaperCards } from "./Papers";
 import { RoutePage } from "./PlanSwitch";
 
 const OFFICIAL = "activity.look-into-route";
@@ -69,7 +71,7 @@ function ChapterSteps({ view }: { view: PlayerView }) {
           const before = route === undefined ? [] : papers.filter((paper) => paper.before === item.id).flatMap((paper) => route.checklist.filter((one) => one.id === paper.item));
           return [
             ...before.map((paper) => (
-              <Step key={paper.id} met={paper.met} {...stepWay(route!.id, paper)}>
+              <Step key={paper.id} met={paper.met} {...stepWay(route!.id, paper, view.qualities)}>
                 {words(`${current}.item.${paper.id}`)}
               </Step>
             )),
@@ -255,12 +257,22 @@ function Step({ met, children, way, bar }: { met: boolean; children: string; way
  * the endorsement's own act and place. A paper that runs out says for how long it holds, from its entry (`{months}`:
  * the TB certificate's six).
  */
-export function stepWay(route: Id<"route">, item: { id: string; met: boolean }): { way: string } | Record<string, never> {
-  const key = `${route}.item.${item.id}.way`;
-  if (item.met || !hasWords(key)) return {};
+export function stepWay(route: Id<"route">, item: { id: string; met: boolean }, qualities: PlayerView["qualities"] = []): { way: string } | Record<string, never> {
   const requirement = content.route[route]?.checklist.find((one) => one.id === item.id)?.requirement;
+  // document:who-sits-the-english-test: a step the degree's statement meets sends a graduate to ask for it, not to the test centre.
+  const degree = statementMeets(requirement) && (qualities.find((quality) => quality.id === "quality.education-level")?.value ?? 0) >= DEGREE_LEVEL;
+  const key = degree && hasWords(`${route}.item.${item.id}.way.degree`) ? `${route}.item.${item.id}.way.degree` : `${route}.item.${item.id}.way`;
+  if (item.met || !hasWords(key)) return {};
   const months = requirement?.type === "document/held" ? (content.document[requirement.document]?.validMonths ?? null) : null;
   return { way: say(key, months === null ? {} : { months }) };
+}
+
+/** The level of education a bachelor's degree is, which the degree's English statement asks (document:degree-english-statement). */
+const DEGREE_LEVEL = 3;
+
+/** True when the degree's English statement is one way to meet the item. */
+function statementMeets(requirement: Requirement | undefined): boolean {
+  return requirement?.type === "any" && requirement.of.some((option) => option.type === "document/held" && option.document === "document.degree-english");
 }
 
 function NextStep({ step }: { step: string }) {
@@ -272,8 +284,68 @@ function NextStep({ step }: { step: string }) {
   );
 }
 
-/** After the flight (world:phone-holds-what-phones-hold): the visa held and what it lets you do, then the landing's steps. */
-function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) {
+/**
+ * The acts the engine takes from inside a country on an overstay (status:grace-allows-in-country-applications, person:partner-route-in-country):
+ * a sponsor's job hunted in the grace, a new course and its visa, and a partner's or a dependant's visa. Each shows while the
+ * view allows it, so the engine alone says which are open.
+ */
+const FROM_INSIDE: readonly string[] = [
+  "activity.job-hunt",
+  "activity.apply-to-school",
+  "activity.apply-for-visa",
+  "activity.apply-uk-partner",
+  "activity.apply-uk-dependant",
+  "activity.apply-canada-spouse",
+  "activity.apply-canada-accompany",
+];
+
+/** The acts from inside open now: the job hunt only in the grace, where it may find a sponsor; the rest while the view allows them. */
+function fromInside(view: PlayerView, said: OverstayWords): string[] {
+  return FROM_INSIDE.filter((id) => (id !== "activity.job-hunt" || said.stage === "grace") && view.activities.some((option) => option.id === id && option.allowed));
+}
+
+/** The overstay over the visa: its stage in words, the acts open from inside, and where the way home is. */
+function Overstay({ view, said, onCard }: { view: PlayerView; said: OverstayWords; onCard: ((activity: string) => void) | null }) {
+  const acts = onCard === null ? [] : fromInside(view, said);
+  return (
+    <section className="lively-card mt-2 flex flex-col gap-2 p-3.5" data-japa-overstay={said.stage}>
+      <p className={`text-[17px] leading-tight font-bold ${said.stage === "grace" ? "" : "text-out"}`}>{said.title}</p>
+      <p className="text-[14px] leading-snug">{said.line}</p>
+      {said.pending === null ? null : <p className="text-[14px] text-text-2">{said.pending}</p>}
+      {said.fine === null ? null : <p className="num text-[14px] font-semibold text-out">{said.fine}</p>}
+      {acts.length === 0 ? null : (
+        <ul className="flex flex-col gap-2" data-japa-inside>
+          {acts.map((activity) => (
+            <li key={activity}>
+              <GhostButton wide onClick={() => onCard?.(activity)} className="text-left" data-japa-inside-act={activity}>
+                <Send size={18} className="shrink-0" aria-hidden />
+                <span className="min-w-0 flex-1 py-2.5 leading-snug">{nameOf(activity)}</span>
+                <ChevronRight size={18} className="shrink-0" aria-hidden />
+              </GhostButton>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-[13px] text-text-2">{say("phone.japa.overstay.home")}</p>
+    </section>
+  );
+}
+
+/** After the flight (world:phone-holds-what-phones-hold): the visa held and what it lets you do, then the landing's steps; on an overstay, its stage and the ways from inside. */
+function Abroad({ view, onPapers, cards }: { view: PlayerView; onPapers: () => void; cards: PaperCards | null }) {
+  const [card, setCard] = useState<string | null>(null);
+  const overstay = overstayWords(view);
+  if (card !== null && cards !== null) {
+    return (
+      <div data-phone-app="japa" data-japa-card={card}>
+        <button type="button" onClick={() => setCard(null)} className="press reach mb-2 flex items-center gap-1 text-[14px] font-bold text-text-2">
+          <ChevronLeft size={16} aria-hidden />
+          {say("phone.japa.overstay.back")}
+        </button>
+        {cards([card])}
+      </div>
+    );
+  }
   const held = view.status;
   const ahead = chapterAhead(view.chapter);
   const next = ahead?.now === true ? nextStepWords(ahead) : null;
@@ -285,11 +357,12 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
         tint="money"
         over={say("phone.japa.visa.label")}
         title={held === null ? say("phone.japa.visa.none") : nameOf(held.entry)}
-        chips={held === null ? null : <WordChip tone="study">{held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}</WordChip>}
+        chips={held === null || overstay !== null ? null : <WordChip tone="study">{held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}</WordChip>}
         data-japa-visa={held?.entry ?? ""}
       />
       {held === null ? <p className="mt-2 text-[14px]">{say("ui.status.none")}</p> : null}
-      {lets === null ? null : (
+      {overstay === null ? null : <Overstay view={view} said={overstay} onCard={cards === null ? null : setCard} />}
+      {lets === null || overstay !== null ? null : (
         <>
           <Head>{say("phone.japa.visa.lets")}</Head>
           <p className="text-[14px]">{lets}</p>
@@ -310,7 +383,8 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
           </ul>
         </div>
       )}
-      {held?.nextStep === null || held?.nextStep === undefined ? null : (
+      {/* An overstay's ways out are its own block above, so the status's "no way up" is not said beside them. */}
+      {held?.nextStep === null || held?.nextStep === undefined || overstay !== null ? null : (
         <>
           <Head>{say("phone.japa.visa.way-up")}</Head>
           <p className="text-[14px]">{words(held.nextStep)}</p>
@@ -373,7 +447,7 @@ function ReadyMeter({ percent }: { percent: number }) {
   );
 }
 
-export function Japa({ briefs = null }: { briefs?: ReactNode }) {
+export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; cards?: PaperCards | null }) {
   const view = useView();
   const [page, setPage] = useState<Id<"route"> | null>(null);
   // advice:official-page-shows-checklist: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
@@ -383,7 +457,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
   const said = use(PhoneSaid);
   const nav = use(PhoneNav);
   const openPapers = () => nav.openApp("papers");
-  if (view.place.where === "abroad") return <Abroad view={view} onPapers={openPapers} />;
+  if (view.place.where === "abroad") return <Abroad view={view} onPapers={openPapers} cards={cards} />;
   if (page !== null) {
     return (
       <div data-phone-app="japa">
@@ -534,7 +608,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
         {route === null || route.state === "heard"
           ? null
           : route.checklist.map((item) => (
-              <Step key={item.id} met={item.met} {...stepWay(route.id, item)} {...(!item.met && item.have !== null && item.need !== null ? { bar: { have: item.have, need: item.need } } : {})}>
+              <Step key={item.id} met={item.met} {...stepWay(route.id, item, view.qualities)} {...(!item.met && item.have !== null && item.need !== null ? { bar: { have: item.have, need: item.need } } : {})}>
                 {checklistWords(route.id, item.id)}
               </Step>
             ))}

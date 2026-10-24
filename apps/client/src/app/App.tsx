@@ -56,6 +56,7 @@ import { InterviewView } from "../features/interview/InterviewView";
 import { KioskSheet } from "../features/lottery/KioskSheet";
 import { RunDownBanner } from "../features/health/RunDownBanner";
 import { ClockBanner } from "../features/status/ClockBanner";
+import { OverstayBanner } from "../features/status/OverstayBanner";
 import { PageHandover, prologueJustClosed, PrologueView } from "../features/prologue/PrologueView";
 import { RoadView } from "../features/road/RoadView";
 import { FrontDoor } from "../features/front-door/FrontDoor";
@@ -134,11 +135,15 @@ export function AddressGate({ children, path, read = accountForAddress }: { chil
   );
 }
 
-/** The warnings that stand, above every app on the phone: the status clock abroad (status:lost-job-starts-clock) and being run down (health:view-shows-health-warning). */
+/**
+ * The warnings that stand, above every app on the phone: the status clock abroad (status:lost-job-starts-clock), the overstay's
+ * stage (status:view-shows-status) and being run down (health:view-shows-health-warning).
+ */
 function PhoneWarnings() {
   return (
     <>
       <ClockBanner className="mb-3" />
+      <OverstayBanner className="mb-3" />
       <RunDownBanner className="mb-3" />
     </>
   );

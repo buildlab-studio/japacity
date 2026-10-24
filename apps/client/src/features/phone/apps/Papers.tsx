@@ -5,6 +5,7 @@
 // on it. Under the papers, abroad, the status held and the renewal; where the life is, the fare home and the times it
 // came home; and the person as content names them (PapersMore.tsx). The papers box in the room opens this app. The card
 // is handed in by the shell, so the phone imports no other feature.
+import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { ChevronLeft, ChevronRight, MapPin, Send } from "lucide-react";
 import { type ReactNode, use, useEffect, useRef, useState } from "react";
@@ -13,11 +14,12 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { PhoneNav } from "../../../shared/phone/nav";
 import { nowActOf, nowLineIn, nowLineWords } from "../../../shared/words/acts";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
-import { formatBand } from "../../../shared/words/format";
+import { formatBand, formatMoney } from "../../../shared/words/format";
+import { overstayWords } from "../../../shared/words/overstay";
 import { sealedTillMorning } from "../../../shared/words/morning";
-import { forMonths, inMonths, nameOf, runningName, say, sayCount } from "../../../shared/words/text";
+import { forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { PhoneSaid } from "../act";
-import { type PaperRow, papersOf } from "../papers";
+import { degreeEnglishOf, type PaperRow, papersOf } from "../papers";
 import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
 import { PapersPlace, PapersStatus, PapersYou } from "./PapersMore";
 
@@ -30,6 +32,9 @@ export type PaperCards = (ids: string[]) => ReactNode;
 /** The paper's state in words: held and how long, on its way and when, run out, or not yet. */
 function stateWords(row: PaperRow, view: PlayerView): string {
   if (row.kind === "visa") {
+    // An overstay has no end date: its stage is what the row says (status:view-shows-status).
+    const overstay = overstayWords(view);
+    if (overstay !== null) return overstay.title;
     const left = view.status?.monthsLeft ?? null;
     return view.status === null ? say("phone.papers.visa") : left === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", left, { months: left });
   }
@@ -59,11 +64,43 @@ function countsWords(counts: readonly string[]): string | null {
   return say("phone.papers.for", { routes });
 }
 
+/**
+ * What a paper not yet asked for costs and how long it takes, for one asked on the phone with a fixed wait: "₦150,000. It comes
+ * in a month." (document:degree-english-statement). Null for any other.
+ */
+function costsWords(row: PaperRow): string | null {
+  const act = row.act;
+  if (row.state !== "not-yet" || act === null || act.how !== "phone") return null;
+  const entry = content.activity[act.activity as keyof typeof content.activity];
+  const paper = content.document[row.id as keyof typeof content.document];
+  const naira = (entry?.cost ?? []).reduce((sum, cost) => sum + (cost.currency === "NGN" && typeof cost.amount === "number" ? cost.amount : 0), 0);
+  if (paper === undefined || naira === 0 || paper.wait[0] !== paper.wait[1]) return null;
+  const months = paper.wait[0];
+  return sayCount("phone.papers.costs", months, { fee: formatMoney(naira, "NGN"), months });
+}
+
+/** The plan's English when it is the degree and no paper (route:degree-meets-masters-english): the degree stands in the box as the English. */
+function DegreeEnglish({ view }: { view: PlayerView }) {
+  const degree = degreeEnglishOf(view);
+  if (degree === null) return null;
+  return (
+    <li data-paper-degree={degree.route}>
+      <PicCard
+        pic="activity.degree-english"
+        tint={degree.met ? "money" : "study"}
+        title={words(`${degree.route}.item.english`)}
+        chips={<WordChip tone={degree.met ? "soft" : "study"}>{say(degree.met ? "ui.document.held" : "phone.papers.not-yet")}</WordChip>}
+      />
+    </li>
+  );
+}
+
 function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard: (activity: string) => void }) {
   const nav = use(PhoneNav);
   const paper = view.documents.find((held) => held.id === row.id);
   const left = paper === undefined ? null : monthsLeft(paper, view.month);
   const counts = countsWords(row.counts);
+  const costs = costsWords(row);
   const act = row.act;
   const tone = row.kind === "visa" || row.state === "held" ? "held" : row.state;
   return (
@@ -87,6 +124,11 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
             {counts === null ? null : (
               <span className="text-[13px] text-text-2" data-paper-counts>
                 {counts}
+              </span>
+            )}
+            {costs === null ? null : (
+              <span className="num text-[13px] text-text-2" data-paper-costs>
+                {costs}
               </span>
             )}
           </>
@@ -160,7 +202,7 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
           <p className="mt-0.5 text-[14px] leading-snug text-text-2">{say("phone.papers.hint")}</p>
         </div>
       </div>
-      {rows.length === 0 ? (
+      {rows.length === 0 && degreeEnglishOf(view) === null ? (
         <p className="px-0.5 text-[15px] text-text-2" data-papers-none>
           {say("phone.papers.none")}
         </p>
@@ -169,6 +211,7 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
           {rows.map((row) => (
             <Paper key={row.id} row={row} view={view} onCard={cards === null ? () => undefined : setCard} />
           ))}
+          <DegreeEnglish view={view} />
         </ul>
       )}
       {/* The status held abroad, where the life is and the times it came home, and the person as content names them. */}

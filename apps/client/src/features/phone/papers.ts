@@ -4,7 +4,7 @@
 // body) is taken on the phone; one that is a visit (the passport office, the test centre, the clinic) says where and
 // opens the map on it. Pure: read from the view and content only.
 import { content } from "@japacity/content";
-import type { PlayerView } from "@japacity/sim";
+import type { PlayerView, Requirement } from "@japacity/sim";
 
 import { formatBand } from "../../shared/words/format";
 import { savingsRoute } from "../../shared/words/savings";
@@ -14,7 +14,7 @@ import { inMonths, runningName, say } from "../../shared/words/text";
  * The paper acts that are a call or a message in real life, taken on the phone: the transcript asked of the registry,
  * the degree sent for assessment, the council's verification and the licence's renewal.
  */
-export const PHONE_ACTS: ReadonlySet<string> = new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence"]);
+export const PHONE_ACTS: ReadonlySet<string> = new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence", "activity.degree-english"]);
 
 /** Where a paper stands: held and in date, on its way (a renewal of one held among them), run out, or not yet asked for. */
 type PaperState = "held" | "coming" | "expired" | "not-yet";
@@ -43,10 +43,45 @@ export interface PaperRow {
 
 type PapersView = PlayerView;
 
-/** The documents a route's checklist asks to be held, in its order. */
-function papersAsked(route: string): string[] {
+/** True when the act that asks for a paper is open to this life by what it is: every quality it asks is met (a degree for the statement). */
+function appliesTo(view: PapersView, document: string): boolean {
+  const activity = requestOf(document);
+  const entry = activity === null ? undefined : content.activity[activity as keyof typeof content.activity];
+  return (entry?.requires ?? []).every((need) => need.type !== "quality/min" || (view.qualities.find((quality) => quality.id === need.quality)?.value ?? 0) >= need.value);
+}
+
+/** What the act that asks for a paper costs in naira, for choosing the cheaper of two papers that meet the same item. */
+function nairaCost(document: string): number {
+  const activity = requestOf(document);
+  const entry = activity === null ? undefined : content.activity[activity as keyof typeof content.activity];
+  return (entry?.cost ?? []).reduce((sum, cost) => sum + (cost.currency === "NGN" && typeof cost.amount === "number" ? cost.amount : 0), 0);
+}
+
+/**
+ * The one paper an item met by any of several asks this life for (document:who-sits-the-english-test, document:degree-english-statement):
+ * one held or on its way, else the cheapest whose act this life can take (the degree's statement for a graduate), else the first.
+ * So the English test is listed only where it is still needed.
+ */
+function onePaperOf(view: PapersView, documents: readonly string[]): string | null {
+  const have = documents.find((document) => view.documents.some((paper) => paper.id === document));
+  if (have !== undefined) return have;
+  const open = documents.filter((document) => appliesTo(view, document));
+  if (open.length === 0) return documents[0] ?? null;
+  return [...open].sort((a, b) => nairaCost(a) - nairaCost(b))[0] ?? null;
+}
+
+/** The documents one item asks for: the paper it names, or the one paper of an item any of several papers meet. */
+function itemPapers(view: PapersView, requirement: Requirement): string[] {
+  if (requirement.type === "document/held") return [requirement.document];
+  if (requirement.type !== "any" || !requirement.of.every((option) => option.type === "document/held")) return [];
+  const one = onePaperOf(view, requirement.of.flatMap((option) => (option.type === "document/held" ? [option.document as string] : [])));
+  return one === null ? [] : [one];
+}
+
+/** The documents a route's checklist asks this life to hold, in its order. */
+function papersAsked(view: PapersView, route: string): string[] {
   const entry = content.route[route as keyof typeof content.route];
-  return (entry?.checklist ?? []).flatMap((item) => (item.requirement.type === "document/held" ? [item.requirement.document as string] : []));
+  return (entry?.checklist ?? []).flatMap((item) => itemPapers(view, item.requirement));
 }
 
 /** The activity that requests a document, from content: the one whose effects ask for it. */
@@ -84,7 +119,7 @@ function planOf(view: PapersView): string | null {
 
 /** The routes in play whose checklist asks for the paper, the plan's first. */
 function countsOf(view: PapersView, document: string, plan: string | null): string[] {
-  const routes = view.routes.filter((route) => route.state !== "unknown" && papersAsked(route.id).includes(document)).map((route) => route.id as string);
+  const routes = view.routes.filter((route) => route.state !== "unknown" && papersAsked(view, route.id).includes(document)).map((route) => route.id as string);
   return plan !== null && routes.includes(plan) ? [plan, ...routes.filter((route) => route !== plan)] : routes;
 }
 
@@ -102,7 +137,7 @@ function visaRow(view: PapersView): PaperRow | null {
  */
 export function papersOf(view: PapersView): PaperRow[] {
   const plan = planOf(view);
-  const asked = plan === null ? [] : papersAsked(plan);
+  const asked = plan === null ? [] : papersAsked(view, plan);
   const held = view.documents.map((paper) => paper.id as string);
   const order = [...asked, ...held.filter((id) => !asked.includes(id))];
   const rows: PaperRow[] = order.map((id) => {
@@ -114,6 +149,20 @@ export function papersOf(view: PapersView): PaperRow[] {
   });
   const visa = visaRow(view);
   return visa === null ? rows : [visa, ...rows];
+}
+
+/**
+ * The plan's English when its own item is the degree and no paper (route:degree-meets-masters-english): the item's id, its words' key
+ * and whether it is met, so the box says the degree stands as the English. Null for a plan whose English is a paper.
+ */
+export function degreeEnglishOf(view: PapersView): { route: string; met: boolean } | null {
+  const plan = planOf(view);
+  const entry = plan === null ? undefined : content.route[plan as keyof typeof content.route];
+  const english = entry?.checklist.find((item) => item.id === "english");
+  if (plan === null || english === undefined || english.requirement.type !== "quality/min") return null;
+  const { quality, value } = english.requirement;
+  // Read from the life's own quality, since a way only heard of has no checklist worked out yet.
+  return { route: plan, met: (view.qualities.find((held) => held.id === quality)?.value ?? 0) >= value };
 }
 
 /** The paper lines of the month that tell a paper landed or moved, by the line's last word (document.md's lines). */

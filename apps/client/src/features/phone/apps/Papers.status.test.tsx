@@ -5,6 +5,8 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, richAbroadView } from "../../../shared/testing/fixtures";
+import { graceView, noticeGame, overstayingGame } from "../../../shared/testing/overstay";
+import { overstayWords } from "../../../shared/words/overstay";
 import { formatMoney } from "../../../shared/words/format";
 import { blurbOf, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { openPapers } from "../phone.testing";
@@ -60,5 +62,45 @@ describe("the status abroad, in Papers", () => {
     expect(document.querySelector("[data-papers]")).not.toBeNull();
     expect(document.querySelector("[data-papers-status]")).toBeNull();
     expect(screen.queryByText(say("ui.status.title"))).toBeNull();
+  });
+});
+
+describe("the overstay, in Papers", () => {
+  /** The stage block on the status card, or a throw. */
+  function stage(): HTMLElement {
+    const block = statusCard().querySelector<HTMLElement>("[data-overstay]");
+    if (block === null) throw new Error("No overstay stage on the status card.");
+    return block;
+  }
+
+  test("[status:grace-before-overstaying] [status:view-shows-status] given the visa just lapsed, when Papers opens, then the status card says the months of grace left and what can still be applied for from inside, in place of an end date or a way up", async () => {
+    const view = graceView();
+    const said = overstayWords(view)!;
+    await openPapers(view, "London");
+    expect(stage().dataset.overstay).toBe("grace");
+    expect(stage().textContent).toContain(said.title);
+    expect(stage().textContent).toContain(said.line);
+    const card = within(statusCard());
+    expect(card.queryByText(say("ui.status.no-end"))).toBeNull();
+    expect(card.queryByText(words(view.status!.nextStep!))).toBeNull();
+    // The visa's own row says the stage too, never "No end date".
+    expect(document.querySelector(`[data-paper="${view.status!.entry}"] [data-paper-state]`)?.textContent).toBe(said.title);
+  });
+
+  test("[status:view-shows-status] given the grace passed, when Papers opens, then the card says overstaying, cash work only and the landlord's check", async () => {
+    const view = overstayingGame().view();
+    await openPapers(view, "London");
+    expect(stage().dataset.overstay).toBe("over");
+    expect(stage().textContent).toContain(say("ui.status.overstay.over"));
+    expect(stage().textContent).toContain(say("ui.status.overstay.over-line.country.uk"));
+  });
+
+  test("[status:detection-gives-notice] [status:view-shows-status] given a notice, when Papers opens, then the card says the months left before removal", async () => {
+    const view = noticeGame().view();
+    await openPapers(view, "London");
+    expect(stage().dataset.overstay).toBe("notice");
+    expect(stage().textContent).toContain(overstayWords(view)!.title);
+    expect(stage().textContent).toContain(say("ui.status.overstay.notice-line"));
+    expect(stage().textContent).not.toMatch(/%/);
   });
 });
