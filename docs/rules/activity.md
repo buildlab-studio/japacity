@@ -60,7 +60,7 @@ Pay is monthly, after tax, to the bank. Effects apply each month the job is held
 | Accountant | 1 | `activity.job-accounts-officer` | Accounts officer | ₦200,000 | Bachelor's degree | 50% | Wellbeing -3 | formal |
 | | 2 | `activity.job-chartered-accountant` | Chartered accountant | ₦400,000 | 24 months across the accounting jobs, `document.ican` | 35% | Wellbeing -4, network +1 | formal |
 | | 3 | `activity.job-finance-manager` | Finance manager | ₦700,000 | 36 months as a chartered accountant, network 40 | 20% | Wellbeing -5, network +1, standing +1 | formal |
-| Developer | 1 | `activity.job-junior-developer` | Junior developer | ₦320,000 | Tech 30, portfolio 1 | 35% | Tech +2, wellbeing -3 | formal |
+| Developer | 1 | `activity.job-junior-developer` | Junior developer | ₦320,000 | Tech 30, and portfolio 1 or a computer science degree (the prologue's course `computer-science`) | 35% | Tech +2, wellbeing -3 | formal |
 | | 2 | `activity.job-mid-developer` | Mid-level developer | ₦1,100,000 | Tech 60, and 12 months across the developer jobs | 30% | Tech +2, wellbeing -4 | formal |
 | | 3 | `activity.job-remote-developer` | Remote developer, foreign company | $2,800 | Tech 75, portfolio 3, English 60, 6 months across the developer jobs | 10% | Tech +1, wellbeing -5 | dollars, not reviewed |
 
