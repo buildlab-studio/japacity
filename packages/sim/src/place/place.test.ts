@@ -610,7 +610,7 @@ describe("the token kept abroad", () => {
     comeHome(game);
     expect(game.state.place.heldAbroad).toEqual({ status: SETTLED, sinceMonth: game.state.turn.month, monthsHeld: held.monthsHeld, lawfulMonths: held.lawfulMonths });
     expect(game.view().place.heldAbroad).toBe(SETTLED);
-    playMonths(game, 30);
+    playMonths(game, tuning.return.ukKeptLapseMonths - 1);
     expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }]);
     expect(game.state.place.heldAbroad).toBeNull();
@@ -702,7 +702,7 @@ describe("the token kept abroad", () => {
     student.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
-  test("[return:papers-return-keeps-status] given a Canadian resident's token, when 23 and then 24 months pass at home, then it is kept and then lapses", () => {
+  test("[return:papers-return-keeps-status] given a Canadian resident's token, when 35 and then 36 months pass at home in a row, then it is kept and then lapses", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: RESIDENT }]);
     leave(game, 1000000000, 0);

@@ -26,7 +26,7 @@ A chapter is a short checklist that teaches one part of the game and ends with a
 | 3 | `chapter.decision-day` | Decision day | `deposit`: deposit paid. `held`: funds covered for a month. `tb`: TB certificate held. `applied`: application sent. `granted`: the visa is granted |
 | 4 | `chapter.send-off` | The send-off | `departed`: you have flown |
 | 5 | `chapter.landing` | Landing | `room`: a roof (an open `rent` obligation, or `status.gulf-worker` held, since the employer houses the Gulf worker). `job`: a job abroad held one month. `status`: the first rule of your status read (the `status/is` requirement holds). `request`: the first request from home answered, read as ₦150,000 or more in naira, bank and cash together (a family request comes only then, "not when broke" in `offer.md`, and is answered or lapses within a month). `file`: a first mark on the credit file (credit 3 or more) |
-| 6 | `chapter.secure` | Secure | Any one of: `settled`: a settled or citizen status held; `home`: a return `with-papers` or `by-choice` recorded; `second`: a second route granted after a return. The chapter's items are an `any` requirement, so one path closes it |
+| 6 | `chapter.secure` | Secure | Any one of: `settled`: a settled or citizen status held; `home`: a return `with-papers` or `by-choice` recorded; `second`: a route granted in a month after the latest return home. The chapter's items are an `any` requirement, so one path closes it |
 
 The orders in the data run 1, 2, 7, 12, 13, 14 for these six, with the variants of chapter:chapters-follow-lean-route at 3 to 6 (the file for care, talent, points and the Gulf) and 8 to 11 (their decision days); the engine reads the base's place in the journey, and one order belongs to one chapter.
 

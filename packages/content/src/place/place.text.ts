@@ -13,6 +13,7 @@ export const placeText: Record<string, string> = {
   "line.place.returned-removed": "You were sent home from {country}. There is no way back in for years.",
   "line.place.token-used": "You flew back on {status}. No new visa, only the ticket.",
   "line.place.token-lapsed": "{months} months away and {status} has lapsed. You would have to start again.",
+  "line.place.token-ended": "Your {status} ended while you were home. Going back needs a new visa.",
   // The places' names, blurbs, signs and talk overheard: city:place-words-are-text-keys. A line one person
   // plainly says carries who says it beside it, `<line>.by`, as the bubble names them (world:street-talk-budget).
 

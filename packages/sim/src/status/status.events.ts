@@ -1,4 +1,4 @@
-import type { Currency, Id, OverstayState } from "../engine/types";
+import type { Currency, Id, MonthsAway, OverstayState } from "../engine/types";
 
 /** How a status came to be granted: by an effect, by its own `next`, by settling, by citizenship, or as the overstayer after a lapse. */
 export type GrantWhy = "granted" | "next" | "settled" | "citizen" | "lapsed";
@@ -23,6 +23,8 @@ export type StatusEvent =
       overstay?: OverstayState;
       /** A partner status granted in country past the grace settles at these months (person:partner-route-in-country). */
       settleMonths?: number;
+      /** A kept status's months at home still inside the window status:absence-breaks-settlement reads. */
+      away?: MonthsAway[];
     }
   /** status:expiry-lapses-or-moves-on, status:overstayer-risks-detection, status:course-passed-or-withdrawn. The current status is gone; the overstayer status follows in its own event. */
   | { type: "status/lapsed"; status: Id<"status">; why: LapseWhy }

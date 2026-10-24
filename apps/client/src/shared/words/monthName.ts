@@ -17,6 +17,13 @@ export function monthIndexOf(beganAt: number, month: number): number {
   return (((first + month) % MONTHS_IN_YEAR) + MONTHS_IN_YEAR) % MONTHS_IN_YEAR;
 }
 
+/** The month and its year in words, for a month further off than the band's: "April 2029". */
+export function monthYearOf(beganAt: number, month: number): string {
+  const began = new Date(beganAt + time.LAGOS_OFFSET_MS);
+  const year = began.getUTCFullYear() + Math.floor((began.getUTCMonth() + month) / MONTHS_IN_YEAR);
+  return `${monthNameOf(beganAt, month)} ${String(year)}`;
+}
+
 /** The month's name in words: "April". */
 export function monthNameOf(beganAt: number, month: number): string {
   return say(`ui.month.name.${String(monthIndexOf(beganAt, month))}`);

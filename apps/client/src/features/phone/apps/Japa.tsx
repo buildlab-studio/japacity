@@ -23,6 +23,7 @@ import { checklistWords } from "../../../shared/words/requirement";
 import { readyPercent } from "../../../shared/words/ready";
 import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
+import { keptAtHome } from "../../../shared/words/kept";
 import { blurbOf, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
@@ -454,6 +455,7 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
   const addToPlan = useGame((state) => state.addToPlan);
   const send = useGame((state) => state.send);
   const plan = useGame((state) => state.plan);
+  const beganAt = useGame((state) => state.beganAt);
   const said = use(PhoneSaid);
   const nav = use(PhoneNav);
   const openPapers = () => nav.openApp("papers");
@@ -476,6 +478,8 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
   // The plan's own figure while no route's figure counts yet, read as the data page reads it (chapter:chapters-follow-lean-route).
   const percent = readyPercent(view);
   const coming = remindersOf(view);
+  // return:papers-return-keeps-status: a status kept from a return, and the way back it gives.
+  const kept = keptAtHome(view, beganAt);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
   const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter) : null;
   const next = ahead === null ? null : nextStepWords(ahead);
@@ -539,6 +543,13 @@ export function Japa({ briefs = null, cards = null }: { briefs?: ReactNode; card
       {/* The header names the route; the figure's route is said again only when it is another. */}
       {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
+      {kept.length === 0 ? null : (
+        <div className="lively-card mt-3 flex flex-col gap-1 p-3 text-[14px]" data-japa-kept>
+          {kept.map((said) => (
+            <p key={said}>{said}</p>
+          ))}
+        </div>
+      )}
       <ClosedLine view={view} route={head} />
       {briefs}
       {ahead === null ? <ChapterSteps view={view} /> : null}

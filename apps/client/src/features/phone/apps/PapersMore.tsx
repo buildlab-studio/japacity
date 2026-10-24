@@ -11,6 +11,7 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { Meter } from "../../../shared/ui/Meter";
 import { shortfall } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
+import { keptAtHome } from "../../../shared/words/kept";
 import { type OverstayWords, overstayWords } from "../../../shared/words/overstay";
 import { AGE, valueWords } from "../../../shared/words/quality";
 import { blurbOf, hasWords, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
@@ -159,8 +160,11 @@ function Fare({ view }: { view: PlayerView }) {
 /** Where the life is and the times it came home; at home only when a return is on record or a status is kept abroad. */
 export function PapersPlace() {
   const view = useView();
+  const beganAt = useGame((state) => state.beganAt);
   const { where, country, monthsHere, heldAbroad, returns } = view.place;
   if (where === "home" && returns.length === 0 && heldAbroad === null) return null;
+  // return:papers-return-keeps-status: the status kept from the return, the month it runs to and any line at home crossed.
+  const kept = keptAtHome(view, beganAt);
   const here =
     where === "abroad" && country !== null ? (hasWords(`ui.place.in.${country}`) ? say(`ui.place.in.${country}`) : say("ui.place.in", { country: nameOf(country) })) : say(`ui.place.now.${where}`);
   return (
@@ -173,7 +177,11 @@ export function PapersPlace() {
         line={sayCount("ui.place.months-here", monthsHere, { months: monthsHere })}
         foot={
           <div className="flex flex-col gap-2.5">
-            {heldAbroad === null ? null : <p className="text-[14px]">{say("ui.place.token", { status: nameOf(heldAbroad) })}</p>}
+            {kept.map((said) => (
+              <p key={said} className="text-[14px]" data-papers-kept>
+                {said}
+              </p>
+            ))}
             <Fare view={view} />
             {returns.length === 0 ? null : (
               <div className="flex flex-col gap-1">

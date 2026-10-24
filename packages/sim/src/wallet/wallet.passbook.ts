@@ -384,6 +384,7 @@ export function passbookView(read: ReadCtx): PassbookView | null {
   });
   const ready = reached.find((each) => each.target === true);
   const last = ready !== undefined ? [{ at: ready.at, month: ready.month, target: true }] : target === null ? [] : [{ at: target.total, month: null, target: true }];
-  const stamps = [...fixed, ...last].sort((a, b) => a.at - b.at || Number(a.target) - Number(b.target));
+  // wallet:savings-stamps: the fixed stamps in their figures' order, and the target last, even under a stamp already reached.
+  const stamps = [...[...fixed].sort((a, b) => a.at - b.at), ...last];
   return { held, target, stamps, pace, months: atPace, roads, best };
 }

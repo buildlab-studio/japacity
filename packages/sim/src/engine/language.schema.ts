@@ -210,7 +210,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("document/absent"), document: idOf("document") }),
   z.strictObject({ type: z.literal("document/pending"), document: idOf("document") }),
   z.strictObject({ type: z.literal("document/genuine"), document: idOf("document") }),
-  z.strictObject({ type: z.literal("route/state"), route: idOf("route"), in: z.array(RouteStateNameSchema).min(1) }),
+  z.strictObject({ type: z.literal("route/state"), route: idOf("route"), in: z.array(RouteStateNameSchema).min(1), afterReturn: z.literal(true).exactOptional() }),
   z.strictObject({ type: z.literal("route/offer"), route: idOf("route") }),
   z.strictObject({ type: z.literal("route/deposit"), route: idOf("route") }),
   z.strictObject({ type: z.literal("route/funds"), route: idOf("route"), heldMonths: CountSchema }),
@@ -370,7 +370,15 @@ export const EffectSchema = z.discriminatedUnion("type", [
     type: z.literal("status/grant"),
     status: idOf("status"),
     job: idOf("activity").exactOptional(),
-    kept: z.strictObject({ monthsHeld: CountSchema, lawfulMonths: CountSchema }).exactOptional(),
+    kept: z
+      .strictObject({
+        monthsHeld: CountSchema,
+        lawfulMonths: CountSchema,
+        expiresMonth: CountSchema.exactOptional(),
+        settleMonths: CountSchema.exactOptional(),
+        away: z.array(z.strictObject({ from: CountSchema, to: CountSchema })).exactOptional(),
+      })
+      .exactOptional(),
   }),
   z.strictObject({ type: z.literal("status/lose") }),
   z.strictObject({ type: z.literal("status/remove") }),
@@ -497,7 +505,7 @@ export const TuningSchema = z.strictObject({
   place: z.strictObject({ brokeLine: CountSchema, fareFromNaira: z.boolean() }),
   street: z.strictObject({ phonePrice: CountSchema, phoneMood: CountSchema, phoneNetwork: CountSchema, salesPay: CountSchema, salesHireBp: BpSchema, apprenticeTech: CountSchema, apprenticeUntil: CountSchema, theftBp: BpSchema, theftNaira: CountSchema, mosquitoBp: BpSchema, harassBp: BpSchema, harassMood: CountSchema, shoppingGbp: CountSchema, shoppingAed: CountSchema, shoppingMood: CountSchema, findBp: BpSchema, findMood: CountSchema, runMood: CountSchema }),
   parcel: z.strictObject({ handling: CountSchema, laptopMood: CountSchema, clothesPrep: CountSchema }),
-  status: z.strictObject({ courseMonths: CountSchema, hospitalChargeBp: CountSchema, overstayPartnerSettleMonths: CountSchema, rentCheckWellbeing: IntSchema }),
+  status: z.strictObject({ courseMonths: CountSchema, hospitalChargeBp: CountSchema, overstayPartnerSettleMonths: CountSchema, rentCheckWellbeing: IntSchema, absenceMonths: CountSchema, absenceWindowMonths: CountSchema }),
   credit: z.strictObject({
     onTime: CountSchema,
     onMiss: CountSchema,
@@ -517,6 +525,7 @@ export const TuningSchema = z.strictObject({
     capitalCap: CountSchema,
     offerMonths: CountSchema,
     residentLapseMonths: CountSchema,
+    ukKeptLapseMonths: CountSchema,
   }),
   director: z.strictObject({
     surgePerTick: CountSchema,

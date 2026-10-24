@@ -41,7 +41,7 @@ import type {
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { routePercent } from "../japacity/japacity.logic";
 import { bannedNow, overstaysIn } from "../place/place.logic";
-import { countryEntry, removalBanMonths } from "../status/status.logic";
+import { countryEntry, isKept, keptForFlight, removalBanMonths } from "../status/status.logic";
 import { GATES } from "./gates";
 import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
@@ -554,11 +554,16 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** return:papers-return-keeps-status: the status kept from a return with papers, as it is granted again with its months, when it is for the route's country. */
-function tokenFor(read: ReadCtx, entry: RouteEntry): Effect | null {
+/**
+ * return:papers-return-keeps-status: the status kept from a return with papers, as it is granted again with its months, when it is for the route's
+ * country and its end month has not come; the months at home are read against settlement as the flight goes (status:absence-breaks-settlement).
+ */
+function tokenFor(read: ReadCtx, entry: RouteEntry): Extract<Effect, { type: "status/grant" }> | null {
   const token = read.state.place.heldAbroad;
   if (token === null || entry.country === null || read.content.status[token.status]?.country !== entry.country) return null;
-  return { type: "status/grant", status: token.status, kept: { monthsHeld: token.monthsHeld, lawfulMonths: token.lawfulMonths } };
+  const month = read.state.turn.month;
+  if (token.expiresMonth !== undefined && month >= token.expiresMonth) return null;
+  return { type: "status/grant", status: token.status, kept: keptForFlight(read, token, month) };
 }
 
 /**
@@ -617,7 +622,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const job = gate.departureJob?.(entry, held) ?? null;
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
-  if (kept !== null) ctx.apply([kept], cause);
+  // A settled or resident status kept outranks any route's; a kept status with an end gives way to the status of the route granted.
+  if (kept !== null && (isKept(ctx.content, kept.status) || entry.status === null)) ctx.apply([kept], cause);
   else if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   // ladders:sponsor-job-ties-status: the sponsor's job is the job held on arrival. place:entries-legal-by-where: a home job does not fly.
   // activity.md is silent on when; it is the moment of the flight, so no job is held that cannot be worked.
@@ -812,10 +818,22 @@ function clocks(ctx: Ctx): BaseEvent[] {
 // Requirements
 // ---------------------------------------------------------------------------
 
+/**
+ * chapter.md, `chapter.secure`'s `second`: the route's grant came in a month after the latest return home. A grant and a return in the same month put
+ * the grant first, since a decision lands as the month turns and a return is a command within it. A grant with no month kept reads as after it.
+ */
+function grantedAfterReturn(read: ReadCtx, held: RouteState): boolean {
+  const back = read.state.place.returns.at(-1);
+  if (back === undefined) return false;
+  return held.grantedMonth === undefined || held.grantedMonth > back.month;
+}
+
 function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
   switch (requirement.type) {
-    case "route/state":
-      return { met: requirement.in.includes(routeOf(read.state, requirement.route).state) };
+    case "route/state": {
+      const held = routeOf(read.state, requirement.route);
+      return { met: requirement.in.includes(held.state) && (requirement.afterReturn !== true || grantedAfterReturn(read, held)) };
+    }
     case "route/offer":
       return { met: Object.values(routeOf(read.state, requirement.route).schools).some((application) => application.state === "offer") };
     case "route/deposit":
@@ -905,6 +923,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
         const to = arrow(held, event.to, event.route);
         if (to === "heard") return { ...held, state: to, heardMonth: month };
         if (to === "known") return { ...held, state: to, knownMonth: month };
+        // chapter.md, `chapter.secure`'s `second`: the month of the grant, read against the latest return home.
+        if (to === "granted") return { ...held, state: to, grantedMonth: month };
         return { ...held, state: to };
       });
     case "route/school-applied":

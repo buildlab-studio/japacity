@@ -379,7 +379,10 @@ describe("the passbook on the recorded lives", () => {
         say(figures.every((figure) => Number.isSafeInteger(figure)), `${at}: a figure is not a whole number`);
         say((game.state.wallet.nets ?? []).length <= 3, `${at}: more than three months kept for the pace`);
         say(book.stamps.every((stamp) => stamp.month === null || stamp.month <= view.month), `${at}: a stamp from a month to come`);
-        say(book.stamps.every((stamp, index) => index === 0 || book.stamps[index - 1]!.at <= stamp.at), `${at}: the stamps out of order`);
+        // wallet:savings-stamps: the fixed stamps in their figures' order, and the target last.
+        const fixedStamps = book.stamps.filter((stamp) => !stamp.target);
+        say(fixedStamps.every((stamp, index) => index === 0 || fixedStamps[index - 1]!.at <= stamp.at), `${at}: the fixed stamps out of order`);
+        say(book.stamps.findIndex((stamp) => stamp.target) === (book.stamps.some((stamp) => stamp.target) ? book.stamps.length - 1 : -1), `${at}: the target not last`);
         const gap = book.target === null ? null : book.target.total - book.held;
         const expected = gap === null ? null : gap <= 0 ? 0 : book.pace === null || book.pace <= 0 ? null : divCeil(gap, book.pace);
         say(book.months === expected, `${at}: months ${String(book.months)}, expected ${String(expected)}`);
