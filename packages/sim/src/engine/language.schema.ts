@@ -525,6 +525,7 @@ export const TuningSchema = z.strictObject({
     capitalCap: CountSchema,
     offerMonths: CountSchema,
     residentLapseMonths: CountSchema,
+    ukKeptLapseMonths: CountSchema,
   }),
   director: z.strictObject({
     surgePerTick: CountSchema,

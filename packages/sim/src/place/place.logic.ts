@@ -1,7 +1,7 @@
 // Place: docs/rules/place.md, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
 import { check, worldVarOr } from "../engine/check";
-import { QUALITY, SETPIECE, STATUS, VAR } from "../engine/ids";
+import { COUNTRY, QUALITY, SETPIECE, STATUS, VAR } from "../engine/ids";
 import { bp, BP_WHOLE, convertMinor, divFloor, isqrt, mulDiv, roundUpTo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -754,13 +754,27 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** return:papers-return-keeps-status: a resident token lapses after the months away the tuning gives. */
+/**
+ * return:papers-return-keeps-status: the months in a row at home after which a kept status lapses: the Canadian resident's own line, any other UK
+ * status's two years, and none for a citizenship, the top of its ladder (a status that never ends and leads to nothing further).
+ */
+function lapseMonths(content: Content, status: Id<"status">): number | null {
+  if (status === RESIDENT) return content.tuning.return.residentLapseMonths;
+  const entry = statusEntry(content, status);
+  const citizen = entry.months === null && entry.settled === null && entry.citizen === null;
+  return entry.country === COUNTRY.uk && !citizen ? content.tuning.return.ukKeptLapseMonths : null;
+}
+
+/** return:papers-return-keeps-status: a kept status lapses after its months in a row at home, and the route flown is known again (route:lapsed-route-known-again). */
 function tokenLapse(ctx: Ctx): BaseEvent[] {
   const token = ctx.state.place.heldAbroad;
-  if (token?.status !== RESIDENT) return [];
+  if (token === null || ctx.state.place.where !== "home") return [];
+  const most = lapseMonths(ctx.content, token.status);
   const away = ctx.state.turn.month - token.sinceMonth;
-  if (away < ctx.content.tuning.return.residentLapseMonths) return [];
-  return record(ctx, [{ type: "place/token-lapsed", status: token.status, months: away }]);
+  if (most === null || away < most) return [];
+  const events = record(ctx, [{ type: "place/token-lapsed", status: token.status, months: away }]);
+  ctx.apply([{ type: "route/lapse", country: statusEntry(ctx.content, token.status).country }], { source: token.status, param: null, terms: {} });
+  return events;
 }
 
 /**
@@ -800,7 +814,9 @@ function tokenEnd(ctx: Ctx): BaseEvent[] {
 }
 
 function month(ctx: Ctx): BaseEvent[] {
-  return [...tokenLapse(ctx), ...tokenEnd(ctx), ...december(ctx)];
+  // A kept status whose end month and two years at home fall together ends by its own end month.
+  const ended = tokenEnd(ctx);
+  return [...ended, ...(ended.length > 0 ? [] : tokenLapse(ctx)), ...december(ctx)];
 }
 
 // ---------------------------------------------------------------------------

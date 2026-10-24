@@ -136,8 +136,9 @@ function stillInWindow(spans: readonly MonthsAway[], month: number, window: numb
 
 /**
  * return:papers-return-keeps-status and status:absence-breaks-settlement: what a kept status carries back on a flight in `month`. Its months at home add
- * no lawful months; for a status with an end that counts toward settlement (the Canadian resident's absence is read by its own rule), more months at home
- * than `absenceMonths` inside any `absenceWindowMonths` set the lawful months back to 0 and start the record of time away again.
+ * no lawful months; for a status with an end that counts toward settlement (the Canadian resident's absence is read by its own rule), `absenceMonths` or
+ * more at home inside any `absenceWindowMonths` set the lawful months back to 0 and start the record of time away again. A settled status's months
+ * toward citizenship count only months in the country, so they carry back as they were.
  */
 export function keptForFlight(read: ReadCtx, token: { status: Id<"status">; sinceMonth: number } & KeptStatusMonths, month: number): KeptStatusMonths {
   const { status, sinceMonth, ...months } = token;
@@ -145,7 +146,7 @@ export function keptForFlight(read: ReadCtx, token: { status: Id<"status">; sinc
   if (!entry.countsToSettlement || entry.months === null) return months;
   const { absenceMonths, absenceWindowMonths } = read.content.tuning.status;
   const spans = [...(months.away ?? []), { from: sinceMonth, to: month }];
-  if (mostAwayInWindow(spans, absenceWindowMonths) > absenceMonths) {
+  if (mostAwayInWindow(spans, absenceWindowMonths) >= absenceMonths) {
     const { away: _away, ...rest } = months;
     return { ...rest, lawfulMonths: 0 };
   }

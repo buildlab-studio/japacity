@@ -9,7 +9,7 @@ import { BOND, facts, joint, setFacts } from "../testing/person.journey";
 import { flown, playMonths } from "../testing/place.journey";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { SKILLED, SPONSORED, STANDING, STUDENT, UK_COUNTRY, UK_GRADUATE, UK_ROUTE } from "../testing/ids";
+import { SETTLED, SKILLED, SPONSORED, STANDING, STUDENT, UK_COUNTRY, UK_GRADUATE, UK_ROUTE } from "../testing/ids";
 
 const TALENT: Id<"status"> = "status.uk-talent";
 const PARTNER: Id<"status"> = "status.uk-partner";
@@ -149,6 +149,38 @@ describe("a status a trip home keeps", () => {
   });
 });
 
+describe("two years in a row at home", () => {
+  test("[place:return-home-paid-or-assisted] given the Graduate visa, when the character goes home, then every status closes but the one a trip home keeps, which waits as the token", () => {
+    const game = holding(UK_GRADUATE);
+    goHome(game);
+    expect(game.state.status.current).toBeNull();
+    expect(game.state.place).toMatchObject({ where: "home", heldAbroad: { status: UK_GRADUATE } });
+  });
+
+  for (const status of [SETTLED, TALENT]) {
+    test(`[return:papers-return-keeps-status] given ${status} kept at home, when 23 and then 24 months pass at home in a row, then it is kept and then lapses, and the route flown is known again`, () => {
+      const game = holding(status);
+      goHome(game);
+      playMonths(game, tuning.return.ukKeptLapseMonths - 1);
+      expect(game.state.place.heldAbroad?.status).toBe(status);
+      if (game.state.turn.banked < 1) game.grant(1);
+      const result = game.endTurn();
+      expect(game.state.place.heldAbroad).toBeNull();
+      expect(result.lines.filter((line) => line.key.startsWith("line.place."))).toEqual([
+        { key: "line.place.token-lapsed", params: { status, months: tuning.return.ukKeptLapseMonths }, tone: "bad", attention: true, counts: [] },
+      ]);
+      expect(game.state.route[UK_ROUTE]?.state).toBe("known");
+    });
+  }
+
+  test("[return:papers-return-keeps-status] given UK citizenship kept at home, when 30 months pass at home, then it is still kept: a citizenship never lapses", () => {
+    const game = holding("status.uk-citizen");
+    goHome(game);
+    playMonths(game, 30);
+    expect(game.state.place.heldAbroad?.status).toBe("status.uk-citizen");
+  });
+});
+
 describe("the dependant's kept status", () => {
   /** Abroad on the dependant status, the partner's facts showing them in the UK on the sponsored status, or as the change says. */
   function dependant(lead: Partial<ReturnType<typeof facts>>): Game {
@@ -198,26 +230,26 @@ describe("time at home against settlement", () => {
     game.accept({ type: "route/depart", route: UK_ROUTE });
   }
 
-  test("[status:absence-breaks-settlement] given the Global Talent kept at home, when 6 months pass at home and the character flies back, then the months at home added no lawful months and took none away", () => {
+  test("[status:absence-breaks-settlement] given the Global Talent kept at home, when 5 months pass at home and the character flies back, then the months at home added no lawful months and took none away", () => {
     const { game, lawful } = talentHome(5);
     const back = game.state.turn.month;
-    playMonths(game, tuning.status.absenceMonths);
-    expect(game.state.turn.month - back).toBe(tuning.status.absenceMonths);
+    playMonths(game, tuning.status.absenceMonths - 1);
+    expect(game.state.turn.month - back).toBe(tuning.status.absenceMonths - 1);
     expect(game.state.place.heldAbroad?.lawfulMonths).toBe(lawful);
     flyBack(game);
     expect(held(game)).toMatchObject({ entry: TALENT, lawfulMonths: lawful });
   });
 
-  test("[status:absence-breaks-settlement] given the Global Talent kept at home, when 7 months pass at home and the character flies back, then the lawful months toward settlement are back to 0", () => {
+  test("[status:absence-breaks-settlement] given the Global Talent kept at home, when 6 months pass at home and the character flies back, then the lawful months toward settlement are back to 0", () => {
     const { game } = talentHome(5);
-    playMonths(game, tuning.status.absenceMonths + 1);
+    playMonths(game, tuning.status.absenceMonths);
     flyBack(game);
     expect(held(game)).toMatchObject({ entry: TALENT, lawfulMonths: 0 });
     playMonths(game, 1);
     expect(held(game).lawfulMonths).toBe(1);
   });
 
-  test("[status:absence-breaks-settlement] given two trips home on the Global Talent, 4 months and then 3 with 2 in the UK between, when the character flies back the second time, then the 7 months home inside 12 set the lawful months back to 0", () => {
+  test("[status:absence-breaks-settlement] given two trips home on the Global Talent, 4 months and then 2 with 2 in the UK between, when the character flies back the second time, then the 6 months home inside 12 set the lawful months back to 0", () => {
     const { game } = talentHome(5);
     playMonths(game, 4);
     flyBack(game);
@@ -225,7 +257,7 @@ describe("time at home against settlement", () => {
     const lawful = held(game).lawfulMonths;
     expect(lawful).toBe(7);
     goHome(game);
-    playMonths(game, 3);
+    playMonths(game, 2);
     flyBack(game);
     expect(held(game).lawfulMonths).toBe(0);
   });
@@ -242,6 +274,26 @@ describe("time at home against settlement", () => {
     expect(held(game).lawfulMonths).toBe(lawful);
   });
 
+  test("[status:absence-breaks-settlement] given the partner status kept at home, when 6 months pass at home and the character flies back, then its lawful months toward settlement are back to 0 by the same line", () => {
+    const game = holding(PARTNER);
+    playMonths(game, 3);
+    expect(held(game).lawfulMonths).toBe(3);
+    goHome(game);
+    playMonths(game, tuning.status.absenceMonths);
+    flyBack(game);
+    expect(held(game)).toMatchObject({ entry: PARTNER, lawfulMonths: 0 });
+  });
+
+  test("[status:absence-breaks-settlement] given the UK settled status held 5 months and kept, when 8 months pass at home and the character flies back, then its months toward citizenship stand at 5: months at home count nothing and take nothing", () => {
+    const game = holding(SETTLED);
+    playMonths(game, 5);
+    expect(held(game).monthsHeld).toBe(5);
+    goHome(game);
+    playMonths(game, 8);
+    flyBack(game);
+    expect(held(game)).toMatchObject({ entry: SETTLED, monthsHeld: 5 });
+  });
+
   test("[status:absence-breaks-settlement] [return:papers-return-keeps-status] given a Canadian resident home for 10 months, when they fly back on the kept status, then the lawful months stand: the resident's absence is read by its own 24-month rule", () => {
     const game = holding(RESIDENT);
     applyEffects(game, [{ type: "money/add", currency: "CAD", pocket: "bank", amount: 5000000, reason: "gift" }]);
@@ -255,13 +307,13 @@ describe("time at home against settlement", () => {
 });
 
 describe("the kept status in the view and the words", () => {
-  test("[place:view-shows-place-and-returns] [status:absence-breaks-settlement] given the Global Talent kept at home, when the view is read through the months at home, then it carries the month the status ends, and from the 7th month home that a flight back starts the road to settling again", () => {
+  test("[place:view-shows-place-and-returns] [status:absence-breaks-settlement] given the Global Talent kept at home, when the view is read through the months at home, then it carries the month the status ends, and from the 6th month home that a flight back starts the road to settling again", () => {
     const game = holding(TALENT);
     playMonths(game, 2);
     const ends = held(game).expiresMonth;
     goHome(game);
     expect(game.view().place.kept).toEqual({ until: ends, restarts: false });
-    playMonths(game, tuning.status.absenceMonths);
+    playMonths(game, tuning.status.absenceMonths - 1);
     expect(game.view().place.kept).toEqual({ until: ends, restarts: false });
     playMonths(game, 1);
     expect(game.view().place.kept).toEqual({ until: ends, restarts: true });

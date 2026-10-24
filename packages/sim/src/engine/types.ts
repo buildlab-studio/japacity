@@ -1290,7 +1290,7 @@ export interface Tuning {
   street: { phonePrice: number; phoneMood: number; phoneNetwork: number; salesPay: number; salesHireBp: number; apprenticeTech: number; apprenticeUntil: number; theftBp: number; theftNaira: number; mosquitoBp: number; harassBp: number; harassMood: number; shoppingGbp: number; shoppingAed: number; shoppingMood: number; findBp: number; findMood: number; runMood: number };
   /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
   parcel: { handling: number; laptopMood: number; clothesPrep: number };
-  /** `absenceMonths` and `absenceWindowMonths`: more months at home than the first inside any run of the second sets the lawful months back to 0 (status:absence-breaks-settlement). */
+  /** `absenceMonths` and `absenceWindowMonths`: the first or more months at home inside any run of the second sets the lawful months back to 0 (status:absence-breaks-settlement). */
   status: { courseMonths: number; hospitalChargeBp: number; overstayPartnerSettleMonths: number; rentCheckWellbeing: number; absenceMonths: number; absenceWindowMonths: number };
   /**
    * `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit).
@@ -1299,7 +1299,7 @@ export interface Tuning {
   credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; judgmentCap: number; returnPenalty: number; cleanMonths: number };
   car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
   remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };
-  return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number };
+  return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number; ukKeptLapseMonths: number };
   director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
   /**
    * `meansStep`: family means fall one point for each this much the family pays (road:road-truth-asks-more). The pressure
