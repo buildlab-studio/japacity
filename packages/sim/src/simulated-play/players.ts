@@ -20,6 +20,7 @@ const ROAD: Id<"route"> = "route.road";
 const BROKE_BELOW = 15000000;
 
 /** Pence of pounds a careful player buys ahead for the deposit and the visa fees. */
+/** The pounds bought ahead where the way planned shows no funds line. */
 const POUND_TARGET = 600000;
 
 const SAFE_CASH_MOVE = 50000000;
@@ -1060,6 +1061,32 @@ function studentCovered(view: PlayerView, content: Content, route: Id<"route">):
   return own + pledge >= tuitionLeft + monthly * KEEP_MONTHS;
 }
 
+/**
+ * The first tuition charge abroad (abroad-money:tuition-paid-in-instalments), in pence: the schedule's first share of the tuition
+ * the school still asks after its discount, the deposit and what a loan paid. Null with no school taken.
+ */
+export function firstInstalment(view: PlayerView, content: Content, route: Id<"route">): number | null {
+  const held = view.routes.find((item) => item.id === route);
+  const school = held?.school === null || held?.school === undefined ? undefined : content.school[held.school];
+  if (held === undefined || school === undefined) return null;
+  const discount = held.schools.find((applied) => applied.id === school.id)?.discount ?? 0;
+  const left = Math.max(0, school.tuition - discount - school.deposit - held.loanPaid);
+  return mulDiv(left, content.obligation["obligation.tuition"]?.schedule?.[0] ?? 10000, 10000);
+}
+
+/**
+ * No style flies to a bill it can see it cannot pay in its first month: the first instalment is met by the pounds held and the
+ * family's pledge left (route:family-pledge-pays-tuition). The living funds may still have been borrowed for the visa.
+ */
+function firstInstalmentCovered(view: PlayerView, content: Content, route: Id<"route">): boolean {
+  const due = firstInstalment(view, content, route);
+  const held = view.routes.find((item) => item.id === route);
+  if (due === null || held === undefined) return true;
+  const gbp = view.rates.GBP.official;
+  const pledge = held.support === null ? 0 : held.support.currency === "NGN" ? mulDiv(held.support.amount, 100, gbp) : held.support.amount;
+  return view.pockets.GBP.bank + view.pockets.GBP.cash + pledge >= due;
+}
+
 function departures(view: PlayerView, content: Content, habits: Habits): Loose[] {
   const commands: Loose[] = [];
   // place:departure-moves-abroad: a flight leaves only from home.
@@ -1074,6 +1101,7 @@ function departures(view: PlayerView, content: Content, habits: Habits): Loose[]
   for (const item of granted) {
     if (item.gate?.gate === "points" && item.gate.fundsShort > 0) continue;
     if (habits.fliesCovered === true && item.id === UK && !studentCovered(view, content, item.id)) continue;
+    if (item.id === UK && !firstInstalmentCovered(view, content, item.id)) continue;
     commands.push({ type: "route/depart", route: item.id });
   }
   return commands;
@@ -1092,6 +1120,29 @@ function cashForTerms(view: PlayerView, habits: Habits): Loose[] {
   const short = want - view.pockets.NGN.cash;
   if (short <= 0 || view.pockets.NGN.bank < short) return [];
   return [{ type: "wallet/move", currency: "NGN", amount: short, to: "cash" }];
+}
+
+/**
+ * The pounds a player buying ahead holds, in pence: the whole funds line of the way planned, the master's shown funds or
+ * Canada's funds in pounds at the day's rates, else POUND_TARGET.
+ */
+export function poundTarget(view: PlayerView, content: Content): number {
+  const planned = view.plan.route === null ? undefined : view.routes.find((item) => item.id === view.plan.route);
+  if (planned?.id === UK && planned.funds.required > 0) return planned.funds.required;
+  if (planned?.id === CANADA) return mulDiv(content.var["var.canada-funds"]?.start ?? 0, view.rates.CAD.official, view.rates.GBP.official);
+  return POUND_TARGET;
+}
+
+/** Pounds bought ahead within the month's bank allowance, up to poundTarget, never leaving the life broke at home. */
+function poundsAhead(view: PlayerView, content: Content, habits: Habits): Loose[] {
+  if (!habits.buysPounds || view.bankAllowanceLeft === null || view.bankAllowanceLeft <= 0 || view.queued.length > 0) return [];
+  const short = poundTarget(view, content) - view.pockets.GBP.bank;
+  if (short <= 0) return [];
+  const most = mulDiv(view.bankAllowanceLeft, view.rates.USD.official, 100) - 100;
+  const wanted = mulDiv(short, view.rates.GBP.official, 100) + 100;
+  // The broke line stays in naira: pounds bought ahead never leave the life broke at home.
+  const amount = Math.min(most, wanted, view.pockets.NGN.bank - buffer(view, habits) - monthlyDue(view) * 3 - BROKE_BELOW);
+  return amount >= 1000000 ? [{ type: "wallet/convert", from: "NGN", to: "GBP", amount, via: "bank" }] : [];
 }
 
 function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loose[] {
@@ -1122,6 +1173,9 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
     commands.push({ type: "wallet/convert", from: "USD", to: "NGN", amount: cents, via: "bank" });
   }
   commands.push(...departures(view, content, habits));
+  // A Canada plan saves its funds in pounds as a study plan does, outside the study's own errands below.
+  const canadaPlanned = view.plan.route === CANADA && view.place.where === "home" && ["known", "applying"].includes(route(view, CANADA)?.state ?? "");
+  if (canadaPlanned) commands.push(...poundsAhead(view, content, habits));
   if (uk === undefined || uk.state === "granted") return commands;
 
   const big = nextBigPayment(view, content);
@@ -1141,14 +1195,9 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
     }
   }
 
-  // Buying pounds ahead, within the month's bank allowance.
+  // Buying pounds ahead for the study, within the month's bank allowance.
   const knownish = uk.state === "known" || uk.state === "applying";
-  if (habits.buysPounds && knownish && view.pockets.GBP.bank < POUND_TARGET && view.bankAllowanceLeft !== null && view.bankAllowanceLeft > 0 && view.queued.length === 0) {
-    const most = mulDiv(view.bankAllowanceLeft, view.rates.USD.official, 100) - 100;
-    // The broke line stays in naira: pounds bought ahead never leave the life broke at home.
-    const amount = Math.min(most, view.pockets.NGN.bank - buffer(view, habits) - due * 3 - BROKE_BELOW);
-    if (amount >= 1000000) commands.push({ type: "wallet/convert", from: "NGN", to: "GBP", amount, via: "bank" });
-  }
+  if (knownish && !canadaPlanned) commands.push(...poundsAhead(view, content, habits));
   return commands;
 }
 
