@@ -160,10 +160,12 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     employer: "formal",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 60 },
+      // A working value, as every rung's months are (activity.md): at twelve a pivot saved a master's on the mid-level pay
+      // before its own trade could fly.
       {
         type: "activity/tenure",
         activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"],
-        months: 12,
+        months: 18,
       },
     ],
     param: null,
@@ -183,8 +185,9 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/min", quality: "quality.tech", value: 75 },
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.english", value: 60 },
-      // Simulated play: with no tenure asked, this one job paid for 97% of flights.
-      { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer"], months: 6 },
+      // Simulated play: with no tenure asked, this one job paid for 97% of flights; with six months, a pivot flew on its
+      // dollars before its own trade could (scenario:economy-meets-its-targets).
+      { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer"], months: 24 },
     ],
     param: null,
     cost: [],
