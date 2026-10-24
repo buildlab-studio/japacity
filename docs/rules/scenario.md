@@ -50,3 +50,36 @@ A ready life has no name and no sex of its own: the player gives the name and th
 - **The banker** has money and a job on day one and a harder file: a lower grade, an older face, land that the family thinks of as theirs.
 - **The developer** is closest to the dollar salary that makes the funds easy, and furthest from any help.
 - **The teacher** has a small steady wage and some tech: a maths teacher who codes after marking, with a way into tech if the portfolio is built.
+
+## The balance targets
+
+**scenario:economy-meets-its-targets** The economy is held to its targets by simulated play (decision 0031, `../design/13-the-economy.md` section 2). The balance test plays every fixed life and a life built from each archetype's preset (prologue:archetype-presets-answers: the accountant, the writer, the trader, the shop worker, the child of the water, and a graduate who takes the customer service job) under the player styles of `simulated-play/players.ts`: the careful, the borrower, the risky and the Canada players, and three more: trade-loyal (hunts only its own trade's rungs and side job, and studies tech only when its trade is tech), free-learner pivot (careful, working the free path to the developer jobs) and paid-learner pivot (careful, the diploma, or the bootcamp when the money allows). It runs 20 seeds for 96 months in the golden world and in world-b (the pound 2.36 times dearer in 36 months), and holds the ten thresholds below. "Formal flights" are flights on a route other than the road. A flight's trade is the trade of the job held on the day it flies.
+
+| # | What is measured | Styles, world | Threshold |
+|---|---|---|---|
+| 1 | The median month of the first flight, for each trade | trade-loyal, golden | Inside the trade's cheap band in the table below |
+| 2 | The 75th percentile of the first flight, for each trade | trade-loyal, golden | At most the cheap band's top plus 12 months |
+| 3 | The share flown by month 72 | trade-loyal, golden | 80% or more for every trade |
+| 4 | Flights leaving from a developer rung, among lives that did not start as developers | every style, golden | 35% or less |
+| 5 | The pivot's pace | the two pivot styles against trade-loyal, golden | The pivot's median first flight is never sooner than 0.8 times trade-loyal's for any trade, and for the teacher no later than 1.5 times |
+| 6 | The mix of routes | every style, golden | No route over 50% of formal flights; the master's, the skilled worker, Canada's points, care or the nurse, and the Gulf each 5% or more |
+| 7 | Students | careful, risky, borrower | Careful: 90% or more reach `status.uk-graduate`; risky: 70% or more; every withdrawal follows a reminder, a plan offered and two plan payments missed in a row, or the four months in arrears with no plan (all of them); the median from the first miss to withdrawal is 3 months or more |
+| 8 | Tech's pace to junior-ready (30) | the pivot styles | The free path 8 to 12 months, the short course 6 to 8, the diploma 7 to 9, the bootcamp 4 to 6; no life reaches tech 30 by study before month 4 |
+| 9 | The money floor and the sinks | careful, golden | No careful life under the broke line more than 2 months in a row; at the rung that fits abroad, settlement, renewal and citizenship each take 0.5 to 6 months of what the month keeps |
+| 10 | A crash | trade-loyal, world-b | The Gulf from the shop and the racks, and the UK nurse's route from the nurse, reached by month 36 for 60% or more; naira pay at month 36 under the review about 1.21 times its start in the golden world, and lower in pounds than at the start in world-b |
+
+The cheap and dear bands, in months to the first flight for a careful player who stays in the trade, without luck, in the golden world:
+
+| Trade | The cheapest way that fits | Months | The dearer way that fits | Months |
+|---|---|---|---|---|
+| Nurse | UK care as a nurse with a trust's post; the Gulf's nursing offers as the fallback | 18 to 36 | Canada's points with the care cut-off | 42 to 60 |
+| Teacher | Canada's points (the education draw while it stands) or the master's with the family's pledge | 48 to 60 | none beyond these | |
+| Customer service | The Gulf, or Canada once on the dollar rung | 24 to 36 | The skilled worker or the master's | 36 to 66 |
+| Shop, trader | The Gulf contract | 18 to 30 | none: the own stall is the rung | |
+| Fish | The Gulf contract | 18 to 30 | none: the fish trade is the rung | |
+| Banker | Canada's points | 36 to 48 | The skilled worker, or the master's with the pledge | 30 to 66 |
+| Accountant | Canada's points | 36 to 54 | The skilled worker as a chartered accountant | 30 to 54 |
+| Developer | Canada or the UK talent route once remote | 18 to 36 | The master's or the skilled worker | 24 to 48 |
+| Graduate | Canada's points on the customer service ladder | 36 to 54 | The master's with the pledge | 48 to 72 |
+
+The thresholds and bands are the game's aims, not real figures; a change that moves a life outside them changes the content, or the targets with a decision record that says why.

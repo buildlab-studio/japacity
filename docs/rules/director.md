@@ -60,6 +60,7 @@ The five stories `news.md` lists are in the pool, with these preconditions: `new
 | `news.uk-talent-body-closes` | closures | any | 200 | 1, 2, the reappointment | `var.uk-talent-window` 0, revert | once | Jan to Apr 2023 |
 | `news.uk-talent-reappointed` | openings | `var.uk-talent-window` 0 for 8 ticks | 900 | 0, 2, never | `var.uk-talent-window` 2 | once | Aug 2025 |
 | `news.canada-care-draw` | openings | `var.canada-window` 2 | 600 | 1, 2, 6 | `var.canada-care-cutoff` -20, revert | | Jun 2023 |
+| `news.canada-education-draw` | openings | `var.canada-window` 2 | 300 | 1, 2, 6 | `var.canada-education-cutoff` 365, revert (route-gates:pool-draws-invite: a teacher with 12 months across the teacher jobs is invited at it) | cooldown 24 | May and Sep 2025 (CRS 479, 462) |
 | `news.canada-general-stops` | closures | ca surge over 40 | 400 | 2, 3, never | `var.canada-cutoff` +20 | once | Apr 2024 |
 | `news.canada-points-overhaul` | closures | era hard-line | 300 | 3, 4, never | `var.canada-cutoff` +15, `var.canada-care-cutoff` +10 | once | early 2025 |
 | `news.canada-funds-rise` | closures | any | 300 | 1, 3, never | `var.canada-funds` 1600000 | | Jul 2025 |
@@ -76,7 +77,9 @@ The five stories `news.md` lists are in the pool, with these preconditions: `new
 
 Content: `offer.sponsor-licence-lost` takes `var.uk-care-sponsor-risk` as its chance a month (`CHANCE_VARS` in `offer.logic.ts`), 300 and 1200 while the revocations are in force.
 
-The variables this page defines, with their starts: `var.uk-study-surge` 20, `var.uk-care-surge` 0, `var.uk-skilled-surge` 10, `var.uk-talent-surge` 0, `var.canada-surge` 30, `var.uae-surge` 0, `var.uk-care-strictness` 50, `var.uk-skilled-strictness` 40, `var.canada-strictness` 50, `var.inflation` 0, `var.season-december` 0, `var.uk-care-sponsor-risk` 300, `var.passport-fee` 10000000, `var.transcript-wait-extra` 0, `var.flight-factor` 10000, `var.remote-hire-bonus` 0, `var.uae-amnesty` 0.
+The variables this page defines, with their starts: `var.uk-study-surge` 20, `var.uk-care-surge` 0, `var.uk-skilled-surge` 10, `var.uk-talent-surge` 0, `var.canada-surge` 30, `var.uae-surge` 0, `var.uk-care-strictness` 50, `var.uk-skilled-strictness` 40, `var.canada-strictness` 50, `var.inflation` 0, `var.season-december` 0, `var.uk-care-sponsor-risk` 300, `var.passport-fee` 10000000, `var.transcript-wait-extra` 0, `var.flight-factor` 10000, `var.remote-hire-bonus` 0, `var.uae-amnesty` 0, `var.canada-education-cutoff` 9999 (no education draw until the story sets one).
+
+**director:education-draw-opens-for-a-time** Canada's education draw is a story, not a standing door. `news.canada-education-draw` opens an education cut-off for a time: in force it sets `var.canada-education-cutoff` to 365 and reverts it to 9999 when it ends 6 ticks later, so a teacher in the pool with a score at or above it is invited while it stands (route-gates:pool-draws-invite), and News tells it as Canada inviting teachers. Real: IRCC's category-based selection names an education category, and it has run two rounds, on 1 May 2025 (CRS 479) and 17 Sep 2025 (CRS 462), and none from then to 16 Oct 2026, while other categories drew every few weeks; so the draw comes now and then, and the game's chance a tick and cooldown are working values. The cut-off is set on the game's scale as the care cut-off is (route-gates.md, Numbers). The other lever for the teacher, a UK teacher's route, is not in the game (`../design/13-the-economy.md`, Non-goals).
 
 ## Numbers
 
@@ -97,3 +100,4 @@ The variables this page defines, with their starts: `var.uk-study-surge` 20, `va
 ## Sources
 
 - The dated events in `../research/02` section 4 and `../research/01` section 4.
+- [IRCC: category-based selection](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/rounds-invitations/category-based-selection.html) and [IRCC: Express Entry rounds of invitations](https://www.canada.ca/en/immigration-refugees-citizenship/corporate/mandate/policies-operational-instructions-agreements/ministerial-instructions/express-entry-rounds.html), read 24 Oct 2026: the education category and its two rounds. director:education-draw-opens-for-a-time.

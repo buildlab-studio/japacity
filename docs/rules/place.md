@@ -48,10 +48,12 @@ Short of the fare is `cannot-afford`; the same place twice, or a place elsewhere
 
 | Id | Currency | Fare home, off peak | December factor | Source |
 |---|---|---|---|---|
-| `country.uk` | GBP | £380 | 1.7 | Real, London to Lagos one way: cheapest £330, recent deals £335 to £389; the game sits at the top of the deals (about 1.0). The return averages £640 in September and £1,108 in December, so December runs about 1.7 times (factor 1.0) (KAYAK UK, read 23 Oct 2026; `../research/03-life-abroad-and-return.md` section 2) |
-| `country.canada` | CAD | C$1,350 | 2.2 | Real, Toronto to Lagos one way: cheapest C$757, typical C$787 to C$1,440, average C$882 (KAYAK Canada, read 23 Oct 2026). The game's figure is about 1.5 times the average, kept since the game's city is Calgary, a longer way round with no direct flight. December factor a working value |
-| `country.uae` | AED | AED 1,300 | 1.8 | Real, Dubai to Lagos one way: AED 1,168 to AED 1,399, average AED 1,265 (KAYAK UAE, read 23 Oct 2026); the game about 1.0. December factor a working value |
-| `country.italy` | EUR | €480 | 2.0 | Real, Rome to Lagos one way: cheapest €307, typical €395 to €543, average €381 (KAYAK Italy, read 23 Oct 2026); the game about 1.25 times the average. Where the road ends. December factor a working value |
+| `country.uk` | GBP | £380 | 1.7 | Real, London to Lagos one way: cheapest £330, recent deals £335 to £389; the game sits at the top of the deals (about 1.0). The December return's median is £1,108: £1,108 times 1.15 over £760 is 1.68 (KAYAK UK; `../research/03-life-abroad-and-return.md` section 2) |
+| `country.canada` | CAD | C$1,350 | 1.2 | Real, Calgary to Lagos one way: about C$1,368 on average, so the game's figure is about 1.0; the December return's median is C$2,895 (February's C$1,675): C$2,895 times 1.15 over C$2,700 is 1.23 (KAYAK Canada, Calgary to Lagos) |
+| `country.uae` | AED | AED 1,300 | 1.4 | Real, Dubai to Lagos one way: AED 1,168 to AED 1,399, average AED 1,265; the game about 1.0. The December return's median is AED 3,147 (February's AED 2,310): AED 3,147 times 1.15 over AED 2,600 is 1.39 (KAYAK UAE) |
+| `country.italy` | EUR | €480 | 1.2 | Real, Rome to Lagos one way: cheapest €307, typical €395 to €543, average €381; the game about 1.25 times the average. Where the road ends. The December return's median is €967: €967 times 1.15 over €960 is 1.16 (KAYAK Italy) |
+
+**place:december-factor-from-the-real-median** One rule sets every country's December factor (`decemberFactorBp`): the city's real December return median times 1.15, for the Christmas week's peak over the month's median, over twice the game's one-way fare home, rounded to the nearest tenth. The countries' table shows each sum, and a country added later takes its factor the same way.
 
 The December factor is the world's doing, not the country's: `var.season-december` is set by the director for one tick each game year. The slice records `decemberMonth`, the month the December visit last opened (null until it first opens), so a second turn in the same December tick does not open it twice and a turn a year old does not miss it.
 
@@ -76,11 +78,12 @@ The December factor is the world's doing, not the country's: `var.season-decembe
 
 ## Not verified
 
-- The fares are fare-search snapshots of 23 Oct 2026 for the coming months, not an airline's published tariff; a fare search moves daily. Only the UK's December factor is read from a source (the September and December return averages); Canada's, the UAE's and Italy's are working values.
+- The fares are fare-search snapshots for the coming months, not an airline's published tariff; a fare search moves daily. The 1.15 for the Christmas week over December's median is a working value.
 
 ## Sources
 
-- [KAYAK UK: London to Lagos](https://www.kayak.co.uk/flight-routes/London-LON/Lagos-LOS), [KAYAK Canada: Toronto to Lagos](https://www.ca.kayak.com/flight-routes/Toronto-Pearson-YYZ/Lagos-LOS), [KAYAK UAE: Dubai to Lagos](https://www.kayak.ae/flight-routes/Dubai-DXB/Lagos-LOS), [KAYAK Italy: Rome to Lagos](https://www.kayak.it/flight-routes/Roma-ROM/Lagos-LOS), read 23 Oct 2026
+- [KAYAK UK: London to Lagos](https://www.kayak.co.uk/flight-routes/London-LON/Lagos-LOS), [KAYAK UAE: Dubai to Lagos](https://www.kayak.ae/flight-routes/Dubai-DXB/Lagos-LOS), [KAYAK Italy: Rome to Lagos](https://www.kayak.it/flight-routes/Roma-ROM/Lagos-LOS), read 23 Oct 2026, the one-way fares
+- [KAYAK UK: London to Lagos](https://www.kayak.co.uk/flight-routes/London-LON/Lagos-Murtala-Muhammed-LOS), [KAYAK Canada: Calgary to Lagos](https://www.ca.kayak.com/flight-routes/Calgary-Intl-YYC/Lagos-Murtala-Muhammed-LOS), [KAYAK UAE: Dubai to Lagos](https://www.kayak.ae/flight-routes/Dubai-Intl-DXB/Lagos-Murtala-Muhammed-LOS), [KAYAK Italy: Rome to Lagos](https://www.kayak.it/flight-routes/Roma-ROM/Lagos-Murtala-Muhammed-LOS), read 24 Oct 2026: Calgary's one-way average and every country's December return median (place:december-factor-from-the-real-median)
 - [GOV.UK: Voluntary Returns Service, up to £3,000](https://www.gov.uk/return-home-voluntarily/who)
 - [New Lines: Nigeria's returnees are not always welcome](https://newlinesmag.com/reportage/nigerias-returnees-arent-always-welcome/)
 - [The New Humanitarian: returnees treated alike](https://www.thenewhumanitarian.org/news-feature/2020/07/28/Nigeria-migrants-return-Europe)

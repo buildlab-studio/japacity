@@ -17,7 +17,7 @@ Abroad, as at home, a month has a main activity and two or three free slots. Wha
 
 **ladders:sponsor-job-ties-status** The sponsor's job is the job held on arrival. On a `one-employer` status, `activity/end-job` for any cause (the sponsor losing its licence, offer entries in `abroad`, or quitting) starts the status clock (status:lost-job-starts-clock). Hunting is legal only for jobs marked `sponsor: true`, which carry their own certificate: getting one grants a new `one-employer` status for that job. In the grace of an overstay (status:grace-before-overstaying) the overstayer may hunt the same jobs, which its `cash` rule otherwise refuses, and a hire grants the status in the same way, ending the overstay (status:grace-allows-in-country-applications).
 
-**ladders:student-holds-one-part-job** A student may hold one `part` job. Working more is not a thing the game lets you do: the cap is the list.
+**ladders:student-holds-one-part-job** A student may hold one `part` job. Working more is not a thing the game lets you do: the cap is the list. The cap moves with the course as status:status-sets-work-rule says: in course months 4 and 8, the vacations, the part job pays full time; from course month 13 the student may hold any job, and the warehouse or a graduate job pays toward the Graduate visa (status:graduate-visa-applied-for). Real: a National Living Wage of £12.71 an hour gives about £1,101 a month at 20 hours, and about £14,550 a year with Christmas and Easter worked full time.
 
 ## Entries: jobs abroad
 
@@ -41,7 +41,7 @@ Abroad, as at home, a month has a main activity and two or three free slots. Wha
 | `activity.job-gulf-cleaner` | uae | AED 14,400 (1,200 a month) | the agent's contract | one-employer | by the contract | wellbeing -6 | |
 | `activity.job-italy-farm-cash` | italy | €9,600 | none, `cash: true` | cash | 70% | wellbeing -9 | where the road leaves you; `withheldBp` 2500 |
 
-The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,170 as `fee-test`; wait 3 to 6 months) and never expires.
+The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,226 as `fee-test`; wait 3 to 6 months) and never expires.
 
 ## Entries: free slots abroad
 
@@ -54,7 +54,8 @@ The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,17
 | `activity.job-hunt` | any | | | hunt, as at home, filtered by the status's work rule |
 | `activity.learn-tech-uk`, `activity.learn-tech-canada` | in that country | | £40 / C$60 study | tech +4, wellbeing -2 |
 | `activity.study-english-uk` | uk | | £30 study | english +6, wellbeing -2 (the English test's band, for Canada or a UK route without the degree's statement; the game asks no English at settlement) |
-| `activity.nmc-tests` | uk | care 60, no pin pending | £1,170 fee-test | request `document.nmc-pin` |
+| `activity.nmc-tests` | uk | care 60, no pin pending | £1,226 fee-test | request `document.nmc-pin` |
+| `activity.apply-graduate` | uk | the course passed; from course month 13 on the student status, or in the grace after it | `var.uk-graduate-fee` £937, fee-visa, and the surcharge for the Graduate months, fee-surcharge | grants `status.uk-graduate` in country (status:graduate-visa-applied-for) |
 | `activity.driving-test` | uk | see `car.md` | | |
 | `activity.buy-car-finance` | uk | see `car.md` | the deposit | |
 | `activity.rent-flat-uk`, `activity.rent-flat-canada` | in that country | credit 20 | one month's rent as deposit | see `abroad-money.md` |
@@ -74,7 +75,7 @@ The `document.nmc-pin` is requested by `activity.nmc-tests` (uk; care 60; £1,17
 | Courier account rent | £60 a week reported | The Conversation, 2023 | `tuning.ladder.accountRent` 6000 |
 | Canada pay | C$38,000 warehouse to C$95,000 developer | Working values, set against the rents in `abroad-money.md` so a survival job leaves something over and a professional one leaves a lot | `activity.job-canada-warehouse`, `-care-aide`, `-professional`, `-developer` |
 | Gulf guard pay | AED 1,800 a month, accommodation included | 2024 to 2025 listings (Pakistan Bureau of Emigration) | `activity.job-gulf-guard` |
-| NMC tests | £1,170 | NMC fee page, 2026 | `activity.nmc-tests` cost 117000 |
+| NMC tests | £1,226: the evaluation £167, the computer test £83, the clinical exam £794, registration £182; fees rose on 1 Oct 2026 (factor 1.0) | NMC fee page, read 24 Oct 2026 | `activity.nmc-tests` cost 122600 |
 | Cash work raises detection by | 1 point a month, on top of the overstayer's detection (status:overstayer-risks-detection) | Working value | `tuning.ladder.cashDetectBp` 100 |
 
 ## Sources

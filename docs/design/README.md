@@ -18,5 +18,6 @@ Each page is a design doc in the standard shape set out in [How rules, decisions
 | [10](10-london.md) | London |
 | [11](11-calgary-dubai-and-castel-volturno.md) | Calgary, Dubai and Castel Volturno |
 | [12](12-overstaying.md) | Overstaying: the grace, the overstay, the notice and the ways out |
+| [13](13-the-economy.md) | The economy: the trades' ladders, the pay review, learning, the gift for Canada and the student's money |
 
 Content rows are referred to by their ids (`activity.sit-english-test`, `place.visa-centre`), never by their display names, and numbers live in content, not on these pages.
