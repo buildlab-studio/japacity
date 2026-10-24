@@ -872,6 +872,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/min", quality: "quality.tech", value: 75 },
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.network", value: 50 },
+      // A track record: the endorsement recognises a career, not a first two years (a working value).
+      { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"], months: 36 },
       { type: "document/absent", document: "document.endorsement" },
       // route-gates:endorsement-decided-by-draw: six months after a refused endorsement.
       { type: "route/gate-step", route: TALENT, step: "cooled" },

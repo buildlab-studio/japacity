@@ -112,11 +112,21 @@ function inTheFile(view: PlayerView, met: { portfolio: boolean; endorsement: boo
   return { ...view, offers: [], setpiece: null, interview: null, chapter: { current: FILE, items: [{ id: "portfolio", met: met.portfolio }, { id: "endorsement", met: met.endorsement }, { id: "applied", met: false }], done: [], closes: false, next: null } };
 }
 
-/** A developer at the endorsement's bars with the talent page read: `documents` its papers, `vars` the world's over the stand-in's. */
-function talentLife(options: { documents?: { document: Id<"document">; monthsLeft: number | null; value: number | null }[]; vars?: (tick: number) => Record<Id<"var">, number>; pockets?: { NGN: { bank: number; cash: number } } } = {}): Game {
+/** The months across the developer jobs the endorsement asks (route-gates:applying-for-endorsement). */
+const TRACK_MONTHS = 36;
+
+/**
+ * A developer at the endorsement's bars with the talent page read, its track record of months across the developer jobs its own
+ * with no job held now: `documents` its papers, `vars` the world's over the stand-in's, `track` the months on record.
+ */
+function talentLife(
+  options: { documents?: { document: Id<"document">; monthsLeft: number | null; value: number | null }[]; vars?: (tick: number) => Record<Id<"var">, number>; pockets?: { NGN: { bank: number; cash: number } }; track?: number } = {},
+): Game {
+  const ready = "scenario.ready" as Id<"scenario">;
   const game = readyLife(content, {
     quiet: true,
     qualities: { "quality.tech": 85, "quality.portfolio": 5, "quality.network": 70 },
+    change: (used) => ({ ...used, scenario: { ...used.scenario, [ready]: { ...used.scenario[ready]!, tenure: { "activity.job-junior-developer": options.track ?? TRACK_MONTHS } } } }),
     ...(options.documents === undefined ? {} : { documents: options.documents }),
     ...(options.vars === undefined ? {} : { vars: options.vars }),
     ...(options.pockets === undefined ? {} : { pockets: options.pockets }),
@@ -225,6 +235,24 @@ describe("a closed route says so", () => {
   });
 });
 
+describe("the track record the endorsement asks", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given every other bar met and two years across the developer jobs with no job held, when the nudge is read, then it names the track record in under eight words and opens the hunt; with a developer's job held, it says to live the month", () => {
+    const game = talentLife({ documents: [{ document: "document.passport", monthsLeft: 60, value: null }], pockets: { NGN: { bank: 3_000_000_000, cash: 0 } }, track: 24 });
+    const view = inTheFile(game.view(), { portfolio: true, endorsement: false });
+    const endorse = view.activities.find((option) => option.id === ENDORSE)!;
+    expect(endorse.allowed).toBe(false);
+    expect(endorse.missing.map((requirement) => requirement.type)).toEqual(["activity/tenure"]);
+    const nudge = nudgeOf(view);
+    expect(nudge.key).toBe(`${FILE}.item.endorsement.needs.tenure`);
+    expect(nudge.way).toMatchObject({ opens: "activity.job-hunt" });
+    expect(words(say(nudge.key))).toBeLessThanOrEqual(NUDGE_WORDS);
+    applyEffects(game, [{ type: "activity/start-job", job: "activity.job-mid-developer" }]);
+    const working = nudgeOf(inTheFile(game.view(), { portfolio: true, endorsement: false }));
+    expect(working.key).toBe(`${FILE}.item.endorsement.needs.tenure`);
+    expect(working.way).toMatchObject({ go: null, at: [] });
+  });
+});
+
 describe("a need already running is passed over", () => {
   test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given the developer tile in the talent file short of tech and of people, when the coding course is planned or carries on, then the nudge moves on to the meetup; with every need's act running, it says the plan is set", () => {
     const game = tileDeveloper("tile-developer-course");
@@ -247,7 +275,8 @@ describe("a need already running is passed over", () => {
     const course = nudgeOf(view, hasWords, ["activity.learn-tech"]);
     expect(course.key).toBe(`${FILE}.item.endorsement.needs.quality.network`);
     expect(course.way).toMatchObject({ opens: "activity.meetup" });
-    const both = nudgeOf(view, hasWords, ["activity.learn-tech", "activity.meetup"]);
+    // The tile holds no track record yet, so the hunt for a developer's job is among the needs' acts (route-gates:applying-for-endorsement).
+    const both = nudgeOf(view, hasWords, ["activity.learn-tech", "activity.meetup", "activity.job-hunt"]);
     expect(both.key).toBe(`${FILE}.item.endorsement.needs.planned`);
     expect(both.way).toMatchObject({ go: null, at: [] });
     expect(words(say(both.key))).toBeLessThanOrEqual(NUDGE_WORDS);

@@ -132,7 +132,7 @@ Worked example: the developer at 25 with a bachelor's, band 7.0 and 18 months in
 
 ## The endorsement gate: `route.uk-talent`
 
-**route-gates:applying-for-endorsement** `activity.apply-endorsement` needs the route known with its window at 1 or more, `quality.tech` 75 or more, `quality.portfolio` 3 or more, `quality.network` 50 or more, and no endorsement pending or held. It costs `var.uk-talent-endorse-fee` as a foreign fee with reason `fee-document`, and requests `document.endorsement`, wait 1 to 2 months. Each need not yet met names its act and place under it in Japa (tech: the coding course at the hub; the pieces: work at the hub's desk, or a talk; the people who will write: the meetups at the hub, or a talk), and the nudge names the first unmet need's act (world:nudge-says-one-thing). The talk moves the network and the portfolio, not tech, so tech's line names the course alone. The endorsement lasts 3 months (route-gates:talent-visa-needs-endorsement), so the nudge names it only once the passport is held and the naira held pays it with the TB test and the application, else the passport or the gap (world:nudge-says-one-thing); a developer who follows the nudge never asks for it with no passport, and never lets one run out unused for want of the rest.
+**route-gates:applying-for-endorsement** `activity.apply-endorsement` needs the route known with its window at 1 or more, `quality.tech` 75 or more, `quality.portfolio` 3 or more, `quality.network` 50 or more, 36 months across the developer jobs (`activity.job-junior-developer`, `-mid-developer`, `-remote-developer`, read as `activity/tenure` reads a trade's jobs: a track record, since the endorsement recognises a career and not a first two years), and no endorsement pending or held. It costs `var.uk-talent-endorse-fee` as a foreign fee with reason `fee-document`, and requests `document.endorsement`, wait 1 to 2 months. Each need not yet met names its act and place under it in Japa (tech: the coding course at the hub; the pieces: work at the hub's desk, or a talk; the people who will write: the meetups at the hub, or a talk; the track record: a developer's job, the hunt for one, or the months while one is held), and the nudge names the first unmet need's act (world:nudge-says-one-thing). The talk moves the network and the portfolio, not tech, so tech's line names the course alone. The endorsement lasts 3 months (route-gates:talent-visa-needs-endorsement), so the nudge names it only once the passport is held and the naira held pays it with the TB test and the application, else the passport or the gap (world:nudge-says-one-thing); a developer who follows the nudge never asks for it with no passport, and never lets one run out unused for want of the rest.
 
 **route-gates:endorsement-decided-by-draw** When the endorsement document is issued, one draw on stream `visa` decides it: the chance of endorsement is 2500 plus 700 for each portfolio point above 3 plus 10 for each network point above 50, capped at 8500. A refused endorsement is voided at once, the route records a refusal with the reason `endorsement` (it counts among the earlier refusals of route-gates:talent-visa-needs-endorsement), and `activity.apply-endorsement` is not legal for the block's `cooldown` months, which the activity reads as the gate step `cooled`. A refused endorsement is told in words in the way's file in the phone's Japa app.
 
@@ -149,6 +149,7 @@ Worked example: the developer at 25 with a bachelor's, band 7.0 and 18 months in
 | Base refusal | 300 |
 | Checklist | tech 15, portfolio 20, network 10, passport 5, endorsement 30, tb 5, applied 15 |
 | Fees | endorsement £561 (`var.uk-talent-endorse-fee` 56100), visa £205 (`var.uk-talent-visa-fee` 20500), surcharge £1,035 times 5 |
+| Endorsement asks | tech 75, portfolio 3, network 50, and 36 months across the developer jobs (a working value) |
 
 ## The contract gate: `route.gulf-contract`
 
@@ -201,6 +202,7 @@ The agent's pitch, for the words file: "Dubai. Security or cleaning, accommodati
 | Care cut-off read from | care 60 | Working value | `points.canada.careMin` 60 |
 | Talent endorsement fee | £561 | Apr 2026 | `var.uk-talent-endorse-fee` 56100 |
 | Talent visa fee | £205 | Apr 2026 | `var.uk-talent-visa-fee` 20500 |
+| Endorsement track record | 36 months across the developer jobs | Working value: the digital technology criteria ask a proven track record of innovation or recognition in the sector, which a first two years in work does not give | `activity.apply-endorsement` requires |
 | Endorsement wait | 1 to 2 months | Tech Nation guidance, 5 to 8 weeks | `document.endorsement` wait [1, 2] |
 | Endorsement validity | 3 months | gov.uk | `document.endorsement` validMonths 3 |
 | Gulf agent fee | ₦900,000 to ₦1,800,000 | Working value from a reported loss of ₦450,000; charging workers recruitment fees is illegal in the UAE | `offer.gulf-agent` terms |
@@ -243,6 +245,8 @@ Read on 23 Oct 2026:
 - [NMCN: verification](https://www.nmcn.gov.ng/verify.html)
 
 Read on 24 Oct 2026:
+
+- [GOV.UK: Global Talent visa, digital technology](https://www.gov.uk/global-talent-digital-technology): the endorsement asks applicants to show a track record of innovation or recognition as a leader or an emerging leader in digital technology. route-gates:applying-for-endorsement.
 
 - [IRCC: proof of funds](https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/proof-funds.html): C$15,263 for one person, updated 7 Jul 2025; "you can't borrow this money from another person"; held when you apply and when the visa is issued. route-gates:family-gift-counts-with-deed, route-gates:canada-funds-checked-at-departure.
 - [Liberty Immigration: proof of funds 2026](https://libertyimmigration.ca/express-entry-proof-of-funds-2026-updated-settlement-fund-requirements/), [Panel Physician: proof of funds for Express Entry](https://www.panelphysician.ca/blog/proof-of-funds-express-entry-how-much-you-need): a gift counts with a gift deed, as consultancies report. route-gates:family-gift-counts-with-deed.

@@ -160,6 +160,7 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-talent.item.endorsement.needs.quality.tech": "Take the coding course at the hub",
   "chapter.build-the-file-talent.item.endorsement.needs.quality.portfolio": "Work on your portfolio at the hub",
   "chapter.build-the-file-talent.item.endorsement.needs.quality.network": "Meet people at the hub's meetup",
+  "chapter.build-the-file-talent.item.endorsement.needs.tenure": "Build three years in a developer job",
   // Every need's act already in the month's plan or carrying on in it.
   "chapter.build-the-file-talent.item.endorsement.needs.planned": "Your plan is set. Live the month.",
   // The endorsement lasts three months: asked for only once the TB test and the application can follow.

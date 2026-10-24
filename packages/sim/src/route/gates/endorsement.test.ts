@@ -14,7 +14,7 @@ import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { COOLED, endorsementChanceBp } from "./endorsement";
 import { GATES } from "./index";
-import { LOOK_INTO, TALENT, UK_ROUTE } from "../../testing/ids";
+import { LOOK_INTO, READY, TALENT, UK_ROUTE } from "../../testing/ids";
 
 const APPLY_ENDORSEMENT: Id<"activity"> = "activity.apply-endorsement";
 const APPLY_VISA: Id<"activity"> = "activity.apply-uk-talent";
@@ -25,6 +25,9 @@ const ENDORSEMENT = block.document;
 const startVar = (id: Id<"var">): number => content.var[id]!.start;
 /** The bars of route-gates:applying-for-endorsement, each exactly met. */
 const AT_BARS = { "quality.tech": 75, "quality.portfolio": 3, "quality.network": 50 };
+/** The track record the endorsement asks: months across the developer jobs (route-gates:applying-for-endorsement). */
+const TRACK_MONTHS = 36;
+const JUNIOR_DEV: Id<"activity"> = "activity.job-junior-developer";
 
 /** Content whose talent route has the endorsement block changed. */
 function withBlock(change: Partial<NonNullable<RouteEntry["endorsement"]>>): (used: Content) => Content {
@@ -45,9 +48,12 @@ function withCooldownStep(used: Content): Content {
  * unless a test sets it: the world's own pool may close it in any world (`news.uk-talent-body-closes`, director:stories-start-by-roll),
  * and with the one-chance story in the pool (wallet:cash-pile-warning) it does so in the test world's first months.
  */
-function talentLife(options: LifeOptions = {}): Game {
+function talentLife(options: LifeOptions = {}, track = TRACK_MONTHS): Game {
   const vars = (tick: number) => ({ [entry.window!]: 2, ...options.vars?.(tick) });
-  return readyLife(content, { quiet: true, ...options, vars, qualities: { ...AT_BARS, ...options.qualities } });
+  // The months across the developer jobs are the life's own record, with no job held now.
+  const record = (used: Content): Content => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, tenure: { [JUNIOR_DEV]: track } } } });
+  const change = options.change;
+  return readyLife(content, { quiet: true, ...options, vars, qualities: { ...AT_BARS, ...options.qualities }, change: (used) => record(change === undefined ? used : change(used)) });
 }
 
 function talent(game: Game): RouteState {
@@ -112,6 +118,15 @@ describe("the endorsement gate", () => {
       const game = talentLife({ qualities: { [quality]: value } });
       toKnown(game);
       expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
+    });
+
+    test("[route-gates:applying-for-endorsement] given 35 months across the developer jobs and every other bar met, when the endorsement is asked for, then the turn is rejected; at 36 it is taken", () => {
+      const short = talentLife({}, TRACK_MONTHS - 1);
+      toKnown(short);
+      expect(short.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
+      const met = talentLife();
+      toKnown(met);
+      expect(met.accept({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }).events.some((event) => event.type === "document/requested")).toBe(true);
     });
 
     test("[route-gates:applying-for-endorsement] given an endorsement already being made, when it is asked for again, then the turn is rejected", () => {

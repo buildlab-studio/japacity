@@ -292,15 +292,35 @@ const NEED_WAYS: Readonly<Record<string, StepWay>> = {
   "quality.network": { go: "place.yaba", at: ["place.yaba:meetup"], opens: "activity.meetup" },
 };
 
+/** The act that builds a track record of months in a trade's jobs: the hunt for one, at the jobs board. */
+const TENURE_WAY: StepWay = { go: "place.yaba", at: ["place.yaba:jobs", "place.ojuelegba:hub"], opens: "activity.job-hunt" };
+
 /**
  * The first need a shut step's act is missing that has its own words and way (`<own>.needs.<quality>`), or null. A need
  * whose act is already in the month's plan, or carries on in it ("Ongoing", world:month-acts-carry-on), is passed over for the next
  * (so "Take the coding course at the hub" never stands while the course runs); with every need's act
  * planned, the plan is set and the step says to end the month (`<own>.needs.planned`).
  */
-function needOf(missing: NonNullable<NudgeView["activities"]>[number]["missing"], own: string, has: (key: string) => boolean, planned: readonly string[] = []): { key: string; way?: StepWay } | null {
+function needOf(
+  missing: NonNullable<NudgeView["activities"]>[number]["missing"],
+  own: string,
+  has: (key: string) => boolean,
+  planned: readonly string[] = [],
+  job: string | null = null,
+): { key: string; way?: StepWay } | null {
   let running = false;
   for (const requirement of missing) {
+    // route-gates:applying-for-endorsement: the track record is months in the jobs it names: the hunt for one, or the months while one is held.
+    if (requirement.type === "activity/tenure") {
+      const key = `${own}.needs.tenure`;
+      if (!has(key)) continue;
+      if (job !== null && (requirement.activities as readonly string[]).includes(job)) return { key, way: MONTH_END };
+      if (planned.includes(TENURE_WAY.opens!)) {
+        running = true;
+        continue;
+      }
+      return { key, way: TENURE_WAY };
+    }
     if (requirement.type !== "quality/min") continue;
     const key = `${own}.needs.${requirement.quality}`;
     const way = NEED_WAYS[requirement.quality];
@@ -713,7 +733,7 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
     const shutOption = view.activities?.find((candidate) => candidate.id === activity);
     if (shutOption !== undefined && !shutOption.allowed) {
       // The first unmet need names its own act and opens it: never "needs more" with no act.
-      const need = needOf(shutOption.missing, own, has, planned);
+      const need = needOf(shutOption.missing, own, has, planned, view.job?.id ?? null);
       if (need !== null) return need;
       // The news has closed the way: said plainly, never "needs more" over a list with every need done.
       const closed = closedBy(shutOption) ? closedSaid(view, own, has) : null;
