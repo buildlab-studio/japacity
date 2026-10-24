@@ -1,6 +1,6 @@
 # The director, eras and the story pool
 
-> The director takes the place of the fixed schedule in `news.md`; the news kind's delivery rules (news:changed-stages-delivered-once, news:for-you-when-touching-route and news:announcement-makes-routes-heard) hold as that page says. Timeline and sources: `../research/02` section 4, `../research/01` section 4, `../research/06`.
+> The director fires the pool's stories from the state of the world; a story with no director fields keeps the seeded schedule of `news.md`. The news kind's delivery rules (news:changed-stages-delivered-once, news:for-you-when-touching-route and news:announcement-makes-routes-heard) hold as that page says. Timeline and sources: `../research/02` section 4, `../research/01` section 4, `../research/06`.
 > Kinds: `era` (world), `var`, `news`; code in `packages/sim/src/world/`. Background: `../design/01-concept.md` section 7.
 
 The world is a pool of things that have really happened, fired in an order that cause and effect allows. One era runs at a time. Most checks produce nothing.
@@ -19,7 +19,7 @@ The world is a pool of things that have really happened, fired in an order that 
 
 **director:december-and-inflation** `var.season-december` is 1 on the tick whose month of the game year is December and 0 otherwise: offline, tick mod 12 equals 11; online, by the real calendar. `var.inflation` adds its basis points to every naira `upkeep` and `support` charge, so home support paid from abroad rises too (the obligation kind reads it).
 
-**director:stories-never-undo-player-gains** Fairness: no story lowers a quality, removes a document, closes an obligation the player chose, or changes a recorded visa application's rules (route:application-fixes-figures already fixes those at submission). A story that would do so fails `checkContent`. Every era has an end and a name.
+**director:stories-never-undo-player-gains** Fairness: no story lowers a quality, removes a document, closes an obligation the player chose, or changes a recorded visa application's rules (route:application-fixes-figures fixes those at submission). A story that would do so fails `checkContent`. Every era has an end and a name.
 
 **director:world-stepped-from-seed** The stand-in world builds all of this from the world seed and the tick by stepping from tick 0 (rate:world-follows-seed-and-tick). The online world does the same from a stored history and the real clock. `World.news` lists every story that has reached a stage, and the news kind delivers them (news:changed-stages-delivered-once).
 
@@ -41,11 +41,11 @@ The weights name story groups; each story below carries one group.
 
 ## The story pool
 
-The five stories of `news.md` are in the pool, with these preconditions: `news.dollar-scarcity` needs `var.fx-supply` at 80 or more (it cannot fire during a scarcity) and group `fx`; `news.naira-float` is `endedBy` nothing and keeps its `after`; `news.uk-living-rise` needs `var.uk-study-window` at 1 or more; `news.uk-refusals-up` needs `var.uk-study-surge` over 40 and is a backlash story.
+The five stories `news.md` lists are in the pool, with these preconditions: `news.dollar-scarcity` needs `var.fx-supply` at 80 or more (it cannot fire during a scarcity) and group `fx`; `news.naira-float` is `endedBy` nothing and keeps its `after`; `news.uk-living-rise` needs `var.uk-study-window` at 1 or more; `news.uk-refusals-up` needs `var.uk-study-surge` over 40 and is a backlash story.
 
 | Id | Group | Needs | Chance a tick | Rumour, force lag, ends | Sets | Once, shock | Date it echoes |
 |---|---|---|---|---|---|---|---|
-| `news.warning-one-chance` | home | the calm era | 10000 | once, moves nothing | | | wallet:cash-pile-warning: the one-chance robbery told early, so Mama's warning is heard before it bites; its id sorts after the recruiting fair so the fair keeps its tick (the director starts at most two stories a tick) |
+| `news.warning-one-chance` | home | the calm era | 10000 | 0, 2, never | nothing | once | none: the one-chance robbery told early (wallet:cash-pile-warning) |
 | `news.uk-dependants-ban` | closures | uk-study surge over 60 | 400 | 2, 3, never | `var.uk-study-strictness` +15 | once | Jan 2024 |
 | `news.uk-study-narrows` | closures | strictness 70 or more, uk-study surge over 50, window open | 500 | 1, 2, 24 | `var.uk-study-window` 1, revert | | 2024 |
 | `news.uk-study-closes` | closures | `uk-study-narrows` in force, era hard-line or scandal | 500 | 2, 2, the reopening | `var.uk-study-window` 0, revert | shock | stylised |
@@ -80,14 +80,14 @@ The variables this page defines, with their starts: `var.uk-study-surge` 20, `va
 
 ## Numbers
 
-| Setting | Value | In content as |
-|---|---|---|
-| Surge a tick while a window is open | 3 | `tuning.director.surgePerTick` |
-| Ticks closed before a reopening may fire | 8 | `tuning.director.closedTicks` |
-| Most stories announced on one tick | 2 | `tuning.director.maxNewPerTick` |
-| Gap between shocks | 6 ticks | `tuning.director.shockGapTicks` |
-| Era length | 10 to 30 ticks by entry | `era.*.ticks` |
-| Online tick | 12 hours, so an era of 24 ticks is 12 real days; online scales `ticks` by `tuning.director.onlineTickScale` 2 so an era is about four real weeks, and the same scale applies to every story's `rumourLead`, `forceLag`, `endsAfter` and `cooldown` and to `closedTicks` and `shockGapTicks` (clock:online-lengths-scaled) | `tuning.director.onlineTickScale` |
+| Setting | Value | Source | In content as |
+|---|---|---|---|
+| Surge a tick while a window is open | 3 | Working value | `tuning.director.surgePerTick` |
+| Ticks closed before a reopening may fire | 8 | Working value | `tuning.director.closedTicks` |
+| Most stories announced on one tick | 2 | Working value | `tuning.director.maxNewPerTick` |
+| Gap between shocks | 6 ticks | Working value | `tuning.director.shockGapTicks` |
+| Era length | 10 to 30 ticks by entry | Working value | `era.*.ticks` |
+| Online tick | 12 hours, so an era of 24 ticks is 12 real days; online scales `ticks` by `tuning.director.onlineTickScale` 2 so an era is about four real weeks, and the same scale applies to every story's `rumourLead`, `forceLag`, `endsAfter` and `cooldown` and to `closedTicks` and `shockGapTicks` (clock:online-lengths-scaled) | Working value | `tuning.director.onlineTickScale` |
 
 ## What the player should feel
 
@@ -97,4 +97,3 @@ The variables this page defines, with their starts: `var.uk-study-surge` 20, `va
 ## Sources
 
 - The dated events in `../research/02` section 4 and `../research/01` section 4.
-- Published design notes on storyteller systems and crisis checks in strategy games, read for the shape of a director that rolls quietly most ticks and escalates in steps; nothing is reproduced from them.

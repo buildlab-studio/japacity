@@ -32,18 +32,18 @@ Being run down has a cost, and the choice when you fall ill is the real one: the
 
 ## Numbers
 
-| Setting | Value | Date | In content as |
+| Setting | Value | Source and date | In content as |
 |---|---|---|---|
-| Run down below | 30 | working value | `tuning.health.runDownBelow` |
-| Illness chance a month while run down | 25% | working value | `tuning.health.illnessBp` 2500 |
-| Hospital visit | ₦85,000 (consultation ₦20,000 to ₦25,000, tests, a dose of antimalarials up to ₦9,000, drugs) | late 2025 | `tuning.health.hospital` 8500000 |
-| Chemist | ₦9,000 | a dose of antimalarials, 2024 | `tuning.health.chemist` 900000 |
-| Worse: scan, X-ray and admission | ₦180,000 (scans and an X-ray about ₦80,000, plus a bed) | 2025 | `tuning.health.hospitalWorse` 18000000 |
-| Relapse after the chemist | 35% | working value | `tuning.health.relapseChemistBp` |
-| Relapse after ignoring it | 60% | working value | `tuning.health.relapseIgnoreBp` |
-| Sick pay without leave | 50% | working value | `tuning.health.sickPayBp` 5000 |
-| Gap between illnesses | 10 months | the cap of about one forced month a year | `tuning.health.gapMonths` |
-| Health insurance | under 10% of Nigerians hold any | 2025 | why everything is paid out of pocket |
+| Run down below | 30 | Working value | `tuning.health.runDownBelow` |
+| Illness chance a month while run down | 25% | Working value | `tuning.health.illnessBp` 2500 |
+| Hospital visit | ₦85,000 (consultation ₦20,000 to ₦25,000, tests, a dose of antimalarials up to ₦9,000, drugs) | The Rio Times, late 2025; Nairametrics, Jan 2024 | `tuning.health.hospital` 8500000 |
+| Chemist | ₦9,000 | A dose of antimalarials, 2024 (Nairametrics) | `tuning.health.chemist` 900000 |
+| Worse: scan, X-ray and admission | ₦180,000 (scans and an X-ray about ₦80,000, plus a bed) | Working value from 2025 prices | `tuning.health.hospitalWorse` 18000000 |
+| Relapse after the chemist | 35% | Working value | `tuning.health.relapseChemistBp` |
+| Relapse after ignoring it | 60% | Working value | `tuning.health.relapseIgnoreBp` |
+| Sick pay without leave | 50% | Working value | `tuning.health.sickPayBp` 5000 |
+| Gap between illnesses | 10 months | Working value: about one forced month a year | `tuning.health.gapMonths` |
+| Health insurance | under 10% of Nigerians hold any | BusinessDay, 2025 | why everything is paid out of pocket |
 
 ## Sources
 
