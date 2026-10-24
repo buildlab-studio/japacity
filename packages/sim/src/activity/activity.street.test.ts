@@ -123,13 +123,13 @@ describe("Computer Village: selling phones", () => {
     expect(content.place["place.computer-village"]?.stages).toContain("activity.phone-repairs");
   });
 
-  test("[streets:phone-sales-job] given school to level 2, when the jobs to hunt are listed, then the sales job is among them; at level 1 it is not", () => {
+  test("[streets:phone-sales-job] given school to level 1, secondary school, when the jobs to hunt are listed, then the sales job is among them; at level 0 it is not", () => {
     const game = graduate();
     const hunt = content.activity["activity.job-hunt"]!;
     const listed = (): string[] => paramsFor({ state: game.state, world: game.world(), content }, hunt) ?? [];
-    setQuality(game, EDU, 2);
-    expect(listed()).toContain(SALES);
     setQuality(game, EDU, 1);
+    expect(listed()).toContain(SALES);
+    setQuality(game, EDU, 0);
     expect(listed()).not.toContain(SALES);
   });
 

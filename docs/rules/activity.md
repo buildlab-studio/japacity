@@ -48,7 +48,7 @@ Pay is monthly, after tax, to the bank. Effects apply each month the job is held
 | Customer service | 1 | `activity.job-customer-service` | Customer service agent | ₦110,000 | Secondary school | 60% | Wellbeing -3 | formal |
 | | 2 | `activity.job-team-lead` | Team lead | ₦220,000 | 18 months across the support jobs, English 60 | 35% | Wellbeing -4, network +1 | formal |
 | | 3 | `activity.job-remote-support` | Remote support agent, foreign company | $500 | 24 months across the support jobs (the agent, the team lead and night support), English 70, tech 20 | 15% | Wellbeing -5 | dollars, not reviewed |
-| Shop | 1 | `activity.job-phone-sales` | Phone sales (streets:phone-sales-job) | ₦70,000 | Diploma | 60% | Tech +1, wellbeing -1 | informal |
+| Shop | 1 | `activity.job-phone-sales` | Phone sales (streets:phone-sales-job) | ₦70,000 | Secondary school | 60% | Tech +1, wellbeing -1 | informal |
 | | 2 | `activity.job-shop-supervisor` | Shop supervisor | ₦120,000 | 12 months in phone sales, network 30 | 40% | Wellbeing -2 | informal |
 | | 3 | `activity.run-shop` | Your shop (activity:trader-opens-own-shop) | ₦180,000 | ₦1,000,000 held | none: opened | Wellbeing -3, standing +1 | own |
 | Fish | 1 | `activity.job-fish-racks` | The fish racks (activity:fish-racks-at-makoko) | ₦70,000 | Lives in Makoko | as that rule | as that rule | informal |

@@ -29,7 +29,8 @@ export const streetActivityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.job-phone-sales",
     slot: "main",
     employer: "informal",
-    requires: [{ type: "quality/min", quality: "quality.education-level", value: 2 }],
+    // Secondary school: the phone sellers at Computer Village are school leavers.
+    requires: [{ type: "quality/min", quality: "quality.education-level", value: 1 }],
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: street.salesPay },

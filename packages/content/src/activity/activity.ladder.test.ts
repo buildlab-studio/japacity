@@ -72,7 +72,7 @@ const RUNGS: Rung[] = [
     hireBp: pct(15),
     employer: undefined,
   },
-  { id: "activity.job-phone-sales", pay: { currency: "NGN", amount: naira(70000) }, requires: [atLeast("quality.education-level", 2)], hireBp: pct(60), employer: "informal" },
+  { id: "activity.job-phone-sales", pay: { currency: "NGN", amount: naira(70000) }, requires: [atLeast("quality.education-level", 1)], hireBp: pct(60), employer: "informal" },
   {
     id: "activity.job-shop-supervisor",
     pay: { currency: "NGN", amount: naira(120000) },
