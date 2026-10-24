@@ -172,7 +172,7 @@ describe("the side jobs", () => {
     { id: "activity.phone-repairs", pay: { currency: "NGN", amount: naira(50000) }, requires: [atLeast("quality.tech", 20)], hireBp: pct(50), wellbeing: -4 },
     {
       id: "activity.canoe-deliveries",
-      pay: { currency: "NGN", amount: naira(40000) },
+      pay: { currency: "NGN", amount: naira(80000) },
       requires: [{ type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-makoko" }],
       hireBp: pct(70),
       wellbeing: -5,

@@ -154,7 +154,7 @@ export const ladderActivityTable: Record<Id<"activity">, ActivityEntry> = {
     tiers: [{ needs: [atLeast("quality.care", 75)], pay: { currency: "NGN", amount: naira(120000) } }],
   }),
   "activity.phone-repairs": side("activity.phone-repairs", NGN(50000), [atLeast("quality.tech", 20)], pct(50), -4),
-  "activity.canoe-deliveries": side("activity.canoe-deliveries", NGN(40000), [LIVES_IN_MAKOKO], pct(70), -5, { where: "home" }),
+  "activity.canoe-deliveries": side("activity.canoe-deliveries", NGN(80000), [LIVES_IN_MAKOKO], pct(70), -5, { where: "home" }),
   // A cousin runs it in the cousin's name, since banks bar their staff from outside business. Opened, not hunted.
   [POS_STAND]: side(POS_STAND, NGN(60000), [], null, -2, {
     employer: "own",
