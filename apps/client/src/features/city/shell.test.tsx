@@ -1,4 +1,4 @@
-// The world's shell over the place (world:world-fills-the-screen, world:top-band-is-lively-pill, world:nudge-says-one-thing and world:thumb-buttons-carry-dots): what stands over the
+// The world's shell over the place (world:world-fills-the-screen, world:top-band-is-a-pill, world:nudge-says-one-thing and world:thumb-buttons-carry-dots): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
 import { qualityIn, worldClockAt } from "@japacity/sim";
 import { playPrologueBy } from "@japacity/sim/testing";
@@ -18,7 +18,7 @@ import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge/nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world results={(place) => <p data-results-for={place} />} {...extra} />;
-/** The world with a phone that says which app it opened on (world:top-band-is-lively-pill: the Calendar is on the phone). */
+/** The world with a phone that says which app it opened on (world:top-band-is-a-pill: the Calendar is on the phone). */
 const phoned = (extra: Partial<Parameters<typeof City>[0]> = {}) => world({ phone: (_close, _area, app) => <p data-phone-app={app ?? ""} />, ...extra });
 
 /** Renders the world and passes a later chapter's opening card when one stands over it (world:world-fills-the-screen, chapter:first-chapter-mission-card). */
@@ -38,7 +38,7 @@ function band(): HTMLElement {
   return found;
 }
 
-/** The month's name and phase on the band: a tap opens the Calendar (world:top-band-is-lively-pill, turn:month-lived-in-half-days). */
+/** The month's name and phase on the band: a tap opens the Calendar (world:top-band-is-a-pill, turn:month-lived-in-half-days). */
 function monthChip(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-band] [data-band-month]");
   if (found === null) throw new Error("No month on the band");
@@ -74,8 +74,8 @@ describe("the world fills the screen", () => {
     const { store } = await opened(world(), view);
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
-    // The nudge is a button when it opens the way to what it names (world:nudge-says-one-thing); the band's handle shows only while something is coming (world:top-band-is-lively-pill).
-    // The month's name and phase are part of the band, a chip that opens the Calendar (world:top-band-is-lively-pill, decision 0011).
+    // The nudge is a button when it opens the way to what it names (world:nudge-says-one-thing); the band's handle shows only while something is coming (world:top-band-is-a-pill).
+    // The month's name and phase are part of the band, a chip that opens the Calendar (world:top-band-is-a-pill, decision 0011).
     // The name over the age opens the data page (prologue:front-door-builds-a-person). With the brief carried, the home's
     // small card says what the home is, once (home:moves-carry-cost-and-reason).
     expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("chapter.find-your-feet.brief.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
@@ -118,7 +118,7 @@ describe("the world fills the screen", () => {
     expect(within(sheet).getByText("second")).toBeTruthy();
   });
 
-  test("[world:top-band-is-lively-pill] given the band, when its month or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
+  test("[world:top-band-is-a-pill] given the band, when its month or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
     const { authority } = await opened(phoned(), { ...richView(), setpiece: null, interview: null });
     fireEvent.click(monthChip());
     expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar");
@@ -127,7 +127,7 @@ describe("the world fills the screen", () => {
 });
 
 describe("the band and the thumb buttons", () => {
-  test("[world:top-band-is-lively-pill] [clock:game-day-on-real-time] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and the world's part of the day beside it, and no month number or count", async () => {
+  test("[world:top-band-is-a-pill] [clock:game-day-on-real-time] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and the world's part of the day beside it, and no month number or count", async () => {
     const view = engineView();
     const { store } = await opened(world(), view);
     const ageMonths = qualityIn(view, "quality.age-months");
@@ -150,7 +150,7 @@ describe("the band and the thumb buttons", () => {
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
-  test("[world:top-band-is-lively-pill] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
+  test("[world:top-band-is-a-pill] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
     const { store } = await opened(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
@@ -161,7 +161,7 @@ describe("the band and the thumb buttons", () => {
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
 
-  test("[world:top-band-is-lively-pill] given the staged wins still to show, when the month has ended, then the band stays until the results come up", async () => {
+  test("[world:top-band-is-a-pill] given the staged wins still to show, when the month has ended, then the band stays until the results come up", async () => {
     const { store } = await opened(world(), richView());
     const view = richView();
     act(() => store.setState({ reportOpen: true, moments: view.report?.lines.slice(0, 1) ?? [] }));
@@ -645,7 +645,7 @@ describe("once per life", () => {
 });
 
 describe("the band says what the home is", () => {
-  test("[world:top-band-is-lively-pill] given each home, when the band's place line is read, then it names the home's kind in few words, short enough for the band beside the age: your room by its area, the family house, the room on the water, the shared room abroad by its area", async () => {
+  test("[world:top-band-is-a-pill] given each home, when the band's place line is read, then it names the home's kind in few words, short enough for the band beside the age: your room by its area, the family house, the room on the water, the shared room abroad by its area", async () => {
     const base = engineView();
     expect(homeLine("place.compound-room", base)).toBe("Your room, Ojuelegba");
     expect(homeLine("place.family-house", base)).toBe("The family house");

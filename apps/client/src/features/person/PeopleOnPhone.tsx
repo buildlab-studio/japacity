@@ -11,8 +11,8 @@ import { useState, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, endCost, endedHow, interviewName, personOf, slotKind, slotOrder, stepsFor, TOGETHER, type BondView, type SlotView } from "../../shared/view/person";
-import { GhostButton } from "../../shared/ui/lively/GhostButton";
-import { StickerChip } from "../../shared/ui/lively/StickerChip";
+import { GhostButton } from "../../shared/ui/look/GhostButton";
+import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { AfterEarlyWin } from "../../shared/ui/stage";
 import { countWords } from "../../shared/words/count";
 import { countryWords } from "../../shared/words/person";
@@ -63,7 +63,7 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
     );
   return (
     <li>
-      <div className="lively-card flex flex-col gap-2.5 p-3" data-slot={slotKey} data-state={slot.state}>
+      <div className="look-card flex flex-col gap-2.5 p-3" data-slot={slotKey} data-state={slot.state}>
         <div className="flex items-start gap-3">
           {bond === null ? null : <BondFace bond={bond} />}
           <div className="flex min-w-0 flex-1 flex-col">
@@ -94,12 +94,12 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
   );
 }
 
-/** Who the player sponsors, and a bar on sponsoring with how long it holds, never a month number (undertaking:sponsored-arrivals-wait-to-sponsor; world:top-band-is-lively-pill). */
+/** Who the player sponsors, and a bar on sponsoring with how long it holds, never a month number (undertaking:sponsored-arrivals-wait-to-sponsor; world:top-band-is-a-pill). */
 function Sponsoring() {
   const { people, month } = useView();
   if (people.sponsoring === null && people.barUntilMonth === null) return null;
   return (
-    <div className="lively-card flex flex-col gap-1 p-3 text-[14px]" data-sponsoring>
+    <div className="look-card flex flex-col gap-1 p-3 text-[14px]" data-sponsoring>
       {people.sponsoring === null ? null : <p>{say("ui.people.sponsoring", { route: nameOf(people.sponsoring.route), when: lowerFirst(monthsAgo(people.sponsoring.month, month)) })}</p>}
       {people.barUntilMonth === null ? null : <p className="text-bad">{say("ui.people.bar", { when: forMonths(people.barUntilMonth, month) })}</p>}
     </div>

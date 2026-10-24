@@ -65,7 +65,7 @@ const APP_SCREEN: Record<AppId, string> = {
  */
 type Opening = string | null;
 
-/** The Calendar's screen, handed in by the shell with what it opens on (world:top-band-is-lively-pill), so the phone knows nothing of the month. */
+/** The Calendar's screen, handed in by the shell with what it opens on (world:top-band-is-a-pill), so the phone knows nothing of the month. */
 type CalendarScreen = (opening: string | null) => ReactNode;
 
 /** What the shell hands the phone: the Calendar's screen and the acts' cards, so the phone imports no other feature. */
@@ -164,7 +164,7 @@ export interface PhoneAppsProps {
   now?: () => Date;
   /** An app to open on; `bank:send` opens the Bank on its send chooser, `calendar:coming` the Calendar on what is coming. */
   start?: string | null;
-  /** The Calendar's screen, from the shell (world:top-band-is-lively-pill). */
+  /** The Calendar's screen, from the shell (world:top-band-is-a-pill). */
   calendar?: CalendarScreen | null;
   /** An act's card, from the shell, for Papers and for Japa's acts from inside a country (world:phone-holds-what-phones-hold). */
   cards?: PaperCards | null;

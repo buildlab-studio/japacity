@@ -1,4 +1,4 @@
-// The month's name as the band says it (world:top-band-is-lively-pill; decision 0011), and the world's part of the day
+// The month's name as the band says it (world:top-band-is-a-pill; decision 0011), and the world's part of the day
 // beside it (clock:game-day-on-real-time; decision 0011). Month 0 of a life is the month of the year the life began in, read on
 // Lagos's clock, so a life begun in March is in April at month 1. The month's phase by its free time spent is for
 // what reads it; the band does not say it.

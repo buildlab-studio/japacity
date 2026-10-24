@@ -13,8 +13,8 @@ import { createContext, Fragment, use, useCallback, useEffect, useRef, useState,
 import { useGame, useView } from "../../../authority/GameProvider";
 import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/view/person";
 import { hasWords, monthsAgo, say, sayCount, words } from "../../../shared/words/text";
-import { faceMark } from "../../../shared/ui/lively/Face";
-import { PressButton } from "../../../shared/ui/lively/PressButton";
+import { faceMark } from "../../../shared/ui/look/Face";
+import { PressButton } from "../../../shared/ui/look/PressButton";
 import { Head, useInnerBack } from "../act";
 import { familyFeedLines } from "../feed";
 import { troubleWords } from "../../../shared/words/trouble";
@@ -353,7 +353,7 @@ export function Chats() {
       <ul className="flex flex-col gap-2.5">
         {screens === null ? null : (
           <li>
-            <button type="button" onClick={() => setOpen(SLOTS)} className="lively-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row={SLOTS}>
+            <button type="button" onClick={() => setOpen(SLOTS)} className="look-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row={SLOTS}>
               <span className="phone-pic flex size-12 shrink-0 items-center justify-center bg-tint-people" aria-hidden>
                 <UserRound size={22} />
               </span>
@@ -366,7 +366,7 @@ export function Chats() {
           </li>
         )}
         <li>
-          <button type="button" onClick={() => setOpen("family")} className="lively-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row="family">
+          <button type="button" onClick={() => setOpen("family")} className="look-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row="family">
             <span className="phone-pic flex size-12 shrink-0 items-center justify-center bg-tint-people" aria-hidden>
               <Users size={22} />
             </span>
@@ -382,7 +382,7 @@ export function Chats() {
           const mark = faceMark(name);
           return (
             <li key={person.id}>
-              <button type="button" onClick={() => setOpen(person.id)} className="lively-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row={person.id}>
+              <button type="button" onClick={() => setOpen(person.id)} className="look-card press flex w-full items-center gap-3 p-3 text-left" data-chat-row={person.id}>
                 <span className="face-mark flex size-12 shrink-0 items-center justify-center text-[20px] font-bold text-white" style={{ background: mark.colour }} aria-hidden>
                   {mark.initial}
                 </span>

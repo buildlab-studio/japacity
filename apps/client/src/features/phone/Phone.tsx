@@ -5,7 +5,7 @@ import { type ReactNode, type RefObject, useCallback, useEffect, useLayoutEffect
 
 import { LEVEL, useBackLayer } from "../../shared/back/back";
 import { PhoneNav } from "../../shared/phone/nav";
-import { CentredColumn } from "../../shared/ui/lively/CentredColumn";
+import { CentredColumn } from "../../shared/ui/look/CentredColumn";
 import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../shared/ui/motion";
 import type { PhoneApp } from "../../shared/world/contract";
 import { tell, useLines } from "../../shared/world/Lines";

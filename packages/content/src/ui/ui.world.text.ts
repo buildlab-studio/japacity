@@ -35,7 +35,7 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.show-more": "Show more",
   "ui.world.show-less": "Show less",
   "ui.world.coming": "{what}, {when}",
-  // The whole list from the chip (world:top-band-is-lively-pill): soonest first, each as months away.
+  // The whole list from the chip (world:top-band-is-a-pill): soonest first, each as months away.
   "ui.world.coming-up": "Coming up",
   "ui.world.coming.birthday": "Birthday, {age}",
   "ui.world.coming.age-limit": "The age limit for {route}",

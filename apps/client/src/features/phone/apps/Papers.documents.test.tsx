@@ -1,4 +1,4 @@
-// The papers list in Papers (document:paper-on-its-way; world:phone-holds-what-phones-hold, world:top-band-is-lively-pill): none said
+// The papers list in Papers (document:paper-on-its-way; world:phone-holds-what-phones-hold, world:top-band-is-a-pill): none said
 // plainly, each paper named from content with its state, a warning two months before one
 // runs out, none while a new copy is on its way, and when a copy comes said as months away, never a month number.
 import { text } from "@japacity/content";

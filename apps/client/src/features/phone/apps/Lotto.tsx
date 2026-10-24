@@ -82,7 +82,7 @@ function KioskLotto() {
       {last === null ? null : (
         <div data-last-draw-line={last.key}>
           <Head>{say("ui.lottery.last")}</Head>
-          <p className="lively-card px-3.5 py-3 text-[15px]">{words(last.key, last.params)}</p>
+          <p className="look-card px-3.5 py-3 text-[15px]">{words(last.key, last.params)}</p>
         </div>
       )}
       <ToKiosk />
@@ -113,7 +113,7 @@ export function Lotto() {
         data-next-draw={lottery.draw}
       />
 
-      <div className="lively-card mt-3 flex flex-col gap-2 p-3.5" data-held={lottery.tickets}>
+      <div className="look-card mt-3 flex flex-col gap-2 p-3.5" data-held={lottery.tickets}>
         <p className="text-[16px] font-bold">{sayCount("ui.lottery.held", lottery.tickets, { count: lottery.tickets })}</p>
         {lottery.numbers === null || lottery.numbers.length === 0 ? null : (
           <div className="flex flex-wrap gap-2" aria-label={say("ui.lottery.numbers", { numbers: lottery.numbers.map((number) => formatNumber(number)).join(", ") })}>
@@ -135,7 +135,7 @@ export function Lotto() {
           <p className="mt-1 px-0.5 text-[15px] font-bold">{heldInLast ? (won.length > 0 ? say("phone.lotto.won", { number: won.map((ticket) => formatNumber(ticket)).join(", ") }) : say("phone.lotto.lost")) : say("phone.lotto.none-held")}</p>
           <ul className="mt-2 flex flex-col gap-2">
             {last.winners.map((tier) => (
-              <li key={tier.tier} data-tier={tier.tier} className="lively-card px-3.5 py-2.5">
+              <li key={tier.tier} data-tier={tier.tier} className="look-card px-3.5 py-2.5">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-[15px] font-bold">{say(`ui.lottery.tier.${tier.tier}`)}</span>
                   {tier.tickets.length === 0 ? null : <MoneyChip className="num">{formatMoney(tier.amount, "NGN")}</MoneyChip>}

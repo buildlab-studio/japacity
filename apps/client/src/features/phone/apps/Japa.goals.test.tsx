@@ -26,7 +26,7 @@ describe("life goals in Japa", () => {
     expect(open.closest("li")?.getAttribute("data-met")).toBe("false");
   });
 
-  test("given a goal done, then the done list names it with its month, said as months ago (world:top-band-is-lively-pill)", async () => {
+  test("given a goal done, then the done list names it with its month, said as months ago (world:top-band-is-a-pill)", async () => {
     const view = richAbroadView();
     await renderWithView(<Japa />, view);
     expect(screen.getByText(say("phone.japa.goal.done", { goal: nameOf("goal.first-car"), when: agoWords(41, view.month) }))).toBeDefined();

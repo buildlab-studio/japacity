@@ -1,6 +1,6 @@
 // Jobs (world:phone-rises-over-scene): the job held and the job offers the view lists. Quitting
-// and taking each open their own card, which sends `activity/quit` or `offer/choose`. In the lively dress
-// (design page 09, section 2): each job a card with its picture, the pay as a green chip and the time to
+// and taking each open their own card, which sends `activity/quit` or `offer/choose`. In the game's look
+// (docs/design/09-the-lively-layer.md section 2): each job a card with its picture, the pay as a green chip and the time to
 // answer as a word in a pill, the offer picked ringed in yellow, and one yellow button at the foot that repeats the pick.
 import { content } from "@japacity/content";
 import type { Id, OfferView, PlayerView } from "@japacity/sim";
@@ -12,7 +12,7 @@ import { payLine } from "../../../shared/words/pay";
 import { withNextTier } from "../../../shared/words/profile";
 import { byMonths, hasWords, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { PhoneNav } from "../../../shared/phone/nav";
-import { PressButton } from "../../../shared/ui/lively/PressButton";
+import { PressButton } from "../../../shared/ui/look/PressButton";
 import { Head, useAsk } from "../act";
 import { openJobs } from "../context";
 import { jobOffers } from "../seen";
@@ -199,7 +199,7 @@ export function Jobs() {
     <div data-phone-app="jobs" className="flex flex-col gap-2">
       <Head>{say("phone.jobs.held")}</Head>
       {job === null ? (
-        <div className="lively-card flex items-center gap-3 p-3" data-job-none>
+        <div className="look-card flex items-center gap-3 p-3" data-job-none>
           <PicTile of={HUNT} size={48} tint="study" />
           <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("ui.job.none")}</p>
         </div>

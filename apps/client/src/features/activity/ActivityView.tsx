@@ -21,7 +21,7 @@ import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence, saysWhyOnCard } from "../../shared/words/requirement";
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/englishTest";
 import { studyWords } from "./study";
-import { PressButton } from "../../shared/ui/lively/PressButton";
+import { PressButton } from "../../shared/ui/look/PressButton";
 import { Tile } from "../../shared/tiles/Tile";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payLine } from "../../shared/words/pay";
@@ -298,7 +298,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
-  // Chips earn their place (design page 09 section 2): the time only past a morning, at most two effects, Free only on a meal.
+  // Chips earn their place (docs/design/09-the-lively-layer.md section 2): the time only past a morning, at most two effects, Free only on a meal.
   const time = chipTimeOf(option.id, option.halfDays);
   const does = chipEffectsLine(option.id);
   // turn:free-slots-per-month: an activity that fills no slot can be planned however full the month is.
@@ -331,9 +331,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
   return (
     <li>
-      {/* The act as a card in the lively dress (design page 09, section 2): the thing's picture
+      {/* The act as a card in the game's look (docs/design/09-the-lively-layer.md section 2): the thing's picture
           on its soft tile, the title and one line, the price, the time past a morning and what it does as chips. */}
-      <div className={`lively-card flex h-full flex-col gap-2 p-3.5 ${option.allowed ? "" : "opacity-80"}`} data-act-card={option.id}>
+      <div className={`look-card flex h-full flex-col gap-2 p-3.5 ${option.allowed ? "" : "opacity-80"}`} data-act-card={option.id}>
         <div className="flex items-start gap-3">
           <span className="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-tint-study" aria-hidden>
             <span className="sticker-cut" style={{ rotate: "-5deg" }}>
@@ -444,7 +444,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               {say("ui.act.spent")}
             </p>
           ) : (
-          // The card's one yellow action (design page 09, section 2), the verb and the thing, the price on it.
+          // The card's one yellow action (docs/design/09-the-lively-layer.md section 2), the verb and the thing, the price on it.
           <PressButton
             disabled={!canAdd}
             aria-label={name}

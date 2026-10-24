@@ -7,7 +7,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalS
 
 import { cue } from "../../../shared/sound/cues";
 import { Tile } from "../../../shared/tiles/Tile";
-import { Sticker } from "../../../shared/ui/lively/Sticker";
+import { Sticker } from "../../../shared/ui/look/Sticker";
 import { say } from "../../../shared/words/text";
 import type { Thing } from "../../../shared/world/contract";
 import { clearFanAnchor, fanAnchor, subscribeFanAnchor } from "./anchor";
@@ -32,7 +32,7 @@ export interface FanProps {
   going?: string | null;
   /**
    * While a priced button is pressed, what the band's counter should show is left after it; null when it is let go
-   * (chips earn their place: the band's money counter is the balance, design page 09 section 2).
+   * (chips earn their place: the band's money counter is the balance, docs/design/09-the-lively-layer.md section 2).
    */
   onPreview?: (after: number | null) => void;
 }
@@ -237,7 +237,7 @@ export function Fan({ thing, title, mark, entries, onAct, onFallback, going = nu
                 tabIndex={place.folded ? -1 : 0}
               >
                 <span className="fan-disc" aria-hidden>
-                  {/* The act's tile, cut as a sticker (the lively Sticker), tilted one way and the next the other. */}
+                  {/* The act's tile, cut as a sticker (the look's Sticker), tilted one way and the next the other. */}
                   <span className={`fan-sticker${index % 2 === 0 ? " fan-tilt-left" : " fan-tilt-right"}`} data-fan-picture={entry.picture}>
                     <Sticker alt={entry.name} tilt={0}>
                       <Tile of={entry.picture} size={Math.round(layout.sizes.button * 0.62)} />

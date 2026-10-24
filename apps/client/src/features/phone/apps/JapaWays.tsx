@@ -1,4 +1,4 @@
-// Japa's files of the ways out (world:phone-holds-what-phones-hold; route-gates.md; route.md), in the lively dress: each way
+// Japa's files of the ways out (world:phone-holds-what-phones-hold; route-gates.md; route.md), in the game's look: each way
 // looked into as a card with its state and its window as chips, the gate's own part (the sponsor and the salary bar, the
 // points against the cut-off, the endorsement and its wait, the agent and the job, the partner it rests on), the
 // universities with what they ask and cost, the funds shown against what is needed, and the record (the deposit, the
@@ -19,7 +19,7 @@ import { MoneyChip, PicTile, WordChip } from "../ui";
 
 const GRADE = "quality.education-grade";
 
-/** A month gone by as it reads inside a line: "2 months ago", "last month", "this month"; never its number (world:top-band-is-lively-pill). */
+/** A month gone by as it reads inside a line: "2 months ago", "last month", "this month"; never its number (world:top-band-is-a-pill). */
 export function agoWords(stamped: number, now: number): string {
   return lowerFirst(monthsAgo(stamped, now));
 }
@@ -296,7 +296,7 @@ function Authorisation({ route }: { route: RouteView }) {
 /** One way's file as a card: its picture, its name, its state and window as chips, then the gate, the universities, the funds and the record. */
 function WayFile({ route, view }: { route: RouteView; view: PlayerView }) {
   return (
-    <li className="lively-card p-3.5" data-way-file={route.id}>
+    <li className="look-card p-3.5" data-way-file={route.id}>
       <div className="flex items-start gap-3">
         <PicTile of={route.id} size={52} tint="study" />
         <div className="min-w-0 flex-1">
@@ -371,7 +371,7 @@ export function Goals({ view }: { view: PlayerView }) {
       {open.length === 0 ? null : (
         <ul className="flex flex-col gap-2.5">
           {open.map((goal) => (
-            <li key={goal.id} className="lively-card p-3.5" data-goal={goal.id}>
+            <li key={goal.id} className="look-card p-3.5" data-goal={goal.id}>
               <p className="text-[17px] leading-tight font-bold">{nameOf(goal.id)}</p>
               {blurbOf(goal.id) === null ? null : <p className="mt-0.5 text-[14px] text-text-2">{blurbOf(goal.id)}</p>}
               <ul className="mt-2 flex flex-col gap-1.5">

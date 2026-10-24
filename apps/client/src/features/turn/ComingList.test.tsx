@@ -1,4 +1,4 @@
-// Coming up's rows (world:top-band-is-lively-pill, text:show-then-tell): the box says how many months once, and the
+// Coming up's rows (world:top-band-is-a-pill, text:show-then-tell): the box says how many months once, and the
 // line beside it is the thing with a note of a few words, never "in 2 months" again.
 import { lifeSaves } from "@japacity/sim/testing";
 import { render } from "@testing-library/react";
@@ -12,7 +12,7 @@ import { ComingList } from "./ComingList";
 import "../../shared/testing/render";
 
 describe("Coming up", () => {
-  test("[text:show-then-tell] [world:top-band-is-lively-pill] given a paper on its way and a birthday ahead, when Coming up opens, then each row's box says the months once, the line beside it never repeats them, and the paper carries its few-word note", () => {
+  test("[text:show-then-tell] [world:top-band-is-a-pill] given a paper on its way and a birthday ahead, when Coming up opens, then each row's box says the months once, the line beside it never repeats them, and the paper carries its few-word note", () => {
     // The banker's recorded life at the latest point with a paper on its way (the work medical), found from the end back.
     const commands = lifeSaves["banker-borrower"]!.commands.length;
     let view = recordedGame("banker-borrower", commands - 1).view();

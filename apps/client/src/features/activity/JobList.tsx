@@ -122,7 +122,7 @@ function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: st
   return (
     <li>
       <button type="button" role="radio" aria-checked={chosen} data-job={id} onClick={onPick.bind(null, id)} className="press block w-full text-left">
-        <span className={`lively-card flex items-center gap-3 p-2.5 ${chosen ? "phone-picked" : ""}`} data-picked={chosen ? "true" : undefined}>
+        <span className={`look-card flex items-center gap-3 p-2.5 ${chosen ? "phone-picked" : ""}`} data-picked={chosen ? "true" : undefined}>
           <span className="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-tint-money">
             <span className="sticker-cut" style={{ rotate: "-5deg" }}>
               <Tile of={id} size={40} />

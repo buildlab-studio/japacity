@@ -125,7 +125,7 @@ describe("the slots on the People row", () => {
     const shown: PlayerView = { ...view, month: 10, people: { ...view.people, barUntilMonth: 70, sponsoring: { bond: "bond-9", route: "route.canada-spouse", month: 7 } } };
     await renderWithView(offline(<PeopleSlots api={null} />), shown);
     const sponsoring = document.querySelector<HTMLElement>("[data-people-slots] [data-sponsoring]")!;
-    // How long the bar holds and when the promise was made, as months away and ago, never a month number (world:top-band-is-lively-pill).
+    // How long the bar holds and when the promise was made, as months away and ago, never a month number (world:top-band-is-a-pill).
     expect(within(sponsoring).getByText(say("ui.people.bar", { when: forMonths(70, 10) }))).toBeDefined();
     expect(forMonths(70, 10)).toBe("for 60 more months");
     expect(within(sponsoring).getByText(say("ui.people.sponsoring", { route: nameOf("route.canada-spouse"), when: "3 months ago" }))).toBeDefined();

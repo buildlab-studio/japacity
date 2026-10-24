@@ -81,7 +81,7 @@ const JOLLOF = "activity.cook-jollof";
 async function inTheParlour(before: (game: ReturnType<typeof newGame>) => void = () => undefined) {
   const game = newGame("scenario.graduate");
   before(game);
-  // The first brief was handed in an earlier visit (design page 09 section 4), so its card does not stand over the room.
+  // The first brief was handed in an earlier visit (docs/design/09-the-lively-layer.md section 4), so its card does not stand over the room.
   markTaught("title", game.view().scenario);
   const rendered = await renderWithGame(<City world results={(place) => <p data-results-for={place} />} />, game);
   await waitFor(() => found('[data-stand-in-thing="cooking"]'), { timeout: 3000 });
@@ -117,7 +117,7 @@ describe("the cooking corner's fan", () => {
     expect(cook.textContent).toContain("Food from the pot");
     expect(pot.textContent).toContain("A big pot for the house");
     const held = game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
-    // Chips earn their place (design page 09 section 2): the fan carries the price pill alone, the band's counter is the balance.
+    // Chips earn their place (docs/design/09-the-lively-layer.md section 2): the fan carries the price pill alone, the band's counter is the balance.
     expect(pot.querySelector("[data-balance-before], [data-balance]")).toBeNull();
     const price = game.view().activities.find((option) => option.id === JOLLOF)?.cost[0]?.amount ?? 0;
     expect(price).toBeGreaterThan(0);

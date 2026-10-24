@@ -38,7 +38,7 @@ export function GuidesMenu({ row = false }: { row?: boolean } = {}) {
   return (
     <>
       {row ? (
-        <button type="button" aria-label={say("guide.page.menu")} className="lively-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left" onClick={show} data-guides-row>
+        <button type="button" aria-label={say("guide.page.menu")} className="look-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left" onClick={show} data-guides-row>
           <span className="min-w-0">
             <span className="block text-[17px] font-bold">{say("guide.page.menu")}</span>
             <span className="block text-[14px] text-text-2">{say("guide.page.game-note")}</span>

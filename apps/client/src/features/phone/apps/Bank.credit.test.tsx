@@ -1,6 +1,6 @@
 // The credit file abroad in the Bank (credit:judgment-blocks-credit, credit:view-shows-credit-file): the mark, the counts, a
 // judgment and when it clears, and what the next ten points buy are the Bank's card abroad; the month it clears is said
-// as months away (world:top-band-is-lively-pill).
+// as months away (world:top-band-is-a-pill).
 import type { PlayerView } from "@japacity/sim";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

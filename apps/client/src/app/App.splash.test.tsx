@@ -75,7 +75,7 @@ describe("the fault card (engine:browser-authority-for-dev-only)", () => {
     render(<App store={store} />);
     const card = await screen.findByRole("alertdialog", { name: say("ui.trouble.network") });
     expect(card.closest("[data-splash]")?.querySelector(".splash-mark")).not.toBeNull();
-    expect(card.querySelector(".lively-card")).not.toBeNull();
+    expect(card.querySelector(".look-card")).not.toBeNull();
     const detail = card.querySelector("[data-trouble-detail]")?.textContent;
     plain(detail);
     expect(detail).toBe(say("ui.trouble.network.detail"));
@@ -109,7 +109,7 @@ describe("the fault card (engine:browser-authority-for-dev-only)", () => {
     render(<App store={store} />);
     const card = await screen.findByRole("alert");
     expect(card.closest("[data-splash]")).not.toBeNull();
-    expect(card.classList.contains("lively-card")).toBe(true);
+    expect(card.classList.contains("look-card")).toBe(true);
     expect(card.textContent).toContain(say("ui.failed", { why: say("ui.failed.why.server") }));
     expect(card.textContent).not.toContain("boom");
     const reload = screen.getByRole("button", { name: say("ui.trouble.reload") });

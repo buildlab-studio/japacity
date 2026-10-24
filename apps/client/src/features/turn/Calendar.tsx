@@ -1,4 +1,4 @@
-// The Calendar app (world:top-band-is-lively-pill, world:month-acts-carry-on, world:phone-rises-over-scene; decision 0011): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
+// The Calendar app (world:top-band-is-a-pill, world:month-acts-carry-on, world:phone-rises-over-scene; decision 0011): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
 // stopped (world:month-acts-carry-on), a held month's reason among them; the chores done this month and what they saved; what is coming
 // with its months away and where, each row opening where it is dealt with (a paper in Papers, world:phone-holds-what-phones-hold). The month
 // turns when it is lived (turn:month-lived-in-half-days), so there is no plan to fill and nothing here ends it. Handed to the phone by the
@@ -144,7 +144,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
   const chores = choresWords(view);
   const pass = passWords(view);
   const jobs = jobRows(view.job);
-  // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (world:top-band-is-lively-pill, world:phone-holds-what-phones-hold).
+  // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (world:top-band-is-a-pill, world:phone-holds-what-phones-hold).
   const openFor = (item: Coming): (() => void) | null => {
     switch (item.kind) {
       case "paper":
@@ -164,7 +164,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
       }
     }
   };
-  // A dated ask names the place it is answered at, or where it is attended where content stages it nowhere: the burial in the village (world:top-band-is-lively-pill).
+  // A dated ask names the place it is answered at, or where it is attended where content stages it nowhere: the burial in the village (world:top-band-is-a-pill).
   const noteOf = (item: Coming): string | null => (item.kind === "offer" && item.entry !== undefined ? (askPlace(item.entry) ?? attendedAt(item.entry)) : null);
 
   return (
@@ -175,7 +175,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
             {jobs.map((row, index) => {
               const held = index === 0 ? view.job.id ?? view.job.side : view.job.side;
               return (
-                <li key={row} className="lively-card flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="job">
+                <li key={row} className="look-card flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="job">
                   {held === null ? (
                     <Briefcase size={18} aria-hidden className="shrink-0 text-text-2" />
                   ) : (
@@ -196,7 +196,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
         {view.locks.length === 0 ? null : (
           <ul className="flex flex-col gap-2" aria-label={say("ui.locks.title")} data-month-locks>
             {view.locks.map((lock, index) => (
-              <li key={`${lock.why}-${String(index)}`} className="lively-card flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="lock" data-lock={lock.why}>
+              <li key={`${lock.why}-${String(index)}`} className="look-card flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="lock" data-lock={lock.why}>
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-body" aria-hidden>
                   <Lock size={20} className="text-text" />
                 </span>
@@ -208,7 +208,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
         {carrying.length === 0 ? null : (
           <ol className="flex flex-col gap-2" aria-label={turnWords("turn.calendar.carrying")} data-month-plan>
             {carrying.map((pick, index) => (
-              <li key={`${pick.activity}-${String(index)}`} className="lively-card chip-in flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="planned">
+              <li key={`${pick.activity}-${String(index)}`} className="look-card chip-in flex min-h-14 items-center gap-3 p-2.5 text-[16px] font-bold" data-slot="planned">
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-study" aria-hidden>
                   <span className="sticker-cut" style={{ rotate: "-5deg" }}>
                     <Tile of={pick.activity} size={34} />
@@ -241,12 +241,12 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
       {chores === null && pass === null ? null : (
         <Section title={turnWords("turn.calendar.done")} mark="chores">
           {chores === null ? null : (
-            <p className="lively-card px-3.5 py-3 text-[15px] font-semibold" data-month-chores>
+            <p className="look-card px-3.5 py-3 text-[15px] font-semibold" data-month-chores>
               {chores}
             </p>
           )}
           {pass === null ? null : (
-            <p className="lively-card mt-2 px-3.5 py-3 text-[15px] font-semibold first:mt-0" data-month-pass>
+            <p className="look-card mt-2 px-3.5 py-3 text-[15px] font-semibold first:mt-0" data-month-pass>
               {pass}
             </p>
           )}

@@ -70,7 +70,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
       openOffer(game, entry);
       await renderWithView(<OfferView />, game.view());
       const buttons = within(cardOf(entry)).getAllByRole("button");
-      // The lively ask marks its main answer; a possible scam has none.
+      // The ask in the game's look marks its main answer; a possible scam has none.
       expect(buttons.map((button) => button.hasAttribute("data-reply-main"))).toEqual(buttons.map(() => false));
       expect(buttons[0]!.querySelector("[data-reply-label]")?.textContent).toBe(text[`${entry}.choice.${no}`]);
       expect(buttons[1]!.querySelector("[data-reply-label]")?.textContent).toContain(text[`${entry}.choice.${pay}`]!);

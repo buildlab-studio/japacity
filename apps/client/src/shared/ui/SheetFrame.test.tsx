@@ -1,6 +1,6 @@
 // world:sheets-one-frame: every sheet has one frame: a handle that closes it when dragged down past a third of its height or
 // flicked down, one close button at its top right with a hit area of 44 by 44, and a tap on the handle does nothing else. On a
-// laptop every sheet rises in the centre. The lively sheet, the world sheet, the account sheet and the ask's card share it.
+// laptop every sheet rises in the centre. The look's sheet, the world sheet, the account sheet and the ask's card share it.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { type BackStack, createBack } from "../back/back";
 import { AskSheet } from "../world/AskSheet";
 import { WorldSheet } from "../world/WorldSheet";
-import { LivelySheet } from "./lively/LivelySheet";
+import { LookSheet } from "./look/LookSheet";
 import { Sheet } from "./Sheet";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
@@ -33,7 +33,7 @@ afterEach(() => {
 
 /** The three sheets and the ask's card, each open, each telling its close to `onClose`. */
 const SHEETS: readonly [string, (onClose: () => void) => ReactElement][] = [
-  ["the lively sheet", (onClose) => <LivelySheet open onOpenChange={(open) => (open ? undefined : onClose())} title="Your study table"><p>Inside</p></LivelySheet>],
+  ["the look's sheet", (onClose) => <LookSheet open onOpenChange={(open) => (open ? undefined : onClose())} title="Your study table"><p>Inside</p></LookSheet>],
   ["the world sheet", (onClose) => <WorldSheet open onClose={onClose} label="Label" title="Title" mark="test"><p>Inside</p></WorldSheet>],
   ["the account sheet", (onClose) => <Sheet open onOpenChange={(open) => (open ? undefined : onClose())} title="Settings"><p>Inside</p></Sheet>],
   [

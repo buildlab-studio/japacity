@@ -48,7 +48,7 @@ describe("the gate on each way in Japa", () => {
   test("[route-gates:entering-the-pool] given a profile in the pool, then the month it entered and the month it lapses show", async () => {
     const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
     await renderWithView(<Japa />, view);
-    // Said as months ago and away (world:top-band-is-lively-pill): in the pool since the end of month 30, lapsing as month 42 ends.
+    // Said as months ago and away (world:top-band-is-a-pill): in the pool since the end of month 30, lapsing as month 42 ends.
     expect(screen.getByText(say("phone.japa.pool", { since: agoWords(30, view.month), ends: inMonths(42, view.month) }))).toBeDefined();
     expect(document.querySelector('[data-gate="points"]')?.textContent).not.toMatch(/month \d+/i);
   });
@@ -69,7 +69,7 @@ describe("the gate on each way in Japa", () => {
   test("[route-gates:endorsement-decided-by-draw] given an endorsement refused, then the month and the end of the cooldown show", async () => {
     const view = withRoute("route.uk-talent", { gate: "endorsement", refusedMonth: 30, cooledFromMonth: 42 });
     await renderWithView(<Japa />, view);
-    // Said as months ago and away (world:top-band-is-lively-pill). The refusal is stamped as month 30 ends; asking again is judged while
+    // Said as months ago and away (world:top-band-is-a-pill). The refusal is stamped as month 30 ends; asking again is judged while
     // planning, so from 42 months played, the month the header calls 43.
     expect(screen.getByText(say("phone.japa.endorsement.refused", { when: agoWords(30, view.month) }))).toBeDefined();
     expect(screen.getByText(say("phone.japa.endorsement.again", { when: inMonths(42, view.month) }))).toBeDefined();

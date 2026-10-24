@@ -6,9 +6,9 @@
 // talk tied to nobody never stands there.
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 
-import { CentredColumn } from "../ui/lively/CentredColumn";
-import { Face, faceMark } from "../ui/lively/Face";
-import { LivelySheet } from "../ui/lively/LivelySheet";
+import { CentredColumn } from "../ui/look/CentredColumn";
+import { Face, faceMark } from "../ui/look/Face";
+import { LookSheet } from "../ui/look/LookSheet";
 import { say } from "../words/text";
 import { listeners } from "../listeners/listeners";
 
@@ -388,7 +388,7 @@ export function tailPaths(width: number, tail: BubbleSpot["tail"]): { under: str
 }
 
 /**
- * The bubble over whoever is speaking: the lively bubble with the speaker's name pill over their words, in one pair of
+ * The bubble over whoever is speaking: the look's bubble with the speaker's name pill over their words, in one pair of
  * curly quotes whatever line it is (the quotes are the bubble's, never the line's). With a scene drawn (`anchored`) the
  * scene moves it each frame clear of every head and name, its tail over the speaker (`bubbleSpot`, `drawTail`), and it
  * stays hidden until then; with none it stands over the corner. A tap takes a short line down; a long one shows clipped to two
@@ -450,11 +450,11 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
         </button>
       )}
       {open === null ? null : (
-        <LivelySheet open onOpenChange={(next) => (next ? undefined : change({ open: null }))} title={open.name} picture={<Face name={open.name} />}>
+        <LookSheet open onOpenChange={(next) => (next ? undefined : change({ open: null }))} title={open.name} picture={<Face name={open.name} />}>
           <p className="pb-2 text-[17px] leading-snug" data-talk-open>
             “{open.text}”
           </p>
-        </LivelySheet>
+        </LookSheet>
       )}
     </>
   );

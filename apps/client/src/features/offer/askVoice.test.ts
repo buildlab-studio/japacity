@@ -4,7 +4,7 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { faceMark } from "../../shared/ui/lively/Face";
+import { faceMark } from "../../shared/ui/look/Face";
 import { say } from "../../shared/words/text";
 import { askerOf } from "./OfferView";
 

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-The player sees one number for the naira (world:top-band-is-lively-pill) and the ask cards count cash and bank together (world:one-action-one-sheet); a price that then refused the bank would be a card that lies. Yet cash is a pocket of its own: the street takes it, a theft or the one-chance robbery can take it, and some work pays in it. Where money comes from and where it lands decides what cash is on the character.
+The player sees one number for the naira (world:top-band-is-a-pill) and the ask cards count cash and bank together (world:one-action-one-sheet); a price that then refused the bank would be a card that lies. Yet cash is a pocket of its own: the street takes it, a theft or the one-chance robbery can take it, and some work pays in it. Where money comes from and where it lands decides what cash is on the character.
 
 ## Decision
 

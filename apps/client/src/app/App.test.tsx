@@ -24,7 +24,7 @@ describe("the app", () => {
     expect(screen.getByRole("heading", { name: say("ui.door.ready.title") })).toBeDefined();
 
     await startReadyLife(Object.keys(content.scenario)[0]!);
-    // The world opens on month 1 (world:world-fills-the-screen): the band, and no month number on it (world:top-band-is-lively-pill).
+    // The world opens on month 1 (world:world-fills-the-screen): the band, and no month number on it (world:top-band-is-a-pill).
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
     expect(playerMonth(store.getState().view?.month ?? -1)).toBe(1);
     // With no route yet the band shows no japacity label and no placeholder beside it.

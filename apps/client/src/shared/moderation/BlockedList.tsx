@@ -6,7 +6,7 @@ import type { BlockedLine } from "@japacity/api";
 import { useCallback, useEffect, useState } from "react";
 
 import { lookForName } from "../front-door/looks";
-import { FaceTile } from "../ui/lively/FaceTile";
+import { FaceTile } from "../ui/look/FaceTile";
 import { Loader } from "../ui/Loader";
 import type { ModerationApi } from "./api";
 import { words } from "./moderation.words";
@@ -20,7 +20,7 @@ function Line({ line, tilt, busy, onUnblock }: { line: BlockedLine; tilt: number
   // A gone account's line reads as a player until its rows go; its face is drawn from that shown name, as a board draws it.
   const name = line.username ?? words("ui.blocked.someone");
   return (
-    <li className="lively-card flex min-h-14 items-center gap-3 px-3 py-2" data-blocked-line>
+    <li className="look-card flex min-h-14 items-center gap-3 px-3 py-2" data-blocked-line>
       <FaceTile look={lookForName(name)} tilt={tilt} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-[16px] font-bold" data-blocked-name>
@@ -74,7 +74,7 @@ export default function BlockedList({ moderation }: { moderation: ModerationApi 
   if (asked.state === "loading") return <Loader label={words("ui.blocked.loading")} className="my-2" />;
   if (asked.state === "failed") {
     return (
-      <div className="lively-card flex flex-col items-start gap-2.5 p-3" data-blocked-failed>
+      <div className="look-card flex flex-col items-start gap-2.5 p-3" data-blocked-failed>
         <p className="text-[15px] leading-snug">{words("ui.blocked.failed")}</p>
         <button type="button" className="phone-ghost" onClick={() => setRound((value) => value + 1)}>
           {words("ui.blocked.retry")}
@@ -95,7 +95,7 @@ export default function BlockedList({ moderation }: { moderation: ModerationApi 
         </p>
       ) : null}
       {asked.lines.length === 0 ? (
-        <p className="lively-card p-3 text-[15px] text-text-2">{words("ui.blocked.none")}</p>
+        <p className="look-card p-3 text-[15px] text-text-2">{words("ui.blocked.none")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {asked.lines.map((line, index) => (

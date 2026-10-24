@@ -381,7 +381,7 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
         {/* Turn back throws the fare away (world:costly-acts-confirmed): apart from Skip, under the band, in the warning colour; with a fare
             it asks once more, keeping on the main button and turning back the warning one, apart. */}
         {onTurnBack === undefined ? null : asking ? (
-          <div className="lively-card pointer-events-auto mt-2 flex flex-col gap-3 p-3" role="group" aria-label={mapWords("map.ride.turn-back")} data-ride-turn-back-ask>
+          <div className="look-card pointer-events-auto mt-2 flex flex-col gap-3 p-3" role="group" aria-label={mapWords("map.ride.turn-back")} data-ride-turn-back-ask>
             <p className="text-[15px] leading-snug font-bold">{mapWords("map.ride.turn-back.ask", { fare: lost ?? "" })}</p>
             <button type="button" className="press-button w-full" onClick={() => setAsking(false)} autoFocus>
               {mapWords("map.ride.turn-back.keep")}

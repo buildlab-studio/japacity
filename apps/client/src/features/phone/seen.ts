@@ -12,7 +12,7 @@ import { papersMarkOf } from "./papers";
 import { browserStorage, SEEN_KEY } from "../../shared/storage/storage";
 import { listeners } from "../../shared/listeners/listeners";
 
-// The Calendar sits first among the apps: the month lives on the phone (world:top-band-is-lively-pill). Papers sits beside Japa: the
+// The Calendar sits first among the apps: the month lives on the phone (world:top-band-is-a-pill). Papers sits beside Japa: the
 // plan's papers, held and on their way (world:phone-holds-what-phones-hold).
 export const APP_IDS = ["calendar", "bank", "chats", "japa", "papers", "jobs", "market", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];

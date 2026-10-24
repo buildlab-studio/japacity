@@ -1,4 +1,4 @@
-// What is coming with a month to it (world:top-band-is-lively-pill): the whole list soonest first, each
+// What is coming with a month to it (world:top-band-is-a-pill): the whole list soonest first, each
 // as months away, and only dates the player can act on or waits on.
 import { content } from "@japacity/content";
 import { setPockets } from "@japacity/sim/testing";
@@ -27,7 +27,7 @@ describe("what is coming", () => {
     ]);
   });
 
-  test("[world:top-band-is-lively-pill] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
+  test("[world:top-band-is-a-pill] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
     const view = engineView();
     const age = ageMonthsOf(view);
     const list = comingOf(view);
@@ -37,7 +37,7 @@ describe("what is coming", () => {
     expect(soonest(view)).toBeNull();
   });
 
-  test("[world:top-band-is-lively-pill] given open asks, a paper on its way and a visa awaited, when the list is read, then each is on it with its month and the list runs soonest first", () => {
+  test("[world:top-band-is-a-pill] given open asks, a paper on its way and a visa awaited, when the list is read, then each is on it with its month and the list runs soonest first", () => {
     const base = richView();
     const view = {
       ...base,
@@ -65,7 +65,7 @@ describe("what is coming", () => {
     expect(comingOf(view).find((item) => item.kind === "paper")).toMatchObject({ what: nameOf("document.passport"), month: passport?.onItsWay });
   });
 
-  test("[world:top-band-is-lively-pill] given the Gulf heard of and the character near its age limit, when the list is read, then the limit is on it as months away; far from it, or on a route unheard, it is not", () => {
+  test("[world:top-band-is-a-pill] given the Gulf heard of and the character near its age limit, when the list is read, then the limit is on it as months away; far from it, or on a route unheard, it is not", () => {
     const base = engineView();
     const limit = content.route["route.gulf-contract"]?.contract?.maxAgeMonths;
     if (limit === undefined) throw new Error("The Gulf has no age limit.");

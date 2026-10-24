@@ -114,7 +114,7 @@ describe("the official page follows the plan", () => {
 });
 
 describe("the plan's marks", () => {
-  test("[chapter:chapters-follow-lean-route] [world:top-band-is-lively-pill] given the master's the plan with a school's answer due, when the marks are read, then the answer is one with its month, and Japa's Coming up says it as months away", async () => {
+  test("[chapter:chapters-follow-lean-route] [world:top-band-is-a-pill] given the master's the plan with a school's answer due, when the marks are read, then the answer is one with its month, and Japa's Coming up says it as months away", async () => {
     // The graduate with its papers in hand, so the application goes in the month after it reads the page.
     const game = readyLife(content);
     toKnown(game);

@@ -183,7 +183,7 @@ describe("the talk budget's words", () => {
     expect(bubble()).toBeNull();
     const sheet = document.querySelector("[data-talk-open]");
     expect(sheet?.textContent).toContain(long);
-    expect(document.querySelector("[data-lively-sheet]")?.textContent).toContain("Mama");
+    expect(document.querySelector("[data-look-sheet]")?.textContent).toContain("Mama");
   });
 
   test("[world:street-talk-budget] given the street's talk, when a line comes, then it floats over the resident nearest the player, and the next waits at least twenty seconds of quiet; never over someone speaking", () => {

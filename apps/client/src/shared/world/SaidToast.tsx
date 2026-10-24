@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 
 import { Tile } from "../tiles/Tile";
-import { Face } from "../ui/lively/Face";
+import { Face } from "../ui/look/Face";
 
 /** How long a said toast stands, as the brief's done toast does. */
 export const SAID_TOAST_MS = 3000;
