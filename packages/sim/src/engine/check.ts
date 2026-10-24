@@ -31,6 +31,7 @@ const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
   goal: "goal",
   obligation: "obligation",
   setpiece: "setpiece",
+  prologue: "prologue",
   wallet: "wallet",
   home: "home",
 };

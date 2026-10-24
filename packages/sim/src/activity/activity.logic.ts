@@ -1403,6 +1403,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "route/gate-step":
     case "setpiece/answered":
     case "setpiece/answered-with":
+    case "prologue/answered":
     case "world/lottery":
     case "people/bond":
     case "people/sibling-abroad":

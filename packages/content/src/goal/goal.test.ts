@@ -45,6 +45,7 @@ const REQUIREMENT_TYPES = [
   "place/months-here",
   "place/banned",
   "setpiece/answered-with",
+  "prologue/answered",
   "world/lottery",
   "people/bond",
   "people/sibling-abroad",

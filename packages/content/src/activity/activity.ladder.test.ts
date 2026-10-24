@@ -116,7 +116,7 @@ const RUNGS: Rung[] = [
   {
     id: "activity.job-junior-developer",
     pay: { currency: "NGN", amount: naira(320000) },
-    requires: [atLeast("quality.tech", 30), atLeast("quality.portfolio", 1)],
+    requires: [atLeast("quality.tech", 30), { type: "any", of: [atLeast("quality.portfolio", 1), { type: "prologue/answered", step: "course", answer: "computer-science" }] }],
     hireBp: pct(35),
     employer: "formal",
   },

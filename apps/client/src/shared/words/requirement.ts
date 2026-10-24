@@ -202,6 +202,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     }
     case "setpiece/answered-with":
       return say("ui.req.setpiece-answered-with", { setpiece: nameOf(requirement.setpiece) });
+    case "prologue/answered":
+      return say(`ui.req.prologue-answered.${requirement.step}.${requirement.answer}`);
     case "world/lottery":
       return say(requirement.online ? "ui.req.world-lottery-online" : "ui.req.world-lottery-offline");
     case "people/bond":

@@ -784,6 +784,7 @@ export const uiText: Record<string, string> = {
   "ui.req.activity-played": "{activity} this month",
   "ui.req.setpiece-answered": "{setpiece}, answered {times} times",
   "ui.req.setpiece-answered-with": "Having taken {setpiece}",
+  "ui.req.prologue-answered.course.computer-science": "A degree in computer science",
   "ui.req.world-lottery-online": "While the Friday draw runs",
   "ui.req.world-lottery-offline": "While there is no Friday draw",
   "ui.req.people-bond": "With a {role}",

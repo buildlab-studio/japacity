@@ -432,6 +432,13 @@ export const prologueKind: RegisteredKind<PrologueSlice, PrologueEvent> = {
     gradeBase: 0,
   }),
   commands: { "prologue/choose": choose },
+  requirements: {
+    // activity:each-trade-climbs-its-ladder: the course read stays the life's after the prologue closes.
+    "prologue/answered": (read, requirement) => {
+      if (requirement.type !== "prologue/answered") throw new Error(`prologue/answered cannot judge ${requirement.type}.`);
+      return { met: read.state.prologue.choices[requirement.step] === requirement.answer };
+    },
+  },
   evolve,
   lines,
   invariants,

@@ -96,10 +96,16 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.job-junior-developer",
     slot: "main",
     employer: "formal",
-    // Employers judge a junior by a piece of work shown (activity.md, the developer's ladder).
+    // Employers judge a junior by a piece of work shown, or take a computer science degree in its place (activity.md, the developer's ladder).
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 30 },
-      { type: "quality/min", quality: "quality.portfolio", value: 1 },
+      {
+        type: "any",
+        of: [
+          { type: "quality/min", quality: "quality.portfolio", value: 1 },
+          { type: "prologue/answered", step: "course", answer: "computer-science" },
+        ],
+      },
     ],
     param: null,
     cost: [],

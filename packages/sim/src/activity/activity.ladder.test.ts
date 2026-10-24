@@ -1,7 +1,7 @@
 // The trades' ladders at home: activity:each-trade-climbs-its-ladder (rungs hunted by months across the trade's jobs),
 // activity:capital-opens-own-work (own work opened with its capital) and activity:fish-racks-at-makoko (the fish trade's
 // ladder and its side job). Real content, lives played through `step`.
-import { content } from "@japacity/content";
+import { content, presetAnswer } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp, mulDiv } from "../engine/int";
@@ -24,6 +24,9 @@ const OPEN_POS: Id<"activity"> = "activity.open-pos-stand";
 const POS: Id<"activity"> = "activity.pos-stand";
 const CANOE: Id<"activity"> = "activity.canoe-deliveries";
 const CARE: Id<"quality"> = "quality.care";
+const TECH: Id<"quality"> = "quality.tech";
+const PORTFOLIO: Id<"quality"> = "quality.portfolio";
+const JUNIOR_DEV: Id<"activity"> = "activity.job-junior-developer";
 /** The child of the water's tile: commerce at school, work after it, the counter's savings, and the room on the lagoon. */
 const WATER = ["begin", "commercial", "work", "save", "makoko"];
 
@@ -55,6 +58,19 @@ function writtenPay(id: Id<"activity">): number {
   const amount = content.activity[id]?.pay?.amount;
   if (typeof amount !== "number") throw new Error(`${id} pays no fixed figure.`);
   return amount;
+}
+
+/** A tile's life from sixteen, handed over: its preset played as the front door plays it, from the family house. */
+function tileLife(tile: string, seed: string): Game {
+  const game = start({ content, scenario: "scenario.prologue", seed });
+  for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
+    const card = game.view().prologue;
+    if (card === null) throw new Error("The prologue is open with no card.");
+    const answer = presetAnswer(tile, 0, "family-house", card.step, card.answers);
+    if (answer === null) throw new Error(`${card.step} has no open answer.`);
+    game.accept({ type: "prologue/choose", step: card.step, answer });
+  }
+  return game;
 }
 
 /** The child of the water on the racks, from the prologue: the room on the lagoon, the racks taken. */
@@ -99,6 +115,30 @@ describe("each trade climbs its ladder", () => {
     applyEffects(game, [{ type: "activity/start-job", job: NIGHT_SUPPORT }]);
     months(game, 2);
     expect(judged(game, { type: "activity/tenure", activities: [], months: 1 }).met).toBe(false);
+  });
+});
+
+describe("the junior developer's bar", () => {
+  test("[activity:each-trade-climbs-its-ladder] given the developer tile, who read computer science and has no piece of work to show, when the board is read at tech 30, then the junior developer is huntable", () => {
+    const game = tileLife("developer", "junior-0");
+    expect(game.state.prologue.choices["course"]).toBe("computer-science");
+    expect(game.state.quality[PORTFOLIO] ?? 0).toBe(0);
+    raiseTo(game, TECH, Math.max(30, game.state.quality[TECH] ?? 0));
+    expect(hunted(game)).toContain(JUNIOR_DEV);
+  });
+
+  test("[activity:each-trade-climbs-its-ladder] given the accountant tile at tech 29 and then 30, with no piece of work and no computer science degree, when the board is read, then the junior developer waits for a piece of work", () => {
+    const game = tileLife("accountant", "junior-1");
+    expect(game.state.prologue.choices["course"]).toBe("accounting");
+    expect(game.state.quality[PORTFOLIO] ?? 0).toBe(0);
+    raiseTo(game, TECH, 29);
+    applyEffects(game, [{ type: "quality/add", quality: PORTFOLIO, amount: 1 }]);
+    expect(hunted(game)).not.toContain(JUNIOR_DEV);
+    applyEffects(game, [{ type: "quality/add", quality: PORTFOLIO, amount: -1 }]);
+    raiseTo(game, TECH, 30);
+    expect(hunted(game)).not.toContain(JUNIOR_DEV);
+    applyEffects(game, [{ type: "quality/add", quality: PORTFOLIO, amount: 1 }]);
+    expect(hunted(game)).toContain(JUNIOR_DEV);
   });
 });
 

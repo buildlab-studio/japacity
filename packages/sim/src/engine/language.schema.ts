@@ -243,6 +243,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("activity/played"), activity: idOf("activity") }),
   z.strictObject({ type: z.literal("setpiece/answered"), setpiece: idOf("setpiece"), times: CountSchema.exactOptional() }),
   z.strictObject({ type: z.literal("setpiece/answered-with"), setpiece: idOf("setpiece"), question: z.string().min(1), answer: z.string().min(1) }),
+  z.strictObject({ type: z.literal("prologue/answered"), step: z.string().min(1), answer: z.string().min(1) }),
   z.strictObject({ type: z.literal("world/lottery"), online: z.boolean() }),
   z.strictObject({
     type: z.literal("people/bond"),

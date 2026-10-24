@@ -307,6 +307,8 @@ export type Requirement =
   | { type: "setpiece/answered"; setpiece: Id<"setpiece">; times?: number }
   /** The last answer given to this question of this set piece was this one (route:last-answers-remembered). */
   | { type: "setpiece/answered-with"; setpiece: Id<"setpiece">; question: string; answer: string }
+  /** The prologue's step was answered with this answer, kept after the prologue closes: the course read, for a job that takes the degree (activity:each-trade-climbs-its-ladder). */
+  | { type: "prologue/answered"; step: string; answer: string }
   /** The world runs the Friday draw (`online` true) or not (docs/rules/lottery.md). */
   | { type: "world/lottery"; online: boolean }
   /** A bond of this role at one of these stages, and where the other is (person:computer-is-a-person-entry). */
