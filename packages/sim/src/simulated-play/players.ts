@@ -108,6 +108,8 @@ export interface TradePlay {
   trade: TradeName;
   routes: Id<"route">[];
   plan: Id<"route">;
+  /** The master's is worked with the family's pledge beside the plan (Habits' pledgeMasters). */
+  pledgeMasters?: boolean;
   /** A way taken up only once the months given have passed without a flight: the trade's fallback. */
   fallback?: { route: Id<"route">; after: number };
 }
@@ -175,6 +177,10 @@ interface Habits {
   learns?: "free" | "paid";
   /** A way taken up only from the month given (TradePlay's fallback). */
   fallback?: { route: Id<"route">; after: number };
+  /** Flies the master's only with the tuition left covered and three months' keep beside it (studentCovered). */
+  fliesCovered?: boolean;
+  /** Works the master's with the family's pledge beside a Canada plan, the master's taken when the pledge is offered. */
+  pledgeMasters?: boolean;
 }
 
 const CAREFUL_DECEMBER = ["stay", "none", "home", "plain", "small", "some"];
@@ -213,6 +219,7 @@ const PLAYED = {
     december: CAREFUL_DECEMBER,
     road: LEAVE_ROAD,
     prologue: "first",
+    fliesCovered: true,
   },
   borrower: {
     englishBeforeTest: 66,
@@ -363,7 +370,16 @@ function tradeHabits(name: StrategyName, play: TradePlay): Habits {
   const others = play.routes.filter((route) => route !== UK);
   // Canada's points pay for the band, so a player making Canada the plan practises to the top of the scale before sitting.
   const english = play.plan === CANADA ? CANADA_ENGLISH : base.englishBeforeTest;
-  const routed: Habits = { ...base, plan: play.plan, studies, otherRoutes: others, takesGulf: others.includes(GULF), englishBeforeTest: english, ...(play.fallback === undefined ? {} : { fallback: play.fallback }) };
+  const routed: Habits = {
+    ...base,
+    plan: play.plan,
+    studies,
+    otherRoutes: others,
+    takesGulf: others.includes(GULF),
+    englishBeforeTest: english,
+    ...(play.fallback === undefined ? {} : { fallback: play.fallback }),
+    ...(play.pledgeMasters === true ? { pledgeMasters: true } : {}),
+  };
   return name === "trade-loyal" ? { ...routed, trade: TRADES[play.trade] } : routed;
 }
 
@@ -700,6 +716,8 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
         // route:education-loan-pays-the-school: the loan pays the school direct and is repaid from the Graduate status. A player who made
         // the master's the plan takes it: a borrower the whole of the tuition left, a careful player the least the lender gives.
         if (habits.plansMasters === true) command = choose(offer, "take", habits.takesLoans ? Number.MAX_SAFE_INTEGER : 0);
+        // A player who took the master's with the pledge borrows what the funds still lack, a little over for the falling naira.
+        else if (pledgeTaken(view, habits) && fundsGap(view) > 0) command = choose(offer, "take", fundsGap(view) + mulDiv(fundsGap(view), 1000, 10000));
         break;
       case "offer.held-funds-agent":
         command = study && habits.takesAgent && gapKobo > 0 ? choose(offer, "take", gapKobo + mulDiv(gapKobo, 1000, 10000)) : choose(offer, "walk-away");
@@ -829,12 +847,42 @@ function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
   return picks;
 }
 
+/** The wellbeing a player who stays in a trade takes a side job at, and the one it lets the side job go under. */
+const SIDE_JOB_WELLBEING = 60;
+const SIDE_JOB_QUIT = 30;
+
+/** activity:side-job-holds-a-slot: a side job worn into the ground is let go, so its slot rests the body again. */
+function sideJobLetGo(view: PlayerView, habits: Habits): Loose[] {
+  if (habits.trade === undefined || view.job.side === null || quality(view, "quality.wellbeing") >= SIDE_JOB_QUIT) return [];
+  return [{ type: "activity/quit", side: true }];
+}
+
+const MASTERS_AT_HOME: Id<"activity"> = "activity.masters-at-home";
+/** The months a Canada profile waits in the pool uninvited before the score is read as short. */
+const SHORT_MONTHS = 6;
+/** Naira, in kobo, the master's at home's twelve instalments come to (activity:waiting-months-build-profile). */
+const MASTERS_AT_HOME_FEES = 180000000;
+
+/**
+ * activity:waiting-months-build-profile, the education row: a Canada plan whose score has stood short of every cut-off for six months
+ * in the pool takes the master's at home when the money allows, and plays it on each month until it is done.
+ */
+function mastersAtHome(view: PlayerView, habits: Habits): Id<"activity"> | null {
+  const canadaPlan = habits.plan === CANADA || (habits.otherRoutes.length === 1 && habits.otherRoutes[0] === CANADA);
+  if (!canadaPlan || !playable(view, MASTERS_AT_HOME)) return null;
+  if (view.obligations.some((owed) => owed.entry === "obligation.masters-at-home")) return MASTERS_AT_HOME;
+  const gate = route(view, CANADA)?.gate;
+  if (gate?.gate !== "points" || gate.invites || gate.poolMonth === null || view.month - gate.poolMonth < SHORT_MONTHS) return null;
+  return naira(view) - buffer(view, habits) >= MASTERS_AT_HOME_FEES ? MASTERS_AT_HOME : null;
+}
+
 /** The month's acts of a trade beyond the hunt for a rung: its side job, its own work opened, its papers. */
 function tradePicks(view: PlayerView, content: Content, trade: Trade, habits: Habits, hunting: boolean): SlotPick[] {
   const picks: SlotPick[] = [];
   const hunt = option(view, "activity.job-hunt");
-  // The side job is hunted the same way, in a month no rung is.
-  if (!hunting && trade.side !== null && view.job.id !== null && view.job.side === null && hunt?.allowed === true && (hunt.params ?? []).includes(trade.side)) {
+  // The side job is hunted the same way, in a month no rung is, and only with the body to carry it.
+  const fresh = quality(view, "quality.wellbeing") >= SIDE_JOB_WELLBEING;
+  if (fresh && !hunting && trade.side !== null && view.job.id !== null && view.job.side === null && hunt?.allowed === true && (hunt.params ?? []).includes(trade.side)) {
     picks.push({ activity: "activity.job-hunt", param: trade.side });
   }
   // Own work is opened only when it is the next step up: a main job paying more than the one held, or a side job with none held.
@@ -926,6 +974,8 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
   if (job !== null) add("activity.job-hunt", job);
   if (habits.trade !== undefined) for (const pick of tradePicks(view, content, habits.trade, habits, job !== null)) add(pick.activity, pick.param);
   if (habits.takesGift === true) for (const pick of giftPicks(view)) add(pick.activity, pick.param);
+  const atHome = mastersAtHome(view, habits);
+  if (atHome !== null) add(atHome);
   // A pivot's study is its plan, so it comes before the routes' errands.
   const learning = learningPick(view, habits);
   if (learning !== null) add(learning);
@@ -986,7 +1036,30 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
 // Money and the route's commands at home
 // ---------------------------------------------------------------------------
 
-function departures(view: PlayerView): Loose[] {
+/** The months of a room's rent and the upkeep a careful student holds beside the tuition on the day it flies. */
+const KEEP_MONTHS = 3;
+
+/**
+ * A careful student's flight: the tuition the school still asks (abroad-money:tuition-paid-in-instalments), less what a loan paid, is
+ * covered by money of its own, not the held funds that go back to the lender at the flight, and the family's pledge
+ * (route:family-pledge-pays-tuition), with three months of the room and the upkeep beside it (abroad-money:arrival-opens-upkeep-and-room).
+ */
+function studentCovered(view: PlayerView, content: Content, route: Id<"route">): boolean {
+  const held = view.routes.find((item) => item.id === route);
+  const school = held?.school === null || held?.school === undefined ? undefined : content.school[held.school];
+  const country = content.route[route]?.country;
+  if (held === undefined || school === undefined || country === null || country === undefined) return true;
+  const discount = held.schools.find((applied) => applied.id === school.id)?.discount ?? 0;
+  const tuitionLeft = Math.max(0, school.tuition - discount - school.deposit - held.loanPaid);
+  const entry = content.country[country];
+  const monthly = [entry?.rentRoom ?? null, entry?.upkeep ?? null].reduce((sum, id) => sum + (id === null ? 0 : (content.obligation[id]?.amount ?? 0)), 0);
+  const gbp = view.rates.GBP.official;
+  const own = view.pockets.GBP.bank + view.pockets.GBP.cash + mulDiv(view.pockets.NGN.bank + view.pockets.NGN.cash, 100, gbp) + mulDiv(view.pockets.USD.bank + view.pockets.USD.cash, view.rates.USD.official, gbp);
+  const pledge = held.support === null ? 0 : held.support.currency === "NGN" ? mulDiv(held.support.amount, 100, gbp) : held.support.amount;
+  return own + pledge >= tuitionLeft + monthly * KEEP_MONTHS;
+}
+
+function departures(view: PlayerView, content: Content, habits: Habits): Loose[] {
   const commands: Loose[] = [];
   // place:departure-moves-abroad: a flight leaves only from home.
   const granted = view.place.where === "home" ? view.routes.filter((item) => item.state === "granted") : [];
@@ -997,7 +1070,11 @@ function departures(view: PlayerView): Loose[] {
     }
   }
   // route-gates:canada-funds-checked-at-departure: a way whose funds are short on the day waits until they are back.
-  for (const item of granted) if (item.gate?.gate !== "points" || item.gate.fundsShort === 0) commands.push({ type: "route/depart", route: item.id });
+  for (const item of granted) {
+    if (item.gate?.gate === "points" && item.gate.fundsShort > 0) continue;
+    if (habits.fliesCovered === true && item.id === UK && !studentCovered(view, content, item.id)) continue;
+    commands.push({ type: "route/depart", route: item.id });
+  }
   return commands;
 }
 
@@ -1037,7 +1114,7 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
     const cents = Math.min(view.pockets.USD.bank, mulDiv(OTHER_ROUTE_NAIRA - view.pockets.NGN.bank, 100, view.rates.USD.official) + 100);
     commands.push({ type: "wallet/convert", from: "USD", to: "NGN", amount: cents, via: "bank" });
   }
-  commands.push(...departures(view));
+  commands.push(...departures(view, content, habits));
   if (uk === undefined || uk.state === "granted") return commands;
 
   const big = nextBigPayment(view, content);
@@ -1287,8 +1364,22 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
 }
 
 /** Decision 0022: the way chosen made the plan as soon as it is one of the ways heard of, and again whenever another way has taken its place. */
+/**
+ * route:family-pledge-pays-tuition: a player who works the master's with the pledge beside Canada makes the master's the plan for the
+ * family meeting once a school's offer is held and the family has given nothing, and keeps it once the pledge stands or the deposit is paid.
+ */
+function pledgeTaken(view: PlayerView, habits: Habits): boolean {
+  if (habits.pledgeMasters !== true) return false;
+  const uk = route(view);
+  if (uk === undefined) return false;
+  if ((uk.support?.amount ?? 0) > 0 || uk.school !== null) return true;
+  const offered = uk.schools.some((school) => school.state === "offer");
+  const gift = documentState(view, "document.gift-deed") !== undefined || option(view, "activity.gift-deed")?.allowed === true;
+  return offered && quality(view, "quality.family-stake") === 0 && !gift;
+}
+
 function planCommands(view: PlayerView, habits: Habits): Loose[] {
-  const plan = habits.plansMasters === true ? UK : (habits.plan ?? null);
+  const plan = habits.plansMasters === true || pledgeTaken(view, habits) ? UK : (habits.plan ?? null);
   if (plan === null || view.place.where !== "home" || view.plan.route === plan || !view.plan.ways.some((way) => way.route === plan)) return [];
   return [{ type: "chapter/lean", route: plan }];
 }
@@ -1316,7 +1407,7 @@ function habitsStrategy(fixed: Habits): Strategy {
       });
       return view.turns.banked > 0 ? [...commands, { type: "turn/end", slots: [] }] : commands;
     }
-    const commands = [...planCommands(view, habits), ...(habits.leaves ? cashForTerms(view, habits) : []), ...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
+    const commands = [...planCommands(view, habits), ...sideJobLetGo(view, habits), ...(habits.leaves ? cashForTerms(view, habits) : []), ...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
     if (view.turns.banked > 0) {
       commands.push(...monthCommands(view, slotPlan(view, content, habits)));
       commands.push({ type: "turn/end", slots: [] });
