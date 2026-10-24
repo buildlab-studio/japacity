@@ -101,6 +101,16 @@ describe("focus, reach and size (world:reach-and-read)", () => {
     expect(pad).toMatch(/content:\s*""/);
   });
 
+  test("[world:reach-and-read] given the band's two thin lines, then the top line's pads reach up and the bottom line's down, so a tap on the age never opens the calendar", () => {
+    expect(CSS).toMatch(/\.reach-up::after \{ top: auto; bottom: 0; translate: -50% 0; \}/);
+    expect(CSS).toMatch(/\.reach-down::after \{ top: 0; translate: -50% 0; \}/);
+    const band = readFileSync(join(SRC, "shared", "world", "TopBand.tsx"), "utf8");
+    const person = readFileSync(join(SRC, "shared", "datapage", "PageSheet.tsx"), "utf8");
+    expect(band).toMatch(/className="band-part press reach reach-up [^"]*" onClick=\{onMonth\}/);
+    expect(person).toMatch(/className="reach reach-up col-start-1 row-start-1 /);
+    expect(person).toMatch(/className="press reach reach-down [^"]*" onClick=\{show\} aria-label=\{say\("prologue\.page\.open"\)\} data-page-open/);
+  });
+
   test("[world:reach-and-read] given the shared buttons and labels, then the pill button stands 44 px tall and a label's text is at least 12 px", () => {
     expect(Number(/\.pill-button\s*\{[^}]*height:\s*(\d+)px/.exec(CSS)?.[1] ?? "0")).toBeGreaterThanOrEqual(44);
     expect(Number(/\n\.label\s*\{[^}]*font-size:\s*(\d+)px/.exec(CSS)?.[1] ?? "0")).toBeGreaterThanOrEqual(12);

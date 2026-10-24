@@ -126,7 +126,7 @@ export function bandPlace(name: string): string {
  */
 function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void) | undefined }) {
   return (
-    <button type="button" className="band-part press reach shrink-0 text-[14px] leading-none text-text-2" onClick={onMonth} aria-label={say("ui.month.chip", { name: month.name, part: month.part })} data-band-month={month.part}>
+    <button type="button" className="band-part press reach reach-up shrink-0 text-[14px] leading-none text-text-2" onClick={onMonth} aria-label={say("ui.month.chip", { name: month.name, part: month.part })} data-band-month={month.part}>
       <span className="sr-only">{month.name}</span>
       <span key={month.part} className="fade" data-band-part>
         {month.part}

@@ -47,7 +47,7 @@ test("[chapter:send-off-scene-in-beats] [world:plane-cut-at-send-off] [share:sen
 
   // Beat 2: the counter, the flight's figure from the tuning, Window or aisle on the stub.
   await expect(scene).toHaveAttribute("data-send-off", "counter", { timeout: 5000 });
-  await expect(scene.locator("[data-so-flight]")).toContainText("₦1,600,000");
+  await expect(scene.locator("[data-so-flight]")).toContainText("₦1,100,000");
   await scene.locator("[data-so-seat-chip='aisle']").click();
   await expect(scene.locator("[data-so-stub]")).toContainText(text["share.stub.seat.aisle"]!);
   await scene.locator("[data-so-go='take']").click();

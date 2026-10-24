@@ -158,13 +158,13 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
           age open the page; the place's name does nothing (world:top-band-is-lively-pill, prologue:front-door-builds-a-person). The age comes before the part of
           the day to a screen reader and the keyboard; the grid lays them out. */}
       {/* The name truncates inside, so the button's reach pad is not cut with it (world:reach-and-read). */}
-      <button type="button" tabIndex={-1} aria-hidden className="reach col-start-1 row-start-1 min-w-0 text-left text-[16px] leading-tight font-bold" onClick={show}>
+      <button type="button" tabIndex={-1} aria-hidden className="reach reach-up col-start-1 row-start-1 min-w-0 text-left text-[16px] leading-tight font-bold" onClick={show}>
         <span className="block truncate">{name}</span>
       </button>
       <div className="col-span-3 col-start-1 row-start-2 min-w-0">
         <Under
           age={
-            <button type="button" className="press reach num shrink-0 text-left font-bold" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
+            <button type="button" className="press reach reach-down num shrink-0 text-left font-bold" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
               {when}
             </button>
           }

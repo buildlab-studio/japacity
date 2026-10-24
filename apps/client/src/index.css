@@ -115,6 +115,9 @@
   .reach { position: relative; }
 }
 .reach::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 44px); height: max(100%, 44px); translate: -50% -50%; }
+/* Two thin lines stacked in one strip: the top line's pad reaches up and the bottom line's down, so neither covers the other. */
+.reach-up::after { top: auto; bottom: 0; translate: -50% 0; }
+.reach-down::after { top: 0; translate: -50% 0; }
 
 /* The night paint: the same shapes in navy, cream ink and cream edges, the yellow action unchanged; its underside turns
    cream with the edges so the press still reads on navy. A part of the page may carry the attribute too (the lively
