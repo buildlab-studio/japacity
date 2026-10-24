@@ -55,6 +55,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.lottery": "The Friday draw",
   "guide.page.numbers.name.luck": "Luck and the kiosk",
   "guide.page.numbers.name.moderation": "Blocking and reporting",
+  "guide.page.numbers.name.news": "The news",
   "guide.page.numbers.name.obligation": "Bills and debts",
   "guide.page.numbers.name.offer": "Job offers, sponsors and agents",
   "guide.page.numbers.name.pair": "Playing with a friend",
