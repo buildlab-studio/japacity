@@ -697,8 +697,9 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
         break;
       }
       case "offer.education-loan":
-        // route:education-loan-pays-the-school: the loan pays the school direct, so the whole of the tuition left is taken.
-        if (habits.plansMasters === true) command = choose(offer, "take", Number.MAX_SAFE_INTEGER);
+        // route:education-loan-pays-the-school: the loan pays the school direct and is repaid from the Graduate status. A player who made
+        // the master's the plan takes it: a borrower the whole of the tuition left, a careful player the least the lender gives.
+        if (habits.plansMasters === true) command = choose(offer, "take", habits.takesLoans ? Number.MAX_SAFE_INTEGER : 0);
         break;
       case "offer.held-funds-agent":
         command = study && habits.takesAgent && gapKobo > 0 ? choose(offer, "take", gapKobo + mulDiv(gapKobo, 1000, 10000)) : choose(offer, "walk-away");
