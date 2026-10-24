@@ -2132,7 +2132,7 @@ export type Command = { basedOn: number } & (
   | { type: "wallet/remit"; currency: ForeignCurrency; amount: number; channel: "app" | "bank" | "informal" }
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
-  /** `scheme`: ask the returns service (place:returns-service-takes-you-home, decision 0028). Missing: the return as before. */
+  /** `scheme`: ask the returns service (place:returns-service-takes-you-home, decision 0028). Missing or false: home at the character's own fare, or the assisted return when no status is held and nothing covers the fare (place:return-home-paid-or-assisted). */
   | { type: "return/home"; scheme?: boolean }
   /** A ride between two places of the city (place:rides-between-city-places, world:ride-sheet-shows-fares, decision 0017). */
   | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: RideWay }
