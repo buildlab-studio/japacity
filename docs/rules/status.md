@@ -44,6 +44,8 @@ A status is the permission you hold abroad: what you may do, when it runs out, a
 
 **status:view-shows-status** The view shows the current status: its entry, months left (null for none), the clock if running, lawful months and the settlement months they count toward, what work it allows, a `nextStep` key naming the way up, and `renew`: what `status/renew` would cost today (`months`, `currency`, `fee`, `surcharge`, from the world's variables), null when the status does not renew at the player's asking (status:renewing-a-status). On an overstayer status it carries `overstay`: `graceLeft` (the months of grace left counting the month in play, so 1 in the grace's last month and 0 once past it), `noticeLeft` (the months a notice has left, null with none), `fine` (the UAE's fine owed, null elsewhere) and `pending` (whether an application made in country holds the grace or the notice); null on any other status. It never shows the detection chance.
 
+**status:absence-breaks-settlement** While a UK status that counts toward settlement is kept from home (return:papers-return-keeps-status), its months at home add no lawful months; and a stay at home of more than 6 months inside any 12 sets the lawful months counted toward settlement back to 0, so the road to settling starts again from the next month lived in the country. Real life: absences of more than 180 days in any 12 months break continuous residence for settlement (Appendix Continuous Residence); the game: 6 months, the same. A Canadian resident's absence is read by return:papers-return-keeps-status.
+
 ## Entries
 
 | Id | Country | Months | Work | Clock on job loss | Renew | Next, if | Counts to settlement | Ban on removal |
