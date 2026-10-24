@@ -42,7 +42,7 @@ export const SEAT_KEY = "japacity.send-off.seat";
 export const WALK_KEY = "japacity.walkthrough";
 /** The setting `prologue.full`: every card of the prologue, one answer each, no preset. No screen offers it. */
 export const FULL_PROLOGUE_KEY = "japacity.prologue.full";
-/** The dev switch that opens every envelope at once, so a tester need not wait for seven in Lagos. */
+/** The dev switch that opens every envelope at once, so a tester need not wait for the game's own morning. */
 export const MORNING_KEY = "japacity.morning";
 /** The time of the last reload for the staging wall: kept in the tab's storage, gone with it. */
 export const WALL_KEY = "japacity.wall";

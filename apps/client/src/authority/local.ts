@@ -290,8 +290,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       const before = command.type === "turn/end" ? currentView() : null;
       const result = apply(command, "player");
       if (!result.ok) return Promise.resolve(result);
-      // clock:envelopes-show-real-waits: a result real life makes you wait for is sealed until the next morning in Lagos.
-      // Decision 0011: a sealed result opens with the world's next morning, at most one game day away.
+      // clock:envelopes-show-real-waits: a result real life makes you wait for is sealed until the world's next morning,
+      // at most one game day away (decision 0011).
       if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextGameMorning(now()))];
       earnTurns();
       persist();

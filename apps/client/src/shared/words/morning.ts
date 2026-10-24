@@ -1,5 +1,5 @@
 // The morning (clock:envelopes-show-real-waits): a result real life makes you wait for, the English test's band or the
-// endorsing body's answer, is sealed by the authority until seven the next morning in Lagos. While it is sealed the view
+// endorsing body's answer, is sealed by the authority until the world's next morning. While it is sealed the view
 // keeps the paper pending in the month it was due, which no paper does otherwise: a paper due this month lands as the
 // month turns. That is the sign the places that would name the result read, to say the morning instead.
 import { REAL_WAIT_DOCUMENTS, type PlayerView } from "@japacity/sim";
