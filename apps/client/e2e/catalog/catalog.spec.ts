@@ -343,8 +343,8 @@ const GRADUATE_BEFORE_ANSWER = 285;
 const GRADUATE_GRANTED = recorded("graduate-careful").commands.length - 1;
 /** The graduate's careful life with the visa interview open: the act that opens it is the command before (index 280). */
 const GRADUATE_INTERVIEW = 281;
-/** The graduate's second life a few months into London on a sponsored job (it lands at command 374). */
-const GRADUATE_IN_LONDON = 392;
+/** The graduate's second life a few months into London on a sponsored job (it lands at command 455), past its first December there. */
+const GRADUATE_IN_LONDON = 501;
 
 /** Where the city keeps the place the life stands in, read when the world opens (City.tsx, `lastPlace`). */
 const LAST_KEY = "japacity.city.last";
@@ -634,12 +634,12 @@ test("places: London built as Lagos is, its things, a colleague and the bus pass
 // played to its country by a simulated player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The simulated borrower on the graduate's life takes the Gulf contract and lands in Dubai in month 10, the guard's job its own. */
-const GULF: AbroadLife = { strategy: "borrower", life: "scenario.graduate", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
+/** The simulated borrower on the graduate's life takes the Gulf contract and lands in Dubai in month 11, the guard's job its own. */
+const GULF: AbroadLife = { strategy: "borrower", life: "scenario.graduate", seed: "three-ada-2", country: "country.uae", money: "AED", holding: 60_000 };
 /** The simulated canada player on the developer's life, the recorded developer-canada: lands in Calgary in month 42, the warehouse job its own in month 46. */
 const POINTS: AbroadLife = { strategy: "canada", life: "scenario.developer", seed: "golden-developer-canada-1", country: "country.canada", money: "CAD", holding: 60_000 };
-/** The simulated risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
-const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
+/** The simulated risky player from the front door's life takes the road once and reaches Castel Volturno in month 22, at the farm. */
+const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-20", country: "country.italy", money: "EUR", holding: 60_000 };
 
 /** A life played to its country opened in the world at `search`, past its opening words and every card. */
 async function openAbroad(page: Page, want: AbroadLife, search: string): Promise<void> {
