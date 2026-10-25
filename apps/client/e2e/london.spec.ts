@@ -13,8 +13,8 @@ import { recordedUpTo } from "./support/saves";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-/** The graduate's second life a few months into London on a sponsored job (it lands at command 374), as the catalog opens it. */
-const GRADUATE_IN_LONDON = 392;
+/** The graduate's second life a few months into London on a sponsored job (it lands at command 455), past its first December there. */
+const GRADUATE_IN_LONDON = 501;
 
 test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [streets:london-life-by-hand] given the graduate landed in London, when the life buys the bus pass, rides the bus to the big shop, does the weekly shop, takes the train to the office and goes home, then the bus asks nothing, the shop and the train take pounds, the long walk home is greyed while the bus is free, and the life ends in the room", async ({ page }) => {
   test.setTimeout(420_000);

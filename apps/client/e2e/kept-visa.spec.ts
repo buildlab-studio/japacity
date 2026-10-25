@@ -26,9 +26,9 @@ function shaped(key: string, fixed: Record<string, string>): RegExp {
   return new RegExp(escaped.replace(/\\?\{(\w+)\\?\}/g, (_: string, name: string) => (fixed[name] === undefined ? ".+" : fixed[name].replace(/[.*+?^$()|[\]\\]/g, "\\$&"))));
 }
 
-/** The developer's spending life, played in the engine to London on the Graduate visa with months left and a return with papers forecast. */
+/** The developer's spending life, played in the engine to London on the Graduate visa taken from its course, with months left and a return with papers forecast. */
 function graduateVisaSave(): string {
-  const { game } = runLife("spender", "scenario.developer", "kept-0", content, { months: 90, worldSeed: "golden-world", keepSave: true });
+  const { game } = runLife("spender", "scenario.developer", "kept-18", content, { months: 90, worldSeed: "golden-world", keepSave: true });
   const view = game.view();
   if (view.place.where !== "abroad" || view.status?.entry !== GRADUATE || (view.status.monthsLeft ?? 0) < 6 || view.place.wayHome?.shape !== "with-papers" || game.state.setpiece.open !== null) {
     throw new Error(`The life is not in the UK on the Graduate visa with a return with papers: ${JSON.stringify({ status: view.status, wayHome: view.place.wayHome })}.`);

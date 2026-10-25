@@ -7,7 +7,7 @@ import { test } from "./support/policy";
 // The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
 // world (world:sleep-ends-the-month, world:month-passes-as-lived): acts on the home's things, the bed's Sleep turning it, the results
 // over the scene.
-import { content } from "../../../packages/content/src/index";
+import { content, text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { type Broken, expectNothingBroken, NEVER_SHOWN, NO_WORDS } from "./support/check";
 import { startArchetype, startReadyLife } from "./support/door";
@@ -366,11 +366,13 @@ test.describe("the side job on a 390 px phone", () => {
     await passHomeTeach(page, 2000);
 
     const jobs = await openApp(page, "jobs");
-    const offer = jobs.locator("[data-offer]", { hasText: /tutoring/i }).first();
+    // The side job is found by the name content gives it, so the row follows the words.
+    const tutoring = text["activity.weekend-tutoring.name"]!;
+    const offer = jobs.locator("[data-offer]", { hasText: tutoring }).first();
     await offer.getByRole("radio").click();
     await jobs.locator("[data-take-offer]").click();
     await page.locator("[data-ask-main]").click();
-    const side = jobs.locator("[data-job-row]", { hasText: /tutoring/i });
+    const side = jobs.locator("[data-job-row]", { hasText: tutoring });
     await expect(side).toBeVisible();
     await expectNothingBroken(page, "on the side job", BROKEN, shownText);
 
