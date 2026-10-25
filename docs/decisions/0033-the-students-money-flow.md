@@ -18,6 +18,7 @@ Tuition owed in three instalments, in course months 1, 4 and 7, with one default
 ## Consequences
 
 - A pledged student's own money and pay are left for the living while the pledge lasts: the pledge, not the student's pounds, meets the deposit and the instalments, so a covered student is not left with nothing at each month's end.
+- The Graduate application reads the course of the student status held, or of the student status that lapsed into the grace being served, and of no other: `StatusState` carries `lapsedFrom`, the status that lapsed into an overstayer status, set by the lapse and carried on `status/granted`; it is missing where nothing lapsed (the road's arrival) and needs nothing to fill it on upgrade.
 - A careful student, and most pledged ones, complete; a student who arrived on borrowed show-money with nothing of their own still meets withdrawal, after every warning (scenario:economy-meets-its-targets, the seventh measure).
 - Every recorded life that studies abroad replays its tuition, its work and its move to the Graduate status differently from its first course month: the master's lives among the goldens and the recorded lives move from their flight.
 - New state: the course's months counted, `coursePassed` on the status slice, the stage of a missed payment, the route's `loanPaid`; new content: the schedule, the plan's offer, the loan's offer and obligation, the Graduate fee var. A state saved under the old tuition is carried by the upgrade as a schedule of its remaining charges (server:upgrade-state-is-pure).
