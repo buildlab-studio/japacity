@@ -187,11 +187,12 @@ describe("how this game was made", () => {
     expect([...made.querySelectorAll("[data-made]")].map((item) => item.getAttribute("data-made"))).toEqual(["images", "clips", "voices", "music"]);
     expect(made.body.textContent).toContain(files.credits.generated);
     expect(made.body.textContent).toContain(text["guide.page.made.approved"]);
-    // The voices line agrees with the register: the one generated voice, with its tool, and its lines shown as text.
+    // The voices line agrees with the register: the officer's generated voices, with their tool, and the lines shown as text.
     const voices = made.querySelector('[data-made="voices"]')?.textContent ?? "";
     const voiceRow = files.credits.assets.find((row) => row.file.includes("/voice/"));
-    expect(voiceRow?.attribution).toContain("Kokoro-82M");
-    expect(voices).toContain("Kokoro-82M");
+    expect(voiceRow?.attribution).toContain("Phonon S 31M");
+    expect(voices).toContain("Phonon S 31M");
+    expect(voices).toContain("two voices");
     expect(voices).toContain("every line is also shown as text");
     expect(voices).not.toMatch(/no voice in the game is generated/i);
     // The page links nothing in the repository (guide:generated-media-named-plainly).

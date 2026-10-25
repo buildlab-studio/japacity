@@ -2,7 +2,7 @@
 // officer's lines are heard and shown at once; the answers come when the line ends, when its
 // length and a margin have passed, or on a tap, whichever is first, so the scene never waits on
 // sound. The player's character never speaks: a voice would never match the one they made.
-import { OFFICER_REACTIONS, setpieceVoice } from "@japacity/content";
+import { OFFICER_REACTIONS, type OfficerVoice, setpieceVoice } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { DoorOpen, MessageCircleQuestion, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -16,7 +16,7 @@ import { useSound } from "../../shared/sound/useSound";
 import { Button } from "../../shared/ui/Button";
 import { Card, Tag } from "../../shared/ui/Panel";
 import { nameOf, say, words } from "../../shared/words/text";
-import { answered, CLOSE, closeRoom, enterRoom, GREET, openRoom, roomStore, VOICED } from "./room.store";
+import { answered, CLOSE, closeRoom, enterRoom, GREET, officerVoiceFor, openRoom, roomStore, VOICED } from "./room.store";
 import { roomWords } from "./room.words";
 
 type Setpiece = NonNullable<PlayerView["setpiece"]>;
@@ -24,10 +24,10 @@ type Setpiece = NonNullable<PlayerView["setpiece"]>;
 /** About how long a line with no clip takes to say, for its voice-like sound and its wait. */
 const MS_A_WORD = 380;
 
-/** The line's clip and length; a line with no clip gets the voice-like sound. */
-export function lineOf(key: string): SpokenLine {
-  const voice = setpieceVoice[key];
-  if (voice !== undefined) return { clip: voice.clip, ms: voice.ms };
+/** The line's clip and length in the interview's voice; a line with no clip gets the voice-like sound. */
+export function lineOf(key: string, voice: OfficerVoice): SpokenLine {
+  const clip = setpieceVoice[key]?.[voice];
+  if (clip !== undefined) return { clip: clip.clip, ms: clip.ms };
   return { clip: null, ms: words(key).split(" ").length * MS_A_WORD };
 }
 
@@ -35,8 +35,8 @@ function sceneOf(opened: number): string {
   return `${VOICED}#${String(opened)}`;
 }
 
-/** Speaks `keys` when `on` changes, and says when the answers may show. */
-function useSpoken(keys: readonly string[], on: string): { unlocked: boolean; skip: () => void } {
+/** Speaks `keys` in `voice` when `on` changes, and says when the answers may show. */
+function useSpoken(keys: readonly string[], on: string, voice: OfficerVoice): { unlocked: boolean; skip: () => void } {
   const retries = useSound((state) => state.retries);
   const [unlocked, setUnlocked] = useState(() => soundMode() !== "on");
   const skipper = useRef<() => void>(() => undefined);
@@ -47,7 +47,7 @@ function useSpoken(keys: readonly string[], on: string): { unlocked: boolean; sk
     const lines = said.current === on ? joined.split("|").slice(-1) : joined.split("|");
     said.current = on;
     setUnlocked(soundMode() !== "on");
-    const spoken = speakAll(lines.map(lineOf));
+    const spoken = speakAll(lines.map((key) => lineOf(key, voice)));
     let live = true;
     skipper.current = () => {
       spoken.skip();
@@ -60,7 +60,7 @@ function useSpoken(keys: readonly string[], on: string): { unlocked: boolean; sk
       live = false;
       spoken.skip();
     };
-  }, [on, joined, retries]);
+  }, [on, joined, retries, voice]);
   return { unlocked, skip: () => skipper.current() };
 }
 
@@ -173,14 +173,14 @@ function Lobby() {
   );
 }
 
-function Question({ setpiece, question }: { setpiece: Setpiece; question: NonNullable<Setpiece["question"]> }) {
+function Question({ setpiece, question, voice }: { setpiece: Setpiece; question: NonNullable<Setpiece["question"]>; voice: OfficerVoice }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const { ended } = useView();
   const prelude = useStore(roomStore, (state) => state.prelude);
   const questionKey = `${VOICED}.q.${question.id}`;
   const keys = prelude === null ? [questionKey] : [prelude, questionKey];
-  const { unlocked, skip } = useSpoken(keys, `${String(setpiece.asked)}:${question.id}`);
+  const { unlocked, skip } = useSpoken(keys, `${String(setpiece.asked)}:${question.id}`, voice);
   return (
     <>
       <p className="flex items-center gap-2 text-sm font-medium text-text-2">
@@ -224,12 +224,14 @@ export function InterviewRoom({ setpiece }: { setpiece: Setpiece }) {
   const entered = useStore(roomStore, (state) => state.entered);
   const opened = useStore(roomStore, (state) => state.opened);
   const inRoom = useStore(roomStore, (state) => state.inRoom);
+  const { month } = useView();
+  const voice = officerVoiceFor({ entry: setpiece.entry, month });
   // The room is entered only before the first answer; a reload mid-interview resumes at the question.
   const lobby = setpiece.asked === 0 && !entered;
   const first = setpiece.question?.id ?? null;
   useEffect(() => {
-    openRoom();
-  }, []);
+    openRoom(voice);
+  }, [voice]);
   useEffect(() => {
     if (!inRoom) return;
     const scene = sceneOf(opened);
@@ -239,13 +241,13 @@ export function InterviewRoom({ setpiece }: { setpiece: Setpiece }) {
   // Phones limit loading (docs/design/05-audio.md, section 7): fetched ahead from the moment the application is sent, only while sound is on.
   useEffect(() => {
     const keys = [GREET, ...(first === null ? [] : [`${VOICED}.q.${first}`]), ...OFFICER_REACTIONS, CLOSE];
-    preload(keys.flatMap((key) => (setpieceVoice[key] === undefined ? [] : [setpieceVoice[key].clip])));
-  }, [first]);
+    preload(keys.flatMap((key) => (setpieceVoice[key] === undefined ? [] : [setpieceVoice[key][voice].clip])));
+  }, [first, voice]);
   return (
     <section aria-label={nameOf(setpiece.entry)} data-scene={VOICED}>
       <Card tone="attention" className="flex flex-col gap-4" data-room={lobby ? "lobby" : "room"}>
         <Header entry={setpiece.entry} open />
-        {lobby ? <Lobby /> : setpiece.question === null ? null : <Question key={`${String(setpiece.asked)}:${setpiece.question.id}`} setpiece={setpiece} question={setpiece.question} />}
+        {lobby ? <Lobby /> : setpiece.question === null ? null : <Question key={`${String(setpiece.asked)}:${setpiece.question.id}`} setpiece={setpiece} question={setpiece.question} voice={voice} />}
       </Card>
     </section>
   );
@@ -254,13 +256,14 @@ export function InterviewRoom({ setpiece }: { setpiece: Setpiece }) {
 /** The flat closing line, once the last answer is in. The decision still comes in its month. */
 export function ClosingLine({ reaction }: { reaction: string }) {
   const opened = useStore(roomStore, (state) => state.opened);
+  const voice = useStore(roomStore, (state) => state.voice);
   const keys = [reaction, CLOSE];
   useEffect(() => {
     const scene = sceneOf(opened);
     beginScene(scene);
     return () => endScene(scene);
   }, [opened]);
-  useSpoken(keys, "closing");
+  useSpoken(keys, "closing", voice);
   return (
     <section aria-label={nameOf(VOICED)} data-scene={VOICED}>
       <Card className="flex flex-col gap-4" data-room="closing">

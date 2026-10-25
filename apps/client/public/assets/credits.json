@@ -72,8 +72,8 @@
   ],
   "assets": [
     {
-      "file": "apps/client/public/voice/officer/greet.opus",
-      "attribution": "The visa officer's voice is generated with Kokoro-82M (Apache 2.0), voice bf_emma. Every line is also shown as text."
+      "file": "apps/client/public/voice/officer/m/greet.opus",
+      "attribution": "The visa officer's voices are generated with Phonon S 31M (Apache 2.0), two voices from its catalogue (Apache 2.0). Every line is also shown as text."
     }
   ],
   "fonts": [
@@ -90,5 +90,5 @@
       "attribution": "Google Sans by the Google Sans Project Authors, under the SIL Open Font License 1.1"
     }
   ],
-  "generated": "The city's models and people, their faces, the painted map, the picture tiles, the game's mark and the share previews are drawn as code by the game's makers. The one generated voice is the visa officer's. No photograph or music in the game is generated."
+  "generated": "The city's models and people, their faces, the painted map, the picture tiles, the game's mark and the share previews are drawn as code by the game's makers. The only generated voices are the visa officer's two. No photograph or music in the game is generated."
 }

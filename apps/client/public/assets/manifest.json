@@ -1,7 +1,7 @@
 {
   "note": "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published beside it under a name carrying the hash of its contents (city:places-load-on-entry). Never edit by hand.",
   "files": {
-    "credits.json": "credits.e398e54f2b9d.json",
+    "credits.json": "credits.fc5fc114967b.json",
     "places/agent-office/building_room_agent.glb": "places/agent-office/building_room_agent.3910aeb98d96.glb",
     "places/agent-office/place.json": "places/agent-office/place.fc960505e5a2.json",
     "places/airport-lagos/building_terminal-front.glb": "places/airport-lagos/building_terminal-front.cc219fa48e75.glb",
