@@ -1,5 +1,5 @@
-// The Bank abroad (world:top-band-is-a-pill, world:phone-holds-what-phones-hold): on the graduate's recorded life, landed in London with £4,716
-// (the figure follows the recording) while rent, living costs and half the tuition, £5,685 in all, fall due (the UK
+// The Bank abroad (world:top-band-is-a-pill, world:phone-holds-what-phones-hold): on the graduate's recorded life, landed in London and held to
+// £4,716 (the recorded life boards with its first month covered, so the pounds are set short) while rent, living costs and half the tuition, £5,685 in all, fall due (the UK
 // upkeep includes the phone's £15, abroad-money:arrival-opens-upkeep-and-room), the app leads with the gap and the way to close it, then the pounds,
 // then the naira and the dollars each with Change money. Once flown, there is no move to save toward.
 import type { PlayerView } from "@japacity/sim";
@@ -17,9 +17,14 @@ import { Bank } from "./Bank";
 import { PhoneApps } from "../PhoneApps";
 import { sent } from "../phone.testing";
 
-/** The graduate's careful life, replayed to the flight: the first morning abroad. */
+/** The pounds the landed graduate is held to: short of the first month's dues, as a life whose pledge pays the school would be. */
+const HELD = 471_600;
+
+/** The graduate's careful life, replayed to the flight: the first morning abroad, holding HELD in pounds. */
 function landed(): PlayerView {
-  return recordedGame("graduate-careful").view();
+  const game = recordedGame("graduate-careful");
+  setPockets(game, { GBP: HELD });
+  return game.view();
 }
 
 function dueOf(view: PlayerView): number {
@@ -27,7 +32,7 @@ function dueOf(view: PlayerView): number {
 }
 
 describe("the month's dues abroad", () => {
-  // The recorded life lands the graduate holding £4,716 (decisions 0012 and 0013).
+  // The landed graduate is held to £4,716 (decisions 0012 and 0013).
   test("[world:phone-holds-what-phones-hold] given the graduate landed in London holding £4,716 with rent, living costs and tuition due, when the dues are read, then the gap is the pounds due against the pounds held, and the naira and dollars are the way", () => {
     const view = landed();
     expect(view.place.where).toBe("abroad");
@@ -65,7 +70,7 @@ describe("the month's dues abroad", () => {
     expect(duesGap(view)).not.toBeNull();
     const band = bandMoney(view);
     expect(band.money).toBe(view.pockets.GBP.bank + view.pockets.GBP.cash);
-    // The recorded life lands with £4,716 (decision 0012).
+    // The landed graduate is held to £4,716 (decision 0012).
     expect(band.formatMoney(band.money)).toBe("£4,716");
   });
 
@@ -82,7 +87,7 @@ describe("the Bank abroad", () => {
     const app = document.querySelector<HTMLElement>('[data-phone-app="bank"]');
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
-    // The recorded life lands with £4,716 (decision 0012).
+    // The landed graduate is held to £4,716 (decision 0012).
     expect(first?.textContent).toContain(say("phone.bank.dues", { due: "£5,685", held: "£4,716" }));
     expect(say("phone.bank.dues", { due: "£5,685", held: "£4,716" })).toBe("Due this month: £5,685. You hold £4,716.");
     // The way names the pair only: Change money is said once on the screen.

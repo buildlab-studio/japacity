@@ -277,7 +277,9 @@ describe("[wallet:roads-to-the-target] the roads to it", () => {
     const game = planOn(start({ content, scenario: "scenario.developer", seed: "passbook-z", worldSeed: "passbook-world" }), UK_ROUTE);
     const view = game.view();
     const ladder = road(game, "ladder")!;
-    expect(ladder).toMatchObject({ via: "activity.job-mid-developer", state: "shut", needs: [{ type: "quality/min", quality: "quality.tech", value: 60 }] });
+    // The developer starts 18 months in, short of the mid-level rung's 24 across the developer jobs as of its tech.
+    const months = { type: "activity/tenure", activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"], months: 24 };
+    expect(ladder).toMatchObject({ via: "activity.job-mid-developer", state: "shut", needs: [{ type: "quality/min", quality: "quality.tech", value: 60 }, months] });
     const mid = content.activity["activity.job-mid-developer"]!.pay!;
     expect(ladder.monthly).toBe(kobo(view, mid.amount as number, mid.currency) - kobo(view, view.job.pay!.amount, view.job.pay!.currency));
   });

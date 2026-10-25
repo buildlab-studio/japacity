@@ -10,16 +10,20 @@ import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { nudgeOf } from "./nudge";
 
-/** The graduate landed in London with the family's send-off answered: nothing asks but the month's news. */
+/**
+ * The graduate landed in London with the family's send-off answered: nothing asks but the month's news. Its pounds are held to
+ * £4,716, short of the month's dues as a life whose pledge pays the school would be: the recorded life boards with its first month covered.
+ */
 function landed(): Game {
   const game = recordedGame("graduate-careful");
+  setPockets(game, { GBP: 471_600 });
   // Each open offer answered with its last choice, the one that says no (the send-off's skip, the ajo's no).
   for (const offer of game.view().offers) game.accept({ type: "offer/choose", offer: offer.id, choice: offer.choices.at(-1)?.id ?? "skip" });
   return game;
 }
 
 describe("the nudge on the month's dues abroad", () => {
-  // The recorded life lands holding £4,716 (activity:now-acts-and-month-acts, decisions 0014 and 0013), and the UK upkeep is the phone's
+  // The landed graduate holds £4,716 (activity:now-acts-and-month-acts, decisions 0014 and 0013), and the UK upkeep is the phone's
   // £15 (abroad-money:arrival-opens-upkeep-and-room).
   test("[world:nudge-says-one-thing] given the graduate landed in London with the month's news in and £5,685 due against £4,716 held, when the nudge is chosen, then its report line says the gap and is about the money", () => {
     const view = landed().view();
