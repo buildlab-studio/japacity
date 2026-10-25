@@ -84,8 +84,10 @@ export function actsOffered(view: Pick<PlayerView, "activities">): string[] {
   const board = hunt === undefined || hunt.done ? [] : [hunt.id, ...(hunt.params ?? [])];
   // activity:spent-body-refuses-acts: an act shut only because the body is spent stays on its thing, which says so where its button was.
   const spent = view.activities.filter((option) => option.spent === true).map((option) => option.id);
+  // activity:study-days-capped, activity:paid-tech-courses: a study held back by the month's days or another path stays, and its card says which.
+  const heldBack = view.activities.filter((option) => option.capped === true || option.onCourse === true).map((option) => option.id);
   // turn:free-slots-per-month: rest is never a thing's act; an empty slot already rests, and the bed's act is to lie down at once.
-  return [...new Set([...pickable(view.activities).filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board, ...spent])];
+  return [...new Set([...pickable(view.activities).filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board, ...spent, ...heldBack])];
 }
 
 /**

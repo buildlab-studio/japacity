@@ -9,6 +9,7 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { Meter } from "../../../shared/ui/Meter";
+import { actOnCard } from "../../../shared/words/acts";
 import { shortfall } from "../../../shared/words/cost";
 import { formatMoney } from "../../../shared/words/format";
 import { keptAtHome } from "../../../shared/words/kept";
@@ -58,6 +59,57 @@ function Renew({ held }: { held: Held }) {
       ) : (
         <button type="button" className="phone-ghost w-full justify-center" disabled={busy || view.ended || needsJob} onClick={() => setSure(true)}>
           {say("ui.status.renew")}
+        </button>
+      )}
+    </div>
+  );
+}
+
+const APPLY_GRADUATE = "activity.apply-graduate";
+
+/**
+ * status:graduate-visa-applied-for: from course month 9 the card says what the Graduate application costs, so the months to save show; once
+ * it may be made, Apply asks once more with the sum and sends it at once.
+ */
+function Graduate({ held }: { held: Held }) {
+  const view = useView();
+  const send = useGame((state) => state.send);
+  const addToPlan = useGame((state) => state.addToPlan);
+  const busy = useGame((state) => state.busy);
+  const [sure, setSure] = useState(false);
+  const cost = held.graduate;
+  if (cost === null) return null;
+  const total = formatMoney(cost.fee + cost.surcharge, cost.currency);
+  const open = view.activities.find((option) => option.id === APPLY_GRADUATE)?.allowed === true;
+  const gap = shortfall(view, [{ currency: cost.currency, amount: cost.fee + cost.surcharge }]);
+  return (
+    <div className="flex flex-col gap-2" data-graduate>
+      <p className="text-[15px] font-bold">{nameOf(APPLY_GRADUATE)}</p>
+      <p className="num text-[14px]">{say("ui.status.graduate-fees", { fee: formatMoney(cost.fee, cost.currency), surcharge: formatMoney(cost.surcharge, cost.currency), total })}</p>
+      {gap.short > 0 ? <p className="text-[13px] text-out">{say("ui.status.renew-short", { short: formatMoney(gap.short, "NGN") })}</p> : null}
+      {!open ? (
+        <p className="text-[13px] text-text-2">{say("ui.status.graduate-later")}</p>
+      ) : sure ? (
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            className="press-button w-full"
+            disabled={busy}
+            onClick={() => {
+              setSure(false);
+              void actOnCard({ activity: APPLY_GRADUATE, param: null }, { send, addToPlan });
+            }}
+            data-graduate-yes
+          >
+            {say("ui.status.graduate-yes", { total })}
+          </button>
+          <button type="button" className="phone-ghost w-full justify-center" onClick={() => setSure(false)}>
+            {say("ui.place.go-no")}
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="phone-ghost w-full justify-center" disabled={busy || view.ended} onClick={() => setSure(true)} data-graduate-apply>
+          {say("ui.status.graduate-apply")}
         </button>
       )}
     </div>
@@ -129,6 +181,7 @@ export function PapersStatus() {
               </p>
             )}
             <Renew held={held} />
+            <Graduate held={held} />
           </div>
         }
       />

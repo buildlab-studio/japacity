@@ -58,6 +58,12 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.tech-posts": "prop_long-desk",
   "activity.interview-prep": "prop_long-desk",
   "activity.open-source": "prop_long-desk",
+  // The ways to learn tech at the hub's desk (activity:paid-tech-courses, activity:free-path-keeps-a-streak).
+  "activity.learn-free": "prop_long-desk",
+  "activity.online-course": "prop_long-desk",
+  "activity.tech-diploma": "prop_long-desk",
+  "activity.bootcamp": "prop_long-desk",
+  "activity.free-internship": "prop_long-desk",
   "activity.masters-at-home": stand("🎓"),
   "activity.nurse-certification": stand("📜"),
   "activity.be-noticed": stand("✨"),
@@ -68,6 +74,8 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.community-uae": "prop_meetup-corner",
   "activity.side-gig": "prop_repair-table",
   "activity.apprentice-repair": "prop_repair-table",
+  "activity.phone-repairs": "prop_repair-table",
+  "activity.canoe-deliveries": stand("🛶"),
   "activity.open-shop": "prop_market-stall",
   // Own work opened with its capital (activity:capital-opens-own-work) and the teaching registration (document:trade-papers).
   "activity.buy-kiln": stand("🐟"),

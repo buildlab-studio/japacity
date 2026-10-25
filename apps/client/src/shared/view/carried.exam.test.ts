@@ -41,10 +41,11 @@ describe("an exam leaves the plan the month it runs", () => {
     expect(game.view().activities.find((option) => option.id === CERTIFY)?.allowed).toBe(true);
   });
 
-  test("[world:month-acts-carry-on] [activity:waiting-months-build-profile] given every activity in content marked once, when its month ends with it still open and paid for, then each with an exam on its entry leaves the plan and every other carries on", () => {
+  test("[world:month-acts-carry-on] [activity:waiting-months-build-profile] given every activity in content marked once, when its month ends with it still open and paid for, then each with an exam of one sitting on its entry leaves the plan and every other carries on", () => {
     const onceActs = Object.values(content.activity).filter((entry) => entry.once === true && plannable(entry.id));
-    const exams = onceActs.filter((entry) => entry.exam !== undefined).map((entry) => entry.id);
-    const others = onceActs.filter((entry) => entry.exam === undefined).map((entry) => entry.id);
+    const oneSitting = (entry: (typeof onceActs)[number]): boolean => entry.exam !== undefined && (entry.exam.sittings ?? 1) === 1;
+    const exams = onceActs.filter(oneSitting).map((entry) => entry.id);
+    const others = onceActs.filter((entry) => !oneSitting(entry)).map((entry) => entry.id);
     expect(exams).toContain(CERTIFY);
     expect(others).toContain("activity.masters-at-home");
     const open = (id: Id<"activity">): Pick<PlayerView, "freeSlots" | "job" | "activities"> => ({
@@ -54,7 +55,7 @@ describe("an exam leaves the plan the month it runs", () => {
     });
     for (const id of exams) expect(carriedPlan([{ activity: id, param: null }], open(id))).toEqual([]);
     for (const id of others) expect(carriedPlan([{ activity: id, param: null }], open(id))).toEqual([{ activity: id, param: null }]);
-    // Any exam act in content, whether or not marked once, is one sitting.
-    for (const entry of Object.values(content.activity).filter((one) => one.exam !== undefined && plannable(one.id))) expect(carriedPlan([{ activity: entry.id, param: null }], open(entry.id))).toEqual([]);
+    // Any exam act of one sitting in content, whether or not marked once, leaves the plan.
+    for (const entry of Object.values(content.activity).filter((one) => one.exam !== undefined && (one.exam.sittings ?? 1) === 1 && plannable(one.id))) expect(carriedPlan([{ activity: entry.id, param: null }], open(entry.id))).toEqual([]);
   });
 });

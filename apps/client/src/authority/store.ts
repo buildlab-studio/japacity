@@ -241,9 +241,10 @@ export interface GameStoreOptions {
   wait?: (ms: number) => Promise<void>;
 }
 
-export function rejectionWords(code: ServerCode): string {
+/** A refusal in words: by the reason the engine gives where it names one (route-gates:canada-funds-checked-at-departure), else by its code. */
+export function rejectionWords(code: ServerCode, reason?: string): string {
   const key = `reject.${code}`;
-  return text[key] ?? code;
+  return (reason === undefined ? undefined : text[`${key}.${reason}`]) ?? text[key] ?? code;
 }
 
 /** engine:browser-authority-for-dev-only: the failure in the player's words, by its kind, never the browser's own text; a fault that is no request's is said as ours. */
@@ -481,7 +482,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           });
         } else {
           // A retried command that comes back stale most likely landed the first time: the latest view says so, and nothing is refused.
-          if (!(retried && reply.code === "stale")) set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
+          const reason = "reason" in reply && typeof reply.reason === "string" ? reply.reason : undefined;
+          if (!(retried && reply.code === "stale")) set({ rejection: { code: reply.code, words: rejectionWords(reply.code, reason), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
           // The state may have moved on (a stale command): show the latest.
           if (!get().signedOut) await viewAfter();
         }

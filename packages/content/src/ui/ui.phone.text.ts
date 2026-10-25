@@ -135,6 +135,11 @@ export const uiPhoneText: Record<string, string> = {
   // A paper asked on the phone, before it is asked: its fee and its wait (document:degree-english-statement).
   "phone.papers.costs": "{fee}. It comes in {months} months.",
   "phone.papers.costs.one": "{fee}. It comes in a month.",
+  // document:trade-papers: the chartered exams are paid a sitting at a time; a trade's paper names the rung it opens.
+  "phone.papers.sittings": "{fee} a sitting, {count} sittings, one every {months} months.",
+  "phone.papers.opens": "Asked for by: {job}",
+  // route-gates:family-gift-counts-with-deed: the deed is what makes the gift count as your own money.
+  "phone.papers.opens.document.gift-deed": "Canada counts the family's gift once this is in your file.",
   "phone.papers.visa": "Granted",
   "phone.papers.for": "Counts toward {routes}",
   "phone.papers.for.and": "{first} and {last}",
@@ -156,6 +161,13 @@ export const uiPhoneText: Record<string, string> = {
   "phone.papers.notice.voided": "Your {paper} is no longer valid.",
 
   "phone.bills.title": "What you owe",
+  // route:education-loan-pays-the-school: the loan's charges wait on the course.
+  // obligation:paying-down-obligations: tuition behind, paid back whole, ends the fees office's stages and can reinstate a withdrawn student.
+  "phone.bills.tuition.line": "Pay what you missed and the fees office's letters stop. Paid within your two months, it reinstates you.",
+  "phone.bills.tuition.button": "Pay the arrears",
+  "phone.bills.deferred": "Nothing to pay while you study. Repayments start the month after your Graduate visa, or after the course ends without it.",
+  // activity:bootcamp-paid-after-a-job: the bootcamp's fee, owed from the first developer job.
+  "phone.bills.why.obligation.bootcamp": "The bootcamp's fee, owed now a developer job is yours. No interest.",
   "phone.jobs.held": "Your job",
   // The raise from being noticed, and when it landed: "Raised last month" (activity:waiting-months-build-profile).
   "phone.jobs.raised": "Raised {when}",
@@ -180,6 +192,13 @@ export const uiPhoneText: Record<string, string> = {
   "phone.jobs.quit-side.line": "The side money stops this month.",
   "phone.jobs.taken": "You took the job",
   "phone.jobs.left": "You quit",
+  // The held job's next pay review, in months (activity:naira-pay-reviewed-yearly).
+  "phone.jobs.review": "Pay review in {count} months",
+  "phone.jobs.review.one": "Pay review next month",
+  // The trade's next rung and a side job to take, with what each still asks (activity:each-trade-climbs-its-ladder).
+  "phone.jobs.rung": "Next up in your trade",
+  "phone.jobs.rung.open": "You can ask for it on the board now.",
+  "phone.jobs.rung.needs": "Still needs {needs}.",
 
   "phone.lotto.next": "Next draw",
   // The context pill beside an app's name in its head: a few words of what is there now, never days.

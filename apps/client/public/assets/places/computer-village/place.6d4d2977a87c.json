@@ -564,6 +564,24 @@
             "kind": "ride"
           }
         ]
+      },
+      {
+        "id": "repairs",
+        "file": "places/computer-village/prop_repair-table.glb",
+        "copy": 2,
+        "label": "city.thing.repairs",
+        "at": [
+          0.6,
+          -3.8
+        ],
+        "acts": [
+          {
+            "id": "repairs",
+            "label": "city.act.phone-repairs",
+            "kind": "sheet",
+            "stages": "activity.phone-repairs"
+          }
+        ]
       }
     ]
   }

@@ -12,6 +12,7 @@ import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/view/person";
 import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf, freeShown } from "../../shared/words/chips";
+import { courseWords, heldBackWords, studyDoesWords, studyPaysWords } from "../../shared/words/study";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
@@ -275,6 +276,9 @@ function nothingToPickWords(option: ActivityOption): string {
  */
 function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: PlayerView, planned: boolean): { words: string; kind: "needs" | "short" | "left" | "planned" } | null {
   if (planned) return { words: say("ui.needs.planned"), kind: "planned" };
+  // activity:study-days-capped, activity:paid-tech-courses: a study held back by the month's days or another path says which.
+  const held = heldBackWords(option);
+  if (!option.allowed && held !== null) return { words: held, kind: "needs" };
   // The card's "Not yet:" list says why, once; the button only says it is shut.
   if (saysWhyOnCard(option, (requirement) => alreadyDone(requirement, { routes: view.routes }))) return { words: say("ui.needs.not-yet"), kind: "needs" };
   if (!option.allowed) return { words: option.missing.length > 0 ? needsWords(option.missing, { routes: view.routes }) : nothingToPickWords(option), kind: "needs" };
@@ -300,7 +304,10 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const counts = countsWords(option.id);
   // Chips earn their place (docs/design/09-the-games-look.md section 2): the time only past a morning, at most two effects, Free only on a meal.
   const time = chipTimeOf(option.id, option.halfDays);
-  const does = chipEffectsLine(option.id);
+  // quality:skill-bands-slow-gains: a tech study says its gain at the band the character is in.
+  const does = studyDoesWords(view, option.id) ?? chipEffectsLine(option.id);
+  const course = courseWords(option.id);
+  const pays = studyPaysWords(option.id);
   // turn:free-slots-per-month: an activity that fills no slot can be planned however full the month is.
   // activity:now-acts-and-month-acts: an act done at once fills no slot either, so a full month never shuts it.
   const now = answersNow(option.id);
@@ -374,6 +381,17 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         {counts === null ? null : (
           <p className="text-sm font-medium" data-counts>
             {counts}
+          </p>
+        )}
+        {/* activity:paid-tech-courses: a course's months and what it ends with, and its cost where nothing is paid now. */}
+        {course === null ? null : (
+          <p className="text-sm" data-course>
+            {course}
+          </p>
+        )}
+        {pays === null ? null : (
+          <p className="text-sm font-medium" data-course-pays>
+            {pays}
           </p>
         )}
         {chance === null ? null : (

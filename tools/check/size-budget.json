@@ -22,8 +22,8 @@
       "measured": 40290
     },
     "total": {
-      "budget": 905000,
-      "measured": 904412
+      "budget": 909000,
+      "measured": 908473
     }
   },
   "changes": [
@@ -31,6 +31,6 @@
     "shared raised to 42304 for the account screens' passkey list, sign-out on every phone and the returning player's marks; three and the model loader each pinned to a chunk of their own",
     "total raised from 896000 to 897000 (measured 896083) for the account's plain words with the start door's second line, the Settings name check, Google's errors and the graphics mode's settled frames",
     "total lowered from 897000 to 894000 (measured 892810, from 896083) and main from 334309 to 329954 (measured 328163, from 332518) for what moved out of the first visit: the account sheet's code (Settings.tsx and its passkey list) with its 50 lines of words (the username's change, the usage counts, the bank-full switch, the passkeys, signing out and deleting) in content's ui/ui.accountSheet.text.ts, fetched by the account's row, and the dedication page's 24 lines in ui/ui.dedication.text.ts, fetched with the page; content-sim (313005 to 313959) and shared (40286 to 40414) moved a little inside their budgets as the bundler gave the looks table a chunk of its own",
-    "content-sim raised from 326689 to 349010 (measured 332391, from 311133) and total from 894000 to 905000 (measured 904412, from 892810) for the economy's ladders, learning and student money flow: the trades' rungs and side jobs, the study paths, the trade papers, the family's gift, the education loan, the payment plan and the fees office's letters, with their words, which the jobs board, the results and Bills read from a life's first month, so they stay in the first download; main (324701) and shared (37046) came in under their measured sizes"
+    "content-sim raised from 326689 to 349010 (measured 333868, from 311133) and total from 894000 to 909000 (measured 908473, from 892810) for the economy's ladders, learning and student money flow: the trades' rungs and side jobs, the study paths, the trade papers, the family's gift, the education loan, the payment plan, the sponsors' offers and the fees office's letters, with their words, and the screens that show them (the next rung and the pay review in Jobs, the courses where study is found, the instalments in Bills, the gift's deed and the places' new things), which a life reads from its first month, so they stay in the first download; main (327287) and shared (37044) came in under their measured sizes"
   ]
 }

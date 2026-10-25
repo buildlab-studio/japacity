@@ -13,9 +13,10 @@ function huntsHeldJob(pick: SlotPick | null, job: PlayerView["job"]): boolean {
   return pick !== null && pick.activity === HUNT && pick.param !== null && (pick.param === job.id || pick.param === job.side);
 }
 
-/** True for an act whose entry is an exam: one sitting, never carried into the next month (world:month-acts-carry-on, activity:waiting-months-build-profile). */
+/** True for an act whose entry is an exam of one sitting, never carried into the next month (world:month-acts-carry-on, activity:waiting-months-build-profile). An exam of several sittings is studied between them and carries on (document:trade-papers). */
 function sitsAnExam(pick: SlotPick): boolean {
-  return content.activity[pick.activity]?.exam !== undefined;
+  const exam = content.activity[pick.activity]?.exam;
+  return exam !== undefined && (exam.sittings ?? 1) === 1;
 }
 
 /** True when the view still lets this pick be planned: allowed, paid for, and its param still on offer. */
@@ -30,8 +31,8 @@ function stillOpen(view: Pick<PlayerView, "activities">, pick: SlotPick): boolea
  * started carries on into the next month until it is stopped, or until it ends itself: the view no longer allows it
  * or it can no longer be paid (a course finished, a way shut), or it was the search for a job now held. A now-act is
  * never carried, nor rest, which an empty slot already is. The free time the life has is the limit (turn:free-slots-per-month).
- * An exam is one sitting: an act with an exam on its entry leaves
- * the plan the month it runs, pass or fail, so a failed exam is sat again, and paid again, only by a new tap on its card.
+ * An exam of one sitting leaves the plan the month it runs, pass or fail, so a failed exam is sat again, and paid again, only
+ * by a new tap on its card; an exam of several sittings is studied between them and carries on until it is stopped or earned.
  */
 export function carriedPlan(plan: readonly (SlotPick | null)[], view: Pick<PlayerView, "freeSlots" | "job" | "activities">): SlotPick[] {
   return plan

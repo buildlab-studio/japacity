@@ -3,13 +3,14 @@
 // (docs/design/09-the-games-look.md section 2): each job a card with its picture, the pay as a green chip and the time to
 // answer as a word in a pill, the offer picked ringed in yellow, and one yellow button at the foot that repeats the pick.
 import { content } from "@japacity/content";
-import type { Id, OfferView, PlayerView } from "@japacity/sim";
+import type { Id, OfferView, PassbookRoad, PlayerView } from "@japacity/sim";
 import { MapPin } from "lucide-react";
 import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { payLine } from "../../../shared/words/pay";
-import { withNextTier } from "../../../shared/words/profile";
+import { tierPay, withNextTier } from "../../../shared/words/profile";
+import { requirementSentence } from "../../../shared/words/requirement";
 import { byMonths, hasWords, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { PhoneNav } from "../../../shared/phone/nav";
 import { PressButton } from "../../../shared/ui/look/PressButton";
@@ -36,6 +37,57 @@ function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
   const raise = view.job.raise;
   if (raise === undefined) return null;
   return raise.month === null ? say("phone.jobs.raised.unknown") : say("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) });
+}
+
+/** activity:naira-pay-reviewed-yearly: the months to the held job's next pay review, "Pay review in 5 months"; null for a job not reviewed. */
+function reviewWords(view: Pick<PlayerView, "job">): string | null {
+  const months = view.job.review;
+  return months === undefined ? null : sayCount("phone.jobs.review", months, { count: months });
+}
+
+/**
+ * activity:each-trade-climbs-its-ladder: the next rung of the held job's trade, the passbook's ladder road (wallet:roads-to-the-target)
+ * when it asks months in the job held. The road's fallback, a better-paid job of another trade, is no rung of this one.
+ */
+function nextRung(view: Pick<PlayerView, "job" | "passbook">): PassbookRoad | null {
+  const held = view.job.id;
+  const road = view.passbook?.roads.find((each) => each.road === "ladder");
+  if (held === null || road === undefined) return null;
+  const entry = content.activity[road.via as Id<"activity">];
+  return entry?.requires.some((need) => need.type === "activity/tenure" && need.activities.includes(held)) === true ? road : null;
+}
+
+/** A side job to take while none is held: the passbook's side road (wallet:roads-to-the-target). */
+function sideRoad(view: Pick<PlayerView, "job" | "passbook">): PassbookRoad | null {
+  if (view.job.side !== null) return null;
+  return view.passbook?.roads.find((each) => each.road === "side" && each.state !== "taken") ?? null;
+}
+
+/** What a road still asks, "Still needs strong care.", or that the board can be asked now; null for a road shut on nothing listed. */
+function roadLine(view: Pick<PlayerView, "routes">, road: PassbookRoad): string | null {
+  if (road.state === "open") return say("phone.jobs.rung.open");
+  if (road.needs.length === 0) return null;
+  return say("phone.jobs.rung.needs", { needs: road.needs.map((need) => lowerFirst(requirementSentence(need, { routes: view.routes }))).join(", ") });
+}
+
+/** A rung or a side job to reach for: its picture, name and pay, and what it still asks. */
+function RoadRow({ road, pay, line, data }: { road: PassbookRoad; pay: string | null; line: string | null; data: "rung" | "side" }) {
+  return (
+    <PicCard
+      pic={road.via}
+      tint="study"
+      title={nameOf(road.via)}
+      line={line === null ? null : <p {...(road.state === "open" ? {} : { "data-rung-needs": true })}>{line}</p>}
+      chips={pay === null ? null : <MoneyChip className="whitespace-normal">{pay}</MoneyChip>}
+      {...(data === "rung" ? { "data-job-rung": road.via } : { "data-job-side-road": road.via })}
+    />
+  );
+}
+
+/** A written pay a month as words, for a job not held. */
+function writtenPay(job: Id<"activity">): OfferView["pay"] {
+  const pay = content.activity[job]?.pay;
+  return pay === undefined || pay === null || typeof pay.amount !== "number" ? undefined : { currency: pay.currency, amount: pay.amount };
 }
 
 const HUNT = "activity.job-hunt";
@@ -100,13 +152,20 @@ function Board() {
 }
 
 /** The job held as a card: its picture, its name, the pay as a green chip, its lines, and the small act at its side. */
-function JobRow({ id, name, pay, lines, act, actLabel }: { id: Id<"activity">; name: string; pay: string | null; lines: (string | null)[]; act: (() => void) | null; actLabel: string }) {
+function JobRow({ id, name, pay, lines, review = null, act, actLabel }: { id: Id<"activity">; name: string; pay: string | null; lines: (string | null)[]; review?: string | null; act: (() => void) | null; actLabel: string }) {
   return (
     <PicCard
       pic={id}
       tint="money"
       title={name}
-      line={lines.filter((line): line is string => line !== null).map((line) => <p key={line}>{line}</p>)}
+      line={
+        <>
+          {lines.filter((line): line is string => line !== null).map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+          {review === null ? null : <p data-job-review>{review}</p>}
+        </>
+      }
       chips={pay === null ? null : <MoneyChip className="whitespace-normal">{pay}</MoneyChip>}
       side={
         act === null ? null : (
@@ -151,6 +210,9 @@ export function Jobs() {
   const onBoard = openJobs(view);
   const applied = appliedJobs(view, useGame((state) => state.monthLines));
   const raised = raiseWords(view);
+  const review = reviewWords(view);
+  const rung = nextRung(view);
+  const sideToTake = sideRoad(view);
   const months = sayCount("ui.job.months", view.job.months, { months: view.job.months });
   // The offer picked: the first until another is tapped.
   const [picked, setPicked] = useState<string | null>(null);
@@ -204,12 +266,24 @@ export function Jobs() {
           <p className="min-w-0 flex-1 text-[15px] leading-snug">{say("ui.job.none")}</p>
         </div>
       ) : (
-        <JobRow id={job} name={nameOf(job)} pay={payWords(job, view.job.pay, view)} lines={[raised, months]} act={view.ended ? null : () => quit(false)} actLabel={say("phone.jobs.quit")} />
+        <JobRow id={job} name={nameOf(job)} pay={payWords(job, view.job.pay, view)} lines={[raised, months]} review={review} act={view.ended ? null : () => quit(false)} actLabel={say("phone.jobs.quit")} />
+      )}
+      {rung === null || view.ended ? null : (
+        <>
+          <Head>{say("phone.jobs.rung")}</Head>
+          <RoadRow road={rung} pay={payLine(writtenPay(rung.via as Id<"activity">) ?? null)} line={roadLine(view, rung)} data="rung" />
+        </>
       )}
       {side === null ? null : (
         <>
           <Head>{say("phone.jobs.side")}</Head>
           <JobRow id={side} name={nameOf(side)} pay={payWords(side, view.job.sidePay, view)} lines={[]} act={view.ended ? null : () => quit(true)} actLabel={say("phone.jobs.quit")} />
+        </>
+      )}
+      {sideToTake === null || view.ended ? null : (
+        <>
+          <Head>{say("phone.jobs.side")}</Head>
+          <RoadRow road={sideToTake} pay={payWords(sideToTake.via as Id<"activity">, tierPay(view, sideToTake.via), view)} line={roadLine(view, sideToTake)} data="side" />
         </>
       )}
 

@@ -73,4 +73,7 @@ export const activityLearningText: Record<string, string> = {
   "line.activity.reviewed": "Your pay was reviewed: {amount} a month from now.",
   "line.activity.certificate": "You finished a certificate. It goes in your portfolio.",
   "line.activity.course-finished": "You finished {activity}.",
+  // document:trade-papers: a sitting of the chartered exams, passed or sat again six months on.
+  "line.activity.exam-passed.activity.ican-exams": "A sitting of the chartered exams: {right} of {asked} right. You passed it.",
+  "line.activity.exam-failed.activity.ican-exams": "A sitting of the chartered exams: {right} of {asked} right. A pass needs {pass}. The next sitting is in six months.",
 };

@@ -1,5 +1,5 @@
 {
   "about": "server:content-version-sealed: the content version and the fingerprint of what a replay depends on (the content's data and the simulation's code, comments and layout aside). Written by pnpm content:seal; read by pnpm check:version.",
   "version": "1",
-  "fingerprint": "e6a1b86b176b7d58467d802086b0c3217c9884cde28cf7a42d3878a91733797b"
+  "fingerprint": "ccad1dbebd7f6bf9843c4880e4f2e51d0883d4d44df4a5349d434f3b44e2cd51"
 }

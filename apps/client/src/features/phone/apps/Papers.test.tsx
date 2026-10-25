@@ -67,7 +67,9 @@ describe("the Papers app", () => {
     const apps = [...document.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"));
     expect(apps.indexOf("papers")).toBe(apps.indexOf("japa") + 1);
     expect(document.querySelector<HTMLElement>('[data-app="papers"]')?.style.background).toBe("var(--app-papers)");
-    expect(PHONE_ACTS).toEqual(new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence", "activity.degree-english"]));
+    expect(PHONE_ACTS).toEqual(
+      new Set(["activity.get-transcript", "activity.get-eca", "activity.request-verification", "activity.renew-licence", "activity.degree-english", "activity.get-trcn", "activity.ican-exams", "activity.gift-deed"]),
+    );
   });
 
   test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] [route:degree-meets-masters-english] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office, and no English result, since the degree is the master's English", async () => {

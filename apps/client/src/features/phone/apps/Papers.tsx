@@ -74,9 +74,21 @@ function costsWords(row: PaperRow): string | null {
   const entry = content.activity[act.activity as keyof typeof content.activity];
   const paper = content.document[row.id as keyof typeof content.document];
   const naira = (entry?.cost ?? []).reduce((sum, cost) => sum + (cost.currency === "NGN" && typeof cost.amount === "number" ? cost.amount : 0), 0);
+  // document:trade-papers: exams of several sittings are paid a sitting at a time, every so many months of study.
+  const sittings = entry?.exam?.sittings ?? 1;
+  if (sittings > 1 && naira > 0) return say("phone.papers.sittings", { fee: formatMoney(naira, "NGN"), count: sittings, months: entry?.onMonth?.[0]?.at ?? 0 });
   if (paper === undefined || naira === 0 || paper.wait[0] !== paper.wait[1]) return null;
   const months = paper.wait[0];
   return sayCount("phone.papers.costs", months, { fee: formatMoney(naira, "NGN"), months });
+}
+
+/**
+ * What a paper opens beside the ways out (document:trade-papers, route-gates:family-gift-counts-with-deed): "A senior teacher's post asks for it",
+ * or the paper's own words where it opens money a way counts. Null for any other.
+ */
+function opensWords(row: PaperRow): string | null {
+  if (row.opens === undefined || row.state === "held") return null;
+  return row.opens === row.id ? say(`phone.papers.opens.${row.id}`) : say("phone.papers.opens", { job: nameOf(row.opens) });
 }
 
 /** The plan's English when it is the degree and no paper (route:degree-meets-masters-english): the degree stands in the box as the English. */
@@ -101,6 +113,7 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
   const left = paper === undefined ? null : monthsLeft(paper, view.month);
   const counts = countsWords(row.counts);
   const costs = costsWords(row);
+  const opens = opensWords(row);
   const act = row.act;
   const tone = row.kind === "visa" || row.state === "held" ? "held" : row.state;
   return (
@@ -124,6 +137,11 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
             {counts === null ? null : (
               <span className="text-[13px] text-text-2" data-paper-counts>
                 {counts}
+              </span>
+            )}
+            {opens === null ? null : (
+              <span className="text-[13px] text-text-2" data-paper-opens>
+                {opens}
               </span>
             )}
             {costs === null ? null : (

@@ -283,6 +283,24 @@
         ]
       },
       {
+        "id": "exam-desk",
+        "file": "places/english-test-centre/prop_test-desk.glb",
+        "copy": 1,
+        "label": "city.thing.test-desk",
+        "at": [
+          0,
+          -2.6
+        ],
+        "acts": [
+          {
+            "id": "chartered",
+            "label": "city.act.exam",
+            "kind": "sheet",
+            "stages": "setpiece.ican-exam"
+          }
+        ]
+      },
+      {
         "id": "door",
         "file": "shared/prop/prop_room-door.glb",
         "copy": 0,

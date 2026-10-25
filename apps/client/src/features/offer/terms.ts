@@ -36,6 +36,15 @@ function sponsorCurrency(entry: OfferEntry): Currency | null {
   return null;
 }
 
+/** The currency a choice's money moves in: its first money effect's, or its obligation's. Null when it moves none. */
+export function choiceCurrency(effects: readonly Effect[]): Currency | null {
+  for (const effect of effects) {
+    if (effect.type === "money/add" || effect.type === "money/take" || effect.type === "money/pay-fee") return effect.currency;
+    if (effect.type === "obligation/open") return content.obligation[effect.obligation]?.currency ?? null;
+  }
+  return null;
+}
+
 const currencies = new Map<Id<"offer">, Map<string, Currency>>();
 
 /** Which of an entry's terms are money, and in what currency. */
@@ -49,6 +58,19 @@ export function moneyTerms(id: Id<"offer">): Map<string, Currency> {
       for (const effect of [...choice.effects, ...(choice.fraudEffects ?? [])]) {
         const money = moneyTerm(effect);
         if (money !== null && !found.has(money[0])) found.set(money[0], money[1]);
+      }
+    }
+    // An amount picked between two terms is money in the currency its choice pays or owes in (the study lender's pounds).
+    for (const choice of entry.choices) {
+      const currency = choiceCurrency(choice.effects);
+      if (choice.pick === null || currency === null) continue;
+      for (const term of [choice.pick.minTerm, choice.pick.maxTerm]) if (!found.has(term)) found.set(term, currency);
+    }
+    // abroad-money:missed-tuition-runs-in-stages: the payment plan's offer names the instalment it spreads the tuition into.
+    for (const choice of entry.choices) {
+      for (const effect of choice.effects) {
+        const currency = effect.type === "obligation/plan" ? content.obligation[effect.obligation]?.currency : undefined;
+        if (currency !== undefined && "instalment" in entry.terms && !found.has("instalment")) found.set("instalment", currency);
       }
     }
     const salary = sponsorCurrency(entry);

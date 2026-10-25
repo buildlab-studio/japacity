@@ -7,6 +7,7 @@ import type { Currency, PlayerView } from "@japacity/sim";
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { clockWords } from "../../../shared/words/quality";
+import { tuitionArrears } from "../../../shared/words/tuition";
 import { hasWords, inMonths, nameOf, say, sayCount } from "../../../shared/words/text";
 import { Head, useAsk, type AskSpec } from "../act";
 import { GhostButton, MoneyChip, PicCard, WordChip } from "../ui";
@@ -16,8 +17,13 @@ import { HomeCard } from "./Home";
 type Owed = PlayerView["obligations"][number];
 
 /** What paying a bill now would send, and its words, or null when it is taken at the month's end. */
-export function payNow(owed: Owed): { amount: number; line: string; button: string; locked: boolean } | null {
+export function payNow(owed: Owed, month: number): { amount: number; line: string; button: string; locked: boolean } | null {
   const type = content.obligation[owed.entry]?.type;
+  // obligation:paying-down-obligations, abroad-money:missed-tuition-runs-in-stages: tuition behind is paid back whole, the way out of every stage.
+  if (type === "tuition") {
+    const arrears = owed.missed > 0 ? tuitionArrears(owed, month) : 0;
+    return arrears > 0 ? { amount: arrears, line: say("phone.bills.tuition.line"), button: say("phone.bills.tuition.button"), locked: false } : null;
+  }
   if (type === "loan" || type === "group-loan") {
     if (owed.outstanding <= 0) return null;
     const amount = owed.due > 0 ? Math.min(owed.due, owed.outstanding) : owed.outstanding;
@@ -65,6 +71,17 @@ export function nextTakenAhead(owed: Owed, month: number): number | null {
     if (age >= 0 && age % every === 0) return ahead;
   }
   return null;
+}
+
+/**
+ * A bill's line: a loan whose charges wait says so and when they start (route:education-loan-pays-the-school); a bill with words of its own
+ * says what it is (the bootcamp's fee, activity:bootcamp-paid-after-a-job); else when it is taken, unless it is paid from the slip.
+ */
+function billLine(owed: Owed, pay: ReturnType<typeof payNow>, month: number): string | null {
+  if (owed.deferred !== undefined) return say("phone.bills.deferred");
+  const why = `phone.bills.why.${owed.entry}`;
+  if (hasWords(why)) return say(why);
+  return pay === null ? (nextTaken(owed, month) ?? say("phone.bills.auto")) : null;
 }
 
 // The notice words are content's: `<obligation id>.notice` with `{amount}` is the key read here.
@@ -126,15 +143,15 @@ export function Bills() {
           <ul className="flex flex-col gap-2.5">
             {owed.map((bill) => {
               const currency: Currency = content.obligation[bill.entry]?.currency ?? "NGN";
-              const pay = view.ended ? null : payNow(bill);
+              const pay = view.ended ? null : payNow(bill, view.month);
               const kind = content.obligation[bill.entry]?.type;
               return (
-                <li key={bill.id} data-bill={bill.id} data-due={bill.due > 0 ? "true" : "false"}>
+                <li key={bill.id} data-bill={bill.id} data-bill-entry={bill.entry} data-due={bill.due > 0 ? "true" : "false"}>
                   <PicCard
                     pic="phone.bill"
                     tint={bill.missed > 0 ? "food" : "plain"}
                     title={bill.due > 0 ? noticeWords(bill, currency) : nameOf(bill.entry)}
-                    line={pay === null ? (nextTaken(bill, view.month) ?? say("phone.bills.auto")) : null}
+                    line={billLine(bill, pay, view.month)}
                     chips={
                       bill.outstanding <= 0 && bill.missed <= 0 && bill.state === "active" ? null : (
                         <>

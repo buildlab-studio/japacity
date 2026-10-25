@@ -4,6 +4,8 @@ export const rejectText: Record<string, string> = {
   "reject.clock-went-back": "The clock went back. Try again.",
   "reject.setpiece-open": "Answer what is in front of you first.",
   "reject.not-legal": "You cannot do that now.",
+  // route-gates:canada-funds-checked-at-departure: a flight refused because the funds shown are short on the day.
+  "reject.not-legal.funds": "Your funds are short of what Canada asks to see. The flight waits until the money is back.",
   "reject.cannot-afford": "You do not have enough money for that.",
   "reject.unknown-id": "That is not something the game knows.",
   "reject.bad-amount": "That amount will not work. Use a whole amount within the limit.",
