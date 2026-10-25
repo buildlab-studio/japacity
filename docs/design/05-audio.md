@@ -1,6 +1,6 @@
 # Audio
 
-**Context and scope.** The game's sound: the interface's small sounds, the visa officer's spoken lines, and how both behave inside a phone's browser, where sound may start only after a tap and may be refused at any time. The rules that hold it are world:interface-sounds-made-live, world:motions-under-half-second and assets:ai-media-recorded-and-credited. The code is in `apps/client/src/shared/sound/`.
+**Context and scope.** The game's sound: the interface's small sounds, the visa officer's spoken lines, and how both behave inside a phone's browser, where sound may start only after a tap and may be refused at any time. The rules that hold it are world:interface-sounds-made-live, world:officer-voice-drawn-per-interview, world:motions-under-half-second and assets:ai-media-recorded-and-credited. The code is in `apps/client/src/shared/sound/`.
 
 **Goals.**
 
@@ -46,15 +46,17 @@ One switch mutes every cue and every spoken line. It is in the phone's Settings 
 
 ## 5. The spoken lines
 
-The visa interview's officer is the one voice in the game: sixteen lines, from the greeting to the close (`setpiece.credibility-interview.*`). Each line's clip and its length in milliseconds sit beside its words key in `packages/content/src/setpiece/setpiece.voice.ts`; the clips are in `apps/client/public/voice/officer/`, about 320 KB for every line in both formats. A line with no clip, or whose clip is missing, plays a short voice-like sound in its place. It costs no data.
+The visa interview's officer is the one voice in the game: sixteen lines, from the greeting to the close (`setpiece.credibility-interview.*`), in two voices, a man's and a woman's. Each line's clip and its length in milliseconds, for each voice, sit beside its words key in `packages/content/src/setpiece/setpiece.voice.ts`; the clips are in `apps/client/public/voice/officer/m/` and `apps/client/public/voice/officer/f/`, about 260 KB for every line of one voice in both formats. A line with no clip, or whose clip is missing, plays a short voice-like sound in its place. It costs no data.
 
 ## 6. Where the sounds come from
 
-The cues are written as code, so they are the makers' own work and need no licence or credit. The officer's voice is generated: Kokoro-82M (Apache 2.0), voice `bf_emma`, run on the makers' machine, one clip per line, encoded as Opus at 24 kbps and MP3 at 32 kbps, mono. The assets register (`models/register.json`) names the model, the voice and the licence for each clip, and the credits say the voice is generated (assets:ai-media-recorded-and-credited, guide:generated-media-named-plainly). A recording by a person replaces a clip by its path.
+The cues are written as code, so they are the makers' own work and need no licence or credit. The officer's voices are generated: Phonon S 31M (Apache 2.0, model and voices), its catalogue voices Edwin and Bryony, both British and middle-aged, run on the makers' machine at a pinned revision with a fixed seed, one clip per line and voice, encoded as Opus at 24 kbps and MP3 at 32 kbps, mono. The assets register (`models/register.json`) names the model, its revision, the voice and the licence for each clip, and the credits say the voice is generated (assets:ai-media-recorded-and-credited, guide:generated-media-named-plainly). A recording by a person replaces a clip by its path.
 
 ## 7. Spoken lines and the browser
 
 **The rule above the others: a scene never waits on sound.** The text is the scene. Sound is added when the browser allows it, and if anything about it fails, the player gets the same scene in text.
+
+**One officer for each interview (world:officer-voice-drawn-per-interview).** The interview shows no face for the officer, only the officer's pill and the desk's tile, so either voice can sit across the desk. The client draws the voice from the month the interview is held in, which stays put while it is open, so a reload brings back the same officer and interviews in other months bring either. Only that voice's clips are fetched. No word on screen says whether the officer is a man or a woman.
 
 ### How the sound layer behaves
 
