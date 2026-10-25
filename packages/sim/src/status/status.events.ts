@@ -21,6 +21,8 @@ export type StatusEvent =
       fee: { currency: Currency; amount: number } | null;
       /** An overstayer status's stages from its first month (status:overstayer-risks-detection, status:grace-before-overstaying). */
       overstay?: OverstayState;
+      /** On an overstayer status granted by a lapse, the status that lapsed into it (status:graduate-visa-applied-for). */
+      lapsedFrom?: Id<"status">;
       /** A partner status granted in country past the grace settles at these months (person:partner-route-in-country). */
       settleMonths?: number;
       /** A kept status's months at home still inside the window status:absence-breaks-settlement reads. */

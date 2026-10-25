@@ -2161,6 +2161,8 @@ export interface StatusState {
   away?: MonthsAway[];
   /** status:course-passed-or-withdrawn: a withdrawn student's permission, cut to end `tuning.status.curtailMonths` on; `expiresMonth` is the status's own end, restored on reinstatement. Missing: not withdrawn. */
   withdrawn?: { expiresMonth: number | null };
+  /** status:graduate-visa-applied-for: on an overstayer status, the status that lapsed into it, whose grace this is. Missing: none did (the road's arrival). */
+  lapsedFrom?: Id<"status">;
 }
 
 /**

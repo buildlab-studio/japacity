@@ -351,6 +351,7 @@ function grant(
   why: GrantWhy,
   fee: MoneyParam | null,
   kept: KeptStatusMonths | null = null,
+  lapsedFrom: Id<"status"> | null = null,
 ): BaseEvent[] {
   const entry = statusEntry(ctx.content, status);
   const month = ctx.state.turn.month;
@@ -371,6 +372,7 @@ function grant(
       why,
       fee,
       ...(isOverstayer(ctx.content, status) ? { overstay: freshOverstay(entry, month) } : {}),
+      ...(lapsedFrom === null ? {} : { lapsedFrom }),
       ...(tenYears ? { settleMonths: ctx.content.tuning.status.overstayPartnerSettleMonths } : kept?.settleMonths !== undefined ? { settleMonths: kept.settleMonths } : {}),
       ...(kept?.away === undefined ? {} : { away: kept.away }),
     },
@@ -387,7 +389,7 @@ function lapse(ctx: Ctx, why: LapseWhy): BaseEvent[] {
   if (now === null) return [];
   const events = record(ctx, [{ type: "status/lapsed", status: now.held.entry, why }]);
   const overstayer = countryEntry(ctx.content, now.entry.country).overstayer;
-  if (overstayer !== null) events.push(...grant(ctx, overstayer, null, "lapsed", null));
+  if (overstayer !== null) events.push(...grant(ctx, overstayer, null, "lapsed", null, null, now.held.entry));
   housing(ctx, now.held.entry, overstayer);
   // route:lapsed-route-known-again: the permission is gone, so a route into the country that was flown is known again.
   ctx.apply([{ type: "route/lapse", country: now.entry.country }], { source: now.held.entry, param: null, terms: {} });
@@ -724,17 +726,17 @@ function courseMonthPlayed(ctx: Ctx): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * The course the application reads: the current status's when it runs one, from its `anyFrom` month; else, in the grace, the course of the status
- * that lapsed into it, read from the student entries of the country. Null when no application can be made now.
+ * The course the application reads: the student status's held, from its `anyFrom` month; else, in a grace, the course of the student status that
+ * lapsed into it. The slice's course is that status's, since every status with a course begins its own. The grace of any other status, a Graduate
+ * status's among them, reads no course: the route is applied for once, from the student status. Null when no application can be made now.
  */
 function courseToApply(read: ReadCtx): NonNullable<StatusEntry["course"]> | null {
   const held = read.state.status.current;
   if (held === null || read.state.status.course?.passed !== true) return null;
   const course = statusEntry(read.content, held.entry).course;
   if (course !== undefined) return courseMonth(held) >= course.anyFrom ? course : null;
-  if (!inGrace(read)) return null;
-  const country = statusEntry(read.content, held.entry).country;
-  return Object.values(read.content.status).find((entry) => entry.course !== undefined && entry.country === country)?.course ?? null;
+  if (!inGrace(read) || held.lapsedFrom === undefined) return null;
+  return statusEntry(read.content, held.lapsedFrom).course ?? null;
 }
 
 /** status:graduate-visa-applied-for: the fee and the surcharge for the months of the status applied for, today, in the country's money. */
@@ -821,6 +823,7 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
           monthsHeld: event.monthsHeld,
           job: event.job,
           ...(event.overstay === undefined ? {} : { overstay: event.overstay }),
+          ...(event.lapsedFrom === undefined ? {} : { lapsedFrom: event.lapsedFrom }),
           ...(event.settleMonths === undefined ? {} : { settleMonths: event.settleMonths }),
           ...(event.away === undefined ? {} : { away: event.away }),
         },

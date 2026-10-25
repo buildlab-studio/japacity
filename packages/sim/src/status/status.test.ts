@@ -14,7 +14,7 @@ import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
-import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
+import { coursePassed, inGrace, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
 import { monthlyPay } from "../activity/activity.pay";
 import { tuitionArrears } from "../obligation/obligation.logic";
 import { setPockets } from "../testing/wallet";
@@ -487,6 +487,67 @@ describe("the Graduate visa", () => {
     const shut = flown(content, { vars: () => ({ "var.uk-graduate-months": 0 }) });
     playMonths(shut, 13);
     shut.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+  });
+
+  /** Plays on, a month at a time, until the status held is the UK overstayer, within `most` months, and checks it is in its grace. */
+  function playToLapse(game: Game, most: number): void {
+    for (let played = 0; played < most && current(game).entry !== OVERSTAYER; played += 1) playMonths(game, 1);
+    expect(current(game).entry).toBe(OVERSTAYER);
+    expect(inGrace(readOf(game))).toBe(true);
+  }
+
+  /** Enough pounds that the fee and the surcharge are never what stops the application. */
+  const PLENTY = 100 * (GRADUATE_FEE + 2 * SURCHARGE_YEAR);
+
+  test("[status:graduate-visa-applied-for] given a Graduate visa granted from the student status and run out into its grace, when the application is asked for again with money to pay, then it is not legal: the route is applied for once, from the student status", () => {
+    const game = flown(content);
+    playMonths(game, 12);
+    game.accept({ type: "activity/now", activity: APPLY, param: null });
+    expect(current(game).entry).toBe(UK_GRADUATE);
+    playToLapse(game, game.world().vars["var.uk-graduate-months"]! + 1);
+    expect(coursePassed(readOf(game))).toBe(true);
+    setPockets(game, { GBP: PLENTY });
+    game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+  });
+
+  test("[status:graduate-visa-applied-for] given the course passed and a sponsored worker's status taken after it, when that status lapses into its grace and the application is asked for with money to pay, then it is not legal: the grace is not the student status's", () => {
+    const game = flown(content);
+    playMonths(game, 13);
+    expect(coursePassed(readOf(game))).toBe(true);
+    applyEffects(game, [{ type: "status/grant", status: SPONSORED, job: JUNIOR_DEV }]);
+    applyEffects(game, [{ type: "status/lose" }]);
+    playToLapse(game, 0);
+    setPockets(game, { GBP: PLENTY });
+    game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+  });
+
+  test("[status:graduate-visa-applied-for] given the course passed, a return home, and a sponsored worker's status in the UK later, when that status lapses into its grace and the application is asked for with money to pay, then it is not legal", () => {
+    const game = flown(content);
+    playMonths(game, 13);
+    expect(coursePassed(readOf(game))).toBe(true);
+    applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
+    applyEffects(game, [{ type: "status/lose" }]);
+    expect(game.state.status.current).toBeNull();
+    playMonths(game, 6);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }]);
+    applyEffects(game, [{ type: "status/grant", status: SPONSORED, job: JUNIOR_DEV }]);
+    playMonths(game, 6);
+    applyEffects(game, [{ type: "status/lose" }]);
+    playToLapse(game, 0);
+    expect(coursePassed(readOf(game))).toBe(true);
+    setPockets(game, { GBP: PLENTY });
+    game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
+  });
+
+  test("[status:graduate-visa-applied-for] given the course passed and the student status run out into its own grace, when the application is judged, then it holds; past that grace it does not", () => {
+    const game = flown(content);
+    playToLapse(game, entryOf(STUDENT).months as number);
+    setPockets(game, { GBP: PLENTY });
+    expect(check(readOf(game), { type: "status/course-done" }).met).toBe(true);
+    playMonths(game, entryOf(OVERSTAYER).graceMonths!);
+    expect(inGrace(readOf(game))).toBe(false);
+    setPockets(game, { GBP: PLENTY });
+    game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal");
   });
 
   test("[status:graduate-visa-applied-for] given a student, when the status is viewed, then the application's cost shows from course month 9 and not before", () => {
