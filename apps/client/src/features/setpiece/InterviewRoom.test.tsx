@@ -1,7 +1,7 @@
-import { content, OFFICER_REACTIONS, setpieceVoice, text, uiRoomText, uiSoundText } from "@japacity/content";
+import { content, OFFICER_REACTIONS, OFFICER_VOICES, type OfficerVoice, setpieceVoice, text, uiRoomText, uiSoundText } from "@japacity/content";
 import type { Game } from "@japacity/sim/testing";
 import { uk } from "@japacity/sim/testing";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/sound/sound.testing";
@@ -9,15 +9,25 @@ import { installSoundWake, MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } fro
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { renderWithGame } from "../../shared/testing/person";
 import { after, interviewOpened, room } from "./interview.testing";
-import { CLOSE, drawReaction, GREET, roomStore, VOICED } from "./room.store";
+import { CLOSE, drawReaction, GREET, officerVoiceFor, roomStore, VOICED } from "./room.store";
 import { SetpieceView } from "./SetpieceView";
 
 const entry = content.setpiece[VOICED]!;
 /** The longest line, so waiting this long lets any line's answers show. */
-const LONGEST = Math.max(...Object.values(setpieceVoice).map((voice) => voice.ms));
+const LONGEST = Math.max(...Object.values(setpieceVoice).flatMap((voices) => OFFICER_VOICES.map((voice) => voices[voice].ms)));
 
-function clipOf(key: string): string {
-  return `/voice/${setpieceVoice[key]!.clip}`;
+/** The voice this game's interview is held in. */
+function voiceOf(game: Game): OfficerVoice {
+  return officerVoiceFor({ entry: VOICED, month: game.view().month });
+}
+
+function clipOf(key: string, game: Game): string {
+  return `/voice/${setpieceVoice[key]![voiceOf(game)].clip}`;
+}
+
+/** Every clip of both voices, for a fake that fails or hangs them all. */
+function everyClip(keep: (key: string) => boolean = () => true): string[] {
+  return Object.entries(setpieceVoice).filter(([key]) => keep(key)).flatMap(([, voices]) => OFFICER_VOICES.map((voice) => voices[voice].clip));
 }
 
 function notice(): string | null {
@@ -90,7 +100,7 @@ describe("walking in", () => {
     expect(within(room()).getByRole("button", { name: uiRoomText["room.enter"]! })).toBeDefined();
     expect(answersOpen()).toBe(false);
     const first = `${VOICED}.q.${game.view().setpiece!.question!.id}`;
-    const expected = [GREET, first, ...OFFICER_REACTIONS, CLOSE].map((key) => `${clipOf(key)}.opus`);
+    const expected = [GREET, first, ...OFFICER_REACTIONS, CLOSE].map((key) => `${clipOf(key, game)}.opus`);
     expect([...fake.fetched].sort()).toEqual([...expected].sort());
   });
 
@@ -102,11 +112,11 @@ describe("walking in", () => {
     expect(within(room()).getByText(text[GREET]!)).toBeDefined();
     expect(within(room()).getByText(text[`${VOICED}.q.${question.id}`]!)).toBeDefined();
     expect(answersOpen()).toBe(false);
-    expect(fake.played).toEqual([`${clipOf(GREET)}.opus`]);
+    expect(fake.played).toEqual([`${clipOf(GREET, game)}.opus`]);
     expect(notice()).toBe("on");
     fake.endPlaying();
     await after(0);
-    expect(fake.played).toEqual([`${clipOf(GREET)}.opus`, `${clipOf(`${VOICED}.q.${question.id}`)}.opus`]);
+    expect(fake.played).toEqual([`${clipOf(GREET, game)}.opus`, `${clipOf(`${VOICED}.q.${question.id}`, game)}.opus`]);
     expect(answersOpen()).toBe(false);
     fake.endPlaying();
     await after(0);
@@ -170,18 +180,18 @@ describe("the scene completes whatever sound does", () => {
   });
 
   test("given the blocked notice, when it is tapped, then the question is spoken", async () => {
-    const { fake } = await open({ blocked: true });
+    const { fake, game } = await open({ blocked: true });
     await enter();
     await after(READY_MS);
     fake.allow();
     fireEvent.click(screen.getByRole("button", { name: uiSoundText["sound.notice.blocked"]! }));
     await after(0);
     expect(notice()).toBe("none");
-    expect(fake.played).toEqual([`${clipOf(`${VOICED}.q.who-pays`)}.opus`]);
+    expect(fake.played).toEqual([`${clipOf(`${VOICED}.q.who-pays`, game)}.opus`]);
   });
 
   test("given every question's clip missing, then the voice-like sound stands in for each and the scene runs to its closing line", async () => {
-    const missing = Object.keys(setpieceVoice).filter((key) => key.includes(".q.")).map((key) => setpieceVoice[key]!.clip);
+    const missing = everyClip((key) => key.includes(".q."));
     const { fake } = await open({ missing, autoEnd: true });
     await enter();
     await playThrough(100);
@@ -190,10 +200,9 @@ describe("the scene completes whatever sound does", () => {
   });
 
   test("given clips that never finish loading, then each question's answers show at its known length plus the margin and the scene runs to its closing line", async () => {
-    const hanging = Object.values(setpieceVoice).map((voice) => voice.clip);
-    const { fake } = await open({ hanging });
+    const { fake, game } = await open({ hanging: everyClip() });
     await enter();
-    const greet = setpieceVoice[GREET]!.ms + MARGIN_MS;
+    const greet = setpieceVoice[GREET]![voiceOf(game)].ms + MARGIN_MS;
     await after(greet - 50);
     expect(answersOpen()).toBe(false);
     await playThrough(2 * (LONGEST + MARGIN_MS) + 100);
@@ -230,7 +239,7 @@ describe("the scene completes whatever sound does", () => {
     await enter();
     fireEvent.click(screen.getByRole("button", { name: uiSoundText["sound.notice.saver"]! }));
     await after(0);
-    const question = `${clipOf(`${VOICED}.q.${game.view().setpiece!.question!.id}`)}.opus`;
+    const question = `${clipOf(`${VOICED}.q.${game.view().setpiece!.question!.id}`, game)}.opus`;
     expect(fake.fetched).toContain(question);
     expect(fake.played).toEqual([question]);
   });
@@ -279,5 +288,51 @@ describe("what the officer says", () => {
       seen.add(drawReaction());
     }
     expect([...seen].sort()).toEqual([...OFFICER_REACTIONS].sort());
+  });
+});
+
+/** The voice folders a list of clip addresses comes from. */
+function folders(paths: readonly string[]): string[] {
+  return [...new Set(paths.map((path) => path.replace(/^\/voice\/officer\/([a-z]+)\/.*$/, "$1")))];
+}
+
+describe("the officer's voice", () => {
+  test("[world:officer-voice-drawn-per-interview] given an interview, when it is fetched ahead, entered, answered through and opened again as a reload opens it, then every line comes in the one voice drawn for it", async () => {
+    const game = interviewOpened();
+    const voice = voiceOf(game);
+    const first = await open({ autoEnd: true }, game);
+    expect(folders(first.fake.fetched)).toEqual([voice]);
+    cleanup();
+    roomStore.setState({ opened: 0, inRoom: false, entered: false, prelude: null, answered: false, closing: null });
+    const again = await open({ autoEnd: true }, game);
+    await enter();
+    await playThrough(100);
+    expect(folders([...again.fake.fetched, ...again.fake.played])).toEqual([voice]);
+    expect(again.fake.played).toContain(`${clipOf(CLOSE, game)}.opus`);
+  });
+
+  test("[world:officer-voice-drawn-per-interview] given interviews held in different months, when each draws its officer, then both voices are heard, and the same interview draws the same voice every time", () => {
+    const drawn = Array.from({ length: 24 }, (_, index) => officerVoiceFor({ entry: VOICED, month: index + 1 }));
+    expect(new Set(drawn)).toEqual(new Set(OFFICER_VOICES));
+    for (let month = 1; month <= 24; month += 1) expect(officerVoiceFor({ entry: VOICED, month })).toBe(drawn[month - 1]);
+  });
+
+  test("[world:officer-voice-drawn-per-interview] given one interview answered strongly in one life and weakly in its twin, when the officer is drawn after each answer, then the voice never moves: the draw reads no score", () => {
+    const strong = interviewOpened();
+    const weak = interviewOpened();
+    const voice = voiceOf(strong);
+    for (let guard = 0; guard < 8 && strong.view().setpiece !== null; guard += 1) {
+      const strongQuestion = strong.view().setpiece!.question!;
+      const weakQuestion = weak.view().setpiece!.question!;
+      const best = strongQuestion.allowed.find((answer) => !strongQuestion.weak.includes(answer)) ?? strongQuestion.allowed[0]!;
+      const worst = weakQuestion.allowed.at(-1)!;
+      strong.send({ type: "setpiece/answer", question: strongQuestion.id, answer: best });
+      weak.send({ type: "setpiece/answer", question: weakQuestion.id, answer: worst });
+      for (const game of [strong, weak]) {
+        const setpiece = game.view().setpiece;
+        expect(officerVoiceFor({ ...(setpiece ?? { entry: VOICED }), month: game.view().month })).toBe(voice);
+      }
+    }
+    expect(uk(strong).visa?.interviewScore).not.toBe(uk(weak).visa?.interviewScore);
   });
 });

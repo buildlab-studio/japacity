@@ -314,4 +314,4 @@ export { realNameChecks } from "./place/place.check";
 /** world:month-passes-as-lived: the lines each month-act says of itself as the month passes, with the week each comes in. */
 export { activitySignals, type ActivitySignal } from "./activity/activity.signals.text";
 /** The officer's spoken lines and their clips. */
-export { OFFICER_REACTIONS, setpieceVoice, type VoiceClip } from "./setpiece/setpiece.voice";
+export { OFFICER_REACTIONS, OFFICER_VOICES, type OfficerVoice, setpieceVoice, type VoiceClip } from "./setpiece/setpiece.voice";

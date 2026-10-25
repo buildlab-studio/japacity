@@ -5,7 +5,7 @@ import { test } from "./support/policy";
 // The visa interview, spoken (docs/design/05-audio.md, section 7), inside a faked in-app browser:
 // most players arrive through one. The graduate's recorded life is loaded just as its application went in; the interview waits in
 // the world as an ask, opened from the line under the band.
-import { setpieceVoice, text } from "../../../packages/content/src/index";
+import { OFFICER_VOICES, setpieceVoice, text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { LIVED, passCards, passHomeTeach, placeReady } from "./support/live";
@@ -123,11 +123,12 @@ for (const [app, userAgent] of Object.entries(IN_APP)) {
       await shootAtSize(page, `interview-closing-${app}`, info.project.name);
       await page.getByRole("button", { name: "Leave the room" }).click();
       await expect(room(page)).toHaveCount(0);
-      // Only this interview's clips, in one format.
-      const known = new Set(Object.values(setpieceVoice).map((clip) => clip.clip));
+      // Only this interview's clips, in one format and in the one voice drawn for it (world:officer-voice-drawn-per-interview).
+      const known = new Set(Object.values(setpieceVoice).flatMap((voices) => OFFICER_VOICES.map((officer) => voices[officer].clip)));
       expect(voice.length).toBeGreaterThan(0);
       for (const path of voice) expect(known.has(path.replace(/^\/voice\//, "").replace(/\.(opus|mp3)$/, "")), path).toBe(true);
       expect(new Set(voice.map((path) => path.split(".").at(-1))).size).toBe(1);
+      expect(new Set(voice.map((path) => path.split("/")[3])).size).toBe(1);
     });
   });
 }
