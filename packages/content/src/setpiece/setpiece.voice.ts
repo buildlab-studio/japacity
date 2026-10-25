@@ -24,7 +24,7 @@ export const setpieceVoice: Record<string, Record<OfficerVoice, VoiceClip>> = {
   "setpiece.credibility-interview.q.papers": { m: { clip: "officer/m/q-papers", ms: 4859 }, f: { clip: "officer/f/q-papers", ms: 4937 } },
   "setpiece.credibility-interview.q.living": { m: { clip: "officer/m/q-living", ms: 2847 }, f: { clip: "officer/f/q-living", ms: 2612 } },
   "setpiece.credibility-interview.q.sponsor-who": { m: { clip: "officer/m/q-sponsor-who", ms: 2429 }, f: { clip: "officer/f/q-sponsor-who", ms: 2403 } },
-  "setpiece.credibility-interview.q.agent-said": { m: { clip: "officer/m/q-agent-said", ms: 2247 }, f: { clip: "officer/f/q-agent-said", ms: 2351 } },
+  "setpiece.credibility-interview.q.course-about": { m: { clip: "officer/m/q-course-about", ms: 2926 }, f: { clip: "officer/f/q-course-about", ms: 2717 } },
   "setpiece.credibility-interview.q.gift-uncle": { m: { clip: "officer/m/q-gift-uncle", ms: 3318 }, f: { clip: "officer/f/q-gift-uncle", ms: 3422 } },
   "setpiece.credibility-interview.officer.greet": { m: { clip: "officer/m/greet", ms: 3474 }, f: { clip: "officer/f/greet", ms: 3631 } },
   "setpiece.credibility-interview.officer.react-1": { m: { clip: "officer/m/react-1", ms: 784 }, f: { clip: "officer/f/react-1", ms: 836 } },

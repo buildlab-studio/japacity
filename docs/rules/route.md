@@ -136,9 +136,9 @@ Three questions are asked. Scores are hidden from the player.
 | `why-uk`: "Why this university, and why not study in Nigeria?" | Always | `course`: "This course has modules I cannot get at home, and I can name them." | +2 with interview prep 20 or more, else 0 |
 | | | `better`: "Abroad is just better." | -1 |
 | | | `agent`: "My agent chose it." | -2 |
-| `agent-said` (follow-up to `agent`, route:answer-may-ask-follow-up): "What did the agent tell you about the course?" | After `agent` | `modules`: the modules, named | +1 with interview prep 20 or more, else -1 |
-| | | `visa`: "That it gets a visa." | -2 |
-| | | `little`: "Not much." | -1 |
+| `course-about` (follow-up to `agent`, route:answer-may-ask-follow-up): "Then what is the course about, in your own words?" | After `agent` | `modules`: "It builds on my work, and I can name the modules." | +1 with interview prep 20 or more, else -1 |
+| | | `visa`: "It is the easiest way to get a visa." | -2 |
+| | | `little`: "I would have to check the papers." | -1 |
 | `who-pays`: "Who is paying for your studies?" | Always | `own`: "My savings and my family. The statements show the history." | +2 with an unexplained share of 20% or less, else -2 |
 | | | `lender`: "Part of it is a loan from a lender. I have the agreement." | 0 |
 | | | `sponsor`: "A sponsor." | -1 |
