@@ -79,7 +79,7 @@ describe("the follow-up question", () => {
   });
 
   test("[route:answer-may-ask-follow-up] given the follow-up answered, when the next question comes, then it is the next one drawn: never a second follow-up for the one question", () => {
-    const followUp = followUpOf("why-uk", "agent");
+    const followUp = followUpOf("why-uk", "admission");
     // A follow-up whose own answer names another follow-up: the content check forbids it, and the set piece asks only one anyway.
     const chained: SetpieceEntry = {
       ...entry,
@@ -89,7 +89,7 @@ describe("the follow-up question", () => {
       const game = lifeAsking("why-uk", 0, {}, used);
       toApplied(game);
       const drawn = [...game.state.setpiece.open!.questions];
-      game.accept({ type: "setpiece/answer", question: "why-uk", answer: "agent" });
+      game.accept({ type: "setpiece/answer", question: "why-uk", answer: "admission" });
       expect(game.view().setpiece?.question?.id).toBe(followUp.id);
       game.accept({ type: "setpiece/answer", question: followUp.id, answer: followUp.answers[0]!.id });
       expect(game.state.setpiece.open?.questions).toEqual([drawn[0], followUp.id, ...drawn.slice(1)]);
@@ -115,7 +115,7 @@ describe("the follow-up question", () => {
   });
 
   test("[route:answer-may-ask-follow-up] [route:view-shows-progress-not-score] given one answer that scores differently with interview prep 0 and 20, when it names a follow-up, then the follow-up is asked at both: it follows what was said, never what it scored", () => {
-    const followUp = followUpOf("why-uk", "agent");
+    const followUp = followUpOf("why-uk", "admission");
     const why = entry.questions.find((question) => question.id === "why-uk")!;
     const changed: SetpieceEntry = { ...entry, questions: entry.questions.map((question) => (question.id === "why-uk" ? { ...why, answers: why.answers.map((answer) => (answer.id === "course" ? { ...answer, followUp: followUp.id } : answer)) } : question)) };
     const scores = new Set<number>();

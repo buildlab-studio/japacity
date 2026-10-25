@@ -32,7 +32,7 @@ function pageScore(question: string, answer: string, prep: number, unexplained: 
   const table: Record<string, number> = {
     "why-uk.course": prep >= 20 ? 2 : 0,
     "why-uk.better": -1,
-    "why-uk.agent": -2,
+    "why-uk.admission": -2,
     "who-pays.own": unexplained <= 2000 ? 2 : -2,
     "who-pays.lender": 0,
     "who-pays.sponsor": -1,

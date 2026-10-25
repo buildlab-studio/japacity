@@ -50,7 +50,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.q.why-uk": "Why this university, and why not study in Nigeria?",
   "setpiece.credibility-interview.a.why-uk.course": "This course has modules I cannot get at home, and I can name them.",
   "setpiece.credibility-interview.a.why-uk.better": "Abroad is just better.",
-  "setpiece.credibility-interview.a.why-uk.agent": "My agent chose it.",
+  "setpiece.credibility-interview.a.why-uk.admission": "It was the course I could get admission for.",
 
   "setpiece.credibility-interview.q.who-pays": "Who is paying for your studies?",
   "setpiece.credibility-interview.a.who-pays.own": "My savings and my family. The statements show the history.",
@@ -85,7 +85,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.sponsor-who.friend": "A family friend. I am not sure what he does.",
   "setpiece.credibility-interview.q.course-about": "Then what is the course about, in your own words?",
   "setpiece.credibility-interview.a.course-about.modules": "It builds on my work, and I can name the modules.",
-  "setpiece.credibility-interview.a.course-about.visa": "It is the easiest way to get a visa.",
+  "setpiece.credibility-interview.a.course-about.leave": "Any course would do. I need to leave.",
   "setpiece.credibility-interview.a.course-about.little": "I would have to check the papers.",
   "setpiece.credibility-interview.q.gift-uncle": "Tell me about this uncle. Why did he send so much?",
   "setpiece.credibility-interview.a.gift-uncle.letter": "He has paid my fees before. He wrote a letter saying where the money came from.",

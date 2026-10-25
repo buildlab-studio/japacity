@@ -163,7 +163,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
             effects: [],
           },
           { id: "better", score: -1, when: [], thenScore: null, effects: [] },
-          { id: "agent", score: -2, when: [], thenScore: null, effects: [], followUp: "course-about" },
+          { id: "admission", score: -2, when: [], thenScore: null, effects: [], followUp: "course-about" },
         ],
       },
       {
@@ -269,7 +269,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
             thenScore: 1,
             effects: [],
           },
-          { id: "visa", score: -2, when: [], thenScore: null, effects: [] },
+          { id: "leave", score: -2, when: [], thenScore: null, effects: [] },
           { id: "little", score: -1, when: [], thenScore: null, effects: [] },
         ],
       },

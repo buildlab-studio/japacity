@@ -12,9 +12,9 @@ function followUpNamedBy(question: string, answer: string): string | undefined {
 }
 
 describe("the follow-up questions", () => {
-  test("[route:answer-may-ask-follow-up] given the credibility interview, when a sponsor or the agent is the answer, then who the sponsor is and what the course is about follow, in content's words", () => {
+  test("[route:answer-may-ask-follow-up] given the credibility interview, when a sponsor or a course chosen for the admission is the answer, then who the sponsor is and what the course is about follow, in content's words", () => {
     expect(followUpNamedBy("who-pays", "sponsor")).toBe("sponsor-who");
-    expect(followUpNamedBy("why-uk", "agent")).toBe("course-about");
+    expect(followUpNamedBy("why-uk", "admission")).toBe("course-about");
     expect(text[`${INTERVIEW}.q.sponsor-who`]).toBe("Who is the sponsor, and what do they do?");
     expect(text[`${INTERVIEW}.q.course-about`]).toBe("Then what is the course about, in your own words?");
   });

@@ -135,9 +135,9 @@ Three questions are asked. Scores are hidden from the player.
 |---|---|---|---|
 | `why-uk`: "Why this university, and why not study in Nigeria?" | Always | `course`: "This course has modules I cannot get at home, and I can name them." | +2 with interview prep 20 or more, else 0 |
 | | | `better`: "Abroad is just better." | -1 |
-| | | `agent`: "My agent chose it." | -2 |
-| `course-about` (follow-up to `agent`, route:answer-may-ask-follow-up): "Then what is the course about, in your own words?" | After `agent` | `modules`: "It builds on my work, and I can name the modules." | +1 with interview prep 20 or more, else -1 |
-| | | `visa`: "It is the easiest way to get a visa." | -2 |
+| | | `admission`: "It was the course I could get admission for." | -2 |
+| `course-about` (follow-up to `admission`, route:answer-may-ask-follow-up): "Then what is the course about, in your own words?" | After `admission` | `modules`: "It builds on my work, and I can name the modules." | +1 with interview prep 20 or more, else -1 |
+| | | `leave`: "Any course would do. I need to leave." | -2 |
 | | | `little`: "I would have to check the papers." | -1 |
 | `who-pays`: "Who is paying for your studies?" | Always | `own`: "My savings and my family. The statements show the history." | +2 with an unexplained share of 20% or less, else -2 |
 | | | `lender`: "Part of it is a loan from a lender. I have the agreement." | 0 |
@@ -178,7 +178,7 @@ Three questions are asked. Scores are hidden from the player.
 | Months from application to decision | 1 | `decisionMonths` | Working value |
 | Fee kept from a refunded deposit | £500. Real: Essex keeps £500 of a refunded deposit, and £2,000 when the refusal was the applicant's own doing; Leicester refunds nothing after a refusal for misleading papers or credibility. The game keeps £500 on every refusal (factor 1.0 for the common case) | `depositAdminFee` = 50000 | Universities' deposit policies (Sources) |
 | Months until the deposit refund arrives | 2. Real: York aims to decide in 14 working days and pay within 28 working days of approval (factor 1.0) | `depositRefundMonths` | Universities' deposit policies (Sources) |
-| Flight, Lagos to London, one way | ₦1,100,000, about US$810 at ₦1,361.34 to the dollar: a direct one-way in the September rush with bags. Real: Royal Air Maroc returns from US$579 through Casablanca and Virgin Atlantic direct returns from US$1,134 (Nov and Dec 2026), a one way averaging about US$521, so about ₦700,000 to ₦1,200,000 one way; the game about 1.0 to 1.5 times | `flight` | Royal Air Maroc, Virgin Atlantic and FareCompare (Sources) |
+| Flight, Lagos to London, one way | ₦1,100,000, about US$810 at ₦1,361.34 to the dollar (23 Oct 2026): a direct one-way in the September rush with bags. Real: Royal Air Maroc returns from US$579 through Casablanca and Virgin Atlantic direct returns from US$1,134 (Nov and Dec 2026), a one way averaging about US$521, so about ₦700,000 to ₦1,200,000 one way; the game about 1.0 to 1.5 times | `flight` | Royal Air Maroc, Virgin Atlantic and FareCompare (Sources) |
 | The education loan | the processing fee £380; the lender's fee 4.2% added to the loan; 0.8% a month flat on what is owed at the start, over 180 months, from the month after the Graduate status or the course's end. Real: a representative 13.48% a year variable, from 11.94%, a 4.2% administration fee, $500 to process (£380 at the start rates), 15 years in the lender's example, full-time students repaying from six months after the course. The flat 0.8% charges about 1.04 times what the representative rate does | `tuning.route.loanProcessing` 38000, `loanFeeBp` 420; `obligation.education-loan` rateBp 80, term 180 (route:education-loan-pays-the-school) | Prodigy Finance, read 24 Oct 2026 (Sources) |
 | Interview prep that reveals weak answers | 40 | `hintPrep` | Working value |
 | Months before a school that refused takes a new application | 6 | `reapplyMonths` | Working value |
