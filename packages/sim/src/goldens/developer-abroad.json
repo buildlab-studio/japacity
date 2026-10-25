@@ -7,7 +7,7 @@
         "content": "1",
         "start": {
           "scenario": "scenario.developer",
-          "seed": "golden-developer-abroad-1",
+          "seed": "golden-developer-abroad-0",
           "worldSeed": "golden-world"
         },
         "commands": [
@@ -33,9 +33,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
+              "type": "offer/choose",
+              "offer": "offer-3",
+              "choice": "pay",
               "basedOn": 2
             },
             "tick": 0,
@@ -54,8 +54,8 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-mid-developer",
+              "activity": "activity.learn-tech",
+              "param": null,
               "basedOn": 4
             },
             "tick": 0,
@@ -73,8 +73,9 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "activity/now",
+              "activity": "activity.look-into-route",
+              "param": "route.uk-masters",
               "basedOn": 6
             },
             "tick": 0,
@@ -82,22 +83,23 @@
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-3",
-              "choice": "decline",
+              "type": "wallet/convert",
+              "from": "NGN",
+              "to": "GBP",
+              "amount": 30500000,
+              "via": "bank",
               "basedOn": 7
             },
-            "tick": 1,
+            "tick": 0,
             "sender": "player"
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.look-into-route",
-              "param": "route.uk-masters",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 8
             },
-            "tick": 1,
+            "tick": 0,
             "sender": "player"
           },
           {
@@ -105,7 +107,7 @@
               "type": "wallet/convert",
               "from": "NGN",
               "to": "GBP",
-              "amount": 67439900,
+              "amount": 26000000,
               "via": "bank",
               "basedOn": 9
             },
@@ -114,11 +116,9 @@
           },
           {
             "command": {
-              "type": "wallet/convert",
-              "from": "NGN",
-              "to": "GBP",
-              "amount": 1012848,
-              "via": "bank",
+              "type": "activity/now",
+              "activity": "activity.get-passport",
+              "param": null,
               "basedOn": 10
             },
             "tick": 1,
@@ -127,8 +127,8 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-mid-developer",
+              "activity": "activity.get-transcript",
+              "param": null,
               "basedOn": 11
             },
             "tick": 1,
@@ -145,9 +145,11 @@
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-4",
-              "choice": "send",
+              "type": "wallet/convert",
+              "from": "NGN",
+              "to": "GBP",
+              "amount": 13500000,
+              "via": "bank",
               "basedOn": 13
             },
             "tick": 2,
@@ -155,11 +157,9 @@
           },
           {
             "command": {
-              "type": "wallet/convert",
-              "from": "NGN",
-              "to": "GBP",
-              "amount": 16047252,
-              "via": "bank",
+              "type": "activity/now",
+              "activity": "activity.study-english",
+              "param": null,
               "basedOn": 14
             },
             "tick": 2,
@@ -168,8 +168,8 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-mid-developer",
+              "activity": "activity.study-english",
+              "param": null,
               "basedOn": 15
             },
             "tick": 2,
@@ -178,7 +178,7 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.get-passport",
+              "activity": "activity.study-english",
               "param": null,
               "basedOn": 16
             },
@@ -187,9 +187,9 @@
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-5",
-              "choice": "give",
+              "type": "activity/now",
+              "activity": "activity.study-english",
+              "param": null,
               "basedOn": 17
             },
             "tick": 2,
@@ -197,8 +197,9 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "activity/now",
+              "activity": "activity.study-english",
+              "param": null,
               "basedOn": 18
             },
             "tick": 2,
@@ -206,135 +207,12 @@
           },
           {
             "command": {
-              "type": "wallet/convert",
-              "from": "NGN",
-              "to": "GBP",
-              "amount": 8000000,
-              "via": "bank",
+              "type": "activity/now",
+              "activity": "activity.study-english",
+              "param": null,
               "basedOn": 19
             },
-            "tick": 3,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-mid-developer",
-              "basedOn": 20
-            },
-            "tick": 3,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.get-transcript",
-              "param": null,
-              "basedOn": 21
-            },
-            "tick": 3,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "turn/end",
-              "slots": [],
-              "basedOn": 22
-            },
-            "tick": 3,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "wallet/convert",
-              "from": "NGN",
-              "to": "GBP",
-              "amount": 23500000,
-              "via": "bank",
-              "basedOn": 23
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-mid-developer",
-              "basedOn": 24
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.study-english",
-              "param": null,
-              "basedOn": 25
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.study-english",
-              "param": null,
-              "basedOn": 26
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.study-english",
-              "param": null,
-              "basedOn": 27
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.study-english",
-              "param": null,
-              "basedOn": 28
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.study-english",
-              "param": null,
-              "basedOn": 29
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.study-english",
-              "param": null,
-              "basedOn": 30
-            },
-            "tick": 4,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "offer/choose",
-              "offer": "offer-7",
-              "choice": "ignore",
-              "basedOn": 31
-            },
-            "tick": 4,
+            "tick": 2,
             "sender": "player"
           },
           {
@@ -342,15 +220,134 @@
               "type": "activity/now",
               "activity": "activity.look-into-route",
               "param": "route.uk-talent",
-              "basedOn": 32
+              "basedOn": 20
             },
-            "tick": 4,
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-4",
+              "choice": "ignore",
+              "basedOn": 21
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 22
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 23
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 24
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.meetup",
+              "param": null,
+              "basedOn": 25
+            },
+            "tick": 2,
             "sender": "player"
           },
           {
             "command": {
               "type": "turn/end",
               "slots": [],
+              "basedOn": 26
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 27
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 28
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 29
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.meetup",
+              "param": null,
+              "basedOn": 30
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 31
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
+              "basedOn": 32
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-5",
+              "choice": "ignore",
               "basedOn": 33
             },
             "tick": 4,
@@ -358,22 +355,22 @@
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-8",
-              "choice": "accept",
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
               "basedOn": 34
             },
-            "tick": 5,
+            "tick": 4,
             "sender": "player"
           },
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.look-into-route",
-              "param": "route.canada-points",
+              "activity": "activity.learn-tech",
+              "param": null,
               "basedOn": 35
             },
-            "tick": 5,
+            "tick": 4,
             "sender": "player"
           },
           {
@@ -383,27 +380,7 @@
               "param": null,
               "basedOn": 36
             },
-            "tick": 5,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 37
-            },
-            "tick": 5,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 38
-            },
-            "tick": 5,
+            "tick": 4,
             "sender": "player"
           },
           {
@@ -411,7 +388,86 @@
               "type": "activity/now",
               "activity": "activity.meetup",
               "param": null,
+              "basedOn": 37
+            },
+            "tick": 4,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.tb-test",
+              "param": null,
+              "basedOn": 38
+            },
+            "tick": 4,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 39
+            },
+            "tick": 4,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.look-into-route",
+              "param": "route.canada-points",
+              "basedOn": 40
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 41
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 42
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 43
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-6",
+              "choice": "send",
+              "basedOn": 44
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.get-eca",
+              "param": null,
+              "basedOn": 45
             },
             "tick": 5,
             "sender": "player"
@@ -420,27 +476,17 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 40
+              "basedOn": 46
             },
             "tick": 5,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-9",
-              "choice": "pay",
-              "basedOn": 41
-            },
-            "tick": 6,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "offer/choose",
-              "offer": "offer-10",
-              "choice": "pay",
-              "basedOn": 42
+              "type": "activity/now",
+              "activity": "activity.job-hunt",
+              "param": "activity.job-mid-developer",
+              "basedOn": 47
             },
             "tick": 6,
             "sender": "player"
@@ -450,47 +496,7 @@
               "type": "activity/now",
               "activity": "activity.look-into-route",
               "param": "route.uk-skilled",
-              "basedOn": 43
-            },
-            "tick": 6,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 44
-            },
-            "tick": 6,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 45
-            },
-            "tick": 6,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 46
-            },
-            "tick": 6,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.meetup",
-              "param": null,
-              "basedOn": 47
+              "basedOn": 48
             },
             "tick": 6,
             "sender": "player"
@@ -499,7 +505,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 48
+              "basedOn": 49
             },
             "tick": 6,
             "sender": "player"
@@ -507,18 +513,8 @@
           {
             "command": {
               "type": "offer/choose",
-              "offer": "offer-11",
-              "choice": "give",
-              "basedOn": 49
-            },
-            "tick": 7,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
+              "offer": "offer-7",
+              "choice": "take",
               "basedOn": 50
             },
             "tick": 7,
@@ -527,8 +523,8 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
+              "activity": "activity.job-hunt",
+              "param": "activity.job-mid-developer",
               "basedOn": 51
             },
             "tick": 7,
@@ -537,7 +533,7 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.learn-tech",
+              "activity": "activity.sit-english-test",
               "param": null,
               "basedOn": 52
             },
@@ -546,9 +542,8 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.meetup",
-              "param": null,
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 53
             },
             "tick": 7,
@@ -556,21 +551,22 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.tb-test",
-              "param": null,
+              "type": "offer/choose",
+              "offer": "offer-8",
+              "choice": "accept",
               "basedOn": 54
             },
-            "tick": 7,
+            "tick": 8,
             "sender": "player"
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "offer/choose",
+              "offer": "offer-9",
+              "choice": "pay",
               "basedOn": 55
             },
-            "tick": 7,
+            "tick": 8,
             "sender": "player"
           },
           {
@@ -605,9 +601,9 @@
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-13",
-              "choice": "no",
+              "type": "activity/now",
+              "activity": "activity.meetup",
+              "param": null,
               "basedOn": 59
             },
             "tick": 8,
@@ -616,7 +612,7 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.sit-english-test",
+              "activity": "activity.side-gig",
               "param": null,
               "basedOn": 60
             },
@@ -625,9 +621,8 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.find-sponsor",
-              "param": "route.uk-skilled",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 61
             },
             "tick": 8,
@@ -635,18 +630,19 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "offer/choose",
+              "offer": "offer-10",
+              "choice": "pay",
               "basedOn": 62
             },
-            "tick": 8,
+            "tick": 9,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-14",
-              "choice": "pay",
+              "type": "activity/now",
+              "activity": "activity.job-hunt",
+              "param": "activity.job-remote-developer",
               "basedOn": 63
             },
             "tick": 9,
@@ -655,8 +651,8 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.find-sponsor",
-              "param": "route.uk-skilled",
+              "activity": "activity.meetup",
+              "param": null,
               "basedOn": 64
             },
             "tick": 9,
@@ -664,9 +660,8 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 65
             },
             "tick": 9,
@@ -674,59 +669,20 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
+              "type": "offer/choose",
+              "offer": "offer-11",
+              "choice": "repair",
               "basedOn": 66
             },
-            "tick": 9,
+            "tick": 10,
             "sender": "player"
           },
           {
             "command": {
               "type": "offer/choose",
-              "offer": "offer-15",
-              "choice": "no",
+              "offer": "offer-12",
+              "choice": "go",
               "basedOn": 67
-            },
-            "tick": 9,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 68
-            },
-            "tick": 9,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.get-eca",
-              "param": null,
-              "basedOn": 69
-            },
-            "tick": 9,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "turn/end",
-              "slots": [],
-              "basedOn": 70
-            },
-            "tick": 9,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "offer/choose",
-              "offer": "offer-16",
-              "choice": "take",
-              "basedOn": 71
             },
             "tick": 10,
             "sender": "player"
@@ -736,9 +692,58 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-developer",
-              "basedOn": 72
+              "basedOn": 68
             },
             "tick": 10,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
+              "basedOn": 69
+            },
+            "tick": 10,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-13",
+              "choice": "accept",
+              "basedOn": 70
+            },
+            "tick": 11,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-14",
+              "choice": "decline",
+              "basedOn": 71
+            },
+            "tick": 11,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-15",
+              "choice": "pay",
+              "basedOn": 72
+            },
+            "tick": 11,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.tb-test",
+              "param": null,
+              "basedOn": 73
+            },
+            "tick": 11,
             "sender": "player"
           },
           {
@@ -746,25 +751,15 @@
               "type": "activity/now",
               "activity": "activity.meetup",
               "param": null,
-              "basedOn": 73
+              "basedOn": 74
             },
-            "tick": 10,
+            "tick": 11,
             "sender": "player"
           },
           {
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 74
-            },
-            "tick": 10,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-remote-developer",
               "basedOn": 75
             },
             "tick": 11,
@@ -772,29 +767,22 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.meetup",
-              "param": null,
+              "type": "offer/choose",
+              "offer": "offer-16",
+              "choice": "give",
               "basedOn": 76
             },
-            "tick": 11,
+            "tick": 12,
             "sender": "player"
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/convert",
+              "from": "USD",
+              "to": "NGN",
+              "amount": 280000,
+              "via": "bank",
               "basedOn": 77
-            },
-            "tick": 11,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-remote-developer",
-              "basedOn": 78
             },
             "tick": 12,
             "sender": "player"
@@ -803,6 +791,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.apply-uk-skilled",
+              "param": null,
+              "basedOn": 78
+            },
+            "tick": 12,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.meetup",
               "param": null,
               "basedOn": 79
             },
@@ -820,9 +818,31 @@
           },
           {
             "command": {
+              "type": "offer/choose",
+              "offer": "offer-18",
+              "choice": "do-it",
+              "basedOn": 81
+            },
+            "tick": 13,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/convert",
+              "from": "USD",
+              "to": "NGN",
+              "amount": 280000,
+              "via": "bank",
+              "basedOn": 82
+            },
+            "tick": 13,
+            "sender": "player"
+          },
+          {
+            "command": {
               "type": "route/depart",
               "route": "route.uk-skilled",
-              "basedOn": 81
+              "basedOn": 83
             },
             "tick": 13,
             "sender": "player"
@@ -832,36 +852,11 @@
               "type": "wallet/convert",
               "from": "NGN",
               "to": "GBP",
-              "amount": 69768950,
+              "amount": 129048623,
               "via": "bank",
-              "basedOn": 82
-            },
-            "tick": 13,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "turn/end",
-              "slots": [
-                {
-                  "activity": "activity.overtime",
-                  "param": null
-                }
-              ],
-              "basedOn": 83
-            },
-            "tick": 13,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 30823,
-              "channel": "app",
               "basedOn": 84
             },
-            "tick": 14,
+            "tick": 13,
             "sender": "player"
           },
           {
@@ -875,18 +870,21 @@
               ],
               "basedOn": 85
             },
-            "tick": 14,
+            "tick": 13,
             "sender": "player"
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 9271,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [
+                {
+                  "activity": "activity.overtime",
+                  "param": null
+                }
+              ],
               "basedOn": 86
             },
-            "tick": 15,
+            "tick": 14,
             "sender": "player"
           },
           {
@@ -907,7 +905,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9771,
+              "amount": 13358,
               "channel": "app",
               "basedOn": 88
             },
@@ -918,7 +916,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 17161,
+              "amount": 10019,
               "channel": "app",
               "basedOn": 89
             },
@@ -929,7 +927,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12871,
+              "amount": 7514,
               "channel": "app",
               "basedOn": 90
             },
@@ -940,7 +938,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9653,
+              "amount": 5635,
               "channel": "app",
               "basedOn": 91
             },
@@ -951,7 +949,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7240,
+              "amount": 4227,
               "channel": "app",
               "basedOn": 92
             },
@@ -962,7 +960,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5430,
+              "amount": 3170,
               "channel": "app",
               "basedOn": 93
             },
@@ -973,7 +971,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4073,
+              "amount": 2377,
               "channel": "app",
               "basedOn": 94
             },
@@ -984,7 +982,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3054,
+              "amount": 1783,
               "channel": "app",
               "basedOn": 95
             },
@@ -995,7 +993,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2291,
+              "amount": 1337,
               "channel": "app",
               "basedOn": 96
             },
@@ -1006,20 +1004,9 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 1718,
+              "amount": 1003,
               "channel": "app",
               "basedOn": 97
-            },
-            "tick": 16,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 1289,
-              "channel": "app",
-              "basedOn": 98
             },
             "tick": 16,
             "sender": "player"
@@ -1033,16 +1020,28 @@
                   "param": null
                 }
               ],
-              "basedOn": 99
+              "basedOn": 98
             },
             "tick": 16,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-23",
-              "choice": "send",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 85939,
+              "channel": "app",
+              "basedOn": 99
+            },
+            "tick": 17,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 64454,
+              "channel": "app",
               "basedOn": 100
             },
             "tick": 17,
@@ -1052,7 +1051,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 94236,
+              "amount": 48341,
               "channel": "app",
               "basedOn": 101
             },
@@ -1063,7 +1062,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 70677,
+              "amount": 36255,
               "channel": "app",
               "basedOn": 102
             },
@@ -1074,7 +1073,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 53008,
+              "amount": 27192,
               "channel": "app",
               "basedOn": 103
             },
@@ -1085,7 +1084,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 39756,
+              "amount": 20394,
               "channel": "app",
               "basedOn": 104
             },
@@ -1096,7 +1095,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29817,
+              "amount": 15295,
               "channel": "app",
               "basedOn": 105
             },
@@ -1107,7 +1106,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 22363,
+              "amount": 11471,
               "channel": "app",
               "basedOn": 106
             },
@@ -1118,7 +1117,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16772,
+              "amount": 8604,
               "channel": "app",
               "basedOn": 107
             },
@@ -1129,7 +1128,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12579,
+              "amount": 6453,
               "channel": "app",
               "basedOn": 108
             },
@@ -1140,7 +1139,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9434,
+              "amount": 4839,
               "channel": "app",
               "basedOn": 109
             },
@@ -1151,7 +1150,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7076,
+              "amount": 3630,
               "channel": "app",
               "basedOn": 110
             },
@@ -1162,20 +1161,9 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5307,
+              "amount": 2722,
               "channel": "app",
               "basedOn": 111
-            },
-            "tick": 17,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3980,
-              "channel": "app",
-              "basedOn": 112
             },
             "tick": 17,
             "sender": "player"
@@ -1189,16 +1177,28 @@
                   "param": null
                 }
               ],
-              "basedOn": 113
+              "basedOn": 112
             },
             "tick": 17,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-25",
-              "choice": "give",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 87228,
+              "channel": "app",
+              "basedOn": 113
+            },
+            "tick": 18,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 65421,
+              "channel": "app",
               "basedOn": 114
             },
             "tick": 18,
@@ -1208,7 +1208,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 96255,
+              "amount": 49066,
               "channel": "app",
               "basedOn": 115
             },
@@ -1219,7 +1219,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 72191,
+              "amount": 36799,
               "channel": "app",
               "basedOn": 116
             },
@@ -1230,7 +1230,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 54144,
+              "amount": 27600,
               "channel": "app",
               "basedOn": 117
             },
@@ -1241,7 +1241,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 40608,
+              "amount": 20700,
               "channel": "app",
               "basedOn": 118
             },
@@ -1252,7 +1252,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 30456,
+              "amount": 15525,
               "channel": "app",
               "basedOn": 119
             },
@@ -1263,7 +1263,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 22842,
+              "amount": 11643,
               "channel": "app",
               "basedOn": 120
             },
@@ -1274,7 +1274,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 17131,
+              "amount": 8733,
               "channel": "app",
               "basedOn": 121
             },
@@ -1285,7 +1285,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12848,
+              "amount": 6549,
               "channel": "app",
               "basedOn": 122
             },
@@ -1296,7 +1296,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9636,
+              "amount": 4912,
               "channel": "app",
               "basedOn": 123
             },
@@ -1307,7 +1307,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7227,
+              "amount": 3684,
               "channel": "app",
               "basedOn": 124
             },
@@ -1318,20 +1318,9 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5421,
+              "amount": 2763,
               "channel": "app",
               "basedOn": 125
-            },
-            "tick": 18,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 4065,
-              "channel": "app",
-              "basedOn": 126
             },
             "tick": 18,
             "sender": "player"
@@ -1345,7 +1334,7 @@
                   "param": null
                 }
               ],
-              "basedOn": 127
+              "basedOn": 126
             },
             "tick": 18,
             "sender": "player"
@@ -1354,7 +1343,18 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 96319,
+              "amount": 87259,
+              "channel": "app",
+              "basedOn": 127
+            },
+            "tick": 19,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 65444,
               "channel": "app",
               "basedOn": 128
             },
@@ -1365,7 +1365,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 72239,
+              "amount": 49083,
               "channel": "app",
               "basedOn": 129
             },
@@ -1376,7 +1376,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 54180,
+              "amount": 36812,
               "channel": "app",
               "basedOn": 130
             },
@@ -1387,7 +1387,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 40635,
+              "amount": 27609,
               "channel": "app",
               "basedOn": 131
             },
@@ -1398,7 +1398,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 30476,
+              "amount": 20707,
               "channel": "app",
               "basedOn": 132
             },
@@ -1409,7 +1409,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 22857,
+              "amount": 15530,
               "channel": "app",
               "basedOn": 133
             },
@@ -1420,7 +1420,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 17143,
+              "amount": 11648,
               "channel": "app",
               "basedOn": 134
             },
@@ -1431,7 +1431,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12857,
+              "amount": 8736,
               "channel": "app",
               "basedOn": 135
             },
@@ -1442,7 +1442,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9643,
+              "amount": 6552,
               "channel": "app",
               "basedOn": 136
             },
@@ -1453,7 +1453,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7232,
+              "amount": 4914,
               "channel": "app",
               "basedOn": 137
             },
@@ -1464,7 +1464,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5424,
+              "amount": 3685,
               "channel": "app",
               "basedOn": 138
             },
@@ -1475,20 +1475,9 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4068,
+              "amount": 2764,
               "channel": "app",
               "basedOn": 139
-            },
-            "tick": 19,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3051,
-              "channel": "app",
-              "basedOn": 140
             },
             "tick": 19,
             "sender": "player"
@@ -1502,7 +1491,7 @@
                   "param": null
                 }
               ],
-              "basedOn": 141
+              "basedOn": 140
             },
             "tick": 19,
             "sender": "player"
@@ -1511,7 +1500,18 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 95558,
+              "amount": 87260,
+              "channel": "app",
+              "basedOn": 141
+            },
+            "tick": 20,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 65445,
               "channel": "app",
               "basedOn": 142
             },
@@ -1522,7 +1522,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 71669,
+              "amount": 49083,
               "channel": "app",
               "basedOn": 143
             },
@@ -1533,7 +1533,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 53751,
+              "amount": 36813,
               "channel": "app",
               "basedOn": 144
             },
@@ -1544,7 +1544,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 40314,
+              "amount": 27609,
               "channel": "app",
               "basedOn": 145
             },
@@ -1555,7 +1555,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 30235,
+              "amount": 20707,
               "channel": "app",
               "basedOn": 146
             },
@@ -1566,7 +1566,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 22676,
+              "amount": 15530,
               "channel": "app",
               "basedOn": 147
             },
@@ -1577,7 +1577,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 17007,
+              "amount": 11648,
               "channel": "app",
               "basedOn": 148
             },
@@ -1588,7 +1588,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12756,
+              "amount": 8736,
               "channel": "app",
               "basedOn": 149
             },
@@ -1599,7 +1599,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9567,
+              "amount": 6552,
               "channel": "app",
               "basedOn": 150
             },
@@ -1610,7 +1610,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7175,
+              "amount": 4914,
               "channel": "app",
               "basedOn": 151
             },
@@ -1621,7 +1621,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5381,
+              "amount": 3685,
               "channel": "app",
               "basedOn": 152
             },
@@ -1632,7 +1632,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4036,
+              "amount": 2764,
               "channel": "app",
               "basedOn": 153
             },
@@ -1641,10 +1641,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3027,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 154
             },
             "tick": 20,
@@ -1652,18 +1650,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62781,
+              "channel": "app",
               "basedOn": 155
             },
-            "tick": 20,
+            "tick": 21,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68978,
+              "amount": 47085,
               "channel": "app",
               "basedOn": 156
             },
@@ -1674,7 +1674,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51733,
+              "amount": 35314,
               "channel": "app",
               "basedOn": 157
             },
@@ -1685,7 +1685,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38800,
+              "amount": 26486,
               "channel": "app",
               "basedOn": 158
             },
@@ -1696,7 +1696,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29100,
+              "amount": 19864,
               "channel": "app",
               "basedOn": 159
             },
@@ -1707,7 +1707,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21825,
+              "amount": 14898,
               "channel": "app",
               "basedOn": 160
             },
@@ -1718,7 +1718,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16369,
+              "amount": 11174,
               "channel": "app",
               "basedOn": 161
             },
@@ -1729,7 +1729,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12276,
+              "amount": 8380,
               "channel": "app",
               "basedOn": 162
             },
@@ -1740,7 +1740,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9207,
+              "amount": 6285,
               "channel": "app",
               "basedOn": 163
             },
@@ -1751,7 +1751,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6906,
+              "amount": 4714,
               "channel": "app",
               "basedOn": 164
             },
@@ -1762,7 +1762,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5179,
+              "amount": 3535,
               "channel": "app",
               "basedOn": 165
             },
@@ -1773,7 +1773,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3884,
+              "amount": 2652,
               "channel": "app",
               "basedOn": 166
             },
@@ -1784,7 +1784,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2913,
+              "amount": 1989,
               "channel": "app",
               "basedOn": 167
             },
@@ -1793,10 +1793,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2185,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 168
             },
             "tick": 21,
@@ -1804,18 +1802,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62199,
+              "channel": "app",
               "basedOn": 169
             },
-            "tick": 21,
+            "tick": 22,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68346,
+              "amount": 46649,
               "channel": "app",
               "basedOn": 170
             },
@@ -1826,7 +1826,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51260,
+              "amount": 34987,
               "channel": "app",
               "basedOn": 171
             },
@@ -1837,7 +1837,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38445,
+              "amount": 26240,
               "channel": "app",
               "basedOn": 172
             },
@@ -1848,7 +1848,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28834,
+              "amount": 19680,
               "channel": "app",
               "basedOn": 173
             },
@@ -1859,7 +1859,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21625,
+              "amount": 14760,
               "channel": "app",
               "basedOn": 174
             },
@@ -1870,7 +1870,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16219,
+              "amount": 11070,
               "channel": "app",
               "basedOn": 175
             },
@@ -1881,7 +1881,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12164,
+              "amount": 8303,
               "channel": "app",
               "basedOn": 176
             },
@@ -1892,7 +1892,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 6227,
               "channel": "app",
               "basedOn": 177
             },
@@ -1903,7 +1903,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6842,
+              "amount": 4670,
               "channel": "app",
               "basedOn": 178
             },
@@ -1914,7 +1914,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 3503,
               "channel": "app",
               "basedOn": 179
             },
@@ -1925,7 +1925,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 2627,
               "channel": "app",
               "basedOn": 180
             },
@@ -1936,7 +1936,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2887,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 181
             },
@@ -1945,10 +1945,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2165,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 182
             },
             "tick": 22,
@@ -1956,18 +1954,21 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 55535,
+              "channel": "app",
               "basedOn": 183
             },
-            "tick": 22,
+            "tick": 23,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-26",
-              "choice": "pay",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 41651,
+              "channel": "app",
               "basedOn": 184
             },
             "tick": 23,
@@ -1977,7 +1978,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 61681,
+              "amount": 31239,
               "channel": "app",
               "basedOn": 185
             },
@@ -1988,7 +1989,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 46261,
+              "amount": 23429,
               "channel": "app",
               "basedOn": 186
             },
@@ -1999,7 +2000,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 34696,
+              "amount": 17572,
               "channel": "app",
               "basedOn": 187
             },
@@ -2010,7 +2011,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 26022,
+              "amount": 13179,
               "channel": "app",
               "basedOn": 188
             },
@@ -2021,7 +2022,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 19516,
+              "amount": 9884,
               "channel": "app",
               "basedOn": 189
             },
@@ -2032,7 +2033,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 14637,
+              "amount": 7413,
               "channel": "app",
               "basedOn": 190
             },
@@ -2043,7 +2044,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 10978,
+              "amount": 5560,
               "channel": "app",
               "basedOn": 191
             },
@@ -2054,7 +2055,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 8233,
+              "amount": 4170,
               "channel": "app",
               "basedOn": 192
             },
@@ -2065,7 +2066,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6175,
+              "amount": 3127,
               "channel": "app",
               "basedOn": 193
             },
@@ -2076,7 +2077,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4631,
+              "amount": 2345,
               "channel": "app",
               "basedOn": 194
             },
@@ -2087,7 +2088,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3474,
+              "amount": 1759,
               "channel": "app",
               "basedOn": 195
             },
@@ -2096,20 +2097,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2605,
-              "channel": "app",
-              "basedOn": 196
-            },
-            "tick": 23,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 197
+              "basedOn": 196
             },
             "tick": 23,
             "sender": "player"
@@ -2119,6 +2109,17 @@
               "type": "setpiece/answer",
               "question": "go-uk",
               "answer": "stay",
+              "basedOn": 197
+            },
+            "tick": 24,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 68677,
+              "channel": "app",
               "basedOn": 198
             },
             "tick": 24,
@@ -2128,7 +2129,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 75311,
+              "amount": 51508,
               "channel": "app",
               "basedOn": 199
             },
@@ -2139,7 +2140,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 56484,
+              "amount": 38631,
               "channel": "app",
               "basedOn": 200
             },
@@ -2150,7 +2151,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 42363,
+              "amount": 28973,
               "channel": "app",
               "basedOn": 201
             },
@@ -2161,7 +2162,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 31772,
+              "amount": 21730,
               "channel": "app",
               "basedOn": 202
             },
@@ -2172,7 +2173,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 23829,
+              "amount": 16297,
               "channel": "app",
               "basedOn": 203
             },
@@ -2183,7 +2184,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 17872,
+              "amount": 12223,
               "channel": "app",
               "basedOn": 204
             },
@@ -2194,7 +2195,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 13404,
+              "amount": 9167,
               "channel": "app",
               "basedOn": 205
             },
@@ -2205,7 +2206,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 10053,
+              "amount": 6875,
               "channel": "app",
               "basedOn": 206
             },
@@ -2216,7 +2217,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7539,
+              "amount": 5157,
               "channel": "app",
               "basedOn": 207
             },
@@ -2227,7 +2228,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5655,
+              "amount": 3867,
               "channel": "app",
               "basedOn": 208
             },
@@ -2238,7 +2239,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4241,
+              "amount": 2901,
               "channel": "app",
               "basedOn": 209
             },
@@ -2247,10 +2248,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3181,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 210
             },
             "tick": 24,
@@ -2258,18 +2257,19 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "offer/choose",
+              "offer": "offer-23",
+              "choice": "give",
               "basedOn": 211
             },
-            "tick": 24,
+            "tick": 25,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 69093,
+              "amount": 62883,
               "channel": "app",
               "basedOn": 212
             },
@@ -2280,7 +2280,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51820,
+              "amount": 47162,
               "channel": "app",
               "basedOn": 213
             },
@@ -2291,7 +2291,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38865,
+              "amount": 35372,
               "channel": "app",
               "basedOn": 214
             },
@@ -2302,7 +2302,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29148,
+              "amount": 26529,
               "channel": "app",
               "basedOn": 215
             },
@@ -2313,7 +2313,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21861,
+              "amount": 19896,
               "channel": "app",
               "basedOn": 216
             },
@@ -2324,7 +2324,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16396,
+              "amount": 14922,
               "channel": "app",
               "basedOn": 217
             },
@@ -2335,7 +2335,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12297,
+              "amount": 11192,
               "channel": "app",
               "basedOn": 218
             },
@@ -2346,7 +2346,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9223,
+              "amount": 8394,
               "channel": "app",
               "basedOn": 219
             },
@@ -2357,7 +2357,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6917,
+              "amount": 6295,
               "channel": "app",
               "basedOn": 220
             },
@@ -2368,7 +2368,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5188,
+              "amount": 4722,
               "channel": "app",
               "basedOn": 221
             },
@@ -2379,7 +2379,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3891,
+              "amount": 3541,
               "channel": "app",
               "basedOn": 222
             },
@@ -2390,7 +2390,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2918,
+              "amount": 2656,
               "channel": "app",
               "basedOn": 223
             },
@@ -2399,10 +2399,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2189,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 224
             },
             "tick": 25,
@@ -2410,18 +2408,21 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62699,
+              "channel": "app",
               "basedOn": 225
             },
-            "tick": 25,
+            "tick": 26,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-27",
-              "choice": "pay",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 47025,
+              "channel": "app",
               "basedOn": 226
             },
             "tick": 26,
@@ -2431,7 +2432,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68349,
+              "amount": 35268,
               "channel": "app",
               "basedOn": 227
             },
@@ -2442,7 +2443,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51262,
+              "amount": 26451,
               "channel": "app",
               "basedOn": 228
             },
@@ -2453,7 +2454,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38446,
+              "amount": 19839,
               "channel": "app",
               "basedOn": 229
             },
@@ -2464,7 +2465,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28835,
+              "amount": 14879,
               "channel": "app",
               "basedOn": 230
             },
@@ -2475,7 +2476,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21626,
+              "amount": 11159,
               "channel": "app",
               "basedOn": 231
             },
@@ -2486,7 +2487,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16219,
+              "amount": 8369,
               "channel": "app",
               "basedOn": 232
             },
@@ -2497,7 +2498,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12165,
+              "amount": 6277,
               "channel": "app",
               "basedOn": 233
             },
@@ -2508,7 +2509,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 4708,
               "channel": "app",
               "basedOn": 234
             },
@@ -2519,7 +2520,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6843,
+              "amount": 3531,
               "channel": "app",
               "basedOn": 235
             },
@@ -2530,7 +2531,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 2648,
               "channel": "app",
               "basedOn": 236
             },
@@ -2541,7 +2542,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 1986,
               "channel": "app",
               "basedOn": 237
             },
@@ -2550,10 +2551,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2887,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 238
             },
             "tick": 26,
@@ -2561,18 +2560,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62197,
+              "channel": "app",
               "basedOn": 239
             },
-            "tick": 26,
+            "tick": 27,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68872,
+              "amount": 46648,
               "channel": "app",
               "basedOn": 240
             },
@@ -2583,7 +2584,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51654,
+              "amount": 34986,
               "channel": "app",
               "basedOn": 241
             },
@@ -2594,7 +2595,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38741,
+              "amount": 26239,
               "channel": "app",
               "basedOn": 242
             },
@@ -2605,7 +2606,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29056,
+              "amount": 19680,
               "channel": "app",
               "basedOn": 243
             },
@@ -2616,7 +2617,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21792,
+              "amount": 14760,
               "channel": "app",
               "basedOn": 244
             },
@@ -2627,7 +2628,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16344,
+              "amount": 11070,
               "channel": "app",
               "basedOn": 245
             },
@@ -2638,7 +2639,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12258,
+              "amount": 8302,
               "channel": "app",
               "basedOn": 246
             },
@@ -2649,7 +2650,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9193,
+              "amount": 6227,
               "channel": "app",
               "basedOn": 247
             },
@@ -2660,7 +2661,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6895,
+              "amount": 4670,
               "channel": "app",
               "basedOn": 248
             },
@@ -2671,7 +2672,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5171,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 249
             },
@@ -2682,7 +2683,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3878,
+              "amount": 2627,
               "channel": "app",
               "basedOn": 250
             },
@@ -2693,7 +2694,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2909,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 251
             },
@@ -2702,10 +2703,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2182,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 252
             },
             "tick": 27,
@@ -2713,18 +2712,21 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62185,
+              "channel": "app",
               "basedOn": 253
             },
-            "tick": 27,
+            "tick": 28,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-28",
-              "choice": "pay",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 46639,
+              "channel": "app",
               "basedOn": 254
             },
             "tick": 28,
@@ -2734,7 +2736,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68344,
+              "amount": 34979,
               "channel": "app",
               "basedOn": 255
             },
@@ -2745,7 +2747,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51258,
+              "amount": 26234,
               "channel": "app",
               "basedOn": 256
             },
@@ -2756,7 +2758,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38443,
+              "amount": 19676,
               "channel": "app",
               "basedOn": 257
             },
@@ -2767,7 +2769,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28832,
+              "amount": 14757,
               "channel": "app",
               "basedOn": 258
             },
@@ -2778,7 +2780,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21624,
+              "amount": 11068,
               "channel": "app",
               "basedOn": 259
             },
@@ -2789,7 +2791,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16218,
+              "amount": 8301,
               "channel": "app",
               "basedOn": 260
             },
@@ -2800,7 +2802,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12164,
+              "amount": 6225,
               "channel": "app",
               "basedOn": 261
             },
@@ -2811,7 +2813,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 4669,
               "channel": "app",
               "basedOn": 262
             },
@@ -2822,7 +2824,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6842,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 263
             },
@@ -2833,7 +2835,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 2626,
               "channel": "app",
               "basedOn": 264
             },
@@ -2844,7 +2846,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 265
             },
@@ -2853,10 +2855,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2886,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 266
             },
             "tick": 28,
@@ -2864,18 +2864,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62185,
+              "channel": "app",
               "basedOn": 267
             },
-            "tick": 28,
+            "tick": 29,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68872,
+              "amount": 46639,
               "channel": "app",
               "basedOn": 268
             },
@@ -2886,7 +2888,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51654,
+              "amount": 34979,
               "channel": "app",
               "basedOn": 269
             },
@@ -2897,7 +2899,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38741,
+              "amount": 26234,
               "channel": "app",
               "basedOn": 270
             },
@@ -2908,7 +2910,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29056,
+              "amount": 19676,
               "channel": "app",
               "basedOn": 271
             },
@@ -2919,7 +2921,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21792,
+              "amount": 14757,
               "channel": "app",
               "basedOn": 272
             },
@@ -2930,7 +2932,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16344,
+              "amount": 11067,
               "channel": "app",
               "basedOn": 273
             },
@@ -2941,7 +2943,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12258,
+              "amount": 8301,
               "channel": "app",
               "basedOn": 274
             },
@@ -2952,7 +2954,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9193,
+              "amount": 6225,
               "channel": "app",
               "basedOn": 275
             },
@@ -2963,7 +2965,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6895,
+              "amount": 4669,
               "channel": "app",
               "basedOn": 276
             },
@@ -2974,7 +2976,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5171,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 277
             },
@@ -2985,7 +2987,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3878,
+              "amount": 2626,
               "channel": "app",
               "basedOn": 278
             },
@@ -2996,7 +2998,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2909,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 279
             },
@@ -3005,10 +3007,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2182,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 280
             },
             "tick": 29,
@@ -3016,18 +3016,19 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "offer/choose",
+              "offer": "offer-24",
+              "choice": "pay",
               "basedOn": 281
             },
-            "tick": 29,
+            "tick": 30,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68344,
+              "amount": 62185,
               "channel": "app",
               "basedOn": 282
             },
@@ -3038,7 +3039,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51258,
+              "amount": 46639,
               "channel": "app",
               "basedOn": 283
             },
@@ -3049,7 +3050,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38443,
+              "amount": 34979,
               "channel": "app",
               "basedOn": 284
             },
@@ -3060,7 +3061,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28832,
+              "amount": 26234,
               "channel": "app",
               "basedOn": 285
             },
@@ -3071,7 +3072,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21624,
+              "amount": 19676,
               "channel": "app",
               "basedOn": 286
             },
@@ -3082,7 +3083,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16218,
+              "amount": 14757,
               "channel": "app",
               "basedOn": 287
             },
@@ -3093,7 +3094,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12164,
+              "amount": 11067,
               "channel": "app",
               "basedOn": 288
             },
@@ -3104,7 +3105,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 8301,
               "channel": "app",
               "basedOn": 289
             },
@@ -3115,7 +3116,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6842,
+              "amount": 6225,
               "channel": "app",
               "basedOn": 290
             },
@@ -3126,7 +3127,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 4669,
               "channel": "app",
               "basedOn": 291
             },
@@ -3137,7 +3138,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 292
             },
@@ -3148,7 +3149,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2886,
+              "amount": 2626,
               "channel": "app",
               "basedOn": 293
             },
@@ -3157,10 +3158,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2165,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 294
             },
             "tick": 30,
@@ -3168,18 +3167,21 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62677,
+              "channel": "app",
               "basedOn": 295
             },
-            "tick": 30,
+            "tick": 31,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-30",
-              "choice": "give",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 47008,
+              "channel": "app",
               "basedOn": 296
             },
             "tick": 31,
@@ -3189,7 +3191,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 35256,
               "channel": "app",
               "basedOn": 297
             },
@@ -3200,7 +3202,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 26442,
               "channel": "app",
               "basedOn": 298
             },
@@ -3211,7 +3213,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 19832,
               "channel": "app",
               "basedOn": 299
             },
@@ -3222,7 +3224,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 14874,
               "channel": "app",
               "basedOn": 300
             },
@@ -3233,7 +3235,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21621,
+              "amount": 11155,
               "channel": "app",
               "basedOn": 301
             },
@@ -3244,7 +3246,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 8366,
               "channel": "app",
               "basedOn": 302
             },
@@ -3255,7 +3257,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 6275,
               "channel": "app",
               "basedOn": 303
             },
@@ -3266,7 +3268,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 4706,
               "channel": "app",
               "basedOn": 304
             },
@@ -3277,7 +3279,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 3530,
               "channel": "app",
               "basedOn": 305
             },
@@ -3288,7 +3290,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 2647,
               "channel": "app",
               "basedOn": 306
             },
@@ -3299,7 +3301,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3848,
+              "amount": 1985,
               "channel": "app",
               "basedOn": 307
             },
@@ -3308,10 +3310,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2886,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 308
             },
             "tick": 31,
@@ -3319,18 +3319,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62197,
+              "channel": "app",
               "basedOn": 309
             },
-            "tick": 31,
+            "tick": 32,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68872,
+              "amount": 46647,
               "channel": "app",
               "basedOn": 310
             },
@@ -3341,7 +3343,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51654,
+              "amount": 34986,
               "channel": "app",
               "basedOn": 311
             },
@@ -3352,7 +3354,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38740,
+              "amount": 26239,
               "channel": "app",
               "basedOn": 312
             },
@@ -3363,7 +3365,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29055,
+              "amount": 19679,
               "channel": "app",
               "basedOn": 313
             },
@@ -3374,7 +3376,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21792,
+              "amount": 14760,
               "channel": "app",
               "basedOn": 314
             },
@@ -3385,7 +3387,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16344,
+              "amount": 11070,
               "channel": "app",
               "basedOn": 315
             },
@@ -3396,7 +3398,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12258,
+              "amount": 8302,
               "channel": "app",
               "basedOn": 316
             },
@@ -3407,7 +3409,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9193,
+              "amount": 6227,
               "channel": "app",
               "basedOn": 317
             },
@@ -3418,7 +3420,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6895,
+              "amount": 4670,
               "channel": "app",
               "basedOn": 318
             },
@@ -3429,7 +3431,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5171,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 319
             },
@@ -3440,7 +3442,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3878,
+              "amount": 2627,
               "channel": "app",
               "basedOn": 320
             },
@@ -3451,7 +3453,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2909,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 321
             },
@@ -3460,10 +3462,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2182,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 322
             },
             "tick": 32,
@@ -3471,18 +3471,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62185,
+              "channel": "app",
               "basedOn": 323
             },
-            "tick": 32,
+            "tick": 33,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68344,
+              "amount": 46639,
               "channel": "app",
               "basedOn": 324
             },
@@ -3493,7 +3495,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51258,
+              "amount": 34979,
               "channel": "app",
               "basedOn": 325
             },
@@ -3504,7 +3506,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38443,
+              "amount": 26234,
               "channel": "app",
               "basedOn": 326
             },
@@ -3515,7 +3517,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28832,
+              "amount": 19676,
               "channel": "app",
               "basedOn": 327
             },
@@ -3526,7 +3528,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21624,
+              "amount": 14757,
               "channel": "app",
               "basedOn": 328
             },
@@ -3537,7 +3539,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16218,
+              "amount": 11068,
               "channel": "app",
               "basedOn": 329
             },
@@ -3548,7 +3550,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12164,
+              "amount": 8301,
               "channel": "app",
               "basedOn": 330
             },
@@ -3559,7 +3561,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 6225,
               "channel": "app",
               "basedOn": 331
             },
@@ -3570,7 +3572,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6842,
+              "amount": 4669,
               "channel": "app",
               "basedOn": 332
             },
@@ -3581,7 +3583,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 333
             },
@@ -3592,7 +3594,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 2626,
               "channel": "app",
               "basedOn": 334
             },
@@ -3603,7 +3605,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2886,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 335
             },
@@ -3612,10 +3614,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2165,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 336
             },
             "tick": 33,
@@ -3623,18 +3623,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "offer/choose",
+              "offer": "offer-25",
+              "choice": "pay",
               "basedOn": 337
             },
-            "tick": 33,
+            "tick": 34,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-31",
-              "choice": "pay",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62185,
+              "channel": "app",
               "basedOn": 338
             },
             "tick": 34,
@@ -3642,9 +3644,10 @@
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-32",
-              "choice": "pay",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 46639,
+              "channel": "app",
               "basedOn": 339
             },
             "tick": 34,
@@ -3654,7 +3657,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 34979,
               "channel": "app",
               "basedOn": 340
             },
@@ -3665,7 +3668,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 26234,
               "channel": "app",
               "basedOn": 341
             },
@@ -3676,7 +3679,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 19676,
               "channel": "app",
               "basedOn": 342
             },
@@ -3687,7 +3690,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 14757,
               "channel": "app",
               "basedOn": 343
             },
@@ -3698,7 +3701,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21621,
+              "amount": 11067,
               "channel": "app",
               "basedOn": 344
             },
@@ -3709,7 +3712,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 8301,
               "channel": "app",
               "basedOn": 345
             },
@@ -3720,7 +3723,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 6225,
               "channel": "app",
               "basedOn": 346
             },
@@ -3731,7 +3734,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 4669,
               "channel": "app",
               "basedOn": 347
             },
@@ -3742,7 +3745,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 348
             },
@@ -3753,7 +3756,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 2626,
               "channel": "app",
               "basedOn": 349
             },
@@ -3762,10 +3765,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3848,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 350
             },
             "tick": 34,
@@ -3773,18 +3774,21 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 56027,
+              "channel": "app",
               "basedOn": 351
             },
-            "tick": 34,
+            "tick": 35,
             "sender": "player"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-33",
-              "choice": "send",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 42021,
+              "channel": "app",
               "basedOn": 352
             },
             "tick": 35,
@@ -3794,7 +3798,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 62943,
+              "amount": 31515,
               "channel": "app",
               "basedOn": 353
             },
@@ -3805,7 +3809,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 47208,
+              "amount": 23637,
               "channel": "app",
               "basedOn": 354
             },
@@ -3816,7 +3820,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 35406,
+              "amount": 17727,
               "channel": "app",
               "basedOn": 355
             },
@@ -3827,7 +3831,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 26554,
+              "amount": 13296,
               "channel": "app",
               "basedOn": 356
             },
@@ -3838,7 +3842,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 19916,
+              "amount": 9972,
               "channel": "app",
               "basedOn": 357
             },
@@ -3849,7 +3853,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 14937,
+              "amount": 7479,
               "channel": "app",
               "basedOn": 358
             },
@@ -3860,7 +3864,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 11202,
+              "amount": 5609,
               "channel": "app",
               "basedOn": 359
             },
@@ -3871,7 +3875,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 8402,
+              "amount": 4207,
               "channel": "app",
               "basedOn": 360
             },
@@ -3882,7 +3886,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6301,
+              "amount": 3155,
               "channel": "app",
               "basedOn": 361
             },
@@ -3893,7 +3897,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4726,
+              "amount": 2366,
               "channel": "app",
               "basedOn": 362
             },
@@ -3904,7 +3908,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3545,
+              "amount": 1775,
               "channel": "app",
               "basedOn": 363
             },
@@ -3913,20 +3917,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2658,
-              "channel": "app",
-              "basedOn": 364
-            },
-            "tick": 35,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 365
+              "basedOn": 364
             },
             "tick": 35,
             "sender": "player"
@@ -3936,6 +3929,16 @@
               "type": "setpiece/answer",
               "question": "go-uk",
               "answer": "stay",
+              "basedOn": 365
+            },
+            "tick": 36,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "offer/choose",
+              "offer": "offer-26",
+              "choice": "pay",
               "basedOn": 366
             },
             "tick": 36,
@@ -3945,7 +3948,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 75351,
+              "amount": 68688,
               "channel": "app",
               "basedOn": 367
             },
@@ -3956,7 +3959,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 56514,
+              "amount": 51516,
               "channel": "app",
               "basedOn": 368
             },
@@ -3967,7 +3970,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 42385,
+              "amount": 38637,
               "channel": "app",
               "basedOn": 369
             },
@@ -3978,7 +3981,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 31789,
+              "amount": 28978,
               "channel": "app",
               "basedOn": 370
             },
@@ -3989,7 +3992,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 23842,
+              "amount": 21734,
               "channel": "app",
               "basedOn": 371
             },
@@ -4000,7 +4003,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 17881,
+              "amount": 16300,
               "channel": "app",
               "basedOn": 372
             },
@@ -4011,7 +4014,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 13411,
+              "amount": 12225,
               "channel": "app",
               "basedOn": 373
             },
@@ -4022,7 +4025,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 10058,
+              "amount": 9169,
               "channel": "app",
               "basedOn": 374
             },
@@ -4033,7 +4036,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 7544,
+              "amount": 6877,
               "channel": "app",
               "basedOn": 375
             },
@@ -4044,7 +4047,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5658,
+              "amount": 5157,
               "channel": "app",
               "basedOn": 376
             },
@@ -4055,7 +4058,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 4243,
+              "amount": 3868,
               "channel": "app",
               "basedOn": 377
             },
@@ -4064,10 +4067,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3182,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 378
             },
             "tick": 36,
@@ -4075,18 +4076,20 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 63609,
+              "channel": "app",
               "basedOn": 379
             },
-            "tick": 36,
+            "tick": 37,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 69094,
+              "amount": 47706,
               "channel": "app",
               "basedOn": 380
             },
@@ -4097,7 +4100,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51821,
+              "amount": 35780,
               "channel": "app",
               "basedOn": 381
             },
@@ -4108,7 +4111,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38866,
+              "amount": 26835,
               "channel": "app",
               "basedOn": 382
             },
@@ -4119,7 +4122,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29149,
+              "amount": 20126,
               "channel": "app",
               "basedOn": 383
             },
@@ -4130,7 +4133,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21862,
+              "amount": 15095,
               "channel": "app",
               "basedOn": 384
             },
@@ -4141,7 +4144,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16396,
+              "amount": 11321,
               "channel": "app",
               "basedOn": 385
             },
@@ -4152,7 +4155,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12297,
+              "amount": 8491,
               "channel": "app",
               "basedOn": 386
             },
@@ -4163,7 +4166,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9223,
+              "amount": 6368,
               "channel": "app",
               "basedOn": 387
             },
@@ -4174,7 +4177,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6917,
+              "amount": 4776,
               "channel": "app",
               "basedOn": 388
             },
@@ -4185,7 +4188,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5188,
+              "amount": 3582,
               "channel": "app",
               "basedOn": 389
             },
@@ -4196,7 +4199,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3891,
+              "amount": 2686,
               "channel": "app",
               "basedOn": 390
             },
@@ -4207,7 +4210,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2918,
+              "amount": 2015,
               "channel": "app",
               "basedOn": 391
             },
@@ -4216,10 +4219,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2189,
-              "channel": "app",
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 392
             },
             "tick": 37,
@@ -4227,18 +4228,19 @@
           },
           {
             "command": {
-              "type": "turn/end",
-              "slots": [],
+              "type": "offer/choose",
+              "offer": "offer-27",
+              "choice": "pay",
               "basedOn": 393
             },
-            "tick": 37,
+            "tick": 38,
             "sender": "player"
           },
           {
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68349,
+              "amount": 62219,
               "channel": "app",
               "basedOn": 394
             },
@@ -4249,7 +4251,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51262,
+              "amount": 46664,
               "channel": "app",
               "basedOn": 395
             },
@@ -4260,7 +4262,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38446,
+              "amount": 34998,
               "channel": "app",
               "basedOn": 396
             },
@@ -4271,7 +4273,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28835,
+              "amount": 26248,
               "channel": "app",
               "basedOn": 397
             },
@@ -4282,7 +4284,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21626,
+              "amount": 19686,
               "channel": "app",
               "basedOn": 398
             },
@@ -4293,7 +4295,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16220,
+              "amount": 14765,
               "channel": "app",
               "basedOn": 399
             },
@@ -4304,7 +4306,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12165,
+              "amount": 11074,
               "channel": "app",
               "basedOn": 400
             },
@@ -4315,7 +4317,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 8305,
               "channel": "app",
               "basedOn": 401
             },
@@ -4326,7 +4328,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6843,
+              "amount": 6229,
               "channel": "app",
               "basedOn": 402
             },
@@ -4337,7 +4339,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 4672,
               "channel": "app",
               "basedOn": 403
             },
@@ -4348,7 +4350,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 3504,
               "channel": "app",
               "basedOn": 404
             },
@@ -4359,7 +4361,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2887,
+              "amount": 2628,
               "channel": "app",
               "basedOn": 405
             },
@@ -4368,20 +4370,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2165,
-              "channel": "app",
-              "basedOn": 406
-            },
-            "tick": 38,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 407
+              "basedOn": 406
             },
             "tick": 38,
             "sender": "player"
@@ -4390,7 +4381,7 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 408
+              "basedOn": 407
             },
             "tick": 39,
             "sender": "authority"
@@ -4399,7 +4390,18 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 62678,
+              "channel": "app",
+              "basedOn": 408
+            },
+            "tick": 39,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 47009,
               "channel": "app",
               "basedOn": 409
             },
@@ -4410,7 +4412,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 35256,
               "channel": "app",
               "basedOn": 410
             },
@@ -4421,7 +4423,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 26442,
               "channel": "app",
               "basedOn": 411
             },
@@ -4432,7 +4434,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 19832,
               "channel": "app",
               "basedOn": 412
             },
@@ -4443,7 +4445,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21621,
+              "amount": 14874,
               "channel": "app",
               "basedOn": 413
             },
@@ -4454,7 +4456,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 11155,
               "channel": "app",
               "basedOn": 414
             },
@@ -4465,7 +4467,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 8367,
               "channel": "app",
               "basedOn": 415
             },
@@ -4476,7 +4478,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 6275,
               "channel": "app",
               "basedOn": 416
             },
@@ -4487,7 +4489,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 4706,
               "channel": "app",
               "basedOn": 417
             },
@@ -4498,7 +4500,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 3530,
               "channel": "app",
               "basedOn": 418
             },
@@ -4509,7 +4511,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3848,
+              "amount": 2647,
               "channel": "app",
               "basedOn": 419
             },
@@ -4520,7 +4522,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2886,
+              "amount": 1985,
               "channel": "app",
               "basedOn": 420
             },
@@ -4529,20 +4531,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2164,
-              "channel": "app",
-              "basedOn": 421
-            },
-            "tick": 39,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 422
+              "basedOn": 421
             },
             "tick": 39,
             "sender": "player"
@@ -4551,7 +4542,7 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 423
+              "basedOn": 422
             },
             "tick": 40,
             "sender": "authority"
@@ -4560,7 +4551,18 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 62197,
+              "channel": "app",
+              "basedOn": 423
+            },
+            "tick": 40,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 46647,
               "channel": "app",
               "basedOn": 424
             },
@@ -4571,7 +4573,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 34986,
               "channel": "app",
               "basedOn": 425
             },
@@ -4582,7 +4584,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 26239,
               "channel": "app",
               "basedOn": 426
             },
@@ -4593,7 +4595,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 19679,
               "channel": "app",
               "basedOn": 427
             },
@@ -4604,7 +4606,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21620,
+              "amount": 14760,
               "channel": "app",
               "basedOn": 428
             },
@@ -4615,7 +4617,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 11070,
               "channel": "app",
               "basedOn": 429
             },
@@ -4626,7 +4628,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 8302,
               "channel": "app",
               "basedOn": 430
             },
@@ -4637,7 +4639,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 6227,
               "channel": "app",
               "basedOn": 431
             },
@@ -4648,7 +4650,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 4670,
               "channel": "app",
               "basedOn": 432
             },
@@ -4659,7 +4661,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 433
             },
@@ -4670,7 +4672,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3848,
+              "amount": 2627,
               "channel": "app",
               "basedOn": 434
             },
@@ -4681,7 +4683,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2886,
+              "amount": 1970,
               "channel": "app",
               "basedOn": 435
             },
@@ -4690,20 +4692,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2164,
-              "channel": "app",
-              "basedOn": 436
-            },
-            "tick": 40,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 437
+              "basedOn": 436
             },
             "tick": 40,
             "sender": "player"
@@ -4712,16 +4703,26 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 438
+              "basedOn": 437
             },
             "tick": 41,
             "sender": "authority"
           },
           {
             "command": {
+              "type": "offer/choose",
+              "offer": "offer-28",
+              "choice": "buy",
+              "basedOn": 438
+            },
+            "tick": 41,
+            "sender": "player"
+          },
+          {
+            "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 62185,
               "channel": "app",
               "basedOn": 439
             },
@@ -4732,7 +4733,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 46639,
               "channel": "app",
               "basedOn": 440
             },
@@ -4743,7 +4744,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 34979,
               "channel": "app",
               "basedOn": 441
             },
@@ -4754,7 +4755,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 26234,
               "channel": "app",
               "basedOn": 442
             },
@@ -4765,7 +4766,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21620,
+              "amount": 19676,
               "channel": "app",
               "basedOn": 443
             },
@@ -4776,7 +4777,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 14757,
               "channel": "app",
               "basedOn": 444
             },
@@ -4787,7 +4788,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 11068,
               "channel": "app",
               "basedOn": 445
             },
@@ -4798,7 +4799,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 8301,
               "channel": "app",
               "basedOn": 446
             },
@@ -4809,7 +4810,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 6225,
               "channel": "app",
               "basedOn": 447
             },
@@ -4820,7 +4821,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 4669,
               "channel": "app",
               "basedOn": 448
             },
@@ -4831,7 +4832,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3848,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 449
             },
@@ -4842,7 +4843,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2886,
+              "amount": 2626,
               "channel": "app",
               "basedOn": 450
             },
@@ -4851,20 +4852,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2164,
-              "channel": "app",
-              "basedOn": 451
-            },
-            "tick": 41,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 452
+              "basedOn": 451
             },
             "tick": 41,
             "sender": "player"
@@ -4873,16 +4863,28 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 453
+              "basedOn": 452
             },
             "tick": 42,
             "sender": "authority"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-36",
-              "choice": "pay",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62677,
+              "channel": "app",
+              "basedOn": 453
+            },
+            "tick": 42,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 47008,
+              "channel": "app",
               "basedOn": 454
             },
             "tick": 42,
@@ -4892,7 +4894,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 35256,
               "channel": "app",
               "basedOn": 455
             },
@@ -4903,7 +4905,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 26442,
               "channel": "app",
               "basedOn": 456
             },
@@ -4914,7 +4916,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 19832,
               "channel": "app",
               "basedOn": 457
             },
@@ -4925,7 +4927,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 14874,
               "channel": "app",
               "basedOn": 458
             },
@@ -4936,7 +4938,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21620,
+              "amount": 11155,
               "channel": "app",
               "basedOn": 459
             },
@@ -4947,7 +4949,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 8366,
               "channel": "app",
               "basedOn": 460
             },
@@ -4958,7 +4960,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 6275,
               "channel": "app",
               "basedOn": 461
             },
@@ -4969,7 +4971,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 4706,
               "channel": "app",
               "basedOn": 462
             },
@@ -4980,7 +4982,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 3530,
               "channel": "app",
               "basedOn": 463
             },
@@ -4991,7 +4993,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 2647,
               "channel": "app",
               "basedOn": 464
             },
@@ -5002,7 +5004,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3848,
+              "amount": 1985,
               "channel": "app",
               "basedOn": 465
             },
@@ -5011,20 +5013,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2886,
-              "channel": "app",
-              "basedOn": 466
-            },
-            "tick": 42,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 467
+              "basedOn": 466
             },
             "tick": 42,
             "sender": "player"
@@ -5033,16 +5024,26 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 468
+              "basedOn": 467
             },
             "tick": 43,
             "sender": "authority"
           },
           {
             "command": {
+              "type": "offer/choose",
+              "offer": "offer-30",
+              "choice": "pay",
+              "basedOn": 468
+            },
+            "tick": 43,
+            "sender": "player"
+          },
+          {
+            "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68872,
+              "amount": 62197,
               "channel": "app",
               "basedOn": 469
             },
@@ -5053,7 +5054,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51654,
+              "amount": 46647,
               "channel": "app",
               "basedOn": 470
             },
@@ -5064,7 +5065,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38740,
+              "amount": 34986,
               "channel": "app",
               "basedOn": 471
             },
@@ -5075,7 +5076,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29055,
+              "amount": 26239,
               "channel": "app",
               "basedOn": 472
             },
@@ -5086,7 +5087,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21792,
+              "amount": 19679,
               "channel": "app",
               "basedOn": 473
             },
@@ -5097,7 +5098,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16344,
+              "amount": 14760,
               "channel": "app",
               "basedOn": 474
             },
@@ -5108,7 +5109,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12258,
+              "amount": 11070,
               "channel": "app",
               "basedOn": 475
             },
@@ -5119,7 +5120,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9193,
+              "amount": 8302,
               "channel": "app",
               "basedOn": 476
             },
@@ -5130,7 +5131,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6895,
+              "amount": 6227,
               "channel": "app",
               "basedOn": 477
             },
@@ -5141,7 +5142,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5171,
+              "amount": 4670,
               "channel": "app",
               "basedOn": 478
             },
@@ -5152,7 +5153,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3878,
+              "amount": 3502,
               "channel": "app",
               "basedOn": 479
             },
@@ -5163,7 +5164,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2909,
+              "amount": 2627,
               "channel": "app",
               "basedOn": 480
             },
@@ -5172,20 +5173,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2182,
-              "channel": "app",
-              "basedOn": 481
-            },
-            "tick": 43,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 482
+              "basedOn": 481
             },
             "tick": 43,
             "sender": "player"
@@ -5194,16 +5184,26 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 483
+              "basedOn": 482
             },
             "tick": 44,
             "sender": "authority"
           },
           {
             "command": {
+              "type": "offer/choose",
+              "offer": "offer-31",
+              "choice": "send",
+              "basedOn": 483
+            },
+            "tick": 44,
+            "sender": "player"
+          },
+          {
+            "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68344,
+              "amount": 62678,
               "channel": "app",
               "basedOn": 484
             },
@@ -5214,7 +5214,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51258,
+              "amount": 47008,
               "channel": "app",
               "basedOn": 485
             },
@@ -5225,7 +5225,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38443,
+              "amount": 35256,
               "channel": "app",
               "basedOn": 486
             },
@@ -5236,7 +5236,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28832,
+              "amount": 26442,
               "channel": "app",
               "basedOn": 487
             },
@@ -5247,7 +5247,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21624,
+              "amount": 19832,
               "channel": "app",
               "basedOn": 488
             },
@@ -5258,7 +5258,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16218,
+              "amount": 14874,
               "channel": "app",
               "basedOn": 489
             },
@@ -5269,7 +5269,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12164,
+              "amount": 11155,
               "channel": "app",
               "basedOn": 490
             },
@@ -5280,7 +5280,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9123,
+              "amount": 8366,
               "channel": "app",
               "basedOn": 491
             },
@@ -5291,7 +5291,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6842,
+              "amount": 6275,
               "channel": "app",
               "basedOn": 492
             },
@@ -5302,7 +5302,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5132,
+              "amount": 4706,
               "channel": "app",
               "basedOn": 493
             },
@@ -5313,7 +5313,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3849,
+              "amount": 3530,
               "channel": "app",
               "basedOn": 494
             },
@@ -5324,7 +5324,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2886,
+              "amount": 2647,
               "channel": "app",
               "basedOn": 495
             },
@@ -5333,20 +5333,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2165,
-              "channel": "app",
-              "basedOn": 496
-            },
-            "tick": 44,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 497
+              "basedOn": 496
             },
             "tick": 44,
             "sender": "player"
@@ -5355,7 +5344,7 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 498
+              "basedOn": 497
             },
             "tick": 45,
             "sender": "authority"
@@ -5363,8 +5352,19 @@
           {
             "command": {
               "type": "offer/choose",
-              "offer": "offer-37",
+              "offer": "offer-32",
               "choice": "pay",
+              "basedOn": 498
+            },
+            "tick": 45,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 62693,
+              "channel": "app",
               "basedOn": 499
             },
             "tick": 45,
@@ -5374,7 +5374,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 68331,
+              "amount": 47020,
               "channel": "app",
               "basedOn": 500
             },
@@ -5385,7 +5385,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51248,
+              "amount": 35265,
               "channel": "app",
               "basedOn": 501
             },
@@ -5396,7 +5396,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38436,
+              "amount": 26448,
               "channel": "app",
               "basedOn": 502
             },
@@ -5407,7 +5407,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28827,
+              "amount": 19836,
               "channel": "app",
               "basedOn": 503
             },
@@ -5418,7 +5418,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21621,
+              "amount": 14877,
               "channel": "app",
               "basedOn": 504
             },
@@ -5429,7 +5429,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16215,
+              "amount": 11158,
               "channel": "app",
               "basedOn": 505
             },
@@ -5440,7 +5440,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12162,
+              "amount": 8369,
               "channel": "app",
               "basedOn": 506
             },
@@ -5451,7 +5451,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9121,
+              "amount": 6276,
               "channel": "app",
               "basedOn": 507
             },
@@ -5462,7 +5462,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6841,
+              "amount": 4707,
               "channel": "app",
               "basedOn": 508
             },
@@ -5473,7 +5473,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5131,
+              "amount": 3531,
               "channel": "app",
               "basedOn": 509
             },
@@ -5484,7 +5484,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3848,
+              "amount": 2648,
               "channel": "app",
               "basedOn": 510
             },
@@ -5493,20 +5493,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2886,
-              "channel": "app",
-              "basedOn": 511
-            },
-            "tick": 45,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 512
+              "basedOn": 511
             },
             "tick": 45,
             "sender": "player"
@@ -5515,7 +5504,7 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 513
+              "basedOn": 512
             },
             "tick": 46,
             "sender": "authority"
@@ -5523,7 +5512,7 @@
           {
             "command": {
               "type": "status/renew",
-              "basedOn": 514
+              "basedOn": 513
             },
             "tick": 46,
             "sender": "player"
@@ -5533,7 +5522,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-uk-senior-developer",
-              "basedOn": 515
+              "basedOn": 514
             },
             "tick": 46,
             "sender": "player"
@@ -5543,7 +5532,7 @@
               "type": "activity/now",
               "activity": "activity.phone-contract-uk",
               "param": null,
-              "basedOn": 516
+              "basedOn": 515
             },
             "tick": 46,
             "sender": "player"
@@ -5552,7 +5541,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 517
+              "basedOn": 516
             },
             "tick": 46,
             "sender": "player"
@@ -5561,16 +5550,28 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 518
+              "basedOn": 517
             },
             "tick": 47,
             "sender": "authority"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-39",
-              "choice": "accept",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 38926,
+              "channel": "app",
+              "basedOn": 518
+            },
+            "tick": 47,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 29194,
+              "channel": "app",
               "basedOn": 519
             },
             "tick": 47,
@@ -5580,7 +5581,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51104,
+              "amount": 21896,
               "channel": "app",
               "basedOn": 520
             },
@@ -5591,7 +5592,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38328,
+              "amount": 16422,
               "channel": "app",
               "basedOn": 521
             },
@@ -5602,7 +5603,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28746,
+              "amount": 12316,
               "channel": "app",
               "basedOn": 522
             },
@@ -5613,7 +5614,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21560,
+              "amount": 9237,
               "channel": "app",
               "basedOn": 523
             },
@@ -5624,7 +5625,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16170,
+              "amount": 6928,
               "channel": "app",
               "basedOn": 524
             },
@@ -5635,7 +5636,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12127,
+              "amount": 5196,
               "channel": "app",
               "basedOn": 525
             },
@@ -5646,7 +5647,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9096,
+              "amount": 3897,
               "channel": "app",
               "basedOn": 526
             },
@@ -5657,7 +5658,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6822,
+              "amount": 2923,
               "channel": "app",
               "basedOn": 527
             },
@@ -5668,7 +5669,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5116,
+              "amount": 2192,
               "channel": "app",
               "basedOn": 528
             },
@@ -5679,7 +5680,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 3837,
+              "amount": 1644,
               "channel": "app",
               "basedOn": 529
             },
@@ -5690,7 +5691,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 2878,
+              "amount": 1233,
               "channel": "app",
               "basedOn": 530
             },
@@ -5699,25 +5700,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 2158,
-              "channel": "app",
-              "basedOn": 531
-            },
-            "tick": 47,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
-              "slots": [
-                {
-                  "activity": "activity.overtime",
-                  "param": null
-                }
-              ],
-              "basedOn": 532
+              "slots": [],
+              "basedOn": 531
             },
             "tick": 47,
             "sender": "player"
@@ -5727,7 +5712,7 @@
               "type": "setpiece/answer",
               "question": "go-uk",
               "answer": "stay",
-              "basedOn": 533
+              "basedOn": 532
             },
             "tick": 48,
             "sender": "player"
@@ -5736,16 +5721,28 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 534
+              "basedOn": 533
             },
             "tick": 48,
             "sender": "authority"
           },
           {
             "command": {
-              "type": "offer/choose",
-              "offer": "offer-40",
-              "choice": "give",
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 67657,
+              "channel": "app",
+              "basedOn": 534
+            },
+            "tick": 48,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 50743,
+              "channel": "app",
               "basedOn": 535
             },
             "tick": 48,
@@ -5755,7 +5752,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 123143,
+              "amount": 38057,
               "channel": "app",
               "basedOn": 536
             },
@@ -5766,7 +5763,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 92357,
+              "amount": 28543,
               "channel": "app",
               "basedOn": 537
             },
@@ -5777,7 +5774,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 69268,
+              "amount": 21407,
               "channel": "app",
               "basedOn": 538
             },
@@ -5788,7 +5785,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 51951,
+              "amount": 16056,
               "channel": "app",
               "basedOn": 539
             },
@@ -5799,7 +5796,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 38963,
+              "amount": 12042,
               "channel": "app",
               "basedOn": 540
             },
@@ -5810,7 +5807,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 29222,
+              "amount": 9031,
               "channel": "app",
               "basedOn": 541
             },
@@ -5821,7 +5818,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21917,
+              "amount": 6773,
               "channel": "app",
               "basedOn": 542
             },
@@ -5832,7 +5829,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16438,
+              "amount": 5080,
               "channel": "app",
               "basedOn": 543
             },
@@ -5843,7 +5840,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12328,
+              "amount": 3810,
               "channel": "app",
               "basedOn": 544
             },
@@ -5854,7 +5851,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9246,
+              "amount": 2858,
               "channel": "app",
               "basedOn": 545
             },
@@ -5863,25 +5860,9 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 6935,
-              "channel": "app",
-              "basedOn": 546
-            },
-            "tick": 48,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
-              "slots": [
-                {
-                  "activity": "activity.overtime",
-                  "param": null
-                }
-              ],
-              "basedOn": 547
+              "slots": [],
+              "basedOn": 546
             },
             "tick": 48,
             "sender": "player"
@@ -5890,7 +5871,7 @@
             "command": {
               "type": "turns/grant",
               "count": 1,
-              "basedOn": 548
+              "basedOn": 547
             },
             "tick": 49,
             "sender": "authority"
@@ -5899,7 +5880,18 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 120075,
+              "amount": 62226,
+              "channel": "app",
+              "basedOn": 548
+            },
+            "tick": 49,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "wallet/remit",
+              "currency": "GBP",
+              "amount": 46669,
               "channel": "app",
               "basedOn": 549
             },
@@ -5910,7 +5902,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 90056,
+              "amount": 35002,
               "channel": "app",
               "basedOn": 550
             },
@@ -5921,7 +5913,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 67542,
+              "amount": 26251,
               "channel": "app",
               "basedOn": 551
             },
@@ -5932,7 +5924,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 50657,
+              "amount": 19689,
               "channel": "app",
               "basedOn": 552
             },
@@ -5943,7 +5935,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 37992,
+              "amount": 14766,
               "channel": "app",
               "basedOn": 553
             },
@@ -5954,7 +5946,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 28494,
+              "amount": 11075,
               "channel": "app",
               "basedOn": 554
             },
@@ -5965,7 +5957,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 21371,
+              "amount": 8306,
               "channel": "app",
               "basedOn": 555
             },
@@ -5976,7 +5968,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 16028,
+              "amount": 6230,
               "channel": "app",
               "basedOn": 556
             },
@@ -5987,7 +5979,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 12021,
+              "amount": 4672,
               "channel": "app",
               "basedOn": 557
             },
@@ -5998,7 +5990,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 9016,
+              "amount": 3504,
               "channel": "app",
               "basedOn": 558
             },
@@ -6009,7 +6001,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 6762,
+              "amount": 2628,
               "channel": "app",
               "basedOn": 559
             },
@@ -6020,7 +6012,7 @@
             "command": {
               "type": "wallet/remit",
               "currency": "GBP",
-              "amount": 5071,
+              "amount": 1971,
               "channel": "app",
               "basedOn": 560
             },
@@ -6029,19 +6021,8 @@
           },
           {
             "command": {
-              "type": "wallet/remit",
-              "currency": "GBP",
-              "amount": 3804,
-              "channel": "app",
-              "basedOn": 561
-            },
-            "tick": 49,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "return/home",
-              "basedOn": 562
+              "basedOn": 561
             },
             "tick": 49,
             "sender": "player"
@@ -6053,347 +6034,347 @@
   "months": [
     {
       "month": 1,
-      "v": 7,
-      "banked": 23,
-      "nairaBank": 113500000,
-      "hash": "23fb4ec4c7798a87"
+      "v": 9,
+      "banked": 24,
+      "nairaBank": 71000000,
+      "hash": "f199f041ddc8e439"
     },
     {
       "month": 2,
       "v": 13,
-      "banked": 24,
-      "nairaBank": 71047252,
-      "hash": "c3ece53b67a59618"
+      "banked": 23,
+      "nairaBank": 58500000,
+      "hash": "ce924cd0c6c0cc5b"
     },
     {
       "month": 3,
-      "v": 19,
-      "banked": 23,
-      "nairaBank": 53000000,
-      "hash": "1d08c8fd75a99ea7"
+      "v": 27,
+      "banked": 22,
+      "nairaBank": 66700000,
+      "hash": "fa9477d77734cc98"
     },
     {
       "month": 4,
-      "v": 23,
-      "banked": 22,
-      "nairaBank": 68500000,
-      "hash": "52f0a22972d3e543"
+      "v": 33,
+      "banked": 21,
+      "nairaBank": 101789818,
+      "hash": "ae7116553b022084"
     },
     {
       "month": 5,
-      "v": 34,
-      "banked": 21,
-      "nairaBank": 69200000,
-      "hash": "1fa8d8e0a9f7aa7d"
+      "v": 40,
+      "banked": 20,
+      "nairaBank": 113289818,
+      "hash": "e00c4c36db5704de"
     },
     {
       "month": 6,
-      "v": 41,
-      "banked": 20,
-      "nairaBank": 170700000,
-      "hash": "0b8b9cf1b093c09d"
+      "v": 47,
+      "banked": 19,
+      "nairaBank": 94409676,
+      "hash": "268b6b7a488f909d"
     },
     {
       "month": 7,
-      "v": 49,
-      "banked": 19,
-      "nairaBank": 257200000,
-      "hash": "061389d7f09b4f1a"
+      "v": 50,
+      "banked": 18,
+      "nairaBank": 123609676,
+      "hash": "74c99328f25727d5"
     },
     {
       "month": 8,
-      "v": 56,
-      "banked": 18,
-      "nairaBank": 343700000,
-      "hash": "9a5e5cca7087f341"
+      "v": 54,
+      "banked": 17,
+      "nairaBank": 123309676,
+      "hash": "5b66abd00d496963"
     },
     {
       "month": 9,
-      "v": 63,
-      "banked": 17,
-      "nairaBank": 416700000,
-      "hash": "6b90100e47ee1c7f"
+      "v": 62,
+      "banked": 16,
+      "nairaBank": 224573216,
+      "hash": "38738da3b8fb30e0"
     },
     {
       "month": 10,
-      "v": 71,
-      "banked": 16,
-      "nairaBank": 483112818,
-      "hash": "bd2ecfbd5a9889ab"
+      "v": 66,
+      "banked": 15,
+      "nairaBank": 325073216,
+      "hash": "7075eb3c8dedc2b3"
     },
     {
       "month": 11,
-      "v": 75,
-      "banked": 15,
-      "nairaBank": 586112818,
-      "hash": "c48339d55c4e98cb"
+      "v": 70,
+      "banked": 14,
+      "nairaBank": 414573216,
+      "hash": "07dbc3458b26ccb0"
     },
     {
       "month": 12,
-      "v": 78,
-      "banked": 14,
-      "nairaBank": 689112818,
-      "hash": "4ab8f84f2f293bff"
+      "v": 76,
+      "banked": 13,
+      "nairaBank": 375573216,
+      "hash": "c3b048d63938583c"
     },
     {
       "month": 13,
       "v": 81,
       "banked": 24,
-      "nairaBank": 179768950,
-      "hash": "f72975b17d86217c"
+      "nairaBank": 89732246,
+      "hash": "b3a8a94591a26424"
     },
     {
       "month": 14,
-      "v": 84,
+      "v": 86,
       "banked": 24,
-      "nairaBank": 0,
-      "hash": "f834c696bc53473b"
+      "nairaBank": 214749363,
+      "hash": "ce7e9796b1849a8d"
     },
     {
       "month": 15,
-      "v": 86,
+      "v": 87,
       "banked": 24,
-      "nairaBank": 37746477,
-      "hash": "9506b31cb4e0d0b7"
+      "nairaBank": 196749363,
+      "hash": "d5150ae010efd71f"
     },
     {
       "month": 16,
       "v": 88,
       "banked": 23,
-      "nairaBank": 36653165,
-      "hash": "b52b775751a5f300"
+      "nairaBank": 178749363,
+      "hash": "022e1fe7726e4c00"
     },
     {
       "month": 17,
-      "v": 100,
+      "v": 99,
       "banked": 22,
-      "nairaBank": 156249703,
-      "hash": "4759e0d41badae1c"
+      "nairaBank": 253813576,
+      "hash": "809ee009584ab0c2"
     },
     {
       "month": 18,
-      "v": 114,
+      "v": 113,
       "banked": 21,
-      "nairaBank": 779099686,
-      "hash": "0237e799efad2280"
+      "nairaBank": 852599303,
+      "hash": "7efb80b970743544"
     },
     {
       "month": 19,
-      "v": 128,
+      "v": 127,
       "banked": 20,
-      "nairaBank": 1429239980,
-      "hash": "f5b3e02568049284"
+      "nairaBank": 1466959085,
+      "hash": "0a9f9fd300c1975e"
     },
     {
       "month": 20,
-      "v": 142,
+      "v": 141,
       "banked": 19,
-      "nairaBank": 2106429963,
-      "hash": "41d952d313d78061"
+      "nairaBank": 2078754366,
+      "hash": "959f0482e00adad2"
     },
     {
       "month": 21,
-      "v": 156,
+      "v": 155,
       "banked": 18,
-      "nairaBank": 2777369299,
-      "hash": "22372fab1e24ace1"
+      "nairaBank": 2689863477,
+      "hash": "228ee61d8fb297cd"
     },
     {
       "month": 22,
-      "v": 170,
+      "v": 169,
       "banked": 17,
-      "nairaBank": 3257166962,
-      "hash": "675710f20863c805"
+      "nairaBank": 3124940573,
+      "hash": "b237f665aac5976a"
     },
     {
       "month": 23,
-      "v": 184,
+      "v": 183,
       "banked": 16,
-      "nairaBank": 3733889458,
-      "hash": "c6a70eafc108389b"
+      "nairaBank": 3557164347,
+      "hash": "8de3df6962ed38cd"
     },
     {
       "month": 24,
-      "v": 198,
+      "v": 197,
       "banked": 15,
-      "nairaBank": 4156867039,
-      "hash": "3213421ff824055c"
+      "nairaBank": 3946257396,
+      "hash": "7fd63bcc327a9369"
     },
     {
       "month": 25,
-      "v": 212,
+      "v": 211,
       "banked": 14,
-      "nairaBank": 4689350403,
-      "hash": "14608b5d2fa20556"
+      "nairaBank": 4430245293,
+      "hash": "b539676f5f8e6da4"
     },
     {
       "month": 26,
-      "v": 226,
+      "v": 225,
       "banked": 13,
-      "nairaBank": 5181067893,
-      "hash": "79c4189e1bea9bab"
+      "nairaBank": 4863386397,
+      "hash": "75ed2f9f54f5d762"
     },
     {
       "month": 27,
-      "v": 240,
+      "v": 239,
       "banked": 12,
-      "nairaBank": 5655556238,
-      "hash": "5a9c95b2ed25d8a5"
+      "nairaBank": 5307796672,
+      "hash": "60c88e9f2895455d"
     },
     {
       "month": 28,
-      "v": 254,
+      "v": 253,
       "banked": 11,
-      "nairaBank": 6138795580,
-      "hash": "e419d5388e6949e2"
+      "nairaBank": 5742105387,
+      "hash": "1fb8b08aba7bdb4c"
     },
     {
       "month": 29,
-      "v": 268,
+      "v": 267,
       "banked": 10,
-      "nairaBank": 6578788301,
-      "hash": "2285efbf89b52947"
+      "nairaBank": 6176962096,
+      "hash": "0728da7344e95d86"
     },
     {
       "month": 30,
-      "v": 282,
+      "v": 281,
       "banked": 9,
-      "nairaBank": 7070214329,
-      "hash": "2f8a9a835d71da20"
+      "nairaBank": 6618572455,
+      "hash": "2eb4b825d572cb94"
     },
     {
       "month": 31,
-      "v": 296,
+      "v": 295,
       "banked": 8,
-      "nairaBank": 7557850719,
-      "hash": "c7c6dec4d1371532"
+      "nairaBank": 7020559824,
+      "hash": "8e0c4748ac78e425"
     },
     {
       "month": 32,
-      "v": 310,
+      "v": 309,
       "banked": 7,
-      "nairaBank": 8013326219,
-      "hash": "79277f7447cd8fb4"
+      "nairaBank": 7462333539,
+      "hash": "8762ecfb2c162ae8"
     },
     {
       "month": 33,
-      "v": 324,
+      "v": 323,
       "banked": 6,
-      "nairaBank": 8507515855,
-      "hash": "7c6f0298acdfc392"
+      "nairaBank": 7906530839,
+      "hash": "5ea91d3c953309e7"
     },
     {
       "month": 34,
-      "v": 338,
+      "v": 337,
       "banked": 5,
-      "nairaBank": 9000102870,
-      "hash": "8e68d721e1a9e761"
+      "nairaBank": 8352783608,
+      "hash": "f4271c05fdb2260c"
     },
     {
       "month": 35,
-      "v": 352,
+      "v": 351,
       "banked": 4,
-      "nairaBank": 9439617157,
-      "hash": "a3c935e114c79250"
+      "nairaBank": 8787970156,
+      "hash": "429f5dee10bc39e1"
     },
     {
       "month": 36,
-      "v": 366,
+      "v": 365,
       "banked": 3,
-      "nairaBank": 9864403321,
-      "hash": "718dce4d8b0c94a8"
+      "nairaBank": 9193882370,
+      "hash": "e5bb94cce54f2aac"
     },
     {
       "month": 37,
-      "v": 380,
+      "v": 379,
       "banked": 2,
-      "nairaBank": 10415492920,
-      "hash": "b75c9baf41b09fb4"
+      "nairaBank": 9652638596,
+      "hash": "e796ec01081b82be"
     },
     {
       "month": 38,
-      "v": 394,
+      "v": 393,
       "banked": 1,
-      "nairaBank": 10930997576,
-      "hash": "f25da5a257180b55"
+      "nairaBank": 10125501111,
+      "hash": "5833a32b521a1a75"
     },
     {
       "month": 39,
-      "v": 408,
+      "v": 407,
       "banked": 0,
-      "nairaBank": 11445811870,
-      "hash": "b61275d6d1d221d3"
+      "nairaBank": 10580742006,
+      "hash": "cbffb3d8b521938d"
     },
     {
       "month": 40,
-      "v": 423,
+      "v": 422,
       "banked": 0,
-      "nairaBank": 11960320704,
-      "hash": "73b1c3762fa5f281"
+      "nairaBank": 11050898413,
+      "hash": "ddffcdb1634ab152"
     },
     {
       "month": 41,
-      "v": 438,
+      "v": 437,
       "banked": 0,
-      "nairaBank": 12478419062,
-      "hash": "116934b7d6615acc"
+      "nairaBank": 11520546693,
+      "hash": "7e9aff2c04cf45e1"
     },
     {
       "month": 42,
-      "v": 453,
+      "v": 452,
       "banked": 0,
-      "nairaBank": 13003209518,
-      "hash": "1e9f8f83cecb7a3f"
+      "nairaBank": 11974160165,
+      "hash": "64837f3b25ec73e8"
     },
     {
       "month": 43,
-      "v": 468,
+      "v": 467,
       "banked": 0,
-      "nairaBank": 13523791897,
-      "hash": "7de13a700f98cd07"
+      "nairaBank": 12460993760,
+      "hash": "8c1ecad9ffc6fbb9"
     },
     {
       "month": 44,
-      "v": 483,
+      "v": 482,
       "banked": 0,
-      "nairaBank": 14067753281,
-      "hash": "9dccec714d1e7332"
+      "nairaBank": 12910146135,
+      "hash": "cfb94d67f2ab1bda"
     },
     {
       "month": 45,
-      "v": 498,
+      "v": 497,
       "banked": 0,
-      "nairaBank": 14608561689,
-      "hash": "e9fcb7d06f3728e9"
+      "nairaBank": 13370274429,
+      "hash": "5deca29ed07ff070"
     },
     {
       "month": 46,
-      "v": 513,
+      "v": 512,
       "banked": 0,
-      "nairaBank": 15144838245,
-      "hash": "9e74fdbf6bb4eb77"
+      "nairaBank": 13860017755,
+      "hash": "55c7b6095105e8e1"
     },
     {
       "month": 47,
-      "v": 518,
+      "v": 517,
       "banked": 0,
-      "nairaBank": 15124678245,
-      "hash": "954dd526277546a1"
+      "nairaBank": 13839857755,
+      "hash": "ec3ea1ad22d69bb4"
     },
     {
       "month": 48,
-      "v": 533,
+      "v": 532,
       "banked": 0,
-      "nairaBank": 15527417362,
-      "hash": "677cd857173bd4e3"
+      "nairaBank": 14144451256,
+      "hash": "bb5a820ab9464302"
     },
     {
       "month": 49,
-      "v": 548,
+      "v": 547,
       "banked": 0,
-      "nairaBank": 16489062014,
-      "hash": "5fdb1dce975581e3"
+      "nairaBank": 14682994153,
+      "hash": "e3a1b99f3f8a923c"
     }
   ],
-  "finalHash": "ea6a2adc6f4f2764"
+  "finalHash": "be888133354dc54d"
 }
