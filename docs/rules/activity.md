@@ -44,7 +44,7 @@ Pay is monthly, after tax, to the bank. Effects apply each month the job is held
 | | 3 | `activity.job-ward-manager` | Ward manager, private hospital | ₦420,000 | 60 months across the nurse jobs, care 80, standing 50 | 20% | Wellbeing -5, standing +1, network +1 | formal |
 | Teacher | 1 | `activity.job-teacher` | Private school teacher | ₦90,000 | Bachelor's degree | 70% | Wellbeing -2, standing +1 | informal |
 | | 2 | `activity.job-senior-teacher` | Senior teacher, a better school | ₦220,000 | 18 months across the teacher jobs, English 60, `document.trcn` | 40% | Wellbeing -3, standing +1 | formal |
-| | 3 | `activity.job-head-of-department` | Head of department | ₦400,000 | 48 months across the teacher jobs, and education-level 4 or standing 60 | 20% | Wellbeing -4, standing +2 | formal |
+| | 3 | `activity.job-head-of-department` | Head of department | ₦400,000 | 30 months across the teacher jobs, and education-level 4 or standing 60 | 20% | Wellbeing -4, standing +2 | formal |
 | Customer service | 1 | `activity.job-customer-service` | Customer service agent | ₦110,000 | Secondary school | 60% | Wellbeing -3 | formal |
 | | 2 | `activity.job-team-lead` | Team lead | ₦220,000 | 18 months across the support jobs, English 60 | 35% | Wellbeing -4, network +1 | formal |
 | | 3 | `activity.job-remote-support` | Remote support agent, foreign company | $500 | 24 months across the support jobs (the agent, the team lead and night support), English 70, tech 20 | 15% | Wellbeing -5 | dollars, not reviewed |
@@ -61,7 +61,7 @@ Pay is monthly, after tax, to the bank. Effects apply each month the job is held
 | | 2 | `activity.job-chartered-accountant` | Chartered accountant | ₦400,000 | 24 months across the accounting jobs, `document.ican` | 35% | Wellbeing -4, network +1 | formal |
 | | 3 | `activity.job-finance-manager` | Finance manager | ₦700,000 | 36 months as a chartered accountant, network 40 | 20% | Wellbeing -5, network +1, standing +1 | formal |
 | Developer | 1 | `activity.job-junior-developer` | Junior developer | ₦320,000 | Tech 30, and portfolio 1 or a computer science degree (the prologue's course `computer-science`) | 35% | Tech +2, wellbeing -3 | formal |
-| | 2 | `activity.job-mid-developer` | Mid-level developer | ₦1,100,000 | Tech 60, and 18 months across the developer jobs | 30% | Tech +2, wellbeing -4 | formal |
+| | 2 | `activity.job-mid-developer` | Mid-level developer | ₦1,100,000 | Tech 60, and 24 months across the developer jobs | 30% | Tech +2, wellbeing -4 | formal |
 | | 3 | `activity.job-remote-developer` | Remote developer, foreign company | $2,800 | Tech 75, portfolio 3, English 60, 24 months across the developer jobs | 10% | Tech +1, wellbeing -5 | dollars, not reviewed |
 
 The remote jobs pay dollars into the dollar account. That money is documented and needs no explaining later. The bank jobs count among the accounting jobs as well, since an accountant may start at the bank.

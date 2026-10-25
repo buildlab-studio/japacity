@@ -59,7 +59,7 @@ const RUNGS: Rung[] = [
   {
     id: "activity.job-head-of-department",
     pay: { currency: "NGN", amount: naira(400000) },
-    requires: [across(TEACHER_JOBS, 48), { type: "any", of: [atLeast("quality.education-level", 4), atLeast("quality.standing", 60)] }],
+    requires: [across(TEACHER_JOBS, 30), { type: "any", of: [atLeast("quality.education-level", 4), atLeast("quality.standing", 60)] }],
     hireBp: pct(20),
     employer: "formal",
   },

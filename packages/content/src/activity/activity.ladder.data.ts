@@ -106,6 +106,7 @@ export const ladderActivityTable: Record<Id<"activity">, ActivityEntry> = {
     "formal",
   ),
   // The teacher's ladder: a better school asks the registration; the head of department a master's or the standing for it.
+  // The head of department's 30 months are a working value: at 48 half the writers' lives saved neither way out by month 72.
   [SENIOR_TEACHER]: rung(
     SENIOR_TEACHER,
     NGN(220000),
@@ -117,7 +118,7 @@ export const ladderActivityTable: Record<Id<"activity">, ActivityEntry> = {
   [HEAD_OF_DEPARTMENT]: rung(
     HEAD_OF_DEPARTMENT,
     NGN(400000),
-    [across(TEACHER_JOBS, 48), { type: "any", of: [atLeast("quality.education-level", 4), atLeast("quality.standing", 60)] }],
+    [across(TEACHER_JOBS, 30), { type: "any", of: [atLeast("quality.education-level", 4), atLeast("quality.standing", 60)] }],
     pct(20),
     [adds("quality.wellbeing", -4), adds("quality.standing", 2)],
     "formal",

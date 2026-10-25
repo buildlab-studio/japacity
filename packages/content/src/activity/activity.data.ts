@@ -160,12 +160,12 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     employer: "formal",
     requires: [
       { type: "quality/min", quality: "quality.tech", value: 60 },
-      // A working value, as every rung's months are (activity.md): at twelve a pivot saved a master's on the mid-level pay
-      // before its own trade could fly.
+      // A working value, as every rung's months are (activity.md): at twelve or eighteen a pivot saved its way out on the
+      // mid-level pay before its own trade could fly.
       {
         type: "activity/tenure",
         activities: ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"],
-        months: 18,
+        months: 24,
       },
     ],
     param: null,
