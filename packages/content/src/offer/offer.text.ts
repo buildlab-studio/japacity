@@ -300,7 +300,7 @@ export const offerText: Record<string, string> = {
   "offer.sponsor-tech-firm.sign.start-date": "They gave a start date and a rota.",
 
   "offer.sponsor-accounting-firm.name": "An accountancy firm will sponsor you",
-  "offer.sponsor-accounting-firm.title": "Chartered, and we sponsor",
+  "offer.sponsor-accounting-firm.title": "We will sponsor",
   "offer.sponsor-accounting-firm.body":
     "“Your chartered papers and your years in post are what we look for: {salary} a year in Birmingham, and we will sponsor the visa.”",
   "offer.sponsor-accounting-firm.choice.take": "Take the offer",
