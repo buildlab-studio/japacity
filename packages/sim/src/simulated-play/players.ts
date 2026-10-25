@@ -1075,16 +1075,44 @@ export function firstInstalment(view: PlayerView, content: Content, route: Id<"r
 }
 
 /**
- * No style flies to a bill it can see it cannot pay in its first month: the first instalment is met by the pounds held and the
- * family's pledge left (route:family-pledge-pays-tuition). The living funds may still have been borrowed for the visa.
+ * No style flies to a bill it can see it cannot pay in its first month: what the pounds held and the family's pledge left
+ * (route:family-pledge-pays-tuition) lack of the first instalment and the month's room and upkeep, in pence. The living funds
+ * may still have been borrowed for the visa.
  */
-function firstInstalmentCovered(view: PlayerView, content: Content, route: Id<"route">): boolean {
+export function firstInstalmentGap(view: PlayerView, content: Content, route: Id<"route">): number {
   const due = firstInstalment(view, content, route);
   const held = view.routes.find((item) => item.id === route);
-  if (due === null || held === undefined) return true;
+  if (due === null || held === undefined) return 0;
   const gbp = view.rates.GBP.official;
   const pledge = held.support === null ? 0 : held.support.currency === "NGN" ? mulDiv(held.support.amount, 100, gbp) : held.support.amount;
-  return view.pockets.GBP.bank + view.pockets.GBP.cash + pledge >= due;
+  // The first month's room and upkeep are paid beside it, from the pounds alone (abroad-money:arrival-opens-upkeep-and-room).
+  return Math.max(0, Math.max(0, due - pledge) + firstMonthKeep(content, route) - view.pockets.GBP.bank - view.pockets.GBP.cash);
+}
+
+/** A month of the room and the upkeep in the route's country, in its money. */
+function firstMonthKeep(content: Content, route: Id<"route">): number {
+  const country = content.route[route]?.country;
+  const entry = country === null || country === undefined ? undefined : content.country[country];
+  return [entry?.rentRoom ?? null, entry?.upkeep ?? null].reduce((sum, id) => sum + (id === null ? 0 : (content.obligation[id]?.amount ?? 0)), 0);
+}
+
+/** A tenth over the street price, for the aboki's short count (wallet:aboki-short-count). */
+const SHORT_COUNT_MARGIN = 110;
+
+/**
+ * The first instalment's gap bought at the aboki before boarding (wallet:aboki-trades-at-street-rate), instant and outside the
+ * bank's allowance: dollars sold for naira at the bank where the naira falls short, the naira moved to cash, then changed.
+ * Nothing when the naira and the dollars together cannot buy the whole gap.
+ */
+function instalmentPounds(view: PlayerView, gap: number): Loose[] {
+  const kobo = mulDiv(mulDiv(gap, view.rates.GBP.street, 100), SHORT_COUNT_MARGIN, 100);
+  const cash = view.pockets.NGN.cash;
+  if (cash >= kobo) return [{ type: "wallet/convert", from: "NGN", to: "GBP", amount: kobo, via: "aboki" }];
+  const short = kobo - cash - view.pockets.NGN.bank;
+  if (short <= 0) return [{ type: "wallet/move", currency: "NGN", amount: kobo - cash, to: "cash" }];
+  // Selling dollars at the bank is not held to the allowance (wallet:monthly-fx-allowance); a margin covers its charge.
+  const cents = mulDiv(short, 102, view.rates.USD.official) + 100;
+  return view.pockets.USD.bank >= cents ? [{ type: "wallet/convert", from: "USD", to: "NGN", amount: cents, via: "bank" }] : [];
 }
 
 function departures(view: PlayerView, content: Content, habits: Habits): Loose[] {
@@ -1101,7 +1129,7 @@ function departures(view: PlayerView, content: Content, habits: Habits): Loose[]
   for (const item of granted) {
     if (item.gate?.gate === "points" && item.gate.fundsShort > 0) continue;
     if (habits.fliesCovered === true && item.id === UK && !studentCovered(view, content, item.id)) continue;
-    if (item.id === UK && !firstInstalmentCovered(view, content, item.id)) continue;
+    if (item.id === UK && firstInstalmentGap(view, content, item.id) > 0) continue;
     commands.push({ type: "route/depart", route: item.id });
   }
   return commands;
@@ -1146,8 +1174,14 @@ function poundsAhead(view: PlayerView, content: Content, habits: Habits): Loose[
 }
 
 function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loose[] {
-  const commands: Loose[] = [];
+  // A master's granted at home and short of its first instalment buys the gap before anything else moves the money.
   const uk = route(view);
+  const gap = habits.leaves && view.place.where === "home" && uk?.state === "granted" ? firstInstalmentGap(view, content, UK) : 0;
+  if (gap > 0) {
+    const buying = instalmentPounds(view, gap);
+    if (buying.length > 0) return buying;
+  }
+  const commands: Loose[] = [];
   const cash = view.pockets.NGN.cash;
   const due = monthlyDue(view);
   if (cash > due * 2 + 10000000) {

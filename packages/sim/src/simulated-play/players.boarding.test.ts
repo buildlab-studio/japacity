@@ -7,7 +7,7 @@ import { mulDiv } from "../engine/int";
 import type { Content, PlayerView } from "../engine/types";
 import { NORTHGATE } from "../testing/ids";
 import { readyLife } from "../testing/route.journey";
-import { firstInstalment, poundTarget, strategies } from "./players";
+import { firstInstalment, firstInstalmentGap, poundTarget, strategies } from "./players";
 
 const UK = "route.uk-masters";
 
@@ -35,12 +35,31 @@ describe("boarding with the first instalment covered", () => {
     expect(firstInstalment(granted(0), content, UK)).toBe(mulDiv(school.tuition - school.deposit, share, 10000));
   });
 
-  test("[scenario:economy-meets-its-targets] given a risky player granted the master's, when the pounds held and the pledge left meet the first instalment or fall a penny short, then it boards only when they meet it", () => {
+  test("[scenario:economy-meets-its-targets] [abroad-money:arrival-opens-upkeep-and-room] given a risky player granted the master's, when the pounds held and the pledge left meet the first instalment with the month's room and upkeep or fall a penny short, then it boards only when they meet it", () => {
     const due = firstInstalment(granted(0), content, UK)!;
-    expect(departs(granted(due))).toBe(true);
-    expect(departs(granted(due - 1))).toBe(false);
-    expect(departs(granted(due - 1000, 1000))).toBe(true);
-    expect(departs(granted(due - 1001, 1000))).toBe(false);
+    const uk = content.country["country.uk"]!;
+    const keep = content.obligation[uk.rentRoom!]!.amount + content.obligation[uk.upkeep!]!.amount;
+    expect(firstInstalmentGap(granted(0), content, UK)).toBe(due + keep);
+    expect(departs(granted(due + keep))).toBe(true);
+    expect(departs(granted(due + keep - 1))).toBe(false);
+    // The pledge pays the school, not the room.
+    expect(departs(granted(keep, due))).toBe(true);
+    expect(departs(granted(due + keep - 1001, 1000))).toBe(false);
+  });
+
+  test("[scenario:economy-meets-its-targets] [wallet:aboki-trades-at-street-rate] given a risky player granted the master's with no pounds and naira enough for the first instalment, when it plays, then it changes naira for pounds at the aboki before it boards", () => {
+    const view = granted(0);
+    const due = firstInstalment(view, content, UK)!;
+    const naira = mulDiv(due, view.rates.GBP.street, 100) * 2;
+    const rich = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, bank: naira } } };
+    const commands = strategies.risky(rich, content);
+    expect(commands.some((command) => command.type === "route/depart")).toBe(false);
+    expect(commands).toContainEqual(expect.objectContaining({ type: "wallet/move", currency: "NGN", to: "cash" }));
+    const cash = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: naira } } };
+    expect(strategies.risky(cash, content)).toContainEqual(expect.objectContaining({ type: "wallet/convert", from: "NGN", to: "GBP", via: "aboki" }));
+    // Short of naira, it sells dollars at the bank first.
+    const dollars = { ...view, pockets: { ...view.pockets, USD: { ...view.pockets.USD, bank: mulDiv(naira, 100, view.rates.USD.official) } } };
+    expect(strategies.risky(dollars, content)).toContainEqual(expect.objectContaining({ type: "wallet/convert", from: "USD", to: "NGN", via: "bank" }));
   });
 });
 
