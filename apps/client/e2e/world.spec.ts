@@ -148,6 +148,9 @@ test("[world:nudge-says-one-thing] an ask waiting keeps its line under the band,
   for (let month = 0; month < 4 && (await line()) !== "Answer the person asking"; month += 1) {
     await sleepTheMonth(page);
     await backFromResults(page);
+    // The line is drawn a moment after the results close; read it once it has had that moment, so a slow frame is not
+    // taken for a month with no ask and slept past.
+    await nudge.filter({ hasText: "Answer the person asking" }).waitFor({ timeout: 3000 }).catch(() => undefined);
   }
   await expect(nudge).toHaveText("Answer the person asking");
   await shoot(page, "world-nudge-offer-phone");
