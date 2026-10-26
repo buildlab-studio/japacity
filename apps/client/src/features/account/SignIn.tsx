@@ -125,8 +125,9 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
       const cancelled = !result.ok && result.why === "cancelled";
       setProblem(cancelled ? null : failureWords(result));
       setQuiet(cancelled ? failureWords(result) : null);
-      // The button's prompt cancelled the field's request too: it starts again, so the autofill still works after it.
-      if (cancelled && by === "passkey" && inField) setFieldAsk((asks) => asks + 1);
+      // The button's prompt cancelled the field's request too: whatever the prompt answered short of a sign-in, the field's
+      // request starts again, so the autofill still works after it.
+      if (!result.ok && by === "passkey" && inField) setFieldAsk((asks) => asks + 1);
       if (result.ok && by === "passkey") markPasskeyHere();
       if (result.ok && by !== null) onSignedIn(by);
     } finally {

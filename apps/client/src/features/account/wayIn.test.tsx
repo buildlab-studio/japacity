@@ -637,14 +637,17 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
     expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
   });
 
-  test("[account:passkey-in-email-autofill] given the button shown beside the field's autofill, when its prompt is cancelled, then the field's request starts again so the autofill still works", async () => {
+  test.each([
+    ["cancelled", { ok: false, why: "cancelled" }],
+    ["refused", { ok: false, why: "passkey-gone" }],
+  ] as const)("[account:passkey-in-email-autofill] given the button shown beside the field's autofill, when its prompt is %s, then the field's request starts again so the autofill still works", async (_how, answer) => {
     const asks: ((result: AuthResult) => void)[] = [];
     const account = fakeAccount({
       signInWithPasskeyAutofill: () => new Promise<AuthResult>((resolve) => asks.push(resolve)),
       signInWithPasskey: () => {
         // The button's own request cancels the field's, as the browser's single ceremony does.
         asks.at(-1)?.({ ok: false, why: "cancelled" });
-        return Promise.resolve({ ok: false, why: "cancelled" });
+        return Promise.resolve(answer);
       },
     });
     const signedIn = vi.fn();
