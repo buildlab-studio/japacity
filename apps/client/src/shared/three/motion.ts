@@ -6,10 +6,12 @@
 // shipped grids of each level (assets:sheets-ship-two-mesh-levels) once loaded, and built here until then.
 import { gridFile, type GridPiece, WATER_TILE } from "@japacity/models/props/motion/grids";
 import {
+  AddEquation,
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
+  CustomBlending,
   DataTexture,
   DoubleSide,
   LinearFilter,
@@ -24,9 +26,14 @@ import {
   MeshBasicMaterial,
   MeshLambertMaterial,
   type Object3D,
+  OneFactor,
+  OneMinusSrcAlphaFactor,
   PlaneGeometry,
+  ShaderMaterial,
   Sprite,
   SpriteMaterial,
+  UniformsLib,
+  UniformsUtils,
   Vector3,
 } from "three";
 
@@ -552,6 +559,146 @@ export function glowAt(group: Object3D, strength: number): void {
       child.material.opacity = Math.min(1, strength) * 0.85;
     }
   }
+}
+
+/** One warm point of a place's lamps: where it stands, its halo's radius at full glow, and whether it shows a bead. */
+export interface GlowPoint {
+  at: readonly [number, number, number];
+  radius: number;
+  bead: boolean;
+}
+
+/** The halo's radius at full glow is scaled by this at its brightest (`glowAt`'s 0.6 + 0.4 x 1.6), which the bounds must hold. */
+const GLOW_MOST = 0.6 + 0.4 * 1.6;
+
+const GLOWS_VERTEX = /* glsl */ `
+#include <common>
+#include <fog_pars_vertex>
+attribute vec2 aCorner;
+attribute float aRadius;
+attribute float aBead;
+uniform float uStrength;
+varying vec2 vAt;
+varying float vHalo;
+varying float vBead;
+void main() {
+  // Scaled as a sprite is, by the object's own scale.
+  float scale = length(modelMatrix[0].xyz);
+  vHalo = aRadius * (0.6 + 0.4 * min(uStrength, 1.6)) * scale;
+  vBead = aBead * scale;
+  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  vAt = aCorner * max(vHalo, vBead);
+  mvPosition.xy += vAt;
+  gl_Position = projectionMatrix * mvPosition;
+  #include <fog_vertex>
+}
+`;
+
+const GLOWS_FRAGMENT = /* glsl */ `
+#include <common>
+#include <fog_pars_fragment>
+uniform sampler2D uHalo;
+uniform vec3 uHaloColour;
+uniform vec3 uBeadColour;
+uniform float uStrength;
+varying vec2 vAt;
+varying float vHalo;
+varying float vBead;
+// A colour as the screen shows it: tone-mapped, written out, and fogged, as each material does after its own colour.
+vec3 seen(vec3 colour) {
+  vec4 shown = vec4(colour, 1.0);
+  #ifdef TONE_MAPPING
+  shown.rgb = toneMapping(shown.rgb);
+  #endif
+  shown = linearToOutputTexel(shown);
+  #ifdef USE_FOG
+  #ifdef FOG_EXP2
+  float fogFactor = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
+  #else
+  float fogFactor = smoothstep(fogNear, fogFar, vFogDepth);
+  #endif
+  shown.rgb = mix(shown.rgb, fogColor, fogFactor);
+  #endif
+  return shown.rgb;
+}
+void main() {
+  vec2 uv = vAt / (2.0 * vHalo) + 0.5;
+  float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
+  float halo = texture2D(uHalo, clamp(uv, 0.0, 1.0)).a * min(uStrength, 1.0) * 0.85 * inside;
+  float far = length(vAt);
+  float edge = max(fwidth(far), 1e-4);
+  float bead = vBead > 0.0 ? 1.0 - smoothstep(vBead - edge, vBead, far) : 0.0;
+  if (halo <= 0.0 && bead <= 0.0) discard;
+  // Premultiplied, blended one and one-minus-alpha: the halo is added to what is behind (alpha 0), and the bead covers
+  // it (alpha 1) with the halo added over, as an unlit bead under an added halo would draw.
+  gl_FragColor = vec4(seen(uHaloColour) * halo + seen(uBeadColour) * bead, bead);
+}
+`;
+
+/**
+ * Every lamp of a place as warm points of light in one draw call: each a soft halo facing the camera, added to what is
+ * behind, and where it has one an unlit bead covering its middle, the same to the eye as `glow`'s bead and halo drawn
+ * apart. No light is added to the scene (assets:lighting-set-by-place); `glowsAt` sets how bright they all stand, 0 out.
+ */
+export function glows(points: readonly GlowPoint[], color: Color): Mesh {
+  const corners = [-1, -1, 1, -1, 1, 1, -1, 1];
+  const position: number[] = [];
+  const corner: number[] = [];
+  const radius: number[] = [];
+  const bead: number[] = [];
+  const index: number[] = [];
+  points.forEach((point, at) => {
+    for (let one = 0; one < 4; one += 1) {
+      position.push(...point.at);
+      corner.push(corners[one * 2] ?? 0, corners[one * 2 + 1] ?? 0);
+      radius.push(point.radius);
+      bead.push(point.bead ? Math.max(0.04, point.radius * 0.12) : 0);
+    }
+    const first = at * 4;
+    index.push(first, first + 1, first + 2, first, first + 2, first + 3);
+  });
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute(position, 3));
+  geometry.setAttribute("aCorner", new Float32BufferAttribute(corner, 2));
+  geometry.setAttribute("aRadius", new Float32BufferAttribute(radius, 1));
+  geometry.setAttribute("aBead", new Float32BufferAttribute(bead, 1));
+  geometry.setIndex(index);
+  // The bounds hold every halo at its brightest, so the points are culled only when all of them are out of view.
+  geometry.computeBoundingSphere();
+  const reach = Math.max(0, ...points.map((point) => Math.max(point.radius * GLOW_MOST, point.bead ? Math.max(0.04, point.radius * 0.12) : 0)));
+  if (geometry.boundingSphere !== null) geometry.boundingSphere.radius += reach;
+  const material = new ShaderMaterial({
+    uniforms: {
+      ...UniformsUtils.clone(UniformsLib.fog),
+      uHalo: { value: halo() },
+      uHaloColour: { value: color.clone() },
+      uBeadColour: { value: color.clone().lerp(new Color(0xffffff), 0.55) },
+      uStrength: { value: 1 },
+    },
+    vertexShader: GLOWS_VERTEX,
+    fragmentShader: GLOWS_FRAGMENT,
+    fog: true,
+    transparent: true,
+    depthWrite: false,
+    blending: CustomBlending,
+    blendEquation: AddEquation,
+    blendSrc: OneFactor,
+    blendDst: OneMinusSrcAlphaFactor,
+  });
+  const mesh = new Mesh(geometry, material);
+  mesh.name = "motion-glows";
+  // A halo is light in the air, never a thing to tap: a tap passes through it to what stands behind.
+  mesh.raycast = () => undefined;
+  glowsAt(mesh, 1);
+  return mesh;
+}
+
+/** How bright a place's lamps stand together, as `glowAt` sets one glow: 0 out, 1 full, above for turned up. */
+export function glowsAt(mesh: Mesh, strength: number): void {
+  mesh.visible = strength > 0.02;
+  const material = mesh.material as ShaderMaterial;
+  const uniform = material.uniforms["uStrength"];
+  if (uniform !== undefined) uniform.value = strength;
 }
 
 /** A pennant 0.32 m wide and 0.36 m deep, pinned along its top at y = 0. */

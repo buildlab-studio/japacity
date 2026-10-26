@@ -1,10 +1,10 @@
 import { buildGrid } from "@japacity/models/props/motion/build";
 import { GRIDS } from "@japacity/models/props/motion/grids";
-import { AdditiveBlending, BoxGeometry, type BufferGeometry, Color, Group, InstancedMesh, Mesh, MeshBasicMaterial, MeshLambertMaterial, Matrix4, Sprite, Vector3 } from "three";
+import { AdditiveBlending, BoxGeometry, type BufferGeometry, Color, CustomBlending, Group, InstancedMesh, Mesh, MeshBasicMaterial, MeshLambertMaterial, Matrix4, OneFactor, OneMinusSrcAlphaFactor, Raycaster, type ShaderMaterial, Sprite, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
 import { instanceModel } from "./instance";
-import { bunting, drops, flicker, glow, glowAt, gridFilesOf, keepGrid, loadGrids, puffGeometry, rideWater, sheetGeometry, smoke, water } from "./motion";
+import { bunting, drops, flicker, glow, glowAt, type GlowPoint, glows, glowsAt, gridFilesOf, keepGrid, loadGrids, puffGeometry, rideWater, sheetGeometry, smoke, water } from "./motion";
 import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 describe("smoke", () => {
@@ -187,5 +187,58 @@ describe("the fx of the room's acts", () => {
     glowAt(lamp, 1.5);
     expect(round.scale.x).toBeGreaterThan(full);
     expect(glow(0.6, new Color(0xffffff), false).children.every((child) => child instanceof Sprite)).toBe(true);
+  });
+});
+
+describe("the lamps' glow", () => {
+  const LAMPS: GlowPoint[] = [
+    { at: [-5, 2.5, 5.6], radius: 1, bead: true },
+    { at: [8, 1.1, 5.6], radius: 0.6, bead: false },
+  ];
+
+  test("[clock:game-day-on-real-time] [assets:lighting-set-by-place] given a place's lamps, when their glow is built, then every bead and halo is one mesh with one material, so the night adds one draw call, and it adds no light, out at nothing and brighter when turned up", () => {
+    const lit = glows(LAMPS, new Color(0xffb46a));
+    expect(lit).toBeInstanceOf(Mesh);
+    expect(lit.children).toEqual([]);
+    expect(Array.isArray(lit.material)).toBe(false);
+    expect((lit as unknown as { isLight?: boolean }).isLight).toBeUndefined();
+    expect(lit.geometry.getAttribute("position").count).toBe(LAMPS.length * 4);
+    expect(lit.geometry.getIndex()?.count).toBe(LAMPS.length * 6);
+    const beads = lit.geometry.getAttribute("aBead");
+    expect(beads.getX(0)).toBeGreaterThan(0);
+    expect(beads.getX(4)).toBe(0);
+    const material = lit.material as ShaderMaterial;
+    expect(material.transparent).toBe(true);
+    expect(material.depthWrite).toBe(false);
+    expect(material.blending).toBe(CustomBlending);
+    expect([material.blendSrc, material.blendDst]).toEqual([OneFactor, OneMinusSrcAlphaFactor]);
+    glowsAt(lit, 0);
+    expect(lit.visible).toBe(false);
+    glowsAt(lit, 1);
+    expect(lit.visible).toBe(true);
+    glowsAt(lit, 1.5);
+    expect(material.uniforms["uStrength"]?.value).toBe(1.5);
+  });
+
+  test("[assets:lighting-set-by-place] given a lamp with a bulb, when its glow is built in one mesh and on its own, then the halo takes the lamp's colour and the bead the same paler colour as the bead drawn on its own", () => {
+    const colour = new Color(0xffb46a);
+    const material = glows(LAMPS, colour).material as ShaderMaterial;
+    const own = glow(1, colour).children.find((child): child is Mesh => child instanceof Mesh);
+    if (own === undefined) throw new Error("No bead");
+    expect((material.uniforms["uHaloColour"]?.value as Color).getHex()).toBe(colour.getHex());
+    expect((material.uniforms["uBeadColour"]?.value as Color).getHex()).toBe((own.material as MeshBasicMaterial).color.getHex());
+  });
+
+  test("[clock:game-day-on-real-time] given the lamps' glow, when its bounds are read, then they hold every halo at its brightest, so the glow is culled only when every lamp is out of view", () => {
+    const lit = glows(LAMPS, new Color(0xffb46a));
+    const bounds = lit.geometry.boundingSphere;
+    if (bounds === null) throw new Error("No bounds");
+    for (const lamp of LAMPS) expect(bounds.center.distanceTo(new Vector3(...lamp.at)) + lamp.radius * (0.6 + 0.4 * 1.6)).toBeLessThanOrEqual(bounds.radius + 1e-6);
+  });
+
+  test("[city:tap-to-walk] given the lamps' glow standing between the camera and the ground, when a tap's ray passes through a halo, then it meets nothing, so the tap goes to what stands behind", () => {
+    const lit = glows(LAMPS, new Color(0xffb46a));
+    const ray = new Raycaster(new Vector3(-5, 2.5, 20), new Vector3(0, 0, -1));
+    expect(ray.intersectObject(lit)).toEqual([]);
   });
 });

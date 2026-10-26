@@ -1,6 +1,7 @@
 // The layer's light and dressing in the Lagos streets and offices: the night
 // keeps its bulbs and lanterns as the home's real point lights where a place has a lamp, a few to a place so the
 // phone's frame holds, and each place stands more of life from the kit (assets:lighting-set-by-place; city:two-graphics-modes).
+import { Mesh } from "three";
 import { describe, expect, test } from "vitest";
 
 import agentRaw from "../../../../public/assets/places/agent-office/place.json";
@@ -17,6 +18,7 @@ import visaRaw from "../../../../public/assets/places/visa-centre/place.json";
 import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
 import { lightKindOf } from "../scene/daylight";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
+import { lampGlowOf } from "../../../shared/scene/world";
 
 const PLACES: [string, unknown][] = [
   ["yaba-hub", hubRaw],
@@ -49,6 +51,15 @@ describe("the streets' and offices' light and dressing", () => {
       expect(lamp.light?.strength ?? 0).toBeGreaterThan(0);
       expect(lamp.light?.reach ?? 0).toBeGreaterThan(0);
     }
+  });
+
+  test.each(PLACES)("[assets:assets-and-places-within-budget] [clock:game-day-on-real-time] given %s, when its lamps' glow is built, then every lamp, bead and halo stands in one mesh with one material, so the night adds one draw call to the place", (_, raw) => {
+    const lamps = stageOf(raw as PlaceFile).light.lamps ?? [];
+    const lit = lampGlowOf(lamps);
+    expect(lit).toBeInstanceOf(Mesh);
+    expect(lit.children).toEqual([]);
+    expect(Array.isArray(lit.material)).toBe(false);
+    expect(lit.geometry.getAttribute("position").count).toBe(lamps.length * 4);
   });
 
   test.each(PLACES)("[assets:lighting-set-by-place] given %s, when its light is read, then it is lit as a street or an office, never as a home's rooms", (_, raw) => {

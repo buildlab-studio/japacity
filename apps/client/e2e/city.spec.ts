@@ -1,14 +1,14 @@
 // The city in a real browser: a street opens after the map's ride, the character walks where the ground is tapped, a tap
 // on a person opens their card at the foot of the screen, and the street stays inside its draw call and triangle budget
-// on the phone.
+// on the phone at every part of the world's day. Each part is pinned in turn, so the check never rests on the hour it runs.
 // WebGL runs on the software renderer, so frame times here compare runs, not phones.
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { test } from "./support/policy";
 
 import budgets from "../../../models/budgets.json" with { type: "json" };
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
-import { LIVED, openApp, passCards, passHomeTeach, placeReady, rideTo } from "./support/live";
+import { LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, rideTo } from "./support/live";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
@@ -28,30 +28,42 @@ declare global {
   }
 }
 
-test("[city:residents-carry-no-tag] a street opens after a ride, the character walks where the ground is tapped, a person's card opens, and the frame stays in budget", async ({ page }, info) => {
-  test.setTimeout(180_000);
-  await page.goto(`/${LIVED}`);
-  await startReadyLife(page);
-  await placeReady(page);
-  await passHomeTeach(page);
+/**
+ * Each part of the world's day the street is measured at, the night first since its lamps cost the most; the walk and
+ * the card follow at the last part pinned.
+ */
+const PARTS = ["night", "evening", "morning", "afternoon"] as const;
 
-  // Ojuelegba by the map's ride: the street opens with its name on the band (world:map-is-painted-lagos, world:ride-sheet-shows-fares).
-  await rideTo(page, "place.ojuelegba");
+/** The street settled for enough frames to measure, and for the crowd to idle; the software renderer may be slow under load. */
+async function settledStreet(page: Page): Promise<Probe | undefined> {
   await expect(page.locator("[data-band] h2")).toHaveText("Ojuelegba");
   await passCards(page);
-  // Enough frames for the budget, and for the crowd to idle; the software renderer may be slow under load.
   await page.waitForFunction(() => (window.__city?.frames.length ?? 0) > 10, null, { timeout: 60_000 });
+  return page.evaluate(() => window.__city);
+}
 
-  const probe = await page.evaluate(() => window.__city);
-  expect(probe?.place).toBe("place.ojuelegba");
-  if (info.project.name === "Pixel 7") {
-    expect(probe?.drawCalls).toBeLessThanOrEqual(budgets.place.firstLoad.drawCalls);
-    expect(probe?.triangles).toBeLessThanOrEqual(budgets.place.firstLoad.triangles);
+test("[city:residents-carry-no-tag] a street opens after a ride, stays in its budget at every part of the world's day, the character walks where the ground is tapped, and a person's card opens", async ({ page }, info) => {
+  test.setTimeout(420_000);
+  let probe: Probe | undefined;
+  for (const [at, part] of PARTS.entries()) {
+    await page.goto(`/${LIVED}&clock=${part}`);
+    if (at === 0) await startReadyLife(page);
+    await placeReady(page);
+    await passHomeTeach(page);
+    // Ojuelegba by the map's ride: the street opens with its name on the band (world:map-is-painted-lagos, world:ride-sheet-shows-fares).
+    // A page opened again stands where it was left, unless the world's day has turned meanwhile.
+    if (at === 0 || (await placeNow(page)) !== "place.ojuelegba") await rideTo(page, "place.ojuelegba");
+    probe = await settledStreet(page);
+    expect(probe?.place).toBe("place.ojuelegba");
+    const frames = probe?.frames ?? [];
+    expect(frames.length).toBeGreaterThan(10);
+    const sorted = [...frames].sort((a, b) => a - b);
+    console.log(`${info.project.name} at ${part}: ${String(probe?.drawCalls)} draw calls, ${String(probe?.triangles)} triangles, median frame ${String(sorted[Math.floor(sorted.length / 2)])} ms on the software renderer`);
+    if (info.project.name === "Pixel 7") {
+      expect(probe?.drawCalls, part).toBeLessThanOrEqual(budgets.place.firstLoad.drawCalls);
+      expect(probe?.triangles, part).toBeLessThanOrEqual(budgets.place.firstLoad.triangles);
+    }
   }
-  const frames = probe?.frames ?? [];
-  expect(frames.length).toBeGreaterThan(10);
-  const sorted = [...frames].sort((a, b) => a - b);
-  console.log(`${info.project.name}: ${String(probe?.drawCalls)} draw calls, ${String(probe?.triangles)} triangles, median frame ${String(sorted[Math.floor(sorted.length / 2)])} ms on the software renderer`);
 
   // Tap the ground to the side of the character: it walks there, and no command is sent.
   const before = probe?.walker;
@@ -72,8 +84,9 @@ test("[city:residents-carry-no-tag] a street opens after a ride, the character w
   await expect.poll(moved, { timeout: 10_000 }).toBeGreaterThan(0.5);
   expect(sent).toEqual([]);
 
-  // Tap someone standing in view: their card says who they are (city:residents-carry-no-tag). A person may stand behind a stall or a
-  // sign, so each one in view is tried until a person's card opens.
+  // Tap someone standing in view: their card says who they are (city:residents-carry-no-tag). A person may stand behind a stall, a
+  // sign or the danfo, so each one in view is tried until a person's card opens; a tap that meets the danfo takes its ride
+  // and opens the map, which is closed again before the next try.
   const spots = await page.evaluate((size) => {
     const city = window.__city;
     if (city === undefined) return [];
@@ -83,9 +96,14 @@ test("[city:residents-carry-no-tag] a street opens after a ride, the character w
   }, box);
   expect(spots.length).toBeGreaterThan(0);
   const card = page.locator("[data-card=person]");
+  const closeMap = page.locator("[data-map-close]");
   for (const spot of spots) {
     await page.mouse.click(spot.x, spot.y);
     if (await card.waitFor({ state: "visible", timeout: 1500 }).then(() => true, () => false)) break;
+    if (await closeMap.isVisible()) {
+      await closeMap.click();
+      await placeReady(page);
+    }
   }
   await expect(card).toBeVisible();
   await expect(card).toContainText(/Lives in the city|Another player/);
