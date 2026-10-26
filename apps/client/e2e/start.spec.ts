@@ -52,6 +52,9 @@ const USER = { id: "account-1", email: "ada@example.test", emailVerified: true, 
 
 const GUEST = accountView({ id: "account-guest", character: null, state: "guest", username: "Ada" });
 
+/** The auth library's passkey sign-in options, as the server answers each request for a fresh challenge. */
+const AUTHENTICATE_OPTIONS: Answer = { body: { challenge: Buffer.from("a challenge of the server's").toString("base64url"), rpId: "localhost", userVerification: "preferred", timeout: 60_000 } };
+
 /** The routes of a browser never refused, whose guest start and code sign-in work; the view follows the phase. */
 function signUpRoutes(made: Answer): Record<string, Answer | ((faked: Faked) => Answer)> {
   return {
@@ -195,7 +198,8 @@ test("[account:start-screen-over-live-city] under 18 is refused on the age scree
 });
 
 test("[account:start-screen-over-live-city] Sign in shows the ways back in, Google first, with no age screen", async ({ page }, info) => {
-  const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
+  // The field's passkey request gets its challenge as the server gives it, and waits for a pick, as a field with no passkey picked does.
+  const faked = await fakeDoor(page, { ...signUpRoutes(lifeMade()), "GET /api/auth/passkey/generate-authenticate-options": AUTHENTICATE_OPTIONS });
   await page.goto("/");
   await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
   await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
@@ -295,7 +299,7 @@ test("[account:passkey-in-email-autofill] the email field's request for this bro
   const credential = await virtualPasskey(page);
   const faked = await fakeDoor(page, {
     ...signUpRoutes(lifeMade()),
-    "GET /api/auth/passkey/generate-authenticate-options": { body: { challenge: Buffer.from("a challenge of the server's").toString("base64url"), rpId: "localhost", userVerification: "preferred", timeout: 60_000 } },
+    "GET /api/auth/passkey/generate-authenticate-options": AUTHENTICATE_OPTIONS,
     "POST /api/auth/passkey/verify-authentication": (given) => {
       given.phase = "playing";
       return { body: { session: { token: "session-1" }, user: USER } };
