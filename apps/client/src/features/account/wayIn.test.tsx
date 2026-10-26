@@ -602,7 +602,7 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
     const passkey = await screen.findByRole("button", { name: say("ui.account.passkey") });
     const email = screen.getByLabelText(say("ui.account.email.label"));
     expect(email.compareDocumentPosition(passkey) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(passkey.className).not.toMatch(/\bbtn-main\b/);
+    expect(passkey.className).toMatch(/\bbg-transparent\b/);
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
