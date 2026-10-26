@@ -720,7 +720,7 @@
       "attribution": null,
       "generated": true,
       "tool": "Phonon S 31M (gradium/phonon-31m-en at revision 92741c5b07d085ff840e26fea8ce43110b87852f, q8; Apache 2.0 model) with the catalogue voice Bryony gfP44RlHwr2kEwk7 (gradium/phonon-voices at revision 0ee17205f254b5abc43b266c8a0f215565c352f7; Apache 2.0 voice), run on the machine through the ptts 0.4.1 package (MIT or Apache-2.0), lang en, seed 4242424242424242, the other settings left at their defaults; trimmed to 0.08 s before and 0.2 s after the voice, 15 ms fades, -20 LUFS with peak 0.9; encoded with ffmpeg 7.1.1 (libmp3lame) as MP3 32 kbps, mono, 22.05 kHz, metadata stripped. No account, no plan, no cost",
-      "approvedBy": null,
+      "approvedBy": "The makers, after listening to every line",
       "date": "2026-10-25",
       "modified": false,
       "triangles": 0,
@@ -732,7 +732,7 @@
       "outline": null,
       "review": null,
       "nameCheck": null,
-      "status": "draft"
+      "status": "accepted"
     },
     {
       "file": "apps/client/public/voice/officer/f/q-course-about.opus",
@@ -743,7 +743,7 @@
       "attribution": null,
       "generated": true,
       "tool": "Phonon S 31M (gradium/phonon-31m-en at revision 92741c5b07d085ff840e26fea8ce43110b87852f, q8; Apache 2.0 model) with the catalogue voice Bryony gfP44RlHwr2kEwk7 (gradium/phonon-voices at revision 0ee17205f254b5abc43b266c8a0f215565c352f7; Apache 2.0 voice), run on the machine through the ptts 0.4.1 package (MIT or Apache-2.0), lang en, seed 4242424242424242, the other settings left at their defaults; trimmed to 0.08 s before and 0.2 s after the voice, 15 ms fades, -20 LUFS with peak 0.9; encoded with ffmpeg 7.1.1 (libopus) as Opus 24 kbps, mono, metadata stripped. No account, no plan, no cost",
-      "approvedBy": null,
+      "approvedBy": "The makers, after listening to every line",
       "date": "2026-10-25",
       "modified": false,
       "triangles": 0,
@@ -755,7 +755,7 @@
       "outline": null,
       "review": null,
       "nameCheck": null,
-      "status": "draft"
+      "status": "accepted"
     },
     {
       "file": "apps/client/public/voice/officer/f/q-course.mp3",
@@ -1456,7 +1456,7 @@
       "attribution": null,
       "generated": true,
       "tool": "Phonon S 31M (gradium/phonon-31m-en at revision 92741c5b07d085ff840e26fea8ce43110b87852f, q8; Apache 2.0 model) with the catalogue voice Edwin zUCxzrOrugTSis03 (gradium/phonon-voices at revision 0ee17205f254b5abc43b266c8a0f215565c352f7; Apache 2.0 voice), run on the machine through the ptts 0.4.1 package (MIT or Apache-2.0), lang en, seed 4242424242424242, the other settings left at their defaults; trimmed to 0.08 s before and 0.2 s after the voice, 15 ms fades, -20 LUFS with peak 0.9; encoded with ffmpeg 7.1.1 (libmp3lame) as MP3 32 kbps, mono, 22.05 kHz, metadata stripped. No account, no plan, no cost",
-      "approvedBy": null,
+      "approvedBy": "The makers, after listening to every line",
       "date": "2026-10-25",
       "modified": false,
       "triangles": 0,
@@ -1468,7 +1468,7 @@
       "outline": null,
       "review": null,
       "nameCheck": null,
-      "status": "draft"
+      "status": "accepted"
     },
     {
       "file": "apps/client/public/voice/officer/m/q-course-about.opus",
@@ -1479,7 +1479,7 @@
       "attribution": null,
       "generated": true,
       "tool": "Phonon S 31M (gradium/phonon-31m-en at revision 92741c5b07d085ff840e26fea8ce43110b87852f, q8; Apache 2.0 model) with the catalogue voice Edwin zUCxzrOrugTSis03 (gradium/phonon-voices at revision 0ee17205f254b5abc43b266c8a0f215565c352f7; Apache 2.0 voice), run on the machine through the ptts 0.4.1 package (MIT or Apache-2.0), lang en, seed 4242424242424242, the other settings left at their defaults; trimmed to 0.08 s before and 0.2 s after the voice, 15 ms fades, -20 LUFS with peak 0.9; encoded with ffmpeg 7.1.1 (libopus) as Opus 24 kbps, mono, metadata stripped. No account, no plan, no cost",
-      "approvedBy": null,
+      "approvedBy": "The makers, after listening to every line",
       "date": "2026-10-25",
       "modified": false,
       "triangles": 0,
@@ -1491,7 +1491,7 @@
       "outline": null,
       "review": null,
       "nameCheck": null,
-      "status": "draft"
+      "status": "accepted"
     },
     {
       "file": "apps/client/public/voice/officer/m/q-course.mp3",
