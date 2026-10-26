@@ -148,7 +148,7 @@ describe("adding a passkey from an older session (account:passkey-added-in-place
     expect(store.getState().signedOut).toBe(false);
   });
 
-  test("[account:passkey-in-email-autofill] given a passkey added here, then this browser is marked, so its ways back in put the passkey first; a failed add marks nothing", async () => {
+  test("[account:passkey-in-email-autofill] given a passkey added here, then this browser is marked, so its ways back in put the email field first; a failed add marks nothing", async () => {
     settings(fakeAccount(kept(), { addPasskey: inTurn<AuthResult>({ ok: false, why: "cancelled" }, OK) }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.add") }));
     await waitFor(() => expect(localStorage.getItem(PASSKEY_MARK_KEY)).toBeNull());

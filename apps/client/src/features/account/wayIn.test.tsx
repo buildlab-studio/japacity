@@ -411,7 +411,7 @@ describe("the way out of an in-app browser (account:guest-secures-the-life)", ()
     expect(screen.queryByRole("button", { name: say("ui.account.in-app.open") })).toBeNull();
   });
 
-  test("[account:passkey-in-email-autofill] [account:guest-secures-the-life] given the ways back in inside an app's browser, then no passkey is offered: no button, no autofill, not first even where one was used", async () => {
+  test("[account:passkey-in-email-autofill] [account:guest-secures-the-life] given the ways back in inside an app's browser, then no passkey is offered: no button, no autofill, the email field not moved up even where one was used", async () => {
     let asks = 0;
     const account = fakeAccount({ signInWithPasskeyAutofill: () => ((asks += 1), Promise.resolve(OK)) });
     render(<SignIn account={account} onSignedIn={() => undefined} autofill={() => Promise.resolve(true)} passkeyUsed agent={ANDROID_WHATSAPP} href="https://japacity.app/" />);
@@ -420,7 +420,7 @@ describe("the way out of an in-app browser (account:guest-secures-the-life)", ()
     });
     expect(asks).toBe(0);
     expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
-    expect(screen.queryByRole("button", { name: say("ui.account.passkey.first") })).toBeNull();
+    expect(document.querySelector("[data-passkey-first]")).toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label")).getAttribute("autocomplete")).toBe("email");
   });
 });
@@ -514,6 +514,13 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
   const can = () => Promise.resolve(true);
   const cannot = () => Promise.resolve(false);
 
+  test("[account:passkey-in-email-autofill] given a browser that offers passkeys in autofill, then the field is the passkey's only way: no button of its own", async () => {
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => new Promise<AuthResult>(() => undefined) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={can} passkeyUsed={false} agent={PLAIN_CHROME} />);
+    await waitFor(() => expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull());
+    expect(screen.getByLabelText(say("ui.account.email.label")).getAttribute("autocomplete")).toBe("username webauthn");
+  });
+
   test("[account:passkey-in-email-autofill] given a browser that offers passkeys in autofill, then the email field asks for them, the ask starts once, and a passkey picked there signs in and marks this browser", async () => {
     let asks = 0;
     const account = fakeAccount({ signInWithPasskeyAutofill: () => ((asks += 1), Promise.resolve(OK)) });
@@ -564,20 +571,29 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
     expect(signedIn).not.toHaveBeenCalled();
   });
 
-  test("[account:passkey-in-email-autofill] given a passkey used in this browser before, then Sign in with a passkey comes first, before Google, as wide as the sheet; the quiet button goes", async () => {
+  test("[account:passkey-in-email-autofill] given a passkey used in this browser before, then the email field that offers it comes first, before Google; with the field's autofill there is no passkey button", async () => {
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => new Promise<AuthResult>(() => undefined) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={can} passkeyUsed agent={PLAIN_CHROME} />);
+    const email = screen.getByLabelText(say("ui.account.email.label"));
+    const google = screen.getByRole("button", { name: say("ui.account.google") });
+    expect(email.compareDocumentPosition(google) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await waitFor(() => expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull());
+  });
+
+  test("[account:passkey-in-email-autofill] given a passkey used in this browser before on a browser with no autofill, then the email field still comes first and the passkey button stays below it, and signs in", async () => {
     const account = fakeAccount();
     const signedIn = vi.fn();
     render(<SignIn account={account} onSignedIn={signedIn} autofill={cannot} passkeyUsed agent={PLAIN_CHROME} />);
-    const first = screen.getByRole("button", { name: say("ui.account.passkey.first") });
+    const email = screen.getByLabelText(say("ui.account.email.label"));
     const google = screen.getByRole("button", { name: say("ui.account.google") });
-    expect(first.compareDocumentPosition(google) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(first.className).toMatch(/\bw-full\b/);
-    expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
-    fireEvent.click(first);
+    const passkey = screen.getByRole("button", { name: say("ui.account.passkey") });
+    expect(email.compareDocumentPosition(google) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(google.compareDocumentPosition(passkey) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fireEvent.click(passkey);
     await waitFor(() => expect(signedIn).toHaveBeenCalledWith("passkey"));
   });
 
-  test("[account:passkey-in-email-autofill] given the passkey button used, then this browser is marked and the next ways back in put the passkey first", async () => {
+  test("[account:passkey-in-email-autofill] given the passkey button used, then this browser is marked and the next ways back in put the email field first", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve("passed") }));
     fireEvent.click(await button("ui.account.start.returning"));
     fireEvent.click(await button("ui.account.passkey"));

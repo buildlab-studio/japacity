@@ -1,8 +1,8 @@
 // The ways back in for a player who kept a life (account:sign-in-without-secret), in account:guest-secures-the-life's order: Google first, then a
 // code by email, then a passkey, which only signs in: it is added from the settings (account:passkey-needs-signed-in-session). Inside an
 // in-app browser where Google is blocked, Google is not shown and the code is offered with a way out to the phone's
-// own browser, and no passkey, which is unreliable there. The email field offers this browser's passkeys in its autofill where the browser can, and where a
-// passkey was added or used in this browser the passkey comes first, at Google's weight (account:passkey-in-email-autofill).
+// own browser, and no passkey, which is unreliable there. The email field offers this browser's passkeys in its autofill where the browser can, with
+// no button of its own there, and where a passkey was added or used in this browser the email field comes first (account:passkey-in-email-autofill).
 // None of them makes an account: a life starts as a guest (account:guest-and-secured-states), so a sign-in that finds no
 // life says so. Signing in again needs no bot check (account:bot-check-on-guest-creation).
 import { ArrowLeft } from "lucide-react";
@@ -73,6 +73,8 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   const [problem, setProblem] = useState<string | null>(null);
   // account:passkey-errors-told-apart: a prompt the player cancelled is told as nothing happened, quietly, never as a refusal.
   const [quiet, setQuiet] = useState<string | null>(null);
+  // Whether the email field's autofill offers passkeys here, once the browser has said so; until then the button stands.
+  const [inField, setInField] = useState(false);
   useEffect(() => setReturned(given), [given]);
   const inApp = inAppBrowser(agent);
   // Passkeys are not offered inside an app's own browser, where they are unreliable: no button, no autofill.
@@ -91,6 +93,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
     if (withAutofill) {
       void autofill().then(async (can) => {
         if (!can || !up.current) return;
+        setInField(true);
         const result = await account.signInWithPasskeyAutofill?.();
         if (result?.ok !== true || !up.current) return;
         markPasskeyHere();
@@ -119,6 +122,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   }
 
   const usePasskey = () => void run(() => account.signInWithPasskey(), "passkey");
+  const codeForm = <CodeForm account={account} passkeyAutofill={withAutofill} {...(filled === null ? {} : { filled })} onSignedIn={() => onSignedIn("email")} />;
 
   return (
     <div className="flex flex-col gap-4" data-sign-in="returning" data-passkey-first={passkeyFirst ? "" : undefined}>
@@ -140,12 +144,8 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
           {returned}
         </p>
       )}
-      {/* A passkey used here before comes first, as tall and as wide as Google's button. */}
-      {passkeyFirst ? (
-        <Button variant="primary" className="min-h-12 w-full text-[16px]" disabled={busy} onClick={usePasskey}>
-          {say("ui.account.passkey.first")}
-        </Button>
-      ) : null}
+      {/* Where a passkey was used here before, the email field that offers it comes first. */}
+      {passkeyFirst ? codeForm : null}
       {inApp ? (
         <div className="flex flex-col gap-2" data-in-app>
           <p className="text-[14px] leading-snug">{say("ui.account.in-app")}</p>
@@ -156,9 +156,9 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
       ) : (
         <GoogleButton label={say("ui.account.google")} disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null, "sign-in"), null)} />
       )}
-      <CodeForm account={account} passkeyAutofill={withAutofill} {...(filled === null ? {} : { filled })} onSignedIn={() => onSignedIn("email")} />
-      {/* The button stays where a browser offers no autofill (Firefox among them). */}
-      {!passkeys || passkeyFirst ? null : (
+      {passkeyFirst ? null : codeForm}
+      {/* The button stays only where the browser offers no passkeys in the field's autofill. */}
+      {!passkeys || inField ? null : (
         <div>
           <Button variant="quiet" disabled={busy} onClick={usePasskey}>
             {say("ui.account.passkey")}

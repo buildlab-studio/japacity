@@ -128,7 +128,6 @@ export const uiOnlineText: Record<string, string> = {
   // Signing in (account:sign-in-without-secret, account:email-code-is-short-lived, account:bot-check-on-guest-creation)
   "ui.account.google": "Continue with Google",
   "ui.account.passkey": "Use a passkey",
-  "ui.account.passkey.first": "Sign in with a passkey",
   "ui.account.email.label": "Email",
   "ui.account.email.send": "Send me a code",
   "ui.account.email.empty": "Put in your email first.",

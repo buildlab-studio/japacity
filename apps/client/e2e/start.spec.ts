@@ -1,3 +1,5 @@
+import { generateKeyPairSync } from "node:crypto";
+
 import { standInWorld } from "@japacity/sim";
 import { finishPrologue, start } from "@japacity/sim/testing";
 import { expect, type Page } from "@playwright/test";
@@ -199,7 +201,9 @@ test("[account:start-screen-over-live-city] Sign in shows the ways back in, Goog
   await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(page.getByLabel("Email")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Use a passkey" })).toBeVisible();
+  // This browser offers passkeys in the email field's autofill, so the field is the passkey's way and there is no button (account:passkey-in-email-autofill).
+  await expect(page.getByLabel("Email")).toHaveAttribute("autocomplete", "username webauthn");
+  await expect(page.getByRole("button", { name: "Use a passkey" })).toHaveCount(0);
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
   // The wordmark tops the ways back in, once.
   await expect(page.getByRole("img", { name: "Japacity" })).toHaveCount(1);
@@ -268,4 +272,38 @@ test.describe("inside a messaging app's browser", () => {
     await page.getByRole("button", { name: "Play", exact: true }).click();
     await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible();
   });
+});
+
+/** A passkey of this game's kept by the browser's own authenticator, which answers with no prompt; its id as the server reads it. */
+async function virtualPasskey(page: Page): Promise<string> {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("WebAuthn.enable");
+  const { authenticatorId } = await cdp.send("WebAuthn.addVirtualAuthenticator", {
+    options: { protocol: "ctap2", transport: "internal", hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true },
+  });
+  const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+  await cdp.send("WebAuthn.addCredential", {
+    authenticatorId,
+    credential: { credentialId: Buffer.from("ada-passkey").toString("base64"), isResidentCredential: true, rpId: "localhost", privateKey: privateKey.export({ format: "der", type: "pkcs8" }).toString("base64"), userHandle: Buffer.from(USER.id).toString("base64"), signCount: 0 },
+  });
+  return Buffer.from("ada-passkey").toString("base64url");
+}
+
+// The browser's virtual authenticator answers the email field's conditional request as a person picking the passkey in the
+// field's autofill would, so the sign-in runs whole, through the browser's own WebAuthn, with no button on the sheet.
+test("[account:passkey-in-email-autofill] the email field's request for this browser's passkeys signs in with the passkey picked there, with no button", async ({ page }) => {
+  const credential = await virtualPasskey(page);
+  const faked = await fakeDoor(page, {
+    ...signUpRoutes(lifeMade()),
+    "GET /api/auth/passkey/generate-authenticate-options": { body: { challenge: Buffer.from("a challenge of the server's").toString("base64url"), rpId: "localhost", userVerification: "preferred", timeout: 60_000 } },
+    "POST /api/auth/passkey/verify-authentication": (given) => {
+      given.phase = "playing";
+      return { body: { session: { token: "session-1" }, user: USER } };
+    },
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
+  await expect.poll(() => faked.sent.filter((request) => request.route === "POST /api/auth/passkey/verify-authentication").map((request) => (request.body as { response: { id: string } }).response.id), { timeout: 20_000 }).toEqual([credential]);
+  await expect(page.getByRole("heading", { name: "Sign back in" })).toHaveCount(0, { timeout: 20_000 });
+  await expect(page.getByRole("button", { name: "Your page" })).toBeVisible({ timeout: 20_000 });
 });
