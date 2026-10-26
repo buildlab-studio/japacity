@@ -108,7 +108,7 @@ export function PasskeyCard({ account, onDone }: { account: AccountApi; onDone: 
     <CentredColumn className="pointer-events-none fixed inset-x-0 top-0 z-[38] px-4 pt-[calc(max(10px,env(safe-area-inset-top))+64px)]">
       <section aria-labelledby={titleId} className="brief-toast slide-in pointer-events-auto flex flex-col gap-3 p-4" data-passkey-card>
         <div className="flex items-start gap-3">
-          <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-ink">
+          <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-ink">
             <KeyRound size={20} />
           </span>
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
