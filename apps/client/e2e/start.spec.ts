@@ -312,18 +312,18 @@ test("[account:passkey-in-email-autofill] the email field's request for this bro
   await expect(page.getByRole("button", { name: "Your page" })).toBeVisible({ timeout: 20_000 });
 });
 
-test("[account:passkey-errors-told-apart] a passkey picked in the email field whose life is gone is told in plain words, the button comes back and the sheet stays", async ({ page }) => {
+test("[account:passkey-errors-told-apart] a passkey picked in the email field that no account holds is told in plain words, the button comes back and the sheet stays", async ({ page }) => {
   const credential = await virtualPasskey(page);
   const faked = await fakeDoor(page, {
     ...signUpRoutes(lifeMade()),
     "GET /api/auth/passkey/generate-authenticate-options": AUTHENTICATE_OPTIONS,
-    // The server holds no passkey of that id: its life was deleted, the phone still keeps it.
+    // The server holds no passkey of that id: its account was deleted, the phone still keeps it.
     "POST /api/auth/passkey/verify-authentication": { status: 401, body: { code: "PASSKEY_NOT_FOUND", message: "Passkey not found" } },
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
   await expect.poll(() => faked.sent.filter((request) => request.route === "POST /api/auth/passkey/verify-authentication").map((request) => (request.body as { response: { id: string } }).response.id), { timeout: 20_000 }).toContain(credential);
-  await expect(page.getByRole("alert")).toHaveText("That passkey no longer opens a life here. Sign in another way.");
+  await expect(page.getByRole("alert")).toHaveText("This passkey is not linked to any account. Sign in another way.");
   await expect(page.getByRole("button", { name: "Use a passkey" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
 });
