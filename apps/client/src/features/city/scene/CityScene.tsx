@@ -20,7 +20,7 @@ import { type BubbleSpot, bubbleSpot, drawTail, NEAR_SPEAKER, type Rect } from "
 import { advanceClock } from "../../../shared/three/clock";
 import { loadModel } from "../../../shared/three/load";
 import { loadManifest } from "../../../shared/three/manifest";
-import { glowAt, loadGrids } from "../../../shared/three/motion";
+import { glowsAt, loadGrids } from "../../../shared/three/motion";
 import { poseFigure } from "../../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "../../../shared/scene/limits";
@@ -42,7 +42,7 @@ import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo
 import { walkableOf } from "../../../shared/scene/walk/map";
 import { findRoute } from "../../../shared/scene/walk/route";
 import { SHEET_KINDS } from "../../../../../../tools/assets/world-check";
-import { animateWorld, buildWorld, colourOf, lampsOf, motionOf, type World } from "../../../shared/scene/world";
+import { animateWorld, buildWorld, colourOf, lampGlowOf, motionOf, type World } from "../../../shared/scene/world";
 import { failureOf } from "../../../shared/net/http";
 
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
@@ -343,7 +343,7 @@ function Place(props: PlaceProps) {
   const target = useMemo(() => placeLook(lookAt(part, minute, stage.light.sun), kind), [part, minute, stage.light.sun, kind]);
   const look = useRef<Look | null>(null);
   const daylit = useRef<{ look: Look | null; sun: [number, number, number]; sky: Color; light: Color; ground: Color; background: Color; fog: Color }>({ look: null, sun: [0, 0, 0], sky: new Color(), light: new Color(), ground: new Color(), background: new Color(), fog: new Color() });
-  const lamps = useRef<Object3D[]>([]);
+  const lamps = useRef<Mesh | null>(null);
   /** The rooms' real lights at their lamps, each with its strength at full night. */
   const lights = useRef<{ point: PointLight; strength: number }[]>([]);
   const fx = useRef<{ objects: Object3D[]; from: number; to: number }[]>([]);
@@ -641,11 +641,9 @@ function Place(props: PlaceProps) {
   // The place's lamps glow as the light goes: the bulb, the lantern, the street's few lights (clock:game-day-on-real-time).
   useEffect(() => {
     if (world === null) return;
-    const made = lampsOf(stage.light.lamps ?? []);
-    for (const lamp of made) {
-      glowAt(lamp, look.current?.lamps ?? 0);
-      world.root.add(lamp);
-    }
+    const made = lampGlowOf(stage.light.lamps ?? []);
+    glowsAt(made, look.current?.lamps ?? 0);
+    world.root.add(made);
     lamps.current = made;
     // A room's bulb and lantern light it at night: real lights, there by day at nothing so the room's shaders never change.
     const lit = (stage.light.lamps ?? []).flatMap((lamp) => {
@@ -657,12 +655,12 @@ function Place(props: PlaceProps) {
     });
     lights.current = lit;
     return () => {
-      for (const lamp of made) disposeFx(lamp);
+      disposeFx(made);
       for (const { point } of lit) {
         point.removeFromParent();
         point.dispose();
       }
-      lamps.current = [];
+      lamps.current = null;
       lights.current = [];
     };
   }, [world, stage.light.lamps]);
@@ -896,7 +894,7 @@ function Place(props: PlaceProps) {
       lit.ground.copy(placeLight.ground === null ? colourOf(stage.light.ground) : new Color(placeLight.ground)).multiplyScalar(day.groundShare);
       lit.background.copy(lit.sky);
       lit.fog.copy(lit.sky);
-      for (const lamp of lamps.current) glowAt(lamp, day.lamps);
+      if (lamps.current !== null) glowsAt(lamps.current, day.lamps);
       for (const { point, strength } of lights.current) point.intensity = strength * day.lamps;
     }
     const light = sun.current;

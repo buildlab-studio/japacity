@@ -12,7 +12,7 @@ import { instanceModel } from "../three/instance";
 import { ownIndicator, nameTag } from "../three/marks";
 import { danceFigure } from "../three/dance";
 import { poseFigure } from "../three/people";
-import { bunting, drops, flicker, frondGeometry, glow, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../three/motion";
+import { bunting, drops, flicker, frondGeometry, glow, glows, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../three/motion";
 import { type Figure, figureOf } from "../three/people";
 import { crossAt } from "./cross";
 import { actPose, placeCrowd, type Shown, walkPose } from "./crowd";
@@ -453,7 +453,21 @@ export function animateWorld(world: World, time: number, seconds: number): void 
 /** The warm colour of a lamp's glow: a bulb or a lantern's flame at night. */
 const LAMP_COLOUR = 0xffb46a;
 
-/** The place's lamps as warm points of light, out until the day's light sets how bright they stand (clock:game-day-on-real-time). */
+/**
+ * The place's lamps as warm points of light in one draw call, out until the day's light sets how bright they stand
+ * (clock:game-day-on-real-time): the night lights them without taking the street past its draw-call budget
+ * (assets:assets-and-places-within-budget).
+ */
+export function lampGlowOf(lamps: readonly Lamp[]): Mesh {
+  const lit = glows(
+    lamps.map((lamp) => ({ at: lamp.at, radius: lamp.size / 2, bead: lamp.bulb === true })),
+    new Color(LAMP_COLOUR),
+  );
+  lit.name = "lamps";
+  return lit;
+}
+
+/** The place's lamps as warm points of light, each its own, out until the day's light sets how bright they stand (clock:game-day-on-real-time). */
 export function lampsOf(lamps: readonly Lamp[]): Object3D[] {
   return lamps.map((lamp) => {
     const point = glow(lamp.size / 2, new Color(LAMP_COLOUR), lamp.bulb === true);
