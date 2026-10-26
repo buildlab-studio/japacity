@@ -68,6 +68,9 @@ export async function browserAutofill(): Promise<boolean> {
   }
 }
 
+/** The field's refusals that follow a passkey the player picked and confirmed: each is told, as the button's are. */
+const PICKED_AND_REFUSED: ReadonlySet<string> = new Set(["passkey-gone", "other-account"]);
+
 export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, filled = null, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
   const [busy, setBusy] = useState(false);
   // What the trip to Google came back with stands at the top; what a way on this sheet answers stands at its foot, by the ways.
@@ -92,8 +95,9 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   signedIn.current = onSignedIn;
 
   // account:passkey-in-email-autofill: once the field is there, the browser is asked to offer this site's passkeys in its
-  // autofill, where it can. The button's own ask cancels this one; a cancel or a refusal here says nothing, and a failure
-  // that is not a cancel brings the button back (account:passkey-errors-told-apart). Each ask fetches a fresh challenge.
+  // autofill, where it can. The button's own ask cancels this one; a cancel here says nothing, a failure that is not a cancel
+  // brings the button back, and a passkey picked there that the server refuses is told as the button's is
+  // (account:passkey-errors-told-apart). Each ask fetches a fresh challenge.
   useEffect(() => {
     // The sheet is still up and this is the latest ask: a passkey picked from an autofill after it went opens nothing.
     let live = true;
@@ -105,6 +109,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
         if (result === undefined || !live) return;
         if (!result.ok) {
           if (result.why !== "cancelled") setFieldMissed(true);
+          if (PICKED_AND_REFUSED.has(result.why)) setProblem(failureWords(result));
           return;
         }
         markPasskeyHere();

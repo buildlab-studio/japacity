@@ -230,7 +230,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.toast.in.passkey": "Signed in with your passkey",
   // What went wrong with a passkey or signing out, told apart (account:passkey-errors-told-apart, account:sign-out-ends-the-session).
   "ui.account.fail.already-here": "This phone already has a passkey for this life.",
-  "ui.account.fail.passkey-gone": "That passkey was removed from your account. Sign in another way.",
+  "ui.account.fail.passkey-gone": "That passkey no longer opens a life here. Sign in another way.",
   "ui.account.fail.other-account": "That passkey belongs to another life. Use one made for this life.",
   "ui.account.fail.sign-out": "Could not sign out. Check your connection and try again.",
 

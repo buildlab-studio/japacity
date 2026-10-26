@@ -559,7 +559,18 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
     expect(screen.queryByText(say("ui.account.fail.cancelled"))).toBeNull();
   });
 
-  test("[account:passkey-in-email-autofill] given an autofill ask cancelled or refused, then nothing is said", async () => {
+  test("[account:passkey-in-email-autofill] [account:passkey-errors-told-apart] given a passkey picked in the field whose life is gone, then it is told in plain words and the button comes back", async () => {
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => Promise.resolve({ ok: false, why: "passkey-gone" }) });
+    const signedIn = vi.fn();
+    render(<SignIn account={account} onSignedIn={signedIn} autofill={can} passkeyUsed={false} agent={PLAIN_CHROME} />);
+    const told = await screen.findByRole("alert");
+    expect(told.textContent).toBe(say("ui.account.fail.passkey-gone"));
+    expect(told.textContent).toBe("That passkey no longer opens a life here. Sign in another way.");
+    expect(screen.getByRole("button", { name: say("ui.account.passkey") })).toBeDefined();
+    expect(signedIn).not.toHaveBeenCalled();
+  });
+
+  test("[account:passkey-in-email-autofill] given an autofill ask cancelled, then nothing is said", async () => {
     const account = fakeAccount({ signInWithPasskeyAutofill: () => Promise.resolve({ ok: false, why: "cancelled" }) });
     const signedIn = vi.fn();
     render(<SignIn account={account} onSignedIn={signedIn} autofill={can} passkeyUsed={false} />);
