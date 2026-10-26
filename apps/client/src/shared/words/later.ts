@@ -1,6 +1,7 @@
 // Words a first visit does not carry, fetched each in a chunk of its own (engine:first-download-has-budget) and added to the late table
 // before their screen is drawn: the account sheet's (the username's change, the passkeys, signing out and deleting the account,
-// content's ui/ui.accountSheet.text.ts), fetched by the account's row with the sheet's code, and the dedication page's
+// content's ui/ui.accountSheet.text.ts), fetched with the sheet's code by the account's row and by the card that offers a passkey
+// after a way in, which rides that code, and the dedication page's
 // (content's ui/ui.dedication.text.ts), fetched with the page's own chunk. The first visit carries only the late table's few lines
 // (shared/words/late.ts).
 import { addLateWords } from "./late";

@@ -29,6 +29,9 @@ import { PasskeyList, usePasskeysWork } from "./PasskeyList";
 import { GuestReminder } from "./Secure";
 import { refreshAccount, useAccountView } from "./standing";
 
+// The card that offers a passkey after a way in rides this chunk, which holds the passkey code it shares (WayToast.tsx).
+export { PasskeyCard } from "./PasskeyCard";
+
 /**
  * analytics:player-can-stop-usage-counts: "Send usage counts", stored on the account and on by
  * default. Off stops the interface counters at once; the server's own game
@@ -408,7 +411,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
       <Username account={account} />
       <LifeName />
       {me === null ? null : <WaysIn view={me} />}
-      {guest ? null : <PasskeyList account={account} ways={ways} known={me !== null} />}
+      {guest ? null : <PasskeyList account={account} ways={ways} />}
       <div className="flex flex-col gap-2">
         {/* account:guest-and-secured-states: a guest's session is its only way back, so signing out of it is said plainly first. */}
         {guest && leaving === "no" ? (

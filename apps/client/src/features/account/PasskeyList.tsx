@@ -1,6 +1,6 @@
 // The passkeys of a kept life on its account sheet (account:passkeys-listed-and-removed): each one by its provider's
-// name and the day it was added, with Remove; adding one where the browser can make it (account:passkey-offered-where-it-works),
-// offered once on this device as a quiet line; and the confirmation a session older than the server's fresh age needs
+// name and the day it was added, with Remove; adding one where the browser can make it, always with its line
+// (account:passkey-offered-where-it-works); and the confirmation a session older than the server's fresh age needs
 // before a passkey is added, made in place with a code or the account's own passkey (account:passkey-needs-signed-in-session).
 // Removing any passkey asks once, naming that phones signed in with it are signed out, and for the last one the way still
 // left; Keep it is the main button, Remove it wears the warning colour apart from it (world:costly-acts-confirmed).
@@ -8,7 +8,6 @@ import type { AccountView } from "@japacity/api";
 import { useEffect, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
-import { browserStorage, PASSKEY_OFFERED_KEY } from "../../shared/storage/storage";
 import type { AccountApi, AuthResult, PasskeyRow } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
 import { say, sayCount } from "../../shared/words/text";
@@ -40,23 +39,6 @@ export function usePasskeysWork(account: AccountApi): boolean | null {
   return works;
 }
 
-/** account:passkey-offered-where-it-works: true the first time this device's sheet would offer a passkey, and marks it so it never offers again. */
-function useOfferOnce(due: boolean): boolean {
-  const [offer, setOffer] = useState(false);
-  useEffect(() => {
-    if (!due) return;
-    const store = browserStorage();
-    try {
-      if (store !== null && store.getItem(PASSKEY_OFFERED_KEY) !== null) return;
-      store?.setItem(PASSKEY_OFFERED_KEY, "1");
-    } catch {
-      // Storage that cannot be written cannot remember the offer either: it is made this once and never kept.
-    }
-    setOffer(true);
-  }, [due]);
-  return offer;
-}
-
 /** A day as the player reads it, in their own calendar. */
 function dayOf(at: number): string {
   return new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
@@ -71,12 +53,9 @@ function lastWords(ways: AccountView["ways"]): string {
 /** `passkeyOnly`: the server asks for a session that has shown a passkey (an admin's, account:passkey-needs-signed-in-session), which a code does not open. */
 type Step = { kind: "idle" } | { kind: "confirm"; email: string | null; passkeyOnly?: true } | { kind: "remove"; row: PasskeyRow; name: string };
 
-/** `known`: the account has been read, so `ways` is the server's and not a stand-in while it loads. */
-export function PasskeyList({ account, ways, known }: { account: AccountApi; ways: AccountView["ways"]; known: boolean }) {
+export function PasskeyList({ account, ways }: { account: AccountApi; ways: AccountView["ways"] }) {
   const leave = useGame((state) => state.leave);
   const works = usePasskeysWork(account);
-  const offer = useOfferOnce(known && works === true && ways.passkeys === 0);
-  const [later, setLater] = useState(false);
   const [rows, setRows] = useState<PasskeyRow[] | null>(null);
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [busy, setBusy] = useState(false);
@@ -162,7 +141,6 @@ export function PasskeyList({ account, ways, known }: { account: AccountApi; way
   };
 
   const asked = (row: PasskeyRow, name: string) => setStep({ kind: "remove", row, name });
-  const offering = offer && !later && held === 0;
 
   return (
     <div className="flex flex-col gap-2" data-passkey-list>
@@ -206,16 +184,11 @@ export function PasskeyList({ account, ways, known }: { account: AccountApi; way
       ) : null}
       {works !== true || step.kind === "confirm" ? null : (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-text-2">{say(offering ? "ui.account.passkey.offer" : "ui.account.passkey.why")}</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="text-sm text-text-2">{say("ui.account.passkey.why")}</p>
+          <div>
             <Button disabled={busy} onClick={() => void add()}>
               {say("ui.account.passkey.add")}
             </Button>
-            {offering ? (
-              <Button variant="quiet" disabled={busy} onClick={() => setLater(true)}>
-                {say("ui.account.passkey.later")}
-              </Button>
-            ) : null}
           </div>
         </div>
       )}

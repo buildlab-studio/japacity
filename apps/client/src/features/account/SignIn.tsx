@@ -1,5 +1,6 @@
 // The ways back in for a player who kept a life (account:sign-in-without-secret), in account:guest-secures-the-life's order: Google first, then a
-// code by email, then a passkey, which only signs in: it is added from the settings (account:passkey-needs-signed-in-session). Inside an
+// code by email, then a passkey, which only signs in: it is added once signed in, from the card after a way in or the settings
+// (account:passkey-needs-signed-in-session, account:passkey-offered-where-it-works). Inside an
 // in-app browser where Google is blocked, Google is not shown and the code is offered with a way out to the phone's
 // own browser, and no passkey, which is unreliable there. The email field offers this browser's passkeys in its autofill where the browser can,
 // with the button kept for when the field did not do it, and where a passkey was added or used in this browser the email field comes first

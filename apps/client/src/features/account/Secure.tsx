@@ -28,6 +28,7 @@ import { askWaysBackIn, backFromDeleteTrip } from "./marks";
 import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { tellWay, WayToast } from "./WayToast";
+import { CLEAR_EVERY_MS, otherSheetUp } from "./clear";
 import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 import { secureAskedKey } from "../../shared/storage/storage";
 
@@ -111,8 +112,8 @@ export interface SecureSheetProps {
 }
 
 /**
- * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code; a passkey waits for the settings once the
- * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close, with no reason, no
+ * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code; a passkey is offered once the life is
+ * kept, by the card after the welcome line and on the settings (account:passkey-offered-where-it-works). Once kept, the sheet says only that: the kept heading, the one line and its close, with no reason, no
  * ways to keep and no Not now.
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, taken: takenBack = false, agent }: SecureSheetProps) {
@@ -220,17 +221,6 @@ export function askMoment(view: PlayerView | null): AskMoment | null {
   if (view.chapter.current === DECISION_DAY) return "visa";
   if (view.chapter.done.length > 0) return "first-chapter";
   return null;
-}
-
-/** How often a staged ask that is due looks again for the sheet or card over it to close. */
-const CLEAR_EVERY_MS = 500;
-
-/**
- * Another sheet or card is up (a chapter's opening, an ask, the results), or the first brief's card is still waiting for
- * the place's first frame (its pending mark, chapter:first-chapter-mission-card): a staged ask waits for it to close.
- */
-function otherSheetUp(): boolean {
-  return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open], [data-brief-pending]') !== null;
 }
 
 /** An ask is made once per account and moment; kept in this browser, as the life is. */

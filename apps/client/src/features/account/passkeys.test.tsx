@@ -280,26 +280,25 @@ describe("where a passkey is offered (account:passkey-offered-where-it-works)", 
     expect(screen.queryByRole("button", { name: say("ui.account.passkey.add") })).toBeNull();
   });
 
-  test("[account:passkey-offered-where-it-works] given a kept life with no passkey, then the first sheet on this device offers one quietly with Not now, and every later one shows the plain line", async () => {
+  test("[account:passkey-offered-where-it-works] given a kept life with no passkey, then every sheet on this device keeps Add a passkey with its line, with no Not now and no offer of its own", async () => {
     const account = fakeAccount(kept());
     settings(account);
-    expect(await screen.findByText(say("ui.account.passkey.offer"))).toBeDefined();
+    expect(await screen.findByText(say("ui.account.passkey.why"))).toBeDefined();
     expect(screen.getAllByRole("button", { name: say("ui.account.passkey.add") })).toHaveLength(1);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey.later") }));
-    expect(screen.queryByText(say("ui.account.passkey.offer"))).toBeNull();
-    expect(screen.getByText(say("ui.account.passkey.why"))).toBeDefined();
-    expect(localStorage.getItem(PASSKEY_OFFERED_KEY)).not.toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey.later") })).toBeNull();
+    expect(localStorage.getItem(PASSKEY_OFFERED_KEY)).toBeNull();
     document.body.innerHTML = "";
     settings(fakeAccount(kept()));
     expect(await screen.findByText(say("ui.account.passkey.why"))).toBeDefined();
-    expect(screen.queryByText(say("ui.account.passkey.offer"))).toBeNull();
+    expect(screen.getAllByRole("button", { name: say("ui.account.passkey.add") })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey.later") })).toBeNull();
   });
 
   test("[account:passkey-offered-where-it-works] given a kept life that already holds a passkey, then nothing is offered, only the plain line", async () => {
     const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 1 }), { passkeys: () => Promise.resolve([GOOGLE_ROW]) });
     settings(account);
     expect(await screen.findByText(say("ui.account.passkey.why"))).toBeDefined();
-    expect(screen.queryByText(say("ui.account.passkey.offer"))).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey.later") })).toBeNull();
   });
 });
 

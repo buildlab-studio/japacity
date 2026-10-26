@@ -1,7 +1,7 @@
 // The account sheet's own words, in the voice of docs/rules/text.md: the username's change, the life's name, the usage counts,
 // the bank-full notice's switch, the passkeys, signing out and deleting the account. Read only once the account's row in
-// Settings is tapped, so they ride a chunk of their own, fetched then (engine:first-download-has-budget); the row's own words
-// stay in ui.online.text.ts.
+// Settings is tapped, or once the card that offers a passkey after a way in is due, so they ride a chunk of their own, fetched
+// then (engine:first-download-has-budget); the row's own words stay in ui.online.text.ts.
 export const uiAccountSheetText: Record<string, string> = {
   // The username and its change (account:username-and-unconfirmed-email), and the life's name beside it
   "ui.account.name.wait": "You changed it not long ago. You can change it again from {date}.",
@@ -30,8 +30,11 @@ export const uiAccountSheetText: Record<string, string> = {
   "ui.account.passkeys.one": "1 passkey",
   "ui.account.passkeys.zero": "Passkey: none yet",
   "ui.account.passkey.why": "Sign in with your face, fingerprint or screen lock instead of a code.",
-  "ui.account.passkey.offer": "Next time, sign in with your face or fingerprint. Add a passkey?",
   "ui.account.passkey.later": "Not now",
+  // The card that offers a passkey right after a way in, over the world (account:passkey-offered-where-it-works): fetched with
+  // these words, with Add a passkey, Not now and the passkey added above
+  "ui.account.passkey.card.title": "Sign in faster next time",
+  "ui.account.passkey.card.line": "Use your face, fingerprint or screen lock instead of a code.",
   "ui.account.passkey.fresh": "To add a passkey, first confirm it is you.",
   "ui.account.passkey.fresh.passkey": "Use my passkey",
   "ui.account.passkey.fresh.code": "Send a code to {email}",
