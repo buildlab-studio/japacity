@@ -33,6 +33,8 @@ export interface CodeFormProps {
   filled?: string;
   /** The field also offers this browser's passkeys in its autofill (account:passkey-in-email-autofill). */
   passkeyAutofill?: boolean;
+  /** Called as the player types into the address field: its autofill did not sign them in (account:passkey-in-email-autofill). */
+  onEmailTyped?: () => void;
   sendLabel?: string;
   /** What the typed code is used for; signing in with it unless given. */
   confirm?: (code: string) => Promise<AuthResult>;
@@ -56,7 +58,7 @@ function useResendWait(): [number, () => void] {
   return [left, () => setLeft(RESEND_WAIT_S)];
 }
 
-export function CodeForm({ account, bot = null, spentBot, email: known, filled, passkeyAutofill = false, sendLabel, confirm, goLabel, onSignedIn, onTaken }: CodeFormProps) {
+export function CodeForm({ account, bot = null, spentBot, email: known, filled, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, onSignedIn, onTaken }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? filled ?? "");
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [sends, setSends] = useState(0);
@@ -173,7 +175,10 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
                 autoCorrect="off"
                 spellCheck={false}
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  onEmailTyped?.();
+                }}
               />
             </label>
           ) : null}

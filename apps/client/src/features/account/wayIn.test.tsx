@@ -593,6 +593,73 @@ describe("the passkey in the email field's autofill (account:passkey-in-email-au
     await waitFor(() => expect(signedIn).toHaveBeenCalledWith("passkey"));
   });
 
+  test("[account:passkey-in-email-autofill] [account:passkey-errors-told-apart] given the field's request ending in a failure that is not a cancel, then Use a passkey shows quietly under the field, with nothing said", async () => {
+    let fail: (result: AuthResult) => void = () => undefined;
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => new Promise<AuthResult>((resolve) => (fail = resolve)) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={can} passkeyUsed={false} agent={PLAIN_CHROME} />);
+    await waitFor(() => expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull());
+    act(() => fail({ ok: false, why: "unreachable" }));
+    const passkey = await screen.findByRole("button", { name: say("ui.account.passkey") });
+    const email = screen.getByLabelText(say("ui.account.email.label"));
+    expect(email.compareDocumentPosition(passkey) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(passkey.className).not.toMatch(/\bbtn-main\b/);
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  test("[account:passkey-in-email-autofill] [account:passkey-errors-told-apart] given the field's request cancelled or aborted, then the button stays away and nothing is said", async () => {
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => Promise.resolve({ ok: false, why: "cancelled" }) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={can} passkeyUsed={false} agent={PLAIN_CHROME} />);
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  test("[account:passkey-in-email-autofill] given a browser that holds the passkey mark, when the player types into the email field, then the field did not sign them in and Use a passkey shows beside the code", async () => {
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => new Promise<AuthResult>(() => undefined) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={can} passkeyUsed agent={PLAIN_CHROME} />);
+    await waitFor(() => expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull());
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "a" } });
+    expect(await screen.findByRole("button", { name: say("ui.account.passkey") })).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.account.email.send") })).toBeDefined();
+  });
+
+  test("[account:passkey-in-email-autofill] given a browser with no passkey mark, when the player types into the email field, then no passkey button shows", async () => {
+    const account = fakeAccount({ signInWithPasskeyAutofill: () => new Promise<AuthResult>(() => undefined) });
+    render(<SignIn account={account} onSignedIn={() => undefined} autofill={can} passkeyUsed={false} agent={PLAIN_CHROME} />);
+    await waitFor(() => expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull());
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.com" } });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
+  });
+
+  test("[account:passkey-in-email-autofill] given the button shown beside the field's autofill, when its prompt is cancelled, then the field's request starts again so the autofill still works", async () => {
+    const asks: ((result: AuthResult) => void)[] = [];
+    const account = fakeAccount({
+      signInWithPasskeyAutofill: () => new Promise<AuthResult>((resolve) => asks.push(resolve)),
+      signInWithPasskey: () => {
+        // The button's own request cancels the field's, as the browser's single ceremony does.
+        asks.at(-1)?.({ ok: false, why: "cancelled" });
+        return Promise.resolve({ ok: false, why: "cancelled" });
+      },
+    });
+    const signedIn = vi.fn();
+    render(<SignIn account={account} onSignedIn={signedIn} autofill={can} passkeyUsed agent={PLAIN_CHROME} />);
+    await waitFor(() => expect(asks).toHaveLength(1));
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "a" } });
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
+    await waitFor(() => expect(asks).toHaveLength(2));
+    await act(async () => {
+      asks[1]?.(OK);
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(signedIn).toHaveBeenCalledWith("passkey"));
+  });
+
   test("[account:passkey-in-email-autofill] given the passkey button used, then this browser is marked and the next ways back in put the email field first", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve("passed") }));
     fireEvent.click(await button("ui.account.start.returning"));
