@@ -103,8 +103,9 @@ export function PasskeyCard({ account, onDone }: { account: AccountApi; onDone: 
   }
 
   if (phase === "waiting") return null;
+  // Over the world and its cards, as the world's own top cards stand; under the phone, the map and every sheet.
   return (
-    <CentredColumn className="pointer-events-none fixed inset-x-0 top-0 z-30 px-4 pt-[calc(max(10px,env(safe-area-inset-top))+64px)]">
+    <CentredColumn className="pointer-events-none fixed inset-x-0 top-0 z-[38] px-4 pt-[calc(max(10px,env(safe-area-inset-top))+64px)]">
       <section aria-labelledby={titleId} className="brief-toast slide-in pointer-events-auto flex flex-col gap-3 p-4" data-passkey-card>
         <div className="flex items-start gap-3">
           <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-ink">

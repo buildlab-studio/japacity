@@ -8,7 +8,7 @@ import { test } from "./support/policy";
 import { content, uiOnlineText, uiText } from "../../../packages/content/src/index";
 import { accountView } from "../src/shared/testing/fixtures";
 import { type Answer, clockAt, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
-import { shootPhone } from "./support/preview";
+import { shootAtSize, shootPhone } from "./support/preview";
 
 test.use({ baseURL: ONLINE });
 
@@ -247,4 +247,133 @@ test("[account:passkeys-listed-and-removed] [account:sign-out-ends-the-session] 
   await sheet.getByRole("button", { name: "Sign out everywhere" }).click();
   await expect(page.getByText(uiOnlineText["ui.account.notice.signed-out"] ?? "You have signed out.")).toBeVisible({ timeout: 20_000 });
   expect(sent.filter((asked) => asked === "POST /api/auth/revoke-sessions" || asked === "POST /api/auth/sign-out")).toEqual(["POST /api/auth/revoke-sessions", "POST /api/auth/sign-out"]);
+});
+
+/**
+ * The browser's own virtual authenticator, as a phone that can make a passkey has, so the browser says a passkey can be made
+ * here (account:passkey-offered-where-it-works) and makes one with no prompt.
+ */
+async function passkeysHere(page: Page): Promise<void> {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("WebAuthn.enable");
+  await cdp.send("WebAuthn.addVirtualAuthenticator", {
+    options: { protocol: "ctap2", transport: "internal", hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true },
+  });
+}
+
+/** The auth library's registration routes as Better Auth answers them, for the address the online server runs at. */
+const REGISTER: Record<string, Answer> = {
+  "GET /api/auth/passkey/generate-register-options": {
+    body: {
+      challenge: Buffer.from("a challenge of the server's").toString("base64url"),
+      rp: { name: "Japacity", id: "localhost" },
+      user: { id: Buffer.from(GUEST.id).toString("base64url"), name: "ada@example.com", displayName: "ada@example.com" },
+      pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+      timeout: 60_000,
+      attestation: "none",
+      excludeCredentials: [],
+      authenticatorSelection: { residentKey: "required", userVerification: "preferred" },
+    },
+  },
+  "POST /api/auth/passkey/verify-registration": { body: { id: "row-1", name: "ada@example.com", userId: GUEST.id, credentialID: "bmV3LWtleQ", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: "2026-10-26T09:00:00.000Z" } },
+};
+
+/** The welcome line told and gone, as the world tells it after a way in. */
+async function lineTold(page: Page, line: string): Promise<void> {
+  await expect(page.locator("[data-way-toast]")).toHaveText(line);
+  await expect(page.locator("[data-way-toast]")).toHaveCount(0, { timeout: 10_000 });
+}
+
+test("[account:passkey-offered-where-it-works] a guest that keeps its life by the code is offered a passkey on a card after the welcome line; Add a passkey makes one through the browser, and a reload offers nothing", async ({ page }, info) => {
+  if (info.project.name.startsWith("Pixel")) await page.setViewportSize(PICTURE);
+  await passkeysHere(page);
+  const sent: string[] = [];
+  const answers: Record<string, Answer> = {
+    "GET /api/view": pastFirstChapter(),
+    "GET /api/account": { body: { ok: true, account: GUEST } },
+    "GET /api/moderation/standing": { body: STANDING },
+    "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
+    "POST /api/auth/sign-in/email-otp": { body: { token: "session-2", user: { id: GUEST.id, email: "ada@example.com", emailVerified: true, name: "", createdAt: "2026-10-10T00:00:00.000Z", updatedAt: "2026-10-10T00:00:00.000Z" } } },
+    ...REGISTER,
+  };
+  await serve(page, answers, sent);
+  await page.goto("/");
+  await pastTheCard(page);
+  const sheet = page.getByRole("dialog", { name: "Save this life" });
+  await expect(sheet).toBeVisible({ timeout: 20_000 });
+  await sheet.getByLabel("Email").fill("ada@example.com");
+  await sheet.getByRole("button", { name: "Send me a code" }).click();
+  answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured", ways: { google: null, email: "ada@example.com", passkeys: 0 } } } };
+  await sheet.getByLabel("The 6-digit code").fill("123456");
+  const kept = page.getByRole("dialog", { name: "Saved" });
+  await expect(kept).toBeVisible();
+  const card = page.locator("[data-passkey-card]");
+  // The card never stands over an open sheet: it waits for the welcome line, which comes as the sheet closes.
+  await page.waitForTimeout(1000);
+  await expect(card).toHaveCount(0);
+  await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
+  await lineTold(page, "Saved with your email");
+  await expect(card).toBeVisible({ timeout: 10_000 });
+  await expect(card.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible();
+  await expect(card.getByText("Use your face, fingerprint or screen lock instead of a code.")).toBeVisible();
+  await expect(card.getByRole("button", { name: "Not now" })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("japacity.passkey.offered"))).not.toBeNull();
+  await page.waitForTimeout(400);
+  await shootAtSize(page, "passkey-card", info.project.name);
+  answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured", ways: { google: null, email: "ada@example.com", passkeys: 1 } } } };
+  await card.getByRole("button", { name: "Add a passkey" }).click();
+  await expect(card.getByText("Passkey added. Use it next time you sign in.")).toBeVisible();
+  expect(sent.filter((asked) => asked.startsWith("GET /api/auth/passkey/generate-register-options") || asked === "POST /api/auth/passkey/verify-registration")).toEqual([
+    "GET /api/auth/passkey/generate-register-options",
+    "POST /api/auth/passkey/verify-registration",
+  ]);
+  expect(await page.evaluate(() => localStorage.getItem("japacity.account.passkey"))).toBe("1");
+  await expect(card).toHaveCount(0, { timeout: 10_000 });
+
+  await page.reload();
+  await expect(page.locator('[data-thumb="phone"]')).toBeVisible({ timeout: 30_000 });
+  await page.waitForTimeout(5000);
+  await expect(card).toHaveCount(0);
+});
+
+test("[account:passkey-offered-where-it-works] a life kept with Google is offered a passkey once on this device: after Not now and a reload, a sign-in with Google offers nothing", async ({ page }, info) => {
+  await passkeysHere(page);
+  const sent: string[] = [];
+  await serve(
+    page,
+    {
+      "GET /api/view": pastFirstChapter(),
+      "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
+      "GET /api/moderation/standing": { body: STANDING },
+      ...REGISTER,
+    },
+    sent,
+  );
+  await page.goto("/?google=kept");
+  const kept = page.getByRole("dialog", { name: "Saved" });
+  await expect(kept).toBeVisible({ timeout: 20_000 });
+  await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
+  await lineTold(page, "Saved with Google");
+  // The second chapter's mission card holds the screen as the world loads: the passkey's card waits for it to close.
+  const card = page.locator("[data-passkey-card]");
+  const brief = page.locator("[data-brief='chapter.build-the-file']");
+  await expect(brief).toBeVisible({ timeout: 20_000 });
+  await page.waitForTimeout(1500);
+  await expect(card).toHaveCount(0);
+  await brief.getByRole("button", { name: "Let's go" }).click();
+  await expect(card).toBeVisible({ timeout: 10_000 });
+  await shootAtSize(page, "passkey-card-google", info.project.name);
+  await card.getByRole("button", { name: "Not now" }).click();
+  await expect(card).toHaveCount(0);
+  expect(sent.some((asked) => asked.startsWith("GET /api/auth/passkey/generate-register-options"))).toBe(false);
+
+  await page.reload();
+  await expect(page.locator('[data-thumb="phone"]')).toBeVisible({ timeout: 30_000 });
+  await page.waitForTimeout(5000);
+  await expect(card).toHaveCount(0);
+  // A kept life signed back in to with Google: its line is told, and no card follows it on this device.
+  await page.goto("/?google=in");
+  await lineTold(page, "Signed in with Google");
+  await page.waitForTimeout(2000);
+  await expect(card).toHaveCount(0);
 });
