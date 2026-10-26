@@ -113,8 +113,8 @@ export interface SecureSheetProps {
 
 /**
  * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code; a passkey is offered once the life is
- * kept, by the card after the welcome line and on the settings (account:passkey-offered-where-it-works). Once kept, the sheet says only that: the kept heading, the one line and its close, with no reason, no
- * ways to keep and no Not now.
+ * kept, by the card after the welcome line and on the settings (account:passkey-offered-where-it-works). Once kept, the sheet says
+ * only that: the kept heading, the one line and its close, with no reason, no ways to keep and no Not now.
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, taken: takenBack = false, agent }: SecureSheetProps) {
   const earlyWin = useEarlyWin();
