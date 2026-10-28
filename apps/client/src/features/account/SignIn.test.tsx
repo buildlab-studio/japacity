@@ -95,6 +95,7 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     await waitFor(() => expect(document.activeElement).toBe(code));
     fireEvent.change(code, { target: { value: "123456" } });
     await waitFor(() => expect(newLife).toHaveBeenCalledOnce());
+    expect(newLife).toHaveBeenCalledWith(true);
     expect(signedIn).not.toHaveBeenCalled();
     expect(account.calls).toEqual(['sendCode("new@example.test")', 'sendCode("new@example.test","new life")', 'proveNewLife("new@example.test","123456")']);
   });
@@ -129,6 +130,7 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     expect(said.textContent).toBe(say("ui.account.fail.passkey-gone"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.start.kept.play") }));
     expect(newLife).toHaveBeenCalledOnce();
+    expect(newLife).toHaveBeenCalledWith(false);
     expect(google()).not.toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
@@ -180,6 +182,42 @@ describe("the new life kept from the start (account:guest-secures-the-life)", ()
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     return account;
   }
+
+  test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] given a new life's address proved, when the door's page asks for the username, then the line that the life lives only on this phone is not said, and nothing stands in its place", async () => {
+    const account = codeAccount({ sendCode: answers(NO_ACCOUNT) });
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account });
+    store.getState().leave(null);
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
+      </GameProvider>,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
+    send("new@example.test");
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.none.new") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
+    expect(await screen.findByText(say("ui.account.age.title"))).toBeDefined();
+    await answerAge(`${String(new Date().getUTCFullYear() - 30)}-03-12`);
+    const box = await screen.findByLabelText(say("ui.account.name.label"));
+    expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
+    expect(document.querySelector("[data-guest-line]")).toBeNull();
+    expect(box.closest("[data-guest-fields]")?.textContent).not.toContain(say("ui.guest.reminder"));
+  });
+
+  test("[account:guest-reminded-to-secure] given Play with no proof, when the door's page asks for the username, then the guest line is said there", async () => {
+    const account = codeAccount();
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account });
+    store.getState().leave(null);
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
+      </GameProvider>,
+    );
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
+    await answerAge(`${String(new Date().getUTCFullYear() - 30)}-03-12`);
+    await screen.findByLabelText(say("ui.account.name.label"));
+    expect(screen.getByText(say("ui.guest.reminder"))).toBeDefined();
+  });
 
   test("[account:guest-secures-the-life] given a new life's address proved, when the life starts, then the world says it is saved with the email, as after any keep, with nothing typed again", async () => {
     const account = await throughTheStart({ ok: true, email: "kept" });

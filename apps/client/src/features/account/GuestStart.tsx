@@ -87,6 +87,8 @@ export interface GuestDoor {
   reveal: () => void;
   /** The username box, for the page that holds it. */
   box: RefObject<HTMLInputElement | null>;
+  /** The life starts kept by a proved email (account:guest-secures-the-life): the guest line is not said. */
+  kept?: boolean;
   /** Makes the guest life with this username, as typed. Resolves to null once the life is made (or was made already), else to what to say. */
   start: (username: string) => Promise<string | null>;
   /** account:username-typed-and-checked: whether a name is free, as the box asks while the player types. */
@@ -116,12 +118,14 @@ export interface GuestDoorOptions {
   /** The sessions and age answers found gone in a row so far, and the call that counts one more. */
   lapses?: number;
   onLapse?: () => void;
+  /** This browser holds a proof of a new life's address: the life starts kept (account:guest-secures-the-life). */
+  kept?: boolean;
 }
 
 /** What a refused bot check is told as: why the check gave no pass, when the page knows. */
 const BOT_WORDS = { unloaded: "ui.account.bot.unloaded", error: "ui.account.bot.error" } as const;
 
-export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, botWaitMs, lapses = 0, onLapse }: GuestDoorOptions): GuestDoor {
+export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, botWaitMs, lapses = 0, onLapse, kept = false }: GuestDoorOptions): GuestDoor {
   const check = useUnseenCheck(sitekey, load, botWaitMs);
   // The script is fetched while the door's first screens show, so the widget is up by the page.
   useEffect(() => {
@@ -163,9 +167,10 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   const ask = useCallback((username: string) => account.usernameFree(username), [account]);
   return {
     check: usernameProblem,
-    fields: (value, onChange, problem, onEnter) => <GuestFields box={box} value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} {...(onEnter === undefined ? {} : { onEnter })} />,
+    fields: (value, onChange, problem, onEnter) => <GuestFields box={box} value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} kept={kept} {...(onEnter === undefined ? {} : { onEnter })} />,
     reveal: () => bringBoxIntoView(box.current, true),
     box,
+    kept,
     start,
     ask,
     widget: check.widget,
@@ -210,8 +215,12 @@ export function useFreeCheck(value: string, ask: (username: string) => Promise<F
   return heard?.name === name ? heard.answer : null;
 }
 
-/** The username on the page, its rule, the check as it is typed, and the guest line said once (account:username-and-unconfirmed-email, account:username-typed-and-checked, account:guest-reminded-to-secure). */
-function GuestFields({ box, value, onChange, onEnter, problem, ask, widget }: { box: RefObject<HTMLInputElement | null>; value: string; onChange: (username: string) => void; onEnter?: () => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode }) {
+/**
+ * The username on the page, its rule, the check as it is typed, and the guest line said once (account:username-and-unconfirmed-email,
+ * account:username-typed-and-checked, account:guest-reminded-to-secure); a life that starts kept by a proved email says no guest line
+ * and nothing in its place (account:guest-secures-the-life).
+ */
+function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept = false }: { box: RefObject<HTMLInputElement | null>; value: string; onChange: (username: string) => void; onEnter?: () => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode; kept?: boolean }) {
   const free = useFreeCheck(value, ask);
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
@@ -253,9 +262,11 @@ function GuestFields({ box, value, onChange, onEnter, problem, ask, widget }: { 
           {problem}
         </p>
       )}
-      <p className="mt-2 text-[13px] leading-snug" data-guest-line>
-        {say("ui.guest.reminder")}
-      </p>
+      {kept ? null : (
+        <p className="mt-2 text-[13px] leading-snug" data-guest-line>
+          {say("ui.guest.reminder")}
+        </p>
+      )}
       {/* Unseen unless Cloudflare needs a tap (account:start-screen-over-live-city). */}
       {widget}
     </section>
@@ -291,7 +302,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={(event) => void start(event)} noValidate data-guest-form>
-      <GuestFields box={door.box} value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} />
+      <GuestFields box={door.box} value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} kept={door.kept === true} />
       <div>
         <Button type="submit" variant="primary" disabled={busy}>
           {say("ui.account.name.go")}

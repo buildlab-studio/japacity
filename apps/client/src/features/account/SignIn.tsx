@@ -38,8 +38,8 @@ export interface SignInProps {
   noneFound?: boolean;
   /** The address to fill the email field with: the one a guest typed before choosing its kept life. */
   filled?: string | null;
-  /** On to a new life's start: from a way in that found no account, or once a new life's address is proved (account:guest-secures-the-life). */
-  onNewLife?: () => void;
+  /** On to a new life's start: from a way in that found no account, or, `proved`, once a new life's address is proved (account:guest-secures-the-life). */
+  onNewLife?: (proved: boolean) => void;
   /** Seams for tests: the browser's user agent and the page's address, whether the browser offers passkeys in a field's autofill, and whether a passkey was used here. */
   agent?: string;
   href?: string;
@@ -212,7 +212,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   }
 
   // A way in that found no account keeps its words, with a new life under them.
-  const noneShape = (said: string, bad: boolean) => <NoAccount said={said} bad={bad} label={say("ui.account.start.kept.play")} onGo={onNewLife} />;
+  const noneShape = (said: string, bad: boolean) => <NoAccount said={said} bad={bad} label={say("ui.account.start.kept.play")} onGo={() => onNewLife(false)} />;
   const codeStep = stand.kind === "new-life" || codeTo !== null;
 
   return (
@@ -248,7 +248,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
         />
       ) : null}
       {stand.kind === "new-life" ? (
-        <CodeForm account={account} email={stand.email} sent newLife confirm={(code) => account.proveNewLife(stand.email, code)} goLabel={say("ui.account.none.go")} onChange={() => backTo(stand.email)} onSignedIn={onNewLife} />
+        <CodeForm account={account} email={stand.email} sent newLife confirm={(code) => account.proveNewLife(stand.email, code)} goLabel={say("ui.account.none.go")} onChange={() => backTo(stand.email)} onSignedIn={() => onNewLife(true)} />
       ) : null}
       {/* Where a passkey was used here before, the email field that offers it comes first. */}
       {passkeyFirst ? codeForm : null}

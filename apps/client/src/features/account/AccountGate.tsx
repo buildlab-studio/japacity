@@ -91,8 +91,8 @@ function StartLights() {
 }
 
 /** The new life after the age screen: the door with the guest start at Begin, or, inside the invite page, the form. */
-function NewLife({ account, sitekey, load, botWaitMs, door, lapses, onLapse, onExpired, onFull, onStarted, onReturning }: { account: AccountApi; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; door: ((guest: GuestDoor) => ReactNode) | null; lapses: number; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: (email: NewLifeEmail | null) => Promise<void>; onReturning: () => void }) {
-  const guest = useGuestDoor({ account, sitekey, load, lapses, onLapse, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
+function NewLife({ account, sitekey, load, botWaitMs, door, lapses, kept, onLapse, onExpired, onFull, onStarted, onReturning }: { account: AccountApi; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; door: ((guest: GuestDoor) => ReactNode) | null; lapses: number; kept: boolean; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: (email: NewLifeEmail | null) => Promise<void>; onReturning: () => void }) {
+  const guest = useGuestDoor({ account, sitekey, load, lapses, kept, onLapse, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
   return door === null ? <GuestForm door={guest} onReturning={onReturning} /> : <>{door(guest)}</>;
 }
 
@@ -112,6 +112,8 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     setStep(next);
   };
   const [back, setBack] = useState<{ said: string; none: boolean } | null>(null);
+  // account:guest-secures-the-life: this browser holds a proof of a new life's address, so the life starts kept and the door never says it lives on this phone alone.
+  const [proved, setProved] = useState(false);
   // How many times in a row the guest start found the age answer or the session gone: the cookie did not stay.
   const [lapses, setLapses] = useState(0);
   const shown = shownOf(standing, step, embedded);
@@ -201,7 +203,10 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       filled={asked?.email ?? null}
       onBack={toStart}
       onSignedIn={(by) => void enter(api, by)}
-      onNewLife={() => go("age")}
+      onNewLife={(held) => {
+        if (held) setProved(true);
+        go("age");
+      }}
       {...(agent === undefined ? {} : { agent })}
       {...(href === undefined ? {} : { href })}
     />
@@ -261,6 +266,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
         {...(botWaitMs === undefined ? {} : { botWaitMs })}
         door={embedded ? null : door}
         lapses={lapses}
+        kept={proved}
         onLapse={() => setLapses((count) => count + 1)}
         onExpired={() => {
           setLapses((count) => count + 1);
