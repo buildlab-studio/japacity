@@ -12,7 +12,7 @@ import { content } from "../../../packages/content/src/index";
 import { accountView } from "../src/shared/testing/fixtures";
 import { type Answer, CAPTCHA_TOKEN as TOKEN, clockAt, fakeServer, ONLINE, SIGNED_OUT, viewReply } from "./support/api";
 import { passThePage } from "./support/door";
-import { previewDir, shootAtSize } from "./support/preview";
+import { previewDir, shoot, shootAtSize } from "./support/preview";
 
 test.use({ baseURL: ONLINE });
 
@@ -261,6 +261,148 @@ test("[account:start-screen-over-live-city] in a browser a kept life was open in
   await page.getByRole("button", { name: "Back" }).click();
   await fresh.click();
   await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible();
+});
+
+/** The two phones the ways back in fit whole, keyboard closed: an iPhone SE and a common phone. */
+const FIT_SIZES = [
+  { width: 375, height: 667 },
+  { width: 390, height: 844 },
+] as const;
+
+/** The small phone's picture of the screen, on the phone run, the viewport put back after. */
+async function shootSmall(page: Page, name: string, project: string): Promise<void> {
+  if (previewDir === null || !project.startsWith("Pixel")) return;
+  const was = page.viewportSize();
+  await page.setViewportSize(FIT_SIZES[0]);
+  await shoot(page, `${name}-375x667`, { settleMs: 500 });
+  if (was !== null) await page.setViewportSize(was);
+}
+
+/** account:code-form-forgives: the sheet's body holds the whole step at each size, with nothing to scroll; the viewport put back after. */
+async function fitsWhole(page: Page, step: string): Promise<void> {
+  const was = page.viewportSize();
+  for (const size of FIT_SIZES) {
+    await page.setViewportSize(size);
+    await page.waitForTimeout(300);
+    const body = page.locator("[data-gate-sheet] > div").first();
+    const { scroll, client } = await body.evaluate((element) => ({ scroll: element.scrollHeight, client: element.clientHeight }));
+    expect(scroll, `${step} at ${String(size.width)} by ${String(size.height)}: ${String(scroll)} tall in ${String(client)}`).toBeLessThanOrEqual(client);
+  }
+  if (was !== null) await page.setViewportSize(was);
+}
+
+test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account:code-form-forgives] Sign back in: the code step stands alone; an address with no account is offered a new life kept with it, whose code leads to the age screen, the door and the world, the life already kept by that email", async ({ page }, info) => {
+  // The whole way: the ways back in, the new life's code, the age screen, the door, the world and the account sheet.
+  test.setTimeout(120_000);
+  // The faked server's stand-in for the send: each code it mailed, newest last.
+  const mailed: string[] = [];
+  const KEPT = accountView({ id: "account-new", character: null, state: "secured", username: "Olamide", ways: { google: null, email: "new@example.test", passkeys: 0 } });
+  const faked = await fakeDoor(page, {
+    ...signUpRoutes(lifeMade()),
+    "GET /api/auth/passkey/generate-authenticate-options": AUTHENTICATE_OPTIONS,
+    // An account uses ada's address; none uses any other, which only a new life's send reaches.
+    "POST /api/auth/email-otp/send-verification-otp": (given) => {
+      const body = given.sent.at(-1)?.body as { email?: string; newLife?: boolean } | undefined;
+      if (body?.email !== USER.email && body?.newLife !== true) return { status: 403, body: { code: "no-account", message: "No account uses this email." } };
+      mailed.push(String(400000 + mailed.length * 7919));
+      return { body: { success: true } };
+    },
+    "POST /api/new-life/code": (given) => {
+      const body = given.sent.at(-1)?.body as { email?: string; code?: string } | undefined;
+      if (body?.code !== mailed.at(-1)) return { status: 400, body: { ok: false, code: "bad-code", detail: "That code is not right." } };
+      return { body: { ok: true } };
+    },
+    "POST /api/guest": (given) => {
+      given.phase = "no-character";
+      return { body: { ok: true, account: KEPT } };
+    },
+    "GET /api/account": { body: { ok: true, account: KEPT } },
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
+  await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
+  await page.waitForTimeout(800);
+  await fitsWhole(page, "the ways back in");
+  await shootAtSize(page, "code-step-first", info.project.name);
+  await shootSmall(page, "code-step-first", info.project.name);
+
+  // A kept address: the code step alone, under Check your email.
+  await page.getByLabel("Email").fill(USER.email);
+  await page.getByRole("button", { name: "Send me a code" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
+  await expect(page.getByLabel("6-digit code")).toBeFocused();
+  await expect(page.getByText(`We sent a code to ${USER.email}.`)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Use a passkey" })).toHaveCount(0);
+  await expect(page.getByText("Use the way you signed in before.")).toHaveCount(0);
+  await fitsWhole(page, "the code step");
+  await shootAtSize(page, "code-step-code", info.project.name);
+  await shootSmall(page, "code-step-code", info.project.name);
+  await page.getByRole("button", { name: "Change", exact: true }).click();
+  await expect(page.getByLabel("Email")).toHaveValue(USER.email);
+  await expect(page.getByLabel("Email")).toBeFocused();
+
+  // An address no account uses: told at once, nothing mailed, and a new life kept with it offered.
+  await page.getByLabel("Email").fill("new@example.test");
+  await page.getByRole("button", { name: "Send me a code" }).click();
+  await expect(page.getByRole("alert")).toHaveText("No account uses new@example.test.");
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+  await expect(page.getByLabel("Email")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Use another email" })).toBeVisible();
+  expect(mailed).toHaveLength(1);
+  await fitsWhole(page, "the answer to an address no account uses");
+  await shootAtSize(page, "code-step-no-account", info.project.name);
+  await shootSmall(page, "code-step-no-account", info.project.name);
+  await page.getByRole("button", { name: "Start a new life with this email" }).click();
+
+  // The new life's own code, from the stand-in for the send.
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
+  const field = page.getByLabel("6-digit code");
+  await expect(field).toBeFocused();
+  expect(mailed).toHaveLength(2);
+  expect(faked.sent.filter((request) => request.route === "POST /api/auth/email-otp/send-verification-otp").map((request) => request.body)).toEqual([
+    { email: USER.email, type: "sign-in" },
+    { email: "new@example.test", type: "sign-in" },
+    { email: "new@example.test", type: "sign-in", newLife: true },
+  ]);
+  await fitsWhole(page, "the new life's code step");
+  await shootAtSize(page, "code-step-new-life", info.project.name);
+  await shootSmall(page, "code-step-new-life", info.project.name);
+  await field.fill(mailed.at(-1) ?? "");
+
+  // The new life's start as Play's: the age screen, the door, Begin with the bot check, and nothing typed again.
+  await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible({ timeout: 20_000 });
+  await pickBirth(page, "12", "March", "1994");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("textbox", { name: "Your name" }).fill("Ọlámídé");
+  await page.getByRole("button", { name: /^Next/ }).first().click();
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
+  await page.getByLabel("Username").fill("Olamide");
+  await expect(page.getByText("That name is free.")).toBeVisible();
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  await passThePage(page, 20_000);
+  await expect(page.locator("[data-thumb='map']")).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("[data-way-toast]")).toHaveText("Saved with your email");
+  expect(faked.sent.find((request) => request.route === "POST /api/new-life/code")?.body).toEqual({ email: "new@example.test", code: mailed.at(-1) });
+  expect(faked.sent.find((request) => request.route === "POST /api/guest")?.headers["x-captcha-response"]).toBe(TOKEN);
+  expect(faked.sent.some((request) => request.route === "POST /api/auth/sign-in/email-otp")).toBe(false);
+
+  // The life is kept by that email: the account sheet says so, and nothing asks to save it.
+  // The first chapter's card stands first; the passkey card offered after any keep waits for it, then follows the line.
+  await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
+  const offer = page.locator("[data-passkey-card]");
+  await expect(offer).toBeVisible({ timeout: 10_000 });
+  await offer.getByRole("button", { name: "Not now" }).click();
+  await page.locator('[data-thumb="phone"]').click();
+  await page.locator('[data-app="settings"]').click();
+  const row = page.locator("[data-account-row]");
+  await expect(row).toContainText("Signed in with your email");
+  await row.click();
+  const sheet = page.getByRole("dialog", { name: "Account" });
+  await expect(sheet).toContainText("new@example.test");
+  await expect(sheet.getByRole("button", { name: "Save this life" })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Save this life" })).toHaveCount(0);
+  await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(0);
 });
 
 test.describe("inside a messaging app's browser", () => {
