@@ -18,6 +18,7 @@ import { PASS_COOKIE, PASS_PREFIX, readCookie } from "./age";
 import { signUpCountry } from "./country";
 import { guestOf, refuseTaken } from "./link";
 import type { Linking } from "./link";
+import { takeProof } from "./newlife";
 import { nameProblem } from "./username";
 
 function refuse(code: string, message: string): never {
@@ -33,13 +34,21 @@ export const GUEST_PATH = "/sign-in/anonymous";
 /** The header `POST /api/guest` hands the chosen username to the anonymous sign-in in; never read from a browser's request. */
 export const GUEST_NAME_HEADER = "x-japacity-guest-name";
 
+/** The reply header the guest's birth tells `POST /api/guest` in, never sent on to the browser: the proof's address was taken meanwhile. */
+export const PROOF_TAKEN_HEADER = "x-japacity-proof-taken";
+
+/** The user a guest's birth asks the library to write: the guest's own, or one already secured by a proved address. */
+type Born = { id: string; name: string } | { id: string; name: string; email: string; emailVerified: true; isAnonymous: false };
+
 /**
  * account:guest-and-secured-states: the guest's birth. Consumes the browser's age pass (single
  * use: one pass, one account) and stores the row with the username. server:four-off-switches:
  * refused while `signups` is off, so a pass issued before the switch went off
- * makes no account.
+ * makes no account. account:guest-secures-the-life: a live proof of an address on this browser (account/newlife.ts) is
+ * consumed here, and the account is born secured by that address, as a guest that kept its life by the code would be;
+ * an address an account took meanwhile, or one banned, leaves a plain guest, and a taken one is told to the route.
  */
-async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): Promise<{ data: { id: string; name?: string } }> {
+async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): Promise<{ data: Born }> {
   if (!(await isOn(deps, "signups"))) return refuse("switched-off", "Japacity is full right now. Try again shortly.");
   const headers = endpoint.headers ?? endpoint.request?.headers ?? null;
   const country = signUpCountry(endpoint.request, headers);
@@ -51,6 +60,13 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
   const pass = await endpoint.context.internalAdapter.consumeVerificationValue(PASS_PREFIX + nonce);
   if (pass === null || new Date(pass.expiresAt).getTime() <= deps.now()) return refuse("no-age-pass", "Pass the age screen first.");
 
+  const internal = endpoint.context.internalAdapter;
+  const proved = await takeProof(internal, headers?.get("cookie"), deps.now());
+  const taken = proved !== null && (await internal.findUserByEmail(proved)) !== null;
+  const banned = proved !== null && (await isBanned(deps, [emailIdentity(proved)]));
+  if (taken) endpoint.setHeader(PROOF_TAKEN_HEADER, "1");
+  const email = proved === null || taken || banned ? null : proved;
+
   const id = crypto.randomUUID();
   const now = deps.now();
   const created = await deps.stores.account.create({
@@ -61,14 +77,15 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
     character: null,
     notifyBankFull: false,
     sendUsageCounts: true,
-    state: "guest",
+    state: email === null ? "guest" : "secured",
     username,
     usernameChangedAt: null,
     lastPlayedAt: now,
   });
   if (!created.ok) return created.code === "conflict" ? refuse("name-taken", "That username is taken.") : refuse(created.code, created.detail);
   // account:only-needed-data-kept: the library's name column holds nothing; the username lives on the game's row.
-  return { data: { id, name: "" } };
+  if (email === null) return { data: { id, name: "" } };
+  return { data: { id, name: "", email, emailVerified: true, isAnonymous: false } };
 }
 
 /**
@@ -77,7 +94,7 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
  * account finds none, since an account starts as a guest (account:sign-in-without-secret).
  * moderation:ban-survives-as-hash: a banned email is refused either way.
  */
-export async function admitAccount(deps: ServerDeps, endpoint: GenericEndpointContext | null, linking: Linking, user: { email?: string | null } = {}): Promise<{ data: { id: string; name?: string } }> {
+export async function admitAccount(deps: ServerDeps, endpoint: GenericEndpointContext | null, linking: Linking, user: { email?: string | null } = {}): Promise<{ data: Born | { id: string; name?: string } }> {
   if (endpoint === null) return refuse("no-account", "An account is made only through the guest start.");
   if (endpoint.path === GUEST_PATH) return admitGuest(deps, endpoint);
   if (typeof user.email === "string" && user.email !== "" && (await isBanned(deps, [emailIdentity(user.email)]))) return refuse("not-possible", NOT_POSSIBLE);

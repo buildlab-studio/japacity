@@ -82,7 +82,7 @@ describe("another way in to the same account (account:guest-secures-the-life)", 
     await h.signUp("ada@example.com");
     const users = h.tables.user.length;
     const jar = makeJar();
-    const otp = await h.codeFor("nobody@example.com", jar);
+    const otp = await h.codeFor("nobody@example.com", jar, undefined, true);
     const signed = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "nobody@example.com", otp } });
     expect(signed.status).toBe(403);
     expect(await signed.json()).toMatchObject({ code: "no-account" });
@@ -167,7 +167,9 @@ describe("DELETE /api/account", () => {
     expect(h.tables.session).toHaveLength(0);
     expect((await h.call("/api/account", { jar: other })).status).toBe(401);
     const again = makeJar();
-    const otp = await h.codeFor("ada@example.com", again, "192.0.2.51");
+    // The address has no account now: a plain send is refused, and the library's sign-in refuses a new life's code too.
+    expect(await (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar: again, ip: "192.0.2.51", json: { email: "ada@example.com", type: "sign-in" } })).json()).toMatchObject({ code: "no-account" });
+    const otp = await h.codeFor("ada@example.com", again, "192.0.2.51", true);
     const signIn = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar: again, ip: "192.0.2.52", json: { email: "ada@example.com", otp } });
     expect(signIn.status).toBe(403);
     expect(h.tables.user).toHaveLength(0);

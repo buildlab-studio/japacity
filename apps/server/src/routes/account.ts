@@ -7,8 +7,8 @@
 // every route they guard (account/guest.ts).
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
 // https://better-auth.com/docs/plugins/anonymous
-import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, ServerRejection, UsernameFreeReply } from "@japacity/api";
-import { USERNAME_FREE_PATH } from "@japacity/api";
+import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, NewLifeCodeReply, ServerRejection, UsernameFreeReply } from "@japacity/api";
+import { NEW_LIFE_CODE_PATH, USERNAME_FREE_PATH } from "@japacity/api";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
@@ -19,14 +19,18 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { PASS_COOKIE, readCookie } from "../account/age";
 import { deletionStatus, requestDeletion } from "../account/deletion";
 import { DEVICE_COOKIE, countGuest, guestGates, tooManyGuests } from "../account/guest";
-import { GUEST_NAME_HEADER } from "../account/signup";
+import { keepProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_PATH, NEW_LIFE_TTL_MS, spendCode, type CodeSpent } from "../account/newlife";
+import { GUEST_NAME_HEADER, PROOF_TAKEN_HEADER } from "../account/signup";
 import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
+import { countSecured } from "../analytics/live";
+import { COOKIE_ATTRIBUTES } from "../auth/auth";
 import type { Accounts, Auth } from "../auth/auth";
 import { headersWithoutSession } from "../auth/stale";
 import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, overLimit, sessionOf } from "../limits/limit";
+import { emailIdentity, isBanned } from "../moderation/identities";
 import { leavePlaces } from "../postgres";
 import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
@@ -103,6 +107,21 @@ function usernameOf(body: unknown): unknown {
   return typeof body === "object" && body !== null && Object.keys(body).join(",") === "username" ? (body as { username: unknown }).username : null;
 }
 
+/** account:email-code-is-short-lived: a new life's code that was not taken, as the route answers it; the library's sign-in answers the same three. */
+const CODE_REFUSED: Record<Exclude<CodeSpent, "ok">, { status: 400 | 403; body: ServerRejection }> = {
+  wrong: { status: 400, body: rejection("bad-code", "That code is not right.") },
+  expired: { status: 400, body: rejection("expired", "That code has run out.") },
+  "used-up": { status: 403, body: rejection("too-many", "Too many wrong tries. Send a new code.") },
+};
+
+/** The body of `POST /api/new-life/code`, or null when it is not one. */
+function newLifeCode(body: unknown): { email: string; code: string } | null {
+  if (typeof body !== "object" || body === null) return null;
+  const { email, code } = body as { email?: unknown; code?: unknown };
+  if (typeof email !== "string" || typeof code !== "string" || email.trim() === "" || !/^\d{1,12}$/.test(code)) return null;
+  return { email: email.trim().toLowerCase(), code };
+}
+
 /** The library's refusal of the guest start as the route answers it. */
 function guestRefusal(error: unknown): { status: 400 | 403 | 409; body: NameReply } {
   const code = isAPIError(error) ? (error.body as { code?: unknown } | undefined)?.code : undefined;
@@ -151,9 +170,32 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     await countGuest(deps, context.adapter, device, address);
     for (const line of setCookies(signed.headers)) c.header("set-cookie", line, { append: true });
     deleteCookie(c, PASS_COOKIE, { path: PASS_PATH, secure: true });
+    // account:guest-secures-the-life: the proof was consumed by the birth, whatever it came to.
+    if (readCookie(request.headers.get("cookie"), NEW_LIFE_COOKIE) !== null) deleteCookie(c, NEW_LIFE_COOKIE, { path: NEW_LIFE_COOKIE_PATH, secure: true });
     const row = await deps.stores.account.get(signed.response.user.id);
     if (row === null) throw new Error(`The guest ${signed.response.user.id} has no account row.`);
-    return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, NO_WAYS) });
+    if (row.state === "guest") return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, NO_WAYS), ...(signed.headers.get(PROOF_TAKEN_HEADER) === null ? {} : { emailTaken: true as const }) });
+    // Born secured by a proved address: the same marks as a guest that kept its life (account/link.ts).
+    await deps.stores.boards.setListed(row.id, true);
+    await countSecured(deps, row.id);
+    return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, await waysOf(auth, row)) });
+  });
+
+  // account:sign-in-without-secret, account:guest-secures-the-life, account:email-code-is-short-lived: signed out, the code sent to an
+  // address no account uses, for a new life kept with it from the start. The code is checked and spent in one step; the right one
+  // leaves a proof of the address for this browser's guest start, named by an httpOnly cookie with the session cookie's attributes.
+  app.post(NEW_LIFE_CODE_PATH, limit(deps, "commands"), async (c) => {
+    if (sessionOf(c) !== null) return c.json<NewLifeCodeReply>(rejection("not-possible", "This browser already has a life."), 409);
+    const asked = newLifeCode(await c.req.json().catch(() => null));
+    if (asked === null) return c.json<NewLifeCodeReply>(rejection("not-legal", "Send { email, code }."), 400);
+    if (await isBanned(deps, [emailIdentity(asked.email)])) return c.json<NewLifeCodeReply>(rejection("not-possible", "This sign-in cannot make an account."), 403);
+    const internal = (await auth.$context).internalAdapter;
+    const spent = await spendCode(internal, asked.email, asked.code, deps.config.auth.otp.attempts, deps.now());
+    if (spent !== "ok") return c.json<NewLifeCodeReply>(CODE_REFUSED[spent].body, CODE_REFUSED[spent].status);
+    if ((await internal.findUserByEmail(asked.email)) !== null) return c.json<NewLifeCodeReply>(rejection("taken", "That email already has an account. Sign in instead."), 409);
+    const nonce = await keepProof(internal, asked.email, deps.now(), deps.randomBytes);
+    setCookie(c, NEW_LIFE_COOKIE, nonce, { ...COOKIE_ATTRIBUTES, path: NEW_LIFE_COOKIE_PATH, maxAge: Math.floor(NEW_LIFE_TTL_MS / 1000) });
+    return c.json<NewLifeCodeReply>({ ok: true });
   });
 
   // account:username-typed-and-checked: whether a name is free, asked by the box as the player types, signed out at the door. Usernames

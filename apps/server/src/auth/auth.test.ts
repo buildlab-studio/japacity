@@ -1,6 +1,7 @@
 import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { NEW_LIFE_MARK } from "../account/newlife";
 import { productionConfig, testConfig } from "../config";
 import { banIdentities, emailIdentity } from "../moderation/identities";
 import { setSwitch } from "../switches/switches";
@@ -132,7 +133,7 @@ describe("signing in", () => {
     let release: () => void = () => undefined;
     const h = harness({ sendOtp: () => new Promise<void>((resolve) => (release = resolve)) });
     const jar = makeJar();
-    const code = await h.codeFor("ada@example.com", jar);
+    const code = await h.codeFor("ada@example.com", jar, undefined, true);
     expect(code).toMatch(/^\d{6}$/);
     expect(h.background).toHaveLength(1);
     let settled = false;
@@ -191,7 +192,7 @@ describe("signing in", () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
-    const otp = await h.codeFor("ada@example.com", jar);
+    const otp = await h.codeFor("ada@example.com", jar, undefined, true);
     const wrong = otp === "000000" ? "111111" : "000000";
     for (const ip of ["192.0.2.1", "192.0.2.2", "192.0.2.3"]) {
       const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip, json: { email: "ada@example.com", otp: wrong } });
@@ -293,7 +294,7 @@ describe("the sign-in limits", () => {
     const limit = h.deps.config.auth.limits.otpSendPer60s;
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) {
-      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: "198.51.100.50", json: { email: `player-${String(n)}@example.com`, type: "sign-in" } });
+      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: "198.51.100.50", json: { email: `player-${String(n)}@example.com`, type: "sign-in", [NEW_LIFE_MARK]: true } });
       statuses.push(reply.status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
@@ -303,7 +304,7 @@ describe("the sign-in limits", () => {
   test("[account:sign-in-routes-rate-limited] [server:anonymous-limit-by-address] given code sends from different addresses in one IPv6 /64, when one more than the limit is sent in 60 seconds, then it is refused, and an address in the next /64 is still sent", async () => {
     const h = harness();
     const limit = h.deps.config.auth.limits.otpSendPer60s;
-    const send = async (ip: string, n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `six-${String(n)}@example.com`, type: "sign-in" } })).status;
+    const send = async (ip: string, n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `six-${String(n)}@example.com`, type: "sign-in", [NEW_LIFE_MARK]: true } })).status;
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) statuses.push(await send(n % 2 === 0 ? `2001:db8:4:4::${String(n + 1)}` : `2001:DB8:4:4:ffff:${String(n)}::1`, n));
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
@@ -316,7 +317,7 @@ describe("the sign-in limits", () => {
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) {
       const ip = n % 2 === 0 ? "198.51.100.51" : "::ffff:198.51.100.51";
-      statuses.push((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `four-${String(n)}@example.com`, type: "sign-in" } })).status);
+      statuses.push((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `four-${String(n)}@example.com`, type: "sign-in", [NEW_LIFE_MARK]: true } })).status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
   });
@@ -326,7 +327,7 @@ describe("the sign-in limits", () => {
     const limit = h.deps.config.auth.limits.otpSendPer60s;
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) {
-      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(60 + n)}`, json: { email: "Ada@Example.com", type: "sign-in" } });
+      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(60 + n)}`, json: { email: "Ada@Example.com", type: "sign-in", [NEW_LIFE_MARK]: true } });
       statuses.push(reply.status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
@@ -337,7 +338,7 @@ describe("the sign-in limits", () => {
     let now = Date.UTC(2026, 9, 10, 9, 0, 0);
     const h = harness({ now: () => now });
     const { otpSendPerDay } = h.deps.config.auth.limits;
-    const send = async (n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(100 + n)}`, json: { email: "ada@example.com", type: "sign-in" } })).status;
+    const send = async (n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(100 + n)}`, json: { email: "ada@example.com", type: "sign-in", [NEW_LIFE_MARK]: true } })).status;
     const first = now;
     const statuses: number[] = [];
     for (let n = 0; n <= otpSendPerDay; n++) {
@@ -364,6 +365,26 @@ describe("the sign-in limits", () => {
     }
     expect(statuses.slice(0, 3).every((status) => status !== 429)).toBe(true);
     expect(statuses[3]).toBe(429);
+  });
+});
+
+describe("a refused code told apart from a limit", () => {
+  test("[account:code-form-forgives] [account:sign-in-routes-rate-limited] given a fourth code check from one address within 10 seconds, when the library's limit answers 429, then the reply carries no TOO_MANY_ATTEMPTS code, while a code whose own tries are used up does", async () => {
+    const h = harness();
+    const jar = makeJar();
+    const otp = await h.codeFor("ada@example.com", jar, "198.51.100.91", true);
+    const wrong = otp === "000000" ? "111111" : "000000";
+    const replies: { status: number; code: unknown }[] = [];
+    for (let n = 0; n < 4; n++) {
+      const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip: "198.51.100.92", json: { email: "ada@example.com", otp: wrong } });
+      replies.push({ status: reply.status, code: (await reply.json<Record<string, unknown>>().catch(() => ({})))["code"] });
+    }
+    expect(replies.slice(0, 3)).toEqual(Array.from({ length: 3 }, () => ({ status: 400, code: "INVALID_OTP" })));
+    expect(replies[3]?.status).toBe(429);
+    expect(replies[3]?.code).not.toBe("TOO_MANY_ATTEMPTS");
+    const usedUp = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip: "198.51.100.93", json: { email: "ada@example.com", otp } });
+    expect(usedUp.status).toBe(403);
+    expect(await usedUp.json()).toMatchObject({ code: "TOO_MANY_ATTEMPTS" });
   });
 });
 

@@ -77,8 +77,31 @@ export interface UsernameRequest {
 /** account:username-and-unconfirmed-email: why a username was refused; `taken` and `wait` come from the store and the clock. */
 export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
 
-/** `POST /api/guest` and `PUT /api/account/username`: a refused username says why, so the screen can say it plainly. */
-export type NameReply = { ok: true; account: AccountView } | (ServerRejection & { name?: NameProblem });
+/**
+ * `POST /api/guest` and `PUT /api/account/username`: a refused username says why, so the screen can say it plainly.
+ * `emailTaken`: the guest start held a proof of an address that an account took meanwhile, so the life started as a plain
+ * guest (account:guest-secures-the-life).
+ */
+export type NameReply = { ok: true; account: AccountView; emailTaken?: true } | (ServerRejection & { name?: NameProblem });
+
+/**
+ * account:sign-in-without-secret, account:guest-secures-the-life: a new life kept with an email from the start. Signed out, the
+ * code sent to an address no account uses is checked and spent here, and a proof of the address is kept for the guest start.
+ */
+export const NEW_LIFE_CODE_PATH = "/api/new-life/code";
+
+/** The body of `POST /api/new-life/code`: the address the code went to and the code as typed. */
+export interface NewLifeCodeRequest {
+  email: string;
+  code: string;
+}
+
+/**
+ * `POST /api/new-life/code`. Its refusals: `bad-code` (not the code), `expired`, `too-many` (the code's tries used up),
+ * `taken` (an account uses the address), `not-possible` (the address cannot make an account, or this browser already has a
+ * life), `not-legal` (no address or code) and `rate-limited` (429).
+ */
+export type NewLifeCodeReply = { ok: true } | ServerRejection;
 
 /** account:username-typed-and-checked: the read the username box asks while the player types, the name in the query. */
 export const USERNAME_FREE_PATH = "/api/username/available";

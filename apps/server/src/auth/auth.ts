@@ -73,7 +73,7 @@ const SESSION_DAYS = 400;
 const NO_TOKENS = { idToken: null, accessToken: null, refreshToken: null, accessTokenExpiresAt: null, refreshTokenExpiresAt: null };
 
 /** account:session-is-secure-cookie: the session cookie's attributes, whatever the library's defaults become. */
-const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
+export const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
 /**
  * account:passkey-needs-signed-in-session: the passkeys' relying party id, exactly the host of SITE_URL: `japacity.app` in

@@ -1,4 +1,5 @@
-// The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited),
+// The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited), a send only to an address
+// an account uses, or one marked for a new life with it (account:sign-in-without-secret),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
 // passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
 // removed (account:session-is-secure-cookie), who may add or remove a passkey and what each addition
@@ -10,8 +11,10 @@
 import { time, toHex } from "@japacity/sim";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
+import { NEW_LIFE_MARK } from "../account/newlife";
 import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../dependencies";
+import { emailIdentity, isBanned } from "../moderation/identities";
 import { leavePlaces } from "../postgres";
 import type { AuthKeys } from "./auth";
 import { passkeyShown } from "./session";
@@ -155,6 +158,33 @@ function signInCodesOnly(ctx: HookContext): void {
   if ((ctx.body as { type?: unknown } | undefined)?.type !== "sign-in") throw new APIError("BAD_REQUEST", { message: "Only a sign-in code is sent." });
 }
 
+/** The code a send to an address no account uses is refused with, and the code of a new life's send to an address one does. */
+export const NO_ACCOUNT = "no-account";
+export const EMAIL_TAKEN = "taken";
+
+/**
+ * account:sign-in-without-secret, account:email-code-is-short-lived: signed out, a code goes only where it can lead somewhere.
+ * A send to an address no account uses is refused `no-account` and nothing is mailed; one marked for a new life with the
+ * address (`NEW_LIFE_MARK`) skips that check and is refused `taken` where an account uses it (account:guest-secures-the-life).
+ * Runs after the send limits, so every check is counted by them, a refused one too. A send from a live session (a guest
+ * keeping its life, an account confirming itself) is not checked, and a banned address keeps its own answer at the sign-in
+ * (moderation:ban-survives-as-hash).
+ */
+async function checkAddress(deps: ServerDeps, ctx: HookContext): Promise<void> {
+  if (ctx.path !== SEND_PATH) return;
+  const body = ctx.body as Record<string, unknown> | undefined;
+  if (typeof body?.["email"] !== "string") return;
+  if ((await getSessionFromCtx(ctx, { disableRefresh: true }).catch(() => null)) !== null) return;
+  const email = body["email"].toLowerCase();
+  if (await isBanned(deps, [emailIdentity(email)])) return;
+  const used = (await ctx.context.internalAdapter.findUserByEmail(email)) !== null;
+  if (body[NEW_LIFE_MARK] === true) {
+    if (used) throw new APIError("FORBIDDEN", { code: EMAIL_TAKEN, message: "That email already has an account. Sign in instead." });
+    return;
+  }
+  if (!used) throw new APIError("FORBIDDEN", { code: NO_ACCOUNT, message: "No account uses this email." });
+}
+
 /** How the request's session was opened, from the field the session hook set (session.ts). */
 function openedWith(session: { session: Record<string, unknown> }): SignedInWith {
   const method = session.session["signedInWith"];
@@ -268,6 +298,7 @@ export function beforeAuth(deps: ServerDeps) {
     await guardGuestPasskeys(ctx);
     signInCodesOnly(ctx);
     await limitEmailSends(deps, ctx);
+    await checkAddress(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
     await guardStepUp(ctx);
   });

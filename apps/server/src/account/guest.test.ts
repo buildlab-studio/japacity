@@ -202,7 +202,10 @@ describe("the bot check at the guest start", () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
-    const otp = await h.codeFor("new@example.com", jar);
+    // A plain send to the address is refused before any code exists; a new life's send is the only way a code reaches it.
+    const plain = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, json: { email: "new@example.com", type: "sign-in" } });
+    expect(await body(plain)).toMatchObject({ code: "no-account" });
+    const otp = await h.codeFor("new@example.com", jar, undefined, true);
     const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "new@example.com", otp } });
     expect(reply.status).toBe(403);
     expect(await body(reply)).toMatchObject({ code: "no-account" });
@@ -408,7 +411,7 @@ describe("an email that was never confirmed", () => {
     await h.passAge(stranger);
     // The library finds the newest code by its creation time; two in one millisecond tie.
     vi.setSystemTime(start + 1_000);
-    const otp = await h.codeFor("ada@example.com", stranger, "198.51.100.71");
+    const otp = await h.codeFor("ada@example.com", stranger, "198.51.100.71", true);
     const signIn = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar: stranger, ip: "198.51.100.71", json: { email: "ada@example.com", otp } });
     expect(await body(signIn)).toMatchObject({ code: "no-account" });
     expect((await h.call("/api/account", { jar: stranger })).status).toBe(401);

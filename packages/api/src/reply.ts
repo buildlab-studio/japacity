@@ -19,6 +19,8 @@ export type ServerCode =
   | "bot-check"
   | "not-fresh"
   | "bad-code"
+  /** account:guest-secures-the-life: an account uses that address already. */
+  | "taken"
   // The people routes' refusals (pair:invite-link-single-use, pair:phrase-checks-before-send; moderation:block-refuses-both-ways).
   | "not-possible"
   | "blocked"

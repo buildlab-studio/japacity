@@ -13,6 +13,7 @@ export const uiOnlineText: Record<string, string> = {
   "reject.bot-check": "The quick check did not go through. Try it again.",
   "reject.not-fresh": "Sign in again to show it is you.",
   "reject.bad-code": "That link or code is not right.",
+  "reject.taken": "That email already has an account. Sign in instead.",
   "reject.not-possible": "That is not possible now.",
   "reject.blocked": "That is not possible now.",
   "reject.too-many": "That is enough for now. Try again later.",

@@ -30,6 +30,8 @@ const REJECTION_CODES = [
   "bot-check",
   "not-fresh",
   "bad-code",
+  // account.md: a new life's address an account uses already.
+  "taken",
   // The people routes' refusals (pair.md), in ServerCode.
   "not-possible",
   "blocked",

@@ -9,6 +9,7 @@ import { splitSetCookieHeader } from "better-auth/cookies";
 import type { Hono } from "hono";
 import { vi } from "vitest";
 
+import { NEW_LIFE_MARK } from "../account/newlife";
 import { TURNSTILE_ACTION, TURNSTILE_TEST } from "../account/turnstile";
 import { makeApp } from "../app";
 import { seededBytes } from "../app.testing";
@@ -88,8 +89,12 @@ export interface Harness {
   guest: (jar?: Jar, over?: { username?: string; country?: string; ip?: string }) => Promise<{ jar: Jar; account: string }>;
   /** Secures the jar's guest with a code sent to `email`; returns the sign-in's reply. */
   secureByCode: (jar: Jar, email: string, ip?: string) => Promise<Response>;
-  /** Sends a code to `email` and returns it as the stand-in for the send was given it. */
-  codeFor: (email: string, jar: Jar, ip?: string) => Promise<string>;
+  /**
+   * Sends a code to `email` and returns it as the stand-in for the send was given it. `newLife` marks the send for a new life
+   * with the address, the only send that reaches an address no account uses from a browser with no session
+   * (account:sign-in-without-secret).
+   */
+  codeFor: (email: string, jar: Jar, ip?: string, newLife?: boolean) => Promise<string>;
   /** A guest secured by an email code; the jar ends signed in. Returns the account id. */
   signUp: (email: string, jar?: Jar, country?: string) => Promise<{ jar: Jar; account: string }>;
 }
@@ -186,8 +191,8 @@ export function harness(options: HarnessOptions = {}): Harness {
     return { jar, account: body.account.id };
   };
 
-  const codeFor: Harness["codeFor"] = async (email, jar, ip) => {
-    const reply = await call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, ...(ip === undefined ? {} : { ip }), json: { email, type: "sign-in" } });
+  const codeFor: Harness["codeFor"] = async (email, jar, ip, newLife = false) => {
+    const reply = await call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, ...(ip === undefined ? {} : { ip }), json: { email, type: "sign-in", ...(newLife ? { [NEW_LIFE_MARK]: true } : {}) } });
     if (reply.status !== 200) throw new Error(`The code send answered ${reply.status}: ${await reply.text()}`);
     const code = sent.findLast((message) => message.email.toLowerCase() === email.toLowerCase())?.otp;
     if (code === undefined) throw new Error(`No code was sent to ${email}.`);
