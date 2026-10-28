@@ -213,7 +213,7 @@ test.describe("one new player, played in order on one phone", () => {
     await sheet.getByRole("button", { name: "Send me a code" }).click();
     const code = await codeFor(page, EMAIL, asked);
     // The sixth digit sends the code (account:code-form-forgives).
-    await sheet.getByLabel("The 6-digit code").fill(code);
+    await sheet.getByLabel("6-digit code").fill(code);
     await expect(page.getByText("Saved. Sign in on any phone to carry on.")).toBeVisible({ timeout: 20_000 });
     const account = await page.request.get("/api/account");
     expect(((await account.json()) as { account: { state: string; username: string } }).account).toMatchObject({ state: "secured", username: USERNAME });
@@ -280,7 +280,7 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("button", { name: "Send me a code" }).click();
     const code = await codeFor(page, EMAIL, asked);
     // The sixth digit sends the code (account:code-form-forgives).
-    await page.getByLabel("The 6-digit code").fill(code);
+    await page.getByLabel("6-digit code").fill(code);
     await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
     const account = await page.request.get("/api/account");
     expect(((await account.json()) as { account: { username: string } }).account.username).toBe(USERNAME);

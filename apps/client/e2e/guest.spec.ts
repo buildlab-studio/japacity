@@ -147,7 +147,7 @@ test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secu
   await sheet.getByRole("button", { name: "Send me a code" }).click();
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured" } } };
   // The sixth digit sends the code (account:code-form-forgives).
-  await sheet.getByLabel("The 6-digit code").fill("123456");
+  await sheet.getByLabel("6-digit code").fill("123456");
   await expect(page.getByText("Saved. Sign in on any phone to carry on.")).toBeVisible();
   // Saved, the sheet says only that.
   const kept = page.getByRole("dialog", { name: "Saved" });
@@ -304,7 +304,7 @@ test("[account:passkey-offered-where-it-works] a guest that keeps its life by th
   await sheet.getByLabel("Email").fill("ada@example.com");
   await sheet.getByRole("button", { name: "Send me a code" }).click();
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured", ways: { google: null, email: "ada@example.com", passkeys: 0 } } } };
-  await sheet.getByLabel("The 6-digit code").fill("123456");
+  await sheet.getByLabel("6-digit code").fill("123456");
   const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible();
   const card = page.locator("[data-passkey-card]");

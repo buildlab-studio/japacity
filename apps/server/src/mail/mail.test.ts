@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { text } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { NEW_LIFE_MARK } from "../account/newlife";
 import { harness, makeJar } from "../auth/auth.testing";
 import { productionConfig } from "../config";
 import { type BindingMail, codeMail, LOCAL_SENDER, type MailBinding, mailFor, type MailFetch, NO_PROVIDER, noticeMail, NOT_LOCAL, plainHtml, REFUSED, REPLY_TO, SENDER } from "./mail";
@@ -172,7 +173,8 @@ describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
     const jar = makeJar();
     let reply: Response | undefined;
     const logged = await consoleDuring(async () => {
-      reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, json: { email: "ada@example.com", type: "sign-in" } });
+      // No account uses the address, so the send carries a new life's mark (account:sign-in-without-secret).
+      reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, json: { email: "ada@example.com", type: "sign-in", [NEW_LIFE_MARK]: true } });
       await Promise.all(h.background);
     });
     expect(reply?.status).toBe(200);

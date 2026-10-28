@@ -56,7 +56,8 @@ async function sendOne(base: string, index: number): Promise<{ status: number; u
     const reply = await fetch(`${base}/api/auth/email-otp/send-verification-otp`, {
       method: "POST",
       headers: { "content-type": "application/json", "cf-connecting-ip": `10.${String(int.divFloor(index, 65536) % 256)}.${String(int.divFloor(index, 256) % 256)}.${String(index % 256)}` },
-      body: JSON.stringify({ email: `load-${String(index)}@example.test`, type: "sign-in" }),
+      // A new address has no account, so the send carries a new life's mark, the one send that mails a code to it (account:sign-in-without-secret).
+      body: JSON.stringify({ email: `load-${String(index)}@example.test`, type: "sign-in", newLife: true }),
     });
     await reply.text();
     return { status: reply.status, us: Math.round((performance.now() - started) * 1000) };
