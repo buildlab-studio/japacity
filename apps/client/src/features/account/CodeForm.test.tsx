@@ -45,11 +45,21 @@ describe("the code step (account:code-form-forgives)", () => {
     const field = await sent();
     await waitFor(() => expect(document.activeElement).toBe(field));
     const line = document.querySelector("[data-code-sent]");
-    expect(line?.textContent).toBe(`${say("ui.account.code.sent", { email: "ada@example.test" })} ${say("ui.account.code.change")}`);
+    expect(line?.textContent).toBe(`${say("ui.account.code.sent", { email: "ada@example.test" })}\u00a0${say("ui.account.code.change")}`);
     expect(field.getAttribute("aria-label")).toBe(say("ui.account.code.label"));
     expect(screen.queryByText(say("ui.account.code.label"))).toBeNull();
     expect(slot().textContent).toBe("");
     expect(document.body.textContent).not.toMatch(/5 minutes|spam or promotions/);
+  });
+
+  test("[account:code-form-forgives] given a code sent, then Change stands inside the sent line, glued to the address by a space that never breaks, so it wraps with the words and never stands on a line of its own", async () => {
+    form();
+    await sent();
+    const line = document.querySelector<HTMLElement>("[data-code-sent]");
+    const change = screen.getByRole("button", { name: say("ui.account.code.change") });
+    expect(change.parentElement?.closest("[data-code-sent]")).toBe(line);
+    expect(line?.textContent).toBe(`${say("ui.account.code.sent", { email: "ada@example.test" })}\u00a0${say("ui.account.code.change")}`);
+    expect(change.className).not.toMatch(/\b(block|flex|min-h-\S+)\b/);
   });
 
   test("[account:code-form-forgives] given a wrong code, then the slot says so in the bad colour, the digits are selected so typing replaces them, and Sign in stays off until they change: the same code is never sent twice", async () => {

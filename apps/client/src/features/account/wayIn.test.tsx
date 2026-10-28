@@ -455,7 +455,7 @@ describe("the code form forgives (account:code-form-forgives)", () => {
     sendTo("ada@exmaple.test");
     const code = await screen.findByLabelText(say("ui.account.code.label"));
     await waitFor(() => expect(document.activeElement).toBe(code));
-    expect(document.querySelector("[data-code-sent]")?.textContent).toBe(`${say("ui.account.code.sent", { email: "ada@exmaple.test" })} ${say("ui.account.code.change")}`);
+    expect(document.querySelector("[data-code-sent]")?.textContent).toBe(`${say("ui.account.code.sent", { email: "ada@exmaple.test" })}\u00a0${say("ui.account.code.change")}`);
     expect(screen.getByRole("status").textContent).toBe("");
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.code.change") }));
     const email = await screen.findByLabelText(say("ui.account.email.label"));

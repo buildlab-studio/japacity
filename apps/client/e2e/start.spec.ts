@@ -336,6 +336,14 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await expect(page.getByRole("button", { name: "Use a passkey" })).toHaveCount(0);
   await expect(page.getByText("Use the way you signed in before.")).toHaveCount(0);
   await fitsWhole(page, "the code step");
+  // Change wraps with the address and never starts a line of its own, at either size.
+  const before = page.viewportSize();
+  for (const size of FIT_SIZES) {
+    await page.setViewportSize(size);
+    const [line, change] = await Promise.all([page.locator("[data-code-sent]").boundingBox(), page.getByRole("button", { name: "Change", exact: true }).boundingBox()]);
+    expect((change?.x ?? 0) - (line?.x ?? 0), `Change at ${String(size.width)} by ${String(size.height)}`).toBeGreaterThan(8);
+  }
+  if (before !== null) await page.setViewportSize(before);
   await shootAtSize(page, "code-step-code", info.project.name);
   await shootSmall(page, "code-step-code", info.project.name);
   await page.getByRole("button", { name: "Change", exact: true }).click();

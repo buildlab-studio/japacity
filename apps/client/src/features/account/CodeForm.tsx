@@ -63,7 +63,8 @@ export interface CodeFormProps {
 }
 
 const FIELD = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3 text-base";
-const QUIET_LINK = "press inline min-h-11 px-0.5 text-text-2 underline underline-offset-4";
+// Inline in its line of words, with a pad round it that takes the tap (world:reach-and-read).
+const QUIET_LINK = "press reach inline px-0.5 text-text-2 underline underline-offset-4";
 
 /** The line the status slot holds when no error stands: nothing, the new code's line, or the way to a new code once the wait is over. */
 type Line = "none" | "resent" | "nudge";
@@ -262,8 +263,10 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
           }}
           noValidate
         >
-          <p className="text-[15px] leading-snug" data-code-sent={String(sends)}>
-            {say("ui.account.code.sent", { email: sentTo })}{" "}
+          {/* Change is glued to the address by a space that never breaks, so it wraps with the words and never stands alone. */}
+          <p className="text-[15px] leading-snug break-words" data-code-sent={String(sends)}>
+            {say("ui.account.code.sent", { email: sentTo })}
+            {known === undefined || onChange !== undefined ? "\u00a0" : null}
             {known === undefined || onChange !== undefined ? (
               <button type="button" className={QUIET_LINK} onClick={change}>
                 {say("ui.account.code.change")}
