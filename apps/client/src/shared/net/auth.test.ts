@@ -126,6 +126,74 @@ describe("the ways in and the settings, as the server refuses them", () => {
   });
 });
 
+describe("the code's answers told apart, as the server gives them", () => {
+  test("[account:code-form-forgives] [account:sign-in-routes-rate-limited] given a code check over the library's limit, then the 429 with no code of the code's own is slow-down, the code's used-up tries are used-up, and a send over its limits keeps too-many", async () => {
+    const { server, api } = account();
+    server.answer(
+      "POST /api/auth/sign-in/email-otp",
+      { status: 429, body: { message: "Too many requests. Please try again later." } },
+      { status: 403, body: { code: "TOO_MANY_ATTEMPTS", message: "Too many attempts" } },
+      { status: 400, body: { code: "OTP_EXPIRED", message: "OTP expired" } },
+      { status: 400, body: { code: "INVALID_OTP", message: "Invalid OTP" } },
+    );
+    server.answer("POST /api/auth/email-otp/send-verification-otp", { status: 429, body: { message: "Too many codes for this email. Try again in a minute." } });
+    const told: unknown[] = [];
+    for (let n = 0; n < 4; n++) told.push(await api.signInWithCode("ada@example.test", "123456", null));
+    expect(told).toEqual([
+      { ok: false, why: "slow-down" },
+      { ok: false, why: "used-up" },
+      { ok: false, why: "expired" },
+      { ok: false, why: "wrong-code" },
+    ]);
+    expect(await api.sendCode("ada@example.test", null)).toEqual({ ok: false, why: "too-many" });
+  });
+
+  test("[account:sign-in-without-secret] [account:guest-secures-the-life] given a send to an address no account uses, then it is told as no-life; a new life's send carries its mark and an address taken is told email-taken", async () => {
+    const { server, api } = account();
+    server.answer(
+      "POST /api/auth/email-otp/send-verification-otp",
+      { status: 403, body: { code: "no-account", message: "No account uses this email." } },
+      { status: 403, body: { code: "taken", message: "That email already has an account. Sign in instead." } },
+      { body: { success: true } },
+    );
+    expect(await api.sendCode("new@example.test", null)).toEqual({ ok: false, why: "no-life" });
+    expect(await api.sendCode("new@example.test", null, true)).toEqual({ ok: false, why: "email-taken" });
+    expect(await api.sendCode("new@example.test", null, true)).toEqual({ ok: true });
+    expect(server.sent.map((request) => request.body)).toEqual([
+      { email: "new@example.test", type: "sign-in" },
+      { email: "new@example.test", type: "sign-in", newLife: true },
+      { email: "new@example.test", type: "sign-in", newLife: true },
+    ]);
+  });
+
+  test("[account:guest-secures-the-life] given a new life's code, then POST /api/new-life/code carries the address and the code, and its refusals are told as the library's own are", async () => {
+    const { server, api } = account();
+    const refused = (code: string, status = 400) => ({ status, body: { ok: false, code, detail: code } });
+    server.answer("POST /api/new-life/code", { body: { ok: true } }, refused("bad-code"), refused("expired"), refused("too-many", 403), refused("taken", 409), refused("rate-limited", 429), refused("not-possible", 403));
+    const told: unknown[] = [];
+    for (let n = 0; n < 7; n++) told.push(await api.proveNewLife("new@example.test", "123456"));
+    expect(told).toEqual([
+      { ok: true },
+      { ok: false, why: "wrong-code" },
+      { ok: false, why: "expired" },
+      { ok: false, why: "used-up" },
+      { ok: false, why: "email-taken" },
+      { ok: false, why: "slow-down" },
+      { ok: false, why: "refused" },
+    ]);
+    expect(server.sent[0]?.body).toEqual({ email: "new@example.test", code: "123456" });
+    expect(server.sent[0]?.credentials).toBe("same-origin");
+  });
+
+  test("[account:guest-secures-the-life] given the guest start's answer, then a life born kept by its email and one whose address was taken meanwhile are told apart from a plain guest", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/guest", { body: { ok: true, account: { ...VIEW, state: "secured", ways: { google: null, email: "new@example.test", passkeys: 0 } } } }, { body: { ok: true, account: VIEW, emailTaken: true } }, { body: { ok: true, account: VIEW } });
+    expect(await api.startGuest("ada_lagos", TOKEN)).toEqual({ ok: true, email: "kept" });
+    expect(await api.startGuest("ada_lagos", TOKEN)).toEqual({ ok: true, email: "taken" });
+    expect(await api.startGuest("ada_lagos", TOKEN)).toEqual({ ok: true });
+  });
+});
+
 const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: null, passkeys: 0 } };
 
 describe("the guest start and the username, as the server built them", () => {

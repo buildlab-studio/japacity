@@ -10,7 +10,7 @@ import { USERNAME, USERNAME_LONGEST as LONGEST } from "@japacity/api";
 import { Check } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 
-import type { AccountApi, FreeAnswer, GuestFailure } from "../../shared/net/auth";
+import type { AccountApi, FreeAnswer, GuestFailure, NewLifeEmail } from "../../shared/net/auth";
 import { isReported } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { say } from "../../shared/words/text";
@@ -110,7 +110,8 @@ export interface GuestDoorOptions {
   onExpired: () => void;
   /** Sign-ups closed meanwhile: the full screen. */
   onFull: () => void;
-  onStarted: () => Promise<void>;
+  /** The life is made: with the email it was born kept by, or the word that an account took that address meanwhile (account:guest-secures-the-life). */
+  onStarted: (email: NewLifeEmail | null) => Promise<void>;
   botWaitMs?: number;
   /** The sessions and age answers found gone in a row so far, and the call that counts one more. */
   lapses?: number;
@@ -128,6 +129,8 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   }, [sitekey, load]);
   // Made once: a Begin pressed again after the character failed to start goes straight on, unless the session went with it.
   const made = useRef(false);
+  // What the guest start said of a proved address (account:guest-secures-the-life), for the line over the world.
+  const email = useRef<NewLifeEmail | null>(null);
   const box = useRef<HTMLInputElement | null>(null);
 
   async function once(username: string): Promise<GuestFailure | null> {
@@ -136,6 +139,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     // The server judges the username before the token, so only a request that got past it spent one.
     const nameRefused = !answer.ok && ["format", "reserved", "blocked", "taken", "wait"].includes(answer.why);
     if (bot !== null && !nameRefused) check.spent();
+    if (answer.ok) email.current = answer.email ?? null;
     return answer.ok ? null : answer.why;
   }
 
@@ -165,7 +169,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     start,
     ask,
     widget: check.widget,
-    started: onStarted,
+    started: () => onStarted(email.current),
     lost: (error) => {
       if (!made.current || !isReported(error) || (error as { reported?: unknown }).reported !== "signed-out") return null;
       made.current = false;

@@ -41,6 +41,7 @@ function fakeAccount(startGuest: (username: string) => GuestAnswer = () => ({ ok
     returnedFromGoogle: () => null,
     sendCode: (_email, bot) => (calls.push("sendCode()"), bots.push(bot), ok()),
     signInWithCode: () => (calls.push("signInWithCode()"), ok()),
+    proveNewLife: (email, code) => (calls.push(`proveNewLife(${JSON.stringify(email)},${JSON.stringify(code)})`), Promise.resolve({ ok: true })),
     signInWithGoogle: () => (calls.push("signInWithGoogle()"), ok()),
     signInWithPasskey: () => (calls.push("signInWithPasskey()"), ok()),
     addPasskey: ok,

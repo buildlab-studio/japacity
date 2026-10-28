@@ -51,6 +51,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     returnedFromGoogle: () => null,
     sendCode: (email) => log("sendCode")(email),
     signInWithCode: (email, code) => log("signInWithCode")(email, code),
+    proveNewLife: (email, code) => (calls.push(`proveNewLife(${JSON.stringify(email)},${JSON.stringify(code)})`), Promise.resolve({ ok: true })),
     signInWithGoogle: (_bot, trip) => log("signInWithGoogle")(trip),
     signInWithPasskey: log("signInWithPasskey"),
     addPasskey: log("addPasskey"),
@@ -449,13 +450,13 @@ describe("the code form forgives (account:code-form-forgives)", () => {
     expect(account.calls).toEqual([]);
   });
 
-  test("[account:code-form-forgives] given a code sent, then the code field takes the focus, the line says where it went with the spam hint, and Wrong email? Change it goes back with the address filled", async () => {
+  test("[account:code-form-forgives] given a code sent, then the code field takes the focus, the line says where it went with Change after the address, and Change goes back with the address filled", async () => {
     const { account } = form();
     sendTo("ada@exmaple.test");
     const code = await screen.findByLabelText(say("ui.account.code.label"));
     await waitFor(() => expect(document.activeElement).toBe(code));
-    expect(screen.getByRole("status").textContent).toBe(say("ui.account.code.sent", { email: "ada@exmaple.test" }));
-    expect(screen.getByText(say("ui.account.code.spam"))).toBeDefined();
+    expect(document.querySelector("[data-code-sent]")?.textContent).toBe(`${say("ui.account.code.sent", { email: "ada@exmaple.test" })} ${say("ui.account.code.change")}`);
+    expect(screen.getByRole("status").textContent).toBe("");
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.code.change") }));
     const email = await screen.findByLabelText(say("ui.account.email.label"));
     expect((email as HTMLInputElement).value).toBe("ada@exmaple.test");
@@ -477,27 +478,28 @@ describe("the code form forgives (account:code-form-forgives)", () => {
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","123456")']);
   });
 
-  test("[account:code-form-forgives] given a code sent, then Send a new code waits 30 seconds, counting down; after a new one the line says to use the newest", async () => {
+  test("[account:code-form-forgives] given a code sent, then the way to a new code waits 30 seconds and shows in the status slot; after a new one the slot says to use the newest", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const { account } = form();
     sendTo("ada@example.test");
     await screen.findByLabelText(say("ui.account.code.label"));
-    const again = screen.getByRole("button", { name: say("ui.account.code.again.wait", { seconds: String(RESEND_WAIT_S) }) });
-    expect((again as HTMLButtonElement).disabled).toBe(true);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(1000);
-    });
-    expect(screen.getByRole("button", { name: say("ui.account.code.again.wait", { seconds: String(RESEND_WAIT_S - 1) }) })).toBeDefined();
+    const link = () => screen.queryByRole("button", { name: say("ui.account.code.nudge.again") });
+    expect(link()).toBeNull();
     for (let second = 1; second < RESEND_WAIT_S; second += 1) {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(1000);
       });
+      expect(link()).toBeNull();
     }
-    const ready = screen.getByRole("button", { name: say("ui.account.code.again") });
-    expect((ready as HTMLButtonElement).disabled).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    const ready = link() as HTMLButtonElement;
+    expect(ready.disabled).toBe(false);
+    expect(screen.getByRole("status").contains(ready)).toBe(true);
     fireEvent.click(ready);
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe(say("ui.account.code.resent", { email: "ada@example.test" })));
-    expect(say("ui.account.code.resent", { email: "x" })).toContain("Use the newest code.");
+    await waitFor(() => expect(screen.getByRole("status").textContent).toBe(say("ui.account.code.resent")));
+    expect(say("ui.account.code.resent")).toContain("Use the newest one.");
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'sendCode("ada@example.test")']);
   });
 

@@ -24,6 +24,7 @@ function account(): AccountApi {
     declareAge: () => Promise.resolve("passed"),
     sendCode: ok,
     signInWithCode: ok,
+    proveNewLife: () => Promise.resolve({ ok: true }),
     usernameFree: () => Promise.resolve(null),
     startGuest: () => Promise.resolve({ ok: true }),
     view: () => Promise.resolve(null),

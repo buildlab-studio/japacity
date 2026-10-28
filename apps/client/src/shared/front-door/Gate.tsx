@@ -134,10 +134,13 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
  * The sheet over the compound, or under the figure on its turntable: one panel rising from the bottom, at most half the
  * screen, its body scrolling inside it, and the one main button at its foot. `low` holds it to
  * about a third, where the page docks over it and the figure's head must stay in view (prologue:printed-page-hands-over).
+ * `tall` lets it rise to the band across the top, for the ways back in, whose steps fit a small phone whole with the
+ * keyboard closed (account:code-form-forgives).
  */
-export function GateSheet({ children, foot, mark, label, low = false }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string; low?: boolean }) {
+export function GateSheet({ children, foot, mark, label, low = false, tall = false }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string; low?: boolean; tall?: boolean }) {
+  const cap = low ? "max-h-[34dvh]" : tall ? "max-h-[calc(100dvh-6rem-env(safe-area-inset-top))]" : "max-h-[50dvh]";
   return (
-    <section aria-label={label} className={`panel rise pointer-events-auto mx-2 mb-2 flex ${low ? "max-h-[34dvh]" : "max-h-[50dvh]"} min-h-0 flex-col overflow-hidden pb-[max(10px,env(safe-area-inset-bottom))]`} data-gate-sheet={mark ?? ""}>
+    <section aria-label={label} className={`panel rise pointer-events-auto mx-2 mb-2 flex ${cap} min-h-0 flex-col overflow-hidden pb-[max(10px,env(safe-area-inset-bottom))]`} data-gate-sheet={mark ?? ""}>
       <div className={`min-h-0 flex-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto px-4 pt-4 ${foot === undefined ? "pb-2" : ""}`}>{children}</div>
       {foot === undefined ? null : <div className="shrink-0 px-4 pt-3">{foot}</div>}
     </section>

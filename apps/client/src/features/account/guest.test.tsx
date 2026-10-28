@@ -42,6 +42,7 @@ function fakeAccount(view: AccountView, over: Partial<AccountApi> = {}): Account
     rename: (username) => (calls.push(`rename(${JSON.stringify(username)})`), (held = { ...held, username }), Promise.resolve({ ok: true })),
     sendCode: (email) => (calls.push(`sendCode(${JSON.stringify(email)})`), Promise.resolve(OK)),
     signInWithCode: (email, code) => (calls.push(`signInWithCode(${JSON.stringify(email)},${JSON.stringify(code)})`), (held = { ...held, state: "secured" }), Promise.resolve(OK)),
+    proveNewLife: (email, code) => (calls.push(`proveNewLife(${JSON.stringify(email)},${JSON.stringify(code)})`), Promise.resolve({ ok: true })),
     signInWithGoogle: () => (calls.push("signInWithGoogle()"), Promise.resolve(OK)),
     returnedFromGoogle: () => null,
     signInWithPasskey: () => Promise.resolve(OK),

@@ -70,6 +70,7 @@ function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => unde
       afterSignIn();
       return ok();
     },
+    proveNewLife: () => Promise.resolve({ ok: true }),
     signInWithGoogle: ok,
     signInWithPasskey: () => {
       afterSignIn();

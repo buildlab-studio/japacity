@@ -1,8 +1,9 @@
 // account:country-comes-from-cloudflare, account:sign-up-open-everywhere, account:age-screen-refuses-minors, account:bot-check-on-guest-creation, account:only-needed-data-kept, account:guest-and-secured-states, account:guest-secures-the-life: the gate every new user of the
 // auth library passes through. It runs as the library's `user.create.before`
 // hook, so no sign-in method can make an account without it. An account is
-// born only as a guest, through `POST /api/guest` and the anonymous sign-in
-// behind it, and the gate writes the account's own row before the library
+// born only through `POST /api/guest` and the anonymous sign-in behind it, as a
+// guest, or kept from the start by an address this browser proved
+// (account/newlife.ts), and the gate writes the account's own row before the library
 // writes its user: an account never exists without the row. The only other
 // user the library may make is the one a guest's own link makes, which is
 // folded into the guest straight after (account/link.ts).

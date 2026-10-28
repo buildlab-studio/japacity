@@ -18,12 +18,14 @@ import type {
   GuestRequest,
   NameProblem,
   NameReply,
+  NewLifeCodeReply,
+  NewLifeCodeRequest,
   ServerCode,
   ServerRejection,
   UsernameFreeReply,
   UsernameRequest,
 } from "@japacity/api";
-import { USERNAME_FREE_PATH } from "@japacity/api";
+import { NEW_LIFE_CODE_PATH, USERNAME_FREE_PATH } from "@japacity/api";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
@@ -47,12 +49,18 @@ import { pageWall, type WallGuard } from "./wall";
  * (account:passkey-errors-told-apart, account:player-deletes-account).
  * `sign-out`: a sign-out that did not reach the server (account:sign-out-ends-the-session).
  * `google`: a trip to Google that lost its way or came back with an error the game does not know (account:guest-secures-the-life).
+ * `used-up`: the code's own tries are used up; `slow-down`: the code checks from this address hit the limit of a few a
+ * second, a 429 with no code of the code's own; `too-many`: a send over its limits (account:code-form-forgives).
+ * `email-taken`: a new life's address an account uses already (account:guest-secures-the-life).
  */
 type AuthFailure =
   | "not-fresh"
   | "bad-code"
   | "wrong-code"
   | "expired"
+  | "used-up"
+  | "slow-down"
+  | "email-taken"
   | "too-many"
   | "cancelled"
   | "unreachable"
@@ -104,10 +112,16 @@ export interface Full {
 /** What the age screen's answer can be beyond a standing: a date the server did not believe. */
 export type AgeAnswer = AgeStanding | Full | "bad-date" | "bot-check";
 
+/**
+ * account:guest-secures-the-life: a guest start that consumed a proof of an address: the life was born kept by that email, or an
+ * account took the address meanwhile and the life started as a plain guest.
+ */
+export type NewLifeEmail = "kept" | "taken";
+
 /** Why a guest life was not started (account:bot-check-on-guest-creation, account:guest-and-secured-states, account:username-and-unconfirmed-email, account:guest-floods-are-capped): a username problem, the bot check, the flood limits, an age pass that ran out, or the server's own state. */
 export type GuestFailure = NameProblem | "bot-check" | "too-many" | "expired" | "full" | "unreachable" | "refused";
 
-export type GuestAnswer = { ok: true } | { ok: false; why: GuestFailure };
+export type GuestAnswer = { ok: true; email?: NewLifeEmail } | { ok: false; why: GuestFailure };
 
 /** account:username-typed-and-checked: what the box hears while the player types: free, taken, or the name's own problem. */
 export type FreeAnswer = "free" | "taken" | "format" | "reserved" | "blocked";
@@ -120,9 +134,15 @@ export interface AccountApi {
   ageStatus(): Promise<AgeStanding | Full>;
   /** account:age-screen-refuses-minors: sends the date as typed. The server decides and keeps no date of birth. */
   declareAge(birth: string): Promise<AgeAnswer>;
-  /** account:email-code-is-short-lived. `bot` is the Turnstile token, sent wherever an account could be made (account:bot-check-on-guest-creation). */
-  sendCode(email: string, bot: string | null): Promise<AuthResult>;
+  /**
+   * account:email-code-is-short-lived. `bot` is the Turnstile token, sent wherever an account could be made (account:bot-check-on-guest-creation).
+   * Signed out, an address no account uses is refused `no-life` (account:sign-in-without-secret); `newLife` asks for a code for a new
+   * life with the address instead, refused `email-taken` where an account uses it (account:guest-secures-the-life).
+   */
+  sendCode(email: string, bot: string | null, newLife?: boolean): Promise<AuthResult>;
   signInWithCode(email: string, code: string, bot: string | null): Promise<AuthResult>;
+  /** account:guest-secures-the-life: `POST /api/new-life/code`, the new life's code checked and spent for a proof of the address that the guest start consumes. */
+  proveNewLife(email: string, code: string): Promise<AuthResult>;
   /** account:guest-and-secured-states, account:bot-check-on-guest-creation: `POST /api/guest` with the username and the bot check's token, after the age screen. */
   startGuest(username: string, bot: string | null): Promise<GuestAnswer>;
   /** account:username-typed-and-checked: `GET /api/username/available`, signed out at the door; null when the server could not say. */
@@ -197,11 +217,13 @@ const FAILURES: Record<string, AuthFailure> = {
   "method-taken": "taken",
   // apps/server/src/account/signup.ts: a way in that would make a new account; a life starts as a guest.
   "no-account": "no-life",
+  // apps/server/src/auth/hooks.ts: a new life's send to an address an account uses.
+  taken: "email-taken",
   "guest-only": "guest-only",
   SESSION_NOT_FRESH: "not-fresh",
   INVALID_OTP: "wrong-code",
   OTP_EXPIRED: "expired",
-  TOO_MANY_ATTEMPTS: "too-many",
+  TOO_MANY_ATTEMPTS: "used-up",
   AUTH_CANCELLED: "cancelled",
   REGISTRATION_CANCELLED: "cancelled",
   // account:passkey-errors-told-apart: SimpleWebAuthn's codes. The browser's NotAllowedError (a cancel, a timeout, no passkey found)
@@ -324,10 +346,20 @@ export function standing(reply: AgeReply): AgeAnswer {
 
 /** The server's answer to `POST /api/guest` as the username screen tells it. */
 function guestAnswer(reply: NameReply): GuestAnswer {
-  if (reply.ok) return { ok: true };
+  if (reply.ok) {
+    if (reply.account.state === "secured") return { ok: true, email: "kept" };
+    return reply.emailTaken === true ? { ok: true, email: "taken" } : { ok: true };
+  }
   if (reply.name !== undefined) return { ok: false, why: reply.name };
   const said: Partial<Record<ServerCode, GuestFailure>> = { "bot-check": "bot-check", "too-many": "too-many", "rate-limited": "too-many", expired: "expired", "switched-off": "full" };
   return { ok: false, why: said[reply.code] ?? "refused" };
+}
+
+/** The new life's code as `POST /api/new-life/code` answers it: its refusals told as the library's own sign-in's are (account:code-form-forgives). */
+const NEW_LIFE_FAILURES: Partial<Record<ServerCode, AuthFailure>> = { "bad-code": "wrong-code", expired: "expired", "too-many": "used-up", taken: "email-taken", "rate-limited": "slow-down" };
+
+function newLifeAnswer(reply: NewLifeCodeReply): AuthResult {
+  return reply.ok ? { ok: true } : { ok: false, why: NEW_LIFE_FAILURES[reply.code] ?? "refused" };
 }
 
 /** The server's answer to `DELETE /api/account` as the settings tell it. */
@@ -449,11 +481,21 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
         return { ok: false, why: "unreachable" };
       }
     },
-    sendCode: (email, bot) => attempt(() => client.emailOtp.sendVerificationOtp({ email, type: "sign-in", fetchOptions: botHeaders(bot) })),
+    // The new life's mark rides in the send's body, where the server's hook reads it (apps/server/src/account/newlife.ts).
+    sendCode: (email, bot, newLife = false) => attempt(() => client.emailOtp.sendVerificationOtp({ email, type: "sign-in", ...(newLife ? { newLife: true } : {}), fetchOptions: botHeaders(bot) })),
+    // A 429 here is the library's limit on code checks from one address, which carries no code of the code's own.
     signInWithCode: async (email, otp, bot) => {
-      const result = await attempt(() => client.signIn.emailOtp({ email, otp, fetchOptions: botHeaders(bot) }));
+      const result = await attempt(() => client.signIn.emailOtp({ email, otp, fetchOptions: botHeaders(bot) }), { 429: "slow-down" });
       forgetAccount(server);
       return result;
+    },
+    async proveNewLife(email, code) {
+      const request: NewLifeCodeRequest = { email, code };
+      try {
+        return newLifeAnswer(await server.post<NewLifeCodeReply>(NEW_LIFE_CODE_PATH, request));
+      } catch {
+        return { ok: false, why: "unreachable" };
+      }
     },
     signInWithGoogle: (bot, trip = "sign-in") => attempt(() => client.signIn.social({ ...google(trip), fetchOptions: botHeaders(bot) })),
     returnedFromGoogle() {

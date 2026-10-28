@@ -17,8 +17,14 @@ import { say } from "../../shared/words/text";
 import { SAID_TOAST_MS } from "../../shared/world/SaidToast";
 import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 
-/** What was done and by which way: each names its line in the words (`ui.account.toast.<way>`). */
-export type Way = "kept.google" | "kept.email" | "in.google" | "in.email" | "in.passkey";
+/**
+ * What was done and by which way: each names its line in the words (`ui.account.toast.<way>`). `taken.email`: a new life whose
+ * proved address an account took meanwhile started as a guest (account:guest-secures-the-life).
+ */
+export type Way = "kept.google" | "kept.email" | "in.google" | "in.email" | "in.passkey" | "taken.email";
+
+/** The lines no passkey's card follows: a passkey's own way in, and a life that is still a guest's. */
+const NO_CARD: ReadonlySet<Way> = new Set(["in.passkey", "taken.email"]);
 
 interface Held {
   told: { way: Way; at: number } | null;
@@ -56,7 +62,7 @@ export function WayToast({ account }: { account: AccountApi }) {
   const [Card, setCard] = useState<{ Card: Card } | null>(null);
   useEffect(() => {
     if (told === null) return;
-    const timer = window.setTimeout(() => shown.current.setState({ told: null, after: told.way !== "in.passkey" }), SAID_TOAST_MS);
+    const timer = window.setTimeout(() => shown.current.setState({ told: null, after: !NO_CARD.has(told.way) }), SAID_TOAST_MS);
     return () => window.clearTimeout(timer);
   }, [told]);
   useEffect(() => {
@@ -81,7 +87,7 @@ export function WayToast({ account }: { account: AccountApi }) {
       {told === null ? null : (
         <div className="pointer-events-none fixed inset-x-0 top-0 z-30 flex justify-center px-4 pt-[calc(max(10px,env(safe-area-inset-top))+64px)]" aria-hidden>
           <p key={told.at} className="brief-toast slide-in flex items-center gap-2 px-4 py-2.5 text-[16px] leading-snug font-bold" data-way-toast={told.way}>
-            <ShieldCheck size={20} aria-hidden className="shrink-0" />
+            {told.way === "taken.email" ? null : <ShieldCheck size={20} aria-hidden className="shrink-0" />}
             {say(`ui.account.toast.${told.way}`)}
           </p>
         </div>

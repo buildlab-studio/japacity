@@ -60,6 +60,7 @@ function fakeAccount(): AccountApi {
     rename: () => Promise.resolve({ ok: true }),
     sendCode: () => Promise.resolve(OK),
     signInWithCode: () => Promise.resolve(OK),
+    proveNewLife: () => Promise.resolve({ ok: true }),
     signInWithGoogle: () => Promise.resolve(OK),
     returnedFromGoogle: () => null,
     signInWithPasskey: () => Promise.resolve(OK),

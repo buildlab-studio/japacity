@@ -19,7 +19,7 @@ import { useGame } from "../../authority/GameProvider";
 import { LEVEL, useBackLayer } from "../../shared/back/back";
 import { counting } from "../../shared/analytics/start";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
-import type { AccountApi, AgeStanding, Full as FullStanding } from "../../shared/net/auth";
+import type { AccountApi, AgeStanding, Full as FullStanding, NewLifeEmail } from "../../shared/net/auth";
 import { Loader } from "../../shared/ui/Loader";
 import { say } from "../../shared/words/text";
 import { AgeScreen } from "./AgeScreen";
@@ -91,7 +91,7 @@ function StartLights() {
 }
 
 /** The new life after the age screen: the door with the guest start at Begin, or, inside the invite page, the form. */
-function NewLife({ account, sitekey, load, botWaitMs, door, lapses, onLapse, onExpired, onFull, onStarted, onReturning }: { account: AccountApi; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; door: ((guest: GuestDoor) => ReactNode) | null; lapses: number; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: () => Promise<void>; onReturning: () => void }) {
+function NewLife({ account, sitekey, load, botWaitMs, door, lapses, onLapse, onExpired, onFull, onStarted, onReturning }: { account: AccountApi; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; door: ((guest: GuestDoor) => ReactNode) | null; lapses: number; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: (email: NewLifeEmail | null) => Promise<void>; onReturning: () => void }) {
   const guest = useGuestDoor({ account, sitekey, load, lapses, onLapse, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
   return door === null ? <GuestForm door={guest} onReturning={onReturning} /> : <>{door(guest)}</>;
 }
@@ -111,7 +111,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     setMoved(true);
     setStep(next);
   };
-  const [back, setBack] = useState<string | null>(null);
+  const [back, setBack] = useState<{ said: string; none: boolean } | null>(null);
   // How many times in a row the guest start found the age answer or the session gone: the cookie did not stay.
   const [lapses, setLapses] = useState(0);
   const shown = shownOf(standing, step, embedded);
@@ -149,7 +149,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     // A deletion's trip that came back signed out has nothing to confirm; the start screen stands.
     if (failed === null || failed === "kept" || failed === "signed-in" || failed === "delete") return;
     setStep("returning");
-    setBack(failureWords({ ok: false, why: failed }));
+    setBack({ said: failureWords({ ok: false, why: failed }) ?? "", none: failed === "no-life" });
   }, [account]);
 
   const check = useCallback(async (): Promise<FullCheck> => {
@@ -184,20 +184,24 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const sitekeyShown = sitekey === undefined ? siteKey() : sitekey;
   const browser = agent ?? (typeof navigator === "undefined" ? "" : navigator.userAgent);
   const toStart = embedded ? null : () => go("start");
-  const enter = async (api: AccountApi, by: SignedInBy | null = null): Promise<void> => {
+  const enter = async (api: AccountApi, by: SignedInBy | null = null, email: NewLifeEmail | null = null): Promise<void> => {
     setMoved(true);
-    // account:guest-secures-the-life: the sheet closes as the life opens, and the world says which way it was.
+    // account:guest-secures-the-life: the sheet closes as the life opens, and the world says which way it was; a new life born
+    // kept by its email says so as a kept guest's does, and one whose address an account took meanwhile says that.
     if (by !== null) tellWay(api, `in.${by}`);
+    if (email !== null) tellWay(api, email === "kept" ? "kept.email" : "taken.email");
     void refreshAccount(api);
     await signedIn();
   };
   const ways = (api: AccountApi) => (
     <SignIn
       account={api}
-      problem={back}
+      problem={back?.said ?? null}
+      noneFound={back?.none === true}
       filled={asked?.email ?? null}
       onBack={toStart}
       onSignedIn={(by) => void enter(api, by)}
+      onNewLife={() => go("age")}
       {...(agent === undefined ? {} : { agent })}
       {...(href === undefined ? {} : { href })}
     />
@@ -263,7 +267,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           setStanding("unasked");
         }}
         onFull={() => setStanding({ full: true, retryAfter: 30 })}
-        onStarted={() => enter(api)}
+        onStarted={(email) => enter(api, null, email)}
         onReturning={() => go("returning")}
       />
     );
@@ -295,7 +299,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       {/* On a wide screen the sheet stands in a centred column at a reading width, the scene filling the window around it;
           on a phone the column is the screen. */}
       <SheetColumn>
-        <GateSheet mark={shown} label={say("ui.game")}>
+        <GateSheet mark={shown} label={say("ui.game")} tall={shown === "returning"}>
           <p role="status" className={said === null ? "sr-only" : "mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]"}>
             {said ?? ""}
           </p>
