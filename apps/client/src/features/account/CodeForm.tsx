@@ -81,6 +81,25 @@ function withButton(line: string, button: ReactNode): ReactNode {
   );
 }
 
+/**
+ * The sent line with Change glued to the address's end: the words after the address and Change stand in one piece that never
+ * breaks, joined to the address with no space, so a narrow screen wraps before the address and Change goes down with it.
+ */
+function withAddress(line: string, email: string, button: ReactNode): ReactNode {
+  const [before = "", after = ""] = line.split("{email}");
+  return (
+    <>
+      {before}
+      {email}
+      <span className="whitespace-nowrap">
+        {after}
+        {"\u00a0"}
+        {button}
+      </span>
+    </>
+  );
+}
+
 export function CodeForm({ account, bot = null, spentBot, email: known, filled, sent = false, newLife = false, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, onSignedIn, onTaken, onStep, onNoAccount, onChange }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? filled ?? "");
   const [sentTo, setSentTo] = useState<string | null>(sent && known !== undefined ? known : null);
@@ -265,13 +284,15 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
         >
           {/* Change is glued to the address by a space that never breaks, so it wraps with the words and never stands alone. */}
           <p className="text-[15px] leading-snug break-words" data-code-sent={String(sends)}>
-            {say("ui.account.code.sent", { email: sentTo })}
-            {known === undefined || onChange !== undefined ? "\u00a0" : null}
-            {known === undefined || onChange !== undefined ? (
-              <button type="button" className={QUIET_LINK} onClick={change}>
-                {say("ui.account.code.change")}
-              </button>
-            ) : null}
+            {known === undefined || onChange !== undefined
+              ? withAddress(
+                  say("ui.account.code.sent"),
+                  sentTo,
+                  <button type="button" className={QUIET_LINK} onClick={change}>
+                    {say("ui.account.code.change")}
+                  </button>,
+                )
+              : say("ui.account.code.sent", { email: sentTo })}
           </p>
           {dead ? null : (
             <input
