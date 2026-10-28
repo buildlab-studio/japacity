@@ -22,8 +22,8 @@
       "measured": 40290
     },
     "total": {
-      "budget": 910100,
-      "measured": 910091
+      "budget": 910200,
+      "measured": 910165
     }
   },
   "changes": [
@@ -32,6 +32,7 @@
     "total raised from 896000 to 897000 (measured 896083) for the account's plain words with the start door's second line, the Settings name check, Google's errors and the graphics mode's settled frames",
     "total lowered from 897000 to 894000 (measured 892810, from 896083) and main from 334309 to 329954 (measured 328163, from 332518) for what moved out of the first visit: the account sheet's code (Settings.tsx and its passkey list) with its 50 lines of words (the username's change, the usage counts, the bank-full switch, the passkeys, signing out and deleting) in content's ui/ui.accountSheet.text.ts, fetched by the account's row, and the dedication page's 24 lines in ui/ui.dedication.text.ts, fetched with the page; content-sim (313005 to 313959) and shared (40286 to 40414) moved a little inside their budgets as the bundler gave the looks table a chunk of its own",
     "content-sim raised from 326689 to 349010 (measured 333868, from 311133) and total from 894000 to 909000 (measured 908473, from 892810) for the economy's ladders, learning and student money flow: the trades' rungs and side jobs, the study paths, the trade papers, the family's gift, the education loan, the payment plan, the sponsors' offers and the fees office's letters, with their words, and the screens that show them (the next rung and the pay review in Jobs, the courses where study is found, the instalments in Bills, the gift's deed and the places' new things), which a life reads from its first month, so they stay in the first download; main (327287) and shared (37044) came in under their measured sizes",
-    "total raised from 909000 to 910100 (measured 910091, from 908473) for the ways back in: the code step's one status slot and its answers told apart, the answer to an address no account uses, the new life kept with its email from the ways back in, and their words, which the first visit's sign-in carries; main (328932) and content-sim (334025) stay inside their budgets"
+    "total raised from 909000 to 910100 (measured 910091, from 908473) for the ways back in: the code step's one status slot and its answers told apart, the answer to an address no account uses, the new life kept with its email from the ways back in, and their words, which the first visit's sign-in carries; main (328932) and content-sim (334025) stay inside their budgets",
+    "total raised from 910100 to 910200 (measured 910165, from 910091) for the new life's proof held through a refused start and its door said without the guest line, and Change kept inline with the address on the code step"
   ]
 }

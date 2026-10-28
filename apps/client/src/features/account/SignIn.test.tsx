@@ -132,8 +132,7 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     const said = await screen.findByRole("alert");
     expect(said.textContent).toBe(say("ui.account.fail.passkey-gone"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.start.kept.play") }));
-    expect(newLife).toHaveBeenCalledOnce();
-    expect(newLife).toHaveBeenCalledWith(false);
+    expect(newLife).toHaveBeenCalledExactlyOnceWith(false);
     expect(google()).not.toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
