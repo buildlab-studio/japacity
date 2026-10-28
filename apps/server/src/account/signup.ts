@@ -19,7 +19,7 @@ import { PASS_COOKIE, PASS_PREFIX, readCookie } from "./age";
 import { signUpCountry } from "./country";
 import { guestOf, refuseTaken } from "./link";
 import type { Linking } from "./link";
-import { takeProof } from "./newlife";
+import { putProofBack, takeProof } from "./newlife";
 import { nameProblem } from "./username";
 
 function refuse(code: string, message: string): never {
@@ -62,7 +62,8 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
   if (pass === null || new Date(pass.expiresAt).getTime() <= deps.now()) return refuse("no-age-pass", "Pass the age screen first.");
 
   const internal = endpoint.context.internalAdapter;
-  const proved = await takeProof(internal, headers?.get("cookie"), deps.now());
+  const proof = await takeProof(internal, headers?.get("cookie"), deps.now());
+  const proved = proof?.email ?? null;
   const taken = proved !== null && (await internal.findUserByEmail(proved)) !== null;
   const banned = proved !== null && (await isBanned(deps, [emailIdentity(proved)]));
   if (taken) endpoint.setHeader(PROOF_TAKEN_HEADER, "1");
@@ -83,7 +84,11 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
     usernameChangedAt: null,
     lastPlayedAt: now,
   });
-  if (!created.ok) return created.code === "conflict" ? refuse("name-taken", "That username is taken.") : refuse(created.code, created.detail);
+  if (!created.ok) {
+    // A start refused here took no life from the proof: it stands again for the next Begin, unless the address is no longer free.
+    if (email !== null) await putProofBack(internal, proof);
+    return created.code === "conflict" ? refuse("name-taken", "That username is taken.") : refuse(created.code, created.detail);
+  }
   // account:only-needed-data-kept: the library's name column holds nothing; the username lives on the game's row.
   if (email === null) return { data: { id, name: "" } };
   return { data: { id, name: "", email, emailVerified: true, isAnonymous: false } };

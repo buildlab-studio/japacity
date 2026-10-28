@@ -9,6 +9,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { NEW_LIFE_COOKIE, NEW_LIFE_MARK, NEW_LIFE_PREFIX, NEW_LIFE_TTL_MS } from "../account/newlife";
 import { harness, makeJar, withGoogle } from "../auth/auth.testing";
 import type { Harness, Jar } from "../auth/auth.testing";
+import { memoryStores } from "../dependencies";
 import { banIdentities, emailIdentity } from "../moderation/identities";
 
 afterEach(() => {
@@ -259,6 +260,32 @@ describe("the guest start with a proof", () => {
     expect(reply.emailTaken).toBe(true);
     expect(h.tables.user.filter((row) => row["email"] === "ada@example.com").map((row) => row["id"])).toEqual([owner.account]);
     expect(h.tables.verification.filter((row) => String(row["identifier"]).startsWith(NEW_LIFE_PREFIX))).toEqual([]);
+  });
+
+  test("[account:guest-secures-the-life] given a proof, when the guest start is refused after it took the proof (a username taken at the same moment), then the proof is put back as it was and the next Begin with a free name is born kept by the address", async () => {
+    const stores = memoryStores();
+    const create = stores.account.create;
+    let refuseOnce = true;
+    // Another player takes the name between the route's check and the row's write.
+    stores.account.create = (row) => {
+      if (!refuseOnce) return create(row);
+      refuseOnce = false;
+      return Promise.resolve({ ok: false, code: "conflict", detail: `The username ${row.username} is taken.` });
+    };
+    const h = harness({ stores });
+    const jar = await proved(h, "ada@example.com");
+    const before = h.tables.verification.filter((row) => String(row["identifier"]).startsWith(NEW_LIFE_PREFIX)).map((row) => ({ identifier: row["identifier"], value: row["value"], expiresAt: new Date(String(row["expiresAt"])).getTime() }));
+    await h.passAge(jar);
+    const refused = await h.startGuest(jar, { username: "raced_name" });
+    expect(refused.status).toBe(409);
+    expect(await json(refused)).toMatchObject({ code: "not-legal", name: "taken" });
+    // The proof stands again, the same row, and the browser still holds its cookie.
+    expect(h.tables.verification.filter((row) => String(row["identifier"]).startsWith(NEW_LIFE_PREFIX)).map((row) => ({ identifier: row["identifier"], value: row["value"], expiresAt: new Date(String(row["expiresAt"])).getTime() }))).toEqual(before);
+    expect(jar.cookies.has(NEW_LIFE_COOKIE)).toBe(true);
+    const reply = await begin(h, jar);
+    if (!reply.ok) throw new Error(reply.detail);
+    expect(reply.account).toMatchObject({ state: "secured", ways: { email: "ada@example.com" } });
+    expect(h.sent).toHaveLength(1);
   });
 
   test("[account:guest-secures-the-life] given a browser that already has a life, when a new life's code is typed there, then it is refused and no proof is kept", async () => {

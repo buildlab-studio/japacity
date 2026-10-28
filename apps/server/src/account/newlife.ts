@@ -83,11 +83,25 @@ export async function keepProof(internal: Internal, email: string, now: number, 
   return nonce;
 }
 
-/** The address a live proof named by this request's cookie holds, consumed; null with no cookie, a spent proof or an expired one. */
-export async function takeProof(internal: Internal, cookie: string | null | undefined, now: number): Promise<string | null> {
+/** A proof taken from the table: the address it holds, and its row as it stood, so a start refused after taking it can put it back. */
+export interface Proof {
+  email: string;
+  identifier: string;
+  expiresAt: Date;
+}
+
+/** The live proof named by this request's cookie, consumed; null with no cookie, a spent proof or an expired one. */
+export async function takeProof(internal: Internal, cookie: string | null | undefined, now: number): Promise<Proof | null> {
   const nonce = readCookie(cookie, NEW_LIFE_COOKIE);
   if (nonce === null || nonce === "") return null;
-  const proof = await internal.consumeVerificationValue(NEW_LIFE_PREFIX + nonce);
+  const identifier = NEW_LIFE_PREFIX + nonce;
+  const proof = await internal.consumeVerificationValue(identifier);
   if (proof === null || new Date(proof.expiresAt).getTime() <= now) return null;
-  return proof.value;
+  return { email: proof.value, identifier, expiresAt: new Date(proof.expiresAt) };
+}
+
+/** A proof taken by a start that was then refused, put back as it stood: the same row, address and expiry, so the next Begin still starts kept. */
+export async function putProofBack(internal: Internal, proof: Proof | null): Promise<void> {
+  if (proof === null) return;
+  await internal.createVerificationValue({ identifier: proof.identifier, value: proof.email, expiresAt: proof.expiresAt });
 }
