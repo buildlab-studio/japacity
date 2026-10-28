@@ -377,7 +377,8 @@ describe("a refused code told apart from a limit", () => {
     const replies: { status: number; code: unknown }[] = [];
     for (let n = 0; n < 4; n++) {
       const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip: "198.51.100.92", json: { email: "ada@example.com", otp: wrong } });
-      replies.push({ status: reply.status, code: (await reply.json<Record<string, unknown>>().catch(() => ({})))["code"] });
+      const said: Record<string, unknown> = await reply.json<Record<string, unknown>>().catch(() => ({}));
+      replies.push({ status: reply.status, code: said["code"] });
     }
     expect(replies.slice(0, 3)).toEqual(Array.from({ length: 3 }, () => ({ status: 400, code: "INVALID_OTP" })));
     expect(replies[3]?.status).toBe(429);
