@@ -228,7 +228,8 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
             {say(codeStep ? "ui.account.code.title" : "ui.account.returning.title")}
           </h1>
         </div>
-        {codeStep ? null : <p className="text-[14px] leading-snug text-text-2">{say("ui.account.returning.intro")}</p>}
+        {/* The intro stands over the ways in alone: the code step and the answer to an address stand by themselves under the heading. */}
+        {first ? <p className="text-[14px] leading-snug text-text-2">{say("ui.account.returning.intro")}</p> : null}
       </div>
       {!first || returned === null ? null : noneFound ? (
         <div data-google-returned>{noneShape(returned, true)}</div>

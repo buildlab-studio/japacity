@@ -72,6 +72,9 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     const said = await screen.findByRole("alert");
     expect(said.textContent).toBe(say("ui.account.none", { email: "new@example.test" }));
     expect(said.textContent).toBe("No account uses new@example.test.");
+    // The answer alone under the heading: no line under it.
+    expect(heading()).toBe(say("ui.account.returning.title"));
+    expect(screen.queryByText(say("ui.account.returning.intro"))).toBeNull();
     expect(screen.queryByLabelText(say("ui.account.email.label"))).toBeNull();
     expect(screen.queryByLabelText(say("ui.account.code.label"))).toBeNull();
     expect(google()).toBeNull();
