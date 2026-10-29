@@ -5,10 +5,10 @@
 // own browser, and no passkey, which is unreliable there. The email field offers this browser's passkeys in its autofill where the browser can,
 // with the button kept for when the field did not do it, and where a passkey was added or used in this browser the email field comes first
 // (account:passkey-in-email-autofill).
-// None of them makes an account: a life starts as a guest (account:guest-and-secured-states). The code's send looks for the
-// account first, and an address no account uses is answered at once with a new life kept with that email
-// (account:sign-in-without-secret, account:guest-secures-the-life): its own code proves the address, then the new life's start
-// goes on as Play's does. A passkey or a trip to Google that finds no account keeps its words, in the same answer's shape.
+// None of them makes an account here. The code goes to every address alike, and only its right code tells the two apart: it
+// signs in where an account uses the address, and where none does it proves the address for a new life, which the gate
+// starts at the age screen and the username (account:sign-in-without-secret). A passkey or a trip to Google that finds no
+// account keeps its words, with "Start a new life" under them.
 // Once a code is sent the sheet holds the code step alone (account:code-form-forgives). Signing in again needs no bot check
 // (account:bot-check-on-guest-creation).
 import { ArrowLeft } from "lucide-react";
@@ -38,8 +38,10 @@ export interface SignInProps {
   noneFound?: boolean;
   /** The address to fill the email field with: the one a guest typed before choosing its kept life. */
   filled?: string | null;
-  /** On to a new life's start: from a way in that found no account, or, `proved`, once a new life's address is proved (account:guest-secures-the-life). */
-  onNewLife?: (proved: boolean) => void;
+  /** The email field takes the focus as the sheet opens: "Use another email" on a new life's step. */
+  focusEmail?: boolean;
+  /** On to a new life's start: from a way in that found no account (null), or with the address its right code proved (account:sign-in-without-secret). */
+  onNewLife?: (proved: string | null) => void;
   /** Seams for tests: the browser's user agent and the page's address, whether the browser offers passkeys in a field's autofill, and whether a passkey was used here. */
   agent?: string;
   href?: string;
@@ -83,19 +85,10 @@ const PICKED_AND_REFUSED: ReadonlySet<string> = new Set(["passkey-gone", "other-
 /** The refusals of a way in that found no account behind it: told in their own words, with a new life under them. */
 const NONE_FOUND: ReadonlySet<string> = new Set(["passkey-gone", "no-life"]);
 
-/**
- * Where the sheet stands: the ways in, the address's form keyed so "Use another email" and "Change" open it afresh; the answer
- * to an address no account uses; or a new life's code step for that address.
- */
-type Stand = { kind: "ways"; filled: string | null; focus: boolean; at: number } | { kind: "none"; email: string } | { kind: "new-life"; email: string };
-
-export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, noneFound = false, filled = null, onNewLife = () => undefined, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
+export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, noneFound = false, filled = null, focusEmail = false, onNewLife = () => undefined, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
   const [busy, setBusy] = useState(false);
-  const [stand, setStand] = useState<Stand>({ kind: "ways", filled, focus: false, at: 0 });
   // The address a code went to from the ways in: the sheet then holds the code step alone.
   const [codeTo, setCodeTo] = useState<string | null>(null);
-  // What the new life's send answered when it did not go through.
-  const [noneProblem, setNoneProblem] = useState<string | null>(null);
   // What the trip to Google came back with stands at the top; what a way on this sheet answers stands at its foot, by the ways.
   const [returned, setReturned] = useState<string | null>(given);
   const [problem, setProblem] = useState<string | null>(null);
@@ -172,51 +165,26 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   const usePasskey = () => void run(() => account.signInWithPasskey(), "passkey");
   // A player whose browser holds a passkey and who types an address was not signed in by the field: the passkey stands beside the code.
   const typed = passkeyUsed ? () => setFieldMissed(true) : undefined;
-  const ways = stand.kind === "ways";
-  // The ways in stand only before a code is sent: the code step and the answer to an address stand alone.
-  const first = ways && codeTo === null;
-  const backTo = (address: string) => {
-    setCodeTo(null);
-    setNoneProblem(null);
-    setStand((was) => ({ kind: "ways", filled: address, focus: true, at: (was.kind === "ways" ? was.at : 0) + 1 }));
-  };
-  const codeForm = ways ? (
+  // The ways in stand only before a code is sent: the code step stands alone.
+  const first = codeTo === null;
+  const codeForm = (
     <CodeForm
-      key={stand.at}
       account={account}
       passkeyAutofill={withAutofill}
-      {...(stand.filled === null ? {} : { filled: stand.filled })}
-      focusEmail={stand.focus}
+      {...(filled === null ? {} : { filled })}
+      focusEmail={focusEmail}
       {...(typed === undefined ? {} : { onEmailTyped: typed })}
       onStep={setCodeTo}
-      onNoAccount={(email) => {
-        setProblem(null);
-        setReturned(null);
-        setStand({ kind: "none", email });
-      }}
       onSignedIn={() => onSignedIn("email")}
+      onNewLife={(email) => onNewLife(email)}
     />
-  ) : null;
-
-  // account:guest-secures-the-life: the new life's own code goes to the address; its code step is the one form's, under the code's heading.
-  async function startWith(email: string) {
-    setBusy(true);
-    setNoneProblem(null);
-    try {
-      const result = await account.sendCode(email, null, true);
-      if (result.ok) setStand({ kind: "new-life", email });
-      else setNoneProblem(failureWords(result));
-    } finally {
-      setBusy(false);
-    }
-  }
+  );
 
   // A way in that found no account keeps its words, with a new life under them.
-  const noneShape = (said: string, bad: boolean) => <NoAccount said={said} bad={bad} label={say("ui.account.start.kept.play")} onGo={() => onNewLife(false)} />;
-  const codeStep = stand.kind === "new-life" || codeTo !== null;
+  const noneShape = (said: string, bad: boolean) => <NoAccount said={said} bad={bad} label={say("ui.account.start.kept.play")} onGo={() => onNewLife(null)} />;
 
   return (
-    <div className="flex flex-col gap-4" data-sign-in="returning" data-sign-in-step={stand.kind === "ways" ? (codeTo === null ? "ways" : "code") : stand.kind} data-passkey-first={passkeyFirst ? "" : undefined}>
+    <div className="flex flex-col gap-4" data-sign-in="returning" data-sign-in-step={codeTo === null ? "ways" : "code"} data-passkey-first={passkeyFirst ? "" : undefined}>
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
           {onBack === null ? null : (
@@ -225,10 +193,10 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
             </button>
           )}
           <h1 className="title text-[22px] leading-tight" tabIndex={-1}>
-            {say(codeStep ? "ui.account.code.title" : "ui.account.returning.title")}
+            {say(codeTo !== null ? "ui.account.code.title" : "ui.account.returning.title")}
           </h1>
         </div>
-        {/* The intro stands over the ways in alone: the code step and the answer to an address stand by themselves under the heading. */}
+        {/* The intro stands over the ways in alone: the code step stands by itself under the heading. */}
         {first ? <p className="text-[14px] leading-snug text-text-2">{say("ui.account.returning.intro")}</p> : null}
       </div>
       {!first || returned === null ? null : noneFound ? (
@@ -238,19 +206,6 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
           {returned}
         </p>
       )}
-      {stand.kind === "none" ? (
-        <NoAccount
-          said={say("ui.account.none", { email: stand.email })}
-          label={say("ui.account.none.new")}
-          onGo={() => void startWith(stand.email)}
-          other={{ label: say("ui.account.none.other"), onClick: () => backTo("") }}
-          busy={busy}
-          problem={noneProblem}
-        />
-      ) : null}
-      {stand.kind === "new-life" ? (
-        <CodeForm account={account} email={stand.email} sent newLife confirm={(code) => account.proveNewLife(stand.email, code)} goLabel={say("ui.account.none.go")} onChange={() => backTo(stand.email)} onSignedIn={() => onNewLife(true)} />
-      ) : null}
       {/* Where a passkey was used here before, the email field that offers it comes first. */}
       {passkeyFirst ? codeForm : null}
       {!first ? null : inApp ? (

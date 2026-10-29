@@ -196,22 +196,25 @@ describe("the code step (account:code-form-forgives)", () => {
     expect(account.calls.filter((call) => call.startsWith("signInWithCode"))).toHaveLength(1);
   });
 
-  test("[account:guest-secures-the-life] given a code already sent to a new life's address, then the form opens on the code step with the focus in the field, and a new code goes with the new life's mark", async () => {
+  test("[account:sign-in-without-secret] given a code already sent to a known address with a line of its own, then the form opens on the code step under that line with the focus in the field, a new code goes to the address, and a code that proves the address for a new life hands it on without signing in", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    const account = codeAccount();
-    const confirm = vi.fn((code: string) => account.proveNewLife("new@example.test", code));
-    const proved = vi.fn();
-    render(<CodeForm account={account} email="new@example.test" sent newLife confirm={confirm} onChange={() => undefined} onSignedIn={proved} />);
+    const account = codeAccount({ signInWithCode: answers({ ok: true, newLife: true }) });
+    const signedIn = vi.fn();
+    const newLife = vi.fn();
+    const line = say("ui.account.kept.gone", { email: "new@example.test" });
+    render(<CodeForm account={account} email="new@example.test" sent sentSaid={line} onSignedIn={signedIn} onNewLife={newLife} />);
     const field = screen.getByLabelText(say("ui.account.code.label"));
     await waitFor(() => expect(document.activeElement).toBe(field));
-    expect(screen.getByRole("button", { name: say("ui.account.code.change") })).toBeDefined();
+    expect(document.querySelector("[data-code-sent]")?.textContent).toBe(line);
+    expect(line).toBe("Your code ran out. We sent a new one to new@example.test.");
     await act(async () => {
       await vi.advanceTimersByTimeAsync(RESEND_WAIT_S * 1000);
     });
     fireEvent.click(nudgeLink() as HTMLElement);
-    await waitFor(() => expect(account.calls).toEqual(['sendCode("new@example.test","new life")']));
+    await waitFor(() => expect(account.calls).toEqual(['sendCode("new@example.test")']));
     fireEvent.change(field, { target: { value: "123456" } });
-    await waitFor(() => expect(proved).toHaveBeenCalledOnce());
-    expect(account.calls).toEqual(['sendCode("new@example.test","new life")', 'proveNewLife("new@example.test","123456")']);
+    await waitFor(() => expect(newLife).toHaveBeenCalledExactlyOnceWith("new@example.test"));
+    expect(signedIn).not.toHaveBeenCalled();
+    expect(account.calls).toEqual(['sendCode("new@example.test")', 'signInWithCode("new@example.test","123456")']);
   });
 });

@@ -1,23 +1,15 @@
-// The ways back in once a code is sent, and an address with no account told plainly (account:code-form-forgives,
-// account:sign-in-without-secret, account:guest-secures-the-life): the code step stands alone; the send looks for the account
-// first, and an address none uses is offered a new life kept with it, whose own code proves the address before the life's start.
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+// The ways back in once a code is sent (account:code-form-forgives, account:sign-in-without-secret): the code step stands alone;
+// the send answers every address alike, and only the right code tells the two apart: it signs in, or hands on the address it
+// proved for a new life. A passkey or a trip to Google that found no life keeps its words, with a new life under them.
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { GameProvider } from "../../authority/GameProvider";
-import { createGameStore } from "../../authority/store";
-import type { AccountApi, AuthResult, GuestAnswer } from "../../shared/net/auth";
-import { engineView } from "../../shared/testing/fixtures";
+import type { AccountApi } from "../../shared/net/auth";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { AccountGate } from "./AccountGate";
-import { answerAge } from "./age.testing";
 import { answers, codeAccount } from "./code.testing";
 import { SignIn } from "./SignIn";
-import { TEST_SITE_KEY, type LoadTurnstile } from "./Turnstile";
-import { WayToast } from "./WayToast";
 
-const NO_ACCOUNT: AuthResult = { ok: false, why: "no-life" };
 const cannot = () => Promise.resolve(false);
 
 beforeEach(() => {
@@ -66,64 +58,47 @@ describe("the code step stands alone (account:code-form-forgives)", () => {
 });
 
 describe("an address no account uses (account:sign-in-without-secret)", () => {
-  test("[account:sign-in-without-secret] given the send answering no-account, then the form, Google and the passkey give way to the plain answer, the new life with this email as the main button and another email as the quiet one", async () => {
-    const { account } = ways({ sendCode: answers(NO_ACCOUNT) });
+  test("[account:sign-in-without-secret] given an address no account uses, when Send me a code is pressed, then the send answers as for any address and the code step stands, the code sent there", async () => {
+    const { account } = ways();
     send("new@example.test");
-    const said = await screen.findByRole("alert");
-    expect(said.textContent).toBe(say("ui.account.none", { email: "new@example.test" }));
-    expect(said.textContent).toBe("No account uses new@example.test.");
-    // The answer alone under the heading: no line under it.
-    expect(heading()).toBe(say("ui.account.returning.title"));
-    expect(screen.queryByText(say("ui.account.returning.intro"))).toBeNull();
-    expect(screen.queryByLabelText(say("ui.account.email.label"))).toBeNull();
-    expect(screen.queryByLabelText(say("ui.account.code.label"))).toBeNull();
-    expect(google()).toBeNull();
-    expect(passkey()).toBeNull();
-    expect(say("ui.account.none.new")).toBe("Start a new life with this email");
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.none.other") }));
-    const email = await screen.findByLabelText<HTMLInputElement>(say("ui.account.email.label"));
-    expect(email.value).toBe("");
-    await waitFor(() => expect(document.activeElement).toBe(email));
-    expect(google()).not.toBeNull();
-    expect(account.calls).toEqual(['sendCode("new@example.test")']);
-  });
-
-  test("[account:guest-secures-the-life] given Start a new life with this email, then a new life's code goes to the address and the one code step stands under Check your email; its code proves the address and the new life's start opens", async () => {
-    const { account, newLife, signedIn } = ways({ sendCode: answers(NO_ACCOUNT) });
-    send("new@example.test");
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.none.new") }));
     const code = await screen.findByLabelText(say("ui.account.code.label"));
     expect(heading()).toBe(say("ui.account.code.title"));
     expect(document.querySelector("[data-code-sent]")?.textContent).toContain(say("ui.account.code.sent", { email: "new@example.test" }));
+    expect(say("ui.account.code.sent", { email: "new@example.test" })).toBe("We sent a code to new@example.test.");
     await waitFor(() => expect(document.activeElement).toBe(code));
-    fireEvent.change(code, { target: { value: "123456" } });
-    await waitFor(() => expect(newLife).toHaveBeenCalledOnce());
-    expect(newLife).toHaveBeenCalledWith(true);
-    expect(signedIn).not.toHaveBeenCalled();
-    expect(account.calls).toEqual(['sendCode("new@example.test")', 'sendCode("new@example.test","new life")', 'proveNewLife("new@example.test","123456")']);
+    expect(document.querySelector("[data-no-account]")).toBeNull();
+    expect(account.calls).toEqual(['sendCode("new@example.test")']);
   });
 
-  test("[account:guest-secures-the-life] [account:code-form-forgives] given a new life's code that is wrong, then it is told as any wrong code is and the life's start waits; Change goes back to the address, filled", async () => {
-    const { newLife } = ways({ sendCode: answers(NO_ACCOUNT), proveNewLife: answers({ ok: false, why: "wrong-code" }) });
+  test("[account:sign-in-without-secret] given the right code for an address no account uses, when the code check answers new-life, then the sheet hands the proved address on to a new life's start and signs in to nothing", async () => {
+    const { account, newLife, signedIn } = ways({ signInWithCode: answers({ ok: true, newLife: true }) });
     send("new@example.test");
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.none.new") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
+    await waitFor(() => expect(newLife).toHaveBeenCalledOnce());
+    expect(newLife).toHaveBeenCalledWith("new@example.test");
+    expect(signedIn).not.toHaveBeenCalled();
+    expect(account.calls).toEqual(['sendCode("new@example.test")', 'signInWithCode("new@example.test","123456")']);
+  });
+
+  test("[account:sign-in-without-secret] [account:code-form-forgives] given a wrong code for an address no account uses, then it is told as any wrong code is and nothing starts; Change goes back to the address, filled", async () => {
+    const { newLife, signedIn } = ways({ signInWithCode: answers({ ok: false, why: "wrong-code" }) });
+    send("new@example.test");
     fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "000000" } });
     await waitFor(() => expect(screen.getByText(say("ui.account.fail.wrong-code"))).toBeDefined());
     expect(newLife).not.toHaveBeenCalled();
+    expect(signedIn).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.code.change") }));
     const email = await screen.findByLabelText<HTMLInputElement>(say("ui.account.email.label"));
     expect(email.value).toBe("new@example.test");
     await waitFor(() => expect(document.activeElement).toBe(email));
   });
 
-  test("[account:guest-secures-the-life] given a new life's send to an address an account took meanwhile, then it is told to sign in instead and the answer stays", async () => {
-    ways({ sendCode: answers(NO_ACCOUNT, { ok: false, why: "email-taken" }) });
-    send("new@example.test");
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.none.new") }));
-    await waitFor(() => expect(screen.getByText(say("ui.account.fail.email-taken"))).toBeDefined());
-    expect(say("ui.account.fail.email-taken")).toBe("That email already has an account. Sign in instead.");
-    expect(screen.queryByLabelText(say("ui.account.code.label"))).toBeNull();
-    expect(screen.getByRole("button", { name: say("ui.account.none.other") })).toBeDefined();
+  test("[account:sign-in-without-secret] given the ways back in opened from a new life's Use another email, then the email field is empty and holds the focus", async () => {
+    const account = codeAccount();
+    render(<SignIn account={account} onSignedIn={() => undefined} filled="" focusEmail autofill={cannot} passkeyUsed={false} />);
+    const email = await screen.findByLabelText<HTMLInputElement>(say("ui.account.email.label"));
+    expect(email.value).toBe("");
+    await waitFor(() => expect(document.activeElement).toBe(email));
   });
 
   test("[account:sign-in-without-secret] given a passkey no account holds, then its own words stand with Start a new life under them, and the ways stay", async () => {
@@ -132,7 +107,7 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     const said = await screen.findByRole("alert");
     expect(said.textContent).toBe(say("ui.account.fail.passkey-gone"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.start.kept.play") }));
-    expect(newLife).toHaveBeenCalledExactlyOnceWith(false);
+    expect(newLife).toHaveBeenCalledExactlyOnceWith(null);
     expect(google()).not.toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
@@ -143,93 +118,6 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     render(<SignIn account={account} onSignedIn={() => undefined} onNewLife={newLife} problem={say("ui.account.fail.no-life")} noneFound autofill={cannot} passkeyUsed={false} />);
     expect((await screen.findByRole("alert")).textContent).toBe(say("ui.account.fail.no-life"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.start.kept.play") }));
-    expect(newLife).toHaveBeenCalledOnce();
-  });
-});
-
-describe("the new life kept from the start (account:guest-secures-the-life)", () => {
-  const passing: LoadTurnstile = () =>
-    Promise.resolve({
-      render: (_container, options) => {
-        setTimeout(() => options.callback("XXXX.DUMMY.TOKEN.XXXX"), 0);
-        return "widget-1";
-      },
-      reset: () => undefined,
-      remove: () => undefined,
-    });
-
-  async function throughTheStart(guest: GuestAnswer) {
-    const account = codeAccount({ sendCode: answers(NO_ACCOUNT), startGuest: (username) => (account.calls.push(`startGuest(${JSON.stringify(username)})`), Promise.resolve(guest)) });
-    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account });
-    store.getState().leave(null);
-    render(
-      <GameProvider store={store}>
-        <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
-        <WayToast account={account} />
-      </GameProvider>,
-    );
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
-    send("new@example.test");
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.none.new") }));
-    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
-    // The new life's own start, as Play's: the age screen first.
-    expect(await screen.findByText(say("ui.account.age.title"))).toBeDefined();
-    const today = new Date();
-    await answerAge(`${String(today.getUTCFullYear() - 30)}-03-12`);
-    fireEvent.change(await screen.findByLabelText(say("ui.account.name.label")), { target: { value: "ada_lagos" } });
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    });
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
-    await waitFor(() => expect(store.getState().signedOut).toBe(false));
-    return account;
-  }
-
-  test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] given a new life's address proved, when the door's page asks for the username, then the line that the life lives only on this phone is not said, and nothing stands in its place", async () => {
-    const account = codeAccount({ sendCode: answers(NO_ACCOUNT) });
-    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account });
-    store.getState().leave(null);
-    render(
-      <GameProvider store={store}>
-        <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
-      </GameProvider>,
-    );
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
-    send("new@example.test");
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.none.new") }));
-    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
-    expect(await screen.findByText(say("ui.account.age.title"))).toBeDefined();
-    await answerAge(`${String(new Date().getUTCFullYear() - 30)}-03-12`);
-    const box = await screen.findByLabelText(say("ui.account.name.label"));
-    expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
-    expect(document.querySelector("[data-guest-line]")).toBeNull();
-    expect(box.closest("[data-guest-fields]")?.textContent).not.toContain(say("ui.guest.reminder"));
-  });
-
-  test("[account:guest-reminded-to-secure] given Play with no proof, when the door's page asks for the username, then the guest line is said there", async () => {
-    const account = codeAccount();
-    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account });
-    store.getState().leave(null);
-    render(
-      <GameProvider store={store}>
-        <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
-      </GameProvider>,
-    );
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
-    await answerAge(`${String(new Date().getUTCFullYear() - 30)}-03-12`);
-    await screen.findByLabelText(say("ui.account.name.label"));
-    expect(screen.getByText(say("ui.guest.reminder"))).toBeDefined();
-  });
-
-  test("[account:guest-secures-the-life] given a new life's address proved, when the life starts, then the world says it is saved with the email, as after any keep, with nothing typed again", async () => {
-    const account = await throughTheStart({ ok: true, email: "kept" });
-    await waitFor(() => expect(document.querySelector("[data-way-toast]")?.textContent).toBe(say("ui.account.toast.kept.email")));
-    expect(account.calls.filter((call) => call.startsWith("sendCode") || call.startsWith("proveNewLife"))).toEqual(['sendCode("new@example.test")', 'sendCode("new@example.test","new life")', 'proveNewLife("new@example.test","123456")']);
-    expect(account.calls).toContain('startGuest("ada_lagos")');
-  });
-
-  test("[account:guest-secures-the-life] given the proved address taken by an account before the start, then the life starts as a guest and the world says so", async () => {
-    await throughTheStart({ ok: true, email: "taken" });
-    await waitFor(() => expect(document.querySelector("[data-way-toast]")?.textContent).toBe(say("ui.account.toast.taken.email")));
+    expect(newLife).toHaveBeenCalledExactlyOnceWith(null);
   });
 });

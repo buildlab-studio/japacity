@@ -1,5 +1,5 @@
-// The account seam faked for the code step's tests (CodeForm.test.tsx, SignIn.test.tsx): every call is kept with its
-// arguments, the new life's mark on a send among them, and each answer can be given per call.
+// The account seam faked for the code step's tests (CodeForm.test.tsx, SignIn.test.tsx, KeptStart.test.tsx): every call is kept
+// with its arguments, and each answer can be given per call.
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 
 const OK: AuthResult = { ok: true };
@@ -16,13 +16,13 @@ export function codeAccount(over: Partial<AccountApi> = {}): Faked {
   const kept = (name: string, args: unknown[]) => calls.push(`${name}(${args.map((arg) => JSON.stringify(arg)).join(",")})`);
   const sendCode = over.sendCode ?? (() => Promise.resolve(OK));
   const signInWithCode = over.signInWithCode ?? (() => Promise.resolve(OK));
-  const proveNewLife = over.proveNewLife ?? (() => Promise.resolve(OK));
   return {
     calls,
     ageStatus: () => Promise.resolve("unasked"),
     declareAge: () => Promise.resolve("passed"),
     usernameFree: () => Promise.resolve(null),
-    startGuest: (username) => (kept("startGuest", [username]), Promise.resolve({ ok: true })),
+    startGuest: (username, _bot, proved) => (kept("startGuest", proved === true ? [username, "proved"] : [username]), Promise.resolve({ ok: true })),
+    dropNewLife: () => (kept("dropNewLife", []), Promise.resolve()),
     view: () => Promise.resolve(null),
     rename: () => Promise.resolve({ ok: true }),
     returnedFromGoogle: () => null,
@@ -40,8 +40,7 @@ export function codeAccount(over: Partial<AccountApi> = {}): Faked {
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: () => Promise.resolve(true),
     ...over,
-    sendCode: (email, bot, newLife) => (kept("sendCode", newLife === true ? [email, "new life"] : [email]), sendCode(email, bot, newLife)),
+    sendCode: (email, bot) => (kept("sendCode", [email]), sendCode(email, bot)),
     signInWithCode: (email, code, bot) => (kept("signInWithCode", [email, code]), signInWithCode(email, code, bot)),
-    proveNewLife: (email, code) => (kept("proveNewLife", [email, code]), proveNewLife(email, code)),
   };
 }

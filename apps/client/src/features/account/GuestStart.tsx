@@ -50,6 +50,10 @@ const GUEST_WORDS: Record<GuestFailure, string> = {
   full: "ui.account.guest.full",
   unreachable: "ui.account.fail.unreachable",
   refused: "ui.account.fail.refused",
+  // A start that came by the code tells these three in its own way (KeptStart.tsx); Play's start never meets them but a second tab's Begin.
+  "proof-gone": "ui.account.fail.refused",
+  "email-taken": "ui.account.fail.refused",
+  here: "ui.account.fail.refused",
 };
 
 /** The guest start's refusals that are about the name itself, which the player fixes in the box (account:username-typed-and-checked). */
@@ -91,6 +95,10 @@ export interface GuestDoor {
   kept?: boolean;
   /** Makes the guest life with this username, as typed. Resolves to null once the life is made (or was made already), else to what to say. */
   start: (username: string) => Promise<string | null>;
+  /** `start` without its words: null once the life is made (or was made already), else why not, for a step that answers some refusals its own way. */
+  attempt: (username: string) => Promise<GuestFailure | null>;
+  /** What `start` would do and say for a refusal: the age screen or the full screen for theirs, else the words under the box. */
+  tell: (why: GuestFailure) => string;
   /** account:username-typed-and-checked: whether a name is free, as the box asks while the player types. */
   ask: (username: string) => Promise<FreeAnswer | null>;
   /** The unseen check's widget, mounted on the page. */
@@ -120,12 +128,15 @@ export interface GuestDoorOptions {
   onLapse?: () => void;
   /** This browser holds a proof of a new life's address: the life starts kept (account:guest-secures-the-life). */
   kept?: boolean;
+  /** The start is the username step of a life that came by the code, which needs the proof (account:sign-in-without-secret). */
+  proved?: boolean;
 }
 
-/** What a refused bot check is told as: why the check gave no pass, when the page knows. */
+/** What a refused bot check is told as: why the check gave no pass, when the page knows; on the username step, whose button is Continue, its own words. */
 const BOT_WORDS = { unloaded: "ui.account.bot.unloaded", error: "ui.account.bot.error" } as const;
+const BOT_WORDS_KEPT = { unloaded: "ui.account.bot.unloaded.kept", error: "ui.account.bot.error.kept" } as const;
 
-export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, botWaitMs, lapses = 0, onLapse, kept = false }: GuestDoorOptions): GuestDoor {
+export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, botWaitMs, lapses = 0, onLapse, kept = false, proved = false }: GuestDoorOptions): GuestDoor {
   const check = useUnseenCheck(sitekey, load, botWaitMs);
   // The script is fetched while the door's first screens show, so the widget is up by the page.
   useEffect(() => {
@@ -139,7 +150,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
 
   async function once(username: string): Promise<GuestFailure | null> {
     const bot = await check.token();
-    const answer = await account.startGuest(username, bot);
+    const answer = await account.startGuest(username, bot, proved);
     // The server judges the username before the token, so only a request that got past it spent one.
     const nameRefused = !answer.ok && ["format", "reserved", "blocked", "taken", "wait"].includes(answer.why);
     if (bot !== null && !nameRefused) check.spent();
@@ -147,20 +158,26 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     return answer.ok ? null : answer.why;
   }
 
-  const start = async (username: string): Promise<string | null> => {
+  const attempt = async (username: string): Promise<GuestFailure | null> => {
     if (made.current) return null;
     const why = await once(username.trim());
-    if (why === null) {
-      made.current = true;
-      return null;
-    }
+    if (why === null) made.current = true;
+    return why;
+  };
+
+  const tell = (why: GuestFailure): string => {
     if (why === "expired") onExpired();
     if (why === "full") onFull();
     // The age screen or the full screen takes the page's place for those two; every other refusal is said under the box.
     if (why !== "expired" && why !== "full") bringBoxIntoView(box.current, NAME_REFUSALS.includes(why));
     const trouble = check.trouble();
-    if (why === "bot-check" && trouble !== null) return say(BOT_WORDS[trouble]);
+    if (why === "bot-check" && trouble !== null) return say((proved ? BOT_WORDS_KEPT : BOT_WORDS)[trouble]);
     return say(GUEST_WORDS[why]);
+  };
+
+  const start = async (username: string): Promise<string | null> => {
+    const why = await attempt(username);
+    return why === null ? null : tell(why);
   };
 
   // Kept the same across renders, so a render while the typing rests does not put the check off again.
@@ -172,6 +189,8 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
     box,
     kept,
     start,
+    attempt,
+    tell,
     ask,
     widget: check.widget,
     started: () => onStarted(email.current),

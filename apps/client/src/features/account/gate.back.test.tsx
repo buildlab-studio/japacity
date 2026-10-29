@@ -42,7 +42,7 @@ function account(): AccountApi {
     rename: unused,
     sendCode: unused,
     signInWithCode: unused,
-    proveNewLife: () => Promise.resolve({ ok: true }),
+    dropNewLife: () => Promise.resolve(),
     signInWithGoogle: unused,
     signInWithPasskey: unused,
     addPasskey: unused,

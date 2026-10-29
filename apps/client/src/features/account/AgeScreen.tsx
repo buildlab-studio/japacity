@@ -3,8 +3,10 @@
 // birth; this screen only sends what was picked. The bot check runs where the account is made, at Begin on the
 // page (account:bot-check-on-guest-creation, account:start-screen-over-live-city). One quiet line under the fields turns a
 // returning player who tapped Play by habit back to the ways back in, before any life is made (account:age-screen-refuses-minors).
+// A life that came by the code on the ways back in meets the same screen under a line that says why it is here, and without
+// that quiet line, since the player has just tried the ways back in (account:sign-in-without-secret).
 import { ArrowLeft } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 
 import type { AccountApi, AgeStanding, Full } from "../../shared/net/auth";
 import { say } from "../../shared/words/text";
@@ -30,13 +32,17 @@ export interface AgeScreenProps {
   onReturning?: (() => void) | null;
   /** What the gate says as the screen opens: why it is asked again. */
   said?: string | null;
+  /** The line over the screen that says why the player is here: a life that came by the code (account:sign-in-without-secret). */
+  lead?: ReactNode;
+  /** The line under the heading, in place of the screen's own. */
+  intro?: string;
   /** A seam for tests: the year the list starts at. */
   thisYear?: number;
 }
 
 const FIELD = "h-12 w-full min-w-0 appearance-none rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[16px] font-bold text-text focus:border-action";
 
-export function AgeScreen({ account, onStanding, onBack = null, onReturning = null, said = null, thisYear = new Date().getFullYear() }: AgeScreenProps) {
+export function AgeScreen({ account, onStanding, onBack = null, onReturning = null, said = null, lead = null, intro, thisYear = new Date().getFullYear() }: AgeScreenProps) {
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -66,6 +72,7 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
 
   return (
     <form className="flex flex-col gap-3" onSubmit={(event) => void answer(event)} noValidate data-age-screen>
+      {lead}
       <div className="flex items-center gap-2">
         {onBack === null ? null : (
           <button type="button" aria-label={say("ui.account.back")} className="press flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={onBack}>
@@ -76,7 +83,7 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
           {say("ui.account.age.title")}
         </h1>
       </div>
-      <p className="text-[14px] leading-snug text-text-2">{say("ui.account.age.intro")}</p>
+      <p className="text-[14px] leading-snug text-text-2">{intro ?? say("ui.account.age.intro")}</p>
       <fieldset className="flex flex-col gap-1.5">
         <legend className="label mb-1.5 text-text-2">{say("ui.account.age.label")}</legend>
         <div className="grid grid-cols-[1fr_1.6fr_1.2fr] gap-1.5">

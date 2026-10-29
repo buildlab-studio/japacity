@@ -148,41 +148,50 @@ describe("the code's answers told apart, as the server gives them", () => {
     expect(await api.sendCode("ada@example.test", null)).toEqual({ ok: false, why: "too-many" });
   });
 
-  test("[account:sign-in-without-secret] [account:guest-secures-the-life] given a send to an address no account uses, then it is told as no-life; a new life's send carries its mark and an address taken is told email-taken", async () => {
+  test("[account:sign-in-without-secret] given a send to any address, then it carries the address and the code's type alone, and the answer is the same send's", async () => {
     const { server, api } = account();
-    server.answer(
-      "POST /api/auth/email-otp/send-verification-otp",
-      { status: 403, body: { code: "no-account", message: "No account uses this email." } },
-      { status: 403, body: { code: "taken", message: "That email already has an account. Sign in instead." } },
-      { body: { success: true } },
-    );
-    expect(await api.sendCode("new@example.test", null)).toEqual({ ok: false, why: "no-life" });
-    expect(await api.sendCode("new@example.test", null, true)).toEqual({ ok: false, why: "email-taken" });
-    expect(await api.sendCode("new@example.test", null, true)).toEqual({ ok: true });
+    server.answer("POST /api/auth/email-otp/send-verification-otp", { body: { success: true } });
+    expect(await api.sendCode("new@example.test", null)).toEqual({ ok: true });
+    expect(server.sent.map((request) => request.body)).toEqual([{ email: "new@example.test", type: "sign-in" }]);
+  });
+
+  test("[account:sign-in-without-secret] given the code check, when the server answers new-life for an address no account uses, then it is told as a proved address, apart from a sign-in", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/sign-in/email-otp", { body: { next: "new-life" } }, { body: { token: "session-1", user: { id: "account-1", email: "ada@example.test" } } });
+    expect(await api.signInWithCode("new@example.test", "123456", null)).toEqual({ ok: true, newLife: true });
+    expect(await api.signInWithCode("ada@example.test", "123456", null)).toEqual({ ok: true });
     expect(server.sent.map((request) => request.body)).toEqual([
-      { email: "new@example.test", type: "sign-in" },
-      { email: "new@example.test", type: "sign-in", newLife: true },
-      { email: "new@example.test", type: "sign-in", newLife: true },
+      { email: "new@example.test", otp: "123456" },
+      { email: "ada@example.test", otp: "123456" },
     ]);
   });
 
-  test("[account:guest-secures-the-life] given a new life's code, then POST /api/new-life/code carries the address and the code, and its refusals are told as the library's own are", async () => {
+  test("[account:sign-in-without-secret] given Use another email, then DELETE /api/new-life is sent, and a server that cannot be reached changes nothing", async () => {
     const { server, api } = account();
-    const refused = (code: string, status = 400) => ({ status, body: { ok: false, code, detail: code } });
-    server.answer("POST /api/new-life/code", { body: { ok: true } }, refused("bad-code"), refused("expired"), refused("too-many", 403), refused("taken", 409), refused("rate-limited", 429), refused("not-possible", 403));
-    const told: unknown[] = [];
-    for (let n = 0; n < 7; n++) told.push(await api.proveNewLife("new@example.test", "123456"));
-    expect(told).toEqual([
-      { ok: true },
-      { ok: false, why: "wrong-code" },
-      { ok: false, why: "expired" },
-      { ok: false, why: "used-up" },
-      { ok: false, why: "email-taken" },
-      { ok: false, why: "slow-down" },
-      { ok: false, why: "refused" },
-    ]);
-    expect(server.sent[0]?.body).toEqual({ email: "new@example.test", code: "123456" });
+    server.answer("DELETE /api/new-life", { body: { ok: true } });
+    await api.dropNewLife();
+    expect(server.sent.map((request) => `${request.method} ${request.path}`)).toEqual(["DELETE /api/new-life"]);
     expect(server.sent[0]?.credentials).toBe("same-origin");
+  });
+
+  test("[account:sign-in-without-secret] given a browser holding a live proof, when it asks where it stands, then the proof's address comes back with whether the age is passed", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { body: { refused: false, passed: false, newLife: "new@example.test" } }, { body: { refused: false, passed: true, newLife: "new@example.test" } }, { body: { refused: true, passed: false, newLife: "new@example.test" } });
+    expect(await api.ageStatus()).toEqual({ proved: "new@example.test", passed: false });
+    expect(await api.ageStatus()).toEqual({ proved: "new@example.test", passed: true });
+    expect(await api.ageStatus()).toBe("refused");
+  });
+
+  test("[account:sign-in-without-secret] given the username step's Continue, then POST /api/guest carries proved, and its refusals for the proof, the address and a browser already signed in are told apart", async () => {
+    const { server, api } = account();
+    const refused = (code: string, status: number) => ({ status, body: { ok: false, code, detail: code } });
+    server.answer("POST /api/guest", refused("proof-gone", 403), refused("taken", 409), refused("not-possible", 409), { body: { ok: true, account: { ...VIEW, state: "secured", ways: { google: null, email: "new@example.test", passkeys: 0 } } } });
+    const told: unknown[] = [];
+    for (let n = 0; n < 4; n++) told.push(await api.startGuest("ada_lagos", TOKEN, true));
+    expect(told).toEqual([{ ok: false, why: "proof-gone" }, { ok: false, why: "email-taken" }, { ok: false, why: "here" }, { ok: true, email: "kept" }]);
+    expect(server.sent[0]?.body).toEqual({ username: "ada_lagos", proved: true });
+    await api.startGuest("ada_lagos", TOKEN);
+    expect(server.sent.at(-1)?.body).toEqual({ username: "ada_lagos" });
   });
 
   test("[account:guest-secures-the-life] given the guest start's answer, then a life born kept by its email and one whose address was taken meanwhile are told apart from a plain guest", async () => {

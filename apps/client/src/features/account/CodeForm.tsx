@@ -1,6 +1,7 @@
 // Signing in by a code sent to an email address (account:email-code-is-short-lived, account:code-form-forgives): the address,
-// then the 6 digits. It signs the player in, confirms deleting (account:player-deletes-account), where the code goes to the
-// server with the deletion instead of signing in, and proves a new life's address (account:guest-secures-the-life). Once the
+// then the 6 digits. It signs the player in, or, for an address no account uses, hands on the address its right code proved
+// for a new life (account:sign-in-without-secret); and it confirms deleting (account:player-deletes-account), where the code
+// goes to the server with the deletion instead of signing in. Once the
 // code is sent the step says one thing at a time: where the code went, with a quiet way back to the address; the field,
 // which takes the focus and sends itself at the sixth digit; the one button; and one status slot under them, a polite live
 // region mounted from the start, holding one line at a time, an error replacing whatever stood there. A refused code is
@@ -38,8 +39,8 @@ export interface CodeFormProps {
   filled?: string;
   /** A code went to the known address already: the form opens on the code step. */
   sent?: boolean;
-  /** The sends ask for a code for a new life with the address (account:guest-secures-the-life). */
-  newLife?: boolean;
+  /** The line the code step opens with in place of "We sent a code to {email}.": why a new code was sent unasked. */
+  sentSaid?: string;
   /** The address field takes the focus as the form opens. */
   focusEmail?: boolean;
   /** The field also offers this browser's passkeys in its autofill (account:passkey-in-email-autofill). */
@@ -52,12 +53,12 @@ export interface CodeFormProps {
   goLabel?: string;
   /** Called once the code was taken. */
   onSignedIn: () => void;
+  /** The code signed in to nothing and proved the address for a new life instead (account:sign-in-without-secret); signing in when left out. */
+  onNewLife?: (email: string) => void;
   /** The code was refused because the address already has a life (account:guest-secures-the-life). */
   onTaken?: (email: string) => void;
   /** The form turned: the address a code went to, or null back at the address. */
   onStep?: (sentTo: string | null) => void;
-  /** The send found no account using the address (account:sign-in-without-secret); the form's parent answers it. */
-  onNoAccount?: (email: string) => void;
   /** "Change" on the code step, for a known address whose form is the parent's; with no known address the form goes back itself. */
   onChange?: () => void;
 }
@@ -100,7 +101,7 @@ function withAddress(line: string, email: string, button: ReactNode): ReactNode 
   );
 }
 
-export function CodeForm({ account, bot = null, spentBot, email: known, filled, sent = false, newLife = false, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, onSignedIn, onTaken, onStep, onNoAccount, onChange }: CodeFormProps) {
+export function CodeForm({ account, bot = null, spentBot, email: known, filled, sent = false, sentSaid, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, onSignedIn, onNewLife, onTaken, onStep, onChange }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? filled ?? "");
   const [sentTo, setSentTo] = useState<string | null>(sent && known !== undefined ? known : null);
   // Each code sent, counted: the wait for the way to a new one starts again with each.
@@ -172,9 +173,8 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
       return;
     }
     void run(
-      () => account.sendCode(address, bot, newLife),
+      () => account.sendCode(address, bot),
       (result) => {
-        if (!result.ok && result.why === "no-life" && !again && onNoAccount !== undefined) return onNoAccount(address);
         if (!result.ok) return setProblem(failureWords(result));
         focusNext.current = "code";
         if (!again) {
@@ -199,6 +199,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
     void run(
       () => (confirm === undefined ? account.signInWithCode(sentTo, typed, bot) : confirm(typed)),
       (result) => {
+        if (result.ok && result.newLife === true && onNewLife !== undefined) return onNewLife(sentTo);
         if (result.ok) return onSignedIn();
         setProblem(failureWords(result));
         if (result.why === "taken") onTaken?.(sentTo);
@@ -284,7 +285,9 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
         >
           {/* Change is glued to the address by a space that never breaks, so it wraps with the words and never stands alone. */}
           <p className="text-[15px] leading-snug break-words" data-code-sent={String(sends)}>
-            {known === undefined || onChange !== undefined
+            {sentSaid !== undefined
+              ? sentSaid
+              : known === undefined || onChange !== undefined
               ? withAddress(
                   say("ui.account.code.sent"),
                   sentTo,

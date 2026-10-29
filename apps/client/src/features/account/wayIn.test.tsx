@@ -51,7 +51,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     returnedFromGoogle: () => null,
     sendCode: (email) => log("sendCode")(email),
     signInWithCode: (email, code) => log("signInWithCode")(email, code),
-    proveNewLife: (email, code) => (calls.push(`proveNewLife(${JSON.stringify(email)},${JSON.stringify(code)})`), Promise.resolve({ ok: true })),
+    dropNewLife: () => (calls.push("dropNewLife()"), Promise.resolve()),
     signInWithGoogle: (_bot, trip) => log("signInWithGoogle")(trip),
     signInWithPasskey: log("signInWithPasskey"),
     addPasskey: log("addPasskey"),
