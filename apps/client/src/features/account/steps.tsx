@@ -86,3 +86,13 @@ export function FocusLine({ children, className = "" }: { children: ReactNode; c
     </p>
   );
 }
+
+/**
+ * A question asked in place, brought whole into the body's view as it opens: it stands where its row stood, but is taller,
+ * so its answers would otherwise open under the fold and the tap would seem to do nothing.
+ */
+export function useShownWhole<T extends HTMLElement>(): RefObject<T | null> {
+  const ref = useRef<T | null>(null);
+  useEffect(() => ref.current?.scrollIntoView?.({ block: "nearest" }), []);
+  return ref;
+}

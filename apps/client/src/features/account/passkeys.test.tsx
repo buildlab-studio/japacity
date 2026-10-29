@@ -417,10 +417,11 @@ describe("signing out (account:sign-out-ends-the-session)", () => {
     expect(account.calls).toEqual(["signOutEverywhere()"]);
   });
 
-  test("[account:sign-out-ends-the-session] given a guest, then there is no sign out, here or on every phone: its one session is its only way back, and its one way out is Leave this life", async () => {
+  test("[account:sign-out-ends-the-session] given a guest, then there is no sign out, here or on every phone: its one session is its only way back, and its one way out is Delete my account", async () => {
     const account = fakeAccount({ ...kept(), state: "guest", ways: { google: null, email: null, passkeys: 0 } });
     settings(account);
-    expect(await screen.findByRole("button", { name: say("ui.account.leave") })).toBeDefined();
+    expect(await screen.findByText(say("ui.guest.reminder"))).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.account.delete") })).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.sign-out") })).toBeNull();
     expect(screen.queryByRole("button", { name: say("ui.account.sign-out.all") })).toBeNull();
     expect(account.calls).toEqual([]);

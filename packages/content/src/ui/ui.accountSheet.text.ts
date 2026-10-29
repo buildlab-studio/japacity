@@ -1,5 +1,5 @@
 // The account sheet's own words, in the voice of docs/rules/text.md: the username's change, the life's name, the usage counts,
-// the bank-full notice's switch, the passkeys, signing out, leaving a guest life and deleting the account. Read only once the account's row in
+// the bank-full notice's switch, the passkeys, signing out and deleting the account, a guest's among them. Read only once the account's row in
 // Settings is tapped, or once the card that offers a passkey after a way in is due, so they ride a chunk of their own, fetched
 // then (engine:first-download-has-budget); the row's own words stay in ui.online.text.ts.
 export const uiAccountSheetText: Record<string, string> = {
@@ -54,10 +54,9 @@ export const uiAccountSheetText: Record<string, string> = {
   // An admin's removal from a session that has not shown a passkey (account:passkey-needs-signed-in-session)
   "ui.account.fail.passkey-first-remove": "Sign in with your passkey first, then remove it.",
 
-  // Leaving a guest life, its one costly row (account:player-deletes-account, account:sign-out-ends-the-session)
-  "ui.account.leave": "Leave this life",
-  "ui.account.leave.warn": "Leave and this life ends on this phone, with nothing of it saved and no way back.",
-  "ui.account.leave.save": "Save this life first",
+  // A guest's deletion, its one costly row, with Delete my account and Delete for good below (account:player-deletes-account, account:sign-out-ends-the-session)
+  "ui.account.delete.guest": "This life lives only on this phone, so deleting it ends it here and nothing of it is saved.",
+  "ui.account.delete.save": "Save this life first",
 
   // Signing out here or everywhere (account:sign-out-ends-the-session)
   "ui.account.sign-out": "Sign out",

@@ -327,38 +327,41 @@ describe("the quiet lines", () => {
   });
 });
 
-describe("leaving a guest life (account:player-deletes-account, account:guest-and-secured-states)", () => {
-  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest, then its sheet has one costly row, Leave this life, and no Sign out or Delete my account: its life ends the same way either way", async () => {
+describe("deleting a guest life (account:player-deletes-account, account:guest-and-secured-states)", () => {
+  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest, then its sheet has one costly row, Delete my account, and no Sign out: its life ends the same way either way", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
-    expect(screen.getAllByRole("button", { name: say("ui.account.leave") })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: say("ui.account.delete") })).toHaveLength(1);
     expect(screen.queryByRole("button", { name: say("ui.account.sign-out") })).toBeNull();
-    expect(screen.queryByRole("button", { name: say("ui.account.delete") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.sign-out.all") })).toBeNull();
   });
 
-  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest, when it leaves its life, then the step says first what leaving means, and only Leave this life inside it deletes the guest as Delete does, with the deleted notice", async () => {
+  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest, when it deletes its account, then the step says first that this life on this phone ends with nothing of it saved, and only Delete for good inside it deletes the guest, with the deleted notice", async () => {
     const account = fakeAccount(me("guest"), { deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(OK)) });
     const store = await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.leave") }));
-    expect(screen.getByText(say("ui.account.leave.warn"))).toBeDefined();
-    expect(say("ui.account.leave.warn")).toMatch(/this life ends on this phone/);
-    expect(say("ui.account.leave.warn")).toMatch(/nothing of it saved/);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    expect(screen.getByRole("heading", { name: say("ui.account.delete") })).toBeDefined();
+    expect(screen.getByText(say("ui.account.delete.guest"))).toBeDefined();
+    expect(say("ui.account.delete.guest")).toMatch(/only on this phone/);
+    expect(say("ui.account.delete.guest")).toMatch(/nothing of it is saved/);
+    // A guest's step is its own: not the saved life's warning, which speaks of an account that can sign in.
+    expect(screen.queryByText(say("ui.account.delete.warn"))).toBeNull();
     expect(account.calls.filter((call) => call.startsWith("deleteAccount") || call === "signOut()")).toEqual([]);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.leave") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.confirm") }));
     await waitFor(() => expect(store.getState().signedOut).toBe(true));
     expect(store.getState().accountNotice).toBe("ui.account.notice.deleted");
     expect(account.calls.filter((call) => call.startsWith("deleteAccount") || call === "signOut()")).toEqual(["deleteAccount(null)"]);
   });
 
-  test("[world:costly-acts-confirmed] [account:player-deletes-account] given a guest leaving its life, then Save this life first is the main button and comes first, Leave this life wears the warning colour apart from it, and Save this life first opens the save sheet with the life still here", async () => {
+  test("[world:costly-acts-confirmed] [account:player-deletes-account] given a guest deleting its account, then Save this life first is the main button and comes first, Delete for good wears the warning colour apart from it, and Save this life first opens the save sheet with the life still here", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.leave") }));
-    const save = screen.getByRole("button", { name: say("ui.account.leave.save") });
-    const go = screen.getByRole("button", { name: say("ui.account.leave") });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
+    const save = screen.getByRole("button", { name: say("ui.account.delete.save") });
+    const go = screen.getByRole("button", { name: say("ui.account.delete.confirm") });
     expect(save.className).toContain("bg-accent");
     expect(go.className).not.toContain("bg-accent");
     expect(go.className).toContain("text-bad");

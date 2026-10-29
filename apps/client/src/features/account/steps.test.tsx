@@ -106,7 +106,7 @@ describe("the guest's sheet (account:guest-and-secured-states, account:username-
     expect(reminder.compareDocumentPosition(you) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(blocks()).toEqual(["you", "leaving"]);
     const leaving = document.querySelector('[data-block="leaving"]') as HTMLElement;
-    expect(within(leaving).getAllByRole("button").map((button) => button.textContent)).toEqual([say("ui.account.leave")]);
+    expect(within(leaving).getAllByRole("button").map((button) => button.textContent)).toEqual([say("ui.account.delete")]);
   });
 });
 

@@ -2,11 +2,12 @@
 // the life's name; the way in, account:guest-reminded-to-secure), the passkeys once the life is saved (PasskeyList,
 // account:passkeys-listed-and-removed), and leaving: a saved life signs out here or on every phone
 // (account:sign-out-ends-the-session) or deletes the account (account:player-deletes-account) through the server's
-// `DELETE /api/account`; a guest, whose session is its only way back, has the one costly row "Leave this life", which deletes
-// it the same way. The foot holds the usage counts, any setting the shell places in the sheet and the legal links. A guest's
-// sheet opens with the reminder and the way to save the life (account:guest-reminded-to-secure).
+// `DELETE /api/account`; a guest, whose session is its only way back, has "Delete my account" as its one costly row in place
+// of both, its step saying first that the life on this phone ends. The foot holds the usage counts, any setting the shell
+// places in the sheet and the legal links. A guest's sheet opens with the reminder and the way to save the life
+// (account:guest-reminded-to-secure).
 //
-// One step at a time (steps.tsx): the username's change, leaving a guest life and deleting the account each take the body as
+// One step at a time (steps.tsx): the username's change and deleting the account, a guest's or a saved life's, each take the body as
 // their own view with one Back; signing out on every phone and removing a passkey ask in place, where the tap was.
 //
 // Deleting needs a session signed in within the last 10 minutes; when the server says it is older, the player shows it is
@@ -33,7 +34,7 @@ import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { PasskeyList, usePasskeysWork } from "./PasskeyList";
 import { GuestReminder, SecureSheet } from "./Secure";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
-import { FocusLine, StepsProvider, StepView, useSteps } from "./steps";
+import { FocusLine, StepsProvider, StepView, useShownWhole, useSteps } from "./steps";
 
 // The card that offers a passkey after a way in rides this chunk, which holds the passkey code it shares (WayToast.tsx).
 export { PasskeyCard } from "./PasskeyCard";
@@ -387,10 +388,11 @@ export function DeleteAccount({ account, onKept }: { account: AccountApi; onKept
 
 /**
  * account:player-deletes-account, account:sign-out-ends-the-session, world:costly-acts-confirmed: a guest's one costly row.
- * A guest's life lives only in its session, so signing out and deleting end it alike: the step says so, offers to save the
- * life first as its main button, and leaving, in the warning colour apart, deletes the guest as Delete does.
+ * A guest's life lives only in its session, so signing out and deleting end it alike: the step says that the life on this
+ * phone ends, offers to save it first as its main button, and Delete for good, in the warning colour apart, deletes the guest
+ * as a saved life's deletion does, confirmed by its own session.
  */
-function LeaveLife({ account, onStay }: { account: AccountApi; onStay: () => void }) {
+function DeleteGuest({ account, onStay }: { account: AccountApi; onStay: () => void }) {
   const leave = useGame((state) => state.leave);
   const guest = useGuest();
   const [saving, setSaving] = useState(false);
@@ -407,16 +409,16 @@ function LeaveLife({ account, onStay }: { account: AccountApi; onStay: () => voi
   }
 
   return (
-    <div className="flex flex-col gap-3" data-leave-life>
-      <p>{say("ui.account.leave.warn")}</p>
+    <div className="flex flex-col gap-3" data-delete-guest>
+      <p>{say("ui.account.delete.guest")}</p>
       <div>
         <Button variant="primary" disabled={busy} onClick={() => setSaving(true)}>
-          {say("ui.account.leave.save")}
+          {say("ui.account.delete.save")}
         </Button>
       </div>
       <div className="mt-2 border-t border-sheet-line pt-4">
         <Button variant="warning" disabled={busy} onClick={() => void go()}>
-          {say("ui.account.leave")}
+          {say("ui.account.delete.confirm")}
         </Button>
       </div>
       {problem === null ? null : (
@@ -463,17 +465,7 @@ function SignOutRows({ account }: { account: AccountApi }) {
   return (
     <div className="flex flex-col gap-2" data-sign-out>
       {asking ? (
-        <div className="motion-reveal flex flex-col gap-2" role="group" data-everywhere-ask>
-          <FocusLine>{say("ui.account.sign-out.all.warn")}</FocusLine>
-          <div className="flex flex-wrap gap-2">
-            <Button disabled={busy} onClick={() => void signOut(true)}>
-              {say("ui.account.sign-out.all.go")}
-            </Button>
-            <Button disabled={busy} onClick={() => ask(null)}>
-              {say("ui.account.sign-out.all.keep")}
-            </Button>
-          </div>
-        </div>
+        <EverywhereAsk busy={busy} onGo={() => void signOut(true)} onStay={() => ask(null)} />
       ) : (
         <div className="flex flex-wrap gap-2">
           <Button disabled={busy} onClick={() => void signOut(false)}>
@@ -489,6 +481,24 @@ function SignOutRows({ account }: { account: AccountApi }) {
           {problem}
         </p>
       )}
+    </div>
+  );
+}
+
+/** account:sign-out-ends-the-session: the question before every phone is signed out, where the two buttons stood, brought whole into view. */
+function EverywhereAsk({ busy, onGo, onStay }: { busy: boolean; onGo: () => void; onStay: () => void }) {
+  const group = useShownWhole<HTMLDivElement>();
+  return (
+    <div ref={group} className="motion-reveal flex flex-col gap-2" role="group" data-everywhere-ask>
+      <FocusLine>{say("ui.account.sign-out.all.warn")}</FocusLine>
+      <div className="flex flex-wrap gap-2">
+        <Button disabled={busy} onClick={onGo}>
+          {say("ui.account.sign-out.all.go")}
+        </Button>
+        <Button disabled={busy} onClick={onStay}>
+          {say("ui.account.sign-out.all.keep")}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -559,10 +569,11 @@ function AccountBody({ account, more }: { account: AccountApi; more: ReactNode }
       </StepView>
     );
   }
-  if (open === "leave") {
+  // Its own step, so a guest that saves its life from inside it sees the save sheet through rather than a saved life's deletion.
+  if (open === "delete-guest") {
     return (
-      <StepView title={say("ui.account.leave")} onBack={back} mark="leave">
-        <LeaveLife account={account} onStay={back} />
+      <StepView title={say("ui.account.delete")} onBack={back} mark="delete-guest">
+        <DeleteGuest account={account} onStay={back} />
       </StepView>
     );
   }
@@ -587,11 +598,11 @@ function AccountBody({ account, more }: { account: AccountApi; more: ReactNode }
         </Block>
       )}
       <Block mark="leaving">
-        {/* account:guest-and-secured-states: a guest's session is its only way back, so its one way out is leaving the life. */}
+        {/* account:guest-and-secured-states: a guest's session is its only way back, so its one way out is deleting the life. */}
         {guest ? (
           <div>
-            <Button onClick={() => show("leave")} data-step-opener="leave">
-              {say("ui.account.leave")}
+            <Button variant="quiet" onClick={() => show("delete-guest")} data-step-opener="delete-guest">
+              {say("ui.account.delete")}
             </Button>
           </div>
         ) : (

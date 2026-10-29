@@ -6,7 +6,7 @@
 // signed in with it are signed out, and for the last one the way still left; Keep it is the main button, Remove it wears the
 // warning colour apart from it (world:costly-acts-confirmed); the row then says it is removed, in the same place.
 import type { AccountView } from "@japacity/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type HTMLAttributes } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult, PasskeyRow } from "../../shared/net/auth";
@@ -16,7 +16,7 @@ import { CodeForm, failureWords } from "./CodeForm";
 import { inAppBrowser } from "./inApp";
 import { markPasskeyHere } from "./marks";
 import { refreshAccount } from "./standing";
-import { FocusLine, useSteps } from "./steps";
+import { FocusLine, useShownWhole, useSteps } from "./steps";
 
 /**
  * account:passkey-offered-where-it-works: whether a passkey can be made here; null while the browser is asked. Never inside an
@@ -205,7 +205,7 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
                   )}
                 </div>
                 {asking ? (
-                  <div className="motion-reveal flex flex-col gap-2 pb-1" role="group" data-passkey-ask>
+                  <Shown className="motion-reveal flex flex-col gap-2 pb-1" role="group" data-passkey-ask>
                     <FocusLine>{say("ui.account.passkey.remove.ask", { name })}</FocusLine>
                     {held <= 1 ? <p>{lastWords(ways)}</p> : null}
                     <div>
@@ -223,7 +223,7 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
                         {rowProblem}
                       </p>
                     )}
-                  </div>
+                  </Shown>
                 ) : null}
               </li>
             );
@@ -241,7 +241,7 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
         </div>
       )}
       {open === ADD ? (
-        <div className="motion-reveal flex flex-col gap-3" data-passkey-confirm>
+        <Shown className="motion-reveal flex flex-col gap-3" data-passkey-confirm>
           <FocusLine>{say("ui.account.passkey.fresh")}</FocusLine>
           {held > 0 ? (
             <div>
@@ -264,7 +264,7 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
               {say("ui.account.passkey.later")}
             </Button>
           </div>
-        </div>
+        </Shown>
       ) : null}
       {message === null ? null : <p role="status">{message}</p>}
       {problem === null ? null : (
@@ -272,6 +272,16 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
           {problem}
         </p>
       )}
+    </div>
+  );
+}
+
+/** A question asked in place, brought whole into view as it opens (steps.tsx). */
+function Shown({ children, ...rest }: HTMLAttributes<HTMLDivElement> & Record<`data-${string}`, string | boolean | undefined>) {
+  const group = useShownWhole<HTMLDivElement>();
+  return (
+    <div ref={group} {...rest}>
+      {children}
     </div>
   );
 }
