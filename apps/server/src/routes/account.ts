@@ -161,6 +161,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     const headers = await headersWithoutSession(auth, request.headers);
     headers.set(GUEST_NAME_HEADER, username);
     if (asked.proved) headers.set(GUEST_PROVED_HEADER, "1");
+    else headers.delete(GUEST_PROVED_HEADER);
     const signed = await auth.api.signInAnonymous({ headers, returnHeaders: true }).catch((error: unknown) => ({ error }));
     if ("error" in signed) {
       if (isAPIError(signed.error) && (signed.error.body as { code?: unknown } | undefined)?.code === "switched-off") {

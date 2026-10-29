@@ -429,6 +429,15 @@ describe("Play's start with a proof held", () => {
     expect(userOf(h, reply.account.id)).toMatchObject({ isAnonymous: true });
   });
 
+  test("[account:guest-secures-the-life] given no proof, when Play's start comes with the code's mark sent as a header by the browser itself, then the mark is not heard and the life starts as a plain guest", async () => {
+    const h = harness();
+    const jar = makeJar();
+    await h.passAge(jar);
+    const reply = await (await h.call("/api/guest", { method: "POST", jar, headers: { "x-captcha-response": TURNSTILE_TEST.dummyToken, "x-japacity-guest-proved": "1" }, json: { username: "plain_one" } })).json<NameReply>();
+    if (!reply.ok) throw new Error(`The guest start was refused: ${reply.detail}`);
+    expect(reply.account).toMatchObject({ state: "guest", ways: { google: null, email: null, passkeys: 0 } });
+  });
+
   test("[account:guest-secures-the-life] given a proof, when an account takes the address before Begin on Play's start, then the life starts as a plain guest and the reply says the email was taken", async () => {
     const h = harness();
     const jar = await proved(h, "ada@example.com");
