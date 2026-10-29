@@ -12,7 +12,7 @@ import { readPerson } from "../../shared/front-door/person";
 import { bandName as characterName } from "../../shared/share/face";
 import { FigurePicture } from "../../shared/front-door/LookPicture";
 import { DEFAULT_LOOK, lookOf } from "../../shared/front-door/looks";
-import { plannedShut, worldVar } from "../../authority/store";
+import { plannedShut, VIEW_RETRY_MS, worldVar } from "../../authority/store";
 import { keptLookFile } from "../../shared/front-door/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
@@ -111,8 +111,10 @@ const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.eng
 const STANDING_NUDGES: ReadonlySet<string> = new Set(["setpiece", "offer", "dues"]);
 
 // world:lazy-part-fails-softly: each part fetched on first use fails softly, the world kept and the connection card up with Retry.
-const CityScene = softLazy(() => import("./scene/CityScene"));
-const Bag = softLazy(() => import("./Bag"));
+// The scene and the bag draw the world's first load, so one fetch a reload or a dropped connection cut is made again after the
+// view's pauses before the card shows (city:places-load-on-entry: the place's name and its bar stand meanwhile).
+const CityScene = softLazy(() => import("./scene/CityScene"), { again: VIEW_RETRY_MS });
+const Bag = softLazy(() => import("./Bag"), { again: VIEW_RETRY_MS });
 // The send-off as a scene (chapter:send-off-scene-in-beats): its own chunk, fetched only when the gate's act is picked (engine:first-download-has-budget).
 const SendOffScene = softLazy(() => import("./sendoff/SendOffScene"));
 /** world:lazy-part-fails-softly: the bag, fetched ahead once the world is up; the send-off joins it once a flight is boardable. */

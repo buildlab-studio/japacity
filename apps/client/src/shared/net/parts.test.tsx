@@ -7,7 +7,7 @@ import { type ReactNode, Suspense } from "react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
-import { createGameStore } from "../../authority/store";
+import { createGameStore, VIEW_RETRY_MS } from "../../authority/store";
 import { CountedBoundary } from "../analytics/CountedBoundary";
 import { engineView } from "../testing/fixtures";
 import { TroubleCard } from "../ui/Trouble";
@@ -95,6 +95,39 @@ describe("a part loaded on first use (world:lazy-part-fails-softly)", () => {
     world(Part);
     await waitFor(() => expect(document.querySelector("[data-part]")).not.toBeNull());
     expect(part.calls()).toBe(2);
+    expect(document.querySelector("[data-trouble]")).toBeNull();
+  });
+});
+
+describe("a part of the world's first load (world:lazy-part-fails-softly, city:places-load-on-entry)", () => {
+  /** The pauses a part asked for again waited, taken at once so the test runs no clock. */
+  function pauses() {
+    const waited: number[] = [];
+    return { waited, wait: (ms: number) => Promise.resolve(void waited.push(ms)) };
+  }
+
+  test("[world:lazy-part-fails-softly] [city:places-load-on-entry] given the place's scene fails to load once, as a fetch a reload or a dropped connection cut, then it is fetched again after the view's first pause and drawn, and no card shows", async () => {
+    const part = flaky(1);
+    const clock = pauses();
+    world(softLazy(part.load, { again: VIEW_RETRY_MS, wait: clock.wait }));
+    await waitFor(() => expect(document.querySelector("[data-part]")).not.toBeNull());
+    expect(part.calls()).toBe(2);
+    expect(clock.waited).toEqual(VIEW_RETRY_MS.slice(0, 1));
+    expect(document.querySelector("[data-trouble]")).toBeNull();
+  });
+
+  test("[world:lazy-part-fails-softly] [city:places-load-on-entry] given the place's scene fails on every fetch the pauses allow, then the connection card shows only after both pauses, and Retry fetches it at once and draws it", async () => {
+    const part = flaky(VIEW_RETRY_MS.length + 1);
+    const clock = pauses();
+    world(softLazy(part.load, { again: VIEW_RETRY_MS, wait: clock.wait }));
+    const retry = await screen.findByRole("button", { name: say("ui.trouble.retry") });
+    expect(part.calls()).toBe(VIEW_RETRY_MS.length + 1);
+    expect(clock.waited).toEqual([...VIEW_RETRY_MS]);
+    expect(document.querySelector("[data-trouble]")?.getAttribute("data-trouble-during")).toBe("part");
+    expect(document.querySelector("[data-world]")).not.toBeNull();
+    fireEvent.click(retry);
+    await waitFor(() => expect(document.querySelector("[data-part]")).not.toBeNull());
+    expect(part.calls()).toBe(VIEW_RETRY_MS.length + 2);
     expect(document.querySelector("[data-trouble]")).toBeNull();
   });
 });

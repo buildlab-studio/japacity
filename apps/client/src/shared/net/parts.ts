@@ -29,11 +29,38 @@ export type SoftPart<T extends AnyComponent> = LazyExoticComponent<T> & {
   ahead: () => Promise<void>;
 };
 
+/** How a part is asked for again before the card shows: the pause before each fetch again, and the wait (a test's own clock). */
+export interface SoftOptions {
+  again?: readonly number[];
+  wait?: (ms: number) => Promise<void>;
+}
+
+const realWait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+/** The fetch, made again after each pause while it fails; the last failure is the one handed on. */
+function withPauses<T>(load: () => Promise<T>, again: readonly number[], wait: (ms: number) => Promise<void>): () => Promise<T> {
+  return async () => {
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        return await load();
+      } catch (error) {
+        const pause = again[attempt];
+        if (pause === undefined) throw error;
+        await wait(pause);
+      }
+    }
+  };
+}
+
 /**
  * A part of the client fetched when first drawn, as `lazy` would, but failing softly. One fetch serves both the fetch ahead and the
- * drawing; a failed fetch is forgotten so the next one goes to the network.
+ * drawing; a failed fetch is forgotten so the next one goes to the network. A part the world's first load waits on (the place's
+ * scene) passes `again`: one failed fetch, as a reload or a dropped connection cuts, is made again after each pause before the card shows, as a failed view is.
  */
-export function softLazy<T extends AnyComponent>(load: () => Promise<{ default: T }>): SoftPart<T> {
+export function softLazy<T extends AnyComponent>(load: () => Promise<{ default: T }>, options: SoftOptions = {}): SoftPart<T> {
   let fetched: Promise<{ default: T }> | null = null;
   const once = () => {
     fetched ??= load().catch((error: unknown) => {
@@ -47,8 +74,9 @@ export function softLazy<T extends AnyComponent>(load: () => Promise<{ default: 
       () => undefined,
       () => undefined,
     );
+  const asked = withPauses(once, options.again ?? [], options.wait ?? realWait);
   return Object.assign(
-    lazy(() => fetchSoftly(once)),
+    lazy(() => fetchSoftly(asked)),
     { ahead },
   );
 }
