@@ -171,6 +171,21 @@ describe("Continue with Google's proof", () => {
     expect(await again.json()).toMatchObject({ ok: true, account: { state: "secured", ways: { google: ADA.email, email: ADA.email } } });
   });
 
+  test("[account:sign-in-without-secret] given Google's proof, when the Google row cannot be written at Continue (the identity joined elsewhere in the same instant), then the account stands saved by the email and the reply is the made account, never an error", async () => {
+    const h = harness();
+    const jar = await provedByGoogle(h);
+    await h.passAge(jar);
+    const internal = (await h.auth.$context).internalAdapter;
+    const write = internal.createAccount.bind(internal);
+    internal.createAccount = () => Promise.reject(new Error("unique violation"));
+    const made = await cont(h, jar);
+    internal.createAccount = write;
+    expect(made.status).toBe(200);
+    expect(await made.json()).toMatchObject({ ok: true, account: { state: "secured", ways: { google: null, email: ADA.email } } });
+    expect(h.tables.user).toHaveLength(1);
+    expect(googleRows(h)).toEqual([]);
+  });
+
   test("[account:sign-in-without-secret] given Google's proof in two browsers, when one continues, then the other's Continue is refused taken and its next Google sign-in opens the one account", async () => {
     const h = harness();
     const here = await provedByGoogle(h);

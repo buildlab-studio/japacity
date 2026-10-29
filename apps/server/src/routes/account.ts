@@ -181,8 +181,10 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (row.state === "guest") return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, NO_WAYS), ...(signed.headers.get(PROOF_TAKEN_HEADER) === null ? {} : { emailTaken: true as const }) });
     // account:sign-in-without-secret: a proof Google made joins its identity to the account, as Google's own row, through the library's
     // adapter, so its account hook judges it as any method (account/signup.ts, admitMethod) and keeps no token; Google signs straight in next time.
+    // A row refused here (the identity banned or joined elsewhere in the same instant) leaves the account saved by the email, which
+    // is made already: the reply is the account without Google, and Google joins later by the verified address where it may.
     const google = signed.headers.get(PROOF_GOOGLE_HEADER);
-    if (google !== null) await context.internalAdapter.createAccount({ userId: row.id, providerId: "google", accountId: google });
+    if (google !== null) await context.internalAdapter.createAccount({ userId: row.id, providerId: "google", accountId: google }).catch(() => null);
     // Born secured by a proved address: the same marks as a guest that kept its life (account/link.ts).
     await deps.stores.boards.setListed(row.id, true);
     await countSecured(deps, row.id);
