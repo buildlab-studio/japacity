@@ -14,7 +14,9 @@ import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "../fea
 import { FrontDoor } from "../features/front-door/FrontDoor";
 import type { AccountApi, FreeAnswer, GuestAnswer } from "../shared/net/auth";
 import { reportedError } from "../shared/net/http";
-import { engineView } from "../shared/testing/fixtures";
+import { accountView, engineView } from "../shared/testing/fixtures";
+import { lookOf, namesFor } from "../shared/front-door/looks";
+import { DOOR_KEY } from "../shared/storage/storage";
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
@@ -471,5 +473,19 @@ describe("the guest start at Begin", () => {
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     expect(lives).toHaveLength(2);
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toHaveLength(2);
+  });
+});
+
+describe("the door's name on Play's path (prologue:front-door-builds-a-person)", () => {
+  test("[prologue:front-door-builds-a-person] given Play, where the username is asked on the door's last page, when the door opens, then its name is the pool's whatever the account would say, and the username box is still empty", async () => {
+    const account = { ...fakeAccount(), view: () => Promise.resolve(accountView({ username: "olamide_88", character: null })) };
+    online(account);
+    const filled = await toTheDoor();
+    const sex = lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
+    const roll = (JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}") as { roll?: number }).roll ?? -1;
+    expect(filled).toBe(namesFor(sex, roll)[0]);
+    expect(filled).not.toBe("Olamide");
+    toThePage();
+    expect(usernameBox().value).toBe("");
   });
 });

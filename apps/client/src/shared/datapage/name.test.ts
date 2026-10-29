@@ -4,7 +4,7 @@ import { blockedWords, reservedNames } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { say } from "../words/text";
-import { DOOR_LISTS, NAME_LONGEST, NAME_SHORTEST, nameProblem, problemWords } from "./name";
+import { DOOR_LISTS, NAME_LONGEST, NAME_SHORTEST, nameFromUsername, nameProblem, problemWords } from "./name";
 
 const lists = { reserved: ["japacity", "admin", "support"], blocked: ["badword"] };
 
@@ -52,5 +52,33 @@ describe("the typed name", () => {
       expect(problemWords(problem)).toBe(say(`prologue.door.name.${problem}`, { shortest: NAME_SHORTEST, longest: NAME_LONGEST }));
       expect(problemWords(problem)).not.toMatch(/[{}]/);
     }
+  });
+});
+
+describe("the name a username gives", () => {
+  test("[prologue:front-door-builds-a-person] given a username that starts with a first name, then the door's name is its run of letters, the first a capital and the rest as typed, or lower case when the username is all capitals", () => {
+    expect(nameFromUsername("Olamide")).toBe("Olamide");
+    expect(nameFromUsername("olamide_88")).toBe("Olamide");
+    expect(nameFromUsername("OLAMIDE")).toBe("Olamide");
+    expect(nameFromUsername("OLAMIDE_88")).toBe("Olamide");
+    expect(nameFromUsername("olaMide")).toBe("OlaMide");
+    expect(nameFromUsername("ada2lagos")).toBe("Ada");
+  });
+
+  test("[prologue:front-door-builds-a-person] given a username whose letters make no first name, then it gives none and the pool's name stands", () => {
+    expect(nameFromUsername("x_99")).toBeNull();
+    expect(nameFromUsername("_ada")).toBeNull();
+    expect(nameFromUsername("99ada")).toBeNull();
+    expect(nameFromUsername("")).toBeNull();
+    expect(nameFromUsername("A".repeat(NAME_SHORTEST - 1) + "_1")).toBeNull();
+    expect(nameFromUsername("A".repeat(NAME_SHORTEST) + "_1")).toBe("A" + "a".repeat(NAME_SHORTEST - 1));
+  });
+
+  test("[prologue:front-door-builds-a-person] given a username whose letters hold a reserved or a blocked word, then it gives no name, as the door refuses that name typed", () => {
+    expect(nameFromUsername("admin_1")).toBeNull();
+    expect(nameFromUsername("japacityfan")).toBeNull();
+    expect(nameFromUsername("ashawo_9")).toBeNull();
+    expect(nameFromUsername("Badwordy", lists)).toBeNull();
+    expect(nameFromUsername("Tobi", lists)).toBe("Tobi");
   });
 });

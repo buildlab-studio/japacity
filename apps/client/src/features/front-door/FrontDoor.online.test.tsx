@@ -6,6 +6,7 @@ import { content } from "@japacity/content";
 import type { Command, Id, PlayerView } from "@japacity/sim";
 import { qualityIn, worldClockAt } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
+import type { AccountApi } from "../../shared/net/auth";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -16,6 +17,7 @@ import { archetypeOf } from "../../shared/front-door/archetypes";
 import { toTheArchetypes } from "../../shared/front-door/frontDoor.testing";
 import { readPerson } from "../../shared/front-door/person";
 import { playPresetOn } from "../../shared/net/preset.testing";
+import { accountView } from "../../shared/testing/fixtures";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.
@@ -105,5 +107,28 @@ describe("the front door online", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
     await waitFor(() => expect(document.querySelector("[data-gate]")).toBeNull());
     expect(store.getState().view?.chapter.current).toBe("chapter.find-your-feet");
+  }, 30000);
+});
+
+/** A signed-in account with no character yet, whose username was chosen before the door; only what the door reads of it. */
+function signedInAccount(username: string): AccountApi {
+  const view = () => Promise.resolve(accountView({ username, character: null }));
+  // Every other call answers nothing: the door reads only the view, and Google's return is none.
+  return new Proxy({} as AccountApi, {
+    get: (_target, key) => (key === "view" ? view : key === "returnedFromGoogle" ? () => null : () => Promise.resolve(null)),
+  });
+}
+
+describe("the door on the sign-in path (prologue:front-door-builds-a-person)", () => {
+  test("[prologue:front-door-builds-a-person] given a signed-in account with no character whose username is olamide_88, when the door opens, then its name is Olamide, and Begin keeps that name with the life", async () => {
+    const { server } = onlineServer("signed-in-name");
+    const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wait: () => Promise.resolve() });
+    const store = createGameStore(remote, { life: remote, lifeAgain: false, choosingLife: true, account: signedInAccount("olamide_88") });
+    render(<App store={store} />);
+    const name = await screen.findByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") }, { timeout: 10_000 });
+    await waitFor(() => expect(name.value).toBe("Olamide"));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
+    await waitFor(() => expect(readPerson()?.name).toBe("Olamide"), { timeout: 10_000 });
   }, 30000);
 });

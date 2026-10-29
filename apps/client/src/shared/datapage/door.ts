@@ -22,7 +22,7 @@ export interface DoorDraft {
   ready: string | null;
   /** The name as it stands: filled from the pool, or typed. */
   name: string;
-  /** True once the player typed the name: a new look then keeps it, where a filled one follows the look's sex. */
+  /** True once the name is the player's own, typed or given by the username: a new look then keeps it, where a filled one follows the look's sex. */
   typed?: boolean;
   /** True for a run Settings asked for: its second screen lists the ready lives in the place of the tiles. */
   asked?: boolean;

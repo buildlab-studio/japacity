@@ -273,6 +273,15 @@ function Opening() {
   );
 }
 
+/**
+ * The door for a signed-in account with no character: its username was chosen before the door (account:sign-in-without-secret),
+ * so the door's name starts from it (prologue:front-door-builds-a-person). Offline there is no account and no username.
+ */
+function ChosenDoor() {
+  const me = useAccountView();
+  return <FrontDoor username={me?.username ?? null} />;
+}
+
 /** The screen, with the card over it while a request waits to be sent again; the loading screen shows the card in its own place. */
 function Shell() {
   const waiting = useGame((state) => state.view === null && !state.signedOut && !state.choosingLife && state.failed === null);
@@ -310,7 +319,7 @@ function Screen() {
   // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (account:start-screen-over-live-city).
   // The live city stands behind it where WebGL draws; the compound comes back at the door.
   if (signedOut) return <AccountGate door={(guest) => <FrontDoor guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
-  if (choosingLife) return <FrontDoor />;
+  if (choosingLife) return <ChosenDoor />;
   if (view === null) return <Opening />;
   if (view.prologue !== null) return <PrologueView />;
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PageHandover onDone={() => setHandedOver(view.v)} />;

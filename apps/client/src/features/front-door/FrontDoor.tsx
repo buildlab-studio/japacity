@@ -13,9 +13,11 @@
 // the guest line; Begin makes the guest life before the character. Enter in the box is Begin, and a Begin refused for the
 // name brings the box into view and focuses it, the reason under it. The box stays under the homes: the page is where
 // you live, and the refusal itself brings the box up wherever the page was scrolled.
+// Signed in with no character, the username was chosen before the door, so a new run's name starts from it where it can be
+// a first name; a name the player typed or rolled, and a run kept on the device, keep theirs.
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { useScreenCount } from "../../shared/analytics/useScreenCount";
@@ -33,7 +35,7 @@ import { isMade } from "../../shared/front-door/style";
 import { takeReadyAsk } from "../../shared/front-door/ready";
 import { madePhoto } from "../../shared/datapage/photo";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
-import { nameProblem } from "../../shared/datapage/name";
+import { nameFromUsername, nameProblem } from "../../shared/datapage/name";
 import { startYearFor, stepsOpen } from "../../shared/datapage/age";
 import { readyMonths, yearsOf } from "../../shared/datapage/years";
 import { Board, HomeRow, ReadyHome, thingOf } from "./HomeScreen";
@@ -68,12 +70,22 @@ function freshDraft(look: string): DoorDraft {
   return { stage: "you", look, archetype: first?.id ?? null, ready: null, name: filledName(look, roll), typed: false, roll, age: 0, ...(first === undefined ? {} : { home: homeOf(first) }) };
 }
 
-/** The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the ready lives. */
-function startDraft(): DoorDraft {
+/** A new run's name from the username chosen before the door, where it gives one: the player's own, so a new look keeps it as a typed one. */
+function namedFrom(draft: DoorDraft, username: string | null): DoorDraft {
+  const given = username === null ? null : nameFromUsername(username);
+  return given === null ? draft : { ...draft, name: given, typed: true };
+}
+
+/**
+ * The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the
+ * ready lives. `fresh` says the run is new this visit, so a username read later may still give it its name.
+ */
+function startDraft(username: string | null): { draft: DoorDraft; fresh: boolean } {
   const kept = readDoor();
   // Settings' "Start from a ready life" opens on the ready lives themselves; Back reaches the name.
-  if (takeReadyAsk()) return { ...freshDraft(gateLook(kept?.look)), asked: true, stage: "ready" };
-  return kept !== null && kept.stage !== "begun" ? { ...kept, look: gateLook(kept.look) } : freshDraft(gateLook(kept?.look));
+  if (takeReadyAsk()) return { draft: { ...namedFrom(freshDraft(gateLook(kept?.look)), username), asked: true, stage: "ready" }, fresh: username === null };
+  if (kept !== null && kept.stage !== "begun") return { draft: { ...kept, look: gateLook(kept.look) }, fresh: false };
+  return { draft: namedFrom(freshDraft(gateLook(kept?.look)), username), fresh: username === null };
 }
 
 /** The screen before, for the back button. */
@@ -157,7 +169,11 @@ export function doorScreen(stage: DoorStage): "door-1" | "door-2" | "page" | nul
   }
 }
 
-export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
+/**
+ * `username`: the account's username where it was chosen before the door (the sign-in path), null while unknown or where
+ * the door asks it last (Play's path); a new run's name starts from it (prologue:front-door-builds-a-person).
+ */
+export function FrontDoor({ guest = null, username: chosen = null }: { guest?: DoorGuest | null; username?: string | null }) {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
   // The life chooser cannot be opened again where a life is started only once (account:one-character-per-account).
@@ -165,11 +181,24 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
   // Opened from Settings over a life: the ready lives' back returns to it.
   const backToLife = useGame((state) => (state.view === null ? null : state.closeLifeChooser));
   // The run as it opens is kept at once, so a reload keeps the name it filled.
-  const [draft, setDraft] = useState<DoorDraft>(() => {
-    const opened = startDraft();
-    keepDoor(opened);
+  const [opening] = useState(() => {
+    const opened = startDraft(chosen);
+    keepDoor(opened.draft);
     return opened;
   });
+  const [draft, setDraft] = useState<DoorDraft>(opening.draft);
+  // A new run nobody has touched yet takes the username's name once it is read; any change of the player's ends that.
+  const untouched = useRef(opening.fresh);
+  useEffect(() => {
+    if (chosen === null || !untouched.current) return;
+    untouched.current = false;
+    if (nameFromUsername(chosen) === null) return;
+    setDraft((was) => {
+      const next = namedFrom(was, chosen);
+      keepDoor(next);
+      return next;
+    });
+  }, [chosen]);
   const [tried, setTried] = useState(false);
   const [pressed, setPressed] = useState(false);
   // Offline the door is the first screen, so it carries the start screen's hook (text:hook-not-explanation).
@@ -179,6 +208,7 @@ export function FrontDoor({ guest = null }: { guest?: DoorGuest | null }) {
 
   // Kept as it changes, outside the state's updater, so the step is on the device even when the door closes at once.
   const change = (part: Partial<DoorDraft>): void => {
+    untouched.current = false;
     const next = { ...draft, ...part };
     keepDoor(next);
     setDraft(next);

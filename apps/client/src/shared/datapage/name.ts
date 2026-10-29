@@ -39,6 +39,18 @@ export function nameProblem(typed: string, lists: NameLists = DOOR_LISTS): NameP
   return null;
 }
 
+/**
+ * The first name a username gives the door (prologue:front-door-builds-a-person), or null where it gives none: the run of
+ * letters it starts with, a capital first and the rest as typed, or in lower case when those letters are all capitals,
+ * so "olamide_88" and "OLAMIDE" are both Olamide. A run the door would refuse as a typed name gives none.
+ */
+export function nameFromUsername(username: string, lists: NameLists = DOOR_LISTS): string | null {
+  const run = /^[A-Za-z]+/.exec(username.trim())?.[0] ?? "";
+  const rest = run === run.toUpperCase() ? run.slice(1).toLowerCase() : run.slice(1);
+  const name = run.charAt(0).toUpperCase() + rest;
+  return nameProblem(name, lists) === null ? name : null;
+}
+
 /** The door's words for a problem. */
 export function problemWords(problem: NameProblem): string {
   return say(`prologue.door.name.${problem}`, { shortest: NAME_SHORTEST, longest: NAME_LONGEST });
