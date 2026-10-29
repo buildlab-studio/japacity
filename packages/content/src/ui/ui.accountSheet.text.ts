@@ -1,19 +1,20 @@
 // The account sheet's own words, in the voice of docs/rules/text.md: the username's change, the life's name, the usage counts,
-// the bank-full notice's switch, the passkeys, signing out and deleting the account. Read only once the account's row in
+// the bank-full notice's switch, the passkeys, signing out and deleting the account, a guest's among them. Read only once the account's row in
 // Settings is tapped, or once the card that offers a passkey after a way in is due, so they ride a chunk of their own, fetched
 // then (engine:first-download-has-budget); the row's own words stay in ui.online.text.ts.
 export const uiAccountSheetText: Record<string, string> = {
   // The username and its change (account:username-and-unconfirmed-email), and the life's name beside it
   "ui.account.name.wait": "You changed it not long ago. You can change it again from {date}.",
   "ui.account.name.change": "Change it",
+  "ui.account.name.step": "Change your username",
   "ui.account.name.change.go": "Save the new name",
-  "ui.account.name.change.cancel": "Cancel",
   "ui.account.name.changed": "Saved. Others now see {name}.",
   "ui.account.name.free": "Your first change is free. After that, changes come a while apart.",
   "ui.account.person.label": "Character's name",
 
   // The usage counts setting (analytics:player-can-stop-usage-counts)
   "ui.account.usage": "Send usage counts",
+  "ui.account.usage.what": "What is this?",
   "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
   "ui.account.usage.failed": "That did not save. Try again in a moment.",
 
@@ -53,9 +54,11 @@ export const uiAccountSheetText: Record<string, string> = {
   // An admin's removal from a session that has not shown a passkey (account:passkey-needs-signed-in-session)
   "ui.account.fail.passkey-first-remove": "Sign in with your passkey first, then remove it.",
 
-  // Signing out here or everywhere (account:sign-out-ends-the-session), a guest warned first (account:guest-reminded-to-secure)
-  "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you save it.",
-  "ui.guest.sign-out.go": "Sign out and leave this life",
+  // A guest's deletion, its one costly row, with Delete my account and Delete for good below (account:player-deletes-account, account:sign-out-ends-the-session)
+  "ui.account.delete.guest": "This life lives only on this phone, so deleting it ends it here and nothing of it is saved.",
+  "ui.account.delete.save": "Save this life first",
+
+  // Signing out here or everywhere (account:sign-out-ends-the-session)
   "ui.account.sign-out": "Sign out",
   "ui.account.sign-out.all": "Sign out on every phone",
   "ui.account.sign-out.all.warn": "This signs you out everywhere, this phone too.",
@@ -67,8 +70,13 @@ export const uiAccountSheetText: Record<string, string> = {
   "ui.account.delete.warn": "This ends your life in Japacity for good. Your character, your saves and your account go, and nobody can bring them back.",
   "ui.account.delete.confirm": "Delete for good",
   "ui.account.delete.keep": "Keep my account",
-  "ui.account.delete.fresh": "Before it goes, show it is you: sign in again, or get a code by email.",
+  "ui.account.delete.fresh": "Before it goes, show it is you.",
+  "ui.account.delete.passkey": "Delete with a passkey",
   "ui.account.delete.code": "Send a code to {email}",
   "ui.account.delete.code.go": "Delete with this code",
   "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
+  // The other ways to show it is you, as quiet links under the one shown first
+  "ui.account.delete.use.passkey": "Use a passkey instead",
+  "ui.account.delete.use.code": "Use a code instead",
+  "ui.account.delete.use.google": "Use Google instead",
 };

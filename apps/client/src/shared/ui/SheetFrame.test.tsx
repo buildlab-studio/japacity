@@ -134,3 +134,38 @@ test("[world:sheets-one-frame] given a laptop, then no sheet's motion comes in f
   expect(sheetRules.length).toBeGreaterThan(0);
   expect(sheetRules.filter((body) => body.includes("translateX"))).toEqual([]);
 });
+
+/** The nearest ancestor of `element` inside the sheet's popup that scrolls, by its class, or null when none does. */
+function scrollerOf(element: Element): HTMLElement | null {
+  for (let at = element.parentElement; at !== null && !at.hasAttribute("data-sheet-frame"); at = at.parentElement) {
+    if (/\boverflow-y-auto\b/.test(at.className)) return at;
+  }
+  return null;
+}
+
+describe.each([
+  ["the world sheet", () => <WorldSheet open onClose={() => undefined} label="Label" title="Title" mark="test" foot={<button type="button">Main</button>}><p>Inside</p></WorldSheet>],
+  ["the account sheet", () => <Sheet open onOpenChange={() => undefined} title="Settings" foot={<button type="button">Main</button>}><p>Inside</p></Sheet>],
+] as const)("%s's head and foot", (_name, draw) => {
+  test("[world:sheets-one-frame] [world:reach-and-read] given a body taller than the sheet, when the body scrolls, then the handle, the title, the close and the foot's main button stay in view: only the body scrolls", () => {
+    within(draw());
+    const frame = document.querySelector<HTMLElement>("[data-sheet-frame]");
+    expect(frame?.className).not.toMatch(/\boverflow-y-auto\b/);
+    const inside = screen.getByText("Inside");
+    const body = scrollerOf(inside);
+    expect(body).not.toBeNull();
+    const close = screen.getByRole("button", { name: "Close" });
+    const title = screen.getByRole("dialog").querySelector("h2");
+    const handle = document.querySelector("[data-sheet-handle]");
+    const main = screen.getByRole("button", { name: "Main" });
+    for (const fixed of [close, title, handle, main]) {
+      expect(fixed).not.toBeNull();
+      expect(scrollerOf(fixed!)).toBeNull();
+      expect(body!.contains(fixed)).toBe(false);
+    }
+    // The foot stands under the body, the head over it.
+    expect(body!.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(body!.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+});
+

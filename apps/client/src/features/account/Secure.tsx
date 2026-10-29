@@ -20,7 +20,6 @@ import { Button } from "../../shared/ui/Button";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";
 import { useEarlyWin } from "../../shared/ui/stage";
-import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { inAppBrowser } from "./inApp";
@@ -113,8 +112,10 @@ export interface SecureSheetProps {
 
 /**
  * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code; a passkey is offered once the life is
- * kept, by the card after the welcome line and on the settings (account:passkey-offered-where-it-works). Once kept, the sheet says
- * only that: the kept heading, the one line and its close, with no reason, no ways to keep and no Not now.
+ * kept, by the card after the welcome line and on the settings (account:passkey-offered-where-it-works). Once the code is sent the
+ * sheet says one thing at a time (account:code-form-forgives): the reason, Google and "Or with your email" step back, and the
+ * code step stands alone with Not now. Once kept, the sheet says only that: the kept heading, the one line and its close, with no
+ * reason, no ways to keep and no Not now.
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, taken: takenBack = false, agent }: SecureSheetProps) {
   const earlyWin = useEarlyWin();
@@ -129,6 +130,9 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   const inApp = inAppBrowser(browser);
   // A way in that already has a life, with the address when the code was the way: the kept life can be opened instead.
   const [taken, setTaken] = useState<{ email: string | null } | null>(takenBack ? { email: null } : null);
+  // The address a code went to: the code step, which stands alone.
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const coded = sentTo !== null;
 
   useEffect(() => setReturned(given), [given]);
   useEffect(() => setTaken(takenBack ? { email: null } : null), [takenBack]);
@@ -154,6 +158,8 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
 
   function openChange(next: boolean) {
     if (!next && keptWith !== null) tellWay(account, `kept.${keptWith}`);
+    // The sheet's parts go as it closes, the code form with them, so it opens again at its first step.
+    if (!next) setSentTo(null);
     onOpenChange(next);
   }
 
@@ -162,8 +168,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
       open={open}
       onOpenChange={openChange}
       title={say(done ? "ui.secure.done.title" : "ui.secure.title")}
-      {...(done ? {} : { description: reason ?? say("ui.secure.why") })}
-      top={<Wordmark ground="light" />}
+      {...(done || coded ? {} : { description: reason ?? say("ui.secure.why") })}
     >
       {done ? (
         <div className="flex flex-col gap-3">
@@ -179,22 +184,22 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
         </div>
       ) : (
         <div className="flex flex-col gap-4" data-secure-sheet>
-          {returned === null ? null : (
+          {returned === null || coded ? null : (
             <p role="alert" className="font-bold text-bad" data-google-returned>
               {returned}
             </p>
           )}
           {/* Inside an in-app browser the life lives in that app's own browser: it is kept here, by the code. */}
-          {inApp ? (
+          {coded ? null : inApp ? (
             <p data-in-app>{say("ui.secure.in-app")}</p>
           ) : (
             <GoogleButton label={say("ui.secure.google")} disabled={busy} onClick={() => void google()} />
           )}
           <div className="flex flex-col gap-2">
-            {inApp ? null : <p className="text-sm text-text-2">{say("ui.secure.or")}</p>}
-            <CodeForm account={account} sendLabel={say("ui.secure.code.send")} goLabel={say("ui.secure.code.go")} onSignedIn={kept} onTaken={(email) => setTaken({ email })} />
+            {inApp || coded ? null : <p className="text-sm text-text-2">{say("ui.secure.or")}</p>}
+            <CodeForm account={account} sendLabel={say("ui.secure.code.send")} goLabel={say("ui.secure.code.go")} onSignedIn={kept} onTaken={(email) => setTaken({ email })} onStep={setSentTo} />
           </div>
-          {problem === null ? null : (
+          {problem === null || coded ? null : (
             <p role="alert" className="text-bad">
               {problem}
             </p>

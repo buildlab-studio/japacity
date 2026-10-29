@@ -1,13 +1,11 @@
-import { start } from "@japacity/sim/testing";
-
 import { expect, type Page } from "@playwright/test";
 import { test } from "./support/policy";
 
 // The guest start and keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email, account:guest-floods-are-capped, account:idle-guests-cleaned-by-hand and account:guest-reminded-to-secure), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
-import { content, uiOnlineText, uiText } from "../../../packages/content/src/index";
-import { accountView } from "../src/shared/testing/fixtures";
-import { type Answer, clockAt, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
+import { uiOnlineText, uiText } from "../../../packages/content/src/index";
+import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastTheCard } from "./support/account";
+import { type Answer, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
 import { shootAtSize, shootPhone } from "./support/preview";
 
 test.use({ baseURL: ONLINE });
@@ -15,38 +13,9 @@ test.use({ baseURL: ONLINE });
 /** The account pictures are phone pictures, taken on the Pixel projects only, at 390 by 844. */
 const PICTURE = { width: 390, height: 844 };
 
-const CLOCK = clockAt(3);
-const GUEST = accountView({ id: "account-guest", state: "guest" });
-/** The same life once kept with Google: Google's address is the code's address too (GET /api/account's ways). */
-const KEPT_WITH_GOOGLE = { ...GUEST, state: "secured", ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } };
-
 /** The faked server, every request kept in `sent`; the bot check's box drawn whatever it is asked. */
 async function serve(page: Page, answers: Record<string, Answer>, sent: string[] = []): Promise<void> {
   await fakeServer(page, answers, { heard: (asked) => sent.push(asked), check: { drawn: true } });
-}
-
-/**
- * The second chapter's mission card opens over the world as it loads, handed by its person (docs/design/09-the-games-look.md section 4);
- * the asks wait until its Let's go is pressed (account:guest-secures-the-life).
- */
-async function pastTheCard(page: Page): Promise<void> {
-  const card = page.locator("[data-brief='chapter.build-the-file']");
-  await expect(card).toBeVisible({ timeout: 20_000 });
-  // The keep-this-life ask never stands over the card (account:guest-secures-the-life: never over a moment or another card that is up).
-  await page.waitForTimeout(1500);
-  await expect(page.getByRole("dialog", { name: "Save this life" })).toHaveCount(0);
-  await card.getByRole("button", { name: "Let's go" }).click();
-  await expect(card).toHaveCount(0);
-}
-
-/** A guest's life past its first chapter, so the early win is in and the first ask is due. */
-function pastFirstChapter(): Answer {
-  const game = start({ scenario: "scenario.banker", content });
-  game.grant(1);
-  const view = game.view();
-  // The file's own items, none met yet: the first chapter's items under the file's id would name steps it does not have.
-  const items = (content.chapter["chapter.build-the-file"]?.items ?? []).map((item) => ({ id: item.id, met: false }));
-  return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file", items } }, lines: [], clock: CLOCK } };
 }
 
 test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email] [account:username-typed-and-checked] [guide:nothing-asked-before-early-win] a new visitor passes the age screen and types a username into the empty box on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {

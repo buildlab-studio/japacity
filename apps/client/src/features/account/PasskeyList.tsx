@@ -1,11 +1,12 @@
-// The passkeys of a kept life on its account sheet (account:passkeys-listed-and-removed): each one by its provider's
-// name and the day it was added, with Remove; adding one where the browser can make it, always with its line
-// (account:passkey-offered-where-it-works); and the confirmation a session older than the server's fresh age needs
-// before a passkey is added, made in place with a code or the account's own passkey (account:passkey-needs-signed-in-session).
-// Removing any passkey asks once, naming that phones signed in with it are signed out, and for the last one the way still
-// left; Keep it is the main button, Remove it wears the warning colour apart from it (world:costly-acts-confirmed).
+// The passkeys of a saved life on its account sheet (account:passkeys-listed-and-removed): each one by its provider's
+// name and the day it was added, with Remove, under their count, which is the list's own once it is read; adding one where the
+// browser can make it, always with its line (account:passkey-offered-where-it-works); and the confirmation a session older
+// than the server's fresh age needs before a passkey is added, made in place with a code or the account's own passkey
+// (account:passkey-needs-signed-in-session). Removing any passkey asks once, in that passkey's own row, naming that phones
+// signed in with it are signed out, and for the last one the way still left; Keep it is the main button, Remove it wears the
+// warning colour apart from it (world:costly-acts-confirmed); the row then says it is removed, in the same place.
 import type { AccountView } from "@japacity/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type HTMLAttributes } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult, PasskeyRow } from "../../shared/net/auth";
@@ -15,6 +16,7 @@ import { CodeForm, failureWords } from "./CodeForm";
 import { inAppBrowser } from "./inApp";
 import { markPasskeyHere } from "./marks";
 import { refreshAccount } from "./standing";
+import { FocusLine, useShownWhole, useSteps } from "./steps";
 
 /**
  * account:passkey-offered-where-it-works: whether a passkey can be made here; null while the browser is asked. Never inside an
@@ -51,35 +53,50 @@ function lastWords(ways: AccountView["ways"]): string {
 }
 
 /** `passkeyOnly`: the server asks for a session that has shown a passkey (an admin's, account:passkey-needs-signed-in-session), which a code does not open. */
-type Step = { kind: "idle" } | { kind: "confirm"; email: string | null; passkeyOnly?: true } | { kind: "remove"; row: PasskeyRow; name: string };
+interface Confirm {
+  email: string | null;
+  passkeyOnly?: true;
+}
+
+/** The sheet's step ids: the confirmation before a passkey is added, and the question before one is removed. */
+const ADD = "passkey-add";
+const REMOVE = "passkey-remove:";
 
 export function PasskeyList({ account, ways }: { account: AccountApi; ways: AccountView["ways"] }) {
   const leave = useGame((state) => state.leave);
   const works = usePasskeysWork(account);
   const [rows, setRows] = useState<PasskeyRow[] | null>(null);
-  const [step, setStep] = useState<Step>({ kind: "idle" });
+  // Each read of the list, counted: the list is read as the sheet opens and again after a passkey is added.
+  const [reads, setReads] = useState(0);
+  const [open, show] = useSteps();
+  const [confirm, setConfirm] = useState<Confirm>({ email: null });
+  // The passkeys removed while the sheet is open; the last one's row says so, in its own place.
+  const [gone, setGone] = useState<readonly string[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-  const held = ways.passkeys;
+  const [rowProblem, setRowProblem] = useState<string | null>(null);
 
+  // The list is read whatever the account last said it held: a passkey added or removed on another phone since then is listed as it is.
   useEffect(() => {
     let live = true;
-    if (held === 0) {
-      setRows([]);
-      return;
-    }
     void account.passkeys().then((answer) => {
       if (live) setRows(answer);
     });
     return () => {
       live = false;
     };
-  }, [account, held]);
+  }, [account, reads]);
+
+  const listed = rows === null ? null : rows.filter((row) => !gone.includes(row.id));
+  // account:passkeys-listed-and-removed: the count is the list's own once the list is read, so the two never disagree.
+  const held = listed === null ? ways.passkeys : listed.length;
+  const removedLast = gone.at(-1) ?? null;
 
   async function run<T>(action: () => Promise<T>): Promise<T> {
     setBusy(true);
     setProblem(null);
+    setRowProblem(null);
     setMessage(null);
     try {
       return await action();
@@ -91,22 +108,26 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
   /** A cancel is quiet; a confirmation that came before it asks for a tap to finish, as some phones want one for each passkey prompt. */
   function settleAdd(result: AuthResult, confirmed: boolean) {
     if (result.ok) {
-      setStep({ kind: "idle" });
+      show(null);
       // account:passkey-in-email-autofill: this browser has made one, so its ways back in put the passkey first.
       markPasskeyHere();
       setMessage(say("ui.account.passkey.added"));
-      // The passkeys held are read again, so the count and the list show the new one.
+      // The passkeys are read again, so the count and the list show the new one.
+      setGone([]);
+      setReads((count) => count + 1);
       void refreshAccount(account);
       return;
     }
     // An admin's session that has not shown a passkey lately is confirmed in place too, by the account's own passkey (account:passkey-added-in-place).
     if (result.why === "passkey-first" && held > 0) {
-      setStep({ kind: "confirm", email: null, passkeyOnly: true });
+      setConfirm({ email: null, passkeyOnly: true });
+      show(ADD);
       return;
     }
     if (result.why === "not-fresh") {
-      setStep({ kind: "confirm", email: null });
-      void account.email().then((email) => setStep((now) => (now.kind === "confirm" ? { kind: "confirm", email } : now)));
+      setConfirm({ email: null });
+      show(ADD);
+      void account.email().then((email) => setConfirm((now) => (now.passkeyOnly === true ? now : { email })));
       return;
     }
     if (result.why === "cancelled") {
@@ -116,11 +137,14 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
     setProblem(failureWords(result));
   }
 
-  const add = async () => settleAdd(await run(() => account.addPasskey()), false);
+  const add = async () => {
+    show(null);
+    settleAdd(await run(() => account.addPasskey()), false);
+  };
 
   /** The session is fresh again: the passkey is made at once. */
   const confirmed = async () => {
-    setStep({ kind: "idle" });
+    show(null);
     settleAdd(await run(() => account.addPasskey()), true);
   };
 
@@ -131,16 +155,22 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
   };
 
   const remove = async (row: PasskeyRow) => {
-    setStep({ kind: "idle" });
     const result = await run(() => account.removePasskey(row.id));
-    if (!result.ok) return setProblem(failureWords(result));
+    // A refusal stands in the question, which stays open; Keep it closes both.
+    if (!result.ok) return setRowProblem(failureWords(result));
     // Removing a way in can end this phone's session with the rest (account:session-is-secure-cookie).
     if (!result.signedIn) return leave("ui.account.notice.signed-out");
-    setMessage(say("ui.account.passkey.removed"));
+    show(null);
+    setGone((before) => [...before, row.id]);
     void refreshAccount(account);
   };
 
-  const asked = (row: PasskeyRow, name: string) => setStep({ kind: "remove", row, name });
+  const asked = (row: PasskeyRow) => {
+    setRowProblem(null);
+    setMessage(null);
+    setProblem(null);
+    show(`${REMOVE}${row.id}`);
+  };
 
   return (
     <div className="flex flex-col gap-2" data-passkey-list>
@@ -150,51 +180,69 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
       {rows === null || rows.length === 0 ? null : (
         <ul className="flex flex-col gap-2">
           {rows.map((row) => {
+            if (row.id === removedLast) {
+              return (
+                <li key={row.id} className="flex min-h-11 items-center rounded-lg border border-sheet-line px-3 py-2" data-passkey={row.id} data-passkey-removed>
+                  <p role="status">{say("ui.account.passkey.removed")}</p>
+                </li>
+              );
+            }
+            if (gone.includes(row.id)) return null;
             const name = row.provider ?? say("ui.account.passkey.provider");
             const added = say("ui.account.passkey.added-on", { date: dayOf(row.addedAt) });
+            const asking = open === `${REMOVE}${row.id}`;
             return (
-              <li key={row.id} className="flex min-h-11 items-center gap-3 rounded-lg border border-sheet-line px-3 py-2" data-passkey={row.id}>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold">{name}</span>
-                  <span className="block text-sm text-text-2">{added}</span>
-                </span>
-                <Button small disabled={busy} aria-label={say("ui.account.passkey.remove.named", { name, date: dayOf(row.addedAt) })} onClick={() => asked(row, name)}>
-                  {say("ui.account.passkey.remove")}
-                </Button>
+              <li key={row.id} className="flex flex-col gap-2 rounded-lg border border-sheet-line px-3 py-2" data-passkey={row.id}>
+                <div className="flex min-h-11 items-center gap-3">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-bold">{name}</span>
+                    <span className="block text-sm text-text-2">{added}</span>
+                  </span>
+                  {asking ? null : (
+                    <Button small disabled={busy} aria-label={say("ui.account.passkey.remove.named", { name, date: dayOf(row.addedAt) })} onClick={() => asked(row)} data-step-opener={`${REMOVE}${row.id}`}>
+                      {say("ui.account.passkey.remove")}
+                    </Button>
+                  )}
+                </div>
+                {asking ? (
+                  <Shown className="motion-reveal flex flex-col gap-2 pb-1" role="group" data-passkey-ask>
+                    <FocusLine>{say("ui.account.passkey.remove.ask", { name })}</FocusLine>
+                    {held <= 1 ? <p>{lastWords(ways)}</p> : null}
+                    <div>
+                      <Button variant="primary" disabled={busy} onClick={() => show(null)}>
+                        {say("ui.account.passkey.last.keep")}
+                      </Button>
+                    </div>
+                    <div className="mt-1 border-t border-sheet-line pt-3">
+                      <Button variant="warning" disabled={busy} onClick={() => void remove(row)}>
+                        {say("ui.account.passkey.last.go")}
+                      </Button>
+                    </div>
+                    {rowProblem === null ? null : (
+                      <p role="alert" className="text-bad">
+                        {rowProblem}
+                      </p>
+                    )}
+                  </Shown>
+                ) : null}
               </li>
             );
           })}
         </ul>
       )}
-      {step.kind === "remove" ? (
-        <div className="motion-reveal flex flex-col gap-2" role="group">
-          <p>{say("ui.account.passkey.remove.ask", { name: step.name })}</p>
-          {held <= 1 ? <p>{lastWords(ways)}</p> : null}
-          <div>
-            <Button variant="primary" disabled={busy} onClick={() => setStep({ kind: "idle" })}>
-              {say("ui.account.passkey.last.keep")}
-            </Button>
-          </div>
-          <div className="mt-1 border-t border-sheet-line pt-3">
-            <Button variant="warning" disabled={busy} onClick={() => void remove(step.row)}>
-              {say("ui.account.passkey.last.go")}
-            </Button>
-          </div>
-        </div>
-      ) : null}
-      {works !== true || step.kind === "confirm" ? null : (
+      {works !== true || open === ADD ? null : (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-text-2">{say("ui.account.passkey.why")}</p>
           <div>
-            <Button disabled={busy} onClick={() => void add()}>
+            <Button disabled={busy} onClick={() => void add()} data-step-opener={ADD}>
               {say("ui.account.passkey.add")}
             </Button>
           </div>
+          <p className="text-sm text-text-2">{say("ui.account.passkey.why")}</p>
         </div>
       )}
-      {step.kind === "confirm" ? (
-        <div className="motion-reveal flex flex-col gap-3" data-passkey-confirm>
-          <p>{say("ui.account.passkey.fresh")}</p>
+      {open === ADD ? (
+        <Shown className="motion-reveal flex flex-col gap-3" data-passkey-confirm>
+          <FocusLine>{say("ui.account.passkey.fresh")}</FocusLine>
           {held > 0 ? (
             <div>
               <Button disabled={busy} onClick={() => void confirmWithPasskey()}>
@@ -202,21 +250,21 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
               </Button>
             </div>
           ) : null}
-          {step.email === null ? null : (
+          {confirm.email === null ? null : (
             <CodeForm
               account={account}
-              email={step.email}
-              sendLabel={say("ui.account.passkey.fresh.code", { email: step.email })}
+              email={confirm.email}
+              sendLabel={say("ui.account.passkey.fresh.code", { email: confirm.email })}
               goLabel={say("ui.account.passkey.fresh.code.go")}
               onSignedIn={() => void confirmed()}
             />
           )}
           <div>
-            <Button variant="quiet" disabled={busy} onClick={() => setStep({ kind: "idle" })}>
+            <Button variant="quiet" disabled={busy} onClick={() => show(null)}>
               {say("ui.account.passkey.later")}
             </Button>
           </div>
-        </div>
+        </Shown>
       ) : null}
       {message === null ? null : <p role="status">{message}</p>}
       {problem === null ? null : (
@@ -224,6 +272,16 @@ export function PasskeyList({ account, ways }: { account: AccountApi; ways: Acco
           {problem}
         </p>
       )}
+    </div>
+  );
+}
+
+/** A question asked in place, brought whole into view as it opens (steps.tsx). */
+function Shown({ children, ...rest }: HTMLAttributes<HTMLDivElement> & Record<`data-${string}`, string | boolean | undefined>) {
+  const group = useShownWhole<HTMLDivElement>();
+  return (
+    <div ref={group} {...rest}>
+      {children}
     </div>
   );
 }

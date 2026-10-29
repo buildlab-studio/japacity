@@ -754,7 +754,7 @@ describe("deleting the account", () => {
     const account = fakeAccount({ view: () => Promise.resolve({ ...SECURED, ways: { ...SECURED.ways, passkeys: 1 } }) });
     const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
     askToDelete();
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.passkey") }));
     await waitFor(() => expect(store.getState().signedOut).toBe(true));
     expect(account.calls).toEqual(["deleteAccount(null)", "confirmWithPasskey()", "deleteAccount(null)"]);
   });
@@ -769,7 +769,10 @@ describe("the delete confirmation's passkey", () => {
     expect(await screen.findByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) })).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     expect(screen.queryByText(say("ui.account.delete.google"))).toBeNull();
-    expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.passkey") })).toBeNull();
+    // With the code the one way, no other way is offered either.
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.use.google") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.use.passkey") })).toBeNull();
   });
 });
 
@@ -793,12 +796,58 @@ describe("the delete confirmation's colours and Google (account:player-deletes-a
     expect(keep.parentElement).not.toBe(remove.parentElement);
   });
 
+  test("[account:player-deletes-account] given a stale session on an account holding a passkey, its email and Google, then the confirmation shows one way first, the passkey, after Keep my account; the code and Google are quiet links, and Google's 10-minute line shows only once Google is picked", async () => {
+    const account = fakeAccount({ view: () => Promise.resolve({ ...LINKED, ways: { ...LINKED.ways, passkeys: 1 } }), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }) });
+    cleanUpAndSettings(account);
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    const passkey = await screen.findByRole("button", { name: say("ui.account.delete.passkey") });
+    const keep = screen.getByRole("button", { name: say("ui.account.delete.keep") });
+    expect(keep.className).toContain("bg-accent");
+    expect(keep.compareDocumentPosition(passkey) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
+    expect(screen.queryByText(say("ui.account.delete.google"))).toBeNull();
+    const useCode = await screen.findByRole("button", { name: say("ui.account.delete.use.code") });
+    const useGoogle = screen.getByRole("button", { name: say("ui.account.delete.use.google") });
+    for (const link of [useCode, useGoogle]) {
+      expect(link.className).toContain("underline");
+      expect(link.className).not.toContain("bg-accent");
+    }
+    fireEvent.click(useGoogle);
+    expect(screen.getByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(screen.getByText(say("ui.account.delete.google"))).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.passkey") })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.use.code") }));
+    expect(screen.getByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) })).toBeDefined();
+    expect(screen.queryByText(say("ui.account.delete.google"))).toBeNull();
+    expect(screen.getByRole("button", { name: say("ui.account.delete.use.passkey") })).toBeDefined();
+    expect(account.calls.filter((call) => call.startsWith("deleteAccount"))).toEqual([]);
+  });
+
+  test("[account:player-deletes-account] [world:costly-acts-confirmed] given a stale session confirmed by a passkey or a code, then the button that deletes wears the warning colour, never the main yellow: Delete with a passkey, and Delete with this code once the code is sent", async () => {
+    cleanUpAndSettings(fakeAccount({ view: () => Promise.resolve({ ...SECURED, ways: { ...SECURED.ways, passkeys: 1 } }), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }) }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    const passkey = await screen.findByRole("button", { name: say("ui.account.delete.passkey") });
+    expect(passkey.className).toContain("text-bad");
+    expect(passkey.className).toContain("border-bad");
+    expect(passkey.className).not.toContain("bg-accent");
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.use.code") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) }));
+    const go = await screen.findByRole("button", { name: say("ui.account.delete.code.go") });
+    expect(go.className).toContain("text-bad");
+    expect(go.className).toContain("border-bad");
+    expect(go.className).not.toContain("bg-accent");
+  });
+
   test("[account:player-deletes-account] given a stale session on an account Google is linked to, then Google is offered to confirm, and its trip goes as the deletion's", async () => {
     const trips: (string | undefined)[] = [];
     const account = fakeAccount({ view: () => Promise.resolve(LINKED), deleteAccount: () => Promise.resolve({ ok: false, why: "not-fresh" }), signInWithGoogle: (_bot, trip) => (trips.push(trip), Promise.resolve(OK)) });
     cleanUpAndSettings(account);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.use.google") }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.google") }));
     await waitFor(() => expect(trips).toEqual(["delete"]));
   });
@@ -808,6 +857,7 @@ describe("the delete confirmation's colours and Google (account:player-deletes-a
     cleanUpAndSettings(trip);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.use.google") }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.google") }));
     await act(() => Promise.resolve());
     cleanup();
@@ -830,6 +880,7 @@ describe("the delete confirmation's colours and Google (account:player-deletes-a
     cleanUpAndSettings(trip);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.confirm") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.use.google") }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.google") }));
     await act(() => Promise.resolve());
     cleanup();

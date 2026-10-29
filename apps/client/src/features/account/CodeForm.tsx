@@ -51,6 +51,8 @@ export interface CodeFormProps {
   /** What the typed code is used for; signing in with it unless given. */
   confirm?: (code: string) => Promise<AuthResult>;
   goLabel?: string;
+  /** The look of the button that sends the code: the warning colour where the code itself confirms a costly act (account:player-deletes-account). */
+  goVariant?: "primary" | "warning";
   /** Called once the code was taken. */
   onSignedIn: () => void;
   /** The code signed in to nothing and proved the address for a new life instead (account:sign-in-without-secret); signing in when left out. */
@@ -101,7 +103,7 @@ function withAddress(line: string, email: string, button: ReactNode): ReactNode 
   );
 }
 
-export function CodeForm({ account, bot = null, spentBot, email: known, filled, sent = false, sentSaid, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, onSignedIn, onNewLife, onTaken, onStep, onChange }: CodeFormProps) {
+export function CodeForm({ account, bot = null, spentBot, email: known, filled, sent = false, sentSaid, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, goVariant = "primary", onSignedIn, onNewLife, onTaken, onStep, onChange }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? filled ?? "");
   const [sentTo, setSentTo] = useState<string | null>(sent && known !== undefined ? known : null);
   // Each code sent, counted: the wait for the way to a new one starts again with each.
@@ -316,7 +318,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
                 {say("ui.account.code.again")}
               </Button>
             ) : (
-              <Button type="submit" variant="primary" disabled={busy || code === refused}>
+              <Button type="submit" variant={goVariant} disabled={busy || code === refused}>
                 {goLabel ?? say("ui.account.code.go")}
               </Button>
             )}

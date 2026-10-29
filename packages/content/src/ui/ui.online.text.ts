@@ -208,9 +208,9 @@ export const uiOnlineText: Record<string, string> = {
 
   // Saving a guest life (account:guest-and-secured-states, account:guest-secures-the-life, account:guest-reminded-to-secure)
   "ui.secure.title": "Save this life",
-  "ui.secure.why": "Right now this life lives only on this phone. Add Google or your email and you can come back to it on any phone.",
-  "ui.secure.ask.first-chapter": "You finished your first brief. Right now this life lives only on this phone. Save it, so you can come back to it anywhere.",
-  "ui.secure.ask.visa": "Big decisions are coming. Save this life first, so nothing you build is lost with this phone.",
+  "ui.secure.why": "This life lives only on this phone until you save it with Google or your email.",
+  "ui.secure.ask.first-chapter": "You finished your first brief. Save this life to play it on any phone.",
+  "ui.secure.ask.visa": "Big decisions are coming, so save this life before anything you build is lost with this phone.",
   "ui.secure.google": "Continue with Google",
   "ui.secure.in-app": "Google does not open inside this app. Save this life with your email here, then open it in any browser.",
   "ui.secure.or": "Or with your email",
