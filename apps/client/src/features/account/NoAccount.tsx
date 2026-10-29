@@ -1,7 +1,8 @@
 // The answer where a way back in finds no life after the player proved who they are (account:sign-in-without-secret): a
-// passkey this site does not know, or a trip to Google that found none. Proving with either tells only the person who holds
-// it, so the answer may say there is no life: what was found, in its own words, with "Start a new life" under it as the main
-// button. The emailed code never answers this way: its send answers every address alike.
+// passkey this site does not know, or a trip to Google that found none and proved nothing for a new life (an address Google
+// has not verified). Proving with either tells only the person who holds it, so the answer may say there is no life: what
+// was found, in its own words, with "Start a new life" under it as the main button. The emailed code never answers this
+// way: its send answers every address alike; Google with a verified address goes on to a new life's steps as the code does.
 import { Button } from "../../shared/ui/Button";
 
 export interface NoAccountProps {

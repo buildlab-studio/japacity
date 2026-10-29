@@ -142,13 +142,16 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.code.change": "Change",
   "ui.account.code.go": "Sign in",
   "ui.account.code.again": "Send a new code",
-  // A life that came by the code on the ways back in, for an address no account uses (account:sign-in-without-secret).
+  // A life that came by the code or by Google on the ways back in, for an address no account uses (account:sign-in-without-secret).
   "ui.account.kept.why": "No life is saved with {email} yet. Let's start one.",
   "ui.account.kept.other": "Use another email",
   "ui.account.kept.name.title": "Choose a username",
   "ui.account.kept.go": "Continue",
   "ui.account.kept.gone": "Your code ran out. We sent a new one to {email}.",
   "ui.account.kept.taken": "That email has a life now. We sent a code to {email} to open it.",
+  "ui.account.kept.other.google": "Use another way",
+  "ui.account.kept.gone.google": "Your Google sign-in ran out. Continue with Google again.",
+  "ui.account.kept.taken.google": "That email has a life now. Continue with Google to open it.",
   "ui.account.age.intro.kept": "Japacity asks everyone this before a life starts.",
   "ui.account.code.short": "The code is 6 digits.",
   "ui.account.bot.failed": "The quick check did not go through. Let it finish, then try again.",

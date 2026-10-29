@@ -7,8 +7,9 @@
 // (account:passkey-in-email-autofill).
 // None of them makes an account here. The code goes to every address alike, and only its right code tells the two apart: it
 // signs in where an account uses the address, and where none does it proves the address for a new life, which the gate
-// starts at the age screen and the username (account:sign-in-without-secret). A passkey or a trip to Google that finds no
-// account keeps its words, with "Start a new life" under them.
+// starts at the age screen and the username (account:sign-in-without-secret). Google's return with a verified address no
+// account uses proves it the same way. A passkey this site does not know, or a trip to Google that finds no account and
+// proves nothing (an address Google has not verified), keeps its words, with "Start a new life" under them.
 // Once a code is sent the sheet holds the code step alone (account:code-form-forgives). Signing in again needs no bot check
 // (account:bot-check-on-guest-creation).
 import { ArrowLeft } from "lucide-react";

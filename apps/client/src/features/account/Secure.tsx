@@ -291,6 +291,8 @@ export function SecureAsk() {
       });
       return;
     }
+    // Google's proof of a new life is the signed-out gate's to open (AccountGate.tsx); a signed-in world has nothing to say of it.
+    if (back === "new-life") return;
     // A kept life signed back in to with Google: the world says so, and nothing opens.
     if (back === "signed-in") {
       tellWay(account, "in.google");

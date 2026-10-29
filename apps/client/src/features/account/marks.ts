@@ -3,8 +3,9 @@
 // puts the passkey first on the ways back in (account:passkey-in-email-autofill). The game never clears either: a
 // signed-out player is the one most likely to come back. And the hand-over from a guest life to the ways back in, when
 // the guest chose to open the life it kept before (account:guest-secures-the-life). And the account a trip to Google left
-// from to confirm a deletion, so only the same account coming back is asked again (account:player-deletes-account).
-import { browserStorage, DELETE_TRIP_KEY, KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
+// from to confirm a deletion, so only the same account coming back is asked again (account:player-deletes-account). And the
+// username a new life's step held while a trip to Google made a fresh proof for it (account:sign-in-without-secret).
+import { browserStorage, DELETE_TRIP_KEY, KEPT_MARK_KEY, NEW_LIFE_NAME_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
 
 function marked(key: string): boolean {
   try {
@@ -58,5 +59,26 @@ export function backFromDeleteTrip(account: string): boolean {
     return left === account;
   } catch {
     return false;
+  }
+}
+
+/** Holds the username of a new life's step across a trip to Google; storage refused leaves the box empty on the way back. */
+export function holdNameForGoogle(username: string): void {
+  try {
+    browserStorage("session")?.setItem(NEW_LIFE_NAME_KEY, username);
+  } catch {
+    // A private window: the player types the name again.
+  }
+}
+
+/** The username held across a trip to Google, once; the mark goes as it is read. */
+export function nameBackFromGoogle(): string {
+  try {
+    const store = browserStorage("session");
+    const held = store?.getItem(NEW_LIFE_NAME_KEY) ?? "";
+    store?.removeItem(NEW_LIFE_NAME_KEY);
+    return held;
+  } catch {
+    return "";
   }
 }

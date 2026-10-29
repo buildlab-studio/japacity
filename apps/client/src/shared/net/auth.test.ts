@@ -506,3 +506,20 @@ describe("signing out (account:sign-out-ends-the-session)", () => {
     expect(routes(server)).toEqual(["POST /api/auth/revoke-sessions", "POST /api/auth/sign-out", "POST /api/auth/revoke-sessions"]);
   });
 });
+
+describe("Google's return with no life (account:sign-in-without-secret)", () => {
+  test("[account:sign-in-without-secret] given Google sent the page home with the new life's error, when it is read, then it is the new life's mark, once, and the address is left clean", () => {
+    const { api } = account();
+    history.replaceState(null, "", "/?error=new-life&error_description=No+life");
+    expect(api.returnedFromGoogle()).toBe("new-life");
+    expect(location.search).toBe("");
+    expect(api.returnedFromGoogle()).toBeNull();
+  });
+
+  test("[account:sign-in-without-secret] given a browser holding a live proof Google made, when it asks where it stands, then the address comes back marked as Google's, and a proof the code made carries no mark", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { body: { refused: false, passed: true, newLife: "ada@example.test", newLifeBy: "google" } }, { body: { refused: false, passed: false, newLife: "ada@example.test" } });
+    expect(await api.ageStatus()).toEqual({ proved: "ada@example.test", google: true, passed: true });
+    expect(await api.ageStatus()).toEqual({ proved: "ada@example.test", passed: false });
+  });
+});

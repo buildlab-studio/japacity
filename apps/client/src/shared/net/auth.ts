@@ -24,7 +24,7 @@ import type {
   UsernameFreeReply,
   UsernameRequest,
 } from "@japacity/api";
-import { NEW_LIFE_PATH, USERNAME_FREE_PATH } from "@japacity/api";
+import { GOOGLE_NEW_LIFE, NEW_LIFE_PATH, USERNAME_FREE_PATH } from "@japacity/api";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
@@ -80,8 +80,11 @@ type AuthFailure =
  */
 type GoogleTrip = "keep" | "sign-in" | "delete";
 
-/** A trip to Google that went through: the guest's life kept, a kept life signed back in to, or a deletion's confirmation to return to. */
-type GoogleDone = "kept" | "signed-in" | "delete";
+/**
+ * A trip to Google that went through: the guest's life kept, a kept life signed back in to, a deletion's confirmation to return to, or
+ * Google's address and identity proved for a new life, which the age standing names (account:sign-in-without-secret).
+ */
+type GoogleDone = "kept" | "signed-in" | "delete" | "new-life";
 
 /**
  * `newLife`: the code on the ways back in was right for an address no account uses, so it signed in to nothing and proved the
@@ -105,11 +108,12 @@ export type RemoveAnswer = { ok: true; signedIn: boolean } | { ok: false; why: A
 export type AgeStanding = "unasked" | "passed" | "refused";
 
 /**
- * account:sign-in-without-secret: this browser holds a live proof of `email`, made by the code on the ways back in, and has passed the
- * age screen already or not; the gate opens on the new life's step.
+ * account:sign-in-without-secret: this browser holds a live proof of `email`, made by the code on the ways back in or by Google's return
+ * (`google`), and has passed the age screen already or not; the gate opens on the new life's step.
  */
 export interface HeldProof {
   proved: string;
+  google?: true;
   passed: boolean;
 }
 
@@ -447,7 +451,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
         const reply = await server.get<AgeStatus | ServerRejection>("/api/age");
         if (!isRejection(reply)) {
           if (reply.refused === true) return "refused";
-          if (typeof reply.newLife === "string" && reply.newLife !== "") return { proved: reply.newLife, passed: reply.passed === true };
+          if (typeof reply.newLife === "string" && reply.newLife !== "") return { proved: reply.newLife, ...(reply.newLifeBy === "google" ? { google: true as const } : {}), passed: reply.passed === true };
           return reply.passed === true ? "passed" : "unasked";
         }
         if (reply.code === "switched-off") return full(reply);
@@ -526,6 +530,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       if (error === null && done === null) return null;
       for (const name of ["error", "error_description", GOOGLE_BACK]) url.searchParams.delete(name);
       if (typeof history !== "undefined") replaceAddress(`${url.pathname}${url.search}${url.hash}`);
+      if (error === GOOGLE_NEW_LIFE) return "new-life";
       if (error !== null) return FAILURES[error] ?? GOOGLE_FAILURES[error] ?? "google";
       if (done === GOOGLE_DONE.keep) return "kept";
       if (done === GOOGLE_DONE.delete) return "delete";

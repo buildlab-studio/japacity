@@ -16,7 +16,9 @@
 // life (account:sign-in-without-secret): the gate goes on to the age screen, unless this browser passed it already, and to the
 // username's own step, each under a line that says why the player is here; Continue there makes the account, kept by the
 // email, and the door follows as for any signed-in account with no character. The server says on load when this browser
-// holds a live proof, so a reload or another tab opens on that step again with the address shown.
+// holds a live proof, so a reload or another tab opens on that step again with the address shown. Google's return with no
+// life holds the same proof, of the address and the Google identity, so it opens the same steps in Google's words, and
+// Continue makes the account saved with Google.
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -33,7 +35,7 @@ import { Full, type FullCheck } from "./Full";
 import { cookiesOff, GuestForm, LAPSES_TOLD, useGuestDoor, type GuestDoor } from "./GuestStart";
 import { inAppBrowser } from "./inApp";
 import { KeptLine, KeptName } from "./KeptStart";
-import { doneWaysBackIn, keptHere, waysBackInAsked } from "./marks";
+import { doneWaysBackIn, keptHere, nameBackFromGoogle, waysBackInAsked } from "./marks";
 import { SheetColumn } from "../../shared/ui/look/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
@@ -56,7 +58,13 @@ type Step = "start" | "age" | "returning";
  */
 type Shown = "start" | "age" | "door" | "username" | "returning" | "other";
 
-function shownOf(standing: Standing, step: Step, embedded: boolean, proof: string | null): Shown {
+/** account:sign-in-without-secret: the live proof this browser holds: the address, and whether Google proved it. */
+interface Proof {
+  email: string;
+  google: boolean;
+}
+
+function shownOf(standing: Standing, step: Step, embedded: boolean, proof: Proof | null): Shown {
   if (typeof standing === "object") return "other";
   if (standing !== "unasked" && standing !== "passed") return "other";
   if (step === "returning") return "returning";
@@ -65,9 +73,9 @@ function shownOf(standing: Standing, step: Step, embedded: boolean, proof: strin
   return standing === "unasked" ? "age" : "door";
 }
 
-/** A standing read on load or after the full screen, with the address of a live proof this browser holds apart. */
-function heldOf(found: AgeStanding | FullStanding | HeldProof): { standing: AgeStanding | FullStanding; proof: string | null } {
-  if (typeof found === "object" && "proved" in found) return { standing: found.passed ? "passed" : "unasked", proof: found.proved };
+/** A standing read on load or after the full screen, with a live proof this browser holds apart. */
+function heldOf(found: AgeStanding | FullStanding | HeldProof): { standing: AgeStanding | FullStanding; proof: Proof | null } {
+  if (typeof found === "object" && "proved" in found) return { standing: found.passed ? "passed" : "unasked", proof: { email: found.proved, google: found.google === true } };
   return { standing: found, proof: null };
 }
 
@@ -106,10 +114,10 @@ function StartLights() {
   );
 }
 
-/** The username's own step of a life that came by the code: the guest start marked proved and kept (account:sign-in-without-secret). */
-function KeptLife({ account, email, sitekey, load, botWaitMs, lapses, username, onUsername, onLapse, onExpired, onFull, onStarted, onOther, onSignedIn, back }: { account: AccountApi; email: string; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; lapses: number; username: string; onUsername: (username: string) => void; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: (email: NewLifeEmail | null) => Promise<void>; onOther: () => void; onSignedIn: () => void; back: ReactNode }) {
+/** The username's own step of a life that came by the code or by Google: the guest start marked proved and kept (account:sign-in-without-secret). */
+function KeptLife({ account, proof, sitekey, load, botWaitMs, lapses, username, onUsername, onLapse, onExpired, onFull, onStarted, onOther, onSignedIn, back }: { account: AccountApi; proof: Proof; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; lapses: number; username: string; onUsername: (username: string) => void; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: (email: NewLifeEmail | null) => Promise<void>; onOther: () => void; onSignedIn: () => void; back: ReactNode }) {
   const guest = useGuestDoor({ account, sitekey, load, lapses, kept: true, proved: true, onLapse, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
-  return <KeptName account={account} email={email} door={guest} username={username} onUsername={onUsername} onOther={onOther} onHere={() => void onStarted("kept")} onSignedIn={onSignedIn} back={back} />;
+  return <KeptName account={account} email={proof.email} google={proof.google} door={guest} username={username} onUsername={onUsername} onOther={onOther} onHere={() => void onStarted("kept")} onSignedIn={onSignedIn} back={back} />;
 }
 
 /** The new life after the age screen: the door with the guest start at Begin, or, inside the invite page, the form. */
@@ -137,24 +145,29 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     if (next !== "returning") setWaysFill(null);
   };
   const [back, setBack] = useState<{ said: string; none: boolean } | null>(null);
-  // account:sign-in-without-secret: the address this browser's live proof holds, from the code just typed or the server on load.
-  const [proof, setProof] = useState<string | null>(null);
-  // The username typed on the username's own step, kept while the full screen or a new code stands in its place.
-  const [keptName, setKeptName] = useState("");
+  // account:sign-in-without-secret: this browser's live proof, from the code just typed or the server on load.
+  const [proof, setProof] = useState<Proof | null>(null);
+  // The username typed on the username's own step, kept while the full screen, a new code or a trip to Google stands in its place.
+  const [keptName, setKeptName] = useState(nameBackFromGoogle);
+  // Google came back with a new life's proof: the standing read on load names it, and opens the ways back in if it does not.
+  const fromGoogle = useRef(false);
   // How many times in a row the guest start found the age answer or the session gone: the cookie did not stay.
   const [lapses, setLapses] = useState(0);
   const shown = shownOf(standing, step, embedded, proof);
-  // A new life's step is left for the ways back in: its proof is dropped, and the address goes back filled in, or emptied.
-  const leaveProof = (email: string) => {
+  // A new life's step is left for the ways back in: its proof is dropped, and the address goes back filled in, or emptied with
+  // the focus in it; where Google proved it, the ways back in open as they stand.
+  const leaveProof = (fill: string | null) => {
     void account?.dropNewLife();
     setProof(null);
-    setWaysFill({ email, focus: true });
     go("returning");
+    if (fill !== null) setWaysFill({ email: fill, focus: true });
   };
+  const backFill = (held: Proof) => (held.google ? null : held.email);
+  const otherFill = (held: Proof) => (held.google ? null : "");
   // world:back-closes-topmost: the age screen, the door and the ways back in are a step over the start screen; Back and Escape
   // return to it. An age already answered stays answered, so Play goes on to the door. A new life's step came from the ways
   // back in, so Back returns there, its address filled in.
-  useBackLayer(!embedded && step !== "start", () => (proof !== null && step === "age" ? leaveProof(proof) : go("start")), { level: LEVEL.step });
+  useBackLayer(!embedded && step !== "start", () => (proof !== null && step === "age" ? leaveProof(backFill(proof)) : go("start")), { level: LEVEL.step });
   const key = counted(shown, embedded);
   const sheet = useRef<HTMLDivElement>(null);
   // The notice, said through one live region mounted before its words come.
@@ -180,12 +193,14 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     heading.focus({ preventScroll: true });
   }, [moved, shown, waysFill]);
 
-  // A trip to Google that found no life comes back here with the reason (account:guest-and-secured-states). One that went through opens
-  // the life instead, where the shell tells it (Secure.tsx), so it never lands here.
+  // A trip to Google that was refused comes back here with the reason (account:guest-and-secured-states). One that went through opens
+  // the life instead, where the shell tells it (Secure.tsx), so it never lands here; one that proved a new life's address is
+  // opened by the standing read on load (account:sign-in-without-secret).
   useEffect(() => {
     const failed = account?.returnedFromGoogle() ?? null;
+    if (failed === "new-life") fromGoogle.current = true;
     // A deletion's trip that came back signed out has nothing to confirm; the start screen stands.
-    if (failed === null || failed === "kept" || failed === "signed-in" || failed === "delete") return;
+    if (failed === null || failed === "kept" || failed === "signed-in" || failed === "delete" || failed === "new-life") return;
     setStep("returning");
     setBack({ said: failureWords({ ok: false, why: failed }) ?? "", none: failed === "no-life" });
   }, [account]);
@@ -212,7 +227,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
         if (found.proof !== null) {
           setProof(found.proof);
           setStep((now) => (now === "start" ? "age" : now));
+        } else if (fromGoogle.current) {
+          // Google said it proved a new life, but this browser holds no proof (its cookie did not stay): the trip did not finish.
+          setStep("returning");
+          setBack({ said: failureWords({ ok: false, why: "google" }) ?? "", none: false });
         }
+        fromGoogle.current = false;
         // account:age-screen-refuses-minors: a pass still held means the player was past the age screen before this reload or Back,
         // so the gate opens on the door's step (its run kept) instead of the start screen and the age asked again.
         if (found.standing === "passed") setStep((now) => (now === "start" ? "age" : now));
@@ -229,12 +249,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const sitekeyShown = sitekey === undefined ? siteKey() : sitekey;
   const browser = agent ?? (typeof navigator === "undefined" ? "" : navigator.userAgent);
   const toStart = embedded ? null : () => go("start");
-  const enter = async (api: AccountApi, by: SignedInBy | null = null, email: NewLifeEmail | null = null): Promise<void> => {
+  const enter = async (api: AccountApi, by: SignedInBy | null = null, email: NewLifeEmail | null = null, google = false): Promise<void> => {
     setMoved(true);
     // account:guest-secures-the-life: the sheet closes as the life opens, and the world says which way it was; a new life born
-    // kept by its email says so as a kept guest's does, and one whose address an account took meanwhile says that.
+    // kept by its email, or with Google, says so as a kept guest's does, and one whose address an account took meanwhile says that.
     if (by !== null) tellWay(api, `in.${by}`);
-    if (email !== null) tellWay(api, email === "kept" ? "kept.email" : "taken.email");
+    if (email !== null) tellWay(api, email === "taken" ? "taken.email" : google ? "kept.google" : "kept.email");
     void refreshAccount(api);
     await signedIn();
   };
@@ -248,7 +268,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       onBack={toStart}
       onSignedIn={(by) => void enter(api, by)}
       onNewLife={(proved) => {
-        setProof(proved);
+        setProof(proved === null ? null : { email: proved, google: false });
         go("age");
       }}
       {...(agent === undefined ? {} : { agent })}
@@ -289,14 +309,14 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
                   if (answer === "refused") setProof(null);
                   setStanding(answer);
                 }}
-                onBack={embedded ? null : () => leaveProof(proof)}
-                lead={<KeptLine email={proof} onOther={() => leaveProof("")} />}
+                onBack={embedded ? null : () => leaveProof(backFill(proof))}
+                lead={<KeptLine email={proof.email} google={proof.google} onOther={() => leaveProof(otherFill(proof))} />}
                 intro={say("ui.account.age.intro.kept")}
                 said={ageSaid()}
               />
             );
           case "username":
-            return keptLife(api, proof ?? "");
+            return proof === null ? newLife(api) : keptLife(api, proof);
           case "returning":
             return ways(api);
           case "door":
@@ -320,11 +340,11 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     return lapses > 0 ? say("ui.account.guest.expired") : null;
   }
 
-  function keptLife(api: AccountApi, email: string) {
+  function keptLife(api: AccountApi, held: Proof) {
     return (
       <KeptLife
         account={api}
-        email={email}
+        proof={held}
         sitekey={sitekeyShown}
         load={load}
         {...(botWaitMs === undefined ? {} : { botWaitMs })}
@@ -337,12 +357,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           setStanding("unasked");
         }}
         onFull={() => setStanding({ full: true, retryAfter: 30 })}
-        onStarted={(started) => enter(api, null, started ?? "kept")}
-        onOther={() => leaveProof("")}
+        onStarted={(started) => enter(api, null, started ?? "kept", held.google)}
+        onOther={() => leaveProof(otherFill(held))}
         onSignedIn={() => void enter(api, "email")}
         back={
           embedded ? null : (
-            <button type="button" aria-label={say("ui.account.back")} className="press flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={() => leaveProof(email)}>
+            <button type="button" aria-label={say("ui.account.back")} className="press flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-sheet-muted" onClick={() => leaveProof(backFill(held))}>
               <ArrowLeft size={18} />
             </button>
           )

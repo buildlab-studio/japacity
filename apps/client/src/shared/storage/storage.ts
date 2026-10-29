@@ -59,6 +59,12 @@ export const PASSKEY_MARK_KEY = "japacity.account.passkey";
  */
 export const DELETE_TRIP_KEY = "japacity.account.delete-trip";
 
+/**
+ * account:sign-in-without-secret: the username typed on a new life's step that Google proved, in the tab's storage, while a trip to Google
+ * makes a fresh proof; the step it comes back to gives it back, and the mark goes as it is read. Never the address or the proof.
+ */
+export const NEW_LIFE_NAME_KEY = "japacity.account.new-life-name";
+
 /** The key an account's ask to secure it is marked under, once per account and moment. */
 export function secureAskedKey(account: string, moment: string): string {
   return `japacity-secure-asked:${account}:${moment}`;
