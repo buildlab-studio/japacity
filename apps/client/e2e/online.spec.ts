@@ -1,6 +1,6 @@
 import type { Command, World } from "@japacity/sim";
 import { standInWorld, time } from "@japacity/sim";
-import { start, type Game } from "@japacity/sim/testing";
+import { finishPrologue, start, type Game } from "@japacity/sim/testing";
 
 import { expect, type Page } from "@playwright/test";
 import { test } from "./support/policy";
@@ -390,4 +390,31 @@ test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [per
   await expect(page.locator("[data-invite-card]")).toContainText("Japacity is a game");
   await page.locator('[data-slot="partner"]').evaluate((element) => element.scrollIntoView({ block: "start" }));
   await shootAtSize(page, "invite-card", info.project.name);
+});
+
+test("[world:lazy-part-fails-softly] [city:places-load-on-entry] a reload into a new life whose place's scene fails to load once, as a fetch a reload or a dropped connection cut, fetches it again by itself and draws the place with no connection card", async ({ page }) => {
+  test.setTimeout(150_000);
+  const game = start({ scenario: "scenario.prologue", content });
+  finishPrologue(game);
+  await fakeServer(page, { "GET /api/view": { body: viewReply(game, CLOCK.tick) }, "GET /api/moderation/standing": { body: STANDING } });
+  // Any card that shows, even for a moment, is kept on the window.
+  await page.addInitScript(() => {
+    new MutationObserver(() => {
+      if (document.querySelector("[data-trouble]") !== null) (window as unknown as { troubleSeen?: boolean }).troubleSeen = true;
+    }).observe(document, { childList: true, subtree: true });
+  });
+  await intoTheWorld(page);
+
+  // The scene's code is cut once, on the first fetch after the reload.
+  let cut = 0;
+  await page.route(/CityScene/, async (route) => {
+    if (cut > 0) return route.fallback();
+    cut += 1;
+    return route.abort("connectionreset");
+  });
+  await page.reload();
+  await placeReady(page);
+  expect(cut).toBe(1);
+  expect(await page.evaluate(() => (window as unknown as { troubleSeen?: boolean }).troubleSeen ?? false)).toBe(false);
+  await expect(page.locator("[data-trouble]")).toHaveCount(0);
 });
