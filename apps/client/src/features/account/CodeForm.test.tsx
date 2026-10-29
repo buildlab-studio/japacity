@@ -218,3 +218,20 @@ describe("the code step (account:code-form-forgives)", () => {
     expect(account.calls).toEqual(['sendCode("new@example.test")', 'signInWithCode("new@example.test","123456")']);
   });
 });
+
+describe("the go button's look (account:player-deletes-account)", () => {
+  test("[account:player-deletes-account] [world:costly-acts-confirmed] given the code form, then its go button is the main yellow, and the warning colour where the code itself confirms a costly act; only the deletion asks for that", async () => {
+    form();
+    await sent();
+    expect(go().className).toContain("bg-accent");
+    document.body.innerHTML = "";
+    render(<CodeForm account={codeAccount()} email="ada@example.test" sent goVariant="warning" goLabel="Delete with this code" onSignedIn={() => undefined} />);
+    const warning = screen.getByRole("button", { name: "Delete with this code" });
+    expect(warning.className).toContain("text-bad");
+    expect(warning.className).not.toContain("bg-accent");
+    const callers = Object.entries(import.meta.glob<string>("./*.tsx", { query: "?raw", import: "default", eager: true }))
+      .filter(([file, source]) => !file.includes(".test.") && file !== "./CodeForm.tsx" && source.includes("goVariant"))
+      .map(([file]) => file);
+    expect(callers).toEqual(["./Settings.tsx"]);
+  });
+});

@@ -65,7 +65,8 @@ function fakeAccount(view: AccountView, over: Partial<AccountApi> = {}): Account
     signOut: () => Promise.resolve(OK),
     signOutEverywhere: () => Promise.resolve(OK),
     passkeysWork: () => Promise.resolve(true),
-    passkeys: () => Promise.resolve([]),
+    // The server's list holds what the account holds: the count and the rows come from the one table.
+    passkeys: () => Promise.resolve(Array.from({ length: held.ways.passkeys }, (_, at) => ({ id: `row-${String(at + 1)}`, provider: null, addedAt: Date.UTC(2026, 9, at + 1) }))),
     removePasskey: () => Promise.resolve({ ok: true, signedIn: true }),
     confirmWithPasskey: () => Promise.resolve(OK),
     ...over,

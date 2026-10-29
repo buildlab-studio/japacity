@@ -114,7 +114,7 @@ describe("the delete confirmation (account:player-deletes-account)", () => {
     server.answer("POST /api/auth/passkey/verify-authentication", { body: { session: { id: "s-other" }, user: { id: "account-2" } } });
     const store = settings(account);
     await askToDelete();
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.passkey") }));
     expect(await screen.findByText(say("ui.account.fail.other-account"))).toBeDefined();
     const sent = server.sent.map((request) => `${request.method} ${request.path}`);
     expect(sent).not.toContain("POST /api/auth/passkey/verify-authentication");
@@ -126,8 +126,8 @@ describe("the delete confirmation (account:player-deletes-account)", () => {
     const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 1 }), { deleteAccount: inTurn<AuthResult>(NOT_FRESH), confirmWithPasskey: () => Promise.resolve({ ok: false, why: "cancelled" }) });
     const store = settings(account);
     await askToDelete();
-    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
-    await waitFor(() => expect(screen.getByRole("button", { name: say("ui.account.passkey") }).hasAttribute("disabled")).toBe(false));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.passkey") }));
+    await waitFor(() => expect(screen.getByRole("button", { name: say("ui.account.delete.passkey") }).hasAttribute("disabled")).toBe(false));
     expect(screen.queryByRole("alert")).toBeNull();
     expect(store.getState().signedOut).toBe(false);
   });
@@ -262,6 +262,80 @@ describe("the passkeys listed and removed (account:passkeys-listed-and-removed)"
   });
 });
 
+describe("the count over the list (account:passkeys-listed-and-removed)", () => {
+  test("[account:passkeys-listed-and-removed] given the account read while it held one passkey and another added on another phone since, when the sheet opens, then the count is the list's own, 2 passkeys over the two rows", async () => {
+    const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 1 }), { passkeys: () => Promise.resolve([GOOGLE_ROW, PHONE_ROW]) });
+    settings(account);
+    expect(await screen.findByText("Google Password Manager")).toBeDefined();
+    expect(await screen.findByText("2 passkeys")).toBeDefined();
+    expect(screen.queryByText("1 passkey")).toBeNull();
+    expect(document.querySelectorAll("[data-passkey]")).toHaveLength(2);
+  });
+
+  test("[account:passkeys-listed-and-removed] given the account read while it held none and a passkey added since, when the sheet opens, then the list is read all the same and shows it under 1 passkey", async () => {
+    settings(fakeAccount(kept(), { passkeys: () => Promise.resolve([GOOGLE_ROW]) }));
+    expect(await screen.findByText("Google Password Manager")).toBeDefined();
+    expect(await screen.findByText("1 passkey")).toBeDefined();
+    expect(screen.queryByText("Passkey: none yet")).toBeNull();
+  });
+
+  test("[account:passkeys-listed-and-removed] given one of two passkeys removed, then the count follows the list at once: 1 passkey, with the removal said in that row's place", async () => {
+    settings(fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 2 }), { passkeys: () => Promise.resolve([GOOGLE_ROW, PHONE_ROW]) }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Remove Google Password Manager, added / }));
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.last.go") }));
+    const said = await screen.findByText(say("ui.account.passkey.removed"));
+    expect(said.closest("[data-passkey]")?.getAttribute("data-passkey")).toBe("row-1");
+    expect(screen.getByText("1 passkey")).toBeDefined();
+    expect(screen.queryByText("Google Password Manager")).toBeNull();
+  });
+});
+
+describe("questions asked in place (account:passkeys-listed-and-removed, account:sign-out-ends-the-session)", () => {
+  test("[account:passkeys-listed-and-removed] [world:costly-acts-confirmed] given Remove on a passkey, then its question stands inside that passkey's own row in place of its Remove, never under the list, and takes the focus", async () => {
+    settings(fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 2 }), { passkeys: () => Promise.resolve([GOOGLE_ROW, PHONE_ROW]) }));
+    const row = (await screen.findByText("Google Password Manager")).closest("li") as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: /^Remove Google Password Manager, added / }));
+    const question = screen.getByText(say("ui.account.passkey.remove.ask", { name: "Google Password Manager" }));
+    expect(row.contains(question)).toBe(true);
+    expect(within(row).getByRole("button", { name: say("ui.account.passkey.last.go") })).toBeDefined();
+    expect(within(row).queryByRole("button", { name: /^Remove Google Password Manager, added / })).toBeNull();
+    expect(document.activeElement).toBe(question);
+    // Keep it closes the question and gives the focus back to the row's Remove.
+    fireEvent.click(within(row).getByRole("button", { name: say("ui.account.passkey.last.keep") }));
+    await waitFor(() => expect(document.activeElement).toBe(within(row).getByRole("button", { name: /^Remove Google Password Manager, added / })));
+  });
+
+  test("[account:sign-out-ends-the-session] given Sign out on every phone pressed, then its question stands in place of the two sign-out buttons, and takes the focus", async () => {
+    settings(fakeAccount(kept()));
+    const rows = (await screen.findByRole("button", { name: say("ui.account.sign-out.all") })).closest("[data-sign-out]") as HTMLElement;
+    fireEvent.click(within(rows).getByRole("button", { name: say("ui.account.sign-out.all") }));
+    const question = within(rows).getByText(say("ui.account.sign-out.all.warn"));
+    expect(document.activeElement).toBe(question);
+    expect(within(rows).queryByRole("button", { name: say("ui.account.sign-out") })).toBeNull();
+    expect(within(rows).getByRole("button", { name: say("ui.account.sign-out.all.go") })).toBeDefined();
+  });
+
+  test("[world:one-action-one-sheet] [account:sign-out-ends-the-session] given a passkey's question open, when Sign out on every phone is pressed, then the passkey's question closes: one question stands at a time", async () => {
+    settings(fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 2 }), { passkeys: () => Promise.resolve([GOOGLE_ROW, PHONE_ROW]) }));
+    fireEvent.click(await screen.findByRole("button", { name: /^Remove Google Password Manager, added / }));
+    expect(screen.getByText(say("ui.account.passkey.remove.ask", { name: "Google Password Manager" }))).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out.all") }));
+    expect(screen.getByText(say("ui.account.sign-out.all.warn"))).toBeDefined();
+    expect(screen.queryByText(say("ui.account.passkey.remove.ask", { name: "Google Password Manager" }))).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^Remove Passkey, added / }));
+    expect(screen.queryByText(say("ui.account.sign-out.all.warn"))).toBeNull();
+    expect(screen.getByText(say("ui.account.passkey.remove.ask", { name: say("ui.account.passkey.provider") }))).toBeDefined();
+  });
+
+  test("[account:passkey-offered-where-it-works] given a kept life where passkeys work, then Sign in with your face, fingerprint or screen lock instead of a code. is the one caption, under Add a passkey", async () => {
+    settings(fakeAccount(kept()));
+    const add = await screen.findByRole("button", { name: say("ui.account.passkey.add") });
+    const caption = await screen.findByText(say("ui.account.passkey.why"));
+    expect(screen.getAllByText(say("ui.account.passkey.why"))).toHaveLength(1);
+    expect(add.compareDocumentPosition(caption) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
 describe("where a passkey is offered (account:passkey-offered-where-it-works)", () => {
   test("[account:passkey-offered-where-it-works] given a browser that cannot make a passkey, then no Add a passkey shows, and the delete confirmation offers none either", async () => {
     const account = fakeAccount(kept({ google: null, email: "ada@example.com", passkeys: 1 }), { passkeysWork: () => Promise.resolve(false), deleteAccount: inTurn<AuthResult>(NOT_FRESH) });
@@ -269,7 +343,8 @@ describe("where a passkey is offered (account:passkey-offered-where-it-works)", 
     await askToDelete();
     expect(await screen.findByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.com" }) })).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.passkey.add") })).toBeNull();
-    expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.passkey") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.use.passkey") })).toBeNull();
   });
 
   test("[account:passkey-offered-where-it-works] given an in-app browser, then no passkey is offered, whatever the browser says", async () => {
@@ -342,10 +417,12 @@ describe("signing out (account:sign-out-ends-the-session)", () => {
     expect(account.calls).toEqual(["signOutEverywhere()"]);
   });
 
-  test("[account:sign-out-ends-the-session] given a guest, then there is no sign out on every phone: its one session is its only way back", async () => {
+  test("[account:sign-out-ends-the-session] given a guest, then there is no sign out, here or on every phone: its one session is its only way back, and its one way out is Leave this life", async () => {
     const account = fakeAccount({ ...kept(), state: "guest", ways: { google: null, email: null, passkeys: 0 } });
     settings(account);
-    expect(await screen.findByRole("button", { name: say("ui.account.sign-out") })).toBeDefined();
+    expect(await screen.findByRole("button", { name: say("ui.account.leave") })).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.sign-out") })).toBeNull();
     expect(screen.queryByRole("button", { name: say("ui.account.sign-out.all") })).toBeNull();
+    expect(account.calls).toEqual([]);
   });
 });

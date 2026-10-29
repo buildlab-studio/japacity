@@ -17,7 +17,7 @@ Analytics answers a few questions: are people playing, where do they stop, and i
 
 **analytics:rows-stored-as-day-totals** On arrival the server strips the account and session and adds each row to the day's total for `(day, region, name, key)`. Only the totals are stored. The store is a separate database (or a separate schema with its own role) that the game's routes cannot read and the analytics routes cannot write game state through.
 
-**analytics:player-can-stop-usage-counts** A setting "Send usage counts" lets a player stop analytics:client-sends-interface-counts's counters; it is on by default and stored on the account. The game counters of analytics:game-counters-from-server still run, because they are counts the server makes from its own records. The switch is the "simple means of objecting" the UK's statistics exemption asks for, though with nothing stored on the device the exemption is not needed.
+**analytics:player-can-stop-usage-counts** A setting "Send usage counts" lets a player stop analytics:client-sends-interface-counts's counters; it is on by default and stored on the account. It stands in the account sheet's quiet foot, and what it counts is said behind a quiet "What is this?" beside it. The game counters of analytics:game-counters-from-server still run, because they are counts the server makes from its own records. The switch is the "simple means of objecting" the UK's statistics exemption asks for, though with nothing stored on the device the exemption is not needed.
 
 ## Rules: what is never counted
 

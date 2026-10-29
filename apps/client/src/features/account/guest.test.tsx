@@ -116,6 +116,36 @@ describe("the securing sheet", () => {
     expect(within(sheet).getAllByRole("button").map((button) => button.getAttribute("aria-label"))).toEqual([say("ui.report.close")]);
   });
 
+  test("[account:guest-secures-the-life] [account:code-form-forgives] given the email way chosen, when the code is sent, then the reason, Google and Or with your email step back, and the address, the code field, Save and a quiet Not now remain", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-chapter")} agent={PLAIN_CHROME} />);
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.send") }));
+    expect(await screen.findByLabelText(say("ui.account.code.label"))).toBeDefined();
+    const sheet = screen.getByRole("dialog");
+    expect(within(sheet).getByText(say("ui.secure.title"))).toBeDefined();
+    expect(within(sheet).queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    expect(within(sheet).queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
+    expect(within(sheet).queryByText(say("ui.secure.or"))).toBeNull();
+    expect(within(sheet).getByText(/ada@example\.test/)).toBeDefined();
+    expect(within(sheet).getByRole("button", { name: say("ui.secure.code.go") })).toBeDefined();
+    const later = within(sheet).getByRole("button", { name: say("ui.secure.later") });
+    expect(later.className).toContain("underline");
+    expect(later.className).not.toContain("bg-accent");
+    // Change goes back to the address, and the first step stands whole again with Google first.
+    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.account.code.change") }));
+    expect(await within(sheet).findByRole("button", { name: say("ui.secure.google") })).toBeDefined();
+    expect(within(sheet).getByText(say("ui.secure.ask.first-chapter"))).toBeDefined();
+    expect(within(sheet).getByText(say("ui.secure.or"))).toBeDefined();
+  });
+
+  test("[account:guest-secures-the-life] [text:show-then-tell] given the save sheet's reasons, then the plain one and the visa ask's are one sentence each, and the first brief's is two short ones", () => {
+    const sentences = (line: string) => line.split(/[.?]\s+|[.?]$/).filter((part) => part.trim() !== "").length;
+    expect(sentences(say("ui.secure.why"))).toBe(1);
+    expect(sentences(say("ui.secure.ask.visa"))).toBe(1);
+    expect(sentences(say("ui.secure.ask.first-chapter"))).toBe(2);
+  });
+
   test("[account:guest-secures-the-life] given the first-chapter ask, when the life is kept by the emailed code, then the ask's reason goes with the rest and the kept state stands alone", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-chapter")} agent={PLAIN_CHROME} />);
@@ -141,15 +171,12 @@ describe("the securing sheet", () => {
     expect(screen.getByText(say("ui.secure.or"))).toBeDefined();
   });
 
-  test("[account:start-screen-over-live-city] [account:guest-secures-the-life] given the keep-this-life sheet, then the wordmark tops it once, above the sheet's title, its words the game's name", async () => {
+  test("[account:start-screen-over-live-city] [account:guest-secures-the-life] given the save sheet, then no lockup stands on it: its title heads it, so Google and the email field stand higher", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
-    const marks = screen.getAllByRole("img", { name: say("ui.game") });
-    expect(marks).toHaveLength(1);
-    expect(marks[0]?.getAttribute("alt")).toBe("Japacity");
-    expect(marks[0]?.getAttribute("src")).toMatch(/brand\/japacity-lockup-light\.svg$/);
-    const title = screen.getByText(say("ui.secure.title"));
-    expect(marks[0]!.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText(say("ui.secure.title"))).toBeDefined();
+    expect(screen.queryAllByRole("img", { name: say("ui.game") })).toEqual([]);
+    expect(document.querySelector('img[src*="japacity-lockup"]')).toBeNull();
   });
 
   test("[account:guest-secures-the-life] given an in-app browser, then Google is not shown and the life is kept here by the code alone: no way out to another browser, where the life is not", async () => {
@@ -300,36 +327,46 @@ describe("the quiet lines", () => {
   });
 });
 
-describe("signing out of a guest life", () => {
-  test("[account:guest-and-secured-states] given a guest, when it signs out, then it is told first that the life has no way back, and only a second press signs out", async () => {
+describe("leaving a guest life (account:player-deletes-account, account:guest-and-secured-states)", () => {
+  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest, then its sheet has one costly row, Leave this life, and no Sign out or Delete my account: its life ends the same way either way", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out") }));
-    expect(screen.getByText(say("ui.guest.sign-out"))).toBeDefined();
-    expect(account.calls).not.toContain("signOut()");
-    fireEvent.click(screen.getByRole("button", { name: say("ui.guest.sign-out.go") }));
-    await waitFor(() => expect(account.calls).toContain("signOut()"));
+    expect(screen.getAllByRole("button", { name: say("ui.account.leave") })).toHaveLength(1);
+    expect(screen.queryByRole("button", { name: say("ui.account.sign-out") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete") })).toBeNull();
   });
-});
 
-describe("leaving a guest life asks once (world:costly-acts-confirmed)", () => {
-  test("[world:costly-acts-confirmed] [account:guest-and-secured-states] given a guest pressing Sign out, then Carry on playing is the main button and comes first, Sign out and leave this life wears the warning colour apart from it, and Carry on playing keeps the life", async () => {
+  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest, when it leaves its life, then the step says first what leaving means, and only Leave this life inside it deletes the guest as Delete does, with the deleted notice", async () => {
+    const account = fakeAccount(me("guest"), { deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(OK)) });
+    const store = await mount(account, <AccountSettings account={account} />);
+    await screen.findByText(say("ui.guest.reminder"));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.leave") }));
+    expect(screen.getByText(say("ui.account.leave.warn"))).toBeDefined();
+    expect(say("ui.account.leave.warn")).toMatch(/this life ends on this phone/);
+    expect(say("ui.account.leave.warn")).toMatch(/nothing of it saved/);
+    expect(account.calls.filter((call) => call.startsWith("deleteAccount") || call === "signOut()")).toEqual([]);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.leave") }));
+    await waitFor(() => expect(store.getState().signedOut).toBe(true));
+    expect(store.getState().accountNotice).toBe("ui.account.notice.deleted");
+    expect(account.calls.filter((call) => call.startsWith("deleteAccount") || call === "signOut()")).toEqual(["deleteAccount(null)"]);
+  });
+
+  test("[world:costly-acts-confirmed] [account:player-deletes-account] given a guest leaving its life, then Save this life first is the main button and comes first, Leave this life wears the warning colour apart from it, and Save this life first opens the save sheet with the life still here", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out") }));
-    const keep = screen.getByRole("button", { name: say("ui.guest.sign-out.stay") });
-    const go = screen.getByRole("button", { name: say("ui.guest.sign-out.go") });
-    expect(keep.className).toContain("bg-accent");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.leave") }));
+    const save = screen.getByRole("button", { name: say("ui.account.leave.save") });
+    const go = screen.getByRole("button", { name: say("ui.account.leave") });
+    expect(save.className).toContain("bg-accent");
     expect(go.className).not.toContain("bg-accent");
     expect(go.className).toContain("text-bad");
-    expect(keep.compareDocumentPosition(go) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(keep.parentElement).not.toBe(go.parentElement);
-    fireEvent.click(keep);
-    expect(screen.queryByText(say("ui.guest.sign-out"))).toBeNull();
-    expect(screen.getByRole("button", { name: say("ui.account.sign-out") })).toBeDefined();
-    expect(account.calls).not.toContain("signOut()");
+    expect(save.compareDocumentPosition(go) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(save.parentElement).not.toBe(go.parentElement);
+    fireEvent.click(save);
+    expect(await screen.findByRole("dialog", { name: say("ui.secure.title") })).toBeDefined();
+    expect(account.calls.filter((call) => call.startsWith("deleteAccount") || call === "signOut()")).toEqual([]);
   });
 });
 
@@ -338,8 +375,8 @@ describe("the username in the settings", () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     expect(await screen.findByText(say("ui.account.name.current", { name: "ada_lagos" }))).toBeDefined();
-    expect(screen.getByText(say("ui.account.name.free"))).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.change") }));
+    expect(screen.getByText(say("ui.account.name.free"))).toBeDefined();
     fireEvent.change(screen.getByLabelText(say("ui.account.name.label")), { target: { value: "Ada_Ibadan" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.change.go") }));
     expect(await screen.findByText(say("ui.account.name.changed", { name: "Ada_Ibadan" }))).toBeDefined();
@@ -355,8 +392,9 @@ describe("the username in the settings", () => {
     const check = () => document.querySelector("[data-rename-check]")?.textContent ?? "";
     // The box opens on the player's own name: nothing said, nothing asked.
     expect((box as HTMLInputElement).value).toBe("ada_lagos");
-    // Leaving the rename is a plain Cancel, never the deletion's "Keep my account".
-    expect(screen.getByRole("button", { name: say("ui.account.name.change.cancel") })).toBeTruthy();
+    // Leaving the rename is the step's plain Back, never the deletion's "Keep my account".
+    expect(screen.getByRole("button", { name: say("ui.account.back") })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: say("ui.account.delete.keep") })).toBeNull();
     await act(() => new Promise((resolve) => setTimeout(resolve, CHECK_AFTER_MS * 2)));
     expect(asked).toEqual([]);
     expect(check()).toBe("");
