@@ -2,8 +2,8 @@
   "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; shared is every other chunk the entry imports (the bundler's runtime, React, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a line below naming the part that moved and what for.",
   "parts": {
     "main": {
-      "budget": 330300,
-      "measured": 330126
+      "budget": 330400,
+      "measured": 330256
     },
     "three": {
       "budget": 195779,
@@ -22,8 +22,8 @@
       "measured": 40290
     },
     "total": {
-      "budget": 911500,
-      "measured": 911441
+      "budget": 911700,
+      "measured": 911557
     }
   },
   "changes": [
@@ -35,6 +35,7 @@
     "total raised from 909000 to 910100 (measured 910091, from 908473) for the ways back in: the code step's one status slot and its answers told apart, the answer to an address no account uses, the new life kept with its email from the ways back in, and their words, which the first visit's sign-in carries; main (328932) and content-sim (334025) stay inside their budgets",
     "total raised from 910100 to 910200 (measured 910165, from 910091) for the new life's proof held through a refused start and its door said without the guest line, and Change kept inline with the address on the code step",
     "total raised from 910200 to 911200 (measured 911115, from 910165) for the one code that signs in or starts a life: the username's own step with its line and Use another email, the proof held across a reload, proof-gone told with the code form inline, and their words, which the first visit's sign-in carries; main (329856) and content-sim (334125) stay inside their budgets",
-    "main raised from 329954 to 330300 (measured 330126, from 329856) and total from 911200 to 911500 (measured 911441, from 911115) for Continue with Google with no life: the gate opening the new life's steps from Google's return, Use another way, Google's button on the username's step when its proof ran out or the address was taken, the username held across that trip, and their words, which the first visit's sign-in carries; content-sim (334165) stays inside its budget"
+    "main raised from 329954 to 330300 (measured 330126, from 329856) and total from 911200 to 911500 (measured 911441, from 911115) for Continue with Google with no life: the gate opening the new life's steps from Google's return, Use another way, Google's button on the username's step when its proof ran out or the address was taken, the username held across that trip, and their words, which the first visit's sign-in carries; content-sim (334165) stays inside its budget",
+    "main raised from 330300 to 330400 (measured 330256, from 330126) and total from 911500 to 911700 (measured 911557, from 911441) for the sheet's one frame on the first visit: the fixed head with the handle, the title and the close, the body that alone scrolls and the optional fixed foot, which every sheet built on it carries, and the save sheet's code step that steps the rest back; content-sim (334150) and shared (36920) stay inside their budgets"
   ]
 }
