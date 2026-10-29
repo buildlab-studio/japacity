@@ -1,7 +1,6 @@
 import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { NEW_LIFE_MARK } from "../account/newlife";
 import { productionConfig, testConfig } from "../config";
 import { banIdentities, emailIdentity } from "../moderation/identities";
 import { setSwitch } from "../switches/switches";
@@ -63,16 +62,19 @@ describe("signing in", () => {
     expect(h.tables.account).toEqual([expect.objectContaining({ userId: account, providerId: "google" })]);
   });
 
-  test("[moderation:ban-survives-as-hash] given a banned email, when it signs up by code after passing the screen, then no account or row is made, and another email still can", async () => {
+  test("[moderation:ban-survives-as-hash] given a banned email, when it asks for a code after passing the screen and types one, then no code is mailed, the code is refused, no account or row is made, and another email still can", async () => {
     const h = harness();
     await banIdentities(h.deps, [emailIdentity("Bad@Example.com")]);
     const jar = makeJar();
     await h.passAge(jar);
-    const otp = await h.codeFor("bad@example.com", jar);
-    const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "bad@example.com", otp } });
-    expect(reply.status).toBe(403);
-    expect(await json(reply)).toMatchObject({ code: "not-possible" });
+    const asked = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, json: { email: "bad@example.com", type: "sign-in" } });
+    expect(asked.status).toBe(200);
+    expect(h.sent).toEqual([]);
+    const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "bad@example.com", otp: "123456" } });
+    expect(reply.status).toBe(400);
+    expect(await json(reply)).toMatchObject({ code: "INVALID_OTP" });
     expect(h.tables.user).toHaveLength(0);
+    expect(h.tables.verification.filter((row) => String(row["identifier"]).startsWith("japacity-new-life-"))).toEqual([]);
     expect((await h.signUp("good@example.com")).account).not.toBe("");
   });
 
@@ -133,7 +135,7 @@ describe("signing in", () => {
     let release: () => void = () => undefined;
     const h = harness({ sendOtp: () => new Promise<void>((resolve) => (release = resolve)) });
     const jar = makeJar();
-    const code = await h.codeFor("ada@example.com", jar, undefined, true);
+    const code = await h.codeFor("ada@example.com", jar);
     expect(code).toMatch(/^\d{6}$/);
     expect(h.background).toHaveLength(1);
     let settled = false;
@@ -192,7 +194,7 @@ describe("signing in", () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
-    const otp = await h.codeFor("ada@example.com", jar, undefined, true);
+    const otp = await h.codeFor("ada@example.com", jar);
     const wrong = otp === "000000" ? "111111" : "000000";
     for (const ip of ["192.0.2.1", "192.0.2.2", "192.0.2.3"]) {
       const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip, json: { email: "ada@example.com", otp: wrong } });
@@ -294,7 +296,7 @@ describe("the sign-in limits", () => {
     const limit = h.deps.config.auth.limits.otpSendPer60s;
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) {
-      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: "198.51.100.50", json: { email: `player-${String(n)}@example.com`, type: "sign-in", [NEW_LIFE_MARK]: true } });
+      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: "198.51.100.50", json: { email: `player-${String(n)}@example.com`, type: "sign-in" } });
       statuses.push(reply.status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
@@ -304,7 +306,7 @@ describe("the sign-in limits", () => {
   test("[account:sign-in-routes-rate-limited] [server:anonymous-limit-by-address] given code sends from different addresses in one IPv6 /64, when one more than the limit is sent in 60 seconds, then it is refused, and an address in the next /64 is still sent", async () => {
     const h = harness();
     const limit = h.deps.config.auth.limits.otpSendPer60s;
-    const send = async (ip: string, n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `six-${String(n)}@example.com`, type: "sign-in", [NEW_LIFE_MARK]: true } })).status;
+    const send = async (ip: string, n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `six-${String(n)}@example.com`, type: "sign-in" } })).status;
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) statuses.push(await send(n % 2 === 0 ? `2001:db8:4:4::${String(n + 1)}` : `2001:DB8:4:4:ffff:${String(n)}::1`, n));
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
@@ -317,7 +319,7 @@ describe("the sign-in limits", () => {
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) {
       const ip = n % 2 === 0 ? "198.51.100.51" : "::ffff:198.51.100.51";
-      statuses.push((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `four-${String(n)}@example.com`, type: "sign-in", [NEW_LIFE_MARK]: true } })).status);
+      statuses.push((await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip, json: { email: `four-${String(n)}@example.com`, type: "sign-in" } })).status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
   });
@@ -327,7 +329,7 @@ describe("the sign-in limits", () => {
     const limit = h.deps.config.auth.limits.otpSendPer60s;
     const statuses: number[] = [];
     for (let n = 0; n <= limit; n++) {
-      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(60 + n)}`, json: { email: "Ada@Example.com", type: "sign-in", [NEW_LIFE_MARK]: true } });
+      const reply = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(60 + n)}`, json: { email: "Ada@Example.com", type: "sign-in" } });
       statuses.push(reply.status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
@@ -338,7 +340,7 @@ describe("the sign-in limits", () => {
     let now = Date.UTC(2026, 9, 10, 9, 0, 0);
     const h = harness({ now: () => now });
     const { otpSendPerDay } = h.deps.config.auth.limits;
-    const send = async (n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(100 + n)}`, json: { email: "ada@example.com", type: "sign-in", [NEW_LIFE_MARK]: true } })).status;
+    const send = async (n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(100 + n)}`, json: { email: "ada@example.com", type: "sign-in" } })).status;
     const first = now;
     const statuses: number[] = [];
     for (let n = 0; n <= otpSendPerDay; n++) {
@@ -372,7 +374,7 @@ describe("a refused code told apart from a limit", () => {
   test("[account:code-form-forgives] [account:sign-in-routes-rate-limited] given a fourth code check from one address within 10 seconds, when the library's limit answers 429, then the reply carries no TOO_MANY_ATTEMPTS code, while a code whose own tries are used up does", async () => {
     const h = harness();
     const jar = makeJar();
-    const otp = await h.codeFor("ada@example.com", jar, "198.51.100.91", true);
+    const otp = await h.codeFor("ada@example.com", jar, "198.51.100.91");
     const wrong = otp === "000000" ? "111111" : "000000";
     const replies: { status: number; code: unknown }[] = [];
     for (let n = 0; n < 4; n++) {

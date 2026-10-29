@@ -1,16 +1,13 @@
-// account:sign-in-without-secret, account:guest-secures-the-life: a new life kept with an email from the start. On the ways back
-// in, an address no account uses is offered a new life with it: a code goes to it, and the right code proves the address
-// before the life starts. The code is checked and spent in one step, as the auth library checks its own sign-in codes,
-// and a proof of the address is kept in the library's verification table under its own prefix, holding the address
-// alone, for 30 minutes, and named only by an httpOnly cookie on this browser. The guest start consumes it.
+// account:sign-in-without-secret, account:guest-secures-the-life: a new life kept with an email from the start. The code on the
+// ways back in goes to every address alike; for an address no account uses, the right code proves the address before the
+// life starts. The code is checked and spent in one step, as the auth library checks its own sign-in codes, and a proof of
+// the address is kept in the library's verification table under its own prefix, holding the address alone, for 30
+// minutes, and named only by an httpOnly cookie on this browser. The guest start consumes it.
 // https://better-auth.com/docs/plugins/email-otp
 import { time, toHex } from "@japacity/sim";
 import type { AuthContext } from "better-auth";
 
 import { readCookie } from "./age";
-
-/** The body field of a code's send that asks for a new life with the address: the send then skips the account check and refuses an address an account uses. */
-export const NEW_LIFE_MARK = "newLife";
 
 /** The cookie that names this browser's proof; never in a URL or the page's storage. */
 export const NEW_LIFE_COOKIE = "japacity-new-life";
@@ -18,11 +15,14 @@ export const NEW_LIFE_COOKIE = "japacity-new-life";
 /** The verification-row prefix of a proof. */
 export const NEW_LIFE_PREFIX = "japacity-new-life-";
 
-/** How long a proof waits for the guest start: the age screen and the door, with room to read. */
+/** How long a proof waits for the guest start: the age screen and the username, with room to read. */
 export const NEW_LIFE_TTL_MS = 30 * time.MINUTE_MS;
 
-/** The cookie's path: the guest start that reads it and the route that sets it, as the age pass's. */
+/** The cookie's path: the guest start that reads it, the age standing that reports it and the code check that sets it. */
 export const NEW_LIFE_COOKIE_PATH = "/api";
+
+/** account:session-is-secure-cookie: the proof's cookie, with the session cookie's attributes (`COOKIE_ATTRIBUTES` in auth/auth.ts), lasting as long as the proof. */
+export const NEW_LIFE_COOKIE_OPTIONS = { httpOnly: true, secure: true, sameSite: "Lax", path: NEW_LIFE_COOKIE_PATH, maxAge: Math.floor(NEW_LIFE_TTL_MS / 1000) } as const;
 
 type Internal = AuthContext["internalAdapter"];
 
@@ -104,4 +104,20 @@ export async function takeProof(internal: Internal, cookie: string | null | unde
 export async function putProofBack(internal: Internal, proof: Proof | null): Promise<void> {
   if (proof === null) return;
   await internal.createVerificationValue({ identifier: proof.identifier, value: proof.email, expiresAt: proof.expiresAt });
+}
+
+/** The address of the live proof named by this request's cookie, read and left in place; null with no cookie, a spent proof or an expired one. */
+export async function heldProof(internal: Internal, cookie: string | null | undefined, now: number): Promise<string | null> {
+  const nonce = readCookie(cookie, NEW_LIFE_COOKIE);
+  if (nonce === null || nonce === "") return null;
+  const proof = await internal.findVerificationValue(NEW_LIFE_PREFIX + nonce);
+  return proof === null || new Date(proof.expiresAt).getTime() <= now ? null : proof.value;
+}
+
+/** Drops the proof named by this request's cookie, live or not: "Use another email", and an age screen that refused a minor. */
+export async function dropProof(internal: Internal, cookie: string | null | undefined): Promise<boolean> {
+  const nonce = readCookie(cookie, NEW_LIFE_COOKIE);
+  if (nonce === null) return false;
+  if (nonce !== "") await internal.deleteVerificationByIdentifier(NEW_LIFE_PREFIX + nonce);
+  return true;
 }

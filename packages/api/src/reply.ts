@@ -21,6 +21,8 @@ export type ServerCode =
   | "bad-code"
   /** account:guest-secures-the-life: an account uses that address already. */
   | "taken"
+  /** account:sign-in-without-secret: a start that came by the code found no live proof of its address on this browser. */
+  | "proof-gone"
   // The people routes' refusals (pair:invite-link-single-use, pair:phrase-checks-before-send; moderation:block-refuses-both-ways).
   | "not-possible"
   | "blocked"

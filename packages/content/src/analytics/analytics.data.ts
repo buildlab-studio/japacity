@@ -32,6 +32,8 @@ const REJECTION_CODES = [
   "bad-code",
   // account.md: a new life's address an account uses already.
   "taken",
+  // account.md: a start that came by the code found no live proof of its address.
+  "proof-gone",
   // The people routes' refusals (pair.md), in ServerCode.
   "not-possible",
   "blocked",

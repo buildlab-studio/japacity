@@ -24,6 +24,11 @@ export type AgeReply = { ok: true } | ServerRejection;
 export interface AgeStatus {
   refused: boolean;
   passed: boolean;
+  /**
+   * account:sign-in-without-secret: the address of a live proof this browser holds, read from the httpOnly cookie that names it, so a
+   * reload or another tab opens the gate on the new life's step with the address shown. Absent when no live proof is held.
+   */
+  newLife?: string;
 }
 
 /** `GET /api/account`: the account as its owner sees it. No age date (account:only-needed-data-kept), no email (the auth library's session holds that). */
@@ -64,9 +69,15 @@ export interface AccountChange {
   sendUsageCounts: boolean;
 }
 
-/** The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (account:bot-check-on-guest-creation). */
+/**
+ * The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (account:bot-check-on-guest-creation).
+ * `proved`: the start of a life that came by the code on the ways back in (account:sign-in-without-secret). It needs this
+ * browser's live proof: without one it is refused `proof-gone`, and where an account took the address meanwhile `taken`, never
+ * a plain guest.
+ */
 export interface GuestRequest {
   username: string;
+  proved?: true;
 }
 
 /** The body of `PUT /api/account/username`. */
@@ -85,23 +96,16 @@ export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
 export type NameReply = { ok: true; account: AccountView; emailTaken?: true } | (ServerRejection & { name?: NameProblem });
 
 /**
- * account:sign-in-without-secret, account:guest-secures-the-life: a new life kept with an email from the start. Signed out, the
- * code sent to an address no account uses is checked and spent here, and a proof of the address is kept for the guest start.
+ * account:sign-in-without-secret: the code check on the ways back in (`POST /api/auth/sign-in/email-otp`) answers this, in place of
+ * a session, for an address no account uses once its right code is spent: the address is proved for a new life, and the
+ * proof is named by an httpOnly cookie on this browser alone.
  */
-export const NEW_LIFE_CODE_PATH = "/api/new-life/code";
-
-/** The body of `POST /api/new-life/code`: the address the code went to and the code as typed. */
-export interface NewLifeCodeRequest {
-  email: string;
-  code: string;
+export interface CodeNewLife {
+  next: "new-life";
 }
 
-/**
- * `POST /api/new-life/code`. Its refusals: `bad-code` (not the code), `expired`, `too-many` (the code's tries used up),
- * `taken` (an account uses the address), `not-possible` (the address cannot make an account, or this browser already has a
- * life), `not-legal` (no address or code) and `rate-limited` (429).
- */
-export type NewLifeCodeReply = { ok: true } | ServerRejection;
+/** account:sign-in-without-secret: `DELETE /api/new-life` drops this browser's proof and its cookie ("Use another email"). */
+export const NEW_LIFE_PATH = "/api/new-life";
 
 /** account:username-typed-and-checked: the read the username box asks while the player types, the name in the query. */
 export const USERNAME_FREE_PATH = "/api/username/available";

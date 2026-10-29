@@ -1,5 +1,5 @@
-// The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited), a send only to an address
-// an account uses, or one marked for a new life with it (account:sign-in-without-secret),
+// The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited), the code check that
+// proves an address no account uses for a new life (account:sign-in-without-secret),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
 // passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
 // removed (account:session-is-secure-cookie), who may add or remove a passkey and what each addition
@@ -11,7 +11,8 @@
 import { time, toHex } from "@japacity/sim";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
-import { NEW_LIFE_MARK } from "../account/newlife";
+import { keepProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_OPTIONS, spendCode } from "../account/newlife";
+import type { CodeSpent } from "../account/newlife";
 import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../dependencies";
 import { emailIdentity, isBanned } from "../moderation/identities";
@@ -30,6 +31,7 @@ const EMAIL_LIMIT_PREFIX = "otp-email:";
 export const EMAIL_LIMIT_WINDOW_MS = 60_000;
 
 const SEND_PATH = "/email-otp/send-verification-otp";
+const CODE_CHECK_PATH = "/sign-in/email-otp";
 const UNLINK_PATHS = new Set(["/unlink-account", "/passkey/delete-passkey"]);
 const REVOKE_PATH = "/revoke-sessions";
 const VERIFY_REGISTRATION_PATH = "/passkey/verify-registration";
@@ -158,31 +160,39 @@ function signInCodesOnly(ctx: HookContext): void {
   if ((ctx.body as { type?: unknown } | undefined)?.type !== "sign-in") throw new APIError("BAD_REQUEST", { message: "Only a sign-in code is sent." });
 }
 
-/** The code a send to an address no account uses is refused with, and the code of a new life's send to an address one does. */
-export const NO_ACCOUNT = "no-account";
-export const EMAIL_TAKEN = "taken";
+/**
+ * account:email-code-is-short-lived: the library's own refusals of a sign-in code (its email-otp `EMAIL_OTP_ERROR_CODES`, which it
+ * does not export, made as its `APIError.from` makes them, the message first), so a code checked here for an address no
+ * account uses is refused with the same status and body, byte for byte, as one the library checks for an address an account uses.
+ */
+const CODE_REFUSALS: Record<Exclude<CodeSpent, "ok">, () => APIError> = {
+  wrong: () => new APIError("BAD_REQUEST", { message: "Invalid OTP", code: "INVALID_OTP" }),
+  expired: () => new APIError("BAD_REQUEST", { message: "OTP expired", code: "OTP_EXPIRED" }),
+  "used-up": () => new APIError("FORBIDDEN", { message: "Too many attempts", code: "TOO_MANY_ATTEMPTS" }),
+};
 
 /**
- * account:sign-in-without-secret, account:email-code-is-short-lived: signed out, a code goes only where it can lead somewhere.
- * A send to an address no account uses is refused `no-account` and nothing is mailed; one marked for a new life with the
- * address (`NEW_LIFE_MARK`) skips that check and is refused `taken` where an account uses it (account:guest-secures-the-life).
- * Runs after the send limits, so every check is counted by them, a refused one too. A send from a live session (a guest
- * keeping its life, an account confirming itself) is not checked, and a banned address keeps its own answer at the sign-in
- * (moderation:ban-survives-as-hash).
+ * account:sign-in-without-secret, account:guest-secures-the-life: the code check on the ways back in. Signed out, for an address an
+ * account uses, the library signs in as it does. For one no account uses, the code is checked and spent here in one step
+ * (`spendCode`), never by the library's sign-in, which would make a user or refuse one; the right code keeps a proof of
+ * the address for this browser's guest start, named by an httpOnly cookie, and the reply is `{ next: "new-life" }`. A
+ * wrong, run-out or used-up code is refused as the library refuses it. A banned address is never mailed a code, and one
+ * banned meanwhile is told its code is not right. A live session (a guest keeping its life) goes on to the library.
  */
-async function checkAddress(deps: ServerDeps, ctx: HookContext): Promise<void> {
-  if (ctx.path !== SEND_PATH) return;
-  const body = ctx.body as Record<string, unknown> | undefined;
-  if (typeof body?.["email"] !== "string") return;
-  if ((await getSessionFromCtx(ctx, { disableRefresh: true }).catch(() => null)) !== null) return;
-  const email = body["email"].toLowerCase();
-  if (await isBanned(deps, [emailIdentity(email)])) return;
-  const used = (await ctx.context.internalAdapter.findUserByEmail(email)) !== null;
-  if (body[NEW_LIFE_MARK] === true) {
-    if (used) throw new APIError("FORBIDDEN", { code: EMAIL_TAKEN, message: "That email already has an account. Sign in instead." });
-    return;
-  }
-  if (!used) throw new APIError("FORBIDDEN", { code: NO_ACCOUNT, message: "No account uses this email." });
+async function newLifeByCode(deps: ServerDeps, ctx: HookContext): Promise<unknown> {
+  if (ctx.path !== CODE_CHECK_PATH) return undefined;
+  const body = ctx.body as { email?: unknown; otp?: unknown } | undefined;
+  if (typeof body?.email !== "string" || typeof body.otp !== "string") return undefined;
+  if ((await getSessionFromCtx(ctx, { disableRefresh: true }).catch(() => null)) !== null) return undefined;
+  const email = body.email.toLowerCase();
+  const internal = ctx.context.internalAdapter;
+  if ((await internal.findUserByEmail(email)) !== null) return undefined;
+  const spent = await spendCode(internal, email, body.otp, deps.config.auth.otp.attempts, deps.now());
+  if (spent !== "ok") throw CODE_REFUSALS[spent]();
+  if (await isBanned(deps, [emailIdentity(email)])) throw CODE_REFUSALS.wrong();
+  const nonce = await keepProof(internal, email, deps.now(), deps.randomBytes);
+  ctx.setCookie(NEW_LIFE_COOKIE, nonce, NEW_LIFE_COOKIE_OPTIONS);
+  return ctx.json({ next: "new-life" });
 }
 
 /** How the request's session was opened, from the field the session hook set (session.ts). */
@@ -290,7 +300,7 @@ async function guardStepUp(ctx: HookContext): Promise<void> {
   if (passkey !== null && passkey.userId !== session.user.id) throw new APIError("FORBIDDEN", { code: OTHER_ACCOUNT, message: OTHER_ACCOUNT_DETAIL });
 }
 
-/** The hooks run before every library route. */
+/** The hooks run before every library route; the code check for an address no account uses answers here, in the library's place. */
 export function beforeAuth(deps: ServerDeps) {
   return createAuthMiddleware(async (ctx) => {
     closedRouteCheck(ctx);
@@ -298,9 +308,9 @@ export function beforeAuth(deps: ServerDeps) {
     await guardGuestPasskeys(ctx);
     signInCodesOnly(ctx);
     await limitEmailSends(deps, ctx);
-    await checkAddress(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
     await guardStepUp(ctx);
+    return newLifeByCode(deps, ctx);
   });
 }
 

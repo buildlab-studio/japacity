@@ -1,5 +1,6 @@
-// account:one-character-per-account, account:player-deletes-account, account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email and account:guest-floods-are-capped: `POST /api/guest`, the guest start after the
-// age screen; `GET /api/account`, the account's own row; `PUT /api/account`,
+// account:one-character-per-account, account:player-deletes-account, account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email, account:sign-in-without-secret and account:guest-floods-are-capped: `POST /api/guest`, the guest start after the
+// age screen, and the username step's start of a life that came by the code; `DELETE /api/new-life`, which drops this
+// browser's proof of an address; `GET /api/account`, the account's own row; `PUT /api/account`,
 // its one setting the player changes here (analytics:player-can-stop-usage-counts);
 // `PUT /api/account/username`; `GET /api/username/available`, the box's check while the player types
 // (account:username-typed-and-checked); and `DELETE /api/account`, confirmed by a fresh
@@ -7,8 +8,8 @@
 // every route they guard (account/guest.ts).
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
 // https://better-auth.com/docs/plugins/anonymous
-import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, NewLifeCodeReply, ServerRejection, UsernameFreeReply } from "@japacity/api";
-import { NEW_LIFE_CODE_PATH, USERNAME_FREE_PATH } from "@japacity/api";
+import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply, ServerRejection, UsernameFreeReply } from "@japacity/api";
+import { NEW_LIFE_PATH, USERNAME_FREE_PATH } from "@japacity/api";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
@@ -19,18 +20,16 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { PASS_COOKIE, readCookie } from "../account/age";
 import { deletionStatus, requestDeletion } from "../account/deletion";
 import { DEVICE_COOKIE, countGuest, guestGates, tooManyGuests } from "../account/guest";
-import { keepProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_PATH, NEW_LIFE_TTL_MS, spendCode, type CodeSpent } from "../account/newlife";
-import { GUEST_NAME_HEADER, PROOF_TAKEN_HEADER } from "../account/signup";
+import { dropProof, heldProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_PATH } from "../account/newlife";
+import { GUEST_NAME_HEADER, GUEST_PROVED_HEADER, PROOF_TAKEN_HEADER } from "../account/signup";
 import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
 import { countSecured } from "../analytics/live";
-import { COOKIE_ATTRIBUTES } from "../auth/auth";
 import type { Accounts, Auth } from "../auth/auth";
 import { headersWithoutSession } from "../auth/stale";
 import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
 import { limit, overLimit, sessionOf } from "../limits/limit";
-import { emailIdentity, isBanned } from "../moderation/identities";
 import { leavePlaces } from "../postgres";
 import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
@@ -107,20 +106,17 @@ function usernameOf(body: unknown): unknown {
   return typeof body === "object" && body !== null && Object.keys(body).join(",") === "username" ? (body as { username: unknown }).username : null;
 }
 
-/** account:email-code-is-short-lived: a new life's code that was not taken, as the route answers it; the library's sign-in answers the same three. */
-const CODE_REFUSED: Record<Exclude<CodeSpent, "ok">, { status: 400 | 403; body: ServerRejection }> = {
-  wrong: { status: 400, body: rejection("bad-code", "That code is not right.") },
-  expired: { status: 400, body: rejection("expired", "That code has run out.") },
-  "used-up": { status: 403, body: rejection("too-many", "Too many wrong tries. Send a new code.") },
-};
-
-/** The body of `POST /api/new-life/code`, or null when it is not one. */
-function newLifeCode(body: unknown): { email: string; code: string } | null {
+/** The body of `POST /api/guest`: the username, and `proved` on a start that came by the code (account:sign-in-without-secret); null when it is neither. */
+function guestStartOf(body: unknown): { username: unknown; proved: boolean } | null {
   if (typeof body !== "object" || body === null) return null;
-  const { email, code } = body as { email?: unknown; code?: unknown };
-  if (typeof email !== "string" || typeof code !== "string" || email.trim() === "" || !/^\d{1,12}$/.test(code)) return null;
-  return { email: email.trim().toLowerCase(), code };
+  const keys = Object.keys(body).sort().join(",");
+  if (keys === "username") return { username: (body as { username: unknown }).username, proved: false };
+  if (keys === "proved,username" && (body as { proved: unknown }).proved === true) return { username: (body as { username: unknown }).username, proved: true };
+  return null;
 }
+
+/** account:sign-in-without-secret: a start that came by the code and found no live proof on this browser. */
+const PROOF_GONE = rejection("proof-gone", "Your code ran out. Send a new one.");
 
 /** The library's refusal of the guest start as the route answers it. */
 function guestRefusal(error: unknown): { status: 400 | 403 | 409; body: NameReply } {
@@ -128,6 +124,9 @@ function guestRefusal(error: unknown): { status: 400 | 403 | 409; body: NameRepl
   if (code === "name-taken") return { status: 409, body: nameRefused("taken") };
   if (code === "no-age-pass") return { status: 403, body: rejection("expired", "Answer the age question again first.") };
   if (code === "not-legal") return { status: 400, body: nameRefused("format") };
+  if (code === "proof-gone") return { status: 403, body: PROOF_GONE };
+  if (code === "taken") return { status: 409, body: rejection("taken", "That email already has an account. Sign in instead.") };
+  if (code === "not-possible") return { status: 403, body: rejection("not-possible", "This sign-in cannot make an account.") };
   throw error;
 }
 
@@ -139,14 +138,17 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
   app.post("/api/guest", limit(deps, "commands"), async (c) => {
     if (sessionOf(c) !== null) return c.json<NameReply>(rejection("not-possible", "This browser already has a life."), 409);
     const request = c.req.raw;
-    const username = usernameOf(await c.req.json().catch(() => null));
+    const asked = guestStartOf(await c.req.json().catch(() => null));
+    const username = asked?.username ?? null;
     const problem = nameProblem(username);
-    if (problem !== null || typeof username !== "string") return c.json<NameReply>(nameRefused(problem ?? "format"), 400);
+    if (problem !== null || typeof username !== "string" || asked === null) return c.json<NameReply>(nameRefused(problem ?? "format"), 400);
     if ((await deps.stores.account.byUsername(username)) !== null) return c.json<NameReply>(nameRefused("taken"), 409);
     const pass = readCookie(request.headers.get("cookie"), PASS_COOKIE);
     if (pass === null || pass === "") return c.json<NameReply>(rejection("expired", "Answer the age question again first."), 403);
 
     const context = await auth.$context;
+    // account:sign-in-without-secret: a start by the code with no live proof is told so before the bot check spends its token; the birth takes the proof itself.
+    if (asked.proved && (await heldProof(context.internalAdapter, request.headers.get("cookie"), deps.now())) === null) return c.json<NameReply>(PROOF_GONE, 403);
     const device = readCookie(request.headers.get("cookie"), DEVICE_COOKIE) ?? toHex(deps.randomBytes(16));
     setCookie(c, DEVICE_COOKIE, device, { path: "/api/guest", httpOnly: true, secure: true, sameSite: "Lax", maxAge: DEVICE_COOKIE_S });
     const address = request.headers.get("cf-connecting-ip");
@@ -158,6 +160,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     // No session was found above, so any session cookie the browser sent is dead; the library must not see it (account:guest-and-secured-states).
     const headers = await headersWithoutSession(auth, request.headers);
     headers.set(GUEST_NAME_HEADER, username);
+    if (asked.proved) headers.set(GUEST_PROVED_HEADER, "1");
     const signed = await auth.api.signInAnonymous({ headers, returnHeaders: true }).catch((error: unknown) => ({ error }));
     if ("error" in signed) {
       if (isAPIError(signed.error) && (signed.error.body as { code?: unknown } | undefined)?.code === "switched-off") {
@@ -181,21 +184,10 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, await waysOf(auth, row)) });
   });
 
-  // account:sign-in-without-secret, account:guest-secures-the-life, account:email-code-is-short-lived: signed out, the code sent to an
-  // address no account uses, for a new life kept with it from the start. The code is checked and spent in one step; the right one
-  // leaves a proof of the address for this browser's guest start, named by an httpOnly cookie with the session cookie's attributes.
-  app.post(NEW_LIFE_CODE_PATH, limit(deps, "commands"), async (c) => {
-    if (sessionOf(c) !== null) return c.json<NewLifeCodeReply>(rejection("not-possible", "This browser already has a life."), 409);
-    const asked = newLifeCode(await c.req.json().catch(() => null));
-    if (asked === null) return c.json<NewLifeCodeReply>(rejection("not-legal", "Send { email, code }."), 400);
-    if (await isBanned(deps, [emailIdentity(asked.email)])) return c.json<NewLifeCodeReply>(rejection("not-possible", "This sign-in cannot make an account."), 403);
-    const internal = (await auth.$context).internalAdapter;
-    const spent = await spendCode(internal, asked.email, asked.code, deps.config.auth.otp.attempts, deps.now());
-    if (spent !== "ok") return c.json<NewLifeCodeReply>(CODE_REFUSED[spent].body, CODE_REFUSED[spent].status);
-    if ((await internal.findUserByEmail(asked.email)) !== null) return c.json<NewLifeCodeReply>(rejection("taken", "That email already has an account. Sign in instead."), 409);
-    const nonce = await keepProof(internal, asked.email, deps.now(), deps.randomBytes);
-    setCookie(c, NEW_LIFE_COOKIE, nonce, { ...COOKIE_ATTRIBUTES, path: NEW_LIFE_COOKIE_PATH, maxAge: Math.floor(NEW_LIFE_TTL_MS / 1000) });
-    return c.json<NewLifeCodeReply>({ ok: true });
+  // account:sign-in-without-secret: "Use another email" on a new life's step drops this browser's proof and its cookie.
+  app.delete(NEW_LIFE_PATH, limit(deps, "commands"), async (c) => {
+    if (await dropProof((await auth.$context).internalAdapter, c.req.header("cookie"))) deleteCookie(c, NEW_LIFE_COOKIE, { path: NEW_LIFE_COOKIE_PATH, secure: true });
+    return c.json<{ ok: true }>({ ok: true });
   });
 
   // account:username-typed-and-checked: whether a name is free, asked by the box as the player types, signed out at the door. Usernames

@@ -31,6 +31,7 @@ const CODES: Record<ServerCode, true> = {
   "not-fresh": true,
   "bad-code": true,
   taken: true,
+  "proof-gone": true,
   "not-possible": true,
   "blocked": true,
   "too-many": true,

@@ -35,6 +35,12 @@ export const GUEST_PATH = "/sign-in/anonymous";
 /** The header `POST /api/guest` hands the chosen username to the anonymous sign-in in; never read from a browser's request. */
 export const GUEST_NAME_HEADER = "x-japacity-guest-name";
 
+/**
+ * The header `POST /api/guest` marks a start that came by the code on the ways back in (`proved` in its body); never read from a
+ * browser's request (account:sign-in-without-secret).
+ */
+export const GUEST_PROVED_HEADER = "x-japacity-guest-proved";
+
 /** The reply header the guest's birth tells `POST /api/guest` in, never sent on to the browser: the proof's address was taken meanwhile. */
 export const PROOF_TAKEN_HEADER = "x-japacity-proof-taken";
 
@@ -45,9 +51,12 @@ type Born = { id: string; name: string } | { id: string; name: string; email: st
  * account:guest-and-secured-states: the guest's birth. Consumes the browser's age pass (single
  * use: one pass, one account) and stores the row with the username. server:four-off-switches:
  * refused while `signups` is off, so a pass issued before the switch went off
- * makes no account. account:guest-secures-the-life: a live proof of an address on this browser (account/newlife.ts) is
- * consumed here, and the account is born secured by that address, as a guest that kept its life by the code would be;
- * an address an account took meanwhile, or one banned, leaves a plain guest, and a taken one is told to the route.
+ * makes no account, and a proof is left as it stood. account:guest-secures-the-life: a live proof of an address on this
+ * browser (account/newlife.ts) is consumed here, and the account is born secured by that address, as a guest that kept its
+ * life by the code would be; on Play's start an address an account took meanwhile, or one banned, leaves a plain guest, and a
+ * taken one is told to the route. account:sign-in-without-secret: a start that came by the code (`GUEST_PROVED_HEADER`) needs
+ * the proof: with none live it is refused `proof-gone` before the age pass is spent, and where the address was taken or
+ * banned meanwhile it is refused, never made a plain guest.
  */
 async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): Promise<{ data: Born }> {
   if (!(await isOn(deps, "signups"))) return refuse("switched-off", "Japacity is full right now. Try again shortly.");
@@ -56,16 +65,24 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
   const username = headers?.get(GUEST_NAME_HEADER) ?? null;
   if (username === null || nameProblem(username) !== null) return refuse("not-legal", "Choose a username first.");
 
-  const nonce = readCookie(headers?.get("cookie"), PASS_COOKIE);
-  if (nonce === null || nonce === "") return refuse("no-age-pass", "Pass the age screen first.");
-  const pass = await endpoint.context.internalAdapter.consumeVerificationValue(PASS_PREFIX + nonce);
-  if (pass === null || new Date(pass.expiresAt).getTime() <= deps.now()) return refuse("no-age-pass", "Pass the age screen first.");
-
   const internal = endpoint.context.internalAdapter;
+  const byCode = headers?.get(GUEST_PROVED_HEADER) === "1";
   const proof = await takeProof(internal, headers?.get("cookie"), deps.now());
+  if (byCode && proof === null) return refuse("proof-gone", "Your code ran out. Send a new one.");
+
+  const nonce = readCookie(headers?.get("cookie"), PASS_COOKIE);
+  const pass = nonce === null || nonce === "" ? null : await internal.consumeVerificationValue(PASS_PREFIX + nonce);
+  if (pass === null || new Date(pass.expiresAt).getTime() <= deps.now()) {
+    // No life was made: the proof stands again for the start after the age screen.
+    await putProofBack(internal, proof);
+    return refuse("no-age-pass", "Pass the age screen first.");
+  }
+
   const proved = proof?.email ?? null;
   const taken = proved !== null && (await internal.findUserByEmail(proved)) !== null;
   const banned = proved !== null && (await isBanned(deps, [emailIdentity(proved)]));
+  if (byCode && taken) return refuse("taken", "That email already has an account. Sign in instead.");
+  if (byCode && banned) return refuse("not-possible", NOT_POSSIBLE);
   if (taken) endpoint.setHeader(PROOF_TAKEN_HEADER, "1");
   const email = proved === null || taken || banned ? null : proved;
 

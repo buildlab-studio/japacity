@@ -198,17 +198,18 @@ describe("the bot check at the guest start", () => {
     expect(await body(await h.call("/api/account", { jar: fresh }))).toMatchObject({ account: { id: account } });
   });
 
-  test("[account:sign-in-without-secret] given no guest life, when a new email or a new Google account signs in at the door, then no account is made: a life starts as a guest", async () => {
+  test("[account:sign-in-without-secret] given no guest life, when a new email or a new Google account signs in at the door, then no account is made: the email's code proves the address for a life made at its username, and Google finds none", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
-    // A plain send to the address is refused before any code exists; a new life's send is the only way a code reaches it.
+    // The send answers as for any address; the code proves the address and signs in to nothing.
     const plain = await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, json: { email: "new@example.com", type: "sign-in" } });
-    expect(await body(plain)).toMatchObject({ code: "no-account" });
-    const otp = await h.codeFor("new@example.com", jar, undefined, true);
+    expect(await body(plain)).toEqual({ success: true });
+    const otp = h.sent.findLast((message) => message.email === "new@example.com")?.otp ?? "";
     const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "new@example.com", otp } });
-    expect(reply.status).toBe(403);
-    expect(await body(reply)).toMatchObject({ code: "no-account" });
+    expect(reply.status).toBe(200);
+    expect(await body(reply)).toEqual({ next: "new-life" });
+    expect((await h.call("/api/account", { jar })).status).toBe(401);
     const back = await withGoogle(h, jar, { sub: "google-new", email: "fresh@example.com" }, SHARING);
     expect(back.searchParams.get("error")).toBe("no-account");
     expect(h.tables.user).toEqual([]);
@@ -411,9 +412,10 @@ describe("an email that was never confirmed", () => {
     await h.passAge(stranger);
     // The library finds the newest code by its creation time; two in one millisecond tie.
     vi.setSystemTime(start + 1_000);
-    const otp = await h.codeFor("ada@example.com", stranger, "198.51.100.71", true);
+    const otp = await h.codeFor("ada@example.com", stranger, "198.51.100.71");
     const signIn = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar: stranger, ip: "198.51.100.71", json: { email: "ada@example.com", otp } });
-    expect(await body(signIn)).toMatchObject({ code: "no-account" });
+    // No account uses the address: the code proves it for a new life there, and opens no account.
+    expect(await body(signIn)).toEqual({ next: "new-life" });
     expect((await h.call("/api/account", { jar: stranger })).status).toBe(401);
 
     // It reserves nothing: another guest secures with it.

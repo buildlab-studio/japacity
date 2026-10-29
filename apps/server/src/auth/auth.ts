@@ -28,6 +28,7 @@ import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../dependencies";
 import { logFailure } from "../log";
+import { emailIdentity, isBanned } from "../moderation/identities";
 import { afterAuth, beforeAuth } from "./hooks";
 import { signedInWith } from "./session";
 
@@ -97,6 +98,16 @@ function testPlugins(testServer: boolean): BetterAuthPlugin[] {
   return testServer ? [testUtils() as BetterAuthPlugin] : [];
 }
 
+/**
+ * account:sign-in-without-secret, account:email-code-is-short-lived, moderation:ban-survives-as-hash: the code goes to every address
+ * alike, with or without an account, except a banned one, which is mailed nothing. Run off the reply's path, so the reply is the
+ * same and as quick for every address: the library looks the user up and stores the code for each alike before it calls this.
+ */
+async function sendUnlessBanned(deps: ServerDeps, keys: AuthKeys, message: OtpMessage): Promise<void> {
+  if (await isBanned(deps, [emailIdentity(message.email)])) return;
+  await keys.sendOtp(message);
+}
+
 export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
   const { config } = deps;
   const relyingParty = relyingPartyOf(keys.siteUrl);
@@ -109,8 +120,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       // account:email-code-is-short-lived: the database keeps only a code's hash, so whoever reads it sees no live code.
       storeOTP: "hashed",
       resendStrategy: "rotate",
-      // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
-      sendVerificationOTP: (message) => keys.sendOtp(message),
+      // The library hands this promise to `advanced.backgroundTasks` without awaiting it, so the ban's check rides off the reply's path too.
+      sendVerificationOTP: (message) => sendUnlessBanned(deps, keys, message),
     }),
     passkey({
       rpID: relyingParty,
