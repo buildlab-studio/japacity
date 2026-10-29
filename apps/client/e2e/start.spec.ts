@@ -534,6 +534,98 @@ test("[account:sign-in-without-secret] a proof that ran out before Continue is t
   ]);
 });
 
+/** The account Google's new life makes at Continue: kept by the address Google verified, with Google as its way in. */
+const KEPT_WITH_GOOGLE = accountView({ id: "account-google", character: null, state: "secured", username: "Olamide", ways: { google: NEW_EMAIL, email: NEW_EMAIL, passkeys: 0 } });
+
+/**
+ * The faked server of one browser for a life started by Google: "Continue with Google" is answered as the library answers it, with
+ * the address to go to, and Google's stand-in is the callback's own redirect home with the new life's error (no page of Google's is
+ * reached); the age standing then names the proof Google made, and the guest start by the proof makes the account kept with Google.
+ */
+async function fakeGoogleStart(page: Page): Promise<Faked> {
+  let proved = false;
+  let passed = false;
+  return fakeDoor(page, {
+    ...signUpRoutes(lifeMade()),
+    "GET /api/auth/passkey/generate-authenticate-options": AUTHENTICATE_OPTIONS,
+    "POST /api/auth/sign-in/social": () => {
+      proved = true;
+      return { body: { url: `${ONLINE}/?error=new-life&error_description=No+life+is+saved+with+this+Google+account+yet.+Start+one.`, redirect: true } };
+    },
+    "GET /api/age": () => ({ body: { refused: false, passed, ...(proved ? { newLife: NEW_EMAIL, newLifeBy: "google" } : {}) } }),
+    "POST /api/age": () => {
+      passed = true;
+      return { body: { ok: true } };
+    },
+    "POST /api/guest": (faked) => {
+      proved = false;
+      faked.phase = "no-character";
+      return { body: { ok: true, account: KEPT_WITH_GOOGLE } };
+    },
+    "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
+  });
+}
+
+test("[account:sign-in-without-secret] [account:guest-secures-the-life] Continue with Google with no life leads to the age screen under the code's line with Use another way, the username's own step, the door and the world, the life saved with Google from the start", async ({ page }, info) => {
+  test.setTimeout(150_000);
+  const faked = await fakeGoogleStart(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
+  await page.getByRole("button", { name: "Continue with Google" }).click();
+
+  // Home from Google with the new life's mark: the age screen under the line, the address left clean, no code sent.
+  await expect(page.getByRole("heading", { name: "When were you born?" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("[data-kept-line]")).toHaveText(`No life is saved with ${NEW_EMAIL} yet. Let's start one. Use another way`);
+  await expect(page.getByRole("button", { name: "Use another email" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Already have a life here? Sign in." })).toHaveCount(0);
+  expect(new URL(page.url()).search).toBe("");
+  expect(faked.sent.filter((request) => request.route === "POST /api/auth/email-otp/send-verification-otp")).toEqual([]);
+  await page.waitForTimeout(500);
+  await shootAtSize(page, "google-start-age", info.project.name);
+  await shootSmall(page, "google-start-age", info.project.name);
+  await pickBirth(page, "12", "March", "1994");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // The username's own step, under the same line.
+  await expect(page.getByRole("heading", { name: "Choose a username" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("[data-kept-line]")).toContainText(NEW_EMAIL);
+  await page.getByLabel("Username").fill("Olamide");
+  await expect(page.getByText("That name is free.")).toBeVisible();
+  await fitsWhole(page, "Google's username step");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+
+  // The door as a signed-in account with no character meets it.
+  const name = page.getByRole("textbox", { name: "Your name" });
+  await expect(name).toBeVisible({ timeout: 20_000 });
+  const guest = faked.sent.find((request) => request.route === "POST /api/guest");
+  expect(guest?.body).toEqual({ username: "Olamide", proved: true });
+  expect(guest?.headers["x-captcha-response"]).toBe(TOKEN);
+  await name.fill("Ọlámídé");
+  await page.getByRole("button", { name: /^Next/ }).first().click();
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  await passThePage(page, 20_000);
+  await expect(page.locator("[data-thumb='map']")).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("[data-way-toast]")).toHaveText("Saved with Google");
+  await shootSmall(page, "google-start-welcome", info.project.name);
+  await shootAtSize(page, "google-start-welcome", info.project.name);
+
+  // The passkey card follows the line, and the account sheet shows Google as the way in, with nothing asking to save the life.
+  await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
+  const offer = page.locator("[data-passkey-card]");
+  await expect(offer).toBeVisible({ timeout: 10_000 });
+  await offer.getByRole("button", { name: "Not now" }).click();
+  await page.locator('[data-thumb="phone"]').click();
+  await page.locator('[data-app="settings"]').click();
+  const row = page.locator("[data-account-row]");
+  await expect(row).toContainText(`Signed in with Google as ${NEW_EMAIL}`);
+  await row.click();
+  const sheet = page.getByRole("dialog", { name: "Account" });
+  await expect(sheet.getByText(`Signed in with Google as ${NEW_EMAIL}`)).toBeVisible();
+  await expect(sheet.getByRole("button", { name: "Save this life" })).toHaveCount(0);
+  await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(0);
+});
+
 test.describe("inside a messaging app's browser", () => {
   test.use({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36 WhatsApp/2.24.1" });
 
