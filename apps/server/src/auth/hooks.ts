@@ -1,5 +1,5 @@
 // The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited), the code check that
-// proves an address no account uses for a new life (account:sign-in-without-secret),
+// proves an address no account uses for a new life and Google's return that proves one (account:sign-in-without-secret),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
 // passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
 // removed (account:session-is-secure-cookie), who may add or remove a passkey and what each addition
@@ -8,11 +8,13 @@
 // https://better-auth.com/docs/concepts/hooks
 // https://better-auth.com/docs/concepts/rate-limit
 // https://pages.nist.gov/800-63-4/sp800-63b/events/ (4.1.2.1, 4.6)
+import { GOOGLE_NEW_LIFE } from "@japacity/api";
 import { time, toHex } from "@japacity/sim";
+import type { GenericEndpointContext } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
 import { keepProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_OPTIONS, spendCode } from "../account/newlife";
-import type { CodeSpent } from "../account/newlife";
+import type { CodeSpent, Proved } from "../account/newlife";
 import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../dependencies";
 import { emailIdentity, isBanned } from "../moderation/identities";
@@ -190,9 +192,64 @@ async function newLifeByCode(deps: ServerDeps, ctx: HookContext): Promise<unknow
   const spent = await spendCode(internal, email, body.otp, deps.config.auth.otp.attempts, deps.now());
   if (spent !== "ok") throw CODE_REFUSALS[spent]();
   if (await isBanned(deps, [emailIdentity(email)])) throw CODE_REFUSALS.wrong();
-  const nonce = await keepProof(internal, email, deps.now(), deps.randomBytes);
+  const nonce = await keepProof(internal, { email, google: null }, deps.now(), deps.randomBytes);
   ctx.setCookie(NEW_LIFE_COOKIE, nonce, NEW_LIFE_COOKIE_OPTIONS);
   return ctx.json({ next: "new-life" });
+}
+
+/** Google's callback, the one route whose return with no life keeps a proof (account:sign-in-without-secret). */
+const GOOGLE_CALLBACK_PATH = "/callback/:id";
+
+/**
+ * Google's returns with no life, by the request they came on, waiting for the callback's after-hook to keep their proof. One per
+ * auth instance, as the guest's link has its own (account/link.ts).
+ */
+export type GoogleNewLives = WeakMap<object, Proved>;
+
+/** What the library's `user.validateUserInfo` is given: the user about to be made and where it came from. */
+interface Provisioning {
+  user: { email?: unknown; emailVerified?: unknown };
+  source: { action: string; method: string; oauth?: { providerId: string; profile?: Record<string, unknown> | undefined } | undefined };
+}
+
+/** The refusal Google's callback turns into its redirect home with `?error=new-life`. */
+const NEW_LIFE_BY_GOOGLE = { error: GOOGLE_NEW_LIFE, errorDescription: "No life is saved with this Google account yet. Start one." };
+
+/**
+ * account:sign-in-without-secret, account:guest-secures-the-life: Google's return with no life, run as the library's `user.validateUserInfo`, which
+ * alone of its hooks is handed Google's identity (the profile's `sub`) beside the address. A user is about to be made from Google's
+ * callback only where no account holds the identity and none uses the address. Signed out, with an address Google verified and
+ * neither the address nor `google:<sub>` banned, nothing is made: the request is noted for the after-hook, which keeps the proof
+ * and sets its cookie, and the callback is refused `new-life`, which the library sends home as `?error=new-life`. The proof is
+ * kept by the after-hook because the user is made inside the library's transaction, which a refusal rolls back. Anything else
+ * (a guest's own link, an unverified or banned address) goes on to the gate as before (account/signup.ts).
+ */
+export async function newLifeByGoogle(deps: ServerDeps, pending: GoogleNewLives, { user, source }: Provisioning, endpoint: GenericEndpointContext): Promise<typeof NEW_LIFE_BY_GOOGLE | undefined> {
+  if (source.action !== "create-user" || source.method !== "oauth" || source.oauth?.providerId !== "google") return undefined;
+  if (endpoint.path !== GOOGLE_CALLBACK_PATH || endpoint.request === undefined) return undefined;
+  const sub = source.oauth.profile?.["sub"];
+  if (typeof sub !== "string" || sub === "" || typeof user.email !== "string" || user.email === "" || user.emailVerified !== true) return undefined;
+  if ((await getSessionFromCtx(endpoint, { disableRefresh: true }).catch(() => null)) !== null) return undefined;
+  const email = user.email.toLowerCase();
+  if (await isBanned(deps, [emailIdentity(email), `google:${sub}`])) return undefined;
+  pending.set(endpoint.request, { email, google: sub });
+  return NEW_LIFE_BY_GOOGLE;
+}
+
+/**
+ * account:sign-in-without-secret: Google's callback refused `new-life` by `newLifeByGoogle` keeps the proof here, after the library's
+ * transaction, and names it by the same httpOnly cookie as the code's, set on the callback's own redirect home.
+ */
+async function keepGoogleProof(deps: ServerDeps, pending: GoogleNewLives, ctx: HookContext): Promise<void> {
+  if (ctx.path !== GOOGLE_CALLBACK_PATH || ctx.request === undefined) return;
+  const proved = pending.get(ctx.request);
+  if (proved === undefined) return;
+  pending.delete(ctx.request);
+  const returned = ctx.context.returned;
+  const location = isAPIError(returned) && returned.headers !== undefined ? new Headers(returned.headers).get("location") : null;
+  if (location === null || new URL(location, "https://japacity.invalid").searchParams.get("error") !== GOOGLE_NEW_LIFE) return;
+  const nonce = await keepProof(ctx.context.internalAdapter, proved, deps.now(), deps.randomBytes);
+  ctx.setCookie(NEW_LIFE_COOKIE, nonce, NEW_LIFE_COOKIE_OPTIONS);
 }
 
 /** How the request's session was opened, from the field the session hook set (session.ts). */
@@ -384,8 +441,9 @@ async function leavePlacesOnRevoke(deps: ServerDeps, ctx: HookContext): Promise<
 }
 
 /** The hooks run after every library route. */
-export function afterAuth(deps: ServerDeps, keys: AuthKeys) {
+export function afterAuth(deps: ServerDeps, keys: AuthKeys, pending: GoogleNewLives) {
   return createAuthMiddleware(async (ctx) => {
+    await keepGoogleProof(deps, pending, ctx);
     await endSessionsOnUnlink(ctx);
     await leavePlacesOnRevoke(deps, ctx);
     await endSteppedUpSession(ctx);

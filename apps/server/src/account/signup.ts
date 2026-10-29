@@ -44,6 +44,12 @@ export const GUEST_PROVED_HEADER = "x-japacity-guest-proved";
 /** The reply header the guest's birth tells `POST /api/guest` in, never sent on to the browser: the proof's address was taken meanwhile. */
 export const PROOF_TAKEN_HEADER = "x-japacity-proof-taken";
 
+/**
+ * The reply header the guest's birth tells `POST /api/guest` the Google identity of its proof in, never sent on to the browser: the route
+ * joins it to the account just made (account:sign-in-without-secret).
+ */
+export const PROOF_GOOGLE_HEADER = "x-japacity-proof-google";
+
 /** The user a guest's birth asks the library to write: the guest's own, or one already secured by a proved address. */
 type Born = { id: string; name: string } | { id: string; name: string; email: string; emailVerified: true; isAnonymous: false };
 
@@ -56,7 +62,9 @@ type Born = { id: string; name: string } | { id: string; name: string; email: st
  * life by the code would be; on Play's start an address an account took meanwhile, or one banned, leaves a plain guest, and a
  * taken one is told to the route. account:sign-in-without-secret: a start that came by the code (`GUEST_PROVED_HEADER`) needs
  * the proof: with none live it is refused `proof-gone` before the age pass is spent, and where the address was taken or
- * banned meanwhile it is refused, never made a plain guest.
+ * banned meanwhile it is refused, never made a plain guest. A proof Google made holds its identity too: the identity joined to
+ * another account meanwhile counts as the address taken, a banned one as the address banned, and the account born kept by the
+ * address is handed to the route to join that identity to (`PROOF_GOOGLE_HEADER`).
  */
 async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): Promise<{ data: Born }> {
   if (!(await isOn(deps, "signups"))) return refuse("switched-off", "Japacity is full right now. Try again shortly.");
@@ -79,8 +87,11 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
   }
 
   const proved = proof?.email ?? null;
-  const taken = proved !== null && (await internal.findUserByEmail(proved)) !== null;
-  const banned = proved !== null && (await isBanned(deps, [emailIdentity(proved)]));
+  const google = proof?.google ?? null;
+  // account:sign-in-without-secret: admitMethod's checks, run again before anything is made, so a race lost meanwhile is refused, never a plain guest.
+  const joined = google !== null && (await internal.findAccountByKey({ providerId: "google", accountId: google })) !== null;
+  const taken = proved !== null && (joined || (await internal.findUserByEmail(proved)) !== null);
+  const banned = proved !== null && (await isBanned(deps, [emailIdentity(proved), ...(google === null ? [] : [`google:${google}`])]));
   if (byCode && taken) return refuse("taken", "That email already has an account. Sign in instead.");
   if (byCode && banned) return refuse("not-possible", NOT_POSSIBLE);
   if (taken) endpoint.setHeader(PROOF_TAKEN_HEADER, "1");
@@ -108,6 +119,7 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
   }
   // account:only-needed-data-kept: the library's name column holds nothing; the username lives on the game's row.
   if (email === null) return { data: { id, name: "" } };
+  if (google !== null) endpoint.setHeader(PROOF_GOOGLE_HEADER, google);
   return { data: { id, name: "", email, emailVerified: true, isAnonymous: false } };
 }
 

@@ -198,7 +198,7 @@ describe("the bot check at the guest start", () => {
     expect(await body(await h.call("/api/account", { jar: fresh }))).toMatchObject({ account: { id: account } });
   });
 
-  test("[account:sign-in-without-secret] given no guest life, when a new email or a new Google account signs in at the door, then no account is made: the email's code proves the address for a life made at its username, and Google finds none", async () => {
+  test("[account:sign-in-without-secret] given no guest life, when a new email or a new Google account signs in at the door, then no account is made: the email's code and Google's return each prove the address for a life made at its username", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -211,7 +211,7 @@ describe("the bot check at the guest start", () => {
     expect(await body(reply)).toEqual({ next: "new-life" });
     expect((await h.call("/api/account", { jar })).status).toBe(401);
     const back = await withGoogle(h, jar, { sub: "google-new", email: "fresh@example.com" }, SHARING);
-    expect(back.searchParams.get("error")).toBe("no-account");
+    expect(back.searchParams.get("error")).toBe("new-life");
     expect(h.tables.user).toEqual([]);
   });
 });

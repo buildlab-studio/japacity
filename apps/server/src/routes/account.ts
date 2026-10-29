@@ -21,7 +21,7 @@ import { PASS_COOKIE, readCookie } from "../account/age";
 import { deletionStatus, requestDeletion } from "../account/deletion";
 import { DEVICE_COOKIE, countGuest, guestGates, tooManyGuests } from "../account/guest";
 import { dropProof, heldProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_PATH } from "../account/newlife";
-import { GUEST_NAME_HEADER, GUEST_PROVED_HEADER, PROOF_TAKEN_HEADER } from "../account/signup";
+import { GUEST_NAME_HEADER, GUEST_PROVED_HEADER, PROOF_GOOGLE_HEADER, PROOF_TAKEN_HEADER } from "../account/signup";
 import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
 import { countSecured } from "../analytics/live";
@@ -179,6 +179,10 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     const row = await deps.stores.account.get(signed.response.user.id);
     if (row === null) throw new Error(`The guest ${signed.response.user.id} has no account row.`);
     if (row.state === "guest") return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false, NO_WAYS), ...(signed.headers.get(PROOF_TAKEN_HEADER) === null ? {} : { emailTaken: true as const }) });
+    // account:sign-in-without-secret: a proof Google made joins its identity to the account, as Google's own row, through the library's
+    // adapter, so its account hook judges it as any method (account/signup.ts, admitMethod) and keeps no token; Google signs straight in next time.
+    const google = signed.headers.get(PROOF_GOOGLE_HEADER);
+    if (google !== null) await context.internalAdapter.createAccount({ userId: row.id, providerId: "google", accountId: google });
     // Born secured by a proved address: the same marks as a guest that kept its life (account/link.ts).
     await deps.stores.boards.setListed(row.id, true);
     await countSecured(deps, row.id);

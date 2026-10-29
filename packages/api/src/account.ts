@@ -29,6 +29,8 @@ export interface AgeStatus {
    * reload or another tab opens the gate on the new life's step with the address shown. Absent when no live proof is held.
    */
   newLife?: string;
+  /** account:sign-in-without-secret: present where Google proved the address of the live proof, so the step says Google's words; absent where the code did. */
+  newLifeBy?: "google";
 }
 
 /** `GET /api/account`: the account as its owner sees it. No age date (account:only-needed-data-kept), no email (the auth library's session holds that). */
@@ -104,7 +106,13 @@ export interface CodeNewLife {
   next: "new-life";
 }
 
-/** account:sign-in-without-secret: `DELETE /api/new-life` drops this browser's proof and its cookie ("Use another email"). */
+/**
+ * account:sign-in-without-secret: the error Google's callback sends the page home with (`?error=new-life`) where Google proved a verified
+ * address and an identity no account uses: the proof is kept for this browser, named by its httpOnly cookie, and the age standing names it.
+ */
+export const GOOGLE_NEW_LIFE = "new-life";
+
+/** account:sign-in-without-secret: `DELETE /api/new-life` drops this browser's proof and its cookie ("Use another email", "Use another way"). */
 export const NEW_LIFE_PATH = "/api/new-life";
 
 /** account:username-typed-and-checked: the read the username box asks while the player types, the name in the query. */

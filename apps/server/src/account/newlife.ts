@@ -2,7 +2,9 @@
 // ways back in goes to every address alike; for an address no account uses, the right code proves the address before the
 // life starts. The code is checked and spent in one step, as the auth library checks its own sign-in codes, and a proof of
 // the address is kept in the library's verification table under its own prefix, holding the address alone, for 30
-// minutes, and named only by an httpOnly cookie on this browser. The guest start consumes it.
+// minutes, and named only by an httpOnly cookie on this browser. The guest start consumes it. Google's return with no life
+// keeps the same proof, holding the address Google verified and the Google identity, and the guest start joins that
+// identity to the account it makes.
 // https://better-auth.com/docs/plugins/email-otp
 import { time, toHex } from "@japacity/sim";
 import type { AuthContext } from "better-auth";
@@ -76,16 +78,38 @@ export async function spendCode(internal: Internal, email: string, code: string,
   return "ok";
 }
 
-/** Keeps a proof of `email` for 30 minutes; returns the cookie's value that names it. */
-export async function keepProof(internal: Internal, email: string, now: number, bytes: (count: number) => Uint8Array): Promise<string> {
+/** What a proof holds: the address proved, and the Google identity (Google's `sub`) where Google proved it; null where the code did. */
+export interface Proved {
+  email: string;
+  google: string | null;
+}
+
+/** A proof's row value: the address alone where the code proved it, as it always was; the address and the identity as JSON where Google did. */
+function provedValue(proved: Proved): string {
+  return proved.google === null ? proved.email : JSON.stringify({ email: proved.email, google: proved.google });
+}
+
+/** A proof's row value read back; a value that is not Google's JSON is an address alone. */
+function provedOf(value: string): Proved {
+  if (!value.startsWith("{")) return { email: value, google: null };
+  try {
+    const held = JSON.parse(value) as { email?: unknown; google?: unknown };
+    if (typeof held.email === "string" && typeof held.google === "string") return { email: held.email, google: held.google };
+  } catch {
+    // Not Google's JSON: read as an address alone below.
+  }
+  return { email: value, google: null };
+}
+
+/** Keeps a proof of `proved` for 30 minutes; returns the cookie's value that names it. */
+export async function keepProof(internal: Internal, proved: Proved, now: number, bytes: (count: number) => Uint8Array): Promise<string> {
   const nonce = toHex(bytes(16));
-  await internal.createVerificationValue({ identifier: NEW_LIFE_PREFIX + nonce, value: email, expiresAt: new Date(now + NEW_LIFE_TTL_MS) });
+  await internal.createVerificationValue({ identifier: NEW_LIFE_PREFIX + nonce, value: provedValue(proved), expiresAt: new Date(now + NEW_LIFE_TTL_MS) });
   return nonce;
 }
 
-/** A proof taken from the table: the address it holds, and its row as it stood, so a start refused after taking it can put it back. */
-export interface Proof {
-  email: string;
+/** A proof taken from the table: what it holds, and its row as it stood, so a start refused after taking it can put it back. */
+export interface Proof extends Proved {
   identifier: string;
   expiresAt: Date;
 }
@@ -97,24 +121,24 @@ export async function takeProof(internal: Internal, cookie: string | null | unde
   const identifier = NEW_LIFE_PREFIX + nonce;
   const proof = await internal.consumeVerificationValue(identifier);
   if (proof === null || new Date(proof.expiresAt).getTime() <= now) return null;
-  return { email: proof.value, identifier, expiresAt: new Date(proof.expiresAt) };
+  return { ...provedOf(proof.value), identifier, expiresAt: new Date(proof.expiresAt) };
 }
 
 /** A proof taken by a start that was then refused, put back as it stood: the same row, address and expiry, so the next Begin still starts kept. */
 export async function putProofBack(internal: Internal, proof: Proof | null): Promise<void> {
   if (proof === null) return;
-  await internal.createVerificationValue({ identifier: proof.identifier, value: proof.email, expiresAt: proof.expiresAt });
+  await internal.createVerificationValue({ identifier: proof.identifier, value: provedValue(proof), expiresAt: proof.expiresAt });
 }
 
-/** The address of the live proof named by this request's cookie, read and left in place; null with no cookie, a spent proof or an expired one. */
-export async function heldProof(internal: Internal, cookie: string | null | undefined, now: number): Promise<string | null> {
+/** What the live proof named by this request's cookie holds, read and left in place; null with no cookie, a spent proof or an expired one. */
+export async function heldProof(internal: Internal, cookie: string | null | undefined, now: number): Promise<Proved | null> {
   const nonce = readCookie(cookie, NEW_LIFE_COOKIE);
   if (nonce === null || nonce === "") return null;
   const proof = await internal.findVerificationValue(NEW_LIFE_PREFIX + nonce);
-  return proof === null || new Date(proof.expiresAt).getTime() <= now ? null : proof.value;
+  return proof === null || new Date(proof.expiresAt).getTime() <= now ? null : provedOf(proof.value);
 }
 
-/** Drops the proof named by this request's cookie, live or not: "Use another email", and an age screen that refused a minor. */
+/** Drops the proof named by this request's cookie, live or not: "Use another email" or "Use another way", and an age screen that refused a minor. */
 export async function dropProof(internal: Internal, cookie: string | null | undefined): Promise<boolean> {
   const nonce = readCookie(cookie, NEW_LIFE_COOKIE);
   if (nonce === null) return false;

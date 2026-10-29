@@ -28,13 +28,13 @@ export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv
 
   // account:sign-up-open-everywhere, account:age-screen-refuses-minors: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (server:four-off-switches).
   // A pass is reported while its row stands unspent and its hour is not up, so a reload or Back before Begin returns to the door's step.
-  // account:sign-in-without-secret: a live proof's address is reported too, so the gate opens on the new life's step in this browser.
+  // account:sign-in-without-secret: a live proof's address is reported too, and Google where Google proved it, so the gate opens on the new life's step in this browser.
   app.get("/api/age", limit(deps, "reads"), async (c) => {
     const cookie = c.req.header("cookie");
     if (readCookie(cookie, REFUSED_COOKIE) !== null) return c.json<AgeStatus>({ refused: true, passed: false });
     const context = await auth.$context;
     const proved = await heldProof(context.internalAdapter, cookie, deps.now());
-    const held = proved === null ? {} : { newLife: proved };
+    const held = proved === null ? {} : { newLife: proved.email, ...(proved.google === null ? {} : { newLifeBy: "google" as const }) };
     const nonce = readCookie(cookie, PASS_COOKIE);
     if (nonce === null || nonce === "") return c.json<AgeStatus>({ refused: false, passed: false, ...held });
     const pass = await context.internalAdapter.findVerificationValue(PASS_PREFIX + nonce);

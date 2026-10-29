@@ -29,7 +29,8 @@ import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../dependencies";
 import { logFailure } from "../log";
 import { emailIdentity, isBanned } from "../moderation/identities";
-import { afterAuth, beforeAuth } from "./hooks";
+import { afterAuth, beforeAuth, newLifeByGoogle } from "./hooks";
+import type { GoogleNewLives } from "./hooks";
 import { signedInWith } from "./session";
 
 /** The memory adapter in tests; Drizzle's adapter has the same shape. */
@@ -112,6 +113,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
   const { config } = deps;
   const relyingParty = relyingPartyOf(keys.siteUrl);
   const linking: Linking = new Set();
+  const googleNewLives: GoogleNewLives = new WeakMap();
   const plugins = [
     emailOTP({
       otpLength: config.auth.otp.length,
@@ -165,6 +167,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
     },
     user: {
+      // account:sign-in-without-secret: Google's return with no life keeps a proof for a new life saved with Google (auth/hooks.ts).
+      validateUserInfo: (provisioning, endpoint) => newLifeByGoogle(deps, googleNewLives, provisioning, endpoint),
       deleteUser: {
         enabled: true,
         beforeDelete: async (user) => {
@@ -212,7 +216,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     },
     hooks: {
       before: beforeAuth(deps),
-      after: afterAuth(deps, keys),
+      after: afterAuth(deps, keys, googleNewLives),
     },
     advanced: {
       useSecureCookies: true,
