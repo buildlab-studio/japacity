@@ -218,10 +218,10 @@ const words: Record<string, string> = {
   "prologue.door.age.older": "Older",
   "prologue.door.page.title": "Your page",
   // The front door's typed name (prologue:front-door-builds-a-person): what the box says, and why a name is refused.
-  "prologue.door.name.title": "Your name",
+  "prologue.door.name.title": "Your character's name",
   "prologue.door.name.hint": "Type it, or take one of these.",
   "prologue.door.name.suggested": "Names to take",
-  "prologue.door.name.placeholder": "What people call you",
+  "prologue.door.name.placeholder": "A first name",
   "prologue.door.name.short": "A name needs at least {shortest} letters.",
   "prologue.door.name.long": "Keep it to {longest} letters.",
   "prologue.door.name.letters": "Letters only. No numbers, spaces or signs.",

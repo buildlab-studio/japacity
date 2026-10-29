@@ -166,7 +166,7 @@ describe("Settings names the ways in (account:guest-reminded-to-secure, account:
     expect(username?.textContent).toContain(say("ui.account.name.label"));
     const person = document.querySelector("[data-life-name]");
     expect(person?.textContent).toBe(`${say("ui.account.person.label")}${name}`);
-    expect(say("ui.account.person.label")).toBe("Name");
+    expect(say("ui.account.person.label")).toBe("Character's name");
   });
 
   test("[account:passkey-needs-signed-in-session] [account:guest-reminded-to-secure] given a kept life, when a passkey is added, then the sheet says so and the passkeys held are read again", async () => {

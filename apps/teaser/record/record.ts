@@ -178,7 +178,7 @@ async function door(s: Session, life: Life): Promise<Kept> {
   await page.goto("/?sleep=2");
   const next = page.getByRole("button", { name: /^Next/ }).first();
   await next.waitFor({ timeout: 60_000 });
-  await page.getByRole("textbox", { name: "Your name" }).fill(LIVES[life].name);
+  await page.getByRole("textbox", { name: "Your character's name" }).fill(LIVES[life].name);
   await next.click();
   const tile = page.locator("[data-gate='life'] [role='radio']");
   await tile.first().waitFor({ timeout: 20_000 });
