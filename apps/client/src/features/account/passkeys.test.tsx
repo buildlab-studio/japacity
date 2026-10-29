@@ -327,6 +327,20 @@ describe("questions asked in place (account:passkeys-listed-and-removed, account
     expect(screen.getByText(say("ui.account.passkey.remove.ask", { name: say("ui.account.passkey.provider") }))).toBeDefined();
   });
 
+  test("[world:one-action-one-sheet] given a browser whose scrollIntoView answers with a promise, when a question asked in place opens and closes, then it is brought into view and the sheet stands", async () => {
+    const scrolled: unknown[] = [];
+    Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, value: (options: unknown) => (scrolled.push(options), Promise.resolve()) });
+    try {
+      settings(fakeAccount(kept()));
+      fireEvent.click(await screen.findByRole("button", { name: say("ui.account.sign-out.all") }));
+      expect(scrolled).toEqual([{ block: "nearest" }]);
+      fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out.all.keep") }));
+      expect(await screen.findByRole("button", { name: say("ui.account.sign-out.all") })).toBeDefined();
+    } finally {
+      Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+    }
+  });
+
   test("[account:passkey-offered-where-it-works] given a kept life where passkeys work, then Sign in with your face, fingerprint or screen lock instead of a code. is the one caption, under Add a passkey", async () => {
     settings(fakeAccount(kept()));
     const add = await screen.findByRole("button", { name: say("ui.account.passkey.add") });

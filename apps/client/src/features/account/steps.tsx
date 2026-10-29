@@ -53,7 +53,9 @@ export function StepsProvider({ children }: { children: ReactNode }) {
 /** An element that takes the focus as it shows: a step's heading, a question asked in place. */
 export function useFocusOnShow<T extends HTMLElement>(): RefObject<T | null> {
   const ref = useRef<T | null>(null);
-  useEffect(() => ref.current?.focus(), []);
+  useEffect(() => {
+    ref.current?.focus();
+  }, []);
   return ref;
 }
 
@@ -93,6 +95,9 @@ export function FocusLine({ children, className = "" }: { children: ReactNode; c
  */
 export function useShownWhole<T extends HTMLElement>(): RefObject<T | null> {
   const ref = useRef<T | null>(null);
-  useEffect(() => ref.current?.scrollIntoView?.({ block: "nearest" }), []);
+  // A block body: a browser whose scrollIntoView answers with a promise would hand React that promise as the clean-up.
+  useEffect(() => {
+    void ref.current?.scrollIntoView?.({ block: "nearest" });
+  }, []);
   return ref;
 }
