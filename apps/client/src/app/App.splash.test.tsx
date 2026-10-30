@@ -99,7 +99,7 @@ describe("the fault card (engine:browser-authority-for-dev-only)", () => {
   });
 
   test("[engine:browser-authority-for-dev-only] given each kind of trouble, then its detail is plain words of its own, never a status or a code", () => {
-    const details = [...(["network", "wall", "server"] as const).map((kind) => say(`ui.trouble.${kind}.detail`)), say("ui.failed.detail")];
+    const details = (["trouble", "failed"] as const).flatMap((card) => (["network", "wall", "server"] as const).map((kind) => say(`ui.${card}.${kind}.detail`)));
     for (const detail of details) plain(detail);
     expect(new Set(details).size).toBe(details.length);
   });
@@ -110,10 +110,26 @@ describe("the fault card (engine:browser-authority-for-dev-only)", () => {
     const card = await screen.findByRole("alert");
     expect(card.closest("[data-splash]")).not.toBeNull();
     expect(card.classList.contains("look-card")).toBe(true);
-    expect(card.textContent).toContain(say("ui.failed", { why: say("ui.failed.why.server") }));
+    expect(card.querySelector("p")?.textContent).toBe("The game could not start");
+    expect(card.querySelector("[data-trouble-detail]")?.textContent).toBe("Something went wrong on our side. Reload in a moment.");
     expect(card.textContent).not.toContain("boom");
     const reload = screen.getByRole("button", { name: say("ui.trouble.reload") });
     expect(reload.classList.contains("press-button")).toBe(true);
     noRedText();
+  });
+
+  test("[engine:browser-authority-for-dev-only] given the game could not start, then one headline stands with no reason in it, and the detail under it says what to do by the kind of failure, with Reload", () => {
+    const shown: string[] = [];
+    for (const kind of ["network", "wall", "server"] as const) {
+      const store = createGameStore({ view: () => new Promise(() => undefined), send: unused }, noPause);
+      store.setState({ failed: kind });
+      const { unmount } = render(<App store={store} />);
+      const card = screen.getByRole("alert");
+      expect(card.querySelector("p")?.textContent).toBe("The game could not start");
+      shown.push(card.querySelector("[data-trouble-detail]")?.textContent ?? "");
+      expect(screen.getByRole("button", { name: say("ui.trouble.reload") })).toBeDefined();
+      unmount();
+    }
+    expect(shown).toEqual(["Check your connection, then reload.", "Your session ended. Reload, then sign in if the game asks.", "Something went wrong on our side. Reload in a moment."]);
   });
 });

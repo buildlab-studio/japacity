@@ -10,7 +10,7 @@ export const uiAccountSheetText: Record<string, string> = {
   "ui.account.name.change.go": "Save the new name",
   "ui.account.name.changed": "Saved. Others now see {name}.",
   "ui.account.name.free": "Your first change is free. After that, changes come a while apart.",
-  "ui.account.person.label": "Character's name",
+  "ui.account.person.label": "Character name",
 
   // The usage counts setting (analytics:player-can-stop-usage-counts)
   "ui.account.usage": "Send usage counts",

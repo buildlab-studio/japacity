@@ -23,8 +23,9 @@ test.use({ baseURL: ONLINE });
 /** The pictures are phone pictures at 390 by 844. */
 
 /** Every /api route the client calls, answered from the one life the faked account holds; every request is kept. */
-async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"scenario">[] }> {
-  let game: Game | null = start({ scenario: "scenario.banker", content });
+/** `username`: the guest's; `alive` false: the account holds no character yet, so the door opens first. */
+async function fakeServer(page: Page, { username = "ada_lagos", alive = true }: { username?: string; alive?: boolean } = {}): Promise<{ sent: string[]; scenarios: Id<"scenario">[] }> {
+  let game: Game | null = alive ? start({ scenario: "scenario.banker", content }) : null;
   const sent: string[] = [];
   const scenarios: Id<"scenario">[] = [];
   await page.route(
@@ -55,7 +56,7 @@ async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"
       if (asked === "POST /api/prologue/preset" && game !== null) {
         return route.fulfill(json(playPresetOn(game, request.postDataJSON() as PresetRequest, { ...clockAt(game.tick), morningAt: 0, world: worldClockAt(game.tick) })));
       }
-      if (asked === "GET /api/account") return route.fulfill(json({ ok: true, account: accountView({ id: "account-guest", state: "guest", character: game === null ? null : "c-1" }) }));
+      if (asked === "GET /api/account") return route.fulfill(json({ ok: true, account: accountView({ id: "account-guest", state: "guest", username, character: game === null ? null : "c-1" }) }));
       if (asked === "GET /api/moderation/standing") return route.fulfill(json(STANDING));
       return route.fulfill(json(NOT_FAKED, 404));
     },
@@ -110,7 +111,11 @@ test("[account:start-a-new-life] a guest ends the life from Settings by a hold, 
   // The front door, filled in as onboarding is.
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("#door-name")).not.toHaveValue("");
+  // prologue:front-door-builds-a-person: the next life on the same account takes its name from the username, never a random one.
+  await expect(page.locator("#door-name")).toHaveValue("Ada");
   await shootPhone(page, "newlife-04-door", info.project.name);
+  await shootPhone(page, "names-door-second-life-375x667", info.project.name, { width: 375, height: 667 });
+  if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 390, height: 844 });
 
   await startArchetype(page, "The developer");
   await expect(page.locator('[data-thumb="phone"]')).toBeVisible({ timeout: 30_000 });
@@ -120,6 +125,23 @@ test("[account:start-a-new-life] a guest ends the life from Settings by a hold, 
   expect(faked.scenarios).toHaveLength(1);
   expect(faked.sent).not.toContain("POST /api/guest");
   expect(faked.sent).not.toContain("turnstile");
+});
+
+test("[prologue:front-door-builds-a-person] a signed-in account whose username makes no first name opens the door with the name's box empty, three names under it to take, and the dice; one taken is the name", async ({ page }, info) => {
+  if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 375, height: 667 });
+  await fakeServer(page, { username: "x_99", alive: false });
+  await page.goto("/");
+  const box = page.locator("#door-name");
+  await expect(box).toBeVisible({ timeout: 30_000 });
+  await expect(box).toHaveValue("");
+  const offered = page.locator("[data-door-suggested] button");
+  await expect(offered).toHaveCount(3);
+  await expect(page.getByRole("button", { name: "Another name" })).toBeVisible();
+  await shootPhone(page, "names-door-empty-375x667", info.project.name);
+  const taken = (await offered.nth(1).textContent()) ?? "";
+  await offered.nth(1).click();
+  await expect(box).toHaveValue(taken);
+  await expect(offered).toHaveCount(0);
 });
 
 test("[city:credits-screen-attributions] a guest opens the Credits from the phone's Settings: the same sheet as the city's menu, with the map data linked", async ({ page }) => {

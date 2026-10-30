@@ -912,7 +912,7 @@ describe("the shell online", () => {
     );
     render(<App store={store} />);
     expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
-    expect(screen.queryByText(say("ui.failed", { why: "no session" }))).toBeNull();
+    expect(screen.queryByText(say("ui.failed"))).toBeNull();
   });
 });
 

@@ -19,10 +19,10 @@ function sources(folder: string): string[] {
 
 describe("a failed request on screen is said in the player's words (engine:browser-authority-for-dev-only)", () => {
   test("[engine:browser-authority-for-dev-only] each kind of failure is said by the trouble words, and anything else as ours, never the error's own text", () => {
-    expect(troubleWords(requestFailure("network", "Load failed"))).toBe("The server did not answer.");
-    expect(troubleWords(requestFailure("wall", "an opaque redirect"))).toBe("Your session ended: open the game again.");
-    expect(troubleWords(requestFailure("server", "502"))).toBe("Something broke on our side.");
-    expect(troubleWords(new TypeError("Failed to fetch"))).toBe("Something broke on our side.");
+    expect(troubleWords(requestFailure("network", "Load failed"))).toBe("Could not connect");
+    expect(troubleWords(requestFailure("wall", "an opaque redirect"))).toBe("Your session ended");
+    expect(troubleWords(requestFailure("server", "502"))).toBe("Something went wrong on our side");
+    expect(troubleWords(new TypeError("Failed to fetch"))).toBe("Something went wrong on our side");
   });
 
   test("[engine:browser-authority-for-dev-only] no screen or helper of the client reads an error's message to show it: the trouble words say it instead", () => {

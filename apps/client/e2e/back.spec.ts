@@ -115,11 +115,11 @@ test.describe("before Begin", () => {
     await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "March" });
     await page.getByRole("combobox", { name: "Year" }).selectOption("1994");
     await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.getByRole("textbox", { name: "Your character's name" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("textbox", { name: "Character name" })).toBeVisible({ timeout: 20_000 });
     await back(page);
     await expect(play).toBeVisible();
     await play.click();
-    await expect(page.getByRole("textbox", { name: "Your character's name" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("textbox", { name: "Character name" })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("heading", { name: "When were you born?" })).toHaveCount(0);
   });
 });

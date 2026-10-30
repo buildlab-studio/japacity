@@ -135,7 +135,7 @@ describe("the right code for an address no account uses", () => {
 });
 
 describe("the username's own step (account:sign-in-without-secret)", () => {
-  test("[account:sign-in-without-secret] [account:guest-reminded-to-secure] given the age passed, then the username stands on a step of its own: Choose a username, the door's box, no guest line, one main button Continue, under the line", async () => {
+  test("[account:sign-in-without-secret] [account:guest-reminded-to-secure] [account:username-and-unconfirmed-email] given the age passed, then the username stands on a step of its own: Choose a username, the door's box saying who sees it, no guest line, one main button Continue, under the line", async () => {
     gate();
     await proveByCode();
     await answerTheAge();
@@ -144,6 +144,8 @@ describe("the username's own step (account:sign-in-without-secret)", () => {
     const box = screen.getByLabelText<HTMLInputElement>(say("ui.account.name.label"));
     expect(box.value).toBe("");
     expect(box.closest("[data-guest-fields]")).not.toBeNull();
+    // The step says what the username is for, so it is never taken for the character's name asked at the door after it.
+    expect(document.getElementById("guest-username-said")?.textContent).toBe("Other players see this, on the street and on boards. You can change it once for free.");
     expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
     expect(document.querySelector("[data-guest-line]")).toBeNull();
     expect(line()).toContain(say("ui.account.kept.why", { email: EMAIL }));
@@ -240,7 +242,7 @@ describe("a proof this browser holds when the gate opens (account:sign-in-withou
     expect(line()).toContain(say("ui.account.kept.why", { email: EMAIL }));
   });
 
-  test("[account:guest-reminded-to-secure] given Play with no proof, when the door's page asks for the username, then the guest line is said there", async () => {
+  test("[account:guest-reminded-to-secure] [account:username-and-unconfirmed-email] given Play with no proof, when the door's page asks for the username, then the guest line is said there and the box says who sees it", async () => {
     const account = codeAccount();
     const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account });
     store.getState().leave(null);
@@ -254,5 +256,7 @@ describe("a proof this browser holds when the gate opens (account:sign-in-withou
     await screen.findByLabelText(say("ui.account.name.label"));
     expect(screen.getByText(say("ui.guest.reminder"))).toBeDefined();
     expect(line()).toBeNull();
+    // On the door's last page, after the character's name, the username says who sees it.
+    expect(document.getElementById("guest-username-said")?.textContent).toBe(say("ui.account.name.intro"));
   });
 });
