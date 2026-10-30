@@ -2,8 +2,8 @@
   "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; shared is every other chunk the entry imports (the bundler's runtime, React, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a line below naming the part that moved and what for.",
   "parts": {
     "main": {
-      "budget": 330600,
-      "measured": 330487
+      "budget": 330900,
+      "measured": 330797
     },
     "three": {
       "budget": 195779,
@@ -22,8 +22,8 @@
       "measured": 40290
     },
     "total": {
-      "budget": 912000,
-      "measured": 911783
+      "budget": 912200,
+      "measured": 912096
     }
   },
   "changes": [
@@ -39,6 +39,7 @@
     "main raised from 330300 to 330400 (measured 330342, from 330126) and total from 911500 to 911800 (measured 911657, from 911441) for the door's name started from the username chosen before it, the account read for the door of a signed-in account with no character, and the character's name as the label; content-sim (334165) stays inside its budget",
     "main raised from 330300 to 330400 (measured 330256, from 330126) and total from 911500 to 911700 (measured 911557, from 911441) for the sheet's one frame on the first visit: the fixed head with the handle, the title and the close, the body that alone scrolls and the optional fixed foot, which every sheet built on it carries, and the save sheet's code step that steps the rest back; content-sim (334150) and shared (36920) stay inside their budgets",
     "main raised from 330400 to 330600 (measured 330487, from 330342) and total from 911800 to 912000 (measured 911783, from 911657) for the two lines above together: the door's name from the username and the sheet's one frame, which each measured alone",
-    "total raised from 911500 to 911600 (measured 911504, from 911441) for the place's scene and bag fetched again after the view's pauses before the connection card shows, so one fetch a reload or a dropped connection cut on the world's first load costs no card; main (330189) stays inside its budget"
+    "total raised from 911500 to 911600 (measured 911504, from 911441) for the place's scene and bag fetched again after the view's pauses before the connection card shows, so one fetch a reload or a dropped connection cut on the world's first load costs no card; main (330189) stays inside its budget",
+    "main raised from 330600 to 330900 (measured 330797, from 330487) and total from 912000 to 912200 (measured 912096, from 911783) for the door's name with its line of what the name is for and the pool's three names under an empty box, the door of a signed-in account starting the name from the username or empty, never from the pool, and the could-not-start card's line by the failure's kind; content-sim (334153) and shared (36915) stay inside their budgets"
   ]
 }
