@@ -132,7 +132,7 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   await page.getByRole("button", { name: "Continue" }).click();
 
   // The date as picked and no token: the bot check goes with the guest start (account:bot-check-on-guest-creation).
-  const name = page.getByRole("textbox", { name: "Your character's name" });
+  const name = page.getByRole("textbox", { name: "Character name" });
   await expect(name).toBeVisible({ timeout: 20_000 });
   const declared = faked.sent.find((request) => request.route === "POST /api/age");
   expect(declared?.body).toEqual({ dateOfBirth: "1994-03-12" });
@@ -142,7 +142,7 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   await expect(page.getByLabel("Username")).toHaveCount(0);
   // prologue:front-door-builds-a-person: on Play's path the username comes last, so the name is the pool's, under the character's label.
   await expect(name).not.toHaveValue("");
-  await expect(page.locator("label[for='door-name']")).toHaveText("Your character's name");
+  await expect(page.locator("label[for='door-name']")).toHaveText("Character name");
   await shootSmall(page, "char-name-door-play", info.project.name);
   await name.fill("Ọlámídé");
   await shootAtSize(page, "start-door", info.project.name);
@@ -438,7 +438,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 
   // The door as a signed-in account with no character meets it: Next, Next, Begin, and no username box anywhere.
-  const name = page.getByRole("textbox", { name: "Your character's name" });
+  const name = page.getByRole("textbox", { name: "Character name" });
   await expect(name).toBeVisible({ timeout: 20_000 });
   await expect(page.getByLabel("Username")).toHaveCount(0);
   // prologue:front-door-builds-a-person: the username was chosen first, so the character's name starts from it.
@@ -464,7 +464,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await elsewhere.getByLabel("Email").fill(NEW_EMAIL);
   await elsewhere.getByRole("button", { name: "Send me a code" }).click();
   await elsewhere.getByLabel("6-digit code").fill(shared.mailed.at(-1) ?? "");
-  await expect(elsewhere.getByRole("textbox", { name: "Your character's name" })).toHaveValue("Olamide", { timeout: 20_000 });
+  await expect(elsewhere.getByRole("textbox", { name: "Character name" })).toHaveValue("Olamide", { timeout: 20_000 });
   await expect(elsewhere.getByRole("heading", { name: "When were you born?" })).toHaveCount(0);
   await expect(elsewhere.getByLabel("Username")).toHaveCount(0);
   await other.close();
@@ -499,7 +499,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   // account:username-and-unconfirmed-email: the username and the character's name as two labelled rows.
   await expect(sheet.locator("[data-username]")).toContainText("Username");
   await expect(sheet.locator("[data-username]")).toContainText("@Olamide");
-  await expect(sheet.locator("[data-life-name]")).toHaveText("Character's nameỌlámídé");
+  await expect(sheet.locator("[data-life-name]")).toHaveText("Character nameỌlámídé");
   await sheet.locator("[data-life-name]").scrollIntoViewIfNeeded();
   await shootSmall(page, "char-name-sheet-rows", info.project.name);
   await expect(sheet.getByRole("button", { name: "Save this life" })).toHaveCount(0);
@@ -540,7 +540,7 @@ test("[account:sign-in-without-secret] a proof that ran out before Continue is t
     if (was !== null) await page.setViewportSize(was);
   }
   await page.getByLabel("6-digit code").fill(shared.mailed.at(-1) ?? "");
-  await expect(page.getByRole("textbox", { name: "Your character's name" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("textbox", { name: "Character name" })).toBeVisible({ timeout: 20_000 });
   expect(faked.sent.filter((request) => request.route === "POST /api/guest").map((request) => request.body)).toEqual([
     { username: "Olamide", proved: true },
     { username: "Olamide", proved: true },
@@ -608,7 +608,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] Continue
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 
   // The door as a signed-in account with no character meets it.
-  const name = page.getByRole("textbox", { name: "Your character's name" });
+  const name = page.getByRole("textbox", { name: "Character name" });
   await expect(name).toBeVisible({ timeout: 20_000 });
   const guest = faked.sent.find((request) => request.route === "POST /api/guest");
   expect(guest?.body).toEqual({ username: "Olamide", proved: true });

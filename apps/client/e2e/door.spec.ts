@@ -48,3 +48,16 @@ for (const reduced of [false, true]) {
     }
   });
 }
+
+test("[prologue:front-door-builds-a-person] given the first screen on the narrowest phone, then the name's title, its one line of what the name is for and the box stand in that order, the line on one line", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/");
+  const hint = page.locator("[data-door-name-hint]");
+  await expect(hint).toHaveText("What people in your story call you. Type one or take one.", { timeout: 30_000 });
+  await expect(page.locator("label[for='door-name']")).toHaveText("Character name");
+  await expect(page.locator("#door-name")).toHaveAttribute("placeholder", "Name");
+  const lines = await hint.evaluate((line) => Math.round(line.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(line).lineHeight)));
+  expect(lines).toBe(1);
+  const [title, said, box] = await Promise.all(["label[for='door-name']", "[data-door-name-hint]", "#door-name"].map((at) => page.locator(at).boundingBox()));
+  expect((title?.y ?? 0) < (said?.y ?? 0) && (said?.y ?? 0) < (box?.y ?? 0)).toBe(true);
+});

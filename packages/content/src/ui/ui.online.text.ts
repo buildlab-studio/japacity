@@ -189,7 +189,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.notice.signed-out": "You have signed out.",
 
   // The username and the guest start (account:guest-and-secured-states, account:username-and-unconfirmed-email)
-  "ui.account.name.intro": "Other players see it. It is not your character's name, and you can change it once for free.",
+  "ui.account.name.intro": "Other players see this, on the street and on boards. You can change it once for free.",
   "ui.account.name.label": "Username",
   "ui.account.name.go": "Start my life",
   "ui.account.name.empty": "Pick a username first.",

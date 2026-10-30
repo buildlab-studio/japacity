@@ -13,8 +13,9 @@
 // the guest line; Begin makes the guest life before the character. Enter in the box is Begin, and a Begin refused for the
 // name brings the box into view and focuses it, the reason under it. The box stays under the homes: the page is where
 // you live, and the refusal itself brings the box up wherever the page was scrolled.
-// Signed in with no character, the username was chosen before the door, so a new run's name starts from it where it can be
-// a first name; a name the player typed or rolled, and a run kept on the device, keep theirs.
+// Signed in with no character (the sign-in path, or a life ended on the account), the username was chosen before the door, so a
+// new run's name starts from it where it can be a first name, and the box starts empty with the pool's three names under it
+// where it cannot; a name the player typed, took or rolled, and a run kept on the device, keep theirs.
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -77,15 +78,32 @@ function namedFrom(draft: DoorDraft, username: string | null): DoorDraft {
 }
 
 /**
- * The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the
- * ready lives. `fresh` says the run is new this visit, so a username read later may still give it its name.
+ * A new run's name on a signed-in account: the username's where it gives one; otherwise the box empty, for the player to
+ * type or take one of the pool's three, never a name of the pool's own picking.
  */
-function startDraft(username: string | null): { draft: DoorDraft; fresh: boolean } {
+function namedForAccount(draft: DoorDraft, username: string | null): DoorDraft {
+  return namedFrom({ ...draft, name: "", typed: false }, username);
+}
+
+/** A kept run whose name is still the empty box a signed-in door opened with: the username may still give it a name. */
+function unnamed(draft: DoorDraft): boolean {
+  return draft.name === "" && draft.typed !== true;
+}
+
+/**
+ * The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the
+ * ready lives. `fresh` says the run's name may still come from a username read later.
+ */
+function startDraft(username: string | null, signedIn: boolean): { draft: DoorDraft; fresh: boolean } {
   const kept = readDoor();
+  const named = (draft: DoorDraft): DoorDraft => (signedIn ? namedForAccount(draft, username) : namedFrom(draft, username));
   // Settings' "Start from a ready life" opens on the ready lives themselves; Back reaches the name.
-  if (takeReadyAsk()) return { draft: { ...namedFrom(freshDraft(gateLook(kept?.look)), username), asked: true, stage: "ready" }, fresh: username === null };
-  if (kept !== null && kept.stage !== "begun") return { draft: { ...kept, look: gateLook(kept.look) }, fresh: false };
-  return { draft: namedFrom(freshDraft(gateLook(kept?.look)), username), fresh: username === null };
+  if (takeReadyAsk()) return { draft: { ...named(freshDraft(gateLook(kept?.look))), asked: true, stage: "ready" }, fresh: username === null };
+  if (kept !== null && kept.stage !== "begun") {
+    const draft = { ...kept, look: gateLook(kept.look) };
+    return signedIn && unnamed(draft) ? { draft: namedFrom(draft, username), fresh: username === null } : { draft, fresh: false };
+  }
+  return { draft: named(freshDraft(gateLook(kept?.look))), fresh: username === null };
 }
 
 /** The screen before, for the back button. */
@@ -170,10 +188,12 @@ export function doorScreen(stage: DoorStage): "door-1" | "door-2" | "page" | nul
 }
 
 /**
- * `username`: the account's username where it was chosen before the door (the sign-in path), null while unknown or where
- * the door asks it last (Play's path); a new run's name starts from it (prologue:front-door-builds-a-person).
+ * `username`: the account's username where it was chosen before the door (the sign-in path, a later life), null while
+ * unknown or where the door asks it last (Play's path); a new run's name starts from it (prologue:front-door-builds-a-person).
+ * `signedIn`: the door opens for a signed-in account, so the pool never picks the name; the box waits empty for the
+ * username, and stays empty with the suggestions where the username makes no name.
  */
-export function FrontDoor({ guest = null, username: chosen = null }: { guest?: DoorGuest | null; username?: string | null }) {
+export function FrontDoor({ guest = null, username: chosen = null, signedIn = false }: { guest?: DoorGuest | null; username?: string | null; signedIn?: boolean }) {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
   // The life chooser cannot be opened again where a life is started only once (account:one-character-per-account).
@@ -182,7 +202,7 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
   const backToLife = useGame((state) => (state.view === null ? null : state.closeLifeChooser));
   // The run as it opens is kept at once, so a reload keeps the name it filled.
   const [opening] = useState(() => {
-    const opened = startDraft(chosen);
+    const opened = startDraft(chosen, signedIn);
     keepDoor(opened.draft);
     return opened;
   });
@@ -236,10 +256,10 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
     if (open.includes(next)) change({ age: next, ...(archetype === null ? {} : { home: fitHome(archetype, next, draft) }) });
   };
 
-  // A new look keeps a typed name; a filled one follows the look's sex.
+  // A new look keeps a typed name and an empty box; a filled one follows the look's sex.
   const chooseLook = (look: string): void => {
     const sameSex = lookOf(look)?.sex === lookOf(draft.look)?.sex;
-    change({ look, ...(draft.typed === true || sameSex ? {} : { name: filledName(look, draft.roll) }) });
+    change({ look, ...(draft.typed === true || sameSex || draft.name === "" ? {} : { name: filledName(look, draft.roll) }) });
   };
   const reroll = (): void => {
     const roll = draft.roll + 1;
@@ -375,6 +395,7 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
           typed={draft.typed === true}
           problem={problem}
           tried={tried}
+          suggestions={draft.name === "" ? namesFor(lookOf(draft.look)?.sex ?? "f", draft.roll) : []}
           onName={(name) => change({ name, typed: true })}
           onReroll={reroll}
           onLook={chooseLook}
