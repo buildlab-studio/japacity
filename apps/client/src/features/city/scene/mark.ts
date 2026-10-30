@@ -23,7 +23,7 @@ export function markNode(thing: Pick<Thing, "id" | "label" | "mark">, onTap: () 
   node.dataset.mark = thing.id;
   node.dataset.thingMark = thing.id;
   node.setAttribute("aria-label", cityWords(thing.label));
-  node.className = "pointer-events-auto absolute flex -translate-x-1/2 -translate-y-full flex-col items-center";
+  node.className = "pointer-events-auto absolute flex -translate-x-1/2 translate-y-[calc(6px_-_100%)] flex-col items-center";
   const name = document.createElement("span");
   name.dataset.markName = "";
   name.className = "chip whitespace-nowrap px-2.5 py-1 text-[12px] font-extrabold";
@@ -35,9 +35,10 @@ export function markNode(thing: Pick<Thing, "id" | "label" | "mark">, onTap: () 
   tag.className = "ml-1.5 rounded-[3px] bg-strong px-1.5 py-px align-[1px] text-[12px] font-extrabold text-on-strong";
   tag.hidden = true;
   name.append(tag);
-  // The dot sits in a target big enough for a thumb, 44 px (world:reach-and-read), its foot tucked so the dot stands where it did; the dot itself stays small and still.
+  // The dot sits in a target big enough for a thumb, 44 px (world:reach-and-read), the whole of it the button's own box; the button is
+  // lifted 6 px less than its height so the dot stands where it did. The dot itself stays small and still.
   const hit = document.createElement("span");
-  hit.className = "flex size-11 -mb-1.5 items-center justify-center";
+  hit.className = "flex size-11 items-center justify-center";
   const dot = document.createElement("span");
   dot.dataset.markDot = "";
   dot.className = "mark-dot";
