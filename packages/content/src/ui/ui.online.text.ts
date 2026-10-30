@@ -31,20 +31,20 @@ export const uiOnlineText: Record<string, string> = {
 
   // engine:browser-authority-for-dev-only: a request with no answer the game can read, by its kind; the card over the screen says it, never the browser's own words
   "ui.loading.slow": "Still opening...",
-  "ui.trouble.network": "The server did not answer.",
-  "ui.trouble.wall": "Your session ended: open the game again.",
-  "ui.trouble.server": "Something broke on our side.",
+  // The card's headline: what happened, in a few plain words, no full stop. "Could not connect" covers a request with no answer and a part of the game that did not download
+  "ui.trouble.network": "Could not connect",
+  "ui.trouble.wall": "Your session ended",
+  "ui.trouble.server": "Something went wrong on our side",
   "ui.trouble.retry": "Retry",
   "ui.trouble.reload": "Reload",
-  // Under the card's line, small and plain: what the player can do, never a status or a code
+  // Under the card's headline, small and plain: what the player can do, never a status or a code
   "ui.trouble.network.detail": "Check your connection, then try again.",
   "ui.trouble.wall.detail": "Reload, then sign in if the game asks.",
-  "ui.trouble.server.detail": "It is not your connection. Give it a moment, then try again.",
-  // "The game could not start: {why}" (ui.failed), the why by the same kinds
-  "ui.failed.why.network": "the server did not answer",
-  "ui.failed.why.wall": "your session ended",
-  "ui.failed.why.server": "something broke on our side",
-  "ui.failed.detail": "Nothing you did caused this. Open the game again.",
+  "ui.trouble.server.detail": "It is not your connection. Try again in a moment.",
+  // Under "The game could not start" (ui.failed), by the same kinds: what to do, with Reload the card's one button
+  "ui.failed.network.detail": "Check your connection, then reload.",
+  "ui.failed.wall.detail": "Your session ended. Reload, then sign in if the game asks.",
+  "ui.failed.server.detail": "Something went wrong on our side. Reload in a moment.",
 
   // The start screen online (account:start-screen-over-live-city): a hook, the whole game in three steps, then Play
   "ui.account.start.play": "Play",

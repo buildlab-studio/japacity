@@ -71,7 +71,7 @@ describe("the rejection sheet", () => {
     render(<App store={store} />);
     const sheet = await screen.findByRole("alert");
     expect(sheet.textContent).toContain(WORDS);
-    expect(document.body.textContent).not.toContain(say("ui.failed", { why: "" }).trim());
+    expect(document.body.textContent).not.toContain(say("ui.failed"));
     expect(screen.queryByText(say("ui.loading"))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.trouble.retry") }));
     await waitFor(() => expect(server.sent.filter((request) => request.method === "GET" && request.path === "/api/view")).toHaveLength(2));

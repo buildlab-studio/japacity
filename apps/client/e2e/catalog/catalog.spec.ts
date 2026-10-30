@@ -111,7 +111,7 @@ test("open: the splash the page paints, the life opening, the page after Begin w
   await opening(page, "down");
   await attempt(page, "open-fault", async () => {
     await page.goto(`${ONLINE}/`);
-    await page.getByRole("alertdialog", { name: "Something broke on our side." }).waitFor({ timeout: 30_000 });
+    await page.getByRole("alertdialog", { name: "Something went wrong on our side" }).waitFor({ timeout: 30_000 });
     await shot(page, "open-fault");
   });
   await page.unrouteAll({ behavior: "ignoreErrors" });
@@ -119,7 +119,7 @@ test("open: the splash the page paints, the life opening, the page after Begin w
   await attempt(page, "open-fault-wall", async () => {
     // The first wall reloads the page once (account:session-is-secure-cookie); the second shows the card.
     await page.goto(`${ONLINE}/`);
-    await page.getByRole("alertdialog", { name: "Your session ended: open the game again." }).waitFor({ timeout: 30_000 });
+    await page.getByRole("alertdialog", { name: "Your session ended" }).waitFor({ timeout: 30_000 });
     await shot(page, "open-fault-wall");
   });
 });

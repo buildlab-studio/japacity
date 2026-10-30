@@ -15,7 +15,7 @@ import { plannable } from "../shared/words/acts";
 import { isSaid, tidyLines } from "../shared/words/lines";
 import { cardKey } from "../shared/ui/cardKey";
 import { setNow } from "../shared/words/now";
-import { say, sayCount } from "../shared/words/text";
+import { sayCount } from "../shared/words/text";
 import { forgetArranged } from "../shared/world/arranged";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
@@ -87,8 +87,8 @@ export const VIEW_RETRY_MS: readonly number[] = [1_000, 3_000];
 
 export interface GameState {
   view: PlayerView | null;
-  /** Why the game could not go on, in the player's words, for a failure that is no request's (a fault in the game itself). */
-  failed: string | null;
+  /** The kind of failure the game could not go on after, for a fault that is no request's (a fault in the game itself); the card says it by its kind. */
+  failed: FailureKind | null;
   /** engine:browser-authority-for-dev-only: the request that failed, until Retry brings its answer. */
   trouble: Trouble | null;
   busy: boolean;
@@ -245,11 +245,6 @@ export interface GameStoreOptions {
 export function rejectionWords(code: ServerCode, reason?: string): string {
   const key = `reject.${code}`;
   return (reason === undefined ? undefined : text[`${key}.${reason}`]) ?? text[key] ?? code;
-}
-
-/** engine:browser-authority-for-dev-only: the failure in the player's words, by its kind, never the browser's own text; a fault that is no request's is said as ours. */
-export function failureWords(error: unknown): string {
-  return say(`ui.failed.why.${failureOf(error) ?? "server"}`);
 }
 
 const realWait = (ms: number) =>
@@ -428,7 +423,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
 
     /** A failure that is no request's: the game's own fault, said as ours, the screen replaced. */
     function broke(error: unknown): void {
-      if (!isReported(error)) set({ failed: failureWords(error) });
+      // engine:browser-authority-for-dev-only: kept by its kind, never the error's own text; a fault that is no request's is ours.
+      if (!isReported(error)) set({ failed: failureOf(error) ?? "server" });
     }
 
     /** When the life began, from an authority that keeps it: read once as the life loads, and again when one starts. */

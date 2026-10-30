@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 import { requestFailure } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
 import { say } from "../shared/words/text";
-import { createGameStore, failureWords, VIEW_RETRY_MS } from "./store";
+import { createGameStore, VIEW_RETRY_MS } from "./store";
 
 const at = (v: number): PlayerView => ({ ...engineView(), v });
 const loadFailed = () => requestFailure("network", "Load failed");
@@ -65,7 +65,7 @@ describe("the store when a request brings no answer (engine:browser-authority-fo
     const { store } = scripted([wall, wall, wall, at(5)]);
     await store.getState().refresh();
     expect(store.getState().trouble).toEqual({ kind: "wall", during: "view" });
-    expect(say(`ui.trouble.${store.getState().trouble?.kind ?? ""}`)).toBe("Your session ended: open the game again.");
+    expect(say(`ui.trouble.${store.getState().trouble?.kind ?? ""}`)).toBe("Your session ended");
     await store.getState().retry();
     expect(store.getState().trouble).toBeNull();
     expect(store.getState().view?.v).toBe(5);
@@ -157,22 +157,35 @@ describe("the store when a request brings no answer (engine:browser-authority-fo
     expect(store.getState().view?.v).toBe(1);
   });
 
-  test("[engine:browser-authority-for-dev-only] given a fault that is no request's, then the game could not start says it as ours, never the error's own text", async () => {
+  test("[engine:browser-authority-for-dev-only] given a fault that is no request's, then the game could not start keeps it as ours by its kind, never the error's own text", async () => {
     const { store } = scripted([new Error("Cannot read properties of undefined (reading 'v')")]);
     await store.getState().refresh();
-    expect(store.getState().failed).toBe(say("ui.failed.why.server"));
-    expect(say("ui.failed", { why: store.getState().failed ?? "" })).toBe("The game could not start: something broke on our side");
-    expect(failureWords(requestFailure("network", "Load failed"))).toBe("the server did not answer");
+    expect(store.getState().failed).toBe("server");
+    expect(say("ui.failed")).toBe("The game could not start");
+    expect(say(`ui.failed.${store.getState().failed ?? ""}.detail`)).toBe("Something went wrong on our side. Reload in a moment.");
   });
 
-  test("[engine:browser-authority-for-dev-only] the card's words, by kind, are a person's, from the words tables", () => {
+  test("[engine:browser-authority-for-dev-only] [world:lazy-part-fails-softly] the card's headline, by kind, says what happened in a few plain words with no full stop, and its detail says what to do", () => {
     expect([say("ui.trouble.network"), say("ui.trouble.wall"), say("ui.trouble.server"), say("ui.trouble.retry"), say("ui.trouble.reload"), say("ui.loading.slow")]).toEqual([
-      "The server did not answer.",
-      "Your session ended: open the game again.",
-      "Something broke on our side.",
+      "Could not connect",
+      "Your session ended",
+      "Something went wrong on our side",
       "Retry",
       "Reload",
       "Still opening...",
+    ]);
+    expect([say("ui.trouble.network.detail"), say("ui.trouble.wall.detail"), say("ui.trouble.server.detail")]).toEqual([
+      "Check your connection, then try again.",
+      "Reload, then sign in if the game asks.",
+      "It is not your connection. Try again in a moment.",
+    ]);
+  });
+
+  test("[engine:browser-authority-for-dev-only] the game could not start, by kind, says what to do under one headline", () => {
+    expect([say("ui.failed.network.detail"), say("ui.failed.wall.detail"), say("ui.failed.server.detail")]).toEqual([
+      "Check your connection, then reload.",
+      "Your session ended. Reload, then sign in if the game asks.",
+      "Something went wrong on our side. Reload in a moment.",
     ]);
   });
 

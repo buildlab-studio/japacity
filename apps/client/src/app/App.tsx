@@ -308,7 +308,7 @@ function Screen() {
     return (
       <Splash>
         <div className="fade mx-auto w-full max-w-[420px] p-4">
-          <FaultCard role="alert" line={say("ui.failed", { why: failed })} detail={say("ui.failed.detail")}>
+          <FaultCard role="alert" line={say("ui.failed")} detail={say(`ui.failed.${failed}.detail`)}>
             <button type="button" className="press-button w-full" onClick={reloadPage}>
               {say("ui.trouble.reload")}
             </button>

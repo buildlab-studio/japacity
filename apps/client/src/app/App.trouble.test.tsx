@@ -33,7 +33,7 @@ const noPause = { wait: () => Promise.resolve() };
 function noBrowserWords(): void {
   expect(document.body.textContent).not.toContain("Load failed");
   expect(document.body.textContent).not.toContain("Failed to fetch");
-  expect(document.body.textContent).not.toContain(say("ui.failed", { why: "" }).trim());
+  expect(document.body.textContent).not.toContain(say("ui.failed"));
 }
 
 describe("the screens when a request brings no answer (engine:browser-authority-for-dev-only)", () => {
@@ -61,7 +61,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
       noPause,
     );
     render(<App store={store} />);
-    const card = await screen.findByRole("alertdialog", { name: "The server did not answer." });
+    const card = await screen.findByRole("alertdialog", { name: "Could not connect" });
     expect(card.getAttribute("data-trouble-during")).toBe("view");
     expect(screen.queryByRole("button", { name: say("ui.trouble.reload") })).toBeNull();
     noBrowserWords();
@@ -70,7 +70,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
     expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 
-  test("[engine:browser-authority-for-dev-only] [server:no-platform-error-page] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something broke on our side, with Retry and no Reload", async () => {
+  test("[engine:browser-authority-for-dev-only] [server:no-platform-error-page] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something went wrong on our side, with Retry and no Reload", async () => {
     const server = fakeServer();
     const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };
     server.answer("GET /api/view", down);
@@ -128,7 +128,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
   test("[engine:browser-authority-for-dev-only] [account:session-is-secure-cookie] given a login wall or an ended session in front of the view, then the card says so with Retry and Reload", async () => {
     const store = createGameStore({ view: () => Promise.reject(requestFailure("wall", "redirected (0)")), send: unused }, noPause);
     render(<App store={store} />);
-    expect(await screen.findByRole("alertdialog", { name: "Your session ended: open the game again." })).toBeDefined();
+    expect(await screen.findByRole("alertdialog", { name: "Your session ended" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Retry" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Reload" })).toBeDefined();
     noBrowserWords();
@@ -137,7 +137,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
   test("[engine:browser-authority-for-dev-only] given a server fault, then the card says it is ours", async () => {
     const store = createGameStore({ view: () => Promise.reject(requestFailure("server", "502")), send: unused }, noPause);
     render(<App store={store} />);
-    expect(await screen.findByRole("alertdialog", { name: "Something broke on our side." })).toBeDefined();
+    expect(await screen.findByRole("alertdialog", { name: "Something went wrong on our side" })).toBeDefined();
   });
 
   test("[engine:browser-authority-for-dev-only] given Begin brings no answer, then the card shows over the door, the run stays the page on the device, and Retry begins the life and marks it begun", async () => {
@@ -158,7 +158,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.developer.name") }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
     fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
-    const card = await screen.findByRole("alertdialog", { name: "The server did not answer." });
+    const card = await screen.findByRole("alertdialog", { name: "Could not connect" });
     expect(card.getAttribute("data-trouble-during")).toBe("life");
     // Nothing is begun until the authority holds the life: a reload now comes back to the page, filled in.
     expect(readDoor()?.stage).toBe("page");
@@ -190,7 +190,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
     const store = createGameStore(flaky, { ...noPause, choosingLife: true, life: authority });
     render(<App store={store} />);
     await startArchetype("developer");
-    const card = await screen.findByRole("alertdialog", { name: "The server did not answer." });
+    const card = await screen.findByRole("alertdialog", { name: "Could not connect" });
     expect(card.getAttribute("data-trouble-during")).toBe("command");
     expect(document.querySelector("[data-page-running]")).not.toBeNull();
     noBrowserWords();

@@ -3,7 +3,7 @@
 export const uiText: Record<string, string> = {
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
-  "ui.failed": "The game could not start: {why}",
+  "ui.failed": "The game could not start",
   "ui.broken": "Something on this screen broke. Your life is safe; reload to carry on.",
   "ui.broken.reload": "Reload",
   "ui.broken.tell": "Tell us",

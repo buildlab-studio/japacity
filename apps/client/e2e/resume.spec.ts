@@ -145,7 +145,7 @@ test("[engine:browser-authority-for-dev-only] Begin with no answer shows the car
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
 
-  const card = page.getByRole("alertdialog", { name: "The server did not answer." });
+  const card = page.getByRole("alertdialog", { name: "Could not connect" });
   await expect(card).toBeVisible({ timeout: 30_000 });
   await expect(card.getByRole("button", { name: "Reload" })).toHaveCount(0);
   await noBrowserWords(page);
@@ -177,10 +177,12 @@ test("[engine:browser-authority-for-dev-only] a slow start for a player whose li
   await page.goto("/");
   await expect(page.getByText("Still opening...")).toBeVisible({ timeout: 15_000 });
   await shootPhone(page, "resume-08-still-opening", info.project.name);
-  const card = page.getByRole("alertdialog", { name: "The server did not answer." });
+  const card = page.getByRole("alertdialog", { name: "Could not connect" });
   await expect(card).toBeVisible({ timeout: 40_000 });
+  await expect(card.locator("[data-trouble-detail]")).toHaveText("Check your connection, then try again.");
   await noBrowserWords(page);
   await shootPhone(page, "resume-09-view-no-answer", info.project.name);
+  await shootPhone(page, "names-card-connection-375x667", info.project.name, { width: 375, height: 667 });
   slow = false;
   await card.getByRole("button", { name: "Retry" }).click();
   await expect(page.locator("#door-name")).toBeVisible({ timeout: 30_000 });
@@ -196,7 +198,7 @@ test("[engine:browser-authority-for-dev-only] a new visitor with no life on this
     return true;
   });
   await page.goto("/");
-  const card = page.getByRole("alertdialog", { name: "The server did not answer." });
+  const card = page.getByRole("alertdialog", { name: "Could not connect" });
   await expect(card).toBeVisible({ timeout: 40_000 });
   await expect(page.locator("[data-start-trouble]")).toBeVisible();
   await expect(page.getByText("Opening your life")).toHaveCount(0);
@@ -223,15 +225,36 @@ test("[account:session-is-secure-cookie] a login wall in front of /api reloads t
   );
   await page.route("https://example-team.cloudflareaccess.com/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<p>Access login</p>" }));
   await page.goto("/");
-  const card = page.getByRole("alertdialog", { name: "Your session ended: open the game again." });
+  const card = page.getByRole("alertdialog", { name: "Your session ended" });
   await expect(card).toBeVisible({ timeout: 30_000 });
   // One load, one reload for the wall, and no more.
   expect(navigations).toBe(2);
   expect(faked.sent.filter((asked) => asked === "GET /api/view").length).toBeGreaterThanOrEqual(2);
   await expect(card.getByRole("button", { name: "Reload" })).toBeVisible();
   await expect(card.getByRole("button", { name: "Retry" })).toBeVisible();
+  await expect(card.locator("[data-trouble-detail]")).toHaveText("Reload, then sign in if the game asks.");
   await noBrowserWords(page);
   await shootPhone(page, "resume-10-wall-card", info.project.name);
   await page.waitForTimeout(1_000);
   expect(navigations).toBe(2);
+});
+
+test("[engine:browser-authority-for-dev-only] a view the game cannot read shows The game could not start on the splash, with no reason in the headline, what to do under it, and Reload", async ({ page }, info) => {
+  const faked = await fakeServer(page);
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Bayo", archetype: "developer" })));
+  // An answer of the game's own shape with no view in it: a fault in the game, never a request's.
+  faked.hold.set("GET /api/view", async (route) => {
+    await route.fulfill(json({ ok: true }));
+    return true;
+  });
+  await page.goto("/");
+  const card = page.getByRole("alert").filter({ hasText: "The game could not start" });
+  await expect(card).toBeVisible({ timeout: 30_000 });
+  await expect(card.locator("p").first()).toHaveText("The game could not start");
+  await expect(card.locator("[data-trouble-detail]")).toHaveText("Something went wrong on our side. Reload in a moment.");
+  await expect(card.getByRole("button", { name: "Reload" })).toBeVisible();
+  const shown = await page.locator("body").innerText();
+  expect(shown).not.toContain("Cannot read");
+  expect(shown).not.toContain("undefined");
+  await shootPhone(page, "names-card-could-not-start-375x667", info.project.name, { width: 375, height: 667 });
 });
