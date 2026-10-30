@@ -47,7 +47,7 @@ describe("the door's name from the username", () => {
     expect(document.querySelector("label[for='door-name']")?.textContent).toBe("Character name");
     expect(nameBox().id).toBe("door-name");
     expect(nameBox().placeholder).toBe("Name");
-    expect(document.querySelector("[data-door-name-hint]")?.textContent).toBe("What people in your story call you. Type one or take one.");
+    expect(document.querySelector("[data-door-name-hint]")?.textContent).toBe("What people in your story call you. Type or take one.");
     expect(nameBox().getAttribute("aria-describedby")).toBe("door-name-hint");
     expect(screen.getByRole("button", { name: "Another name" })).toBeDefined();
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();

@@ -53,7 +53,7 @@ test("[prologue:front-door-builds-a-person] given the first screen on the narrow
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto("/");
   const hint = page.locator("[data-door-name-hint]");
-  await expect(hint).toHaveText("What people in your story call you. Type one or take one.", { timeout: 30_000 });
+  await expect(hint).toHaveText("What people in your story call you. Type or take one.", { timeout: 30_000 });
   await expect(page.locator("label[for='door-name']")).toHaveText("Character name");
   await expect(page.locator("#door-name")).toHaveAttribute("placeholder", "Name");
   const lines = await hint.evaluate((line) => Math.round(line.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(line).lineHeight)));

@@ -219,7 +219,7 @@ const words: Record<string, string> = {
   "prologue.door.page.title": "Your page",
   // The front door's typed name (prologue:front-door-builds-a-person): what the box says, and why a name is refused.
   "prologue.door.name.title": "Character name",
-  "prologue.door.name.hint": "What people in your story call you. Type one or take one.",
+  "prologue.door.name.hint": "What people in your story call you. Type or take one.",
   "prologue.door.name.suggested": "Names to take",
   "prologue.door.name.placeholder": "Name",
   "prologue.door.name.short": "A name needs at least {shortest} letters.",
