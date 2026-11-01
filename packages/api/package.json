@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "license": "MIT",
   "description": "The HTTP and socket contract between the client and the server: each route's request and reply, and the socket's messages.",
   "exports": {

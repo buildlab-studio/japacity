@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "description": "The palette, the kit of parts, the sign and pattern code, and the loader the asset tools, the builders and the city share: docs/rules/assets.md.",
   "exports": {
     ".": "./src/index.ts",
