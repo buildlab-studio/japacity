@@ -31,11 +31,13 @@
   "routes": [{ "pattern": "japacity.app", "custom_domain": true }],
   // One Worker is the whole game: the client's build is served as static assets, and only
   // /api/* reaches the code, so the page and the API share one origin (no CORS, first party cookies).
+  // The build's brotli copies (/assets/*.br) reach the code too, which answers them not found, so a copy is never served
+  // under its own name (src/files/brotli.ts); nothing the page asks for has that ending.
   // Build the client before a deploy: `pnpm build` from the repository root.
   "assets": {
     "directory": "../client/dist",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/assets/*.br"]
   },
   "vars": {
     // The game's address, the one it is served from. The auth library, the passkeys' relying

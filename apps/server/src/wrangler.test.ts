@@ -52,7 +52,7 @@ describe("the game's address", () => {
     expect(server.name).toBe("japacity-server");
     expect(server.vars["SITE_URL"]).toBe(PRODUCTION);
     expect(server.routes).toEqual([{ pattern: new URL(PRODUCTION).host, custom_domain: true }]);
-    expect(server.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", run_worker_first: ["/api/*"] });
+    expect(server.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", run_worker_first: ["/api/*", "/assets/*.br"] });
   });
 
   test("given the server's staging environment, when it is read, then it is its own Worker at staging.japacity.app and nothing points at production", () => {
