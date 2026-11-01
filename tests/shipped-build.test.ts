@@ -5,9 +5,10 @@
 // page; the credits still name what they must. The development build is read too, to prove each development marker the
 // test looks for is real and is what the production build leaves out. Reads and writes only local files.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { brotliCompressSync, brotliDecompressSync, constants } from "node:zlib";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
@@ -38,20 +39,43 @@ interface Built {
   files: string[];
   /** The bundler's script chunks, relative to the folder, as the size report names them. */
   chunks: string[];
+  /** The modules inside each chunk, by the chunk's file. */
+  modules: Map<string, string[]>;
 }
 
 let work = "";
 let shipped: Built;
 let development: Built;
+let nextRelease: Built;
 
-function build(name: string, mode: "production" | "development"): Built {
+/** The bundler's scripts and styles under assets/, which the build serves compressed beside themselves. */
+const BUNDLED = /^assets\/[\w.-]+\.(?:js|css)$/;
+/** The game's root screen, which a release that changes only the game edits. */
+const GAME_FILE = "/apps/client/src/app/App.tsx";
+const GAME_MODULE = /\/apps\/client\/src\/app\/App\.tsx$/;
+
+function build(name: string, mode: "production" | "development", config?: string): Built {
   const out = join(work, name);
   const report = join(work, `${name}.json`);
   const env = mode === "production" ? buildEnv(report) : { ...buildEnv(report), NODE_ENV: "development" };
-  const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: REPO_ROOT, encoding: "utf8", env });
+  const own = config === undefined ? [] : ["--config", config];
+  const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", ...own, "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: REPO_ROOT, encoding: "utf8", env });
   if (built.status !== 0) throw new Error(`The client did not build in ${mode} mode: ${built.stderr}`);
-  const { chunks } = readJson<{ chunks: { file: string }[] }>(report);
-  return { out, files: filesUnder(out), chunks: chunks.map((chunk) => chunk.file) };
+  const { chunks } = readJson<{ chunks: { file: string; modules: string[] }[] }>(report);
+  return { out, files: filesUnder(out), chunks: chunks.map((chunk) => chunk.file), modules: new Map(chunks.map((chunk) => [chunk.file, chunk.modules])) };
+}
+
+/** The client's own settings with one line more in the game's root screen: the next release, as one that changes only the game would be. */
+function nextReleaseConfig(): string {
+  const config = join(work, "next-release.config.mjs");
+  const plugin = `{ name: "next-release", enforce: "pre", transform(code, id) { return id.endsWith(${JSON.stringify(GAME_FILE)}) ? code + "\\nconsole.error(\\"next release\\");\\n" : null; } }`;
+  writeFileSync(config, `import base from ${JSON.stringify(join(CLIENT, "vite.config.ts"))};\nexport default (env) => {\n  const config = base(env);\n  return { ...config, plugins: [...config.plugins, ${plugin}] };\n};\n`);
+  return config;
+}
+
+/** The one chunk whose modules match, by its file. */
+function chunkHolding(built: Built, module: RegExp): string | undefined {
+  return [...built.modules].find(([, modules]) => modules.some((id) => module.test(id)))?.[0];
 }
 
 function read(built: Built, file: string): string {
@@ -67,7 +91,8 @@ beforeAll(() => {
   work = mkdtempSync(join(tmpdir(), "japacity-shipped-"));
   shipped = build("shipped", "production");
   development = build("development", "development");
-}, 240_000);
+  nextRelease = build("next-release", "production", nextReleaseConfig());
+}, 360_000);
 
 afterAll(() => {
   if (work !== "") rmSync(work, { recursive: true, force: true });
@@ -130,6 +155,35 @@ describe("the build for players", () => {
     const text = code(shipped);
     expect(text).toContain("Japacity build ");
     expect(text).not.toMatch(/\\x[0-9a-f]{2}\\x[0-9a-f]{2}\\x[0-9a-f]{2}\\x[0-9a-f]{2}/i);
+  });
+
+  test("[engine:first-download-has-budget] given the production build, then every bundled script and style under assets/ has a brotli copy beside it at the best level, and the development build writes none", () => {
+    const bundled = shipped.files.filter((file) => BUNDLED.test(file));
+    expect(bundled.length).toBeGreaterThan(10);
+    const wrong = bundled.filter((file) => {
+      const plain = readFileSync(join(shipped.out, file));
+      const copy = readFileSync(join(shipped.out, `${file}.br`));
+      const best = brotliCompressSync(plain, { params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_SIZE_HINT]: plain.length } });
+      return !brotliDecompressSync(copy).equals(plain) || copy.length !== best.length;
+    });
+    expect(wrong).toEqual([]);
+    expect(shipped.files.filter((file) => file.endsWith(".br")).sort()).toEqual(bundled.map((file) => `${file}.br`).sort());
+    expect(development.files.filter((file) => file.endsWith(".br"))).toEqual([]);
+  });
+
+  test("[engine:browser-authority-for-dev-only] given the production build, which names a server, then no chunk holds the in-browser authority, so a player never downloads it", () => {
+    expect(chunkHolding(shipped, /\/apps\/client\/src\/authority\/local\.ts$/)).toBeUndefined();
+    expect(chunkHolding(shipped, /\/apps\/client\/src\/authority\/remote\.ts$/)).toBeDefined();
+  });
+
+  test("[engine:first-download-has-budget] given two production builds that differ only in a game file, then React's chunk, with React DOM and the sign-in libraries, keeps its name while the entry's changes", () => {
+    const react = chunkHolding(shipped, /\/node_modules\/react-dom\//);
+    expect(react).toMatch(/^assets\/react-[\w-]{8}\.js$/);
+    for (const library of [/\/node_modules\/react\//, /\/node_modules\/scheduler\//, /\/node_modules\/better-auth\//, /\/node_modules\/@simplewebauthn\/browser\//]) expect(chunkHolding(shipped, library)).toBe(react);
+    expect(chunkHolding(nextRelease, /\/node_modules\/react-dom\//)).toBe(react);
+    const entry = chunkHolding(shipped, GAME_MODULE);
+    expect(entry).toBeDefined();
+    expect(chunkHolding(nextRelease, GAME_MODULE)).not.toBe(entry);
   });
 
   test("[city:credits-screen-attributions] given the production build, then the credits still carry the map data line with its link and the way to the full list of licences", () => {

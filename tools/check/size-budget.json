@@ -1,29 +1,33 @@
 {
-  "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; shared is every other chunk the entry imports (the bundler's runtime, React, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a line below naming the part that moved and what for.",
+  "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; react is React's own chunk with React DOM, the scheduler and the sign-in libraries; shared is every other chunk the entry imports (the bundler's runtime, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a line below naming the part that moved and what for. The check prints the build's brotli copy of each part beside it; the budget is held on gzip.",
   "parts": {
     "main": {
-      "budget": 330900,
-      "measured": 330797
+      "budget": 289643,
+      "measured": 275851
     },
     "three": {
-      "budget": 195779,
-      "measured": 186471
+      "budget": 0,
+      "measured": 0
     },
     "content-sim": {
-      "budget": 349010,
-      "measured": 332391
+      "budget": 299631,
+      "measured": 285363
     },
     "loader": {
-      "budget": 33056,
-      "measured": 31482
+      "budget": 0,
+      "measured": 0
+    },
+    "react": {
+      "budget": 86368,
+      "measured": 82256
     },
     "shared": {
-      "budget": 42304,
-      "measured": 40290
+      "budget": 33895,
+      "measured": 32281
     },
     "total": {
-      "budget": 912200,
-      "measured": 912096
+      "budget": 709538,
+      "measured": 675751
     }
   },
   "changes": [
@@ -40,6 +44,12 @@
     "main raised from 330300 to 330400 (measured 330256, from 330126) and total from 911500 to 911700 (measured 911557, from 911441) for the sheet's one frame on the first visit: the fixed head with the handle, the title and the close, the body that alone scrolls and the optional fixed foot, which every sheet built on it carries, and the save sheet's code step that steps the rest back; content-sim (334150) and shared (36920) stay inside their budgets",
     "main raised from 330400 to 330600 (measured 330487, from 330342) and total from 911800 to 912000 (measured 911783, from 911657) for the two lines above together: the door's name from the username and the sheet's one frame, which each measured alone",
     "total raised from 911500 to 911600 (measured 911504, from 911441) for the place's scene and bag fetched again after the view's pauses before the connection card shows, so one fetch a reload or a dropped connection cut on the world's first load costs no card; main (330189) stays inside its budget",
-    "main raised from 330600 to 330900 (measured 330797, from 330487) and total from 912000 to 912200 (measured 912096, from 911783) for the door's name with its line of what the name is for and the pool's three names under an empty box, the door of a signed-in account starting the name from the username or empty, never from the pool, and the could-not-start card's line by the failure's kind; content-sim (334153) and shared (36915) stay inside their budgets"
+    "main raised from 330600 to 330900 (measured 330797, from 330487) and total from 912000 to 912200 (measured 912096, from 911783) for the door's name with its line of what the name is for and the pool's three names under an empty box, the door of a signed-in account starting the name from the username or empty, never from the pool, and the could-not-start card's line by the failure's kind; content-sim (334153) and shared (36915) stay inside their budgets",
+    "three lowered from 195779 to 0 (measured 0, from 186471) and loader from 33056 to 0 (measured 0, from 31482) for the model loader off the first visit: the city fetches it by a dynamic import with the room's models, and the asset manifest and the palette have chunks of their own, so nothing a first visit imports reaches the loader's chunk or three.js; the place's scene brings both with its fetches again and its card",
+    "content-sim lowered from 349010 to 299631 (measured 285363, from 334153) for the simulation, the content, the API contract and the model kit marked free of import side effects, which leaves out the top-level shapes and tables nothing reads, and for the in-browser authority behind a dynamic import that a build naming a server drops",
+    "main lowered from 330900 to 289643 (measured 275851, from 330797) for React DOM and the sign-in libraries moved into React's own chunk and the authority and the loader moved out; it took in what the side-effect flags moved out of content-sim's chunk",
+    "react set at 86368 (measured 82256) for React's own chunk: React, React DOM, the scheduler and the sign-in libraries (better-auth, better-call, better-fetch, the passkey client, nanostores, defu), whose name stays the same across a release that changes only the game",
+    "shared lowered from 42304 to 33895 (measured 32281, from 36915) for React's core and its JSX runtime moved into React's chunk",
+    "total lowered from 912200 to 709538 (measured 675751, from 912096) for the moves above together"
   ]
 }

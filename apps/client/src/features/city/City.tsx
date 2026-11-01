@@ -15,7 +15,6 @@ import { DEFAULT_LOOK, lookOf } from "../../shared/front-door/looks";
 import { plannedShut, VIEW_RETRY_MS, worldVar } from "../../authority/store";
 import { keptLookFile } from "../../shared/front-door/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
-import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { softLazy, useFetchAhead } from "../../shared/net/parts";
 import { Button } from "../../shared/ui/Button";
@@ -803,10 +802,12 @@ export function City({
   const insideFile = useRoomFile(insideId, drawing);
   const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
   // The room's models are fetched and decoded while the player still stands outside, so the cut into it stays short (world:entering-is-a-cut).
+  // The model loader comes with them, by a dynamic import, so a first visit never downloads it (engine:first-download-has-budget); a fetch
+  // ahead that fails costs nothing, as the place's scene loads the models again with its own retries and card (world:lazy-part-fails-softly).
   useEffect(() => {
     if (insideFile === null || inside || !drawing) return;
-    void loadManifest()
-      .then((manifest) => Promise.all(filesOf(insideFile, []).map((path) => loadModel(manifest, path, (key) => text[key]))))
+    void Promise.all([loadManifest(), import("../../shared/three/load")])
+      .then(([manifest, { loadModel }]) => Promise.all(filesOf(insideFile, []).map((path) => loadModel(manifest, path, (key) => text[key]))))
       .catch(() => undefined);
   }, [insideFile, inside, drawing]);
   // The world mode remembers where the player stopped and where they have been (world:opens-where-last-stopped, world:map-is-painted-lagos).

@@ -52,10 +52,17 @@ export function shippedBuild(): BuildEnvironmentOptions {
       output: {
         minify: { compress: { dropDebugger: true }, mangle: true, codegen: true },
         // engine:first-download-has-budget: the 3D library and the model loader are chunks of their own, whatever imports
-        // the entry, so they are cached across releases and measured apart from the game's own code.
+        // the entry, so they are cached across releases and measured apart from the game's own code. The asset manifest and the palette
+        // are chunks of their own too: a group takes in what its modules import, and a screen that reads only the manifest or a colour
+        // would otherwise download the loader and three.js with it.
         codeSplitting: {
           groups: [
-            { name: "three", test: /[\\/]node_modules[\\/]three[\\/]build[\\/]/, priority: 2 },
+            // React, React DOM and the sign-in libraries change only when their pins do, so a release that changes only the game
+            // leaves this chunk's name as it was and a returning player's browser keeps it.
+            { name: "react", test: /[\\/]node_modules[\\/](?:react|react-dom|scheduler|better-auth|better-call|defu|nanostores|@better-auth[\\/][^\\/]+|@better-fetch[\\/][^\\/]+|@simplewebauthn[\\/][^\\/]+)[\\/]/, priority: 4 },
+            { name: "manifest",test: /[\\/]src[\\/]shared[\\/]three[\\/]manifest\.ts$/, priority: 3 },
+            { name: "palette", test: /[\\/]packages[\\/]model-kit[\\/]src[\\/]palette\.ts$/, priority: 3 },
+            { name: "three",test: /[\\/]node_modules[\\/]three[\\/]build[\\/]/, priority: 2 },
             { name: "load", test: /[\\/]node_modules[\\/]three[\\/]examples[\\/]jsm[\\/]|[\\/]packages[\\/]model-kit[\\/]src[\\/]load\.ts$|[\\/]src[\\/]shared[\\/]three[\\/]load\.ts$/, priority: 1 },
           ],
         },

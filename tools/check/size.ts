@@ -2,13 +2,15 @@
 // Builds the client in production mode into a folder of its own, with placeholder settings in the shape of a
 // deploy's, takes the chunks the page loads before anything else (the entry and everything it imports
 // statically, which the page's modulepreload links name), and compares each one's gzipped size with
-// tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Also fails when any of
+// tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Beside each gzipped size it
+// prints the size of the brotli copy the build writes at the best level, which is what a browser that takes brotli
+// downloads (apps/client/vite/brotli.plugin.ts); the budget stays on gzip. Also fails when any of
 // the admin page's code is in those chunks (moderation:admin-view-for-admin-list). Runs locally and in the check
 // workflow; it reads and writes only local files and sends nothing anywhere.
 //
 // Usage: pnpm check:size
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
@@ -18,7 +20,7 @@ import { isMain, readJson, REPO_ROOT } from "../repo";
 export const BUDGET_FILE = "tools/check/size-budget.json";
 
 /** The parts a first visit downloads, each with its own budget, and their sum. */
-export const PARTS = ["main", "three", "content-sim", "loader", "shared", "total"] as const;
+export const PARTS = ["main", "three", "content-sim", "loader", "react", "shared", "total"] as const;
 export type Part = (typeof PARTS)[number];
 
 /** One chunk as the client build's size report gives it (apps/client/vite/size.plugin.ts). */
@@ -49,22 +51,25 @@ export const HEADROOM_PERCENT = 5;
 const THREE = /\/node_modules\/three\/build\//;
 const SIM = /\/packages\/sim\/src\//;
 const LOADER = /\/packages\/model-kit\/src\/load\.ts$|\/apps\/client\/src\/shared\/three\/load\.ts$/;
+/** React DOM, which the build gives a chunk of its own with React and the sign-in libraries (apps/client/vite/shipping.plugin.ts). */
+const REACT = /\/node_modules\/react-dom\//;
 /** The admin page's modules. Only its address may be in the game's own chunks. */
 const ADMIN = /\/apps\/client\/src\/features\/admin\//;
 const ADMIN_ADDRESS = /\/apps\/client\/src\/features\/admin\/adminPath\.ts$/;
 /** A change line opens on the part that moved and says what for. A date in front is refused: git keeps when. */
-const REASON = /^(?:main|three|content-sim|loader|shared|total)\b.*\bfor\b\s+\S/;
+const REASON = /^(?:main|three|content-sim|loader|react|shared|total)\b.*\bfor\b\s+\S/;
 
 /**
  * Which part a first-visit chunk is: the entry is the main chunk; then by what it holds: the simulation (with
- * the content beside it), three.js's core, the model loader. Any other chunk the entry imports (the bundler's
- * runtime, a library both the game and a later chunk share) is counted under `shared`.
+ * the content beside it), three.js's core, the model loader, React's chunk with React DOM. Any other chunk the entry imports (the
+ * bundler's runtime, a library both the game and a later chunk share) is counted under `shared`.
  */
 export function partOf(chunk: ReportChunk): Exclude<Part, "total"> {
   if (chunk.isEntry) return "main";
   if (chunk.modules.some((id) => SIM.test(id))) return "content-sim";
   if (chunk.modules.some((id) => THREE.test(id))) return "three";
   if (chunk.modules.some((id) => LOADER.test(id))) return "loader";
+  if (chunk.modules.some((id) => REACT.test(id))) return "react";
   return "shared";
 }
 
@@ -169,11 +174,12 @@ function main(): void {
     const { chunks } = readJson<{ chunks: ReportChunk[] }>(report);
     const first = firstVisit(chunks);
     const sizes = measure(first, (file) => gzipSync(readFileSync(join(outDir, file))).length);
+    const brotli = measure(first, (file) => (existsSync(join(outDir, `${file}.br`)) ? statSync(join(outDir, `${file}.br`)).size : 0));
     console.log(`Built in ${String(seconds)} s. A first visit downloads ${String(first.length)} script files:`);
     for (const chunk of first) console.log(`  ${partOf(chunk).padEnd(12)} ${chunk.file}`);
     for (const part of PARTS) {
       const { budget, measured } = budgets.parts[part];
-      console.log(`${part.padEnd(12)} ${String(sizes[part]).padStart(8)} bytes gzipped   budget ${String(budget).padStart(8)}   measured when set ${String(measured).padStart(8)}`);
+      console.log(`${part.padEnd(12)} ${String(sizes[part]).padStart(8)} bytes gzipped   budget ${String(budget).padStart(8)}   measured when set ${String(measured).padStart(8)}   brotli 11 ${String(brotli[part]).padStart(8)}`);
     }
     problems.push(...overBudget(sizes, budgets), ...adminInFirstVisit(first));
   } finally {

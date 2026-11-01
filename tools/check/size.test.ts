@@ -44,7 +44,18 @@ describe("the size check", () => {
       "assets/sim.js": "content-sim",
       "assets/load.js": "loader",
     });
-    expect(measure(first, (file) => SIZES[file] ?? 0)).toEqual({ main: 300, three: 200, "content-sim": 250, loader: 25, shared: 4, total: 779 });
+    expect(measure(first, (file) => SIZES[file] ?? 0)).toEqual({ main: 300, three: 200, "content-sim": 250, loader: 25, react: 0, shared: 4, total: 779 });
+  });
+
+  test("[engine:first-download-has-budget] given React's chunk with React DOM and the sign-in libraries among the first visit's, then it is counted as its own part, and the bundler's runtime beside it as shared", () => {
+    const build: ReportChunk[] = [
+      { file: "assets/index.js", isEntry: true, imports: ["assets/react.js", "assets/rolldown-runtime.js"], modules: [module("apps/client/src/main.tsx")] },
+      { file: "assets/react.js", isEntry: false, imports: ["assets/rolldown-runtime.js"], modules: [module("node_modules/.pnpm/react-dom@19.3.0/node_modules/react-dom/cjs/react-dom-client.production.js"), module("node_modules/.pnpm/better-auth@1.7.7/node_modules/better-auth/dist/client.mjs")] },
+      { file: "assets/rolldown-runtime.js", isEntry: false, imports: [], modules: ["\0rolldown/runtime.js"] },
+    ];
+    const first = firstVisit(build);
+    expect(first.map((chunk) => partOf(chunk))).toEqual(["main", "react", "shared"]);
+    expect(measure(first, (file) => ({ "assets/index.js": 100, "assets/react.js": 80, "assets/rolldown-runtime.js": 1 })[file] ?? 0)).toMatchObject({ main: 100, react: 80, shared: 1, total: 181 });
   });
 
   test("[engine:first-download-has-budget] given a part one byte over its budget, then the check names it with both numbers; at its budget it passes", () => {

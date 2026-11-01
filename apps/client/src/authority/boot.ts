@@ -7,12 +7,19 @@ import { setUsageCounts, startCounting } from "../shared/analytics/start";
 import { readAccount } from "../shared/net/account";
 import { betterAuthApi } from "../shared/net/auth";
 import { clockMode } from "./clock";
-import { localAuthority, type LocalAuthorityOptions } from "./local";
+import type { LocalAuthorityOptions } from "./local";
 import { authorityMode } from "../shared/net/authorityMode";
 import { goOnline } from "./online";
 import { remoteAuthority } from "./remote";
 import { createGameStore, type GameStore } from "./store";
 import { MORNING_KEY } from "../shared/storage/storage";
+
+/**
+ * engine:browser-authority-for-dev-only: the in-browser authority, fetched by a dynamic import only in a build that names no server
+ * (development, tests, offline play). A player's build names its server, so the bundler drops this import and a player never
+ * downloads the local authority.
+ */
+const local = import.meta.env.VITE_SERVER_URL ? null : await import("./local");
 
 /** The account's row as the server answered it when the game started online; null before, and with the local authority. */
 let accountRead: Promise<AccountReply> | null = null;
@@ -65,7 +72,8 @@ function takeMorningSwitch(): void {
 
 function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
   takeMorningSwitch();
-  const authority = localAuthority({ fastClock: clockMode().fastClock, ...options });
+  if (local === null) throw new Error("This build names a server, so it carries no local authority.");
+  const authority = local.localAuthority({ fastClock: clockMode().fastClock, ...options });
   const { start } = authority;
   const store = createGameStore(authority, {
     life: authority,
