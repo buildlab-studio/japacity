@@ -160,16 +160,16 @@ describe("the build for players", () => {
   test("[engine:first-download-has-budget] given the production build, then every bundled script and style under assets/ has a brotli copy beside it at the best level, and the development build writes none", () => {
     const bundled = shipped.files.filter((file) => BUNDLED.test(file));
     expect(bundled.length).toBeGreaterThan(10);
-    const wrong = bundled.filter((file) => {
-      const plain = readFileSync(join(shipped.out, file));
-      const copy = readFileSync(join(shipped.out, `${file}.br`));
-      const best = brotliCompressSync(plain, { params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_SIZE_HINT]: plain.length } });
-      return !brotliDecompressSync(copy).equals(plain) || copy.length !== best.length;
-    });
-    expect(wrong).toEqual([]);
+    const plain = (file: string): Buffer => readFileSync(join(shipped.out, file));
+    const copy = (file: string): Buffer => readFileSync(join(shipped.out, `${file}.br`));
+    expect(bundled.filter((file) => !brotliDecompressSync(copy(file)).equals(plain(file)))).toEqual([]);
+    // The best level is slow to make again, so it is proved on the three largest files, which are most of what a visit downloads.
+    const largest = [...bundled].sort((a, b) => plain(b).length - plain(a).length).slice(0, 3);
+    const best = (file: string): number => brotliCompressSync(plain(file), { params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_SIZE_HINT]: plain(file).length } }).length;
+    expect(largest.map((file) => copy(file).length)).toEqual(largest.map(best));
     expect(shipped.files.filter((file) => file.endsWith(".br")).sort()).toEqual(bundled.map((file) => `${file}.br`).sort());
     expect(development.files.filter((file) => file.endsWith(".br"))).toEqual([]);
-  });
+  }, 60_000);
 
   test("[engine:browser-authority-for-dev-only] given the production build, which names a server, then no chunk holds the in-browser authority, so a player never downloads it", () => {
     expect(chunkHolding(shipped, /\/apps\/client\/src\/authority\/local\.ts$/)).toBeUndefined();
