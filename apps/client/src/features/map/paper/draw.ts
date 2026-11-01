@@ -95,7 +95,8 @@ interface Cell {
 /** The squares the grain is cut into, in paper units. */
 export const CELL = 120;
 
-export interface Drawing {
+/** A city's lines without its grain: what Lagos from the air draws at once, the roofs coming after in idle slices. */
+export interface Outline {
   land: string;
   coast: string;
   beach: string;
@@ -106,9 +107,12 @@ export interface Drawing {
   rails: string;
   ferry: string;
   bridgeName: string;
-  cells: Cell[];
   palmTrunks: string;
   palmFronds: string;
+}
+
+export interface Drawing extends Outline {
+  cells: Cell[];
   scattered: Scattered;
 }
 
@@ -159,17 +163,17 @@ export interface DrawSource {
 export const LAGOS_DRAW: DrawSource = { land: LAND, beach: BEACH, roads: ROADS, rails: [], ferry: FERRY_LINE, bridgeName: BRIDGE_NAME_PATH, palms: PALMS, ground: groundOf };
 
 const drawn = new WeakMap<DrawSource, Drawing>();
+const outlined = new WeakMap<DrawSource, Outline>();
 
 /** A line as path data, or nothing for a line with no points. */
 const line = (points: readonly Point[]): string => (points.length === 0 ? "" : curve(points));
 
-/** A city's drawing, built the first time it is asked for and kept: the same strings for every view. */
-export function drawingOf(source: DrawSource): Drawing {
-  const kept = drawn.get(source);
+/** A city's lines, built the first time they are asked for and kept: the same strings for every view. */
+export function outlineOf(source: DrawSource): Outline {
+  const kept = outlined.get(source);
   if (kept !== undefined) return kept;
-  const scattered = scatter(source.ground());
   const palms = source.palms.map(([x, y, size, facing]) => palm(x, y, size, facing));
-  const made: Drawing = {
+  const made: Outline = {
     land: Object.values(source.land).map(loop).join(""),
     coast: Object.values(source.land).map(loop).join(""),
     beach: line(source.beach),
@@ -185,11 +189,19 @@ export function drawingOf(source: DrawSource): Drawing {
     rails: source.rails.map(line).join(""),
     ferry: line(source.ferry),
     bridgeName: line(source.bridgeName),
-    cells: cellsOf(scattered),
     palmTrunks: palms.map(([trunk]) => trunk).join(""),
     palmFronds: palms.map(([, fronds]) => fronds).join(""),
-    scattered,
   };
+  outlined.set(source, made);
+  return made;
+}
+
+/** A city's drawing with its grain, built the first time it is asked for and kept: the same strings for every view. */
+export function drawingOf(source: DrawSource): Drawing {
+  const kept = drawn.get(source);
+  if (kept !== undefined) return kept;
+  const scattered = scatter(source.ground());
+  const made: Drawing = { ...outlineOf(source), cells: cellsOf(scattered), scattered };
   drawn.set(source, made);
   return made;
 }

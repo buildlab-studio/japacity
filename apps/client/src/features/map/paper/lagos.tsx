@@ -43,6 +43,7 @@ export const LAGOS: PaperCity = {
   fromPaper,
   cardOf,
   draw: LAGOS_DRAW,
+  aerial: true,
   seaFrom: SEA_FROM,
   parks: PARKS,
   labels: LABELS,
@@ -69,6 +70,12 @@ export const LAGOS: PaperCity = {
     <>
       <path d={d.ferry} className="ferry-line" />
       <path id={`${uid}-tmb`} d={d.bridgeName} fill="none" />
+      {/* The halo under the bridge's name is a text of its own, so no letter's halo covers the one before along the curve. */}
+      <text className="bridge-name halo" aria-hidden>
+        <textPath href={`#${uid}-tmb`} startOffset="50%">
+          {mapWords("map.bridge.third-mainland")}
+        </textPath>
+      </text>
       <text className="bridge-name">
         <textPath href={`#${uid}-tmb`} startOffset="50%">
           {mapWords("map.bridge.third-mainland")}

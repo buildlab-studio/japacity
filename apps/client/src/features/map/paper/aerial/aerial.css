@@ -1,0 +1,152 @@
+/* Lagos from the air (world:map-is-painted-lagos): dark warm earth packed with rust and zinc roofs lit from the top
+   left, tarmac roads pale in the sun, the murky lagoon and a deeper sea, and every name near-white over a dark halo.
+   Lagos's own tokens over the paper's (paper.css), so the painted maps abroad keep theirs. Widths keep their size on
+   the screen at every zoom, as the paper's do (--z is the view's zoom). */
+.paper[data-city="lagos"] {
+  --map-paper: #4a3a2c;
+  --water: #565d41;
+  --sea: #23506f;
+  --coastc: #8f8d6a;
+  --beach: #a48f69;
+  --park: #3a4c2c;
+  --park-edge: #33432a;
+  --roof-rust: #9b5634;
+  --roof-brown: #7b5a42;
+  --roof-zinc: #8d8a84;
+  --roof-old-zinc: #67645e;
+  --roof-blue: #6c8796;
+  --roof-green: #6d8360;
+  --roof-lit: rgba(255, 238, 214, 0.5);
+  --lane: #5e564d;
+  --minor: #78726a;
+  --minor-edge: #30261d;
+  --main: #cbbd9e;
+  --main-edge: #2b2219;
+  --express: #d9cdb0;
+  --express-edge: #2b2219;
+  --road: #d9cdb0;
+  --map-line: #2b2219;
+  --pier: #3b3a2f;
+  --bshadow: rgba(10, 8, 4, 0.4);
+  --wave: rgba(226, 232, 214, 0.22);
+  --label: #f7f1e6;
+  --halo: rgba(26, 19, 13, 0.92);
+  --waterl: #eef0e2;
+  --water-halo: rgba(26, 30, 20, 0.85);
+  --ferry: #c9c6ad;
+  --street-name: #f7f1e6;
+  --street-halo: #1f1811;
+  --palm: #557d45;
+  --win: #ffc861;
+  --glow-sticker: rgba(0, 0, 0, 0.5);
+}
+[data-paint="night"] .paper[data-city="lagos"],
+.paper[data-city="lagos"][data-paint="night"] {
+  --map-paper: #2e241b;
+  --water: #121612;
+  --sea: #0a1520;
+  --coastc: #4b4a39;
+  --beach: #3c3427;
+  --park: #1d2818;
+  --park-edge: #19231a;
+  --roof-rust: #4f3022;
+  --roof-brown: #413127;
+  --roof-zinc: #4a4947;
+  --roof-old-zinc: #383734;
+  --roof-blue: #34434c;
+  --roof-green: #36412f;
+  --roof-lit: rgba(255, 232, 200, 0.16);
+  --lane: #39332d;
+  --minor: #48433c;
+  --minor-edge: #130e0a;
+  --main: #7d7262;
+  --main-edge: #130e0a;
+  --express: #7f735f;
+  --express-edge: #130e0a;
+  --road: #7f735f;
+  --map-line: #130e0a;
+  --pier: #2a2a22;
+  --bshadow: rgba(0, 0, 0, 0.45);
+  --wave: rgba(200, 210, 190, 0.12);
+  --label: #f3ecdd;
+  --halo: rgba(16, 12, 9, 0.92);
+  --waterl: #dfe3d2;
+  --water-halo: rgba(10, 12, 8, 0.85);
+  --ferry: #6e6c5c;
+  --street-name: #f3ecdd;
+  --street-halo: #120d09;
+  --palm: #2f5a3a;
+  --win: #ffc861;
+}
+
+/* The ground. */
+.aerial .land { fill: var(--map-paper); stroke: var(--coastc); stroke-width: calc(1.6px / var(--z, 1)); }
+.aerial .park { fill: var(--park); stroke: var(--park-edge); stroke-width: calc(1px / var(--z, 1)); }
+.aerial .beach { stroke: var(--beach); }
+/* The roofs: a colour on each group, which its path and the lit edge's copy of it take. */
+.aerial .roof-lit { fill: var(--roof-lit); }
+.aerial .roof-rust { fill: var(--roof-rust); }
+.aerial .roof-brown { fill: var(--roof-brown); }
+.aerial .roof-zinc { fill: var(--roof-zinc); }
+.aerial .roof-old-zinc { fill: var(--roof-old-zinc); }
+.aerial .roof-blue { fill: var(--roof-blue); }
+.aerial .roof-green { fill: var(--roof-green); }
+/* The night paint lights a few windows among the roofs; the day draws none. */
+.aerial .lit { fill: var(--win); display: none; }
+[data-paint="night"] .aerial .lit { display: inline; }
+/* A square laid while the view stands fades in. */
+.aerial .fresh { animation: aerial-in 240ms ease-out both; }
+@keyframes aerial-in { from { opacity: 0; } }
+
+/* The streets by kind, pale tarmac by width and lightness: the lanes bare grey tracks with no edge, the streets a grey,
+   the main roads narrower and darker than the expressways and the bridges. */
+.aerial .st, .aerial .st-edge, .aerial .lane { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.aerial .lane { stroke: var(--lane); stroke-width: calc(2.6px / var(--z, 1)); }
+.aerial .st-edge.minor { stroke: var(--minor-edge); stroke-width: calc(6.5px / var(--z, 1)); }
+.aerial .st.minor { stroke: var(--minor); stroke-width: calc(4.6px / var(--z, 1)); }
+.aerial .st-edge.main { stroke: var(--main-edge); stroke-width: calc(9px / var(--z, 1)); opacity: 0.85; }
+.aerial .st.main { stroke: var(--main); stroke-width: calc(7px / var(--z, 1)); }
+.aerial .st-edge.express { stroke: var(--express-edge); stroke-width: calc(11px / var(--z, 1)); opacity: 0.85; }
+.aerial .st.express { stroke: var(--express); stroke-width: calc(8.6px / var(--z, 1)); }
+.aerial .bridge-edge { stroke: var(--express-edge); stroke-width: calc(11px / var(--z, 1)); }
+.aerial .bridge-deck { stroke: var(--express); stroke-width: calc(8.6px / var(--z, 1)); }
+.aerial .bridge-piers { stroke: var(--pier); stroke-width: calc(14px / var(--z, 1)); }
+
+.paper-card .aerial .lane { stroke-width: calc(4.4px / var(--z, 1)); }
+.paper-card .aerial .st-edge.minor { stroke-width: calc(9px / var(--z, 1)); }
+.paper-card .aerial .st.minor { stroke-width: calc(7px / var(--z, 1)); }
+.paper-card .aerial .st-edge.main { stroke-width: calc(14px / var(--z, 1)); }
+.paper-card .aerial .st.main { stroke-width: calc(11.4px / var(--z, 1)); }
+.paper-card .aerial .st-edge.express { stroke-width: calc(18px / var(--z, 1)); }
+.paper-card .aerial .st.express { stroke-width: calc(15px / var(--z, 1)); }
+.paper-card .aerial .bridge-edge { stroke-width: calc(18px / var(--z, 1)); }
+.paper-card .aerial .bridge-deck { stroke-width: calc(15px / var(--z, 1)); }
+.paper-card .aerial .bridge-shadow { stroke-width: calc(24px / var(--z, 1)); }
+.paper-card .aerial .bridge-piers { stroke-width: calc(21px / var(--z, 1)); }
+
+/* Folded into the strip: the land, the water, the main roads and the bridges, each its own width however flat the fold. */
+.aerial.paper-folded .st-edge.main { stroke-width: 2.6px; }
+.aerial.paper-folded .st.main { stroke-width: 1.4px; }
+.aerial.paper-folded .st-edge.express { stroke-width: 3.2px; }
+.aerial.paper-folded .st.express { stroke-width: 1.8px; }
+.aerial.paper-folded .bridge-edge { stroke-width: 4px; }
+.aerial.paper-folded .bridge-deck { stroke-width: 2.4px; }
+[data-paint="night"] .aerial.paper-folded .bridge-deck { stroke: var(--express); }
+
+/* The names: near-white over a dark halo, so they read over the roofs and the roads. */
+.aerial .district { font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; stroke-width: calc(4.4px / var(--z, 1)); }
+.aerial .water-name { opacity: 1; font-style: italic; stroke: var(--water-halo); stroke-width: calc(3.6px / var(--z, 1)); }
+.aerial .bridge-name { fill: var(--waterl); stroke: none; }
+.aerial .bridge-name.halo { fill: none; stroke: var(--water-halo); stroke-width: calc(3.6px / var(--z, 1)); stroke-linejoin: round; }
+.street-names { position: absolute; overflow: visible; pointer-events: none; }
+.street-names .street-name { font-family: Rubik, system-ui, sans-serif; text-anchor: middle; font-weight: 500; fill: var(--street-name); stroke: none; font-size: calc(12px / var(--z, 1)); }
+.street-names .street-name.halo { fill: none; stroke: var(--street-halo); stroke-width: calc(4.4px / var(--z, 1)); stroke-linejoin: round; }
+
+/* Where the player stands: a blue dot with a soft halo at the place's foot, and its pill in blue. */
+.paper-pin .here-dot { position: absolute; left: 50%; top: 80%; width: 16px; height: 16px; border-radius: 50%; background: #2f7de1; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #fff, 0 1px 4px 3px rgba(0, 0, 0, 0.18), 0 0 0 18px rgba(47, 125, 225, 0.18); pointer-events: none; }
+[data-paint="night"] .paper-pin .here-dot { background: #5b9cf0; box-shadow: 0 0 0 3px #e9f1ff, 0 0 0 18px rgba(91, 156, 240, 0.22); }
+.paper[data-city="lagos"] .paper-name[data-name="here"] { color: #1d5bb0; box-shadow: 0 0 0 1.5px #1d5bb0, 0 3px 0 #1d5bb0; }
+[data-paint="night"] .paper[data-city="lagos"] .paper-name[data-name="here"] { background: #1f2c4d; color: #cfe0ff; box-shadow: 0 0 0 1.5px #8fb6f0, 0 3px 0 #8fb6f0; }
+
+/* Once open, the open map pans by moving its world; on a layer of its own the roofs are not painted again at every step. */
+.paper[data-city="lagos"] [data-unfold="open"] .paper-open .paper-world { will-change: transform; }

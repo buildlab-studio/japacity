@@ -6,6 +6,7 @@
 import type { CSSProperties } from "react";
 import { memo } from "react";
 
+import { AerialSvg } from "./aerial/AerialSvg";
 import { drawingOf } from "./draw";
 import { usePaperCity } from "./lagos";
 
@@ -26,11 +27,14 @@ export interface PaperSvgProps {
   within?: readonly [number, number, number, number] | null;
   /** The district names this view paints, by key; all of them when absent (a card leaves off the ones it would cut). */
   labels?: ReadonlySet<string> | null;
+  /** How much the view matters to a city drawn from the air, whose squares are laid for the views that matter most first. */
+  weight?: number;
 }
 
 /** The paper, one SVG. Memoised: a view's drawing changes only with its variant and its route. */
-export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid, within = null, labels = null }: PaperSvgProps) {
+export const PaperSvg = memo(function PaperSvg({ variant, route = null, uid, within = null, labels = null, weight }: PaperSvgProps) {
   const city = usePaperCity();
+  if (city.aerial === true) return <AerialSvg variant={variant} route={route} uid={uid} within={within} labels={labels} weight={weight ?? (variant === "open" ? 3 : 1)} />;
   const { paper } = city;
   const d = drawingOf(city.draw);
   const whole = variant !== "folded";

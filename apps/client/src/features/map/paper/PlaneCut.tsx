@@ -92,7 +92,7 @@ export function PlaneCut({ country, city, small, line, ms }: PlaneCutProps) {
   const d = `M ${String(path.from[0])} ${String(path.from[1])} Q ${String(path.control[0])} ${String(path.control[1])} ${String(path.to[0])} ${String(path.to[1])}`;
   return (
     <div className="absolute inset-0 overflow-hidden" data-plane-cut={moving ? "moving" : "still"}>
-      <div className="paper absolute inset-0 overflow-hidden" data-paint="night">
+      <div className="paper absolute inset-0 overflow-hidden" data-paint="night" data-city="lagos">
         <World variant="open" uid="plane-cut" frame={frame} within={within} tiles={tiles} />
       </div>
       <svg className="absolute top-0 left-0" width={STAGE.width} height={STAGE.height} viewBox={`0 0 ${String(STAGE.width)} ${String(STAGE.height)}`} aria-hidden data-plane-line>

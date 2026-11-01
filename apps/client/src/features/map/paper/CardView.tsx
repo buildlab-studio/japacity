@@ -105,7 +105,7 @@ export const CardView = memo(function CardView({ card, width, height, drawn, sto
   return (
     <section className={`paper-card ${className}`} style={{ width, height, ...style }} aria-label={title} data-card={card.id} data-current={current} onClick={onCard}>
       <div className="paper-card-in">
-        {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} labels={labels} /> : null}
+        {drawn ? <World variant="card" uid={`card-${card.id}`} frame={frame} within={within} stops={stops} names={names} marks={marks} tiles={tiles} pinPx={50} route={route} onPick={onPick} labels={labels} weight={current ? 3 : 1} /> : null}
       </div>
       <span className="paper-card-title" data-card-title>
         <span className="paper-card-tile">{offered === null ? null : <img {...offered} alt="" width={CARD_TILE_PX} height={CARD_TILE_PX} draggable={false} />}</span>

@@ -26,6 +26,7 @@ import type { CanoeFill } from "./LanternCanoe";
 import { clampView, openFrame, openingView, type OpenView } from "./view";
 import { REDUCED_MOTION } from "../../../shared/ui/motion";
 import { type Canoe, type Frame, World } from "./World";
+import { lagosAerial, type Progress } from "./aerial/job";
 
 /** What a browser test reads of the map: where the stops stand, which card shows, the fold, the route and its channel. */
 export interface MapProbe {
@@ -37,6 +38,8 @@ export interface MapProbe {
   channel: Channel | null;
   /** world:lantern-canoe-on-map: the lantern canoe's point on the paper, when the open map draws it; never one of the stops. */
   canoe: Point | null;
+  /** A city drawn from the air: how many of its squares are laid, of how many, and the roofs and windows they hold. */
+  aerial: Progress | null;
 }
 
 declare global {
@@ -175,7 +178,18 @@ function CityMap({ pins, home, picked, step, names, onPick, country, close, shee
   }, []);
   // The probe a browser test reads.
   useEffect(() => {
-    window.__map = { ready: painted || wide, phase: state.phase, card: state.card, stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })), route, channel, canoe: canoe === null ? null : city.canoe };
+    window.__map = {
+      ready: painted || wide,
+      phase: state.phase,
+      card: state.card,
+      stops: placed.map((stop) => ({ id: stop.id, state: stop.state, card: stop.card, at: stop.at })),
+      route,
+      channel,
+      canoe: canoe === null ? null : city.canoe,
+      get aerial() {
+        return city.aerial === true ? lagosAerial().progress() : null;
+      },
+    };
   }, [painted, wide, state.phase, state.card, placed, route, channel, canoe, city]);
   useEffect(
     () => () => {
@@ -204,7 +218,7 @@ function CityMap({ pins, home, picked, step, names, onPick, country, close, shee
 
   if (wide) {
     return (
-      <div ref={box} className="paper absolute inset-0 overflow-hidden" data-paper-map="wide">
+      <div ref={box} className="paper absolute inset-0 overflow-hidden" data-city={city.id} data-paper-map="wide">
         <OpenLayer size={size} view={view} setView={setView} stops={placed} names={names} marks={marks} tiles={tiles} route={channel === "open" ? route : null} canoe={canoe} onPick={pick} onDistrict={(card) => {
           dispatch({ type: "swipe", card });
         }} />
@@ -223,7 +237,7 @@ function CityMap({ pins, home, picked, step, names, onPick, country, close, shee
 
   const stripWidth = size.width - 24;
   return (
-    <div ref={box} className="paper absolute inset-0 overflow-hidden" data-paper-map="phone" data-fold={state.phase}>
+    <div ref={box} className="paper absolute inset-0 overflow-hidden" data-city={city.id} data-paper-map="phone" data-fold={state.phase}>
       <Strip
         width={stripWidth}
         stops={placed}

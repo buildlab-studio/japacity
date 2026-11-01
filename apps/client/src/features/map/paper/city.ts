@@ -5,7 +5,7 @@
 import type { ReactNode } from "react";
 
 import type { Card } from "./districts";
-import type { Drawing, DrawSource } from "./draw";
+import type { DrawSource, Outline } from "./draw";
 import type { Point, Position } from "./fit";
 import type { Decor, Label } from "./geometry";
 import type { Placer } from "./stops";
@@ -30,6 +30,8 @@ export interface PaperCity extends Placer {
   paper: { width: number; height: number };
   fromPaper: (point: Point) => Position;
   draw: DrawSource;
+  /** Drawn from the air, its ground packed with roofs laid in idle slices (Lagos), rather than the painted grain of houses and trees. */
+  aerial?: boolean;
   /** Where the open sea's darker blue starts down the paper, or null for a city with no sea. */
   seaFrom: number | null;
   /** The parks, as [x, y, rx, ry] on the paper. */
@@ -42,8 +44,8 @@ export interface PaperCity extends Placer {
   fallbackCard: string;
   strip: { top: number; bottom: number; minis: readonly Mini[]; landmarks: readonly StripMark[] };
   /** The city's own drawings on the whole paper, under the water's names and over them. */
-  under: (uid: string, drawn: Drawing) => ReactNode;
-  over: (drawn: Drawing) => ReactNode;
+  under: (uid: string, drawn: Outline) => ReactNode;
+  over: (drawn: Outline) => ReactNode;
   /** How far the open map's first look stands from the card's middle, on a phone and on a laptop, in paper units. */
   opening: { phone: Point; wide: Point };
   /** Where the lantern canoe floats, or null where there is none (world:lantern-canoe-on-map is Lagos's alone). */

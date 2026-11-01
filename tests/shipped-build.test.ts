@@ -136,6 +136,23 @@ describe("the build for players", () => {
     expect(shipped.chunks.filter((file) => DEV_PAGES.test(file))).toEqual([]);
   });
 
+  test("[engine:first-download-has-budget] given both builds, then the map's trial dresses for its names (`?maplabels=`), their styles and their pills are in the development build and none is in the production build", () => {
+    const styles = (built: Built): string =>
+      built.files
+        .filter((file) => file.endsWith(".css"))
+        .map((file) => read(built, file))
+        .join("");
+    const dev = code(development);
+    expect(dev).toMatch(/\.get\([`"']maplabels[`"']\)/);
+    expect(dev).toContain("map-tag");
+    expect(styles(development)).toContain("data-map-labels");
+    const text = code(shipped);
+    expect(text).not.toContain("maplabels");
+    expect(text).not.toContain("map-tag");
+    expect(styles(shipped)).not.toContain("data-map-labels");
+    expect(styles(shipped)).not.toContain("map-tag");
+  });
+
   test("[engine:first-download-has-budget] given the production build, then beside the page a licences file holds every package the client ships with its licence's text, and the development build has none", () => {
     expect(shipped.files).toContain("licenses.txt");
     const licences = read(shipped, "licenses.txt");

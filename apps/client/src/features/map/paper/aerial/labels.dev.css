@@ -1,0 +1,23 @@
+/* The trial dresses of the map's names (labels.tsx), loaded by a development build alone. */
+
+/* L1: the halo six pixels wide, three outside the letter, and the names a touch heavier: the streets and the water at
+   the face's heavier weight; the districts are at it already. */
+html[data-map-labels="l1"] .aerial .district { stroke-width: calc(6px / var(--z, 1)); }
+html[data-map-labels="l1"] .aerial .water-name { font-weight: 700; stroke-width: calc(6px / var(--z, 1)); }
+html[data-map-labels="l1"] .aerial .bridge-name { font-weight: 700; }
+html[data-map-labels="l1"] .aerial .bridge-name.halo { stroke-width: calc(6px / var(--z, 1)); }
+html[data-map-labels="l1"] .street-names .street-name { font-weight: 700; }
+html[data-map-labels="l1"] .street-names .street-name.halo { stroke-width: calc(6px / var(--z, 1)); }
+
+/* L2 and L3: the district names stand as pills over the paper, the paper's own lettering of them hidden. */
+html[data-map-labels="l2"] .aerial .district,
+html[data-map-labels="l3"] .aerial .district { display: none; }
+.map-tag { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--inv, 1)) rotate(var(--tilt, 0deg)) translate(-50%, -78%); white-space: nowrap; pointer-events: none; font-family: Rubik, system-ui, sans-serif; font-size: var(--s, 12px); line-height: 1.15; text-transform: uppercase; letter-spacing: 0.06em; border-radius: 999px; }
+.paper-moving .map-tag { opacity: 0; }
+
+/* L2: a soft dark band, the ground's darkest tone at three quarters. */
+html[data-map-labels="l2"] .map-tag { background: rgba(26, 19, 13, 0.75); color: #f7f1e6; font-weight: 600; padding: 2px 8px; }
+html[data-map-labels="l2"][data-paint="night"] .map-tag { background: rgba(16, 12, 9, 0.75); color: #f3ecdd; }
+
+/* L3: dark ink on a small cream pill, the stickers' pill shape smaller and lighter, so it reads as an area, not a place. */
+html[data-map-labels="l3"] .map-tag { background: #f6efdf; color: #1b2a4a; font-weight: 500; font-size: max(12px, calc(var(--s, 12px) - 1px)); padding: 1px 7px; box-shadow: 0 0 0 1px rgba(27, 42, 74, 0.3); }
