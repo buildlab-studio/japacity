@@ -44,7 +44,7 @@ pnpm check
 
 ## Certify the DCO
 
-A contribution from outside the project certifies the [Developer Certificate of Origin](https://developercertificate.org/) (DCO) in the pull request's description: you have the right to submit the change under the project's licences (see [LICENSES.md](LICENSES.md)). Commit messages themselves carry no trailers (see AGENTS.md).
+A contribution from outside the project certifies the [Developer Certificate of Origin](https://developercertificate.org/) (DCO) in the pull request's description: you have the right to submit the change under the project's licences (see [LICENSES.md](LICENSES.md)).
 
 ## Every change goes through a pull request
 

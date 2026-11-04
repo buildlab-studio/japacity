@@ -1,5 +1,5 @@
 // The trades' rungs, side jobs and own work (activity:each-trade-climbs-its-ladder, activity:capital-opens-own-work). Names are
-// activity.md's; first drafts in the voice of docs/rules/text.md.
+// activity.md's; in the voice of docs/rules/text.md.
 export const activityLadderText: Record<string, string> = {
   "activity.job-senior-nurse.name": "Senior nursing officer",
   "activity.job-senior-nurse.blurb": "You run the shift and sign the drug chart. The juniors come to you first.",
