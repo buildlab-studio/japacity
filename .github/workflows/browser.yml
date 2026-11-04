@@ -1,0 +1,62 @@
+name: browser
+
+# The whole browser suite (`pnpm test:browser`: every spec at the phone's size and the desktop's, against the dev
+# server), started by hand or each night, in four shards that run at once. It is not part of the check a pull request
+# waits for. It runs with no secrets and reads the repository only, so a fork's copy of it meets nothing of this
+# repository's. A failing shard keeps Playwright's report and its traces as an artifact. Every action is pinned to a
+# commit, with its version beside it.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 2 * * *"
+
+# A newer run on the same branch cancels the run in progress.
+concurrency:
+  group: browser-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      # Every shard runs to its end, so one night's failures are all named at once.
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Reads the pnpm version from packageManager in package.json.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The browser the projects use, at the version the pinned Playwright names, with the system libraries it needs.
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: The browser suite, shard ${{ matrix.shard }} of 4
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report
+          PLAYWRIGHT_HTML_OPEN: never
+        run: pnpm test:browser --shard=${{ matrix.shard }}/4 --reporter=list,html
+
+      - name: Keep the report of a failing shard
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: browser-report-${{ matrix.shard }}
+          path: |
+            playwright-report/
+            apps/client/test-results/
+          retention-days: 14

@@ -2,7 +2,7 @@ name: deploy-production
 
 # Production on a release tag (v1.2.3) or when started by hand from main, never on a push to a branch
 # (docs/site/built/your-own-copy.md). The `production` environment asks the maintainer to approve
-# every run before it reaches its secrets. Safe in a fork: the job runs only in buildlab-studio/japacity, from main or
+# every run before it reaches its secrets, and the run deploys only a commit on main that staging serves. Safe in a fork: the job runs only in buildlab-studio/japacity, from main or
 # a v tag, and a fork never sees this repository's environments. While the environment's secrets are unset
 # the job stops quietly at its first step with a notice, and deploys nothing.
 on:
@@ -42,6 +42,39 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The whole history and main's tip, for the guard below and for the snapshot's checkout of the live commit.
+          fetch-depth: 0
+
+      # Production deploys only a commit on main that staging serves now: the commit is an ancestor of origin/main, and it
+      # is the commit in staging's japacity-build meta, read at STAGING_URL through staging's Access service token. Any
+      # other commit stops here, before the database or the Worker is touched.
+      - name: The commit is on main and is the one staging serves
+        if: steps.ready.outputs.set == 'true'
+        env:
+          STAGING: ${{ vars.STAGING_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          commit="$(git rev-parse HEAD)"
+          if ! git merge-base --is-ancestor "$commit" origin/main; then
+            echo "::error::$commit is not on main, so nothing is deployed."
+            exit 1
+          fi
+          if [ -z "$STAGING" ]; then
+            echo "::error::Set the production environment's variable STAGING_URL, staging's address, before deploying."
+            exit 1
+          fi
+          access=()
+          if [ -n "$CF_ACCESS_CLIENT_ID" ] && [ -n "$CF_ACCESS_CLIENT_SECRET" ]; then
+            access=(-H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET")
+          fi
+          meta="$(curl -sS "${access[@]}" "$STAGING/?release=1" | grep -o 'japacity-build" content="[^"]*"' || true)"
+          staged="$(printf '%s' "$meta" | sed -E 's/.*content="([0-9a-f]+)".*/\1/')"
+          if [ -z "$staged" ] || [ "$(git rev-parse --verify --quiet "$staged^{commit}" || true)" != "$commit" ]; then
+            echo "::error::Staging serves ($meta), not $commit, so nothing is deployed."
+            exit 1
+          fi
+          echo "$commit is on main and staging serves it."
 
       # A REPLACE_WITH_ placeholder for a Hyperdrive id in wrangler.jsonc's production block would make the deploy
       # fail halfway, so it stops here and says why.
@@ -66,10 +99,10 @@ jobs:
       - if: steps.ready.outputs.set == 'true'
         run: pnpm install --frozen-lockfile
 
-      # The migrations go first, then the build, then the Worker (server:migration-before-deploy): a deploy never runs a Worker
-      # against a schema behind it. DATABASE_URL_UNPOOLED is the production branch's direct string for the migrator role, the
+      # The migrations go first, then the snapshot, the build, the Worker and the check (server:migration-before-deploy): a
+      # deploy never runs a Worker against a schema behind it. DATABASE_URL_UNPOOLED is the production branch's direct string for the migrator role, the
       # role that owns the schema and drizzle's journal; never the app role's, which cannot write them. Once the
-      # Cloudflare pair is set, a missing string fails here and nothing is built or deployed; a failed migration does
+      # Cloudflare pair is set, a missing string fails here and nothing is snapshotted, built or deployed; a failed migration does
       # the same, since every later step runs only after this one succeeded.
       - name: Migrate the database
         if: steps.ready.outputs.set == 'true'
@@ -81,6 +114,36 @@ jobs:
             exit 1
           fi
           pnpm --filter @japacity/db db:migrate
+
+      # Every character snapshotted before the deploy (server:snapshot-before-deploy), after the migration and before the
+      # build: the tool loads each character under the rules that wrote it, so it runs from a worktree of the commit
+      # production is running now, read from the page's japacity-build meta. A live commit that cannot be read stops the
+      # deploy, and so does a character the tool skipped; a live commit from before the tool existed has nothing to run,
+      # and the step says so.
+      - name: Snapshot every character from the live commit
+        if: steps.ready.outputs.set == 'true'
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+          SITE: ${{ vars.VITE_SERVER_URL }}
+        run: |
+          if [ -z "$SITE" ]; then
+            echo "::error::Set the production environment's variable VITE_SERVER_URL before deploying."
+            exit 1
+          fi
+          meta="$(curl -sS "$SITE/?snapshot=1" | grep -o 'japacity-build" content="[^"]*"' || true)"
+          live="$(printf '%s' "$meta" | sed -E 's/.*content="([0-9a-f]+)".*/\1/' | cut -c1-12)"
+          if [ -z "$live" ] || ! git cat-file -e "$live^{commit}" 2>/dev/null; then
+            echo "::error::The commit production is running could not be read ($meta), so nothing is snapshotted or deployed."
+            exit 1
+          fi
+          if ! git show "$live:package.json" | grep -q '"snapshot:all"'; then
+            echo "::notice::The live commit $live has no snapshot tool, so there is nothing to snapshot."
+            exit 0
+          fi
+          git worktree add --detach "$RUNNER_TEMP/live" "$live"
+          cd "$RUNNER_TEMP/live"
+          pnpm install --frozen-lockfile
+          pnpm snapshot:all
 
       # The client is built for production's own address with the environment's variables (none is a secret: each
       # ends up in the page). The Worker serves this build.
@@ -110,3 +173,26 @@ jobs:
           workingDirectory: apps/server
           packageManager: pnpm
           command: deploy
+
+      # The deployment answers as the commit just deployed (server:production-and-staging): the root with 200, /api/health
+      # with ok, and the page's japacity-build meta with this commit. The edge can hand back the old page for a few
+      # seconds after a deploy, so it asks up to six times, five seconds apart.
+      - name: Check the deployment
+        if: steps.ready.outputs.set == 'true'
+        env:
+          SITE: ${{ vars.VITE_SERVER_URL }}
+        run: |
+          commit="$(git rev-parse --short=12 HEAD)"
+          for try in 1 2 3 4 5 6; do
+            rm -f "$RUNNER_TEMP/root.html"
+            root="$(curl -sS -o "$RUNNER_TEMP/root.html" -w '%{http_code}' "$SITE/?deploy=$try" || true)"
+            meta="$(grep -o 'japacity-build" content="[^"]*"' "$RUNNER_TEMP/root.html" 2>/dev/null || true)"
+            health="$(curl -sS "$SITE/api/health?deploy=$try" || true)"
+            if [ "$root" = "200" ] && [ "$meta" = "japacity-build\" content=\"$commit\"" ] && printf '%s' "$health" | grep -q '"ok":true'; then
+              echo "Production runs $commit: the root answers 200, /api/health ok, the build meta $commit."
+              exit 0
+            fi
+            if [ "$try" != "6" ]; then sleep 5; fi
+          done
+          echo "::error::Production does not answer as $commit: the root answered $root, /api/health $health, the build meta $meta."
+          exit 1
