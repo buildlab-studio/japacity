@@ -3,11 +3,12 @@
 // moderation:actioned-player-told-and-appeals). In the world they are two rows in the phone's Settings, the game's menu; the broken screen's
 // Tell us opens the same box (analytics:client-sends-interface-counts).
 import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
-import { Ban, BellDot, MessageSquareText } from "lucide-react";
+import { Ban, BellDot, ChevronRight, MessageSquareText } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
+import { ROW, ROWS_CARD } from "../ui/rows";
 import { Sheet } from "../ui/Sheet";
 import { graphicsMode } from "../graphics/mode";
 import { softLazy } from "../net/parts";
@@ -162,8 +163,8 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
 }
 
 /**
- * The team's two rows in the phone's Settings: Feedback always, and the team's notice once the team has decided
- * something. Nothing when the game runs without a server.
+ * The team's rows in the phone's Settings, in one card: the team's notice once the team has decided something, Feedback
+ * always, and Blocked for a secured account. Nothing when the game runs without a server.
  */
 /** `blocked`: the Blocked row (moderation:blocked-list-in-settings), for a secured account only; a guest blocks no one it could list. */
 export function ModerationRows({ blocked = false }: { blocked?: boolean }) {
@@ -188,21 +189,24 @@ export function ModerationRows({ blocked = false }: { blocked?: boolean }) {
   const decided = standing !== null && (standing.actions.length > 0 || standing.reports.some((report) => report.status === "decided"));
 
   return (
-    <div className="mt-3 flex flex-col gap-2" data-moderation-rows>
+    <div className={`mt-3 ${ROWS_CARD}`} data-moderation-rows>
       {decided ? (
-        <button type="button" className="phone-ghost w-full" onClick={() => setOpen("notice")}>
-          <BellDot size={18} aria-hidden />
-          {words("ui.notice")}
+        <button type="button" className={ROW} onClick={() => setOpen("notice")}>
+          <BellDot size={20} aria-hidden />
+          <span className="min-w-0 flex-1">{words("ui.notice")}</span>
+          <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
         </button>
       ) : null}
-      <button type="button" className="phone-ghost w-full" onClick={() => setOpen("feedback")}>
-        <MessageSquareText size={18} aria-hidden />
-        {words("ui.feedback")}
+      <button type="button" className={ROW} onClick={() => setOpen("feedback")}>
+        <MessageSquareText size={20} aria-hidden />
+        <span className="min-w-0 flex-1">{words("ui.feedback")}</span>
+        <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
       </button>
       {blocked ? (
-        <button type="button" className="phone-ghost w-full" onClick={() => setOpen("blocked")}>
-          <Ban size={18} aria-hidden />
-          {words("ui.blocked")}
+        <button type="button" className={ROW} onClick={() => setOpen("blocked")}>
+          <Ban size={20} aria-hidden />
+          <span className="min-w-0 flex-1">{words("ui.blocked")}</span>
+          <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
         </button>
       ) : null}
       <Sheet open={open === "feedback"} onOpenChange={(next) => setOpen(next ? "feedback" : null)} title={words("ui.feedback.title")} description={words("ui.feedback.intro")}>

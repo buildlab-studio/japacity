@@ -105,7 +105,8 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       const size = Math.round((pinPx * sizeOf(stop.id, city.sizes)) / 100);
       const text = nameWords(kind, names(stop.id));
       const up = kind === "picked" || kind === "step";
-      return [{ id: stop.id, x: stop.at[0] * z, y: stop.at[1] * z + (up ? -size : size * 0.4), width: text.length * 7 + 22, height: up ? 30 : 22, name: kind }];
+      // paper.css: a lifted name is set larger, with more padding and the chevron, so its box is wider for its letters.
+      return [{ id: stop.id, x: stop.at[0] * z, y: stop.at[1] * z + (up ? -size : size * 0.4), width: up ? text.length * 8 + 40 : text.length * 7 + 22, height: up ? 30 : 22, name: kind }];
     });
     // The card draws the paper it shows and a margin of twenty units round it; the names count only on the part seen.
     const seen = within === null ? null : ([(within[0] + MARGIN) * z, (within[1] + MARGIN) * z, (within[2] - MARGIN) * z, (within[3] - MARGIN) * z] as const);

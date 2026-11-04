@@ -11,8 +11,8 @@
 // Online and signed out, the gate hands in the guest start (account:start-screen-over-live-city): Where you live holds the
 // username box, empty for the player to type their own and checked as they type (account:username-typed-and-checked), and
 // the guest line; Begin makes the guest life before the character. Enter in the box is Begin, and a Begin refused for the
-// name brings the box into view and focuses it, the reason under it. The box stays under the homes: the page is where
-// you live, and the refusal itself brings the box up wherever the page was scrolled.
+// name brings the box into view and focuses it, the reason under it. The box stands over the homes, so on a small phone
+// it and its free or taken line are in view beside Begin before anything is scrolled; the guest line is one line under Begin.
 // Signed in with no character (the sign-in path, or a life ended on the account), the username was chosen before the door, so a
 // new run's name starts from it where it can be a first name, and the box starts empty with the pool's three names under it
 // where it cannot; a name the player typed, took or rolled, and a run kept on the device, keep theirs.
@@ -154,7 +154,10 @@ function captionOf(draft: DoorDraft): string {
 /** The guest start the gate hands in online (account:guest-and-secured-states, account:username-and-unconfirmed-email, account:start-screen-over-live-city); the account feature's GuestDoor. */
 export interface DoorGuest {
   check: (username: string) => string | null;
-  fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void) => ReactNode;
+  /** `apart`: the guest line is left out of the fields, for the page to say under Begin. */
+  fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void, apart?: boolean) => ReactNode;
+  /** The guest line (account:guest-reminded-to-secure), or null for a life that starts kept. */
+  reminder: string | null;
   /** account:username-typed-and-checked: brings the box into view and focuses it, for a Begin refused for the name as typed. */
   reveal: () => void;
   /** Null once the guest life is made; otherwise what to say by the username. */
@@ -345,11 +348,24 @@ export function FrontDoor({ guest = null, username: chosen = null, signedIn = fa
 
   if (draft.stage === "page" || draft.stage === "begun") {
     return (
-      <DoorFrame {...frame} title={say("ui.door.home")} line={archetype === null ? null : say("ui.door.home.hint")} foot={<DoorAction word={say("ui.door.begin")} onClick={begin} disabled={pressed} />}>
+      <DoorFrame
+        {...frame}
+        title={say("ui.door.home")}
+        line={archetype === null ? null : say("ui.door.home.hint")}
+        foot={
+          <>
+            <DoorAction word={say("ui.door.begin")} onClick={begin} disabled={pressed} />
+            {guest === null || guest.reminder === null ? null : (
+              <p className="mt-2 text-center text-[13px] leading-snug text-text-2" data-guest-line>
+                {guest.reminder}
+              </p>
+            )}
+          </>
+        }
+      >
         <Board look={draft.look} name={draft.name.trim()} caption={captionOf(draft)} thing={thingOf(archetype)} onYou={pressed ? null : () => change({ stage: "you" })} onLife={pressed ? null : () => change({ stage: draft.ready === null ? "life" : "ready" })} />
-        {archetype === null || home === null ? <ReadyHome home={READY_HOME} /> : <HomeRow archetype={archetype} years={draft.age} home={home} onHome={(one) => change({ home: one, homePicked: true })} />}
         {guest === null ? null : (
-          <div className="door-card mx-5 mt-4 mb-2 px-4 pt-1 pb-4" data-door-guest>
+          <div className="door-card mx-5 mt-3 px-4 pt-1 pb-3" data-door-guest>
             {guest.fields(
               username,
               (next) => {
@@ -358,9 +374,11 @@ export function FrontDoor({ guest = null, username: chosen = null, signedIn = fa
               },
               usernameSaid,
               begin,
+              true,
             )}
           </div>
         )}
+        {archetype === null || home === null ? <ReadyHome home={READY_HOME} /> : <HomeRow archetype={archetype} years={draft.age} home={home} onHome={(one) => change({ home: one, homePicked: true })} />}
         <div className="h-4" />
       </DoorFrame>
     );

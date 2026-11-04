@@ -24,13 +24,13 @@ export function waysOf(view: AccountView): AccountView["ways"] {
 }
 
 /**
- * The way the life is kept, in one line (account:guest-secures-the-life, account:guest-reminded-to-secure): Google by its address where Google is linked, else the
- * email. `full`: the email's address too, as the sheet says it; the row says it short. A guest's life is on this phone.
+ * The way the life is kept, in one line (account:guest-secures-the-life, account:guest-reminded-to-secure): Google where Google is linked, else the
+ * email. `full`: with its address, as the sheet says it; the row says it short, so the address is said once. A guest's life is on this phone.
  */
 export function keptLine(view: AccountView, full: boolean): string {
   if (view.state === "guest") return say("ui.account.ways.guest");
   const { google, email } = waysOf(view);
-  if (google !== null) return say("ui.account.ways.google", { email: google });
+  if (google !== null) return full ? say("ui.account.ways.google", { email: google }) : say("ui.account.ways.google.short");
   if (email === null) return "";
   return full ? say("ui.account.ways.email", { email }) : say("ui.account.ways.email.short");
 }

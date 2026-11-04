@@ -206,6 +206,23 @@ describe("the stickers, the rings and the names", () => {
     // Where the player stands keeps its own place; the others move.
     expect(placed.get("here")).toEqual([0, 0]);
   });
+
+  test("[world:map-is-painted-lagos] given a name that matters whose sticker stands by a card's side, when the card places its names, then the name moves in until it stands whole on the card, and a name wholly off the card stays where it is", () => {
+    const box = (id: string, x: number, y: number, name: NameBox["name"]): NameBox => ({ id, x, y, width: 150, height: 30, name });
+    const seen = [0, 0, 390, 700] as const;
+    const boxes = [box("hub", 370, 300, "step"), box("left", 20, 500, "picked"), box("top", 200, 6, "here"), box("far", 900, 300, "home")];
+    const placed = placeNames(boxes, { newest: 3, centre: [195, 350], seen });
+    const whole = (b: NameBox): boolean => {
+      const [dx, dy] = placed.get(b.id) ?? [0, 0];
+      return b.x + dx - b.width / 2 >= seen[0] && b.x + dx + b.width / 2 <= seen[2] && b.y + dy - b.height / 2 >= seen[1] && b.y + dy + b.height / 2 <= seen[3];
+    };
+    for (const one of boxes.slice(0, 3)) expect({ id: one.id, whole: whole(one) }).toEqual({ id: one.id, whole: true });
+    // Moved inward, toward the card's middle.
+    expect(placed.get("hub")?.[0]).toBeLessThan(0);
+    expect(placed.get("left")?.[0]).toBeGreaterThan(0);
+    expect(placed.get("top")?.[1]).toBeGreaterThan(0);
+    expect(placed.get("far")).toEqual([0, 0]);
+  });
 });
 
 describe("the names on a card", () => {

@@ -71,6 +71,16 @@ function hold(ms: number, release: boolean): void {
 }
 
 describe("start a new life", () => {
+  test("[account:start-a-new-life] [world:phone-rises-over-scene] given a life, when Settings shows, then Start a new life is one row of its own card under This life, saying the life ends for good", async () => {
+    const { store } = await localLife();
+    openSettings(store);
+    const row = document.querySelector<HTMLElement>("[data-life-end]");
+    expect(row?.className).not.toMatch(/\blook-card\b/);
+    expect(row?.parentElement?.className).toMatch(/\blook-card\b/);
+    expect(row?.parentElement?.previousElementSibling?.textContent).toBe(say("ui.life.end.heading"));
+    expect(row?.textContent).toContain(say("ui.life.end.hint"));
+  });
+
   test("[account:start-a-new-life] given a life, when Start a new life is opened, then one sheet names the character and their age, says the life ends and cannot be brought back, and offers Keep this life before the button held to end it", async () => {
     const { store } = await localLife();
     const view = store.getState().view as PlayerView;

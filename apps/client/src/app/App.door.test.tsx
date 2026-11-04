@@ -195,6 +195,34 @@ describe("the username box (account:username-typed-and-checked)", () => {
   });
 });
 
+describe("the page's username on a small phone", () => {
+  test("[prologue:front-door-three-screens] [account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given the door's page online, then the username box stands over the homes, the line on who sees it shows while the box is empty or typed in and goes once a name is left in it, and the guest line stands once, under Begin", async () => {
+    const account = fakeAccount(undefined, () => "free");
+    online(account);
+    await toTheDoor();
+    toThePage();
+    const fields = document.querySelector("[data-guest-fields]")!;
+    const homes = document.querySelector("[data-door-home]")!;
+    expect(fields.compareDocumentPosition(homes) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const said = (): string | null => document.getElementById("guest-username-said")?.textContent ?? null;
+    expect(said()).toBe(say("ui.account.name.intro"));
+    fireEvent.focus(usernameBox());
+    typeUsername("ada_lagos");
+    expect(said()).toBe(say("ui.account.name.intro"));
+    expect(await screen.findByText(say("ui.account.name.available"))).toBeDefined();
+    fireEvent.blur(usernameBox());
+    expect(said()).toBeNull();
+    expect(screen.getByText(say("ui.account.name.available"))).toBeDefined();
+    // The guest line, once, in the foot under Begin.
+    const lines = screen.getAllByText(say("ui.guest.reminder"));
+    expect(lines).toHaveLength(1);
+    const foot = document.querySelector("[data-door-foot]")!;
+    expect(foot.contains(lines[0]!)).toBe(true);
+    expect(next(say("ui.door.begin")).compareDocumentPosition(lines[0]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(fields.contains(lines[0]!)).toBe(false);
+  });
+});
+
 describe("Enter and a refused Begin (account:username-typed-and-checked)", () => {
   /** Each element brought into view, in order. */
   const brought: Element[] = [];

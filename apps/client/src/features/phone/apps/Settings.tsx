@@ -1,11 +1,12 @@
 // Settings (world:phone-rises-over-scene, world:interface-sounds-made-live): the sound (the game's one mute: muted, nothing is fetched), the city's
 // graphics choice, and
-// the account, which the shell hands in so this folder never imports the account feature. Last,
+// the account, which the shell hands in so this folder never imports the account feature. One short screen that says each
+// thing once: the team's rows, About the game's and This life's each stand as rows of one card. Last,
 // "Start a new life" (account:start-a-new-life): one sheet that names the character and their age,
 // Cancel first, and the end held to confirm, with nothing to type. At the foot, the version line (city.md
 // city:credits-screen-attributions): five taps on it open the dedication page (account:dedication-page-and-its-doors), which the
 // shell hands in, and nothing else happens.
-import { RotateCcw, Sparkles, Volume2 } from "lucide-react";
+import { ChevronRight, RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../../authority/GameProvider";
@@ -16,12 +17,12 @@ import { setMuted } from "../../../shared/sound/sound";
 import { buildOf } from "../../../shared/build-stamp/stamp";
 import { useSound } from "../../../shared/sound/useSound";
 import { Button } from "../../../shared/ui/Button";
+import { ROW, ROWS_CARD } from "../../../shared/ui/rows";
 import { Sheet } from "../../../shared/ui/Sheet";
 import { motionReduced } from "../../../shared/ui/motion";
 import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import { Chips, Head } from "../act";
-import { PicTile } from "../ui";
 import { GRAPHICS_KEY } from "../../../shared/storage/storage";
 
 // The city reads the graphics choice (GRAPHICS_KEY, shared/scene/mode.ts) when it opens, so a choice made here
@@ -51,6 +52,8 @@ export type DedicationScreen = (open: boolean, onClose: () => void) => ReactNode
 /** `secured`: the shell says the account is a secured one, which alone has a Blocked list (moderation:blocked-list-in-settings). */
 export function Settings({ account = null, about = null, dedication = null, secured = false }: { account?: ReactNode; about?: ReactNode; dedication?: DedicationScreen | null; secured?: boolean }) {
   const [graphics, setGraphics] = useState<GraphicsChoice>(readGraphics);
+  // When a choice takes hold is said once a choice is made, never before.
+  const [chosen, setChosen] = useState(false);
   const muted = useSound((state) => state.muted);
   return (
     <div data-phone-app="settings">
@@ -86,10 +89,15 @@ export function Settings({ account = null, about = null, dedication = null, secu
           chooseGraphics(next);
           keepGraphics(next);
           setGraphics(next);
+          setChosen(true);
         }}
         options={GRAPHICS.map((value) => ({ value, label: say(`phone.settings.graphics.${value}`) }))}
       />
-      <p className="text-[13px] text-text-2">{say("phone.settings.graphics.when")}</p>
+      {chosen ? (
+        <p role="status" className="text-[13px] text-text-2">
+          {say("phone.settings.graphics.when")}
+        </p>
+      ) : null}
       </div>
 
       {/* moderation:feedback-box-in-settings, moderation:actioned-player-told-and-appeals, moderation:blocked-list-in-settings: the feedback box, the
@@ -98,7 +106,9 @@ export function Settings({ account = null, about = null, dedication = null, secu
       {about === null ? null : (
         <>
           <Head>{say("phone.settings.about")}</Head>
-          <div data-about>{about}</div>
+          <div className={ROWS_CARD} data-about>
+            {about}
+          </div>
         </>
       )}
 
@@ -256,22 +266,24 @@ function NewLife() {
   return (
     <>
       <Head>{say("ui.life.end.heading")}</Head>
-      <button
-        type="button"
-        className="look-card press flex w-full items-center gap-3 p-3 text-left"
-        onClick={() => {
-          setFailed(false);
-          setOpen(true);
-        }}
-        data-life-end
-      >
-        <PicTile of="place.family-house" size={52} tint="plain" />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[17px] font-bold">{say("ui.life.end")}</span>
-          <span className="block text-[14px] text-text-2">{say("ui.life.end.hint")}</span>
-        </span>
-        <RotateCcw size={20} className="shrink-0" aria-hidden />
-      </button>
+      <div className={ROWS_CARD}>
+        <button
+          type="button"
+          className={ROW}
+          onClick={() => {
+            setFailed(false);
+            setOpen(true);
+          }}
+          data-life-end
+        >
+          <RotateCcw size={20} className="shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1">
+            <span className="block">{say("ui.life.end")}</span>
+            <span className="block text-[13px] font-normal text-text-2">{say("ui.life.end.hint")}</span>
+          </span>
+          <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
+        </button>
+      </div>
       <Sheet open={open} onOpenChange={(next) => (ending ? undefined : setOpen(next))} title={say("ui.life.end")}>
         <div className="flex flex-col gap-3" data-life-end-sheet>
           <p className="text-lg font-semibold" data-life-end-who>

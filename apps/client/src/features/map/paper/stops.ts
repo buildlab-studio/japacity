@@ -154,10 +154,24 @@ export interface NameRule {
 /** Where a shown name stands: how far it is moved from its own place under or over its sticker, in pixels. */
 export type NameShift = readonly [number, number];
 
+/** Whether any of a name's box stands on the part seen. */
+function onPart(box: NameBox, seen: readonly [number, number, number, number]): boolean {
+  return box.x + box.width / 2 > seen[0] && box.x - box.width / 2 < seen[2] && box.y + box.height / 2 > seen[1] && box.y - box.height / 2 < seen[3];
+}
+
+/** A shift moved on, the least it takes, so the box stands whole on the part seen with `keep` to spare at each side. */
+function inward(box: NameBox, dx: number, dy: number, seen: readonly [number, number, number, number], keep: number): NameShift {
+  const fit = (at: number, half: number, low: number, high: number): number => (high - low < 2 * (half + keep) ? (low + high) / 2 : Math.min(Math.max(at, low + half + keep), high - half - keep));
+  const x = fit(box.x + dx, box.width / 2, seen[0], seen[2]);
+  const y = fit(box.y + dy, box.height / 2, seen[1], seen[3]);
+  return [Math.round(x - box.x), Math.round(y - box.y)];
+}
+
 /**
  * Which names show and where. Every name that matters always shows (where the player stands, the stop picked, the
  * step's place, home, and on a card a place visited); where one would cover a name already placed, it moves clear: further down, then up, then to a
- * side, by its own height or half its width, so here, home and the hub never pile up where districts meet. A name of a
+ * side, by its own height or half its width, so here, home and the hub never pile up where districts meet; on a card,
+ * one whose sticker brings it onto the part seen moves in from the card's side until it stands whole there. A name of a
  * place never visited shows only where it covers none, and only the first few of them, the nearest the view's middle
  * first (else the nearer the foot of the screen), so the quiet names never crowd a card.
  */
@@ -186,7 +200,9 @@ export function placeNames(boxes: readonly NameBox[], rule: NameRule = {}): Map<
     const step = box.height + gap;
     const side = Math.round(box.width / 2 + gap);
     const tries: NameShift[] = [[0, 0], [0, step], [0, -step], [0, 2 * step], [side, 0], [-side, 0], [side, step], [-side, step]];
-    const shift = tries.find(([dx, dy]) => !covers({ ...box, x: box.x + dx, y: box.y + dy })) ?? [0, 0];
+    // On a card, a name its sticker brings onto the part seen stands whole there, moved in from the side it would cross.
+    const within = (dx: number, dy: number): NameShift => (seen === null || !onPart(box, seen) ? [dx, dy] : inward(box, dx, dy, seen, 2 * gap));
+    const shift = tries.map(([dx, dy]) => within(dx, dy)).find(([dx, dy]) => !covers({ ...box, x: box.x + dx, y: box.y + dy })) ?? within(0, 0);
     kept.push({ ...box, x: box.x + shift[0], y: box.y + shift[1] });
     shifts.set(box.id, shift);
   }

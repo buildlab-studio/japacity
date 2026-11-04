@@ -3,10 +3,11 @@
 // all from credits.json, and the game's own licences with the way to the full list the build ships beside the page (licenses.txt, guide:credits-state-licences).
 // Reached from the city's menu and, through the shell, from the phone's Settings (CreditsRow), online or not.
 import { LICENCES_PATH } from "@japacity/content";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { loadJson, loadManifest } from "../../shared/three/manifest";
+import { ROW } from "../../shared/ui/rows";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cityWords } from "./city.words";
 
@@ -101,22 +102,17 @@ export function CreditsSheet({ open, onOpenChange }: { open: boolean; onOpenChan
   );
 }
 
-/** The Credits row the shell places in the phone's Settings, beside the ready lives: the same sheet as the city's menu opens (city:credits-screen-attributions). */
+/**
+ * The Credits row the shell places in the phone's Settings, one row of About the game's card: the same sheet as the city's
+ * menu opens (city:credits-screen-attributions), whose sections say what it holds.
+ */
 export function CreditsRow() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button
-        type="button"
-        className="look-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left"
-        onClick={() => setOpen(true)}
-        data-credits-row
-      >
-        <span className="min-w-0">
-          <span className="block text-[17px] font-bold">{cityWords("city.credits")}</span>
-          <span className="block text-[14px] text-text-2">{cityWords("city.credits.hint")}</span>
-        </span>
-        <ArrowRight size={20} className="shrink-0" aria-hidden />
+      <button type="button" className={ROW} onClick={() => setOpen(true)} data-credits-row>
+        <span className="min-w-0 flex-1">{cityWords("city.credits")}</span>
+        <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
       </button>
       <CreditsSheet open={open} onOpenChange={setOpen} />
     </>
