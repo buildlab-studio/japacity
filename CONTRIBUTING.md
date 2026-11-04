@@ -48,7 +48,7 @@ A contribution from outside the project certifies the [Developer Certificate of 
 
 ## Every change goes through a pull request
 
-Every change reaches `main` through a pull request. There is no bypass, not even for the maintainer. Each pull request is set to merge by itself once the check passes:
+Every change reaches `main` through a pull request. There is no bypass, not even for the maintainer. A pull request's title is a short conventional title (`type(scope): what`, for example `fix(map): keep names readable over roofs`), and its description follows `.github/pull_request_template.md`: what and why, the changes, how it was tested. Each pull request is set to merge by itself once the check passes:
 
 ```sh
 gh pr merge --auto --squash
