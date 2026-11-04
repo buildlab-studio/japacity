@@ -23,6 +23,9 @@ test.use({ baseURL: ONLINE, launchOptions: SOFTWARE_WEBGL });
 /** The life's screens' own part, by its path under the dev server and its chunk's name in a build. */
 const LIFE_PART = /\/src\/app\/Life\.tsx|\/assets\/Life-[\w-]+\.js/;
 
+/** The opening splash, which stands while the life's screens come (the mission card over the world has its own opening mark). */
+const SPLASH = "[data-splash][data-opening]";
+
 /** Every /api route a new visitor or a returning player calls, answered from the one life the faked account holds. */
 async function fakeServer(page: Page, { alive }: { alive: boolean }): Promise<{ sent: string[] }> {
   let game: Game | null = alive ? start({ scenario: "scenario.banker", content }) : null;
@@ -130,14 +133,14 @@ test.describe("the life's screens, a part apart from the start screen (world:laz
     await fakeServer(page, { alive: true });
     const part = await holdLifePart(page, 1);
     await page.goto("/");
-    await expect(page.locator("[data-opening] [data-waiting]")).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator(SPLASH).locator("[data-waiting]")).toBeVisible({ timeout: 30_000 });
     await expect.poll(part.asked, { timeout: 30_000 }).toBeGreaterThanOrEqual(2);
-    await expect(page.locator("[data-opening]")).toBeVisible();
+    await expect(page.locator(SPLASH)).toBeVisible();
     await expect(page.locator("[data-trouble]")).toHaveCount(0);
     part.go();
     await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
     await placeReady(page);
-    await expect(page.locator("[data-opening]")).toHaveCount(0);
+    await expect(page.locator(SPLASH)).toHaveCount(0);
     await expect(page.locator("[data-broken]")).toHaveCount(0);
   });
 
