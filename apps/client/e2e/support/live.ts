@@ -35,10 +35,11 @@ export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
  * a resident standing in front of a thing covers its mark, and a tap there is a tap on that person; a word bubble may stand
  * over a thing's dot, which can be tapped a moment later (world:street-talk-budget). The emotes move on to other residents
  * every few seconds while nothing is tapped, and the bubble goes. A forced click skips Playwright's own check of this, so it
- * is made here. Where the button stays covered the tap goes as it is, and the caller's look for what it opened says so.
+ * is made here. Says whether the button came clear; where it stays covered the caller decides, and its look for what
+ * the tap opened says so.
  */
-async function clearToTap(page: Page, selector: string): Promise<void> {
-  await page
+async function clearToTap(page: Page, selector: string): Promise<boolean> {
+  return page
     .waitForFunction(
       (target) => {
         const button = document.querySelector<HTMLElement>(target);
@@ -52,7 +53,7 @@ async function clearToTap(page: Page, selector: string): Promise<void> {
       selector,
       { timeout: 15_000 },
     )
-    .catch(() => undefined);
+    .then(() => true, () => false);
 }
 
 /**
@@ -64,15 +65,21 @@ async function tapThing(page: Page, thing: string): Promise<void> {
   // A wide home eased in on one room hides the things of the others, or leaves their marks under the band (decision 0018):
   // the whole house first, as a player would, then the thing, which eases in on its own room.
   const whole = page.getByRole("button", { name: "See the whole place" });
-  if (await whole.isVisible().catch(() => false)) {
+  const wholeFirst = async () => {
     await whole.click();
     await page.waitForTimeout(600);
     await mark.waitFor({ state: "visible", timeout: 3000 }).catch(() => undefined);
-  }
+  };
+  if (await whole.isVisible().catch(() => false)) await wholeFirst();
   if (await mark.isVisible().catch(() => false)) {
     // A mark the nudge pulses never holds still for the stability check; the tap lands on the button all the same, once
     // nothing stands over it. While it waited the step's marker may have taken the mark's place, and is looked for next.
-    await clearToTap(page, `[data-mark="${thing}"]`);
+    // A room eased in on just as the phone was put away can leave the mark under the band for good, before the whole
+    // house's button shows: then the whole house, once it shows, and the mark again, so the tap never opens the band's page.
+    if (!(await clearToTap(page, `[data-mark="${thing}"]`)) && (await whole.isVisible().catch(() => false))) {
+      await wholeFirst();
+      await clearToTap(page, `[data-mark="${thing}"]`);
+    }
     if (await mark.isVisible().catch(() => false)) {
       await mark.click({ timeout: 10_000, force: true });
       return;
