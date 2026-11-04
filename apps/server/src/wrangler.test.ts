@@ -52,7 +52,7 @@ describe("the game's address", () => {
     expect(server.name).toBe("japacity-server");
     expect(server.vars["SITE_URL"]).toBe(PRODUCTION);
     expect(server.routes).toEqual([{ pattern: new URL(PRODUCTION).host, custom_domain: true }]);
-    expect(server.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", run_worker_first: ["/api/*"] });
+    expect(server.assets).toEqual({ directory: "../client/dist", not_found_handling: "none", binding: "ASSETS", run_worker_first: ["/api/*"] });
   });
 
   test("given the server's staging environment, when it is read, then it is its own Worker at staging.japacity.app and nothing points at production", () => {
@@ -82,11 +82,17 @@ describe("the game's address", () => {
     expect(tickPeriodMs(TICKS_CRON)).toBe(5 * 60_000);
   });
 
-  test("[server:production-and-staging] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with the files bound as ASSETS and NOINDEX set", () => {
+  test("[server:production-and-staging] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with NOINDEX set, and both bind the files as ASSETS", () => {
     expect(server.vars["NOINDEX"]).toBeUndefined();
-    expect(server.assets?.binding).toBeUndefined();
+    expect(server.assets?.run_worker_first).toEqual(["/api/*"]);
+    expect(server.assets?.binding).toBe("ASSETS");
     expect(staging?.vars["NOINDEX"]).toBe("1");
-    expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", binding: "ASSETS", run_worker_first: true });
+    expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "none", binding: "ASSETS", run_worker_first: true });
+  });
+
+  test("[server:production-and-staging] given both environments, when their files' fallback is read, then neither serves the page for a request that matches no file, so a missing file under /assets/ reaches the Worker and gets its 404, and production names /api/* alone, so every file that exists is served without the Worker", () => {
+    for (const assets of [server.assets, staging?.assets]) expect(assets?.not_found_handling).toBe("none");
+    expect(server.assets?.run_worker_first).toEqual(["/api/*"]);
   });
 
   test("[server:production-and-staging] [server:shared-observability-block] given both environments, when their observability is read, then production keeps every request's logs with no invocation log, no traces and Issues, and staging has no block of its own, so it inherits the same", () => {

@@ -29,12 +29,20 @@
   },
   // The game's one address, answered by this Worker as its Custom Domain.
   "routes": [{ "pattern": "japacity.app", "custom_domain": true }],
-  // One Worker is the whole game: the client's build is served as static assets, and only
-  // /api/* reaches the code, so the page and the API share one origin (no CORS, first party cookies).
-  // Build the client before a deploy: `pnpm build` from the repository root.
+  // One Worker is the whole game: the client's build is served as static assets, and the page and the API
+  // share one origin (no CORS, first party cookies). Build the client before a deploy: `pnpm build` from the
+  // repository root. server:production-and-staging: the platform serves every file that exists from the location
+  // nearest the player without the Worker. /api/* always reaches the Worker, a sign-in callback's navigation
+  // included; an array here turns off the platform's reading of Sec-Fetch-Mode, so a navigation is never sent
+  // to the page ahead of the Worker. With no fallback ("none"), only a request that matches no file reaches the
+  // Worker besides: a missing file under /assets/ gets a 404 with no-store, never the page under a year's
+  // caching, and any other address gets the page through ASSETS (src/security/files.ts). Checked against
+  // Cloudflare's static assets routing, run_worker_first and compatibility flags pages and wrangler 4.149's
+  // local runtime.
   "assets": {
     "directory": "../client/dist",
-    "not_found_handling": "single-page-application",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
     "run_worker_first": ["/api/*"]
   },
   "vars": {
@@ -94,10 +102,10 @@
       // page, "Inheritable keys"), so staging keeps the top level's logs, traces and Issues (server:shared-observability-block).
       // server:production-and-staging: the Worker runs first for every path and serves the client's files through
       // ASSETS, so each reply carries the noindex tag and robots.txt disallows all. Production keeps
-      // the platform serving its files first.
+      // the platform serving its files first. No fallback, as at the top level: a missing file under /assets/ is a 404.
       "assets": {
         "directory": "../client/dist",
-        "not_found_handling": "single-page-application",
+        "not_found_handling": "none",
         "binding": "ASSETS",
         "run_worker_first": true
       },
