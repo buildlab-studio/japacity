@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { readJson, REPO_ROOT } from "../repo";
-import { adminInFirstVisit, BUDGET_FILE, budgetFileProblems, budgetFor, type BudgetFile, buildEnv, firstVisit, measure, overBudget, partOf, PARTS, type ReportChunk } from "./size";
+import { adminInFirstVisit, BUDGET_FILE, budgetFileProblems, budgetFor, type BudgetFile, buildEnv, firstVisit, laterFigures, lifeInFirstVisit, measure, overBudget, partOf, PARTS, type ReportChunk } from "./size";
 
 const ROOT = "/repo";
 const module = (path: string): string => `${ROOT}/${path}`;
@@ -103,5 +103,32 @@ describe("the size check", () => {
     expect(adminInFirstVisit(firstVisit(BUILD))).toEqual([]);
     const leaked = BUILD.map((chunk) => (chunk.isEntry ? { ...chunk, modules: [...chunk.modules, module("apps/client/src/features/admin/AdminPage.tsx")] } : chunk));
     expect(adminInFirstVisit(firstVisit(leaked))).toEqual(["assets/index.js holds apps/client/src/features/admin/AdminPage.tsx: the admin page loads only at /admin."]);
+  });
+
+  /** The build with the life's screens as a part of their own, fetched after the start screen, and a chunk of theirs they import. */
+  const WITH_LIFE: ReportChunk[] = [
+    ...BUILD,
+    { file: "assets/Life.js", isEntry: false, imports: ["assets/index.js", "assets/City.js"], modules: [module("apps/client/src/app/Life.tsx"), module("apps/client/src/features/phone/PhoneApps.tsx")] },
+    { file: "assets/City.js", isEntry: false, imports: ["assets/sim.js"], modules: [module("apps/client/src/features/city/City.tsx")] },
+  ];
+  const LIFE_SIZES: Record<string, number> = { ...SIZES, "assets/Life.js": 120, "assets/City.js": 80 };
+
+  test("[engine:first-download-has-budget] given the life's screens fetched as a part of their own, then the first visit holds none of them and the check names none; the start screen's and sign in's features may stay", () => {
+    const first = firstVisit(WITH_LIFE);
+    expect(first.map((chunk) => chunk.file)).not.toContain("assets/Life.js");
+    const start = first.map((chunk) => (chunk.isEntry ? { ...chunk, modules: [...chunk.modules, module("apps/client/src/features/account/StartScreen.tsx"), module("apps/client/src/features/front-door/FrontDoor.tsx")] } : chunk));
+    expect(lifeInFirstVisit(start)).toEqual([]);
+  });
+
+  test("[engine:first-download-has-budget] given a life screen or the shell itself in a first-visit chunk, then the size check names each", () => {
+    const leaked = firstVisit(BUILD).map((chunk) => (chunk.isEntry ? { ...chunk, modules: [...chunk.modules, module("apps/client/src/features/city/City.tsx"), module("apps/client/src/app/Life.tsx")] } : chunk));
+    expect(lifeInFirstVisit(leaked)).toEqual([
+      "assets/index.js holds apps/client/src/features/city/City.tsx: the life's screens load apart from the start screen (app/Life.tsx).",
+      "assets/index.js holds apps/client/src/app/Life.tsx: the life's screens load apart from the start screen (app/Life.tsx).",
+    ]);
+  });
+
+  test("[engine:first-download-has-budget] given the life's screens as a part, then the figures beside the budgets are the life's chunks a first visit did not bring, and every chunk but the admin page's", () => {
+    expect(laterFigures(WITH_LIFE, (file) => LIFE_SIZES[file] ?? 0)).toEqual({ life: 120 + 80, game: 300 + 4 + 200 + 250 + 25 + 120 + 80 });
   });
 });

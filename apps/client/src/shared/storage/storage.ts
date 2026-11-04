@@ -46,6 +46,8 @@ export const FULL_PROLOGUE_KEY = "japacity.prologue.full";
 export const MORNING_KEY = "japacity.morning";
 /** The time of the last reload for the staging wall: kept in the tab's storage, gone with it. */
 export const WALL_KEY = "japacity.wall";
+/** That this tab reloaded once for a newer build after a part of the game did not download: "1" or nothing, in the tab's storage. */
+export const STALE_KEY = "japacity.stale";
 /** When this device last turned the ask for notices down, in ms since 1970. */
 export const NOTIFY_DISMISSED_KEY = "japacity.notify.dismissedAt";
 /** That a kept life was open in this browser (account:start-screen-over-live-city): "1" or nothing, with no account data in it. */

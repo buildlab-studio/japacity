@@ -10,8 +10,9 @@ import { forPlayers, shippedBuild, styleLicences } from "./vite/shipping.plugin"
 import { sizeReport } from "./vite/size.plugin";
 import { inlineStyleHashes } from "./vite/style-hashes.plugin";
 import { buildStamp } from "./vite/build-stamp.plugin";
+import { lifeAhead } from "./vite/life-ahead.plugin";
 
 export default defineConfig(({ command, mode }) => ({
-  plugins: [react(), tailwindcss(), guidePages(), legalPagesPlugin(), beaconPlugin(), buildStamp(), sizeReport(), styleLicences(), previewHeaders(), inlineStyleHashes()],
+  plugins: [react(), tailwindcss(), guidePages(), legalPagesPlugin(), beaconPlugin(), buildStamp(), lifeAhead(), sizeReport(), styleLicences(), previewHeaders(), inlineStyleHashes()],
   ...(forPlayers(command, mode) ? { build: shippedBuild() } : {}),
 }));
