@@ -183,14 +183,15 @@ describe("Settings names the ways in (account:guest-reminded-to-secure, account:
 });
 
 describe("the account's row at the head of Settings", () => {
-  test("[account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given a kept life, then the account is one button whose name holds the name, the username and the way it is kept, and a tap opens the account's sheet", async () => {
+  test("[account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given a kept life, then the account is one button whose name holds the name, the username and the way it is kept in short, its address said only in the account's sheet, and a tap opens the sheet", async () => {
     keepPerson({ look: "person_ada", name: "Adaeze", archetype: null });
     const view = engineView();
     const name = pageOf(view).name;
     expect(name).toBe("Adaeze");
     const account = fakeAccount(me("secured", { google: "ada.g@example.com", email: "ada.g@example.com", passkeys: 0 }));
     await mount(account, <AccountButton />, view);
-    const row = await screen.findByRole("button", { name: new RegExp(`${name}.*@ada_lagos.*Signed in with Google as ada.g@example\\.com`) });
+    const row = await screen.findByRole("button", { name: new RegExp(`${name}.*@ada_lagos.*Signed in with Google$`) });
+    expect(row.textContent).not.toContain("ada.g@example.com");
     expect(row.querySelector("[aria-hidden]")?.textContent).toBe(name.charAt(0).toUpperCase());
     fireEvent.click(row);
     const sheet = await screen.findByRole("dialog", { name: say("ui.account.settings") });

@@ -85,8 +85,13 @@ function usernameProblem(username: string): string | null {
 export interface GuestDoor {
   /** Why the username cannot be sent as typed, or null. */
   check: (username: string) => string | null;
-  /** The username field, empty until typed and checked as it is typed, its rule's words, the guest line and the unseen check, for the page; Enter in it is `onEnter`. */
-  fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void) => ReactNode;
+  /**
+   * The username field, empty until typed and checked as it is typed, its rule's words, the guest line and the unseen check, for the page; Enter in it is `onEnter`.
+   * `apart`: the guest line is left to the page, which says it under its own button (`reminder`).
+   */
+  fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void, apart?: boolean) => ReactNode;
+  /** The guest line (account:guest-reminded-to-secure), for a page that says it apart from the fields; null for a life that starts kept. */
+  reminder: string | null;
   /** account:username-typed-and-checked: a Begin refused for the name as typed brings the box into view and focuses it. */
   reveal: () => void;
   /** The username box, for the page that holds it. */
@@ -184,7 +189,8 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
   const ask = useCallback((username: string) => account.usernameFree(username), [account]);
   return {
     check: usernameProblem,
-    fields: (value, onChange, problem, onEnter) => <GuestFields box={box} value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} kept={kept} {...(onEnter === undefined ? {} : { onEnter })} />,
+    fields: (value, onChange, problem, onEnter, apart = false) => <GuestFields box={box} value={value} onChange={onChange} problem={problem} ask={ask} widget={check.widget} kept={kept || apart} {...(onEnter === undefined ? {} : { onEnter })} />,
+    reminder: kept ? null : say("ui.guest.reminder"),
     reveal: () => bringBoxIntoView(box.current, true),
     box,
     kept,
@@ -237,10 +243,13 @@ export function useFreeCheck(value: string, ask: (username: string) => Promise<F
 /**
  * The username on the page, its rule, the check as it is typed, and the guest line said once (account:username-and-unconfirmed-email,
  * account:username-typed-and-checked, account:guest-reminded-to-secure); a life that starts kept by a proved email says no guest line
- * and nothing in its place (account:guest-secures-the-life).
+ * and nothing in its place (account:guest-secures-the-life). The line on who sees the name shows while the box is empty or typed
+ * in; a name left in it keeps only its free or taken line, so one thing is said under the box at a time once the player moves on.
  */
 function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept = false }: { box: RefObject<HTMLInputElement | null>; value: string; onChange: (username: string) => void; onEnter?: () => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode; kept?: boolean }) {
   const free = useFreeCheck(value, ask);
+  const [typing, setTyping] = useState(false);
+  const intro = value.trim() === "" || typing;
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
       <label className="label block text-text-2" htmlFor="guest-username">
@@ -259,6 +268,8 @@ function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept
         aria-invalid={problem !== null || (free !== null && free !== "free")}
         aria-describedby="guest-username-check guest-username-said"
         onChange={(event) => onChange(event.target.value)}
+        onFocus={() => setTyping(true)}
+        onBlur={() => setTyping(false)}
         // account:username-typed-and-checked: Enter in the box is Begin; inside the invite page's form it submits on its own.
         onKeyDown={(event) => {
           if (onEnter === undefined || !plainEnter(event)) return;
@@ -272,15 +283,15 @@ function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept
         {free === "free" && problem === null ? <Check size={14} strokeWidth={3} className="mr-1 inline-block align-[-2px]" aria-hidden /> : null}
         {free === null || problem !== null ? null : say(FREE_WORDS[free])}
       </p>
-      {problem === null ? (
-        <p id="guest-username-said" className="mt-1 text-[12px] text-text-2">
-          {say("ui.account.name.intro")}
-        </p>
-      ) : (
+      {problem !== null ? (
         <p id="guest-username-said" role="alert" className="mt-1.5 text-[13px] font-bold text-text">
           {problem}
         </p>
-      )}
+      ) : intro ? (
+        <p id="guest-username-said" className="mt-1 text-[12px] text-text-2">
+          {say("ui.account.name.intro")}
+        </p>
+      ) : null}
       {kept ? null : (
         <p className="mt-2 text-[13px] leading-snug" data-guest-line>
           {say("ui.guest.reminder")}

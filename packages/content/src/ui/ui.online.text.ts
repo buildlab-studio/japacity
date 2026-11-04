@@ -236,6 +236,7 @@ export const uiOnlineText: Record<string, string> = {
   // The sheet's own words ride its chunk: ui.accountSheet.text.ts (engine:first-download-has-budget).
   "ui.account.settings": "Account",
   "ui.account.ways.google": "Signed in with Google as {email}",
+  "ui.account.ways.google.short": "Signed in with Google",
   "ui.account.ways.email": "Signed in with your email as {email}",
   "ui.account.ways.email.short": "Signed in with your email",
   "ui.account.ways.guest": "Only on this phone. Save it to play anywhere.",

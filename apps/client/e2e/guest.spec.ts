@@ -162,7 +162,9 @@ test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] [acc
   await page.locator('[data-app="settings"]').click();
   const row = page.locator("[data-account-row]");
   await expect(row).toContainText("@ada_lagos");
-  await expect(row).toContainText("Signed in with Google as ada@example.com");
+  // account:guest-reminded-to-secure: the row says the way short; the address is the sheet's alone.
+  await expect(row).toContainText("Signed in with Google");
+  await expect(row).not.toContainText("ada@example.com");
   await shootPhone(page, "settings-account-row-phone", info.project.name, PICTURE);
   await row.click();
   const sheet = page.getByRole("dialog", { name: uiOnlineText["ui.account.settings"] ?? "Account" });

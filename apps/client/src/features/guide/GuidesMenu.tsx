@@ -4,11 +4,12 @@
 // screen of the game itself (guide:credits-screen-in-game), not a page here.
 // The pages are the prerendered ones, opened beside the game so the life stays where it is.
 import { content, guideForRoute } from "@japacity/content";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
+import { ROW } from "../../shared/ui/rows";
 import { counting } from "../../shared/analytics/start";
 import { Sheet } from "../../shared/ui/Sheet";
 import { nameOf, say } from "../../shared/words/text";
@@ -25,7 +26,10 @@ function PageLink({ href, children }: { href: string; children: string }) {
   );
 }
 
-/** `row`: drawn as a row of the phone's Settings, as the credits' row is (city:credits-screen-attributions); else a small book button. */
+/**
+ * `row`: drawn as a row of About the game's card in the phone's Settings, as the credits' row is (city:credits-screen-attributions),
+ * its name alone, since the sheet it opens says what it is; else a small book button.
+ */
 export function GuidesMenu({ row = false }: { row?: boolean } = {}) {
   const view = useView();
   const [open, setOpen] = useState(false);
@@ -38,12 +42,9 @@ export function GuidesMenu({ row = false }: { row?: boolean } = {}) {
   return (
     <>
       {row ? (
-        <button type="button" aria-label={say("guide.page.menu")} className="look-card press mt-1 flex w-full items-center justify-between gap-2 p-3 text-left" onClick={show} data-guides-row>
-          <span className="min-w-0">
-            <span className="block text-[17px] font-bold">{say("guide.page.menu")}</span>
-            <span className="block text-[14px] text-text-2">{say("guide.page.game-note")}</span>
-          </span>
-          <ArrowRight size={20} className="shrink-0" aria-hidden />
+        <button type="button" aria-label={say("guide.page.menu")} className={ROW} onClick={show} data-guides-row>
+          <span className="min-w-0 flex-1">{say("guide.page.menu")}</span>
+          <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
         </button>
       ) : (
         <Button small variant="quiet" aria-label={say("guide.page.menu")} onClick={show}>

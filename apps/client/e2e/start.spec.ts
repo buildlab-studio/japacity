@@ -631,7 +631,8 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] Continue
   await page.locator('[data-thumb="phone"]').click();
   await page.locator('[data-app="settings"]').click();
   const row = page.locator("[data-account-row]");
-  await expect(row).toContainText(`Signed in with Google as ${NEW_EMAIL}`);
+  await expect(row).toContainText("Signed in with Google");
+  await expect(row).not.toContainText(NEW_EMAIL);
   await row.click();
   const sheet = page.getByRole("dialog", { name: "Account" });
   await expect(sheet.getByText(`Signed in with Google as ${NEW_EMAIL}`)).toBeVisible();
