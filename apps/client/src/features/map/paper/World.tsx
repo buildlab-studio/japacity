@@ -8,6 +8,7 @@ import { memo, use, useMemo } from "react";
 
 import { headingOf } from "../RideSheet";
 import { mapWords } from "../map.words";
+import { StreetNames } from "./aerial/AerialSvg";
 import type { Point } from "./fit";
 import { LAGOS_SIZES, usePaperCity } from "./lagos";
 import { type CanoeFill, LanternCanoe } from "./LanternCanoe";
@@ -58,6 +59,8 @@ export interface WorldProps {
   canoe?: Canoe | null;
   /** The district names painted, by key; all when absent. */
   labels?: ReadonlySet<string> | null;
+  /** How much this view matters to a city drawn from the air: the card in front and the open map lay their squares first. */
+  weight?: number;
   className?: string;
   style?: CSSProperties | undefined;
 }
@@ -84,9 +87,11 @@ function shiftStyle(shift: NameShift | undefined): CSSProperties | undefined {
   return { "--nx": `${String(shift[0])}px`, "--ny": `${String(shift[1])}px` } as CSSProperties;
 }
 
-export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, canoe = null, labels = null, className = "", style }: WorldProps) {
+export const World = memo(function World({ variant, frame, uid, stops = [], names = (id) => id, marks = { home: null, picked: null, step: null }, tiles, pinPx = 50, route = null, within = null, onPick, canoe = null, labels = null, weight, className = "", style }: WorldProps) {
   const z = frame.sx;
   const city = usePaperCity();
+  // From the air, where the player stands is a blue dot at the place's foot rather than a ring.
+  const hereDot = city.aerial === true;
   const routeD = useMemo(() => (route === null ? null : curve(route)), [route]);
   const danfo = useMemo(() => (route === null || route.length < 2 ? null : midway(route)), [route]);
   const vehicle = use(RouteVehicle);
@@ -107,6 +112,8 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
     const centre = seen === null ? null : ([(seen[0] + seen[2]) / 2, (seen[1] + seen[3]) / 2] as const);
     return placeNames(boxes, variant === "card" ? { newest: NEWEST, centre, seen } : { newest: 0 });
   }, [stops, marks, pinPx, names, z, variant, within, city.sizes]);
+  // The stickers the street names keep clear of.
+  const keeps = useMemo(() => stops.map((stop) => ({ at: stop.at, px: Math.round((pinPx * sizeOf(stop.id, city.sizes)) / 100) })), [stops, pinPx, city.sizes]);
 
   return (
     <div
@@ -114,7 +121,8 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
       style={{ transform: `translate(${String(frame.x)}px, ${String(frame.y)}px) scale(${String(frame.sx)}, ${String(frame.sy)})`, ...({ "--z": z, "--inv": 1 / z } as CSSProperties), ...style }}
       data-world={variant}
     >
-      <PaperSvg variant={variant} route={routeD} uid={uid} within={within} labels={labels} />
+      <PaperSvg variant={variant} route={routeD} uid={uid} within={within} labels={labels} {...(weight === undefined ? {} : { weight })} />
+      {city.aerial === true && !folded ? <StreetNames uid={uid} z={Math.round(z * 20) / 20} within={within} keeps={keeps} /> : null}
       {folded
         ? null
         : city.decor.map((item, index) => {
@@ -149,8 +157,9 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
                 data-state={stop.state}
                 data-ring={ring ?? undefined}
               >
-                {ring === null ? null : <span className="paper-ring" data-ring={ring} aria-hidden />}
+                {ring === null || (ring === "here" && hereDot) ? null : <span className="paper-ring" data-ring={ring} aria-hidden />}
                 <PlacePicture id={stop.id} size={size} tiles={tiles} />
+                {ring === "here" && hereDot ? <span className="here-dot" aria-hidden data-here-dot /> : null}
                 {kind === null || !shown.has(stop.id) ? null : (
                   <span className="paper-name" data-name={kind} style={shiftStyle(shown.get(stop.id))} aria-hidden>
                     {nameWords(kind, name)}
