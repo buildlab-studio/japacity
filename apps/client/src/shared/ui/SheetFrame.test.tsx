@@ -144,6 +144,7 @@ function scrollerOf(element: Element): HTMLElement | null {
 }
 
 describe.each([
+  ["the look's sheet", () => <LookSheet open onOpenChange={() => undefined} title="Your study table" line="One leg shorter." foot={<button type="button">Main</button>}><p>Inside</p></LookSheet>],
   ["the world sheet", () => <WorldSheet open onClose={() => undefined} label="Label" title="Title" mark="test" foot={<button type="button">Main</button>}><p>Inside</p></WorldSheet>],
   ["the account sheet", () => <Sheet open onOpenChange={() => undefined} title="Settings" foot={<button type="button">Main</button>}><p>Inside</p></Sheet>],
 ] as const)("%s's head and foot", (_name, draw) => {
