@@ -96,7 +96,7 @@ export function relyingPartyOf(siteUrl: string): string {
  * the tests read a code from the stand-in for the send.
  */
 function testPlugins(testServer: boolean): BetterAuthPlugin[] {
-  return testServer ? [testUtils() as BetterAuthPlugin] : [];
+  return testServer ? [testUtils()] : [];
 }
 
 /**
