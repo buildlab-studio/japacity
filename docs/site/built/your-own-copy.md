@@ -88,9 +88,10 @@ The workflows deploy from GitHub once you have set them up; until then they depl
 
 - `.github/workflows/check.yml` runs the quick checks on every pull request and every push to `main`, with no secrets.
 - `.github/workflows/deploy-staging.yml` deploys staging after every push to `main` whose check passed, and deploys the commit the check passed. It waits for `check.yml` to finish (a `workflow_run` trigger) and does nothing when the check failed or was cancelled.
-- `.github/workflows/deploy-production.yml` deploys production on a release tag `v*`, or when started by hand from `main`.
+- `.github/workflows/deploy-production.yml` deploys production on a release tag `v*`, or when started by hand from `main`, and only a commit on `main` that staging serves: it first reads staging's `japacity-build` meta at `STAGING_URL` and stops when the commit differs.
+- `.github/workflows/browser.yml` runs the whole browser suite each night and when started by hand, with no secrets.
 
-Each deploy runs in this order: install, migrate the environment's database (`pnpm --filter @japacity/db db:migrate` with its `DATABASE_URL_UNPOOLED`), build the client, deploy the Worker. The build and the deploy run only if the migration succeeded, so a Worker never runs against a schema behind it (server:migration-before-deploy). A migration therefore only adds: the Worker still running keeps serving beside the new schema until the new Worker is up, so a column or table is removed only in a later migration, once no deployed Worker reads it.
+Each deploy runs in this order: install, migrate the environment's database (`pnpm --filter @japacity/db db:migrate` with its `DATABASE_URL_UNPOOLED`), snapshot every character from the commit the environment is running, read from its page's `japacity-build` meta (`pnpm snapshot:all` in a worktree of that commit, server:snapshot-before-deploy), build the client, deploy the Worker, then check that the root answers 200, `/api/health` answers ok and the meta carries the commit deployed. A first deploy has no page to read the live commit from, so the snapshot stops it: make the first deploy of each environment by hand (`apps/server/README.md`). The snapshot, the build and the deploy run only if the migration succeeded, so a Worker never runs against a schema behind it (server:migration-before-deploy). A migration therefore only adds: the Worker still running keeps serving beside the new schema until the new Worker is up, so a column or table is removed only in a later migration, once no deployed Worker reads it.
 
 Each deploy job runs only in the repository its guard names, in a GitHub environment of the same name (`staging`, `production`). Make both environments in the repository's settings, and give each:
 
@@ -99,9 +100,11 @@ Each deploy job runs only in the repository its guard names, in a GitHub environ
 | Secret | `CLOUDFLARE_API_TOKEN` | The environment's own API token, as below |
 | Secret | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account id |
 | Secret | `DATABASE_URL_UNPOOLED` | The environment's database branch, its direct (unpooled) connection string for the migrator role that owns the schema, never the app role's (section 4) |
+| Secret | `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET` | Staging's Cloudflare Access service token, in both environments: staging's deploy reads its own page through it, and production's reads staging's. Unset, no Access header is sent |
 | Variable | `VITE_SERVER_URL` | The environment's address, the same as its `SITE_URL` |
 | Variable | `VITE_TURNSTILE_SITE_KEY` | Section 5 |
 | Variable | `VITE_ANALYTICS_TOKEN` | Section 7. Optional |
+| Variable | `STAGING_URL` | `production` only: staging's address, where production's deploy reads the commit staging serves |
 
 The admin accounts are not a GitHub secret: they are the Worker's own (section 8).
 

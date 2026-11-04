@@ -46,6 +46,8 @@ jobs:
           # The commit the check passed; a run started by workflow_run would otherwise check out main as it is now.
           ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
+          # The whole history, so the snapshot can check out the commit staging is running now.
+          fetch-depth: 0
 
       # Reads the pnpm version from packageManager in package.json.
       - if: steps.ready.outputs.set == 'true'
@@ -60,10 +62,10 @@ jobs:
       - if: steps.ready.outputs.set == 'true'
         run: pnpm install --frozen-lockfile
 
-      # The migrations go first, then the build, then the Worker (server:migration-before-deploy): a deploy never runs a Worker
-      # against a schema behind it. DATABASE_URL_UNPOOLED is the staging branch's direct string for the migrator role, the
+      # The migrations go first, then the snapshot, the build, the Worker and the check (server:migration-before-deploy): a
+      # deploy never runs a Worker against a schema behind it. DATABASE_URL_UNPOOLED is the staging branch's direct string for the migrator role, the
       # role that owns the schema and drizzle's journal; never the app role's, which cannot write them. Once the
-      # Cloudflare pair is set, a missing string fails here and nothing is built or deployed; a failed migration does
+      # Cloudflare pair is set, a missing string fails here and nothing is snapshotted, built or deployed; a failed migration does
       # the same, since every later step runs only after this one succeeded.
       - name: Migrate the database
         if: steps.ready.outputs.set == 'true'
@@ -75,6 +77,42 @@ jobs:
             exit 1
           fi
           pnpm --filter @japacity/db db:migrate
+
+      # Every character snapshotted before the deploy (server:snapshot-before-deploy), after the migration and before the
+      # build: the tool loads each character under the rules that wrote it, so it runs from a worktree of the commit staging
+      # is running now, read from the page's japacity-build meta through the Access service token. A live commit that
+      # cannot be read stops the deploy, and so does a character the tool skipped; a live commit from before the tool
+      # existed has nothing to run, and the step says so.
+      - name: Snapshot every character from the live commit
+        if: steps.ready.outputs.set == 'true'
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+          SITE: ${{ vars.VITE_SERVER_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          if [ -z "$SITE" ]; then
+            echo "::error::Set the staging environment's variable VITE_SERVER_URL before deploying."
+            exit 1
+          fi
+          access=()
+          if [ -n "$CF_ACCESS_CLIENT_ID" ] && [ -n "$CF_ACCESS_CLIENT_SECRET" ]; then
+            access=(-H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET")
+          fi
+          meta="$(curl -sS "${access[@]}" "$SITE/?snapshot=1" | grep -o 'japacity-build" content="[^"]*"' || true)"
+          live="$(printf '%s' "$meta" | sed -E 's/.*content="([0-9a-f]+)".*/\1/' | cut -c1-12)"
+          if [ -z "$live" ] || ! git cat-file -e "$live^{commit}" 2>/dev/null; then
+            echo "::error::The commit staging is running could not be read ($meta), so nothing is snapshotted or deployed."
+            exit 1
+          fi
+          if ! git show "$live:package.json" | grep -q '"snapshot:all"'; then
+            echo "::notice::The live commit $live has no snapshot tool, so there is nothing to snapshot."
+            exit 0
+          fi
+          git worktree add --detach "$RUNNER_TEMP/live" "$live"
+          cd "$RUNNER_TEMP/live"
+          pnpm install --frozen-lockfile
+          pnpm snapshot:all
 
       # The client is built for staging's own address with the environment's variables (none is a secret: each
       # ends up in the page). The Worker serves this build.
@@ -104,3 +142,36 @@ jobs:
           workingDirectory: apps/server
           packageManager: pnpm
           command: deploy --env staging
+
+      # The deployment answers as the commit just deployed (server:production-and-staging): the root with 200, /api/health
+      # with ok, and the page's japacity-build meta with this commit, all through the Access service token. The edge can
+      # hand back the old page for a few seconds after a deploy, so it asks up to six times, five seconds apart.
+      - name: Check the deployment
+        if: steps.ready.outputs.set == 'true'
+        env:
+          SITE: ${{ vars.VITE_SERVER_URL }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          if [ -z "$SITE" ]; then
+            echo "::error::Set the staging environment's variable VITE_SERVER_URL before deploying."
+            exit 1
+          fi
+          access=()
+          if [ -n "$CF_ACCESS_CLIENT_ID" ] && [ -n "$CF_ACCESS_CLIENT_SECRET" ]; then
+            access=(-H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET")
+          fi
+          commit="$(git rev-parse --short=12 HEAD)"
+          for try in 1 2 3 4 5 6; do
+            rm -f "$RUNNER_TEMP/root.html"
+            root="$(curl -sS -o "$RUNNER_TEMP/root.html" -w '%{http_code}' "${access[@]}" "$SITE/?deploy=$try" || true)"
+            meta="$(grep -o 'japacity-build" content="[^"]*"' "$RUNNER_TEMP/root.html" 2>/dev/null || true)"
+            health="$(curl -sS "${access[@]}" "$SITE/api/health?deploy=$try" || true)"
+            if [ "$root" = "200" ] && [ "$meta" = "japacity-build\" content=\"$commit\"" ] && printf '%s' "$health" | grep -q '"ok":true'; then
+              echo "Staging runs $commit: the root answers 200, /api/health ok, the build meta $commit."
+              exit 0
+            fi
+            if [ "$try" != "6" ]; then sleep 5; fi
+          done
+          echo "::error::Staging does not answer as $commit: the root answered $root, /api/health $health, the build meta $meta."
+          exit 1
