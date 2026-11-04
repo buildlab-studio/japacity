@@ -220,8 +220,11 @@ function nearest(read: ReadCtx, entries: readonly ActivityEntry[], pay: (entry: 
 type RoadDraft = Omit<PassbookRoad, "months">;
 
 /**
- * The ladder's next rung: a job at home whose tenure asks for months in the job held, paying more, the lowest of them; with
- * none, the job paying more that the life is nearest to. With no job, the job the life is nearest to.
+ * The ladder's next rung: a job at home whose tenure asks for months in the job held, paying more; of them, the held job's
+ * own trade's, the one that counts the months over the fewest jobs paid no more than the one held, then the lowest paid.
+ * A rung of another trade that counts the held job's months among others (the bank's rungs count among the accounting
+ * jobs) is the road across, never the ladder. With none, the job paying more that the life is nearest to. With no job, the
+ * job the life is nearest to.
  */
 function ladderRoad(read: ReadCtx): RoadDraft | null {
   const heldId = read.state.activity.job;
@@ -233,7 +236,17 @@ function ladderRoad(read: ReadCtx): RoadDraft | null {
   if (held === undefined) rung = nearest(read, jobs, pay);
   else {
     const better = jobs.filter((entry) => pay(entry) > heldPay);
-    const rungs = better.filter((entry) => entry.requires.some((requirement) => requirement.type === "activity/tenure" && requirement.activities.includes(held.id))).sort((a, b) => pay(a) - pay(b));
+    // How many jobs paid no more than the one held a rung counts the held job's months over, or none where it does not
+    // count them: the trade's own rung counts the held job alone or with its own lower rungs.
+    const atOrUnder = (id: Id<"activity">): boolean => {
+      const job = read.content.activity[id];
+      return job !== undefined && payKobo(read, job, false) <= heldPay;
+    };
+    const width = (entry: ActivityEntry): number | null => {
+      const counted = entry.requires.flatMap((requirement) => (requirement.type === "activity/tenure" && requirement.activities.includes(held.id) ? [requirement.activities.filter(atOrUnder).length] : []));
+      return counted.length === 0 ? null : Math.min(...counted);
+    };
+    const rungs = better.filter((entry) => width(entry) !== null).sort((a, b) => (width(a) ?? 0) - (width(b) ?? 0) || pay(a) - pay(b));
     rung = rungs[0] ?? nearest(read, better, pay);
   }
   if (rung === null) return null;

@@ -16,6 +16,7 @@ import { PhoneNav } from "../../../shared/phone/nav";
 import { PressButton } from "../../../shared/ui/look/PressButton";
 import { Head, useAsk } from "../act";
 import { openJobs } from "../context";
+import { ladderRung, roadAcross } from "../ladder";
 import { jobOffers } from "../seen";
 import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
 
@@ -43,18 +44,6 @@ function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
 function reviewWords(view: Pick<PlayerView, "job">): string | null {
   const months = view.job.review;
   return months === undefined ? null : sayCount("phone.jobs.review", months, { count: months });
-}
-
-/**
- * activity:each-trade-climbs-its-ladder: the next rung of the held job's trade, the passbook's ladder road (wallet:roads-to-the-target)
- * when it asks months in the job held. The road's fallback, a better-paid job of another trade, is no rung of this one.
- */
-function nextRung(view: Pick<PlayerView, "job" | "passbook">): PassbookRoad | null {
-  const held = view.job.id;
-  const road = view.passbook?.roads.find((each) => each.road === "ladder");
-  if (held === null || road === undefined) return null;
-  const entry = content.activity[road.via as Id<"activity">];
-  return entry?.requires.some((need) => need.type === "activity/tenure" && need.activities.includes(held)) === true ? road : null;
 }
 
 /** A side job to take while none is held: the passbook's side road (wallet:roads-to-the-target). */
@@ -211,7 +200,9 @@ export function Jobs() {
   const applied = appliedJobs(view, useGame((state) => state.monthLines));
   const raised = raiseWords(view);
   const review = reviewWords(view);
-  const rung = nextRung(view);
+  const rung = ladderRung(view);
+  const across = roadAcross(view, rung);
+  const acrossPay = across === null ? null : payLine(writtenPay(across) ?? null);
   const sideToTake = sideRoad(view);
   const months = sayCount("ui.job.months", view.job.months, { months: view.job.months });
   // The offer picked: the first until another is tapped.
@@ -272,6 +263,19 @@ export function Jobs() {
         <>
           <Head>{say("phone.jobs.rung")}</Head>
           <RoadRow road={rung} pay={payLine(writtenPay(rung.via as Id<"activity">) ?? null)} line={roadLine(view, rung)} data="rung" />
+          {across === null ? null : (
+            <>
+              <Head>{say("phone.jobs.across")}</Head>
+              <PicCard
+                pic={across}
+                tint="study"
+                title={nameOf(across)}
+                line={<p>{say("phone.jobs.across.line")}</p>}
+                chips={acrossPay === null ? null : <MoneyChip className="whitespace-normal">{acrossPay}</MoneyChip>}
+                data-job-across={across}
+              />
+            </>
+          )}
         </>
       )}
       {side === null ? null : (

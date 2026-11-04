@@ -289,6 +289,15 @@ describe("[wallet:roads-to-the-target] the roads to it", () => {
     expect(road(game, "ladder")).toMatchObject({ via: "activity.job-senior-nurse", state: "shut", needs: [{ type: "quality/min", quality: "quality.care", value: 70 }] });
   });
 
+  test("[wallet:roads-to-the-target] [activity:each-trade-climbs-its-ladder] given the banker at the bank, whose months count among the accounting jobs too, when the ladder road is read, then it is the bank's own next rung, the senior bank officer, never the chartered accountant across", () => {
+    const game = planOn(start({ content, scenario: "scenario.banker", seed: "passbook-bank", worldSeed: "passbook-world" }), UK_ROUTE);
+    expect(game.view().job.id).toBe("activity.job-bank-officer");
+    // The chartered accountant pays less than the senior bank officer and counts the bank's months, yet is another trade's rung.
+    const pay = (id: string) => content.activity[id as Id<"activity">]!.pay!.amount as number;
+    expect(pay("activity.job-chartered-accountant")).toBeLessThan(pay("activity.job-bank-senior"));
+    expect(road(game, "ladder")).toMatchObject({ via: "activity.job-bank-senior" });
+  });
+
   test("[wallet:roads-to-the-target] [activity:side-job-holds-a-slot] given the nurse who can drive, when its roads are read, then the side job is the ride driving the life can take now; once held, it is taken and its months are the pace's", () => {
     const game = planOn(nurse(), CARE_ROUTE);
     game.endTurn();

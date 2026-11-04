@@ -199,6 +199,8 @@ export const uiPhoneText: Record<string, string> = {
   "phone.jobs.rung": "Next up in your trade",
   "phone.jobs.rung.open": "You can ask for it on the board now.",
   "phone.jobs.rung.needs": "Still needs {needs}.",
+  "phone.jobs.across": "Or across to another trade",
+  "phone.jobs.across.line": "Your months here count toward it.",
 
   "phone.lotto.next": "Next draw",
   // The context pill beside an app's name in its head: a few words of what is there now, never days.

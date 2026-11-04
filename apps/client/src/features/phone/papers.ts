@@ -7,6 +7,7 @@ import { content } from "@japacity/content";
 import type { PlayerView, Requirement } from "@japacity/sim";
 
 import { formatBand } from "../../shared/words/format";
+import { ladderRung, roadAcross } from "./ladder";
 import { savingsRoute } from "../../shared/words/savings";
 import { inMonths, runningName, say } from "../../shared/words/text";
 
@@ -107,17 +108,15 @@ export function requestOf(document: string): string | null {
 const GIFT_DEED = "document.gift-deed";
 
 /**
- * document:trade-papers: the papers the held job's next rung asks (the passbook's ladder road, when it asks months in the job held), each with
- * the rung it opens; and route-gates:family-gift-counts-with-deed: the gift's deed while its act is offered, the family's gift taken.
+ * document:trade-papers: the papers the held job's next rung asks (the passbook's ladder road, when it asks months in the job held) and those
+ * the road across asks (activity:each-trade-climbs-its-ladder: a banker's months reach the chartered accountant), each with the rung it
+ * opens; and route-gates:family-gift-counts-with-deed: the gift's deed while its act is offered, the family's gift taken.
  */
 function beyondRoutes(view: PapersView): { id: string; opens: string }[] {
-  const held = view.job.id;
-  const road = view.passbook?.roads.find((each) => each.road === "ladder");
-  const rung = road === undefined ? undefined : content.activity[road.via as keyof typeof content.activity];
-  const trade =
-    held === null || rung === undefined || !rung.requires.some((need) => need.type === "activity/tenure" && need.activities.includes(held))
-      ? []
-      : rung.requires.flatMap((need) => (need.type === "document/held" ? [{ id: need.document, opens: rung.id }] : []));
+  const road = ladderRung(view);
+  const across = roadAcross(view, road);
+  const rungs = [road?.via, across].flatMap((id) => (id === undefined || id === null ? [] : [content.activity[id as keyof typeof content.activity]])).filter((rung) => rung !== undefined);
+  const trade = rungs.flatMap((rung) => rung.requires.flatMap((need) => (need.type === "document/held" ? [{ id: need.document, opens: rung.id }] : [])));
   const deedAct = requestOf(GIFT_DEED);
   const deed = deedAct !== null && view.activities.some((option) => option.id === deedAct && option.allowed) ? [{ id: GIFT_DEED, opens: GIFT_DEED }] : [];
   return [...trade, ...deed];
