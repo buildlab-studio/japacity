@@ -11,18 +11,18 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@better-auth/passkey": "~1.7.7",
+    "@better-auth/passkey": "~1.7.15",
     "@japacity/api": "workspace:*",
     "@japacity/content": "workspace:*",
     "@japacity/db": "workspace:*",
     "@japacity/sim": "workspace:*",
     "@japacity/store": "workspace:*",
-    "better-auth": "~1.7.7",
-    "hono": "^4.13.13"
+    "better-auth": "~1.7.15",
+    "hono": "^4.13.16"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251008.0",
     "typescript": "~6.0.3",
-    "wrangler": "^4.149.0"
+    "wrangler": "^4.157.0"
   }
 }
