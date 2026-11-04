@@ -40,7 +40,7 @@ The content check fails when an entry has no name, a report line's key has no te
 - Second person, present tense: "You get the job."
 - People talk the way they talk: "Come o", "abi", "my guy", "sort it". Use it where a person is speaking, not in the narrator's voice.
 - Say the hard thing plainly. No moral at the end of a line.
-- No exclamation marks from the narrator. No em-dashes anywhere.
+- No exclamation marks from the narrator. No em-dash or en-dash in player text.
 - Money is always a figure, never "a lot".
 - A first draft is plain and correct, and is rewritten for voice.
 

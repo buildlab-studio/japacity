@@ -20,6 +20,12 @@ id = "generic-api-key"
 description = "Made-up values in tests and browser specs"
 paths = ['''\.test\.tsx?$''', '''(^|/)e2e/[^/]+\.spec\.ts$''']
 
+# The placeholder value the browser tests' config sets for a key it never uses: the hex digits in order, repeated
+# (apps/client/playwright.config.ts), the same shape the scrub check uses for a made-up id.
+[[rules.allowlists]]
+description = "The hex digits in order, a placeholder"
+regexes = ['''^(0123456789abcdef)+$''']
+
 # The game's content ids, `kind.slug` in lower case with dots (place.peckham.sign.18): a shop sign that reads
 # "KEYS CUT" puts the word before the next id (packages/content/src/place/place.text.ts), and a sign's `key` names one
 # (packages/model-kit/src/load.test.ts). No secret has that shape.
@@ -63,4 +69,4 @@ regexes = ['''^\s*(-\s+)?uses:\s+[\w.-]+/[\w./-]+@[0-9a-f]{40}\b''']
 # The asset manifest maps each shipped file to its content hash; a long hex hash is not a token.
 [[allowlists]]
 description = "Content hashes in the asset manifest"
-paths = ['''^models/manifest\.json$''']
+paths = ['''^models/manifest\.json$''', '''^assets-src/manifest\.json$''']

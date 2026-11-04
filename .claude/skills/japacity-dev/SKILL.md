@@ -108,7 +108,7 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 - Content words: `packages/content/src/<kind>/<kind>.text.ts`, a table from key to text: `<id>.name`, `<id>.blurb`, `<id>.choice.<choice>`, `line.<kind>.<what>` for a report line, `reject.<code>` for a rejection. Numbers go in braces: `"Salary: {amount}"`. Money in a line is a typed `{ currency, amount }` param, never a bare number.
 - Interface words: content's tables in `packages/content/src/ui/`, one `ui.<screen>.text.ts` file each, merged into `text` through `textTables` in content's `index.ts`; words a first visit does not carry get a file of their own, a subpath in content's `package.json` and a dynamic import in the client (engine:first-download-has-budget). The client reads them through `say` and each feature's reader (`features/<kind>/<kind>.words.ts`); the functions that read a view into words sit in `apps/client/src/shared/words/`. The walk in `apps/client/src/cross-feature/voice.test.ts` reads every table in `textTables`.
 - The voice (text:voice-by-surface): Nigerian English as spoken in Lagos. Second person, present tense. The band and buttons: the act in the second person ("Next month", "Pay it"). A card: the person asking, in their own voice. The results: the past month, past tense, what happened. The nudge: one thing to do, imperative, under eight words. Say a quality by its band, never its figure (text:bands-not-figures); never a system word for a thing a person would name.
-- First drafts are plain and correct. The maintainer rewrites for voice.
+- First drafts are plain and correct; the voice is set in review.
 
 ## Writing, everywhere
 
