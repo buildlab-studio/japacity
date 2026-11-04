@@ -48,13 +48,13 @@ A contribution from outside the project certifies the [Developer Certificate of 
 
 ## Every change goes through a pull request
 
-Every change reaches `main` through a pull request. There is no bypass, not even for the maintainer. A pull request's title is a short conventional title (`type(scope): what`, for example `fix(map): keep names readable over roofs`), and its description follows `.github/pull_request_template.md`: what and why, the changes, how it was tested. Each pull request is set to merge by itself once the check passes:
+Every change reaches `main` through a pull request, the maintainer's own included, and every merge is a squash merge. A change to a file `.github/CODEOWNERS` names needs the code owner's review when it comes from outside the project; the maintainer's own pull requests merge through the ruleset's pull-request bypass, since an author cannot approve their own, and still wait for the check. A pull request's title is a short conventional title (`type(scope): what`, for example `fix(map): keep names readable over roofs`), and its description follows `.github/pull_request_template.md`: what and why, the changes, how it was tested. Each pull request is set to merge by itself once the check passes:
 
 ```sh
 gh pr merge --auto --squash
 ```
 
-Merging to `main` deploys staging, and only staging; production waits for a release tag and the maintainer's approval. See "Branches and releases" below.
+Merging to `main` deploys staging, and only staging; production waits for a release tag `v*` on the commit staging serves and the maintainer's approval. See "Branches and releases" below.
 
 ## Run the check
 
@@ -99,9 +99,10 @@ The maintainer applies these rules in GitHub's settings; the repository holds th
 - `main` takes changes only through a pull request. Nobody pushes to it directly, the maintainer included.
 - The check workflow must pass before a pull request merges.
 - History stays linear (squash merges), force pushes are blocked, and `main` cannot be deleted.
-- A change to a file in `.github/CODEOWNERS` (the lint config, `tests/`, the scrub check, `tools/repo.ts` with the checks' run guard, the Worker configs, the workflows, `packages/content/src/legal/`) needs the maintainer's review, and a new commit dismisses an earlier approval.
+- A change to a file in `.github/CODEOWNERS` (the lint config, `tests/`, the scrub check, `tools/repo.ts` with the checks' run guard, the Worker configs, the workflows, `packages/content/src/legal/`) from an outside contributor needs the maintainer's review, and a new commit dismisses an earlier approval. The maintainer's own pull requests merge through the ruleset's pull-request bypass, which waives that review alone.
 - An outside contribution certifies the DCO in its description (above), and a change to a protected test, golden or schema needs the `approved-test-change` label.
-- A merge to `main` deploys staging (`.github/workflows/deploy-staging.yml`). Production deploys only from a release tag `v*`, or when the maintainer starts it by hand from `main`, and only after the maintainer approves the run (`.github/workflows/deploy-production.yml`).
+- A merge to `main` deploys staging once the check passes on it (`.github/workflows/deploy-staging.yml`). Production deploys only from a release tag `v*`, or when the maintainer starts it by hand from `main`, only after the maintainer approves the run, and only the commit on `main` that staging serves (`.github/workflows/deploy-production.yml`). Each deploy migrates the database, snapshots every character, builds, deploys and checks that the deployment answers as the commit deployed. A deploy by hand from a checkout, in the same order (`apps/server/README.md`), is the fallback.
+- The whole browser suite runs each night and when started by hand (`.github/workflows/browser.yml`), with no secrets; a pull request does not wait for it.
 - A fork cannot deploy this project. The deploy jobs run only in `buildlab-studio/japacity`, their Cloudflare secrets live in this repository's `staging` and `production` environments, and a pull request from a fork runs the check with no secrets at all.
 
 To run your own copy of the game, with your own domain, database and keys, read [Run your own copy](docs/site/built/your-own-copy.md).

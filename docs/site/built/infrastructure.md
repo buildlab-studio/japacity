@@ -104,6 +104,7 @@ flowchart TD
 - The two workflows do both steps in GitHub Actions. Each runs only in this repository, in a GitHub environment of the same name that holds the Cloudflare token and account id as secrets and the build's addresses and keys as variables; `production` waits for its reviewer's approval. An environment without its Cloudflare secrets stops its job at the first step with a notice and deploys nothing.
 - The admin accounts (server:ledger-alarm-lists-suspects) are the Worker secret `ADMIN_ACCOUNTS`, set once per environment with `wrangler secret put` and kept by every deploy. Neither `wrangler.jsonc` nor a workflow names it, so no account id is in a committed file.
 - Staging's deploy starts only when the check workflow has passed on that push to `main`, and deploys the commit it passed. Both deploys run the wrangler version `apps/server/package.json` pins.
+- Around the two steps each workflow migrates the database first (server:migration-before-deploy), then snapshots every character from the commit the environment is running (server:snapshot-before-deploy), and after the Worker checks that the root, `/api/health` and the page's build meta answer as the commit deployed. Production's run first stops unless its commit is on `main` and is the commit staging serves (server:production-and-staging).
 
 ::: danger Before the first deploy
 The bill has no cap, so the deployment carries spending alerts set in the Cloudflare account before anything is deployed (server:spending-alerts). Whoever holds the account sets them; no code can.

@@ -291,8 +291,10 @@ Finished pieces land together, in batches, so the expensive steps run once per b
 
 1. The lead merges the batch's branches, in the order set, into one merge branch.
 2. One full check and one browser suite run on that branch.
-3. The branch lands in `main`, and a push to `main` deploys staging once CI passes.
-4. Staging is looked at, then production is deployed from a release tag.
+3. The branch lands in `main` through a pull request, squash merged, and staging deploys once the check passes on `main` (`.github/workflows/deploy-staging.yml`).
+4. Staging is looked at, then a release tag `v*` on the commit staging serves deploys production once the maintainer approves the run (`deploy-production.yml`). Each deploy migrates, snapshots every character from the live commit, builds, deploys and checks the deployment (server:migration-before-deploy, server:snapshot-before-deploy, server:production-and-staging).
+
+Deploying by hand from a checkout, in the same order and with the same checks (`apps/server/README.md`), is the fallback when the workflows cannot run. The whole browser suite also runs each night, and when started by hand, in four shards (`.github/workflows/browser.yml`), with no secrets.
 
 After every merge, a short script checks that every worktree's tip is in `main`, so no commit made on a side branch, or on a detached head, is lost:
 
