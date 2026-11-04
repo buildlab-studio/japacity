@@ -104,6 +104,8 @@ function testEnv(): Env {
     // A deployment may set the tick cron and binds the mail; neither is reached by these tests.
     TICK_CRON: "*/30 * * * *",
     MAIL: { send: () => Promise.reject(new Error("no mail in this test")) },
+    // The client's files, bound on both deployments; these tests ask only /api, so the files are never reached.
+    ASSETS: { fetch: () => Promise.reject(new Error("no files in this test")) } as unknown as Fetcher,
   };
 }
 

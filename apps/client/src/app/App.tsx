@@ -65,6 +65,13 @@ export function lifeParts({ load = () => import("./Life"), wait, stale = pageSta
 
 const LIFE = lifeParts();
 
+// world:lazy-part-fails-softly: a browser that keeps a person opens a life, so its screens are asked for as the page starts, beside the
+// first screen's own work and the server's reads, never after them.
+if (readPerson() !== null) void LIFE.shell.ahead();
+// Under the unit tests the life's screens are awaited as this module loads, as a jsdom has no download to wait on, so a test's first
+// screen of a life never races the import of their files. A build has no such branch.
+if (import.meta.env.MODE === "test") await LIFE.shell.ahead();
+
 /** Whether WebGL draws here, asked once: each ask makes a context. */
 let drawsHere: boolean | null = null;
 function draws(): boolean {
