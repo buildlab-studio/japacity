@@ -3,7 +3,8 @@
 // deploy's, takes the chunks the page loads before anything else (the entry and everything it imports
 // statically, which the page's modulepreload links name), and compares each one's gzipped size with
 // tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Also fails when any of
-// the admin page's code is in those chunks (moderation:admin-view-for-admin-list). Runs locally and in the check
+// the admin page's code (moderation:admin-view-for-admin-list) or of the life's screens (app/Life.tsx and the features it draws) is in
+// those chunks, which are the start screen's. Prints, without a budget, the life's screens fetched after it and the whole game. Runs locally and in the check
 // workflow; it reads and writes only local files and sends nothing anywhere.
 //
 // Usage: pnpm check:size
@@ -54,6 +55,12 @@ const REACT = /\/node_modules\/react-dom\//;
 /** The admin page's modules. Only its address may be in the game's own chunks. */
 const ADMIN = /\/apps\/client\/src\/features\/admin\//;
 const ADMIN_ADDRESS = /\/apps\/client\/src\/features\/admin\/adminPath\.ts$/;
+/**
+ * The life's screens: the part the shell fetches apart (app/Life.tsx) and every feature's screens but the start screen's, the door's and
+ * sign in's (account, front-door) and the admin page's, which has its own check. None is in a first visit.
+ */
+const LIFE = /\/apps\/client\/src\/(?:app\/Life\.tsx$|features\/(?!account\/|front-door\/|admin\/))/;
+const LIFE_SHELL = /\/apps\/client\/src\/app\/Life\.tsx$/;
 /** A change line opens on the part that moved and says what for. A date in front is refused: git keeps when. */
 const REASON = /^(?:main|three|content-sim|loader|react|shared|total)\b.*\bfor\b\s+\S/;
 
@@ -71,17 +78,23 @@ export function partOf(chunk: ReportChunk): Exclude<Part, "total"> {
   return "shared";
 }
 
-/** The chunks a first visit downloads: every entry and, through static imports, everything it needs. */
-export function firstVisit(chunks: readonly ReportChunk[]): ReportChunk[] {
+/** The files of the chunks given and of every chunk they need through their static imports. */
+function withImports(start: readonly ReportChunk[], chunks: readonly ReportChunk[]): Set<string> {
   const byFile = new Map(chunks.map((chunk) => [chunk.file, chunk]));
   const seen = new Set<string>();
-  const queue = chunks.filter((chunk) => chunk.isEntry).map((chunk) => chunk.file);
+  const queue = start.map((chunk) => chunk.file);
   while (queue.length > 0) {
     const file = queue.shift();
     if (file === undefined || seen.has(file)) continue;
     seen.add(file);
     queue.push(...(byFile.get(file)?.imports ?? []));
   }
+  return seen;
+}
+
+/** The chunks a first visit downloads: every entry and, through static imports, everything it needs. */
+export function firstVisit(chunks: readonly ReportChunk[]): ReportChunk[] {
+  const seen = withImports(chunks.filter((chunk) => chunk.isEntry), chunks);
   return chunks.filter((chunk) => seen.has(chunk.file)).sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : 0));
 }
 
@@ -101,6 +114,25 @@ export function adminInFirstVisit(chunks: readonly ReportChunk[]): string[] {
   return chunks.flatMap((chunk) =>
     chunk.modules.filter((id) => ADMIN.test(id) && !ADMIN_ADDRESS.test(id)).map((id) => `${chunk.file} holds ${id.slice(id.indexOf("apps/client/"))}: the admin page loads only at /admin.`),
   );
+}
+
+/** engine:first-download-has-budget: a line for every module of the life's screens in a first-visit chunk. */
+export function lifeInFirstVisit(chunks: readonly ReportChunk[]): string[] {
+  return chunks.flatMap((chunk) =>
+    chunk.modules.filter((id) => LIFE.test(id)).map((id) => `${chunk.file} holds ${id.slice(id.indexOf("apps/client/"))}: the life's screens load apart from the start screen (app/Life.tsx).`),
+  );
+}
+
+/**
+ * Two figures beside the budgets, measured and not budgeted: the life's screens (the shell's chunk and what it imports that a first visit
+ * did not bring), and the whole game (every script chunk the build makes but the admin page's: the first visit and every part fetched later).
+ */
+export function laterFigures(chunks: readonly ReportChunk[], gzipped: (file: string) => number): { life: number; game: number } {
+  const first = new Set(firstVisit(chunks).map((chunk) => chunk.file));
+  const life = [...withImports(chunks.filter((chunk) => chunk.modules.some((id) => LIFE_SHELL.test(id))), chunks)].filter((file) => !first.has(file));
+  const game = chunks.filter((chunk) => !chunk.modules.some((id) => ADMIN.test(id) && !ADMIN_ADDRESS.test(id)));
+  const sum = (files: readonly string[]) => files.reduce((total, file) => total + gzipped(file), 0);
+  return { life: sum(life), game: sum(game.map((chunk) => chunk.file)) };
 }
 
 /** A line for every part over its budget, with both numbers. */
@@ -178,7 +210,9 @@ function main(): void {
       const { budget, measured } = budgets.parts[part];
       console.log(`${part.padEnd(12)} ${String(sizes[part]).padStart(8)} bytes gzipped   budget ${String(budget).padStart(8)}   measured when set ${String(measured).padStart(8)}`);
     }
-    problems.push(...overBudget(sizes, budgets), ...adminInFirstVisit(first));
+    const later = laterFigures(chunks, (file) => gzipSync(readFileSync(join(outDir, file))).length);
+    console.log(`The life's screens, fetched after the start screen: ${String(later.life)} bytes gzipped. The whole game, every script but the admin page's: ${String(later.game)} bytes gzipped. Neither has a budget.`);
+    problems.push(...overBudget(sizes, budgets), ...adminInFirstVisit(first), ...lifeInFirstVisit(first));
   } finally {
     rmSync(work, { recursive: true, force: true });
   }

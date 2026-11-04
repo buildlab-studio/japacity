@@ -1,17 +1,17 @@
 {
-  "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; react is React's own chunk with React DOM, the scheduler and the sign-in libraries; shared is every other chunk the entry imports (the bundler's runtime, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a line below naming the part that moved and what for.",
+  "about": "engine:first-download-has-budget: the gzipped bytes a first visit downloads, by part, as pnpm check:size measures them (zlib's default level; a production build with placeholder settings). A first visit is the start screen's code: the life's screens are a part fetched apart (app/Life.tsx), and the check fails when any of them is in it. main is the entry chunk; three is three.js's core; content-sim is the simulation with the content; loader is the model loader; react is React's own chunk with React DOM, the scheduler and the sign-in libraries; shared is every other chunk the entry imports (the bundler's runtime, the words, the sheet library); total is their sum. Each budget is the measured size plus five percent, with the measured size beside it. A budget is lowered on purpose and never raised quietly: every change adds a line below naming the part that moved and what for.",
   "parts": {
     "main": {
-      "budget": 289643,
-      "measured": 275851
+      "budget": 67015,
+      "measured": 63824
     },
     "three": {
       "budget": 0,
       "measured": 0
     },
     "content-sim": {
-      "budget": 299631,
-      "measured": 285363
+      "budget": 316761,
+      "measured": 301678
     },
     "loader": {
       "budget": 0,
@@ -22,12 +22,12 @@
       "measured": 82256
     },
     "shared": {
-      "budget": 33895,
-      "measured": 32281
+      "budget": 64185,
+      "measured": 61129
     },
     "total": {
-      "budget": 709538,
-      "measured": 675751
+      "budget": 534331,
+      "measured": 508887
     }
   },
   "changes": [
@@ -50,6 +50,10 @@
     "main lowered from 330900 to 289643 (measured 275851, from 330797) for React DOM and the sign-in libraries moved into React's own chunk and the authority and the loader moved out; it took in what the side-effect flags moved out of content-sim's chunk",
     "react set at 86368 (measured 82256) for React's own chunk: React, React DOM, the scheduler and the sign-in libraries (better-auth, better-call, better-fetch, the passkey client, nanostores, defu), whose name stays the same across a release that changes only the game",
     "shared lowered from 42304 to 33895 (measured 32281, from 36915) for React's core and its JSX runtime moved into React's chunk",
-    "total lowered from 912200 to 709538 (measured 675751, from 912096) for the moves above together"
+    "total lowered from 912200 to 709538 (measured 675751, from 912096) for the moves above together",
+    "main lowered from 289643 to 67015 (measured 63824, from 275851) for the life's screens moved out of the first visit: everything the game draws once a life exists (the world, the phone and its apps, the map, the prologue, the road, the ending, the share cards, the results) is one part fetched apart (app/Life.tsx) while the player is on the start screen, so the entry holds the start screen, the age screen, the door, sign in, the invite page, the splash and the trouble cards",
+    "content-sim raised from 299631 to 316761 (measured 301678, from 285363) for the modules both the start screen and the life's screens use that the bundler gave chunks of their own, out of the entry: four of them (the report sheet's, the looks', the clock's and the world clock's) each hold a module of the simulation, so they are counted with it; the simulation's own chunk fell from 285363 to 282366 and nothing in it is new",
+    "shared raised from 33895 to 64185 (measured 61129, from 32281) for the same move: the modules the start screen and the life's screens share (the sheet library, the save sheet, the face, the loader, the words) left the entry for chunks both import, and are counted here; no module is in two chunks",
+    "total lowered from 709538 to 534331 (measured 508887, from 675751) for the moves above together: a first visit downloads 166864 fewer bytes gzipped; the life's screens (177750) and the whole game (1069026) are printed beside the budgets with none of their own"
   ]
 }
