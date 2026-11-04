@@ -2,15 +2,13 @@
 // Builds the client in production mode into a folder of its own, with placeholder settings in the shape of a
 // deploy's, takes the chunks the page loads before anything else (the entry and everything it imports
 // statically, which the page's modulepreload links name), and compares each one's gzipped size with
-// tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Beside each gzipped size it
-// prints the size of the brotli copy the build writes at the best level, which is what a browser that takes brotli
-// downloads (apps/client/vite/brotli.plugin.ts); the budget stays on gzip. Also fails when any of
+// tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Also fails when any of
 // the admin page's code is in those chunks (moderation:admin-view-for-admin-list). Runs locally and in the check
 // workflow; it reads and writes only local files and sends nothing anywhere.
 //
 // Usage: pnpm check:size
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
@@ -174,12 +172,11 @@ function main(): void {
     const { chunks } = readJson<{ chunks: ReportChunk[] }>(report);
     const first = firstVisit(chunks);
     const sizes = measure(first, (file) => gzipSync(readFileSync(join(outDir, file))).length);
-    const brotli = measure(first, (file) => (existsSync(join(outDir, `${file}.br`)) ? statSync(join(outDir, `${file}.br`)).size : 0));
     console.log(`Built in ${String(seconds)} s. A first visit downloads ${String(first.length)} script files:`);
     for (const chunk of first) console.log(`  ${partOf(chunk).padEnd(12)} ${chunk.file}`);
     for (const part of PARTS) {
       const { budget, measured } = budgets.parts[part];
-      console.log(`${part.padEnd(12)} ${String(sizes[part]).padStart(8)} bytes gzipped   budget ${String(budget).padStart(8)}   measured when set ${String(measured).padStart(8)}   brotli 11 ${String(brotli[part]).padStart(8)}`);
+      console.log(`${part.padEnd(12)} ${String(sizes[part]).padStart(8)} bytes gzipped   budget ${String(budget).padStart(8)}   measured when set ${String(measured).padStart(8)}`);
     }
     problems.push(...overBudget(sizes, budgets), ...adminInFirstVisit(first));
   } finally {

@@ -8,7 +8,6 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { brotliCompressSync, brotliDecompressSync, constants } from "node:zlib";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
@@ -48,8 +47,6 @@ let shipped: Built;
 let development: Built;
 let nextRelease: Built;
 
-/** The bundler's scripts and styles under assets/, which the build serves compressed beside themselves. */
-const BUNDLED = /^assets\/[\w.-]+\.(?:js|css)$/;
 /** The game's root screen, which a release that changes only the game edits. */
 const GAME_FILE = "/apps/client/src/app/App.tsx";
 const GAME_MODULE = /\/apps\/client\/src\/app\/App\.tsx$/;
@@ -156,20 +153,6 @@ describe("the build for players", () => {
     expect(text).toContain("Japacity build ");
     expect(text).not.toMatch(/\\x[0-9a-f]{2}\\x[0-9a-f]{2}\\x[0-9a-f]{2}\\x[0-9a-f]{2}/i);
   });
-
-  test("[engine:first-download-has-budget] given the production build, then every bundled script and style under assets/ has a brotli copy beside it at the best level, and the development build writes none", () => {
-    const bundled = shipped.files.filter((file) => BUNDLED.test(file));
-    expect(bundled.length).toBeGreaterThan(10);
-    const plain = (file: string): Buffer => readFileSync(join(shipped.out, file));
-    const copy = (file: string): Buffer => readFileSync(join(shipped.out, `${file}.br`));
-    expect(bundled.filter((file) => !brotliDecompressSync(copy(file)).equals(plain(file)))).toEqual([]);
-    // The best level is slow to make again, so it is proved on the three largest files, which are most of what a visit downloads.
-    const largest = [...bundled].sort((a, b) => plain(b).length - plain(a).length).slice(0, 3);
-    const best = (file: string): number => brotliCompressSync(plain(file), { params: { [constants.BROTLI_PARAM_QUALITY]: 11, [constants.BROTLI_PARAM_SIZE_HINT]: plain(file).length } }).length;
-    expect(largest.map((file) => copy(file).length)).toEqual(largest.map(best));
-    expect(shipped.files.filter((file) => file.endsWith(".br")).sort()).toEqual(bundled.map((file) => `${file}.br`).sort());
-    expect(development.files.filter((file) => file.endsWith(".br"))).toEqual([]);
-  }, 60_000);
 
   test("[engine:browser-authority-for-dev-only] given the production build, which names a server, then no chunk holds the in-browser authority, so a player never downloads it", () => {
     expect(chunkHolding(shipped, /\/apps\/client\/src\/authority\/local\.ts$/)).toBeUndefined();
