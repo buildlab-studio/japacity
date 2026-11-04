@@ -159,8 +159,8 @@ export const AerialSvg = memo(function AerialSvg({ variant, route = null, uid, w
   );
 });
 
-/** How wide a street's name of this many letters stands on the screen at 12 px, in pixels. */
-const nameWidth = (letters: number): number => letters * 6.8 + 10;
+/** How wide a street's name of this many letters stands on the screen at 12 px in the heavier weight, in pixels. */
+const nameWidth = (letters: number): number => letters * 7.3 + 12;
 
 /** A sticker the names keep clear of: its point on the paper and its size on the screen, in pixels. */
 export interface Keep {

@@ -133,14 +133,15 @@
 .aerial.paper-folded .bridge-deck { stroke-width: 2.4px; }
 [data-paint="night"] .aerial.paper-folded .bridge-deck { stroke: var(--express); }
 
-/* The names: near-white over a dark halo, so they read over the roofs and the roads. */
-.aerial .district { font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; stroke-width: calc(4.4px / var(--z, 1)); }
-.aerial .water-name { opacity: 1; font-style: italic; stroke: var(--water-halo); stroke-width: calc(3.6px / var(--z, 1)); }
-.aerial .bridge-name { fill: var(--waterl); stroke: none; }
-.aerial .bridge-name.halo { fill: none; stroke: var(--water-halo); stroke-width: calc(3.6px / var(--z, 1)); stroke-linejoin: round; }
+/* The names: near-white at the face's heavier weight over a dark halo six pixels wide, three outside the letter, so they
+   read over the roofs and the roads with no roof showing between the letters. */
+.aerial .district { font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; stroke-width: calc(6px / var(--z, 1)); }
+.aerial .water-name { opacity: 1; font-style: italic; font-weight: 700; stroke: var(--water-halo); stroke-width: calc(6px / var(--z, 1)); }
+.aerial .bridge-name { fill: var(--waterl); font-weight: 700; stroke: none; }
+.aerial .bridge-name.halo { fill: none; stroke: var(--water-halo); stroke-width: calc(6px / var(--z, 1)); stroke-linejoin: round; }
 .street-names { position: absolute; overflow: visible; pointer-events: none; }
-.street-names .street-name { font-family: Rubik, system-ui, sans-serif; text-anchor: middle; font-weight: 500; fill: var(--street-name); stroke: none; font-size: calc(12px / var(--z, 1)); }
-.street-names .street-name.halo { fill: none; stroke: var(--street-halo); stroke-width: calc(4.4px / var(--z, 1)); stroke-linejoin: round; }
+.street-names .street-name { font-family: Rubik, system-ui, sans-serif; text-anchor: middle; font-weight: 700; fill: var(--street-name); stroke: none; font-size: calc(12px / var(--z, 1)); }
+.street-names .street-name.halo { fill: none; stroke: var(--street-halo); stroke-width: calc(6px / var(--z, 1)); stroke-linejoin: round; }
 
 /* Where the player stands: a blue dot with a soft halo at the place's foot, and its pill in blue. */
 .paper-pin .here-dot { position: absolute; left: 50%; top: 80%; width: 16px; height: 16px; border-radius: 50%; background: #2f7de1; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #fff, 0 1px 4px 3px rgba(0, 0, 0, 0.18), 0 0 0 18px rgba(47, 125, 225, 0.18); pointer-events: none; }

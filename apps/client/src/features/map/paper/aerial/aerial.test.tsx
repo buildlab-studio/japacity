@@ -149,6 +149,17 @@ describe("drawn from the air", () => {
 });
 
 describe("the names from the air", () => {
+  test("[world:map-is-painted-lagos] given every name the map paints, then it stands in the face's heavier weight over a dark halo 6 px wide", () => {
+    const css = readFileSync(join(import.meta.dirname, "aerial.css"), "utf8");
+    const rule = (selector: string): string => {
+      const start = css.indexOf(`${selector} {`);
+      expect(start).toBeGreaterThanOrEqual(0);
+      return css.slice(start, css.indexOf("}", start));
+    };
+    for (const selector of [".aerial .district", ".aerial .water-name", ".aerial .bridge-name.halo", ".street-names .street-name.halo"]) expect(rule(selector)).toContain("stroke-width: calc(6px / var(--z, 1))");
+    for (const selector of [".aerial .district", ".aerial .water-name", ".aerial .bridge-name", ".street-names .street-name"]) expect(rule(selector)).toContain("font-weight: 700");
+  });
+
   /** Everything a name may lie on: the ground, every roof, every road, the parks, the water and the sea. */
   const grounds = (night: boolean): string[] => ["--map-paper", "--roof-rust", "--roof-brown", "--roof-zinc", "--roof-old-zinc", "--roof-blue", "--roof-green", "--lane", "--minor", "--main", "--express", "--park", "--water", "--sea"].map((name) => token(night, name));
 

@@ -9,7 +9,6 @@ import { memo, use, useMemo } from "react";
 import { headingOf } from "../RideSheet";
 import { mapWords } from "../map.words";
 import { StreetNames } from "./aerial/AerialSvg";
-import { DistrictTags, LABEL_TAGS } from "./aerial/labels";
 import type { Point } from "./fit";
 import { LAGOS_SIZES, usePaperCity } from "./lagos";
 import { type CanoeFill, LanternCanoe } from "./LanternCanoe";
@@ -135,7 +134,6 @@ export const World = memo(function World({ variant, frame, uid, stops = [], name
               </span>
             );
           })}
-      {import.meta.env.DEV && LABEL_TAGS && city.aerial === true && !folded ? <DistrictTags labels={city.labels} shown={labels} words={city.words} /> : null}
       {variant === "open" && canoe !== null && city.canoe !== null ? <LanternCanoe at={city.canoe} mine={canoe.mine} fill={canoe} onOpen={canoe.onOpen} /> : null}
       {folded
         ? null
