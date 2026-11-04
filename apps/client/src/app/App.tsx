@@ -1,7 +1,7 @@
-// The shell. Once a life is playing, the world is the game (world:world-fills-the-screen): the
-// place fills the screen, the support pages live in the phone, and the month plans and ends from
-// sheets over the scene. The prologue, the life chooser, the road, the ending and the invite page
-// keep their own screens. The admin page is its own chunk, fetched only at /admin (moderation:admin-view-for-admin-list).
+// The shell. A first visit downloads the start screen, the age screen, the door, sign in, the splash and the trouble cards, and no more
+// (engine:first-download-has-budget): everything the game draws once a life exists is one part of its own (Life.tsx), fetched while the
+// player is on the start screen, at once for a returning player with a life, and failing softly (world:lazy-part-fails-softly). The invite
+// page keeps its own screen. The admin page is its own chunk, fetched only at /admin (moderation:admin-view-for-admin-list).
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
 import type { AccountReply } from "@japacity/api";
@@ -13,66 +13,57 @@ import { Rejection } from "../shared/ui/Rejection";
 import { FaultCard, reloadPage, TroubleCard, TroubleFace } from "../shared/ui/Trouble";
 import { Splash } from "../shared/ui/Splash";
 import { Waiting } from "../shared/ui/Loader";
-import { GameProvider, useGame, useView } from "../authority/GameProvider";
-import type { GameStore } from "../authority/store";
+import { GameProvider, useGame } from "../authority/GameProvider";
+import { VIEW_RETRY_MS, type GameStore } from "../authority/store";
 import { readPerson } from "../shared/front-door/person";
 import { AccountGate } from "../features/account/AccountGate";
-import { DedicationLater } from "../features/account/DedicationLater";
-import { glowFill } from "../features/account/TwoLights";
 import { StartTrouble } from "../features/account/StartTrouble";
 import { canDraw } from "../shared/front-door/Gate";
-import { AgentSheets } from "../features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "../features/account/InvitePage";
-import { GuestReminder, SecureAsk } from "../features/account/Secure";
-import { OFFER_PLACES } from "../features/city/nudge/nudge";
-import { PARCEL } from "../shared/world/parcel.ask";
-import { ParcelWaybill } from "../shared/world/Waybill";
-import { AccountButton } from "../features/account/AccountButton";
 import { useAccountView } from "../features/account/standing";
-import { ActivityPicker } from "../features/activity/ActivityView";
-import { PhoneTile, PlaceAdverts } from "../features/advert/placed";
-import { BoardsView } from "../features/boards/BoardsView";
-import { EndingView } from "../features/share/EndingView";
-import { CardView, Keepsake } from "../features/share/ShareCard";
-import { ChapterView } from "../features/chapter/ChapterView";
-import { City } from "../features/city/City";
-import { CreditsRow } from "../features/city/Credits";
-import { GuidesMenu } from "../features/guide/GuidesMenu";
-import { Map, MapAhead, type MapDedication } from "../features/map/Map";
-import { HoldParts, softLazy } from "../shared/net/parts";
-import { MomentCard } from "../features/moment/MomentCard";
-import { HeldShareCard } from "../features/notify/HeldShareCard";
-import { NotifyAsk } from "../features/notify/NotifyAsk";
-import { NotifySetting } from "../features/notify/NotifySetting";
-import { OfferView } from "../features/offer/OfferView";
-import { usePairApi } from "../features/person/pairApi";
+import { HoldParts, softLazy, type SoftPart, useFetchAhead } from "../shared/net/parts";
+import { pageStale, type StaleGuard } from "../shared/net/stale";
 import { replaceAddress } from "../shared/back/back";
 import { api } from "../shared/net/http";
 import { addressOf, listedAsAdmin, showRoot, type Address } from "./address";
-import { BondHead, PeopleSlots } from "../features/person/PeopleOnPhone";
-import { iconFor } from "../features/phone/PhoneIcon";
-import { PhoneApps, usePhoneWaiting } from "../features/phone/PhoneApps";
-import { InterviewView } from "../features/interview/InterviewView";
-import { KioskSheet } from "../features/lottery/KioskSheet";
-import { RunDownBanner } from "../features/health/RunDownBanner";
-import { ClockBanner } from "../features/status/ClockBanner";
-import { OverstayBanner } from "../features/status/OverstayBanner";
-import { PageHandover, prologueJustClosed, PrologueView } from "../features/prologue/PrologueView";
-import { RoadView } from "../features/road/RoadView";
 import { FrontDoor } from "../features/front-door/FrontDoor";
-import { ReadyEntry } from "../shared/front-door/ReadyEntry";
-import { SetpieceView, useClosingOpen } from "../features/setpiece/SetpieceView";
-import { Calendar, calendarOpening } from "../features/turn/Calendar";
-import { BriefLog } from "../features/city/brief/BriefLog";
-import { Results } from "../features/turn/Results";
 import { say } from "../shared/words/text";
-import { usePaint } from "../shared/world/paint";
 import { useScreenCount } from "../shared/analytics/useScreenCount";
+
+/** The life's screens' module (Life.tsx), fetched apart: only its type is read here. */
+type LifeModule = typeof import("./Life");
 
 // world:lazy-part-fails-softly: the parts a player opens fail softly, the connection card up with Retry over what stands.
 const StartCity = softLazy(() => import("../features/map/StartCity"));
-/** The send-off's plane cut over the painted map (world:plane-cut-at-send-off), fetched with the scene that shows it. */
-const PlaneCut = softLazy(() => import("../features/map/paper/PlaneCut"));
+
+/** The life's screens as a part, and the chain fetched ahead from the start screen. */
+export interface LifeParts {
+  shell: SoftPart<LifeModule["default"]>;
+  ahead: readonly Pick<SoftPart<LifeModule["default"]>, "ahead">[];
+}
+
+/**
+ * The life's screens (engine:first-download-has-budget). The world's first load waits on them, so a failed fetch is made again after the
+ * view's pauses before the card shows (world:lazy-part-fails-softly), and a tab left on an older build reloads once to the newer one.
+ * Once here, the build is the server's: a later release may reload this tab once again (stale.ts). The chain fetched ahead is the
+ * life's screens, then the place's scene and three.js, one after another. `load`, `wait` and `stale`: a test's own.
+ */
+export function lifeParts({ load = () => import("./Life"), wait, stale = pageStale }: { load?: () => Promise<LifeModule>; wait?: (ms: number) => Promise<void>; stale?: StaleGuard } = {}): LifeParts {
+  let here: LifeModule | null = null;
+  const shell = softLazy(
+    () =>
+      load().then((life) => {
+        here = life;
+        stale.loaded();
+        return life;
+      }),
+    { again: VIEW_RETRY_MS, stale, ...(wait === undefined ? {} : { wait }) },
+  );
+  const scene = { ahead: () => here?.sceneAhead() ?? Promise.resolve() };
+  return { shell, ahead: [shell, scene] };
+}
+
+const LIFE = lifeParts();
 
 /** Whether WebGL draws here, asked once: each ask makes a context. */
 let drawsHere: boolean | null = null;
@@ -135,105 +126,6 @@ export function AddressGate({ children, path, read = accountForAddress }: { chil
   );
 }
 
-/**
- * The warnings that stand, above every app on the phone: the status clock abroad (status:lost-job-starts-clock), the overstay's
- * stage (status:view-shows-status) and being run down (health:view-shows-health-warning).
- */
-function PhoneWarnings() {
-  return (
-    <>
-      <ClockBanner className="mb-3" />
-      <OverstayBanner className="mb-3" />
-      <RunDownBanner className="mb-3" />
-    </>
-  );
-}
-
-/**
- * What the map is handed for the lantern canoe (world:lantern-canoe-on-map): the dedication page, fetched on its first opening
- * (account:dedication-page-and-its-doors), and the two lights' one glow for the lantern (world:colours-are-role-tokens).
- */
-const MAP_DEDICATION: MapDedication = { page: (open, onClose) => <DedicationLater open={open} onClose={onClose} />, glow: glowFill };
-
-/** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
-function WorldPlaying() {
-  const view = useView();
-  // moderation:blocked-list-in-settings: only a secured account has a Blocked list in Settings; unknown or a guest's, none.
-  const secured = useAccountView()?.state === "secured";
-  const talk = usePairApi();
-  const phoneWaiting = usePhoneWaiting();
-  const reportOpen = useGame((state) => state.reportOpen);
-  // The officer's closing line holds the asks sheet after the interview closes, until Leave the room.
-  const closing = useClosingOpen();
-  // The sheets over the world take the night's paint when the world's clock says night (decision 0025).
-  usePaint();
-  useScreenCount("world");
-  useScreenCount(reportOpen ? "report" : null);
-  useScreenCount(view.setpiece === null ? null : "setpiece");
-  return (
-    <div className="min-h-dvh">
-      <MapAhead />
-      <City
-        world
-        adverts={(place) => <PlaceAdverts place={place} />}
-        // A thing's act opens the sheet of what it stages (world:things-are-tappable-models): an activity's card, an open offer, the set piece's question, or the chapter's steps.
-        actions={(ids) => {
-          const [first] = ids;
-          if (first?.startsWith("offer.") === true) return <AgentSheets ids={ids} others={(only) => <OfferView only={only} />} />;
-          if (first?.startsWith("setpiece.") === true) return <SetpieceView />;
-          if (first?.startsWith("chapter.") === true) return <ChapterView />;
-          return <ActivityPicker only={ids} />;
-        }}
-        // moment:card-shows-when-outcome-lands: a moment of the month stands over the results sheet, inside its tree, and is dismissed back to it.
-        results={(place) => <Results place={place} foot={<><GuestReminder afterFirstChapter /><MomentCard over="results" /></>} />}
-        // world:one-action-one-sheet: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
-        asks={[
-          ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
-          ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
-          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) =>
-            // The parcel is collected through its waybill wherever it is asked for (streets:parcels-shipped-home).
-            offer.entry === PARCEL ? <ParcelWaybill key={offer.id} onClose={() => undefined} /> : <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
-        ]}
-        // An ask that belongs at home (the family's send-off, chapter:family-marks-the-grant) is answered there: away from it the sheet says who waits and offers the way (world:one-action-one-sheet).
-        asksAt={[
-          ...(view.setpiece === null && !closing ? [] : [null]),
-          ...((view.interview?.question ?? null) === null ? [] : [null]),
-          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (OFFER_PLACES[offer.entry] ?? null)),
-        ]}
-        asksHold={closing}
-        phone={(close, area, app, toMap, here) => <PhoneApps onClose={close} area={area} here={here ?? null} account={
-          <>
-            <AccountButton more={<NotifySetting />} />
-            <ReadyEntry />
-          </>
-        } about={<><CreditsRow /><GuidesMenu row /></>} talk={talk} people={{ head: (bond) => <BondHead bond={bond} api={talk} />, slots: <><PeopleSlots api={talk} /><BoardsView /></> }} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} cards={(ids) => <ActivityPicker only={ids} />} briefs={<BriefLog />} warnings={<PhoneWarnings />} advert={<PhoneTile />} dedication={(open, onClose) => <DedicationLater open={open} onClose={onClose} />} keepsake={<Keepsake />} secured={secured} {...(toMap === undefined ? {} : { onMap: toMap })} />}
-        phoneWaiting={phoneWaiting}
-        askIcon={iconFor}
-        cityMap={(props) => <Map {...props} dedication={MAP_DEDICATION} />}
-        // lottery:draw-runs-online-only: online the street kiosk sells the Friday draw from its own sheet.
-        kiosk={(close, label) => <KioskSheet open onClose={close} label={label} />}
-        // chapter:send-off-scene-in-beats beat 4: the send-off's plane cut, the map's own layer, handed to the scene.
-        planeCut={(slot) => (
-          <Suspense fallback={null}>
-            <PlaneCut {...slot} />
-          </Suspense>
-        )}
-      />
-      {/* The share card opens full screen when it is due; its tile has no place in the world. */}
-      <div hidden>
-        <HeldShareCard>
-          <CardView />
-        </HeldShareCard>
-      </div>
-      {/* moment:card-shows-when-outcome-lands: a moment an act or the draw's letter brings stands over the world. */}
-      <MomentCard over="world" />
-      <SecureAsk />
-      {/* guide:nothing-asked-before-early-win: the notice is asked once, after the early win's good moment. */}
-      <NotifyAsk />
-    </div>
-  );
-}
-
 /** engine:browser-authority-for-dev-only: the loading screen says it is still at it after this long. */
 export const SLOW_MS = 5_000;
 
@@ -243,17 +135,23 @@ export const SLOW_MS = 5_000;
  * Online, for a visitor this device has no life for, the start screen's frame instead: never "Opening your life" for
  * someone with no life, and with the server down the card stands in its sheet, naming the game (engine:browser-authority-for-dev-only).
  */
+/** True once the loading screen has stood this long. */
+function useSlow(): boolean {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), SLOW_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+  return slow;
+}
+
 function Opening() {
   const trouble = useGame((state) => state.trouble);
   // server:log-rows-hash-state: a life the server must check is refused before it opens; its sheet, with Retry, stands in the loading screen's place.
   const diverged = useGame((state) => state.rejection?.code === "diverged");
   const online = useGame((state) => state.account !== null);
   const [lifeKept] = useState(() => readPerson() !== null);
-  const [slow, setSlow] = useState(false);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSlow(true), SLOW_MS);
-    return () => window.clearTimeout(timer);
-  }, []);
+  const slow = useSlow();
   if (diverged) {
     return (
       <div className="mx-auto w-full max-w-[420px] p-4">
@@ -274,6 +172,55 @@ function Opening() {
 }
 
 /**
+ * world:lazy-part-fails-softly: while the life's screens are fetched, the opening screen the player already sees stays, never a blank:
+ * the splash with "Opening your life...", or online for a browser that keeps no person, the start screen's frame as `Opening` showed it.
+ * A fetch that failed shows the Shell's connection card over it, never a second card here.
+ */
+function OpeningLife() {
+  const online = useGame((state) => state.account !== null);
+  const [lifeKept] = useState(() => readPerson() !== null);
+  const slow = useSlow();
+  if (online && !lifeKept) return <StartTrouble trouble={null} />;
+  return (
+    <Splash data-opening="">
+      <Waiting words={say("ui.loading")} more={slow ? say("ui.loading.slow") : null} />
+    </Splash>
+  );
+}
+
+/**
+ * The life's screens are fetched while the start screen, the door or the opening splash stand: when the page is idle, or at once for a
+ * player this browser has a life for (a kept person, or an account the server says has a character), even when the player asked to
+ * save data, since that life opens on them. The place's scene and three.js follow in the same chain.
+ */
+function LifeAhead({ parts }: { parts: LifeParts }) {
+  const [kept] = useState(() => readPerson() !== null);
+  const character = useBootCharacter();
+  useFetchAhead(parts.ahead, true, kept || character);
+  return null;
+}
+
+/** True once the account the game read as it started (boot.ts, no request of its own) says it has a character. */
+function useBootCharacter(): boolean {
+  const [character, setCharacter] = useState(false);
+  useEffect(() => {
+    const booted = accountAtBoot();
+    if (booted === null) return undefined;
+    let live = true;
+    booted.then(
+      (reply) => {
+        if (live && reply.ok && reply.account.character !== null) setCharacter(true);
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
+  return character;
+}
+
+/**
  * The door for a signed-in account with no character, on the sign-in path or for a later life: its username was chosen
  * before the door (account:sign-in-without-secret), so the door's name starts from it, never from the pool
  * (prologue:front-door-builds-a-person). Offline there is no account and no username, and the pool fills the name.
@@ -285,23 +232,23 @@ function ChosenDoor() {
 }
 
 /** The screen, with the card over it while a request waits to be sent again; the loading screen shows the card in its own place. */
-function Shell() {
+function Shell({ life }: { life: LifeParts }) {
   const waiting = useGame((state) => state.view === null && !state.signedOut && !state.choosingLife && state.failed === null);
   return (
     <>
-      <Screen />
+      <Screen life={life} />
+      <LifeAhead parts={life} />
       <HoldParts />
       {waiting ? null : <TroubleCard />}
     </>
   );
 }
 
-function Screen() {
+function Screen({ life }: { life: LifeParts }) {
   const view = useGame((state) => state.view);
   const failed = useGame((state) => state.failed);
   const choosingLife = useGame((state) => state.choosingLife);
   const signedOut = useGame((state) => state.signedOut);
-  const lines = useGame((state) => state.lines);
   // The version the prologue's handover was passed at, so it shows once.
   const [handedOver, setHandedOver] = useState<number | null>(null);
   useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
@@ -323,16 +270,15 @@ function Screen() {
   if (signedOut) return <AccountGate door={(guest) => <FrontDoor guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
   if (choosingLife) return <ChosenDoor />;
   if (view === null) return <Opening />;
-  if (view.prologue !== null) return <PrologueView />;
-  if (prologueJustClosed(lines) && handedOver !== view.v) return <PageHandover onDone={() => setHandedOver(view.v)} />;
-  if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
-  if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
-  return <WorldPlaying />;
+  return (
+    <Suspense fallback={<OpeningLife />}>
+      <life.shell handedOver={handedOver} onHandedOver={setHandedOver} />
+    </Suspense>
+  );
 }
 
-
-/** `path`: the page's path, for tests; the browser's own otherwise. */
-export function App({ store: given, path }: { store?: GameStore; path?: string }) {
+/** `path`: the page's path, for tests; the browser's own otherwise. `life`: the life's screens' part, for tests; the fetched one otherwise. */
+export function App({ store: given, path, life = LIFE }: { store?: GameStore; path?: string; life?: LifeParts }) {
   const [store] = useState(() => given ?? bootGame());
   // pair:invite-link-single-use: a friend's invite link opens its own page before the game.
   const [invite, setInvite] = useState(() => inviteCodeOf(path ?? (typeof location === "undefined" ? "/" : location.pathname)));
@@ -347,7 +293,7 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
     <CountedBoundary>
       <SoundNotice />
       <AddressGate {...(path === undefined ? {} : { path })}>
-        <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
+        <GameProvider store={store}>{invite === null ? <Shell life={life} /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
       </AddressGate>
     </CountedBoundary>
   );

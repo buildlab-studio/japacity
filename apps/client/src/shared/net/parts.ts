@@ -5,6 +5,7 @@
 import { lazy, type LazyExoticComponent, useEffect } from "react";
 
 import { useGameStoreIfAny } from "../../authority/GameProvider";
+import { pageStale, type StaleGuard } from "./stale";
 
 /** Any component `lazy` takes, as React types it. */
 type AnyComponent = Parameters<typeof lazy>[0] extends () => Promise<{ default: infer C }> ? C : never;
@@ -15,12 +16,19 @@ type Hold = <T>(load: () => Promise<T>) => Promise<T>;
 /** The screen showing the connection card, while one is up; with none, a failed part throws to the boundary as any fault. */
 let holder: Hold | null = null;
 
-/** A fetch that fails is held for Retry where a card can show; it settles only once the part is fetched. */
-export function fetchSoftly<T>(load: () => Promise<T>): Promise<T> {
-  return load().catch((error: unknown) => {
+/** A page that is reloading: the part it waited on is never drawn here. */
+const GOING = new Promise<never>(() => undefined);
+
+/**
+ * A fetch that fails is held for Retry where a card can show; it settles only once the part is fetched. A tab left on an older build
+ * reloads once to the server's newer one first (stale.ts), so a part a release removed is never held for a Retry that cannot bring it.
+ */
+export function fetchSoftly<T>(load: () => Promise<T>, stale: Pick<StaleGuard, "failed"> = pageStale): Promise<T> {
+  return load().catch(async (error: unknown) => {
+    if (await stale.failed()) return GOING;
     const hold = holder;
     if (hold === null) throw error;
-    return hold(() => fetchSoftly(load));
+    return hold(() => fetchSoftly(load, stale));
   });
 }
 
@@ -33,6 +41,8 @@ export type SoftPart<T extends AnyComponent> = LazyExoticComponent<T> & {
 export interface SoftOptions {
   again?: readonly number[];
   wait?: (ms: number) => Promise<void>;
+  /** The check for a newer build once the fetches have failed (a test's own). */
+  stale?: Pick<StaleGuard, "failed">;
 }
 
 const realWait = (ms: number) =>
@@ -76,7 +86,7 @@ export function softLazy<T extends AnyComponent>(load: () => Promise<{ default: 
     );
   const asked = withPauses(once, options.again ?? [], options.wait ?? realWait);
   return Object.assign(
-    lazy(() => fetchSoftly(asked)),
+    lazy(() => fetchSoftly(asked, options.stale ?? pageStale)),
     { ahead },
   );
 }
@@ -118,15 +128,24 @@ function savingData(): boolean {
   return (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
 }
 
+/** The browser's turn at once: the next task, so the render that asked commits first. */
+function atOnce(run: () => void): () => void {
+  if (typeof window === "undefined") return () => undefined;
+  const id = window.setTimeout(run, 0);
+  return () => window.clearTimeout(id);
+}
+
 /**
  * Fetches the parts ahead, one after another, once the page is idle and while it is online, so the world's first moments keep the
- * connection to themselves. Each part is fetched once however often this runs; a failure waits until the part is opened.
+ * connection to themselves. Each part is fetched once however often this runs; a failure waits until the part is opened. `now`: the
+ * parts are needed next (a returning player's life opens on them), so they are fetched at once, even when the player asked to save
+ * data, since they would be fetched the moment the screen opens anyway.
  */
-export function useFetchAhead(parts: readonly Pick<SoftPart<AnyComponent>, "ahead">[], when = true): void {
+export function useFetchAhead(parts: readonly Pick<SoftPart<AnyComponent>, "ahead">[], when = true, now = false): void {
   useEffect(() => {
-    if (!when || savingData()) return undefined;
+    if (!when || (!now && savingData())) return undefined;
     let live = true;
-    const cancel = whenIdle(() => {
+    const cancel = (now ? atOnce : whenIdle)(() => {
       void (async () => {
         for (const part of parts) {
           if (!live || (typeof navigator !== "undefined" && !navigator.onLine)) return;
@@ -138,5 +157,5 @@ export function useFetchAhead(parts: readonly Pick<SoftPart<AnyComponent>, "ahea
       live = false;
       cancel();
     };
-  }, [parts, when]);
+  }, [parts, when, now]);
 }

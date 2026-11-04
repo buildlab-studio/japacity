@@ -116,6 +116,13 @@ const CityScene = softLazy(() => import("./scene/CityScene"), { again: VIEW_RETR
 const Bag = softLazy(() => import("./Bag"), { again: VIEW_RETRY_MS });
 // The send-off as a scene (chapter:send-off-scene-in-beats): its own chunk, fetched only when the gate's act is picked (engine:first-download-has-budget).
 const SendOffScene = softLazy(() => import("./sendoff/SendOffScene"));
+/**
+ * world:lazy-part-fails-softly: the place's scene, and three.js with it, fetched ahead behind the life's screens (app/Life.tsx), so a life
+ * that opens on the world finds them already here. A failure waits until the scene is opened.
+ */
+export function sceneAhead(): Promise<void> {
+  return CityScene.ahead();
+}
 /** world:lazy-part-fails-softly: the bag, fetched ahead once the world is up; the send-off joins it once a flight is boardable. */
 const AHEAD_BAG = [Bag];
 const AHEAD_BAG_AND_SEND_OFF = [Bag, SendOffScene];
