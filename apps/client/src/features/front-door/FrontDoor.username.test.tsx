@@ -173,4 +173,19 @@ describe("the door's name from the username", () => {
     door("olamide_88");
     expect(nameBox().value).toBe(kept);
   });
+
+  test("[prologue:front-door-builds-a-person] given a door with no account and its name from the pool, when the box is emptied, then three of the pool's names for the look show under it, and they go once a name is typed or one is taken", () => {
+    door(null, false);
+    expect(suggested()).toEqual([]);
+    fireEvent.change(nameBox(), { target: { value: "" } });
+    expect(suggested()).toEqual(namesFor(lookSex(), keptRoll()));
+    expect(suggested()).toHaveLength(NAMES_SHOWN);
+    fireEvent.change(nameBox(), { target: { value: "Ife" } });
+    expect(suggested()).toEqual([]);
+    fireEvent.change(nameBox(), { target: { value: "" } });
+    const taken = suggested()[2]!;
+    fireEvent.click(screen.getByRole("button", { name: taken }));
+    expect(nameBox().value).toBe(taken);
+    expect(suggested()).toEqual([]);
+  });
 });
