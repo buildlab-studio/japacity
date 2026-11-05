@@ -21,7 +21,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { askerOf } from "../../shared/words/asks";
 import { inMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
-import { Face } from "../../shared/ui/look/Face";
+import { faceMark } from "../../shared/ui/look/Face";
 import { ToneTag } from "../../shared/ui/ToneTag";
 import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults } from "./month.results";
 import { turnWords } from "./turn.words";
@@ -224,10 +224,12 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
             <ul className="flex flex-col gap-1.5">
               {asked.map((offer) => (
                 <li key={offer.id}>
-                  <button type="button" className="press reach flex min-h-[48px] w-full items-center gap-2.5 py-1 text-left" onClick={() => ask(offer.id)} data-results-ask={offer.id}>
-                    <Face name={askerOf(offer)} className="max-w-[55%] shrink-0 truncate text-[13px]" />
+                  <button type="button" className="press reach flex min-h-[48px] w-full items-center gap-3 py-1 text-left" onClick={() => ask(offer.id)} data-results-ask={offer.id}>
+                    <AskFace name={askerOf(offer)} />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] font-bold">{askWords(offer)}</span>
+                      {/* The words wrap rather than cut: a name or a job never loses its end (world:reach-and-read). */}
+                      <span className="block text-[13px] leading-snug font-semibold text-text-2">{askerOf(offer)}</span>
+                      <span className="block text-[15px] leading-snug font-bold">{askWords(offer)}</span>
                       {/* wallet:view-carries-month-pay: an offer of work keeps the figure the player decides on. */}
                       {offer.pay === undefined || typeof offer.terms["job"] !== "string" ? null : (
                         <span className="num block text-[13px] text-text-2" data-results-ask-pay>
@@ -277,6 +279,16 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
         {foot}
       </div>
     </WorldSheet>
+  );
+}
+
+/** The asker's face: the round mark with their initial in the colour their name gives them, as every face in the game has. */
+function AskFace({ name }: { name: string }) {
+  const mark = faceMark(name);
+  return (
+    <span className="face-mark flex size-10 shrink-0 items-center justify-center text-[17px] font-bold text-white" style={{ background: mark.colour }} aria-hidden="true" data-face-mark>
+      {mark.initial}
+    </span>
   );
 }
 

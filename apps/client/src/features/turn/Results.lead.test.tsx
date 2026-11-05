@@ -82,6 +82,16 @@ describe("the results lead with the money and the people", () => {
     expect(sheetText()).not.toContain("needs an answer");
   });
 
+  test("[world:reach-and-read] given an ask whose asker or words are long, when its face shows, then nothing on it is cut short: the words wrap", async () => {
+    const { view, offer } = nurseMonth();
+    const { store } = await renderWithView(<Results place="The family house" />, view);
+    act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));
+    const face = document.querySelector<HTMLElement>(`[data-results-ask="${offer}"]`);
+    expect(face).not.toBeNull();
+    expect(face?.querySelector(".truncate")).toBeNull();
+    expect(face?.className).toContain("min-h-[48px]");
+  });
+
   test("[world:month-end-results-sheet] given an ask's face on the results, when it is tapped, then the results close and that ask's card is asked for", async () => {
     const { view, offer } = nurseMonth();
     const onAsk = vi.fn();
