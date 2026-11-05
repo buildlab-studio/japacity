@@ -728,6 +728,11 @@ export const uiText: Record<string, string> = {
   "ui.req.job-is": "Working as {jobs}",
   // Time in a job as a person says it (apps/client/src/shared/words/requirement.ts, timeWords).
   "ui.req.tenure": "{time} as {jobs}",
+  // What a job still asks, as chips (world:one-action-one-sheet): months in a trade as progress, the jobs that count behind a tap.
+  "ui.need.months": "{done} / {need} months",
+  "ui.need.which": "Which jobs count",
+  "ui.need.met": "Met",
+  "ui.need.unmet": "Not yet",
   "ui.req.tenure-any": "{time} in any job",
   "ui.req.a-job": "a {job}",
   "ui.req.an-job": "an {job}",

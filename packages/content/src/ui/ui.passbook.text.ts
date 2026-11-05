@@ -51,5 +51,4 @@ export const uiPassbookText: Record<string, string> = {
   "passbook.road.family-meeting.go": "Call the meeting",
   "passbook.road.scholarship.line": "{amount} off what you need to show",
   "passbook.road.scholarship.wait": "Comes in the scholarship round, if it comes",
-  "passbook.road.needs": "Needs: {needs}",
 };

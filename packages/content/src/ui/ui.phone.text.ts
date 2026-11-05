@@ -198,7 +198,6 @@ export const uiPhoneText: Record<string, string> = {
   // The trade's next rung and a side job to take, with what each still asks (activity:each-trade-climbs-its-ladder).
   "phone.jobs.rung": "Next up in your trade",
   "phone.jobs.rung.open": "You can ask for it on the board now.",
-  "phone.jobs.rung.needs": "Still needs {needs}.",
   "phone.jobs.across": "Or across to another trade",
   "phone.jobs.across.line": "Your months here count toward it.",
 
