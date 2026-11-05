@@ -33,7 +33,7 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { TopBand, bandMoney, bandMonth } from "../../shared/world/TopBand";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
-import { type Said, SaidToast } from "../../shared/world/SaidToast";
+import { type Said, SAID_TOAST_MS, SaidToast } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
@@ -58,7 +58,7 @@ import { bodyWords, tired } from "../../shared/words/body";
 import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "../../shared/words/study";
-import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts/acts";
+import { actsOffered, actToast, answerAsk, answerStays, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts/acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lottoLines";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./acts/actLines";
 import { hasAbroadWords, loadAbroadWords } from "./abroad.words";
@@ -478,8 +478,8 @@ export function City({
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
-  /** The world mode's results sheet when a month ends (world:month-end-results-sheet), given the name of where the player is. */
-  results?: (place: string) => ReactNode;
+  /** The world mode's results sheet when a month ends (world:month-end-results-sheet), given the name of where the player is and a way to open an ask's card. */
+  results?: (place: string, ask: (offer: string) => void) => ReactNode;
   /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (world:nudge-says-one-thing). A list shows one at a time, with Next (world:one-action-one-sheet). */
   asks?: ReactNode | ReactNode[];
   /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (world:one-action-one-sheet). */
@@ -541,6 +541,12 @@ export function City({
   // The count is the asks still waiting: one left says no count at all.
   const header = askList === null ? null : askHeader({ left: askCount, index: askIndex, setpiece: onSetpiece });
   const askLabel = header === null ? null : say("ui.world.ask-of", header);
+  // world:month-end-results-sheet: a face on the results opens that ask's card in the asks sheet, where the offer's own key finds it.
+  const openAsk = (offer: string): void => {
+    const index = askList?.findIndex((one) => isValidElement(one) && one.key === offer) ?? -1;
+    setAskIndex(Math.max(0, index));
+    setAsksOpen(true);
+  };
   // world:month-end-results-sheet: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
@@ -1105,7 +1111,7 @@ export function City({
           tell(say("ui.act.spent"));
           return;
         }
-        // activity:now-acts-and-month-acts: an act done at once (a post from the laptop) is sent now, and the place's answer opens.
+        // activity:now-acts-and-month-acts: an act done at once (a post from the laptop) is sent now, and the place answers it: its toast, or its sheet where the answer must be seen.
         if (answersNow(option.id)) {
           void actOnCard({ activity: option.id, param: option.params?.[0] ?? null }, { send, addToPlan }).then((acted) => cue(acted === "answered" ? "done" : "tap"));
           return;
@@ -1299,6 +1305,8 @@ export function City({
   const lastLines = useGame((state) => state.lines);
   const linesSeen = useRef(lastLines);
   const [answer, setAnswer] = useState<ReportLine | null>(null);
+  // world:things-are-tappable-models: an act done at once starts at the tap, and its toast says it in a few words.
+  const [started, setStarted] = useState<{ line: ReportLine; at: number } | null>(null);
   const thingsNowHere = useRef(things);
   thingsNowHere.current = things;
   // The act done at once that landed last, so the scene plays its answer where it was done (world:things-are-tappable-models).
@@ -1328,9 +1336,24 @@ export function City({
       else tell(lands.words);
       return;
     }
-    if (SHOWN_BY_SCENE.has(nowActOf(said))) setPicked(null);
-    else setAnswer(said);
+    if (SHOWN_BY_SCENE.has(nowActOf(said))) {
+      setPicked(null);
+      return;
+    }
+    // Only an answer the player must see to choose stands as its sheet; every other act's sheet closes, and its toast says it.
+    if (answerStays(nowActOf(said))) {
+      setAnswer(said);
+      return;
+    }
+    setPicked(null);
+    setStarted({ line: said, at: Date.now() });
   }, [lastLines, world, phone]);
+  // The act's toast goes by itself, whether it showed or another toast answered the act in its place.
+  useEffect(() => {
+    if (started === null) return;
+    const timer = window.setTimeout(() => setStarted(null), SAID_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [started]);
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
     if (world && answer !== null) {
@@ -1711,6 +1734,11 @@ export function City({
   const markable = stepThingEntry !== undefined && markerAllowed(stepThingEntry);
   const atStep = brief !== null && stepWay !== null && nudge?.about === "step" && !onlyWait && ((stepThing !== null && markable) || (stepThing === null && stepWay.go !== null && stepWay.go === hereId));
   const chipMoment = brief === null ? null : handed === brief.chapter ? ("handed" as const) : toast !== null ? ("done" as const) : atStep ? ("here" as const) : null;
+  const startedToast: Said | null = (() => {
+    if (started === null) return null;
+    const told = actToast(started.line, view.month);
+    return { at: started.at, words: told.name, picture: told.activity, act: told.activity, tag: told.tag };
+  })();
   const nowItem = brief?.items.find((item) => item.now) ?? null;
   // Nothing speaks in the first seconds in a new place, so the place is seen before it is heard (the talk budget).
   const [settled, setSettled] = useState(false);
@@ -1920,6 +1948,8 @@ export function City({
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
                   {said === null ? null : <SaidToast key={said.at} said={said} onGone={() => setSaid(null)} />}
+                  {/* One toast answers one act: the brief's tick and its giver's toast, or the money toast, stand in for the act's own. */}
+                  {startedToast === null || moneyIn !== null || chipMoment === "done" ? null : <SaidToast key={startedToast.at} said={startedToast} onGone={() => setStarted(null)} />}
                   {brief !== null && chipMoment !== null ? (
                     <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
                   ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (
@@ -2293,7 +2323,7 @@ export function City({
           })()}
         </WorldSheet>
       ) : null}
-      {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
+      {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name, openAsk) : null}
       {world && phone && handset !== undefined
         ? handset(
             () => {

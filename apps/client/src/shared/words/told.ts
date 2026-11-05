@@ -6,6 +6,7 @@ import type { ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf, type PayView } from "./cost";
 import { countWords } from "./count";
+import { nowActsIn } from "./acts";
 import { hasWords } from "./text";
 import { afterPrologue, isUnpaid, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
@@ -35,6 +36,34 @@ export function asPiece(line: ReportLine): ReportLine {
   const { quality, value } = line.params;
   if (line.key !== "line.quality.gain" || quality !== PORTFOLIO || typeof value !== "number") return line;
   return value > PIECES_ASKED ? { ...line, key: PIECE_MORE, params: { pieces: value } } : { ...line, key: PIECE, params: { pieces: value, need: PIECES_ASKED } };
+}
+
+/** "Done this month: {activity}", the act's bare name among the month's lines. */
+const PLAYED_NOW = "line.activity.played-now";
+/** A hunt that brought an offer, and the job offer it opens for the answer. */
+const HIRED = "line.activity.hunt-hired";
+const OPENED = "line.offer.opened";
+const JOB_OFFER = "offer.job";
+/** The exam's set piece over. */
+const SETPIECE_CLOSED = "line.setpiece.closed";
+/** The set pieces an act's exam is sat in. */
+const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatMap((entry) => (entry?.exam === undefined ? [] : [entry.exam.setpiece])));
+
+/**
+ * Each of the month's events told once (world:month-end-results-sheet): an act done at once by its place's own line, never
+ * "Done this month" beside it; a hunt's offer by its own line, never the offer's opening beside it; an exam by its mark,
+ * never its set piece's close beside it.
+ */
+function toldOnce(lines: readonly ReportLine[]): ReportLine[] {
+  const answered = new Set(nowActsIn(lines));
+  const hired = lines.some((line) => line.key === HIRED);
+  const marked = lines.some((line) => EXAM_MARKED.has(line.key));
+  return lines.filter((line) => {
+    if (line.key === PLAYED_NOW) return !(typeof line.params.activity === "string" && answered.has(line.params.activity));
+    if (line.key === OPENED) return !(hired && line.params.offer === JOB_OFFER);
+    if (line.key === SETPIECE_CLOSED) return !(marked && typeof line.params.setpiece === "string" && EXAMS.has(line.params.setpiece));
+    return true;
+  });
 }
 
 /** An offer answered, told plainly when the offer has no words of its own for that answer (lines.ts, `isSaid`). */
@@ -99,7 +128,7 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
 export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], pays: PayView & BandView): ReportLine[] {
   // The years before are told once, on the page: News never lists the prologue's lines, whose
   // words are the simulation's (a grade, a quality up or down), nor its money, which is what the character starts with.
-  const month = tidyLines(afterPrologue([...midMonth, ...report]));
+  const month = toldOnce(tidyLines(afterPrologue([...midMonth, ...report])));
   const money = moneyTold(month);
   const told = month.flatMap((line, index) => money[index]?.map((entry): ReportLine => ({ ...entry.line, tone: entry.sign > 0 ? "good" : "bad" })) ?? [line]);
   return newsOrder(told.map((line) => toldOnResults(asPiece(toldUnpaid(line)), pays)));

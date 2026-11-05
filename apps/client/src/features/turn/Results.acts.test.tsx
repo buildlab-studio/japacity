@@ -175,10 +175,11 @@ describe("being noticed at work on the results", () => {
     expect(results(store)).toContain(words("line.activity.not-noticed", { job }));
   });
 
-  test("[world:month-end-results-sheet] given a full month of story, when an act's outcome is ranked, then it stands with the hunt's answer, before the way out heard of and the chores", () => {
+  test("[world:month-end-results-sheet] given a full month of story, when an act's outcome is ranked, then it stands with the hunt's answer, before a route's answer and the chores", () => {
     const plain = (key: string, params: ReportLine["params"] = {}): ReportLine => ({ key, params, tone: "plain", attention: false, counts: [] });
     const routes = Object.keys(content.route).slice(0, STORY_MAX);
-    const told = storyLines([plain("line.obligation.relief.cooked"), ...routes.map((route) => plain("line.route.heard", { route })), plain("line.activity.not-noticed", { job: "activity.job-bank-officer" })]);
+    // A way out heard of lives in News only; a route's answer is what fills the month here.
+    const told = storyLines([plain("line.obligation.relief.cooked"), ...routes.map((route) => plain("line.route.refused", { route, reason: "funds" })), plain("line.activity.not-noticed", { job: "activity.job-bank-officer" })]);
     expect(told[0]?.key).toBe("line.activity.not-noticed");
     expect(told.some((line) => line.key === "line.obligation.relief.cooked")).toBe(false);
   });
@@ -186,7 +187,7 @@ describe("being noticed at work on the results", () => {
 
 describe("the cash warning in a full month", () => {
   test("[wallet:cash-pile-warning] given more story lines than the results hold, when the month closed with the cash warning, then the warning is still told", () => {
-    const busy: ReportLine[] = Array.from({ length: 9 }, (_unused, index) => ({ key: `line.route.heard-${String(index)}`, params: {}, tone: "plain", attention: false, counts: [] }));
+    const busy: ReportLine[] = Array.from({ length: 9 }, (_unused, index) => ({ key: `line.route.answered-${String(index)}`, params: {}, tone: "plain", attention: false, counts: [] }));
     const warning: ReportLine = { key: "line.wallet.cash-warning", params: {}, tone: "plain", attention: true, counts: [] };
     const told = storyLines([...busy, warning]);
     expect(told.map((line) => line.key)).toContain("line.wallet.cash-warning");

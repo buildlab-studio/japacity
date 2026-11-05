@@ -46,7 +46,7 @@ describe("the room's basics on the results", () => {
     expect(told).toContain(`Water, fetched yourself: ${formatMoney(int.bp(due, room.waterBp), "NGN")} less.`);
   });
 
-  test("[world:month-end-results-sheet] [obligation:cooking-and-fetching-water] given the nurse's busy month (a page read, a paper asked for, a chapter closed, an offer) with food cooked and water fetched, when the results show, then both chores keep their own lines after the month's events", async () => {
+  test("[world:month-end-results-sheet] [obligation:cooking-and-fetching-water] given the nurse's busy month (a page read, a paper asked for, a chapter closed, an offer, which News keeps, and papers come that fill the story) with food cooked and water fetched, when the results show, then both chores keep their own lines after the month's events", async () => {
     // The nurse's 25y 3m: the month's events filled the story and the water's line fell off the end.
     // Decision 0013 (home:living-by-hand): the chores' relief is told only where the living is charged, so the month is played
     // with the living charged whole, as the simulation's relief tests do.
@@ -59,11 +59,16 @@ describe("the room's basics on the results", () => {
       slot("activity.cook-at-home"),
       slot("activity.fetch-water"),
     ]);
-    const story = storyLines(lines);
+    // What an act already said and a chapter's line live in News (world:month-end-results-sheet): papers come fill the story instead.
+    const come: ReportLine[] = Object.keys(content.document)
+      .slice(0, STORY_MAX)
+      .map((document) => ({ key: "line.document.issued", params: { document }, tone: "good", attention: false, counts: [] }));
+    const month = [...lines, ...come];
+    const story = storyLines(month);
     const events = story.filter((line) => !line.key.startsWith("line.obligation.relief."));
     expect(events).toHaveLength(STORY_MAX);
     expect(story.slice(STORY_MAX).map((line) => line.key)).toEqual(["line.obligation.relief.cook-at-home", "line.obligation.relief.fetch-water"]);
-    await showResults(game, lines);
+    await showResults(game, month);
     const told = storyTexts();
     expect(told.slice(-2)).toEqual([
       `Food, cooked at home: ${formatMoney(int.bp(due, room.cookedBp), "NGN")} less.`,

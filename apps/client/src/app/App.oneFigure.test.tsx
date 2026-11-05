@@ -12,7 +12,7 @@ import { playTile } from "../shared/front-door/archetypes.testing";
 import { newGame } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { formatMoney } from "../shared/words/format";
-import { say, words } from "../shared/words/text";
+import { nameOf, say, words } from "../shared/words/text";
 import { newsLines, toldOnResults } from "../shared/words/told";
 
 const HUNT = "activity.job-hunt";
@@ -74,10 +74,16 @@ describe("the sure first hunt that lands another job", () => {
       act(() => store.setState({ reportOpen: true }));
       const told = [...document.querySelectorAll("[data-results-story] li")].map((row) => row.textContent ?? "");
       const said = [words(missed.key, missed.params), words(offered.key, offered.params)];
-      expect(said.map((one) => told.indexOf(one))).toEqual([told.indexOf(said[0]!), told.indexOf(said[0]!) + 1]);
-      expect(told.indexOf(said[0]!)).toBeGreaterThanOrEqual(0);
+      // The results tell the named job's miss, and the offer the sure hunt landed stands as its employer's face, naming the job.
+      expect(told).toContain(said[0]!);
+      expect(told).not.toContain(said[1]!);
+      const offer = view.offers.find((one) => one.terms["job"] === "activity.job-customer-service");
+      if (offer === undefined) throw new Error("The landed job's offer is not open.");
+      expect(document.querySelector(`[data-results-ask="${offer.id}"]`)?.textContent).toContain(nameOf("activity.job-customer-service"));
+      // News keeps both, the miss before the offer.
       const news = newsLines(met.lines, view.report?.lines ?? [], view).map((line) => words(line.key, line.params));
       expect(news).toEqual(expect.arrayContaining(said));
+      expect(news.indexOf(said[0]!)).toBeLessThan(news.indexOf(said[1]!));
       return;
     }
     throw new Error("Every draw landed the junior developer's job in twelve seeds.");

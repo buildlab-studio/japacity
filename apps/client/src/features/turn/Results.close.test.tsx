@@ -1,6 +1,6 @@
 // The month's close (world:month-end-results-sheet; decisions 0013 and 0011): the
-// results sheet after Sleep leads with payday when there is one, then the rent when it was due, then the moments, then
-// Kept, in up to six lines. What was bought by hand during the month was paid as it was done and is not listed again:
+// results sheet after Sleep leads with the money, payday when there is one, then the rent when it was due, then Kept,
+// and the moments after it, in up to six lines. What was bought by hand during the month was paid as it was done and is not listed again:
 // no "Done this month", no living line, no relief line at home, no "you rested". The sheet keeps its look.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -18,10 +18,10 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
   return { key, params, tone, attention, counts: [] };
 }
 
-/** The close's rows in the order they stand on the sheet: payday, rent, each moment, Kept. */
+/** The close's rows in the order they stand on the sheet: payday, rent, Kept, the people asked of the player, each moment. */
 function rows(): string[] {
-  return [...document.querySelectorAll("[data-results-payday], [data-results-rent], [data-results-story] li, [data-results-kept]")].map((node) =>
-    node.hasAttribute("data-results-payday") ? "payday" : node.hasAttribute("data-results-rent") ? "rent" : node.hasAttribute("data-results-kept") ? "kept" : "moment",
+  return [...document.querySelectorAll("[data-results-payday], [data-results-rent], [data-results-story] li, [data-results-kept], [data-results-asked]")].map((node) =>
+    node.hasAttribute("data-results-payday") ? "payday" : node.hasAttribute("data-results-rent") ? "rent" : node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-asked") ? "asked" : "moment",
   );
 }
 
@@ -30,7 +30,7 @@ function sheetText(): string {
 }
 
 describe("the month's close", () => {
-  test("[world:month-end-results-sheet] given the nurse's lived month (meals, water, gist and study bought by hand) and its salary, when the results open after Sleep, then payday leads, then the moments, then Kept, in up to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
+  test("[world:month-end-results-sheet] given the nurse's lived month (meals, water, gist and study bought by hand) and its salary, when the results open after Sleep, then payday leads, then Kept, then the moments, in up to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
     const game = newGame("scenario.nurse");
     const mid: ReportLine[] = [];
     for (const activity of ["activity.cook-at-home", "activity.cook-at-home", "activity.fetch-water", "activity.family-time", "activity.study-english"] as const) mid.push(...game.accept({ type: "activity/now", activity, param: null }).lines);
@@ -40,10 +40,14 @@ describe("the month's close", () => {
     act(() => store.setState({ reportOpen: true, lastMonthLines: mid }));
     const order = rows();
     expect(order[0]).toBe("payday");
-    expect(order.at(-1)).toBe("kept");
+    expect(order[1]).toBe("kept");
+    // The ask still open stands as a face after the money, before any moment.
+    expect(game.view().offers.length).toBeGreaterThan(0);
+    expect(order[2]).toBe("asked");
+    expect(order.slice(3).every((row) => row === "moment")).toBe(true);
     expect(order.filter((row) => row === "kept")).toHaveLength(1);
     // Decision 0012: one of the month's asks landed while the day was lived and is not told again at the close, so the
-    // sheet may be payday, one moment and Kept.
+    // sheet may be payday, Kept and the face asked.
     expect(order.length).toBeGreaterThanOrEqual(3);
     expect(order.length).toBeLessThanOrEqual(CLOSE_MAX);
     const salary = lines.find((each) => each.key === "line.activity.salary");
@@ -55,22 +59,23 @@ describe("the month's close", () => {
     expect(document.querySelector("[data-results-back]")).not.toBeNull();
   });
 
-  test("[world:month-end-results-sheet] given a month with pay and rent due, when the close is read, then payday leads, the rent comes next, then the moments, then Kept", async () => {
+  test("[world:month-end-results-sheet] given a month with pay and rent due, when the close is read, then payday leads, the rent comes next, then Kept, the people asked, then the moments, and a way out heard of is left to News", async () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
       line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),
       line("line.wallet.upkeep", { amount: naira(3_000_000) }, "bad"),
       line("line.activity.rested", { slots: 2 }),
       line("line.route.heard", { route: "route.uk-masters", via: "news" }, "good"),
+      line("line.document.issued", { document: "document.passport" }, "good"),
     ];
     const close = monthClose(turned, turned);
     expect(close.payday.map((entry) => entry.line.key)).toEqual(["line.wallet.salary"]);
     expect(close.rent.map((entry) => [entry.line.key, entry.amount])).toEqual([["line.wallet.rent", 12_000_000]]);
-    expect(close.moments.map((each) => each.key)).toEqual(["line.route.heard"]);
+    expect(close.moments.map((each) => each.key)).toEqual(["line.document.issued"]);
     const view: PlayerView = { ...richView(), setpiece: null, interview: null, report: { month: 4, lines: turned, japacityBefore: null, japacityAfter: null, attention: false } };
     const { store } = await renderWithView(<Results place="Peckham" />, view);
     act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));
-    expect(rows()).toEqual(["payday", "rent", "moment", "kept"]);
+    expect(rows()).toEqual(["payday", "rent", "kept", "asked", "moment"]);
     expect(document.querySelector("[data-results-rent]")?.textContent).toContain(`-${formatMoney(12_000_000, "NGN")}`);
     expect(sheetText()).not.toContain(words("line.wallet.upkeep", { amount: naira(3_000_000) }));
     expect(sheetText()).not.toContain("You rested");
@@ -78,7 +83,7 @@ describe("the month's close", () => {
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(45_000_000 - 12_000_000 - 3_000_000));
   });
 
-  test("[world:month-end-results-sheet] given a month with pay and the visa granted, when the results open, then the visa's answer leads as the hero before payday, then the rent, then Kept", async () => {
+  test("[world:month-end-results-sheet] given a month with pay and the visa granted, when the results open, then the visa's answer leads as the hero before payday, then the rent, then Kept, then the people asked", async () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
       line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),
@@ -87,7 +92,7 @@ describe("the month's close", () => {
     const view: PlayerView = { ...richView(), setpiece: null, interview: null, report: { month: 4, lines: turned, japacityBefore: null, japacityAfter: null, attention: false } };
     const { store } = await renderWithView(<Results place="Peckham" />, view);
     act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));
-    expect(rows()).toEqual(["moment", "payday", "rent", "kept"]);
+    expect(rows()).toEqual(["moment", "payday", "rent", "kept", "asked"]);
     expect(document.querySelector("[data-results-story] li")?.hasAttribute("data-results-best")).toBe(true);
   });
 
@@ -95,7 +100,7 @@ describe("the month's close", () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
       line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),
-      ...["route.uk-masters", "route.uk-care", "route.canada-points", "route.uae-work", "route.italy-seasonal"].map((route) => line("line.route.heard", { route, via: "news" }, "good")),
+      ...["route.uk-masters", "route.uk-care", "route.canada-points", "route.uae-work", "route.italy-seasonal"].map((route) => line("line.route.refused", { route, reason: "funds" }, "bad")),
     ];
     const close = monthClose(turned, turned);
     expect(close.payday.length + close.rent.length + close.moments.length + 1).toBe(CLOSE_MAX);

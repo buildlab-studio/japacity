@@ -112,16 +112,19 @@ describe("a hunt's answer on the results", () => {
     expect(words("ui.results.hunt-missed", { job: "activity.job-bank-officer" })).toBe(`${nameOf("activity.job-bank-officer")}: not this time.`);
   });
 
-  test("[world:month-end-results-sheet] given a hunt that found a job, when the results show, then it says an offer with the job and its pay a month, ranked with the offers", async () => {
+  test("[world:month-end-results-sheet] given a hunt that found a job, when the results show, then the employer stands as a face naming the job and its pay a month, and the offer is not told again as a line", async () => {
     const game = newGame("scenario.graduate");
     const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
     await showResults(game, lines);
     // wallet:view-carries-month-pay: the pay a month is the one the view gives the offer, as the wallet will book it.
     const pay = monthlyPayOf(game.view(), "activity.job-teacher");
     if (pay === null) throw new Error("The teacher's job has no pay.");
-    const said = words("ui.results.hunt-offer", { job: "activity.job-teacher", pay });
-    expect(storyRows()[0]?.textContent).toBe(said);
-    expect(said).toContain(`${formatMoney(pay.amount, pay.currency)} a month`);
+    const offer = game.view().offers.find((one) => one.terms["job"] === "activity.job-teacher");
+    if (offer === undefined) throw new Error("The hunt opened no offer.");
+    const face = document.querySelector<HTMLElement>(`[data-results-ask="${offer.id}"]`);
+    expect(face?.textContent).toContain(nameOf("activity.job-teacher"));
+    expect(face?.querySelector("[data-results-ask-pay]")?.textContent).toBe(`${formatMoney(pay.amount, pay.currency)} a month`);
+    expect(storyRows().map((row) => row.textContent)).not.toContain(words("ui.results.hunt-offer", { job: "activity.job-teacher", pay }));
   });
 
   test("[world:month-end-results-sheet] [wallet:view-carries-month-pay] [abroad-money:salary-abroad-taxed-locally] given a job abroad above the tax line, whose pay content gives a year, when its pay a month is read from the view, then it is the year's pay over twelve less the month's tax on the part above the line", () => {

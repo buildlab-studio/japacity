@@ -1,10 +1,13 @@
 // The month's results (world:month-end-results-sheet). The staged wins (Moment) come first; the sheet
-// opens once they have passed. For the lived month: payday when there is one, the
-// rent when it was due, the month's moments, then Kept, in up to six lines; what was bought by hand during the month
-// was paid as it was done and is not listed again. `foot`: a line another feature puts under the results, placed by the shell.
+// opens once they have passed. It leads with the money (payday when there is one, the rent when it was due, Kept, the
+// savings bar), then the people asked of the player as faces, then the month's events that changed what the player holds;
+// what was bought by hand during the month was paid as it was done and is not listed again, and the rest of the month lives
+// in News. `foot`: a line another feature puts under the results, placed by the shell. `onAsk`: opens an ask's card, by the
+// shell, once the results are put away.
+import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
-import type { ReportLine } from "@japacity/sim";
+import type { PlayerView, ReportLine } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -16,9 +19,11 @@ import { Tile } from "../../shared/tiles/Tile";
 import { PressButton } from "../../shared/ui/look/PressButton";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
-import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
+import { askerOf } from "../../shared/words/asks";
+import { inMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
+import { faceMark } from "../../shared/ui/look/Face";
 import { ToneTag } from "../../shared/ui/ToneTag";
-import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults, untoldLines } from "./month.results";
+import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults } from "./month.results";
 import { turnWords } from "./turn.words";
 import { localCurrency } from "../../shared/words/wayHome";
 
@@ -70,7 +75,7 @@ function Reading({ line }: { line: ReportLine }) {
 const OFFER_OPENED = "line.offer.opened";
 
 /** `place`: the name of where the player is, which the one main button returns them to. */
-export function Results({ place, foot = null }: { place: string; foot?: ReactNode }) {
+export function Results({ place, foot = null, onAsk }: { place: string; foot?: ReactNode; onAsk?: (offer: string) => void }) {
   const view = useView();
   const shown = useResultsOpen();
   const setReportOpen = useGame((state) => state.setReportOpen);
@@ -101,13 +106,19 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const told = [...midMonth, ...report.lines].filter((line) => !(line.key === OFFER_OPENED && typeof line.params["offer"] === "string" && !view.offers.some((offer) => offer.entry === line.params["offer"])));
   const close = monthClose(told, report.lines);
   const story = close.moments;
-  const news = untoldLines(told).length;
   const expiring = runningOut(view);
   const back = (): void => {
     cue("close");
     setReportOpen(false);
   };
-  const bigNews = story.some(leadsAlone);
+  // The people asked of the player, the soonest due first, as the asks sheet orders them.
+  const asked = [...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth);
+  const ask = (offer: string): void => {
+    back();
+    onAsk?.(offer);
+  };
+  // The visa's answer and the room on the water cleared away stand first and alone, before the money.
+  const bigNews = story.some((line) => leadsAlone(line) || isEvicted(line));
   const storySection =
     story.length === 0 ? null : (
       <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
@@ -148,21 +159,13 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
       <div className="flex flex-col gap-4">
         {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
         {/* Payday leads, then the rent when it was due: the month's turn in money, each its own line,
-            unless the month's news is the visa's answer, which leads before any money. */}
+            unless the month's news is the visa's answer or the room on the water cleared away, which lead before any money. */}
         {bigNews ? storySection : null}
         {close.payday.map((entry, index) => (
           <MoneyRow key={`payday-${String(index)}`} entry={entry} mark="payday" />
         ))}
         {close.rent.map((entry, index) => (
           <MoneyRow key={`rent-${String(index)}`} entry={entry} mark="rent" />
-        ))}
-        {bigNews ? null : storySection}
-
-        {/* A paper the plan needs that runs out within two months, the application not sent: one line each. */}
-        {expiring.map((paper) => (
-          <p key={paper.document} className="text-[14px] font-bold text-out" data-results-runs-out={paper.document}>
-            {say("document.reminder.runs-out", { document: runningName(paper.document), when: inMonths(paper.expiresMonth, view.month) })}
-          </p>
         ))}
 
         {lines.length === 0 ? (
@@ -202,6 +205,55 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
           </div>
         )}
 
+        {save === null ? null : (
+          <section className="flex flex-col gap-1.5" data-results-savings>
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="label text-text-2">{turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")}</h3>
+              <span className="num text-[14px]">
+                {save.kind === "funds" ? turnWords("turn.results.savings-line", { shown: formatMoney(save.shown, save.currency), required: formatMoney(save.required, save.currency) }) : `${String(save.percent)}%`}
+              </span>
+            </div>
+            <Bar value={save.kind === "funds" ? save.shown : save.percent} max={save.kind === "funds" ? save.required : 100} label={turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")} />
+          </section>
+        )}
+
+        {asked.length === 0 ? null : (
+          <section className="flex flex-col gap-1.5" aria-label={turnWords("turn.results.asked")} data-results-asked>
+            {/* The people asked of the player: a face each, the asker's mark and name and the ask's own title; a tap opens its card. */}
+            <h3 className="text-[14px] font-bold text-text-2">{turnWords("turn.results.asked")}</h3>
+            <ul className="flex flex-col gap-1.5">
+              {asked.map((offer) => (
+                <li key={offer.id}>
+                  <button type="button" className="press reach flex min-h-[48px] w-full items-center gap-3 py-1 text-left" onClick={() => ask(offer.id)} data-results-ask={offer.id}>
+                    <AskFace name={askerOf(offer)} />
+                    <span className="min-w-0 flex-1">
+                      {/* The words wrap rather than cut: a name or a job never loses its end (world:reach-and-read). */}
+                      <span className="block text-[13px] leading-snug font-semibold text-text-2">{askerOf(offer)}</span>
+                      <span className="block text-[15px] leading-snug font-bold">{askWords(offer)}</span>
+                      {/* wallet:view-carries-month-pay: an offer of work keeps the figure the player decides on. */}
+                      {offer.pay === undefined || typeof offer.terms["job"] !== "string" ? null : (
+                        <span className="num block text-[13px] text-text-2" data-results-ask-pay>
+                          {turnWords("turn.results.asked.pay", { amount: formatMoney(offer.pay.amount, offer.pay.currency) })}
+                        </span>
+                      )}
+                    </span>
+                    <ChevronRight size={18} aria-hidden className="shrink-0 text-text-2" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {bigNews ? null : storySection}
+
+        {/* A paper the plan needs that runs out within two months, the application not sent: one line each. */}
+        {expiring.map((paper) => (
+          <p key={paper.document} className="text-[14px] font-bold text-out" data-results-runs-out={paper.document}>
+            {say("document.reminder.runs-out", { document: runningName(paper.document), when: inMonths(paper.expiresMonth, view.month) })}
+          </p>
+        ))}
+
         {draw === null ? null : (
           <section className="flex flex-col gap-1.5" data-results-draw={draw.draw}>
             <h3 className="label text-text-2">{turnWords("turn.results.draw", { draw: draw.draw })}</h3>
@@ -224,23 +276,26 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
           </section>
         )}
 
-        {save === null ? null : (
-          <section className="flex flex-col gap-1.5" data-results-savings>
-            <div className="flex items-baseline justify-between gap-3">
-              <h3 className="label text-text-2">{turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")}</h3>
-              <span className="num text-[14px]">
-                {save.kind === "funds" ? turnWords("turn.results.savings-line", { shown: formatMoney(save.shown, save.currency), required: formatMoney(save.required, save.currency) }) : `${String(save.percent)}%`}
-              </span>
-            </div>
-            <Bar value={save.kind === "funds" ? save.shown : save.percent} max={save.kind === "funds" ? save.required : 100} label={turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")} />
-          </section>
-        )}
-
-        {news === 0 ? null : <p className="text-[13px] text-text-2">{turnWords("turn.results.news")}</p>}
         {foot}
       </div>
     </WorldSheet>
   );
+}
+
+/** The asker's face: the round mark with their initial in the colour their name gives them, as every face in the game has. */
+function AskFace({ name }: { name: string }) {
+  const mark = faceMark(name);
+  return (
+    <span className="face-mark flex size-10 shrink-0 items-center justify-center text-[17px] font-bold text-white" style={{ background: mark.colour }} aria-hidden="true" data-face-mark>
+      {mark.initial}
+    </span>
+  );
+}
+
+/** A face's words: the job an offer of work names, else the ask's own title in the asker's voice. */
+function askWords(offer: PlayerView["offers"][number]): string {
+  const job = offer.terms["job"];
+  return typeof job === "string" ? nameOf(job) : say(`${offer.entry}.title`);
 }
 
 /** How many of the month's moments stand before "See the whole month". */

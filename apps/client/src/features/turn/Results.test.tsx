@@ -85,7 +85,7 @@ describe("what the results read", () => {
 });
 
 describe("the results sheet", () => {
-  test("[world:month-end-results-sheet] given the month ended with a salary and the living taken, when the results show, then they say the month is done, payday leads with its figure in its colour, no living line, and what was kept comes after", async () => {
+  test("[world:month-end-results-sheet] given the month ended with a salary and the living taken, when the results show, then they say the month is done, payday leads with its figure in its colour, no living line, what was kept comes after, and nothing points to the phone", async () => {
     const view = monthEnded([SALARY, UPKEEP, NEWS]);
     const { store } = await renderWithView(<Results place="Ojuelegba" />, view);
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -104,9 +104,9 @@ describe("the results sheet", () => {
     expect(sheet.querySelector("[data-results-lines]")).toBeNull();
     const order = [...sheet.querySelectorAll("[data-results-payday], [data-results-kept]")].map((node) => (node.hasAttribute("data-results-payday") ? "payday" : "kept"));
     expect(order).toEqual(["payday", "kept"]);
-    // The news line is not listed here: it lives in the phone's News app.
+    // The news line is not listed here: it lives in the phone's News app, and no line points to the phone in words.
     expect(within(sheet).queryByText(words(NEWS.key, NEWS.params))).toBeNull();
-    expect(within(sheet).getByText(turnWords("turn.results.news"))).toBeTruthy();
+    expect(sheet.textContent).not.toMatch(/on your phone|in News/);
   });
 
   test("[world:month-end-results-sheet] given a draw result, when the results show, then the draw's numbers show and the player's matched one is lit with the signal", async () => {

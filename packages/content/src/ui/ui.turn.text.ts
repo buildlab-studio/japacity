@@ -45,6 +45,7 @@ export const uiTurnText: Record<string, string> = {
   "turn.results.savings": "Saved for the move",
   "turn.results.savings-line": "{shown} of {required}",
   "turn.results.ready": "Ready to move",
-  "turn.results.news": "The rest of the month's news is on your phone, in News.",
+  "turn.results.asked": "Asked of you",
+  "turn.results.asked.pay": "{amount} a month",
   "turn.results.back": "Back to {place}",
 };

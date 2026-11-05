@@ -109,7 +109,7 @@ function WorldPlaying() {
           return <ActivityPicker only={ids} />;
         }}
         // moment:card-shows-when-outcome-lands: a moment of the month stands over the results sheet, inside its tree, and is dismissed back to it.
-        results={(place) => <Results place={place} foot={<><GuestReminder afterFirstChapter /><MomentCard over="results" /></>} />}
+        results={(place, ask) => <Results place={place} onAsk={ask} foot={<><GuestReminder afterFirstChapter /><MomentCard over="results" /></>} />}
         // world:one-action-one-sheet: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
           ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
