@@ -28,7 +28,7 @@ export function ReadyEntry() {
         </span>
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[17px] font-bold">{say("ui.door.ready")}</span>
+        <span className="block text-[17px] font-bold text-balance">{say("ui.door.ready")}</span>
         <span className="block text-[14px] text-text-2">{say("ui.door.ready.hint")}</span>
       </span>
       <ArrowRight size={20} className="shrink-0" />
