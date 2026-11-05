@@ -35,10 +35,11 @@ export function followLifeMark(store: GameStore, storage: Kept | null = browserS
     try {
       if (life === "open") storage?.setItem(LIFE_MARK_KEY, "1");
       else storage?.removeItem(LIFE_MARK_KEY);
-      marked = life === "open";
     } catch {
-      // Storage refused (a private window): with no mark the life's screens come as they would with none.
+      // Storage refused (a private window): nothing is kept, so the life's screens come as they would with no mark, and the next change tries again.
+      return;
     }
+    marked = life === "open";
   };
   follow(store.getState());
   return store.subscribe(follow);
