@@ -20,7 +20,7 @@ https://github.com/user-attachments/assets/8a6f5182-ddd6-47e8-a753-570017347ab2
 
 <p align="center">
   <a href="https://github.com/user-attachments/assets/8a6f5182-ddd6-47e8-a753-570017347ab2"><img src="docs/teaser/japacity-teaser-end.webp" height="300" alt="The landscape teaser's end card: the Japacity seal and name on night blue, Play it, japacity.app, Japa is not by force. How ready are you?, and Free. Open source on GitHub."></a>
-  <a href="https://github.com/user-attachments/assets/6ffd54d4-7e7e-433f-93ac-33c81d60b9d5"><img src="docs/teaser/japacity-teaser-portrait-open.webp" height="300" alt="The portrait teaser's opening: Ada's card and the words Japa is not by force. How ready are you? over the painted map of Lagos, with Ada standing beside them"></a>
+  <a href="https://github.com/user-attachments/assets/6ffd54d4-7e7e-433f-93ac-33c81d60b9d5"><img src="docs/teaser/japacity-teaser-portrait-open.webp" height="300" alt="The portrait teaser's opening: Ada's card and the words Japa is not by force. How ready are you? over the map of Lagos from the air, with Ada standing beside them"></a>
 </p>
 <p align="center">Left, the teaser for a screen; right, the teaser for a phone. 28 seconds each, both with sound; tap a picture to play it. The files: <a href="docs/teaser/japacity-teaser.mp4">landscape</a>, <a href="docs/teaser/japacity-teaser-portrait.mp4">portrait</a>.</p>
 
