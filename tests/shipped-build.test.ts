@@ -5,6 +5,7 @@
 // page; the credits still name what they must. The development build is read too, to prove each development marker the
 // test looks for is real and is what the production build leaves out. Reads and writes only local files.
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -167,6 +168,28 @@ describe("the build for players", () => {
     const entry = chunkHolding(shipped, GAME_MODULE);
     expect(entry).toBeDefined();
     expect(chunkHolding(nextRelease, GAME_MODULE)).not.toBe(entry);
+  });
+
+  test("[server:csp-reports-to-own-origin] [server:csp-holds-every-page] [world:lazy-part-fails-softly] given the production build, then the page carries one inline script, the life's hint, with no file of its own, and both policies of the built headers allow exactly its sha256 hash and no inline script besides", () => {
+    const pages = shipped.files.filter((file) => file.endsWith(".html"));
+    const inline = (html: string) => [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter((match) => !/\ssrc\s*=/i.test(` ${match[1] ?? ""}`)).map((match) => match[2] ?? "");
+    expect(pages.filter((file) => file !== "index.html" && inline(read(shipped, file)).length > 0)).toEqual([]);
+    const [hint, ...others] = inline(read(shipped, "index.html"));
+    expect(others).toEqual([]);
+    expect(hint).toContain("modulepreload");
+    expect(shipped.files).not.toContain("life-ahead.js");
+    const hash = `'sha256-${createHash("sha256").update(hint ?? "", "utf8").digest("base64")}'`;
+    const headers = read(shipped, "_headers");
+    for (const name of ["Content-Security-Policy", "Content-Security-Policy-Report-Only"]) {
+      const policy = new RegExp(`^\\s+${name}: (.*)$`, "m").exec(headers)?.[1] ?? "";
+      const scriptSrc = policy.split(";").map((part) => part.trim().split(/\s+/)).find(([directive]) => directive === "script-src") ?? [];
+      expect({ name, hashes: scriptSrc.filter((source) => source.startsWith("'sha256-")), loose: scriptSrc.includes("'unsafe-inline'") }).toEqual({ name, hashes: [hash], loose: false });
+    }
+    expect(headers).not.toContain("{inline-script-hashes}");
+    // Every address the hint names is one of the build's own hashed files.
+    const named = [...(hint ?? "").matchAll(/"(\/assets\/[^"]+)"/g)].map((match) => (match[1] ?? "").slice(1));
+    expect(named.length).toBeGreaterThan(0);
+    expect(named.filter((file) => !shipped.files.includes(file))).toEqual([]);
   });
 
   test("[city:credits-screen-attributions] given the production build, then the credits still carry the map data line with its link and the way to the full list of licences", () => {

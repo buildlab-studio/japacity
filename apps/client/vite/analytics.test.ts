@@ -43,7 +43,8 @@ describe("the analytics beacon on the game's page", () => {
   });
 
   test("[analytics:admin-stats-for-admins-only] given the page's policy, when it is read, then scripts come only from the page, the bot check and the beacon, and connections only to the page and the beacon's reports", () => {
-    expect(directive("script-src")).toEqual(["'self'", "'wasm-unsafe-eval'", "https://challenges.cloudflare.com", BEACON_SCRIPT]);
+    // The token is the page's own inline hint, by the hash the build writes in its place (vite/life-ahead.plugin.ts).
+    expect(directive("script-src")).toEqual(["'self'", "'wasm-unsafe-eval'", "https://challenges.cloudflare.com", BEACON_SCRIPT, "{inline-script-hashes}"]);
     expect(directive("connect-src")).toEqual(["'self'", "blob:", BEACON_REPORTS]);
   });
 });
