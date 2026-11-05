@@ -698,7 +698,7 @@ const SHOTS: readonly Shot[] = [
   ) },
   { frames: 44, act: "city", node: (
     // The danfo alongside, then from above, where the phone's view puts it low: that view drawn larger and higher.
-    <World clip="wide-ride" from={30} push={0.08} tall={{ clip: "tall-ride", from: 12, after: { frame: 26, scale: 1.4, at: [-150, -768] } }}>
+    <World clip="wide-ride" from={30} push={0.08} tall={{ clip: "tall-ride", from: 5, after: { frame: 26, scale: 1.4, at: [-150, -768] } }}>
       <Bubble name="Conductor" x={900} y={720} delay={6} size={44} tall={{ head: [[25, 440, 690], [26, 470, 1350]], width: 840 }}>
         Oshodi, Oshodi. Enter with your change o.
       </Bubble>
@@ -708,8 +708,8 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 40, act: "city", node: (
-    <World clip="wide-ride" from={132} rate={0.97} push={0.05} tall={{ clip: "tall-ride", from: 131, rate: 0.96, push: 0.03 }}>
-      <Bubble name="Ada" x={1500} y={330} delay={4} size={44} width={720} tall={{ head: [1040, 690], width: 760 }}>
+    <World clip="wide-ride" from={137} rate={0.97} push={0.05} tall={{ clip: "tall-ride", from: 124, rate: 0.96, push: 0.03 }}>
+      <Bubble name="Ada" x={1250} y={345} delay={4} size={44} width={720} tall={{ head: [1040, 690], width: 760 }}>
         Who get change for one thousand?
       </Bubble>
       <BigChip tint={TINT.food} delay={14} tilt={-5}>
@@ -734,13 +734,13 @@ const SHOTS: readonly Shot[] = [
   ) },
   { frames: 78, act: "city", node: (
     <World clip="wide-day" from={40} push={0.05} toward={[0.4, 0.3]} tall={{ clip: "tall-day", from: 40, at: HOUSE_UP, push: 0.03, toward: [540, 700] }}>
-      <Bubble name="Mama" x={1440} y={330} delay={10} size={42} width={700} tall={{ head: [[26, 665, 862], [32, 572, 965]], width: 860 }}>
+      <Bubble name="Mama" x={1018} y={550} delay={24} size={42} width={700} tall={{ head: [572, 965], width: 860 }}>
         Your uncle called. When are you going?
       </Bubble>
       <BriefChip tile="prop_travel-bag" delay={40}>
         Papers, abeg
       </BriefChip>
-      <Sfx name="pop.wav" at={11} volume={0.8} />
+      <Sfx name="pop.wav" at={25} volume={0.8} />
       <Sfx name="swish.wav" at={40} volume={0.4} />
       <Sfx name="pop.wav" at={45} volume={0.5} />
     </World>
@@ -748,7 +748,7 @@ const SHOTS: readonly Shot[] = [
   { frames: 66, act: "city", node: (
     <World clip="wide-sofa" from={40} push={0.14} toward={[0.4, 0.45]} tall={{ clip: "tall-sofa", from: 40, push: 0.08, toward: [640, 880] }}>
       <Band name="Ada" when="Evening" where="The family house" money="₦498,500" age="23 yrs 1 mo" delay={0} />
-      <Bubble name="Ada" x={1240} y={540} delay={30} size={42} width={620} tall={{ head: [[30, 640, 905], [48, 640, 905], [62, 780, 850]], width: 760 }}>
+      <Bubble name="Ada" x={1150} y={525} delay={30} size={42} width={620} tall={{ head: [[30, 640, 905], [48, 640, 905], [62, 780, 850]], width: 760 }}>
         Small rest, then I go hustle.
       </Bubble>
       <BigChip tint={TINT.body} delay={8}>
@@ -762,10 +762,10 @@ const SHOTS: readonly Shot[] = [
     // The street seen from above, its people low in the phone's view: drawn larger and higher, its empty road under the bars.
     <World clip="wide-street" from={0} push={0.12} toward={[0.5, 0.7]} tall={{ clip: "tall-street", from: 0, scale: 1.3, at: [-60, -576], push: 0.05, toward: [420, 900] }}>
       <Band name="Ada" when="Morning" where="Ojuelegba" money="₦498,200" age="23 yrs 2 mo" delay={0} />
-      <Bubble name="Conductor" x={760} y={760} delay={6} size={40} width={620} tall={{ head: [262, 1048], width: 760 }}>
+      <Bubble name="Conductor" x={1200} y={700} delay={6} size={40} width={620} tall={{ head: [262, 1048], width: 760 }}>
         Na Yaba you dey go? Enter, enter.
       </Bubble>
-      <Bubble name="Water seller" mark="W" x={1300} y={700} delay={26} size={40} width={560} tall={{ head: [456, 1262], width: 760 }}>
+      <Bubble name="Water seller" mark="W" x={615} y={718} delay={26} size={40} width={540} tall={{ head: [456, 1290], width: 760 }}>
         Cold water, cold one. Buy cold water.
       </Bubble>
       <BigChip tint={TINT.people} delay={44}>
@@ -779,10 +779,10 @@ const SHOTS: readonly Shot[] = [
     </World>
   ) },
   { frames: 76, act: "city", node: (
-    <World clip="wide-day" from={110} push={0.05} toward={[0.5, 0.3]} tall={{ clip: "tall-day", from: 110, at: [0, -130], push: 0.03, toward: [540, 700] }}>
+    <World clip="wide-day" from={68} rate={0.78} push={0.05} toward={[0.5, 0.3]} tall={{ clip: "tall-day", from: 110, at: [0, -130], push: 0.03, toward: [540, 700] }}>
       <Band name="Ada" when="Afternoon" where="The family house" money="₦2,500,000" age="24 yrs 6 mo" delay={0} />
       <Passbook delay={4} />
-      <Bubble name="Ada" x={1180} y={420} delay={34} size={42} width={520} tall={{ head: [641, 664], width: 760 }}>
+      <Bubble name="Ada" x={415} y={330} delay={34} size={42} width={660} tall={{ head: [641, 664], width: 760 }}>
         Small small, I go reach.
       </Bubble>
       <BigChip tint={TINT.money} delay={54} style={{ left: "auto", right: 60 }}>
@@ -821,9 +821,9 @@ const SHOTS: readonly Shot[] = [
   ) },
   { frames: 78, act: "hand", node: (
     <AbsoluteFill>
-      <NightFalls from={0} falls={[6, 30]} />
+      <NightFalls from={49} falls={[6, 30]} />
       <Band name="Ada" when="Night" where="The family house" money="₦3,120,000" age="25 yrs 2 mo" paint={NIGHT} delay={30} />
-      <Bubble name="Ada" x={760} y={700} delay={44} size={42} paint={NIGHT} width={560} tall={{ head: [[54, 422, 1140], [62, 150, 830]], width: 760 }}>
+      <Bubble name="Ada" x={430} y={372} delay={44} size={42} paint={NIGHT} width={620} tall={{ head: [150, 830], width: 760 }}>
         Sleep. The month is done.
       </Bubble>
       <Sfx name="night.m4a" volume={0.5} />
