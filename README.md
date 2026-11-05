@@ -16,11 +16,11 @@
 
 <!-- teaser: the asset link below and the two pictures' links are the mp4s uploaded through GitHub's editor, which is the only way GitHub plays a video; the sources are docs/teaser/japacity-teaser.mp4 and japacity-teaser-portrait.mp4, and a new render needs new uploads (see apps/teaser/README.md) -->
 
-https://github.com/user-attachments/assets/8a6f5182-ddd6-47e8-a753-570017347ab2
+https://github.com/user-attachments/assets/efc7bfb4-d698-4e8b-9f34-48efdda82fe7
 
 <p align="center">
-  <a href="https://github.com/user-attachments/assets/8a6f5182-ddd6-47e8-a753-570017347ab2"><img src="docs/teaser/japacity-teaser-end.webp" height="300" alt="The landscape teaser's end card: the Japacity seal and name on night blue, Play it, japacity.app, Japa is not by force. How ready are you?, and Free. Open source on GitHub."></a>
-  <a href="https://github.com/user-attachments/assets/6ffd54d4-7e7e-433f-93ac-33c81d60b9d5"><img src="docs/teaser/japacity-teaser-portrait-open.webp" height="300" alt="The portrait teaser's opening: Ada's card and the words Japa is not by force. How ready are you? over the map of Lagos from the air, with Ada standing beside them"></a>
+  <a href="https://github.com/user-attachments/assets/efc7bfb4-d698-4e8b-9f34-48efdda82fe7"><img src="docs/teaser/japacity-teaser-end.webp" height="300" alt="The landscape teaser's end card: the Japacity seal and name on night blue, Play it, japacity.app, Japa is not by force. How ready are you?, and Free. Open source on GitHub."></a>
+  <a href="https://github.com/user-attachments/assets/f6fa5db9-d3d1-441c-9e8d-a0b3d1569604"><img src="docs/teaser/japacity-teaser-portrait-open.webp" height="300" alt="The portrait teaser's opening: Ada's card and the words Japa is not by force. How ready are you? over the map of Lagos from the air, with Ada standing beside them"></a>
 </p>
 <p align="center">Left, the teaser for a screen; right, the teaser for a phone. 28 seconds each, both with sound; tap a picture to play it. The files: <a href="docs/teaser/japacity-teaser.mp4">landscape</a>, <a href="docs/teaser/japacity-teaser-portrait.mp4">portrait</a>.</p>
 
