@@ -1,5 +1,5 @@
 // The trades' papers and the gift's deed in Papers (document:trade-papers, route-gates:family-gift-counts-with-deed): the teaching
-// registration for a teacher whose next rung asks it, the chartered exams for a banker or accountant whose next rung asks them, each with its
+// registration for a teacher whose next rung asks it, the chartered exams for an accountant whose next rung asks them or a banker whose road across asks them, each with its
 // fee, its wait or its sittings and the act that moves it on the phone; and the notary's deed once the family's gift is taken.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -26,7 +26,7 @@ describe("the trades' papers", () => {
     expect(shown?.querySelector("[data-paper-act]")?.getAttribute("data-act-how")).toBe("phone");
   });
 
-  test("[document:trade-papers] given the banker, whose next rung asks the chartered exams, when Papers opens, then they are listed with the fee a sitting and the sittings, and the study is taken on the phone", async () => {
+  test("[document:trade-papers] [activity:each-trade-climbs-its-ladder] given the banker, whose road across to the chartered accountant asks the chartered exams, when Papers opens, then they are listed with the fee a sitting and the sittings, and the study is taken on the phone", async () => {
     const view = newGame("scenario.banker").view();
     const row = papersOf(view).find((each) => each.id === "document.ican");
     expect(row).toMatchObject({ state: "not-yet", act: { activity: "activity.ican-exams", how: "phone" } });
