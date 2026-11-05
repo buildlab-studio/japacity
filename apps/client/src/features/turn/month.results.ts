@@ -43,11 +43,6 @@ const CHORES: ReadonlySet<string> = new Set(
 /** True for a line that tells a bill not paid. */
 export { isUnpaid };
 
-/** A hunt that brought an offer, and the job offer it opens for the answer. */
-const HIRED = "line.activity.hunt-hired";
-const OPENED = "line.offer.opened";
-const JOB_OFFER = "offer.job";
-
 /**
  * The kiosk's draw (luck:kiosk-sells-lotto-tickets): a month a ticket was bought says what the
  * draw came to, won or not, never only the ticket's tag. Told whatever else the month held, as the chores are.
@@ -102,11 +97,38 @@ const ACTS: ReadonlySet<string> = new Set([
 const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatMap((entry) => (entry?.exam === undefined ? [] : [entry.exam.setpiece])));
 
 /**
+ * What the results leave to News alone (world:month-end-results-sheet): what an act already said in the place (a page read, a
+ * paper or an application sent, a profile entered), a way out heard of, a chapter or a goal, the set piece's opening and close,
+ * the interview booked or waiting, an ask opened (its asker stands among the faces) and the hunt's offer whose employer does,
+ * and news for you. Matched on the line as the month told it.
+ */
+const NEWS_ONLY: ReadonlySet<string> = new Set([
+  "line.offer.opened",
+  "line.activity.hunt-hired",
+  "line.document.requested",
+  "line.document.already-pending",
+  "line.route.applied",
+  "line.route.school-applied",
+  "line.route.pool-entered",
+  "line.setpiece.opened",
+  "line.setpiece.closed",
+  "line.interview.opened",
+  "line.interview.waiting",
+]);
+
+/** True for a line the results leave to News alone. */
+function newsOnly(line: ReportLine): boolean {
+  return NEWS_ONLY.has(line.key) || line.key.startsWith("line.route.heard") || line.key.startsWith("line.route.looked-into") || line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || forYou(line);
+}
+
+/** An ask answered as the day was lived: its own words were told in the corner then, so the close does not tell them again. */
+const TAKEN = "line.offer.taken";
+
+/**
  * The kinds of line that carry the month's story, in the order the results lead with them: the
- * room in Makoko cleared away, the visa granted, a bill that went unpaid, what the room's basics saved, a hunt's answer, a job or an offer found, what an act came to, a way out heard
- * of or moved on, a paper or a test band, a deposit that will be asked about, a chapter, a goal or
- * an answer told in its offer's own words, a set piece, the interview or a status, news about your
- * plans.
+ * room in Makoko cleared away, the visa granted, a stamp, a bill that went unpaid, a bond ended, a job got or ended or a hunt's
+ * answer, what an act came to, the adviser's reading, a route's answer, a paper come, gone or banded, a deposit that will be
+ * asked about, an ask left to lapse in its own words, a status or the interview's outcome, the draw, then the chores.
  */
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
   isEvicted,
@@ -117,7 +139,7 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   // person:computer-partner-drifts: a bond that ended this month, before the month's errands.
   (line) => BOND_ENDED.has(line.key),
   // obligation:cooking-and-fetching-water: what cooking and fetching water saved on the upkeep, each its own line.
-  (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
+  (line) => ["line.activity.hunt-missed", "line.activity.job-started", "line.activity.job-ended", "line.activity.side-started", "line.activity.side-quit", "line.activity.side-ended"].includes(line.key),
   (line) => ACTS.has(line.key),
   // The adviser's reading, paid for, leads the route's own lines.
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),
@@ -125,9 +147,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
   // wallet:cash-pile-warning: the warning about cash on you is told with the deposit that will be asked about.
   (line) => line.key === "line.wallet.flagged" || line.key === CASH_WARNING,
-  (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || isSaid(line),
+  isSaid,
   (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
-  forYou,
   // The kiosk's draw, after the month's events and before its chores.
   (line) => KIOSK_DRAW.has(line.key),
   // The month's chores (food cooked, water fetched) come after the month's events.
@@ -150,13 +171,13 @@ function flagTold(lines: readonly ReportLine[]): boolean {
  * and then every chore. The rest of the month stays in News.
  */
 export function storyLines(lines: readonly ReportLine[], max: number = STORY_MAX): ReportLine[] {
-  const tidy = tidyLines(afterPrologue(lines));
-  // A hunt's offer already names the job and its pay: the offer it opens is not told again.
-  const hired = tidy.some((line) => line.key === HIRED);
-  const flagged = flagTold(tidy);
+  const month = afterPrologue(lines);
+  // The relative's gift answered said the flag in its own words as it was answered.
+  const flagged = flagTold(tidyLines(month));
+  const tidy = tidyLines(month.filter((line) => line.key !== TAKEN && !newsOnly(line)));
   const marked = tidy.some((line) => EXAM_MARKED.has(line.key));
   return tidy
-    .filter((line) => !(hired && line.key === OPENED && line.params.offer === JOB_OFFER))
+    .filter((line) => !newsOnly(line))
     .filter((line) => !(flagged && line.key === "line.wallet.flagged"))
     .filter((line) => !(marked && line.key === "line.setpiece.closed" && typeof line.params.setpiece === "string" && EXAMS.has(line.params.setpiece)))
     .map(asPiece)

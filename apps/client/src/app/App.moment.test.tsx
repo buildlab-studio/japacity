@@ -56,7 +56,7 @@ describe("the moment card over the results", () => {
 
 
   // A chapter's close is told once: by the results line and the moment card, never again by its share card.
-  test("[moment:card-shows-when-outcome-lands] [share:cards-due-at-set-moments] given the graduate's month that closes a chapter (its recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
+  test("[moment:card-shows-when-outcome-lands] [share:cards-due-at-set-moments] [world:month-end-results-sheet] given the graduate's month that closes a chapter (its recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
     const save = recordedSave("graduate-careful");
     const game = recordedGame("graduate-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));
@@ -77,9 +77,10 @@ describe("the moment card over the results", () => {
     const view = store.getState().view!;
     expect(view.card?.kind).toBe("chapter");
     const key = cardKey(view.card);
-    // The results line and the moment card tell the close.
-    await waitFor(() => expect(document.querySelector("[data-story-line='line.chapter.closed']")).not.toBeNull());
+    // The moment card tells the close, once: the results leave the chapter's line to News (world:month-end-results-sheet).
     const card = await screen.findByRole("dialog", { name: say("moment.chapter.kicker") });
+    expect(document.querySelector("[data-world-sheet='results']")).not.toBeNull();
+    expect(document.querySelector("[data-story-line='line.chapter.closed']")).toBeNull();
     expect(store.getState().cardClosed).toBe(key);
     fireEvent.click(card.querySelector("[data-moment-card]")!);
     await waitFor(() => expect(screen.queryByRole("dialog", { name: say("moment.chapter.kicker") })).toBeNull());

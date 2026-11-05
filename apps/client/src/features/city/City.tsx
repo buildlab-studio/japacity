@@ -477,8 +477,8 @@ export function City({
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
-  /** The world mode's results sheet when a month ends (world:month-end-results-sheet), given the name of where the player is. */
-  results?: (place: string) => ReactNode;
+  /** The world mode's results sheet when a month ends (world:month-end-results-sheet), given the name of where the player is and a way to open an ask's card. */
+  results?: (place: string, ask: (offer: string) => void) => ReactNode;
   /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (world:nudge-says-one-thing). A list shows one at a time, with Next (world:one-action-one-sheet). */
   asks?: ReactNode | ReactNode[];
   /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (world:one-action-one-sheet). */
@@ -538,6 +538,12 @@ export function City({
   // The count is the asks still waiting: one left says no count at all.
   const header = askList === null ? null : askHeader({ left: askCount, index: askIndex, setpiece: onSetpiece });
   const askLabel = header === null ? null : say("ui.world.ask-of", header);
+  // world:month-end-results-sheet: a face on the results opens that ask's card in the asks sheet, where the offer's own key finds it.
+  const openAsk = (offer: string): void => {
+    const index = askList?.findIndex((one) => isValidElement(one) && one.key === offer) ?? -1;
+    setAskIndex(Math.max(0, index));
+    setAsksOpen(true);
+  };
   // world:month-end-results-sheet: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
@@ -2306,7 +2312,7 @@ export function City({
           })()}
         </WorldSheet>
       ) : null}
-      {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
+      {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name, openAsk) : null}
       {world && phone && handset !== undefined
         ? handset(
             () => {

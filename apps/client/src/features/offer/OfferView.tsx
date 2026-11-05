@@ -12,6 +12,7 @@ import { Face, faceMark } from "../../shared/ui/look/Face";
 import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { afterPaying, monthDues, plannedCosts } from "../../shared/words/cost";
 import { ReportLines } from "../../shared/ui/ReportLines";
+import { askerOf, mayBeScam } from "../../shared/words/asks";
 import { isSaid, tidyLines } from "../../shared/words/lines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
 import { routeKeptBy } from "../../shared/words/keepJob";
@@ -147,33 +148,22 @@ function LoanFigures({ offer, choice, amount }: { offer: Offer; choice: string; 
 }
 
 /**
- * An ask that may be a scam (an entry with a fraud share: the road's pitch, the message that says you have won, a sponsor
- * that may not be one) has no main button: every answer is plain, so the player reads before choosing, and the answers
- * that cost nothing come first, the way to say no before the way to pay (advice:scams-show-their-tells, world:one-action-one-sheet):
- * a quick hand never pays a deposit from a yellow button.
+ * The answers in the order the card shows them: as content gives them, or for an ask that may be a scam (`mayBeScam`) the
+ * free ones first. Such an ask has no main button: every answer is plain, so the player reads before choosing, the way to
+ * say no before the way to pay (advice:scams-show-their-tells, world:one-action-one-sheet): a quick hand never pays a deposit
+ * from a yellow button.
  */
-function mayBeScam(offer: Pick<Offer, "entry">): boolean {
-  return (content.offer[offer.entry]?.fraudBp ?? 0) > 0;
-}
-
-/** The answers in the order the card shows them: as content gives them, or for a possible scam the free ones first. */
 function shownChoices(offer: Offer): Offer["choices"] {
   if (!mayBeScam(offer)) return offer.choices;
   const pays = (choice: Offer["choices"][number]): number => (choice.pick === null && choiceCost(offer, choice.id) === null ? 0 : 1);
   return [...offer.choices].sort((a, b) => pays(a) - pays(b));
 }
 
-/** Who asks, by the offer's group: content names no speaker for each ask. */
-const ASKER_BY_GROUP: Readonly<Record<string, string>> = { family: "Mama", job: "The board", money: "A friend", life: "Someone you know", road: "The agent", abroad: "A friend", return: "Mama" };
 /** The picture in the corner of the asker's mark, by the offer's group, since the asks have no tiles of their own. */
 const ASK_PICTURE: Readonly<Record<string, string>> = { family: "💡", job: "💼", money: "💸", life: "📱", road: "🧳", abroad: "✈️", return: "🏠" };
 
-/** The asker's name: the ask's own where content names one, an unknown number for a scam, else by the group. */
-export function askerOf(offer: Pick<Offer, "entry">): string {
-  if (hasWords(`${offer.entry}.who`)) return say(`${offer.entry}.who`);
-  if (mayBeScam(offer)) return say("ui.ask.unknown");
-  return ASKER_BY_GROUP[content.offer[offer.entry]?.group ?? ""] ?? say("ui.ask.someone");
-}
+// The asker's name lives in shared words, so the results' faces name the same person the card does.
+export { askerOf } from "../../shared/words/asks";
 
 /** The ask's title: content's, in the asker's voice; content shortens each to a few words. */
 function askTitle(offer: Offer): string {
