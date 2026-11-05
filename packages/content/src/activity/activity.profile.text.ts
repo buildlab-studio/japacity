@@ -10,7 +10,7 @@ export const activityProfileText: Record<string, string> = {
   "activity.be-noticed.name": "Get noticed at work",
   "activity.be-noticed.blurb": "Stay late, take the job nobody wants, make sure your manager sees it. Some months it turns into a raise.",
   "activity.nurse-certification.name": "Sit the certification exam",
-  "activity.nurse-certification.blurb": "Three questions at the clinic. Two right and the certificate comes in two months.",
+  "activity.nurse-certification.blurb": "Three questions, two to pass. The certificate in two months.",
   "activity.masters-at-home.name": "A master's at home",
   "activity.masters-at-home.blurb": "Evenings and weekends at a university here for twelve months, the fees paid month by month. A master's adds to Canada's points.",
 

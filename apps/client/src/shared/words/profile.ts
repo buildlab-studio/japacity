@@ -80,11 +80,22 @@ export function tierWords(tier: ActivityTier): string {
   return say("ui.tier.lift-needs", { next, needs: joined });
 }
 
-/** activity:waiting-months-build-profile: "Counts toward: the talent route", the routes the activity's entry counts toward, or null with none. */
-export function countsWords(id: string): string | null {
+/** The ways the activity's entry counts toward, as a person says them, "the study visa and Canada's points", or null with none. */
+function countsList(id: string): string | null {
   const routes = content.activity[id as Id<"activity">]?.counts ?? [];
   if (routes.length === 0) return null;
   const named = routes.map((route) => (hasWords(`ui.counts.route.${route}`) ? say(`ui.counts.route.${route}`) : lowerFirst(nameOf(route))));
-  const list = named.length === 1 ? (named[0] ?? "") : `${named.slice(0, -1).join(", ")} ${say("ui.counts.and")} ${named.at(-1) ?? ""}`;
-  return say("ui.counts.toward", { routes: list });
+  return named.length === 1 ? (named[0] ?? "") : `${named.slice(0, -1).join(", ")} ${say("ui.counts.and")} ${named.at(-1) ?? ""}`;
+}
+
+/** activity:waiting-months-build-profile: "Counts toward: the talent route", the chip's name for a screen reader, or null with none. */
+export function countsWords(id: string): string | null {
+  const list = countsList(id);
+  return list === null ? null : say("ui.counts.toward", { routes: list });
+}
+
+/** The words on the chip itself: the ways alone, "The talent route", or null with none. */
+export function countsRoutes(id: string): string | null {
+  const list = countsList(id);
+  return list === null ? null : list.charAt(0).toUpperCase() + list.slice(1);
 }

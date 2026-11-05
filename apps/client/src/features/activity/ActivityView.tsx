@@ -27,7 +27,8 @@ import { Tile } from "../../shared/tiles/Tile";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payLine } from "../../shared/words/pay";
 import { localCurrency } from "../../shared/words/wayHome";
-import { countsWords, withNextTier } from "../../shared/words/profile";
+import { withNextTier } from "../../shared/words/profile";
+import { CountsChip } from "../../shared/ui/CountsChip";
 import { ApplyFor, firstJob, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 
@@ -301,7 +302,6 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const name = nameOf(option.id);
   const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   const blurb = blurbOf(option.id);
-  const counts = countsWords(option.id);
   // Chips earn their place (docs/design/09-the-games-look.md section 2): the time only past a morning, at most two effects, Free only on a meal.
   const time = chipTimeOf(option.id, option.halfDays);
   // quality:skill-bands-slow-gains: a tech study says its gain at the band the character is in.
@@ -375,14 +375,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                   {does}
                 </span>
               )}
+              {/* activity:waiting-months-build-profile: what the act counts toward, a chip beside its figures. */}
+              <CountsChip id={option.id} />
             </div>
           </div>
         </div>
-        {counts === null ? null : (
-          <p className="text-sm font-medium" data-counts>
-            {counts}
-          </p>
-        )}
         {/* activity:paid-tech-courses: a course's months and what it ends with, and its cost where nothing is paid now. */}
         {course === null ? null : (
           <p className="text-sm" data-course>

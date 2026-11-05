@@ -1486,8 +1486,9 @@ export function City({
                 : // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk says it before it sells again.
                   activity === "activity.play-lotto" && kioskCapReached(monthLines)
                   ? words(KIOSK_CAP)
-                  : // activity:waiting-months-build-profile: the card says what the act counts toward.
-                    [blurbOf(activity), countsWords(activity), courseWords(activity), studyPaysWords(activity)].filter((part): part is string => part !== null).join(" "),
+                  : [blurbOf(activity), courseWords(activity), studyPaysWords(activity)].filter((part): part is string => part !== null).join(" "),
+      // activity:waiting-months-build-profile: what the act counts toward, a chip under the line, never a clause of it.
+      ...(chosen === null && countsWords(activity) !== null ? { counts: activity } : {}),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
       // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
