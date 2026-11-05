@@ -54,7 +54,7 @@ export function Sticker({ tile, size, tilt = 0, delay = 0, edge = 8, style }: { 
   const e = String(edge);
   return (
     <Img
-      src={staticFile(`tiles/${tile}.png`)}
+      src={staticFile(`tiles/${tile}.webp`)}
       style={{
         width: size,
         height: size,
