@@ -42,12 +42,14 @@ describe("the talent file in Japa", () => {
 });
 
 describe("a closed way in Japa", () => {
-  test("[world:phone-holds-what-phones-hold] [world:nudge-says-one-thing] given every route closed by the news, when Japa shows, then it says every route is closed and that the news says when they open", async () => {
+  test("[world:phone-holds-what-phones-hold] [world:nudge-says-one-thing] [text:show-then-tell] given every route closed by the news, when Japa shows, then a locked chip says every route is closed and to watch News", async () => {
     await renderWithView(<Japa />, developer(WINDOWS));
     const line = document.querySelector("[data-japa-closed]");
     expect(line?.getAttribute("data-japa-closed")).toBe("every");
     expect(line?.textContent).toBe(say("phone.japa.closed.every"));
-    expect(line?.textContent).toBe("Every route is closed for now. The news says when they open.");
+    expect(line?.textContent).toBe("All closed · watch News");
+    expect(line?.classList.contains("sticker-chip")).toBe(true);
+    expect(line?.querySelector("svg.lucide-lock")).not.toBeNull();
   });
 
   test("[world:phone-holds-what-phones-hold] given only the talent route closed, when Japa shows, then it says this way is closed, never every route", async () => {
@@ -55,5 +57,6 @@ describe("a closed way in Japa", () => {
     const line = document.querySelector("[data-japa-closed]");
     expect(line?.getAttribute("data-japa-closed")).toBe(TALENT);
     expect(line?.textContent).toBe(say("phone.japa.closed"));
+    expect(line?.textContent).toBe("Closed · watch News");
   });
 });

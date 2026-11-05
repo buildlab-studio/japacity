@@ -13,7 +13,7 @@ export const uiPassbookText: Record<string, string> = {
   "passbook.pace.stuck": "At this pace the road gets no nearer.",
   "passbook.pace.ready": "Everything the road costs is held.",
   "passbook.pace.no-plan": "No plan yet. A way out sets what the road costs.",
-  "passbook.pace.unread": "Look into {route} and its whole cost shows here.",
+  "passbook.pace.unread": "Look into {route} to see the cost.",
   "passbook.with.ladder": "With the {job} job: {months}.",
   "passbook.with.side": "With a side job: {months}.",
   "passbook.with.family": "With Papa's loan: {months}.",
