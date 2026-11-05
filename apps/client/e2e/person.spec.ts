@@ -113,7 +113,7 @@ test("[world:nobody-picked-from-list] the slots in Chats show the family, and a 
   await expect(page.locator("[data-app-screen='chats'] h3 [data-person-mark='computer']")).toBeVisible();
 });
 
-test("[world:nobody-picked-from-list] a bond carries its time together, and a visit at their room counts with it", async ({ page }, info) => {
+test("[world:nobody-picked-from-list] [world:things-are-tappable-models] a bond carries its time together, and a visit at their room counts with it, started at the tap with its toast", async ({ page }, info) => {
   test.setTimeout(180_000);
   const game = banker();
   game.accept({ type: "people/court", with: DELE });
@@ -135,11 +135,11 @@ test("[world:nobody-picked-from-list] a bond carries its time together, and a vi
   await doAct(page, "time-together", "together");
   const asked = page.getByRole("dialog").getByRole("button", { name: /^See someone/ });
   if (await asked.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await asked.last().click();
-  // The visit's answer, told on its card (world:month-end-results-sheet), is put away with Done.
-  const answer = page.getByRole("dialog", { name: "See someone" });
-  await expect(answer).toContainText("You met up.");
-  await answer.getByRole("button", { name: "Done" }).click();
+  // The visit starts at the tap (world:things-are-tappable-models): no sheet answers it, its toast says it under the band and goes by itself.
+  const toast = page.locator('[data-act-toast="activity.see-someone"]');
+  await expect(toast).toContainText("See someone");
   await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });
+  await expect(toast).toHaveCount(0, { timeout: 10_000 });
 
   const head = await openBond(page, "Dele");
   await expect(head.locator('[data-head-row="stage"]')).toContainText("Four times together");

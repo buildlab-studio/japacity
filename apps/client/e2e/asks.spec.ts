@@ -147,7 +147,7 @@ async function takeNextStep(page: Page, game: Game): Promise<void> {
     // The act's card says its name on its main button, with the price after it where it costs.
     const named = nameOf(pick.activity).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     await card.getByRole("button", { name: new RegExp(`^${named}( · |$)`) }).last().click();
-    // The act's answer, told on its card, is put away (world:month-end-results-sheet).
+    // An answer that stands as its card is put away; any other act started at the tap with its toast (world:things-are-tappable-models).
     const done = page.getByRole("dialog").getByRole("button", { name: /^(Done|Close)$/ });
     if (await done.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await done.last().click();
     await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });

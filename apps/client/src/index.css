@@ -600,6 +600,8 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 }
 @keyframes slide-in { from { opacity: 0; transform: translateY(-120%); } to { opacity: 1; transform: none; } }
 .slide-in { animation: slide-in 0.28s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
+@keyframes slide-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-120%); } }
+.slide-out { animation: slide-out 0.22s cubic-bezier(0.4, 0, 1, 1) both; }
 .marker-pill { border-radius: 9999px; background: #ffffff; color: #1c2a5e; box-shadow: 0 0 0 1.5px #1c2a5e, 0 4px 0 #1c2a5e; }
 .marker-arrow { border-top-color: #1c2a5e; }
 /* The strong ink on a sheet (an icon beside a fact, a birthday line) is navy by day; at night the sheets are navy, so it reads in the paint's text. */
@@ -612,6 +614,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @keyframes ring-breathe { 0%, 100% { scale: 1; opacity: 1; } 50% { scale: 1.12; opacity: 0.75; } }
 @media (prefers-reduced-motion: reduce) {
   .slide-in { animation: fade 0.2s ease both !important; }
+  .slide-out { animation: fade 0.2s ease reverse both !important; }
   .marker-bounce, .marker-ring { animation: none !important; }
   .brief-chip-tuck { transition: opacity 200ms ease !important; transform: none; }
 }

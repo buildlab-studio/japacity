@@ -134,6 +134,9 @@ export const uiWorldText: Record<string, string> = {
   "ui.nudge.night": "Night. Go to bed",
   // activity:spent-body-refuses-acts: where an act's button was, once the body is spent.
   "ui.act.spent": "You are spent. Sleep.",
+  // world:things-are-tappable-models: an act done at once says when its answer comes, as a tag on its toast.
+  "ui.act.toast.month": "Answer at the month's end",
+  "ui.act.toast.comes": "Comes {when}",
   // Learning tech in bands (quality:skill-bands-slow-gains, activity:study-days-capped, activity:paid-tech-courses): what a study gives at your level,
   // how long a course runs, what it costs when nothing is paid now, and why one waits.
   // activity:capital-opens-own-work: the capital stays in the work.

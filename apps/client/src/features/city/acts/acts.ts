@@ -1,13 +1,14 @@
-// Acts that answer in the place (activity:now-acts-and-month-acts): the place answers a now-act in a person's
-// voice, with Done to close, and a now-act done this month leaves its thing until the next. The card's button itself is
-// `actOnCard` in shared/words/acts.ts, which the picker and the phone use too.
+// Acts that answer in the place (activity:now-acts-and-month-acts, world:things-are-tappable-models): a now-act starts at the tap
+// and a toast says it in a few words; only an answer the player must see to choose stands as its sheet, with Done to close.
+// A now-act done this month leaves its thing until the next. The card's button itself is `actOnCard` in
+// shared/words/acts.ts, which the picker and the phone use too.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 
 import { plannedShut } from "../../../authority/store";
 import { nowActOf, nowLineWords, pickable } from "../../../shared/words/acts";
 import { kioskCapReached } from "../../../shared/words/lottoLines";
-import { nameOf, say } from "../../../shared/words/text";
+import { inMonths, nameOf, say } from "../../../shared/words/text";
 import type { Ask, Thing } from "../../../shared/world/contract";
 
 /** The paper things bought at the kiosk: their slip stays in the hand with the answer on it. */
@@ -31,7 +32,47 @@ export function kioskAnswer(line: ReportLine, monthLines: readonly ReportLine[])
 }
 
 /**
- * The place's answer as its sheet (activity:now-acts-and-month-acts, world:one-action-one-sheet): the act's name, the now-line in the speaker's words,
+ * The acts whose answer stands as its sheet (world:things-are-tappable-models), since it carries what the player must see to choose:
+ * the kiosk's ticket and the bet slip, the paper bought; the driver's answer when asking around, which names a way out; and the
+ * Graduate visa granted at once. Every other act done at once is answered by its toast.
+ */
+const ANSWER_STAYS: ReadonlySet<string> = new Set([...PAPER, "activity.ask-around", "activity.apply-graduate"]);
+
+/** True when an act's answer stands as its sheet rather than a toast. */
+export function answerStays(activity: string): boolean {
+  return ANSWER_STAYS.has(activity);
+}
+
+/** The sponsor search, whose employers answer with the month though it carries no effect of its own. */
+const FIND_SPONSOR = "activity.find-sponsor";
+
+/** True for an act whose answer comes as the month turns: the hunt, a visa's application, the sponsor search. */
+function answersWithMonth(activity: string): boolean {
+  if (activity === FIND_SPONSOR) return true;
+  return content.activity[activity as Id<"activity">]?.effects.some((effect) => effect.type === "activity/hunt" || effect.type === "route/apply") === true;
+}
+
+/** An act's toast: which act, its name, and when its answer comes, or null when none is to come. */
+export interface ActToast {
+  activity: string;
+  name: string;
+  tag: string | null;
+}
+
+/**
+ * The toast an act done at once says as it starts (world:things-are-tappable-models): its name, and as a tag when the answer
+ * comes, a paper's in months from `month` ("Comes in 3 months", never a month's number) or the month's end for a hunt or an
+ * application. The place's own line is kept in News, never on the toast.
+ */
+export function actToast(line: Pick<ReportLine, "params">, month: number): ActToast {
+  const activity = nowActOf(line);
+  const due = line.params["month"];
+  const tag = typeof due === "number" ? say("ui.act.toast.comes", { when: inMonths(due, month) }) : answersWithMonth(activity) ? say("ui.act.toast.month") : null;
+  return { activity, name: nameOf(activity), tag };
+}
+
+/**
+ * The place's answer as its sheet, for an act whose answer stands (activity:now-acts-and-month-acts, world:one-action-one-sheet): the act's name, the now-line in the speaker's words,
  * a paper bought kept as its slip, nothing more to pay, and one button, Done, that closes it.
  */
 export function answerAsk(line: ReportLine, where: { who: string; clock: string }, close: () => void): Ask {
