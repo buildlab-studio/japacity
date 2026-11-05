@@ -18,6 +18,8 @@ describe("the papers offer", () => {
     const { authority } = await renderWithGame(<OfferView />, game);
     const shown = screen.getByRole("heading", { name: text[`${PAPERS}.title`]! }).closest("li")!;
     expect(within(shown).getByText(text[`${PAPERS}.body`]!.replace("{fee}", formatMoney(fee, "NGN")))).toBeDefined();
+    // advice:scams-show-their-tells: the first sign shows at once, the rest after the free look.
+    if (offer.signs.length > 1) fireEvent.click(within(shown).getByRole("button", { name: say("ui.offer.look") }));
     for (const sign of offer.signs) expect(within(shown).getByText(text[`${PAPERS}.sign.${sign}`]!)).toBeDefined();
     const take = within(shown).getByRole("button", { name: say("ui.offer.choice-cost", { choice: text[`${PAPERS}.choice.take`]!, amount: formatMoney(fee, "NGN") }) });
     fireEvent.click(within(shown).getByRole("button", { name: text[`${PAPERS}.choice.walk-away`]! }));

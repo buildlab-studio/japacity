@@ -402,6 +402,8 @@ export const uiText: Record<string, string> = {
   "ui.offer.title": "Asked of you",
   "ui.offer.none": "Nothing else asked of you here.",
   "ui.offer.expires": "Answer {when}",
+  // advice:scams-show-their-tells: the free look that shows an offer's other signs.
+  "ui.offer.look": "Look closer",
   "ui.card.dismiss": "Tap to dismiss",
   "ui.in-months": "in {count} months",
   "ui.in-months.one": "next month",

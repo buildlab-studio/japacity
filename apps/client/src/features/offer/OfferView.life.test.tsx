@@ -1,5 +1,5 @@
 import { content, text } from "@japacity/content";
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { newGame, openOffer, recordedGame, recordedSave, viewAfter } from "../../shared/testing/fixtures";
@@ -59,6 +59,8 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     const card = cardOf("offer.telco-promo");
     expect(within(card).getByRole("button", { name: say("ui.offer.choice-cost", { choice: text["offer.telco-promo.choice.claim"]!, amount: formatMoney(200_000, "NGN") }) })).toBeDefined();
     expect(card.textContent).not.toContain(formatMoney(content.tuning.luck.promo, "NGN"));
+    // advice:scams-show-their-tells: the first sign shows at once, the rest after the free look.
+    if (offer.signs.length > 1) fireEvent.click(within(card).getByRole("button", { name: say("ui.offer.look") }));
     for (const sign of offer.signs) expect(within(card).getByText(text[`offer.telco-promo.sign.${sign}`]!)).toBeDefined();
     expectClean(card);
   });
@@ -69,7 +71,8 @@ describe("the luck offers and the offers abroad, from the engine", () => {
       const game = newGame();
       openOffer(game, entry);
       await renderWithView(<OfferView />, game.view());
-      const buttons = within(cardOf(entry)).getAllByRole("button");
+      // The replies, in order; the free look at the signs is not one of them.
+      const buttons = within(cardOf(entry)).getAllByRole("button").filter((button) => !button.hasAttribute("data-ask-look"));
       // The ask in the game's look marks its main answer; a possible scam has none.
       expect(buttons.map((button) => button.hasAttribute("data-reply-main"))).toEqual(buttons.map(() => false));
       expect(buttons[0]!.querySelector("[data-reply-label]")?.textContent).toBe(text[`${entry}.choice.${no}`]);
