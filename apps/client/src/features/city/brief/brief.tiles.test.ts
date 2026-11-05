@@ -22,15 +22,15 @@ function play(id: string, seed: string): ReturnType<typeof newGame> {
   return game;
 }
 
-/** Where each tile's first thing is done, as its brief names it. */
-const FIRST_PLACE: Readonly<Record<string, string>> = {
-  developer: "chapter.brief.at.yaba",
-  nurse: "chapter.brief.at.own.clinic",
-  accountant: "chapter.brief.at.yaba",
-  writer: "chapter.brief.at.yaba",
-  trader: "chapter.brief.at.yaba",
-  "shop-worker": "chapter.brief.at.yaba",
-  water: "chapter.brief.at.own.racks",
+/** Where each tile's first thing is done: the words its brief names it by and the stop the nudge sends it to. */
+const FIRST_PLACE: Readonly<Record<string, { words: string; stop: string }>> = {
+  developer: { words: "chapter.brief.at.yaba", stop: "place.yaba" },
+  nurse: { words: "chapter.brief.at.own.clinic", stop: "place.tb-clinic" },
+  accountant: { words: "chapter.brief.at.yaba", stop: "place.yaba" },
+  writer: { words: "chapter.brief.at.yaba", stop: "place.yaba" },
+  trader: { words: "chapter.brief.at.yaba", stop: "place.yaba" },
+  "shop-worker": { words: "chapter.brief.at.yaba", stop: "place.yaba" },
+  water: { words: "chapter.brief.at.own.racks", stop: "place.makoko" },
 };
 
 describe("the brief's places, life by life", () => {
@@ -41,19 +41,12 @@ describe("the brief's places, life by life", () => {
   test.each(ARCHETYPES.map((tile) => tile.id))("[world:nudge-says-one-thing] given the %s tile at its first brief, when the thing to do now is read, then it is the thing the nudge names, at the place the nudge sends that life to", (id) => {
     const view = play(id, "brief-places-0").view();
     const brief = briefOf(view, "");
-    if (brief === null) throw new Error("No brief");
-    const now = brief.items.find((item) => item.now);
-    if (now === undefined) throw new Error("Nothing to do now");
-    const own = ownItemWay(view, now.id);
-    const way = stepWayOf(view);
-    if (own !== null) {
-      // The life's own way: the first plan names it, and the nudge goes to the same stop.
-      expect(way?.go).toBe(own.stop);
-      expect(now.place).toBe(say(`chapter.brief.at.own.${own.key}`));
-      expect(now.place).not.toBe(say("chapter.brief.at.yaba"));
-    }
-    expect(now.place).toBe(say(FIRST_PLACE[id] ?? ""));
-    // A step the table places is at the stop the nudge goes to.
-    if (own === null && way !== null && way.go !== null) expect(say(`chapter.brief.at.${way.go.replace(/^place\./, "")}`)).toBe(now.place);
+    const now = brief?.items.find((item) => item.now);
+    const first = FIRST_PLACE[id];
+    expect(first).toBeDefined();
+    expect(now?.place).toBe(say(first?.words ?? ""));
+    expect(stepWayOf(view)?.go).toBe(first?.stop);
+    // The life's own way, where it has one, is the stop the nudge goes to.
+    expect(ownItemWay(view, now?.id ?? "")?.stop ?? first?.stop).toBe(first?.stop);
   });
 });

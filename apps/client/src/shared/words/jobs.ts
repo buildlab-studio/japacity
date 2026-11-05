@@ -11,7 +11,6 @@ import { tierPay, withNextTier } from "./profile";
 import { say } from "./text";
 
 const NETWORK = "quality.network";
-const HUNT = "activity.job-hunt";
 
 /** From 60% a month a hunt is likely, from 30% a fair chance, and below that a long shot. */
 const LIKELY_BP = 6000;

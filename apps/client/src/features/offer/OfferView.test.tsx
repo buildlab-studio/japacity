@@ -38,7 +38,7 @@ describe("offers", () => {
   test("[advice:scams-show-their-tells] given the radio's pitch with all its signs, then one sign shows, the look costs nothing and sends nothing, and after it every sign shows", async () => {
     const view = richView();
     const radio = { id: "offer-radio", entry: "offer.road-radio" as Offer["entry"], openedMonth: view.month, expiresMonth: view.month + 2, terms: { deposit: 50_000_000 }, signs: ["too-cheap", "no-paper", "agency-warning"], choices: [{ id: "take", allowed: true, pick: null }, { id: "ignore", allowed: true, pick: null }] } as unknown as Offer;
-    const { authority } = await renderWithView(<OfferView />, { ...view, offers: [radio] } as PlayerView);
+    const { authority } = await renderWithView(<OfferView />, { ...view, offers: [radio] });
     const card = document.querySelector("[data-ask='offer.road-radio']")!;
     expect([...card.querySelectorAll("[data-ask-sign]")].map((sign) => sign.getAttribute("data-ask-sign"))).toEqual(["too-cheap"]);
     const sent = authority.sent.length;
