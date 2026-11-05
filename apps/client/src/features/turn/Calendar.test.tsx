@@ -66,6 +66,20 @@ describe("the Calendar's month", () => {
     expect(authority.sent).toEqual([]);
   });
 
+  test("[world:month-acts-carry-on] [text:show-then-tell] given nothing carrying on, when the Calendar shows, then one empty dashed slot says to tap a thing in the world, and once a thing carries on the slot is gone; no line explains carrying on", async () => {
+    const view = { ...engineView(), setpiece: null, interview: null, locks: [] };
+    const { store } = await renderWithView(<Calendar />, view);
+    const empty = document.querySelector("[data-calendar-empty]");
+    expect(empty?.textContent).toBe(turnWords("turn.month.hint"));
+    expect(empty?.className).toContain("border-dashed");
+    expect(turnWords("turn.month.hint").split(/\s+/).length).toBeLessThanOrEqual(8);
+    expect(document.querySelector("[data-calendar-app]")?.textContent).not.toMatch(/carries on each month|until you stop/);
+    act(() => {
+      store.getState().addToPlan({ activity: COURSE, param: null });
+    });
+    expect(document.querySelector("[data-calendar-empty]")).toBeNull();
+  });
+
   test("[world:month-acts-carry-on] given a thing started from the world, when the Calendar shows, then it is a card that says it carries on, with a stop that empties its slot", async () => {
     const view = engineView();
     const { store } = await renderWithView(<Calendar />, view);

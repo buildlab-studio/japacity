@@ -236,7 +236,12 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
             ))}
           </ol>
         )}
-        {carrying.length === 0 && view.locks.length === 0 ? <p className="text-[13px] text-text-2">{turnWords("turn.month.hint")}</p> : null}
+        {/* world:month-acts-carry-on: with nothing carrying on, an empty dashed slot says how one starts; watching it carry on teaches the rest. */}
+        {carrying.length === 0 && view.locks.length === 0 ? (
+          <div className="flex min-h-14 items-center justify-center rounded-[14px] border-2 border-dashed border-sheet-line px-3 text-center text-[14px] font-semibold text-text-2" data-calendar-empty>
+            {turnWords("turn.month.hint")}
+          </div>
+        ) : null}
       </Section>
       {chores === null && pass === null ? null : (
         <Section title={turnWords("turn.calendar.done")} mark="chores">
