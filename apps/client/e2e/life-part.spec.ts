@@ -144,6 +144,15 @@ test.describe("the life's screens, a part apart from the start screen (world:laz
     await expect(page.locator("[data-broken]")).toHaveCount(0);
   });
 
+  test("[world:lazy-part-fails-softly] given a returning player whose character only the account knows, with no person and no mark kept, when the world opens, then the browser keeps the mark of a life, so the next load asks for the life's screens at once", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
+    await fakeServer(page, { alive: true });
+    await page.goto("/");
+    await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+    await placeReady(page);
+    expect(await page.evaluate(() => [localStorage.getItem("japacity.person"), localStorage.getItem("japacity.life.here")])).toEqual([null, "1"]);
+  });
+
   test("[world:lazy-part-fails-softly] given a tab on an older build whose life's screens are gone, when they fail after their fetches again, then the page reloads once to the server's newer build, and when they fail there too the connection card shows with Retry, never a second reload", async ({ page }) => {
     await fakeServer(page, { alive: true });
     await page.route(LIFE_PART, (route) => route.abort("internetdisconnected"));

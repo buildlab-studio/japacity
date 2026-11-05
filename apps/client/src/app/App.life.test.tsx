@@ -8,7 +8,8 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { App, lifeParts } from "./App";
 import { createGameStore, VIEW_RETRY_MS } from "../authority/store";
 import { staleGuard, type StaleGuard } from "../shared/net/stale";
-import { PERSON_KEY, STALE_KEY } from "../shared/storage/storage";
+import type { AccountApi } from "../shared/net/auth";
+import { LIFE_MARK_KEY, PERSON_KEY, STALE_KEY } from "../shared/storage/storage";
 import { engineView } from "../shared/testing/fixtures";
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
@@ -54,6 +55,11 @@ function heldPauses() {
       held.push(resolve);
     });
   return { waited, wait, pass: () => held.shift()?.() };
+}
+
+/** An account a signed-out visitor meets at the start screen: the age screen not yet asked. */
+function signedOutAccount(): AccountApi {
+  return { ageStatus: () => Promise.resolve("unasked"), declareAge: () => Promise.resolve("passed"), sendCode: () => Promise.resolve({ ok: true }), returnedFromGoogle: () => null } as unknown as AccountApi;
 }
 
 /** A life the server holds: the view comes at once. */
@@ -165,6 +171,7 @@ describe("the life's screens, fetched ahead (world:lazy-part-fails-softly)", () 
   afterEach(() => {
     cleanup();
     localStorage.removeItem(PERSON_KEY);
+    localStorage.removeItem(LIFE_MARK_KEY);
     Reflect.deleteProperty(window, "requestIdleCallback");
     Reflect.deleteProperty(window, "cancelIdleCallback");
     Reflect.deleteProperty(navigator, "connection");
@@ -188,6 +195,37 @@ describe("the life's screens, fetched ahead (world:lazy-part-fails-softly)", () 
     const life = flaky(0);
     render(<App store={openingStore()} life={lifeParts({ load: life.load, stale: SAME_BUILD })} />);
     await waitFor(() => expect(life.calls()).toBe(1));
+  });
+
+  test("[world:lazy-part-fails-softly] given a browser where a life opened last and no person kept, when the page opens, then the life's screens are fetched at once, before the page is idle, and the place's scene follows them", async () => {
+    localStorage.setItem(LIFE_MARK_KEY, "1");
+    const life = flaky(0);
+    render(<App store={openingStore()} life={lifeParts({ load: life.load, stale: SAME_BUILD })} />);
+    await waitFor(() => expect(life.calls()).toBe(1));
+    await waitFor(() => expect(life.scene.asked).toBe(1));
+    expect(idle).toHaveLength(0);
+  });
+
+  test("[world:lazy-part-fails-softly] given a stale mark and no person kept, when the page opens online and the view is still coming, then the start screen's frame stands, never the opening splash, while the life's screens are fetched", async () => {
+    localStorage.setItem(LIFE_MARK_KEY, "1");
+    const life = flaky(0);
+    const store = createGameStore({ view: () => new Promise(() => undefined), send: () => Promise.reject(new Error("not sent")) }, { account: signedOutAccount() });
+    render(<App store={store} life={lifeParts({ load: life.load, stale: SAME_BUILD })} />);
+    await waitFor(() => expect(life.calls()).toBe(1));
+    expect(document.querySelector("[data-opening]")).toBeNull();
+  });
+
+  test("[world:lazy-part-fails-softly] given a stale mark and a signed-out account, when the page opens, then the start screen shows with Play, never the opening splash, and the life's screens were downloaded once and not drawn", async () => {
+    localStorage.setItem(LIFE_MARK_KEY, "1");
+    const life = flaky(0);
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("not sent")) }, { account: signedOutAccount() });
+    store.getState().leave(null);
+    render(<App store={store} life={lifeParts({ load: life.load, stale: SAME_BUILD })} />);
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
+    await settle();
+    expect(life.calls()).toBe(1);
+    expect(document.querySelector("[data-opening]")).toBeNull();
+    expect(document.querySelector("[data-life]")).toBeNull();
   });
 
   test("[world:lazy-part-fails-softly] given a browser with no life, when the page opens, then nothing is fetched until the page is idle, and then the life's screens and the scene are", async () => {
