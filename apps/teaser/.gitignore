@@ -1,1 +1,3 @@
 clips/.frames/
+# The stageshow renders (the stage page builds into public/dist, which the root ignores).
+out/
