@@ -11,6 +11,7 @@ import type { LocalAuthorityOptions } from "./local";
 import { authorityMode } from "../shared/net/authorityMode";
 import { goOnline } from "./online";
 import { remoteAuthority } from "./remote";
+import { followLifeMark } from "./lifeMark";
 import { createGameStore, type GameStore } from "./store";
 import { MORNING_KEY } from "../shared/storage/storage";
 
@@ -83,6 +84,7 @@ function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
     notice: start.kind === "replaced" ? `ui.life.notice.${start.why}` : null,
   });
   followMorning(store);
+  followLifeMark(store);
   return store;
 }
 
@@ -105,6 +107,7 @@ function bootRemote(baseUrl: string): GameStore {
   // One life per account online (account:one-character-per-account): the chooser opens only when the server says there is none.
   const store = createGameStore(remote, { life: remote, lifeAgain: false, rememberMonth: true, afterLifeEnded: loadAfresh, account: betterAuthApi({ baseUrl }) });
   goOnline({ store, remote });
+  followLifeMark(store);
   startCounting({ baseUrl });
   // analytics:player-can-stop-usage-counts: an account that turned the counters off stays off from the first screen.
   accountRead = readAccount(remote.api);

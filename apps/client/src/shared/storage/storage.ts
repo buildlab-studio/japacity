@@ -50,6 +50,11 @@ export const WALL_KEY = "japacity.wall";
 export const STALE_KEY = "japacity.stale";
 /** When this device last turned the ask for notices down, in ms since 1970. */
 export const NOTIFY_DISMISSED_KEY = "japacity.notify.dismissedAt";
+/**
+ * That a life opened in this browser (world:lazy-part-fails-softly): "1" or nothing, with no account data in it. The page's hint and the
+ * entry read it beside the kept person to fetch the life's screens at once; it goes when the browser is left with no life to open.
+ */
+export const LIFE_MARK_KEY = "japacity.life.here";
 /** That a kept life was open in this browser (account:start-screen-over-live-city): "1" or nothing, with no account data in it. */
 export const KEPT_MARK_KEY = "japacity.account.kept";
 /** That a passkey was added or used in this browser (account:passkey-in-email-autofill): "1" or nothing, with no account data in it. */

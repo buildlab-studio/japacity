@@ -7,6 +7,7 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import type { AccountReply } from "@japacity/api";
 
 import { accountAtBoot, bootGame } from "../authority/boot";
+import { lifeMarked } from "../authority/lifeMark";
 import { CountedBoundary } from "../shared/analytics/CountedBoundary";
 import { SoundNotice } from "../shared/sound/SoundNotice";
 import { Rejection } from "../shared/ui/Rejection";
@@ -65,9 +66,17 @@ export function lifeParts({ load = () => import("./Life"), wait, stale = pageSta
 
 const LIFE = lifeParts();
 
-// world:lazy-part-fails-softly: a browser that keeps a person opens a life, so its screens are asked for as the page starts, beside the
-// first screen's own work and the server's reads, never after them.
-if (readPerson() !== null) void LIFE.shell.ahead();
+/**
+ * world:lazy-part-fails-softly: this browser opens a life on the life's screens: it keeps a person, or a life opened here last
+ * (lifeMark.ts). Read only to fetch ahead, never to choose a screen.
+ */
+function lifeHere(): boolean {
+  return readPerson() !== null || lifeMarked();
+}
+
+// world:lazy-part-fails-softly: a browser with a life asks for its screens as the page starts, beside the first screen's own work and the
+// server's reads, never after them.
+if (lifeHere()) void LIFE.shell.ahead();
 // Under the unit tests the life's screens are awaited as this module loads, as a jsdom has no download to wait on, so a test's first
 // screen of a life never races the import of their files. A build has no such branch.
 if (import.meta.env.MODE === "test") await LIFE.shell.ahead();
@@ -197,11 +206,11 @@ function OpeningLife() {
 
 /**
  * The life's screens are fetched while the start screen, the door or the opening splash stand: when the page is idle, or at once for a
- * player this browser has a life for (a kept person, or an account the server says has a character), even when the player asked to
- * save data, since that life opens on them. The place's scene and three.js follow in the same chain.
+ * player this browser has a life for (a kept person, a life opened here last, or an account the server says has a character), even when
+ * the player asked to save data, since that life opens on them. The place's scene and three.js follow in the same chain.
  */
 function LifeAhead({ parts }: { parts: LifeParts }) {
-  const [kept] = useState(() => readPerson() !== null);
+  const [kept] = useState(lifeHere);
   const character = useBootCharacter();
   useFetchAhead(parts.ahead, true, kept || character);
   return null;

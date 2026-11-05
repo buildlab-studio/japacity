@@ -6,10 +6,12 @@
 # Both report to the server's /api/csp-report: report-to names the Reporting API's endpoint, which Reporting-Endpoints
 # defines on this origin, and report-uri is the older form for browsers without it. Both are paths on the page's own
 # origin, so the same file serves every deployment.
-# The enforced policy is a list of sources rather than nonces or hashes: the page has no inline script, the files are
-# served as they are with no server to mint a nonce, and the two outside scripts (the bot check, the beacon) are not
-# versioned, so no hash of them holds. 'self' serves only the build and the API's JSON, which nosniff keeps from ever
-# running as script.
+# The enforced policy is a list of sources rather than nonces: the files are served as they are with no server to mint a
+# nonce, and the two outside scripts (the bot check, the beacon) are not versioned, so no hash of them holds. 'self'
+# serves only the build and the API's JSON, which nosniff keeps from ever running as script. The page's one inline
+# script, the life's hint (vite/life-ahead.plugin.ts: preload links for a browser with a life, nothing else), is
+# allowed by its sha256 hash alone, which the build writes in place of the token in braces in both policies' script-src;
+# its file names change with every build, so its hash does too. No 'unsafe-inline' for scripts, in either policy.
 # wasm-unsafe-eval: the models' mesh decoder, WebAssembly only; no string ever runs as script ('unsafe-eval' is never
 # allowed, and public/zod-jitless.js keeps Zod from trying). challenges.cloudflare.com: the bot check's script and frame.
 # blob: the models' textures, fetched from blob addresses, their decoder's worker, and the shared cards.
@@ -32,8 +34,8 @@
 # manifest has a fixed name, so it is asked about every time like the page. A later rule's "! Cache-Control" drops
 # the earlier rule's value, so each path carries one.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri /api/csp-report; report-to csp
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' {inline-style-hashes}; style-src-attr 'none'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types japacity; report-uri /api/csp-report; report-to csp
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com {inline-script-hashes}; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; report-uri /api/csp-report; report-to csp
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com {inline-script-hashes}; frame-src https://challenges.cloudflare.com; connect-src 'self' blob: https://cloudflareinsights.com; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' {inline-style-hashes}; style-src-attr 'none'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; require-trusted-types-for 'script'; trusted-types japacity; report-uri /api/csp-report; report-to csp
   Reporting-Endpoints: csp="/api/csp-report"
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
