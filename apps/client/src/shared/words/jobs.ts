@@ -11,7 +11,6 @@ import { tierPay, withNextTier } from "./profile";
 import { say } from "./text";
 
 const NETWORK = "quality.network";
-const HUNT = "activity.job-hunt";
 
 /** From 60% a month a hunt is likely, from 30% a fair chance, and below that a long shot. */
 const LIKELY_BP = 6000;
@@ -45,11 +44,6 @@ export function huntBand(bp: number): ChanceBand {
   return bp >= content.tuning.quality.hireMaxBp ? "certain" : chanceBand(bp);
 }
 
-/** guide:early-win-in-three-turns: the life's next hunt is its sure first one: it lands the job named when the draw hits, else the lowest paid it may hunt. Each row keeps its own odds. */
-function sureHunt(view: Pick<PlayerView, "activities">): boolean {
-  return view.activities.find((option) => option.id === HUNT)?.sure === true;
-}
-
 export function chanceOf(view: PlayerView, id: string): number {
   const entry = content.activity[id as Id<"activity">];
   return entry === undefined ? 0 : jobChanceBp(entry, qualityIn(view, NETWORK));
@@ -81,11 +75,10 @@ export function jobCardWords(view: PlayerView, id: string): string {
 /**
  * The line of a hunt's card that names one job (world:one-action-one-sheet): the job's own words where content has them, `<job>.card`
  * else its blurb, and only then the hunt's ("You send applications"), then its pay and chance. The racks speak as the
- * racks, never as a hunt for applications.
+ * racks, never as a hunt for applications. The sure first hunt reads as any other (activity:job-hunt-lands-offer): its job
+ * comes as a surprise, never promised on the card.
  */
 export function jobCardLine(view: PlayerView, hunt: string, job: string): string {
   const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${hunt}.blurb`] ?? null;
-  // guide:early-win-in-three-turns: the first hunt's card says it lands for sure, before the job's own odds.
-  const sure = sureHunt(view) ? say("jobs.sure-first") : null;
-  return [own, sure, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
+  return [own, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
 }

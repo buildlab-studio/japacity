@@ -20,7 +20,7 @@ import { Sticker } from "../../../shared/ui/look/Sticker";
 import { StickerChip } from "../../../shared/ui/look/StickerChip";
 import type { Tint } from "../../../shared/ui/look/tint";
 import { TINTS } from "../../../shared/ui/look/tint";
-import { requirementSentence } from "../../../shared/words/requirement";
+import { NeedChips } from "../../../shared/ui/NeedChips";
 import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { formatBp, formatMoney, formatOne, formatRate, HOME_CURRENCIES } from "../../../shared/words/format";
@@ -703,16 +703,19 @@ function roadWords(view: PlayerView, road: PassbookRoad): { title: string; line:
   }
 }
 
-/** What a road still needs, said as "why not" says it; a road waiting only on a person asking says so in its line. */
-function needsWords(view: PlayerView, road: PassbookRoad): string | null {
+/** What a road still needs, as chips (world:one-action-one-sheet); a road waiting only on a person asking says so in its line. The tap is the road's, so nothing unfolds. */
+function RoadNeeds({ view, road }: { view: PlayerView; road: PassbookRoad }) {
   if (road.needs.length === 0) return null;
-  return say("passbook.road.needs", { needs: road.needs.map((need) => lowerFirst(requirementSentence(need, { routes: view.routes }))).join(", ") });
+  return (
+    <span className="block" data-road-needs>
+      <NeedChips needs={road.needs} view={view} fold={false} />
+    </span>
+  );
 }
 
 function RoadCard({ view, road, onTap }: { view: PlayerView; road: PassbookRoad; onTap: (road: PassbookRoad) => boolean }) {
   const [refused, setRefused] = useState(false);
   const { title, line } = roadWords(view, road);
-  const needs = needsWords(view, road);
   const months = road.state === "taken" ? null : road.months;
   return (
     <li>
@@ -738,11 +741,7 @@ function RoadCard({ view, road, onTap }: { view: PlayerView; road: PassbookRoad;
         <span className="min-w-0 flex-1">
           <span className="block text-[16px] font-bold leading-tight">{title}</span>
           {line === "" ? null : <span className="block text-[13px] leading-snug text-text-2">{line}</span>}
-          {needs === null ? null : (
-            <span className="block text-[12px] leading-snug text-text-2" data-road-needs>
-              {needs}
-            </span>
-          )}
+          <RoadNeeds view={view} road={road} />
         </span>
         {road.state === "taken" ? (
           <StickerChip tint="money" tilt={2}>

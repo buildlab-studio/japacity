@@ -58,7 +58,9 @@ describe("the official page", () => {
     expect(Object.values(line?.params ?? {}).every((value) => typeof value === "string")).toBe(true);
     expect(text["line.route.looked-into"]).toMatch(/official page/);
     expect(text["line.route.looked-into"]).toMatch(/nothing about your own chances/);
-    expect(text["activity.look-into-route.blurb"]).toMatch(/nothing about your chances/);
+    // The card says what the page is and names no chance; the result line is where the page's silence on chances is said.
+    expect(text["activity.look-into-route.blurb"]).toMatch(/full list/);
+    expect(text["activity.look-into-route.blurb"]).not.toMatch(/chance|likely|percent|%|\d/i);
     expect(content.activity[LOOK_INTO]).toMatchObject({ slot: "free", cost: [] });
     // Upkeep comes out of cash at month end; the page itself took nothing under a fee.
     expect(result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason.startsWith("fee-"))).toEqual([]);

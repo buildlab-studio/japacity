@@ -402,6 +402,8 @@ export const uiText: Record<string, string> = {
   "ui.offer.title": "Asked of you",
   "ui.offer.none": "Nothing else asked of you here.",
   "ui.offer.expires": "Answer {when}",
+  // advice:scams-show-their-tells: the free look that shows an offer's other signs.
+  "ui.offer.look": "Look closer",
   "ui.card.dismiss": "Tap to dismiss",
   "ui.in-months": "in {count} months",
   "ui.in-months.one": "next month",
@@ -518,11 +520,11 @@ export const uiText: Record<string, string> = {
   // Each tile says the age its life hands over at, so the sheet names none.
   "ui.door.path.hint": "Pick one and live it from school.",
   // The door: the lives swiped sideways, the age card, the homes as postcards, the page after Begin.
-  "ui.door.life.line": "Swipe the lives. Pick one and live it from school.",
+  "ui.door.life.line": "Pick one and live it from school.",
   "ui.door.lives": "Life {n} of {count}",
   "ui.door.next.home": "Where you live",
   "ui.door.age.from": "From {years}, or older",
-  "ui.door.home.hint": "Every roof has its price. Pick where you start.",
+  "ui.door.home.hint": "Pick where you start.",
   "ui.door.page.printed": "Your page, printed",
   "ui.door.page.over": "Over to you, {name}.",
   "ui.door.page.lead": "Where this life can lead",
@@ -553,10 +555,10 @@ export const uiText: Record<string, string> = {
   "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
   "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
   // Each home's line on the door, in the order offered.
-  "ui.door.home.line.compound-room": "Rent by the year, your things, your spot by the gate",
-  "ui.door.home.line.hostel-room": "Cheap, by the month, the corridor never sleeps",
-  "ui.door.home.line.family-house": "A free roof, your share for the house, Mama's parlour; one more reason to leave",
-  "ui.door.home.line.makoko": "Cheap, on the water, and some months the settlement is cleared",
+  "ui.door.home.line.compound-room": "Your things, your spot by the gate",
+  "ui.door.home.line.hostel-room": "The corridor never sleeps",
+  "ui.door.home.line.family-house": "A free roof, Mama's parlour, one more reason to leave",
+  "ui.door.home.line.makoko": "On the water, and some months the settlement is cleared",
   "ui.door.home.costs.self-contain": "{amount} a year with fees",
   "ui.door.home.left": "left",
   // What the band shows at Begin: the savings less the move-in; the month's living is named apart.
@@ -600,7 +602,7 @@ export const uiText: Record<string, string> = {
   "ui.page.stamps.none": "No stamps yet. The first is the visa.",
   "ui.page.stamps.some": "The visa's stamp, and one for each step after it.",
   "ui.page.family.unseen": "Drawn when you begin",
-  "ui.page.japacity.line": "Japacity: how ready you are to leave Nigeria. 100 = you go.",
+  "ui.page.japacity.line": "How ready you are to leave. 100 = you go.",
 
   // The page as the handover (prologue:printed-page-hands-over): the family drawn, the years before as chips, the money, the stamp.
   "ui.page.family": "Your family",
@@ -726,6 +728,11 @@ export const uiText: Record<string, string> = {
   "ui.req.job-is": "Working as {jobs}",
   // Time in a job as a person says it (apps/client/src/shared/words/requirement.ts, timeWords).
   "ui.req.tenure": "{time} as {jobs}",
+  // What a job still asks, as chips (world:one-action-one-sheet): months in a trade as progress, the jobs that count behind a tap.
+  "ui.need.months": "{done} / {need} months",
+  "ui.need.which": "Which jobs count",
+  "ui.need.met": "Met",
+  "ui.need.unmet": "Not yet",
   "ui.req.tenure-any": "{time} in any job",
   "ui.req.a-job": "a {job}",
   "ui.req.an-job": "an {job}",

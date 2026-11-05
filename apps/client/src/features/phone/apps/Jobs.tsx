@@ -5,15 +5,15 @@
 import { content } from "@japacity/content";
 import type { Id, OfferView, PassbookRoad, PlayerView } from "@japacity/sim";
 import { MapPin } from "lucide-react";
-import { use, useState } from "react";
+import { type ReactNode, use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { payLine } from "../../../shared/words/pay";
 import { tierPay, withNextTier } from "../../../shared/words/profile";
-import { requirementSentence } from "../../../shared/words/requirement";
 import { byMonths, hasWords, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { PhoneNav } from "../../../shared/phone/nav";
 import { PressButton } from "../../../shared/ui/look/PressButton";
+import { metNeeds, NeedChips } from "../../../shared/ui/NeedChips";
 import { Head, useAsk } from "../act";
 import { openJobs } from "../context";
 import { ladderRung, roadAcross } from "../ladder";
@@ -52,21 +52,25 @@ function sideRoad(view: Pick<PlayerView, "job" | "passbook">): PassbookRoad | nu
   return view.passbook?.roads.find((each) => each.road === "side" && each.state !== "taken") ?? null;
 }
 
-/** What a road still asks, "Still needs strong care.", or that the board can be asked now; null for a road shut on nothing listed. */
-function roadLine(view: Pick<PlayerView, "routes">, road: PassbookRoad): string | null {
-  if (road.state === "open") return say("phone.jobs.rung.open");
+/** What a road still asks, as chips (world:one-action-one-sheet), or that the board can be asked now; null for a road shut on nothing listed. */
+function roadLine(view: Pick<PlayerView, "routes" | "job">, road: PassbookRoad): ReactNode {
+  if (road.state === "open") return <p>{say("phone.jobs.rung.open")}</p>;
   if (road.needs.length === 0) return null;
-  return say("phone.jobs.rung.needs", { needs: road.needs.map((need) => lowerFirst(requirementSentence(need, { routes: view.routes }))).join(", ") });
+  return (
+    <div data-rung-needs>
+      <NeedChips needs={road.needs} met={metNeeds(road.via, road.needs)} view={view} />
+    </div>
+  );
 }
 
 /** A rung or a side job to reach for: its picture, name and pay, and what it still asks. */
-function RoadRow({ road, pay, line, data }: { road: PassbookRoad; pay: string | null; line: string | null; data: "rung" | "side" }) {
+function RoadRow({ road, pay, line, data }: { road: PassbookRoad; pay: string | null; line: ReactNode; data: "rung" | "side" }) {
   return (
     <PicCard
       pic={road.via}
       tint="study"
       title={nameOf(road.via)}
-      line={line === null ? null : <p {...(road.state === "open" ? {} : { "data-rung-needs": true })}>{line}</p>}
+      line={line}
       chips={pay === null ? null : <MoneyChip className="whitespace-normal">{pay}</MoneyChip>}
       {...(data === "rung" ? { "data-job-rung": road.via } : { "data-job-side-road": road.via })}
     />

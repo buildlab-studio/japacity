@@ -7,6 +7,7 @@ import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
+import { nextStepOf, ownWayOf, racksAtHand } from "../../../shared/words/sixteen";
 import { hasWords, nameOf, say } from "../../../shared/words/text";
 import { placeName } from "../city.words";
 import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
@@ -85,8 +86,40 @@ function rewardsOf(base: string): BriefReward[] {
   });
 }
 
-/** The two-word place under a thing: the stop it is done at, the phone, or the month itself. */
-export function itemPlace(chapter: string, item: string): string {
+/** What of the life a brief reads to say where that life does each thing: the view, or only its chapter. */
+export type BriefLife = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job" | "activities">>;
+
+const FIRST_CHAPTER = "chapter.find-your-feet";
+const MAKOKO = "place.makoko";
+
+/**
+ * Where this life does one thing of its chapter when its own way differs from the chapter's table, read as the nudge reads
+ * it with that thing next (world:nudge-says-one-thing): the racks for a life in Makoko's room, the clinic for a nurse, the
+ * motor park for a trade, the stall for a trader with capital. The stop and its key under `chapter.brief.at.own.`; null
+ * where the table says it. The first chapter's "Look into it" is the page at the hub's desk for every life, as the nudge has it.
+ */
+export function ownItemWay(life: BriefLife, item: string): { stop: string; key: string } | null {
+  const { scenario, qualities, pockets } = life;
+  if (scenario === undefined || qualities === undefined || pockets === undefined || life.chapter.current === null) return null;
+  // That thing as the next undone one; a job step reads as if no job were held yet, so a tick keeps its place.
+  const next = {
+    ...life,
+    scenario,
+    qualities,
+    pockets,
+    chapter: { ...life.chapter, items: life.chapter.items.map((each) => ({ ...each, met: each.id !== item })) },
+    ...(item === "job" && life.job !== undefined ? { job: { ...life.job, id: null } } : {}),
+  };
+  if (racksAtHand(next)) return { stop: MAKOKO, key: "racks" };
+  if (life.chapter.current === FIRST_CHAPTER && item === "known") return null;
+  const own = ownWayOf(next);
+  return own === null || own.step !== item ? null : { stop: own.place, key: own.key };
+}
+
+/** The two-word place under a thing: where this life does it, else the stop it is done at, the phone, or the month itself. */
+export function itemPlace(chapter: string, item: string, life?: BriefLife): string {
+  const mine = life === undefined || life.chapter.current !== chapter ? null : ownItemWay(life, item);
+  if (mine !== null && hasWords(`chapter.brief.at.own.${mine.key}`)) return say(`chapter.brief.at.own.${mine.key}`);
   const own = `${baseOf(chapter)}.brief.at.${item}`;
   if (hasWords(own)) return say(own);
   const way = itemWayOf(chapter, item);
@@ -117,15 +150,19 @@ export function nextBase(chapter: string): string | null {
  * giver's line (`line`, the opening the life's path chose), each item of the chapter with its place and whether it is in,
  * the first not in lit as the one to do now, the rewards, and the next brief by the view's own next chapter.
  */
-export function briefOf(view: Pick<PlayerView, "chapter">, line: string): Brief | null {
+export function briefOf(view: BriefLife, line: string): Brief | null {
   const chapter = view.chapter.current;
   if (chapter === null) return null;
   const base = baseOf(chapter);
-  const firstOpen = view.chapter.items.find((item) => !item.met)?.id ?? null;
+  // The thing lit as now is the one the nudge names: a trade hears of a way out first (world:nudge-says-one-thing).
+  const { scenario, qualities, pockets } = view;
+  const life = scenario === undefined || qualities === undefined || pockets === undefined ? null : { ...view, scenario, qualities, pockets };
+  // While the racks are the work at hand, the job comes first (activity:fish-racks-at-makoko), as the nudge has it.
+  const firstOpen = (racksAtHand(view) ? "job" : null) ?? (life === null ? null : nextStepOf(life)) ?? view.chapter.items.find((item) => !item.met)?.id ?? null;
   const items = view.chapter.items.map((item) => ({
     id: item.id,
     words: hasWords(`${chapter}.item.${item.id}`) ? say(`${chapter}.item.${item.id}`) : item.id,
-    place: itemPlace(chapter, item.id),
+    place: itemPlace(chapter, item.id, view),
     met: item.met,
     now: item.id === firstOpen,
     picture: itemPicture(chapter, item.id),
@@ -142,7 +179,7 @@ export function briefOf(view: Pick<PlayerView, "chapter">, line: string): Brief 
     rewards: rewardsOf(base),
     next: next === null ? null : { chapter: next, title: briefTitle(next) },
     // The place of the thing to do now where it has a picture of its own, else that thing's act.
-    picture: [itemWayOf(chapter, firstOpen ?? "")?.go, items.find((item) => item.now)?.picture, items[0]?.picture].find((id): id is string => id !== undefined && id !== null && TILE_TABLE[id] !== undefined) ?? "place.ojuelegba",
+    picture: [ownItemWay(view, firstOpen ?? "")?.stop, itemWayOf(chapter, firstOpen ?? "")?.go, items.find((item) => item.now)?.picture, items[0]?.picture].find((id): id is string => id !== undefined && id !== null && TILE_TABLE[id] !== undefined) ?? "place.ojuelegba",
   };
 }
 

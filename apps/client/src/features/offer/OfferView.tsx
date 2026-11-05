@@ -3,7 +3,7 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { int, type Amount, type Currency, type Effect, type OfferView as Offer, type ReportLine, type Terms } from "@japacity/sim";
-import { X } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -260,6 +260,10 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
   const mark = faceMark(asker);
   const group = content.offer[offer.entry]?.group ?? "life";
   const scam = mayBeScam(offer);
+  // advice:scams-show-their-tells: one sign shows at once; the rest are found by looking, which is free and finds every one.
+  const [looked, setLooked] = useState(false);
+  const signsShown = looked ? offer.signs : offer.signs.slice(0, 1);
+  const signsHidden = offer.signs.length - signsShown.length;
 
   return (
     <li className="flex flex-col gap-3" data-ask={offer.entry}>
@@ -289,12 +293,20 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
             {say(`ui.ask.group.${group}`)}
           </StickerChip>
         ) : (
-          offer.signs.map((sign, index) => (
-            <span key={sign} className="sticker-chip bg-[var(--soft)]" style={{ rotate: `${String(index % 2 === 0 ? 2 : -1)}deg`, color: "var(--soft-ink)" }} data-ask-sign={sign}>
-              <span aria-hidden>👀</span>
-              {words(`${offer.entry}.sign.${sign}`, params)}
-            </span>
-          ))
+          <>
+            {signsShown.map((sign, index) => (
+              <span key={sign} className="sticker-chip bg-[var(--soft)]" style={{ rotate: `${String(index % 2 === 0 ? 2 : -1)}deg`, color: "var(--soft-ink)" }} data-ask-sign={sign}>
+                <span aria-hidden>👀</span>
+                {words(`${offer.entry}.sign.${sign}`, params)}
+              </span>
+            ))}
+            {signsHidden === 0 ? null : (
+              <button type="button" className="sticker-chip press bg-tint-plain font-bold" style={{ rotate: "-1deg" }} onClick={() => setLooked(true)} data-ask-look>
+                <Eye size={16} aria-hidden />
+                {say("ui.offer.look")}
+              </button>
+            )}
+          </>
         )}
       </div>
       {picking === undefined || picking.pick === null ? null : (

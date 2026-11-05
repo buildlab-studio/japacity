@@ -32,6 +32,9 @@ function storyForYou(story: { id: string; forYou: boolean }, routes: readonly { 
   });
 }
 
+/** The era of nothing in particular, which News leaves off its front page. */
+const CALM = "era.calm";
+
 /** The settlement cleared (home:makoko-eviction-draw): it leads News as it leads the results. */
 const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
 /** The story of the clearing, carried the month it happens: the character's own news, so the world's schedule never holds it. */
@@ -65,7 +68,9 @@ export function drawnWords(last: NonNullable<NonNullable<PlayerView["lottery"]>[
 
 export function News() {
   const view = useView();
-  const { news, era, report, month, routes, lottery } = view;
+  const { news, report, month, routes, lottery } = view;
+  // director:one-era-at-a-time: only an era that is not calm earns the front page; a calm one is nothing happening.
+  const era = view.era === null || view.era.id === CALM ? null : view.era;
   const drawn = lottery?.last ?? null;
   // The empty line never sits under a story the front page already shows.
   const frontPage = era !== null || drawn !== null;

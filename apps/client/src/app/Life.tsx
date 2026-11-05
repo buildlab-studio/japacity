@@ -30,7 +30,8 @@ import { MomentCard } from "../features/moment/MomentCard";
 import { HeldShareCard } from "../features/notify/HeldShareCard";
 import { NotifyAsk } from "../features/notify/NotifyAsk";
 import { NotifySetting } from "../features/notify/NotifySetting";
-import { OfferView } from "../features/offer/OfferView";
+import { askerOf, OfferView } from "../features/offer/OfferView";
+import { nameOf } from "../shared/words/text";
 import { usePairApi } from "../features/person/pairApi";
 import { BondHead, PeopleSlots } from "../features/person/PeopleOnPhone";
 import { iconFor } from "../features/phone/PhoneIcon";
@@ -122,6 +123,12 @@ function WorldPlaying() {
           ...(view.setpiece === null && !closing ? [] : [null]),
           ...((view.interview?.question ?? null) === null ? [] : [null]),
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (OFFER_PLACES[offer.entry] ?? null)),
+        ]}
+        // world:one-action-one-sheet: who asks, each ask's sheet named for them: the set piece, the interview, the asker.
+        askWho={[
+          ...(view.setpiece === null && !closing ? [] : [view.setpiece === null ? undefined : nameOf(view.setpiece.entry)]),
+          ...((view.interview?.question ?? null) === null ? [] : [nameOf("interview.genuineness")]),
+          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => askerOf(offer)),
         ]}
         asksHold={closing}
         phone={(close, area, app, toMap, here) => <PhoneApps onClose={close} area={area} here={here ?? null} account={

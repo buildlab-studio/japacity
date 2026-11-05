@@ -91,9 +91,20 @@ describe("the era on the front of News", () => {
     expect(document.querySelector("[data-era]")).toBeNull();
   });
 
-  test("[director:one-era-at-a-time] given the engine's era, then the front page names it with the month it began and the month it is due to end", async () => {
-    const view = abroadView(1);
-    const era = view.era!;
+  test("[director:one-era-at-a-time] [text:show-then-tell] given the calm era, then News shows no front page for it, and the empty line is the plain one", async () => {
+    const view = { ...engineView(), news: [], lottery: null };
+    expect(view.era?.id).toBe("era.calm");
+    await renderWithView(<News />, view);
+    expect(document.querySelector("[data-era]")).toBeNull();
+    expect(screen.queryByText(nameOf("era.calm"))).toBeNull();
+    expect(screen.queryByText(blurbOf("era.calm")!)).toBeNull();
+    expect(screen.getByText(say("ui.news.none"))).toBeDefined();
+  });
+
+  test("[director:one-era-at-a-time] given the engine's era turned to one that is not calm, then the front page names it with the month it began and the month it is due to end", async () => {
+    const engine = abroadView(1);
+    const view = { ...engine, era: { ...engine.era!, id: "era.hard-line" as NonNullable<typeof engine.era>["id"] } };
+    const era = view.era;
     await renderWithView(<News />, view);
     expect(screen.getByText(nameOf(era.id))).toBeDefined();
     const months = document.querySelector("[data-era-months]")?.textContent;
@@ -105,7 +116,7 @@ describe("the era on the front of News", () => {
 
   test("[director:one-era-at-a-time] given an era that began before the life, then it says so rather than a month before the first", async () => {
     const base = abroadView();
-    const view = { ...base, era: { ...base.era!, sinceMonth: -3 } };
+    const view = { ...base, era: { ...base.era!, id: "era.hard-line" as NonNullable<typeof base.era>["id"], sinceMonth: -3 } };
     await renderWithView(<News />, view);
     expect(document.querySelector("[data-era-months]")?.textContent).toContain(say("ui.news.era-before"));
   });
@@ -119,7 +130,8 @@ describe("the stories in News", () => {
   });
 
   test("given no stories under the front page's era, then the empty line never says no news has reached you", async () => {
-    const view = { ...engineView(), news: [] };
+    const engine = engineView();
+    const view = { ...engine, news: [], era: { ...engine.era!, id: "era.hard-line" as NonNullable<typeof engine.era>["id"] } };
     expect(view.era).not.toBeNull();
     await renderWithView(<News />, view);
     expect(screen.queryByText(say("ui.news.none"))).toBeNull();

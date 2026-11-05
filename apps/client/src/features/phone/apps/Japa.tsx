@@ -8,7 +8,7 @@
 // (chapter:chapters-follow-lean-route).
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, Requirement, RouteView } from "@japacity/sim";
-import { Check, ChevronLeft, ChevronRight, Circle, FileClock, Flag, Send, Stamp, type LucideIcon } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Circle, FileClock, Flag, Lock, Send, Stamp, type LucideIcon } from "lucide-react";
 import { type ReactNode, use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
@@ -98,13 +98,16 @@ const FILE_PAPERS: Readonly<Record<string, readonly { item: string; before: stri
   ],
 };
 
-/** The way the plan follows closed by the news, said once under the head: every route, or this one. */
+/** The way the plan follows closed by the news, as a locked chip once under the head: every route, or this one. */
 function ClosedLine({ view, route }: { view: PlayerView; route: RouteView | null }) {
   if (route === null || route.window !== "closed") return null;
   const every = everyRouteClosed(view);
   return (
-    <p className="look-card mt-2 px-3.5 py-2.5 text-[15px] font-bold text-out" data-japa-closed={every ? "every" : route.id}>
-      {say(every ? "phone.japa.closed.every" : "phone.japa.closed")}
+    <p className="mt-2 flex">
+      <span className="sticker-chip bg-sheet-2 font-bold text-out" style={{ rotate: "-1.5deg" }} data-japa-closed={every ? "every" : route.id}>
+        <Lock size={15} aria-hidden />
+        {say(every ? "phone.japa.closed.every" : "phone.japa.closed")}
+      </span>
     </p>
   );
 }

@@ -217,7 +217,6 @@ export function Papers({ opening = null, cards = null }: { opening?: string | nu
         <PicTile of="thing.papers-box" size={56} tint="plain" tilt={-8} />
         <div className="min-w-0 flex-1">
           <h3 className="text-[19px] leading-tight font-bold">{say("phone.papers.title")}</h3>
-          <p className="mt-0.5 text-[14px] leading-snug text-text-2">{say("phone.papers.hint")}</p>
         </div>
       </div>
       {rows.length === 0 && degreeEnglishOf(view) === null ? (

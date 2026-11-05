@@ -6,7 +6,8 @@ export const uiTurnText: Record<string, string> = {
   "turn.month.free": "Free time",
   "turn.month.working": "Working: {job}",
   "turn.month.side": "Side job: {job}",
-  "turn.month.hint": "Tap a thing in the world to start something. It carries on each month until you stop it.",
+  // The empty slot while nothing carries on (world:month-acts-carry-on).
+  "turn.month.hint": "Tap a thing in the world to start",
   "turn.month.end": "Next month",
   // The Calendar app (world:top-band-is-a-pill, world:month-acts-carry-on): the month on the phone, in order.
   "turn.calendar.work": "Work",

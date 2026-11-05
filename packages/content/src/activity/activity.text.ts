@@ -47,7 +47,7 @@ export const activityText: Record<string, string> = {
   "activity.meetup.name": "Go to a meetup",
   "activity.meetup.blurb": "You go where people in your field gather and you talk to strangers.",
   "activity.look-into-route.name": "Read the official page",
-  "activity.look-into-route.blurb": "The route's full list of requirements, as it stands today. It says nothing about your chances.",
+  "activity.look-into-route.blurb": "The full list, as it stands today.",
   "activity.get-passport.name": "Apply for a passport",
   "activity.get-passport.blurb": "You fill the form and pay the fee. The office has it now.",
   "activity.degree-english.name": "Ask for your degree's English statement",

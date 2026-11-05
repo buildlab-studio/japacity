@@ -112,9 +112,9 @@ export const uiPhoneText: Record<string, string> = {
   "phone.japa.plan": "Your plan: {route}",
   "phone.japa.others": "Other ways out",
   "phone.japa.steps": "The steps",
-  // The news has closed the way: said plainly, with where to watch for it opening.
-  "phone.japa.closed.every": "Every route is closed for now. The news says when they open.",
-  "phone.japa.closed": "This way is closed for now. The news says when it opens.",
+  // The news has closed the way: a locked chip, with where to watch for it opening.
+  "phone.japa.closed.every": "All closed · watch News",
+  "phone.japa.closed": "Closed · watch News",
   "phone.japa.papers": "Papers",
   "phone.japa.official": "The full list for {route}, as it stands today",
   "phone.japa.official.free": "Free",
@@ -127,7 +127,6 @@ export const uiPhoneText: Record<string, string> = {
 
   // The Papers app (world:phone-holds-what-phones-hold): every paper with its state and the act that moves it.
   "phone.papers.title": "The box under the bed",
-  "phone.papers.hint": "Calls and messages go from here. A visit opens the map.",
   "phone.papers.none": "No papers yet. A way out says which ones you need.",
   "phone.papers.pending": "Ready {when}",
   "phone.papers.valid": "Valid {when}",
@@ -198,7 +197,6 @@ export const uiPhoneText: Record<string, string> = {
   // The trade's next rung and a side job to take, with what each still asks (activity:each-trade-climbs-its-ladder).
   "phone.jobs.rung": "Next up in your trade",
   "phone.jobs.rung.open": "You can ask for it on the board now.",
-  "phone.jobs.rung.needs": "Still needs {needs}.",
   "phone.jobs.across": "Or across to another trade",
   "phone.jobs.across.line": "Your months here count toward it.",
 

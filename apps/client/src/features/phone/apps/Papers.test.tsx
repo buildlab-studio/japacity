@@ -14,6 +14,7 @@ import { formatBand } from "../../../shared/words/format";
 import { forMonths, inMonths, nameOf, runningName, say } from "../../../shared/words/text";
 import { PHONE_ACTS, paperNotices, papersMarkOf, papersOf, placeOf, requestOf } from "../papers";
 import { PhoneApps } from "../PhoneApps";
+import { Papers } from "./Papers";
 import { marksOf, reloadSeen, waitingOf } from "../seen";
 import { CITY_LAST_KEY } from "../../../shared/storage/storage";
 
@@ -62,6 +63,14 @@ function withReport(view: PlayerView, lines: ReportLine[]): PlayerView {
 }
 
 describe("the Papers app", () => {
+  test("[world:phone-holds-what-phones-hold] [text:show-then-tell] given Papers open, when its head is read, then it is the box's picture and its title alone, with no line explaining the app", async () => {
+    await renderWithView(<Papers />, richView());
+    const head = document.querySelector("[data-papers] > div")!;
+    expect(head.querySelector("h3")?.textContent).toBe(say("phone.papers.title"));
+    expect(head.querySelector("p")).toBeNull();
+    expect(document.querySelector("[data-papers]")?.textContent).not.toMatch(/Calls and messages|opens the map/);
+  });
+
   test("[world:phone-rises-over-scene] [world:phone-holds-what-phones-hold] [document:degree-english-statement] given the phone, when its apps are read, then Papers sits beside Japa with its own tint, and the papers box's acts are in it, the degree's English statement among them", async () => {
     await openPhone(graduatePlanned());
     const apps = [...document.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"));

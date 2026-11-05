@@ -155,6 +155,8 @@ export interface Ask {
   spent?: string;
   /** What the act means, a few words each, as chips under the line: the bag's Go home says what ends and what waits (return.md). */
   facts?: string[];
+  /** The act whose ways it counts toward show as a chip under the line (activity:waiting-months-build-profile). */
+  counts?: string;
   /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (return:return-reopens-home-charges). */
   dues?: false;
   /**

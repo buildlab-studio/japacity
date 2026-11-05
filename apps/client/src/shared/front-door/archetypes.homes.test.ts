@@ -14,10 +14,23 @@ describe("the homes on the door", () => {
     }
   });
 
-  test("[prologue:front-door-three-screens] given each home on the door, when its line is read, then it says what living there is in a few words, the family house as one more reason to leave", () => {
-    expect(say("ui.door.home.line.compound-room")).toBe("Rent by the year, your things, your spot by the gate");
-    expect(say("ui.door.home.line.hostel-room")).toBe("Cheap, by the month, the corridor never sleeps");
-    expect(say("ui.door.home.line.family-house")).toBe("A free roof, your share for the house, Mama's parlour; one more reason to leave");
+  test("[prologue:front-door-three-screens] [text:show-then-tell] given each home on the door, when its line is read, then it says what living there is in a few words, the family house as one more reason to leave, and never what its cost line already says", () => {
+    expect(say("ui.door.home.line.compound-room")).toBe("Your things, your spot by the gate");
+    expect(say("ui.door.home.line.hostel-room")).toBe("The corridor never sleeps");
+    expect(say("ui.door.home.line.family-house")).toBe("A free roof, Mama's parlour, one more reason to leave");
+    expect(say("ui.door.home.line.makoko")).toBe("On the water, and some months the settlement is cleared");
+    // The cost line carries the rent, the month and the share; the line beside it never says them again.
+    for (const home of ["compound-room", "hostel-room", "family-house", "makoko"]) expect(say(`ui.door.home.line.${home}`)).not.toMatch(/by the year|by the month|cheap|your share|rent/i);
+  });
+
+  test("[prologue:front-door-three-screens] [text:show-then-tell] given the door's lines under its headings and the page's line under japacity, when they are read, then each is one short sentence that never tells the player to swipe or that a roof has a price", () => {
+    for (const key of ["ui.door.life.line", "ui.door.home.hint", "prologue.door.name.hint"]) {
+      const line = say(key);
+      expect({ key, words: line.split(/\s+/).length <= 7, sentences: line.split(". ").length }).toEqual({ key, words: true, sentences: 1 });
+    }
+    expect(say("ui.door.life.line")).not.toMatch(/[Ss]wipe/);
+    expect(say("ui.door.home.hint")).not.toMatch(/price/);
+    expect(say("ui.page.japacity.line").split(/\s+/).length).toBeLessThanOrEqual(10);
   });
 
   test("[prologue:front-door-three-screens] [prologue:archetype-presets-answers] given a tile with no home picked, when its home is read, then its own preset picks it, else the family house; a home picked on the door becomes the preset", () => {

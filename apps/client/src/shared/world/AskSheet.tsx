@@ -8,6 +8,7 @@ import { type CSSProperties, type ReactNode, useState } from "react";
 
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
+import { CountsChip } from "../ui/CountsChip";
 import { StickerChip } from "../ui/look/StickerChip";
 import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
@@ -161,6 +162,11 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
       <div className="p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
         <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>
         {/* What the act means, as sticker chips under the line (the bag's Go home: what ends, what waits). */}
+        {ask.counts === undefined ? null : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <CountsChip id={ask.counts} />
+          </div>
+        )}
         {ask.facts === undefined || ask.facts.length === 0 ? null : (
           <div className="mt-3 flex flex-wrap gap-2" data-ask-facts>
             {ask.facts.map((fact, index) => (

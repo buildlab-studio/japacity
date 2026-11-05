@@ -200,11 +200,14 @@ describe("the jobs list as picture cards", () => {
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
   });
 
-  test("[guide:early-win-in-three-turns] given a starting life's first hunt (the view's hunt marked sure), when a job's card line is read, then it says the hunt lands a job for sure, and without the mark it does not", () => {
+  test("[guide:early-win-in-three-turns] [activity:job-hunt-lands-offer] given a starting life's first hunt (the view's hunt marked sure), when a job's card line is read, then it is the job's own words, its pay and its chance word alone, the same as without the mark", () => {
     const view = engineView();
     const job = huntOf(view)[0]!;
     expect(view.activities.find((option) => option.id === HUNT)?.sure).toBe(true);
-    expect(jobCardLine(view, HUNT, job)).toContain(say("jobs.sure-first"));
+    const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${HUNT}.blurb`];
+    const band = say(`jobs.chance.${chanceBand(jobChanceBp(entryOf(job), networkOf(view)))}`);
+    expect(jobCardLine(view, HUNT, job)).toBe(`${own ?? ""} ${say("jobs.card", { pay: payWords(job), chance: band })}`);
+    expect(jobCardLine(view, HUNT, job)).not.toMatch(/for sure|first hunt/i);
     const plain: PlayerView = {
       ...view,
       activities: view.activities.map((option) => {
@@ -214,6 +217,6 @@ describe("the jobs list as picture cards", () => {
         return rest;
       }),
     };
-    expect(jobCardLine(plain, HUNT, job)).not.toContain(say("jobs.sure-first"));
+    expect(jobCardLine(plain, HUNT, job)).toBe(jobCardLine(view, HUNT, job));
   });
 });

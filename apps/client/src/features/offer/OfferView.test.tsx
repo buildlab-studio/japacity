@@ -24,11 +24,27 @@ describe("offers", () => {
     expect(screen.getByText(say("ui.offer.expires", { when: byMonths(12, view.month) }))).toBeDefined();
   });
 
-  test("given an offer with signs, then each sign shown is in content's words", async () => {
+  test("[advice:scams-show-their-tells] given an offer with two signs, then the first shows at once in content's words, the other only after the free look, and a sign the offer did not open with never shows", async () => {
     await renderWithView(<OfferView />, richView());
     expect(screen.getByText(text["offer.held-funds-agent.sign.cash-only"]!)).toBeDefined();
+    expect(screen.queryByText(text["offer.held-funds-agent.sign.my-guy"]!)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.offer.look") }));
+    expect(screen.getByText(text["offer.held-funds-agent.sign.cash-only"]!)).toBeDefined();
     expect(screen.getByText(text["offer.held-funds-agent.sign.my-guy"]!)).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.offer.look") })).toBeNull();
     expect(screen.queryByText(text["offer.held-funds-agent.sign.office"]!)).toBeNull();
+  });
+
+  test("[advice:scams-show-their-tells] given the radio's pitch with all its signs, then one sign shows, the look costs nothing and sends nothing, and after it every sign shows", async () => {
+    const view = richView();
+    const radio = { id: "offer-radio", entry: "offer.road-radio" as Offer["entry"], openedMonth: view.month, expiresMonth: view.month + 2, terms: { deposit: 50_000_000 }, signs: ["too-cheap", "no-paper", "agency-warning"], choices: [{ id: "take", allowed: true, pick: null }, { id: "ignore", allowed: true, pick: null }] } as unknown as Offer;
+    const { authority } = await renderWithView(<OfferView />, { ...view, offers: [radio] });
+    const card = document.querySelector("[data-ask='offer.road-radio']")!;
+    expect([...card.querySelectorAll("[data-ask-sign]")].map((sign) => sign.getAttribute("data-ask-sign"))).toEqual(["too-cheap"]);
+    const sent = authority.sent.length;
+    fireEvent.click(screen.getByRole("button", { name: say("ui.offer.look") }));
+    expect(authority.sent.length).toBe(sent);
+    expect([...card.querySelectorAll("[data-ask-sign]")].map((sign) => sign.textContent?.replace("👀", ""))).toEqual(["too-cheap", "no-paper", "agency-warning"].map((sign) => text[`offer.road-radio.sign.${sign}`]));
   });
 
   test("given a plain choice, when it is clicked, then offer/choose is sent without an amount", async () => {
