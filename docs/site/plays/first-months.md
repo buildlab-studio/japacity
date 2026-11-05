@@ -59,7 +59,7 @@ When every step is met, the chapter closes at the month's end: its brief comes b
 
 ## The sure first hunt
 
-The game promises an early win: in every starting life, playing the first three months as the nudge suggests brings at least one good line that follows from the player's own choice. To make that sure, the first job hunt of a starting life in its first three months always succeeds. The draw is still made. When it misses, the life is given the lowest-paid job it may hunt whose pay covers what it owes each month (upkeep, rent, support, instalments), and only when none covers it, the lowest of all. While that hunt is still to come, the board reads every job "As good as certain".
+The game promises an early win: in every starting life, playing the first three months as the nudge suggests brings at least one good line that follows from the player's own choice. To make that sure, the first job hunt of a starting life in its first three months always succeeds. The draw is still made. When it misses, the life is given the lowest-paid job it may hunt whose pay covers what it owes each month (upkeep, rent, support, instalments), and only when none covers it, the lowest of all. The board still shows each job's own chance, and nothing on it says the hunt is sure: the job comes as a small surprise.
 
 ::: details Why the job must cover the dues
 A job that pays less than the life owes each month would trap it: the chapter has stopped asking it to hunt, and the money drains away anyway. So the sure hunt picks the cheapest job that still covers the dues, not the cheapest job.
