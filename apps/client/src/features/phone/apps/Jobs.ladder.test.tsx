@@ -1,5 +1,6 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import { cleanup } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { newGame } from "../../../shared/testing/fixtures";
@@ -38,6 +39,31 @@ describe("the trade's next rung in Jobs", () => {
     const rung = document.querySelector("[data-job-rung]");
     expect(rung?.textContent).toContain(say("phone.jobs.rung.open"));
     expect(rung?.querySelector("[data-rung-needs]")).toBeNull();
+  });
+
+  test("[activity:each-trade-climbs-its-ladder] [wallet:roads-to-the-target] given the banker, whose months count among the accounting jobs too, when Jobs opens, then the next rung is the bank's own senior bank officer, and the chartered accountant shows under it as the road across with its pay", async () => {
+    const view = newGame("scenario.banker").view();
+    expect(view.job.id).toBe("activity.job-bank-officer");
+    await renderWithView(<Jobs />, view);
+    expect(document.querySelector("[data-job-rung]")?.getAttribute("data-job-rung")).toBe("activity.job-bank-senior");
+    const across = document.querySelector("[data-job-across]");
+    expect(across?.getAttribute("data-job-across")).toBe("activity.job-chartered-accountant");
+    expect(across?.textContent).toContain(nameOf("activity.job-chartered-accountant"));
+    expect(across?.textContent).toContain(say("phone.jobs.across.line"));
+    const pay = content.activity["activity.job-chartered-accountant" as Id<"activity">]?.pay;
+    if (pay === undefined || pay === null || typeof pay.amount !== "number") throw new Error("The rung has no written pay.");
+    expect(across?.textContent).toContain(formatMoney(pay.amount, pay.currency));
+    // The road across stands after the next rung.
+    expect(document.querySelector("[data-job-rung]")!.compareDocumentPosition(across!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  test("[activity:each-trade-climbs-its-ladder] given the nurse and the developer, whose trades count their own jobs alone, when Jobs opens, then no road across shows", async () => {
+    for (const scenario of ["scenario.nurse", "scenario.developer"] as const) {
+      await renderWithView(<Jobs />, newGame(scenario).view());
+      expect(document.querySelector("[data-job-rung]")).not.toBeNull();
+      expect(document.querySelector("[data-job-across]")).toBeNull();
+      cleanup();
+    }
   });
 
   test("[activity:each-trade-climbs-its-ladder] given no job held, when Jobs opens, then no rung is shown, since a rung is the next step of a trade held", async () => {
