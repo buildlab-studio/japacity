@@ -19,6 +19,8 @@ export interface WorldSheetProps {
   /** The small line over the title. */
   label: string;
   title: string;
+  /** The title names the sheet for a screen reader only, where the body carries its own head (the ask's name pill and title). */
+  titleHidden?: boolean;
   children: ReactNode;
   /** The sheet's foot, under the body: the one main button. */
   foot?: ReactNode;
@@ -43,7 +45,7 @@ function useMomentStanding(): boolean {
   );
 }
 
-export function WorldSheet({ open, onClose, label, title, children, foot, mark }: WorldSheetProps) {
+export function WorldSheet({ open, onClose, label, title, titleHidden = false, children, foot, mark }: WorldSheetProps) {
   // Under a moment card the sheet's head steps back, its title and its close, so one close is in view.
   const covered = useMomentStanding();
   return (
@@ -55,7 +57,7 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
           <div className={`relative shrink-0 px-4 pt-1 pr-14 pb-1 transition-opacity duration-200 ease-out ${covered ? "pointer-events-none opacity-0" : ""}`} aria-hidden={covered || undefined} data-world-sheet-head={covered ? "covered" : "shown"}>
             <SheetHandle className="-mr-10 mb-1" />
             <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{label}</Dialog.Description>
-            <Dialog.Title className="text-title font-bold">{title}</Dialog.Title>
+            <Dialog.Title className={titleHidden ? "sr-only" : "text-title font-bold"} data-world-sheet-title>{title}</Dialog.Title>
             <SheetCloseButton label={say("ui.world.close")} />
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-2 pb-4">{children}</div>

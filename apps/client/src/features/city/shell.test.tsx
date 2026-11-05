@@ -307,6 +307,28 @@ describe("the nudge", () => {
     expect(within(sheet).getByRole("button", { name: say("ui.world.go-there") })).toBeTruthy();
   });
 
+  test("[world:one-action-one-sheet] [text:show-then-tell] given an ask answered where the player stands, when its sheet opens, then the sheet is named for who asks, shown only by the card's own head, and the nudge's words are no heading over it", async () => {
+    const view = { ...richView(), setpiece: null, interview: null };
+    await opened(world({ asks: [<p key="a" data-ask="a">Mama's card</p>], asksAt: [null], askWho: ["Mama"] }), view);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
+    const sheet = screen.getByRole("dialog", { name: "Mama" });
+    const title = sheet.querySelector("[data-world-sheet-title]");
+    expect(title?.textContent).toBe("Mama");
+    expect(title?.className).toContain("sr-only");
+    expect(within(sheet).queryByText(say("ui.nudge.offer"))).toBeNull();
+    expect(within(sheet).getByText("Mama's card")).toBeTruthy();
+  });
+
+  test("[world:one-action-one-sheet] given an ask that belongs at another place, when its sheet opens away from it, then the sheet's heading is who asks, in plain view", async () => {
+    const view = { ...richView(), setpiece: null, interview: null };
+    localStorage.setItem("japacity.city.last", JSON.stringify(["place.bode-thomas"]));
+    await opened(world({ asks: [<p key="a" data-ask="a">the send-off</p>], asksAt: ["place.family-house"], askWho: ["Your father"] }), view);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
+    const title = screen.getByRole("dialog").querySelector("[data-world-sheet-title]");
+    expect(title?.textContent).toBe("Your father");
+    expect(title?.className).not.toContain("sr-only");
+  });
+
   test("[world:nudge-says-one-thing] given the story has nudge words for the step, when the nudge is chosen, then they are used over the step's own words", () => {
     const own = `${String(quiet.chapter.current)}.item.${String(step)}`;
     expect(nudgeOf(quiet, (key) => key === `${own}.nudge`).key).toBe(`${own}.nudge`);

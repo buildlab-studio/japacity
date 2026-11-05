@@ -463,6 +463,7 @@ export function City({
   results,
   asks,
   asksAt,
+  askWho,
   asksHold,
   phone: handset,
   phoneWaiting,
@@ -483,6 +484,8 @@ export function City({
   asks?: ReactNode | ReactNode[];
   /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (world:one-action-one-sheet). */
   asksAt?: (string | null)[];
+  /** For each ask, who asks: the sheet is named for them, never for the nudge's words (world:one-action-one-sheet). */
+  askWho?: (string | undefined)[];
   /** True while an ask still says its last line after what it asked has closed (the officer's close): the sheet that holds it stays open. */
   asksHold?: boolean;
   /**
@@ -1770,6 +1773,13 @@ export function City({
   const loading = drawing && entry !== null && !ready && failed === null;
   const percent = progress === null || progress.total === 0 ? 0 : Math.floor((progress.loaded * 100) / progress.total);
 
+  // The ask on show: its place in the list, where it must be answered, whether the player is there, and who asks.
+  const askShown = (() => {
+    const index = Math.min(askIndex, Math.max(0, askCount - 1));
+    const at = asksAt?.[askList === null ? 0 : index] ?? null;
+    const there = at === null || placeId === at || (inside && insideEntry?.id === at);
+    return { index, at, there, who: askWho?.[askList === null ? 0 : index] };
+  })();
   return (
     <>
       <div className={`fixed inset-0 ${looking ? "z-[35]" : "pointer-events-none -z-10"}`} inert={sceneCovered} data-city={placeId} data-looking={looking}>
@@ -2239,7 +2249,9 @@ export function City({
           open={asksOpen}
           onClose={() => setAsksOpen(false)}
           label={askLabel ?? hereName}
-          title={say(nudge?.key ?? "ui.nudge.end")}
+          // world:one-action-one-sheet: the sheet is named for who asks; over the ask's own card, whose name pill and title are its head, only for a screen reader.
+          title={askShown.who ?? say(nudge?.key ?? "ui.nudge.end")}
+          titleHidden={askShown.who !== undefined && askShown.there}
           mark="asks"
           {...(askList !== null && askCount > 1
             ? {
@@ -2257,9 +2269,7 @@ export function City({
             : {})}
         >
           {(() => {
-            const index = Math.min(askIndex, Math.max(0, askCount - 1));
-            const at = asksAt?.[askList === null ? 0 : index] ?? null;
-            const there = at !== null && (placeId === at || (inside && insideEntry?.id === at));
+            const { index, at, there } = askShown;
             if (at !== null && !there) {
               return (
                 <div className="flex flex-col gap-4" data-ask-away={at}>
