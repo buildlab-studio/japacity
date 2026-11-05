@@ -356,6 +356,11 @@ export const chapterText: Record<string, string> = {
   "chapter.brief.at.airport-lagos": "The airport",
   "chapter.brief.at.the-room": "Your room",
   "chapter.brief.at.peckham": "High street",
+  // Where a life's own way takes a first step the table puts elsewhere: the racks in Makoko, the nurse's clinic, a trade's motor park, a trader's stall.
+  "chapter.brief.at.own.racks": "The racks",
+  "chapter.brief.at.own.clinic": "The clinic",
+  "chapter.brief.at.own.motor-park": "Motor park",
+  "chapter.brief.at.own.shop": "Your stall",
   "chapter.find-your-feet.brief.title": "Work first, abeg",
   "chapter.find-your-feet.brief.giver": "Lanre",
   "chapter.find-your-feet.brief.giver.where": "the hub",
