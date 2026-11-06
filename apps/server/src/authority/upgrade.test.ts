@@ -176,12 +176,32 @@ describe("old saves", () => {
     expect(() => contentNamed(overlaid, "0", "dials-1")).toThrow(/bundles no content 0 under overlay dials-1/);
   });
 
-  test("[server:older-contents-bundled] given content version 1, the first, when the worker's contents are built, then no older version is bundled and only the current is named", () => {
-    expect(content.version).toBe("1");
-    expect(olderContents).toEqual([]);
+  test("[server:older-contents-bundled] [server:older-content-frozen] given content version 2 with version 1 frozen as it shipped, when the worker's contents are built, then version 1 is bundled beside the current and each is named by its own version", () => {
+    expect(content.version).toBe("2");
+    expect(olderContents.map((older) => older.version)).toEqual(["1"]);
     const worker = withContentBefore(contentsFor(content, undefined), undefined);
-    expect(worker).toEqual({ current: content, previous: null });
-    expect(contentNamed(worker, "1", undefined)).toBe(content);
+    expect(worker).toEqual({ current: content, previous: null, older: olderContents });
+    expect(contentNamed(worker, "2", undefined)).toBe(content);
+    expect(contentNamed(worker, "1", undefined)).toBe(olderContents[0]);
     expect(() => contentNamed(worker, "0", undefined)).toThrow(/bundles no content 0/);
+  });
+
+  test("[server:newer-content-upgrades-state] [server:older-contents-bundled] [activity:missed-hunt-opens-a-lead] given a character played three months under the shipped version 1, when its view is fetched under version 2, then its end state is upgraded with no lead marked, checked, and made the base of a new segment", async () => {
+    const shipped = olderContents[0]!;
+    const server = testServer();
+    server.deps.contents = { current: shipped, previous: null };
+    const id = await newLife(server, "acc-1");
+    for (let v = 0; v < 3; v += 1) expect((await send(server, "acc-1", restMonth({ v }))).body.ok).toBe(true);
+    const before = await held(server, id);
+    expect(before.segments.map((segment) => segment.content)).toEqual(["1"]);
+    server.deps.contents = withContentBefore(contentsFor(content, undefined), undefined);
+    const reply = await view(server, "acc-1");
+    if (!reply.body.ok) throw new Error(reply.body.detail);
+    const stored = await held(server, id);
+    expect(stored.segments.map((segment) => segment.content)).toEqual(["1", "2"]);
+    const base = stored.snapshot.state;
+    expect(base.content).toBe("2");
+    expect(base.activity.lead).toBeUndefined();
+    expect(checkInvariants(base, content)).toEqual([]);
   });
 });

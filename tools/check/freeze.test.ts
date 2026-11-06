@@ -29,11 +29,33 @@ const SEALED = { version: "1", fingerprint: "a".repeat(64) };
 
 const folders: string[] = [];
 
+/** The content's index.ts with nothing frozen: the versions the repository has frozen taken out of it, as before the first freeze. */
+function unfrozenIndex(): string {
+  return read(join(REPO_ROOT, CONTENT_SOURCE, "index.ts"))
+    .split("\n")
+    .filter((line) => !/^import content\d+ from "\.\/older\/\d+\/content\.json";$/.test(line) && line !== 'import { frozenContent } from "./older/frozen";')
+    .join("\n")
+    .replace(/export const olderContents: readonly Content\[\] = \[[^\]]*\];/, "export const olderContents: readonly Content[] = [];");
+}
+
 /** A temporary copy of the content's source folder as the freeze touches it: its index.ts, and nothing frozen yet. */
 function contentCopy(): string {
   const dir = mkdtempSync(join(tmpdir(), "japacity-freeze-"));
   folders.push(dir);
+  writeFileSync(join(dir, "index.ts"), unfrozenIndex());
+  return dir;
+}
+
+/** A temporary copy of the content's source folder as the repository holds it: its index.ts and every version frozen in it. */
+function repositoryCopy(): string {
+  const dir = mkdtempSync(join(tmpdir(), "japacity-freeze-"));
+  folders.push(dir);
   copyFileSync(join(REPO_ROOT, CONTENT_SOURCE, "index.ts"), join(dir, "index.ts"));
+  for (const frozen of readFrozen(join(REPO_ROOT, CONTENT_SOURCE))) {
+    const folder = join(dir, OLDER_DIR, frozen.version);
+    mkdirSync(folder, { recursive: true });
+    for (const file of ["content.json", "seal.json"]) copyFileSync(join(REPO_ROOT, CONTENT_SOURCE, OLDER_DIR, frozen.version, file), join(folder, file));
+  }
   return dir;
 }
 
@@ -186,7 +208,7 @@ describe("pnpm check:version, the frozen versions", () => {
   test("[server:older-content-frozen] given today's sealed content, when frozen into a copy and loaded, then it is the live content: equal, its keys in the same order, and a content the engine accepts", () => {
     const seal = readJson<Seal>(join(REPO_ROOT, SEAL_FILE));
     const now = { version: content.version, fingerprint: fingerprint(content, simSources()) };
-    const dir = contentCopy();
+    const dir = repositoryCopy();
     const result = freeze(dir, content, now, seal);
     if (!result.ok) throw new Error(result.problem);
     const loaded: Content = frozenContent(JSON.parse(read(join(dir, OLDER_DIR, content.version, "content.json"))) as unknown);
@@ -194,6 +216,6 @@ describe("pnpm check:version, the frozen versions", () => {
     expect(JSON.stringify(loaded)).toBe(JSON.stringify(content));
     expect(contentFingerprint(loaded)).toBe(contentFingerprint(content));
     expect(checkContent(loaded)).toEqual([]);
-    expect(checkFrozen(String(Number(content.version) + 1), readFrozen(dir), listedOf([loaded]))).toEqual([]);
+    expect(checkFrozen(String(Number(content.version) + 1), readFrozen(dir), listedOf([...olderContents, loaded]))).toEqual([]);
   });
 });
