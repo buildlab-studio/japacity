@@ -26,7 +26,7 @@ import { countsWords } from "../../shared/words/profile";
 import { needsWords } from "../../shared/words/requirement";
 import { onPhoneAppAsked } from "../../shared/phone/ask";
 import { newsRead } from "../../shared/phone/newsSeen";
-import { earlyStops, sixteenPath } from "../../shared/words/sixteen";
+import { earlyStops, openingKey } from "../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { ENGLISH_TEST, testChance } from "../../shared/words/englishTest";
 import { AskSheet } from "../../shared/world/AskSheet";
@@ -181,24 +181,6 @@ function homeOf(view: PlayerView): string | null {
  */
 const SWITCHED_OFF = new Set<string>();
 
-/**
- * The first chapter's opening words for this life (world:world-fills-the-screen): the
- * scenario's own line when content has one, the prologue's by its path (a degree or a trade), else the
- * chapter's line.
- */
-function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
-  const chapter = view.chapter.current ?? "";
-  const slug = view.scenario.replace(/^scenario\./, "");
-  if (slug === "prologue") {
-    // The child of the water has her own opening (prologue:makoko-start-never-a-trap): her path is the shop counter's, her words are not.
-    const water = `${chapter}.open.prologue.water`;
-    if (readPerson()?.archetype === "water" && hasWords(water)) return water;
-    // The path the prologue built: a degree, a trade, or a trade with the master's settlement in hand.
-    const path = `${chapter}.open.prologue.${sixteenPath(view) ?? "trade"}`;
-    if (hasWords(path)) return path;
-  } else if (hasWords(`${chapter}.open.${slug}`)) return `${chapter}.open.${slug}`;
-  return `${chapter}.open`;
-}
 /** The first chapter by order (chapter:first-chapter-starts-current): its opening is a title over the world, never a card (chapter:first-chapter-mission-card). */
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
 /** How long every name shows over its mark on a place's first entry in a life, before the names fade (world:things-are-tappable-models). */
@@ -210,7 +192,7 @@ export const RESULTS_BEAT_MS = 300;
  * The giver's words on a chapter's mission card (the brief, docs/design/09-the-games-look.md section 4): the first chapter's opening for this
  * life's path, a later chapter's own opening.
  */
-function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
+function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets" | "hometown">): string {
   return words(openingKey(view));
 }
 

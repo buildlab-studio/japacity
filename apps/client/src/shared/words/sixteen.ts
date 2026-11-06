@@ -121,14 +121,26 @@ export function ownWords(view: Life & Pick<PlayerView, "chapter">, key: string, 
   return path !== null && has(`${key}.${path}`) ? `${key}.${path}` : key;
 }
 
+/** The home answer a child of the water gives, and the hometown it says she was born to (prologue:makoko-start-never-a-trap). */
+const WATER_HOME = "makoko";
+
+/** A life from sixteen born on the water: its hometown is the one Makoko's home answer gives, which the view keeps after the prologue closes. */
+function bornOnWater(view: Pick<PlayerView, "scenario"> & Partial<Pick<PlayerView, "hometown">>): boolean {
+  const born = content.tuning.prologue.hometowns.byHome[WATER_HOME];
+  return content.scenario[view.scenario]?.prologue === true && born !== undefined && view.hometown === born;
+}
+
 /**
- * The current chapter's opening words for this life (world:world-fills-the-screen): the scenario's own
+ * The current chapter's opening words for this life (world:world-fills-the-screen, chapter:first-chapter-mission-card): the scenario's own
  * line when content has one, the prologue's by its path (a degree, a trade, a trade with the settlement), else the
- * chapter's line, so a trader's chapter never opens on the service year.
+ * chapter's line, so a trader's chapter never opens on the service year. The child of the water has her own opening:
+ * her path is the shop counter's, her words are not. The mission card and the Japa app's log both read this one key.
  */
-export function openingKey(view: Life & Pick<PlayerView, "chapter">, has: (key: string) => boolean = hasWords): string {
+export function openingKey(view: Life & Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "hometown">>, has: (key: string) => boolean = hasWords): string {
   const chapter = view.chapter.current ?? "";
   const slug = view.scenario.replace(/^scenario\./, "");
+  const water = `${chapter}.open.prologue.water`;
+  if (slug === "prologue" && bornOnWater(view) && has(water)) return water;
   const own = slug === "prologue" ? `${chapter}.open.prologue.${sixteenPath(view) ?? "trade"}` : `${chapter}.open.${slug}`;
   return has(own) ? own : `${chapter}.open`;
 }
