@@ -623,6 +623,8 @@ export const uiText: Record<string, string> = {
   "ui.page.family.siblings": "{count} siblings",
   "ui.page.family.siblings.one": "One sibling",
   "ui.page.years": "The years before",
+  // A way out the years heard of, under So far as the life is handed over (prologue:printed-page-hands-over).
+  "ui.page.heard": "Heard of {way} at a send-off",
   "ui.page.years.running": "The years go by",
   "ui.page.year.waec": "WAEC",
   "ui.page.year.exam": "JAMB",
@@ -641,8 +643,6 @@ export const uiText: Record<string, string> = {
   "ui.page.year.service.redeploy": "Redeployed",
   "ui.page.year.service.skip": "No certificate",
   "ui.page.year.master": "Under a master",
-  "ui.page.year.send-off": "A send-off",
-  "ui.page.year.heard": "Heard of {way}",
   "ui.page.year.left": "Left early",
   "ui.page.year.settlement": "Settlement",
   "ui.page.year.settlement.generous": "Capital and a plot",

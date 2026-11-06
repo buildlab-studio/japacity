@@ -5,7 +5,7 @@
 // from the life as it stands.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { Award, BookOpen, Briefcase, CalendarX, Flag, GraduationCap, Hammer, House, Megaphone, Store, TriangleAlert, Wallet } from "lucide-react";
+import { Award, BookOpen, Briefcase, CalendarX, Flag, GraduationCap, Hammer, House, Store, TriangleAlert, Wallet } from "lucide-react";
 import type { ComponentType } from "react";
 
 import type { MarkState } from "../../shared/ui/Mark";
@@ -150,6 +150,18 @@ export function heardAt(one: Pick<TrailStep, "step" | "answer">): string | null 
 }
 
 /**
+ * The way out the years before heard of, said once under So far as the life is handed over (prologue:printed-page-hands-over,
+ * chapter:first-chapter-mission-card): "Heard of health care at a send-off"; null where the trail heard of none.
+ */
+export function heardWords(trail: Trail): string | null {
+  for (const one of trail.steps) {
+    const route = heardAt(one);
+    if (route !== null) return say("ui.page.heard", { way: say(`prologue.page.way.${route}`) });
+  }
+  return null;
+}
+
+/**
  * The chips of the years before, in the order they were lived, from the trail; from the life's path when the trail is
  * lost. `water`: the child of the water's own years (prologue:makoko-start-never-a-trap): school by canoe, the
  * fish racks in place of a shop counter.
@@ -194,12 +206,6 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
       case "service":
         chips.push({ id: "service", icon: Flag, label: say("ui.page.year.service"), note: say(`ui.page.year.service.${one.answer}`), state: one.answer === "skip" ? "failed" : "done" });
         break;
-      // chapter:first-chapter-mission-card: a way out heard at the send-off is said here, so the brief's step it meets was seen to happen.
-      case "friend": {
-        const heard = heardAt(one);
-        if (heard !== null) chips.push({ id: "heard", icon: Megaphone, label: say("ui.page.year.send-off"), note: say("ui.page.year.heard", { way: say(`prologue.page.way.${heard}`) }), state: "done" });
-        break;
-      }
       case "master":
         chips.push({ id: "master", icon: Hammer, label: say("ui.page.year.master"), note: words(`prologue.master.answer.${one.answer}`), state: "done" });
         break;

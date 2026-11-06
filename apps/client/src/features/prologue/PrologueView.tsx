@@ -36,7 +36,7 @@ import { familyCard } from "../../shared/datapage/family";
 import { WayChips } from "../../shared/front-door/WayChips";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { readyPercent, readyWords } from "../../shared/words/ready";
-import { noteAnswer, noteCard, noteSteps, readTrail, startTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
+import { heardWords, noteAnswer, noteCard, noteSteps, readTrail, startTrail, storyChips, type Trail, trailShown, type YearChip, yearChips } from "./years";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -508,8 +508,11 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const base = pageOf(view, person);
   // The family and where it is from print on the page as its card turns over; until then their lines wait (prologue:front-door-builds-a-person, prologue:printed-page-hands-over).
   const shown = handover && turned && kept !== null;
+  // chapter:first-chapter-mission-card: the way out the years heard of is said under So far as the life is handed over.
+  const heard = handover ? heardWords(trail) : null;
   const page: PageFields = {
     ...base,
+    ...(heard === null ? {} : { heard }),
     photo: lookOf(look)?.picture ?? "",
     family: shown ? familyCard(kept, water, view.hometown).means : "",
     from: shown && view.hometown !== null ? hometownWords(view.hometown) : "",

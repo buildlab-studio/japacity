@@ -7,7 +7,7 @@ import type { PlayerView } from "@japacity/sim";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { briefOf, metBefore } from "../features/city/brief/brief";
-import { type TrailStep, yearChips } from "../features/prologue/years";
+import { heardWords, type TrailStep } from "../features/prologue/years";
 import { answersInOrder, ARCHETYPES, archetypeOf, presetAnswer } from "../shared/front-door/archetypes";
 import { newGame } from "../shared/testing/fixtures";
 import { handBrief } from "../shared/world/briefHanded";
@@ -59,11 +59,11 @@ describe("the years before, seen and then ticked", () => {
         expect(view.month).toBe(0);
         const met = view.chapter.items.filter((item) => item.met).map((item) => item.id);
         expect(met).toEqual(expected.met);
-        // The page's chip for the send-off names the way out heard there (prologue:printed-page-hands-over).
-        const chip = yearChips({ draw: null, steps: trail }, view).find((one) => one.id === "heard");
-        expect(chip?.note ?? null).toBe(expected.heard === null ? null : say("ui.page.year.heard", { way: say(`prologue.page.way.${expected.heard}`) }));
-        // Nothing met that the page did not say: a way out heard is the send-off's, and the send-off's chip stands.
-        expect(met.includes("heard") && chip === undefined).toBe(false);
+        // The page says under So far the way out heard at the send-off (prologue:printed-page-hands-over).
+        const heard = heardWords({ draw: null, steps: trail });
+        expect(heard).toBe(expected.heard === null ? null : say("ui.page.heard", { way: say(`prologue.page.way.${expected.heard}`) }));
+        // Nothing met that the page did not say: a way out heard is the send-off's, and the page's line stands.
+        expect(met.includes("heard") && heard === null).toBe(false);
         const brief = briefOf(view, "", metBefore(view, FIRST_CHAPTER))!;
         const before = brief.items.filter((item) => item.before);
         expect(before.map((item) => item.id)).toEqual(expected.met);
