@@ -2578,8 +2578,6 @@ export interface ActivityOption {
   when: "now" | "month";
   /** A now-act that is not a purchase, already done this month: not `allowed` again until the next (activity:now-acts-and-month-acts). */
   done: boolean;
-  /** The hunt only: this life's next hunt is its sure first one (guide:early-win-in-three-turns). Missing otherwise. */
-  sure?: true;
   /** activity:spent-body-refuses-acts: the act takes effort and the body is spent, so it waits for sleep. Missing otherwise. */
   spent?: true;
   /** The act's time in half-days when a thing owned changes it (the gas cooker's pot). Missing otherwise: the entry's own. */

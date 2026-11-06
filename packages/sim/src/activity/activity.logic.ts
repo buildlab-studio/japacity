@@ -82,7 +82,6 @@ const TECH: Id<"quality"> = "quality.tech";
 const DRIVING: Id<"quality"> = "quality.driving";
 /** The offer a landed hunt opens. It learns the job from the terms (offer:effect-opens-named-offer). */
 const JOB_OFFER = "offer.job" as const;
-const HUNT_ACTIVITY: Id<"activity"> = "activity.job-hunt";
 /** guide:early-win-in-three-turns: the months in which a life's first hunt is sure, counted as the month being played. */
 const SURE_HUNT_MONTHS = 3;
 /** A side gig pays naira cash (activity:side-gig-pays-a-draw). */
@@ -1275,12 +1274,6 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
   return covering?.entry ?? best?.entry ?? named;
 }
 
-/** True while this life's next hunt is its sure first one (guide:early-win-in-three-turns): the first three months, no hunt before, none earlier this month. */
-function firstHuntSure(read: ReadCtx): boolean {
-  const named = Object.values(read.content.activity).find((entry) => isJob(entry) && entry.hireBp !== null);
-  return named !== undefined && sureHuntJob(read, named, read.state.turn.month + 1, huntedThisMonth(read.state)) !== null;
-}
-
 /** A hunt earlier this month landed: its offer opened this month (every first hunt lands, so a miss cannot be earlier in a sure month). */
 function huntedThisMonth(state: State): boolean {
   return Object.values(state.offer.items).some((item) => item.entry === JOB_OFFER && item.openedMonth === state.turn.month);
@@ -1449,7 +1442,6 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
       const done = doneThisMonth(read.state, entry);
       // activity:spent-body-refuses-acts: a now-act that takes effort waits for sleep once the body is spent; what takes none stays open.
       const spent = answersNow(entry) && bodySpent(read.state, read.content, entry);
-      const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
         id: entry.id,
         allowed: !done && !spent && !capped && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
@@ -1459,7 +1451,6 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
         affordable: canPayPrices(prices, judge, read.state.wallet),
         when: answersNow(entry) ? "now" : "month",
         done,
-        ...(sure ? { sure: true as const } : {}),
         ...(spent ? { spent: true as const } : {}),
         ...(capped ? { capped: true as const } : {}),
         ...(studying ? { onCourse: true as const } : {}),

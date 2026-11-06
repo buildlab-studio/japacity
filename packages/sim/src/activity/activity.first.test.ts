@@ -114,19 +114,17 @@ describe("the sure first hunt", () => {
     expect(sureHuntJob(readOf(rested), named, 2, false)).not.toBeNull();
   });
 
-  test("[guide:early-win-in-three-turns] [activity:job-hunt-lands-offer] given a starting life's first hunt, for the best-paid job it may hunt, whatever the draw, when the turn is ended, then the hunt lands (the named job or the lowest-paid), the job offer opens, and the view's hunt reads sure before it and not after", () => {
+  test("[guide:early-win-in-three-turns] [activity:job-hunt-lands-offer] given a starting life's first hunt, for the best-paid job it may hunt, whatever the draw, when the turn is ended, then the hunt lands (the named job or the lowest-paid) and the job offer opens", () => {
     for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6", "seed-7", "seed-8"]) {
       const game = start({ scenario: "scenario.graduate", content, seed });
       const wages = byWage(game, "main");
       const best = wages[wages.length - 1]!;
-      expect(game.view().activities.find((option) => option.id === HUNT)?.sure).toBe(true);
       game.endTurn([{ activity: HUNT, param: best }]);
       const lines = game.view().report?.lines ?? [];
       const landed = lines.find((line) => line.key === "line.activity.hunt-hired");
       expect(landed).toBeDefined();
       expect(wages).toContain(landed?.params["job"]);
       expect(game.view().offers.some((offer) => offer.entry === "offer.job")).toBe(true);
-      expect(game.view().activities.find((option) => option.id === HUNT)?.sure).toBeUndefined();
     }
   });
 });
@@ -155,7 +153,6 @@ describe("the sure hunt that lands another job", () => {
       const game = shown(`z1-${String(at)}`);
       const named = game.view().activities.find((option) => option.id === HUNT);
       expect(named?.params).toContain(asked);
-      expect(named?.sure).toBe(true);
       game.accept({ type: "activity/now", activity: HUNT, param: asked });
       game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
       game.endTurn(FULL);

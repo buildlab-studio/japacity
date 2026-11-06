@@ -10,7 +10,7 @@ import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
 import { firstJob, huntOrder, jobsOutOfReach } from "./JobList";
-import { chanceBand, jobCardLine, jobChanceBp, sureJobOf } from "../../shared/words/jobs";
+import { chanceBand, huntBand, jobCardLine, jobChanceBp } from "../../shared/words/jobs";
 import { say } from "../../shared/words/text";
 
 const HUNT = "activity.job-hunt";
@@ -71,8 +71,8 @@ describe("the jobs list on the hunt's card", () => {
     expect(rows).toHaveLength(jobs.length);
     for (const job of jobs) {
       const row = within(list).getByRole("radio", { name: new RegExp(`^${text[`${job}.name`] ?? job}`) });
-      // activity:job-hunt-lands-offer: the job the sure first hunt lands reads as good as certain; every other its own chance.
-      const band = sureJobOf(view, entryOf(job).slot) === job ? "certain" : chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
+      // activity:job-hunt-lands-offer: every job reads its own chance.
+      const band = huntBand(jobChanceBp(entryOf(job), networkOf(view)));
       expect(within(row).getByText(payWords(job))).toBeDefined();
       expect(within(row).getByText(say(`jobs.chance.${band}`))).toBeDefined();
     }
@@ -165,13 +165,13 @@ describe("the jobs list as picture cards", () => {
     expect(rows.filter((row) => row.querySelector(".phone-picked") !== null)).toHaveLength(1);
   });
 
-  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely and for the sure hunt's job, as good as certain", async () => {
+  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely and for a job at the hire cap, as good as certain", async () => {
     const view = engineView();
     const steps = { long: "1", fair: "2", likely: "3", certain: "3" } as const;
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     for (const job of huntOf(view)) {
       const row = document.querySelector(`[data-jobs] [data-job='${job}']`);
-      const band = sureJobOf(view, entryOf(job).slot) === job ? "certain" : chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
+      const band = huntBand(jobChanceBp(entryOf(job), networkOf(view)));
       expect(row?.querySelector("[data-gauge]")?.getAttribute("data-gauge")).toBe(steps[band]);
       expect(row?.querySelector("[data-gauge]")?.children).toHaveLength(3);
       expect(row?.querySelector(`[data-chance='${band}']`)?.textContent).toBe(say(`jobs.chance.${band}`));
@@ -201,23 +201,14 @@ describe("the jobs list as picture cards", () => {
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
   });
 
-  test("[guide:early-win-in-three-turns] [activity:job-hunt-lands-offer] given a starting life's first hunt (the view's hunt marked sure), when a job's card line is read, then it is the job's own words, its pay and its chance word alone, the same as without the mark", () => {
+  test("[activity:job-hunt-lands-offer] given a starting life's first hunt, when each job's card line is read, then it is the job's own words, its pay and its own chance word alone, and no line promises the hunt", () => {
     const view = engineView();
-    const job = huntOf(view)[0]!;
-    expect(view.activities.find((option) => option.id === HUNT)?.sure).toBe(true);
-    const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${HUNT}.blurb`];
-    const band = say(`jobs.chance.${chanceBand(jobChanceBp(entryOf(job), networkOf(view)))}`);
-    expect(jobCardLine(view, HUNT, job)).toBe(`${own ?? ""} ${say("jobs.card", { pay: payWords(job), chance: band })}`);
-    expect(jobCardLine(view, HUNT, job)).not.toMatch(/for sure|first hunt/i);
-    const plain: PlayerView = {
-      ...view,
-      activities: view.activities.map((option) => {
-        if (option.id !== HUNT) return option;
-        const rest = { ...option };
-        delete rest.sure;
-        return rest;
-      }),
-    };
-    expect(jobCardLine(plain, HUNT, job)).toBe(jobCardLine(view, HUNT, job));
+    // A side job paid by level says its tier beside its pay (activity:side-jobs-pay-by-tier); the jobs paid one figure are read here.
+    for (const job of huntOf(view).filter((id) => (entryOf(id).tiers ?? []).length === 0)) {
+      const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${HUNT}.blurb`];
+      const band = say(`jobs.chance.${huntBand(jobChanceBp(entryOf(job), networkOf(view)))}`);
+      expect(jobCardLine(view, HUNT, job)).toBe(`${own ?? ""} ${say("jobs.card", { pay: payWords(job), chance: band })}`);
+      expect(jobCardLine(view, HUNT, job)).not.toMatch(/for sure|first hunt|certain/i);
+    }
   });
 });
