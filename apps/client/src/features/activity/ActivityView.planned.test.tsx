@@ -2,15 +2,16 @@
 // its button says Ongoing and is shut, since starting it again would only take
 // more of the free time; cooking and the water are done at once and never planned (activity:now-acts-and-month-acts).
 import { content } from "@japacity/content";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, plannedShut } from "../../authority/store";
 import { engineView, gameAuthority, newGame } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { nameOf, say } from "../../shared/words/text";
+import { buttonOf } from "../../shared/words/acts";
+import { say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 // Decision 0012 (activity:acts-may-repeat-in-month): the coding course answers at once and repeats; the course that carries on as a
@@ -20,7 +21,8 @@ const CLASS = "activity.learn-tech";
 const FAMILY = "activity.family-time";
 const COOK = "activity.cook-at-home";
 
-const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: nameOf(id) });
+/** An act's one main button, by its mark: its words are its verb, which several acts share (world:one-action-one-sheet). */
+const addButton = (id: string): HTMLButtonElement => found(`[data-act-main="${id}"]`) as HTMLButtonElement;
 
 describe("a thing started is ongoing", () => {
   test("[world:month-acts-carry-on] [turn:free-slots-per-month] given a course started this month, when the sheet shows it, then its button says Ongoing and is shut while time with family stays open", async () => {
@@ -63,8 +65,8 @@ describe("a thing started is ongoing", () => {
       expect(addButton(CLASS).disabled).toBe(false);
       expect(addButton(CLASS).textContent).not.toContain(say("ui.activity.planned"));
       expect(document.body.textContent).not.toContain(say("ui.world.counts-at-end"));
-      // world:one-action-one-sheet: the button says the act and its price; the balance before and after stands under it.
-      expect(addButton(CLASS).textContent).toContain(say("ui.act.priced", { act: nameOf(CLASS), price: formatMoney(price.amount, price.currency) }));
+      // world:one-action-one-sheet: the button says the act's verb and its price; the balance before and after stands under it.
+      expect(addButton(CLASS).textContent).toContain(say("ui.act.priced", { act: buttonOf(CLASS), price: formatMoney(price.amount, price.currency) }));
       expect(document.querySelector("[data-balance-before]")?.getAttribute("data-balance-before")).toBe(String(held));
       expect(document.querySelector("[data-balance-after]")?.getAttribute("data-balance-after")).toBe(String(held - price.amount));
       await act(async () => {

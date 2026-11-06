@@ -2,15 +2,14 @@
 // needs first when it is not allowed, the short figure when it cannot be paid, counted the same way
 // on the button and on the line above it, and never a figure left over a button that is shut.
 import type { ActivityOption } from "@japacity/sim";
-import { screen } from "@testing-library/react";
 import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { newGame } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
-import { nameOf, runningName, say } from "../../shared/words/text";
+import { runningName, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const PASSPORT = "activity.get-passport";
@@ -19,7 +18,8 @@ const ENGLISH_TEST = "activity.sit-english-test";
 const ADVISER = "activity.see-adviser";
 const OFFICIAL = "activity.look-into-route";
 
-const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${nameOf(id)}` });
+/** An act's one main button, by its mark: its words are its verb, which several acts share (world:one-action-one-sheet). */
+const addButton = (id: string): HTMLButtonElement => found(`[data-act-main="${id}"]`) as HTMLButtonElement;
 const buttonLine = (id: string): string | null => addButton(id).querySelector("[data-after]")?.textContent ?? null;
 
 function cost(option: ActivityOption | undefined): number {

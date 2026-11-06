@@ -5,7 +5,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
@@ -99,7 +99,7 @@ describe("the jobs list on the hunt's card", () => {
     const last = huntOrder(view, jobs).at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }));
     expect(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }).getAttribute("aria-checked")).toBe("true");
-    fireEvent.click(screen.getByRole("button", { name: `${text[`${HUNT}.name`] ?? HUNT}` }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("jobs.apply")} ${text[`${last}.name`] ?? last}`) }));
     // activity:now-acts-and-month-acts: the hunt is applied for at once, so the job tapped goes with the command sent now and
     // no slot is planned.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: HUNT, param: last }));
@@ -147,7 +147,7 @@ describe("the jobs list on the hunt's card", () => {
 
 describe("the jobs list as picture cards", () => {
   const nameOfJob = (id: string) => text[`${id}.name`] ?? id;
-  const applyButton = () => screen.getByRole("button", { name: `${nameOfJob(HUNT)}` });
+  const applyButton = () => found(`[data-act-main="${HUNT}"]`);
 
   test("[world:colours-are-role-tokens] given the hunt's card, when the list shows, then each job is a card with its picture and no radio circle, and only the chosen card is ringed", async () => {
     const view = engineView();
@@ -191,10 +191,10 @@ describe("the jobs list as picture cards", () => {
     const ordered = huntOrder(view, huntOf(view));
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     // activity:job-hunt-lands-offer: the pick the card opens on is the life's own trade.
-    expect(applyButton().textContent).toBe(`${say("jobs.apply")}${nameOfJob(firstJob(view, ordered) ?? "")}`);
+    expect(applyButton().textContent).toBe(`${say("jobs.apply")} ${nameOfJob(firstJob(view, ordered) ?? "")}`);
     const last = ordered.at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));
-    expect(applyButton().textContent).toBe(`${say("jobs.apply")}${nameOfJob(last)}`);
+    expect(applyButton().textContent).toBe(`${say("jobs.apply")} ${nameOfJob(last)}`);
     expect(applyButton().querySelector(`[data-apply-for='${last}']`)).not.toBeNull();
     // The rows out of reach fold their needs behind a button of their own (aria-expanded); the card's one main button is the rest.
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);

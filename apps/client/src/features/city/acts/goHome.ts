@@ -88,7 +88,7 @@ export function goHomeAsk(
     ...(facts.length === 0 ? {} : { facts }),
     // return:return-reopens-home-charges: the bills abroad close on the way home, so the month's dues there are no warning on the button.
     dues: false,
-    button: say(assisted ? "ui.world.go-home.button.assisted" : "ui.world.go-home"),
+    button: say(assisted ? "ui.world.go-home.button.assisted" : "ui.world.go-home.button"),
     act: hands.go,
     dismiss: hands.dismiss,
     ...(other === undefined ? {} : { other }),

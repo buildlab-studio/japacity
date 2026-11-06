@@ -59,7 +59,7 @@ describe("the slip's rows", () => {
         { label: "From", value: "Your aunty in Houston" },
         { label: "Handling", value: money(handling, "NGN"), strong: true },
       ],
-      button: "Collect it",
+      button: "Collect",
       act: () => undefined,
       dismiss: () => undefined,
     };
@@ -106,7 +106,7 @@ describe("the waybill", () => {
     expect(parcelAsk(game.view(), { send: () => undefined, done: () => undefined, formatMoney: money })).toBeNull();
   });
 
-  test("[world:things-are-tappable-models] given the waybill open in a game, when Collect it is tapped, then the parcel's own choice is sent, the charge leaves the naira, and the sheet closes", async () => {
+  test("[world:things-are-tappable-models] given the waybill open in a game, when Collect is tapped, then the parcel's own choice is sent, the charge leaves the naira, and the sheet closes", async () => {
     const { game } = graduate();
     setPockets(game, { NGN: handling * 3 });
     const authority = gameAuthority(game);

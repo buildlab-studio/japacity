@@ -357,12 +357,12 @@ test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [per
 
   await chip.locator('[data-fan-act="talk"] button').click();
   const card = page.getByRole("dialog");
-  await expect(card.getByRole("button", { name: /Start seeing Dele/ })).toBeVisible({ timeout: 20_000 });
+  await expect(card.getByRole("button", { name: /^Ask out/ })).toBeVisible({ timeout: 20_000 });
   await expect(card).toContainText("After service, your mother brings him home for lunch.");
   // The sheet settles before the picture.
   await page.waitForTimeout(800);
   await shootAtSize(page, "talk-sheet", info.project.name);
-  await card.getByRole("button", { name: /Start seeing Dele/ }).click();
+  await card.getByRole("button", { name: /^Ask out/ }).click();
   await expect.poll(() => sent.length).toBe(1);
   expect(sent[0]).toMatchObject({ command: { type: "people/court", with: DELE } });
   // Courted, he stands there no more.

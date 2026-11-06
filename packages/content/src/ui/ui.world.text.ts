@@ -74,8 +74,9 @@ export const uiWorldText: Record<string, string> = {
   // The bag's Go home in the room abroad (return:standing-by-return-shape, return:return-reopens-home-charges; place:view-carries-way-home): the shape the return
   // would take today in one line, what ends and what waits as chips, the fare on the one button.
   "ui.world.go-home": "Go home",
+  "ui.world.go-home.button": "Book flight",
   "ui.world.go-home.title.assisted": "Assisted return",
-  "ui.world.go-home.button.assisted": "Take the ticket",
+  "ui.world.go-home.button.assisted": "Take ticket",
   "ui.world.go-home.line.by-choice": "You would land home by choice, and people will still ask why.",
   "ui.world.go-home.line.with-papers": "You would land home with your papers, and the door here stays open.",
   "ui.world.go-home.line.broke": "You would land home with the fare and not much more.",

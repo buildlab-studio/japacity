@@ -188,6 +188,8 @@ export function ApplyFor({ id }: { id: string }) {
   return (
     <>
       <span>{say("jobs.apply")}</span>
+      {/* A space between the act and the job, so the name a screen reader reads holds them apart (world:one-action-one-sheet). */}
+      {" "}
       <span className="min-w-0 truncate text-[13px] font-semibold opacity-80" data-apply-for={id}>
         {nameOf(id)}
       </span>

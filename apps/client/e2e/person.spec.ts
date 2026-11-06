@@ -106,7 +106,7 @@ test("[world:nobody-picked-from-list] the slots in Chats show the family, and a 
   await intoTheRoom(page);
   const dele = (await page.locator('[data-mark][aria-label="Dele"]').getAttribute("data-mark")) ?? "";
   await doAct(page, dele, "talk");
-  await page.getByRole("dialog").getByRole("button", { name: "Start seeing Dele" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Ask out" }).click();
   await expect(page.locator("[data-corner]")).toContainText("Dele is a computer character. They live in the game.", { timeout: 15_000 });
   const head = await openBond(page, "Dele");
   await expect(head.locator('[data-head-row="stage"]')).toContainText("Seeing each other");
@@ -133,7 +133,7 @@ test("[world:nobody-picked-from-list] [world:things-are-tappable-models] a bond 
   }, null, { timeout: 90_000 });
   await passCards(page);
   await doAct(page, "time-together", "together");
-  const asked = page.getByRole("dialog").getByRole("button", { name: /^See someone/ });
+  const asked = page.getByRole("dialog").getByRole("button", { name: /^Visit/ });
   if (await asked.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await asked.last().click();
   // The visit starts at the tap (world:things-are-tappable-models): no sheet answers it, its toast says it under the band and goes by itself.
   const toast = page.locator('[data-act-toast="activity.see-someone"]');

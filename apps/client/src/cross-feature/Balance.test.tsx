@@ -70,11 +70,11 @@ describe("the price and the balance", () => {
     expect(document.querySelector("[data-balance]")).toBeNull();
   });
 
-  test("[world:one-action-one-sheet] given the meal on a sheet of several, when its card shows, then its button says the meal and its price and the balance stands under it, struck before and after", async () => {
+  test("[world:one-action-one-sheet] given the meal on a sheet of several, when its card shows, then its button says the verb and its price and the balance stands under it, struck before and after", async () => {
     const view = holding(4_850_000, 0);
     await renderWithView(<ActivityPicker only={[COOK]} />, view);
     const card = found("[data-activity-picker] li");
-    expect(card.querySelector("button")?.textContent).toContain("Indomie and egg · ₦1,500");
+    expect(card.querySelector("button")?.textContent).toContain("Cook · ₦1,500");
     expect(card.querySelector("button")?.textContent).not.toMatch(/left/);
     expect(card.querySelector("[data-balance-before]")?.textContent).toBe("₦48,500");
     expect(card.querySelector("[data-balance-after]")?.textContent).toBe("₦47,000");

@@ -179,7 +179,9 @@ export function Market({ here = null }: { here?: string | null }) {
               <PressButton className="w-full flex-col gap-0" disabled={chosen.shut !== null} onClick={() => buy(chosen)} data-market-buy={chosen.thing}>
                 <span className="flex items-center gap-1.5">
                   <span>{say("phone.market.buy")}</span>
-                  <span aria-hidden>·</span>
+                  {/* A space between the words, so the name a screen reader reads holds them apart (world:one-action-one-sheet). */}
+                  {" "}
+                  <span aria-hidden>·</span>{" "}
                   <span className="min-w-0 truncate">{nameOf(chosen.thing)}</span>
                 </span>
                 {chosen.shut === "short" ? <span className="text-[13px] font-semibold opacity-80">{say("phone.market.short", { amount: naira(chosen.price - held) })}</span> : null}

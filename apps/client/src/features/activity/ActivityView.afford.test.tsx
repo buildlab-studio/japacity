@@ -3,14 +3,15 @@
 // shuts the button with how much is short. Nothing is planned that cannot be paid.
 import { content } from "@japacity/content";
 import type { ActivityOption, PlayerView } from "@japacity/sim";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView, newGame, viewAfter } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { plannable } from "../../shared/words/acts";
 import { formatMoney } from "../../shared/words/format";
-import { nameOf, say } from "../../shared/words/text";
+import { buttonOf } from "../../shared/words/acts";
+import { say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const TB = "activity.tb-test";
@@ -19,7 +20,8 @@ const TB = "activity.tb-test";
 const CERTIFICATE = "activity.nurse-certification";
 const MASTERS = "activity.masters-at-home";
 
-const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${nameOf(id)}` });
+/** An act's one main button, by its mark: its words are its verb, which several acts share (world:one-action-one-sheet). */
+const addButton = (id: string): HTMLButtonElement => found(`[data-act-main="${id}"]`) as HTMLButtonElement;
 
 function naira(view: PlayerView): number {
   return view.pockets.NGN.bank + view.pockets.NGN.cash;
@@ -37,14 +39,14 @@ function offered(id: ActivityOption["id"], amount: number, affordable = true): A
 }
 
 describe("the picker's cards and money", () => {
-  test("[world:one-action-one-sheet] given an activity that costs money, when its card shows, then the button says the act and its price, and under it the balance before, struck, and after, counting the bank and the cash", async () => {
+  test("[world:one-action-one-sheet] given an activity that costs money, when its card shows, then the button says the act's verb and its price, and under it the balance before, struck, and after, counting the bank and the cash", async () => {
     const view = engineView("scenario.graduate");
     const cost = content.activity[TB]?.cost[0]?.amount;
     if (typeof cost !== "number") throw new Error("The TB test has no fixed fee.");
     await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(TB, cost)] });
     const button = addButton(TB);
     expect(button.disabled).toBe(false);
-    expect(button.textContent).toContain(say("ui.act.priced", { act: nameOf(TB), price: formatMoney(cost, "NGN") }));
+    expect(button.textContent).toContain(say("ui.act.priced", { act: buttonOf(TB), price: formatMoney(cost, "NGN") }));
     expect(button.querySelector("[data-after]")).toBeNull();
     expect(balance("before")).toBe(naira(view));
     expect(balance("after")).toBe(naira(view) - cost);

@@ -1,6 +1,7 @@
 // The fish racks at Makoko (activity:fish-racks-at-makoko).
 export const activityWaterText: Record<string, string> = {
   "activity.job-fish-racks.name": "The fish racks",
+  "activity.job-fish-racks.button": "Start work",
   // The hunt card and its button for the racks say the act, not "Look for a job".
   "activity.job-fish-racks.act": "Work the fish racks",
   "activity.job-fish-racks.blurb": "Smoking fish at the racks on the water, where you grew up. Up before light, paid at the month's end.",

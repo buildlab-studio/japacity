@@ -55,7 +55,7 @@ import { buyModeAt, showOwned } from "./scene/owned";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
-import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
+import { actOnCard, answersNow, buttonOf, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "../../shared/words/study";
 import { actsOffered, actToast, answerAsk, answerStays, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts/acts";
@@ -1384,7 +1384,7 @@ export function City({
     if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
       const person = picked.with;
       const partnered = (partner: string | null, name: string): string => say("ui.people.court.partnered", { partner: partner === null ? say("ui.people.who.player") : nameOf(partner), name });
-      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: (name) => say("ui.people.court", { name }), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer"), partnered }, {
+      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: () => say("ui.people.court"), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer"), partnered }, {
         send: (who) => {
           void send({ type: "people/court", with: who }).then((reply) => {
             cue(reply?.ok === true ? "done" : "tap");
@@ -1411,7 +1411,7 @@ export function City({
         when: "now",
         // The repayment leaves the funds held for the character, never the pockets: the second line says so instead of a figure left.
         note: say("ui.world.pay-back-note"),
-        button: say("ui.world.pay-back"),
+        button: say("ui.world.pay-back.button"),
         act: () => {
           void send({ type: "obligation/pay", obligation: heldDue.id, amount }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
@@ -1434,7 +1434,7 @@ export function City({
         line: say("ui.world.deposit-line", { school: nameOf(depositDue.school), route: nameOf(depositDue.route) }),
         cost: deposit,
         when: "now",
-        button: say("ui.route.pay-deposit"),
+        button: say("ui.route.pay-deposit.button"),
         act: () => {
           void send({ type: "route/pay-deposit", route: depositDue.route, school: depositDue.school }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
@@ -1445,7 +1445,7 @@ export function City({
         dismiss: () => setPicked(null),
       };
     }
-    // The cargo office's act opens the waybill, a paper slip (world:one-action-one-sheet); Collect it answers the parcel.
+    // The cargo office's act opens the waybill, a paper slip (world:one-action-one-sheet); Collect answers the parcel.
     if (world && picked?.kind === "action" && picked.activity === PARCEL) {
       return parcelAsk(view, {
         formatMoney: (amount, currency) => formatMoney(amount, currency as "NGN"),
@@ -1516,13 +1516,14 @@ export function City({
       // activity:waiting-months-build-profile: what the act counts toward, a chip under the line, never a clause of it.
       ...(chosen === null && countsWords(activity) !== null ? { counts: activity } : {}),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
-      button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
+      // world:one-action-one-sheet: the button says the act's verb; the title above names the act.
+      button: shut ? say("ui.activity.planned") : buttonOf(activity, chosen),
       // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
       // activity:now-acts-spend-half-days: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(time === null ? {} : { time }),
       ...(does === null ? {} : { does }),
-      // world:one-action-one-sheet: the act's button says the act and its price.
+      // world:one-action-one-sheet: the act's button says its verb and its price.
       ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: held ?? needsWords(option.missing) }),

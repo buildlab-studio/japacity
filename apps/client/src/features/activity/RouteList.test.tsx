@@ -1,9 +1,10 @@
 import type { Id } from "@japacity/sim";
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { newGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
+import { buttonOf } from "../../shared/words/acts";
 import { blurbOf, nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
@@ -14,14 +15,13 @@ const UK = "route.uk-masters" as Id<"route">;
 const CANADA = "route.canada-points" as Id<"route">;
 
 function card(id: string): HTMLElement {
-  const button = screen.getByRole("button", { name: new RegExp(`^${nameOf(id)}`) });
-  const found = button.closest("li");
+  const found = document.querySelector(`[data-act-card="${id}"]`)?.closest("li") ?? null;
   if (found === null) throw new Error(`No card for ${id}`);
   return found;
 }
 
 function addButton(id: string): HTMLButtonElement {
-  return within(card(id)).getByRole("button", { name: nameOf(id) });
+  return within(card(id)).getByRole("button", { name: new RegExp(`^${buttonOf(id)}`) });
 }
 
 /** The banker with two routes heard of: the hub desk's "Ask about routes" sheet. */
