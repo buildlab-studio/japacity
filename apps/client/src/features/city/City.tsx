@@ -58,7 +58,7 @@ import { bodyWords, tired } from "../../shared/words/body";
 import { actOnCard, answersNow, buttonOf, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "../../shared/words/study";
-import { actsOffered, actToast, answerAsk, answerStays, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts/acts";
+import { actsOffered, actToast, answerAsk, answerStays, askHeader, isPaper, KIOSK_CAP, kioskAnswer, ownActOf, withPlanned, withSpent } from "./acts/acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lottoLines";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./acts/actLines";
 import { hasAbroadWords, loadAbroadWords } from "./abroad.words";
@@ -1469,13 +1469,12 @@ export function City({
       // A side job on the hunt's card says it sits beside the day job and carries its own line; a job a board names carries its pay and chance.
       // A job with its own act words (the racks: "Work the fish racks") titles the card and its button with them.
       title:
-        chosen !== null && hasWords(`${chosen}.act`)
-          ? say(`${chosen}.act`)
-          : chosen === null
-            ? nameOf(activity)
-            : content.activity[chosen as Id<"activity">]?.slot === "side"
-              ? say("ui.world.side-job-title", { job: paramWords(chosen) })
-              : `${nameOf(activity)}: ${paramWords(chosen)}`,
+        ownActOf(chosen) ??
+        (chosen === null
+          ? nameOf(activity)
+          : content.activity[chosen as Id<"activity">]?.slot === "side"
+            ? say("ui.world.side-job-title", { job: paramWords(chosen) })
+            : `${nameOf(activity)}: ${paramWords(chosen)}`),
       line:
         chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
           ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
@@ -1714,7 +1713,7 @@ export function City({
   const startedToast: Said | null = (() => {
     if (started === null) return null;
     const told = actToast(started.line, view.month);
-    return { at: started.at, words: told.name, picture: told.activity, act: told.activity, tag: told.tag };
+    return { at: started.at, words: told.name, picture: told.picture ?? told.activity, act: told.activity, tag: told.tag };
   })();
   // The act's toast goes by itself: shown, its own time, held while touched, ends it; answered by another toast in its place, it goes as a toast's time would.
   const startedShown = startedToast !== null && moneyIn === null && chipMoment !== "done";

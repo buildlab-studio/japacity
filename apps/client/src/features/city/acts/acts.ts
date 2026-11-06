@@ -8,7 +8,7 @@ import type { Id, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 import { plannedShut } from "../../../authority/store";
 import { nowActOf, nowLineWords, pickable } from "../../../shared/words/acts";
 import { kioskCapReached } from "../../../shared/words/lottoLines";
-import { inMonths, nameOf, say } from "../../../shared/words/text";
+import { hasWords, inMonths, nameOf, say } from "../../../shared/words/text";
 import type { Ask, Thing } from "../../../shared/world/contract";
 
 /** The paper things bought at the kiosk: their slip stays in the hand with the answer on it. */
@@ -52,15 +52,29 @@ function answersWithMonth(activity: string): boolean {
   return content.activity[activity as Id<"activity">]?.effects.some((effect) => effect.type === "activity/hunt" || effect.type === "route/apply") === true;
 }
 
-/** An act's toast: which act, its name, and when its answer comes, or null when none is to come. */
+/** A job's own act words, where content has them (the racks' "Work the fish racks"): the card's title and the toast name it by them. Else null. */
+export function ownActOf(chosen: string | null): string | null {
+  return chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : null;
+}
+
+/**
+ * An act's name as its card and its toast say it (world:things-are-tappable-models): a job picked with its own act words is named by them,
+ * so the racks' Start work is "Work the fish racks" on both, never "Look for a job"; else the act's own name.
+ */
+export function actNameOf(activity: string, chosen: string | null): string {
+  return ownActOf(chosen) ?? nameOf(activity);
+}
+
+/** An act's toast: which act, its name, and when its answer comes, or null when none is to come; a job named in its own words shows its own picture. */
 export interface ActToast {
   activity: string;
   name: string;
   tag: string | null;
+  picture?: string;
 }
 
 /**
- * The toast an act done at once says as it starts (world:things-are-tappable-models): its name, and as a tag when the answer
+ * The toast an act done at once says as it starts (world:things-are-tappable-models): its name as its card says it, and as a tag when the answer
  * comes, a paper's in months from `month` ("Comes in 3 months", never a month's number) or the month's end for a hunt or an
  * application. The place's own line is kept in News, never on the toast.
  */
@@ -68,7 +82,9 @@ export function actToast(line: Pick<ReportLine, "params">, month: number): ActTo
   const activity = nowActOf(line);
   const due = line.params["month"];
   const tag = typeof due === "number" ? say("ui.act.toast.comes", { when: inMonths(due, month) }) : answersWithMonth(activity) ? say("ui.act.toast.month") : null;
-  return { activity, name: nameOf(activity), tag };
+  const chosen = typeof line.params["param"] === "string" ? line.params["param"] : null;
+  const own = ownActOf(chosen);
+  return { activity, name: own ?? nameOf(activity), tag, ...(own === null || chosen === null ? {} : { picture: chosen }) };
 }
 
 /**
