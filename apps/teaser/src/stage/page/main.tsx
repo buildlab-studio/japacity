@@ -1,5 +1,5 @@
 // The stage page: one scene of the stageshow teaser at a time, `?scene=door&shape=wide`, filling the window. The
-// compositions open it in an iframe with `&drive=frames`; the dev server (`pnpm --filter @japacity/teaser stage --serve`)
+// compositions open it in an iframe with `&drive=frames`; the dev server (`pnpm --filter @japacity/teaser stage -- --serve 7062`)
 // serves it for film.mjs and a look in a browser.
 import "./drive";
 import "./page.css";

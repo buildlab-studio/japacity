@@ -114,7 +114,7 @@
   object-fit: cover;
 }
 /* On the phone the house fills the screen's middle, closer than the recording frames it, as the game's camera stands on a phone. */
-.jc .jc-world[data-shape="tall"] { scale: 1.25; transform-origin: 50% 52%; }
+.jc .jc-world[data-shape="tall"] { scale: 1.5; transform-origin: 50% 50%; }
 .jc .jc-column {
   position: absolute;
   top: 0;
@@ -198,7 +198,7 @@
   min-height: 52px;
   align-items: center;
   gap: 8px;
-  padding: 6px 6px 6px 8px;
+  padding: 6px 8px;
   border-radius: 9999px;
   background: var(--sheet-2);
   color: var(--text);
@@ -452,5 +452,5 @@
 .jc .rise[data-out] { opacity: 0; transform: translateY(12px); }
 
 /* An app opening inside the phone comes in from the right over the home screen. */
-.jc .app-open { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--sheet); transition: transform 220ms cubic-bezier(0.2, 0.9, 0.25, 1); }
-.jc .app-open[data-out] { transform: translateX(100%); }
+.jc .app-open { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--sheet); will-change: transform; transition: transform 220ms cubic-bezier(0.2, 0.9, 0.25, 1), opacity 160ms ease-out; }
+.jc .app-open[data-out] { transform: translateX(100%); opacity: 0; }

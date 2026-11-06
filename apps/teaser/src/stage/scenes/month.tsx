@@ -4,7 +4,8 @@
 import { ChevronRight } from "lucide-react";
 
 import { Count, Meter, Stage, type Act } from "../kit";
-import { Column, FRAME, Host, SCREEN, type Shape, World } from "../host";
+import { Column, Host, SCREEN, type Shape, World } from "../host";
+import { shown, stageFrame } from "../frames";
 import { Band, DrawnPic, Face, faceMark, LookCloser, MainButton, SheetClose, Sticker, StickerChip } from "../parts";
 import { now, tapAt, until } from "../timeline";
 import { MONTH_BEAT, SAVED } from "../timings";
@@ -50,7 +51,7 @@ function Results({ s }: { s: S }) {
       </section>
       <section style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-2)" }}>{W.asked}</div>
-        <span data-target="row" className="look-card" style={{ display: "flex", minHeight: 48, alignItems: "center", gap: 12, padding: "6px 12px", boxShadow: "none" }}>
+        <span data-target="row" className="look-card" style={{ display: "flex", minHeight: 48, alignItems: "center", gap: 12, padding: "8px 12px 8px 8px", boxShadow: "none" }}>
           <span className="face-mark" style={{ width: 40, height: 40, fontSize: 17, background: firm.colour }}>
             {firm.initial}
           </span>
@@ -158,22 +159,19 @@ function script(shape: Shape) {
 const SCRIPTS = { wide: script("wide"), tall: script("tall") };
 
 export function MonthScene({ shape }: { shape: Shape }) {
-  const size = FRAME[shape];
   return (
     <Stage<S>
-      width={size.width}
-      height={size.height}
       initial={{ saved: SAVED.before, ask: false, looked: false }}
       poster={{ saved: SAVED.after, ask: false, looked: false }}
       script={SCRIPTS[shape]}
       play="once"
       fill
       className="jc"
-      cursor={shape === "tall" ? { at: { x: 270, y: 760 }, style: "touch" } : { at: { x: 1000, y: 560 }, style: "real" }}
+      {...stageFrame(shape)}
     >
-      {(s) => (
-        <Host shape={shape}>
-          <Month shape={shape} s={s} />
+      {(s, _rect, layout) => (
+        <Host shape={shown(shape, layout)}>
+          <Month shape={shown(shape, layout)} s={s} />
         </Host>
       )}
     </Stage>

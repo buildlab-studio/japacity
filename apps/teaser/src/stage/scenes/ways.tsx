@@ -1,7 +1,8 @@
 // The road out: the phone's home screen, Japa tapped, and the app opens on the plan, a master's in the UK, with the other
 // ways out beside it: skilled work in the UK, health care in the UK, a contract in the Gulf.
 import { Stage, type Act } from "../kit";
-import { Column, FRAME, Host, SCREEN, type Shape, World } from "../host";
+import { Column, Host, SCREEN, type Shape, World } from "../host";
+import { shown, stageFrame } from "../frames";
 import { ComingRow, Head, HomeScreen, PlanCard, WayCard } from "../japa";
 import { AppScreen, Band, Handset } from "../parts";
 import { now, tapAt, until } from "../timeline";
@@ -63,22 +64,19 @@ function script(shape: Shape) {
 const SCRIPTS = { wide: script("wide"), tall: script("tall") };
 
 export function WaysScene({ shape }: { shape: Shape }) {
-  const size = FRAME[shape];
   return (
     <Stage<S>
-      width={size.width}
-      height={size.height}
       initial={{ app: false }}
       poster={{ app: true }}
       script={SCRIPTS[shape]}
       play="once"
       fill
       className="jc"
-      cursor={shape === "tall" ? { at: { x: 270, y: 760 }, style: "touch" } : { at: { x: 1000, y: 560 }, style: "real" }}
+      {...stageFrame(shape)}
     >
-      {(s) => (
-        <Host shape={shape}>
-          <Ways shape={shape} s={s} />
+      {(s, _rect, layout) => (
+        <Host shape={shown(shape, layout)}>
+          <Ways shape={shown(shape, layout)} s={s} />
         </Host>
       )}
     </Stage>

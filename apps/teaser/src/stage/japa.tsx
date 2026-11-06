@@ -50,7 +50,7 @@ export function OfficialCard({ target }: { target: string }) {
             {W.free}
           </StickerChip>
         </span>
-        <span style={{ display: "block", marginTop: 2, fontSize: 14, lineHeight: 1.3, color: "var(--text-2)" }}>{W.officialLine}</span>
+        <span style={{ display: "block", marginTop: 10, fontSize: 14, lineHeight: 1.3, color: "var(--text-2)" }}>{W.officialLine}</span>
       </span>
       <ChevronRight size={16} strokeWidth={2.4} style={{ flex: "none", color: "var(--text-2)" }} aria-hidden />
     </div>

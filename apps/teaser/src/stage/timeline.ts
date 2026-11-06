@@ -40,4 +40,9 @@ export async function tapAt<S>(a: Act<S>, shape: Shape, start: number, target: s
   await until(a, start, at - LEAD[shape]);
   await a.move(target, { duration: 400 });
   await a.click();
+  // A laptop's arrow leaves what it pressed for the open world beside the column, so it never sits on the words.
+  if (shape === "wide" && a.layout === "wide") void a.move(ASIDE, { duration: 500 });
 }
+
+/** Where the laptop's arrow rests between presses: the world to the right of the game's column. */
+const ASIDE = { x: 1030, y: 420 } as const;

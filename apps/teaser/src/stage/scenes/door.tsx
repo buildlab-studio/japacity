@@ -3,7 +3,8 @@
 import { ChevronLeft, Minus, Plus, Shuffle } from "lucide-react";
 
 import { Bar, Stage, type Act } from "../kit";
-import { Column, DOOR_COLUMN, FRAME, Host, SCREEN, type Shape } from "../host";
+import { Column, DOOR_COLUMN, Host, SCREEN, type Shape } from "../host";
+import { shown, stageFrame } from "../frames";
 import { DrawnPic, MainButton, Sticker, StickerChip } from "../parts";
 import { now, tapAt, until } from "../timeline";
 import { DOOR_BEAT } from "../timings";
@@ -12,14 +13,14 @@ import { W } from "../words";
 type S = { picked: boolean };
 
 /** A life's card, 282 wide as the game draws it: its thing big on the tint of its kind, the tag, the face sticker and its words. */
-function LifeCard({ on, left }: { on: boolean; left: number }) {
+function LifeCard({ on, left, tall }: { on: boolean; left: number; tall: boolean }) {
   return (
     <span className="door-life door-card" role="radio" aria-checked={on} data-target="life" style={{ left, rotate: on ? "-1.5deg" : "1.5deg" }}>
-      <span className="tint-study" style={{ position: "relative", display: "block", height: 150, borderRadius: 14 }}>
+      <span className="tint-study" style={{ position: "relative", display: "block", height: tall ? 200 : 150, borderRadius: 14 }}>
         <StickerChip className="tint-soft" tilt={-4} style={{ position: "absolute", top: 12, left: 12, zIndex: 3, fontSize: 14, padding: "4px 12px" }}>
           {W.tag}
         </StickerChip>
-        <Sticker tile="prop_laptop-desk" size={150} tilt={5} style={{ position: "absolute", top: 8, right: 8 }} />
+        <Sticker tile="prop_laptop-desk" size={tall ? 180 : 150} tilt={5} style={{ position: "absolute", top: 8, right: 8 }} />
         <span className="face-sticker tint-food" style={{ position: "absolute", bottom: -22, left: -10, zIndex: 3, width: 80, height: 80, rotate: "-6deg" }}>
           <img src="../tiles/person_tobi-face.webp" alt="" draggable={false} />
         </span>
@@ -41,10 +42,10 @@ function LifeCard({ on, left }: { on: boolean; left: number }) {
 }
 
 /** The next life in the deck, past the column's edge: its picture and its shape, the words left to the card in front. */
-function NextCard({ left }: { left: number }) {
+function NextCard({ left, tall }: { left: number; tall: boolean }) {
   return (
     <span className="door-life door-card" aria-hidden style={{ left, rotate: "1.5deg", opacity: 0.86, transform: "scale(0.95)" }}>
-      <span className="tint-body" style={{ display: "block", height: 150, borderRadius: 14 }} />
+      <span className="tint-body" style={{ display: "block", height: tall ? 200 : 150, borderRadius: 14 }} />
       <span style={{ display: "flex", flexDirection: "column", gap: 10, padding: "30px 6px 4px" }}>
         <Bar w={150} h={14} r={7} tone={3} />
         <Bar w={110} h={10} r={5} tone={2} />
@@ -54,13 +55,16 @@ function NextCard({ left }: { left: number }) {
   );
 }
 
+/** On a laptop the deck stops at the reading column's edge: the next life fades out there instead of ending on a cut. */
+const DECK_FADE = { maskImage: "linear-gradient(90deg, #000 calc(100% - 72px), transparent)", WebkitMaskImage: "linear-gradient(90deg, #000 calc(100% - 72px), transparent)" } as const;
+
 function Door({ shape, s }: { shape: Shape; s: S }) {
   const screen = SCREEN[shape];
   const tall = shape === "tall";
   const column = DOOR_COLUMN[shape];
   const cardLeft = (column - 282) / 2;
   const deckTop = screen.top + (tall ? 132 : 120);
-  const cardBottom = deckTop + 318;
+  const cardBottom = deckTop + (tall ? 368 : 318);
   return (
     <div className="door">
       <Column shape={shape} width={column}>
@@ -78,10 +82,10 @@ function Door({ shape, s }: { shape: Shape; s: S }) {
           <div className="jc-title" style={{ fontSize: 24 }}>{W.doorTitle}</div>
           <div style={{ marginTop: 4, fontSize: 14, color: "var(--text-2)" }}>{W.doorLine}</div>
         </div>
-        <div data-crop style={{ position: "absolute", left: 0, right: 0, top: deckTop - 12, height: 372, overflow: "hidden" }}>
+        <div data-crop style={{ position: "absolute", left: 0, right: 0, top: deckTop - 12, height: tall ? 422 : 372, overflow: "hidden", ...(tall ? {} : DECK_FADE) }}>
           <div style={{ position: "absolute", left: 0, right: 0, top: 12 }}>
-            <LifeCard on={s.picked} left={cardLeft} />
-            <NextCard left={cardLeft + 282 + 14} />
+            <LifeCard on={s.picked} left={cardLeft} tall={tall} />
+            <NextCard left={cardLeft + 282 + 14} tall={tall} />
           </div>
         </div>
         <div style={{ position: "absolute", left: 0, right: 0, top: cardBottom + 12, display: "flex", justifyContent: "center", gap: 8 }}>
@@ -145,8 +149,6 @@ function script(shape: Shape) {
     await tapAt(a, shape, start, "life", DOOR_BEAT.pick);
     a.put({ picked: true });
     a.mark("picked");
-    // The hand leaves the card for the empty sky beside it while the ways settle in, then goes on to Next.
-    if (shape === "wide") void a.move({ x: 1010, y: 470 }, { duration: 500 });
     await tapAt(a, shape, start, "next", DOOR_BEAT.next);
     a.mark("next");
     await until(a, start, DOOR_BEAT.end);
@@ -156,22 +158,19 @@ function script(shape: Shape) {
 const SCRIPTS = { wide: script("wide"), tall: script("tall") };
 
 export function DoorScene({ shape }: { shape: Shape }) {
-  const size = FRAME[shape];
   return (
     <Stage<S>
-      width={size.width}
-      height={size.height}
       initial={{ picked: false }}
       poster={{ picked: true }}
       script={SCRIPTS[shape]}
       play="once"
       fill
       className="jc"
-      cursor={shape === "tall" ? { at: { x: 270, y: 760 }, style: "touch" } : { at: { x: 1000, y: 560 }, style: "real" }}
+      {...stageFrame(shape)}
     >
-      {(s) => (
-        <Host shape={shape}>
-          <Door shape={shape} s={s} />
+      {(s, _rect, layout) => (
+        <Host shape={shown(shape, layout)}>
+          <Door shape={shown(shape, layout)} s={s} />
         </Host>
       )}
     </Stage>

@@ -15,10 +15,10 @@ export const FRAME = { wide: { width: 1280, height: 720 }, tall: { width: 540, h
 const WINDOW = { inset: 20, bar: 38 } as const;
 /** The phone in the tall frame, centred, and its screen in true points. */
 /**
- * The phone in the tall frame: as wide as lets its screen stand whole while the foot of its frame runs past the stage's
- * bottom, a gutter above it and the same on each side of the stage's centre.
+ * The phone in the tall frame: a gutter above it and the same on each side, its screen whole while the foot of its frame
+ * and the home indicator's strip run past the stage's bottom.
  */
-const PHONE = { width: 452, top: 24, screen: { width: 402, height: 874 }, safe: 59 } as const;
+const PHONE = { width: 452, top: 43, screen: { width: 402, height: 874 }, safe: 59 } as const;
 
 /** The game's screen in each frame: its size in the frame's points, the column's width and the room the system takes at the top. */
 export const SCREEN = {

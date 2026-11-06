@@ -1,4 +1,5 @@
-// pnpm --filter @japacity/teaser stage [--serve 7062] [--render] [--only Stageshow|StageshowPortrait] [--stills <folder>] [--out <folder>]
+// pnpm --filter @japacity/teaser stage -- [--serve 7062] [--render] [--only Stageshow|StageshowPortrait] [--stills <folder>] [--out <folder>]
+// (the flags after `--`, so pnpm hands them to the script)
 // The stageshow teaser: the game's own screens as product shots, made with the stageshow kit (src/stage/kit). It builds
 // the stage page (src/stage/page) into public/dist with esbuild, the bundler Remotion's own bundler carries, so
 // the compositions can open it in an iframe and drive its clock frame by frame (src/stage/Stageshow.tsx).
