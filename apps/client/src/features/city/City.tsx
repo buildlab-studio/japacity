@@ -27,7 +27,7 @@ import { needsWords } from "../../shared/words/requirement";
 import { onPhoneAppAsked } from "../../shared/phone/ask";
 import { newsRead } from "../../shared/phone/newsSeen";
 import { earlyStops, openingKey } from "../../shared/words/sixteen";
-import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
+import { blurbOf, hasWords, inMonths, nameOf, paramWords, raisedFirst, say, words } from "../../shared/words/text";
 import { ENGLISH_TEST, testChance } from "../../shared/words/englishTest";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
@@ -311,7 +311,7 @@ export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">
 
 /** The band starts the place's name with a capital, "The clinic"; a sentence keeps content's casing. */
 function bandName(name: string): string {
-  return name.charAt(0).toUpperCase() + name.slice(1);
+  return raisedFirst(name);
 }
 
 /**

@@ -12,7 +12,7 @@ import { CountsChip } from "../ui/CountsChip";
 import { StickerChip } from "../ui/look/StickerChip";
 import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
-import { say } from "../words/text";
+import { raisedFirst, say } from "../words/text";
 import { Balance, CENTRED, pricedLabel } from "./Balance";
 import type { Ask } from "./contract";
 
@@ -154,7 +154,10 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
       <div className="relative flex items-center gap-3 px-4 pt-1 pr-14 pb-1">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-plain text-text">{icon?.(ask.icon)}</div>
         <div className="min-w-0 flex-1">
-          <Dialog.Description className="truncate text-[13px] font-medium text-text-2">{ask.who}</Dialog.Description>
+          {/* The kicker starts with a capital (world:one-action-one-sheet): a place's name reads "The clinic" here. */}
+          <Dialog.Description className="truncate text-[13px] font-medium text-text-2" data-ask-kicker>
+            {raisedFirst(ask.who)}
+          </Dialog.Description>
           <Dialog.Title className="text-title leading-tight font-bold">{ask.title}</Dialog.Title>
         </div>
         <SheetCloseButton label={say("ui.world.close")} />
@@ -255,7 +258,7 @@ function Slip({ ask, main, formatMoney }: { ask: Ask; main: Main; formatMoney: A
         {/* world:sheets-one-frame: the slip closes as every sheet does, by the mark at its top right; Not now stands beside its button. */}
         <SheetCloseButton label={say("ui.world.close")} />
         <div className="flex items-center justify-between pr-9 text-[12px] tracking-[0.2em] text-text-2 uppercase">
-          <Dialog.Description>{ask.who}</Dialog.Description>
+          <Dialog.Description data-ask-kicker>{raisedFirst(ask.who)}</Dialog.Description>
           <span>{ask.reference ?? ""}</span>
         </div>
         <Dialog.Title className="mt-3 text-center text-[12px] tracking-[0.35em] uppercase">{ask.title}</Dialog.Title>

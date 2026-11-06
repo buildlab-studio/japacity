@@ -128,6 +128,11 @@ export const PROPER_WORDS: ReadonlySet<string> = new Set([
   "QuickNaira",
 ]);
 
+/** Words that open a line of their own, a kicker or the band's place: the first letter raised, "The clinic" where a sentence says "at the clinic". */
+export function raisedFirst(words: string): string {
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 /** A name with its first letter lowered, unless it starts with an acronym or a proper noun. */
 export function lowerFirst(name: string): string {
   const first = name.split(/[\s,']/)[0] ?? "";
