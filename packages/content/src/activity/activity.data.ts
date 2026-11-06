@@ -203,8 +203,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   // The nurse's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
   // A nurse starts at care 60, so that is what it needs, and its month is a care job's:
   // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue:archetype-presets-answers).
-  // Its hiring chance is 50%, between the teacher's 70% and the junior developer's 35%:
-  // the wards are short of nurses.
+  // Its hiring chance is 85%, above the teacher's 70% and the customer service agent's 60%:
+  // the wards are short of nurses, and the pay is the hard part.
   "activity.job-nurse": {
     id: "activity.job-nurse",
     slot: "main",
@@ -213,7 +213,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(180000) },
-    hireBp: pct(50),
+    hireBp: pct(85),
     effects: [
       { type: "quality/add", quality: "quality.wellbeing", amount: -4 },
       { type: "quality/add", quality: "quality.care", amount: 1 },

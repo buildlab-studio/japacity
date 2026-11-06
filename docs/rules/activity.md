@@ -39,7 +39,7 @@ Pay is monthly, after tax, to the bank. Effects apply each month the job is held
 
 | Trade | Rung | Id | Name | Pay | To get it | Base chance | Each month | Employer |
 |---|---|---|---|---|---|---|---|---|
-| Nurse | 1 | `activity.job-nurse` | Staff nurse | ₦180,000 | Care 60 | 50% | Wellbeing -4, care +1 | formal |
+| Nurse | 1 | `activity.job-nurse` | Staff nurse | ₦180,000 | Care 60 | 85% | Wellbeing -4, care +1 | formal |
 | | 2 | `activity.job-senior-nurse` | Senior nursing officer | ₦280,000 | 30 months across the nurse jobs, care 70 | 30% | Wellbeing -4, care +1, standing +1 | formal |
 | | 3 | `activity.job-ward-manager` | Ward manager, private hospital | ₦420,000 | 60 months across the nurse jobs, care 80, standing 50 | 20% | Wellbeing -5, standing +1, network +1 | formal |
 | Teacher | 1 | `activity.job-teacher` | Private school teacher | ₦90,000 | Bachelor's degree | 70% | Wellbeing -2, standing +1 | informal |
