@@ -1,5 +1,5 @@
-// The month's end in Makoko: the results lead with the pay from the racks, what was kept, and the money held for the move
-// filling its bar. Back to Makoko is pressed, the sheet sinks, and the brief's toast slides in under its chip as the
+// The month's end in Makoko: the results rise over the water and lead with the pay from the racks, what was kept, and
+// the money held for the move filling its bar once the sheet has landed. Back to Makoko is pressed, the sheet sinks, and the brief's toast slides in under its chip as the
 // month's work turns its dot green: one thing left.
 import { Count, Meter, Stage, type Act } from "../../kit";
 import { Column, Host, SCREEN, World } from "../../host";
@@ -11,7 +11,7 @@ import { BRIEF_AT_HUB, DOTS_WORKING, ITEMS_PAID } from "../life";
 import { dotsOf, PaydayCard } from "../parts";
 import { PAYDAY_BEAT, SAVED_WATER } from "../timings";
 
-type S = { saved: number; back: boolean; told: boolean };
+type S = { up: boolean; saved: number; back: boolean; told: boolean };
 
 const SHAPE = "tall" as const;
 
@@ -69,9 +69,9 @@ function Payday({ s }: { s: S }) {
           <Thumb pic="📱" label={W.phone} />
         </div>
       </Column>
-      <div className="scrim" {...(s.back ? { "data-out": "" } : {})} />
+      <div className="scrim" {...(s.up && !s.back ? {} : { "data-out": "" })} />
       <Column shape={SHAPE}>
-        <div className="sheet" {...(s.back ? { "data-down": "" } : {})}>
+        <div className="sheet" {...(s.up && !s.back ? {} : { "data-down": "" })}>
           <span className="sheet-grab" />
           <SheetClose />
           <div style={{ padding: "6px 16px 38px" }}>
@@ -86,6 +86,8 @@ function Payday({ s }: { s: S }) {
 async function script(a: Act<S>) {
   a.mark("start");
   const start = now();
+  await until(a, start, PAYDAY_BEAT.rise);
+  a.put({ up: true });
   await until(a, start, PAYDAY_BEAT.fill);
   a.put({ saved: SAVED_WATER.after });
   a.mark("saved");
@@ -100,7 +102,7 @@ async function script(a: Act<S>) {
 
 export function PaydayScene() {
   return (
-    <Stage<S> initial={{ saved: SAVED_WATER.before, back: false, told: false }} poster={{ saved: SAVED_WATER.after, back: false, told: false }} script={script} play="once" fill className="jc" {...stageFrame(SHAPE)}>
+    <Stage<S> initial={{ up: false, saved: SAVED_WATER.before, back: false, told: false }} poster={{ up: true, saved: SAVED_WATER.after, back: false, told: false }} script={script} play="once" fill className="jc" {...stageFrame(SHAPE)}>
       {(s) => (
         <Host shape={SHAPE}>
           <Payday s={s} />

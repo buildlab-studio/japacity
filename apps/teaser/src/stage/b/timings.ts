@@ -3,7 +3,7 @@
 import type { Timing } from "../timeline";
 
 /** The racks: Start work is pressed within the first second, the sheet sinks and the act's toast slides in under the band. */
-export const RACKS_BEAT = { press: 600, toast: 1000, end: 4800 } as const;
+export const RACKS_BEAT = { press: 600, toast: 1000, end: 3800 } as const;
 
 export const RACKS: Timing = {
   length: RACKS_BEAT.end,
@@ -14,14 +14,15 @@ export const RACKS: Timing = {
   ],
 };
 
-/** The month's end: the results lead with the pay, the savings fill, Back is pressed and the brief's toast says what is in. */
-export const PAYDAY_BEAT = { fill: 600, back: 3700, toast: 4100, end: 6600 } as const;
+/** The month's end: the results rise, the savings fill once they have landed, Back is pressed and the brief's toast says what is in. */
+export const PAYDAY_BEAT = { rise: 120, fill: 1000, back: 3900, toast: 4300, end: 6300 } as const;
 /** The money held for the move in naira, before the month's pay and after it, of what the way asks. */
 export const SAVED_WATER = { before: 500_000, after: 538_000, required: 1_300_000 } as const;
 
 export const PAYDAY: Timing = {
   length: PAYDAY_BEAT.end,
   cues: [
+    { at: PAYDAY_BEAT.rise, sound: "swish.wav", volume: 0.35 },
     ...[0, 120, 240, 360, 480, 600, 720].map((at, index) => ({ at: PAYDAY_BEAT.fill + at, sound: "coin.wav", volume: 0.3 + index * 0.04 })),
     { at: PAYDAY_BEAT.back, sound: "click.wav", volume: 0.8 },
     { at: PAYDAY_BEAT.back + 80, sound: "swish.wav", volume: 0.35 },

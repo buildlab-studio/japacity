@@ -12,5 +12,5 @@ export const STAGE_STILLS: readonly StageStill[] = [
   { name: "landscape-end", id: "Stageshow", frame: 852 },
   { name: "portrait-open", id: "StageshowPortrait", frame: 75 },
   { name: "b-portrait-open", id: "StageshowBPortrait", frame: 15 },
-  { name: "b-portrait-end", id: "StageshowBPortrait", frame: 597 },
+  { name: "b-portrait-end", id: "StageshowBPortrait", frame: 555 },
 ];
