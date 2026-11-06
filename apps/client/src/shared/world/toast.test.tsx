@@ -26,9 +26,13 @@ describe("a toast's time", () => {
   test("[world:things-are-tappable-models] given a said toast, when it stands, then it goes at its time and not before", () => {
     const gone = vi.fn();
     render(<SaidToast said={{ at: 1, words: "Fetch water", picture: "activity.fetch-water" }} onGone={gone} />);
-    act(() => vi.advanceTimersByTime(SAID_TOAST_MS - 1));
+    act(() => {
+      vi.advanceTimersByTime(SAID_TOAST_MS - 1);
+    });
     expect(gone).not.toHaveBeenCalled();
-    act(() => vi.advanceTimersByTime(1));
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
     expect(gone).toHaveBeenCalledTimes(1);
   });
 
@@ -36,14 +40,22 @@ describe("a toast's time", () => {
     const gone = vi.fn();
     const { container } = render(<SaidToast said={{ at: 2, words: "Fetch water", picture: "activity.fetch-water" }} onGone={gone} />);
     const toast = container.querySelector<HTMLElement>("[data-said-toast]")!;
-    act(() => vi.advanceTimersByTime(1000));
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
     fireEvent.pointerDown(toast);
-    act(() => vi.advanceTimersByTime(10_000));
+    act(() => {
+      vi.advanceTimersByTime(10_000);
+    });
     expect(gone).not.toHaveBeenCalled();
     fireEvent.pointerUp(toast);
-    act(() => vi.advanceTimersByTime(SAID_TOAST_MS - 1000 - 1));
+    act(() => {
+      vi.advanceTimersByTime(SAID_TOAST_MS - 1000 - 1);
+    });
     expect(gone).not.toHaveBeenCalled();
-    act(() => vi.advanceTimersByTime(1));
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
     expect(gone).toHaveBeenCalledTimes(1);
   });
 
@@ -52,10 +64,14 @@ describe("a toast's time", () => {
     const { container } = render(<MoneyToast toast={{ at: 3, title: "Side gig", amount: "+₦5,000", picture: "activity.side-gig" }} onGone={gone} />);
     const toast = container.querySelector<HTMLElement>("[data-money-toast]")!;
     fireEvent.pointerEnter(toast);
-    act(() => vi.advanceTimersByTime(MONEY_TOAST_MS * 3));
+    act(() => {
+      vi.advanceTimersByTime(MONEY_TOAST_MS * 3);
+    });
     expect(gone).not.toHaveBeenCalled();
     fireEvent.pointerLeave(toast);
-    act(() => vi.advanceTimersByTime(MONEY_TOAST_MS));
+    act(() => {
+      vi.advanceTimersByTime(MONEY_TOAST_MS);
+    });
     expect(gone).toHaveBeenCalledTimes(1);
   });
 });
