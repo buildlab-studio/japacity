@@ -10,7 +10,7 @@ import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
 import { firstJob, huntOrder, jobsOutOfReach } from "./JobList";
-import { chanceBand, jobCardLine, jobChanceBp } from "../../shared/words/jobs";
+import { chanceBand, jobCardLine, jobChanceBp, sureJobOf } from "../../shared/words/jobs";
 import { say } from "../../shared/words/text";
 
 const HUNT = "activity.job-hunt";
@@ -71,7 +71,8 @@ describe("the jobs list on the hunt's card", () => {
     expect(rows).toHaveLength(jobs.length);
     for (const job of jobs) {
       const row = within(list).getByRole("radio", { name: new RegExp(`^${text[`${job}.name`] ?? job}`) });
-      const band = chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
+      // activity:job-hunt-lands-offer: the job the sure first hunt lands reads as good as certain; every other its own chance.
+      const band = sureJobOf(view, entryOf(job).slot) === job ? "certain" : chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
       expect(within(row).getByText(payWords(job))).toBeDefined();
       expect(within(row).getByText(say(`jobs.chance.${band}`))).toBeDefined();
     }
@@ -164,13 +165,13 @@ describe("the jobs list as picture cards", () => {
     expect(rows.filter((row) => row.querySelector(".phone-picked") !== null)).toHaveLength(1);
   });
 
-  test("[world:one-action-one-sheet] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely", async () => {
+  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely and for the sure hunt's job, as good as certain", async () => {
     const view = engineView();
-    const steps = { long: "1", fair: "2", likely: "3" } as const;
+    const steps = { long: "1", fair: "2", likely: "3", certain: "3" } as const;
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     for (const job of huntOf(view)) {
       const row = document.querySelector(`[data-jobs] [data-job='${job}']`);
-      const band = chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
+      const band = sureJobOf(view, entryOf(job).slot) === job ? "certain" : chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
       expect(row?.querySelector("[data-gauge]")?.getAttribute("data-gauge")).toBe(steps[band]);
       expect(row?.querySelector("[data-gauge]")?.children).toHaveLength(3);
       expect(row?.querySelector(`[data-chance='${band}']`)?.textContent).toBe(say(`jobs.chance.${band}`));
