@@ -52,7 +52,12 @@ describe("the month's close", () => {
     expect(order.length).toBeLessThanOrEqual(CLOSE_MAX);
     const salary = lines.find((each) => each.key === "line.activity.salary");
     if (salary === undefined) throw new Error("No salary this month.");
-    expect(document.querySelector("[data-results-payday]")?.textContent).toContain(words(salary.key, salary.params));
+    // The card names the pay and its figure says the amount once, never the line's sentence over the figure.
+    const payday = document.querySelector("[data-results-payday]");
+    expect(payday?.querySelector("[data-results-money-label]")?.textContent).toBe(words("line.activity.salary.label", salary.params));
+    expect(payday?.textContent).not.toContain(words(salary.key, salary.params));
+    const figure = formatMoney((salary.params["amount"] as { amount: number }).amount, "NGN");
+    expect(payday?.textContent?.split(figure)).toHaveLength(2);
     const text = sheetText();
     for (const said of ["Food:", "Spent on study", "Done this month", "You rested", "Living costs", "less.", words("line.activity.cook-at-home.now"), "Sent to family"]) expect(text).not.toContain(said);
     // The look stays: one sheet, its title and its one way back.
@@ -77,6 +82,8 @@ describe("the month's close", () => {
     act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));
     expect(rows()).toEqual(["payday", "rent", "kept", "asked", "moment"]);
     expect(document.querySelector("[data-results-rent]")?.textContent).toContain(`-${formatMoney(12_000_000, "NGN")}`);
+    expect(document.querySelector("[data-results-rent] [data-results-money-label]")?.textContent).toBe(words("line.wallet.rent.label"));
+    expect(document.querySelector("[data-results-payday] [data-results-money-label]")?.textContent).toBe(words("line.wallet.salary.label"));
     expect(sheetText()).not.toContain(words("line.wallet.upkeep", { amount: naira(3_000_000) }));
     expect(sheetText()).not.toContain("You rested");
     // Kept still counts every naira that moved, the living among it.

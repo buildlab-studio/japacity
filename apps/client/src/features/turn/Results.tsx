@@ -20,7 +20,7 @@ import { PressButton } from "../../shared/ui/look/PressButton";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { askerOf } from "../../shared/words/asks";
-import { inMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
 import { faceMark } from "../../shared/ui/look/Face";
 import { ToneTag } from "../../shared/ui/ToneTag";
 import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults } from "./month.results";
@@ -334,6 +334,14 @@ function StoryRow({ line, hero }: { line: ReportLine; hero: boolean }) {
 }
 
 /**
+ * What a line of money is, as its label beside the figure (world:month-end-results-sheet): "Salary, junior developer", "Rent", never the
+ * line's sentence with the amount in it, since the figure says the amount once.
+ */
+function moneyLabel(line: ReportLine): string {
+  return hasWords(`${line.key}.label`) ? words(`${line.key}.label`, line.params) : nowLineWords(line);
+}
+
+/**
  * A line of the month's turn in money, as the close leads with it: payday as the best thing first, a card with the job's
  * picture and the figure in green; the rent as a sticker chip, out, never louder than what came in.
  */
@@ -349,7 +357,7 @@ function MoneyRow({ entry, mark }: { entry: MoneyLine; mark: "payday" | "rent" }
           </span>
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[15px] leading-snug font-semibold">{nowLineWords(line)}</span>
+          <span className="block text-[15px] leading-snug font-semibold" data-results-money-label>{moneyLabel(line)}</span>
           <span className={`num block text-[22px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
         </span>
       </div>
@@ -359,7 +367,7 @@ function MoneyRow({ entry, mark }: { entry: MoneyLine; mark: "payday" | "rent" }
     <div className="flex flex-wrap items-center gap-2" data-results-rent={amount} data-sign={sign}>
       <span className="sticker-chip bg-sheet-2 text-[14px]" style={{ rotate: "-1deg" }}>
         <span className="drawn-pic" data-pic="🏠" aria-hidden />
-        {nowLineWords(line)}
+        <span data-results-money-label>{moneyLabel(line)}</span>
         <span className={`num ${sign < 0 ? "text-text-2" : "text-in"}`}>{signed(sign, amount, currency)}</span>
       </span>
     </div>

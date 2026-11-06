@@ -4,6 +4,7 @@ export const walletText: Record<string, string> = {
   // Money in.
   "line.wallet.opening": "You started with {amount}.",
   "line.wallet.salary": "Salary paid: {amount}.",
+  "line.wallet.salary.label": "Salary",
   "line.wallet.gig": "Paid for side work: {amount}.",
   "line.wallet.gift": "A gift landed: {amount}.",
   "line.wallet.sale": "Sold. {amount} came in.",
@@ -49,6 +50,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.cash-warning": "Mama called. 'This cash you are carrying about, it is not safe. They are robbing people inside danfo these days. Keep small for transport and put the rest in the bank, you hear?'",
   "line.wallet.flagged": "A deposit of {amount} came from somewhere a visa officer will ask about. It will show for three months.",
   "line.wallet.rent": "Rent paid: {amount}.",
+  "line.wallet.rent.label": "Rent",
   "line.wallet.deposit-return": "Your deposit came back: {amount}.",
   "line.wallet.phone": "Phone bill paid: {amount}.",
   "line.wallet.car-payment": "Car payment made: {amount}.",

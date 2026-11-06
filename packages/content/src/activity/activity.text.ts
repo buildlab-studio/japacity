@@ -160,6 +160,8 @@ export const activityText: Record<string, string> = {
 
   // Report lines. {job} and {activity} are ids: the interface shows their names.
   "line.activity.salary": "Salary from {job}: {amount}.",
+  // The results' payday card names what the money is beside its figure, which says the amount once (world:month-end-results-sheet).
+  "line.activity.salary.label": "Salary, {job}",
   "line.activity.job-started": "You started a new job: {job}.",
   "line.activity.quit": "You left your job: {job}.",
   "line.activity.job-ended": "Your job ended: {job}.",
@@ -179,6 +181,7 @@ export const activityText: Record<string, string> = {
   "line.activity.side-quit": "You left your side job: {job}.",
   "line.activity.side-ended": "Your side job ended: {job}.",
   "line.activity.side-pay": "Pay from {job}: {amount}.",
+  "line.activity.side-pay.label": "Pay, {job}",
   "line.activity.robbed": "The bus home was one chance. They took the {cash} on you, and a new phone costs {phone}.",
   "line.activity.overtime": "Extra shifts at {job}: {amount} more.",
   "line.activity.driving-passed": "You passed the driving test on attempt {attempt}. The licence came in the post.",
