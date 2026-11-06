@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, waitFor, fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { App } from "./App";
@@ -6,7 +6,7 @@ import { createGameStore } from "../authority/store";
 import { ActivityPicker } from "../features/activity/ActivityView";
 import { gameAuthority } from "../shared/testing/fixtures";
 import { courted, peopleGame, playMonth, renderWithGame, SEE, DELE } from "../shared/testing/person";
-import { nameOf, words } from "../shared/words/text";
+import { words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 
@@ -42,7 +42,7 @@ describe("people in the shell", () => {
     // activity:now-acts-and-month-acts: seeing someone is an act done at once, so the tap sends it and the moment is made now,
     // in the month in hand, with nothing planned; the moment is told in words among the act's own lines, which the
     // world's results show with the month's.
-    fireEvent.click(await screen.findByRole("button", { name: `${nameOf(SEE.activity)}` }));
+    fireEvent.click(await waitFor(() => found(`[data-act-main="${SEE.activity}"]`)));
     await waitFor(() => expect(Object.values(game.state.people.bonds).find((held) => held.role === "partner")?.moments).toHaveLength(1));
     expect(store.getState().plan.some((pick) => pick?.activity === SEE.activity)).toBe(false);
     const moment = Object.values(game.state.people.bonds).find((held) => held.role === "partner")!.moments[0]!;

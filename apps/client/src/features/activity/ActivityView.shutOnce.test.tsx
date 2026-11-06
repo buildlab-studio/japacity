@@ -8,7 +8,7 @@ import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/front-do
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { requirementSentence } from "../../shared/words/requirement";
-import { nameOf, say } from "../../shared/words/text";
+import { say } from "../../shared/words/text";
 
 const ADVISER = "activity.see-adviser";
 const FRIEND = "activity.ask-someone-who-went";
@@ -41,7 +41,7 @@ describe("a shut card says why once", () => {
       expect(option.allowed).toBe(false);
       const text = card.textContent ?? "";
       for (const requirement of option.missing) expect(count(text.toLowerCase(), requirementSentence(requirement, { routes: view.routes }).toLowerCase())).toBe(1);
-      const button = card.querySelector<HTMLButtonElement>(`button[aria-label="${nameOf(id)}"]`)!;
+      const button = card.querySelector<HTMLButtonElement>(`button[data-act-main="${id}"]`)!;
       expect(button.disabled).toBe(true);
       expect(button.querySelector("[data-after]")?.textContent).toBe(say("ui.needs.not-yet"));
       expect(text).not.toContain(say("ui.needs.route"));

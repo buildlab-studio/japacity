@@ -37,7 +37,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.partner.invite": "Ask a friend to be your partner",
 
   // Candidates (person:computer-candidates-labelled, person:computer-mark-is-quiet)
-  "ui.people.court": "Start seeing {name}",
+  "ui.people.court": "Ask out",
   "ui.people.chosen": "{name} is a computer character. They live in the game.",
   // Met in a place (world:nobody-picked-from-list, person:courting-opens-a-bond): the talk sheet shut while the most bonds a life may court already court.
   "ui.people.court.full": "You are seeing {count} people already.",

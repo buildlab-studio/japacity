@@ -14,14 +14,18 @@ const itemNames: Record<string, string> = Object.fromEntries(
 export const adviceText: Record<string, string> = {
   // The friend (advice:someone-who-went-answers-free).
   "activity.ask-someone-who-went.name": "Ask someone who went",
+  "activity.ask-someone-who-went.button": "Ask",
   "activity.ask-someone-who-went.blurb": "They tell you what the route asked when they left. Things may have changed since.",
   // The adviser (advice:licensed-adviser-is-truthful).
   "activity.see-adviser.name": "See the licensed adviser",
+  "activity.see-adviser.button": "Book",
   "activity.see-adviser.blurb": "She reads your whole file and tells you the truth about every route you know of. It costs money.",
   // The two ways to an agent (advice:agent-kind-drawn-on-offer, advice:advisers-are-invented-people).
   "activity.see-agent-stop.name": "Talk to the agents at the stop",
+  "activity.see-agent-stop.button": "Talk",
   "activity.see-agent-stop.blurb": "Men at the bus stop say they can sort your papers fast. Some can.",
   "activity.see-agent-office.name": "Go up to the travel desk",
+  "activity.see-agent-office.button": "Go up",
   "activity.see-agent-office.blurb": "A desk in a shared office upstairs, with a name on the door.",
 
   // The agent at the stop.

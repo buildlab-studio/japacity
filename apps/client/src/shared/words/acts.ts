@@ -14,6 +14,16 @@ export function answersNow(activity: string): boolean {
 }
 
 /**
+ * The words of an act's main button (world:one-action-one-sheet): the act's verb in one or two words, content's `<id>.button`
+ * beside its name, since the card's title above already names the act. A job a board names with its own button words (the
+ * racks' "Start work") says those; an entry with none says its name.
+ */
+export function buttonOf(activity: string, chosen: string | null = null): string {
+  if (chosen !== null && hasWords(`${chosen}.button`)) return say(`${chosen}.button`);
+  return hasWords(`${activity}.button`) ? say(`${activity}.button`) : nameOf(activity);
+}
+
+/**
  * The month's free time an act done at once takes, in words (activity:now-acts-spend-half-days): a morning for 1 half-day, a day for 2,
  * a weekend for 4, a week for 10, and between them the nearer below. Null for a purchase or an act that takes the month,
  * which spend none of it.

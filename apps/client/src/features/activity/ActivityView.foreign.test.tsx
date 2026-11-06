@@ -5,12 +5,11 @@ import { content } from "@japacity/content";
 import type { ActivityOption, PlayerView, World } from "@japacity/sim";
 import { standInWorld } from "@japacity/sim";
 import { setPockets, start } from "@japacity/sim/testing";
-import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { nameOf, say } from "../../shared/words/text";
+import { say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const ENDORSE = "activity.apply-endorsement";
@@ -32,7 +31,8 @@ function endorsement(pounds: number): { view: PlayerView; option: ActivityOption
   return { view, option: { ...option, allowed: true, missing: [] } };
 }
 
-const addButton = (): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: nameOf(ENDORSE) });
+/** The act's one main button, by its mark (world:one-action-one-sheet). */
+const addButton = (): HTMLButtonElement => found(`[data-act-main="${ENDORSE}"]`) as HTMLButtonElement;
 
 describe("a cost in another money", () => {
   test("[world:one-action-one-sheet] [wallet:foreign-fee-payment-order] given the endorsement's £561 with naira enough in the bank but the bank's queue up, when its card shows, then the card says it needs £561 in pounds and where to change money, and the button says it needs pounds", async () => {

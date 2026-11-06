@@ -51,8 +51,8 @@ describe("an act that repeats, at its thing", () => {
       await pressFanAct("mama", FAMILY);
       const picker = await waitFor(() => found("[data-activity-picker]"));
       // Her sheet holds her shop beside the gist.
-      expect(picker.querySelector(`button[aria-label="${nameOf("activity.help-shop")}"]`)).not.toBeNull();
-      const card = picker.querySelector<HTMLButtonElement>(`button[aria-label="${nameOf(FAMILY)}"]`)?.closest("li");
+      expect(picker.querySelector(`button[data-act-main="activity.help-shop"]`)).not.toBeNull();
+      const card = picker.querySelector<HTMLButtonElement>(`button[data-act-main="${FAMILY}"]`)?.closest("li");
       const main = card?.querySelector<HTMLButtonElement>("button");
       if (card === null || card === undefined || main === null || main === undefined) throw new Error("No card for time with Mama.");
       // Gist takes no time (halfDays 0), so the card names none.
@@ -81,7 +81,7 @@ describe("an act the scene shows, from its sheet", () => {
     act(() => anchorFan("cooking", null));
     fireEvent.click(await waitFor(() => found('[data-stand-in-thing="cooking"]'), { timeout: 3000 }));
     const picker = await waitFor(() => found("[data-activity-picker]"));
-    const cook = picker.querySelector<HTMLButtonElement>(`button[aria-label="${nameOf(COOK)}"]`);
+    const cook = picker.querySelector<HTMLButtonElement>(`button[data-act-main="${COOK}"]`);
     if (cook === null) throw new Error("No card for the pot.");
     expect(nameOf(COOK)).toBe("Food from the pot");
     fireEvent.click(cook);

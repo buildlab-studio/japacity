@@ -33,7 +33,7 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { TopBand, bandMoney, bandMonth } from "../../shared/world/TopBand";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
-import { type Said, SAID_TOAST_MS, SaidToast } from "../../shared/world/SaidToast";
+import { type Said, SAID_TOAST_MS, SaidToast, toastMs } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
@@ -55,7 +55,7 @@ import { buyModeAt, showOwned } from "./scene/owned";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
-import { actOnCard, answersNow, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
+import { actOnCard, answersNow, buttonOf, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "../../shared/words/study";
 import { actsOffered, actToast, answerAsk, answerStays, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts/acts";
@@ -84,7 +84,7 @@ import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
 import { Fan } from "./fan/Fan";
 import { GO_HOME, goHomeAsk, goHomeOffered } from "./acts/goHome";
-import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, nextBase, briefTitle } from "./brief/brief";
+import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, metBefore, nextBase, briefTitle } from "./brief/brief";
 import { ChapterClose, MissionCard } from "./brief/BriefCards";
 import { BriefChip, Marker } from "./brief/BriefChip";
 import { briefHanded, handBrief } from "../../shared/world/briefHanded";
@@ -215,10 +215,10 @@ function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" |
 }
 
 /** A closed chapter as its brief, every thing in, for the close's card (section 4). */
-function closedBrief(chapter: string, view: Pick<PlayerView, "chapter">): Brief | null {
+function closedBrief(chapter: string, view: Pick<PlayerView, "chapter" | "scenario" | "month">): Brief | null {
   const entry = content.chapter[chapter as Id<"chapter">];
   if (entry === undefined) return null;
-  return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "");
+  return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "", metBefore(view, chapter));
 }
 
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (world:entering-is-a-cut). */
@@ -423,7 +423,7 @@ function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose:
   return (
     <div role="dialog" aria-label={said} className="pointer-events-auto flex items-start gap-3 rounded-md border border-sheet-line bg-sheet-2 p-4 shadow-lg" data-card={picked.kind}>
       <p className="flex-1">{said}</p>
-      <button type="button" aria-label={cityWords("city.close")} onClick={onClose} className="inline-flex size-9 items-center justify-center rounded-md border border-sheet-line">
+      <button type="button" aria-label={cityWords("city.close")} onClick={onClose} className="reach inline-flex size-9 items-center justify-center rounded-md border border-sheet-line">
         <X size={18} />
       </button>
     </div>
@@ -1348,12 +1348,6 @@ export function City({
     setPicked(null);
     setStarted({ line: said, at: Date.now() });
   }, [lastLines, world, phone]);
-  // The act's toast goes by itself, whether it showed or another toast answered the act in its place.
-  useEffect(() => {
-    if (started === null) return;
-    const timer = window.setTimeout(() => setStarted(null), SAID_TOAST_MS);
-    return () => window.clearTimeout(timer);
-  }, [started]);
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
     if (world && answer !== null) {
@@ -1384,7 +1378,7 @@ export function City({
     if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
       const person = picked.with;
       const partnered = (partner: string | null, name: string): string => say("ui.people.court.partnered", { partner: partner === null ? say("ui.people.who.player") : nameOf(partner), name });
-      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: (name) => say("ui.people.court", { name }), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer"), partnered }, {
+      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: () => say("ui.people.court"), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer"), partnered }, {
         send: (who) => {
           void send({ type: "people/court", with: who }).then((reply) => {
             cue(reply?.ok === true ? "done" : "tap");
@@ -1411,7 +1405,7 @@ export function City({
         when: "now",
         // The repayment leaves the funds held for the character, never the pockets: the second line says so instead of a figure left.
         note: say("ui.world.pay-back-note"),
-        button: say("ui.world.pay-back"),
+        button: say("ui.world.pay-back.button"),
         act: () => {
           void send({ type: "obligation/pay", obligation: heldDue.id, amount }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
@@ -1434,7 +1428,7 @@ export function City({
         line: say("ui.world.deposit-line", { school: nameOf(depositDue.school), route: nameOf(depositDue.route) }),
         cost: deposit,
         when: "now",
-        button: say("ui.route.pay-deposit"),
+        button: say("ui.route.pay-deposit.button"),
         act: () => {
           void send({ type: "route/pay-deposit", route: depositDue.route, school: depositDue.school }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
@@ -1445,7 +1439,7 @@ export function City({
         dismiss: () => setPicked(null),
       };
     }
-    // The cargo office's act opens the waybill, a paper slip (world:one-action-one-sheet); Collect it answers the parcel.
+    // The cargo office's act opens the waybill, a paper slip (world:one-action-one-sheet); Collect answers the parcel.
     if (world && picked?.kind === "action" && picked.activity === PARCEL) {
       return parcelAsk(view, {
         formatMoney: (amount, currency) => formatMoney(amount, currency as "NGN"),
@@ -1516,13 +1510,14 @@ export function City({
       // activity:waiting-months-build-profile: what the act counts toward, a chip under the line, never a clause of it.
       ...(chosen === null && countsWords(activity) !== null ? { counts: activity } : {}),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
-      button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
+      // world:one-action-one-sheet: the button says the act's verb; the title above names the act.
+      button: shut ? say("ui.activity.planned") : buttonOf(activity, chosen),
       // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
       // activity:now-acts-spend-half-days: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(time === null ? {} : { time }),
       ...(does === null ? {} : { does }),
-      // world:one-action-one-sheet: the act's button says the act and its price.
+      // world:one-action-one-sheet: the act's button says its verb and its price.
       ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: held ?? needsWords(option.missing) }),
@@ -1680,7 +1675,7 @@ export function City({
   }, [money]);
   // The road in the world, only in the moment (docs/design/09-the-games-look.md section 4). The brief of the chapter the life
   // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
-  const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
+  const brief = useMemo(() => (world ? briefOf(view, briefLine(view), metBefore(view, view.chapter.current)) : null), [world, view]);
   const [handed, setHanded] = useState<string | null>(null);
   const [toast, setToast] = useState<{ words: string; at: number } | null>(null);
   const chapterBefore = useRef<PlayerView["chapter"] | null>(world ? view.chapter : null);
@@ -1697,7 +1692,7 @@ export function City({
   }, [world, view.chapter]);
   useEffect(() => {
     if (toast === null) return;
-    const timer = window.setTimeout(() => setToast(null), DONE_TOAST_MS);
+    const timer = window.setTimeout(() => setToast(null), Math.max(DONE_TOAST_MS, toastMs(toast.words)));
     return () => window.clearTimeout(timer);
   }, [toast]);
   // interview:answers-taken-in-order: the last answer in, the asks leave and the officer says so in a toast under the band, in plain English.
@@ -1725,7 +1720,7 @@ export function City({
   /** Hands the brief of the chapter the life is in: the Japa app takes a dot and the chip stands, then tucks into the phone. */
   const handOver = (chapter: string | null): void => {
     if (chapter === null || briefHanded(view.scenario, chapter)) return;
-    handBrief(view.scenario, chapter);
+    handBrief(view.scenario, chapter, metBefore(view, chapter));
     setHanded(chapter);
   };
   // At the step's place, or beside its person, the chip comes back with its dots and the marker stands on the thing to do;
@@ -1739,6 +1734,13 @@ export function City({
     const told = actToast(started.line, view.month);
     return { at: started.at, words: told.name, picture: told.activity, act: told.activity, tag: told.tag };
   })();
+  // The act's toast goes by itself: shown, its own time, held while touched, ends it; answered by another toast in its place, it goes as a toast's time would.
+  const startedShown = startedToast !== null && moneyIn === null && chipMoment !== "done";
+  useEffect(() => {
+    if (started === null || startedShown) return;
+    const timer = window.setTimeout(() => setStarted(null), SAID_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [started, startedShown]);
   const nowItem = brief?.items.find((item) => item.now) ?? null;
   // Nothing speaks in the first seconds in a new place, so the place is seen before it is heard (the talk budget).
   const [settled, setSettled] = useState(false);
@@ -1949,7 +1951,7 @@ export function City({
                   {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
                   {said === null ? null : <SaidToast key={said.at} said={said} onGone={() => setSaid(null)} />}
                   {/* One toast answers one act: the brief's tick and its giver's toast, or the money toast, stand in for the act's own. */}
-                  {startedToast === null || moneyIn !== null || chipMoment === "done" ? null : <SaidToast key={startedToast.at} said={startedToast} onGone={() => setStarted(null)} />}
+                  {startedToast === null || !startedShown ? null : <SaidToast key={startedToast.at} said={startedToast} onGone={() => setStarted(null)} />}
                   {brief !== null && chipMoment !== null ? (
                     <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
                   ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (
@@ -2051,7 +2053,7 @@ export function City({
               <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>
               <button
                 type="button"
-                className="press flex size-8 shrink-0 items-center justify-center rounded-[4px] text-text-2"
+                className="press reach flex size-8 shrink-0 items-center justify-center rounded-[4px] text-text-2"
                 aria-label={cityWords("city.home.teach.close")}
                 onClick={() => {
                   markTaught(`home:${homeTeach}`, view.scenario);

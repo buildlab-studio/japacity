@@ -142,6 +142,25 @@ function lostWords(months: number): string {
   return sayCount("ui.page.year.lost", years, { count: years });
 }
 
+/** The route a step's answer heard of (`route/hear`, the send-off's crowds), or null. */
+export function heardAt(one: Pick<TrailStep, "step" | "answer">): string | null {
+  const answer = content.prologue[one.step]?.answers.find((each) => each.id === one.answer);
+  for (const effect of answer?.effects ?? []) if (effect.type === "route/hear" && hasWords(`prologue.page.way.${effect.route}`)) return effect.route;
+  return null;
+}
+
+/**
+ * The way out the years before heard of, said once under So far as the life is handed over (prologue:printed-page-hands-over,
+ * chapter:first-chapter-mission-card): "Heard of health care at a send-off"; null where the trail heard of none.
+ */
+export function heardWords(trail: Trail): string | null {
+  for (const one of trail.steps) {
+    const route = heardAt(one);
+    if (route !== null) return say("ui.page.heard", { way: say(`prologue.page.way.${route}`) });
+  }
+  return null;
+}
+
 /**
  * The chips of the years before, in the order they were lived, from the trail; from the life's path when the trail is
  * lost. `water`: the child of the water's own years (prologue:makoko-start-never-a-trap): school by canoe, the

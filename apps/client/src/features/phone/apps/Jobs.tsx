@@ -334,7 +334,9 @@ export function Jobs() {
             <div className="sticky bottom-0 bg-sheet pt-2 pb-1">
               <PressButton className="w-full" onClick={() => take(chosen)} data-take-offer={chosen.id}>
                 <span>{say("phone.jobs.take")}</span>
-                <span aria-hidden>·</span>
+                {/* A space between the words, so the name a screen reader reads holds them apart (world:one-action-one-sheet). */}
+                {" "}
+                <span aria-hidden>·</span>{" "}
                 <span className="min-w-0 truncate">{offerName(chosen)}</span>
               </PressButton>
             </div>

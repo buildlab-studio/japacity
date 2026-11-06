@@ -2,7 +2,7 @@
 // stop raises a sheet at the foot of the map with the place's own picture, its name and state, a line about it, the
 // ways to go as picture tiles with the fare and minutes under each, the balance before struck through and after, and
 // one yellow Go that says the ride and its fare. The map stays in view above it.
-import { Footprints } from "lucide-react";
+import { Footprints, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { LEVEL, useBackLayer } from "../../shared/back/back";
@@ -125,11 +125,15 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
 
   return (
     <div role="dialog" aria-label={headingOf(pin.name)} className="pointer-events-auto absolute inset-x-0 bottom-0 z-[3]" data-ride-sheet={pin.id}>
-      <div className="rise mx-auto max-w-[430px] rounded-t-[26px] border-t-[length:var(--edge-width)] border-edge bg-sheet px-4 pt-1 pb-[max(20px,env(safe-area-inset-bottom))] text-text shadow-[0_-10px_30px_rgba(0,0,0,0.18)]">
-        <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="mx-auto flex h-7 w-20 items-center justify-center rounded-[10px] outline-none focus-visible:ring-2 focus-visible:ring-text/40" data-ride-close>
+      <div className="rise relative mx-auto max-w-[430px] rounded-t-[26px] border-t-[length:var(--edge-width)] border-edge bg-sheet px-4 pt-1 pb-[max(20px,env(safe-area-inset-bottom))] text-text shadow-[0_-10px_30px_rgba(0,0,0,0.18)]">
+        {/* world:sheets-one-frame: the handle is a handle; the one close is the mark at the top right, where every sheet has it. */}
+        <span className="mx-auto flex h-7 w-20 items-center justify-center" aria-hidden>
           <span className="h-[5px] w-10 rounded-[3px] bg-text/25" />
+        </span>
+        <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="press absolute top-1.5 right-1.5 z-[1] flex size-11 items-center justify-center rounded-[12px] text-text-2" data-ride-close data-sheet-close>
+          <X size={20} aria-hidden />
         </button>
-        <div className="mb-3 flex items-center gap-3">
+        <div className="mb-3 flex items-center gap-3 pr-10">
           <span className="flex size-16 shrink-0 items-center justify-center rounded-[16px] bg-sheet-muted" style={{ rotate: "-5deg" }} aria-hidden>
             <PlacePicture id={pin.id} size={56} tiles={tiles} />
           </span>

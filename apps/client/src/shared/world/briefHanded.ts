@@ -9,6 +9,8 @@ interface Kept {
   scenario: string;
   /** Every chapter whose brief has been handed in this life, in the order handed. */
   handed: string[];
+  /** By chapter, the things already met as its brief was handed (chapter:first-chapter-mission-card). */
+  before?: Record<string, string[]>;
 }
 
 const { subscribe, notify } = listeners();
@@ -38,12 +40,25 @@ export function briefHanded(scenario: string, chapter: string): boolean {
   return briefsHanded(scenario).includes(chapter);
 }
 
-/** Keeps that the brief was handed: the Japa app's dot shows until it is opened. */
-export function handBrief(scenario: string, chapter: string): void {
+/**
+ * The things of a chapter already met as its brief was handed, kept with the mark (chapter:first-chapter-mission-card); null when the
+ * brief is not yet handed in this life, or was handed before the mark kept them.
+ */
+export function briefBefore(scenario: string, chapter: string): readonly string[] | null {
+  const kept = read();
+  if (kept?.scenario !== scenario || !kept.handed.includes(chapter)) return null;
+  const before = kept.before?.[chapter];
+  return Array.isArray(before) && before.every((id) => typeof id === "string") ? before : null;
+}
+
+/** Keeps that the brief was handed, and what of it was met by then: the Japa app's dot shows until it is opened. */
+export function handBrief(scenario: string, chapter: string, before: readonly string[] = []): void {
   const handed = briefsHanded(scenario);
   if (handed.includes(chapter)) return;
+  const kept = read();
+  const earlier = kept?.scenario === scenario ? (kept.before ?? {}) : {};
   try {
-    browserStorage()?.setItem(BRIEF_KEY, JSON.stringify({ scenario, handed: [...handed, chapter] } satisfies Kept));
+    browserStorage()?.setItem(BRIEF_KEY, JSON.stringify({ scenario, handed: [...handed, chapter], before: { ...earlier, [chapter]: [...before] } } satisfies Kept));
   } catch {
     // A private window may refuse storage; the brief is then carried for the visit only.
   }

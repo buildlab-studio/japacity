@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/view/person";
-import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
+import { actOnCard, answersNow, buttonOf, pickable } from "../../shared/words/acts";
 import { chipEffectsLine, chipTimeOf, freeShown } from "../../shared/words/chips";
 import { courseWords, heldBackWords, studyDoesWords, studyPaysWords } from "../../shared/words/study";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
@@ -184,7 +184,7 @@ function Slots() {
             <button
               type="button"
               aria-label={`${say("ui.month.slot-remove")}: ${pickWords(pick, view)}`}
-              className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted"
+              className="reach inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted"
               onClick={() => setSlot(index, null)}
             >
               <X size={16} />
@@ -459,10 +459,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               {say("ui.act.spent")}
             </p>
           ) : (
-          // The card's one yellow action (docs/design/09-the-games-look.md section 2), the verb and the thing, the price on it.
+          // The card's one yellow action (docs/design/09-the-games-look.md section 2): the act's verb under the card's title, the price on it, and
+          // its name for a screen reader its visible words (world:one-action-one-sheet).
           <PressButton
             disabled={!canAdd}
-            aria-label={name}
+            data-act-main={option.id}
             onClick={() => void actOnCard({ activity: option.id, param: needsParam ? chosenParam : null }, { send, addToPlan })}
             className="w-full px-4 py-2 text-center text-[16px] leading-tight"
           >
@@ -471,7 +472,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             ) : (
               <>
                 <Plus size={16} />
-                {already ? say("ui.activity.planned") : full && option.allowed ? say("ui.activity.full") : option.cost.length === 0 ? name : pricedLabel(name, costWords)}
+                {already ? say("ui.activity.planned") : full && option.allowed ? say("ui.activity.full") : option.cost.length === 0 ? buttonOf(option.id) : pricedLabel(buttonOf(option.id), costWords)}
               </>
             )}
             {line === null ? null : (
