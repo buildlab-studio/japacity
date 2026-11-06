@@ -42,6 +42,13 @@ function aMonthOn(age: string): string {
 }
 
 /** An act whose sheet opens over the place (world:things-are-tappable-models): the thing's act, then the sheet's own button for the act chosen. */
+/** An act's card button, by its words: the act's verb from content (world:one-action-one-sheet), with the price after it where it costs. */
+function verbOf(activity: string): RegExp {
+  const words = text[`${activity}.button`];
+  if (words === undefined) throw new Error(`No button words for ${activity}`);
+  return new RegExp(`^${words}(?![a-z])`);
+}
+
 async function actBySheet(page: Page, thing: string, act: string, button: RegExp): Promise<void> {
   await doAct(page, thing, act);
   const sheet = page.getByRole("dialog");
@@ -51,7 +58,7 @@ async function actBySheet(page: Page, thing: string, act: string, button: RegExp
 
 /**
  * A now-act from the fan (world:fan-of-sticker-buttons): it is done at once, or, when the act asks first, its card opens once the character
- * has walked to the thing and its own button (the act's name) does it. Either way the fan closes and no sheet is left.
+ * has walked to the thing and its own button (the act's verb) does it. Either way the fan closes and no sheet is left.
  */
 async function fanActDone(page: Page, thing: string, activity: string, button: RegExp): Promise<void> {
   const counter = page.locator("[data-band] [data-counter]");
@@ -123,16 +130,16 @@ test("[world:fan-of-sticker-buttons] three months of play, acts from the fan and
   // Each month, acts on the home's things: from the fan (world:fan-of-sticker-buttons) and from a thing's sheet (world:things-are-tappable-models).
   const months: ((page: Page) => Promise<void>)[] = [
     async (here) => {
-      await fanActDone(here, "cooking", "activity.cook-at-home", /^Food from the pot/);
-      await actBySheet(here, "table", "study", /^Study for the English test/);
+      await fanActDone(here, "cooking", "activity.cook-at-home", verbOf("activity.cook-at-home"));
+      await actBySheet(here, "table", "study", verbOf("activity.study-english"));
     },
     async (here) => {
-      await actBySheet(here, "mama", "family-time", /^Time with family/);
-      await fanActDone(here, "drum", "activity.fetch-water", /^Fetch water/);
+      await actBySheet(here, "mama", "family-time", verbOf("activity.family-time"));
+      await fanActDone(here, "drum", "activity.fetch-water", verbOf("activity.fetch-water"));
     },
     async (here) => {
-      await fanActDone(here, "tv", "activity.watch-tv", /^Nollywood with Papa/);
-      await fanActDone(here, "drum", "activity.bucket-bath", /^Bucket bath/);
+      await fanActDone(here, "tv", "activity.watch-tv", verbOf("activity.watch-tv"));
+      await fanActDone(here, "drum", "activity.bucket-bath", verbOf("activity.bucket-bath"));
     },
   ];
   for (const [index, play] of months.entries()) {
