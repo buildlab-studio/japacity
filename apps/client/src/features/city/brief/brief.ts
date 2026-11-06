@@ -17,8 +17,8 @@ import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
 export const TUCK_MS = 2000;
 /** How long the slide into the Phone thumb takes: under half a second (world:motions-under-half-second). */
 export const TUCK_SLIDE_MS = 420;
-/** How long a done thing's toast rides under the chip. */
-export const DONE_TOAST_MS = 3000;
+/** The least a done thing's toast rides under the chip: as long as any toast (world:things-are-tappable-models). */
+export const DONE_TOAST_MS = 4000;
 
 /** One thing of a brief: its words, the two-word place under it, whether it is in, and whether it is the one to do now. */
 export interface BriefItem {

@@ -6,9 +6,10 @@ import { useEffect, useRef, useState } from "react";
 
 import { cue } from "../sound/cues";
 import { Tile } from "../tiles/Tile";
+import { SAID_TOAST_MS, useToastTime } from "./SaidToast";
 
-/** How long a money toast stands. */
-export const MONEY_TOAST_MS = 3000;
+/** How long a money toast stands: as long as any toast with a few words (world:things-are-tappable-models). */
+export const MONEY_TOAST_MS = SAID_TOAST_MS;
 
 export interface MoneyIn {
   /** A key that changes with each new toast. */
@@ -32,11 +33,10 @@ export function MoneyToast({ toast, onGone }: { toast: MoneyIn; onGone: () => vo
     const from = pill.current?.getBoundingClientRect();
     const to = document.querySelector("[data-band-money]")?.getBoundingClientRect();
     if (from !== undefined && to !== undefined) setFlight({ x: to.left + to.width / 2 - (from.left + from.width / 2), y: to.top + to.height / 2 - (from.top + 12) });
-    const timer = window.setTimeout(() => gone.current(), MONEY_TOAST_MS);
-    return () => window.clearTimeout(timer);
   }, [toast.at]);
+  const time = useToastTime(toast.at, MONEY_TOAST_MS, () => undefined, () => gone.current());
   return (
-    <div className="brief-toast slide-in pointer-events-auto mt-2 flex w-full items-center gap-3 p-2.5 pr-3" role="status" data-money-toast>
+    <div className="brief-toast slide-in pointer-events-auto mt-2 flex w-full items-center gap-3 p-2.5 pr-3" role="status" data-money-toast {...time}>
       <span className="flex size-14 shrink-0 items-center justify-center rounded-[16px] bg-tint-money">
         <span className="sticker-cut" style={{ rotate: "-6deg" }}>
           <Tile of={toast.picture} size={40} />
