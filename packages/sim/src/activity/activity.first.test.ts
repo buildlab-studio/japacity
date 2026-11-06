@@ -1,38 +1,12 @@
 // The first session: guide:early-win-in-three-turns.
-// Every starting life sees an early win by its third month; the life's first
-// hunt in those months is sure, at the lowest wage on offer.
+// Every starting life sees an early win by its third month.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { valueInKobo } from "../engine/int";
-import type { ActivityEntry, Id } from "../engine/types";
+import type { Id } from "../engine/types";
 import { isEarlyWin } from "../guide/guide.earlyWin";
 import { FIRST_SESSION_MONTHS, playFirstSession, startingLives } from "../testing/firstSession";
 import type { FirstSession } from "../testing/firstSession";
-import type { Game } from "../testing/play";
-import { start } from "../testing/play";
-import { readOf } from "../testing/read";
-import { applyEffects } from "../testing/route.journey";
-import { sureHuntJob } from "./activity.logic";
-import { HUNT } from "../testing/ids";
-
-function entryOf(id: string): ActivityEntry {
-  const entry = content.activity[id as Id<"activity">];
-  if (entry === undefined) throw new Error(`No ${id} in content.`);
-  return entry;
-}
-
-/** The jobs the view offers to hunt now in this slot, by a month's pay in naira at the official rate, lowest first, then by id. */
-function byWage(game: Game, slot: ActivityEntry["slot"]): Id<"activity">[] {
-  const rates = Object.fromEntries(Object.entries(game.world().rates).map(([currency, rate]) => [currency, rate.official])) as Parameters<typeof valueInKobo>[2];
-  const params = game.view().activities.find((option) => option.id === HUNT)?.params ?? [];
-  return params
-    .map(entryOf)
-    .filter((entry) => entry.slot === slot && entry.pay !== null && typeof entry.pay.amount === "number")
-    .map((entry) => ({ id: entry.id, kobo: valueInKobo(entry.pay!.amount as number, entry.pay!.currency, rates) }))
-    .sort((a, b) => a.kobo - b.kobo || (a.id < b.id ? -1 : 1))
-    .map((found) => found.id);
-}
 
 /** Every starting life played once; prologue lives that take the same path are kept once. */
 function everyFirstSession(seed?: string): FirstSession[] {
@@ -59,117 +33,19 @@ describe("the first session", () => {
     for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_MONTHS);
   }, 120000);
 
-  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a landed hunt, a chapter or goal, or a route heard by a choice counts", () => {
+  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a landed hunt, the lead after a miss, a chapter or goal, or a route heard by a choice counts", () => {
     const line = (key: string, tone: "good" | "plain" = "good") => ({ key, params: {}, tone, attention: false, counts: [] });
     const busy = [{ activity: "activity.meetup" as Id<"activity">, param: null }];
     const resting = [{ activity: "activity.rest" as Id<"activity">, param: null }];
     expect(isEarlyWin(line("line.activity.hunt-hired"), busy)).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-lead"), resting)).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-word"), resting)).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-missed", "plain"), busy)).toBe(false);
     expect(isEarlyWin(line("line.activity.salary"), resting)).toBe(true);
     expect(isEarlyWin(line("line.chapter.closed"), resting)).toBe(true);
     expect(isEarlyWin(line("line.activity.salary", "plain"), busy)).toBe(false);
     expect(isEarlyWin(line("line.route.heard"), resting)).toBe(false);
     expect(isEarlyWin(line("line.route.heard"), busy)).toBe(true);
     expect(isEarlyWin(line("line.quality.gain"), busy)).toBe(false);
-  });
-});
-
-describe("the sure first hunt", () => {
-  test("[guide:early-win-in-three-turns] given the graduate's first hunt in its first month, when the job it lands is read, then it is the main job with the lowest month's pay that covers the life's month's dues of those it may hunt, whichever it names", () => {
-    const game = start({ scenario: "scenario.graduate", content });
-    const wages = byWage(game, "main");
-    expect(wages.length).toBeGreaterThan(1);
-    const dues = Object.values(game.state.obligation.items).reduce((sum, item) => sum + item.amount, 0);
-    const covering = wages.find((id) => {
-      const pay = entryOf(id).pay;
-      return pay !== null && pay.currency === "NGN" && typeof pay.amount === "number" && pay.amount >= dues;
-    });
-    expect(covering).toBeDefined();
-    // The graduate's upkeep is above the teacher's pay, so the smallest job that pays the life's month is not the smallest job.
-    expect(covering).not.toBe(wages[0]);
-    for (const named of wages) expect(sureHuntJob(readOf(game), entryOf(named), 1, false)?.id).toBe(covering);
-  });
-
-  test("[guide:early-win-in-three-turns] given a side job named, when the sure hunt's job is read, then it is the side job with the lowest pay", () => {
-    const game = start({ scenario: "scenario.graduate", content });
-    const sides = byWage(game, "side");
-    expect(sides.length).toBeGreaterThan(1);
-    expect(sureHuntJob(readOf(game), entryOf(sides[sides.length - 1]!), 1, false)?.id).toBe(sides[0]);
-  });
-
-  test("[guide:early-win-in-three-turns] given the months, when the sure hunt is read, then the third month is the last that has it and the fourth has none", () => {
-    const game = start({ scenario: "scenario.graduate", content });
-    const named = entryOf(byWage(game, "main")[0]!);
-    expect(sureHuntJob(readOf(game), named, FIRST_SESSION_MONTHS, false)).not.toBeNull();
-    expect(sureHuntJob(readOf(game), named, FIRST_SESSION_MONTHS + 1, false)).toBeNull();
-  });
-
-  test("[guide:early-win-in-three-turns] given a hunt earlier this month or in a month before, when the sure hunt is read, then there is none: only the life's first hunt is sure", () => {
-    const game = start({ scenario: "scenario.graduate", content });
-    const named = entryOf(byWage(game, "main")[0]!);
-    expect(sureHuntJob(readOf(game), named, 1, true)).toBeNull();
-    game.endTurn([{ activity: HUNT, param: named.id }]);
-    expect(sureHuntJob(readOf(game), named, 2, false)).toBeNull();
-    const rested = start({ scenario: "scenario.graduate", content });
-    rested.endTurn([]);
-    expect(sureHuntJob(readOf(rested), named, 2, false)).not.toBeNull();
-  });
-
-  test("[guide:early-win-in-three-turns] [activity:job-hunt-lands-offer] given a starting life's first hunt, for the best-paid job it may hunt, whatever the draw, when the turn is ended, then the hunt lands (the named job or the lowest-paid) and the job offer opens", () => {
-    for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6", "seed-7", "seed-8"]) {
-      const game = start({ scenario: "scenario.graduate", content, seed });
-      const wages = byWage(game, "main");
-      const best = wages[wages.length - 1]!;
-      game.endTurn([{ activity: HUNT, param: best }]);
-      const lines = game.view().report?.lines ?? [];
-      const landed = lines.find((line) => line.key === "line.activity.hunt-hired");
-      expect(landed).toBeDefined();
-      expect(wages).toContain(landed?.params["job"]);
-      expect(game.view().offers.some((offer) => offer.entry === "offer.job")).toBe(true);
-    }
-  });
-});
-
-// The developer applies for the junior developer's job with the month full (the portfolio and open source at the desk,
-// the meetup); the draw misses and the sure hunt lands another job. The month says the job asked for came to nothing
-// before the offer for the one landed.
-describe("the sure hunt that lands another job", () => {
-  const FULL: { activity: Id<"activity">; param: null }[] = [
-    { activity: "activity.learn-tech", param: null },
-    { activity: "activity.study-english", param: null },
-  ];
-
-  test("[activity:job-hunt-lands-offer] [guide:early-win-in-three-turns] given the graduate's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
-    const asked = "activity.job-junior-developer";
-    // The junior job asks a piece of work to show (activity:each-trade-climbs-its-ladder): this graduate has one.
-    const shown = (seed?: string) => {
-      const game = start({ scenario: "scenario.graduate", content, ...(seed === undefined ? {} : { seed }) });
-      applyEffects(game, [{ type: "quality/add", quality: "quality.portfolio", amount: 1 }]);
-      return game;
-    };
-    const sure = sureHuntJob(readOf(shown()), entryOf(asked), 1, false)?.id;
-    expect(sure).not.toBe(asked);
-    const told: (string | undefined)[][][] = [];
-    for (let at = 0; at < 16; at += 1) {
-      const game = shown(`z1-${String(at)}`);
-      const named = game.view().activities.find((option) => option.id === HUNT);
-      expect(named?.params).toContain(asked);
-      game.accept({ type: "activity/now", activity: HUNT, param: asked });
-      game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
-      game.endTurn(FULL);
-      expect(game.view().offers.some((open) => open.entry === "offer.job")).toBe(true);
-      told.push((game.view().report?.lines ?? []).filter((line) => line.key.startsWith("line.activity.hunt-")).map((line) => [line.key, line.params["job"] as string | undefined]));
-    }
-    const landed = [["line.activity.hunt-hired", asked]];
-    const missedThenSure = [
-      ["line.activity.hunt-missed", asked],
-      ["line.activity.hunt-hired", sure],
-    ];
-    // Every month tells one of the two ways, and the job asked for is never left out.
-    expect(told.filter((one) => JSON.stringify(one) !== JSON.stringify(landed) && JSON.stringify(one) !== JSON.stringify(missedThenSure))).toEqual([]);
-    const missed = told.filter((one) => JSON.stringify(one) === JSON.stringify(missedThenSure)).length;
-    const hit = told.length - missed;
-    // Both ways come in sixteen tries at a fair chance.
-    expect(missed).toBeGreaterThan(0);
-    expect(hit).toBeGreaterThan(0);
   });
 });

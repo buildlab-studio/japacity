@@ -71,3 +71,28 @@ describe("the day's game counters", () => {
     expect(JSON.stringify(rows)).not.toContain("character.a");
   });
 });
+
+describe("the lead after a first miss", () => {
+  const opened = (id: string, entry: string, openedMonth: number) => ({ type: "offer/opened", item: { id, entry, openedMonth, expiresMonth: openedMonth + 2, terms: {}, signs: [], fraud: false } });
+  const lead = (key: string) => (rows: ReturnType<typeof nightlyTotals>) => rows.find((row) => row.name === "first/lead" && row.key === key)?.count ?? 0;
+
+  test("[analytics:first-lead-counted] given a lead opened in the second month and declined, and a word opened in the first and taken, when the day is counted, then each is counted shown and answered by the month it opened in", () => {
+    const rows = nightlyTotals(
+      facts([
+        played([opened("o1", "offer.job-lead", 2)]),
+        played([{ type: "offer/taken", id: "o1", entry: "offer.job-lead", choice: "decline" }]),
+        played([opened("o2", "offer.job-word", 1), { type: "offer/taken", id: "o2", entry: "offer.job-word", choice: "accept" }]),
+      ]),
+    );
+    expect(["shown:2", "declined:2", "shown:1", "taken:1"].map((key) => lead(key)(rows))).toEqual([1, 1, 1, 1]);
+    expect(rows.filter((row) => row.name === "first/lead")).toHaveLength(4);
+    expect(rows.filter((row) => row.name === "offer/chosen").map((row) => row.key).sort()).toEqual(["offer.job-lead:decline", "offer.job-word:accept"]);
+  });
+
+  test("[analytics:first-lead-counted] given a lead opened on an earlier day that lapses today, and a job offer opened and lapsed, when today is counted, then the lead is counted lapsed by the month it opened in and the job offer not at all", () => {
+    const earlier = played([opened("o1", "offer.job-lead", 3), opened("o9", "offer.job", 3)], "player", undefined, AT - time.DAY_MS);
+    const rows = nightlyTotals(facts([earlier, played([{ type: "offer/lapsed", id: "o1", entry: "offer.job-lead", choice: null }, { type: "offer/lapsed", id: "o9", entry: "offer.job", choice: null }])]));
+    expect(rows.filter((row) => row.name === "first/lead").map((row) => [row.key, row.count])).toEqual([["lapsed:3", 1]]);
+  });
+});
+

@@ -4,7 +4,7 @@
 // test read this one definition.
 import type { Command, Id, ReportLine, SlotPick } from "../engine/types";
 
-/** Pay from a job or a gig, as the activity and as the ledger tell it, and the job the sure first hunt lands, the good line guide:early-win-in-three-turns makes certain. */
+/** Pay from a job or a gig, as the activity and as the ledger tell it, and the job a hunt lands. */
 const PAY = new Set([
   "line.activity.salary",
   "line.activity.salary-first-foreign",
@@ -15,6 +15,9 @@ const PAY = new Set([
   "line.activity.hunt-hired",
   "line.wallet.salary",
 ]);
+
+/** The lead a starting life's first missed hunt opens (activity:missed-hunt-opens-a-lead): it follows the player's own hunt, answered or not. */
+const LEAD = new Set(["line.activity.hunt-lead", "line.activity.hunt-word"]);
 
 /** A chapter or a goal met. */
 const MET = new Set(["line.chapter.closed", "line.goal.done"]);
@@ -43,7 +46,7 @@ export function picksOf(command: Sent): SlotPick[] | null {
  */
 export function isEarlyWin(line: ReportLine, picks: readonly SlotPick[] | null): boolean {
   if (line.tone !== "good") return false;
-  if (PAY.has(line.key) || MET.has(line.key)) return true;
+  if (PAY.has(line.key) || LEAD.has(line.key) || MET.has(line.key)) return true;
   if (!HEARD.has(line.key)) return false;
   return picks === null || picks.some((pick) => pick.activity !== REST);
 }

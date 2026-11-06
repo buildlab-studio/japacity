@@ -3,6 +3,7 @@ import { ContentSchema } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
 import { content } from "./index";
+import { HANDED_TERMS } from "./offer/offer.testing";
 
 /** Any string of this shape anywhere in content names an entry. */
 const REFERENCE = /^(quality|activity|document|school|route|setpiece|obligation|offer|chapter|var|news|scenario|country|status|goal|era|points)\.[a-z0-9-]+$/;
@@ -85,8 +86,8 @@ function termsReadIn(value: unknown, found: string[] = []): string[] {
 /** Terms an offer's choices read that the offer never has in hand. */
 function undefinedTerms(offer: OfferEntry): string[] {
   const defined = new Set(Object.keys(offer.terms));
-  // offer.job learns which job it is for from the effect that opens it (offer:effect-opens-named-offer).
-  if (offer.id === "offer.job") defined.add("job");
+  // offer.job and the leads learn which job they are for from the effect that opens them (offer:effect-opens-named-offer).
+  for (const term of HANDED_TERMS[offer.id] ?? []) defined.add(term);
   const missing: string[] = [];
   for (const choice of offer.choices) {
     const inHand = new Set(defined);

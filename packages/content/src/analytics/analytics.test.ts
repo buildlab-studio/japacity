@@ -27,7 +27,7 @@ const LAUNCH = [
 const REPORTS = ["client/csp", "client/csp-blocked"];
 /** analytics:nightly-game-counters (account:two-lights-and-wink-lines): the lives being played, for the two lights. */
 const LIVES = ["lives/playing"];
-const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "analytics/dropped", ...LAUNCH, ...REPORTS, ...LIVES];
+const SERVER = ["players/active", "players/new", "players/returned", "turns/ended", "chapter/closed", "chapter/reopened", "route/moved", "route/refused", "offer/chosen", "place/returned", "command/rejected", "lottery/tickets", "first/early-win", "first/lead", "analytics/dropped", ...LAUNCH, ...REPORTS, ...LIVES];
 const CLIENT = ["screen/opened", "share/pressed", "share/completed", "advert/impression", "advert/tap", "settings/sound", "settings/graphics", "load/time", "client/error", "ask/shown", "ask/accepted"];
 
 const list = content.analytics.counters;
@@ -107,6 +107,11 @@ describe("the counter list", () => {
     expect(named("first/early-win")).toEqual({ name: "first/early-win", keys: ["1", "2", "3", "later", "none"], source: "server" });
     const asks = ["ask/shown", "ask/accepted"];
     expect(asks.map(named)).toEqual(asks.map((name) => ({ name, keys: ["sign-in:before", "sign-in:after", "notify:before", "notify:after"], source: "client" })));
+  });
+
+  test("[analytics:first-lead-counted] given the lead after a first miss, when the list is read, then the server counts it by what came of it and the month it opened in", () => {
+    const outcomes = ["shown", "taken", "declined", "lapsed"];
+    expect(named("first/lead")).toEqual({ name: "first/lead", keys: outcomes.flatMap((outcome) => ["1", "2", "3"].map((month) => `${outcome}:${month}`)), source: "server" });
   });
 
   test("[analytics:server-checks-every-batch] given the content check, when every counter is read, then names are unique, keys are listed once each, and the client never keys by region", () => {

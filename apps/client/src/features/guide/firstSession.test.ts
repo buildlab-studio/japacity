@@ -52,8 +52,12 @@ describe("the first session", () => {
     expect(chapterNextStep).toBeTypeOf("function");
   });
 
-  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a chapter or goal, or a route heard by a choice counts", () => {
+  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a landed hunt, the lead after a miss, a chapter or goal, or a route heard by a choice counts", () => {
     expect(isEarlyWin(line("line.activity.salary"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-hired"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-lead"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-word"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-missed", "plain"), [])).toBe(false);
     expect(isEarlyWin(line("line.activity.gig"), [])).toBe(true);
     expect(isEarlyWin(line("line.chapter.closed"), [])).toBe(true);
     expect(isEarlyWin(line("line.goal.done"), [])).toBe(true);

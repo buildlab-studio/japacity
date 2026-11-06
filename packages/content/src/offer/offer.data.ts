@@ -125,6 +125,28 @@ const ROAD_TAKE: OfferChoice = {
 
 const ROAD_IGNORE: OfferChoice = { id: "ignore", requires: [], pick: null, effects: [], fraudEffects: null };
 
+/**
+ * activity:missed-hunt-opens-a-lead: a lead is answered as the job offer is, accept starting the job its terms name, and lapses
+ * after two months into nothing. It belongs at home, where the person who gives it is.
+ */
+function jobLead(id: Id<"offer">): OfferEntry {
+  return {
+    id,
+    where: "home",
+    group: "job",
+    when: [],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: 1,
+    expiresAfter: 2,
+    terms: {},
+    fraudBp: 0,
+    signs: [],
+    choices: [{ id: "accept", requires: [], pick: null, effects: [{ type: "activity/start-job", job: { term: "job" } }], fraudEffects: null }, DECLINE],
+    onExpire: null,
+  };
+}
+
 export const offerTable: Record<Id<"offer">, OfferEntry> = {
   // Family requests
 
@@ -1102,6 +1124,11 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
+  // activity:missed-hunt-opens-a-lead: the lead a starting life's first missed hunt opens, for another job (`offer.job-lead`) or
+  // for the job just missed (`offer.job-word`). Never rolled; the hunt hands over the job, and the words of the place and of what
+  // the lead costs the trade missed, as terms. Once a life; the activity slice's mark keeps it so.
+  "offer.job-lead": jobLead("offer.job-lead"),
+  "offer.job-word": jobLead("offer.job-word"),
 
   ...abroadOfferTable,
   ...healthOfferTable,

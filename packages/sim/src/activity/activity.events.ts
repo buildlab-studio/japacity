@@ -51,6 +51,8 @@ export type ActivityEvent =
   | { type: "activity/rested"; slots: number }
   /** One month of hunting for a job, and whether it landed. Changes nothing itself. */
   | { type: "activity/hunted"; job: Id<"activity">; hired: boolean }
+  /** A starting life's first miss opened a lead for `job` after `missed` came to nothing (activity:missed-hunt-opens-a-lead); the slice keeps its mark. */
+  | { type: "activity/lead-given"; job: Id<"activity">; missed: Id<"activity"> }
   /** A side gig paid this much naira. Changes nothing itself: the wallet takes the money. */
   | { type: "activity/gig-paid"; amount: number }
   /** The slots sent this month, kept for "same again" (activity:last-month-plan-kept). */

@@ -1833,6 +1833,8 @@ export interface ActivitySlice {
   study?: { activity: Id<"activity">; months: number };
   /** The sittings passed of each exam sat more than once (document:trade-papers). Missing: none passed. */
   sittings?: Record<Id<"activity">, number>;
+  /** A lead was given after the life's first missed hunt (activity:missed-hunt-opens-a-lead), so no second one opens. Missing: none given. */
+  lead?: true;
 }
 
 export interface PocketBalance {

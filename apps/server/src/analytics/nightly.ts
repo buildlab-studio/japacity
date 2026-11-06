@@ -1,4 +1,4 @@
-// analytics:nightly-game-counters, analytics:day-one-and-seven-return: the game counters of one UTC day, made
+// analytics:nightly-game-counters, analytics:day-one-and-seven-return, analytics:first-lead-counted: the game counters of one UTC day, made
 // from the replayed lives of the characters that logged a command on it and
 // the accounts created on it. Plain functions over plain data.
 import { isEarlyWin, picksOf, time } from "@japacity/sim";
@@ -27,12 +27,30 @@ type Counted =
   | { type: "chapter/reopened"; chapters: string[] }
   | { type: "route/moved"; route: string; to: string }
   | { type: "route/refused"; reasons: string[] }
-  | { type: "offer/taken"; entry: string; choice: string }
+  | { type: "offer/opened"; item: { id: string; entry: string; openedMonth: number } }
+  | { type: "offer/taken"; id: string; entry: string; choice: string }
+  | { type: "offer/lapsed"; id: string; entry: string }
+  | { type: "offer/closed"; id: string; entry: string }
   | { type: "place/returned"; shape: string }
   | { type: "lottery/bought"; tickets: number };
 
 /** analytics:nightly-game-counters: the days after sign-up a return is counted on, close enough that the returns make a curve. */
 const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 14: "d14", 30: "d30" };
+
+/** analytics:first-lead-counted: the leads a first miss opens, counted by what came of each and the month it opened in. */
+const LEADS: ReadonlySet<string> = new Set(["offer.job-lead", "offer.job-word"]);
+const LEAD_ANSWERS: Readonly<Record<string, string>> = { accept: "taken", decline: "declined" };
+
+/** analytics:first-lead-counted: the month each of a life's leads opened in, by the offer's id, from every event the replay saw. */
+function leadMonths(life: Life): Map<string, number> {
+  const months = new Map<string, number>();
+  for (const played of life.played) {
+    for (const event of played.events as Counted[]) {
+      if (event.type === "offer/opened" && LEADS.has(event.item.entry)) months.set(event.item.id, event.item.openedMonth);
+    }
+  }
+  return months;
+}
 
 /** Adds one to a total, keyed so the same day, region, name and key fold into one row. */
 function tally(into: Map<string, CounterTotal>, row: CounterTotal): void {
@@ -52,10 +70,22 @@ function earlyWinKey(life: Life | null, end: number): string {
   return first.turn <= 3 ? String(first.turn) : "later";
 }
 
-function eventTotals(day: string, region: string, played: Played, into: Map<string, CounterTotal>): void {
+function eventTotals(day: string, region: string, played: Played, into: Map<string, CounterTotal>, leads: ReadonlyMap<string, number>): void {
   const add = (name: string, key: string, count = 1) => tally(into, { day, region, name, key, count });
+  // analytics:first-lead-counted: a lead's outcome, keyed by the month it opened in.
+  const lead = (id: string, outcome: string) => {
+    const month = leads.get(id);
+    if (month !== undefined) add("first/lead", `${outcome}:${String(month)}`);
+  };
   for (const event of played.events as Counted[]) {
     switch (event.type) {
+      case "offer/opened":
+        if (LEADS.has(event.item.entry)) lead(event.item.id, "shown");
+        break;
+      case "offer/lapsed":
+      case "offer/closed":
+        if (LEADS.has(event.entry)) lead(event.id, "lapsed");
+        break;
       case "chapter/closed":
         add("chapter/closed", event.chapter);
         break;
@@ -69,9 +99,12 @@ function eventTotals(day: string, region: string, played: Played, into: Map<stri
       case "route/refused":
         if (event.reasons[0] !== undefined) add("route/refused", event.reasons[0]);
         break;
-      case "offer/taken":
+      case "offer/taken": {
         add("offer/chosen", `${event.entry}:${event.choice}`);
+        const answer = LEAD_ANSWERS[event.choice];
+        if (LEADS.has(event.entry) && answer !== undefined) lead(event.id, answer);
         break;
+      }
       case "place/returned":
         add("place/returned", event.shape);
         break;
@@ -99,7 +132,8 @@ export function nightlyTotals(facts: DayFacts): CounterTotal[] {
     const own = today.filter((played) => played.row.sender === "player");
     if (own.length > 0) activeAccounts.set(life.account, account);
     for (const played of own) if (played.row.command.type === "turn/end") tally(into, { day, region, name: "turns/ended", key: region, count: 1 });
-    for (const played of today) eventTotals(day, region, played, into);
+    const leads = leadMonths(life);
+    for (const played of today) eventTotals(day, region, played, into, leads);
   }
 
   for (const account of activeAccounts.values()) {

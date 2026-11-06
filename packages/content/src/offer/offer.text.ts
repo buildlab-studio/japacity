@@ -259,6 +259,17 @@ export const offerText: Record<string, string> = {
   "offer.job.body": "“We would like you to start on the first.”",
   "offer.job.choice.accept": "Accept",
   "offer.job.choice.decline": "Decline",
+  // activity:missed-hunt-opens-a-lead: Lanre's lead after a first miss, for another job or for the one just missed. The hub may speak Pidgin.
+  "offer.job-lead.name": "Lanre's lead",
+  "offer.job-lead.title": "Them dey hire",
+  "offer.job-lead.body": "“I know {lead}: it pays, but {cost}.”",
+  "offer.job-lead.choice.accept": "Take it",
+  "offer.job-lead.choice.decline": "Keep looking",
+  "offer.job-word.name": "Lanre's word",
+  "offer.job-word.title": "Try them again",
+  "offer.job-word.body": "“I put in a word for you with {lead}, so go and see them again.”",
+  "offer.job-word.choice.accept": "Take it",
+  "offer.job-word.choice.decline": "Keep looking",
 
   // Report lines. Each carries `offer`, the entry id, so the interface can show its title.
   "line.offer.opened": "Something new needs an answer: {offer}.",
@@ -502,6 +513,8 @@ export const offerText: Record<string, string> = {
   "offer.gulf-agent.who": "An agent",
   "offer.papers-marriage.who": "A woman at the salon",
   "offer.job.who": "The employer",
+  "offer.job-lead.who": "Lanre",
+  "offer.job-word.who": "Lanre",
   "offer.road-radio.who": "The radio",
   "offer.road-park.who": "A man at the park",
   "offer.road-cousin.who": "Your cousin",

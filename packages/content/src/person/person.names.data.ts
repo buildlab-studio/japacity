@@ -238,6 +238,21 @@ export const namedPeople: NamedPerson[] = [
   { name: "Hadiza", people: "hausa-fulani", role: "chaser", keys: ["offer.agent-chaser.who.1.name"] },
   // The person News names as the source of a story she tells.
   { name: "Tolu", people: "yoruba", role: "friend", keys: ["news.uk-unis-recruit.in-force.source", "chapter.landing.brief.giver", "chapter.secure.brief.giver"] },
-  // The friend at the hub who hands the first briefs (the briefs' words, chapter.text.ts).
-  { name: "Lanre", people: "yoruba", role: "friend", keys: ["chapter.brief.giver", "chapter.find-your-feet.brief.giver", "chapter.build-the-file.brief.giver"] },
+  // The friend at the hub who hands the first briefs (the briefs' words, chapter.text.ts) and the lead after a first miss (activity:missed-hunt-opens-a-lead).
+  {
+    name: "Lanre",
+    people: "yoruba",
+    role: "friend",
+    keys: [
+      "chapter.brief.giver",
+      "chapter.find-your-feet.brief.giver",
+      "chapter.build-the-file.brief.giver",
+      "line.activity.hunt-lead",
+      "line.activity.hunt-word",
+      "offer.job-lead.name",
+      "offer.job-lead.who",
+      "offer.job-word.name",
+      "offer.job-word.who",
+    ],
+  },
 ];

@@ -16,26 +16,41 @@ const HUNT = "activity.job-hunt";
 const NURSE = "activity.job-nurse";
 const EXAM = "activity.nurse-certification";
 
-function nurseLife(): ReturnType<typeof newGame> {
-  const game = newGame("scenario.prologue", "walk-nurse");
+function nurseLife(seed = "walk-nurse"): ReturnType<typeof newGame> {
+  const game = newGame("scenario.prologue", seed);
   playTile(game, archetypeOf("nurse")!);
   return game;
 }
 
+/** The nurse's month with the hunt at the clinic sent at once and the exam planned: the hunt's lines, the month's and its News. */
+function huntAndExam(game: ReturnType<typeof newGame>): { mid: ReportLine[]; report: ReportLine[]; news: ReportLine[] } {
+  const mid = game.accept({ type: "activity/now", activity: HUNT, param: NURSE }).lines;
+  const report = game.endTurn([slot(EXAM)]).lines;
+  return { mid, report, news: newsLines(mid, report, game.view()) };
+}
+
 describe("News tells the month once", () => {
-  test("[world:month-end-results-sheet] given the nurse's job hunt done at once and her exam planned, when the month's News is read, then the hunt is told by the place's own line with no \"Done this month\" beside it, and an offer the hunt landed by its own line with no \"Something new needs an answer\" beside it", () => {
-    const game = nurseLife();
-    const mid = game.accept({ type: "activity/now", activity: HUNT, param: NURSE }).lines;
-    const report = game.endTurn([slot(EXAM)]).lines;
-    const news = newsLines(mid, report, game.view());
+  test("[world:month-end-results-sheet] [activity:missed-hunt-opens-a-lead] given the nurse's job hunt done at once and her exam planned, when the month's News is read, then the hunt is told by the place's own line with no \"Done this month\" beside it, and the lead its miss opened by its own line with no \"Something new needs an answer\" beside it", () => {
+    const { mid, report, news } = huntAndExam(nurseLife());
     const said = news.map((line) => nowLineWords(line));
     const place = mid.find((line) => line.key === "line.activity.job-hunt.now");
     if (place === undefined) throw new Error("The clinic said nothing.");
     expect(said).toContain(nowLineWords(place));
     expect(said).not.toContain(words("line.activity.played-now", { activity: HUNT }));
     expect(said.filter((one) => one.includes(nameOf(HUNT)))).toHaveLength(0);
-    // On this life the draw misses and the sure first hunt lands another job's offer (activity:job-hunt-lands-offer).
-    expect(report.some((line) => line.key === "line.activity.hunt-hired")).toBe(true);
+    // On this life the draw misses and the miss opens Lanre's lead (activity:missed-hunt-opens-a-lead).
+    expect(report.some((line) => line.key === "line.activity.hunt-lead")).toBe(true);
+    expect(report.some((line) => line.key === "line.offer.opened" && line.params.offer === "offer.job-lead")).toBe(true);
+    expect(news.some((line) => line.key === "line.offer.opened" && line.params.offer === "offer.job-lead")).toBe(false);
+    expect(news.some((line) => line.key === "line.activity.hunt-lead")).toBe(true);
+  });
+
+  test("[world:month-end-results-sheet] given the nurse's job hunt done at once and landed, when the month's News is read, then the offer it landed is told by the hunt's own line with no \"Something new needs an answer\" beside it", () => {
+    const landed = ["walk-nurse-1", "walk-nurse-2", "walk-nurse-3", "walk-nurse-4", "walk-nurse-5", "walk-nurse-6"]
+      .map((seed) => huntAndExam(nurseLife(seed)))
+      .find(({ report }) => report.some((line) => line.key === "line.activity.hunt-hired"));
+    if (landed === undefined) throw new Error("The clinic took the nurse on none of the seeds.");
+    const { report, news } = landed;
     expect(report.some((line) => line.key === "line.offer.opened" && line.params.offer === "offer.job")).toBe(true);
     expect(news.some((line) => line.key === "line.offer.opened" && line.params.offer === "offer.job")).toBe(false);
     // The offer is told by the hunt's own line, in the results' words: "An offer: {job}, {pay} a month."
