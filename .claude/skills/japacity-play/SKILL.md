@@ -18,6 +18,7 @@ pnpm play --life developer --months 3 --out /tmp/japacity-play
 - `--months` is how many months to end once in the world (1 to 60).
 - `--port <n>` starts the dev server there, or reuses one that already answers. In a worktree, use the port your task gives. `--url <address>` plays a server already running elsewhere.
 - `--played` marks the device as played, so the first-use labels on the Map and Phone thumbs never show; leave it off to see what a new player sees.
+- `--keep <file>` saves the browser's storage at the end (mode 600, outside the repository, never printed); `--resume <file>` opens that life where it stands, with no front door, and plays `--months` more. `--stop door` keeps a life made with its years before unplayed, `--stop planned` one with its next month planned and not ended. A resumed life the server refuses is a `PROBLEM` naming the status and the run fails.
 
 From a fresh clone, install the browser once: `pnpm exec playwright install chromium`.
 

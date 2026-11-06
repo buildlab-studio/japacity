@@ -2,7 +2,7 @@
 // check them without one. `pnpm play --help` prints USAGE.
 import { isAbsolute, relative, resolve } from "node:path";
 
-export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--months <n>] [--url <address> | --port <n>] [--played] [--headed]
+export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--months <n>] [--url <address> | --port <n>] [--keep <file>] [--resume <file>] [--stop <door|planned>] [--played] [--headed]
 
   --out <folder>       Where the pictures and play.log go. Required. Must be outside the repository.
   --life <name>        The life to play, by its short name: developer, nurse, trader and so on (default developer).
@@ -11,6 +11,12 @@ export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--mont
   --url <address>      Use a server that is already running at this address: a dev server, or the local
                        stack at https://localhost:8787 (pnpm dev:full), whose own certificate is accepted.
   --port <n>           The port for the dev server this tool starts, or reuses if one answers there (default 5190).
+  --keep <file>        At the end, save the browser's storage (cookies and local storage) to this file, mode 600,
+                       outside the repository. Its values are never printed.
+  --resume <file>      Open with the storage a --keep saved: the front door is skipped, the life opens where it
+                       stands and plays --months more. Use the same --url or --port it was kept on.
+  --stop <where>       Stop the life part way and keep it there: door (the life made, its years before not played)
+                       or planned (after --months, the next month's nudge followed and the month not ended).
   --played             Mark the device as played, so the first-use labels on the thumbs never show.
   --headed             Show the browser window.
   --help               Print this and stop.`;
@@ -25,7 +31,17 @@ export interface PlayOptions {
   /** The device marked as played: no first-use label shows (world:no-walkthrough-before-play). */
   readonly played: boolean;
   readonly headed: boolean;
+  /** The file the browser's storage is saved to at the end, outside the repository; absent when not asked. */
+  readonly keep?: string;
+  /** The file a kept storage is opened from, skipping the front door; absent for a new life. */
+  readonly resume?: string;
+  /** Where the life is stopped part way; absent to play every month asked and the phone. */
+  readonly stop?: Stop;
 }
+
+/** Where a run stops part way: with the life made and its years before unplayed, or with the next month planned and not ended. */
+export type Stop = "door" | "planned";
+const STOPS: readonly Stop[] = ["door", "planned"];
 
 export type Parsed = { readonly ok: true; readonly options: PlayOptions } | { readonly ok: false; readonly help: boolean; readonly problem: string };
 
@@ -33,7 +49,7 @@ export const DEFAULT_PORT = 5190;
 const MAX_MONTHS = 60;
 
 const FLAGS = new Set(["--ready", "--played", "--headed", "--help"]);
-const VALUED = new Set(["--life", "--months", "--out", "--url", "--port"]);
+const VALUED = new Set(["--life", "--months", "--out", "--url", "--port", "--keep", "--resume", "--stop"]);
 
 function whole(value: string, name: string, low: number, high: number): number | string {
   if (!/^\d+$/.test(value)) return `${name} takes a whole number, got "${value}".`;
@@ -89,10 +105,65 @@ export function parseOptions(argv: readonly string[], cwd: string, repoRoot: str
   const life = (values.get("--life") ?? "developer").trim().toLowerCase();
   if (!/^[a-z][a-z-]*$/.test(life)) return { ok: false, help: false, problem: `--life takes a short name such as developer, got "${life}".` };
 
+  const kept: Record<"--keep" | "--resume", string | null> = { "--keep": null, "--resume": null };
+  for (const name of ["--keep", "--resume"] as const) {
+    const given = values.get(name);
+    if (given === undefined) continue;
+    if (given.trim() === "") return { ok: false, help: false, problem: `${name} needs a file.` };
+    const file = resolve(cwd, given);
+    // The file holds a signed-in session: it never lands where git could pick it up.
+    if (inside(file, repoRoot)) return { ok: false, help: false, problem: `${name} ${file} is inside the repository. Give a file outside it: it holds a signed-in session.` };
+    kept[name] = file;
+  }
+  const resume = kept["--resume"];
+  if (resume !== null && (values.has("--life") || flags.has("--ready"))) return { ok: false, help: false, problem: "--resume opens the life that was kept: give no --life or --ready with it." };
+
+  const stopGiven = values.get("--stop");
+  const stop = stopGiven === undefined ? null : (STOPS.find((each) => each === stopGiven) ?? null);
+  if (stopGiven !== undefined && stop === null) return { ok: false, help: false, problem: `--stop takes ${STOPS.join(" or ")}, got "${stopGiven}".` };
+  if (stop === "door" && resume !== null) return { ok: false, help: false, problem: "--stop door stops a new life at the door; a resumed life is past it." };
+
   return {
     ok: true,
-    options: { life, ready: flags.has("--ready"), months, out, url, port, played: flags.has("--played"), headed: flags.has("--headed") },
+    options: {
+      life,
+      ready: flags.has("--ready"),
+      months,
+      out,
+      url,
+      port,
+      played: flags.has("--played"),
+      headed: flags.has("--headed"),
+      ...(kept["--keep"] === null ? {} : { keep: kept["--keep"] }),
+      ...(resume === null ? {} : { resume }),
+      ...(stop === null ? {} : { stop }),
+    },
   };
+}
+
+/** The part of a kept storage the driver reads to say what it holds: Playwright's storage state, by count alone. */
+export interface KeptStorage {
+  readonly cookies: readonly unknown[];
+  readonly origins: readonly { readonly origin: string; readonly localStorage: readonly unknown[] }[];
+}
+
+/** A kept storage read back, or the problem with it. Its values are never part of a problem. */
+export function readKept(json: string): { ok: true; kept: KeptStorage } | { ok: false; problem: string } {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return { ok: false, problem: "the kept file is not JSON" };
+  }
+  const shape = parsed as Partial<KeptStorage> | null;
+  if (shape === null || typeof shape !== "object" || !Array.isArray(shape.cookies) || !Array.isArray(shape.origins)) return { ok: false, problem: "the kept file is not a browser's storage" };
+  return { ok: true, kept: shape as KeptStorage };
+}
+
+/** What a kept storage holds, said by count only: never a name or a value. */
+export function keptSummary(kept: KeptStorage, origin: string): string {
+  const here = kept.origins.find((each) => each.origin === origin);
+  return `${String(kept.cookies.length)} cookies, ${String(here?.localStorage.length ?? 0)} local storage keys for ${origin}`;
 }
 
 /**

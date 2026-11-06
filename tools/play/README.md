@@ -28,8 +28,20 @@ Every step is a line in the log, with the minutes and seconds since the start. A
 | `--months <n>` | Months to end once in the world, 1 to 60 (default 3) |
 | `--url <address>` | Play a server already running there: a dev server, or the local stack at `https://localhost:8787` (`pnpm dev:full`), whose self-signed certificate is accepted; certificate errors are ignored for https on `localhost` or `127.0.0.1` only. Online, the start screen's Play and the age screen come before the door, and Begin makes a guest life on the server. Staging (`--url https://staging.japacity.app`) is behind Access: with `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` set in the environment, from your keychain or secret store, every request carries the service token's two headers; they are never printed or written |
 | `--port <n>` | The port to use or start the dev server on (default 5190). Pick your own when several worktrees run at once |
+| `--keep <file>` | At the end of the run, save the browser's storage (its cookies and local storage) to this file, with mode 600. The file must be outside the repository: it holds a signed-in session. Only its counts are logged, never a name or a value |
+| `--resume <file>` | Open with the storage a `--keep` saved, on the same `--url` or `--port` it was kept on: the front door is skipped, the life opens where it stands (the years before fill and hand over if it stopped in them) and `--months` more are played. A refusal by the server (a 409 for a diverged life, a server error) or a trouble card is a `PROBLEM` line naming the status, and the exit code is not 0. `--life` and `--ready` are refused with it |
+| `--stop <where>` | Stop the life part way, to keep it there with `--keep`: `door` holds back the years before at Begin, so the life is made and its prologue is still open; `planned` follows the next month's nudge after `--months` and leaves the bed alone, so that month stands planned and not ended |
 | `--played` | Mark the device as played, so the first-use labels on the thumbs never show |
 | `--headed` | Show the browser |
+
+## Keeping a life and playing it on
+
+```sh
+pnpm play --url https://localhost:8787 --life nurse --months 2 --keep /tmp/japacity-kept/nurse.json --out /tmp/japacity-play/nurse
+pnpm play --url https://localhost:8787 --resume /tmp/japacity-kept/nurse.json --months 2 --out /tmp/japacity-play/nurse-resumed
+```
+
+The second run opens the same account's life where the first left it, so a change deployed between the two meets a life already played. Its first picture is `NN-resumed.png`, the screen the life opens on. Give both `--keep` and `--resume` the same file to keep the life again after the resumed months.
 
 ## From a fresh clone
 
