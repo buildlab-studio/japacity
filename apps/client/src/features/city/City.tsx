@@ -33,7 +33,7 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { TopBand, bandMoney, bandMonth } from "../../shared/world/TopBand";
 import { type MoneyIn, MoneyToast } from "../../shared/world/MoneyToast";
-import { type Said, SAID_TOAST_MS, SaidToast, toastMs } from "../../shared/world/SaidToast";
+import { type Said, SAID_TOAST_MS, SaidToast } from "../../shared/world/SaidToast";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import type { Act, Ask, CountryChoice, Pin as ContractPin, PinState, RideChoice, Thing } from "../../shared/world/contract";
@@ -84,7 +84,7 @@ import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
 import { Fan } from "./fan/Fan";
 import { GO_HOME, goHomeAsk, goHomeOffered } from "./acts/goHome";
-import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, metBefore, nextBase, briefTitle } from "./brief/brief";
+import { type Brief, briefOf, doneToast, giverToastMs, itemsDone, markerAllowed, metBefore, nextBase, briefTitle } from "./brief/brief";
 import { ChapterClose, MissionCard } from "./brief/BriefCards";
 import { BriefChip, Marker } from "./brief/BriefChip";
 import { briefHanded, handBrief } from "../../shared/world/briefHanded";
@@ -1671,11 +1671,6 @@ export function City({
     cue("ding");
     setToast({ words: doneToast(left), at: Date.now() });
   }, [world, view.chapter]);
-  useEffect(() => {
-    if (toast === null) return;
-    const timer = window.setTimeout(() => setToast(null), Math.max(DONE_TOAST_MS, toastMs(toast.words)));
-    return () => window.clearTimeout(timer);
-  }, [toast]);
   // interview:answers-taken-in-order: the last answer in, the asks leave and the officer says so in a toast under the band, in plain English.
   const [said, setSaid] = useState<Said | null>(null);
   const interviewAsking = (view.interview?.question ?? null) !== null;
@@ -1744,6 +1739,15 @@ export function City({
   // The first brief's card stands once the place's first frame is drawn; the chapter's close once a chapter has closed.
   const briefUp = openingUp && brief !== null && (!drawing || drawnAt === placeId);
   const closeUp = closeShown && closeBrief !== null && closedNow !== null;
+  // The row under the band: the toasts, the brief's chip and the nudge. It waits while the brief's card or the chapter's close stands: the card says it.
+  const rowUnderBand = !(phone || asksOpen || menu || credits || picked !== null || asleep !== null || briefUp || closeUp);
+  // The giver's toast keeps its own time under the chip, held while touched (world:things-are-tappable-models); while the row waits, it goes as its time would.
+  const giverShown = toast !== null && brief !== null && chipMoment === "done" && rowUnderBand;
+  useEffect(() => {
+    if (toast === null || giverShown) return;
+    const timer = window.setTimeout(() => setToast(null), giverToastMs(toast.words));
+    return () => window.clearTimeout(timer);
+  }, [toast, giverShown]);
   const zoomChipFree = worldFree && picked === null && fanned === null && asleep === null && nightTeach === null && !homeTeachShown && !briefUp && !closeUp && toldLines.length === 0;
   const heardNth = useRef(0);
   const thingsHere = useRef(things);
@@ -1926,15 +1930,14 @@ export function City({
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
             more={
-              // The chip under the band and the nudge wait while the brief's card or the chapter's close stands: the card says it.
-              !(phone || asksOpen || menu || credits || picked !== null || asleep !== null || briefUp || closeUp) ? (
+              rowUnderBand ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   {moneyIn === null ? null : <MoneyToast key={moneyIn.at} toast={moneyIn} onGone={() => setMoneyIn(null)} />}
                   {said === null ? null : <SaidToast key={said.at} said={said} onGone={() => setSaid(null)} />}
                   {/* One toast answers one act: the brief's tick and its giver's toast, or the money toast, stand in for the act's own. */}
                   {startedToast === null || !startedShown ? null : <SaidToast key={startedToast.at} said={startedToast} onGone={() => setStarted(null)} />}
                   {brief !== null && chipMoment !== null ? (
-                    <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? (toast?.words ?? null) : null} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
+                    <BriefChip brief={brief} moment={chipMoment} toast={chipMoment === "done" ? toast : null} onToastGone={() => setToast(null)} {...(chipMoment === "here" && nudgeGoes ? { onTap: followStep } : {})} onTucked={() => setHanded(null)} />
                   ) : shownNudge !== null && (STANDING_NUDGES.has(shownNudge.about) || toBed) ? (
                   <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined || toBed ? {} : { opens: stepWay.opens })} {...(toBed ? (bed === null ? {} : { onTap: () => setPicked({ kind: "thing", thing: bed }) }) : nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   ) : null}

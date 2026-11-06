@@ -163,6 +163,31 @@ describe("the road in the world, only in the moment", () => {
     }
   });
 
+  test("[world:nudge-says-one-thing] [world:things-are-tappable-models] given the giver's toast under the chip, when a finger rests on it past its time, then it stays, and goes once let go with the time it had left, as the other toasts do", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const view = engineView();
+      const { store } = await standing("place.yaba", view);
+      const done = { ...view, chapter: { ...view.chapter, items: view.chapter.items.map((item, index) => ({ ...item, met: index === 0 ? true : item.met })) } };
+      act(() => {
+        store.setState({ view: done });
+      });
+      const toast = found("[data-brief-toast]");
+      fireEvent.pointerDown(toast);
+      act(() => {
+        vi.advanceTimersByTime(DONE_TOAST_MS * 3);
+      });
+      expect(document.querySelector("[data-brief-toast]")).not.toBeNull();
+      fireEvent.pointerUp(found("[data-brief-toast]"));
+      act(() => {
+        vi.advanceTimersByTime(DONE_TOAST_MS + 50);
+      });
+      expect(document.querySelector("[data-brief-toast]")).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("[world:nudge-says-one-thing] given a chapter that closes while the world is open, when nothing covers it, then the brief comes back with every tick and its stamp, the next brief stands as a picture card, and Let's go hands it", async () => {
     const view = engineView();
     const { store } = await standing("place.family-house", view);

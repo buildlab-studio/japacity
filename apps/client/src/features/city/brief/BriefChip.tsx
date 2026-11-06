@@ -6,7 +6,14 @@ import { useEffect, useRef, useState } from "react";
 
 import { Tile } from "../../../shared/tiles/Tile";
 import { Face } from "../../../shared/ui/look/Face";
-import { type Brief, briefDots, TUCK_MS, TUCK_SLIDE_MS } from "./brief";
+import { useToastTime } from "../../../shared/world/SaidToast";
+import { type Brief, briefDots, giverToastMs, TUCK_MS, TUCK_SLIDE_MS } from "./brief";
+
+/** A done thing's toast: the giver's words, and a key that changes with each new toast. */
+export interface GiverSaid {
+  words: string;
+  at: number;
+}
 
 /** How the chip stands: just handed and tucking into the phone, at the step's place, or a thing just done. */
 export type ChipMoment = "handed" | "here" | "done";
@@ -26,7 +33,7 @@ function Dots({ brief }: { brief: Brief }) {
  * The chip under the band. Handed, it stands for a moment, then slides into the Phone thumb and is gone (`onTucked`);
  * at the step's place it stays, and a tap takes the step's way. A done thing's toast rides under it.
  */
-export function BriefChip({ brief, moment, toast, onTap, onTucked }: { brief: Brief; moment: ChipMoment; toast?: string | null; onTap?: () => void; onTucked?: () => void }) {
+export function BriefChip({ brief, moment, toast, onToastGone, onTap, onTucked }: { brief: Brief; moment: ChipMoment; toast?: GiverSaid | null; onToastGone?: () => void; onTap?: () => void; onTucked?: () => void }) {
   const chip = useRef<HTMLButtonElement>(null);
   const [slide, setSlide] = useState<{ x: number; y: number } | null>(null);
   const tucked = useRef(onTucked);
@@ -64,19 +71,29 @@ export function BriefChip({ brief, moment, toast, onTap, onTucked }: { brief: Br
         <span className="truncate">{brief.title}</span>
         <Dots brief={brief} />
       </button>
-      {toast === null || toast === undefined ? null : (
-        <div className="brief-toast slide-in pointer-events-auto flex w-full items-center gap-2.5 p-2 pr-3" role="status" data-brief-toast>
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-plain">
-            <span className="sticker-cut" style={{ rotate: "-5deg" }}>
-              <Tile of={brief.picture} size={34} />
-            </span>
-          </span>
-          <div className="min-w-0">
-            <Face name={brief.giver.name} className="text-[13px]" />
-            <p className="mt-1 text-[16px] leading-snug font-bold">{toast}</p>
-          </div>
-        </div>
-      )}
+      {toast === null || toast === undefined ? null : <GiverToast key={toast.at} brief={brief} toast={toast} onGone={() => onToastGone?.()} />}
+    </div>
+  );
+}
+
+/**
+ * The giver's toast under the chip, in their words: it stands its time, holds while a finger or the pointer rests on it, and slides
+ * out, as every toast does (world:things-are-tappable-models).
+ */
+function GiverToast({ brief, toast, onGone }: { brief: Brief; toast: GiverSaid; onGone: () => void }) {
+  const [leaving, setLeaving] = useState(false);
+  const time = useToastTime(toast.at, giverToastMs(toast.words), () => setLeaving(true), onGone);
+  return (
+    <div className={`brief-toast ${leaving ? "slide-out" : "slide-in"} pointer-events-auto flex w-full items-center gap-2.5 p-2 pr-3`} role="status" data-brief-toast {...time}>
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-plain">
+        <span className="sticker-cut" style={{ rotate: "-5deg" }}>
+          <Tile of={brief.picture} size={34} />
+        </span>
+      </span>
+      <div className="min-w-0">
+        <Face name={brief.giver.name} className="text-[13px]" />
+        <p className="mt-1 text-[16px] leading-snug font-bold">{toast.words}</p>
+      </div>
     </div>
   );
 }

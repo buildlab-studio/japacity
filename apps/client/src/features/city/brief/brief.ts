@@ -8,6 +8,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { briefBefore } from "../../../shared/world/briefHanded";
+import { toastMs } from "../../../shared/world/SaidToast";
 import { nextStepOf, ownWayOf, racksAtHand } from "../../../shared/words/sixteen";
 import { countWords } from "../../../shared/words/count";
 import { hasWords, nameOf, say } from "../../../shared/words/text";
@@ -20,6 +21,11 @@ export const TUCK_MS = 2000;
 export const TUCK_SLIDE_MS = 420;
 /** The least a done thing's toast rides under the chip: as long as any toast (world:things-are-tappable-models). */
 export const DONE_TOAST_MS = 4000;
+
+/** How long the giver's toast with these words stands: as long as any toast with them, and never under `DONE_TOAST_MS`. */
+export function giverToastMs(words: string): number {
+  return Math.max(DONE_TOAST_MS, toastMs(words));
+}
 
 /** One thing of a brief: its words, the two-word place under it, whether it is in, and whether it is the one to do now. */
 export interface BriefItem {
