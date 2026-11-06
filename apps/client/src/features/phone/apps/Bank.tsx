@@ -566,7 +566,8 @@ function PassbookCard({ view, book, shown, others }: { view: PlayerView; book: P
         </span>
         {book.target === null ? null : (
           <span className="text-[14px] text-text-2" data-passbook-target={book.target.total}>
-            {say("passbook.of", { target: shortNaira(book.target.total) })}
+            {/* One line says its money one way (text.md, money on screen): the road's cost in full, as the held sum beside it. */}
+            {say("passbook.of", { target: formatMoney(book.target.total, "NGN") })}
           </span>
         )}
       </div>

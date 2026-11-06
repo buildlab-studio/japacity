@@ -49,7 +49,7 @@ describe("the Bank's first page, the passbook", () => {
     await renderWithView(<Bank />, view);
     const card = document.querySelector("[data-passbook]")!;
     expect(card.querySelector("[data-passbook-held]")?.textContent).toBe(formatMoney(book.held, "NGN"));
-    expect(card.querySelector("[data-passbook-target]")?.textContent).toBe(say("passbook.of", { target: shortNaira(book.target!.total) }));
+    expect(card.querySelector("[data-passbook-target]")?.textContent).toBe(say("passbook.of", { target: formatMoney(book.target!.total, "NGN") }));
     expect(card.querySelector('[role="progressbar"]')?.getAttribute("aria-valuemax")).toBe(String(book.target!.total));
     const pace = text("[data-pace]");
     expect(pace).toContain(say("passbook.pace", { months: book.months! }));
@@ -70,6 +70,16 @@ describe("the Bank's first page, the passbook", () => {
     const heard = viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     await renderWithView(<Bank />, heard);
     expect(document.querySelectorAll("[data-pace]")[1]?.textContent).toBe(say("passbook.pace.unread", { route: runningName(CARE) }));
+  });
+
+  test("[world:phone-holds-what-phones-hold] given the nurse's road past a million naira, when the held sum and the road's cost stand on their one line, then both are whole naira in full, never a short sum beside a full one", async () => {
+    const view = nurse().view();
+    const book = passbookOf(view);
+    expect(book.target!.total).toBeGreaterThanOrEqual(100_000_000);
+    await renderWithView(<Bank />, view);
+    const line = document.querySelector("[data-passbook-held]")?.parentElement?.textContent ?? "";
+    expect(line).toBe(`${formatMoney(book.held, "NGN")}${say("passbook.of", { target: formatMoney(book.target!.total, "NGN") })}`);
+    expect(line).not.toMatch(/\d(\.\d)?m\b/);
   });
 
   test("[wallet:savings-stamps] [world:phone-holds-what-phones-hold] given the stamps the view carries, when the Bank opens, then each is a round sticker with its short sum, the reached ones filled with their month and the road's own last", async () => {
