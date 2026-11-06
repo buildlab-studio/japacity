@@ -323,6 +323,15 @@ async function settle(run: Run, when: string): Promise<void> {
       await page.waitForTimeout(400);
       continue;
     }
+    // A guest's ask to save the life, after the first brief, is a sheet of its own: Not now puts it away, as a player playing on would.
+    const save = page.locator("[data-save-life]").or(page.getByRole("heading", { name: "Save this life" }));
+    const notNow = page.getByRole("button", { name: "Not now", exact: true });
+    if ((await shown(save)) && (await shown(notNow))) {
+      log(run, `the ask to save this life ${when}: Not now`);
+      await tap(run, notNow, "Not now on the ask to save this life");
+      await page.waitForTimeout(400);
+      continue;
+    }
     // A home's teach card, once a life (home:moves-carry-cost-and-reason), is read and put away by its own cross.
     const teach = page.locator("[data-home-teach-ok]");
     if (await shown(teach)) {
@@ -768,6 +777,8 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
+  // Anything that came over the world while the month was played (a card, the ask to save the life) is passed first.
+  await settle(run, `at the end of month ${String(month)}`);
   // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-a-pill).
   const calendar = page.locator("[data-app-screen='calendar']");
   log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
