@@ -157,6 +157,17 @@ function opensSentence(whole: string, offset: number): boolean {
   return before === "" || /[.:!?"(]$/.test(before);
 }
 
+/**
+ * A filled word that opens a sentence starts with a capital ("One don enter. Two more to go."), whatever case its own words have
+ * mid-sentence (text:bands-not-figures: counts in words up to ten): after a full stop, or at the start of a line that is a whole
+ * sentence. A fragment filled into another line ("{count} years") keeps its case.
+ */
+function opening(value: string, whole: string, offset: number): string {
+  const before = whole.slice(0, offset).trimEnd();
+  const opens = before === "" ? /[.!?]["”]?$/.test(whole.trimEnd()) : /[.!?]$/.test(before);
+  return opens ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+}
+
 function stringParam(name: string, value: string, midSentence: boolean): string {
   if (name === "pocket" && hasWords(`ui.pocket.${value}`)) return say(`ui.pocket.${value}`);
   // A slot lock's reason (turn:slots-can-be-locked), as the Month sheet says it: "your side job", never its key.
@@ -292,7 +303,8 @@ export function words(key: string, params: Params = {}): string {
   return template.replace(BRACE, (whole, name: string, offset: number) => {
     const value = params[name];
     if (value === undefined) return name === HOMETOWN ? hometownWords() : whole;
-    return formatParam(name, value, params, key, !opensSentence(template, offset));
+    const said = formatParam(name, value, params, key, !opensSentence(template, offset));
+    return typeof value === "string" ? opening(said, template, offset) : said;
   });
 }
 
@@ -301,9 +313,9 @@ export type Filled = Readonly<Record<string, string | number | undefined>>;
 
 /** A line with each `{name}` it has a param for put in as given; a name with no param stays as it is. */
 export function fill(line: string, params: Filled = {}): string {
-  return line.replace(BRACE, (whole, name: string) => {
+  return line.replace(BRACE, (whole, name: string, offset: number) => {
     const value = params[name];
-    return value === undefined ? whole : String(value);
+    return value === undefined ? whole : opening(String(value), line, offset);
   });
 }
 
@@ -317,11 +329,12 @@ export function readerOf(...own: readonly Readonly<Record<string, string>>[]): (
 
 /** Words for the interface, with params the screen has already formatted. */
 export function say(key: string, params: Params = {}): string {
-  return lookup(key).replace(BRACE, (whole, name: string) => {
+  const template = lookup(key);
+  return template.replace(BRACE, (whole, name: string, offset: number) => {
     const value = params[name];
     if (value === undefined) return name === HOMETOWN ? hometownWords() : whole;
     if (typeof value === "object") return formatMoney(value.amount, value.currency);
-    return typeof value === "number" ? formatNumber(value) : value;
+    return typeof value === "number" ? formatNumber(value) : opening(value, template, offset);
   });
 }
 

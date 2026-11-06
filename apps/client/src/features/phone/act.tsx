@@ -99,7 +99,7 @@ export function Refused() {
     <div role="alert" className="shake look-card mb-3 flex items-start gap-2 p-3 text-[15px] text-out">
       <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden />
       <p className="flex-1">{rejection.words}</p>
-      <button type="button" onClick={dismiss} aria-label={say("ui.dismiss")} className="flex size-7 items-center justify-center">
+      <button type="button" onClick={dismiss} aria-label={say("ui.dismiss")} className="reach flex size-7 items-center justify-center">
         <X size={16} aria-hidden />
       </button>
     </div>

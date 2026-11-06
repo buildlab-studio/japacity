@@ -19,7 +19,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 import { PageHandover, REVEAL_MS, TURN_MS } from "./PrologueView";
-import { noteSteps, readTrail, yearChips } from "./years";
+import { heardWords, noteSteps, readTrail, yearChips } from "./years";
 import { DOOR_KEY, TRAIL_KEY } from "../../shared/storage/storage";
 
 const PROLOGUE = "scenario.prologue" as Id<"scenario">;
@@ -78,6 +78,9 @@ describe("the preset online", () => {
     const trail = readTrail();
     expect(trail.steps).toHaveLength(game.state.v);
     expect(trail.steps[0]).toMatchObject({ step: "draw", answer: "begin" });
+    // chapter:first-chapter-mission-card, prologue:printed-page-hands-over: the way out the send-off heard of is said under So far.
+    expect(heardWords(trail)).not.toBeNull();
+    await waitFor(() => expect(document.querySelector('[data-page-handover] [data-field="heard"]')?.textContent).toBe(heardWords(trail)));
     expect(trail.steps.at(-1)).toMatchObject({ step: "home", answer: "hostel-room" });
     expect(trail.draw).toEqual(game.state.prologue.draw);
   });

@@ -35,7 +35,7 @@ describe("words that mislead", () => {
     expect(within(picker).getByRole("option", { name: "5 tickets" })).toBeDefined();
     expect(document.body.textContent).not.toMatch(/\d\.name/);
     fireEvent.change(picker, { target: { value: "3" } });
-    fireEvent.click(screen.getByRole("button", { name: `${text[`${LOTTO}.name`] ?? LOTTO}` }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${text[`${LOTTO}.button`] ?? LOTTO}`) }));
     // activity:now-acts-and-month-acts: the kiosk sells at once, so the count picked goes with the command sent now and the
     // month's plan holds no ticket; the count is said in words where it is picked.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: LOTTO, param: "3" }));

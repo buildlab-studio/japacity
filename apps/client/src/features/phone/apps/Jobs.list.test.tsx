@@ -52,11 +52,11 @@ describe("the offers in Jobs", () => {
     expect(rows().every((row) => row.querySelector("[data-money-chip]") !== null)).toBe(true);
     const main = (): HTMLElement => document.querySelector<HTMLElement>("[data-take-offer]")!;
     expect(main().className).toContain("press-button");
-    expect(main().textContent).toBe(`${say("phone.jobs.take")}·${nameOf(SHOP)}`);
+    expect(main().textContent).toBe(`${say("phone.jobs.take")} · ${nameOf(SHOP)}`);
     fireEvent.click(rows()[1]!);
     expect(rows().map((row) => row.getAttribute("aria-checked"))).toEqual(["false", "true"]);
     expect(rows().map((row) => card(row)?.getAttribute("data-picked") ?? null)).toEqual([null, "true"]);
-    expect(main().textContent).toBe(`${say("phone.jobs.take")}·${nameOf(OTHER)}`);
+    expect(main().textContent).toBe(`${say("phone.jobs.take")} · ${nameOf(OTHER)}`);
     expect(document.querySelectorAll("[data-press-button]")).toHaveLength(1);
   });
 });

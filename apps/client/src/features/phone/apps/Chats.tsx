@@ -280,7 +280,9 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
       {phraseId === null ? null : (
         <PressButton className="mt-3 w-full" disabled={busy || (phrase?.fill !== null && chosenFill === null)} onClick={() => void send()} data-say>
           <span className="shrink-0">{say("phone.chats.say")}</span>
-          <span aria-hidden>·</span>
+          {/* A space between the words, so the name a screen reader reads holds them apart (world:one-action-one-sheet). */}
+          {" "}
+          <span aria-hidden>·</span>{" "}
           <span className="min-w-0 truncate">{phraseWords(phraseId, chosenFill)}</span>
         </PressButton>
       )}

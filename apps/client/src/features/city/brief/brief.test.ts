@@ -56,7 +56,9 @@ describe("the brief", () => {
   });
 
   test("[world:nudge-says-one-thing] given a thing just in, when the giver's toast is read, then it counts what is left in words, says the last one, and never says chapter, step, item or task", () => {
-    expect(doneToast(2)).toBe(say("chapter.brief.toast.more", { left: say("chapter.brief.count.2") }));
+    expect(doneToast(2)).toBe(say("chapter.brief.toast.more", { left: say("ui.count.2") }));
+    // A count word that opens a sentence starts with a capital (text:bands-not-figures).
+    expect(doneToast(2)).toContain(". Two more");
     expect(doneToast(1)).toBe(say("chapter.brief.toast.last"));
     for (const left of [0, 1, 2, 3, 9]) expect(doneToast(left)).not.toMatch(/chapter|step|item|task|\d/i);
   });

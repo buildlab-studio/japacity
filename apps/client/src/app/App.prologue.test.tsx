@@ -7,7 +7,7 @@ import { bootGame } from "../authority/boot";
 import { startArchetype } from "../shared/front-door/frontDoor.testing";
 import type { GameStore } from "../authority/store";
 import { playerMonth } from "../shared/words/format";
-import { nameOf, say, words } from "../shared/words/text";
+import { say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
@@ -96,7 +96,7 @@ describe("a life from sixteen in the app", () => {
       }
       const v = store.getState().view?.v ?? 0;
       await pressFanAct("jobs", "activity.job-hunt", 5000);
-      fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${nameOf(HUNT)}`) }));
+      fireEvent.click(await waitFor(() => found(`[data-act-main="${HUNT}"]`)));
       // The hunt is done at once (activity:now-acts-and-month-acts); its answer in, the month ends.
       await moved(store, v);
       const sent = store.getState().view?.v ?? 0;

@@ -7,7 +7,9 @@ import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
+import { briefBefore } from "../../../shared/world/briefHanded";
 import { nextStepOf, ownWayOf, racksAtHand } from "../../../shared/words/sixteen";
+import { countWords } from "../../../shared/words/count";
 import { hasWords, nameOf, say } from "../../../shared/words/text";
 import { placeName } from "../city.words";
 import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
@@ -16,8 +18,8 @@ import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
 export const TUCK_MS = 2000;
 /** How long the slide into the Phone thumb takes: under half a second (world:motions-under-half-second). */
 export const TUCK_SLIDE_MS = 420;
-/** How long a done thing's toast rides under the chip. */
-export const DONE_TOAST_MS = 3000;
+/** The least a done thing's toast rides under the chip: as long as any toast (world:things-are-tappable-models). */
+export const DONE_TOAST_MS = 4000;
 
 /** One thing of a brief: its words, the two-word place under it, whether it is in, and whether it is the one to do now. */
 export interface BriefItem {
@@ -25,6 +27,8 @@ export interface BriefItem {
   words: string;
   place: string;
   met: boolean;
+  /** Met before the brief was handed over (the years before met it): it stands first, and its line says where it happened. */
+  before: boolean;
   now: boolean;
   /** The id whose tile is its picture: the act that does it, else the place it is done at. */
   picture: string;
@@ -136,6 +140,23 @@ function itemPicture(chapter: string, item: string): string {
   return STEP_ACTIVITY[`${chapter}.${item}`] ?? itemWayOf(chapter, item)?.go ?? "place.ojuelegba";
 }
 
+/**
+ * The things of a chapter met before its brief was handed over (chapter:first-chapter-mission-card): as kept when it was handed, else, while the
+ * life has played no month and the chapter is the one carried, what is met now.
+ */
+export function metBefore(view: Pick<PlayerView, "scenario" | "month" | "chapter">, chapter: string | null): string[] {
+  if (chapter === null) return [];
+  const kept = briefBefore(view.scenario, chapter);
+  if (kept !== null) return [...kept];
+  return view.month === 0 && view.chapter.current === chapter ? view.chapter.items.filter((item) => item.met).map((item) => item.id) : [];
+}
+
+/** Where a thing met before the brief was handed happened, in two or three words: "At a send-off", "Already working". */
+export function beforePlace(chapter: string, item: string): string {
+  const own = `${baseOf(chapter)}.brief.before.${item}`;
+  return say(hasWords(own) ? own : "chapter.brief.before");
+}
+
 /** The brief after a chapter: the next base chapter by order, never a variant (chapter:chapters-follow-lean-route). */
 export function nextBase(chapter: string): string | null {
   const order = content.chapter[baseOf(chapter) as Id<"chapter">]?.order ?? Infinity;
@@ -150,7 +171,7 @@ export function nextBase(chapter: string): string | null {
  * giver's line (`line`, the opening the life's path chose), each item of the chapter with its place and whether it is in,
  * the first not in lit as the one to do now, the rewards, and the next brief by the view's own next chapter.
  */
-export function briefOf(view: BriefLife, line: string): Brief | null {
+export function briefOf(view: BriefLife, line: string, before: readonly string[] = []): Brief | null {
   const chapter = view.chapter.current;
   if (chapter === null) return null;
   const base = baseOf(chapter);
@@ -159,14 +180,21 @@ export function briefOf(view: BriefLife, line: string): Brief | null {
   const life = scenario === undefined || qualities === undefined || pockets === undefined ? null : { ...view, scenario, qualities, pockets };
   // While the racks are the work at hand, the job comes first (activity:fish-racks-at-makoko), as the nudge has it.
   const firstOpen = (racksAtHand(view) ? "job" : null) ?? (life === null ? null : nextStepOf(life)) ?? view.chapter.items.find((item) => !item.met)?.id ?? null;
-  const items = view.chapter.items.map((item) => ({
-    id: item.id,
-    words: hasWords(`${chapter}.item.${item.id}`) ? say(`${chapter}.item.${item.id}`) : item.id,
-    place: itemPlace(chapter, item.id, view),
-    met: item.met,
-    now: item.id === firstOpen,
-    picture: itemPicture(chapter, item.id),
-  }));
+  // chapter:first-chapter-mission-card: a thing met before the brief was handed stands first, done, where it happened; the rest keep their order.
+  const items = view.chapter.items
+    .map((item) => {
+      const earlier = item.met && before.includes(item.id);
+      return {
+        id: item.id,
+        words: hasWords(`${chapter}.item.${item.id}`) ? say(`${chapter}.item.${item.id}`) : item.id,
+        place: earlier ? beforePlace(chapter, item.id) : itemPlace(chapter, item.id, view),
+        met: item.met,
+        before: earlier,
+        now: item.id === firstOpen,
+        picture: itemPicture(chapter, item.id),
+      };
+    })
+    .sort((a, b) => Number(b.before) - Number(a.before));
   const next = view.chapter.next ?? nextBase(chapter);
   const giverKey = `${base}.brief.giver`;
   return {
@@ -188,10 +216,6 @@ export function briefDots(items: readonly Pick<BriefItem, "met" | "now">[]): ("d
   return items.map((item) => (item.met ? "done" : item.now ? "now" : "later"));
 }
 
-/** Count words up to ten for the giver's toast; past ten, the figure. */
-function countWords(count: number): string {
-  return hasWords(`chapter.brief.count.${String(count)}`) ? say(`chapter.brief.count.${String(count)}`) : String(count);
-}
 
 /** The giver's toast when a thing comes in: how many are left, in their voice; the last says so. */
 export function doneToast(left: number): string {

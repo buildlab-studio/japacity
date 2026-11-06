@@ -98,7 +98,9 @@ describe("the results sheet", () => {
     const payday = sheet.querySelector("[data-results-payday]");
     expect(payday?.getAttribute("data-results-payday")).toBe("45000000");
     expect(within(sheet).getByText(`+${formatMoney(45_000_000, "NGN")}`).className).toContain("text-in");
-    expect(within(sheet).getByText(words(SALARY.key, SALARY.params))).toBeTruthy();
+    // world:month-end-results-sheet: the card names the pay beside its figure, never the line's sentence with the amount in it.
+    expect(within(sheet).getByText(words(`${SALARY.key}.label`, SALARY.params))).toBeTruthy();
+    expect(within(sheet).queryByText(words(SALARY.key, SALARY.params))).toBeNull();
     expect(within(sheet).queryByText(words(UPKEEP.key, UPKEEP.params))).toBeNull();
     expect(within(sheet).queryByText(`-${formatMoney(10_000_000, "NGN")}`)).toBeNull();
     expect(sheet.querySelector("[data-results-lines]")).toBeNull();

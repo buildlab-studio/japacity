@@ -229,8 +229,8 @@ describe("the acts", () => {
     expect(main().textContent).toContain("Yes, quit");
     fireEvent.click(main());
     await waitFor(() => expect(sent(authority)).toEqual([{ type: "activity/quit" }]));
-    // One main button at the foot repeats the offer picked: "Take it" and the job.
-    fireEvent.click(screen.getByRole("button", { name: /^Take it/ }));
+    // One main button at the foot repeats the offer picked: "Take" and the job, never a bare "it" (world:one-action-one-sheet).
+    fireEvent.click(screen.getByRole("button", { name: /^Take (?!it\b)\S/ }));
     fireEvent.click(main());
     await waitFor(() => expect(sent(authority).at(-1)).toEqual({ type: "offer/choose", offer: "offer-20", choice: "accept" }));
   });

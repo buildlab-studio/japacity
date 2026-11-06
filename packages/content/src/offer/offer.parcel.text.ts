@@ -7,14 +7,14 @@ export const offerParcelText: Record<string, string> = {
   "offer.parcel-shipped.body": "“{from} shipped you something for your birthday: collect it here at the cargo office on Bode Thomas Street.”",
   "offer.parcel-shipped.from.aunty.name": "Your aunty in Houston",
 
-  "offer.parcel-shipped.choice.aunty-phone": "Collect it",
-  "offer.parcel-shipped.choice.aunty-laptop": "Collect it",
-  "offer.parcel-shipped.choice.aunty-clothes": "Collect it",
-  "offer.parcel-shipped.choice.aunty-food": "Collect it",
-  "offer.parcel-shipped.choice.sibling-phone": "Collect it",
-  "offer.parcel-shipped.choice.sibling-laptop": "Collect it",
-  "offer.parcel-shipped.choice.sibling-clothes": "Collect it",
-  "offer.parcel-shipped.choice.sibling-food": "Collect it",
+  "offer.parcel-shipped.choice.aunty-phone": "Collect",
+  "offer.parcel-shipped.choice.aunty-laptop": "Collect",
+  "offer.parcel-shipped.choice.aunty-clothes": "Collect",
+  "offer.parcel-shipped.choice.aunty-food": "Collect",
+  "offer.parcel-shipped.choice.sibling-phone": "Collect",
+  "offer.parcel-shipped.choice.sibling-laptop": "Collect",
+  "offer.parcel-shipped.choice.sibling-clothes": "Collect",
+  "offer.parcel-shipped.choice.sibling-food": "Collect",
 
   // The results line, once it is collected.
   "offer.parcel-shipped.said.aunty-phone": "A parcel from your aunty in Houston: a phone.",
@@ -52,7 +52,7 @@ export const offerParcelText: Record<string, string> = {
 
   // The booth on Bode Thomas Street and its act; its boards are the place's signs 22 and 23.
   "offer.parcel-shipped.booth": "Cargo office",
-  "offer.parcel-shipped.act": "Collect it",
+  "offer.parcel-shipped.act": "Collect the parcel",
   // The nudge while it waits (at most eight words), and the asks sheet away from the booth.
   "offer.parcel-shipped.nudge": "Collect your parcel on Bode Thomas Street",
   "offer.parcel-shipped.away": "Your parcel is at the cargo office on Bode Thomas Street.",

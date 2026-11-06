@@ -37,6 +37,11 @@ export interface PageFields {
   path: string;
   /** What the life was so far, in one line: the tile's own, or the life as lived; absent where there is none. */
   was?: string;
+  /**
+   * A way out the years before heard of, in a few words under So far, as the life is handed over ("Heard of health care at a
+   * send-off"), so the brief's step it meets was seen to happen (chapter:first-chapter-mission-card); absent where none was heard.
+   */
+  heard?: string;
   /** What the strip at the foot is built from: the home's district, the age in years and months, how ready. */
   strip?: Strip;
   /** How ready, as the page says it: "12%". */
@@ -103,6 +108,15 @@ function Field({ id, label, value, delay }: { id: string; label: string; value: 
   );
 }
 
+/** The way out the years heard of, a small line under So far. */
+function Heard({ words, delay }: { words: string; delay: number | null }) {
+  return (
+    <div className={`text-[13px] leading-tight font-semibold ${delay === null ? "" : "drop"}`} style={delay === null ? undefined : { animationDelay: `${String(delay)}ms` }} data-field="heard">
+      {words}
+    </div>
+  );
+}
+
 /** The photo: the figure in the player's colours where it is drawn, else the look's own picture, cropped to the face. */
 function Photo({ page }: { page: PageFields }) {
   const drawn = usePhoto(page.wear?.look, page.wear?.style, page.wear?.photo, page.wear?.photoPx);
@@ -155,6 +169,7 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
           </div>
           <Field id="path" label={say("ui.page.field.path")} value={page.path} delay={delay()} />
           {page.was === undefined ? null : <Field id="was" label={say("prologue.page.path")} value={page.was} delay={delay()} />}
+          {page.heard === undefined ? null : <Heard words={page.heard} delay={delay()} />}
           {page.type === undefined ? null : <Field id="type" label={say("prologue.page.type")} value={page.type.name} delay={delay()} />}
         </div>
       </div>

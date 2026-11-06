@@ -346,7 +346,7 @@ function Outcome({ lines, onClose }: { lines: ReportLine[]; onClose: () => void 
     <div role="status" className="flex flex-col gap-1 rounded-md border border-sheet-line bg-sheet-2 p-4">
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold">{say("ui.offer.outcome")}</h3>
-        <button type="button" aria-label={say("ui.dismiss")} className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted" onClick={onClose}>
+        <button type="button" aria-label={say("ui.dismiss")} className="reach inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted" onClick={onClose}>
           <X size={16} />
         </button>
       </div>

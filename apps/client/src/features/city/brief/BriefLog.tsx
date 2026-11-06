@@ -11,7 +11,7 @@ import { Tile } from "../../../shared/tiles/Tile";
 import { Face } from "../../../shared/ui/look/Face";
 import { openingKey } from "../../../shared/words/sixteen";
 import { hasWords, say, words } from "../../../shared/words/text";
-import { type Brief, baseOf, briefDots, briefOf, nextBase } from "./brief";
+import { type Brief, baseOf, briefDots, briefOf, metBefore, nextBase } from "./brief";
 
 /** A brief's picture on its soft tile, cut as a sticker. */
 function Picture({ of, size, soft = false }: { of: string; size: number; soft?: boolean }) {
@@ -59,8 +59,9 @@ function Carried({ brief }: { brief: Brief }) {
       )}
       <ul className="flex flex-col gap-1.5">
         {brief.items.map((item) => (
-          <li key={item.id} className={`flex items-center gap-2.5 rounded-[14px] px-2 py-1.5 ${item.now ? "brief-step-now" : "brief-step"}`} data-brief-log-item={item.id} data-met={item.met ? "true" : "false"}>
-            <span className="sticker-cut shrink-0" style={{ rotate: "-4deg" }} aria-hidden>
+          // chapter:first-chapter-mission-card: one look per state, as on the card: a thing done recedes, the thing now stands out, the rest plain.
+          <li key={item.id} className={`flex items-center gap-2.5 rounded-[14px] px-2 py-1.5 brief-step ${item.met ? "brief-step-done" : item.now ? "brief-step-now" : ""}`} data-brief-log-item={item.id} data-met={item.met ? "true" : "false"} {...(item.before ? { "data-before": "" } : {})}>
+            <span className="brief-step-picture sticker-cut shrink-0" style={{ rotate: "-4deg" }} aria-hidden>
               <Tile of={item.picture} size={26} />
             </span>
             <span className="min-w-0 flex-1">
@@ -113,10 +114,10 @@ function Next({ brief }: { brief: Brief }) {
 }
 
 /** A chapter as its brief with every thing in and its close as the giver's words, for the stamped cards. */
-function doneBrief(chapter: Id<"chapter">, view: Pick<PlayerView, "chapter">): Brief | null {
+function doneBrief(chapter: Id<"chapter">, view: Pick<PlayerView, "chapter" | "scenario" | "month">): Brief | null {
   const entry = content.chapter[chapter];
   if (entry === undefined) return null;
-  return briefOf({ chapter: { current: chapter, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: null } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "");
+  return briefOf({ chapter: { current: chapter, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: null } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "", metBefore(view, chapter));
 }
 
 /** A chapter not yet begun as its brief, nothing in yet, for the faint card at the foot. */
@@ -128,7 +129,7 @@ function laterBrief(chapter: string, view: Pick<PlayerView, "chapter">): Brief |
 
 /** The log's briefs from the view: the carried one, those done (the latest first, each base chapter once), and the next. */
 export function briefLog(view: PlayerView): { carried: Brief | null; done: Brief[]; next: Brief | null } {
-  const carried = view.chapter.current === null ? null : briefOf(view, words(openingKey(view)));
+  const carried = view.chapter.current === null ? null : briefOf(view, words(openingKey(view)), metBefore(view, view.chapter.current));
   const seen = new Set<string>(carried === null ? [] : [carried.base]);
   const done = [...view.chapter.done]
     .reverse()

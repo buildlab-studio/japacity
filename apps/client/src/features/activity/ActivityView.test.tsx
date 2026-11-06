@@ -4,14 +4,15 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { plannable } from "../../shared/words/acts";
 import { requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, lowerFirst, say } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
-const addButton = (id: string) => screen.getByRole("button", { name: `${text[`${id}.name`] ?? id}` });
+/** An act's one main button, by its mark: its words are its verb, which several acts share (world:one-action-one-sheet). */
+const addButton = (id: string) => found(`[data-act-main="${id}"]`) as HTMLButtonElement;
 /**
  * An act's own card: the weekly shop, a meal of your own and a fresh cut are named
  * alike in every country, so an act is found within its card, not by its name across the page.
@@ -21,7 +22,7 @@ const cardOf = (id: string): HTMLElement => {
   if (card === null) throw new Error(`No card for ${id}`);
   return card;
 };
-const addButtonIn = (id: string) => within(cardOf(id)).getByRole("button", { name: `${text[`${id}.name`] ?? id}` });
+const addButtonIn = (id: string) => within(cardOf(id)).getByRole("button", { name: new RegExp(`^${text[`${id}.button`] ?? id}`) });
 
 describe("the month plan", () => {
   // The picker lists every act of the life with its card; reading each by role takes time under load.

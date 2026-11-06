@@ -94,9 +94,10 @@ async function expectNoAsk(page: Page, when: string, winShown = false): Promise<
   }
 }
 
-function nameOf(id: string): string {
-  const said = text[`${id}.name`];
-  if (said === undefined) throw new Error(`No name for ${id}`);
+/** The words of an act's main button: its verb, content's `<id>.button` (world:one-action-one-sheet). */
+function buttonOf(id: string): string {
+  const said = text[`${id}.button`];
+  if (said === undefined) throw new Error(`No button words for ${id}`);
   return said;
 }
 
@@ -144,8 +145,8 @@ async function takeNextStep(page: Page, game: Game): Promise<void> {
       if ((await route.count()) > 0) await route.click();
       else if ((await select.count()) > 0) await select.selectOption(pick.param);
     }
-    // The act's card says its name on its main button, with the price after it where it costs.
-    const named = nameOf(pick.activity).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // The act's card says its verb on its main button, with the price after it where it costs.
+    const named = buttonOf(pick.activity).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     await card.getByRole("button", { name: new RegExp(`^${named}( · |$)`) }).last().click();
     // An answer that stands as its card is put away; any other act started at the tap with its toast (world:things-are-tappable-models).
     const done = page.getByRole("dialog").getByRole("button", { name: /^(Done|Close)$/ });

@@ -58,6 +58,7 @@ export const uiText: Record<string, string> = {
   "ui.country.place.country.italy": "Italy",
   "ui.world.go-there": "Go there",
   "ui.world.pay-back": "Pay back what is held",
+  "ui.world.pay-back.button": "Pay back",
   "ui.world.pay-back-line": "{amount} is held for you. Paid back, the plane is open.",
   "ui.world.pay-back-paid": "Paid back",
   "ui.world.pay-back-note": "From the funds held for you. Nothing leaves your pocket.",
@@ -332,7 +333,7 @@ export const uiText: Record<string, string> = {
   "ui.obligation.state.active": "Paying",
   "ui.obligation.state.grace": "Behind",
   "ui.obligation.state.defaulted": "In default",
-  "ui.obligation.return": "Give the funds back",
+  "ui.obligation.return": "Give back",
 
   // Papers
   "ui.document.held": "Held",
@@ -370,6 +371,7 @@ export const uiText: Record<string, string> = {
   "ui.route.foreign-fee": "Fees in pounds are bought from naira at the bank rate, plus the bank's charge.",
   "ui.route.school.chosen": "Deposit paid",
   "ui.route.pay-deposit": "Pay the deposit",
+  "ui.route.pay-deposit.button": "Pay",
   "ui.route.funds": "Funds",
   // route-gates:canada-return-asks-authorisation: what the first application into Canada owes after a removal.
   "ui.route.authorisation.title": "Coming back after a removal",
@@ -621,6 +623,8 @@ export const uiText: Record<string, string> = {
   "ui.page.family.siblings": "{count} siblings",
   "ui.page.family.siblings.one": "One sibling",
   "ui.page.years": "The years before",
+  // A way out the years heard of, under So far as the life is handed over (prologue:printed-page-hands-over).
+  "ui.page.heard": "Heard of {way} at a send-off",
   "ui.page.years.running": "The years go by",
   "ui.page.year.waec": "WAEC",
   "ui.page.year.exam": "JAMB",
