@@ -1379,7 +1379,7 @@ export function City({
       const amount = heldDue.outstanding;
       return {
         form: "card",
-        icon: "bank",
+        icon: "landmark",
         who: hereName,
         title: say("ui.world.pay-back"),
         line: say("ui.world.pay-back-line", { amount: formatMoney(amount, "NGN") }),
@@ -1404,7 +1404,7 @@ export function City({
       const deposit = { amount: school.deposit, currency: "GBP" };
       return {
         form: "card",
-        icon: "bank",
+        icon: "landmark",
         who: hereName,
         title: say("ui.route.pay-deposit"),
         line: say("ui.world.deposit-line", { school: nameOf(depositDue.school), route: nameOf(depositDue.route) }),
