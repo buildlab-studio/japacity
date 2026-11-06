@@ -26,6 +26,13 @@ export interface FirstSession {
   months: { slots: SlotPick[]; lines: ReportLine[] }[];
   /** The month (1 to 3) and the line of the first early win, or null. */
   earlyWin: { month: number; line: ReportLine } | null;
+  /** The months (1 to 3) that left the life nothing to do next: no job held, no offer open, and no act its next step suggests. */
+  deadEnds: number[];
+}
+
+/** guide:early-win-in-three-turns: the life has something to do next: a job held, an offer open to answer, or an act its next step suggests. */
+function somethingNext(view: PlayerView, content: Content, nextStep: NextStep): boolean {
+  return view.job.id !== null || view.offers.length > 0 || nextStep(view, content).length > 0;
 }
 
 function pick(view: PlayerView, activity: string, param?: string): SlotPick | null {
@@ -105,6 +112,7 @@ export function playFirstSession(life: StartingLife, content: Content, options: 
   const game = start({ scenario: life.scenario, content, seed: options.seed ?? "first-session", worldSeed: options.worldSeed ?? "first-session-world" });
   const path = playPrologue(game, life);
   const months: FirstSession["months"] = [];
+  const deadEnds: number[] = [];
   let earlyWin: FirstSession["earlyWin"] = null;
   for (let month = 1; month <= FIRST_SESSION_MONTHS; month += 1) {
     closeSetpiece(game);
@@ -113,8 +121,10 @@ export function playFirstSession(life: StartingLife, content: Content, options: 
     months.push({ slots, lines });
     const line = earlyWinIn(lines, slots);
     if (earlyWin === null && line !== null) earlyWin = { month, line };
+    closeSetpiece(game);
+    if (!somethingNext(game.view(), content, nextStep)) deadEnds.push(month);
   }
-  return { life, path, months, earlyWin };
+  return { life, path, months, earlyWin, deadEnds };
 }
 
 /**
