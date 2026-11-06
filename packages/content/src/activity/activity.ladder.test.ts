@@ -39,7 +39,7 @@ interface Rung {
 
 /** activity.md, "Jobs: the ladders", row by row: pay, what it asks, the hire chance and the employer. */
 const RUNGS: Rung[] = [
-  { id: "activity.job-nurse", pay: { currency: "NGN", amount: naira(180000) }, requires: [atLeast("quality.care", 60)], hireBp: pct(50), employer: "formal" },
+  { id: "activity.job-nurse", pay: { currency: "NGN", amount: naira(180000) }, requires: [atLeast("quality.care", 60)], hireBp: pct(85), employer: "formal" },
   { id: "activity.job-senior-nurse", pay: { currency: "NGN", amount: naira(280000) }, requires: [across(NURSE_JOBS, 30), atLeast("quality.care", 70)], hireBp: pct(30), employer: "formal" },
   {
     id: "activity.job-ward-manager",
