@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { DEFAULT_PORT, doorButton, fanChoice, inside, livesFrom, localCertificate, parseOptions, shotName } from "./options";
+import { DEFAULT_PORT, doorButton, fanChoice, inside, keptSummary, livesFrom, localCertificate, parseOptions, playUsername, readKept, shotName } from "./options";
 
 const ROOT = "/work/japacity";
 const OUTSIDE = "/tmp/plays/one";
@@ -131,5 +131,75 @@ describe("the fan button the driver takes", () => {
 
   test("given only plain acts, when the driver chooses, then it takes the first open one", () => {
     expect(fanChoice([{ id: "sit", kind: "act", enabled: false }, look], null)).toBe("look");
+  });
+});
+
+describe("a life kept and resumed", () => {
+  const KEPT = "/tmp/plays/kept/developer.json";
+
+  test("given --keep and --resume naming files outside the repository, when parsed, then each is read as an absolute path, a relative one from the folder it is run in", () => {
+    expect(parsed(["--out", OUTSIDE, "--keep", KEPT])).toMatchObject({ ok: true, options: { keep: KEPT } });
+    expect(parsed(["--out", OUTSIDE, `--resume=${KEPT}`, "--keep", KEPT, "--months", "2"])).toMatchObject({ ok: true, options: { resume: KEPT, keep: KEPT, months: 2 } });
+    expect(parsed(["--out", OUTSIDE, "--resume", "kept.json"], "/tmp/plays")).toMatchObject({ ok: true, options: { resume: "/tmp/plays/kept.json" } });
+  });
+
+  test("given no --keep, --resume or --stop, when parsed, then none is set", () => {
+    const result = parsed(["--out", OUTSIDE]);
+    if (!result.ok) throw new Error(result.problem);
+    expect([result.options.keep, result.options.resume, result.options.stop]).toEqual([undefined, undefined, undefined]);
+  });
+
+  test("given --keep or --resume naming a file inside the repository, relative or absolute, when parsed, then it is refused: the file holds a signed-in session", () => {
+    for (const name of ["--keep", "--resume"]) {
+      expect(refusal(["--out", OUTSIDE, name, "kept.json"])).toContain(`${name} ${join(ROOT, "kept.json")} is inside the repository`);
+      expect(refusal(["--out", OUTSIDE, name, join(ROOT, "tools", "play", "kept.json")])).toContain("inside the repository");
+      expect(refusal(["--out", OUTSIDE, name, ROOT])).toContain("inside the repository");
+      expect(parsed(["--out", OUTSIDE, name])).toMatchObject({ ok: false, problem: `${name} needs a value.` });
+      expect(refusal(["--out", OUTSIDE, `${name}=`])).toBe(`${name} needs a file.`);
+    }
+    expect(parsed(["--out", OUTSIDE, "--keep", "/work/japacity-other/kept.json"])).toMatchObject({ ok: true });
+  });
+
+  test("given --resume with --life or --ready, when parsed, then it is refused: the life is the one kept", () => {
+    expect(refusal(["--out", OUTSIDE, "--resume", KEPT, "--life", "nurse"])).toContain("--resume opens the life that was kept");
+    expect(refusal(["--out", OUTSIDE, "--resume", KEPT, "--ready"])).toContain("--resume opens the life that was kept");
+  });
+
+  test("given --stop, when parsed, then door and planned are read, anything else is refused, and door is refused on a resumed life", () => {
+    expect(parsed(["--out", OUTSIDE, "--stop", "door", "--keep", KEPT])).toMatchObject({ ok: true, options: { stop: "door" } });
+    expect(parsed(["--out", OUTSIDE, "--stop=planned", "--resume", KEPT])).toMatchObject({ ok: true, options: { stop: "planned" } });
+    expect(refusal(["--out", OUTSIDE, "--stop", "bed"])).toBe('--stop takes door or planned, got "bed".');
+    expect(refusal(["--out", OUTSIDE, "--stop", "door", "--resume", KEPT])).toContain("a resumed life is past it");
+  });
+
+  test("given a kept file, when it is read back, then a browser's storage is taken and anything else is refused", () => {
+    expect(readKept("not json")).toEqual({ ok: false, problem: "the kept file is not JSON" });
+    expect(readKept(JSON.stringify({ cookies: {} }))).toEqual({ ok: false, problem: "the kept file is not a browser's storage" });
+    expect(readKept("null")).toEqual({ ok: false, problem: "the kept file is not a browser's storage" });
+    expect(readKept(JSON.stringify({ cookies: [], origins: [] }))).toEqual({ ok: true, kept: { cookies: [], origins: [] } });
+  });
+
+  test("given a kept storage, when it is summed up for the log, then only its counts are said, never a name or a value", () => {
+    const kept = {
+      cookies: [{ name: "session_token", value: "sekret-cookie-value" }],
+      origins: [
+        { origin: "https://localhost:8787", localStorage: [{ name: "japacity.month", value: "sekret-plan" }, { name: "japacity.walkthrough", value: "1" }] },
+        { origin: "http://localhost:5190", localStorage: [] },
+      ],
+    };
+    const summary = keptSummary(kept, "https://localhost:8787");
+    expect(summary).toBe("1 cookies, 2 local storage keys for https://localhost:8787");
+    for (const secret of ["session_token", "sekret", "japacity.month"]) expect(summary).not.toContain(secret);
+    expect(keptSummary(kept, "https://staging.japacity.app")).toBe("1 cookies, 0 local storage keys for https://staging.japacity.app");
+  });
+});
+
+describe("the username typed online", () => {
+  test("given a life and a moment, when the username is made, then it is the life's letters and the moment, letters, digits and underscores, from 3 to 20", () => {
+    const moment = Date.UTC(2030, 0, 1);
+    expect(playUsername(moment, "developer")).toBe(`developer_${moment.toString(36)}`);
+    for (const life of ["shop-worker", "water", "a", "x".repeat(40), "---"]) expect(playUsername(moment, life)).toMatch(/^[A-Za-z0-9_]{3,20}$/);
+    expect(playUsername(moment, "shop-worker")).toMatch(/^shopworker_/);
+    expect(playUsername(moment + 1, "nurse")).not.toBe(playUsername(moment, "nurse"));
   });
 });

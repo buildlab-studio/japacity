@@ -2,18 +2,19 @@
 // Plays the game on a phone-sized browser from the front door: the name it fills, an archetype's tile (or a
 // ready life), Next to Where you live and Begin, the page filling as the years go by and Go opening the world, the
 // first chapter's title, then each month: the nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
-// picture at each step into the folder given and prints a plain log, also saved there as play.log.
+// picture at each step into the folder given and prints a plain log, also saved there as play.log. With --keep it saves
+// the browser's storage at the end, and with --resume it opens a kept life where it stands and plays on.
 // It changes nothing in the repository. See tools/play/README.md.
 import { type ChildProcess, spawn } from "node:child_process";
-import { appendFileSync, createWriteStream, mkdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, chmodSync, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { request } from "node:https";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 import { text } from "@japacity/content";
-import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
+import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type Locator, type Page } from "@playwright/test";
 
 import { accessHeaders, withAccess } from "../local/access";
-import { doorButton, fanChoice, type FanButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
+import { doorButton, fanChoice, type FanButton, type KeptStorage, keptSummary, livesFrom, localCertificate, parseOptions, type PlayOptions, playUsername, readKept, shotName, USAGE } from "./options";
 import { REPO_ROOT } from "../repo";
 
 /** A mid-range phone, the size the game is built for and the browser tests use. */
@@ -32,6 +33,8 @@ interface Run {
   shots: number;
   monthsEnded: number;
   readonly problems: string[];
+  /** The game's routes that answered 409 or a server error, by status and path: on a resumed life each is a problem. */
+  readonly refused: { status: number; path: string }[];
 }
 
 function oneLine(words: string, max = 200): string {
@@ -173,8 +176,32 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
     problem(run, "where you live never came");
     return false;
   }
+  // Online, a new guest types a username on Where you live (account:username-typed-and-checked); Begin waits for one that is free.
+  const username = page.getByLabel("Username");
+  if ((await shown(username)) && (await username.first().inputValue().catch(() => "")) === "") {
+    const typed = playUsername(Date.now(), options.life);
+    await username.first().fill(typed);
+    log(run, `username typed: ${typed}`);
+    await page.waitForTimeout(1_500);
+  }
   await shot(run, options.ready ? "your page" : "where you live");
+  // --stop door: the life is made and its years before are held back, as when the tab closes between the two (server:server-plays-prologue-preset).
+  if (options.stop === "door") await page.route("**/api/prologue/preset", (route) => route.abort());
   if (!(await tap(run, page.getByRole("button", { name: /^Begin/ }), "Begin"))) return false;
+  if (options.stop === "door") {
+    const made = await page
+      .waitForResponse((response) => new URL(response.url()).pathname === "/api/character" && response.ok(), { timeout: LONG })
+      .then(() => true)
+      .catch(() => false);
+    if (!made) {
+      problem(run, "stopping at the door: no life was made at Begin");
+      return false;
+    }
+    await page.waitForTimeout(2_000);
+    log(run, "stopped at the door: the life is made and its years before are not played (the preset held back)");
+    await shot(run, "stopped at the door");
+    return true;
+  }
   const gate = page.locator("[data-gate='page'], [data-gate='begun']").first();
   // Staging's managed bot check refuses an automated browser (server:production-and-staging, account:bot-check-on-guest-creation): the game says so on the
   // page, and the run stops there by design. The whole life is played on the local stack, where the test key passes.
@@ -296,6 +323,15 @@ async function settle(run: Run, when: string): Promise<void> {
       await page.waitForTimeout(400);
       continue;
     }
+    // A guest's ask to save the life, after the first brief, is a sheet of its own: Not now puts it away, as a player playing on would.
+    const save = page.locator("[data-save-life]").or(page.getByRole("heading", { name: "Save this life" }));
+    const notNow = page.getByRole("button", { name: "Not now", exact: true });
+    if ((await shown(save)) && (await shown(notNow))) {
+      log(run, `the ask to save this life ${when}: Not now`);
+      await tap(run, notNow, "Not now on the ask to save this life");
+      await page.waitForTimeout(400);
+      continue;
+    }
     // A home's teach card, once a life (home:moves-carry-cost-and-reason), is read and put away by its own cross.
     const teach = page.locator("[data-home-teach-ok]");
     if (await shown(teach)) {
@@ -327,6 +363,74 @@ async function intoTheWorld(run: Run): Promise<boolean> {
   log(run, `in the world: ${await words(page.locator("[data-band]"))}`);
   await shot(run, "the world");
   return true;
+}
+
+/**
+ * A kept life opened where it stands (--resume): no front door. The years before, if the life stopped in them, fill and
+ * hand over as a new life's do; else the world opens on the life as it was left. A refusal by the server (a 409 for a
+ * diverged life, a server error) or a trouble card is a problem naming what answered. True once the band shows.
+ */
+async function resumeLife(run: Run): Promise<boolean> {
+  const { page } = run;
+  await page.goto(`/?sleep=${String(SLEEP_SECONDS)}`);
+  const band = page.locator("[data-band]");
+  const years = page.locator("[data-prologue-card], [data-page-handover] [data-gate-sheet], [data-page-running] [data-gate-sheet]");
+  const door = page.getByRole("button", { name: /^(Next|Play)$/ }).or(page.getByRole("combobox", { name: "Day" }));
+  const trouble = page.locator("[data-trouble]");
+  const rejection = page.locator("[data-rejection]");
+  await band.or(years).or(door).or(trouble).or(rejection).first().waitFor({ state: "visible", timeout: 2 * LONG }).catch(() => undefined);
+  await page.waitForTimeout(1_500);
+  await shot(run, "resumed");
+  if (!(await refusedNot(run))) return false;
+  if (await shown(trouble)) {
+    problem(run, `the resumed life opened on a trouble card (${(await trouble.first().getAttribute("data-trouble")) ?? "unknown"}): ${await words(trouble)}`);
+    return false;
+  }
+  if (await shown(rejection)) {
+    problem(run, `the resumed life opened on a refusal: ${await words(rejection)}`);
+    return false;
+  }
+  if ((await shown(door)) && !(await shown(band))) {
+    problem(run, "the kept storage opened the front door, not a life: the session or the life is gone");
+    return false;
+  }
+  if (await shown(years)) log(run, "resumed in the years before");
+  else log(run, `resumed in the world: ${await words(band)}`);
+  return intoTheWorld(run);
+}
+
+/** On a resumed life, every 409 or server error from the game's routes so far is a problem naming its status. True when there is none. */
+async function refusedNot(run: Run): Promise<boolean> {
+  if (run.options.resume === undefined) return true;
+  // A reply's status is known when it lands; the body is not waited for.
+  await run.page.waitForTimeout(300);
+  for (const { status, path } of run.refused.splice(0)) problem(run, `the server refused the resumed life: ${String(status)} on ${path}`);
+  return run.problems.every((each) => !each.startsWith("the server refused"));
+}
+
+/** --keep: the browser's storage, saved to the file with mode 600; only its counts reach the log. */
+async function keepStorage(run: Run, context: BrowserContext, file: string, origin: string): Promise<void> {
+  const state = (await context.storageState()) as KeptStorage;
+  mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+  writeFileSync(file, JSON.stringify(state), { mode: 0o600 });
+  // A file that was there before keeps its own mode on a write: it is set again.
+  chmodSync(file, 0o600);
+  log(run, `kept the browser's storage in ${file} (mode 600): ${keptSummary(state, origin)}`);
+}
+
+/** --resume: the kept storage read back, or null with the reason logged. Its values are never printed. */
+function keptFrom(head: Pick<Run, "started" | "options">, file: string, origin: string): KeptStorage | null {
+  if (!existsSync(file)) {
+    log(head, `stopped: no kept storage at ${file}`);
+    return null;
+  }
+  const read = readKept(readFileSync(file, "utf8"));
+  if (!read.ok) {
+    log(head, `stopped: ${read.problem} (${file})`);
+    return null;
+  }
+  log(head, `resuming from ${file}: ${keptSummary(read.kept, origin)}`);
+  return read.kept;
 }
 
 // A month ---------------------------------------------------------------------------------------
@@ -673,6 +777,8 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
+  // Anything that came over the world while the month was played (a card, the ask to save the life) is passed first.
+  await settle(run, `at the end of month ${String(month)}`);
   // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-a-pill).
   const calendar = page.locator("[data-app-screen='calendar']");
   log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
@@ -700,7 +806,8 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
 
   // Staged moments and cards come before the results; each is read and passed.
   const results = page.locator("[data-world-sheet='results']");
-  for (let step = 0; step < 40 && !(await shown(results)); step += 1) {
+  // A built client (the local stack, staging) sleeps its full 36 seconds, with no `?sleep=` (world:sleep-ends-the-month): the results are waited on for a minute.
+  for (let step = 0; step < 120 && !(await shown(results)); step += 1) {
     const moment = page.locator("[data-moment]");
     if (await shown(moment)) {
       log(run, `moment: ${await words(moment)}`);
@@ -859,18 +966,32 @@ async function play(options: PlayOptions, button: string): Promise<number> {
   const started = Date.now();
   writeFileSync(join(options.out, "play.log"), "");
   const head = { started, options };
-  log(head, `play: ${options.ready ? "ready life" : "tile"} "${button}", ${String(options.months)} months, pictures in ${options.out}`);
+  const what = options.resume !== undefined ? "the kept life" : `${options.ready ? "ready life" : "tile"} "${button}"`;
+  log(head, `play: ${what}, ${options.stop === "door" ? "stopped at the door" : `${String(options.months)} months`}, pictures in ${options.out}`);
   const served = await server(options, (message) => log(head, message));
   if (served === null) return 1;
 
+  const origin = new URL(served.base).origin;
+  const kept = options.resume === undefined ? undefined : keptFrom(head, options.resume, origin);
+  if (kept === null) {
+    served.stop();
+    return 1;
+  }
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch({ headless: !options.headed, args: CHROMIUM_ARGS });
-    const context = await browser.newContext({ ...PHONE, baseURL: served.base, ignoreHTTPSErrors: localCertificate(served.base) });
+    const context = await browser.newContext({
+      ...PHONE,
+      baseURL: served.base,
+      ignoreHTTPSErrors: localCertificate(served.base),
+      // A built client's content policy refuses the script a wait on the page compiles (server:csp-reports-to-own-origin); the driver's own waits are let through.
+      bypassCSP: true,
+      ...(kept === undefined ? {} : { storageState: kept as Exclude<BrowserContextOptions["storageState"], string | undefined> }),
+    });
     // Staging is behind Access: the token goes on by route, to staging's origin alone (tools/local/access.ts).
     await withAccess(context, process.env, served.base);
     const page = await context.newPage();
-    const run: Run = { page, options, started, shots: 0, monthsEnded: 0, problems: [], stoppedAtTheCheck: false };
+    const run: Run = { page, options, started, shots: 0, monthsEnded: 0, problems: [], refused: [], stoppedAtTheCheck: false };
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(`page error: ${oneLine(error.message, 200)}`));
     page.on("console", (message) => {
@@ -880,6 +1001,7 @@ async function play(options: PlayOptions, button: string): Promise<number> {
     // A refusal from the game's own routes, with what it said: a 401 to a signed-out visitor is the way in, not a problem.
     page.on("response", (response) => {
       const path = new URL(response.url()).pathname;
+      if (path.startsWith("/api/") && (response.status() === 409 || response.status() >= 500)) run.refused.push({ status: response.status(), path });
       if (response.status() < 403 || !path.startsWith("/api/")) return;
       void response
         .text()
@@ -887,24 +1009,40 @@ async function play(options: PlayOptions, button: string): Promise<number> {
         .then((body) => errors.push(`refused: ${String(response.status())} ${path} ${oneLine(body, 200)}`));
     });
 
-    const reached = (await frontDoor(run, button)) && (await intoTheWorld(run));
-    if (reached) {
+    const atTheDoor = options.stop === "door";
+    const reached = options.resume !== undefined ? await resumeLife(run) : (await frontDoor(run, button)) && (atTheDoor || (await intoTheWorld(run)));
+    if (reached && !atTheDoor) {
       for (let month = 1; month <= options.months; month += 1) {
         // A life that took the road is on its own screen, a list with no world (features/road): its month is waited out there.
         if (await shown(page.locator("[data-road]"))) {
           if (!(await onTheRoad(run, month))) break;
           continue;
         }
+        // Online the brief's card can come over the world after it opened, once the server's view is in: it is passed first.
+        await settle(run, `before month ${String(month)}`);
         await followNudge(run, month);
         if (!(await endMonth(run, month))) break;
       }
-      await phoneApps(run);
-      await shot(run, "the world at the end");
+      if (options.stop === "planned" && run.monthsEnded === options.months) {
+        // --stop planned: the next month's nudge is followed and the bed is left alone, so the month stands planned and not ended.
+        await settle(run, `before month ${String(options.months + 1)}`);
+        await followNudge(run, options.months + 1);
+        log(run, `stopped with month ${String(options.months + 1)} planned and not ended`);
+        await shot(run, "stopped with the month planned");
+      } else {
+        await phoneApps(run);
+        await shot(run, "the world at the end");
+      }
     }
+    await refusedNot(run);
+    if (options.keep !== undefined) await keepStorage(run, context, options.keep, origin);
 
     for (const error of errors) log(run, error);
-    log(run, `done: ${String(run.monthsEnded)} of ${String(options.months)} months ended, ${String(run.shots)} pictures, ${String(run.problems.length)} problems, ${String(errors.length)} browser errors`);
-    if (reached && run.monthsEnded === options.months) return 0;
+    const asked = atTheDoor ? 0 : options.months;
+    log(run, `done: ${String(run.monthsEnded)} of ${String(asked)} months ended, ${String(run.shots)} pictures, ${String(run.problems.length)} problems, ${String(errors.length)} browser errors`);
+    // A resumed life the server refused never passes, whatever else it did.
+    if (run.problems.some((each) => each.startsWith("the server refused"))) return 1;
+    if (reached && run.monthsEnded === asked) return 0;
     // A run that staging's bot check stopped, with nothing else wrong, did what it could.
     return run.stoppedAtTheCheck && run.problems.length === 0 ? 0 : 1;
   } catch (error) {

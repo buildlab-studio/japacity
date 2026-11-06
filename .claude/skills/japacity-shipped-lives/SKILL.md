@@ -53,6 +53,36 @@ Every version below the current one is kept exactly as it shipped, frozen and li
 - The replay test (`packages/sim/src/engine/replay.test.ts`) and the rollback tests (`apps/server/src/ops/rollback.test.ts`) stay green; never loosened.
 - On staging, after the deploy, a tester's existing life loads (one `GET /api/view` answers 200, not 409) before the same deploy goes to production. The Workers Logs for `japacity-server` show no 409 on `/api/view` after a production deploy; if they do, name the account and run the rollback.
 
+## How to rehearse a version raise before the deploy
+
+A raise is rehearsed on the local stack first, and on staging when staging holds lives, with lives played under the version that ships now and carried to the version about to ship. `apps/server/src/authority/carry.test.ts` holds the same path in a unit test, for every version in `olderContents`; the rehearsal runs it on the real Worker, the real database and the built client.
+
+On the local stack:
+
+1. On a checkout of the commit the environment runs, start the stack (`pnpm dev:full`). Give it a database of its own with `LOCAL_DATABASE_URL` in `.env.local` (a database made with `createdb` in the Compose Postgres) so the lives in the rehearsal are the only ones there.
+2. Play the lives a deploy meets, each with `--keep <file>` (a file outside the repository; it holds a signed-in session and is never printed):
+   ```sh
+   pnpm play --url https://localhost:8787 --life nurse --months 2 --keep /tmp/japacity-kept/nurse.json --out /tmp/japacity-play/nurse
+   pnpm play --url https://localhost:8787 --life water --months 2 --keep /tmp/japacity-kept/water.json --out /tmp/japacity-play/water
+   pnpm play --url https://localhost:8787 --life accountant --stop door --keep /tmp/japacity-kept/door.json --out /tmp/japacity-play/door
+   pnpm play --url https://localhost:8787 --life trader --months 1 --stop planned --keep /tmp/japacity-kept/planned.json --out /tmp/japacity-play/planned
+   ```
+   `--stop door` keeps a life made at Begin with its years before unplayed; `--stop planned` keeps one with a month planned and not ended.
+3. Do what the deploy does, in its order: the migration (`pnpm db:migrate:local`), then `pnpm snapshot:all` from the same checkout with `DATABASE_URL_UNPOOLED` set to the local database's string (server:snapshot-before-deploy). Every line reads `snapshotted` or `already`, and the last counts no `diverged` or `failed`.
+4. To meet the race a live deploy has, play one kept life on with `--resume <file> --keep <file> --months 1` after the snapshot and before the switch: its commands are logged after its snapshot under the version that ships now.
+5. Stop the stack, check out the commit about to ship, and start the stack again; the migrations run as they do before a deploy.
+6. Resume every kept life: `pnpm play --url https://localhost:8787 --resume <file> --months 2 --out <folder>`.
+7. Run `pnpm rollback check <character>` for each life, with `DATABASE_URL_UNPOOLED` set as in step 3. The character ids are in the `characters` table, by the account's username, which the driver logs at Begin.
+
+On staging the deploy workflow runs the migration, the snapshot step and the deploy itself, and the rollback check is the maintainer's, on staging's database. The driver reaches staging with `--url https://staging.japacity.app` and the Access service token in `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` (`tools/local/access.ts`), but staging's bot check refuses its browser at Begin, so it makes no life there to keep: before a staging deploy, the lives to carry are the testers' own, and after it each tester's life loads (see How to see it before anyone is hurt). A storage kept from a staging session the driver did not make is resumed the same way, with `--resume`.
+
+What to read after:
+
+- Each resumed run: its first picture, `NN-resumed.png`, shows the life where it was left (the world, or the years before filling for a life stopped at the door); its last line ends every month asked with no problem. A `PROBLEM the server refused the resumed life: 409 on /api/view` is a life that diverged; any other status, or a trouble card, is a load that failed. Either fails the run.
+- Each `rollback check`: its report says `"ok": true`, `"firstDiff": null` and `"dropped": []` for every account. A `firstDiff` names the first version that replays differently; that life is mended with `pnpm rollback apply <character>` before the deploy goes further.
+- The database: each carried life has one more segment, under the new version, opened at its first load after the switch and never again (`segments` by character).
+- Going back to the commit before the raise after a carried life has played under the new version strands that life: the older code does not bundle the newer content, so its load fails and its rollback check answers `no-content`. A deploy is rolled back only to a commit that bundles every version a life's segment names.
+
 ## Before a production deploy, the maintainer checks
 
 1. The migration, if any, is generated after the last and applies on staging first.
