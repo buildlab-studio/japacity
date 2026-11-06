@@ -157,3 +157,22 @@ export function shotName(count: number, label: string): string {
       .replace(/-$/, "") || "shot";
   return `${String(count).padStart(2, "0")}-${slug}.png`;
 }
+
+/** A button on a thing's fan as the driver reads it: the act's id (`data-fan-act`), its kind (`data-fan-kind`) and whether it can be tapped. */
+export interface FanButton {
+  id: string;
+  kind: string;
+  enabled: boolean;
+}
+
+/**
+ * The fan button the driver takes, as a player doing what the nudge says would: the act the nudge's step opens when the fan
+ * carries it open; else the first open act that stages an entry (an activity, a set piece, a chapter's step), so the racks'
+ * Work the racks comes before their Look; else the first open act. Never a Stop, which takes an act out of the month's
+ * plan. Null when nothing but a Stop is open.
+ */
+export function fanChoice(buttons: readonly FanButton[], opens: string | null): string | null {
+  const open = buttons.filter((button) => button.enabled && button.kind !== "stop");
+  if (opens !== null && open.some((button) => button.id === opens)) return opens;
+  return (open.find((button) => button.id.includes(".")) ?? open[0])?.id ?? null;
+}

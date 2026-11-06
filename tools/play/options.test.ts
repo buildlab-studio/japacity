@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { DEFAULT_PORT, doorButton, inside, livesFrom, localCertificate, parseOptions, shotName } from "./options";
+import { DEFAULT_PORT, doorButton, fanChoice, inside, livesFrom, localCertificate, parseOptions, shotName } from "./options";
 
 const ROOT = "/work/japacity";
 const OUTSIDE = "/tmp/plays/one";
@@ -109,5 +109,27 @@ describe("the pictures' names", () => {
     const long = shotName(4, "a ".repeat(80));
     expect(long.length).toBeLessThanOrEqual("04-".length + 48 + ".png".length);
     expect(long).toMatch(/^04-[a-z0-9-]+[a-z0-9]\.png$/);
+  });
+});
+
+describe("the fan button the driver takes", () => {
+  const look = { id: "look", kind: "act", enabled: true };
+  const racks = { id: "activity.job-fish-racks", kind: "act", enabled: true };
+
+  test("given the racks' Look before their Work the racks and no act named by the nudge, when the driver chooses, then it takes the work, the act that stages an entry", () => {
+    expect(fanChoice([look, racks], null)).toBe("activity.job-fish-racks");
+  });
+
+  test("given the act the nudge's step opens on the fan and open, when the driver chooses, then it takes that act", () => {
+    expect(fanChoice([racks, { id: "activity.job-hunt", kind: "now", enabled: true }], "activity.job-hunt")).toBe("activity.job-hunt");
+    expect(fanChoice([look, { id: "activity.job-hunt", kind: "now", enabled: false }], "activity.job-hunt")).toBe("look");
+  });
+
+  test("given the nurse's exam carrying on in the plan, shut, with its Stop beside it, when the driver chooses, then it takes nothing: a Stop is never taken", () => {
+    expect(fanChoice([{ id: "activity.nurse-certification", kind: "act", enabled: false }, { id: "activity.nurse-certification:stop", kind: "stop", enabled: true }], null)).toBeNull();
+  });
+
+  test("given only plain acts, when the driver chooses, then it takes the first open one", () => {
+    expect(fanChoice([{ id: "sit", kind: "act", enabled: false }, look], null)).toBe("look");
   });
 });

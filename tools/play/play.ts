@@ -13,7 +13,7 @@ import { text } from "@japacity/content";
 import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
 
 import { accessHeaders, withAccess } from "../local/access";
-import { doorButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
+import { doorButton, fanChoice, type FanButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
 import { REPO_ROOT } from "../repo";
 
 /** A mid-range phone, the size the game is built for and the browser tests use. */
@@ -504,6 +504,12 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await page.waitForTimeout(1_200);
       const toast = page.locator("[data-speech], [data-corner] [data-told]:last-child");
       if (await shown(toast)) log(run, `toast: ${await words(toast)}`);
+      // An act done at once answers with its toast under the band (world:things-are-tappable-models): read and pictured.
+      const actToast = page.locator("[data-act-toast]");
+      if (await shown(actToast)) {
+        log(run, `act toast: ${await words(actToast)}`);
+        await shot(run, `month ${String(month)} act toast`);
+      }
       // A sheet whose act is done closes or changes (to the next ask, or a card saying what happened);
       // one that stays as it was has nothing more to do here.
       if ((await shown(page.locator(OPEN_SHEET))) && (await words(page.locator(OPEN_SHEET), 400)) === before) break;
@@ -518,20 +524,23 @@ async function followNudge(run: Run, month: number): Promise<void> {
     }
     // The fan's buttons stay round the thing while its sheet is open, so they come after the sheet.
     const act = page.locator(fan);
-    // An act that carries on in the plan is a shut Ongoing button (world:month-acts-carry-on): only an open act can be tapped.
-    const open = page.locator(`${fan.replaceAll(" button", " button:enabled")}`);
-    if ((await shown(act)) && !(await shown(open))) {
-      log(run, `the fan's acts: ${(await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ")}; all shut, nothing to tap`);
-      break;
-    }
     if (await shown(act)) {
       const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
-      // The act the nudge's step opens, when the fan carries it and it is open; else the fan's first open button.
+      // An act that carries on in the plan is a refused Ongoing button with a Stop beside it (world:month-acts-carry-on), and a refused
+      // button (spent, short, locked) only shakes: only an open act is taken, never the Stop. The act the nudge's step opens comes first, then one that stages an entry, then any (fanChoice).
+      const buttons = JSON.parse(
+        String(await page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-fan] [data-fan-act], [data-fan-sheet] [data-fan-act]")].map((item) => ({ id: item.getAttribute("data-fan-act") ?? "", kind: item.getAttribute("data-fan-kind") ?? "", enabled: !item.hasAttribute("data-fan-refused") && item.querySelector("button:enabled") !== null })))`)),
+      ) as FanButton[];
       const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens", { timeout: 1_000 }).catch(() => null);
-      const named = opens === null ? null : page.locator(`[data-fan-act="${opens}"] button:enabled`);
-      const chosen = named !== null && (await shown(named)) ? named : open;
-      log(run, `the fan's acts: ${names}; the nudge opens ${opens ?? "nothing named"}; tapping ${chosen === open ? "the first" : "the step's own"}`);
-      await tap(run, chosen, "the act");
+      const chosen = fanChoice(buttons, opens);
+      if (chosen === null) {
+        log(run, `the fan's acts: ${names}; all shut, nothing to tap`);
+        break;
+      }
+      log(run, `the fan's acts: ${names}; the nudge opens ${opens ?? "nothing named"}; tapping ${chosen}`);
+      await tap(run, page.locator(`[data-fan] [data-fan-act="${chosen}"] button, [data-fan-sheet] [data-fan-act="${chosen}"] button`), "the act");
+      // A plain act (a look, a seat) stages nothing and opens no sheet: the step goes no further here this month.
+      if (!chosen.includes(".")) break;
       // The character walks to the thing before its sheet opens (world:things-are-tappable-models).
       await appear(page.locator(OPEN_SHEET), SHORT);
       continue;
@@ -601,7 +610,7 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
   if ((await beds.count()) === 0 && !(await shown(page.locator(BED_END)))) await rideHome(run, month);
   const house = page.locator('[data-mark="house"]');
   if (!(await shown(page.locator(BED_END))) && (await shown(house))) {
-    await house.first().click({ timeout: SHORT, force: true }).catch(() => undefined);
+    await tapMark(run, "house");
     await page.waitForTimeout(600);
     if (await tap(run, page.locator('[data-fan-act="enter"] button'), "Go in")) await page.waitForTimeout(1_500);
   }
@@ -615,8 +624,9 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
     for (const bed of BEDS) {
       const mark = page.locator(`[data-mark="${bed}"]`);
       if (!(await shown(mark))) continue;
-      // A mark the nudge pulses never holds still for the stability check; the tap lands all the same.
-      await mark.first().click({ timeout: SHORT, force: true }).catch(() => undefined);
+      // The mark's own button is tapped, never the point under it: from some angles a room's mark sits under the cooking corner's
+      // or a marker's pill, and a tap at the point would open that instead. A pulsing mark never holds still for a pointer either.
+      await tapMark(run, bed);
       log(run, `tapped the ${bed}`);
       await appear(page.locator(BED_END), 4_000);
       break;
@@ -633,6 +643,11 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
   log(run, `month ${String(month)}: the bed's month end tapped`);
   // Tapped once only: a month end on its way that the band has not shown yet is still an end, never a second tap.
   return true;
+}
+
+/** Taps a thing's mark by its own button, wherever another mark or a pill stands over it on screen. */
+async function tapMark(run: Run, thing: string): Promise<void> {
+  await run.page.evaluate(`document.querySelector('[data-mark="${thing}"]')?.click()`).catch(() => undefined);
 }
 
 /** Home by the map: the Map thumb, the home stop's own button (as the browser tests pick a stop), the ride. */
