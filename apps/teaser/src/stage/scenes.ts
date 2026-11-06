@@ -1,7 +1,6 @@
 // The stageshow teaser's scenes, each a stage of its own that the page mounts by name.
 import type { ComponentType } from "react";
 
-import "./kit/stageshow.css";
 import "./look.css";
 
 import type { Shape } from "./host";

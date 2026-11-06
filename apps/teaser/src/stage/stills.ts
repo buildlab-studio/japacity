@@ -8,6 +8,6 @@ export interface StageStill {
 }
 
 export const STAGE_STILLS: readonly StageStill[] = [
-  { name: "landscape-end", id: "Stageshow", frame: 0 },
-  { name: "portrait-open", id: "StageshowPortrait", frame: 20 },
+  { name: "landscape-end", id: "Stageshow", frame: 852 },
+  { name: "portrait-open", id: "StageshowPortrait", frame: 75 },
 ];

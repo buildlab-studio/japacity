@@ -2,7 +2,7 @@
 // game's stores: the picture cut as a sticker, the sticker chip, a person's name pill, the band, the brief's chip and
 // toast, the thumbs, the yellow action, the handset with an app's head, and the savings bar. The words come from
 // words.ts; the looks from look.css.
-import { ArrowRight, ChevronLeft, CloudSun, Eye, Maximize2, Plane, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, Eye, Maximize2, Plane, X } from "lucide-react";
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 
 import { PLAYER, W } from "./words";
@@ -61,9 +61,7 @@ export function Face({ name, size = 14 }: { name: string; size?: number }) {
 export function Band({ age, place, money }: { age: string; place: string; money: ReactNode }) {
   return (
     <div className="band-pill">
-      <span className="band-sky" aria-hidden>
-        <CloudSun size={18} strokeWidth={2.4} />
-      </span>
+      <span className="band-sky drawn-pic" data-pic="🌤️" aria-hidden />
       <div className="band-person">
         <div>
           <span className="band-name">{PLAYER}</span> <span className="band-part">{W.morning}</span>
@@ -130,7 +128,7 @@ export function MainButton({ act, then, target }: { act: string; then?: string; 
       <span>{act}</span>
       {then === undefined ? null : (
         <span className="btn-main-then">
-          {then} <ArrowRight size={18} strokeWidth={2.2} aria-hidden />
+          {then} <ArrowRight size={16} strokeWidth={2.4} aria-hidden />
         </span>
       )}
     </span>
@@ -184,7 +182,7 @@ export function SheetClose() {
 /** The look on an ask that may be a scam: free, and it finds every sign the ask carries. */
 export function LookCloser({ target }: { target: string }) {
   return (
-    <span className="sticker-chip tint-plain" style={{ rotate: "-1deg", fontSize: 14, padding: "5px 11px" }} data-target={target}>
+    <span className="sticker-chip tint-plain" style={{ rotate: "-1deg", fontSize: 14, padding: "7px 9px" }} data-target={target}>
       <Eye size={16} strokeWidth={2.4} aria-hidden />
       {W.look}
     </span>

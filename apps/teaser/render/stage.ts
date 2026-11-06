@@ -9,7 +9,7 @@
 //   --stills <dir>  builds it, then renders the landscape's end card and the portrait's opening as PNG files into dir
 // With no flag it only builds. TEASER_BROWSER names a Chromium headless shell to render with, as for pnpm teaser:render.
 import { mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { BundlerInternals, bundle } from "@remotion/bundler";
@@ -37,6 +37,7 @@ const INDEX = `<!doctype html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Japacity stage</title>
+    <link rel="stylesheet" href="./kit/stageshow.css" />
     <link rel="stylesheet" href="./main.css" />
   </head>
   <body>
@@ -46,8 +47,25 @@ const INDEX = `<!doctype html>
 </html>
 `;
 
+const KIT_STYLES = join(PACKAGE, "src", "stage", "kit", "stageshow.css");
+
+type Plugin = NonNullable<NonNullable<Parameters<typeof BundlerInternals.esbuild.build>[0]>["plugins"]>[number];
+
+/**
+ * The kit's styles in a sheet of their own (dist/kit/stageshow.css), as the kit ships them, rather than in the page's:
+ * each kit part's own import of its CSS is left out of the page's bundle, and the kit's sheet loads every part's at once.
+ */
+const kitStylesApart: Plugin = {
+  name: "kit-styles-apart",
+  setup(build) {
+    build.onResolve({ filter: /\.css$/ }, (args) => (args.kind === "import-statement" && args.resolveDir.includes(`${sep}stage${sep}kit`) ? { path: args.path, namespace: "kit-style" } : undefined));
+    build.onLoad({ filter: /.*/, namespace: "kit-style" }, () => ({ contents: "", loader: "css" }));
+  },
+};
+
 const OPTIONS = {
-  entryPoints: [ENTRY],
+  entryPoints: { main: ENTRY, "kit/stageshow": KIT_STYLES },
+  plugins: [kitStylesApart],
   outdir: PAGE_OUT,
   bundle: true,
   format: "esm",

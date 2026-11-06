@@ -3,7 +3,7 @@
 // closer finds the other.
 import { ChevronRight } from "lucide-react";
 
-import { Count, Stage, type Act } from "../kit";
+import { Count, Meter, Stage, type Act } from "../kit";
 import { Column, FRAME, Host, SCREEN, type Shape, World } from "../host";
 import { Band, DrawnPic, Face, faceMark, LookCloser, MainButton, SheetClose, Sticker, StickerChip } from "../parts";
 import { now, tapAt, until } from "../timeline";
@@ -46,9 +46,7 @@ function Results({ s }: { s: S }) {
             <Count value={s.saved} format={pounds} duration={900} /> of {pounds(SAVED.required)}
           </span>
         </div>
-        <div className="save-bar">
-          <span style={{ transform: `scaleX(${String(s.saved / SAVED.required)})` }} />
-        </div>
+        <Meter value={s.saved / SAVED.required} tone="ink" className="save-meter" />
       </section>
       <section style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-2)" }}>{W.asked}</div>
@@ -60,7 +58,7 @@ function Results({ s }: { s: S }) {
             <span style={{ display: "block", fontSize: 13, lineHeight: 1.3, fontWeight: 700, color: "var(--text-2)" }}>{W.firm}</span>
             <span style={{ display: "block", fontSize: 15, lineHeight: 1.3, fontWeight: 700 }}>{W.sponsor}</span>
           </span>
-          <ChevronRight size={18} strokeWidth={2.4} style={{ flex: "none", color: "var(--text-2)" }} aria-hidden />
+          <ChevronRight size={16} strokeWidth={2.4} style={{ flex: "none", color: "var(--text-2)" }} aria-hidden />
         </span>
       </section>
       <MainButton act={W.back} />
@@ -73,8 +71,10 @@ function Ask({ s }: { s: S }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-2)" }}>{W.where}</div>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <span className="ask-mark" style={{ background: "#6b7a90" }} aria-hidden>
-          ?
+        <span style={{ position: "relative", display: "flex", flex: "none" }}>
+          <span className="ask-mark" style={{ background: "#6b7a90" }} aria-hidden>
+            ?
+          </span>
           <span className="sticker-cut" style={{ position: "absolute", right: -8, bottom: -4, rotate: "8deg" }}>
             <DrawnPic pic="💸" size={26} />
           </span>
@@ -85,18 +85,20 @@ function Ask({ s }: { s: S }) {
         </span>
       </div>
       <p style={{ margin: 0, fontSize: 16, lineHeight: 1.35 }}>{W.offer}</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <StickerChip tilt={-2}>{W.answer}</StickerChip>
-        <StickerChip className="tint-soft" tilt={2}>
-          <span aria-hidden>👀</span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
+        <StickerChip tilt={-2} style={{ padding: "5px 8px" }}>
+          {W.answer}
+        </StickerChip>
+        <StickerChip className="tint-soft" tilt={2} style={{ padding: "5px 8px" }}>
+          <DrawnPic pic="👀" size={14} />
           {W.signVideo}
         </StickerChip>
-        <span style={{ position: "relative", display: "inline-flex" }}>
-          <span className="arrive" style={{ display: "inline-flex" }} {...(s.looked ? { "data-out": "" } : {})}>
+        <span style={{ display: "grid", justifyItems: "start" }}>
+          <span className="arrive" style={{ gridArea: "1 / 1", display: "inline-flex" }} {...(s.looked ? { "data-out": "" } : {})}>
             <LookCloser target="look" />
           </span>
-          <StickerChip className="tint-soft arrive" tilt={-1} style={{ position: "absolute", left: 0, top: 0 }} {...(s.looked ? {} : { "data-out": "" })}>
-            <span aria-hidden>👀</span>
+          <StickerChip className="tint-soft arrive" tilt={-1} style={{ gridArea: "1 / 1", padding: "5px 8px" }} {...(s.looked ? {} : { "data-out": "" })}>
+            <DrawnPic pic="👀" size={14} />
             {W.signChat}
           </StickerChip>
         </span>

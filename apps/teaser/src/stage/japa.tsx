@@ -4,16 +4,22 @@
 import { Briefcase, CalendarDays, ChevronRight, FolderOpen, Landmark, MessageCircle, Newspaper, Plane, Receipt, Settings, ShoppingBag, Ticket, type LucideIcon } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
-import { DrawnPic, Sticker, StickerChip } from "./parts";
+import { Meter } from "./kit";
+import { Sticker, StickerChip } from "./parts";
 import { W } from "./words";
 
-/** A picture on its soft tile, as the phone's cards carry one. */
-export function PicTile({ size, children }: { size: number; children: ReactNode }) {
+/** A model's picture on its soft tile, as the phone's cards carry one, the picture filling the tile. */
+export function PicTile({ size, tile }: { size: number; tile: string }) {
   return (
     <span className="phone-pic tint-study" style={{ width: size, height: size }}>
-      {children}
+      <Sticker tile={tile} size={size - 4} />
     </span>
   );
+}
+
+/** A stand-in picture on its soft tile, drawn from the tile's own attribute so the tile is the picture. */
+export function PicStandIn({ size, pic }: { size: number; pic: string }) {
+  return <span className="phone-pic tint-study drawn-pic" data-pic={pic} style={{ width: size, height: size, fontSize: Math.round(size * 0.6) }} aria-hidden />;
 }
 
 /** The head of the app: the plan's route in its own words, with how ready you are to go. */
@@ -21,16 +27,12 @@ export function PlanCard({ ready }: { ready: number }) {
   return (
     <div className="look-card" style={{ display: "flex", flexDirection: "column", gap: 10, padding: 14 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <PicTile size={56}>
-          <Sticker tile="building_rye-lane-terrace_a" size={44} tilt={-5} />
-        </PicTile>
+        <PicTile size={56} tile="building_rye-lane-terrace_a" />
         <span style={{ fontSize: 20, lineHeight: 1.15, fontWeight: 700 }}>{W.plan}</span>
       </div>
       <div>
         <div style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 6 }}>{W.ready}</div>
-        <span className="phone-meter">
-          <span style={{ width: `${String(ready * 100)}%` }} />
-        </span>
+        <Meter value={ready} tone="success" className="phone-meter" />
       </div>
     </div>
   );
@@ -40,9 +42,7 @@ export function PlanCard({ ready }: { ready: number }) {
 export function OfficialCard({ target }: { target: string }) {
   return (
     <div className="look-card" data-target={target} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12 }}>
-      <PicTile size={48}>
-        <DrawnPic pic="🧭" size={30} />
-      </PicTile>
+      <PicStandIn size={48} pic="🧭" />
       <span style={{ minWidth: 0, flex: 1 }}>
         <span style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 16, fontWeight: 700 }}>{W.official}</span>
@@ -52,7 +52,7 @@ export function OfficialCard({ target }: { target: string }) {
         </span>
         <span style={{ display: "block", marginTop: 2, fontSize: 14, lineHeight: 1.3, color: "var(--text-2)" }}>{W.officialLine}</span>
       </span>
-      <ChevronRight size={18} strokeWidth={2.4} style={{ flex: "none", color: "var(--text-2)" }} aria-hidden />
+      <ChevronRight size={16} strokeWidth={2.4} style={{ flex: "none", color: "var(--text-2)" }} aria-hidden />
     </div>
   );
 }
@@ -66,9 +66,7 @@ export function Head({ children }: { children: ReactNode }) {
 export function WayCard({ tile, name, state, compact = false, style }: { tile: string; name: string; state: string; compact?: boolean; style?: CSSProperties }) {
   return (
     <div className="look-card" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: compact ? 6 : 8, padding: compact ? 8 : 10, ...style }}>
-      <PicTile size={compact ? 44 : 52}>
-        <Sticker tile={tile} size={compact ? 34 : 40} tilt={-5} />
-      </PicTile>
+      <PicTile size={compact ? 44 : 52} tile={tile} />
       <span style={{ fontSize: 15, lineHeight: 1.2, fontWeight: 700 }}>{name}</span>
       <StickerChip className="tint-study" tilt={-1.5}>
         {state}

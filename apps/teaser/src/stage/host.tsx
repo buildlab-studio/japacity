@@ -12,9 +12,13 @@ export type Shape = "wide" | "tall";
 export const FRAME = { wide: { width: 1280, height: 720 }, tall: { width: 540, height: 960 } } as const;
 
 /** The browser window in the wide frame, a gutter from every edge, and its address bar's height. */
-const WINDOW = { inset: 24, bar: 38 } as const;
+const WINDOW = { inset: 20, bar: 38 } as const;
 /** The phone in the tall frame, centred, and its screen in true points. */
-const PHONE = { width: 420, screen: { width: 402, height: 874 }, safe: 59 } as const;
+/**
+ * The phone in the tall frame: as wide as lets its screen stand whole while the foot of its frame runs past the stage's
+ * bottom, a gutter above it and the same on each side of the stage's centre.
+ */
+const PHONE = { width: 452, top: 24, screen: { width: 402, height: 874 }, safe: 59 } as const;
 
 /** The game's screen in each frame: its size in the frame's points, the column's width and the room the system takes at the top. */
 export const SCREEN = {
@@ -41,7 +45,7 @@ export function Host({ shape, children }: { shape: Shape; children: ReactNode })
   }
   const left = (FRAME.tall.width - PHONE.width) / 2;
   return (
-    <Phone width={PHONE.width} className="jc-phone" style={{ left, top: 0, bottom: 0, margin: "auto 0" }}>
+    <Phone width={PHONE.width} className="jc-phone" style={{ left, top: PHONE.top }}>
       <div className="jc-screen">{children}</div>
     </Phone>
   );
