@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { DEFAULT_PORT, doorButton, fanChoice, inside, keptSummary, livesFrom, localCertificate, parseOptions, readKept, shotName } from "./options";
+import { DEFAULT_PORT, doorButton, fanChoice, inside, keptSummary, livesFrom, localCertificate, parseOptions, playUsername, readKept, shotName } from "./options";
 
 const ROOT = "/work/japacity";
 const OUTSIDE = "/tmp/plays/one";
@@ -191,5 +191,15 @@ describe("a life kept and resumed", () => {
     expect(summary).toBe("1 cookies, 2 local storage keys for https://localhost:8787");
     for (const secret of ["session_token", "sekret", "japacity.month"]) expect(summary).not.toContain(secret);
     expect(keptSummary(kept, "https://staging.japacity.app")).toBe("1 cookies, 0 local storage keys for https://staging.japacity.app");
+  });
+});
+
+describe("the username typed online", () => {
+  test("given a life and a moment, when the username is made, then it is the life's letters and the moment, letters, digits and underscores, from 3 to 20", () => {
+    const moment = Date.UTC(2030, 0, 1);
+    expect(playUsername(moment, "developer")).toBe(`developer_${moment.toString(36)}`);
+    for (const life of ["shop-worker", "water", "a", "x".repeat(40), "---"]) expect(playUsername(moment, life)).toMatch(/^[A-Za-z0-9_]{3,20}$/);
+    expect(playUsername(moment, "shop-worker")).toMatch(/^shopworker_/);
+    expect(playUsername(moment + 1, "nurse")).not.toBe(playUsername(moment, "nurse"));
   });
 });

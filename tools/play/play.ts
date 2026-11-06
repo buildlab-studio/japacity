@@ -14,7 +14,7 @@ import { text } from "@japacity/content";
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type Locator, type Page } from "@playwright/test";
 
 import { accessHeaders, withAccess } from "../local/access";
-import { doorButton, fanChoice, type FanButton, type KeptStorage, keptSummary, livesFrom, localCertificate, parseOptions, type PlayOptions, readKept, shotName, USAGE } from "./options";
+import { doorButton, fanChoice, type FanButton, type KeptStorage, keptSummary, livesFrom, localCertificate, parseOptions, type PlayOptions, playUsername, readKept, shotName, USAGE } from "./options";
 import { REPO_ROOT } from "../repo";
 
 /** A mid-range phone, the size the game is built for and the browser tests use. */
@@ -175,6 +175,14 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
     problem(run, "where you live never came");
     return false;
+  }
+  // Online, a new guest types a username on Where you live (account:username-typed-and-checked); Begin waits for one that is free.
+  const username = page.getByLabel("Username");
+  if ((await shown(username)) && (await username.first().inputValue().catch(() => "")) === "") {
+    const typed = playUsername(Date.now(), options.life);
+    await username.first().fill(typed);
+    log(run, `username typed: ${typed}`);
+    await page.waitForTimeout(1_500);
   }
   await shot(run, options.ready ? "your page" : "where you live");
   // --stop door: the life is made and its years before are held back, as when the tab closes between the two (server:server-plays-prologue-preset).
@@ -787,7 +795,8 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
 
   // Staged moments and cards come before the results; each is read and passed.
   const results = page.locator("[data-world-sheet='results']");
-  for (let step = 0; step < 40 && !(await shown(results)); step += 1) {
+  // A built client (the local stack, staging) sleeps its full 36 seconds, with no `?sleep=` (world:sleep-ends-the-month): the results are waited on for a minute.
+  for (let step = 0; step < 120 && !(await shown(results)); step += 1) {
     const moment = page.locator("[data-moment]");
     if (await shown(moment)) {
       log(run, `moment: ${await words(moment)}`);
@@ -964,6 +973,8 @@ async function play(options: PlayOptions, button: string): Promise<number> {
       ...PHONE,
       baseURL: served.base,
       ignoreHTTPSErrors: localCertificate(served.base),
+      // A built client's content policy refuses the script a wait on the page compiles (server:csp-reports-to-own-origin); the driver's own waits are let through.
+      bypassCSP: true,
       ...(kept === undefined ? {} : { storageState: kept as Exclude<BrowserContextOptions["storageState"], string | undefined> }),
     });
     // Staging is behind Access: the token goes on by route, to staging's origin alone (tools/local/access.ts).
@@ -996,11 +1007,14 @@ async function play(options: PlayOptions, button: string): Promise<number> {
           if (!(await onTheRoad(run, month))) break;
           continue;
         }
+        // Online the brief's card can come over the world after it opened, once the server's view is in: it is passed first.
+        await settle(run, `before month ${String(month)}`);
         await followNudge(run, month);
         if (!(await endMonth(run, month))) break;
       }
       if (options.stop === "planned" && run.monthsEnded === options.months) {
         // --stop planned: the next month's nudge is followed and the bed is left alone, so the month stands planned and not ended.
+        await settle(run, `before month ${String(options.months + 1)}`);
         await followNudge(run, options.months + 1);
         log(run, `stopped with month ${String(options.months + 1)} planned and not ended`);
         await shot(run, "stopped with the month planned");

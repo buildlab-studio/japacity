@@ -247,3 +247,14 @@ export function fanChoice(buttons: readonly FanButton[], opens: string | null): 
   if (opens !== null && open.some((button) => button.id === opens)) return opens;
   return (open.find((button) => button.id.includes(".")) ?? open[0])?.id ?? null;
 }
+
+/**
+ * The username the driver types on Where you live online (account:username-typed-and-checked): the life's letters and the
+ * moment in base 36, so each run's account is new and can be told apart in the database. Letters, digits and underscores,
+ * at most 20, as the username rule asks.
+ */
+export function playUsername(now: number, life: string): string {
+  const stamp = now.toString(36);
+  const letters = life.replace(/[^a-z0-9]/g, "").slice(0, 20 - stamp.length - 1);
+  return `${letters === "" ? "play" : letters}_${stamp}`;
+}
