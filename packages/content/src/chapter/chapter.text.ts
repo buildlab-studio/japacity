@@ -398,13 +398,4 @@ export const chapterText: Record<string, string> = {
   "chapter.brief.toast.more": "One don enter. {left} more to go.",
   "chapter.brief.toast.last": "Good. One more and we move.",
   "chapter.brief.toast.all": "All of it is in. Well done.",
-  "chapter.brief.count.2": "Two",
-  "chapter.brief.count.3": "Three",
-  "chapter.brief.count.4": "Four",
-  "chapter.brief.count.5": "Five",
-  "chapter.brief.count.6": "Six",
-  "chapter.brief.count.7": "Seven",
-  "chapter.brief.count.8": "Eight",
-  "chapter.brief.count.9": "Nine",
-  "chapter.brief.count.10": "Ten",
 };

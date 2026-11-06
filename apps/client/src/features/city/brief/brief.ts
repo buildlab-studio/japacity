@@ -9,6 +9,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { TILE_TABLE } from "../../../shared/tiles/tiles.data";
 import { briefBefore } from "../../../shared/world/briefHanded";
 import { nextStepOf, ownWayOf, racksAtHand } from "../../../shared/words/sixteen";
+import { countWords } from "../../../shared/words/count";
 import { hasWords, nameOf, say } from "../../../shared/words/text";
 import { placeName } from "../city.words";
 import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
@@ -215,10 +216,6 @@ export function briefDots(items: readonly Pick<BriefItem, "met" | "now">[]): ("d
   return items.map((item) => (item.met ? "done" : item.now ? "now" : "later"));
 }
 
-/** Count words up to ten for the giver's toast; past ten, the figure. */
-function countWords(count: number): string {
-  return hasWords(`chapter.brief.count.${String(count)}`) ? say(`chapter.brief.count.${String(count)}`) : String(count);
-}
 
 /** The giver's toast when a thing comes in: how many are left, in their voice; the last says so. */
 export function doneToast(left: number): string {
