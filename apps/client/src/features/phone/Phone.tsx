@@ -282,7 +282,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                       <h2 className="shrink-0 text-[24px] leading-tight font-bold">{app.name}</h2>
                       {/* What is there now (world:phone-rises-over-scene): a label, a soft fill with no edge, so it never reads as a button. */}
                       {app.context === undefined || app.context === null ? null : (
-                        <span className="inline-flex max-w-full items-center rounded-full bg-sheet-muted px-2.5 py-0.5 text-[13px] font-bold whitespace-nowrap text-text-2" data-app-context>
+                        <span className="inline-flex max-w-full items-center rounded-[8px] bg-sheet-muted px-2 py-0.5 text-[13px] font-bold whitespace-nowrap text-text-2" data-app-context>
                           <span className="truncate">{app.context}</span>
                         </span>
                       )}
