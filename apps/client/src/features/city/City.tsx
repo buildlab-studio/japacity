@@ -84,7 +84,7 @@ import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
 import { Fan } from "./fan/Fan";
 import { GO_HOME, goHomeAsk, goHomeOffered } from "./acts/goHome";
-import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, nextBase, briefTitle } from "./brief/brief";
+import { type Brief, briefOf, DONE_TOAST_MS, doneToast, itemsDone, markerAllowed, metBefore, nextBase, briefTitle } from "./brief/brief";
 import { ChapterClose, MissionCard } from "./brief/BriefCards";
 import { BriefChip, Marker } from "./brief/BriefChip";
 import { briefHanded, handBrief } from "../../shared/world/briefHanded";
@@ -215,10 +215,10 @@ function briefLine(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" |
 }
 
 /** A closed chapter as its brief, every thing in, for the close's card (section 4). */
-function closedBrief(chapter: string, view: Pick<PlayerView, "chapter">): Brief | null {
+function closedBrief(chapter: string, view: Pick<PlayerView, "chapter" | "scenario" | "month">): Brief | null {
   const entry = content.chapter[chapter as Id<"chapter">];
   if (entry === undefined) return null;
-  return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "");
+  return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "", metBefore(view, chapter));
 }
 
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (world:entering-is-a-cut). */
@@ -1681,7 +1681,7 @@ export function City({
   }, [money]);
   // The road in the world, only in the moment (docs/design/09-the-games-look.md section 4). The brief of the chapter the life
   // is in; the chip for a moment after its card is handed; a done thing's toast; the close's card once a chapter closes.
-  const brief = useMemo(() => (world ? briefOf(view, briefLine(view)) : null), [world, view]);
+  const brief = useMemo(() => (world ? briefOf(view, briefLine(view), metBefore(view, view.chapter.current)) : null), [world, view]);
   const [handed, setHanded] = useState<string | null>(null);
   const [toast, setToast] = useState<{ words: string; at: number } | null>(null);
   const chapterBefore = useRef<PlayerView["chapter"] | null>(world ? view.chapter : null);
@@ -1726,7 +1726,7 @@ export function City({
   /** Hands the brief of the chapter the life is in: the Japa app takes a dot and the chip stands, then tucks into the phone. */
   const handOver = (chapter: string | null): void => {
     if (chapter === null || briefHanded(view.scenario, chapter)) return;
-    handBrief(view.scenario, chapter);
+    handBrief(view.scenario, chapter, metBefore(view, chapter));
     setHanded(chapter);
   };
   // At the step's place, or beside its person, the chip comes back with its dots and the marker stands on the thing to do;

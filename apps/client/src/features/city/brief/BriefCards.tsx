@@ -2,6 +2,7 @@
 // brief handed by its person in their voice, the things as
 // sticker tiles with the place under each, the reward as picture chips, the next brief faint, one button "Let's go"; and
 // at the close the same card with every tick, the stamp landing with a thud, confetti, and the next briefs as picture cards.
+import { Check } from "lucide-react";
 import { useEffect } from "react";
 
 import { cue } from "../../../shared/sound/cues";
@@ -24,16 +25,29 @@ function Giver({ brief }: { brief: Brief }) {
   );
 }
 
-/** One thing of the brief as a sticker tile: its picture, its words, the place under it, a tick once it is in. */
+/**
+ * One thing of the brief as a sticker tile, one look for each state (chapter:first-chapter-mission-card): a thing done recedes, its
+ * picture and words faded but readable, a tick and "Done" where its place stood, or where it happened when the years before met it;
+ * the thing to do now stands out, filled and ringed; a thing to come is plain. A tick is never a badge in the tile's corner.
+ */
 function ItemTile({ item, index }: { item: BriefItem; index: number }) {
+  const state = item.met ? "done" : item.now ? "now" : "later";
   return (
-    <li className={`brief-step relative flex flex-col items-center gap-1 rounded-[16px] px-1.5 pt-2.5 pb-2 text-center ${item.now ? "brief-step-now" : ""}`} data-brief-item={item.id} data-met={item.met} data-now={item.now}>
-      <span className="sticker-cut wobble-in" style={{ rotate: `${String(index % 2 === 0 ? -5 : 4)}deg`, animationDelay: `${String(120 + index * 60)}ms` }}>
+    <li className={`brief-step relative flex flex-col items-center gap-1 rounded-[16px] px-1.5 pt-2.5 pb-2 text-center brief-step-${state}`} data-brief-item={item.id} data-met={item.met} data-now={item.now} data-state={state} {...(item.before ? { "data-before": "" } : {})}>
+      <span className="brief-step-picture sticker-cut wobble-in" style={{ rotate: `${String(index % 2 === 0 ? -5 : 4)}deg`, animationDelay: `${String(120 + index * 60)}ms` }}>
         <Tile of={item.picture} size={40} />
       </span>
-      <span className="text-[14px] leading-tight font-bold">{item.words}</span>
+      <span className={`text-[14px] leading-tight font-bold ${item.met ? "text-text-2" : ""}`}>{item.words}</span>
       <span className="text-[12px] leading-tight text-text-2">
-        {item.now ? (
+        {item.met ? (
+          <span className="inline-flex items-center gap-1" data-brief-tick>
+            {/* The tick's word is "Done"; a thing the years before met says where it happened beside the tick instead. */}
+            <span className="brief-tick-mark pop inline-flex" {...(item.before ? { role: "img", "aria-label": say("ui.brief.done") } : { "aria-hidden": true })}>
+              <Check size={13} strokeWidth={3} aria-hidden />
+            </span>
+            {item.before ? item.place : say("ui.brief.done")}
+          </span>
+        ) : item.now ? (
           <>
             <b className="text-[var(--soft-ink)]">{say("ui.brief.now")}</b> · {item.place}
           </>
@@ -41,11 +55,6 @@ function ItemTile({ item, index }: { item: BriefItem; index: number }) {
           item.place
         )}
       </span>
-      {item.met ? (
-        <span className="brief-tick pop absolute -top-1.5 -right-1 flex size-6 items-center justify-center text-[14px] font-bold text-white" aria-label={say("ui.brief.done")} data-brief-tick>
-          ✓
-        </span>
-      ) : null}
     </li>
   );
 }

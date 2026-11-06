@@ -641,6 +641,8 @@ export const uiText: Record<string, string> = {
   "ui.page.year.service.redeploy": "Redeployed",
   "ui.page.year.service.skip": "No certificate",
   "ui.page.year.master": "Under a master",
+  "ui.page.year.send-off": "A send-off",
+  "ui.page.year.heard": "Heard of {way}",
   "ui.page.year.left": "Left early",
   "ui.page.year.settlement": "Settlement",
   "ui.page.year.settlement.generous": "Capital and a plot",
