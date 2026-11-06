@@ -100,7 +100,7 @@ import { uiSceneText } from "./ui/ui.scene.text";
 import { uiSoundText } from "./ui/ui.sound.text";
 import { uiTurnText } from "./ui/ui.turn.text";
 import { frozenContent } from "./older/frozen";
-import content1 from "./older/1/content.json";
+import content1 from "./older/1/content.json" with { type: "json" };
 
 export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about.data";
 export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/about.light";

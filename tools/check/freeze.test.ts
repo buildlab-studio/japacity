@@ -33,7 +33,7 @@ const folders: string[] = [];
 function unfrozenIndex(): string {
   return read(join(REPO_ROOT, CONTENT_SOURCE, "index.ts"))
     .split("\n")
-    .filter((line) => !/^import content\d+ from "\.\/older\/\d+\/content\.json";$/.test(line) && line !== 'import { frozenContent } from "./older/frozen";')
+    .filter((line) => !/^import content\d+ from "\.\/older\/\d+\/content\.json" with \{ type: "json" \};$/.test(line) && line !== 'import { frozenContent } from "./older/frozen";')
     .join("\n")
     .replace(/export const olderContents: readonly Content\[\] = \[[^\]]*\];/, "export const olderContents: readonly Content[] = [];");
 }
@@ -88,7 +88,7 @@ describe("pnpm content:freeze", () => {
     expect(seal).toMatchObject({ version: "1", fingerprint: contentFingerprint(DATA) });
     expect(seal.fingerprint).not.toBe(SEALED.fingerprint);
     const index = read(join(dir, "index.ts"));
-    expect(index).toContain('import content1 from "./older/1/content.json";');
+    expect(index).toContain('import content1 from "./older/1/content.json" with { type: "json" };');
     expect(index).toContain('import { frozenContent } from "./older/frozen";');
     expect(index).toContain("export const olderContents: readonly Content[] = [frozenContent(content1)];");
     expect(index.split("\n").length).toBe(before.split("\n").length + 2);
@@ -101,7 +101,7 @@ describe("pnpm content:freeze", () => {
     const result = freeze(dir, two, { ...SEALED, version: "2" }, { ...SEALED, version: "2" });
     if (!result.ok) throw new Error(result.problem);
     const index = read(join(dir, "index.ts"));
-    expect(index).toContain('import content2 from "./older/2/content.json";');
+    expect(index).toContain('import content2 from "./older/2/content.json" with { type: "json" };');
     expect(index.match(/import \{ frozenContent \}/g)).toHaveLength(1);
     expect(index).toContain("export const olderContents: readonly Content[] = [frozenContent(content1), frozenContent(content2)];");
     expect(readFrozen(dir).map((each) => each.version)).toEqual(["1", "2"]);
