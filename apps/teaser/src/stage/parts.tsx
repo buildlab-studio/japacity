@@ -58,13 +58,13 @@ export function Face({ name, size = 14 }: { name: string; size?: number }) {
 }
 
 /** The band: the sky, the player's name with the part of the day, the age and the place under it, and the money. */
-export function Band({ age, place, money }: { age: string; place: string; money: ReactNode }) {
+export function Band({ age, place, money, name = PLAYER }: { age: string; place: string; money: ReactNode; name?: string }) {
   return (
     <div className="band-pill">
       <span className="band-sky drawn-pic" data-pic="🌤️" aria-hidden />
       <div className="band-person">
         <div>
-          <span className="band-name">{PLAYER}</span> <span className="band-part">{W.morning}</span>
+          <span className="band-name">{name}</span> <span className="band-part">{W.morning}</span>
         </div>
         <div className="band-where">
           {age} · {place}
@@ -78,11 +78,11 @@ export function Band({ age, place, money }: { age: string; place: string; money:
 export type Dot = "done" | "now" | "later";
 
 /** The brief's chip under the band: the picture of the thing to do now, the brief's title and a dot for each thing. */
-export function BriefChip({ dots }: { dots: readonly Dot[] }) {
+export function BriefChip({ dots, tile = "prop_long-desk" }: { dots: readonly Dot[]; tile?: string }) {
   return (
     <span className="brief-chip">
       <span className="chip-pic">
-        <Sticker tile="prop_long-desk" size={24} tilt={-8} />
+        <Sticker tile={tile} size={24} tilt={-8} />
       </span>
       <span>{W.brief}</span>
       <span className="brief-dots" aria-hidden>
@@ -95,11 +95,11 @@ export function BriefChip({ dots }: { dots: readonly Dot[] }) {
 }
 
 /** The giver's toast under the chip when a thing is done: the brief's picture, the giver's name and the line in their voice. */
-export function BriefToast() {
+export function BriefToast({ tile = "prop_long-desk" }: { tile?: string }) {
   return (
     <div className="brief-toast" role="status">
       <span className="brief-toast-pic">
-        <Sticker tile="prop_long-desk" size={34} tilt={-5} />
+        <Sticker tile={tile} size={34} tilt={-5} />
       </span>
       <div style={{ minWidth: 0 }}>
         <Face name={W.giver} size={13} />

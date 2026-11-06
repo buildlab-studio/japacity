@@ -1,13 +1,15 @@
-// pnpm --filter @japacity/teaser stage -- [--serve 7062] [--render] [--only Stageshow|StageshowPortrait] [--stills <folder>] [--out <folder>]
+// pnpm --filter @japacity/teaser stage -- [--serve 7062] [--render] [--only Stageshow,StageshowPortrait,StageshowBPortrait] [--stills <folder>] [--out <folder>]
 // (the flags after `--`, so pnpm hands them to the script)
 // The stageshow teaser: the game's own screens as product shots, made with the stageshow kit (src/stage/kit). It builds
 // the stage page (src/stage/page) into public/dist with esbuild, the bundler Remotion's own bundler carries, so
 // the compositions can open it in an iframe and drive its clock frame by frame (src/stage/Stageshow.tsx).
 //   --serve <port>  builds it, keeps it built on every change and serves public/ on the port, for a browser or film.mjs
 //                   (http://localhost:<port>/dist/?scene=door&shape=wide)
-//   --render        builds it, then renders `Stageshow` (1920 by 1080) and `StageshowPortrait` (1080 by 1920) as H.264
-//                   with sound into --out (by default apps/teaser/out), and stops if a file reaches 10 MB
-//   --stills <dir>  builds it, then renders the landscape's end card and the portrait's opening as PNG files into dir
+//   --render        builds it, then renders `Stageshow` (1920 by 1080), `StageshowPortrait` (1080 by 1920) and the second
+//                   cut, `StageshowBPortrait` (1080 by 1920), as H.264 with sound into --out (by default apps/teaser/out),
+//                   and stops if a file reaches 10 MB; --only names the compositions to render, by commas
+//   --stills <dir>  builds it, then renders the stills of src/stage/stills.ts as PNG files into dir (--only picks the
+//                   compositions they come from)
 // With no flag it only builds. TEASER_BROWSER names a Chromium headless shell to render with, as for pnpm teaser:render.
 import { mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, sep } from "node:path";
@@ -25,6 +27,7 @@ const ENTRY = join(PACKAGE, "src", "stage", "page", "main.tsx");
 const TARGETS = [
   { id: "Stageshow", file: "japacity-stageshow.mp4" },
   { id: "StageshowPortrait", file: "japacity-stageshow-portrait.mp4" },
+  { id: "StageshowBPortrait", file: "japacity-stageshow-b-portrait.mp4" },
 ] as const;
 /** The same quality as the lead cut's render (render/render.ts). */
 const CRF = 24;
@@ -105,7 +108,7 @@ async function render(out: string, only: string | undefined): Promise<void> {
   await buildPage();
   const serveUrl = await bundle({ entryPoint: join(PACKAGE, "src", "index.ts"), publicDir: PUBLIC, enableCaching: false });
   mkdirSync(out, { recursive: true });
-  for (const target of TARGETS.filter((one) => only === undefined || one.id === only)) {
+  for (const target of TARGETS.filter((one) => picked(only, one.id))) {
     const started = Date.now();
     const composition = await selectComposition({ serveUrl, id: target.id, timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
     const output = join(out, target.file);
@@ -118,11 +121,16 @@ async function render(out: string, only: string | undefined): Promise<void> {
   }
 }
 
-async function stills(folder: string): Promise<void> {
+/** Whether a composition is among those `--only` names, by commas; every one when it names none. */
+function picked(only: string | undefined, id: string): boolean {
+  return only === undefined || only.split(",").includes(id);
+}
+
+async function stills(folder: string, only: string | undefined): Promise<void> {
   await buildPage();
   const serveUrl = await bundle({ entryPoint: join(PACKAGE, "src", "index.ts"), publicDir: PUBLIC, enableCaching: false });
   mkdirSync(folder, { recursive: true });
-  for (const still of STAGE_STILLS) {
+  for (const still of STAGE_STILLS.filter((one) => picked(only, one.id))) {
     const composition = await selectComposition({ serveUrl, id: still.id, timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
     const output = join(folder, `${still.name}.png`);
     await renderStill({ serveUrl, composition, frame: still.frame, output, imageFormat: "png", timeoutInMilliseconds: TIMEOUT, browserExecutable: BROWSER });
@@ -135,7 +143,7 @@ async function main(): Promise<void> {
   const port = value(argv, "--serve");
   const folder = value(argv, "--stills");
   if (port !== undefined) return serve(Number(port));
-  if (folder !== undefined) return stills(folder);
+  if (folder !== undefined) return stills(folder, value(argv, "--only"));
   if (argv.includes("--render")) return render(value(argv, "--out") ?? join(PACKAGE, "out"), value(argv, "--only"));
   return buildPage();
 }

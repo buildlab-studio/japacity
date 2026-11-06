@@ -19,6 +19,8 @@ function word(key: string, text: string, params?: Readonly<Record<string, string
 
 /** The player's own name, typed at the door: a name of the player's choosing, not the game's words. */
 export const PLAYER = "Tobi";
+/** The second cut's player, the child of the water, named as the lead cut names that life. */
+export const PLAYER_WATER = "Bisi";
 
 export const WORDS = {
   // The front door's second screen.
@@ -76,7 +78,7 @@ export const WORDS = {
   // The month's results and the ask in them.
   ageLater: word("ui.world.age", "25 yrs 2 mo", { years: "25", months: "2" }),
   done: word("turn.results.title", "The month is done"),
-  salary: word("line.activity.salary", "Salary from junior developer: ₦320,000.", { job: "junior developer", amount: "₦320,000" }),
+  salary: word("line.activity.salary.label", "Salary, junior developer", { job: "junior developer" }),
   kept: word("turn.results.kept", "Kept this month"),
   saved: word("turn.results.savings", "Saved for the move"),
   savedLine: word("turn.results.savings-line", "£1,139 of £1,270", { shown: "£1,139", required: "£1,270" }),
@@ -93,6 +95,40 @@ export const WORDS = {
   decline: word("offer.sponsor-tech-firm.choice.decline", "Decline"),
   take: word("offer.sponsor-tech-firm.choice.take", "Take the offer"),
   where: word("place.family-house.name", "the family house"),
+
+  // The second cut: the child of the water's life in Makoko. The act sheet at the racks and the toast its button leaves.
+  ageWater: word("ui.world.age", "21 yrs 7 mo", { years: "21", months: "7" }),
+  ageWaterLater: word("ui.world.age", "21 yrs 9 mo", { years: "21", months: "9" }),
+  room: word("city.home.makoko", "The room on the water"),
+  makoko: word("place.makoko.name", "Makoko"),
+  racksAct: word("activity.job-fish-racks.act", "Work the fish racks"),
+  racksBlurb: word("activity.job-fish-racks.blurb", "Smoking fish at the racks on the water, where you grew up. Up before light, paid at the month's end."),
+  racksPay: word("jobs.pay", "₦70,000 a month", { amount: "₦70,000" }),
+  certain: word("jobs.chance.certain", "As good as certain"),
+  racksCard: word("jobs.card", "₦70,000 a month. As good as certain.", { pay: "₦70,000 a month", chance: "As good as certain" }),
+  takes: word("ui.world.takes", "Takes"),
+  aDay: word("ui.world.time.day", "A day"),
+  startWork: word("activity.job-fish-racks.button", "Start work"),
+  actNow: word("ui.world.now", "Now"),
+  hunt: word("activity.job-hunt.name", "Look for a job"),
+  monthEnd: word("ui.act.toast.month", "Answer at the month's end"),
+  // The month's results in Makoko.
+  salaryRacks: word("line.activity.salary.label", "Salary, the fish racks", { job: "the fish racks" }),
+  savedWater: word("turn.results.savings-line", "₦538,000 of ₦1,300,000", { shown: "₦538,000", required: "₦1,300,000" }),
+  backMakoko: word("turn.results.back", "Back to Makoko", { place: "Makoko" }),
+  // The brief as the Japa app carries it, the thing the years before met first.
+  briefs: word("ui.brief.log", "Your briefs"),
+  carrying: word("ui.brief.carrying", "Carrying"),
+  openWater: word("chapter.find-your-feet.open.prologue.water", "The racks fed you and the canoe took you to school. Now the water is behind you, and everybody is asking what is next."),
+  itemHeard: word("chapter.find-your-feet.item.heard", "Hear of a way out"),
+  beforeHeard: word("chapter.find-your-feet.brief.before.heard", "At a send-off"),
+  itemJob: word("chapter.find-your-feet.item.job", "Get a job"),
+  atRacks: word("chapter.brief.at.own.racks", "The racks"),
+  itemPay: word("chapter.find-your-feet.item.pay", "Work one month in it"),
+  atJob: word("chapter.find-your-feet.brief.at.pay", "Your job"),
+  itemKnown: word("chapter.find-your-feet.item.known", "Look into it"),
+  atHub: word("chapter.brief.at.yaba", "The hub"),
+  briefNow: word("ui.brief.now", "Now"),
 } as const satisfies Readonly<Record<string, Word>>;
 
 /** The words by name, as the scenes show them. */

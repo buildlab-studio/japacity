@@ -26,9 +26,12 @@ export const SCREEN = {
   tall: { width: PHONE.screen.width, height: PHONE.screen.height, column: PHONE.screen.width, top: PHONE.safe },
 } as const;
 
-/** The world behind the game's pieces: a still of the family house by day from the game's own recordings. */
-export function World({ shape }: { shape: Shape }) {
-  return <img className="jc-world" data-shape={shape} src={`../stage/house-day-${shape}.webp`} alt="" draggable={false} />;
+/** Where a world's still was recorded: the family house by day, or Makoko on the lagoon by morning (on the phone only). */
+export type Place = "house-day" | "makoko";
+
+/** The world behind the game's pieces: a still of the place from the game's own recordings. */
+export function World({ shape, place = "house-day" }: { shape: Shape; place?: Place }) {
+  return <img className="jc-world" data-shape={shape} data-place={place} src={`../stage/${place}-${shape}.webp`} alt="" draggable={false} />;
 }
 
 /**

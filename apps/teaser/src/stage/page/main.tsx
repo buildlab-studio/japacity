@@ -6,7 +6,7 @@ import "./page.css";
 
 import { createRoot } from "react-dom/client";
 
-import { SCENES, type SceneName, type Shape } from "../scenes";
+import { SCENES, type SceneName, type SceneNameB, type Shape } from "../scenes";
 import { offerDriver } from "./drive";
 
 const params = new URLSearchParams(window.location.search);
@@ -14,7 +14,7 @@ const name = params.get("scene") ?? "door";
 const shape: Shape = params.get("shape") === "tall" ? "tall" : "wide";
 const root = document.getElementById("root");
 if (root === null) throw new Error("The stage page has no #root.");
-const Scene = name in SCENES ? SCENES[name as SceneName] : null;
+const Scene = name in SCENES ? SCENES[name as SceneName | SceneNameB] : null;
 if (Scene === null) {
   root.textContent = `No scene named ${name}. The scenes: ${Object.keys(SCENES).join(", ")}.`;
 } else {
