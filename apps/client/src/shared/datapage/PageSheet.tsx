@@ -99,7 +99,7 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
       <div role="dialog" aria-modal="true" aria-label={say("prologue.door.page.title")} className="rise absolute inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] mx-auto max-w-[420px]" onClick={(event) => event.stopPropagation()}>
         <div className="band adire mb-2 flex items-center justify-between rounded-[6px] px-3 py-2">
           <h2 className="title text-[20px] leading-none">{say("prologue.door.page.title")}</h2>
-          <button type="button" className="press flex size-9 items-center justify-center rounded-[6px] bg-white/15" onClick={onClose} aria-label={say("prologue.page.close")} autoFocus>
+          <button type="button" className="press reach flex size-9 items-center justify-center rounded-[6px] bg-white/15" onClick={onClose} aria-label={say("prologue.page.close")} autoFocus>
             <X size={18} />
           </button>
         </div>

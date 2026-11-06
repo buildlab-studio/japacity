@@ -184,7 +184,7 @@ function Slots() {
             <button
               type="button"
               aria-label={`${say("ui.month.slot-remove")}: ${pickWords(pick, view)}`}
-              className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted"
+              className="reach inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted"
               onClick={() => setSlot(index, null)}
             >
               <X size={16} />
