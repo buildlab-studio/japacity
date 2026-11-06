@@ -44,6 +44,9 @@ const PLAYED_NOW = "line.activity.played-now";
 const HIRED = "line.activity.hunt-hired";
 const OPENED = "line.offer.opened";
 const JOB_OFFER = "offer.job";
+/** activity:missed-hunt-opens-a-lead: the lead after a first miss, told by its own line, and the offers it opens. */
+const LEAD_LINES: ReadonlySet<string> = new Set(["line.activity.hunt-lead", "line.activity.hunt-word"]);
+const LEAD_OFFERS: ReadonlySet<string> = new Set(["offer.job-lead", "offer.job-word"]);
 /** The exam's set piece over. */
 const SETPIECE_CLOSED = "line.setpiece.closed";
 /** The set pieces an act's exam is sat in. */
@@ -51,16 +54,17 @@ const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatM
 
 /**
  * Each of the month's events told once (world:month-end-results-sheet): an act done at once by its place's own line, never
- * "Done this month" beside it; a hunt's offer by its own line, never the offer's opening beside it; an exam by its mark,
+ * "Done this month" beside it; a hunt's offer or a lead by its own line, never the offer's opening beside it; an exam by its mark,
  * never its set piece's close beside it.
  */
 function toldOnce(lines: readonly ReportLine[]): ReportLine[] {
   const answered = new Set(nowActsIn(lines));
   const hired = lines.some((line) => line.key === HIRED);
+  const led = lines.some((line) => LEAD_LINES.has(line.key));
   const marked = lines.some((line) => EXAM_MARKED.has(line.key));
   return lines.filter((line) => {
     if (line.key === PLAYED_NOW) return !(typeof line.params.activity === "string" && answered.has(line.params.activity));
-    if (line.key === OPENED) return !(hired && line.params.offer === JOB_OFFER);
+    if (line.key === OPENED) return !(hired && line.params.offer === JOB_OFFER) && !(led && typeof line.params.offer === "string" && LEAD_OFFERS.has(line.params.offer));
     if (line.key === SETPIECE_CLOSED) return !(marked && typeof line.params.setpiece === "string" && EXAMS.has(line.params.setpiece));
     return true;
   });

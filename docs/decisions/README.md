@@ -107,6 +107,7 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0033](0033-the-students-money-flow.md) | The student's money flow |
 | [0034](0034-certain-stories-start-first.md) | Certain stories start first |
 | [0035](0035-the-balance-test-reads-calm-and-crash-worlds.md) | The balance test reads calm and crash worlds |
+| [0036](0036-a-miss-moves-the-story.md) | A miss moves the story |
 
 ### The city
 

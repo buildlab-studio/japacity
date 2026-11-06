@@ -11,6 +11,7 @@ import { activityShopText } from "./activity.shop.text";
 import { activityStreetText } from "./activity.street.text";
 import { activityWaterText } from "./activity.water.text";
 import { activityLadderText, activityLearningText } from "./activity.ladder.text";
+import { activityLeadText } from "./activity.lead.text";
 
 export const activityText: Record<string, string> = {
   "activity.job-teacher.name": "Private school teacher",
@@ -172,6 +173,9 @@ export const activityText: Record<string, string> = {
   "line.activity.rested": "You rested when you had the time.",
   "line.activity.hunt-hired": "The search paid off. {job} wants you.",
   "line.activity.hunt-missed": "You looked for work: {job}. Nothing yet.",
+  // activity:missed-hunt-opens-a-lead: Lanre's lead after a starting life's first miss, its place and what it costs the trade missed.
+  "line.activity.hunt-lead": "Lanre told you about {lead}: it pays, but {cost}.",
+  "line.activity.hunt-word": "Lanre put in a word for you with {lead}.",
   "line.activity.gig": "The side gig paid {amount}, by transfer.",
   "line.activity.salary-first-foreign": "Your first pay from {job}: {amount}. At home that is {naira}.",
   "line.activity.salary-first-abroad": "Your first pay abroad, from {job}: {amount}. Back home that is {naira}.",
@@ -217,6 +221,7 @@ export const activityText: Record<string, string> = {
   // activity:each-trade-climbs-its-ladder and activity:capital-opens-own-work: the rungs, the side jobs and own work.
   ...activityLadderText,
   ...activityLearningText,
+  ...activityLeadText,
   // activity:now-acts-and-month-acts: what the place says when a now-act is done there.
   ...activityNowText,
 };

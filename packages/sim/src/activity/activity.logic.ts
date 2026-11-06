@@ -34,6 +34,7 @@ import type {
   SetpieceQuestion,
   SlotPick,
   State,
+  Terms,
   Tuning,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
@@ -82,9 +83,11 @@ const TECH: Id<"quality"> = "quality.tech";
 const DRIVING: Id<"quality"> = "quality.driving";
 /** The offer a landed hunt opens. It learns the job from the terms (offer:effect-opens-named-offer). */
 const JOB_OFFER = "offer.job" as const;
-const HUNT_ACTIVITY: Id<"activity"> = "activity.job-hunt";
-/** guide:early-win-in-three-turns: the months in which a life's first hunt is sure, counted as the month being played. */
-const SURE_HUNT_MONTHS = 3;
+/** activity:missed-hunt-opens-a-lead: the lead for another job than the one missed, and the word put in for the job missed. */
+const JOB_LEAD = "offer.job-lead" as const;
+const JOB_WORD = "offer.job-word" as const;
+/** activity:missed-hunt-opens-a-lead: the months in which a life's first miss opens a lead, counted as the month being played. */
+const LEAD_MONTHS = 3;
 /** A side gig pays naira cash (activity:side-gig-pays-a-draw). */
 const GIG_CURRENCY: Currency = "NGN";
 /** The source named on the rest an empty slot gives. */
@@ -1247,19 +1250,12 @@ function nairaDues(read: ReadCtx): number {
 }
 
 /**
- * guide:early-win-in-three-turns: the job a life's first hunt lands, in its first
- * three months, when the draw misses. `month` is the month being played. Null
- * when the hunt is not that one: a month past the third, a month before with a hunt in it, or a hunt earlier in
- * this month. The job is the lowest month's pay, valued in naira at the
- * official rate, of the jobs that may be hunted now in the same slot as the
- * one named, among those whose pay covers the naira the life owes a month (a
- * smaller job must still pay the month, or it traps the life under its dues), else of them all; then by id;
- * the named job when none reads a pay.
+ * activity:missed-hunt-opens-a-lead: the job a lead names after a hunt for `named` missed. The job is the lowest month's pay,
+ * valued in naira at the official rate, of the jobs that may be hunted now in the same slot as the one named: for the main
+ * slot among those whose pay covers the naira the life owes a month (a smaller job must still pay the month, or it traps the
+ * life under its dues), else of them all; then by id; the named job when none reads a pay.
  */
-export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, huntedThisMonth: boolean): ActivityEntry | null {
-  if (huntedThisMonth || month > SURE_HUNT_MONTHS) return null;
-  const hunts = Object.values(read.content.activity).filter((entry) => entry.effects.some((effect) => effect.type === "activity/hunt"));
-  if (hunts.some((entry) => (read.state.activity.played[entry.id] ?? 0) > 0)) return null;
+export function leadJob(read: ReadCtx, named: ActivityEntry): ActivityEntry {
   const rates = officialRates(read.world);
   const dues = nairaDues(read);
   let best: { entry: ActivityEntry; kobo: number } | null = null;
@@ -1275,38 +1271,51 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
   return covering?.entry ?? best?.entry ?? named;
 }
 
-/** True while this life's next hunt is its sure first one (guide:early-win-in-three-turns): the first three months, no hunt before, none earlier this month. */
-function firstHuntSure(read: ReadCtx): boolean {
-  const named = Object.values(read.content.activity).find((entry) => isJob(entry) && entry.hireBp !== null);
-  return named !== undefined && sureHuntJob(read, named, read.state.turn.month + 1, huntedThisMonth(read.state)) !== null;
-}
-
-/** A hunt earlier this month landed: its offer opened this month (every first hunt lands, so a miss cannot be earlier in a sure month). */
-function huntedThisMonth(state: State): boolean {
-  return Object.values(state.offer.items).some((item) => item.entry === JOB_OFFER && item.openedMonth === state.turn.month);
+/**
+ * activity:missed-hunt-opens-a-lead: a miss opens a lead in the first three months, at home, with no job held and no job offer
+ * open, once a life by the slice's own mark. A hunt is answered with the month, after the turn's spend has counted the month
+ * being played, so the turn's month is that month.
+ */
+function leadDue(read: ReadCtx): boolean {
+  const { state } = read;
+  if (state.activity.lead === true || state.turn.month > LEAD_MONTHS) return false;
+  if (state.place.where !== "home" || state.activity.job !== null) return false;
+  return !Object.values(state.offer.items).some((item) => read.content.offer[item.entry]?.group === "job");
 }
 
 /**
  * One month of hunting the job the slot names (activity:job-hunt-lands-offer). A landed hunt opens the job offer with the job in its terms.
- * guide:early-win-in-three-turns: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
- * misses, the sure hunt lands the lowest-paid job the life may hunt in the slot (the named one when none reads a pay).
- * activity:job-hunt-lands-offer: when that is another job, the named one is told as missed before it.
+ * activity:missed-hunt-opens-a-lead: a starting life's first miss says the named job came to nothing, then opens the lead.
  */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
   const entry = jobEntry(ctx.content, cause.param);
-  const read = readOf(ctx);
-  const drawn = ctx.random.chance("job", huntChanceBp(read, entry));
-  const landed = drawn ? entry : sureHuntJob(read, entry, ctx.state.turn.month + 1, huntedThisMonth(ctx.state));
-  // A sure hunt that lands another job first says the job asked for came to nothing, so the
-  // pick is never lost from the month's telling.
-  const instead = landed !== null && landed.id !== entry.id ? record(ctx, { type: "activity/hunted", job: entry.id, hired: false }) : [];
-  const events = [...instead, ...record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null })];
+  const hired = ctx.random.chance("job", huntChanceBp(readOf(ctx), entry));
+  const events = record(ctx, { type: "activity/hunted", job: entry.id, hired });
   // Content without the job offer has nothing to open, so the landed hunt opens nothing.
-  if (landed !== null && ctx.content.offer[JOB_OFFER] !== undefined) {
-    ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: landed.id, terms: { ...cause.terms, job: landed.id } });
+  if (hired && ctx.content.offer[JOB_OFFER] !== undefined) {
+    ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: entry.id, terms: { ...cause.terms, job: entry.id } });
   }
+  if (hired || !leadDue(readOf(ctx))) return events;
+  const lead = leadJob(readOf(ctx), entry);
+  const word = lead.id === entry.id;
+  const offer = word ? JOB_WORD : JOB_LEAD;
+  // Content without the lead's offer has no lead to give.
+  if (ctx.content.offer[offer] === undefined) return events;
+  events.push(...record(ctx, { type: "activity/lead-given", job: lead.id, missed: entry.id }));
+  const terms: Terms = word ? { job: lead.id, lead: leadPlace(lead.id) } : { job: lead.id, missed: entry.id, lead: leadPlace(lead.id), cost: leadCost(entry.id) };
+  ctx.apply([{ type: "offer/open", offer }], { source: cause.source, param: lead.id, terms: { ...cause.terms, ...terms } });
   return events;
+}
+
+/** activity:missed-hunt-opens-a-lead: the place a lead names, by the key the job's words use, as a param the interface names (`<key>.name`). */
+function leadPlace(job: Id<"activity">): string {
+  return `${job}.lead`;
+}
+
+/** activity:missed-hunt-opens-a-lead: what a lead costs the trade of the job missed, by the key that job's words use (`<key>.name`). */
+function leadCost(missed: Id<"activity">): string {
+  return `${missed}.lead-cost`;
 }
 
 /** A side gig (activity:side-gig-pays-a-draw): a draw between its figures plus its figure for each point of tech, in naira, to the pocket its size takes (wallet:money-lands-as-in-lagos). */
@@ -1449,7 +1458,6 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
       const done = doneThisMonth(read.state, entry);
       // activity:spent-body-refuses-acts: a now-act that takes effort waits for sleep once the body is spent; what takes none stays open.
       const spent = answersNow(entry) && bodySpent(read.state, read.content, entry);
-      const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
         id: entry.id,
         allowed: !done && !spent && !capped && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
@@ -1459,7 +1467,6 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
         affordable: canPayPrices(prices, judge, read.state.wallet),
         when: answersNow(entry) ? "now" : "month",
         done,
-        ...(sure ? { sure: true as const } : {}),
         ...(spent ? { spent: true as const } : {}),
         ...(capped ? { capped: true as const } : {}),
         ...(studying ? { onCourse: true as const } : {}),
@@ -1571,6 +1578,11 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
       return event.hired
         ? [line("line.activity.hunt-hired", { job: event.job }, "good", true)]
         : [line("line.activity.hunt-missed", { job: event.job }, "plain")];
+    case "activity/lead-given":
+      // activity:missed-hunt-opens-a-lead: the lead follows the player's own hunt and means an offer to answer.
+      return event.job === event.missed
+        ? [line("line.activity.hunt-word", { job: event.job, lead: leadPlace(event.job) }, "good", true)]
+        : [line("line.activity.hunt-lead", { job: event.job, missed: event.missed, lead: leadPlace(event.job), cost: leadCost(event.missed) }, "good", true)];
     case "activity/gig-paid":
       return [line("line.activity.gig", { amount: { currency: GIG_CURRENCY, amount: event.amount } }, "good")];
     case "activity/slots-recorded":
@@ -1735,6 +1747,8 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return slice;
     case "activity/course-ended":
       return slice.study?.activity === event.activity ? withoutStudy(slice) : slice;
+    case "activity/lead-given":
+      return { ...slice, lead: true };
     default: {
       const never: never = event;
       throw new Error(`Unknown activity event ${JSON.stringify(never)}.`);

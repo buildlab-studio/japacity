@@ -96,6 +96,10 @@ const LOAD_BANDS = ["under-1s", "1s-3s", "3s-10s", "over-10s"];
 
 /** analytics:day-one-and-seven-return: an ask, by what was asked and whether the early win had been shown. */
 const ASK_KEYS = ["sign-in:before", "sign-in:after", "notify:before", "notify:after"];
+/** analytics:first-lead-counted: what came of the lead after a first miss, and the month of the life it opened in. */
+const LEAD_OUTCOMES = ["shown", "taken", "declined", "lapsed"] as const;
+const LEAD_MONTHS = ["1", "2", "3"] as const;
+const LEAD_KEYS = LEAD_OUTCOMES.flatMap((outcome) => LEAD_MONTHS.map((month) => `${outcome}:${month}`));
 
 /**
  * analytics:nightly-game-counters: the onboarding funnel's steps, in order, and
@@ -232,6 +236,8 @@ export const counterTable: CounterDef[] = [
   { name: "lottery/tickets", keys: "region", source: "server" },
   // analytics:day-one-and-seven-return.
   { name: "first/early-win", keys: ["1", "2", "3", "later", "none"], source: "server" },
+  // analytics:first-lead-counted: the lead after a first miss, by what came of it and the month it opened in.
+  { name: "first/lead", keys: LEAD_KEYS, source: "server" },
   // analytics:server-checks-every-batch.
   { name: "analytics/dropped", keys: DROP_REASONS, source: "server" },
   // analytics:nightly-game-counters, analytics:admin-stats-for-admins-only, analytics:session-split-by-command-gaps: the admin's numbers.

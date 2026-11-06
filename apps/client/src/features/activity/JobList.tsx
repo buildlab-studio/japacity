@@ -12,7 +12,7 @@ import { qualityIn } from "@japacity/sim";
 import { requirementSentence } from "../../shared/words/requirement";
 import { Tile } from "../../shared/tiles/Tile";
 import { nameOf, say } from "../../shared/words/text";
-import { type ChanceBand, chanceOf, huntBand, payWords, shownBand } from "../../shared/words/jobs";
+import { type ChanceBand, chanceOf, huntBand, payWords } from "../../shared/words/jobs";
 import { payAMonth } from "../../shared/words/pay";
 import { liftWords } from "../../shared/words/profile";
 
@@ -208,7 +208,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
         </span>
         <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col gap-2" data-jobs>
           {jobs.map((id) => (
-            <JobRow key={id} view={view} id={id} chance={shownBand(view, id)} chosen={id === chosen} onPick={onPick} />
+            <JobRow key={id} view={view} id={id} chance={huntBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
           ))}
         </ul>
       </div>

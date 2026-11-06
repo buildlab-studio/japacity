@@ -3,6 +3,7 @@ import type { Proof, Same } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
 import { content, HOMETOWN_FILL, mergeText, text, textTables, uiBoardsText, uiOnlineText } from "./index";
+import { HANDED_TERMS } from "./offer/offer.testing";
 import { uiAccountSheetText } from "./ui/ui.accountSheet.text";
 
 declare global {
@@ -93,7 +94,7 @@ describe("words for every entry", () => {
     const uncarried: string[] = [];
     let named = 0;
     for (const offer of Object.values(content.offer)) {
-      const carried = new Set([...Object.keys(offer.terms), ...(offer.id === "offer.job" ? ["job"] : []), HOMETOWN_FILL]);
+      const carried = new Set([...Object.keys(offer.terms), ...(HANDED_TERMS[offer.id] ?? []), HOMETOWN_FILL]);
       const words = Object.entries(text).filter(([key]) => key.startsWith(`${offer.id}.`));
       for (const [key, line] of words) {
         for (const match of line.matchAll(/\{([^}]+)\}/g)) {

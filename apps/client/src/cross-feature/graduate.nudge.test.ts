@@ -1,5 +1,5 @@
 // The graduate's first three months, played as a player who follows the nudge (world:nudge-says-one-thing):
-// each month the nudge's step is planned as the board or the act offers it, a job offer is taken,
+// each month the nudge's step is planned as the board or the act offers it, a job offer or a lead is taken,
 // any other ask is left to lapse, and the month is ended. The ready life must not run dry before the job step is met.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotPick } from "@japacity/sim";
@@ -14,6 +14,8 @@ const SEEDS = 40;
 const HIRED_AT_LEAST = 30;
 const MONTHS = 3;
 const FIRST_CHAPTER = "chapter.find-your-feet";
+/** The job offer a hunt lands, and the lead a first miss opens (activity:missed-hunt-opens-a-lead), taken alike. */
+const JOB_OFFERS: readonly string[] = ["offer.job", "offer.job-lead", "offer.job-word"];
 
 /** The act that does the step the nudge names, with the param the sheet opens with; null when the nudge plans nothing. */
 function actFor(view: PlayerView, key: string): SlotPick | null {
@@ -38,7 +40,7 @@ function naira(view: PlayerView): number {
 }
 
 describe("the graduate who follows the nudge", () => {
-  test("[world:nudge-says-one-thing] given the graduate, the ready life, on forty seeds, when the nudge is followed for three months, then it never reaches ₦0 and holds a job that covers its living costs by the third month's end on at least thirty", () => {
+  test("[world:nudge-says-one-thing] [activity:missed-hunt-opens-a-lead] given the graduate, the ready life, on forty seeds, when the nudge is followed for three months, then it never reaches ₦0 and holds a job that covers its living costs by the third month's end on at least thirty", () => {
     const upkeep = content.scenario["scenario.graduate"]?.obligations.find((owed) => owed.obligation === "obligation.upkeep")?.amount ?? 0;
     expect(upkeep).toBeGreaterThan(0);
     let hired = 0;
@@ -47,7 +49,7 @@ describe("the graduate who follows the nudge", () => {
       const seed = `graduate-${String(at)}`;
       const game = newGame("scenario.graduate", seed);
       for (let month = 0; month < MONTHS; month += 1) {
-        const offer = game.view().offers.find((open) => open.entry === "offer.job");
+        const offer = game.view().offers.find((open) => JOB_OFFERS.includes(open.entry));
         if (offer !== undefined) game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });
         const slots: SlotPick[] = [];
         for (let guard = 0; guard < 4; guard += 1) {

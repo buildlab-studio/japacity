@@ -1,6 +1,6 @@
 # The first months
 
-The first months teach the game by playing it, with no tutorial. A person hands the player a brief, a marker at the place shows the thing to do, and a single line under the top band, the nudge, comes only when something waits on the player. The first chapter, "Find your feet" ("Work first, abeg" on its brief), asks for four things: get a job, work a month in it, hear of a way out and look into it. The first job hunt of a life is made sure, so every new player sees money come in within three months.
+The first months teach the game by playing it, with no tutorial. A person hands the player a brief, a marker at the place shows the thing to do, and a single line under the top band, the nudge, comes only when something waits on the player. The first chapter, "Find your feet" ("Work first, abeg" on its brief), asks for four things: get a job, work a month in it, hear of a way out and look into it. Every job hunt draws at its job's own chance, and a starting life's first miss opens a lead, so no new player meets a dead end in the first three months.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
   <img src="/pictures/dev-05-chapter-title-on-arrival.webp" alt="The first brief handed over: Lanre at the hub, Work first, abeg, the four things as sticker tiles with their places, the rewards, and Let's go" width="220">
@@ -57,17 +57,19 @@ flowchart LR
 
 When every step is met, the chapter closes at the month's end: its brief comes back stamped, and the next one becomes current and is handed over.
 
-## The sure first hunt
+## A miss moves the story
 
-The game promises an early win: in every starting life, playing the first three months as the nudge suggests brings at least one good line that follows from the player's own choice. To make that sure, the first job hunt of a starting life in its first three months always succeeds. The draw is still made. When it misses, the life is given the lowest-paid job it may hunt whose pay covers what it owes each month (upkeep, rent, support, instalments), and only when none covers it, the lowest of all. The board still shows each job's own chance, and nothing on it says the hunt is sure: the job comes as a small surprise.
+The game promises an early win: in every starting life, playing the first three months as the nudge suggests meets no dead end and brings at least one good line that follows from the player's own choice. Nothing is fudged to make it so. Each job reads its own chance on the board and the hunt's card ("Likely", "A fair chance", "A long shot"), and only a job truly near certain, the fish racks at Makoko, says "As good as certain". The odds follow the trade: the wards are short of nurses, so a staff nurse is likely; teaching, sales and the phones are easy to get; a junior developer's or a bank officer's post is hard.
 
-::: details Why the job must cover the dues
-A job that pays less than the life owes each month would trap it: the chapter has stopped asking it to hunt, and the money drains away anyway. So the sure hunt picks the cheapest job that still covers the dues, not the cheapest job.
+When a starting life's first hunt in its first three months misses, the month says the job came to nothing, and then Lanre at the hub gives a lead: an offer for the lowest-paid job the life may hunt whose pay covers what it owes each month (upkeep, rent, support, instalments), told in his words with the place ("a call centre in Ikeja that is hiring"). When that job is not the trade the life hunted, he says what it costs: for the nurse, it pays, but it will not count for the wards, whose months the health care route asks. Take it starts the job, Keep looking lets it go, and it lapses after two months. A life that hunted that same job and missed hears that Lanre put in a word for it instead. The lead comes once a life, and its line is the early win whether or not it is taken.
+
+::: details Why the lead's job must cover the dues
+A job that pays less than the life owes each month would trap it: the money drains away while the job is held. So the lead names the cheapest job that still covers the dues, not the cheapest job.
 :::
 
 ::: details Exceptions in the first months
 - **No fare for the ride.** When the money held cannot pay the cheapest ride and the step's stop is too far to walk, the nudge names a free step instead: walking home, the racks for a life in Makoko with no job, or a job on a board within walking distance.
-- **A hunt that misses after the first.** The sure hunt is the first only. A later miss with other jobs on the board names another way ("Try again, or pick another job").
+- **A hunt that misses after the first.** The lead comes once. A later miss with other jobs on the board names another way ("Try again, or pick another job").
 - **The trader with a settlement.** A trader from sixteen whose settlement is in hand opens the shop with it instead of hunting.
 - **Nothing is asked first.** No sign-in, email, notification permission, invite or share is asked before the early win. The first ask, to secure the account, comes after it.
 :::
@@ -76,6 +78,6 @@ A job that pays less than the life owes each month would trap it: the chapter ha
 
 - [Chapters](../../rules/chapter.md): chapter:first-chapter-starts-current, chapter:met-items-close-the-chapter (a chapter closes and the next becomes current), chapter:chapters-follow-lean-route (the chapters follow the life's way out), chapter:first-chapter-mission-card (the first brief, handed over once per life, and the close card).
 - [The world](../../rules/world.md): world:nudge-says-one-thing (the nudge, the step only in the moment, and where a tap goes), world:things-are-tappable-models (the marker), world:phone-holds-what-phones-hold (the Japa app's log of briefs).
-- [Guides](../../rules/guide.md): guide:early-win-in-three-turns (the early win and the sure first hunt), guide:nothing-asked-before-early-win (nothing asked before it), guide:first-meetup-hears-fitting-route (the first meetup and the motor park).
-- [Activities and jobs](../../rules/activity.md): activity:job-hunt-lands-offer (the hunt and how the board reads it), activity:now-acts-and-month-acts (acts that answer now).
+- [Guides](../../rules/guide.md): guide:early-win-in-three-turns (the early win and no dead end), guide:nothing-asked-before-early-win (nothing asked before it), guide:first-meetup-hears-fitting-route (the first meetup and the motor park).
+- [Activities and jobs](../../rules/activity.md): activity:job-hunt-lands-offer (the hunt and how the board reads it), activity:missed-hunt-opens-a-lead (the lead after a first miss), activity:now-acts-and-month-acts (acts that answer now).
 - [Finding out where you stand](../../rules/advice.md): advice:four-ways-to-learn-route (the four ways to look into a route).

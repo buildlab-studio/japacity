@@ -139,7 +139,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   // person:computer-partner-drifts: a bond that ended this month, before the month's errands.
   (line) => BOND_ENDED.has(line.key),
   // obligation:cooking-and-fetching-water: what cooking and fetching water saved on the upkeep, each its own line.
-  (line) => ["line.activity.hunt-missed", "line.activity.job-started", "line.activity.job-ended", "line.activity.side-started", "line.activity.side-quit", "line.activity.side-ended"].includes(line.key),
+  // activity:missed-hunt-opens-a-lead: the lead after a first miss is told with the miss, its person and its place named.
+  (line) => ["line.activity.hunt-missed", "line.activity.hunt-lead", "line.activity.hunt-word", "line.activity.job-started", "line.activity.job-ended", "line.activity.side-started", "line.activity.side-quit", "line.activity.side-ended"].includes(line.key),
   (line) => ACTS.has(line.key),
   // The adviser's reading, paid for, leads the route's own lines.
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),

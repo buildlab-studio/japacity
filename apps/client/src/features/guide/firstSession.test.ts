@@ -24,7 +24,7 @@ function everyFirstSession(): FirstSession[] {
 }
 
 describe("the first session", () => {
-  test("[guide:early-win-in-three-turns] given every starting life, when its first three months are played as the next step suggests, then each has an early win by the third", () => {
+  test("[guide:early-win-in-three-turns] given every starting life, when its first three months are played as the next step suggests, then none meets a dead end and each has an early win by the third", () => {
     expect(FIRST_SESSION_MONTHS).toBe(3);
     const sessions = everyFirstSession();
     const scenarios = new Set(sessions.map((session) => session.life.scenario));
@@ -33,6 +33,7 @@ describe("the first session", () => {
     const taken = new Set(sessions.flatMap((session) => session.path));
     const offered = Object.values(content.prologue).flatMap((step) => step.answers.map((answer) => `${step.id}:${answer.id}`));
     expect(taken.size).toBeGreaterThan(offered.length / 2);
+    expect(sessions.filter((session) => session.deadEnds.length > 0).map((session) => `${session.life.name}: ${session.deadEnds.join(", ")}`)).toEqual([]);
     const without = sessions.filter((session) => session.earlyWin === null).map((session) => `${session.life.name} (${session.path.join(" ")})`);
     expect(without).toEqual([]);
     for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_MONTHS);
@@ -52,8 +53,12 @@ describe("the first session", () => {
     expect(chapterNextStep).toBeTypeOf("function");
   });
 
-  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a chapter or goal, or a route heard by a choice counts", () => {
+  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a landed hunt, the lead after a miss, a chapter or goal, or a route heard by a choice counts", () => {
     expect(isEarlyWin(line("line.activity.salary"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-hired"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-lead"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-word"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.hunt-missed", "plain"), [])).toBe(false);
     expect(isEarlyWin(line("line.activity.gig"), [])).toBe(true);
     expect(isEarlyWin(line("line.chapter.closed"), [])).toBe(true);
     expect(isEarlyWin(line("line.goal.done"), [])).toBe(true);

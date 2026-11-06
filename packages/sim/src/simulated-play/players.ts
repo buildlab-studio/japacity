@@ -633,7 +633,10 @@ function commonOffer(view: PlayerView, content: Content, habits: Habits, offer: 
       return habits.takesGroupLoan ? choose(offer, "take", Number.MAX_SAFE_INTEGER) : choose(offer, "no");
     case "offer.gulf-agent":
       return chooseFirst(offer, habits.takesGulf ? ["take", "walk-away"] : ["walk-away"]);
-    case "offer.job": {
+    // A lead after a first miss (activity:missed-hunt-opens-a-lead) is answered as a job offer is.
+    case "offer.job":
+    case "offer.job-lead":
+    case "offer.job-word": {
       const job = offer.terms.job;
       const inTrade = habits.trade === undefined || (typeof job === "string" && (habits.trade.jobs.includes(job as Id<"activity">) || habits.trade.side === job));
       const developer = typeof job === "string" && DEVELOPER_JOBS.includes(job as Id<"activity">);

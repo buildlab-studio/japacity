@@ -294,7 +294,8 @@ function listedIndex(index: string, version: string): string | null {
   let lastImport = -1;
   for (let at = 0; at < (firstCode === -1 ? lines.length : firstCode); at += 1) if (lines[at]?.startsWith("import ") === true) lastImport = at;
   if (lastImport === -1) return null;
-  const added = [`import ${named} from "./${OLDER_DIR}/${version}/${FROZEN_CONTENT}";`];
+  // The import attribute lets Node's own loader (the browser tests' runner) read the JSON as the bundlers do.
+  const added = [`import ${named} from "./${OLDER_DIR}/${version}/${FROZEN_CONTENT}" with { type: "json" };`];
   if (!lines.includes(LOADER_IMPORT)) added.unshift(LOADER_IMPORT);
   lines.splice(lastImport + 1, 0, ...added);
   return lines.join("\n");

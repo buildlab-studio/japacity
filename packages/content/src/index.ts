@@ -99,6 +99,8 @@ import { uiRoutesText } from "./ui/ui.routes.text";
 import { uiSceneText } from "./ui/ui.scene.text";
 import { uiSoundText } from "./ui/ui.sound.text";
 import { uiTurnText } from "./ui/ui.turn.text";
+import { frozenContent } from "./older/frozen";
+import content1 from "./older/1/content.json" with { type: "json" };
 
 export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about.data";
 export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/about.light";
@@ -143,14 +145,13 @@ export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./s
 /**
  * The older content versions the server still bundles (server:older-contents-bundled), each exactly as it shipped,
  * so a life whose last segment names one replays under it and is upgraded on its first load. `pnpm content:freeze`
- * writes each to `older/<version>` and lists it here (server:older-content-frozen); while version 1 is the current,
- * there is none.
+ * writes each to `older/<version>` and lists it here (server:older-content-frozen), every version below the current.
  */
-export const olderContents: readonly Content[] = [];
+export const olderContents: readonly Content[] = [frozenContent(content1)];
 
 export const content: Content = {
   // Raised by one with any change to the content or the simulation, then sealed in seal.json (server:content-version-sealed).
-  version: "1",
+  version: "2",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
   activity: withWhen({ ...activityTable, ...adviceActivityTable }),

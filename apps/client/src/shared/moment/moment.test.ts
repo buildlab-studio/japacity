@@ -35,7 +35,7 @@ describe("which outcomes are moments", () => {
 
   // In the recorded lives the banker's borrower life has its first application refused on its funds; the developer's does not.
   test("[moment:outcomes-that-are-moments] given the banker's first application refused on its funds, then the refusal is the card", () => {
-    const { lines, view } = played("banker-borrower", 77);
+    const { lines, view } = played("banker-borrower", 76);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.route.refused", params: { route: "route.uk-masters", reason: "funds" } });
   });
 
@@ -169,15 +169,15 @@ describe("what a card holds", () => {
     expect(face.address).toBe("japacity.app");
   });
 
-  // The recorded refusal on the funds is the banker's borrower life's, on a file 79% untraced (decision 0012).
+  // The recorded refusal on the funds is the banker's borrower life's, on a file 73% untraced (decision 0012).
   test("[moment:moment-card-contents] given the banker's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
-    const { lines, view, before } = played("banker-borrower", 77);
+    const { lines, view, before } = played("banker-borrower", 76);
     const face = momentFace(momentLine(lines, view)!, view, before)!;
     expect(face).toMatchObject({ kind: "refused", tone: "bad", line: say("moment.refused.line.funds"), chip: null });
     const filed = before.routes.find((held) => held.id === "route.uk-masters")!;
     expect(filed.state).toBe("applying");
     expect(face.figure).toEqual({ value: Math.floor(filed.unexplainedBp / 100), unit: { kind: "percent" }, caption: say("moment.refused.caption.funds") });
-    expect(figureWords(face.figure, face.figure.value)).toBe("79%");
+    expect(figureWords(face.figure, face.figure.value)).toBe("73%");
     // Without the file as it was decided, the months stand instead: the share worked out after the refusal is another file's.
     expect(momentFace(momentLine(lines, view)!, view)!.figure).toEqual({ value: view.month, unit: { kind: "count" }, caption: say("moment.refused.caption") });
     // From the second refusal on the route, its count stands beside the figure.
@@ -232,7 +232,7 @@ describe("what a card holds", () => {
   });
 
   test("[moment:words-in-game-voice] given every card these lives and lines make, then the line never repeats the figure the card shows, and a loss carries no joke version", () => {
-    const faces = [played("graduate-careful", 393), played("banker-borrower", 77), played("graduate-careful", 397), played("graduate-careful", 54)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
+    const faces = [played("graduate-careful", 393), played("banker-borrower", 76), played("graduate-careful", 397), played("graduate-careful", 54)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
     faces.push(momentFace(line("line.activity.robbed", { cash: naira(14_200_000), phone: naira(6_000_000) }, { tone: "bad" }), AT_HOME)!);
     faces.push(momentFace(line("line.offer.agent-scam", { agent: "offer.agent-stop.who.1", amount: naira(2_500_000) }, { tone: "bad" }), AT_HOME)!);
     for (const face of faces) {
