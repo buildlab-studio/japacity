@@ -1,6 +1,8 @@
-// The way through the front door for a browser test (prologue:front-door-three-screens, prologue:printed-page-hands-over): three screens with everything
-// chosen. A tile: Next, the tile, Next to Where you live, Begin; its page fills and waits for Go (prologue:printed-page-hands-over). A ready life: the
-// test asks for the ready lives as Settings does and opens the door again, on them, then Pick on its kind, Begin.
+// The way through the front door for a browser test (prologue:front-door-three-screens, prologue:front-door-builds-a-person, prologue:printed-page-hands-over): three
+// screens with everything chosen but the name, whose box starts empty: the dice gives one. A tile: the dice, Next, the tile,
+// Next to Where you live, Begin; its page fills and waits for Go (prologue:printed-page-hands-over). A ready life: the test asks
+// for the ready lives as Settings does and opens the door again, on them, Back to the name for the dice, Next, then Pick on
+// its kind, Begin.
 import type { Page } from "@playwright/test";
 
 /**
@@ -32,6 +34,13 @@ export async function cardsSettled(page: Page): Promise<void> {
   await page.waitForFunction(() => document.querySelector("[data-brief-pending]") === null, null, { timeout: 60_000 }).catch(() => undefined);
 }
 
+/** The name on the door's first screen: the dice rolled where the box is empty, since Begin never takes the placeholder. */
+export async function giveName(page: Page, timeout = 30_000): Promise<void> {
+  const box = page.locator("#door-name");
+  await box.waitFor({ state: "visible", timeout });
+  if ((await box.inputValue()) === "") await page.locator("[data-door-dice]").click({ timeout });
+}
+
 /** Begin on Where you live (still marked as the page it stood in for), until the door has gone. */
 async function begin(page: Page, timeout: number): Promise<void> {
   await page.getByRole("button", { name: /^Begin/ }).click({ timeout });
@@ -44,6 +53,11 @@ export async function startReadyLife(page: Page, kind?: string, timeout = 30_000
   await page.getByRole("button", { name: /^Next/ }).first().waitFor({ timeout });
   await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
   await page.reload();
+  // The run opens on the ready lives with the box empty: Back to it for the dice, then Next to the lives again.
+  await page.locator("[data-gate='ready']").waitFor({ timeout });
+  await page.locator("[data-door-back]").click({ timeout });
+  await giveName(page, timeout);
+  await page.locator("[data-gate='you']").getByRole("button", { name: /^Next/ }).click({ timeout });
   const pick = kind === undefined ? page.getByRole("button", { name: /^Pick: / }).first() : page.getByRole("button", { name: `Pick: ${kind}` });
   await pick.click({ timeout });
   await begin(page, timeout);
@@ -59,10 +73,12 @@ export async function passThePage(page: Page, timeout = 30_000): Promise<void> {
 }
 
 /**
- * Next, the archetype's tile, Next to Where you live, Begin: the life from sixteen on that preset. Its page fills and is
- * passed with Go, unless `stay` leaves it on screen.
+ * The dice for a name, Next, the archetype's tile, Next to Where you live, Begin: the life from sixteen on that preset. Its
+ * page fills and is passed with Go, unless `stay` leaves it on screen. A run kept past the first screen goes on from there.
  */
 export async function startArchetype(page: Page, archetype: string, timeout = 30_000, stay = false): Promise<void> {
+  await page.getByRole("button", { name: /^Next/ }).first().waitFor({ timeout });
+  if (await page.locator("[data-gate='you']").isVisible()) await giveName(page, timeout);
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout });
   await page.getByRole("radio", { name: archetype, exact: true }).click({ timeout });
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click({ timeout });

@@ -10,7 +10,7 @@ pnpm play --life developer --months 3 --out /tmp/japacity-play
 
 1. Uses a dev server already answering on the port, or starts one (`vite` for the client) and stops it at the end.
 2. Opens the front door on the phone profile the browser tests use (390 by 844, touch, mobile), with WebGL on the software renderer.
-3. Keeps the name the door fills, takes the archetype's life (or, with `--ready`, asks for the ready lives as Settings does and picks that kind), the age as it is, Where you live as it stands, and Begin.
+3. Rolls the dice for a name (the box starts empty and Begin never takes its placeholder), takes the archetype's life (or, with `--ready`, asks for the ready lives as Settings does and picks that kind), the age as it is, Where you live as it stands, and Begin.
 4. Watches the page fill as the years go by, with no card, then taps Go on the filled page, which opens the world.
 5. Reads the first chapter's title and the nudge under it while the title stands, and logs the first-use labels on the thumbs. A later chapter's opening card is passed with Go, which takes its step and rides there.
 6. Each month: reads the nudge where one stands, or rides to the step's place the map rings and taps the step's marker there; takes the act it opens (the fan's button the nudge's step names, else the first that stages an entry, so the racks' Work the racks comes before their Look, else the first open one, never a Stop; then the sheet's main button or its first answer); rides home by the map, sleeps the month from the bed's fan, passes any staged moment, reads the results and goes back to the place.

@@ -22,7 +22,7 @@ flowchart LR
   C -->|"Path and age"| B
 ```
 
-**Who are you?** The player's figure stands whole on a photo card, under the sun by day or the moon at night, with the name on a sticker. Under it sit a first name, already filled from the name pool, with a dice for another, and the looks as round face stickers. A look is a whole character model, never sliders, and it carries no stat. Under the looks, a tap on "Make it yours" opens a skin tone, a hair colour, a top colour and, on a printed top, the fabric (plain, ankara, adire, aso-oke). Nothing stands behind the screen but the sky.
+**Who are you?** The player's figure stands whole on a photo card, under the sun by day or the moon at night, with the name on a sticker. Under it sits the name box, empty, with a suggested name in lighter ink as its placeholder, a dice that puts a name from the pool in it and three of the pool's names to tap; Begin never takes the placeholder, so a box left empty sends the player back to it. Then the looks as round face stickers. A look is a whole character model, never sliders, and it carries no stat. Under the looks, a tap on "Make it yours" opens a skin tone, a hair colour, a top colour and, on a printed top, the fabric (plain, ankara, adire, aso-oke). Nothing stands behind the screen but the sky.
 
 **Your life so far.** The archetypes, as big sticker cards swiped sideways, the first one chosen. Each card shows the life's own thing, the player's face, a tag, its name, the life in a few words, what the years before were and the savings it starts with; the picked life's ways out show as picture chips. Under the cards sits the age, set in steps.
 

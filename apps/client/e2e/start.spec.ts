@@ -140,20 +140,24 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   // No way in at the door, and no username on a screen of its own.
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByLabel("Username")).toHaveCount(0);
-  // prologue:front-door-builds-a-person: on Play's path the username comes last, so the name is the pool's, under the character's label.
-  await expect(name).not.toHaveValue("");
+  // prologue:front-door-builds-a-person: on Play's path the username comes last, so the empty box suggests the pool's name as its
+  // placeholder, under the character's label, and holds the focus as the first field to fill.
+  await expect(name).toHaveValue("");
+  await expect(name).not.toHaveAttribute("placeholder", "");
+  await expect(name).toBeFocused();
   await expect(page.locator("label[for='door-name']")).toHaveText("Character name");
   await shootSmall(page, "char-name-door-play", info.project.name);
   await name.fill("Ọlámídé");
   await shootAtSize(page, "start-door", info.project.name);
 
-  // The door: three screens with everything chosen, so Next, Next, Begin starts a life.
+  // The door: three screens with everything chosen but the name, so with the name typed, Next, Next, Begin starts a life.
   await page.getByRole("button", { name: /^Next/ }).first().click();
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   // The page: the username box empty, never filled from the name (account:username-typed-and-checked); the player types
   // their own and the box says it is free; the guest line said once.
   const username = page.getByLabel("Username");
   await expect(username).toHaveValue("");
+  await expect(username).toBeFocused();
   await username.fill("Olamide");
   await expect(page.getByText("That name is free.")).toBeVisible();
   await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(1);
@@ -437,12 +441,13 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await shootSmall(page, "one-code-username", info.project.name);
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 
-  // The door as a signed-in account with no character meets it: Next, Next, Begin, and no username box anywhere.
+  // The door as a signed-in account with no character meets it: the name, Next, Next, Begin, and no username box anywhere.
   const name = page.getByRole("textbox", { name: "Character name" });
   await expect(name).toBeVisible({ timeout: 20_000 });
   await expect(page.getByLabel("Username")).toHaveCount(0);
-  // prologue:front-door-builds-a-person: the username was chosen first, so the character's name starts from it.
-  await expect(name).toHaveValue("Olamide");
+  // prologue:front-door-builds-a-person: the username was chosen first, so the empty box suggests the character's name from it.
+  await expect(name).toHaveValue("");
+  await expect(name).toHaveAttribute("placeholder", "Olamide");
   await shootSmall(page, "char-name-door-signin", info.project.name);
   const guest = faked.sent.find((request) => request.route === "POST /api/guest");
   expect(guest?.body).toEqual({ username: "Olamide", proved: true });
@@ -464,7 +469,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await elsewhere.getByLabel("Email").fill(NEW_EMAIL);
   await elsewhere.getByRole("button", { name: "Send me a code" }).click();
   await elsewhere.getByLabel("6-digit code").fill(shared.mailed.at(-1) ?? "");
-  await expect(elsewhere.getByRole("textbox", { name: "Character name" })).toHaveValue("Olamide", { timeout: 20_000 });
+  await expect(elsewhere.getByRole("textbox", { name: "Character name" })).toHaveAttribute("placeholder", "Olamide", { timeout: 20_000 });
   await expect(elsewhere.getByRole("heading", { name: "When were you born?" })).toHaveCount(0);
   await expect(elsewhere.getByLabel("Username")).toHaveCount(0);
   await other.close();

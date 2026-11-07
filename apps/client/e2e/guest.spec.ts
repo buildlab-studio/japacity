@@ -7,6 +7,7 @@ import { uiOnlineText, uiText } from "../../../packages/content/src/index";
 import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastTheCard } from "./support/account";
 import { type Answer, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
 import { shootAtSize, shootPhone } from "./support/preview";
+import { giveName } from "./support/door";
 
 test.use({ baseURL: ONLINE });
 
@@ -40,6 +41,7 @@ test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email
   await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "May" });
   await page.getByRole("combobox", { name: "Year" }).selectOption("1990");
   await page.getByRole("button", { name: "Continue" }).click();
+  await giveName(page, 20_000);
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 20_000 });
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);

@@ -8,7 +8,7 @@ import { test } from "./support/policy";
 
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
-import { passOpeningWords, passThePage } from "./support/door";
+import { giveName, passOpeningWords, passThePage } from "./support/door";
 
 /** A large phone with a sharp screen: 430 by 932 CSS pixels at three to one, a coarse pointer. */
 test.use({ viewport: { width: 430, height: 932 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
@@ -59,9 +59,10 @@ async function draws(page: Page): Promise<Draw[]> {
   return page.evaluate(() => [...(window.__draws ?? [])]);
 }
 
-/** Next, the developer, Next to Where you live. */
+/** The dice for a name, Next, the developer, Next to Where you live. */
 async function toWhereYouLive(page: Page): Promise<void> {
   await page.goto("/");
+  await giveName(page);
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 30_000 });
   await page.getByRole("radio", { name: "The developer", exact: true }).click();
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();

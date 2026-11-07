@@ -8,7 +8,7 @@ import { test } from "./support/policy";
 
 // "Start a new life" online (account:start-a-new-life): a guest in the world opens Settings, the sheet
 // names the character, a tap does nothing and a hold ends the life through the server's own route; the front door
-// opens filled in, and Begin starts the new life under the same guest, with no bot check and no new guest asked
+// opens filled in but for the name, whose box starts empty with the username's suggestion, and Begin starts the new life under the same guest, with no bot check and no new guest asked
 // for. Played against a faked server that runs the simulation itself, as asks.spec.ts does.
 import { content } from "../../../packages/content/src/index";
 import { playPresetOn } from "../src/shared/net/preset.testing";
@@ -69,7 +69,7 @@ async function fakeServer(page: Page, { username = "ada_lagos", alive = true }: 
   return { sent, scenarios };
 }
 
-test("[account:start-a-new-life] a guest ends the life from Settings by a hold, the door opens filled in, and Begin starts the new life under the same guest", async ({ page }, info) => {
+test("[account:start-a-new-life] a guest ends the life from Settings by a hold, the door opens filled in but for the name, and Begin starts the new life under the same guest", async ({ page }, info) => {
   // The hold, the door and the years of the new page as the faked server plays them, which a loaded machine stretches.
   test.setTimeout(120_000);
   if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 390, height: 844 });
@@ -108,11 +108,11 @@ test("[account:start-a-new-life] a guest ends the life from Settings by a hold, 
   await page.mouse.up();
   await expect.poll(() => faked.sent.includes("POST /api/character/end")).toBe(true);
 
-  // The front door, filled in as onboarding is.
+  // The front door, filled in as onboarding is but for the name.
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator("#door-name")).not.toHaveValue("");
-  // prologue:front-door-builds-a-person: the next life on the same account takes its name from the username, never a random one.
-  await expect(page.locator("#door-name")).toHaveValue("Ada");
+  // prologue:front-door-builds-a-person: the next life on the same account starts with the box empty, its suggestion from the username.
+  await expect(page.locator("#door-name")).toHaveValue("");
+  await expect(page.locator("#door-name")).toHaveAttribute("placeholder", "Ada");
   await shootPhone(page, "newlife-04-door", info.project.name);
   await shootPhone(page, "names-door-second-life-375x667", info.project.name, { width: 375, height: 667 });
   if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 390, height: 844 });
@@ -127,13 +127,14 @@ test("[account:start-a-new-life] a guest ends the life from Settings by a hold, 
   expect(faked.sent).not.toContain("turnstile");
 });
 
-test("[prologue:front-door-builds-a-person] a signed-in account whose username makes no first name opens the door with the name's box empty, three names under it to take, and the dice; one taken is the name", async ({ page }, info) => {
+test("[prologue:front-door-builds-a-person] a signed-in account whose username makes no first name opens the door with the name's box empty, the pool's suggestion as its placeholder, three names under it to take, and the dice; one taken is the name", async ({ page }, info) => {
   if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 375, height: 667 });
   await fakeServer(page, { username: "x_99", alive: false });
   await page.goto("/");
   const box = page.locator("#door-name");
   await expect(box).toBeVisible({ timeout: 30_000 });
   await expect(box).toHaveValue("");
+  await expect(box).not.toHaveAttribute("placeholder", "");
   const offered = page.locator("[data-door-suggested] button");
   await expect(offered).toHaveCount(3);
   await expect(page.getByRole("button", { name: "Another name" })).toBeVisible();
