@@ -8,7 +8,7 @@
 // toward.
 import { content } from "@japacity/content";
 import { CURRENCIES, int, REMIT_CHANNELS, remitQuote, type Currency, type ForeignCurrency, type Id, type OfferView, type ReportParam, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type RemitChannel, type ReportLine } from "@japacity/sim";
-import { ArrowLeftRight, CircleAlert, MoveVertical, Send } from "lucide-react";
+import { ArrowLeftRight, CircleAlert, Handshake, Landmark, MoveVertical, Send, Smartphone } from "lucide-react";
 import { use, useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
@@ -20,10 +20,12 @@ import { Sticker } from "../../../shared/ui/look/Sticker";
 import { StickerChip } from "../../../shared/ui/look/StickerChip";
 import type { Tint } from "../../../shared/ui/look/tint";
 import { TINTS } from "../../../shared/ui/look/tint";
+import { Facts, factsLook } from "../../../shared/ui/Facts";
 import { NeedChips } from "../../../shared/ui/NeedChips";
 import { changeQuote } from "../../../shared/words/cost";
+import type { Fact } from "../../../shared/words/facts";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
-import { formatBp, formatMoney, formatOne, formatRate, HOME_CURRENCIES } from "../../../shared/words/format";
+import { formatMoney, formatOne, formatRate, HOME_CURRENCIES } from "../../../shared/words/format";
 import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/money";
 import { hasWords, inMonths, lowerFirst, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { savedFor, savingsOf, savingsRoute } from "../../../shared/words/savings";
@@ -329,11 +331,98 @@ function rateBy(view: Pick<PlayerView, "rates">, currency: ForeignCurrency, chan
   return channel === "informal" ? street : channel === "app" ? official - int.bp(official, appMarginBp) : official;
 }
 
+/** Each way's picture, drawn from the icon set: the phone's app, the bank, a hand passed to a hand. */
+const WAY_ICON: Readonly<Record<RemitChannel, typeof Smartphone>> = { app: Smartphone, bank: Landmark, informal: Handshake };
+
+type Quote = ReturnType<typeof remitQuote>;
+
 /**
- * Send money home (abroad-money:remit-sends-money-home, world:one-action-one-sheet): the channels each with what
- * they cost and how fast they land, an amount with the rate, the naira that lands and what is left
- * here, then one card whose button says the amount. The money leaves at once whichever way it goes;
- * the bank's transfer lands next month, and the card says so.
+ * A way's facts (abroad-money:remit-sends-money-home, text:show-then-tell): its fee in money, never as a share of the sum;
+ * its rate; and for the way through someone, that it sometimes never arrives, in words and never as a percentage. `lands`
+ * adds when it lands, for the look that shows every way's facts at once.
+ */
+function wayFacts(view: Pick<PlayerView, "rates">, currency: ForeignCurrency, channel: RemitChannel, quote: Quote | null, lands: boolean): Fact[] {
+  const fee = quote?.[channel].fee ?? 0;
+  const free = feeBp(channel) === 0 || (quote !== null && fee === 0);
+  const facts: Fact[] = [];
+  if (lands) facts.push({ kind: "when", words: say(`ui.remit.fact.lands.${channel}`) });
+  facts.push({ kind: "fee", words: free ? say("ui.remit.fact.no-fee") : say("ui.remit.fact.fee", { fee: formatMoney(fee, currency) }) });
+  facts.push({
+    kind: "rate",
+    words: lands ? say(`ui.remit.fact.rate.${channel}`) : say("ui.remit.fact.rate", { one: formatMoney(100, currency), rate: formatMoney(rateBy(view, currency, channel), "NGN") }),
+  });
+  if (channel === "informal") facts.push({ kind: "catch", words: say("ui.remit.fact.loss") });
+  return facts;
+}
+
+/** The ways as three tiles side by side, as the ride sheet's ways (world:ride-sheet-shows-fares): the picture, the way, the naira that lands and when. */
+function WayTiles({ quote, channel, onPick }: { quote: Quote | null; channel: RemitChannel; onPick: (channel: RemitChannel) => void }) {
+  return (
+    <div role="radiogroup" aria-label={say("ui.remit.channel")} className="grid grid-cols-3 gap-2" data-ways="tiles">
+      {REMIT_CHANNELS.map((option) => {
+        const Icon = WAY_ICON[option];
+        const on = option === channel;
+        return (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onPick(option)}
+            data-channel={option}
+            className={`press flex min-w-0 flex-col items-center gap-1 rounded-[14px] px-1 pt-2.5 pb-2 text-center ${on ? "ride-way-on" : "ride-way"}`}
+          >
+            <span className="flex size-9 items-center justify-center chip-pic bg-tint-money">
+              <Icon size={19} aria-hidden className="text-[var(--money-ink)]" />
+            </span>
+            <span className="text-[13px] leading-tight font-bold">{say(`ui.remit.way.${option}`)}</span>
+            {quote === null ? null : (
+              <span className="num text-[13px] leading-tight font-extrabold" data-arrives>
+                {formatMoney(quote[option].naira, "NGN")}
+              </span>
+            )}
+            <span className="text-[12px] leading-tight text-text-2">{say(`ui.remit.when.${option}`)}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** The ways as cards one under another, as a bank's delivery options are: the way and the naira that lands, then its facts as lines. */
+function WayCards({ view, currency, quote, channel, onPick }: { view: Pick<PlayerView, "rates">; currency: ForeignCurrency; quote: Quote | null; channel: RemitChannel; onPick: (channel: RemitChannel) => void }) {
+  return (
+    <div role="radiogroup" aria-label={say("ui.remit.channel")} className="flex flex-col gap-2" data-ways="cards">
+      {REMIT_CHANNELS.map((option) => {
+        const Icon = WAY_ICON[option];
+        const on = option === channel;
+        return (
+          <button key={option} type="button" role="radio" aria-checked={on} onClick={() => onPick(option)} data-channel={option} className="press block w-full text-left">
+            <span className={`look-card flex flex-col gap-2 p-3 ${on ? "phone-picked" : ""}`}>
+              <span className="flex items-center gap-2.5">
+                <span className="flex size-8 shrink-0 items-center justify-center chip-pic bg-tint-money">
+                  <Icon size={17} aria-hidden className="text-[var(--money-ink)]" />
+                </span>
+                <span className="min-w-0 flex-1 text-[15px] leading-tight font-bold">{say(`ui.remit.channel.${option}`)}</span>
+                {quote === null ? null : (
+                  <span className="num shrink-0 text-[15px] font-extrabold" data-arrives>
+                    {formatMoney(quote[option].naira, "NGN")}
+                  </span>
+                )}
+              </span>
+              <Facts facts={wayFacts(view, currency, option, quote, true)} look="rows" dense />
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Send money home (abroad-money:remit-sends-money-home, world:one-action-one-sheet): the ways as pickable cards, each with the
+ * naira it lands and when, its fee in money and its rate as facts, then how much, then one card whose button says the amount.
+ * The money leaves at once whichever way it goes; the bank's transfer lands next month, and the card says so.
  */
 function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const view = useView();
@@ -347,64 +436,48 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const quote = amount > 0 ? remitQuote(view.rates, content.tuning.remit, currency, amount) : null;
   const terms = quote?.[channel] ?? null;
   const sent = formatMoney(amount, currency);
+  const look = factsLook();
   return (
-    <div className="look-card flex flex-col gap-2.5 p-3" data-chooser="send">
+    <div className="look-card flex flex-col gap-3 p-3" data-chooser="send">
       {options.length > 1 ? <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={options.map((value) => ({ value, label: currencyWords(value) }))} /> : null}
-      <div role="radiogroup" aria-label={say("ui.remit.channel")} className="flex flex-col gap-1.5">
-        <span className="label text-text-2" aria-hidden>
-          {say("ui.remit.channel")}
-        </span>
-        {REMIT_CHANNELS.map((option) => (
-          <button
-            key={option}
-            type="button"
-            role="radio"
-            aria-checked={option === channel}
-            onClick={() => setChannel(option)}
-            data-channel={option}
-            className={`press flex flex-col items-start gap-0.5 rounded-[5px] px-3 py-2 text-left ${option === channel ? "btn-dark" : "border border-sheet-line bg-sheet-2 text-text"}`}
-          >
-            <span className="text-[14px] font-bold">{say(`ui.remit.channel.${option}`)}</span>
-            <span className="text-[13px] leading-snug opacity-85">{say(`ui.remit.terms.${option}${option !== "informal" && feeBp(option) === 0 ? ".free" : ""}`, { fee: formatBp(feeBp(option)), loss: formatBp(content.tuning.remit.informalLossBp) })}</span>
-            {/* abroad-money:remit-quote-is-shared: what each channel lands in naira for the amount, by the wallet's own quote, so the choice means something. */}
-            {quote === null ? null : (
-              <span className="text-[13px] leading-snug font-bold" data-arrives>
-                {say("ui.remit.arrives", { naira: formatMoney(quote[option].naira, "NGN"), fee: formatMoney(quote[option].fee, currency) })}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <span className="label text-text-2" aria-hidden>
+        {say("ui.remit.channel")}
+      </span>
+      {look === "rows" ? (
+        <WayCards view={view} currency={currency} quote={quote} channel={channel} onPick={setChannel} />
+      ) : (
+        <>
+          <WayTiles quote={quote} channel={channel} onPick={setChannel} />
+          <Facts facts={wayFacts(view, currency, channel, quote, false)} look="chips" />
+        </>
+      )}
       <Chips shown label={say("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: say(`phone.bank.${value}`) }))} />
       {terms === null || terms.naira === 0 ? (
         <p className="text-[14px] text-text-2">{say("phone.bank.nothing")}</p>
       ) : (
-        <>
-          <p className="text-[14px] leading-snug" data-send-quote>
-            {say("ui.remit.quote", { one: formatMoney(100, currency), rate: formatMoney(rateBy(view, currency, channel), "NGN"), naira: formatMoney(terms.naira, "NGN") })}
-          </p>
-          <button
-            type="button"
-            className="press-button w-full"
-            data-go="send"
-            onClick={() =>
-              onAsk({
-                form: "card",
-                icon: "landmark",
-                who: say("ui.remit.who"),
-                title: say("ui.remit.title"),
-                line: say(`ui.remit.line.${channel}${channel !== "informal" && terms.fee === 0 ? ".free" : ""}`, { sent, naira: formatMoney(terms.naira, "NGN"), fee: formatMoney(terms.fee, currency) }),
-                cost: { amount, currency },
-                button: say("ui.remit.go", { amount: sent }),
-                when: "now",
-                command: { type: "wallet/remit", currency, amount, channel },
-                done: say(channel === "bank" ? "ui.remit.sent-later" : "ui.remit.sent"),
-              })
-            }
-          >
-            <span>{say("ui.remit.go", { amount: sent })}</span>
-          </button>
-        </>
+        <button
+          type="button"
+          className="press-button w-full"
+          style={{ justifyContent: "space-between" }}
+          data-go="send"
+          onClick={() =>
+            onAsk({
+              form: "card",
+              icon: "landmark",
+              who: say("ui.remit.who"),
+              title: say("ui.remit.title"),
+              line: say(`ui.remit.line.${channel}${channel !== "informal" && terms.fee === 0 ? ".free" : ""}`, { sent, naira: formatMoney(terms.naira, "NGN"), fee: formatMoney(terms.fee, currency) }),
+              cost: { amount, currency },
+              button: say("ui.remit.go", { amount: sent }),
+              when: "now",
+              command: { type: "wallet/remit", currency, amount, channel },
+              done: say(channel === "bank" ? "ui.remit.sent-later" : "ui.remit.sent"),
+            })
+          }
+        >
+          <span>{say("ui.remit.go", { amount: sent })}</span>
+          <span className="text-[13px] font-semibold opacity-80">{say(`ui.remit.when.${channel}`)}</span>
+        </button>
       )}
     </div>
   );
