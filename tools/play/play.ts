@@ -700,7 +700,9 @@ async function takeWanted(run: Run, month: number): Promise<void> {
 /**
  * Out of a scene behind a door by its way out, as a player would: whatever stands open over the scene (a card, the fan's small
  * sheet) is put away first, then the way out's mark is tapped until its Out shows, on the fan or on the fan's small sheet when
- * the fan has no room (world:fan-of-sticker-buttons), and Out is tapped. True once the scene outside is drawn.
+ * the fan has no room (world:fan-of-sticker-buttons), and Out is tapped. True once the scene outside is drawn. A room with no
+ * street of its own (the family house) opens the map instead: there is no scene outside, so the map is closed and the
+ * character stays in the room, false.
  */
 async function goOut(run: Run): Promise<boolean> {
   const { page } = run;
@@ -712,6 +714,12 @@ async function goOut(run: Run): Promise<boolean> {
   }
   if (!(await tap(run, out, "Out"))) return false;
   await page.waitForTimeout(1_500);
+  const close = page.locator("[data-map-close]");
+  if (await shown(close)) {
+    await tap(run, close, "Close the map");
+    await page.waitForTimeout(600);
+    return false;
+  }
   await placeDrawn(run);
   return true;
 }
