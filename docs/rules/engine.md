@@ -115,7 +115,7 @@ Then the phases run in this order (`PHASES` in `engine/kind.ts`). In each, every
 | # | Phase | Kinds, in registry order | What happens |
 |---|---|---|---|
 | 1 | spend | turn, credit, people, home | The month number goes up by one and one banked turn is spent while the bank holds any; spent locks drop; the first month of a second stay takes the penalty off the kept credit file (credit:file-starts-at-zero-abroad); the sibling slots not yet drawn are drawn (person:computer-siblings-drawn-with-family); the family house takes a returned character back and a hosted stay that has run out ends |
-| 2 | main | activity | The job, if any: the licence and status checks, then pay and tax, then the side job |
+| 2 | main | activity | The job, if any: the licence and status checks, then the catch of a boat rung (activity:catch-drawn-each-month), then pay and tax, then the side job |
 | 3 | slots | activity, interview | Now-acts answered this month are counted, each free slot resolves first slot first, empty slots rest; the interview's month |
 | 4 | due | obligation, home | Everything owed this month is charged, oldest first. What cannot be paid moves along its ladder; the hosting rise |
 | 5 | settle | wallet | Queued conversions and bank remits arrive. The allowance resets. Old lots drop |
@@ -175,6 +175,7 @@ Each kind is one module of plain functions. A kind adds only what it needs.
 | `health` | Illness and its relapse (health:illness-rolls-when-run-down) |
 | `people` | The computer siblings drawn with the family (person:computer-siblings-drawn-with-family), a moment's spot and what (person:time-together-is-an-act), a computer's answer to a proposal and the wedding's spot (person:proposing-a-step, person:agreed-partner-and-marriage), gossip and jealousy (person:gossip-when-two-timing), and the interview's recall, a computer's and a stand-in's (interview:computer-answers-by-recall, interview:stand-in-answers-when-absent) |
 | `home` | The eviction draw in Makoko (home:makoko-eviction-draw), so a Makoko life shifts no other draw |
+| `catch` | The month's catch of a boat rung (activity:catch-drawn-each-month, decision 0037), so a life that works no boat shifts no other draw |
 
 The world has its own seed and its own streams: `rate`, `shock`, `rule`, and `era` for the director's next era (director:one-era-at-a-time). A character's draws never touch them.
 

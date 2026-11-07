@@ -74,6 +74,7 @@ Group `money`.
 | `offer.job` | Opened only by job hunting. Group `job`, not `money` | | | 2 | `job`, the job's id |
 | `offer.job-lead` | Opened only by a starting life's first missed hunt, for another job than the one missed (activity:missed-hunt-opens-a-lead). Group `job`; once in a life | | | 2 | `job`, the lead's job; `missed`, the job missed; `lead`, the words of the place; `cost`, the words of what it costs the trade missed |
 | `offer.job-word` | Opened only by a starting life's first missed hunt, for the job just missed (activity:missed-hunt-opens-a-lead). Group `job`; once in a life | | | 2 | `job`, the job missed; `lead`, the words of the place |
+| `offer.canoe-place` | Opened only by `activity.ask-fisherman` while the life lives in Makoko and holds no boat job (activity:boat-work-at-the-net-shed). Group `job`; once in a life | | | 2 | `job`, the crew's job |
 
 A pay term for a job paid in dollars is valued in naira at the official rate.
 
@@ -91,6 +92,7 @@ A pay term for a job paid in dollars is valued in naira at the official rate.
 | `offer.fee-payment-plan` | The university's fees office | "'You can clear the arrears on a plan: {instalment} a month until the end of the course, and a £50 fee. Miss a plan payment and we will write to you before we withdraw you.'" | `agree`: pay £50, reason `fee-school`, and spread the tuition owed over the months left (abroad-money:missed-tuition-runs-in-stages). `no` |
 | `offer.job` | A job offer | "'We would like you to start on the first.'" | `accept`: start the job. `decline` |
 | `offer.job-lead` | Them dey hire | Lanre: "'I know {lead}: it pays, but {cost}.'" | `accept` ("Take it"): start the job. `decline` ("Keep looking") |
+| `offer.canoe-place` | Third in my canoe | Sewanu: "'You want learn the water? Third in my canoe, you sort fish, I share the catch.'" | `accept` ("Take it"): start the job. `decline` ("Not now") |
 | `offer.job-word` | Try them again | Lanre: "'I put in a word for you with {lead}, so go and see them again.'" | `accept` ("Take it"): start the job. `decline` ("Keep looking") |
 
 Signs for `offer.held-funds-agent`, each shown or not when the offer opens:

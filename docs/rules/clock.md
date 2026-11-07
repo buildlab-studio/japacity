@@ -37,7 +37,7 @@ Two clocks run online. A character's life moves when the player plays, a month a
 
 **clock:request-fills-missing-ticks** If a request finds its current tick not yet stored, the server makes the missing rows itself before stepping the command. Because a row is a pure function of the one before, two writers make the same row; the insert keeps the first and ignores the second.
 
-**clock:december-by-lagos-time** Online, `var.season-december` is 1 for a tick whose start falls in December in Lagos time (UTC+1, no summer time), and 0 otherwise. Lagos time, because the December visit and the festive season are the Lagos ones.
+**clock:december-by-lagos-time** Online, `var.season-december` is 1 for a tick whose start falls in December in Lagos time (UTC+1, no summer time), and 0 otherwise; `var.season-rains` is 1 for a tick whose start falls in June to September in Lagos time, and 0 otherwise. Lagos time, because the December visit and the festive season are the Lagos ones.
 
 **clock:online-lengths-scaled** Online, every length the director counts in ticks is multiplied by `tuning.director.onlineTickScale`: an era's `ticks`, each story's `rumourLead`, `forceLag`, `endsAfter` and `cooldown`, and `tuning.director.closedTicks` and `shockGapTicks`. The scale covers the story lags as well as the eras, because news:force-waits-after-announcement's two ticks are one real day online, and the fourth fairness rule of `../design/01-concept.md` section 7 asks for two real days between an announcement and the law. With the scale at 2 the shortest gap is 4 ticks, 48 hours.
 

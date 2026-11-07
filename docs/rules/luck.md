@@ -36,7 +36,7 @@ Any player can read the code. Nothing here depends on a rule being secret. Wins 
 | `offer.relative-sends` | life, luck | any route known | 400 | $500 to USD bank, gift, flagged; cooldown 9 |
 | `offer.december-bonus` | life, luck | job held, `var.season-december` 1 | 3000 | one month's pay to the bank, `salary`; cooldown 11 |
 | `offer.scholarship-round` | life, luck | an offer from a school on `route.uk-masters` | 1500 | `money/add` of £3,000 to the GBP bank pocket, reason `gift`, not flagged: a scholarship letter explains it. It is a `money/add`; the school's discount is separate |
-| `offer.join-ajo` | money | standing 40, network 20, at home | 800 | opens `obligation.ajo`: ₦20,000 a month for 10 months; cooldown 12 |
+| `offer.join-ajo` | money | standing 40, network 20, at home | 800 | opens `obligation.ajo`: ₦20,000 a month for 10 months; cooldown 12; also opened by the match (activity:watch-the-match) |
 | `activity.play-lotto` | now-act, a purchase, home | while `World.lottery` is null | | param: the ticket count, 1 to 5, at ₦200 each |
 | `activity.bet-slip` | now-act, a purchase, home | always | | stake ₦2,000 |
 
