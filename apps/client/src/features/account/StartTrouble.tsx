@@ -5,7 +5,7 @@
 import { StartHook } from "../../shared/front-door/Hook";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { Trouble } from "../../authority/store";
-import { SheetColumn } from "../../shared/ui/look/SheetColumn";
+import { SheetDock } from "../../shared/ui/look/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Loader } from "../../shared/ui/Loader";
 import { TroubleFace } from "../../shared/ui/Trouble";
@@ -15,7 +15,7 @@ export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
   return (
     <Gate mark="start" scene={null}>
       {/* In the start screen's column on a wide screen, as the start screen's own sheet stands (AccountGate.tsx). */}
-      <SheetColumn>
+      <SheetDock>
         <GateSheet mark="start-trouble" label={say("ui.game")}>
           <div className="flex flex-col" data-start-trouble={trouble?.kind ?? "asking"}>
             <StartHook />
@@ -32,7 +32,7 @@ export function StartTrouble({ trouble }: { trouble: Trouble | null }) {
           </div>
           <LegalLinks />
         </GateSheet>
-      </SheetColumn>
+      </SheetDock>
     </Gate>
   );
 }

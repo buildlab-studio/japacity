@@ -3,14 +3,15 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import type { AccountApi, AgeStanding, AuthResult } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
 import { COLUMN_PX } from "../../shared/ui/look/CentredColumn";
-import { SHEET_COLUMN_PX } from "../../shared/ui/look/SheetColumn";
+import { SHEET_COLUMN_PX, SHEET_DOCK_PX } from "../../shared/ui/look/SheetColumn";
+import { stubDesk } from "../../shared/testing/desk";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { App } from "../../app/App";
@@ -355,6 +356,56 @@ describe("the door's sheets on a desktop", () => {
   test("[server:no-platform-error-page] given the server out of reach for a new visitor, then the start screen's frame keeps its sheet in the sheet column", () => {
     render(<StartTrouble trouble={null} />);
     expect(sheetInLane("start-trouble")).toBe(true);
+  });
+});
+
+/** True where the sheet of the given mark docks at the left on a desk, at the dock's width, out of the centred column. */
+function sheetDocked(mark: string): boolean {
+  const sheet = document.querySelector(`[data-gate-sheet="${mark}"]`);
+  if (sheet === null) throw new Error(`No sheet marked ${mark}`);
+  const dock = sheet.closest("[data-sheet-dock]");
+  return dock !== null && sheet.closest("[data-sheet-column]") === null && dock.classList.contains("justify-start") && dock.querySelector(`.w-\\[${String(SHEET_DOCK_PX)}px\\]`)?.contains(sheet) === true;
+}
+
+describe("the door's sheets on a desk", () => {
+  beforeEach(() => {
+    stubDesk();
+    return () => vi.unstubAllGlobals();
+  });
+
+  test("[account:start-screen-over-live-city] given a desk, then the start screen's sheet docks at the left at the panel's width, while the scene behind and the two lights over it stay the whole window's", async () => {
+    expect(SHEET_DOCK_PX).toBe(460);
+    const store = signedOutStore(fakeAccount());
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} behind={<div data-test-city />} />
+      </GameProvider>,
+    );
+    await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(sheetDocked("start")).toBe(true);
+    expect(document.querySelector("[data-test-city]")?.closest("[data-sheet-dock]")).toBeNull();
+    expect(document.querySelector("[data-two-lights]")?.closest("[data-sheet-dock]")).toBeNull();
+  });
+
+  test("[account:start-screen-over-live-city] [account:age-screen-refuses-minors] given a desk, then the age screen's sheet docks at the left with its three fields inside it", async () => {
+    gate(fakeAccount());
+    await play();
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
+    expect(sheetDocked("age")).toBe(true);
+    expect(document.querySelector("[data-age-screen]")?.querySelectorAll("select")).toHaveLength(3);
+  });
+
+  test("[account:start-screen-over-live-city] given a desk, then the ways back in's sheet docks at the left", async () => {
+    gate(fakeAccount());
+    await returning();
+    await screen.findByRole("heading", { name: say("ui.account.returning.title") });
+    expect(sheetDocked("returning")).toBe(true);
+  });
+
+  test("[server:signups-off-shows-full] given a desk and sign-ups switched off, then the full screen's sheet docks at the left", async () => {
+    gate(fakeAccount({ ageStatus: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
+    expect(await screen.findByText(say("server.full"))).toBeDefined();
+    expect(sheetDocked("other")).toBe(true);
   });
 });
 

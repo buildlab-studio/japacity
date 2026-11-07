@@ -37,7 +37,7 @@ import { cookiesOff, GuestForm, LAPSES_TOLD, useGuestDoor, type GuestDoor } from
 import { inAppBrowser } from "./inApp";
 import { KeptLine, KeptName } from "./KeptStart";
 import { doneWaysBackIn, keptHere, nameBackFromGoogle, waysBackInAsked } from "./marks";
-import { SheetColumn } from "../../shared/ui/look/SheetColumn";
+import { SheetDock } from "../../shared/ui/look/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
 import { SignIn, type SignedInBy } from "./SignIn";
@@ -419,9 +419,9 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const over = marked ? top : shown === "start" ? <StartLights /> : null;
   return (
     <Gate mark="start" {...(over === null ? {} : { over })} {...(behind === undefined ? {} : { scene: behind })}>
-      {/* On a wide screen the sheet stands in a centred column at a reading width, the scene filling the window around it;
-          on a phone the column is the screen. */}
-      <SheetColumn>
+      {/* On a desk the sheet docks to the left, the city's middle clear to its right; on a wider screen than a phone it
+          stands in a centred column at a reading width, the scene filling the window around it; on a phone the column is the screen. */}
+      <SheetDock>
         <GateSheet mark={shown} label={say("ui.game")} tall={shown === "returning" || shown === "username"}>
           <p role="status" className={said === null ? "sr-only" : "mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]"}>
             {said ?? ""}
@@ -431,7 +431,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           </div>
           <LegalLinks />
         </GateSheet>
-      </SheetColumn>
+      </SheetDock>
     </Gate>
   );
 }

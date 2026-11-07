@@ -2,6 +2,8 @@
 // life a big sticker card swiped sideways with pager dots, the life's own thing big on it with your face sticker, its
 // tag as a tilted chip, the name, the life in a few words, what it was and its savings; the ways it opens as picture
 // chips under the deck; and the age as a stepper card. A card swiped to the middle is the life picked, as a tap on it is.
+// On a desk every life shows at once as a two-column grid of small sticker tiles (its thing, its name, its tag), the picked
+// one ringed and tilted, with the age card under them; the stage shows the picked life large.
 import { Minus, Plus } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -120,14 +122,9 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
     if (settle.current !== null) window.clearTimeout(settle.current);
     settle.current = window.setTimeout(rest, SETTLE_MS);
   };
-  const does = lowest === null ? "" : ageStepWords(older, lowest, picked !== null && agePointsCount(picked));
   return (
     <>
-      {once ? (
-        <p className="mt-1 px-5 text-[12px] leading-snug text-text-2" data-door-once>
-          {say("prologue.archetype.once")}
-        </p>
-      ) : null}
+      {once ? <OnceLine className="mt-1 px-5" /> : null}
       <div ref={deck} className="door-deck mt-4 px-[calc(50%-141px)] pt-2 pb-5" role="radiogroup" aria-label={say("ui.door.life")} onScroll={scrolled} data-archetypes>
         {ARCHETYPES.map((tile) => (
           <LifeCard key={tile.id} tile={tile} look={look} on={tile.id === picked?.id} onPick={() => onPick(tile)} />
@@ -142,35 +139,91 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
         </span>
       </div>
       <span className="sr-only">{say("ui.door.lives", { n: at + 1, count: ARCHETYPES.length })}</span>
-      {lowest === null ? null : (
-        <section className="door-card mx-5 mt-3 mb-4 px-3.5 py-3" aria-label={say("prologue.door.age")} data-door-age>
-          <div className="flex items-center gap-3" data-age-steps>
-            <span className="sticker-cut" style={{ rotate: "-6deg" }} aria-hidden>
-              <span className="flex size-11 items-center justify-center rounded-[12px] bg-[var(--soft)]">
-                <Tile of="phone.birthday" size={26} />
-              </span>
-            </span>
-            <div className="min-w-0 flex-1 leading-tight">
-              <h2 className="text-[16px] font-bold">{say("prologue.door.age")}</h2>
-              <p className="text-[12px] text-text-2">{say("ui.door.age.from", { years: lowest })}</p>
-            </div>
-            <button type="button" className="round-button" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(older - 1)} onClick={() => onStep(-1)}>
-              <Minus size={20} strokeWidth={2.4} aria-hidden />
-            </button>
-            <span className="num min-w-[52px] text-center text-[34px] leading-none font-bold" data-age-years>
-              {say("prologue.door.age.years", { years: lowest + older })}
-            </span>
-            <button type="button" className="round-button" aria-label={say("prologue.door.age.older")} disabled={!open.includes(older + 1)} onClick={() => onStep(1)}>
-              <Plus size={20} strokeWidth={2.4} aria-hidden />
-            </button>
-          </div>
-          {does === "" ? null : (
-            <p className="mt-2 text-center text-[12.5px] leading-snug text-text-2" data-age-does>
-              {does}
-            </p>
-          )}
-        </section>
-      )}
+      {lowest === null ? null : <AgeCard picked={picked} lowest={lowest} older={older} open={open} onStep={onStep} className="door-card mx-5 mt-3 mb-4 px-3.5 py-3" />}
     </>
+  );
+}
+
+/** The line that says the years may go another way, where a life is started only once (prologue:tile-path-open-from-start). */
+export function OnceLine({ className }: { className: string }) {
+  return (
+    <p className={`${className} text-[12px] leading-snug text-text-2`} data-door-once>
+      {say("prologue.archetype.once")}
+    </p>
+  );
+}
+
+/** The age as a stepper card: the tile's own year and older, and what a step does. */
+export function AgeCard({ picked, lowest, older, open, onStep, className }: { picked: Archetype | null; lowest: number; older: number; open: readonly number[]; onStep: (by: number) => void; className: string }) {
+  const does = ageStepWords(older, lowest, picked !== null && agePointsCount(picked));
+  return (
+    <section className={className} aria-label={say("prologue.door.age")} data-door-age>
+      <div className="flex items-center gap-3" data-age-steps>
+        <span className="sticker-cut" style={{ rotate: "-6deg" }} aria-hidden>
+          <span className="flex size-11 items-center justify-center rounded-[12px] bg-[var(--soft)]">
+            <Tile of="phone.birthday" size={26} />
+          </span>
+        </span>
+        <div className="min-w-0 flex-1 leading-tight">
+          <h2 className="text-[16px] font-bold">{say("prologue.door.age")}</h2>
+          <p className="text-[12px] text-text-2">{say("ui.door.age.from", { years: lowest })}</p>
+        </div>
+        <button type="button" className="round-button" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(older - 1)} onClick={() => onStep(-1)}>
+          <Minus size={20} strokeWidth={2.4} aria-hidden />
+        </button>
+        <span className="num min-w-[52px] text-center text-[34px] leading-none font-bold" data-age-years>
+          {say("prologue.door.age.years", { years: lowest + older })}
+        </span>
+        <button type="button" className="round-button" aria-label={say("prologue.door.age.older")} disabled={!open.includes(older + 1)} onClick={() => onStep(1)}>
+          <Plus size={20} strokeWidth={2.4} aria-hidden />
+        </button>
+      </div>
+      {does === "" ? null : (
+        <p className="mt-2 text-center text-[12.5px] leading-snug text-text-2" data-age-does>
+          {does}
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** One life on the desk's grid: its thing on the tint of its kind, its name and its tag. */
+function LifeTile({ tile, on, at, onPick }: { tile: Archetype; on: boolean; at: number; onPick: () => void }) {
+  const thing = LIFE_THINGS[tile.id];
+  return (
+    <button
+      type="button"
+      role="radio"
+      data-archetype={tile.id}
+      aria-label={say(`prologue.archetype.${tile.id}.name`)}
+      aria-description={say(`prologue.archetype.${tile.id}.opens`)}
+      aria-checked={on}
+      onClick={onPick}
+      className="desk-life door-card flex items-center gap-2 p-1.5 text-left"
+      style={{ rotate: on ? "-1.5deg" : at % 2 === 0 ? "0.6deg" : "-0.6deg" }}
+    >
+      <span className={`flex size-[50px] shrink-0 items-center justify-center rounded-[12px] ${TINTS[thing.tint]}`} aria-hidden>
+        <ModelPicture model={thing.tile} size={46} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[15px] leading-tight font-bold" data-tile-name>
+          {say(`prologue.archetype.${tile.id}.name`)}
+        </span>
+        <span className="sticker-chip mt-1 inline-block bg-[var(--soft)]! px-2! py-0.5! text-[12px]! text-[var(--soft-ink)]!" style={{ rotate: "-2deg" }} data-tile-tag>
+          {say(`ui.door.tag.${tile.id}`)}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** Every life at once, for the desk: a two-column grid of tiles, the picked one ringed and tilted. */
+export function LifeGrid({ picked, onPick }: { picked: Archetype | null; onPick: (archetype: Archetype) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-2.5 px-6 pt-3.5" role="radiogroup" aria-label={say("ui.door.life")} data-archetypes data-lives-grid data-columns={2}>
+      {ARCHETYPES.map((tile, at) => (
+        <LifeTile key={tile.id} tile={tile} at={at} on={tile.id === picked?.id} onPick={() => onPick(tile)} />
+      ))}
+    </div>
   );
 }

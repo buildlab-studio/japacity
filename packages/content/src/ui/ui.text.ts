@@ -535,6 +535,10 @@ export const uiText: Record<string, string> = {
   "ui.door.page.lead": "Where this life can lead",
   "ui.door.back": "Back",
   "ui.door.skip": "Skip",
+  // The door on a desk (prologue:front-door-three-screens): the band's steps, and the line of keys under the action.
+  "ui.door.steps": "Steps",
+  "ui.door.keys.pick": "Pick",
+  "ui.door.keys.enter": "Enter",
   "ui.door.shuffle.all": "Shuffle the look and the life",
   "ui.door.tag.developer": "Balanced",
   "ui.door.tag.nurse": "Head start",

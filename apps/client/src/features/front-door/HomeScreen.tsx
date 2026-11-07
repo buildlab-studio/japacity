@@ -32,7 +32,7 @@ function homeCosts(home: Home | "self-contain"): string {
 }
 
 /** A home's picture: the room as the game draws it, or the model on a soft tile. */
-function HomePicture({ home, className = "", size }: { home: Home | "self-contain"; className?: string; size: number }) {
+export function HomePicture({ home, className = "", size }: { home: Home | "self-contain"; className?: string; size: number }) {
   const picture = homePicture(home);
   if ("src" in picture) return <span className={`block bg-cover ${className}`} style={{ backgroundImage: `url(${picture.src})`, backgroundPosition: "center 55%" }} aria-hidden data-home-picture={home} />;
   return (
@@ -78,18 +78,21 @@ function PostageStamp({ figure, word }: { figure: string; word: string }) {
   );
 }
 
-/** The homes as stacked postcards: the one picked in front, the others fanned behind it. */
-function Stack({ home, homes, stamp }: { home: Home; homes: readonly Home[]; stamp: { figure: string; word: string } | null }) {
+/**
+ * The homes as stacked postcards: the one picked in front, the others fanned behind it. `low` is the desk's, shorter, since
+ * the stage shows the picked home large behind the figure.
+ */
+function Stack({ home, homes, stamp, low = false }: { home: Home; homes: readonly Home[]; stamp: { figure: string; word: string } | null; low?: boolean }) {
   const behind = homes.filter((one) => one !== home).slice(0, 2);
   return (
-    <div className="relative mx-auto mt-5 h-[262px] w-[330px] max-w-[calc(100%-32px)]" data-home-stack={home}>
+    <div className={`relative mx-auto ${low ? "mt-4 h-[200px]" : "mt-5 h-[262px]"} w-[330px] max-w-[calc(100%-32px)]`} data-home-stack={home}>
       {behind.map((one, at) => (
-        <div key={one} className="door-postcard absolute top-[18px] h-[200px] w-[230px]" style={at === 0 ? { left: -6, rotate: "-9deg" } : { right: -6, rotate: "8deg" }} data-home-card={one}>
-          <HomePicture home={one} size={120} className="h-[150px] rounded-[4px]" />
+        <div key={one} className={`door-postcard absolute top-[18px] ${low ? "h-[150px]" : "h-[200px]"} w-[230px]`} style={at === 0 ? { left: -6, rotate: "-9deg" } : { right: -6, rotate: "8deg" }} data-home-card={one}>
+          <HomePicture home={one} size={120} className={`${low ? "h-[106px]" : "h-[150px]"} rounded-[4px]`} />
         </div>
       ))}
       <div key={home} className="door-postcard door-deal absolute top-[6px] left-[16px] right-[16px] z-[3]" style={{ rotate: "-2.5deg" }} data-home-card={home} data-front>
-        <HomePicture home={home} size={150} className="h-[168px] rounded-[4px]" />
+        <HomePicture home={home} size={150} className={`${low ? "h-[112px]" : "h-[168px]"} rounded-[4px]`} />
         <p className="mx-0.5 mt-2.5 text-[17px] leading-tight font-bold" data-home-name>
           {say(`ui.door.home.${home}`)} · {say(`ui.door.home.where.${home}`)}
         </p>
@@ -158,15 +161,17 @@ export interface HomeProps {
   years: number;
   home: Home;
   onHome: (home: Home) => void;
+  /** The desk's shorter stack of postcards. */
+  low?: boolean;
 }
 
 /** Where you live for a tile: the stack, the homes to switch, the picked one's detail and the goal. */
-export function HomeRow({ archetype, years, home, onHome }: HomeProps) {
+export function HomeRow({ archetype, years, home, onHome, low = false }: HomeProps) {
   const offered = homesFor(archetype);
   const money = homeMoney(archetype, years, home);
   return (
     <section aria-label={say("ui.door.home")} data-door-home>
-      <Stack home={home} homes={offered} stamp={{ figure: money.figure, word: say(`ui.door.home.${money.kind}`) }} />
+      <Stack home={home} homes={offered} stamp={{ figure: money.figure, word: say(`ui.door.home.${money.kind}`) }} low={low} />
       <div className={`mx-4 mt-1 grid gap-2 ${offered.length > 3 ? "grid-cols-4" : "grid-cols-3"}`} role="radiogroup" aria-label={say("ui.door.home")}>
         {offered.map((one, at) => {
           const on = one === home;
@@ -209,10 +214,10 @@ export function HomeRow({ archetype, years, home, onHome }: HomeProps) {
 }
 
 /** Where a ready life starts: the family house alone, as every fixed life does (home.md). */
-export function ReadyHome({ home }: { home: Home }) {
+export function ReadyHome({ home, low = false }: { home: Home; low?: boolean }) {
   return (
     <section aria-label={say("ui.door.home")} data-door-home-ready>
-      <Stack home={home} homes={[home]} stamp={null} />
+      <Stack home={home} homes={[home]} stamp={null} low={low} />
       <p className="mx-5 mt-2 text-[14px] font-bold" data-page-home={home}>
         {say(`ui.page.home.${home}`)}
       </p>

@@ -856,3 +856,40 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   .loader[data-loader="busy"] > span { width: 100%; animation: none; opacity: 0.35; }
   .loader[data-loader="share"] > span { transition: none; }
 }
+/* The door on a desk (prologue:front-door-three-screens, shared/front-door/DoorDesk.tsx): the steps as tabs in the band, the
+   figure on its round floor with the page beside it, the lives as a grid of small tiles, and the keys as caps. Every rule
+   here is under the desk's own classes, so the phone's door is drawn as it is. Motion is transform only, short. */
+.desk-tab { display: inline-flex; height: 44px; align-items: center; gap: 8px; border-radius: 9999px; padding: 0 14px 0 6px; color: var(--text-2); font-size: 14px; font-weight: 700; white-space: nowrap; }
+.desk-tab[data-door-tab="now"] { background: var(--sheet-2); color: var(--text); box-shadow: 0 0 0 2px var(--edge), 0 3px 0 var(--edge); }
+.desk-tab[data-door-tab="done"] { color: var(--text); }
+button.desk-tab { transition-property: transform; transition-duration: 160ms; transition-timing-function: ease-out; }
+button.desk-tab:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.desk-tab-disc { display: flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 9999px; background: color-mix(in srgb, var(--text-2) 20%, transparent); font-size: 13px; font-weight: 800; }
+.desk-tab[data-door-tab="now"] .desk-tab-disc { background: var(--action); color: var(--action-text); box-shadow: 0 0 0 1.5px var(--action-under); }
+.desk-tab[data-door-tab="done"] .desk-tab-disc { background: var(--edge); color: var(--sheet-2); }
+.desk-tab-rule { display: block; width: 22px; height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--text-2) 35%, transparent); }
+.desk-key { display: inline-flex; min-width: 22px; height: 22px; align-items: center; justify-content: center; border: 1.5px solid var(--sheet-line); border-bottom-width: 3px; border-radius: 6px; padding: 0 6px; background: var(--sheet-2); color: var(--text); font: inherit; font-size: 12px; font-weight: 800; }
+/* The stage: the figure's half and the page's side. From 1280 px wide the page stands to the right of the figure; below
+   that it is drawn smaller at the stage's foot, clear of the panel. */
+.desk-floor { border-radius: 50%; background: color-mix(in srgb, var(--edge) 13%, transparent); }
+.desk-figure { right: 30%; }
+.desk-side { right: 0; bottom: 0; width: 380px; transform: scale(0.68); transform-origin: bottom right; }
+@media (min-width: 1280px) {
+  .desk-figure { right: 404px; }
+  .desk-side { top: 50%; bottom: auto; transform: translateY(-50%); }
+}
+/* The lives as small tiles: the picked one ringed in the action's yellow and tilted, the rest flat. */
+.desk-life { transition-property: transform; transition-duration: 160ms; transition-timing-function: ease-out; }
+.desk-life[aria-checked="true"] { box-shadow: 0 0 0 3px var(--action), 0 0 0 4.5px var(--edge), 0 5px 0 4.5px var(--edge); }
+.desk-life:focus-visible, .desk-looks > button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+/* A tile lifts a little under the pointer. */
+@media (hover: hover) {
+  [data-door-desk] .desk-life:hover,
+  [data-door-desk] .desk-looks > button:hover,
+  [data-door-desk] .door-home:not(:disabled):hover,
+  [data-door-desk] button.desk-tab:hover { transform: translateY(-2px); }
+}
+.desk-looks > button { transition-property: transform; transition-duration: 160ms; transition-timing-function: ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .desk-life, .desk-looks > button, button.desk-tab { transition-duration: 0ms; }
+}

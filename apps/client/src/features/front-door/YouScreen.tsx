@@ -4,7 +4,8 @@
 // placeholder in the placeholder's lighter ink, and the pool's three names under it while it is empty; the box takes the
 // focus as the screen opens, the first field to fill there (prologue:front-door-builds-a-person); the
 // look strip as round face stickers, every look in one strip; and "Make it yours" under it, opened on a tap, the figure
-// then drawn in your colours.
+// then drawn in your colours. On a desk the panel holds the same parts: the name, every look at once as a grid, and Make
+// it yours open from the start; the figure stands on the stage.
 import { Check, ChevronDown, Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -21,10 +22,10 @@ import { say } from "../../shared/words/text";
 
 /** The face stickers' discs, in turn along the strip. */
 const DISCS: readonly Tint[] = ["food", "study", "body", "money", "people", "plain"];
+/** How many looks stand in a row of the desk's grid. */
+export const LOOK_COLUMNS = 8;
 
-export interface YouProps {
-  look: string;
-  style: LookStyle | undefined;
+export interface NameProps {
   name: string;
   /** The name the empty box suggests as its placeholder, never its value. */
   suggestion: string;
@@ -37,9 +38,14 @@ export interface YouProps {
   suggestions: readonly string[];
   onName: (name: string) => void;
   onReroll: () => void;
+  onEnter: () => void;
+}
+
+export interface YouProps extends NameProps {
+  look: string;
+  style: LookStyle | undefined;
   onLook: (look: string) => void;
   onStyle: (style: LookStyle | undefined) => void;
-  onEnter: () => void;
 }
 
 /** You, on a photo card: the figure on a warm sky with a sun, your name stuck on its corner. */
@@ -67,14 +73,106 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
   );
 }
 
-export function YouScreen({ look, style, name, suggestion, typed, problem, tried, needed, suggestions, onName, onReroll, onLook, onStyle, onEnter }: YouProps) {
-  const [yours, setYours] = useState(false);
+/** The name: its title and its line of what it is for, the box with the dice, the pool's three names, and what is wrong with it. */
+export function NameField({ name, suggestion, typed, problem, tried, needed, suggestions, onName, onReroll, onEnter, className }: NameProps & { className: string }) {
   // The first field to fill takes the focus as the screen opens; after a Begin refused for the empty box it comes into view too.
   const box = useRef<HTMLInputElement>(null);
   const openedNeeding = useRef(needed);
   useEffect(() => {
     focusFirstField(box.current, openedNeeding.current);
   }, []);
+  return (
+    <div className={className}>
+      <label className="text-[14px] font-bold text-text-2" htmlFor="door-name">
+        {say("prologue.door.name.title")}
+      </label>
+      {/* What the name is for, so it is never taken for the username asked on its own step (prologue:front-door-builds-a-person). */}
+      <p id="door-name-hint" className="mt-0.5 text-[13px] leading-snug text-text-2" data-door-name-hint>
+        {say("prologue.door.name.hint")}
+      </p>
+      <div className="mt-2 flex gap-2.5">
+        <input
+          ref={box}
+          id="door-name"
+          className="h-[54px] min-w-0 flex-1 rounded-[14px] border-2 border-[var(--edge)] bg-sheet-2 px-4 text-[20px] font-bold text-text outline-none placeholder:font-semibold placeholder:text-text-2 placeholder:opacity-70 focus-visible:ring-2 focus-visible:ring-[var(--action)]"
+          placeholder={suggestion}
+          data-first-field
+          value={name}
+          maxLength={NAME_LONGEST + 4}
+          autoComplete="off"
+          autoCapitalize="words"
+          spellCheck={false}
+          aria-invalid={needed || (tried && problem !== null)}
+          aria-describedby={needed ? "door-name-hint door-name-needed" : "door-name-hint"}
+          onFocus={(event) => {
+            if (!typed) event.target.select();
+          }}
+          onChange={(event) => onName(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") onEnter();
+          }}
+        />
+        <button type="button" className="round-button size-[54px]! rounded-[14px]!" aria-label={say("ui.door.reroll")} onClick={onReroll} data-door-dice>
+          <Dices size={26} strokeWidth={2.2} aria-hidden />
+        </button>
+      </div>
+      {suggestions.length === 0 ? null : (
+        <div role="group" aria-label={say("prologue.door.name.suggested")} className="mt-2.5 flex flex-wrap gap-2" data-door-suggested>
+          {suggestions.map((one) => (
+            <button key={one} type="button" className="pill-button h-10! px-4! text-[16px]! font-bold" onClick={() => onName(one)}>
+              {one}
+            </button>
+          ))}
+        </div>
+      )}
+      {needed ? (
+        <p id="door-name-needed" role="alert" className="mt-1.5 text-[13px] font-bold text-out" data-door-name-needed>
+          {say("prologue.door.name.needed")}
+        </p>
+      ) : tried && problem !== null ? (
+        <p role="alert" className="mt-1.5 text-[13px] font-bold text-out">
+          {problemWords(problem)}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** Every look as a round face sticker: in one strip on a phone, as a grid on a desk. */
+export function LookChoice({ look, onLook, grid = false }: { look: string; onLook: (look: string) => void; grid?: boolean }) {
+  const size = grid ? 46 : 66;
+  return (
+    <section className={grid ? "mt-5 px-6" : "mt-5"} aria-label={say("ui.door.look")}>
+      <h2 className={grid ? "text-[14px] font-bold text-text-2" : "px-5 text-[14px] font-bold text-text-2"}>{say("ui.door.look")}</h2>
+      <div
+        className={grid ? "desk-looks grid justify-between gap-y-3 pt-3 pb-1" : "flex gap-3.5 overflow-x-auto px-6 pt-3.5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}
+        style={grid ? { gridTemplateColumns: `repeat(${String(LOOK_COLUMNS)}, ${String(size)}px)` } : undefined}
+        role="radiogroup"
+        aria-label={say("ui.door.look")}
+        data-looks
+        {...(grid ? { "data-looks-grid": "", "data-columns": LOOK_COLUMNS } : {})}
+      >
+        {LOOKS.map((one, index) => {
+          const on = one.id === look;
+          return (
+            <button key={one.id} type="button" role="radio" aria-checked={on} aria-label={say("ui.door.look.one", { n: index + 1 })} data-look={one.id} onClick={() => onLook(one.id)} className="relative shrink-0">
+              <FaceSticker look={one.id} size={size} on={on} tilt={index % 2 === 0 ? -3 : 3} tint={DISCS[index % DISCS.length] ?? "plain"} />
+              {on ? (
+                <span className="door-tick absolute right-[-6px] bottom-[-4px]" aria-hidden>
+                  <Check size={13} strokeWidth={3.2} />
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/** Your own colours on the look (prologue:player-colours-on-looks), under the looks: opened on a tap on a phone, open from the start on a desk. */
+export function MakeItYours({ look, style, onStyle, open = false, className = "mt-1 px-5 pb-4" }: { look: string; style: LookStyle | undefined; onStyle: (style: LookStyle | undefined) => void; open?: boolean; className?: string }) {
+  const [yours, setYours] = useState(open);
   // "Make it yours" reads what the look is made of once it is opened: nothing else on the door loads the model.
   useEffect(() => {
     if (!yours || ownOf(look) !== null || !canDraw()) return;
@@ -90,10 +188,10 @@ export function YouScreen({ look, style, name, suggestion, typed, problem, tried
     };
   }, [yours, look]);
   // Opened, the section comes into view once its rows stand, so a panel opened below the fold is seen (prologue:front-door-three-screens).
-  // Once an opening: a pick inside it brings the next part instead.
+  // Once an opening: a pick inside it brings the next part instead. Open from the start, it waits for the player's own opening.
   const section = useRef<HTMLElement>(null);
   const rowsShown = useOwnColours(look) !== null;
-  const broughtFor = useRef(false);
+  const broughtFor = useRef(open);
   useEffect(() => {
     if (!yours) {
       broughtFor.current = false;
@@ -104,93 +202,29 @@ export function YouScreen({ look, style, name, suggestion, typed, problem, tried
     bringIntoView(section.current);
   }, [yours, rowsShown]);
   return (
+    <section ref={section} className={className} data-door-yours>
+      <h2>
+        <button type="button" className="pill-button reach h-9! text-[14px]!" aria-expanded={yours} onClick={() => setYours((opened) => !opened)} data-yours-open>
+          {say("ui.door.yours")}
+          <ChevronDown size={16} strokeWidth={2.6} className={`transition-transform duration-200 ${yours ? "rotate-180" : ""}`} aria-hidden />
+        </button>
+      </h2>
+      {yours ? (
+        <div className="door-card mt-3 px-4 pt-1 pb-4 empty:hidden">
+          <OwnColoursRows look={look} style={style} heading={false} follow onStyle={(next) => onStyle(isMade(next) ? undefined : next)} />
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+export function YouScreen({ look, style, onLook, onStyle, ...named }: YouProps) {
+  return (
     <>
-      <PhotoCard look={look} style={style} name={name} />
-      <div className="mt-8 px-5">
-        <label className="text-[14px] font-bold text-text-2" htmlFor="door-name">
-          {say("prologue.door.name.title")}
-        </label>
-        {/* What the name is for, so it is never taken for the username asked on its own step (prologue:front-door-builds-a-person). */}
-        <p id="door-name-hint" className="mt-0.5 text-[13px] leading-snug text-text-2" data-door-name-hint>
-          {say("prologue.door.name.hint")}
-        </p>
-        <div className="mt-2 flex gap-2.5">
-          <input
-            ref={box}
-            id="door-name"
-            className="h-[54px] min-w-0 flex-1 rounded-[14px] border-2 border-[var(--edge)] bg-sheet-2 px-4 text-[20px] font-bold text-text outline-none placeholder:font-semibold placeholder:text-text-2 placeholder:opacity-70 focus-visible:ring-2 focus-visible:ring-[var(--action)]"
-            placeholder={suggestion}
-            data-first-field
-            value={name}
-            maxLength={NAME_LONGEST + 4}
-            autoComplete="off"
-            autoCapitalize="words"
-            spellCheck={false}
-            aria-invalid={needed || (tried && problem !== null)}
-            aria-describedby={needed ? "door-name-hint door-name-needed" : "door-name-hint"}
-            onFocus={(event) => {
-              if (!typed) event.target.select();
-            }}
-            onChange={(event) => onName(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") onEnter();
-            }}
-          />
-          <button type="button" className="round-button size-[54px]! rounded-[14px]!" aria-label={say("ui.door.reroll")} onClick={onReroll} data-door-dice>
-            <Dices size={26} strokeWidth={2.2} aria-hidden />
-          </button>
-        </div>
-        {suggestions.length === 0 ? null : (
-          <div role="group" aria-label={say("prologue.door.name.suggested")} className="mt-2.5 flex flex-wrap gap-2" data-door-suggested>
-            {suggestions.map((one) => (
-              <button key={one} type="button" className="pill-button h-10! px-4! text-[16px]! font-bold" onClick={() => onName(one)}>
-                {one}
-              </button>
-            ))}
-          </div>
-        )}
-        {needed ? (
-          <p id="door-name-needed" role="alert" className="mt-1.5 text-[13px] font-bold text-out" data-door-name-needed>
-            {say("prologue.door.name.needed")}
-          </p>
-        ) : tried && problem !== null ? (
-          <p role="alert" className="mt-1.5 text-[13px] font-bold text-out">
-            {problemWords(problem)}
-          </p>
-        ) : null}
-      </div>
-      <section className="mt-5" aria-label={say("ui.door.look")}>
-        <h2 className="px-5 text-[14px] font-bold text-text-2">{say("ui.door.look")}</h2>
-        <div className="flex gap-3.5 overflow-x-auto px-6 pt-3.5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-label={say("ui.door.look")} data-looks>
-          {LOOKS.map((one, index) => {
-            const on = one.id === look;
-            return (
-              <button key={one.id} type="button" role="radio" aria-checked={on} aria-label={say("ui.door.look.one", { n: index + 1 })} data-look={one.id} onClick={() => onLook(one.id)} className="relative shrink-0">
-                <FaceSticker look={one.id} size={66} on={on} tilt={index % 2 === 0 ? -3 : 3} tint={DISCS[index % DISCS.length] ?? "plain"} />
-                {on ? (
-                  <span className="door-tick absolute right-[-6px] bottom-[-4px]" aria-hidden>
-                    <Check size={13} strokeWidth={3.2} />
-                  </span>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-      {/* Your own colours on the look (prologue:player-colours-on-looks), under the strip, opened on a tap. */}
-      <section ref={section} className="mt-1 px-5 pb-4" data-door-yours>
-        <h2>
-          <button type="button" className="pill-button reach h-9! text-[14px]!" aria-expanded={yours} onClick={() => setYours((open) => !open)} data-yours-open>
-            {say("ui.door.yours")}
-            <ChevronDown size={16} strokeWidth={2.6} className={`transition-transform duration-200 ${yours ? "rotate-180" : ""}`} aria-hidden />
-          </button>
-        </h2>
-        {yours ? (
-          <div className="door-card mt-3 px-4 pt-1 pb-4 empty:hidden">
-            <OwnColoursRows look={look} style={style} heading={false} follow onStyle={(next) => onStyle(isMade(next) ? undefined : next)} />
-          </div>
-        ) : null}
-      </section>
+      <PhotoCard look={look} style={style} name={named.name} />
+      <NameField {...named} className="mt-8 px-5" />
+      <LookChoice look={look} onLook={onLook} />
+      <MakeItYours look={look} style={style} onStyle={onStyle} />
     </>
   );
 }
