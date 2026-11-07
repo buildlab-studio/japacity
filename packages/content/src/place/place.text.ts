@@ -468,6 +468,17 @@ export const placeText: Record<string, string> = {
   "place.makoko.act.deliveries": "Canoe deliveries",
   "place.makoko.act.fish-trade": "Trade fish",
   "place.makoko.thing.net-shed": "Net shed",
+  // The net shed's boat work (activity:boat-work-at-the-net-shed): Sewanu on his crate, the nets, the canoes alongside.
+  "place.makoko.thing.fisherman": "Sewanu",
+  "place.makoko.act.ask-fisherman": "Ask about boat work",
+  "place.makoko.thing.nets": "Nets",
+  "place.makoko.act.mend-nets": "Mend nets",
+  "place.makoko.thing.canoes": "Canoes",
+  "place.makoko.act.buy-canoe": "Buy a canoe",
+  "place.makoko.act.canoe-taxi": "Carry passengers",
+  // The viewing centre's match (activity:watch-the-match).
+  "place.makoko.thing.tvs": "The match",
+  "place.makoko.act.watch-match": "Watch",
   "place.makoko.thing.viewing-centre": "Viewing centre",
   "place.makoko.thing.smoking-deck": "Smoking deck",
   // The band's name for each of Makoko's scenes behind a door (world:top-band-is-a-pill), short enough to stand whole beside the age.

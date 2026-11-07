@@ -888,7 +888,12 @@
             "id": "enter",
             "label": "city.act.go-in",
             "kind": "enter",
-            "inside": "makoko-net-shed"
+            "inside": "makoko-net-shed",
+            "leads": [
+              "fisherman",
+              "nets",
+              "canoes"
+            ]
           }
         ]
       },
@@ -906,7 +911,10 @@
             "id": "enter",
             "label": "city.act.go-in",
             "kind": "enter",
-            "inside": "makoko-viewing-centre"
+            "inside": "makoko-viewing-centre",
+            "leads": [
+              "tvs"
+            ]
           }
         ]
       },

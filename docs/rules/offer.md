@@ -92,7 +92,7 @@ A pay term for a job paid in dollars is valued in naira at the official rate.
 | `offer.fee-payment-plan` | The university's fees office | "'You can clear the arrears on a plan: {instalment} a month until the end of the course, and a £50 fee. Miss a plan payment and we will write to you before we withdraw you.'" | `agree`: pay £50, reason `fee-school`, and spread the tuition owed over the months left (abroad-money:missed-tuition-runs-in-stages). `no` |
 | `offer.job` | A job offer | "'We would like you to start on the first.'" | `accept`: start the job. `decline` |
 | `offer.job-lead` | Them dey hire | Lanre: "'I know {lead}: it pays, but {cost}.'" | `accept` ("Take it"): start the job. `decline` ("Keep looking") |
-| `offer.canoe-place` | Third in my canoe | Sewanu: "'You want learn the water? Third in my canoe, you sort fish, I share the catch.'" | `accept` ("Take it"): start the job. `decline` ("Not now") |
+| `offer.canoe-place` | Join my canoe | Sewanu: "'You want learn the water? Third in my canoe, you sort fish, I share the catch.'" | `accept` ("Take it"): start the job. `decline` ("Not now") |
 | `offer.job-word` | Try them again | Lanre: "'I put in a word for you with {lead}, so go and see them again.'" | `accept` ("Take it"): start the job. `decline` ("Keep looking") |
 
 Signs for `offer.held-funds-agent`, each shown or not when the offer opens:

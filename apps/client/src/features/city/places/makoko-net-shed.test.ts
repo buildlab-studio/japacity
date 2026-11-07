@@ -1,7 +1,7 @@
 // Makoko's net shed (world:place-is-one-screen, world:entering-is-a-cut): reached from the channel's spur with the cut, a plank
 // platform on poles over the lagoon under a rusty roof, no walls but one end of sacks, nets on the rail, canoes alongside and the
-// bridge in the haze behind. A fisherman sits mending a net and two more sit in the shade; they are posed only, and the shed's one
-// thing is the way back out.
+// bridge in the haze behind. A fisherman sits mending a net and two more sit in the shade, posed; the boat work stands on Sewanu's
+// crate, the nets and the canoes (activity:boat-work-at-the-net-shed), and a plank is the way back out.
 import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
@@ -23,11 +23,21 @@ const { file, stage } = staged(raw, ID);
 const CREST = 0.075 + 0.045 + 0.02;
 
 describe("the net shed", () => {
-  test("[world:things-are-tappable-models] [world:entering-is-a-cut] given the shed's things, when they are read, then the one thing is the plank back to the walk, which goes out, and nobody in the shed is a thing with an act", () => {
+  test("[world:things-are-tappable-models] [world:entering-is-a-cut] [activity:boat-work-at-the-net-shed] given the shed's things, when they are read, then Sewanu's crate asks about boat work, the nets take the mending, the canoes alongside are bought and carry passengers, and the plank goes back to the walk", () => {
     expect(file.place).toBe(ID);
-    expect((stage.things ?? []).map((thing) => [thing.id, thing.acts.map((act) => act.kind)])).toEqual([["out", ["out"]]]);
+    expect((stage.things ?? []).map((thing) => [thing.id, thing.acts.map((act) => act.stages ?? act.kind)])).toEqual([
+      ["fisherman", ["activity.ask-fisherman"]],
+      ["nets", ["activity.take-net-work"]],
+      ["canoes", ["activity.buy-canoe", "activity.start-canoe-taxi"]],
+      ["out", ["out"]],
+    ]);
     expect(checkThings(file)).toEqual([]);
-    const out = stage.things?.[0];
+    const fisherman = stage.things?.find((thing) => thing.id === "fisherman");
+    if (fisherman === undefined) throw new Error("No fisherman");
+    expect(Math.hypot((fisherman.at?.[0] ?? 0) - SHED_CRATE.x, (fisherman.at?.[1] ?? 0) - SHED_CRATE.z)).toBeLessThan(0.1);
+    expect(cityWords(fisherman.label)).toBe("Sewanu");
+    for (const thing of stage.things ?? []) expect(thingSpot(stage, thing)).not.toBeNull();
+    const out = stage.things?.find((thing) => thing.id === "out");
     if (out === undefined) throw new Error("No way out");
     expect(cityWords(out.label)).toBe("Out");
     expect(thingSpot(stage, out)).not.toBeNull();

@@ -2,7 +2,7 @@
 // channel's walk with the cut, one plank room on stilts painted blue below and white above, seen whole with its near walls at the knee.
 // Two screens on plank brackets on its back wall show a match with no mark of any club, league or broadcaster; the stereo between them,
 // a standing fan, benches in rows with young men sitting watching, the generator on the porch outside the door. The young men are posed
-// only; the match's act stands on the screens later. The way out is the walk's plank.
+// only; the match's act stands on the screens (activity:watch-the-match). The way out is the walk's plank.
 import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
@@ -27,11 +27,20 @@ const SHELL = "places/makoko/building_makoko-viewing-room.glb";
 const CREST = 0.075 + 0.045 + 0.02;
 
 describe("the viewing centre", () => {
-  test("[world:entering-is-a-cut] [world:things-are-tappable-models] [city:makoko-holds-five-scenes] given the centre's things, when they are read, then the one thing is the walk's plank, which goes out, nobody in the room is a thing with an act, and the band names the centre", () => {
+  test("[world:entering-is-a-cut] [world:things-are-tappable-models] [city:makoko-holds-five-scenes] [activity:watch-the-match] given the centre's things, when they are read, then the screens carry the match, open from the evening with a seat on a bench, the walk's plank goes out, and the band names the centre", () => {
     expect(file.place).toBe(ID);
-    expect((stage.things ?? []).map((one) => [one.id, one.acts.map((act) => act.kind)])).toEqual([["out", ["out"]]]);
+    expect((stage.things ?? []).map((one) => [one.id, one.acts.map((act) => act.kind)])).toEqual([
+      ["tvs", ["sheet"]],
+      ["out", ["out"]],
+    ]);
     expect(checkThings(file)).toEqual([]);
-    const out = stage.things?.[0];
+    const tvs = stage.things?.find((one) => one.id === "tvs");
+    expect(tvs?.file).toBe("places/makoko/prop_match-tvs.glb");
+    expect(tvs?.acts).toEqual([expect.objectContaining({ stages: "activity.watch-match", parts: ["evening", "night"], pose: "sit" })]);
+    if (tvs === undefined) throw new Error("No screens");
+    expect(cityWords(tvs.label)).toBe("The match");
+    expect(thingSpot(stage, tvs)).not.toBeNull();
+    const out = stage.things?.find((one) => one.id === "out");
     if (out === undefined) throw new Error("No way out");
     expect(cityWords(out.label)).toBe("Out");
     expect(thingSpot(stage, out)).not.toBeNull();

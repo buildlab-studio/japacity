@@ -272,7 +272,7 @@ export const offerText: Record<string, string> = {
   "offer.job-word.choice.decline": "Keep looking",
   // activity:boat-work-at-the-net-shed: Sewanu's place in his canoe, in his Pidgin.
   "offer.canoe-place.name": "A place in Sewanu's canoe",
-  "offer.canoe-place.title": "Third for canoe",
+  "offer.canoe-place.title": "Join my canoe",
   "offer.canoe-place.body": "“Come be third for my canoe: you sort the fish, I share the catch.”",
   "offer.canoe-place.choice.accept": "Take it",
   "offer.canoe-place.choice.decline": "Not now",

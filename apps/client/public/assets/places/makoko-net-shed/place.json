@@ -308,6 +308,66 @@
     },
     "things": [
       {
+        "id": "fisherman",
+        "file": "places/makoko/building_makoko-net-shed.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.fisherman",
+        "at": [
+          0.35,
+          -0.5
+        ],
+        "acts": [
+          {
+            "id": "ask",
+            "label": "place.makoko.act.ask-fisherman",
+            "kind": "sheet",
+            "stages": "activity.ask-fisherman"
+          }
+        ]
+      },
+      {
+        "id": "nets",
+        "file": "places/makoko/prop_net-bundle.glb",
+        "copy": 1,
+        "label": "place.makoko.thing.nets",
+        "at": [
+          1.9,
+          -1.35
+        ],
+        "acts": [
+          {
+            "id": "mend",
+            "label": "place.makoko.act.mend-nets",
+            "kind": "sheet",
+            "stages": "activity.take-net-work"
+          }
+        ]
+      },
+      {
+        "id": "canoes",
+        "file": "places/third-mainland-bridge/prop_canoe.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.canoes",
+        "at": [
+          3.75,
+          0.2
+        ],
+        "acts": [
+          {
+            "id": "buy",
+            "label": "place.makoko.act.buy-canoe",
+            "kind": "sheet",
+            "stages": "activity.buy-canoe"
+          },
+          {
+            "id": "taxi",
+            "label": "place.makoko.act.canoe-taxi",
+            "kind": "sheet",
+            "stages": "activity.start-canoe-taxi"
+          }
+        ]
+      },
+      {
         "id": "out",
         "file": "places/makoko/prop_plank-walkway.glb",
         "copy": 0,

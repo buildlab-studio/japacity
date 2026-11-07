@@ -364,6 +364,34 @@
     "name": "place.makoko.scene.viewing-centre",
     "things": [
       {
+        "id": "tvs",
+        "file": "places/makoko/prop_match-tvs.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.tvs",
+        "at": [
+          0.0,
+          -2.2
+        ],
+        "acts": [
+          {
+            "id": "match",
+            "label": "place.makoko.act.watch-match",
+            "kind": "sheet",
+            "stages": "activity.watch-match",
+            "parts": [
+              "evening",
+              "night"
+            ],
+            "pose": "sit",
+            "seat": [
+              1.3,
+              0.55,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
         "id": "out",
         "file": "places/makoko/prop_plank-walkway.glb",
         "copy": 1,
