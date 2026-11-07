@@ -12,6 +12,7 @@ import { content } from "../../../packages/content/src/index";
 import { accountView } from "../src/shared/testing/fixtures";
 import { type Answer, CAPTCHA_TOKEN as TOKEN, clockAt, fakeServer, ONLINE, SIGNED_OUT, viewReply } from "./support/api";
 import { passThePage } from "./support/door";
+import { opensWithFocus } from "./support/focus";
 import { previewDir, shoot, shootAtSize } from "./support/preview";
 
 test.use({ baseURL: ONLINE });
@@ -141,10 +142,12 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByLabel("Username")).toHaveCount(0);
   // prologue:front-door-builds-a-person: on Play's path the username comes last, so the empty box suggests the pool's name as its
-  // placeholder, under the character's label, and holds the focus as the first field to fill.
+  // placeholder, under the character's label, and holds the focus as the first field to fill on a desktop, none on a phone.
   await expect(name).toHaveValue("");
   await expect(name).not.toHaveAttribute("placeholder", "");
-  await expect(name).toBeFocused();
+  await opensWithFocus(page, name);
+  if (previewDir !== null) await page.waitForTimeout(600);
+  await shootAtSize(page, "focus-door-open", info.project.name);
   await expect(page.locator("label[for='door-name']")).toHaveText("Character name");
   await shootSmall(page, "char-name-door-play", info.project.name);
   await name.fill("Ọlámídé");
@@ -157,7 +160,9 @@ test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [
   // their own and the box says it is free; the guest line said once.
   const username = page.getByLabel("Username");
   await expect(username).toHaveValue("");
-  await expect(username).toBeFocused();
+  await opensWithFocus(page, username);
+  if (previewDir !== null) await page.waitForTimeout(600);
+  await shootAtSize(page, "focus-page-open", info.project.name);
   await username.fill("Olamide");
   await expect(page.getByText("That name is free.")).toBeVisible();
   await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(1);
@@ -375,6 +380,8 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await page.goto("/");
   await page.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
   await expect(page.getByRole("heading", { name: "Sign back in" })).toBeVisible();
+  // The email box is the first field to fill there: focused on a desktop, and no keyboard raised on a phone.
+  await opensWithFocus(page, page.getByLabel("Email"));
   await page.waitForTimeout(800);
   await fitsWhole(page, "the ways back in");
   await shootAtSize(page, "code-step-first", info.project.name);
@@ -384,7 +391,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await page.getByLabel("Email").fill(USER.email);
   await page.getByRole("button", { name: "Send me a code" }).click();
   await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
-  await expect(page.getByLabel("6-digit code")).toBeFocused();
+  await opensWithFocus(page, page.getByLabel("6-digit code"));
   await expect(page.getByText(`We sent a code to ${USER.email}.`)).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Use a passkey" })).toHaveCount(0);
@@ -402,7 +409,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await shootSmall(page, "code-step-code", info.project.name);
   await page.getByRole("button", { name: "Change", exact: true }).click();
   await expect(page.getByLabel("Email")).toHaveValue(USER.email);
-  await expect(page.getByLabel("Email")).toBeFocused();
+  await opensWithFocus(page, page.getByLabel("Email"));
 
   // An address no account uses: the same answer, the same code step, a code mailed to it.
   await page.getByLabel("Email").fill(NEW_EMAIL);
@@ -433,6 +440,7 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   // The username's own step: the door's box, its check as it is typed, no guest line, one main button.
   await expect(page.getByRole("heading", { name: "Choose a username" })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByLabel("Username")).toHaveValue("");
+  await opensWithFocus(page, page.getByLabel("Username"));
   await expect(page.getByText("This life lives only on this phone until you save it.")).toHaveCount(0);
   await page.getByLabel("Username").fill("Olamide");
   await expect(page.getByText("That name is free.")).toBeVisible();
@@ -530,7 +538,7 @@ test("[account:sign-in-without-secret] a proof that ran out before Continue is t
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 
   await expect(page.locator("[data-code-sent]")).toHaveText(`Your code ran out. We sent a new one to ${NEW_EMAIL}.`);
-  await expect(page.getByLabel("6-digit code")).toBeFocused();
+  await opensWithFocus(page, page.getByLabel("6-digit code"));
   await expect(page.getByLabel("Username")).toHaveValue("Olamide");
   await expect(page.getByRole("button", { name: "Continue", exact: true })).toHaveCount(1);
   expect(shared.mailed).toHaveLength(2);

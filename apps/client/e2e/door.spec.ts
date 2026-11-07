@@ -6,6 +6,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
+import { onDesktop, opensWithFocus } from "./support/focus";
 
 // The rows follow what the figure reads of its look, so the figure must be drawn: WebGL in software, as the smoke spec has it.
 test.use({ launchOptions: SOFTWARE_WEBGL });
@@ -63,13 +64,15 @@ test("[prologue:front-door-builds-a-person] given the first screen on the narrow
   expect((title?.y ?? 0) < (said?.y ?? 0) && (said?.y ?? 0) < (box?.y ?? 0)).toBe(true);
 });
 
-test("[prologue:front-door-builds-a-person] given the first screen, then the empty box holds the focus with its ring in view and its suggestion in a lighter ink than a name; the dice fills it; Begin with it empty comes back to it focused, saying the story needs a name", async ({ page }) => {
+test("[prologue:front-door-builds-a-person] given the first screen, then the empty box holds the focus with its ring in view on a desktop and no focus on a phone, its suggestion in a lighter ink than a name; the dice fills it; Begin with it empty comes back to it focused on both, saying the story needs a name", async ({ page }) => {
   await page.goto("/");
   const box = page.locator("#door-name");
-  await expect(box).toBeFocused({ timeout: 30_000 });
+  await opensWithFocus(page, box, { timeout: 30_000 });
   await expect(box).toHaveValue("");
-  const ring = await box.evaluate((input) => getComputedStyle(input).boxShadow);
-  expect(ring).not.toBe("none");
+  if (await onDesktop(page)) {
+    const ring = await box.evaluate((input) => getComputedStyle(input).boxShadow);
+    expect(ring).not.toBe("none");
+  }
   const [placeholder, typed] = await box.evaluate((input) => [getComputedStyle(input, "::placeholder").color, getComputedStyle(input).color]);
   expect(placeholder).not.toBe(typed);
   const suggestion = await box.getAttribute("placeholder");
