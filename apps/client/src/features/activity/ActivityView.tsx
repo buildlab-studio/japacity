@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { ActivityOption, Currency, PlayerView, SlotPick } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
 import { Briefcase, Coins, Lock, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
@@ -348,8 +348,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             <h3 className="text-[17px] leading-tight font-bold">{name}</h3>
             {parts.line === null ? null : <p className="mt-0.5 text-[14px] leading-snug text-text-2">{parts.line}</p>}
             <div className="mt-1.5 flex flex-col gap-1.5">
-              <PriceChip option={option} />
-              <Facts facts={parts.facts} />
+              <Facts facts={parts.facts} lead={priceChip(option)} />
               <ChangesAndNeeds changes={parts.changes} needs={parts.needs.filter((need) => need.id !== "held")} />
             </div>
           </div>
@@ -463,10 +462,14 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 }
 
 /** An act's price as a chip with a coin, short in the warning ink when it cannot be paid; "Free" only on a meal (docs/design/09-the-games-look.md section 2). */
+function priceChip(option: ActivityOption): ReactNode {
+  return option.cost.length === 0 && !freeShown(option.id) ? null : <PriceChip option={option} />;
+}
+
 function PriceChip({ option }: { option: ActivityOption }) {
   if (option.cost.length === 0) {
     return freeShown(option.id) ? (
-      <span className="sticker-chip self-start bg-tint-money" style={{ rotate: "-2deg", color: "var(--money-ink)" }} data-cost="free">
+      <span className="sticker-chip bg-tint-money text-[13px]" style={{ rotate: "-2deg", color: "var(--money-ink)" }} data-cost="free">
         {say("ui.activity.free")}
       </span>
     ) : null;
@@ -475,8 +478,8 @@ function PriceChip({ option }: { option: ActivityOption }) {
   // The coin and the figure on the chip; a screen reader hears what the figure is, "Costs ₦3,000".
   const said = say("ui.activity.cost", { amount: price });
   return (
-    <span role="img" aria-label={said} title={said} className={`sticker-chip num self-start ${option.affordable ? "bg-[var(--soft)]" : "bg-sheet-2"}`} style={{ rotate: "-2deg", ...(option.affordable ? {} : { color: "var(--out)" }) }} data-cost>
-      <Coins size={13} aria-hidden strokeWidth={2.4} />
+    <span role="img" aria-label={said} title={said} className={`sticker-chip num text-[13px] ${option.affordable ? "bg-[var(--soft)]" : "bg-sheet-2"}`} style={{ rotate: "-2deg", ...(option.affordable ? {} : { color: "var(--out)" }) }} data-cost>
+      <Coins size={14} aria-hidden strokeWidth={2.4} />
       <span aria-hidden>{price}</span>
     </span>
   );
@@ -549,10 +552,7 @@ function ActRow({ option, picked, chosen, onPick, onChoose }: { option: Activity
                 {parts.line}
               </span>
             ) : null}
-            <span className="flex flex-wrap items-center gap-2">
-              <PriceChip option={option} />
-            </span>
-            <Facts facts={parts.facts} />
+            <Facts facts={parts.facts} lead={priceChip(option)} />
             <ChangesAndNeeds changes={parts.changes} needs={[...parts.needs, ...(picked ? missing : [])]} />
             {picked && study !== null ? (
               <span className="text-[14px] text-text-2" data-test-study>

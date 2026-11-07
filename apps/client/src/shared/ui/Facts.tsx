@@ -3,7 +3,7 @@
 // rows, each a short line with its icon on a soft square at the left. Beside them, what the act changes as arrow tags and what it
 // needs as marks. All take the night's paint from the role tokens alone.
 import { ArrowLeftRight, CalendarDays, Clock, Coins, PlaneTakeoff, Receipt, Tag, TriangleAlert } from "lucide-react";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 import { type Change, type Fact, type Need, ordered } from "../words/facts";
 import { countsRoutes, countsWords } from "../words/profile";
@@ -71,9 +71,10 @@ function FactIcon({ fact, size }: { fact: Fact; size: number }) {
 }
 
 /** The facts as tilted sticker chips in a row that wraps (look A). */
-function Chips({ facts }: { facts: readonly Fact[] }) {
+function Chips({ facts, lead }: { facts: readonly Fact[]; lead: ReactNode }) {
   return (
     <div className="flex flex-wrap gap-2" data-facts="chips">
+      {lead}
       {facts.map((fact, index) => {
         const spoken = spokenOf(fact);
         return (
@@ -140,10 +141,11 @@ function Lines({ facts }: { facts: readonly Fact[] }) {
 }
 
 /** The facts, in their one order, as chips, or as rows where a chip cannot carry them; `dense` draws rows as small lines. Nothing when there are none. */
-export function Facts({ facts, look = "chips", dense = false }: { facts: readonly Fact[]; look?: FactsLook; dense?: boolean }) {
+/** `lead`: a chip that stands first in the row, before the facts: an act's price. */
+export function Facts({ facts, look = "chips", dense = false, lead = null }: { facts: readonly Fact[]; look?: FactsLook; dense?: boolean; lead?: ReactNode }) {
   const shown = ordered(facts).filter((fact) => factWords(fact) !== "");
-  if (shown.length === 0) return null;
-  if (look === "chips") return <Chips facts={shown} />;
+  if (shown.length === 0 && (lead === null || lead === false)) return null;
+  if (look === "chips") return <Chips facts={shown} lead={lead} />;
   return dense ? <Lines facts={shown} /> : <Rows facts={shown} />;
 }
 
