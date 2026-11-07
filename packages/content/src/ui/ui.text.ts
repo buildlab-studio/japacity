@@ -556,7 +556,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.costs.family-house": "Your share about {amount} a month, as you go · family around",
   "ui.door.home.costs.makoko": "{amount} now for the room · living as you go",
   // The move-in with the agent's and the agreement's fees, as Bills says it (home:compound-room-is-a-home).
-  "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
+  "ui.door.home.costs.compound-room": "{movein} to move in · {rent} a year · living {amount} a month",
   "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
   // Each home's line on the door, in the order offered.
   "ui.door.home.line.compound-room": "Your things, your spot by the gate",
