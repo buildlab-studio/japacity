@@ -5,6 +5,8 @@
 
 The place fills the screen. Everything the player does, they do by tapping something that is there. The support pages live in a phone. The map is the city. The story leads, and there are no forms.
 
+On a desktop the screens before the world, the door first (prologue:front-door-three-screens), use the room a wide window gives and never stretch the phone: nothing scrolls the page; every option a step has shows at once where there is room; the one action stays in one place; the steps are always in view and can be gone back to; and the keys work (the arrows, Enter). The world keeps its centred column (world:world-fills-the-screen), and the phone keeps its handset.
+
 ## Rules: the screen
 
 **world:world-fills-the-screen** The world fills the screen. Over it sit only a top band, two thumb buttons at the bottom corners (Map at the left, Phone at the right), round and white with a picture each and in the centred column on a laptop, and a rise of japacity passing up for a moment (world:japacity-bag-by-door). Nothing sits under the band by default (world:nudge-says-one-thing). Nothing else is on screen until the player taps something. A sheet, the phone, the map and the results each open over the world and close back to it; the world stays visible behind a sheet. A moment (a chapter's card, a share card) may take most of the screen while the world stays visible and moving behind it, dimmed; one tap dismisses it, and sharing is offered, never required. Before the first month of a life is played, the current chapter opens over the dimmed world as chapter:first-chapter-mission-card says: its mission card, handed by its person, with Let's go.
