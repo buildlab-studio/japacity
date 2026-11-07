@@ -44,6 +44,11 @@ export interface Act {
    * the bed's Lie down while no nap can be had (at night, spent, abroad; world:things-are-tappable-models, world:sleep-ends-the-month).
    */
   otherwise?: Act;
+  /**
+   * For `enter`: the scene the door opens into, by its folder under places/, where a place holds more than one (Makoko's room on the
+   * water and its net shed, world:entering-is-a-cut); the file's own `stage.inside` when absent.
+   */
+  inside?: string;
   /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
   app?: string;
   /** For `command`: which command the card sends; `return/home` is the bag's Go home in the room abroad (return.md). */

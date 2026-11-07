@@ -16,7 +16,7 @@ export type Picked =
   | { kind: "action"; activity: string; more?: string[]; label?: string; param?: string }
   | { kind: "command"; command: "route/pay-deposit" | "route/depart" | "obligation/pay" | "people/court" | "return/home"; with?: string }
   | { kind: "enter"; place: string }
-  | { kind: "inside" }
+  | { kind: "inside"; scene?: string }
   | { kind: "out" };
 
 /** What the scene reports after a tap: the contract's pick (world:things-are-tappable-models), or a shopfront with its signs. */

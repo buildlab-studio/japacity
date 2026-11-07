@@ -466,6 +466,7 @@ export const placeText: Record<string, string> = {
   "place.makoko.thing.canoe-trade": "Work canoe",
   "place.makoko.act.deliveries": "Canoe deliveries",
   "place.makoko.act.fish-trade": "Trade fish",
+  "place.makoko.thing.net-shed": "Net shed",
   "place.makoko.thing.school": "School",
   "place.makoko.act.school": "Listen",
   "place.makoko.act.school.done": "A class saying the times table together, loud enough to hear across the water.",
