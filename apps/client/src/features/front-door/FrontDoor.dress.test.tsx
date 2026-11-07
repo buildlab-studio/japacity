@@ -41,12 +41,16 @@ describe("the lives swiped", () => {
     fireEvent.click(next());
     vi.useFakeTimers();
     const deck = document.querySelector<HTMLElement>("[data-archetypes]")!;
-    // The deck's geometry as a phone lays it out: cards 282 wide, 14 apart, in a strip 390 wide.
+    // The deck's geometry as a phone lays it out: cards 282 wide, 14 apart, in a strip 390 wide. A card's offset counts from the
+    // door round the deck and stands still as the deck scrolls; its box on the screen moves with the scroll.
+    const box = (left: number, width: number): DOMRect => ({ left, right: left + width, width, top: 0, bottom: 400, height: 400, x: left, y: 0, toJSON: () => ({}) });
     [...deck.children].forEach((card, index) => {
-      set(card, "offsetLeft", 54 + index * 296);
+      set(card, "offsetLeft", 400 + 54 + index * 296);
       set(card, "offsetWidth", 282);
+      (card as HTMLElement).getBoundingClientRect = () => box(54 + index * 296 - deck.scrollLeft, 282);
     });
     set(deck, "clientWidth", 390);
+    deck.getBoundingClientRect = () => box(0, 390);
     const third = ARCHETYPES[2]!;
     // The third card's middle under the strip's middle.
     deck.scrollLeft = 54 + 2 * 296 + 141 - 195;
