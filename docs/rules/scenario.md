@@ -42,7 +42,7 @@ A ready life has no name and no sex of its own: the player gives the name and th
 
 ## The teacher
 
-`scenario.teacher`: 26, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank and ₦20,000 cash, upkeep ₦80,000 and ₦25,000 sent home; cannot drive. Its family is Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool). Recorded as `teacher-borrower` in `simulated-play/lives.data.ts` (a master's flight in month 24). The nurse, `scenario.nurse`, is defined in `route-gates.md` (its last table); its family is Igbo.
+`scenario.teacher`: 26, a maths teacher 48 months in, a second upper and tech 32, two siblings, ₦350,000 in the bank and ₦20,000 cash, upkeep ₦80,000 and ₦25,000 sent home; cannot drive. Its family is Efik-Ibibio, the largest share outside the big three (person:one-mixed-name-pool). Recorded as `teacher-borrower` in `simulated-play/lives.data.ts`: a borrower who plans the master's, recorded on a seed whose master's flight leaves in the master's window of 48 to 72 months (`simulated-play/lives.window.ts`). The nurse, `scenario.nurse`, is defined in `route-gates.md` (its last table); its family is Igbo.
 
 ## What each one tests
 
