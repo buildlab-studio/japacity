@@ -99,6 +99,16 @@ describe("the world's stored ticks", () => {
     expect(lagosCalendar(closes)).toEqual({ december: false });
   });
 
+  test("[clock:december-by-lagos-time] given ticks starting either side of the first of June and of the first of October in Lagos time, when the calendar is read, then the rains run from June to September", () => {
+    // Lagos midnight is 23:00 UTC the day before.
+    const june = Date.UTC(2027, 4, 31, 23, 0, 0);
+    const october = Date.UTC(2027, 8, 30, 23, 0, 0);
+    expect(lagosCalendar(june - 1).rains).toBeUndefined();
+    expect(lagosCalendar(june).rains).toBe(true);
+    expect(lagosCalendar(october - 1).rains).toBe(true);
+    expect(lagosCalendar(october).rains).toBeUndefined();
+  });
+
   test("[clock:december-by-lagos-time] given an epoch one tick before Lagos December opens, when ticks 0 and 1 are made, then the season variable is 0 and then 1", async () => {
     const opens = Date.UTC(2026, 10, 30, 23, 0, 0);
     const server = testServer({ config: testConfig({ clock: { epoch: opens - worldTickMs } }) });

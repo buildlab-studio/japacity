@@ -14,12 +14,16 @@ import { lotteryFor } from "./lottery.world";
 /** clock:december-by-lagos-time: Lagos keeps UTC+1 all year. */
 const LAGOS_OFFSET_MS = time.HOUR_MS;
 const DECEMBER = 11;
+/** clock:december-by-lagos-time: the rains, June to September. */
+const RAINS_FROM = 5;
+const RAINS_TO = 8;
 
 export type WorldDeps = Pick<ServerDeps, "config" | "stores" | "contents" | "secrets">;
 
-/** clock:december-by-lagos-time: December when the tick begins in December in Lagos. */
+/** clock:december-by-lagos-time: December when the tick begins in December in Lagos, and the rains when it begins in June to September. */
 export function lagosCalendar(startsAt: number): WorldCalendar {
-  return { december: new Date(startsAt + LAGOS_OFFSET_MS).getUTCMonth() === DECEMBER };
+  const month = new Date(startsAt + LAGOS_OFFSET_MS).getUTCMonth();
+  return { december: month === DECEMBER, ...(month >= RAINS_FROM && month <= RAINS_TO ? { rains: true as const } : {}) };
 }
 
 /** clock:tick-row-is-pure-step, clock:online-lengths-scaled, clock:new-content-from-next-tick: the row for the tick after `previous`, or tick 0 from the seed alone, under the current content. */

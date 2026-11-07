@@ -5,7 +5,7 @@ import type { Content, EraEntry, Id, NewsEntry, World } from "../engine/types";
 import { start } from "../testing/play";
 import { pooled, stageOf, starts } from "../testing/world";
 import type { DirectorTick } from "./director";
-import { directorTicks } from "./director";
+import { directorTicks, offlineCalendar } from "./director";
 import { standInWorld, standInWorlds } from "./standIn";
 import { CALM, STUDY_WINDOW } from "../testing/ids";
 
@@ -389,8 +389,21 @@ describe("December and inflation", () => {
   });
 });
 
+describe("the rains", () => {
+  test("[director:december-and-inflation] given 300 ticks, when the rains' variable is read, then it is 1 on the ticks of the game year 5 to 8, June to September, and 0 on every other", () => {
+    for (const seed of SEEDS.slice(0, 3)) {
+      for (const world of standInWorlds(seed, 300, content)) {
+        const month = world.tick % 12;
+        expect(world.vars["var.season-rains"]).toBe(month >= 5 && month <= 8 ? 1 : 0);
+      }
+    }
+    // At the edges: May and October are dry, June and September wet.
+    expect([4, 5, 8, 9].map((tick) => offlineCalendar(tick).rains === true)).toEqual([false, true, true, false]);
+  });
+});
+
 describe("the world's variables", () => {
-  test("[director:world-variables-per-route] given many seeds, when a variable changes between ticks, then a story came into force or ended that names it, or it is a surge or December", () => {
+  test("[director:world-variables-per-route] given many seeds, when a variable changes between ticks, then a story came into force or ended that names it, or it is a surge or a season, December or the rains", () => {
     const names = (id: Id<"news">) => {
       const entry = content.news[id]!;
       return [...entry.standIn.sets.map((set) => set.var), ...(entry.director?.adds ?? []).map((add) => add.var)];
@@ -402,7 +415,7 @@ describe("the world's variables", () => {
         const before = ticks[tick.tick - 1]!;
         const moved = [...tick.cameIntoForce, ...tick.ended].flatMap(names);
         for (const id of Object.keys(content.var) as Id<"var">[]) {
-          if (tick.vars[id] === before.vars[id] || id.endsWith("-surge") || id === "var.season-december") continue;
+          if (tick.vars[id] === before.vars[id] || id.endsWith("-surge") || id === "var.season-december" || id === "var.season-rains") continue;
           expect(moved).toContain(id);
         }
       }

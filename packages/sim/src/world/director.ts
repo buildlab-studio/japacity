@@ -48,6 +48,9 @@ const ERA_DRAWS = 2;
 const MONTHS_A_YEAR = 12;
 /** Offline, the eleventh tick of each game year is December (director:december-and-inflation). */
 const DECEMBER_TICK = 11;
+/** director:december-and-inflation: the rains run from June to September, the ticks of the game year 5 to 8 offline. */
+const RAINS_FROM_TICK = 5;
+const RAINS_TO_TICK = 8;
 
 /** One tick of the director's world, with what moved on it. */
 export interface DirectorTick {
@@ -110,6 +113,8 @@ export interface DirectorBook {
 /** The facts of the real calendar a tick needs (clock:december-by-lagos-time, director:december-and-inflation). */
 export interface WorldCalendar {
   december: boolean;
+  /** June to September (director:december-and-inflation, clock:december-by-lagos-time). Missing: not the rains. */
+  rains?: true;
 }
 
 /** What the director reads of one story, worked out once for each content. Stories are held by their place in id order. */
@@ -553,6 +558,7 @@ function stepWorldTick(book: DirectorBook | null, worldSeed: string, content: Co
   }
   if (tick > 0) turnCycle(next, content, reading);
   if (content.var[VAR.seasonDecember] !== undefined) next.values[VAR.seasonDecember] = calendar.december ? 1 : 0;
+  if (content.var[VAR.seasonRains] !== undefined) next.values[VAR.seasonRains] = calendar.rains === true ? 1 : 0;
   const turned = turnStories(next, reading, tick);
   markClosed(next, reading, tick);
   if (tick > 0) rollStories(next, worldSeed, content, reading, tick, scale);
@@ -593,7 +599,8 @@ export function stepWorld(book: DirectorBook | null, worldSeed: string, content:
 
 /** The calendar offline, where one tick is one month played (director:december-and-inflation). */
 export function offlineCalendar(tick: number): WorldCalendar {
-  return { december: tick % MONTHS_A_YEAR === DECEMBER_TICK };
+  const month = tick % MONTHS_A_YEAR;
+  return { december: month === DECEMBER_TICK, ...(month >= RAINS_FROM_TICK && month <= RAINS_TO_TICK ? { rains: true as const } : {}) };
 }
 
 /** Every tick of the director from 0 to `upTo`, offline unless told the scale and the calendar. For tests and reports. */

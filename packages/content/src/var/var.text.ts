@@ -10,6 +10,7 @@ export const varText: Record<string, string> = {
   "var.uk-surcharge.name": "Health surcharge",
   "var.uk-study-strictness.name": "How strict decisions are",
   "var.season-december.name": "December",
+  "var.season-rains.name": "The rains",
   "var.uk-graduate-months.name": "Graduate visa length",
   "var.uk-settle-months.name": "Months to settle in the UK",
   "var.uk-talent-settle-months.name": "Months to settle on the talent visa",

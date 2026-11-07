@@ -15,6 +15,7 @@ export const QUALITY = {
 
 export const VAR = {
   seasonDecember: "var.season-december",
+  seasonRains: "var.season-rains",
   /** status:uae-amnesty: 1 while the amnesty holds. */
   uaeAmnesty: "var.uae-amnesty",
   ukSurchargeYear: "var.uk-surcharge-year",

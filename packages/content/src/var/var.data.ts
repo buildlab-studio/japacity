@@ -27,6 +27,8 @@ export const varTable: Record<Id<"var">, VarEntry> = {
 
   // 1 in the one tick a game year the director makes December (place.md), else 0.
   "var.season-december": { id: "var.season-december", start: 0 },
+  // director:december-and-inflation: the rains, June to September; the catch reads it (activity:catch-drawn-each-month).
+  "var.season-rains": { id: "var.season-rains", start: 0 },
   // status.md "Numbers". Months; the shortening story sets 18.
   "var.uk-graduate-months": { id: "var.uk-graduate-months", start: 24 },
   "var.uk-settle-months": { id: "var.uk-settle-months", start: 60 },
