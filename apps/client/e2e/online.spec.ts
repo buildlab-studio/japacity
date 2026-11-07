@@ -222,7 +222,7 @@ function byRoute(heard: readonly string[]): Record<string, number> {
   return counts;
 }
 
-test("[server:per-account-rate-limits] [server:public-replies-cached] a guest who opens every phone app in turn, back and forth, for a minute asks nothing more of the hour's adverts or the account once the phone tile stands, and the image at most once", async ({ page }) => {
+test("[server:per-account-rate-limits] [server:public-replies-cached] a guest who opens every phone app in turn, back and forth, for a minute asks nothing more of the hour's adverts, their picture or the account once the phone tile stands", async ({ page }) => {
   const game = start({ scenario: "scenario.banker", content });
   game.grant(1);
   game.endTurn([]);
@@ -269,9 +269,8 @@ test("[server:per-account-rate-limits] [server:public-replies-cached] a guest wh
   const sweep = byRoute(heard.slice(before));
   console.log(`apps opened ${String(opened)}; before the sweep ${JSON.stringify(byRoute(heard.slice(0, before)))}; in the sweep ${JSON.stringify(sweep)}`);
   expect(sweep["GET /api/adverts"] ?? 0).toBe(0);
-  // The image is the browser's to keep until the hour ends (its reply says so); a page whose requests are routed keeps no HTTP
-  // cache, so only the page's own memory of the picture stands here, and it may fetch it once more.
-  expect(sweep["GET /api/adverts/image"] ?? 0).toBeLessThanOrEqual(1);
+  // The picture is held once drawn, so it stands with no HTTP cache at all, as here, where the page's requests are routed.
+  expect(sweep["GET /api/adverts/image"] ?? 0).toBe(0);
   expect(sweep["GET /api/account"] ?? 0).toBe(0);
   expect(byRoute(heard)["GET /api/adverts"] ?? 0).toBe(1);
 });
