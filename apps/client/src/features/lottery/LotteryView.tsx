@@ -62,7 +62,7 @@ const HUNDRED_NAIRA = 10_000;
 
 /**
  * How the jackpot grows while nobody wins it, and its cap (lottery:jackpot-rolls-over), the share in money: "₦10 of every ₦100"
- * (docs/rules/text.md, "Money on screen"); nothing when it does not grow.
+ * (text:money-in-bank-words); nothing when it does not grow.
  */
 export function Grows({ lottery }: { lottery: Lottery }) {
   const { odds } = lottery;

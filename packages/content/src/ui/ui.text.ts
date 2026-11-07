@@ -772,7 +772,7 @@ export const uiText: Record<string, string> = {
   "ui.req.route-funds.one": "Funds covered for 1 month for {route}",
   "ui.req.route-funds.zero": "Enough funds shown for {route}",
   "ui.req.route-unexplained": "Unexplained money no more than {share} of the funds for {route}",
-  // A share of a sum in words, never a percentage (docs/rules/text.md, "Money on screen").
+  // A share of a sum in words, never a percentage (text:money-in-bank-words).
   "ui.part.one-in": "one in {count}",
   "ui.part.in-ten": "{count} in ten",
   "ui.part.in-hundred": "{count} in a hundred",

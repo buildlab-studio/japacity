@@ -315,7 +315,7 @@ export function saysWhyOnCard(option: Pick<ActivityOption, "allowed" | "missing"
 }
 
 /**
- * A share of a sum in words, never a percentage (docs/rules/text.md, "Money on screen"): "one in five" for a fifth, "three in ten" for
+ * A share of a sum in words, never a percentage (text:money-in-bank-words): "one in five" for a fifth, "three in ten" for
  * three tenths, "25 in a hundred" for anything finer.
  */
 export function shareWords(bp: number): string {

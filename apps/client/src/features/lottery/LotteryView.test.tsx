@@ -144,7 +144,7 @@ describe("the kiosk", () => {
 });
 
 describe("the jackpot and the odds on the kiosk", () => {
-  test("[lottery:screen-states-odds-plainly] given the rule page's odds, when the kiosk is shown, then the odds read in plain words with the jackpot standing, and nothing about a pot or a top-up", async () => {
+  test("[lottery:screen-states-odds-plainly] [text:money-in-bank-words] given the rule page's odds, when the kiosk is shown, then the odds read in plain words with the jackpot standing, and nothing about a pot or a top-up", async () => {
     await kiosk(drawOf());
     const odds = document.querySelector<HTMLElement>("[data-lottery-odds]")!;
     expect(within(odds).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
@@ -153,7 +153,7 @@ describe("the jackpot and the odds on the kiosk", () => {
       say("ui.lottery.chance.small", { every: formatNumber(10), amount: money(50_000) }),
     ]);
     expect(odds.textContent).toContain("1 in 5,000 wins the jackpot of ₦200,000");
-    // docs/rules/text.md, "Money on screen": the share the jackpot keeps is said in money, never a percentage.
+    // text:money-in-bank-words: the share the jackpot keeps is said in money, never a percentage.
     expect(screen.getByText(say("ui.lottery.grows", { kept: "₦10", each: "₦100", cap: money(tuning.odds.jackpotCap) }))).toBeDefined();
     expect(document.body.textContent).not.toContain("%");
     expect(document.body.textContent).not.toMatch(/\bpot\b|top.?up/i);
