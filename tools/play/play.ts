@@ -675,8 +675,42 @@ async function takeWanted(run: Run, month: number): Promise<void> {
   const take = run.options.take ?? [];
   if (take.length === 0) return;
   const { page } = run;
-  const marks = JSON.parse(String(await page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-mark]")].map((item) => item.getAttribute("data-mark") ?? ""))`))) as string[];
-  for (const mark of [...new Set(marks)]) {
+  await takeHere(run, month, take);
+  // The things behind a door (Makoko's net shed and viewing centre) are reached through it, and the way out is taken back.
+  for (const mark of await marksHere(run)) {
+    if ((HOME_DOORS as readonly string[]).includes(mark) || mark === "out") continue;
+    await tapMark(run, mark);
+    await page.waitForTimeout(600);
+    if (!(await fanButtons(run)).some((button) => button.id === "enter" && button.enabled)) {
+      await closeSheets(run);
+      continue;
+    }
+    log(run, `month ${String(month)}: going in at ${mark} for what --take names`);
+    if (!(await tap(run, page.locator(`[data-fan="${mark}"] [data-fan-act="enter"] button, [data-fan-act="enter"] button`).first(), "Go in"))) continue;
+    await page.waitForTimeout(1_500);
+    await placeDrawn(run);
+    await settle(run, `inside ${mark} in month ${String(month)}`);
+    await takeHere(run, month, take);
+    await tapMark(run, "out");
+    await page.waitForTimeout(600);
+    if (await tap(run, page.locator('[data-fan="out"] [data-fan-act="out"] button'), "Out")) {
+      await page.waitForTimeout(1_500);
+      await placeDrawn(run);
+    }
+  }
+}
+
+/** The things marked in the scene as it stands, each once. */
+async function marksHere(run: Run): Promise<string[]> {
+  const marks = JSON.parse(String(await run.page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-mark]")].map((item) => item.getAttribute("data-mark") ?? ""))`))) as string[];
+  return [...new Set(marks)];
+}
+
+/** --take in the scene as it stands: each thing tapped, and an act asked for that its fan offers open taken with its sheets' main answers. */
+async function takeHere(run: Run, month: number, take: readonly string[]): Promise<void> {
+  const { page } = run;
+  for (const mark of await marksHere(run)) {
+    if (mark === "out") continue;
     await tapMark(run, mark);
     await page.waitForTimeout(600);
     const wanted = (await fanButtons(run)).find((button) => button.enabled && take.includes(button.id));
