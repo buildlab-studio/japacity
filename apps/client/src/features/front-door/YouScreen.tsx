@@ -2,7 +2,7 @@
 // the whole figure standing with a hand on the hip on a sticker with your name stuck on it, a danfo and a travel bag
 // slapped on; the name with its line of what it is for and its dice, the box empty with a suggested name as its
 // placeholder in the placeholder's lighter ink, and the pool's three names under it while it is empty; the box takes the
-// focus as the screen opens, the first field to fill there (prologue:front-door-builds-a-person); the
+// focus as the screen opens on a desktop, the first field to fill there (prologue:front-door-builds-a-person); the
 // look strip as round face stickers, every look in one strip; and "Make it yours" under it, opened on a tap, the figure
 // then drawn in your colours. On a desk the panel holds the same parts: the name, every look at once as a grid, and Make
 // it yours open from the start; the figure stands on the stage.
@@ -75,7 +75,7 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
 
 /** The name: its title and its line of what it is for, the box with the dice, the pool's three names, and what is wrong with it. */
 export function NameField({ name, suggestion, typed, problem, tried, needed, suggestions, onName, onReroll, onEnter, className }: NameProps & { className: string }) {
-  // The first field to fill takes the focus as the screen opens; after a Begin refused for the empty box it comes into view too.
+  // The first field to fill takes the focus as the screen opens on a desktop; after a Begin refused for the empty box it takes it on every device and comes into view.
   const box = useRef<HTMLInputElement>(null);
   const openedNeeding = useRef(needed);
   useEffect(() => {

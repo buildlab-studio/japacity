@@ -39,8 +39,6 @@ export interface SignInProps {
   noneFound?: boolean;
   /** The address to fill the email field with: the one a guest typed before choosing its kept life. */
   filled?: string | null;
-  /** The email field takes the focus as the sheet opens: "Use another email" on a new life's step. */
-  focusEmail?: boolean;
   /** On to a new life's start: from a way in that found no account (null), or with the address its right code proved (account:sign-in-without-secret). */
   onNewLife?: (proved: string | null) => void;
   /** Seams for tests: the browser's user agent and the page's address, whether the browser offers passkeys in a field's autofill, and whether a passkey was used here. */
@@ -86,7 +84,7 @@ const PICKED_AND_REFUSED: ReadonlySet<string> = new Set(["passkey-gone", "other-
 /** The refusals of a way in that found no account behind it: told in their own words, with a new life under them. */
 const NONE_FOUND: ReadonlySet<string> = new Set(["passkey-gone", "no-life"]);
 
-export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, noneFound = false, filled = null, focusEmail = false, onNewLife = () => undefined, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
+export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, noneFound = false, filled = null, onNewLife = () => undefined, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
   const [busy, setBusy] = useState(false);
   // The address a code went to from the ways in: the sheet then holds the code step alone.
   const [codeTo, setCodeTo] = useState<string | null>(null);
@@ -173,7 +171,7 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
       account={account}
       passkeyAutofill={withAutofill}
       {...(filled === null ? {} : { filled })}
-      focusEmail={focusEmail}
+      focusEmail
       {...(typed === undefined ? {} : { onEmailTyped: typed })}
       onStep={setCodeTo}
       onSignedIn={() => onSignedIn("email")}

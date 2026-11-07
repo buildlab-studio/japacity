@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
+import { stubPointer } from "../../shared/testing/pointer";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { answers, codeAccount } from "./code.testing";
@@ -11,6 +12,7 @@ import { CodeForm, RESEND_WAIT_S } from "./CodeForm";
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 function form(over: Partial<AccountApi> = {}) {
@@ -39,8 +41,64 @@ async function answered(why: AuthResult): Promise<{ account: ReturnType<typeof c
   return { account, field };
 }
 
+describe("the first field's focus on a phone (account:code-form-forgives)", () => {
+  test("[account:code-form-forgives] given a touch phone, when the form opens with the address asked for focus, then no focus moves, so no keyboard rises over the ways back in", async () => {
+    stubPointer("coarse");
+    render(<CodeForm account={codeAccount()} focusEmail onSignedIn={() => undefined} />);
+    await screen.findByLabelText(say("ui.account.email.label"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  test("[account:code-form-forgives] given a desktop, when the form opens with the address asked for focus, then the address field takes it", async () => {
+    stubPointer("fine");
+    render(<CodeForm account={codeAccount()} focusEmail onSignedIn={() => undefined} />);
+    const email = await screen.findByLabelText(say("ui.account.email.label"));
+    await waitFor(() => expect(document.activeElement).toBe(email));
+  });
+
+  test("[account:code-form-forgives] given a touch phone, when a code is sent, then the code step opens with no focus in the field; a wrong code then focuses it with its digits selected", async () => {
+    stubPointer("coarse");
+    const account = codeAccount({ signInWithCode: answers({ ok: false, why: "wrong-code" }) });
+    render(<CodeForm account={account} onSignedIn={() => undefined} />);
+    const field = await sent();
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.activeElement).not.toBe(field);
+    fireEvent.change(field, { target: { value: "123456" } });
+    await waitFor(() => expect(slot().textContent).toBe(say("ui.account.fail.wrong-code")));
+    await waitFor(() => expect(document.activeElement).toBe(field));
+    expect([field.selectionStart, field.selectionEnd]).toEqual([0, 6]);
+  });
+
+  test("[account:code-form-forgives] given a touch phone, when Send me a code is pressed with an address of the wrong shape, then nothing is sent and the address field takes the focus with the reason under it", () => {
+    stubPointer("coarse");
+    const { account } = form();
+    const email = screen.getByLabelText(say("ui.account.email.label"));
+    fireEvent.change(email, { target: { value: "ada@example" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
+    expect(slot().textContent).toBe(say("ui.account.email.shape"));
+    expect(document.activeElement).toBe(email);
+    expect(account.calls).toEqual([]);
+  });
+
+  test("[account:code-form-forgives] given a touch phone, when Sign in is pressed with fewer than six digits, then the code field takes the focus with the reason under it", async () => {
+    stubPointer("coarse");
+    form();
+    const field = await sent();
+    fireEvent.change(field, { target: { value: "123" } });
+    fireEvent.click(go());
+    expect(slot().textContent).toBe(say("ui.account.code.short"));
+    expect(document.activeElement).toBe(field);
+  });
+});
+
 describe("the code step (account:code-form-forgives)", () => {
-  test("[account:code-form-forgives] given a code sent, then the step says where it went with Change after the address, the field is labelled for screen readers alone and takes the focus, and the slot holds nothing", async () => {
+  test("[account:code-form-forgives] given a code sent on a desktop, then the step says where it went with Change after the address, the field is labelled for screen readers alone and takes the focus, and the slot holds nothing", async () => {
+    stubPointer("fine");
     form();
     const field = await sent();
     await waitFor(() => expect(document.activeElement).toBe(field));
@@ -95,7 +153,8 @@ describe("the code step (account:code-form-forgives)", () => {
     expect(go().disabled).toBe(false);
   });
 
-  test("[account:email-code-is-short-lived] [account:code-form-forgives] given a code whose tries are used up, then the field and Sign in go, the slot says so, and Send a new code is the one button at once", async () => {
+  test("[account:email-code-is-short-lived] [account:code-form-forgives] given a code whose tries are used up on a desktop, then the field and Sign in go, the slot says so, and Send a new code is the one button at once", async () => {
+    stubPointer("fine");
     const { account } = await answered({ ok: false, why: "used-up" });
     await waitFor(() => expect(slot().textContent).toBe(say("ui.account.fail.used-up")));
     expect(say("ui.account.fail.used-up")).toBe("Too many wrong tries. Send a new code.");
@@ -196,7 +255,8 @@ describe("the code step (account:code-form-forgives)", () => {
     expect(account.calls.filter((call) => call.startsWith("signInWithCode"))).toHaveLength(1);
   });
 
-  test("[account:sign-in-without-secret] given a code already sent to a known address with a line of its own, then the form opens on the code step under that line with the focus in the field, a new code goes to the address, and a code that proves the address for a new life hands it on without signing in", async () => {
+  test("[account:sign-in-without-secret] given a code already sent to a known address with a line of its own, on a desktop, then the form opens on the code step under that line with the focus in the field, a new code goes to the address, and a code that proves the address for a new life hands it on without signing in", async () => {
+    stubPointer("fine");
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const account = codeAccount({ signInWithCode: answers({ ok: true, newLife: true }) });
     const signedIn = vi.fn();

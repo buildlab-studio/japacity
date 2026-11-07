@@ -4,7 +4,7 @@
 // typed, rolled or taken is never replaced, and a run kept on the device keeps its name. Begin with the box empty goes
 // back to it, focused, saying the story needs a name. The box takes the focus as the screen opens, unless a sheet stands over it.
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
@@ -12,6 +12,7 @@ import { createGameStore } from "../../authority/store";
 import { keepDoor, readDoor } from "../../shared/datapage/door";
 import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../../shared/front-door/looks";
 import { DOOR_KEY } from "../../shared/storage/storage";
+import { stubPointer } from "../../shared/testing/pointer";
 import { say } from "../../shared/words/text";
 import { FrontDoor } from "./FrontDoor";
 // Registers Testing Library's cleanup for this file.
@@ -20,6 +21,7 @@ import "../../shared/testing/render";
 afterEach(() => {
   localStorage.clear();
   document.querySelectorAll("[data-over-sheet]").forEach((sheet) => sheet.remove());
+  vi.unstubAllGlobals();
 });
 
 /** The door, its username known, still being read or never asked before the door (null). */
@@ -212,7 +214,8 @@ describe("the door's name box", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  test("[prologue:front-door-builds-a-person] given the door's first screen opening, then the name box takes the focus as the first field to fill; with a sheet standing over the door, the sheet keeps it", () => {
+  test("[prologue:front-door-builds-a-person] given the door's first screen opening on a desktop, then the name box takes the focus as the first field to fill; with a sheet standing over the door, the sheet keeps it", () => {
+    stubPointer("fine");
     const first = door(null);
     expect(document.activeElement).toBe(nameBox());
     first.unmount();
@@ -227,6 +230,21 @@ describe("the door's name box", () => {
     button.focus();
     door(null);
     expect(document.activeElement).toBe(button);
+  });
+});
+
+describe("the name box on a touch phone", () => {
+  test("[prologue:front-door-builds-a-person] given the door's first screen opening on a touch phone, then the name box waits unfocused, so no keyboard rises over the photo card; Begin with it empty goes back and focuses it", async () => {
+    stubPointer("coarse");
+    door("olamide_88");
+    expect(document.activeElement).not.toBe(nameBox());
+    expect(nameBox().placeholder).not.toBe("");
+    next();
+    next();
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
+    expect(document.querySelector("[data-gate='you']")).not.toBeNull();
+    expect(document.activeElement).toBe(nameBox());
+    expect(screen.getByRole("alert").textContent).toBe(say("prologue.door.name.needed"));
   });
 });
 

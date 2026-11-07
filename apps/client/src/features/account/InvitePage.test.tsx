@@ -4,7 +4,7 @@ import type { AccountView } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Id, InviteCard } from "@japacity/sim";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "../../app/App";
 import { GameProvider } from "../../authority/GameProvider";
@@ -15,6 +15,7 @@ import type { AccountApi, AgeAnswer } from "../../shared/net/auth";
 import { api } from "../../shared/net/http";
 import { engineView } from "../../shared/testing/fixtures";
 import { fakeModeration } from "../../shared/testing/moderation";
+import { stubPointer } from "../../shared/testing/pointer";
 import "../../shared/testing/render";
 import { BASE, deferred, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { nameOf, say, words } from "../../shared/words/text";
@@ -24,6 +25,10 @@ import { inviteCodeOf, InvitePage, InviteServerProvider } from "./InvitePage";
 // The marks a kept life and a used passkey leave in this browser turn the screens round; each test starts from a new browser.
 beforeEach(() => {
   localStorage.clear();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 const CODE = "a1b2c3d4e5f6a1b2c3d4e5f6";
@@ -205,6 +210,28 @@ describe("the invite link's page", () => {
     expect(await screen.findByText(say("ui.invite.keep-first"))).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.invite.take") })).toBeNull();
     expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(false);
+  });
+
+  test("[account:username-typed-and-checked] given a new friend on a desktop, when the age is passed, then the username box takes the focus as the first field to fill on the sign-up", async () => {
+    stubPointer("fine");
+    const server = cardServer();
+    openLink(server, account("passed", () => server.answer("GET /api/view", NO_CHARACTER), "guest"));
+    await answerAge("1990-05-01");
+    const box = await screen.findByLabelText(say("ui.account.name.label"));
+    await waitFor(() => expect(document.activeElement).toBe(box));
+    expect(box.hasAttribute("data-first-field")).toBe(true);
+  });
+
+  test("[account:username-typed-and-checked] given a new friend on a touch phone, when the age is passed, then the username box waits unfocused; the form sent with it empty focuses it with the reason under it", async () => {
+    stubPointer("coarse");
+    const server = cardServer();
+    openLink(server, account("passed", () => server.answer("GET /api/view", NO_CHARACTER), "guest"));
+    await answerAge("1990-05-01");
+    const box = await screen.findByLabelText(say("ui.account.name.label"));
+    expect(document.activeElement).not.toBe(box);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
+    expect(await screen.findByText(say("ui.account.name.empty"))).toBeDefined();
+    expect(document.activeElement).toBe(box);
   });
 
   test("[pair:invite-link-single-use] given a browser that does not pass the age screen, then no way in shows and nothing is accepted", async () => {

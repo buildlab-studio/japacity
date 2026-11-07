@@ -4,7 +4,7 @@
 // token, then the character, then the game opens on it.
 import type { Id } from "@japacity/sim";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../authority/GameProvider";
 import { createGameStore, type GameStore } from "../authority/store";
@@ -15,6 +15,7 @@ import { FrontDoor } from "../features/front-door/FrontDoor";
 import type { AccountApi, FreeAnswer, GuestAnswer } from "../shared/net/auth";
 import { reportedError } from "../shared/net/http";
 import { accountView, engineView } from "../shared/testing/fixtures";
+import { stubPointer } from "../shared/testing/pointer";
 import { lookOf, namesFor } from "../shared/front-door/looks";
 import { DOOR_KEY } from "../shared/storage/storage";
 import { say } from "../shared/words/text";
@@ -23,6 +24,7 @@ import "../shared/testing/render";
 
 afterEach(() => {
   localStorage.clear();
+  vi.unstubAllGlobals();
 });
 
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
@@ -146,7 +148,8 @@ describe("the username box (account:username-typed-and-checked)", () => {
     expect(usernameBox().value).toBe("my_own_name");
   });
 
-  test("[account:username-typed-and-checked] given Play and the age passed, when Where you live opens, then the username box, the first field to fill there, takes the focus; the door's first screen gave it to the character name box", async () => {
+  test("[account:username-typed-and-checked] given Play and the age passed on a desktop, when Where you live opens, then the username box, the first field to fill there, takes the focus; the door's first screen gave it to the character name box", async () => {
+    stubPointer("fine");
     online(fakeAccount());
     await toTheDoor(false);
     expect(document.activeElement).toBe(screen.getByRole("textbox", { name: say("prologue.door.name.title") }));
@@ -278,6 +281,20 @@ describe("Enter and a refused Begin (account:username-typed-and-checked)", () =>
     fireEvent.keyDown(usernameBox(), { key: "Enter", code: "Enter", shiftKey: true });
     await act(() => Promise.resolve());
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual([]);
+  });
+
+  test("[account:username-typed-and-checked] given Play and the age passed on a touch phone, when the door's first screen and then Where you live open, then neither box takes the focus, so no keyboard rises over the homes; Begin with the username empty then focuses its box", async () => {
+    stubPointer("coarse");
+    online(fakeAccount());
+    await toTheDoor(false);
+    expect(document.activeElement).not.toBe(screen.getByRole("textbox", { name: say("prologue.door.name.title") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
+    toThePage();
+    expect(document.activeElement).not.toBe(usernameBox());
+    fireEvent.click(next(say("ui.door.begin")));
+    expect(await screen.findByText(say("ui.account.name.empty"))).toBeDefined();
+    expect(document.activeElement).toBe(usernameBox());
+    expect(brought).toContain(usernameBox());
   });
 
   test("[account:username-typed-and-checked] given the box empty, when Begin is pressed, then the box is brought into view and focused, with the reason under it", async () => {
