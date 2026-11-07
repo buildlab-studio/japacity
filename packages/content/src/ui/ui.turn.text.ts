@@ -34,7 +34,7 @@ export const uiTurnText: Record<string, string> = {
   "turn.results.birthday": "You turned {years} this month.",
   "turn.results.kept": "Kept this month",
   "turn.results.lost": "Down this month",
-  "turn.results.nothing-moved": "Nothing moved",
+  "turn.results.nothing-moved": "No money came or went",
   "turn.results.story": "This month",
   "turn.results.draw": "Draw {draw}",
   "turn.results.draw-matched": "One of yours came in",

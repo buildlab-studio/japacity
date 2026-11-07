@@ -117,6 +117,8 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
     back();
     onAsk?.(offer);
   };
+  // Nothing told but the money: no face, no event, no draw and no paper running out.
+  const quiet = asked.length === 0 && story.length === 0 && draw === null && expiring.length === 0;
   // The visa's answer and the room on the water cleared away stand first and alone, before the money.
   const bigNews = story.some((line) => leadsAlone(line) || isEvicted(line));
   const storySection =
@@ -169,10 +171,13 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
         ))}
 
         {lines.length === 0 ? (
-          // No money moved: said plainly, never "+₦0" (world:month-end-results-sheet).
-          <div className="flex items-baseline justify-between gap-3" data-results-kept={0}>
-            <span className="text-[16px] leading-none font-semibold text-text-2">{turnWords("turn.results.nothing-moved")}</span>
-          </div>
+          // No money moved: said in words of money, never "+₦0", and only when the sheet has nothing else to tell; with a face,
+          // an event, the draw or a paper running out, the sheet leads with that (world:month-end-results-sheet).
+          quiet ? (
+            <div className="flex items-baseline justify-between gap-3" data-results-kept={0}>
+              <span className="text-[16px] leading-none font-semibold text-text-2">{turnWords("turn.results.nothing-moved")}</span>
+            </div>
+          ) : null
         ) : (
           // Losses are never the loudest: a month down is said quietly, a month up in green.
           <div className="flex items-baseline justify-between gap-3" data-results-kept={main.amount}>

@@ -2,11 +2,12 @@
 // ward came to nothing, then Lanre's lead names the call centre and says it will not count for the wards, and the sheet
 // says so above Take it. Played from the nurse's tile on the real content.
 import type { ReportLine } from "@japacity/sim";
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { OfferView } from "../features/offer/OfferView";
 import { storyLines } from "../features/turn/month.results";
+import { Results } from "../features/turn/Results";
 import { renderWithView } from "../shared/testing/render";
 import { tileNurse } from "../shared/testing/nurse";
 import { toldOnResults } from "../shared/words/told";
@@ -36,6 +37,17 @@ describe("the nurse's lead", () => {
     const lead = story.find((line) => line.key === "line.activity.hunt-lead")!;
     expect(words(lead.key, lead.params)).toBe("Lanre told you about a call centre in Ikeja that is hiring: it pays, but it will not count for the wards.");
     expect(story.some((line) => line.key === "line.offer.opened")).toBe(false);
+  });
+
+  test("[world:month-end-results-sheet] [activity:missed-hunt-opens-a-lead] given the nurse's first hunt for the ward missed and no money moved, when the results show, then no line says nothing happened: the sheet leads with Lanre's face and the month's story", async () => {
+    const { game, lines } = nurseMissed();
+    const view = game.view();
+    const { store } = await renderWithView(<Results place="Home" />, { ...view, report: { month: view.month, lines, japacityBefore: null, japacityAfter: null, attention: false } });
+    act(() => store.setState({ reportOpen: true }));
+    expect(document.querySelector("[data-results-ask]")).not.toBeNull();
+    expect(document.querySelector("[data-results-story]")?.textContent).toContain("Lanre told you about a call centre in Ikeja");
+    expect(document.querySelector("[data-results-kept]")).toBeNull();
+    expect(document.body.textContent).not.toContain(say("turn.results.nothing-moved"));
   });
 
   test("[activity:missed-hunt-opens-a-lead] [text:voice-by-surface] given the nurse's lead open, when its sheet shows, then Lanre asks, the line names the place and the cost above Take it and Keep looking, and nothing says the job is sure", async () => {

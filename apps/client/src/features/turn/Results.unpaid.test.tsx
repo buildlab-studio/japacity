@@ -28,8 +28,8 @@ function graduateBroke(game: Game = newGame("scenario.graduate")): Game {
   return game;
 }
 
-async function showResults(game: Game, lines: ReportLine[]) {
-  const view = game.view();
+async function showResults(game: Game, lines: ReportLine[], over: Partial<ReturnType<Game["view"]>> = {}) {
+  const view = { ...game.view(), ...over };
   const { store } = await renderWithView(<Results place="Home" />, { ...view, report: { month: view.month, lines, japacityBefore: null, japacityAfter: null, attention: false } });
   act(() => store.setState({ reportOpen: true }));
 }
@@ -58,14 +58,26 @@ describe("money that was not paid", () => {
     expect(first?.className).toContain("text-out");
   });
 
-  test("[world:month-end-results-sheet] given a month where no money moved, when the results show, then the headline says nothing moved rather than kept +₦0, and the money count is still what moved", async () => {
+  test("[world:month-end-results-sheet] given a quiet month where no money moved and nothing else is told, when the results show, then the headline says in words that no money came or went rather than kept +₦0, and the money count is still what moved", async () => {
     const game = graduateBroke();
     const { lines } = game.endTurn();
-    await showResults(game, lines);
+    await showResults(game, lines, { offers: [] });
+    expect(document.querySelector("[data-results-story]")).toBeNull();
+    expect(document.querySelector("[data-results-asked]")).toBeNull();
     const kept = document.querySelector("[data-results-kept]");
     expect(kept?.getAttribute("data-results-kept")).toBe("0");
     expect(kept?.textContent).toBe(turnWords("turn.results.nothing-moved"));
+    expect(kept?.textContent).toMatch(/\bmoney\b/i);
     expect(kept?.textContent).not.toContain("+");
+  });
+
+  test("[world:month-end-results-sheet] given a month where no money moved but people ask of the player, when the results show, then no line stands in Kept's place and the sheet leads with the faces", async () => {
+    const game = graduateBroke();
+    const { lines } = game.endTurn();
+    expect(game.view().offers.length).toBeGreaterThan(0);
+    await showResults(game, lines);
+    expect(document.querySelector("[data-results-kept]")).toBeNull();
+    expect(document.querySelector("[data-results-asked]")).not.toBeNull();
   });
 
   test("[world:month-end-results-sheet] [credit:payments-move-the-mark] given the graduate abroad holding no pounds, when its first month's rent goes unpaid, then the results lead with it and the mark on its credit file", () => {
