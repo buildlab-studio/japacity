@@ -21,7 +21,7 @@ import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
-import { jobCardLine, jobCardWords } from "../../shared/words/jobs";
+import { jobCardFacts, jobCardWords } from "../../shared/words/jobs";
 import { countsWords } from "../../shared/words/profile";
 import { needsWords } from "../../shared/words/requirement";
 import { onPhoneAppAsked } from "../../shared/phone/ask";
@@ -1462,6 +1462,8 @@ export function City({
     const held = heldBackWords(option);
     // activity:capital-opens-own-work, world:costly-acts-confirmed: the capital for own work is not given back when the work ends, so the sheet names it.
     const capital = ownWorkCapital(activity);
+    // world:one-action-one-sheet, text:show-then-tell: a job's card says its pay, chance and time as facts, and its line only what no fact says.
+    const job = chosen !== null && content.activity[activity as Id<"activity">]?.param === "job" ? jobCardFacts(view, activity, chosen) : null;
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
@@ -1476,10 +1478,10 @@ export function City({
             ? say("ui.world.side-job-title", { job: paramWords(chosen) })
             : `${nameOf(activity)}: ${paramWords(chosen)}`),
       line:
-        chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
-          ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
-          : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
-            ? jobCardLine(view, activity, chosen)
+        job !== null
+          ? (job.line ?? "")
+          : chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
+            ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
             : chance !== null
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
@@ -1496,7 +1498,8 @@ export function City({
       // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
       // activity:now-acts-spend-half-days: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
-      ...(time === null ? {} : { time }),
+      ...(job === null ? {} : { chips: [...job.facts, ...(time === null ? [] : [{ kind: "time" as const, words: time }])] }),
+      ...(time === null || job !== null ? {} : { time }),
       ...(does === null ? {} : { does }),
       // world:one-action-one-sheet: the act's button says its verb and its price.
       ...(cost === null ? {} : { priced: true as const }),

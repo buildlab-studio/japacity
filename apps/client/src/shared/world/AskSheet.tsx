@@ -9,6 +9,7 @@ import { type CSSProperties, type ReactNode, useState } from "react";
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
 import { CountsChip } from "../ui/CountsChip";
+import { Facts } from "../ui/Facts";
 import { StickerChip } from "../ui/look/StickerChip";
 import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
@@ -163,7 +164,12 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
         <SheetCloseButton label={say("ui.world.close")} />
       </div>
       <div className="p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-        <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>
+        {ask.line === "" ? null : <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>}
+        {ask.chips === undefined || ask.chips.length === 0 ? null : (
+          <div className={ask.line === "" ? "" : "mt-3"} data-ask-chips>
+            <Facts facts={ask.chips} />
+          </div>
+        )}
         {/* What the act means, as sticker chips under the line (the bag's Go home: what ends, what waits). */}
         {ask.counts === undefined ? null : (
           <div className="mt-3 flex flex-wrap gap-2">
