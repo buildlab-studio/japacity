@@ -44,7 +44,8 @@ export function useDoorKeys(on: boolean, act: (key: DoorKey) => boolean): void {
     if (!on) return;
     const pressed = (event: KeyboardEvent): void => {
       if (event.defaultPrevented) return;
-      const key = doorKey(event, document.activeElement === document.body ? null : document.activeElement);
+      // The key's own target, never the focus after it: a box's Enter that moved the door on has unmounted the box by now.
+      const key = doorKey(event, event.target instanceof Element && event.target !== document.body ? event.target : null);
       if (key === null) return;
       if (latest.current(key)) event.preventDefault();
     };

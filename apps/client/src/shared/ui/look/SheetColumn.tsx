@@ -24,14 +24,14 @@ export function SheetColumn({ children, className = "" }: { children: ReactNode;
 
 /**
  * The account screens' sheet over the live city: on a desk a card docked at the left at the window's foot, so the middle of
- * the city stands clear to its right; elsewhere the centred column.
+ * the city stands clear to its right; elsewhere the centred column. One element in both, so a sheet whose window crosses
+ * the desk's edge keeps what was typed in it.
  */
 export function SheetDock({ children }: { children: ReactNode }) {
   const desk = useDesk();
-  if (!desk) return <SheetColumn>{children}</SheetColumn>;
   return (
-    <div className="flex w-full justify-start px-4 pb-4" data-sheet-dock>
-      <div className="w-[460px] max-w-full">{children}</div>
-    </div>
+    <CentredColumn className={desk ? "mr-auto ml-4 max-w-[460px] pb-2" : "max-w-[600px]"} {...(desk ? { "data-sheet-dock": "" } : { "data-sheet-column": "" })}>
+      {children}
+    </CentredColumn>
   );
 }

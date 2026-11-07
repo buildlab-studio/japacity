@@ -364,7 +364,7 @@ function sheetDocked(mark: string): boolean {
   const sheet = document.querySelector(`[data-gate-sheet="${mark}"]`);
   if (sheet === null) throw new Error(`No sheet marked ${mark}`);
   const dock = sheet.closest("[data-sheet-dock]");
-  return dock !== null && sheet.closest("[data-sheet-column]") === null && dock.classList.contains("justify-start") && dock.querySelector(`.w-\\[${String(SHEET_DOCK_PX)}px\\]`)?.contains(sheet) === true;
+  return dock !== null && sheet.closest("[data-sheet-column]") === null && dock.classList.contains("mr-auto") && dock.classList.contains(`max-w-[${String(SHEET_DOCK_PX)}px]`);
 }
 
 describe("the door's sheets on a desk", () => {

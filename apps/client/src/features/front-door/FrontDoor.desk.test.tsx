@@ -183,8 +183,10 @@ describe("the door on a desk", () => {
     expect(nameBox().value).toBe("");
     expect(stage()).toBe("you");
     fireEvent.change(nameBox(), { target: { value: "Ada" } });
-    fireEvent.click(action());
+    // Enter in the box is the box's own, Next, once: the door does not take it again for a second step.
+    press("Enter", nameBox());
     await waitFor(() => expect(stage()).toBe("life"));
+    expect(stage()).toBe("life");
     fireEvent.click(action());
     await waitFor(() => expect(stage()).toBe("page"));
     const username = screen.getByRole<HTMLInputElement>("textbox", { name: "Username" });
