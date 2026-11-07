@@ -653,9 +653,8 @@ function commonOffer(view: PlayerView, content: Content, habits: Habits, offer: 
       return habits.takesGroupLoan ? choose(offer, "take", Number.MAX_SAFE_INTEGER) : choose(offer, "no");
     case "offer.gulf-agent":
       return chooseFirst(offer, habits.takesGulf ? ["take", "walk-away"] : ["walk-away"]);
-    // A lead after a first miss (activity:missed-hunt-opens-a-lead) is answered as a job offer is.
+    // A lead after a first miss (activity:missed-hunt-opens-a-lead), and Sewanu's place (activity:boat-work-at-the-net-shed), are answered as a job offer is.
     case "offer.job":
-    // activity:boat-work-at-the-net-shed: Sewanu's place is answered as a job offer is.
     case "offer.canoe-place":
     case "offer.job-lead":
     case "offer.job-word": {
