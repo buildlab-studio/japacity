@@ -1,0 +1,206 @@
+{
+  "asset": "building_makoko-church",
+  "file": "public/assets/places/makoko/building_makoko-church.glb",
+  "fileSha256": "2194be7ca98e0d9bfbf18acc2447e94904071612d012cb41dd6054abedf68215",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/makoko-house/church/renders/front.png",
+      "sha256": "e5b9d7ffcf9f93649ee653d5b0713f13e29183176b7954fcdbe4459765190b31",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.24000000953674316,
+          2.84999988079071,
+          50.54268204708093
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "width": 8.208002408806172,
+        "height": 6.156001806604629
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/makoko-house/church/renders/back.png",
+      "sha256": "22a22adcbb30cd7e035d790d66be80cdde0e4777ffc5b528fe8893851922051e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.24000000953674316,
+          2.84999988079071,
+          -50.492682094764646
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "width": 8.208002408806172,
+        "height": 6.156001806604629
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/makoko-house/church/renders/left.png",
+      "sha256": "80b9b15c686a49fa9e772a448560993f680962c2be2e40f3c3507e7caeb92c4c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -50.75768208045953,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "width": 8.208002408806172,
+        "height": 6.156001806604629
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/makoko-house/church/renders/right.png",
+      "sha256": "11d1a88c4a798d3d9777be48bce223450c6f7d722c7521a491a3bb051c4f283d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          50.277682061386045,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "width": 8.208002408806172,
+        "height": 6.156001806604629
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/makoko-house/church/renders/threeQuarter.png",
+      "sha256": "76847ee0f53803f24df0dd5b455b4e468595a8b65651399740e2fe9eb3e78bbc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.462145753858795,
+          12.40476188612104,
+          11.727145739553682
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/makoko-house/church/renders/plan.png",
+      "sha256": "20a88eed6b8467a6a4b629fee1315592e63bd907be60216d4f91a4c2693a78b2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.24000000953674316,
+          53.3676819517135,
+          0.02499997615814209
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.84999988079071,
+          0.02499997615814209
+        ],
+        "width": 8.136030976130185,
+        "height": 6.102023232097639
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/makoko-house/church/renders/phone.png",
+      "sha256": "151a8524d456ea6f72cc63759e9e01174adbcb172b5b0719d7849dd7cb4d73a0",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.24000000953674316,
+          1.6,
+          14.8500107317589
+        ],
+        "target": [
+          -0.24000000953674316,
+          2.5650007527519287,
+          2.8500107317589007
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/makoko-house/church/renders/tile.png",
+      "sha256": "99fcddf041bda2afdb5cea92c5aa45da83911eb02946b12c0750e5c591d0727d",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          10.348665904492723,
+          10.501657086633022,
+          9.857054278986224
+        ],
+        "target": [
+          0.3480638430456752,
+          2.336199696242741,
+          -0.14354778246082472
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_clothes-sack",
+  "file": "public/assets/places/makoko/prop_clothes-sack.glb",
+  "fileSha256": "5783782592f14522ee7c2176be79a9d1dcf2ea53d1681ed4681c11ead6a4f108",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-room/clothes-sack/renders/front.png",
+      "sha256": "0c9d04b66f7389fd374f0568fe1614491443c4247a1b590d0049d00eb6a78cb3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.17575596272945404,
+          0.40999999046325675,
+          15.996942815813327
+        ],
+        "target": [
+          0.17575596272945404,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "width": 1.1807866884281277,
+        "height": 0.8855900163210959
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-room/clothes-sack/renders/back.png",
+      "sha256": "0288fdce381cc8d01ded96581dad173a00cc1327bedd3fab03f91be783b4c618",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.17575596272945404,
+          0.40999999046325675,
+          -15.693256271514201
+        ],
+        "target": [
+          0.17575596272945404,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "width": 1.1807866884281277,
+        "height": 0.8855900163210959
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-room/clothes-sack/renders/left.png",
+      "sha256": "451932d62cd4e4712b1f629d3dfee17788728271c5d19fef80a2f2d2e5f0215b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -15.66934358093431,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "target": [
+          0.17575596272945404,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "width": 1.1807866884281277,
+        "height": 0.8855900163210959
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-room/clothes-sack/renders/right.png",
+      "sha256": "1ea99a69288fabff571f1929c08ecef6cb81f164256a605f6ad562691cebf710",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          16.020855506393218,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "target": [
+          0.17575596272945404,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "width": 1.1807866884281277,
+        "height": 0.8855900163210959
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-room/clothes-sack/renders/threeQuarter.png",
+      "sha256": "89328ca4dbf6c52f9e8fd9cd05915a8893f89782945461a5ed499ea72586de31",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8639129195312107,
+          1.7883743737612459,
+          1.8400002289513198
+        ],
+        "target": [
+          0.17575596272945404,
+          0.40999999046325675,
+          0.15184327214956286
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-room/clothes-sack/renders/phone.png",
+      "sha256": "43e2573f61b4d8833a84c939fc7780220b3e548a6bf5a959b620544f4afdc84d",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.17575596272945404,
+          1.6,
+          12.549362283620793
+        ],
+        "target": [
+          0.17575596272945404,
+          1.5,
+          0.5493622836207934
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-room/clothes-sack/renders/tile.png",
+      "sha256": "3dbf4875aaeabb5f1183a0e00a2217bc5d6fe3b623d37824381fd80a2fe2d896",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.4257743751775231,
+          1.4256040397074676,
+          1.4932671443303507
+        ],
+        "target": [
+          0.14301955577260725,
+          0.37823911549479133,
+          0.21051232492543465
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

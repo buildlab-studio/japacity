@@ -39,8 +39,9 @@ export function buildNetShed(walkTop: number): Group {
   }
   // The deck: bearers, a black skirt, boards along x a finger apart.
   for (const x of [-hw + 0.1, -hw / 3, hw / 3, hw - 0.1]) box(g, 0.14, 0.12, depth, x, floor - 0.18, 0, "darkWood");
-  for (const z of [-hd, hd]) box(g, width + 0.1, 0.1, 0.08, 0, floor - 0.1, z, "black");
-  for (const x of [-hw, hw]) box(g, 0.08, 0.1, depth, x, floor - 0.1, 0, "black");
+  // The skirt stops a finger under the boards, so its top never shares their height.
+  for (const z of [-hd, hd]) box(g, width + 0.1, 0.1, 0.08, 0, floor - 0.12, z, "black");
+  for (const x of [-hw, hw]) box(g, 0.08, 0.1, depth, x, floor - 0.12, 0, "black");
   const board = 0.26;
   for (let z = -hd + board / 2; z < hd; z += board) {
     const shade = BOARDS[Math.floor(random() * BOARDS.length)] ?? "concrete";

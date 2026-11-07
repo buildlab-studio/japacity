@@ -1,0 +1,181 @@
+{
+  "asset": "prop_three-stones",
+  "file": "public/assets/places/makoko/prop_three-stones.glb",
+  "fileSha256": "8d136288fe7d7b68c545ece7f695b35e045ae63257a041b6f33d5c66165dbdad",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-room/three-stones/renders/front.png",
+      "sha256": "7bec7e733255a34b4ab727305776a441b09d0883269baa276900a53b5ca4859c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.2076754718646407,
+          14.547778571729367
+        ],
+        "target": [
+          0,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "width": 0.81,
+        "height": 0.6075
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-room/three-stones/renders/back.png",
+      "sha256": "d53abc4618be2a5ff348326f19d1d01e6ee062a5e15b8274ceb9d3c99a4c69d1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.2076754718646407,
+          -14.424678290967648
+        ],
+        "target": [
+          0,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "width": 0.81,
+        "height": 0.6075
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-room/three-stones/renders/left.png",
+      "sha256": "cfef9f56ef49f9ffb8c3949713dfb5df23fef50a3e1293212fbc9c10eca4d592",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -14.486228431348508,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "target": [
+          0,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "width": 0.7809540086062197,
+        "height": 0.5857155064546647
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-room/three-stones/renders/right.png",
+      "sha256": "8087d2575e039bf00353fa80beab467e29ade710fedbf616a3a5bcc92d63531b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          14.486228431348508,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "target": [
+          0,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "width": 0.7809540086062197,
+        "height": 0.5857155064546647
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-room/three-stones/renders/threeQuarter.png",
+      "sha256": "42a1d61b9070ae7207a6f0ed0b4cd8ebc75d6f38c27e2478823a2e3ed6e83834",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.295693542874327,
+          1.2656048195516607,
+          1.3572436832551866
+        ],
+        "target": [
+          0,
+          0.2076754718646407,
+          0.061550140380859375
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-room/three-stones/renders/phone.png",
+      "sha256": "5914ac350f0aff1b042d11b9b49a1a139848b75fc527de8328af1e1fd8b4e340",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.423102922142998
+        ],
+        "target": [
+          0,
+          1.5,
+          0.4231029221429981
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-room/three-stones/renders/tile.png",
+      "sha256": "9f20059d0cf049a721f7670f91e701e4df8c2c16434fbb5a6b0a1af7a2e54b9f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.1523822119912799,
+          1.0156067928817825,
+          1.1359925842214083
+        ],
+        "target": [
+          0.0699455305912501,
+          0.131800943447904,
+          0.05355590282137838
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

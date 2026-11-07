@@ -2,7 +2,7 @@
 // rooms on stilts driven into the lagoon bed, zinc roofs rusting in patches, every board a little
 // different. Three shapes: (a) the room a character may rent, a one-room house on short stilts with its porch on the
 // water side and a plank up to it from the walk (`water.ts`, where the room seen from inside is built too); (b) a
-// taller house up a ladder, its veranda railed, a board hung on the rail;
+// taller house up a ladder, its veranda railed, a board hung on the rail, and dressed as the church with nets drying on its rail;
 // and the classroom on stilts, long and painted, its window band open, its board on the rail. No
 // real building is copied. Every piece faces +z with its lowest point on the water at y = 0.
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
@@ -70,9 +70,15 @@ function rail(root: Group, width: number, floor: number, z: number): void {
 /** The taller house up a ladder: its floor, walls, veranda and the board on its rail. */
 export const TALL_HOUSE = { width: 5.0, depth: 3.6, floor: 1.5, walls: 2.3, veranda: 1.3 } as const;
 
-export function buildTallHouse(board: string, style: SignStyle): Group {
+/** How a tall house is dressed: its shipped name, and long pale nets drying over its veranda rail (the church's). */
+export interface TallDress {
+  name: string;
+  nets: boolean;
+}
+
+export function buildTallHouse(board: string, style: SignStyle, dress: TallDress = { name: "building_makoko-house_b", nets: false }): Group {
   const root = new Group();
-  root.name = "building_makoko-house_b";
+  root.name = dress.name;
   const random = seeded(1885);
   const { width: w, depth: d, floor, walls, veranda } = TALL_HOUSE;
   const hw = w / 2;
@@ -105,6 +111,20 @@ export function buildTallHouse(board: string, style: SignStyle): Group {
   generator(root, -1.9, floor, front + 0.45, false, 0.3, "red");
   box(root, 0.2, 0.36, 0.28, 1.2, floor, front + 0.3, "danfoYellow");
   box(root, 0.26, 0.28, 0.26, hw - 0.15, 0.55, railZ + 0.35, "basin");
+  if (dress.nets) {
+    // Long pale nets folded over the rail to dry, their floats along the top, one end trailing toward the water.
+    const nets: [number, number, PaletteName][] = [[-1.6, 1.3, "cream"], [0.35, 1.1, "white"], [1.6, 0.9, "khaki"]];
+    for (const [x, w, colour] of nets) {
+      quad(root, w, 1.1, x, floor - 0.2, railZ + 0.05, colour);
+      quad(root, w, 1.1, x, floor - 0.2, railZ + 0.05, colour, Math.PI);
+      quad(root, w * 0.9, 0.7, x + 0.05, floor + 0.2, railZ - 0.05, colour, Math.PI);
+      for (let i = 0; i < 3; i++) box(root, 0.08, 0.06, 0.08, x - w / 2 + 0.2 + i * (w / 3), floor + 0.88, railZ, i % 2 === 0 ? "orange" : "danfoYellow");
+    }
+    // A white flag on a pole at the gable's end, as the churches on the water fly.
+    box(root, 0.06, 2.2, 0.06, -hw - 0.1, floor + walls - 0.3, zc, "white");
+    quad(root, 0.7, 0.45, -hw - 0.48, floor + walls + 1.4, zc, "white");
+    quad(root, 0.7, 0.45, -hw - 0.48, floor + walls + 1.4, zc, "white", Math.PI);
+  }
   // The house over its stilts to the rail, and the ladder's foot in front of it.
   return setFootprint(root, [
     { x: 0, z: back + (d + veranda) / 2, width: w + 0.2, depth: d + veranda + 0.1 },

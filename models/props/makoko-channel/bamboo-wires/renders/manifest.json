@@ -1,0 +1,181 @@
+{
+  "asset": "prop_bamboo-wires",
+  "file": "public/assets/places/makoko/prop_bamboo-wires.glb",
+  "fileSha256": "be7456d41851518fee3816af8cee44c5a256289ef8edb0edc2aaeb8ee6e80bed",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/front.png",
+      "sha256": "03b533c541f5857def915de725dd0926edecd0312b562b1b6ebf080cdcde73c6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          80.29481834123105
+        ],
+        "target": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "width": 17.744630012512207,
+        "height": 13.308472509384156
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/back.png",
+      "sha256": "525205f889e95ad0fe49f7b1d82bd65202af080f0505aefb00cb21a92f54757d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          -82.66530504772633
+        ],
+        "target": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "width": 17.744630012512207,
+        "height": 13.308472509384156
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/left.png",
+      "sha256": "8f737ce7663dec08121963d4511155f2674db23bb45f5c8563c14703981de3df",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -81.48102919707269,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "target": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "width": 9.367191998141255,
+        "height": 7.025393998605941
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/right.png",
+      "sha256": "229e602e9841ad72fd1e4abebfc8812c59a7b0c8660623a4fd02cfacafb15ca3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          81.4790941918847,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "target": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "width": 9.367191998141255,
+        "height": 7.025393998605941
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/threeQuarter.png",
+      "sha256": "571270a0a2769748d1694ba4d5bc55158f8dd4a0824e04409b45fc1d1c772aec",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          20.643601938992646,
+          20.106220395911134,
+          19.459326088339
+        ],
+        "target": [
+          -0.0009675025939941406,
+          3.250000032130629,
+          -1.1852433532476425
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/phone.png",
+      "sha256": "fa6b4f4e29526d197beffdf702771872dfaa81e32de4e640511dbdade9d2baf2",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.0009675025939941406,
+          1.6,
+          12.144286652612367
+        ],
+        "target": [
+          -0.0009675025939941406,
+          2.927247499419142,
+          0.14428665261236673
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-channel/bamboo-wires/renders/tile.png",
+      "sha256": "43691f5517c22ed7e987ab900a4aaa5e9285ee5003bd6e13123f766b56de89d8",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          15.769031927811152,
+          14.39233329623932,
+          12.154710803762832
+        ],
+        "target": [
+          1.4411704523920408,
+          2.6936833895535304,
+          -2.1731506716562845
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

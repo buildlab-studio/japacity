@@ -1,0 +1,181 @@
+{
+  "asset": "prop_drum-kilns",
+  "file": "public/assets/places/makoko/prop_drum-kilns.glb",
+  "fileSha256": "6817873d70229e0546b063d216b29919880d5f0f09fad6f236c4b20811b1f23b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/front.png",
+      "sha256": "1baacc7a1844431891427994a21c0099f4c5198c08f3f5924ff88801f2015779",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.4325000035762787,
+          21.327645731557297
+        ],
+        "target": [
+          0,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "width": 2.5920001029968263,
+        "height": 1.9440000772476198
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/back.png",
+      "sha256": "fb6dd2b20467993d66a8cbe7c66065ada14f45388d4ec807bcf98553ca564705",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.4325000035762787,
+          -20.920501870501923
+        ],
+        "target": [
+          0,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "width": 2.5920001029968263,
+        "height": 1.9440000772476198
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/left.png",
+      "sha256": "209e974fd0e118bfe20edc6e202c821253a576ef528efad22dce1a48ff777ea8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -21.12407380102961,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "target": [
+          0,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "width": 1.2456240004228856,
+        "height": 0.9342180003171642
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/right.png",
+      "sha256": "29ac6bce00773aed5438fd79a7c3f50c9618f8e703a83034ac1912a5cb9e9c34",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          21.12407380102961,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "target": [
+          0,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "width": 1.2456240004228856,
+        "height": 0.9342180003171642
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/threeQuarter.png",
+      "sha256": "06935ed2a6e2cbbb625b80607943a86ea4f34f13d6b5b4b08d069a6a372aa309",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.2128080000863988,
+          3.0557467508240688,
+          3.4163799306140867
+        ],
+        "target": [
+          0,
+          0.4325000035762787,
+          0.20357193052768707
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/phone.png",
+      "sha256": "9f3e8c9a68e408e1a47530356b2a0f2f9f6ed13687acd9da83646690d43bfeb6",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.757153299612042
+        ],
+        "target": [
+          0,
+          1.5,
+          0.7571532996120417
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-smoking/drum-kilns/renders/tile.png",
+      "sha256": "9c17051691aaebab1782768815a0ba38cdb9a5b40080ca5ca9435bfe99878bc8",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.68837025465606,
+          2.255066996412838,
+          2.5595629895876755
+        ],
+        "target": [
+          0.23868986770150044,
+          0.25491133609873107,
+          0.10988260263311514
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

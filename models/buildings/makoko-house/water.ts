@@ -10,6 +10,10 @@ import { type FootprintBox, type PaletteName, setFootprint, wallNode, type WallS
 import { beam, box, cylinder, floorQuad, quad, seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
+/** The row of floor boards, counted from the back wall, where a board is gone, and where along x the short board is nailed across. */
+const GONE_ROW = 12;
+const GONE_X = -0.35;
+
 /**
  * The house's sizes in metres: the room `width` along x and `depth` along z, the porch's depth in front of it, the
  * floor's height over the water, the walls' height over the floor, and the ramp's run from the porch's edge to its foot.
@@ -103,18 +107,25 @@ function plankSpan(frame: Group, random: () => number, from: number, to: number,
   }
 }
 
-/** Close bamboo stems: a pale ground and the stems drawn over it on both faces. */
-function bambooSpan(frame: Group, from: number, to: number, height: number, faces: 1 | 2, every: number): void {
-  const length = to - from;
-  const mid = (from + to) / 2;
-  if (faces === 2) box(frame, length, height, 0.04, mid, 0, 0, "tan");
-  else quad(frame, length, height, mid, 0, -T / 2, "tan", Math.PI);
-  let i = 0;
-  for (let x = from + every / 2; x < to; x += every) {
-    const shade: PaletteName = i % 3 === 0 ? "wood" : "khaki";
-    quad(frame, 0.03, height, x, 0, -T / 2 - 0.004, shade, Math.PI);
-    if (faces === 2) quad(frame, 0.03, height, x, 0, 0.024, shade);
-    i += 1;
+/** The stems' shades: dry bamboo and palm, pale and brown, no two neighbours alike. */
+const STEMS: PaletteName[] = ["khaki", "tan", "wood", "khaki", "tan", "darkWood", "khaki", "wood"];
+
+/**
+ * Close bamboo stems standing side by side as a fence does, each its own shade and height, a hair of light between them, and
+ * two battens across holding them: never a board with lines drawn on it.
+ */
+function bambooSpan(frame: Group, random: () => number, from: number, to: number, height: number, faces: 1 | 2): void {
+  const stem = 0.058;
+  const step = 0.068;
+  for (let x = from + step / 2; x < to - 0.01; x += step) {
+    const shade = STEMS[Math.floor(random() * STEMS.length)] ?? "khaki";
+    const h = height - random() * 0.12;
+    quad(frame, stem, h, x, 0, -0.012, shade, Math.PI);
+    if (faces === 2) quad(frame, stem, h, x, 0, 0.012, shade);
+  }
+  for (const y of [height * 0.28, height * 0.72]) {
+    quad(frame, to - from, 0.05, (from + to) / 2, y, -0.03, "darkWood", Math.PI);
+    if (faces === 2) quad(frame, to - from, 0.05, (from + to) / 2, y, 0.03, "darkWood");
   }
 }
 
@@ -141,7 +152,7 @@ function fullWall(g: Object3D, wall: Side, random: () => number, floor: number, 
   const { frame, length } = frameOf(g, wall, floor);
   const holes = holesOf(wall);
   for (const [a, b] of spans(length, holes)) {
-    if (wall.kind === "bamboo") bambooSpan(frame, a, b, walls, faces, faces === 2 ? 0.11 : 0.16);
+    if (wall.kind === "bamboo") bambooSpan(frame, random, a, b, walls, faces);
     else plankSpan(frame, random, a, b, walls, faces);
   }
   if (wall.kind === "patched") patch(frame, faces);
@@ -167,18 +178,22 @@ function fullWall(g: Object3D, wall: Side, random: () => number, floor: number, 
   });
 }
 
-/** The same wall cut to the knee: two or three boards across, the stems for the bamboo side, the door kept as its frame. */
-function lowWall(g: Object3D, wall: Side, floor: number): void {
+/** The same wall cut to the knee: three boards across both faces with the top capped, the stems for the bamboo side, the door kept as its frame. */
+function lowWall(g: Object3D, wall: Side, floor: number, random: () => number): void {
   const { frame, length } = frameOf(g, wall, floor);
   const knee = 0.6;
   const holes = wall.side === "front" ? [[DOOR_AT, DOOR.width] as [number, number]] : [];
   for (const [a, b] of spans(length, holes)) {
     if (wall.kind === "bamboo") {
-      bambooSpan(frame, a, b, knee, 2, 0.25);
+      bambooSpan(frame, random, a, b, knee, 2);
       continue;
     }
     const shades: PaletteName[] = ["concrete", "concreteWorn", "hub"];
-    shades.forEach((shade, i) => box(frame, b - a, 0.17, T, (a + b) / 2, i * 0.2, 0, shade));
+    shades.forEach((shade, i) => {
+      quad(frame, b - a, 0.17, (a + b) / 2, i * 0.2, -T / 2, shade, Math.PI);
+      quad(frame, b - a, 0.17, (a + b) / 2, i * 0.2, T / 2, shade);
+    });
+    floorQuad(frame, b - a, T, (a + b) / 2, 0.57, 0, "concreteWorn");
   }
   if (wall.side === "front") {
     // The door kept as its frame, so the way in still reads over the cut wall.
@@ -192,7 +207,7 @@ function stilts(g: Group, random: () => number, floor: number): void {
   const { width } = WATER_HOUSE;
   const { back, front, edge } = waterLines();
   const hw = width / 2;
-  for (const z of [back + 0.1, (back + front) / 2, front, edge - 0.1]) {
+  for (const z of [back + 0.1, front, edge - 0.1]) {
     for (const x of [-hw + 0.1, -hw / 3, hw / 3, hw - 0.1]) {
       const lean = (random() - 0.5) * 0.08;
       beam(g, [x, 0, z], [x + lean, floor - 0.1, z + lean * 0.5], 0.13, random() < 0.5 ? "black" : "darkWood");
@@ -207,18 +222,29 @@ function floorOf(g: Group, random: () => number, floor: number, gaps: boolean): 
   const hw = width / 2;
   const all = depth + porch;
   for (const x of [-hw + 0.1, 0, hw - 0.1]) box(g, 0.14, 0.12, all, x, floor - 0.2, back + all / 2, "darkWood");
-  box(g, width + 0.12, 0.1, 0.08, 0, floor - 0.1, back, "black");
-  box(g, width + 0.12, 0.1, 0.08, 0, floor - 0.1, edge, "black");
-  for (const s of [-1, 1]) box(g, 0.08, 0.1, all, s * (hw + 0.02), floor - 0.1, back + all / 2, "black");
+  // The skirt stops a finger under the boards, so its top never shares their height.
+  box(g, width + 0.12, 0.1, 0.08, 0, floor - 0.12, back, "black");
+  box(g, width + 0.12, 0.1, 0.08, 0, floor - 0.12, edge, "black");
+  for (const s of [-1, 1]) box(g, 0.08, 0.1, all, s * (hw + 0.02), floor - 0.12, back + all / 2, "black");
   if (!gaps) {
     box(g, width, 0.06, depth, 0, floor - 0.06, back + depth / 2, "concreteWorn");
   }
-  // Boards along x: across the room where a room is seen, and over the porch always.
+  // Boards along x: across the room where a room is seen, and over the porch always. Seen from inside they lie a hand's width
+  // apart in places, so the dark water shows between them; one by the door is gone, a short board nailed across the hole.
   const board = 0.26;
   const from = gaps ? back : back + depth;
+  let row = 0;
   for (let z = from + board / 2; z < edge; z += board) {
     const shade = GREYS[Math.floor(random() * GREYS.length)] ?? "concrete";
-    floorQuad(g, width + (random() - 0.5) * 0.1, board - 0.03, (random() - 0.5) * 0.05, floor + 0.002, z, shade === "zinc" ? "khaki" : shade);
+    const plank: PaletteName = shade === "zinc" ? "khaki" : shade;
+    const gap = gaps ? (row % 3 === 1 ? 0.075 : 0.045) : 0.03;
+    if (gaps && row === GONE_ROW) {
+      // Only the board's two ends are left; between them the water, and a short board nailed across.
+      const end = width / 2 - 0.65;
+      for (const s of [-1, 1]) floorQuad(g, end, board - gap, s * (width / 2 - end / 2), floor + 0.002, z, plank);
+      floorQuad(g, 0.32, board + 0.2, GONE_X, floor + 0.016, z, "wood", 0.12);
+    } else floorQuad(g, width + (random() - 0.5) * 0.1, board - gap, (random() - 0.5) * 0.05, floor + 0.002, z, plank);
+    row += 1;
   }
 }
 
@@ -361,7 +387,10 @@ function curtain(g: Group, floor: number): void {
   beam(g, [0.3, floor + 1.95, back + 0.05], [0.3, floor + 1.95, z], 0.02, "black");
   beam(g, [0.3, floor + 1.95, z], [1.15, floor + 1.95, z], 0.02, "black");
   const bands: PaletteName[] = ["orange", "wine", "gold", "wine"];
-  bands.forEach((colour, i) => box(g, 0.17, 1.75, 0.03, 0.39 + i * 0.17, floor + 0.15, z + (i % 2) * 0.03, colour));
+  bands.forEach((colour, i) => {
+    quad(g, 0.18, 1.75, 0.39 + i * 0.17, floor + 0.15, z + (i % 2) * 0.03, colour);
+    quad(g, 0.18, 1.75, 0.39 + i * 0.17, floor + 0.15, z + (i % 2) * 0.03, colour, Math.PI);
+  });
   // The rope the net hangs from, wall to wall over the mattress.
   beam(g, [-WATER_HOUSE.width / 2 + 0.05, floor + 1.95, back + 0.9], [-0.1, floor + 1.95, back + 0.9], 0.015, "black");
 }
@@ -378,6 +407,10 @@ function wallThings(full: Group, floor: number): void {
   hang(1.5, 0.75, 0.4, 0.95, "teal");
   hang(1.95, 1.2, 0.3, 0.45, "red");
   for (const x of [0.95, 1.5, 1.95]) box(full, 0.03, 0.03, 0.05, x, floor + 1.7, face, "black");
+  // A newer plank nailed across where an old one split, and a plastic bag pushed into a gap against the rain.
+  quad(full, 1.1, 0.2, -1.7, floor + 0.55, face + 0.012, "wood");
+  for (const x of [-2.15, -1.25]) quad(full, 0.03, 0.03, x, floor + 0.63, face + 0.016, "black");
+  quad(full, 0.16, 0.12, -2.05, floor + 1.75, face + 0.01, "basin");
 }
 
 /** The tarp screen over the water at the porch's back corner, round the hole in the planks. */
@@ -429,15 +462,13 @@ export function buildWaterRoom(walkTop: number): Group {
     low.userData = { node: low.name };
     root.add(low);
     footprint.push(...fullWall(full, wall, random, floor, 2));
-    lowWall(low, wall, floor);
+    lowWall(low, wall, floor, random);
     if (wall.side === "back") wallThings(full, floor);
   }
   curtain(root, floor);
   porchPosts(root, floor, 2.1);
   // The washing line from the left post to the house's corner, over the porch's side.
   beam(root, [-width / 2 + 0.08, floor + 1.85, edge - 0.08], [-width / 2 + 0.08, floor + 1.85, front + 0.05], 0.02, "black");
-  // The tin sheet the fire stands on.
-  floorQuad(root, 0.9, 0.7, ROOM_SPOTS.fire[0], floor + 0.014, ROOM_SPOTS.fire[1], "hub");
   footprint.push(screen(root, floor));
   footprint.push(ramp(root, floor, walkTop));
   // The posts at the porch's edge block where they stand; the room's floor and the porch are walked on.

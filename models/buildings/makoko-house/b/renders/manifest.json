@@ -1,14 +1,14 @@
 {
   "asset": "building_makoko-house_b",
   "file": "public/assets/places/makoko/building_makoko-house_b.glb",
-  "fileSha256": "fb6e0c0b119e1081b7c9854e21fd45a5b5bbcec5947fa72e8b8932bd24dbf0ca",
+  "fileSha256": "00565e7d188346a00f956382c440d203feb3e2dba25359106a8a28cf1d7cd862",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
   "renders": [
     {
       "view": "front",
       "file": "models/buildings/makoko-house/b/renders/front.png",
-      "sha256": "6adcdfb9b2fd595a958c9fe928fe9d6f5084b7a364e37cd763e8221fde3ca756",
+      "sha256": "7f33f87e4e4142f40a8416576fdb62cf7bc671548f1a50318483c7f645f9b91e",
       "viewport": {
         "width": 1024,
         "height": 768,
@@ -108,7 +108,7 @@
     {
       "view": "threeQuarter",
       "file": "models/buildings/makoko-house/b/renders/threeQuarter.png",
-      "sha256": "2487d4a5bf9e8d87d5a5eadcdb0cb02917afa0fbb6d9ca6d9df08800a1c35817",
+      "sha256": "62c1ee86f800412fbd52e116042523788b7de1d096a727d68ee69b8bc112cc95",
       "viewport": {
         "width": 1024,
         "height": 768,
@@ -157,7 +157,7 @@
     {
       "view": "phone",
       "file": "models/buildings/makoko-house/b/renders/phone.png",
-      "sha256": "ec741dda029f91873efdf609eb052af55e2454486b9262484f07b7ccf31fd726",
+      "sha256": "b4e321937bb5d6448ba1db75292098f4cbbe770990c48ff603a24405afb74228",
       "viewport": {
         "width": 360,
         "height": 640,
@@ -181,7 +181,7 @@
     {
       "view": "tile",
       "file": "models/buildings/makoko-house/b/renders/tile.png",
-      "sha256": "6fa825e9249b633c1306f3f3a963765002d09bdc9ab50411e9398c43948d8714",
+      "sha256": "127af9b165e3b90028cd1d33d098763c11cbc9b702a58c93fcbee913a0869cfb",
       "viewport": {
         "width": 256,
         "height": 256,

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_mat-stool",
+  "file": "public/assets/places/makoko/prop_mat-stool.glb",
+  "fileSha256": "acf687152b93dcf7310142609d52fae0c43920e985120365c57f21a366d8d3f0",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-room/mat-stool/renders/front.png",
+      "sha256": "0669ac6f4e00c6bcb5e24976e680f1afc6a46e0dbc4263fa6f159ae6661af520",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.025000005960464478,
+          0.1500000054985285,
+          17.028548560080885
+        ],
+        "target": [
+          0.025000005960464478,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "width": 1.4579999613761903,
+        "height": 1.0934999710321427
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-room/mat-stool/renders/back.png",
+      "sha256": "33dacbd34a660d743cdfe6c15625d9e0cfa2a03026efe73547169c0267a40ce1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.025000005960464478,
+          0.1500000054985285,
+          -17.258548579154372
+        ],
+        "target": [
+          0.025000005960464478,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "width": 1.4579999613761903,
+        "height": 1.0934999710321427
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-room/mat-stool/renders/left.png",
+      "sha256": "ee0e5ee9018a532a769034b326a5d596462c24ef035bdb9c3fddb063ad190826",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.118548563657164,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.025000005960464478,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "width": 1.2203913980732068,
+        "height": 0.9152935485549052
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-room/mat-stool/renders/right.png",
+      "sha256": "2e38722b9957ca7ef5d8b555e67d0be1390f0f9962701f2468ae5f2419228c27",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.168548575578093,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.025000005960464478,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "width": 1.2203913980732068,
+        "height": 0.9152935485549052
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-room/mat-stool/renders/threeQuarter.png",
+      "sha256": "60b7a2cc9b1d79374b3329f6151957a4bb09618a4e211d012f87307a7884ab12",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.088169524967881,
+          1.834570863642385,
+          1.9481695094706737
+        ],
+        "target": [
+          0.025000005960464478,
+          0.1500000054985285,
+          -0.11500000953674316
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-room/mat-stool/renders/phone.png",
+      "sha256": "b9e71a9b73fc4b5866b75b35dbc294861288bba0ff7adf4eb937f23ceadfdbe1",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.025000005960464478,
+          1.6,
+          12.449996008089741
+        ],
+        "target": [
+          0.025000005960464478,
+          1.5,
+          0.4499960080897415
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-room/mat-stool/renders/tile.png",
+      "sha256": "56f668dbb9f9def5a229ad7e0fbcb1fbb25428b4b1048463e20a9a0fdb10f5c4",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.258473974813789,
+          1.7026323115101627,
+          2.0703467298370444
+        ],
+        "target": [
+          0.12602159574246094,
+          -0.03850776499277202,
+          -0.06210564923428425
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}
