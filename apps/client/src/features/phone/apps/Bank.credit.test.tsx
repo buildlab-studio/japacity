@@ -27,11 +27,12 @@ describe("the credit file in the Bank", () => {
     for (const need of soon) expect(within(nextTen()).getByText(say("ui.credit.need", { name: nameOf(need.id), min: need.creditMin }))).toBeDefined();
   });
 
-  test("[credit:view-shows-credit-file] given a mark of 24, then what is open now, what the next ten points buy and what is further off are told apart", async () => {
+  test("[credit:view-shows-credit-file] [text:show-then-tell] given a mark of 24, then what is open now, what the next ten points buy and what is further off are told apart, each as a chip or a mark", async () => {
     await renderWithView(<Bank />, richAbroadView());
     expect(screen.getByText(say("ui.credit.next-ten", { mark: 34 }))).toBeDefined();
     expect(within(nextTen()).getByText(say("ui.credit.need", { name: nameOf("obligation.car"), min: 30 }))).toBeDefined();
-    expect(screen.getByText(`${nameOf("obligation.phone-uk")}, ${nameOf("obligation.rent-flat-uk")}`)).toBeDefined();
+    // text:show-then-tell: what is open now stands as a tick each, never a list in a sentence.
+    for (const open of ["obligation.phone-uk", "obligation.rent-flat-uk"]) expect(document.querySelector(`[data-state-tag="open-${open}"]`)?.textContent).toBe(nameOf(open));
   });
 
   test("[credit:judgment-blocks-credit] given a judgment on the file, then the month it clears shows, as months away, and nothing above 20 is offered", async () => {

@@ -17,7 +17,8 @@ import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
 import { overstayWords } from "../../../shared/words/overstay";
 import { sealedTillMorning } from "../../../shared/words/morning";
-import { forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { forMonths, inMonths, nameOf, say, sayCount, words } from "../../../shared/words/text";
+import { RouteChips } from "../../../shared/ui/CountsChip";
 import { PhoneSaid } from "../act";
 import { degreeEnglishOf, type PaperRow, papersOf } from "../papers";
 import { GhostButton, PicCard, PicTile, WordChip } from "../ui";
@@ -54,14 +55,6 @@ function stateWords(row: PaperRow, view: PlayerView): string {
       return never;
     }
   }
-}
-
-/** "Counts toward a master's in the UK", the plan's way first, at most two named. */
-function countsWords(counts: readonly string[]): string | null {
-  const [first, second] = counts;
-  if (first === undefined) return null;
-  const routes = second === undefined ? runningName(first) : say("phone.papers.for.and", { first: runningName(first), last: runningName(second) });
-  return say("phone.papers.for", { routes });
 }
 
 /**
@@ -111,7 +104,8 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
   const nav = use(PhoneNav);
   const paper = view.documents.find((held) => held.id === row.id);
   const left = paper === undefined ? null : monthsLeft(paper, view.month);
-  const counts = countsWords(row.counts);
+  // One state a paper: a paper running out soon says that alone, never beside how long it is valid (text:show-then-tell).
+  const soon = left !== null && left <= SOON;
   const costs = costsWords(row);
   const opens = opensWords(row);
   const act = row.act;
@@ -125,18 +119,23 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
         title={<span className={row.state === "expired" ? "line-through" : ""}>{nameOf(row.id)}</span>}
         chips={
           <>
-            <span
-              className={`sticker-chip text-[13px] chip-wrap ${tone === "held" ? "bg-tint-money" : tone === "coming" ? "bg-[var(--soft)]" : tone === "expired" ? "bg-sheet-2" : "bg-tint-study"}`}
-              style={{ rotate: "-1.5deg", color: tone === "held" ? "var(--money-ink)" : tone === "coming" ? "var(--soft-ink)" : tone === "expired" ? "var(--out)" : undefined }}
-              data-paper-state
-            >
-              {stateWords(row, view)}
-            </span>
-            {left !== null && left <= SOON ? <WordChip tone="bad">{sayCount("ui.document.expires-soon", left, { months: left })}</WordChip> : null}
+            {soon ? (
+              <WordChip tone="bad" data-paper-state>
+                {sayCount("ui.document.expires-soon", left, { months: left })}
+              </WordChip>
+            ) : (
+              <span
+                className={`sticker-chip text-[13px] chip-wrap ${tone === "held" ? "bg-tint-money" : tone === "coming" ? "bg-[var(--soft)]" : tone === "expired" ? "bg-sheet-2" : "bg-tint-study"}`}
+                style={{ rotate: "-1.5deg", color: tone === "held" ? "var(--money-ink)" : tone === "coming" ? "var(--soft-ink)" : tone === "expired" ? "var(--out)" : undefined }}
+                data-paper-state
+              >
+                {stateWords(row, view)}
+              </span>
+            )}
             {row.id === ENGLISH_RESULT && row.value !== null ? <WordChip tone="study">{say("ui.document.band", { band: formatBand(row.value) })}</WordChip> : null}
-            {counts === null ? null : (
-              <span className="text-[13px] text-text-2" data-paper-counts>
-                {counts}
+            {row.counts.length === 0 ? null : (
+              <span className="contents" data-paper-counts>
+                <RouteChips routes={row.counts.slice(0, 2)} />
               </span>
             )}
             {opens === null ? null : (

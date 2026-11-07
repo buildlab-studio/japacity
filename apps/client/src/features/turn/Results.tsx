@@ -27,6 +27,7 @@ import { ToneTag } from "../../shared/ui/ToneTag";
 import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults } from "./month.results";
 import { turnWords } from "./turn.words";
 import { localCurrency } from "../../shared/words/wayHome";
+import { readyWords } from "../../shared/words/ready";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
 function useResultsOpen(): boolean {
@@ -106,7 +107,9 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
   // An offer that opened and was answered within the month (asked around, then walked on) needs no answer now.
   const told = [...midMonth, ...report.lines].filter((line) => !(line.key === OFFER_OPENED && typeof line.params["offer"] === "string" && !view.offers.some((offer) => offer.entry === line.params["offer"])));
   const close = monthClose(told, report.lines);
-  const story = close.moments;
+  // world:month-end-results-sheet: a month with a funds check shows the check's bar in the saved bar's place, so one figure shows.
+  const check = close.moments.find((line) => line.key === FUNDS_SHORT || line.key === FUNDS_COVERED) ?? null;
+  const story = close.moments.filter((line) => line !== check);
   const expiring = runningOut(view);
   const back = (): void => {
     cue("close");
@@ -119,7 +122,7 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
     onAsk?.(offer);
   };
   // Nothing told but the money: no face, no event, no draw and no paper running out.
-  const quiet = asked.length === 0 && story.length === 0 && draw === null && expiring.length === 0;
+  const quiet = asked.length === 0 && story.length === 0 && check === null && draw === null && expiring.length === 0;
   // The visa's answer and the room on the water cleared away stand first and alone, before the money.
   const bigNews = story.some((line) => leadsAlone(line) || isEvicted(line));
   const storySection =
@@ -211,12 +214,17 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
           </div>
         )}
 
-        {save === null ? null : (
+        {check !== null ? (
+          <ul className="flex flex-col" data-results-check>
+            <FundsCheck line={check} />
+          </ul>
+        ) : save === null ? null : (
           <section className="flex flex-col gap-1.5" data-results-savings>
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="label text-text-2">{turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")}</h3>
-              <span className="num text-[14px]">
-                {save.kind === "funds" ? turnWords("turn.results.savings-line", { shown: formatMoney(save.shown, save.currency), required: formatMoney(save.required, save.currency) }) : `${String(save.percent)}%`}
+              {/* With no funds to show, how ready is a band word, never a figure (world:month-end-results-sheet). */}
+              <span className={save.kind === "funds" ? "num text-[14px]" : "text-[14px] font-semibold"} data-results-ready={save.kind === "funds" ? undefined : save.percent}>
+                {save.kind === "funds" ? turnWords("turn.results.savings-line", { shown: formatMoney(save.shown, save.currency), required: formatMoney(save.required, save.currency) }) : readyWords(save.percent)}
               </span>
             </div>
             <Bar value={save.kind === "funds" ? save.shown : save.percent} max={save.kind === "funds" ? save.required : 100} label={turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")} />
@@ -355,7 +363,6 @@ function moneyOf(param: ReportLine["params"][string] | undefined): { amount: num
 /** One moment of the month: a picture and its words; the best one leads as a card with a larger picture. */
 function StoryRow({ line, hero }: { line: ReportLine; hero: boolean }) {
   const view = useView();
-  if (line.key === FUNDS_SHORT || line.key === FUNDS_COVERED) return <FundsCheck line={line} />;
   const told = toldOnResults(line, view);
   // home:makoko-eviction-draw: the room cleared away is told in the same red as a bill unpaid.
   const unpaid = isUnpaid(line) || isEvicted(line);

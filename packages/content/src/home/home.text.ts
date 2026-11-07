@@ -23,7 +23,8 @@ export const homeText: Record<string, string> = {
   "phone.home.charge": "{amount} a month",
   // The month's charge said as what it is: living costs at the family house and in the
   // room, the rent itself on the water.
-  "phone.home.charge.place.family-house": "Your share for the house: {amount} a month. Papa pays the rest.",
+  "phone.home.charge.place.family-house": "Your share for the house: {amount} a month",
+  "phone.home.charge.rest.place.family-house": "Papa pays the rest",
   "phone.home.charge.place.compound-room": "Living costs {amount} a month",
   "phone.home.charge.place.makoko": "Rent {amount} a month",
   "phone.home.charge.place.hostel-room": "Rent {amount} a month, at each month's end",
@@ -31,11 +32,11 @@ export const homeText: Record<string, string> = {
   "phone.home.rent-year": "Rent {amount} a year, next in {count} months",
   "phone.home.rent-year.one": "Rent {amount} a year, next due next month",
   "phone.home.rent-year.zero": "Rent {amount} a year, due this month",
-  "phone.home.charge.none": "No rent while you stay.",
+  "phone.home.charge.none": "No rent while you stay",
   // home:living-by-hand (decision 0013): where nothing of the living is charged as the month turns, the card says it is bought as you go.
-  "phone.home.charge.by-hand": "Living is bought as you go: food, water, fares.",
-  "phone.home.charge.by-hand.place.family-house": "Your share for the house is what you buy as you go: foodstuff for the pot, water, fares. Papa pays the rest.",
-  "phone.home.risk": "Some months the settlement is cleared.",
+  "phone.home.charge.by-hand": "Living bought as you go",
+  "phone.home.charge.by-hand.place.family-house": "Your share for the house: what you buy as you go",
+  "phone.home.risk": "Some months the settlement is cleared",
   "phone.home.move.place.makoko": "Move to Makoko",
   "phone.home.move.place.family-house": "Move back to the family house",
   "phone.home.move.place.compound-room": "Rent a room in Ojuelegba",

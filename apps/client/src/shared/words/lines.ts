@@ -57,14 +57,14 @@ const ACTIVITY_PAID = "ui.line.activity-paid.";
 /** The living costs charged at a new figure, said as the rise and its reason (see `upkeepMoved`). */
 const UPKEEP_MOVED = "ui.line.upkeep-";
 
-/** The naira leg of money sent home, named for where it lands. */
-const REMIT_LANDED = "ui.line.remit-landed";
+/** The naira leg of money sent home, named for where it arrives. */
+const REMIT_ARRIVED = "ui.line.remit-arrived";
 
 /** The move to a home with rent, said as the move with what it costs a month (see `movedWithRent`). */
 const HOME_MOVED_RENT = "ui.line.home-moved";
 
 /** The interface's names for a payment: the wallet's money moving, said for what it paid. */
-const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_LANDED, ACTIVITY_PAID, UPKEEP_MOVED, HOME_MOVED_RENT];
+const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_ARRIVED, ACTIVITY_PAID, UPKEEP_MOVED, HOME_MOVED_RENT];
 
 /** The prologue's last line: what came before it is the years before the first month. */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -346,7 +346,7 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return toldMoves(readyNotOnTheWay(oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines)))))))))))))).map(variant).map(remitLanded).map(goalFirst);
+  return toldMoves(readyNotOnTheWay(oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines)))))))))))))).map(variant).map(remitArrived).map(goalFirst);
 }
 
 /** The lines that tell a quality's move. */
@@ -507,10 +507,10 @@ function goalFirst(line: ReportLine): ReportLine {
   return { ...line, key: GOAL_FIRST, params: { ...line.params, first: text[`${goal}.first`] ?? "" } };
 }
 
-/** Money sent home lands in the naira account at home: that leg says so, instead of "sent home" twice. */
-function remitLanded(line: ReportLine): ReportLine {
+/** Money sent home arrives in the naira account at home: that leg says so, instead of "sent home" twice. */
+function remitArrived(line: ReportLine): ReportLine {
   const money = moneyParam("amount", line.params, line.key);
-  return line.key === "line.wallet.remit" && money?.currency === "NGN" ? { ...line, key: REMIT_LANDED } : line;
+  return line.key === "line.wallet.remit" && money?.currency === "NGN" ? { ...line, key: REMIT_ARRIVED } : line;
 }
 
 /**

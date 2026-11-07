@@ -40,7 +40,7 @@ describe("Change money says what you get", () => {
 });
 
 describe("Send money home", () => {
-  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] [text:show-then-tell] given the graduate just landed, when Send money home opens in the Bank, then each way says the naira it lands and when, the way picked its fee in money and its rate, the way through someone that it sometimes never arrives, and no percentage stands anywhere", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] [text:show-then-tell] [world:phone-holds-what-phones-hold] given the graduate just landed, when Send money home opens in the Bank, then each way is a tile that says the naira that arrives and when, the way picked its fee in money and its rate, the way through someone that it sometimes never arrives, and no percentage stands anywhere", async () => {
     const view = recordedGame("graduate-careful").view();
     await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
@@ -76,15 +76,23 @@ describe("Send money home", () => {
     await waitFor(() => expect(sent(authority)).toEqual([{ type: "wallet/remit", currency: "GBP", amount: quarter, channel: "app" }]));
   });
 
-  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given the bank's transfer picked, when the card opens, then its line says the naira lands next month", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] [world:phone-holds-what-phones-hold] [text:voice-by-surface] given the bank's transfer picked, when the card opens, then its chips say the naira that arrives at home and that it arrives next month in the bank, its fee in money and its rate, in a bank app's plain words", async () => {
     const view = recordedGame("graduate-careful").view();
     await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
     fireEvent.click(document.querySelector<HTMLElement>('[data-channel="bank"]')!);
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="send"]')!);
     const quarter = Math.floor(view.pockets.GBP.bank / 4 / 100) * 100;
-    const naira = remitQuote(view.rates, content.tuning.remit, "GBP", quarter).bank.naira;
-    expect(card().textContent).toContain(`${formatMoney(naira, "NGN")} lands in the bank at home next month`);
+    const quote = remitQuote(view.rates, content.tuning.remit, "GBP", quarter).bank;
+    const chips = [...card().querySelectorAll<HTMLElement>("[data-ask-chips] [data-fact]")].map((chip) => [chip.getAttribute("data-fact"), chip.textContent]);
+    expect(chips.slice(0, 3)).toEqual([
+      ["pay", say("ui.remit.fact.at-home", { naira: formatMoney(quote.naira, "NGN") })],
+      ["when", say("ui.remit.fact.arrives.bank")],
+      ["fee", say("ui.remit.fact.fee", { fee: formatMoney(quote.fee, "GBP") })],
+    ]);
+    expect(chips[3]?.[0]).toBe("rate");
+    // docs/rules/text.md, "Money on screen": a bank app's words, never a writerly verb, and never an alert's look.
+    expect(card().textContent).not.toMatch(/\blands?\b|\blanded\b|goes by|alert|reference/i);
   });
 });
 

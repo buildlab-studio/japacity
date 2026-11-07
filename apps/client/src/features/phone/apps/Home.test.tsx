@@ -175,12 +175,14 @@ describe("the home card", () => {
     after.unmount();
   });
 
-  test("[home:compound-room-is-a-home] [home:view-carries-home] given the graduate at the family house, when Bills opens, then no yearly rent shows and its charge reads as its share for the house, Papa paying the rest", async () => {
+  test("[home:compound-room-is-a-home] [home:view-carries-home] [text:show-then-tell] given the graduate at the family house, when Bills opens, then no yearly rent shows and its charge reads as its share for the house, Papa paying the rest, each a chip", async () => {
     const game = newGame();
     const { unmount } = await openBills(game);
     expect(document.querySelector("[data-home-rent-year]")).toBeNull();
-    // Decision 0013: the family house's living is bought as you go (food, water, fares), with no figure a month.
-    expect(document.querySelector("[data-home-charge]")?.textContent).toBe("Your share for the house is what you buy as you go: foodstuff for the pot, water, fares. Papa pays the rest.");
+    // Decision 0013: the family house's living is bought as you go, with no figure a month; text:show-then-tell: it stands as a chip,
+    // and who pays the rest as a chip beside it.
+    expect(document.querySelector("[data-home-charge]")?.textContent).toBe("Your share for the house: what you buy as you go");
+    expect(document.querySelector("[data-home-rest]")?.textContent).toBe("Papa pays the rest");
     unmount();
   });
 

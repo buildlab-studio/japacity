@@ -101,17 +101,20 @@ describe("the era on the front of News", () => {
     expect(screen.getByText(say("ui.news.none"))).toBeDefined();
   });
 
-  test("[director:one-era-at-a-time] given the engine's era turned to one that is not calm, then the front page names it with the month it began and the month it is due to end", async () => {
+  test("[director:one-era-at-a-time] [text:show-then-tell] given the engine's era turned to one that is not calm, then the front page names it with the month it began and the month it is due to end, each a chip of its own", async () => {
     const engine = abroadView(1);
     const view = { ...engine, era: { ...engine.era!, id: "era.hard-line" as NonNullable<typeof engine.era>["id"] } };
     const era = view.era;
     await renderWithView(<News />, view);
     expect(screen.getByText(nameOf(era.id))).toBeDefined();
-    const months = document.querySelector("[data-era-months]")?.textContent;
-    expect(months).toBe(`${say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, view.month).toLowerCase() })} ${say("phone.news.era.until", { when: inMonths(era.untilMonth, view.month) })}`);
-    expect(months).not.toMatch(/\bmonth \d/i);
-    // The chip wraps inside the era's card rather than running out of it.
-    expect(document.querySelector("[data-era-months]")?.className).toContain("chip-wrap");
+    const since = document.querySelector("[data-era-since]");
+    const until = document.querySelector("[data-era-until]");
+    expect(since?.textContent).toBe(say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, view.month).toLowerCase() }));
+    expect(until?.textContent).toBe(say("phone.news.era.until", { when: inMonths(era.untilMonth, view.month) }));
+    expect(document.querySelector("[data-era-months]")?.textContent).not.toMatch(/\bmonth \d/i);
+    // Each chip wraps inside the era's card rather than running out of it.
+    expect(since?.className).toContain("chip-wrap");
+    expect(until?.className).toContain("chip-wrap");
   });
 
   test("[director:one-era-at-a-time] given an era that began before the life, then it says so rather than a month before the first", async () => {

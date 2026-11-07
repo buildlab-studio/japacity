@@ -11,6 +11,7 @@ import type { PlayerCommand } from "../../authority/store";
 import { formatMoney } from "../../shared/words/format";
 import { AskSheet } from "../../shared/world/AskSheet";
 import type { Ask } from "../../shared/world/contract";
+import type { Fact } from "../../shared/words/facts";
 import { iconFor } from "./PhoneIcon";
 import { say } from "../../shared/words/text";
 
@@ -53,6 +54,8 @@ export interface AskSpec {
   have?: number;
   /** "now" when the act happens at once; the default counts when the month ends (world:one-action-one-sheet). */
   when?: Ask["when"];
+  /** The act's facts as chips under the line, in their one order (text:show-then-tell). */
+  chips?: Fact[];
   command: PlayerCommand;
   /** The line told in the corner once it is done. */
   done: string;
@@ -75,6 +78,7 @@ export function useAsk(): { open: (spec: AskSpec) => void; sheet: ReactNode; ask
       button: spec.button,
       ...(spec.reference === undefined ? {} : { reference: spec.reference }),
       ...(spec.when === undefined ? {} : { when: spec.when }),
+      ...(spec.chips === undefined ? {} : { chips: spec.chips }),
       act: () => {
         setShown(null);
         void send(spec.command).then((reply) => {

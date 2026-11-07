@@ -5,7 +5,8 @@ import { describe, expect, test } from "vitest";
 import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { words } from "../../shared/words/text";
+import { readyWords } from "../../shared/words/ready";
+import { say, words } from "../../shared/words/text";
 import { drawMissed, drawShown, kept, moneyLines, otherLines, savings, STORY_MAX, storyLines } from "./month.results";
 import { localCurrency } from "../../shared/words/wayHome";
 import { Results } from "./Results";
@@ -189,5 +190,39 @@ describe("the draw's outcome said", () => {
     act(() => store.setState({ reportOpen: true }));
     expect(document.querySelector("[data-results-draw-missed]")?.textContent).toBe(turnWords("turn.results.draw-missed.one"));
     expect(turnWords("turn.results.draw-missed.one")).toBe("Your ticket did not win.");
+  });
+});
+
+describe("one figure for the money held", () => {
+  const FUNDS_SHORT: ReportLine = { key: "line.route.funds-short", params: { route: "route.uk-masters", shown: { currency: "GBP", amount: 1_048_500 }, required: { currency: "GBP", amount: 2_082_700 } }, tone: "bad", attention: true, counts: [] };
+
+  test("[world:month-end-results-sheet] [text:show-then-tell] given a month whose lines hold the funds check, when the results show, then the check's bar with both figures and its stamp stands in the saved bar's place, so one figure shows for the money held, and the check is not told again among the month's events", async () => {
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, monthEnded([SALARY, FUNDS_SHORT]));
+    act(() => store.setState({ reportOpen: true }));
+    const meter = document.querySelector("[data-results-check] [data-check-meter]");
+    expect(meter?.getAttribute("data-check-meter")).toBe("short");
+    expect(meter?.querySelector("[data-check-shown]")?.textContent).toBe(say("ui.results.funds.shown", { amount: formatMoney(1_048_500, "GBP") }));
+    expect(meter?.querySelector("[data-check-needed]")?.textContent).toBe(say("ui.results.funds.needed", { amount: formatMoney(2_082_700, "GBP") }));
+    expect(meter?.querySelector("[data-check-stamp]")?.textContent).toBe(say("ui.results.funds.short"));
+    expect(document.querySelector("[data-results-savings]")).toBeNull();
+    expect(document.querySelectorAll('[data-results-story] [data-story-line="line.route.funds-short"]')).toHaveLength(0);
+    expect(document.querySelectorAll("[role='progressbar']")).toHaveLength(1);
+  });
+
+  test("[world:month-end-results-sheet] given a month with no check, when the results show, then the saved bar stands with its one figure and no check's bar", async () => {
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, monthEnded([SALARY]));
+    act(() => store.setState({ reportOpen: true }));
+    expect(document.querySelector("[data-results-savings]")).not.toBeNull();
+    expect(document.querySelector("[data-results-check]")).toBeNull();
+  });
+
+  test("[world:month-end-results-sheet] [text:bands-not-figures] given no funds to show and the japacity figure, when the bar toward the move is read, then it says how ready in a band word, never a percentage", async () => {
+    const view = monthEnded([SALARY]);
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, { ...view, routes: [] });
+    act(() => store.setState({ reportOpen: true }));
+    const ready = document.querySelector("[data-results-ready]");
+    expect(ready?.getAttribute("data-results-ready")).toBe("64");
+    expect(ready?.textContent).toBe(readyWords(64));
+    expect(document.querySelector("[data-results-savings]")?.textContent).not.toMatch(/%|\b64\b/);
   });
 });

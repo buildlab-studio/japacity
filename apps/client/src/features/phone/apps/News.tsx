@@ -47,12 +47,13 @@ function storyPicture(id: string): string {
 }
 
 /**
- * When the era began and when it is due to end (director:one-era-at-a-time), as months ago and months from now, never a
- * month's number (world:top-band-is-a-pill): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
+ * When the era began and when it is due to end (director:one-era-at-a-time), each a chip (text:show-then-tell), as months ago and
+ * months from now, never a month's number (world:top-band-is-a-pill): the view's `sinceMonth` and `untilMonth` are the months the
+ * simulation stamps.
  */
-function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
-  const began = era.sinceMonth < 0 ? say("ui.news.era-before") : say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
-  return `${began} ${say("phone.news.era.until", { when: inMonths(era.untilMonth, month) })}`;
+function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): { since: string; until: string } {
+  const since = era.sinceMonth < 0 ? say("ui.news.era-before") : say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
+  return { since, until: say("phone.news.era.until", { when: inMonths(era.untilMonth, month) }) };
 }
 
 /**
@@ -89,9 +90,14 @@ export function News() {
           title={nameOf(era.id)}
           line={blurbOf(era.id)}
           chips={
-            <WordChip tone="plain" data-era-months>
-              {eraMonths(era, month)}
-            </WordChip>
+            <span className="contents" data-era-months>
+              <WordChip tone="plain" data-era-since>
+                {eraMonths(era, month).since}
+              </WordChip>
+              <WordChip tone="study" data-era-until>
+                {eraMonths(era, month).until}
+              </WordChip>
+            </span>
           }
           data-era={era.id}
         />
