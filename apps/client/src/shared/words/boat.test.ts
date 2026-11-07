@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { nowLineWords } from "./acts";
 import { tidyLines } from "./lines";
 import { payLine } from "./pay";
-import { words } from "./text";
+import { say, words } from "./text";
 
 const CREW = "activity.job-canoe-crew";
 const RACKS = "activity.job-fish-racks";
@@ -22,6 +22,7 @@ describe("the catch on the screens", () => {
     expect(payLine(NAIRA(75000), CREW)).toBe("About ₦75,000 a month: it depends on the catch");
     expect(payLine(NAIRA(70000), RACKS)).toBe("Pays ₦70,000 a month");
     expect(payLine(NAIRA(70000))).toBe("Pays ₦70,000 a month");
+    expect(say("ui.offer.job.catch", { job: "Third in the canoe", amount: "₦75,000" })).toBe("Third in the canoe, about ₦75,000 a month: it depends on the catch");
   });
 
   test("[activity:catch-drawn-each-month] [world:month-end-results-sheet] given a good, a fair and a lean month in the crew, when the month's pay line is said, then it leads with the catch's word", () => {

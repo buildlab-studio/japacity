@@ -429,6 +429,7 @@ export const uiText: Record<string, string> = {
   "ui.offer.loan.pays": "The lender pays the university {amount}. You owe {owed} with its fee added.",
   "ui.offer.loan.starts": "Nothing to pay while you study. Repayments start the month after your Graduate visa, or after the course ends without it, and run {years} years.",
   "ui.offer.job": "{job}, paying {amount} a month",
+  "ui.offer.job.catch": "{job}, about {amount} a month: it depends on the catch",
   "ui.offer.job-ends": "Taking it ends your months as a nurse. The health care route needs twenty-four of them.",
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",

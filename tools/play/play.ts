@@ -676,6 +676,16 @@ async function takeWanted(run: Run, month: number): Promise<void> {
   if (take.length === 0) return;
   const { page } = run;
   await takeHere(run, month, take);
+  // A scene behind a door (the room on the water) is left first, so the doors of the scene outside it can be gone through.
+  if ((await marksHere(run)).includes("out")) {
+    await tapMark(run, "out");
+    await page.waitForTimeout(600);
+    if (await tap(run, page.locator('[data-fan="out"] [data-fan-act="out"] button'), "Out")) {
+      await page.waitForTimeout(1_500);
+      await placeDrawn(run);
+      await takeHere(run, month, take);
+    }
+  }
   // The things behind a door (Makoko's net shed and viewing centre) are reached through it, and the way out is taken back.
   for (const mark of await marksHere(run)) {
     if ((HOME_DOORS as readonly string[]).includes(mark) || mark === "out") continue;
@@ -713,8 +723,11 @@ async function takeHere(run: Run, month: number, take: readonly string[]): Promi
     if (mark === "out") continue;
     await tapMark(run, mark);
     await page.waitForTimeout(600);
-    const wanted = (await fanButtons(run)).find((button) => button.enabled && take.includes(button.id));
+    const buttons = await fanButtons(run);
+    const wanted = buttons.find((button) => button.enabled && take.includes(button.id));
     if (wanted === undefined) {
+      const named = buttons.filter((button) => take.includes(button.id));
+      if (named.length > 0) log(run, `month ${String(month)}: at ${mark}, ${named.map((button) => button.id).join(", ")} shut`);
       await closeSheets(run);
       continue;
     }
@@ -743,6 +756,9 @@ async function takeHere(run: Run, month: number, take: readonly string[]): Promi
     }
     await closeSheets(run);
     await settle(run, `after taking ${wanted.id} in month ${String(month)}`);
+    // An act whose answer is an ask (Sewanu's place in his canoe) is answered at once, as the nudge to answer it would have it.
+    const nudge = page.locator("[data-nudge]");
+    if ((await shown(nudge)) && /^Answer/.test(await words(nudge))) await followNudge(run, month);
   }
 }
 

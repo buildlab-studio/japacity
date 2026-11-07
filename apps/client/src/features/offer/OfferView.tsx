@@ -74,7 +74,8 @@ function JobFigures({ terms }: { terms: Terms }) {
   const kept = routeKeptBy(view);
   return (
     <>
-      <p className="font-semibold">{amount === null ? nameOf(job) : say("ui.offer.job", { job: nameOf(job), amount })}</p>
+      {/* activity:catch-drawn-each-month: a boat rung's pay is its base, which the catch scales. */}
+      <p className="font-semibold">{amount === null ? nameOf(job) : say(content.activity[job as Id<"activity">]?.catch === true ? "ui.offer.job.catch" : "ui.offer.job", { job: nameOf(job), amount })}</p>
       {/* A way out that counts the months in the job held: the offer says what taking another ends. */}
       {/* A side job sits beside the day job and ends nothing. */}
       {kept === null || job === view.job.id || content.activity[job as Id<"activity">]?.slot === "side" ? null : <p className="text-sm text-out" data-offer-job-ends>{say("ui.offer.job-ends")}</p>}
