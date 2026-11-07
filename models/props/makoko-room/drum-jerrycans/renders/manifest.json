@@ -1,0 +1,181 @@
+{
+  "asset": "prop_drum-jerrycans",
+  "file": "public/assets/places/makoko/prop_drum-jerrycans.glb",
+  "fileSha256": "884f33bea6b6902b199352302643b759b4b95e45ede1aef2b6a8a6b1b71bdeeb",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/front.png",
+      "sha256": "481e6bf19cf72e6fd605fff0448389e5430b909bb6e4d75d2973e2a4f8247d11",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.14067739248275757,
+          0.5082542270421981,
+          17.96716702698025
+        ],
+        "target": [
+          0.14067739248275757,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "width": 1.664663157463074,
+        "height": 1.2484973680973055
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/back.png",
+      "sha256": "e247701032e0aa5005c53db318af10493e3650736e296a00afada9a95f53617d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.14067739248275757,
+          0.5082542270421981,
+          -17.887167013867227
+        ],
+        "target": [
+          0.14067739248275757,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "width": 1.664663157463074,
+        "height": 1.2484973680973055
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/left.png",
+      "sha256": "c471ebd70c572b585a0e5df1c246a4be1a18489c93c11b90d98cdf38bdf8bdac",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.78648962794098,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "target": [
+          0.14067739248275757,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "width": 1.4638048781915556,
+        "height": 1.0978536586436667
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/right.png",
+      "sha256": "e3355ed13014d97a51e2d2cfe0762821834a82a763704c468aaf595ea6823809",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          18.067844412906496,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "target": [
+          0.14067739248275757,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "width": 1.4638048781915556,
+        "height": 1.0978536586436667
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/threeQuarter.png",
+      "sha256": "5a9b2769b79a7a08a7ccaca160eb1aea73239a84167346b8a3594d9db9e93d5e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.43016828195179,
+          2.3776157103588416,
+          2.329490896025544
+        ],
+        "target": [
+          0.14067739248275757,
+          0.5082542270421981,
+          0.040000006556510925
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/phone.png",
+      "sha256": "977c3656890d9462f197b7a54a60d039e7bbe407c648072e5e6cac3f06255345",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.14067739248275757,
+          1.6,
+          12.399995981053914
+        ],
+        "target": [
+          0.14067739248275757,
+          1.5,
+          0.39999598105391354
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-room/drum-jerrycans/renders/tile.png",
+      "sha256": "0279a8b965dd3897b1f992bca0e05ff9e89d3a94391a3b6129566f40893de0db",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.9027825532698224,
+          1.796616060217862,
+          1.7231337675224723
+        ],
+        "target": [
+          0.21633932069279746,
+          0.4196409268900195,
+          0.036690534945447224
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,604 @@
+{
+  "place": "place.makoko",
+  "scope": "interior",
+  "hub": false,
+  "note": "The room on the water in Makoko (world:place-is-one-screen, world:room-seen-down-its-length), behind the door of the rented house on the channel (world:entering-is-a-cut). Counts are the most in view from the whole view, what the life owns at its spots included; nobody else stands in the room.",
+  "instances": [
+    {
+      "file": "places/makoko/building_makoko-room.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_floor-bed.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_cupboard-clothes.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_tin-trunk.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_lantern.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house/prop_cooking-fire.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_drum-jerrycans.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_net-bundle.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_plank-walkway.glb",
+      "count": 3
+    },
+    {
+      "file": "places/third-mainland-bridge/prop_canoe.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-house_a.glb",
+      "count": 2
+    },
+    {
+      "file": "places/third-mainland-bridge/building_stilt-house.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_router.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_phone.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_radio.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_fan.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 0,
+    "high": 0,
+    "sample": []
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "One room of about 5 by 4 metres on short stilts over the lagoon, its porch on the water side, seen whole with its roof off and its near walls at the knee (home:home-is-the-home-point). The house is stood lowered by its floor's height, so the floor is where the character walks and the stilts go down into the water; the water under the floor shows through the boards' gaps and the day through the walls'; the ground is only a scrap under the boards. Inside: the mattress on the floor with the mat rolled by it and the net knotted up on its rope, the wrapper hung across the corner, the cupboard with clothes on top, clothes on nails, buckets with lids, a low stool, the tin trunk the papers are kept in, the calendar, the kerosene lamp. On the porch: the fire on its tin sheet, the drum and the jerrycans, the washing on its line, a bundle of net, and the tarp screen over the water at its back corner. The heavy plank comes down from the porch to the walk, the canoe is tied at the stilts, and the neighbours' houses stand across the water. At night the lamp is the room's one light.",
+    "ground": {
+      "size": [
+        0.2,
+        0.2
+      ],
+      "colour": "black"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        -6,
+        12,
+        7
+      ],
+      "sky": "sky",
+      "ground": "lagoon",
+      "lamps": [
+        {
+          "at": [
+            -0.15,
+            0.62,
+            -1.15
+          ],
+          "size": 1.2,
+          "light": {
+            "strength": 4.0,
+            "reach": 6.5
+          }
+        },
+        {
+          "at": [
+            -0.45,
+            0.3,
+            2.1
+          ],
+          "size": 0.7
+        }
+      ],
+      "room": true
+    },
+    "start": [
+      1.55,
+      2.35,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -2.45,
+          -2.75
+        ],
+        [
+          2.45,
+          -2.75
+        ],
+        [
+          2.45,
+          2.72
+        ],
+        [
+          -2.45,
+          2.72
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/makoko/building_makoko-room.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "lift": -0.84
+      },
+      {
+        "file": "places/makoko/prop_floor-bed.glb",
+        "at": [
+          [
+            -1.25,
+            -1.95,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_cupboard-clothes.glb",
+        "at": [
+          [
+            1.55,
+            -2.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_tin-trunk.glb",
+        "at": [
+          [
+            -2.15,
+            -0.25,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_lantern.glb",
+        "at": [
+          [
+            -0.15,
+            -1.15,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house/prop_cooking-fire.glb",
+        "at": [
+          [
+            -0.45,
+            2.1,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_drum-jerrycans.glb",
+        "at": [
+          [
+            -2.0,
+            1.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_net-bundle.glb",
+        "at": [
+          [
+            2.0,
+            1.95,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_plank-walkway.glb",
+        "at": [
+          [
+            -2.45,
+            5.0,
+            1.5708
+          ],
+          [
+            1.55,
+            5.0,
+            1.5708
+          ],
+          [
+            5.55,
+            5.0,
+            1.5708
+          ]
+        ],
+        "lift": -0.84
+      },
+      {
+        "file": "places/third-mainland-bridge/prop_canoe.glb",
+        "at": [
+          [
+            3.3,
+            0.6,
+            0
+          ]
+        ],
+        "bob": true,
+        "lift": -0.84
+      },
+      {
+        "file": "places/makoko/building_makoko-house_a.glb",
+        "at": [
+          [
+            -6.5,
+            -6.5,
+            0.12
+          ],
+          [
+            6.8,
+            -7.5,
+            -0.1
+          ]
+        ],
+        "lift": -0.84
+      },
+      {
+        "file": "places/third-mainland-bridge/building_stilt-house.glb",
+        "at": [
+          [
+            0.5,
+            -9.5,
+            0.05
+          ]
+        ],
+        "lift": -0.84
+      }
+    ],
+    "people": [],
+    "acts": [],
+    "motion": [
+      {
+        "kind": "water",
+        "at": [
+          0,
+          -0.87,
+          0
+        ],
+        "size": [
+          40,
+          40
+        ],
+        "colours": [
+          "lagoon"
+        ]
+      },
+      {
+        "kind": "hang",
+        "at": [
+          -2.42,
+          1.85,
+          2.6
+        ],
+        "to": [
+          -2.42,
+          1.85,
+          1.35
+        ],
+        "count": 3,
+        "size": [
+          0.45,
+          0.6
+        ],
+        "colours": [
+          "wine",
+          "gold",
+          "teal"
+        ]
+      }
+    ],
+    "shows": [
+      {
+        "activity": "activity.cook-own",
+        "models": [],
+        "motion": [
+          {
+            "kind": "smoke",
+            "at": [
+              -0.45,
+              0.6,
+              2.1
+            ],
+            "count": 6,
+            "colours": [
+              "white"
+            ]
+          }
+        ]
+      },
+      {
+        "activity": "activity.cook-own-pot",
+        "models": [],
+        "motion": [
+          {
+            "kind": "smoke",
+            "at": [
+              -0.45,
+              0.6,
+              2.1
+            ],
+            "count": 12,
+            "colours": [
+              "white"
+            ]
+          }
+        ],
+        "seconds": 16
+      },
+      {
+        "activity": "activity.bucket-bath",
+        "models": [],
+        "motion": [
+          {
+            "kind": "drops",
+            "at": [
+              -2.0,
+              0.92,
+              1.6
+            ],
+            "size": [
+              0.8,
+              0.8
+            ],
+            "count": 14,
+            "colours": [
+              "white"
+            ]
+          }
+        ],
+        "seconds": 4
+      }
+    ],
+    "shot": {
+      "centre": [
+        0.0,
+        0.3,
+        0.0
+      ],
+      "far": 13,
+      "near": 5,
+      "farPitch": 40,
+      "nearPitch": 40,
+      "turn": 360,
+      "yaw": 180,
+      "width": 7.6,
+      "fov": 30
+    },
+    "rooms": [
+      {
+        "id": "room",
+        "floor": [
+          -2.5,
+          -2.8,
+          2.5,
+          1.2
+        ],
+        "centre": [
+          0.0,
+          0.4,
+          -0.8
+        ],
+        "width": 5.6,
+        "pitch": 40
+      },
+      {
+        "id": "porch",
+        "floor": [
+          -2.5,
+          1.2,
+          2.5,
+          2.8
+        ],
+        "centre": [
+          0.0,
+          0.4,
+          2.0
+        ],
+        "width": 5.6,
+        "pitch": 42
+      }
+    ],
+    "things": [
+      {
+        "id": "bed",
+        "file": "places/makoko/prop_floor-bed.glb",
+        "copy": 0,
+        "label": "city.thing.mattress",
+        "at": [
+          -1.25,
+          -1.15
+        ],
+        "acts": [
+          {
+            "id": "nap",
+            "label": "activity.nap.name",
+            "kind": "sheet",
+            "stages": "activity.nap",
+            "pose": "lie",
+            "seat": [
+              -1.25,
+              -1.95,
+              -1.5708
+            ],
+            "top": 0.11,
+            "otherwise": {
+              "id": "lie",
+              "label": "city.act.lie",
+              "kind": "plain",
+              "pose": "lie",
+              "seat": [
+                -1.25,
+                -1.95,
+                -1.5708
+              ],
+              "top": 0.11
+            }
+          },
+          {
+            "id": "end-month",
+            "label": "ui.world.end-month",
+            "kind": "end"
+          }
+        ]
+      },
+      {
+        "id": "cooking",
+        "file": "places/family-house/prop_cooking-fire.glb",
+        "copy": 0,
+        "label": "city.thing.cooking",
+        "at": [
+          -0.45,
+          1.55
+        ],
+        "acts": [
+          {
+            "id": "cook",
+            "label": "city.act.cook",
+            "kind": "sheet",
+            "stages": "activity.cook-own",
+            "more": [
+              "activity.cook-own-pot"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "drum",
+        "file": "places/makoko/prop_drum-jerrycans.glb",
+        "copy": 0,
+        "label": "city.thing.drum",
+        "at": [
+          -1.5,
+          2.25
+        ],
+        "acts": [
+          {
+            "id": "fetch-water",
+            "label": "city.act.drum",
+            "kind": "sheet",
+            "stages": "activity.fetch-water",
+            "more": [
+              "activity.bucket-bath"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "papers-box",
+        "file": "places/makoko/prop_tin-trunk.glb",
+        "copy": 0,
+        "label": "city.thing.papers",
+        "at": [
+          -1.55,
+          -0.25
+        ],
+        "acts": [
+          {
+            "id": "papers",
+            "label": "city.act.papers",
+            "kind": "app",
+            "app": "papers"
+          }
+        ]
+      },
+      {
+        "id": "out",
+        "file": "places/makoko/prop_plank-walkway.glb",
+        "copy": 1,
+        "label": "city.thing.out",
+        "at": [
+          1.55,
+          2.55
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.act.go-out",
+            "kind": "out"
+          }
+        ]
+      }
+    ],
+    "owned": [
+      {
+        "thing": "thing.data",
+        "file": "shared/prop/prop_router.glb",
+        "at": [
+          1.95,
+          -1.65,
+          0
+        ]
+      },
+      {
+        "thing": "thing.phone",
+        "file": "shared/prop/prop_phone.glb",
+        "at": [
+          1.95,
+          -1.1,
+          0
+        ]
+      },
+      {
+        "thing": "thing.radio",
+        "file": "shared/prop/prop_radio.glb",
+        "at": [
+          0.75,
+          -2.55,
+          0
+        ]
+      },
+      {
+        "thing": "thing.fan",
+        "file": "shared/prop/prop_fan.glb",
+        "at": [
+          -2.15,
+          -1.25,
+          0
+        ]
+      }
+    ]
+  }
+}
