@@ -113,7 +113,13 @@ test("[world:top-band-is-a-pill] [world:month-acts-carry-on] [world:month-end-re
   const results = await sleepTheMonth(page);
   await expect(page.locator("[data-phone]")).toHaveCount(0);
   await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
-  await expect(results.locator("[data-results-kept]")).toBeVisible();
+  // The money leads (world:month-end-results-sheet); in a month no money came or went, a line says so only when nothing else is
+  // told, and otherwise the faces, the story or the draw stand in its place.
+  const kept = results.locator("[data-results-kept]");
+  const told = results.locator("[data-results-asked], [data-results-story], [data-results-draw]");
+  await expect(kept.or(told).first()).toBeVisible();
+  if ((await kept.count()) === 0) await expect(told.first()).toBeVisible();
+  else if ((await kept.getAttribute("data-results-kept")) === "0") await expect(told).toHaveCount(0);
   // The band and the thumb buttons step back while the results show.
   await expect(page.locator("[data-band]")).toHaveAttribute("aria-hidden", "true");
   await expect(page.locator("[data-thumb-bar]")).toHaveAttribute("aria-hidden", "true");

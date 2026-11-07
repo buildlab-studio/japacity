@@ -106,7 +106,12 @@ test("a new player picks a life, lives a month and reads its results", async ({ 
 
   const results = await sleepTheMonth(page);
   await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
-  await expect(results.locator("[data-results-kept]")).toBeVisible();
+  // The money leads (world:month-end-results-sheet), or, in a month no money came or went with something else to tell, that.
+  const kept = results.locator("[data-results-kept]");
+  const told = results.locator("[data-results-asked], [data-results-story], [data-results-draw]");
+  await expect(kept.or(told).first()).toBeVisible();
+  if ((await kept.count()) === 0) await expect(told.first()).toBeVisible();
+  else if ((await kept.getAttribute("data-results-kept")) === "0") await expect(told).toHaveCount(0);
   await expect(results).toContainText(aMonthOn(age));
   await backFromResults(page);
   expect(await bandAge(page)).toBe(aMonthOn(age));
