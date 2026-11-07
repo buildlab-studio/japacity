@@ -199,17 +199,17 @@ function LifeTile({ tile, on, at, onPick }: { tile: Archetype; on: boolean; at: 
       aria-description={say(`prologue.archetype.${tile.id}.opens`)}
       aria-checked={on}
       onClick={onPick}
-      className="desk-life door-card flex items-center gap-2 p-1.5 text-left"
+      className="desk-life door-card"
       style={{ rotate: on ? "-1.5deg" : at % 2 === 0 ? "0.6deg" : "-0.6deg" }}
     >
-      <span className={`flex size-[50px] shrink-0 items-center justify-center rounded-[12px] ${TINTS[thing.tint]}`} aria-hidden>
+      <span className={`desk-life-thing ${TINTS[thing.tint]}`} aria-hidden>
         <ModelPicture model={thing.tile} size={46} />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[15px] leading-tight font-bold" data-tile-name>
+      <span>
+        <b data-tile-name>
           {say(`prologue.archetype.${tile.id}.name`)}
-        </span>
-        <span className="sticker-chip mt-1 inline-block bg-[var(--soft)]! px-2! py-0.5! text-[12px]! text-[var(--soft-ink)]!" style={{ rotate: "-2deg" }} data-tile-tag>
+        </b>
+        <span className="sticker-chip desk-tag" data-tile-tag>
           {say(`ui.door.tag.${tile.id}`)}
         </span>
       </span>
@@ -220,7 +220,7 @@ function LifeTile({ tile, on, at, onPick }: { tile: Archetype; on: boolean; at: 
 /** Every life at once, for the desk: a two-column grid of tiles, the picked one ringed and tilted. */
 export function LifeGrid({ picked, onPick }: { picked: Archetype | null; onPick: (archetype: Archetype) => void }) {
   return (
-    <div className="grid grid-cols-2 gap-2.5 px-6 pt-3.5" role="radiogroup" aria-label={say("ui.door.life")} data-archetypes data-lives-grid data-columns={2}>
+    <div className="desk-lives" role="radiogroup" aria-label={say("ui.door.life")} data-archetypes data-lives-grid data-columns={2}>
       {ARCHETYPES.map((tile, at) => (
         <LifeTile key={tile.id} tile={tile} at={at} on={tile.id === picked?.id} onPick={() => onPick(tile)} />
       ))}

@@ -29,13 +29,13 @@ export interface DeskStageProps {
 /** The picked life beside the figure: its name and tag, the life in a few words, its savings and the ways it opens. */
 function LifeCard({ life }: { life: Archetype }) {
   return (
-    <div key={life.id} className="door-card door-deal px-4 pt-3 pb-3.5" data-desk-life={life.id}>
-      <div className="flex items-start justify-between gap-3">
+    <div key={life.id} className="door-card door-deal desk-life-card" data-desk-life={life.id}>
+      <div className="desk-life-head">
         <div className="min-w-0">
-          <p className="text-[22px] leading-tight font-bold">{say(`prologue.archetype.${life.id}.name`)}</p>
-          <p className="text-[15px] font-medium text-text-2">{say(`prologue.archetype.${life.id}.life`)}</p>
+          <p className="desk-life-name">{say(`prologue.archetype.${life.id}.name`)}</p>
+          <p className="desk-life-words">{say(`prologue.archetype.${life.id}.life`)}</p>
         </div>
-        <span className="sticker-chip shrink-0 bg-[var(--soft)]! px-3! py-1! text-[13px]! text-[var(--soft-ink)]!" style={{ rotate: "4deg" }}>
+        <span className="sticker-chip desk-tag">
           {say(`ui.door.tag.${life.id}`)}
         </span>
       </div>
@@ -44,7 +44,7 @@ function LifeCard({ life }: { life: Archetype }) {
           <span className="num">{say("ui.door.tile.savings", { amount: formatMoney(savingsOf(life), "NGN") })}</span>
         </StickerChip>
       </div>
-      <div className="mt-3 [&>div]:justify-start">
+      <div className="desk-life-ways">
         <WayChips id={life.id} mark="data-desk-ways" />
       </div>
     </div>
@@ -53,25 +53,25 @@ function LifeCard({ life }: { life: Archetype }) {
 
 export function DeskStage({ look, style, page, life, home }: DeskStageProps) {
   return (
-    <div className="desk-stage absolute inset-0" data-desk-stage>
+    <div className="desk-stage" data-desk-stage>
       {/* The figure's half: the sun or the moon, the home behind on Where you live, the floor, the figure and the life's thing. */}
-      <div className="desk-figure absolute inset-y-0 left-0" data-desk-figure>
-        <span className="door-sun absolute top-[7%] right-[14%] size-[86px]" aria-hidden />
+      <div className="desk-figure" data-desk-figure>
+        <span className="door-sun desk-sun" aria-hidden />
         {home === null ? null : (
-          <span key={home} className="door-postcard door-deal absolute top-[12%] left-1/2 w-[min(78%,420px)] -translate-x-1/2" style={{ rotate: "-3deg" }} aria-hidden data-desk-home={home}>
-            <HomePicture home={home as Parameters<typeof HomePicture>[0]["home"]} size={180} className="aspect-[840/594] w-full rounded-[4px]" />
+          <span key={home} className="door-postcard door-deal desk-home" style={{ rotate: "-3deg" }} aria-hidden data-desk-home={home}>
+            <HomePicture home={home as Parameters<typeof HomePicture>[0]["home"]} size={180} className="desk-home-picture" />
           </span>
         )}
-        <span className="desk-floor absolute bottom-[3%] left-1/2 h-[13%] w-[78%] -translate-x-1/2" aria-hidden />
-        <FigurePicture look={look} style={style} className="absolute bottom-[5%] left-1/2 h-[88%] max-w-none -translate-x-1/2 transition-opacity duration-200" />
+        <span className="desk-floor" aria-hidden />
+        <FigurePicture look={look} style={style} className="desk-figure-picture" />
         {life === null ? null : (
-          <span key={life.id} className="sticker-cut door-deal absolute bottom-[6%] left-[2%]" style={{ rotate: "-6deg" }} aria-hidden>
+          <span key={life.id} className="sticker-cut door-deal desk-thing" style={{ rotate: "-6deg" }} aria-hidden>
             <ModelPicture model={LIFE_THINGS[life.id].tile} size={150} />
           </span>
         )}
       </div>
       {/* The page beside the figure, and on the lives the picked life under it. */}
-      <div className="desk-side absolute flex flex-col gap-4" data-desk-side>
+      <div className="desk-side" data-desk-side>
         <div className="-rotate-2" data-desk-page>
           <DataPage page={page} />
         </div>

@@ -142,11 +142,10 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
 export function LookChoice({ look, onLook, grid = false }: { look: string; onLook: (look: string) => void; grid?: boolean }) {
   const size = grid ? 46 : 66;
   return (
-    <section className={grid ? "mt-5 px-6" : "mt-5"} aria-label={say("ui.door.look")}>
+    <section className={grid ? "mt-5 px-5" : "mt-5"} aria-label={say("ui.door.look")}>
       <h2 className={grid ? "text-[14px] font-bold text-text-2" : "px-5 text-[14px] font-bold text-text-2"}>{say("ui.door.look")}</h2>
       <div
-        className={grid ? "desk-looks grid justify-between gap-y-3 pt-3 pb-1" : "flex gap-3.5 overflow-x-auto px-6 pt-3.5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}
-        style={grid ? { gridTemplateColumns: `repeat(${String(LOOK_COLUMNS)}, ${String(size)}px)` } : undefined}
+        className={grid ? "desk-looks" : "flex gap-3.5 overflow-x-auto px-6 pt-3.5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}
         role="radiogroup"
         aria-label={say("ui.door.look")}
         data-looks

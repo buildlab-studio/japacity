@@ -41,7 +41,7 @@ export interface DoorDeskProps {
 function StepTabs({ steps }: { steps: readonly DeskStep[] }) {
   return (
     <nav aria-label={say("ui.door.steps")} data-door-tabs>
-      <ol className="flex items-center gap-1.5">
+      <ol className="desk-tabs">
         {steps.map((step, at) => {
           const disc = (
             <span className="desk-tab-disc" aria-hidden>
@@ -49,7 +49,7 @@ function StepTabs({ steps }: { steps: readonly DeskStep[] }) {
             </span>
           );
           return (
-            <li key={step.title} className="flex items-center gap-1.5">
+            <li key={step.title}>
               {at === 0 ? null : <span className="desk-tab-rule" aria-hidden />}
               {step.state === "done" && step.onGo !== null ? (
                 <button type="button" className="desk-tab" onClick={step.onGo} data-door-tab="done">
@@ -78,11 +78,11 @@ export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, o
     if (body.current !== null) body.current.scrollTop = 0;
   }, [mark]);
   return (
-    <div className="door-sky fixed inset-0 flex flex-col overflow-hidden" data-gate={mark} data-door-frame data-door-desk data-look={look}>
-      <div className="relative z-10 grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 pt-4 pb-3" data-door-progress>
-        <div className="flex min-w-0 items-center gap-3">
+    <div className="door-sky desk" data-gate={mark} data-door-frame data-door-desk data-look={look}>
+      <div className="desk-band" data-door-progress>
+        <div className="desk-band-side">
           {onBack === null ? (
-            <span className="size-11 shrink-0" aria-hidden />
+            <span className="desk-band-gap" aria-hidden />
           ) : (
             <button type="button" className="round-button" aria-label={say("ui.door.back")} onClick={onBack} data-door-back>
               <ChevronLeft size={22} strokeWidth={2.4} aria-hidden />
@@ -91,7 +91,7 @@ export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, o
           <Wordmark ground={ground} align="start" compact className="h-[34px]" />
         </div>
         <StepTabs steps={steps} />
-        <div className="flex items-center justify-end gap-2.5">
+        <div className="desk-band-side desk-band-end">
           {onShuffle === null ? null : (
             <button type="button" className="round-button" aria-label={say("ui.door.shuffle.all")} title={say("ui.door.shuffle.all")} onClick={onShuffle} data-door-shuffle>
               <Shuffle size={20} strokeWidth={2.4} aria-hidden />
@@ -104,21 +104,21 @@ export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, o
           )}
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 gap-6 px-6 pb-6">
-        <div className="relative min-w-0 flex-1" data-door-stage>
+      <div className="desk-main">
+        <div className="desk-stage-box" data-door-stage>
           {stage}
         </div>
-        <section className="door-card flex w-[460px] shrink-0 flex-col overflow-hidden" aria-labelledby="door-desk-title" data-door-panel>
-          <div className="shrink-0 px-6 pt-5">
-            <h1 id="door-desk-title" className="text-[24px] leading-[1.15] font-bold">
+        <section className="door-card desk-panel" aria-labelledby="door-desk-title" data-door-panel>
+          <div className="desk-panel-head">
+            <h1 id="door-desk-title">
               {title}
             </h1>
-            {line === undefined || line === null ? null : <div className="mt-1 text-[14px] leading-snug text-text-2">{line}</div>}
+            {line === undefined || line === null ? null : <div className="desk-panel-line">{line}</div>}
           </div>
-          <div ref={body} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-3" data-door-body>
+          <div ref={body} className="desk-panel-body" data-door-body>
             {children}
           </div>
-          <div className="shrink-0 border-t-[1.5px] border-sheet-line px-5 pt-3.5 pb-4" data-door-foot>
+          <div className="desk-panel-foot" data-door-foot>
             {foot}
             {keys}
           </div>
@@ -131,9 +131,9 @@ export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, o
 /** The line of keys under the action, on a fine pointer: each key as a cap with what it does. */
 export function DeskKeys({ keys }: { keys: readonly { caps: readonly string[]; does: string }[] }) {
   return (
-    <p className="mt-2.5 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[12px] font-semibold text-text-2" data-door-keys>
+    <p className="desk-keys" data-door-keys>
       {keys.map((one) => (
-        <span key={one.does} className="inline-flex items-center gap-1">
+        <span key={one.does}>
           {one.caps.map((cap) => (
             <kbd key={cap} className="desk-key">
               {cap}

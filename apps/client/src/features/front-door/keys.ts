@@ -8,7 +8,7 @@ export type DoorKey = "before" | "after" | "up" | "down" | "go" | "roll";
 /** What the pressed key asks of the door, or null where it is the focus's own or not the door's. */
 export function doorKey(event: Pick<KeyboardEvent, "key" | "ctrlKey" | "altKey" | "metaKey" | "isComposing">, focus: Element | null): DoorKey | null {
   if (event.ctrlKey || event.altKey || event.metaKey || event.isComposing) return null;
-  if (focus !== null && focus.closest("input, textarea, select, [contenteditable='true'], [contenteditable=''], [data-age-steps], [role='dialog']") !== null) return null;
+  if (focus !== null && focus.closest("input, textarea, select, [contenteditable], [data-age-steps], [role='dialog']") !== null) return null;
   const control = focus !== null && focus.closest("button, a[href]") !== null;
   switch (event.key) {
     case "ArrowLeft":

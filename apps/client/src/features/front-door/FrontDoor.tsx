@@ -434,13 +434,13 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
           keys={keys(say("ui.door.next"), true, true)}
         >
           {notice === null ? null : (
-            <p role="status" className="door-card mx-6 mt-3 px-3.5 py-2.5 text-[14px]">
+            <p role="status" className="door-card mx-5 mt-3 px-3.5 py-2.5 text-[14px]">
               {say(notice)}
             </p>
           )}
-          <NameField {...name} className="mt-4 px-6" />
+          <NameField {...name} className="mt-4 px-5" />
           <LookChoice look={draft.look} onLook={chooseLook} grid />
-          <MakeItYours look={draft.look} style={draft.style} onStyle={(style) => change({ style })} open className="mt-3 px-6 pb-2" />
+          <MakeItYours look={draft.look} style={draft.style} onStyle={(style) => change({ style })} open />
         </DoorDesk>
       );
     if (draft.stage === "life")
@@ -452,15 +452,15 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
           foot={<DoorAction word={say("ui.door.next")} then={say("ui.door.next.home")} onClick={() => go("page")} />}
           keys={keys(say("ui.door.next"), false, true)}
         >
-          {once ? <OnceLine className="mt-1 px-6" /> : null}
+          {once ? <OnceLine className="mt-1 px-5" /> : null}
           <LifeGrid picked={archetype} onPick={pickLife} />
-          {lowest === null ? null : <AgeCard picked={archetype} lowest={lowest} older={older} open={open} onStep={step} className="door-card mx-6 mt-4 mb-1 px-3.5 py-3" />}
+          {lowest === null ? null : <AgeCard picked={archetype} lowest={lowest} older={older} open={open} onStep={step} className="door-card mx-5 mt-3 mb-4 px-3.5 py-3" />}
         </DoorDesk>
       );
     if (draft.stage === "ready")
       return (
         <DoorDesk {...shared} title={say("ui.door.ready.title")} line={say("ui.door.ready.hint")} foot={null}>
-          <ReadyList className="mx-6 mt-4 mb-2" onPick={pickReady} />
+          <ReadyList className="mx-5 mt-4 mb-4" onPick={pickReady} />
         </DoorDesk>
       );
     return (
@@ -482,7 +482,6 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
       >
         {guestBox}
         {archetype === null || home === null ? <ReadyHome home={READY_HOME} low /> : <HomeRow archetype={archetype} years={draft.age} home={home} onHome={(one) => change({ home: one, homePicked: true })} low />}
-        <div className="h-2" />
       </DoorDesk>
     );
   }
