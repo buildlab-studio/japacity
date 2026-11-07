@@ -320,7 +320,7 @@ export function saysWhyOnCard(option: Pick<ActivityOption, "allowed" | "missing"
  */
 export function shareWords(bp: number): string {
   const whole = 10_000;
-  if (bp > 0 && whole % bp === 0) return say("ui.share.one-in", { count: countWords(whole / bp) });
-  if (bp % 1_000 === 0) return say("ui.share.in-ten", { count: countWords(bp / 1_000) });
-  return say("ui.share.in-hundred", { count: countWords(bp / 100) });
+  if (bp > 0 && whole % bp === 0) return say("ui.part.one-in", { count: countWords(whole / bp) });
+  if (bp % 1_000 === 0) return say("ui.part.in-ten", { count: countWords(bp / 1_000) });
+  return say("ui.part.in-hundred", { count: countWords(bp / 100) });
 }
