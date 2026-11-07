@@ -8,4 +8,5 @@ export const activityShopText: Record<string, string> = {
   "activity.run-shop.blurb": "You open at seven and close when the light goes. What the shop clears is yours.",
   // The stall's month told as its takings, never as a salary.
   "line.activity.salary.activity.run-shop": "Your stall cleared {amount} this month.",
+  "line.activity.salary.activity.run-shop.label": "Your stall cleared",
 };

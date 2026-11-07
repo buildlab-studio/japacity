@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import type { Currency, MoneyParam, PlayerView, ReportLine } from "@japacity/sim";
 
-import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared/words/lines";
+import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines, toldAs } from "../../shared/words/lines";
 import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, LOTTO_PAID, LOTTO_TICKETS, type MoneyLine, moneyLines } from "../../shared/words/money";
 import { moneyParam } from "../../shared/words/text";
 import { expiringSoon } from "../../shared/words/expiry";
@@ -191,7 +191,7 @@ export function storyLines(lines: readonly ReportLine[], max: number = STORY_MAX
 }
 
 /** The month's pay as the results lead with it: the salary, the side job's pay (world:month-end-results-sheet, the month's close). */
-const PAYDAY: ReadonlySet<string> = new Set(["line.activity.salary", "line.wallet.salary", "line.activity.side-pay"]);
+const PAYDAY: readonly string[] = ["line.activity.salary", "line.wallet.salary", "line.activity.side-pay"];
 /** Rent paid as the month turns: a room's, a flat's, a bed space's. */
 const RENT = "line.wallet.rent";
 
@@ -218,7 +218,8 @@ export interface MonthClose {
  */
 export function monthClose(told: readonly ReportLine[], turned: readonly ReportLine[]): MonthClose {
   const money = moneyLines(turned);
-  const payday = money.filter((entry) => PAYDAY.has(entry.line.key) && entry.sign === 1);
+  // A job's pay in its own words (the catch's share, the kiln's takings) is still payday.
+  const payday = money.filter((entry) => PAYDAY.some((key) => toldAs(entry.line.key, key)) && entry.sign === 1);
   const rent = money.filter((entry) => entry.line.key === RENT && entry.sign === -1);
   const room = Math.max(MOMENTS_MIN, CLOSE_MAX - 1 - payday.length - rent.length);
   return { payday, rent, moments: storyLines(told, room) };

@@ -53,6 +53,9 @@ export const activityLadderText: Record<string, string> = {
   "line.activity.open-pos-stand.now": "Your cousin sets the umbrella by the junction. The machine is working.",
   "line.activity.salary.activity.job-fish-smoker": "Your kiln cleared {amount} this month.",
   "line.activity.salary.activity.job-fish-trader": "Your fish trade cleared {amount} this month.",
+  // Payday's labels on the results, beside the takings' figure.
+  "line.activity.salary.activity.job-fish-smoker.label": "Your kiln cleared",
+  "line.activity.salary.activity.job-fish-trader.label": "Your fish trade cleared",
 };
 
 // Learning tech in bands (quality:skill-bands-slow-gains), the pay review (activity:naira-pay-reviewed-yearly) and the trades' papers

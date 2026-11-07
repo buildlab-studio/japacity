@@ -41,4 +41,8 @@ export const activityBoatText: Record<string, string> = {
   "line.activity.salary.catch.good": "A good catch: {amount} for your share.",
   "line.activity.salary.catch.fair": "A fair catch: {amount} for your share.",
   "line.activity.salary.catch.lean": "A lean month on the water: {amount} for your share.",
+  // The same as payday's label on the results, beside the share's figure.
+  "line.activity.salary.catch.good.label": "A good catch",
+  "line.activity.salary.catch.fair.label": "A fair catch",
+  "line.activity.salary.catch.lean.label": "A lean month on the water",
 };

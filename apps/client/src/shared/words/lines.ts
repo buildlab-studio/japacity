@@ -80,7 +80,15 @@ const SAVINGS_BEFORE = "ui.line.savings-before";
  */
 export function movesMoney(line: ReportLine): boolean {
   if (LOCKED_ONLY.has(line.key)) return false;
-  return line.key.startsWith(WALLET) || NAMED.some((named) => line.key.startsWith(named)) || SAID_BETTER.some(([better]) => better === line.key);
+  return line.key.startsWith(WALLET) || NAMED.some((named) => line.key.startsWith(named)) || SAID_BETTER.some(([better]) => toldAs(line.key, better));
+}
+
+/**
+ * True for `base` and for its words of its own (`<base>.<what>`, see `variant`): the same payment told for this job or this
+ * month, as the catch's share and the kiln's takings are, still the money the plain line would have counted.
+ */
+export function toldAs(key: string, base: string): boolean {
+  return key === base || key.startsWith(`${base}.`);
 }
 
 /** The lines told after the prologue closed: the month itself. All of them when there was no prologue. */
