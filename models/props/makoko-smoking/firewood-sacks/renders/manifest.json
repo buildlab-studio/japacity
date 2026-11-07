@@ -1,0 +1,181 @@
+{
+  "asset": "prop_firewood-sacks",
+  "file": "public/assets/places/makoko/prop_firewood-sacks.glb",
+  "fileSha256": "757c42445823ea0cdf597eb306624e080609a78d2a4a3bee85eac6f4b1057981",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/front.png",
+      "sha256": "f80b0a1c67108bf34c639a97c95fbbbfb54d906cee1a102e94fb31201aebc05c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.5117964446544647,
+          0.3097676148317987,
+          21.290407002394282
+        ],
+        "target": [
+          0.5117964446544647,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "width": 2.730494592189789,
+        "height": 2.0478709441423417
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/back.png",
+      "sha256": "7b4bd949906bcfd6c694a03d096ea78ad89b8ab8e2b2fbd8cbd9fd4f65805a98",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.5117964446544647,
+          0.3097676148317987,
+          -21.051657140677058
+        ],
+        "target": [
+          0.5117964446544647,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "width": 2.730494592189789,
+        "height": 2.0478709441423417
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/left.png",
+      "sha256": "17892f481bb9cc568786cbce9817a2e38efcaa989c74dd7d1f3370e41af93e88",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -20.659235626881205,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "target": [
+          0.5117964446544647,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "width": 1.092131172375847,
+        "height": 0.8190983792818852
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/right.png",
+      "sha256": "9d68f902109df54390f50aee8d1078dcf5a0aac28d3d9914b23bbcd30a603990",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          21.682828516190135,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "target": [
+          0.5117964446544647,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "width": 1.092131172375847,
+        "height": 0.8190983792818852
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/threeQuarter.png",
+      "sha256": "f5f8f8590822f9d80d2ea060f392f4139e5ad8648368d8b19be8eed7b22c6908",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.7381667340469735,
+          2.94408792492758,
+          3.3457452202511213
+        ],
+        "target": [
+          0.5117964446544647,
+          0.3097676148317987,
+          0.11937493085861206
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/phone.png",
+      "sha256": "977f3f1ea16b8a1fa01f0bf1ffa1eec74a42b0d7369d7aabc9f88fc20a09ecf0",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.5117964446544647,
+          1.6,
+          12.624991214365949
+        ],
+        "target": [
+          0.5117964446544647,
+          1.5,
+          0.6249912143659485
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-smoking/firewood-sacks/renders/tile.png",
+      "sha256": "2b05dba105eb7c47d77c78242dec6d99a84706fe133f39e1198d3a2e99b7871a",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.2998872500163103,
+          2.17866862432473,
+          2.66020459855013
+        ],
+        "target": [
+          0.7293103409925411,
+          0.07980136709506093,
+          0.08962768952636047
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

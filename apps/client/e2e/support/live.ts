@@ -158,11 +158,12 @@ export async function bedThing(page: Page): Promise<string> {
 
 /**
  * To the home's bed: a wide home is seen whole, so the bed stands in view (decision 0018); a place with a yard and a
- * house door (world:entering-is-a-cut) is entered first. Nothing when the bed already shows.
+ * house door, or Makoko's channel with the rented house's door (world:entering-is-a-cut), is entered first. Nothing when the bed already shows.
  */
 export async function intoTheRoom(page: Page): Promise<void> {
   if ((await page.locator(BED_MARKS).count()) > 0) return;
   if ((await page.locator('[data-mark="house"], [data-fan="house"]').count()) > 0) await doAct(page, "house", "enter");
+  else if ((await page.locator('[data-mark="room"], [data-fan="room"]').count()) > 0) await doAct(page, "room", "enter");
   await page.locator(BED_MARKS).first().waitFor({ state: "attached", timeout: 60_000 });
   await placeReady(page);
 }

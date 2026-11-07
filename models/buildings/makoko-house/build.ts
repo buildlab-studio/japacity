@@ -1,15 +1,13 @@
 // The houses of Makoko on the lagoon (city.md place.makoko), as the settlement builds them: plank
 // rooms on stilts driven into the lagoon bed, zinc roofs rusting in patches, every board a little
-// different. Three shapes: (a) a one-room house low over the water with a porch at the walkway's
-// height, a raised plank bunk on it under the roof's overhang and the door up a step, the room a
-// character may rent; (b) a taller house up a ladder, its veranda railed, a board hung on the rail;
+// different. Three shapes: (a) the room a character may rent, a one-room house on short stilts with its porch on the
+// water side and a plank up to it from the walk (`water.ts`, where the room seen from inside is built too); (b) a
+// taller house up a ladder, its veranda railed, a board hung on the rail, and dressed as the church with nets drying on its rail;
 // and the classroom on stilts, long and painted, its window band open, its board on the rail. No
 // real building is copied. Every piece faces +z with its lowest point on the water at y = 0.
 import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
 import { box, floorQuad, generator, onWall, quad, seeded, signboard, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
-
-import { WALKWAY } from "../../props/plank-walkway/build";
 
 const PLANKS: PaletteName[] = ["wood", "darkWood", "khaki", "wood", "tan"];
 const PLANK = 0.32;
@@ -69,87 +67,18 @@ function rail(root: Group, width: number, floor: number, z: number): void {
   for (let x = -width / 2 + 0.05; x <= width / 2; x += 0.85) box(root, 0.06, 0.9, 0.06, x, floor, z, "darkWood");
 }
 
-/** The room a character may rent: one room low over the water, a porch at the walkway's height, a plank bunk on it. */
-export const ROOM_HOUSE = { width: 4.2, depth: 3.2, floor: 0.6, walls: 2.2, porch: 1.9 } as const;
-
-/** Where the bunk stands on the porch and its top, in the piece's frame: `[x, z, top]`, the bunk along x. */
-export function roomBunk(): [number, number, number] {
-  const { width, depth, porch } = ROOM_HOUSE;
-  const front = -(depth + porch) / 2 + depth;
-  return [-width / 2 + 1.2, front + 0.7, 0.42];
-}
-
-export function buildRoomHouse(): Group {
-  const root = new Group();
-  root.name = "building_makoko-house_a";
-  const random = seeded(2310);
-  const { width: w, depth: d, floor, walls, porch } = ROOM_HOUSE;
-  const hw = w / 2;
-  const back = -(d + porch) / 2;
-  const front = back + d;
-  const end = front + porch;
-  const zc = (back + front) / 2;
-  const top = WALKWAY.top;
-
-  // Short stilts under the room, and the room's floor on them.
-  stilts(root, random, [-hw + 0.15, 0, hw - 0.15], [back + 0.15, front - 0.15], floor);
-  box(root, w + 0.1, 0.1, d, 0, floor - 0.1, zc, "darkWood");
-  // The room: a box of planks, a door up a step at the right, a shuttered window at the left.
-  box(root, w, walls, d, 0, floor, zc, "wood");
-  const face = onWall(root, 0, floor, front);
-  planks(face, random, w, walls, null);
-  quad(face, 0.8, 1.9, 0.9, 0, 0.012, "black");
-  quad(face, 0.38, 1.85, 1.15, 0, 0.016, "teal");
-  quad(face, 0.7, 0.6, -1.0, 1.0, 0.012, "black");
-  quad(face, 0.34, 0.62, -1.17, 0.99, 0.016, "darkWood");
-  quad(face, 1.1, 0.35, -0.2, 0.05, 0.012, "darkWood");
-  for (const [x, ry] of [[-hw, -Math.PI / 2], [hw, Math.PI / 2]] as const) planks(onWall(root, x, floor, zc, ry), random, d, walls, null);
-  box(root, 0.8, 0.5, 0.36, 0.9, 0, front + 0.18, "darkWood");
-
-  // The porch at the walkway's height: boards along x on bearers and posts.
-  for (const x of [-hw, hw]) box(root, 0.1, top - 0.08, 0.1, x, 0, end - 0.1, "black");
-  for (let i = 0; i < 6; i++) {
-    const z = front + (i + 0.5) * (porch / 6);
-    box(root, w + 0.2, 0.035, porch / 6 - 0.02, 0, top - 0.035, z, i % 3 === 1 ? "darkWood" : "wood");
-  }
-  // The bunk: planks on four legs, a mat on it and a rolled cloth for a pillow.
-  const [bx, bz, bunkTop] = roomBunk();
-  for (const sx of [-0.9, 0.9]) for (const sz of [-0.35, 0.35]) box(root, 0.08, bunkTop - top, 0.08, bx + sx, top, bz + sz, "darkWood");
-  box(root, 2.0, 0.05, 0.85, bx, bunkTop - 0.05, bz, "wood");
-  box(root, 1.85, 0.03, 0.75, bx, bunkTop, bz, "wine");
-  box(root, 0.25, 0.1, 0.6, bx - 0.8, bunkTop + 0.03, bz, "cream");
-
-  // One slope of zinc over the room and the porch, high at the porch, on two posts at its edge.
-  const low = floor + walls + 0.05;
-  const high = 3.25;
-  for (const x of [-hw + 0.05, hw - 0.05]) box(root, 0.1, high - top, 0.1, x, top, end - 0.1, "darkWood");
-  const over = 0.3;
-  const sheet: Vec3[] = [
-    [-hw - over, low, back - over], [hw + over, low, back - over], [hw + over, high, end + 0.15], [-hw - over, high, end + 0.15],
-    [-hw - over, low + 0.06, back - over], [hw + over, low + 0.06, back - over], [hw + over, high + 0.06, end + 0.15], [-hw - over, high + 0.06, end + 0.15],
-  ];
-  solid(root, sheet, [[4, 7, 6, 5], [0, 1, 2, 3], [3, 2, 6, 7], [0, 4, 5, 1], [0, 3, 7, 4], [1, 5, 6, 2]], "zinc");
-  // Rust where the sheets overlap, and a sheet of a newer zinc nailed over a hole.
-  const on = (x: number, share: number): Vec3 => [x, low + 0.07 + share * (high - low), back - over + share * (end + 0.15 - back + over)];
-  solid(root, [on(-1.8, 0.1), on(-0.7, 0.1), on(-0.7, 0.45), on(-1.8, 0.45)], [[0, 3, 2, 1]], "zincRust");
-  solid(root, [on(0.6, 0.55), on(1.9, 0.55), on(1.9, 0.85), on(0.6, 0.85)], [[0, 3, 2, 1]], "zincRust");
-  solid(root, [on(-0.4, 0.62), on(0.3, 0.62), on(0.3, 0.8), on(-0.4, 0.8)], [[0, 3, 2, 1]], "hub");
-
-  // A jerrycan against the wall at the bunk's head, a basin turned over on the porch; the cooking and the drum are the place's own.
-  box(root, 0.2, 0.36, 0.28, -hw + 0.15, top, front + 0.15, "danfoYellow");
-  floorQuad(root, 0.4, 0.4, 0.3, top + 0.002, end - 0.35, "red");
-  return setFootprint(root, [
-    { x: 0, z: zc, width: w + 0.2, depth: d },
-    { x: bx, z: bz, width: 2.0, depth: 0.85 },
-  ]);
-}
-
 /** The taller house up a ladder: its floor, walls, veranda and the board on its rail. */
 export const TALL_HOUSE = { width: 5.0, depth: 3.6, floor: 1.5, walls: 2.3, veranda: 1.3 } as const;
 
-export function buildTallHouse(board: string, style: SignStyle): Group {
+/** How a tall house is dressed: its shipped name, and long pale nets drying over its veranda rail (the church's). */
+export interface TallDress {
+  name: string;
+  nets: boolean;
+}
+
+export function buildTallHouse(board: string, style: SignStyle, dress: TallDress = { name: "building_makoko-house_b", nets: false }): Group {
   const root = new Group();
-  root.name = "building_makoko-house_b";
+  root.name = dress.name;
   const random = seeded(1885);
   const { width: w, depth: d, floor, walls, veranda } = TALL_HOUSE;
   const hw = w / 2;
@@ -182,6 +111,20 @@ export function buildTallHouse(board: string, style: SignStyle): Group {
   generator(root, -1.9, floor, front + 0.45, false, 0.3, "red");
   box(root, 0.2, 0.36, 0.28, 1.2, floor, front + 0.3, "danfoYellow");
   box(root, 0.26, 0.28, 0.26, hw - 0.15, 0.55, railZ + 0.35, "basin");
+  if (dress.nets) {
+    // Long pale nets folded over the rail to dry, their floats along the top, one end trailing toward the water.
+    const nets: [number, number, PaletteName][] = [[-1.6, 1.3, "cream"], [0.35, 1.1, "white"], [1.6, 0.9, "khaki"]];
+    for (const [x, w, colour] of nets) {
+      quad(root, w, 1.1, x, floor - 0.2, railZ + 0.05, colour);
+      quad(root, w, 1.1, x, floor - 0.2, railZ + 0.05, colour, Math.PI);
+      quad(root, w * 0.9, 0.7, x + 0.05, floor + 0.2, railZ - 0.05, colour, Math.PI);
+      for (let i = 0; i < 3; i++) box(root, 0.08, 0.06, 0.08, x - w / 2 + 0.2 + i * (w / 3), floor + 0.88, railZ, i % 2 === 0 ? "orange" : "danfoYellow");
+    }
+    // A white flag on a pole at the gable's end, as the churches on the water fly.
+    box(root, 0.06, 2.2, 0.06, -hw - 0.1, floor + walls - 0.3, zc, "white");
+    quad(root, 0.7, 0.45, -hw - 0.48, floor + walls + 1.4, zc, "white");
+    quad(root, 0.7, 0.45, -hw - 0.48, floor + walls + 1.4, zc, "white", Math.PI);
+  }
   // The house over its stilts to the rail, and the ladder's foot in front of it.
   return setFootprint(root, [
     { x: 0, z: back + (d + veranda) / 2, width: w + 0.2, depth: d + veranda + 0.1 },

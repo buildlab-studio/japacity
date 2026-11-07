@@ -1,0 +1,181 @@
+{
+  "asset": "prop_fish-baskets",
+  "file": "public/assets/places/makoko/prop_fish-baskets.glb",
+  "fileSha256": "32a2e4488a9b2502ba2bfe004ea639f38cf321ca54f5ae4e512b90a41469ffd6",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/front.png",
+      "sha256": "efeebdf74e2df3d906de430f63bb0f5a16bddbe8623df7b7fd22b20bd23b6c03",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.08749997615814209,
+          0.20499999463558205,
+          19.48397938519185
+        ],
+        "target": [
+          0.08749997615814209,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "width": 2.0357999897003176,
+        "height": 1.5268499922752383
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/back.png",
+      "sha256": "0ad7d50511c0845217af67e70cbde4aee3363ee9eb5f823f4fdac2f29653237b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.08749997615814209,
+          0.20499999463558205,
+          -19.058979373270923
+        ],
+        "target": [
+          0.08749997615814209,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "width": 2.0357999897003176,
+        "height": 1.5268499922752383
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/left.png",
+      "sha256": "d955a956a83fce00dbc07858143867872834ec713d693997fa795810a4a4d4cf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -19.183979403073245,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "target": [
+          0.08749997615814209,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "width": 1.3877884569822074,
+        "height": 1.0408413427366556
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/right.png",
+      "sha256": "b3934361e9b0dace096984aa1b6855e27816b33f58975a7c77c2de836a31f2b8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          19.35897935538953,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "target": [
+          0.08749997615814209,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "width": 1.3877884569822074,
+        "height": 1.0408413427366556
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/threeQuarter.png",
+      "sha256": "6db5672134ee0c4bd202ecc02c8016d587eece4bc427a92f86c599f00ccaf923",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.7652494818719244,
+          2.391373310631794,
+          2.8902495116742473
+        ],
+        "target": [
+          0.08749997615814209,
+          0.20499999463558205,
+          0.21250000596046448
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/phone.png",
+      "sha256": "59bf299fcf633fbf2846c1e2b711761a466824990d99efaf635e3a09ee2ae08c",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.08749997615814209,
+          1.6,
+          12.854994661970746
+        ],
+        "target": [
+          0.08749997615814209,
+          1.5,
+          0.8549946619707457
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-smoking/fish-baskets/renders/tile.png",
+      "sha256": "d387530b8720730cdf7ff63e7cc549abf8e71621df956f4ed3d433a7c514670b",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.413975240135471,
+          1.8264516804907431,
+          2.393305241715155
+        ],
+        "target": [
+          0.22727889362087508,
+          0.04102159003442579,
+          0.20660889520055883
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

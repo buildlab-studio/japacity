@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import compoundRaw from "../../../../public/assets/places/home-room-house/place.json";
 import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.json";
-import makokoRaw from "../../../../public/assets/places/makoko/place.json";
+import makokoRaw from "../../../../public/assets/places/makoko-room/place.json";
 import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import { type PlaceFile, showPlanned, showsFor, type Stage, stageOf } from "../../../shared/scene/placeFile";
@@ -19,7 +19,7 @@ const HOMES = [
   { name: "the parlour", stage: parlour, drum: "prop_water-drum.glb" },
   { name: "the room in a compound", stage: stageOf(compoundRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
   { name: "the hostel room", stage: stageOf(hostelRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
-  { name: "Makoko", stage: stageOf(makokoRaw as unknown as PlaceFile), drum: "prop_water-drum.glb" },
+  { name: "the room on the water", stage: stageOf(makokoRaw as unknown as PlaceFile), drum: "prop_drum-jerrycans.glb" },
 ] as const;
 
 function copyOf(stage: Stage, suffix: string): readonly number[] {

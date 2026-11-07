@@ -1,0 +1,181 @@
+{
+  "asset": "prop_wash-pot",
+  "file": "public/assets/places/makoko/prop_wash-pot.glb",
+  "fileSha256": "9f834f830844f0312fa8c6c04094be919df45f7cc9470252a2f49e8d35e5961f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-smoking/wash-pot/renders/front.png",
+      "sha256": "8bcc2d1513f41d04e8175fe71ae265f7ee5bfcd1537575fde8e27231cdab09b3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.24150171875953674,
+          0.23000000447034835,
+          17.725356604814653
+        ],
+        "target": [
+          0.24150171875953674,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "width": 1.4871563029289248,
+        "height": 1.1153672271966937
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-smoking/wash-pot/renders/back.png",
+      "sha256": "d40bd937dbeb9674cac014ce8a6df48b73ee0c24e9bc2b4db1370d5110cd59f8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.24150171875953674,
+          0.23000000447034835,
+          -17.44535660362256
+        ],
+        "target": [
+          0.24150171875953674,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "width": 1.4871563029289248,
+        "height": 1.1153672271966937
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-smoking/wash-pot/renders/left.png",
+      "sha256": "effe2fbdd972626770ac7cb55b2452233f6c0d7f39d0f26ac54825ab102e9873",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.34385488545907,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "target": [
+          0.24150171875953674,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "width": 1.3175949775789548,
+        "height": 0.9881962331842161
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-smoking/wash-pot/renders/right.png",
+      "sha256": "d79789536e8e349b7cec4109d8b5454e062091be858e8a7731710dc70c5adcd6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.826858322978143,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "target": [
+          0.24150171875953674,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "width": 1.3175949775789548,
+        "height": 0.9881962331842161
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-smoking/wash-pot/renders/threeQuarter.png",
+      "sha256": "bc21adcb654dcf17d58215315814d26e7ebb37bcb9eab795481b80ddd6e381c1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.4322723678436966,
+          2.01875674904438,
+          2.3307706496802068
+        ],
+        "target": [
+          0.24150171875953674,
+          0.23000000447034835,
+          0.14000000059604645
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-smoking/wash-pot/renders/phone.png",
+      "sha256": "748ca8abba98050349e2bfb7e735e960cf8a4eba0bd7ac77098ca7f87c20cceb",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.24150171875953674,
+          1.6,
+          12.749997675401119
+        ],
+        "target": [
+          0.24150171875953674,
+          1.5,
+          0.7499976754011181
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-smoking/wash-pot/renders/tile.png",
+      "sha256": "6eaf809fd1469ec3b83fe6abecf3f0eba147bd6db0120ffa51de25867cd5a13c",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.7499671139385617,
+          1.433077931234699,
+          1.7982714556340018
+        ],
+        "target": [
+          0.19407491493492818,
+          0.16269727045611124,
+          0.24237925663036775
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

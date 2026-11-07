@@ -1,0 +1,206 @@
+{
+  "asset": "building_makoko-smoking-deck",
+  "file": "public/assets/places/makoko/building_makoko-smoking-deck.glb",
+  "fileSha256": "68e5dc02c832e9901f7b47897b60de7ddfcb58c7c25b17001af20ddeab77a044",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/makoko-smoking-deck/renders/front.png",
+      "sha256": "0cf4a89def2548d61ee059f70e5f93bb324a72be03454224f6df96719459fa2e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.6233214139565826,
+          49.70483397474385
+        ],
+        "target": [
+          0,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "width": 8.424000205993654,
+        "height": 6.31800015449524
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/makoko-smoking-deck/renders/back.png",
+      "sha256": "13e6b72da2a1b33552d163da17d72ab1a2106a137e08bc1c4c2278e25544f112",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.6233214139565826,
+          -50.01983403196431
+        ],
+        "target": [
+          0,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "width": 8.424000205993654,
+        "height": 6.31800015449524
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/makoko-smoking-deck/renders/left.png",
+      "sha256": "acfacaafe15bc399da634912acc05e827ee08439718dfbffddb9de0f4f953d24",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -49.86233400335408,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "target": [
+          0,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "width": 5.707866224355939,
+        "height": 4.2808996682669544
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/makoko-smoking-deck/renders/right.png",
+      "sha256": "61bf5cb47eb08d5a11ef3de7a1318f666ade039eaaac396cf47c845079e86e5e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          49.86233400335408,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "target": [
+          0,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "width": 5.707866224355939,
+        "height": 4.2808996682669544
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/makoko-smoking-deck/renders/threeQuarter.png",
+      "sha256": "f53c95de99b92869a4fab9535e0e94c8f78caaafc3cac8883052153a20fa6046",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.51287090312528,
+          11.023541143020676,
+          11.355370874515053
+        ],
+        "target": [
+          0,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/makoko-smoking-deck/renders/plan.png",
+      "sha256": "2ed5f3deb7f2742f98cacc09d58240c288c4b0f6487a383f08f6877ab569081c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          51.48565541731066,
+          -0.1575000286102295
+        ],
+        "target": [
+          0,
+          1.6233214139565826,
+          -0.1575000286102295
+        ],
+        "width": 8.424000205993654,
+        "height": 6.31800015449524
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/makoko-smoking-deck/renders/phone.png",
+      "sha256": "9c3c2fa281ef170307cee64aab6a1c3eef192d1f2c50ae94b1ec9676e60b9f1f",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          14.485030630813817
+        ],
+        "target": [
+          0,
+          1.5,
+          2.4850306308138164
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/makoko-smoking-deck/renders/tile.png",
+      "sha256": "088ef97cb6493a45176b7643c8b7ef8c417774e1aae22bccbb2e4a7a74b2a1f4",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.565404108069293,
+          10.147470646669516,
+          10.730585024255669
+        ],
+        "target": [
+          0.5353686587831678,
+          1.1414844148157812,
+          -0.2994504250304572
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

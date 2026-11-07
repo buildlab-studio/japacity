@@ -1,0 +1,206 @@
+{
+  "asset": "building_makoko-room",
+  "file": "public/assets/places/makoko/building_makoko-room.glb",
+  "fileSha256": "f1fdb3849aa53f798ce43afd2e79c24f8a2c18bfbe1f087e5530ba8ffaa7f50a",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/makoko-house/room/renders/front.png",
+      "sha256": "85492586c73379318be43c1184d59a835102302b001ba1f292370f9e36dbe4c3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          50.30311918109135
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "width": 6.598827397978681,
+        "height": 4.949120548484011
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/makoko-house/room/renders/back.png",
+      "sha256": "ea4b0f12fa76c099485ae9ed59b4e5f226844d3f396d6f53eb1962d46667606f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          -48.829284904892006
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "width": 6.598827397978681,
+        "height": 4.949120548484011
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/makoko-house/room/renders/left.png",
+      "sha256": "f0c46cfe173a7f78ff36e4eaf18373c332545cd364dfdd204246cc595033a8c9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -50.06120204776005,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "width": 7.726140832901002,
+        "height": 5.794605624675752
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/makoko-house/room/renders/right.png",
+      "sha256": "167966674e131284ba68c679d1f636cfce0dd985e43ac7b2b3dab4b1df9aaf57",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          49.071202038223305,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "width": 7.726140832901002,
+        "height": 5.794605624675752
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/makoko-house/room/renders/threeQuarter.png",
+      "sha256": "ecca1fff687e90e0ca242bad427de5e03f96f7c0acb705d8a32d6afa6dd7c1ad",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          10.932343316613832,
+          10.852892511108093,
+          12.164260459481875
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/makoko-house/room/renders/plan.png",
+      "sha256": "ee7f57ac350a085324f6943f201d994ead4a97ecdc5d56ed2bd8086640ee2163",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.4950000047683716,
+          51.088707803103915,
+          0.7369171380996704
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5225057601122398,
+          0.7369171380996704
+        ],
+        "width": 10.301521110534669,
+        "height": 7.7261408329010015
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/makoko-house/room/renders/phone.png",
+      "sha256": "12c3040349157a64d77491c04e123d06863ef7a13471605763e3d22dbf0a0c8e",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.4950000047683716,
+          1.6,
+          16.313834190368652
+        ],
+        "target": [
+          -0.4950000047683716,
+          1.5,
+          4.313834190368652
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/makoko-house/room/renders/tile.png",
+      "sha256": "f7929a17659877f5f08d156f86e76f2de272df9829467be39505ab3d391a77ce",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          9.861141122944696,
+          8.852768670051853,
+          10.003360493605213
+        ],
+        "target": [
+          0.25824646551258645,
+          1.0120380152494086,
+          0.400465836173101
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

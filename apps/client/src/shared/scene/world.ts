@@ -324,6 +324,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
       object.castShadow = settings.shadows && castsShadow(model.file);
     });
     if (model.bob === true || model.glide !== undefined) rideWater(copies, model.glide);
+    if (model.lift !== undefined) copies.position.y = model.lift;
     root.add(copies);
   }
   // A wide home stands with the pair its whole view looks over at rest; the scene turns it after.

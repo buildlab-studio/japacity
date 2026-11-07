@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 import { type Footprint, isFootprint, type RegisterRow, type Review, type ReviewSheet } from "@japacity/model-kit";
 
-import { checkFaces, type FacedStage, floorFaces, type ModelFace } from "./faces-check";
+import { checkFaces, type FacedStage, FLOOR_READ, floorFaces, type ModelFace } from "./faces-check";
 import { checkFootprints, checkWalkable, type StagedGround } from "./footprint-check";
 import { measure, readGlb } from "./glb";
 import { placeMapData } from "./map-data";
@@ -507,7 +507,7 @@ export async function measureFile(paths: Paths, file: string): Promise<Measured>
   const figures = measure(doc, bytes.byteLength);
   const extras: Record<string, unknown> = doc.getRoot().getDefaultScene()?.listChildren()[0]?.getExtras() ?? {};
   const signs = Array.isArray(extras.signs) ? extras.signs.length : 0;
-  return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs, extras, floors: floorFaces(doc) };
+  return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs, extras, floors: floorFaces(doc, FLOOR_READ) };
 }
 
 function codeBytes(paths: Paths): number {

@@ -228,6 +228,24 @@ export function thingsNow(things: readonly Thing[], offered: (stages: string) =>
   });
 }
 
+/**
+ * The doors as they open for this life (home:home-is-the-home-point): a home's door (`home`) opens only while the life lives
+ * here, and a thing left with no act is a neighbour's house, with no name over it and nothing to tap.
+ */
+export function doorsFor(things: readonly Thing[], livesHere: boolean): Thing[] {
+  if (livesHere) return [...things];
+  return things.flatMap((thing) => {
+    const acts = thing.acts.filter((act) => act.kind !== "enter" || act.home !== true);
+    if (acts.length === thing.acts.length) return [thing];
+    return acts.length === 0 ? [] : [{ ...thing, acts }];
+  });
+}
+
+/** The door here whose scene holds the thing `id` (world:entering-is-a-cut), so a way to that thing leads through it; null when none does. */
+export function doorTo(things: readonly Pick<Thing, "id" | "acts">[], id: string): string | null {
+  return things.find((thing) => thing.acts.some((act) => act.kind === "enter" && act.leads?.includes(id) === true))?.id ?? null;
+}
+
 /** The vehicle a ride act takes, from its thing's model: the danfo, the keke or the okada. */
 export function vehicleOf(thing: Pick<Thing, "file">): string | null {
   return /vehicle_(danfo|keke|okada)/.exec(thing.file)?.[1] ?? null;

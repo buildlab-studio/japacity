@@ -87,9 +87,11 @@ export interface Stage {
    * Every model and where each copy stands. `signs`, for a building whose file carries only its sign
    * anchors, gives each copy its own text keys in the anchors' order, so two copies never show the same boards.
    * `bob` rides the copies on the water; `glide`, in metres, also sends each along its own length and
-   * back on the shared clock (a canoe paddled along the channel, city:no-script-loop-per-sheet).
+   * back on the shared clock (a canoe paddled along the channel, city:no-script-loop-per-sheet). `lift`, in metres, stands every
+   * copy that much higher, or lower where it is negative: a house on stilts stood so its floor is the ground the scene walks on,
+   * its stilts down in the water below (Makoko's room on the water).
    */
-  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean; glide?: number; owned?: string }[];
+  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean; glide?: number; owned?: string; lift?: number }[];
   /** Where people of the crowd stand, in order of use: the low mode's sample takes the first spots. At least the high mode's crowd. */
   people: Spot[];
   /** Spots, by index into `people`, kept for someone of a role when the sample has one: a hawker among the vehicles, a trader at the stall. */
@@ -113,6 +115,11 @@ export interface Stage {
   things?: Thing[];
   /** The place a door here opens into, as a place id (world:entering-is-a-cut): a room is just another place. */
   inside?: string;
+  /**
+   * The words key of the scene's own name, for a place that holds several scenes (Makoko's channel, its room on the water, its
+   * viewing centre, net shed and smoking deck): the band says it in place of the place's name (world:top-band-is-a-pill).
+   */
+  name?: string;
   /** A home's car spot, in its yard or by its gate: the car stands there while the life has one, else it is empty. */
   car?: Spot;
   /** A wide home's rooms: a tap on one or a pinch eases the camera in on it from the whole house. */
@@ -298,6 +305,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.shot === undefined ? {} : { shot: plain.shot }),
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
+    ...(plain.name === undefined ? {} : { name: plain.name }),
     ...(plain.car === undefined ? {} : { car: plain.car }),
     ...(plain.rooms === undefined ? {} : { rooms: plain.rooms }),
     ...(plain.owned === undefined ? {} : { owned: plain.owned }),

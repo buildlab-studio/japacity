@@ -5,8 +5,8 @@ import type { HomePlace, Id } from "@japacity/sim";
 
 /**
  * Each home a life may live in (`home.md`), and whether it is private. Typed over every home, so a new one fails the
- * typecheck until it is placed here. Makoko is a public neighbourhood scene with the rented room as one thing on its
- * walk, so players show there as at any public place.
+ * typecheck until it is placed here. Makoko is a public neighbourhood whose scenes show players as any public place does;
+ * its room on the water stands no crowd, so nobody shows there but the character (city:players-fill-the-crowd).
  */
 const LIVED_IN: Record<HomePlace, boolean> = {
   "place.family-house": true,

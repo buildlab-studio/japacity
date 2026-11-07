@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import type { BakedModel } from "./bake";
-import { checkFaces, FACE_GAP, type FacedStage, floorFaces, type ModelFace, STRIP_STEP, stripTops } from "./faces-check";
+import { checkFaces, FACE_GAP, type FacedStage, FLOOR_READ, floorFaces, LIFT_MAX, type ModelFace, STRIP_STEP, stripTops } from "./faces-check";
 import { readGlb, toDocument, writeGlb } from "./glb";
 import { readJson, REPO_ROOT } from "../repo";
 
@@ -12,7 +12,7 @@ const planted = readJson<{ place: string; stage: FacedStage }>(join(REPO_ROOT, "
 const SLAB = "places/stripes/prop_slab.glb";
 
 /** A slab of 4 by 3 metres standing on y = 0, `top` metres thick: its top looks up, its underside down. */
-async function slab(top: number): Promise<ModelFace[]> {
+async function slab(top: number, under?: number): Promise<ModelFace[]> {
   const up = [-2, top, -1.5, -2, top, 1.5, 2, top, 1.5, 2, top, -1.5];
   const down = [-2, 0, -1.5, 2, 0, -1.5, 2, 0, 1.5, -2, 0, 1.5];
   const model: BakedModel = {
@@ -20,7 +20,7 @@ async function slab(top: number): Promise<ModelFace[]> {
     parts: [{ node: "body", primitives: [{ material: "body", positions: [...up, ...down], colours: Array.from({ length: 24 }, () => 0.5), indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7] }] }],
     extras: {},
   };
-  return floorFaces(await readGlb(await writeGlb(toDocument(model))));
+  return floorFaces(await readGlb(await writeGlb(toDocument(model))), under);
 }
 
 describe("faces at one height", () => {
@@ -46,6 +46,17 @@ describe("faces at one height", () => {
     const low = await slab(0.05);
     expect(low).toHaveLength(2);
     for (const face of low) expect(face.y).toBeCloseTo(0.05, 3);
+  });
+
+  test("[world:faces-never-share-height] [assets:metre-units-and-origin] given a slab 0.9 m thick stood lowered by its lift, when the place check reads it, then its top is read where it is drawn: 5 mm over the ground fights it, 2 cm over passes, and a lift past the most read fails", async () => {
+    const tall = await slab(0.9, FLOOR_READ);
+    const read = (lift: number): FacedStage => ({ ...planted.stage, models: [{ file: SLAB, at: [[0, 0, 0]], lift }] });
+    const facesOf = (file: string) => (file === SLAB ? tall : []);
+    expect(checkFaces(planted.place, read(-0.895), facesOf)[0]).toMatch(/the ground at 0\.000 m and places\/stripes\/prop_slab\.glb copy 0 at 0\.005 m overlap 5\.0 mm apart$/);
+    expect(checkFaces(planted.place, read(-0.88), facesOf)).toEqual([]);
+    // Unlifted, the same top stands far over the floors and is never read as one.
+    expect(checkFaces(planted.place, read(0), facesOf)).toEqual([]);
+    expect(checkFaces(planted.place, read(-(LIFT_MAX + 0.1)), facesOf)[0]).toMatch(/stands lifted -1\.6 m, past the 1\.5 m its floors are read to$/);
   });
 
   test("[world:faces-never-share-height] given strips that overlap and strips that do not, when they are laid, then each overlapping strip stands a step over the one under it and apart strips share the first step", () => {

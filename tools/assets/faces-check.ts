@@ -2,7 +2,8 @@
 // centimetre of the same height fight for the same pixels and show as flickering stripes (a slab laid
 // on the ground shows them). A place's floor is its ground at 0, its strips of road
 // and pavement laid over it, and the floors of its models: every face of a model that looks up and
-// lies lower than FLOOR_MAX, a slab, a step, a rug. The client lays the strips with `stripTops` and
+// lies lower than FLOOR_MAX where the place stands it, a slab, a step, a rug, or the boards of a house on stilts stood lowered by
+// its `lift` so its floor is the ground. The client lays the strips with `stripTops` and stands each copy at its lift, and
 // the check reads the same heights, so what is checked is what is drawn. Pure: no file, no browser.
 import type { Document as GltfDocument } from "@gltf-transform/core";
 
@@ -12,6 +13,10 @@ export const FACE_GAP = 0.01;
 export const STRIP_STEP = 0.012;
 /** A model's face that looks up and lies lower than this is laid on the ground: a floor, a slab, a rug. */
 const FLOOR_MAX = 0.1;
+/** The most a place stands a model lowered (`lift`): a floor on stilts stands at most this high over the water. */
+export const LIFT_MAX = 1.5;
+/** How high a model's floors are read, so a floor stood lowered to the ground by its lift is still read. */
+export const FLOOR_READ = FLOOR_MAX + LIFT_MAX;
 /** Heights closer than this are one surface cut into triangles, not two faces. */
 const SAME = 1e-4;
 /** Overlaps thinner than this are faces that only touch at an edge. */
@@ -43,8 +48,8 @@ interface PlaceFace {
 export interface FacedStage {
   ground: { size: [number, number] };
   roads: StripShape[];
-  models: { file: string; at: [number, number, number][] }[];
-  dressings?: { offer?: string; person?: string; models: { file: string; at: [number, number, number][] }[]; hide?: string[] }[];
+  models: { file: string; at: [number, number, number][]; lift?: number }[];
+  dressings?: { offer?: string; person?: string; models: { file: string; at: [number, number, number][]; lift?: number }[]; hide?: string[] }[];
 }
 
 /** A point of a turned frame placed at x and z, as the client places strips and model copies. */
@@ -110,8 +115,8 @@ export function stripTops(roads: readonly StripShape[]): number[] {
   return roads.map((strip, index) => (levels[index] ?? 1) * STRIP_STEP + (strip.raise ?? 0));
 }
 
-/** Every face of a model that looks up and lies under FLOOR_MAX, in the model's own frame. */
-export function floorFaces(doc: GltfDocument): ModelFace[] {
+/** Every face of a model that looks up and lies under `under` (FLOOR_MAX, or FLOOR_READ for a model a place may stand lowered), in the model's own frame. */
+export function floorFaces(doc: GltfDocument, under = FLOOR_MAX): ModelFace[] {
   const faces: ModelFace[] = [];
   const at: number[] = [];
   doc.getRoot().getDefaultScene()?.traverse((node) => {
@@ -132,7 +137,7 @@ export function floorFaces(doc: GltfDocument): ModelFace[] {
       const corner = (index: number): [number, number, number] => points[indices === null ? index : indices.getScalar(index)] ?? [0, 0, 0];
       for (let index = 0; index + 2 < count; index += 3) {
         const [a, b, c] = [corner(index), corner(index + 1), corner(index + 2)];
-        if (Math.abs(a[1] - b[1]) > SAME || Math.abs(a[1] - c[1]) > SAME || a[1] >= FLOOR_MAX) continue;
+        if (Math.abs(a[1] - b[1]) > SAME || Math.abs(a[1] - c[1]) > SAME || a[1] >= under) continue;
         // Looking up: the corners turn counter-clockwise seen from above.
         const up = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]);
         if (up <= 1e-9) continue;
@@ -143,16 +148,17 @@ export function floorFaces(doc: GltfDocument): ModelFace[] {
   return faces;
 }
 
-/** Every floor face of a stage: the ground, each strip at its top, and each copy of each model's floors. */
+/** Every floor face of a stage: the ground, each strip at its top, and each copy of each model's floors at its lift, those that lie under FLOOR_MAX there. */
 function stageFaces(stage: Pick<FacedStage, "ground" | "roads">, models: FacedStage["models"], facesOf: (file: string) => readonly ModelFace[]): PlaceFace[] {
   const [width, depth] = stage.ground.size;
   const faces: PlaceFace[] = [{ y: 0, corners: [[-width / 2, -depth / 2], [width / 2, -depth / 2], [width / 2, depth / 2], [-width / 2, depth / 2]], source: "the ground" }];
   const tops = stripTops(stage.roads);
   stage.roads.forEach((strip, index) => faces.push({ y: tops[index] ?? 0, corners: stripCorners(strip), source: `strip ${String(index)}` }));
   for (const model of models) {
-    const own = facesOf(model.file);
+    const lift = model.lift ?? 0;
+    const own = facesOf(model.file).filter((face) => face.y + lift < FLOOR_MAX);
     model.at.forEach(([x, z, turn], copy) => {
-      for (const face of own) faces.push({ y: face.y, corners: face.corners.map(([cx, cz]) => placed(x, z, turn, cx, cz)), source: `${model.file} copy ${String(copy)}` });
+      for (const face of own) faces.push({ y: face.y + lift, corners: face.corners.map(([cx, cz]) => placed(x, z, turn, cx, cz)), source: `${model.file} copy ${String(copy)}` });
     });
   }
   return faces;
@@ -180,7 +186,10 @@ function fightingFaces(faces: readonly PlaceFace[]): string[] {
 /** world:faces-never-share-height: a place whose floor faces fight, in its plain stage or in any dressing, fails. */
 export function checkFaces(place: string, stage: FacedStage | undefined, facesOf: (file: string) => readonly ModelFace[]): string[] {
   if (stage === undefined) return [];
-  const problems = fightingFaces(stageFaces(stage, stage.models, facesOf)).map((line) => `world:faces-never-share-height: ${place}: ${line}`);
+  // A lift past LIFT_MAX would stand floors the read never saw.
+  const unread = [...stage.models, ...(stage.dressings ?? []).flatMap((dressing) => dressing.models)].filter((model) => Math.abs(model.lift ?? 0) > LIFT_MAX);
+  const problems = unread.map((model) => `world:faces-never-share-height: ${place}: ${model.file} stands lifted ${String(model.lift)} m, past the ${String(LIFT_MAX)} m its floors are read to`);
+  problems.push(...fightingFaces(stageFaces(stage, stage.models, facesOf)).map((line) => `world:faces-never-share-height: ${place}: ${line}`));
   for (const dressing of stage.dressings ?? []) {
     const hidden = new Set(dressing.hide ?? []);
     const models = [...stage.models.filter((model) => !hidden.has(model.file)), ...dressing.models];

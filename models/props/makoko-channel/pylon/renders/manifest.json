@@ -1,0 +1,181 @@
+{
+  "asset": "prop_pylon",
+  "file": "public/assets/places/makoko/prop_pylon.glb",
+  "fileSha256": "d4a6c4af395abab10f5ece45df7b4328d412bf85621d08b1d7c081793cbba52d",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-channel/pylon/renders/front.png",
+      "sha256": "5249298d899c61af4f831967d97727d6ff8be7125528be083cf037e877d117e4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          15.009208676218988,
+          268.66394741416406
+        ],
+        "target": [
+          0,
+          15.009208676218988,
+          0
+        ],
+        "width": 43.22670091863321,
+        "height": 32.42002568897491
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-channel/pylon/renders/back.png",
+      "sha256": "a8deb05babd346a7e4d5e2a538bab4d8e698aa3fa7bef9d6182177d6a73a0ff9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          15.009208676218988,
+          -268.66394741416406
+        ],
+        "target": [
+          0,
+          15.009208676218988,
+          0
+        ],
+        "width": 43.22670091863321,
+        "height": 32.42002568897491
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-channel/pylon/renders/left.png",
+      "sha256": "a9efc1c37493c764fbade9c4c7026b9259a755d7a957e5270214f95bfca9c81c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -268.66394741416406,
+          15.009208676218988,
+          0
+        ],
+        "target": [
+          0,
+          15.009208676218988,
+          0
+        ],
+        "width": 60.48550827026368,
+        "height": 45.36413120269776
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-channel/pylon/renders/right.png",
+      "sha256": "0aa914977075bab4f28da8bc4949e3c83c39b3cc714fc1bcc47840c4ec0f23e9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          268.66394741416406,
+          15.009208676218988,
+          0
+        ],
+        "target": [
+          0,
+          15.009208676218988,
+          0
+        ],
+        "width": 60.48550827026368,
+        "height": 45.36413120269776
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-channel/pylon/renders/threeQuarter.png",
+      "sha256": "d371a6fa6179edc3f0702fab58a4a4fb4a4e1db6f8ef744a34324b190b8a3c05",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          74.7062285319642,
+          76.0065888465731,
+          74.70622853196421
+        ],
+        "target": [
+          0,
+          15.009208676218988,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-channel/pylon/renders/phone.png",
+      "sha256": "9467aae9da9b2e658362e298778e4e4b55eb26decde62a9dad1f68334460856d",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          40.00255012512207
+        ],
+        "target": [
+          0,
+          4.5,
+          28.00255012512207
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-channel/pylon/renders/tile.png",
+      "sha256": "6256807a8abb2a64ad08406c7bc5a9b1de8b9701e220c97a7662e8ed3391a9bb",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          39.719123274017164,
+          51.04040722141907,
+          46.747608530736606
+        ],
+        "target": [
+          -3.7381575598469716,
+          15.557686004153009,
+          3.2903276968724673
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -8,7 +8,16 @@ import { drawPattern } from "@japacity/model-kit/pattern";
 import { buildFamilyHouse } from "@japacity/models/buildings/family-house/build";
 import { buildFlyoverSpan } from "@japacity/models/buildings/flyover-span/build";
 import { buildStiltHouse } from "@japacity/models/buildings/stilt-house/build";
-import { buildRoomHouse, buildSchool, buildTallHouse } from "@japacity/models/buildings/makoko-house/build";
+import { buildSchool, buildTallHouse } from "@japacity/models/buildings/makoko-house/build";
+import { buildWaterHouse, buildWaterRoom } from "@japacity/models/buildings/makoko-house/water";
+import { buildNeighbour, NEIGHBOURS } from "@japacity/models/buildings/makoko-house/neighbours";
+import { buildSmokingDeck } from "@japacity/models/buildings/makoko-smoking-deck/build";
+import { buildViewingHouse, buildViewingRoom } from "@japacity/models/buildings/makoko-viewing-centre/build";
+import { buildBambooWires, buildPylon } from "@japacity/models/props/makoko-channel/build";
+import { buildDrumKilns, buildFirewoodSacks, buildFishBaskets, buildWashPot } from "@japacity/models/props/makoko-smoking/build";
+import { buildMatchTvs, buildViewingBenches } from "@japacity/models/props/makoko-viewing/build";
+import { buildNetShed } from "@japacity/models/buildings/makoko-net-shed/build";
+import * as waterRoom from "@japacity/models/props/makoko-room/build";
 import { buildTerminalFront } from "@japacity/models/buildings/terminal-front/build";
 import { type ArcadeSpec, buildArcade } from "@japacity/models/buildings/deira-arcade/build";
 import { buildRailwayBridge } from "@japacity/models/buildings/railway-bridge/build";
@@ -23,7 +32,7 @@ import { buildBasins } from "@japacity/models/props/basins/build";
 import { buildCanoe } from "@japacity/models/props/canoe/build";
 import { buildCanoeGoods, buildCanoeSchool } from "@japacity/models/props/canoe-load/build";
 import { buildFishRacks } from "@japacity/models/props/fish-racks/build";
-import { buildPlankWalkway } from "@japacity/models/props/plank-walkway/build";
+import { buildPlankWalkway, WALKWAY } from "@japacity/models/props/plank-walkway/build";
 import { buildFlagpole } from "@japacity/models/props/flagpole/build";
 import { buildMarketStall } from "@japacity/models/props/market-stall/build";
 import { buildRepairTable } from "@japacity/models/props/repair-table/build";
@@ -417,14 +426,50 @@ const ENTRIES: CatalogEntry[] = [
   placePiece("prop_canoe", "third-mainland-bridge", buildCanoe),
   // Makoko on the lagoon (home:home-is-the-home-point): its houses, the classroom, the walk, the racks and the canoes that travel the channel.
   ...([
-    ["building_makoko-house_a", "a", () => buildRoomHouse()],
-    ["building_makoko-house_b", "b", () => buildTallHouse("place.makoko.sign.2", { board: "white", ink: "blue", painted: true })],
+    ["building_makoko-house_a", "a", () => buildWaterHouse(WALKWAY.top)],
+    ["building_makoko-house_b", "b", () => buildTallHouse("place.makoko.sign.4", { board: "white", ink: "blue", painted: true })],
+    ["building_makoko-church", "church", () => buildTallHouse("place.makoko.sign.2", { board: "white", ink: "blue", painted: true }, { name: "building_makoko-church", nets: true })],
     ["building_makoko-school", "school", () => buildSchool("place.makoko.sign.1", { board: "blue", ink: "white", painted: true })],
+    // The neighbours on the channel, each a set of numbers given to one builder (assets:variants-are-numbers-not-code).
+    ...(["c", "d", "e", "f", "g"] as const).map((letter) => [NEIGHBOURS[letter].name, letter, () => buildNeighbour(NEIGHBOURS[letter])] as const),
   ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build, [...ELEVATIONS, "plan", "phone"]), source: `models/buildings/makoko-house/${folder}`, author: MAKOKO, ground: "lagoon" })),
   { ...placePiece("prop_plank-walkway", "makoko", buildPlankWalkway), author: MAKOKO, ground: "lagoon" },
   { ...placePiece("prop_fish-racks", "makoko", () => buildFishRacks("place.makoko.sign.3", { board: "danfoYellow", ink: "red", painted: true })), author: MAKOKO, ground: "lagoon" },
   { ...placePiece("prop_canoe-goods", "makoko", buildCanoeGoods), source: "models/props/canoe-load/goods", author: MAKOKO, ground: "lagoon" },
   { ...placePiece("prop_canoe-school", "makoko", buildCanoeSchool), source: "models/props/canoe-load/school", author: MAKOKO, ground: "lagoon" },
+  // The room on the water seen from inside, its things, and the net shed (home:home-is-the-home-point, world:entering-is-a-cut).
+  { ...placePiece("building_makoko-room", "makoko", () => buildWaterRoom(WALKWAY.top), [...ELEVATIONS, "plan", "phone"]), source: "models/buildings/makoko-house/room", author: MAKOKO, ground: "lagoon" },
+  { ...placePiece("building_makoko-net-shed", "makoko", () => buildNetShed(WALKWAY.top), [...ELEVATIONS, "plan", "phone"]), author: MAKOKO, ground: "lagoon" },
+  ...([
+    ["prop_floor-bed", waterRoom.buildFloorBed],
+    ["prop_drum-jerrycans", waterRoom.buildDrumJerrycans],
+    ["prop_tin-trunk", waterRoom.buildTinTrunk],
+    ["prop_cupboard-clothes", waterRoom.buildCupboard],
+    ["prop_net-bundle", waterRoom.buildNetBundle],
+    ["prop_three-stones", waterRoom.buildThreeStones],
+    ["prop_clothes-sack", waterRoom.buildClothesSack],
+    ["prop_leak-bucket", waterRoom.buildLeakBucket],
+    ["prop_mat-stool", waterRoom.buildMatStool],
+  ] as const).map(([name, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build), source: `models/props/makoko-room/${name.slice("prop_".length)}`, author: MAKOKO })),
+  // The channel's pylons and the bamboo poles that carry its wires; the viewing centre from the channel and from inside, its
+  // screens and benches; the smoking deck and what stands on it (world:entering-is-a-cut, world:place-is-one-screen).
+  ...([
+    ["prop_pylon", "pylon", buildPylon],
+    ["prop_bamboo-wires", "bamboo-wires", buildBambooWires],
+  ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build), source: `models/props/makoko-channel/${folder}`, author: MAKOKO, ground: "lagoon" })),
+  { ...placePiece("building_makoko-viewing-centre", "makoko", () => buildViewingHouse(WALKWAY.top, "place.makoko.sign.5", { board: "white", ink: "green", painted: true }), [...ELEVATIONS, "plan", "phone"]), author: MAKOKO, ground: "lagoon" },
+  { ...placePiece("building_makoko-viewing-room", "makoko", () => buildViewingRoom(WALKWAY.top), [...ELEVATIONS, "plan", "phone"]), source: "models/buildings/makoko-viewing-centre/room", author: MAKOKO, ground: "lagoon" },
+  ...([
+    ["prop_match-tvs", "match-tvs", buildMatchTvs],
+    ["prop_viewing-benches", "viewing-benches", buildViewingBenches],
+  ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build), source: `models/props/makoko-viewing/${folder}`, author: MAKOKO })),
+  { ...placePiece("building_makoko-smoking-deck", "makoko", buildSmokingDeck, [...ELEVATIONS, "plan", "phone"]), author: MAKOKO, ground: "lagoon" },
+  ...([
+    ["prop_drum-kilns", "drum-kilns", buildDrumKilns],
+    ["prop_fish-baskets", "fish-baskets", buildFishBaskets],
+    ["prop_wash-pot", "wash-pot", buildWashPot],
+    ["prop_firewood-sacks", "firewood-sacks", buildFirewoodSacks],
+  ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build), source: `models/props/makoko-smoking/${folder}`, author: MAKOKO })),
   {
     name: "prop_pole",
     file: "shared/prop/prop_pole.glb",

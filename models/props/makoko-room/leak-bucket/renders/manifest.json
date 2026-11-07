@@ -1,0 +1,181 @@
+{
+  "asset": "prop_leak-bucket",
+  "file": "public/assets/places/makoko/prop_leak-bucket.glb",
+  "fileSha256": "09d6421132987506fb58df9c6ef53c63c298d750b3d5221aa265c01a0e3488ac",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/makoko-room/leak-bucket/renders/front.png",
+      "sha256": "14a2eec1f3c3823d21fd7fbad3c1eee98895a0faf9f66b3defdffed38d644de8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.1300901398062706,
+          0.1500000029802322,
+          13.03582729011299
+        ],
+        "target": [
+          0.1300901398062706,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "width": 0.6481947058439255,
+        "height": 0.4861460293829441
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/makoko-room/leak-bucket/renders/back.png",
+      "sha256": "b82dbaef2c4888189fa86c640dca7393fb5012b962f0ea9b0863b10ee839eeb6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.1300901398062706,
+          0.1500000029802322,
+          -13.024254511888046
+        ],
+        "target": [
+          0.1300901398062706,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "width": 0.6481947058439255,
+        "height": 0.4861460293829441
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/makoko-room/leak-bucket/renders/left.png",
+      "sha256": "f82162835db2b39b84394863ed763e73897fe9b1f8fd95a8c07c44b8bdfef68e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -12.899950761194248,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "target": [
+          0.1300901398062706,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "width": 0.43201111227831485,
+        "height": 0.32400833420873615
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/makoko-room/leak-bucket/renders/right.png",
+      "sha256": "9981ae9591997b4b97dceab596ecd6b8e9d673ba36f1389b8ca381bf31e47e1b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          13.160131040806789,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "target": [
+          0.1300901398062706,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "width": 0.43201111227831485,
+        "height": 0.32400833420873615
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/makoko-room/leak-bucket/renders/threeQuarter.png",
+      "sha256": "6ba0d9f08fa8c4be993844fd61594d73eb605c81287d73e2c86ce9a0f424f1da",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.0052137520230855,
+          0.8645354402443827,
+          0.8809100013292875
+        ],
+        "target": [
+          0.1300901398062706,
+          0.1500000029802322,
+          0.005786389112472534
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/makoko-room/leak-bucket/renders/phone.png",
+      "sha256": "ec65aed92351ac64b52b955361c0d4b45d5b150159b9e0b5c3c4bfe00b452f03",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.1300901398062706,
+          1.6,
+          12.181570872823619
+        ],
+        "target": [
+          0.1300901398062706,
+          1.5,
+          0.18157087282361803
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/makoko-room/leak-bucket/renders/tile.png",
+      "sha256": "c57b2bd70cba8969b89ef611cf59af3aac539ae544463b066eed3047c1f33616",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7751280139913375,
+          0.6378467588885907,
+          0.6682319230767277
+        ],
+        "target": [
+          0.13544978285439507,
+          0.11555167027138168,
+          0.028553691939785252
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

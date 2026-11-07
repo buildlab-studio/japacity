@@ -641,6 +641,13 @@ async function followNudge(run: Run, month: number): Promise<void> {
       }
       log(run, `the fan's acts: ${names}; the nudge opens ${opens ?? "nothing named"}; tapping ${chosen}`);
       await tap(run, page.locator(`[data-fan] [data-fan-act="${chosen}"] button, [data-fan-sheet] [data-fan-act="${chosen}"] button`), "the act");
+      // A door cuts into its scene (world:entering-is-a-cut): the step's thing stands behind it, so the step goes on in there.
+      if (chosen === "enter") {
+        await page.waitForTimeout(1_200);
+        await placeDrawn(run);
+        await settle(run, `inside in month ${String(month)}`);
+        continue;
+      }
       // A plain act (a look, a seat) stages nothing and opens no sheet: the step goes no further here this month.
       if (!chosen.includes(".")) break;
       // The character walks to the thing before its sheet opens (world:things-are-tappable-models).
@@ -745,14 +752,16 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
 }
 
 /** The homes' beds, by the thing's id in each room file, with the act that ends the month (world:sleep-ends-the-month). */
-const BEDS = ["mattress", "bed", "bunk", "room"] as const;
+const BEDS = ["mattress", "bed", "bunk"] as const;
+/** The doors into a home's room from outside it: the compound's house, and Makoko's rented house on the channel (world:entering-is-a-cut). */
+const HOME_DOORS = ["house", "room"] as const;
 /** The bed's Sleep on the fan that opens out of it, or on the small sheet of the same buttons (world:fan-of-sticker-buttons). */
 const BED_END = '[data-fan] [data-fan-act="end-month"] button, [data-fan-sheet] [data-fan-act="end-month"] button';
 /** The bed's sleep on the driver's server, in seconds: the month turns once it runs out (world:sleep-ends-the-month). */
 const SLEEP_SECONDS = 3;
 
 /**
- * Ends the month from the bed when the player is at home: in the yard the house is gone into first; the bed's mark is
+ * Ends the month from the bed when the player is at home: in the yard, or on Makoko's channel, the home's door is gone through first; the bed's mark is
  * tapped, then its Sleep, the first night's card is answered, and the sleep is waited out. True once a `turn/end` is on
  * its way, read as the band stepping back or the results opening. False when no bed was in reach.
  */
@@ -761,12 +770,24 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
   const ended = async (): Promise<boolean> => (await shown(page.locator("[data-world-sheet='results'], [data-moment]"))) || (await page.locator("[data-band]").first().getAttribute("aria-hidden").catch(() => null)) === "true";
   // Away from home, the map's home stop takes the ride back first (decision 0026): the month ends in a bed.
   const beds = page.locator(BEDS.map((bed) => `[data-mark="${bed}"]`).join(", "));
-  if ((await beds.count()) === 0 && !(await shown(page.locator(BED_END)))) await rideHome(run, month);
-  const house = page.locator('[data-mark="house"]');
-  if (!(await shown(page.locator(BED_END))) && (await shown(house))) {
-    await tapMark(run, "house");
+  const doors = page.locator(HOME_DOORS.map((door) => `[data-mark="${door}"]`).join(", "));
+  // In a scene behind a door (Makoko's smoking deck), the way out comes first: the home's door may stand outside it.
+  const out = page.locator('[data-mark="out"]');
+  if ((await beds.count()) === 0 && (await doors.count()) === 0 && !(await shown(page.locator(BED_END))) && (await shown(out))) {
+    await tapMark(run, "out");
     await page.waitForTimeout(600);
-    if (await tap(run, page.locator('[data-fan-act="enter"] button'), "Go in")) await page.waitForTimeout(1_500);
+    if (await tap(run, page.locator('[data-fan="out"] [data-fan-act="out"] button'), "Out")) {
+      await page.waitForTimeout(1_500);
+      await placeDrawn(run);
+    }
+  }
+  if ((await beds.count()) === 0 && (await doors.count()) === 0 && !(await shown(page.locator(BED_END)))) await rideHome(run, month);
+  for (const door of HOME_DOORS) {
+    if ((await shown(page.locator(BED_END))) || !(await shown(page.locator(`[data-mark="${door}"]`)))) continue;
+    await tapMark(run, door);
+    await page.waitForTimeout(600);
+    if (await tap(run, page.locator(`[data-fan="${door}"] [data-fan-act="enter"] button, [data-fan-act="enter"] button`).first(), "Go in")) await page.waitForTimeout(1_500);
+    break;
   }
   // A wide home eased in on one room hides the other rooms' marks (decision 0018): the whole house first, as a player would.
   const whole = page.getByRole("button", { name: "See the whole place" });

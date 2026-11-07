@@ -21,6 +21,18 @@ export function insideOf(file: PlaceFile | null): string | null {
   return file === null ? null : (stageOf(file).inside ?? null);
 }
 
+/** The scene behind this file's home door (home:home-is-the-home-point): Makoko's room on the water behind the rented house's; null when no door is a home's. */
+export function homeSceneOf(file: PlaceFile | null): string | null {
+  if (file === null) return null;
+  const door = stageOf(file).things?.flatMap((thing) => thing.acts).find((act) => act.kind === "enter" && act.home === true);
+  return door === undefined ? null : (door.inside ?? insideOf(file));
+}
+
+/** Whether the character stands in a home's room that is not theirs, and so steps back out to the walk (home:home-is-the-home-point). */
+export function outOfHome(inside: boolean, scene: string | null, homeScene: string | null, livesHere: boolean): boolean {
+  return inside && homeScene !== null && scene === homeScene && !livesHere;
+}
+
 /**
  * The room inside a building as its own small scene cut from the place's file: the floor under the
  * building, the furniture and people that stand there, and the door as the start and the one thing.
