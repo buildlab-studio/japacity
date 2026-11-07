@@ -1,13 +1,13 @@
 // Makoko on the lagoon (city.md place.makoko, home:home-is-the-home-point): houses on stilts over the water
 // beside the Third Mainland Bridge, a plank walk in front of them, the racks where fish is smoked,
 // the classroom on stilts, canoes moored at the walk and canoes paddled along the channel, the
-// bridge far off behind. The room a character may rent carries the parlour's acts for the home's
-// own entries; the acts open once the shell stages them while the character lives there.
+// bridge far off behind. The house a character may rent opens with a cut into the room on the water,
+// whose things carry the parlour's acts (makoko-room.test.ts); the spur leads to the net shed (makoko-net-shed.test.ts).
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { roomBunk, ROOM_HOUSE } from "@japacity/models/buildings/makoko-house/build";
+import { RAMP_X, WATER_HOUSE, waterLines } from "@japacity/models/buildings/makoko-house/water";
 import { RACKS } from "@japacity/models/props/fish-racks/build";
 import { WALKWAY } from "@japacity/models/props/plank-walkway/build";
 
@@ -16,7 +16,7 @@ import raw from "../../../../public/assets/places/makoko/place.json";
 import { stopReached } from "../nudge/stops";
 import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
-import { copiesOf, staged, wordsOf } from "./place.testing";
+import { copiesOf, onGround, staged, wordsOf } from "./place.testing";
 import { cityWords } from "../city.words";
 import { thingIn } from "../../../shared/testing/things";
 
@@ -37,53 +37,37 @@ function inPlace([x, z, turn]: readonly number[], [px, pz]: readonly [number, nu
 describe("Makoko", () => {
   frontageTests(raw, ID);
 
-  test("[home:home-is-the-home-point] [activity:acts-may-repeat-in-month] given the room on the water, when its things are read, then the room naps on its bunk and sleeps, lying down at once while no nap can be had, the porch's cooking corner cooks and fetches water with the meals and the bath on their sheets, and the papers box opens the phone's Papers, each thing with at most two acts", () => {
+  test("[world:entering-is-a-cut] [home:home-is-the-home-point] given the rented house on the walk and the net shed at the spur's end, when their things are read, then each has one act, Go in: the house's through the door the file names into the room on the water, the shed's into the shed's own scene", () => {
     const room = thing("room");
     expect(room.file).toBe("places/makoko/building_makoko-house_a.glb");
-    expect(room.acts.map((act) => [act.id, act.kind, act.stages ?? null, act.pose ?? null])).toEqual([
-      ["nap", "sheet", "activity.nap", "lie"],
-      ["end-month", "end", null, null],
-    ]);
-    const lie = room.acts[0]?.otherwise;
-    expect([lie?.id, lie?.kind, lie?.pose, lie?.seat, lie?.top]).toEqual(["lie", "plain", "lie", room.acts[0]?.seat, room.acts[0]?.top]);
-    const [house] = copiesOf(stage, "building_makoko-house_a.glb");
-    if (house === undefined) throw new Error("No room");
-    const [bx, bz, top] = roomBunk();
-    const seat = room.acts[0]?.seat;
-    if (seat === undefined) throw new Error("No seat");
-    // The character lies on the bunk: its middle under the seat and its top at the lying height.
-    const [x, z] = inPlace(house, [bx, bz]);
-    expect(Math.hypot(seat[0] - x, seat[1] - z)).toBeLessThan(0.3);
-    expect(top).toBeGreaterThan(0.35);
-    expect(top).toBeLessThan(0.5);
-    expect(thing("room-chores").acts.map((act) => [act.kind, act.stages, act.more])).toEqual([
-      // A home of your own buys its meals and its pot.
-      ["sheet", "activity.cook-own", ["activity.cook-own-pot"]],
-      ["sheet", "activity.fetch-water", ["activity.bucket-bath"]],
-    ]);
-    const papers = thing("room-papers").acts;
-    // The passport is a visit to Immigration (world:phone-holds-what-phones-hold), the transcript a call from the phone.
-    expect(papers.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
-    for (const id of ["room", "room-chores", "room-papers"]) expect(thing(id).acts.length).toBeLessThanOrEqual(2);
-    // The parlour's own words for the same acts.
-    expect([cityWords(room.acts[0]?.otherwise?.label ?? ""), ...room.acts.map((act) => cityWords(act.label))]).toEqual([cityWords("city.act.lie"), cityWords("activity.nap.name"), cityWords("ui.world.end-month")]);
+    expect(room.copy).toBe(0);
+    expect(room.acts.map((act) => [act.id, act.kind, act.inside ?? null])).toEqual([["enter", "enter", null]]);
+    expect(stage.inside).toBe("makoko-room");
+    const shed = thing("net-shed");
+    expect(shed.file).toBe("places/makoko/building_makoko-net-shed.glb");
+    expect(shed.acts.map((act) => [act.id, act.kind, act.inside ?? null])).toEqual([["enter", "enter", "makoko-net-shed"]]);
+    expect([cityWords(room.label), cityWords(shed.label), cityWords(room.acts[0]?.label ?? "")]).toEqual(["The room", "Net shed", "Go in"]);
+    // The life's things and the home's acts stand in the room now, none on the walk.
+    for (const id of ["room-chores", "room-papers"]) expect(stage.things?.some((one) => one.id === id)).toBe(false);
+    expect(stage.owned).toBeUndefined();
   });
 
-  test("[home:home-is-the-home-point] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {
+  test("[home:home-is-the-home-point] given the rented house's ramp, when it is read against the walk, then its foot rests on the walk's back edge, its head on the porch over the water, and the house's thing is tapped from the walk at the ramp's foot", () => {
     const [house] = copiesOf(stage, "building_makoko-house_a.glb");
     if (house === undefined) throw new Error("No room");
-    const { depth, porch, width } = ROOM_HOUSE;
-    const [, porchEnd] = inPlace(house, [0, (depth + porch) / 2]);
-    const walk = copiesOf(stage, "prop_plank-walkway.glb");
-    // The walk's copies along x meet the porch's front edge.
-    expect(walk.some(([wx, wz]) => Math.abs(wz - WALKWAY.width / 2 - porchEnd) < 0.05 && Math.abs(wx - house[0]) < WALKWAY.length)).toBe(true);
-    for (const id of ["room-chores", "room-papers"]) {
-      const spot = thingSpot(stage, thing(id));
-      if (spot === null) throw new Error(`No ${id}`);
-      expect(Math.abs(spot[0] - house[0])).toBeLessThan(width / 2 + 0.1);
-      expect(spot[1]).toBeLessThan(porchEnd);
-      expect(spot[1]).toBeGreaterThan(porchEnd - porch);
-    }
+    const { foot, edge } = waterLines();
+    const walkBack = Math.min(...copiesOf(stage, "prop_plank-walkway.glb").filter(([, , turn]) => Math.abs(turn) > 1).map(([, z]) => z)) - WALKWAY.width / 2;
+    const [footX, footZ] = inPlace(house, [RAMP_X, foot]);
+    expect(Math.abs(footZ - walkBack)).toBeLessThan(0.05);
+    // The porch stands well over the walk, as the houses on stilts stand over the water, and its edge is back from the walk.
+    expect(WATER_HOUSE.floor - WALKWAY.top).toBeGreaterThan(0.5);
+    expect(inPlace(house, [0, edge])[1]).toBeLessThan(walkBack - 1);
+    // The character walks to the ramp's foot on the walk; the mark stands on the house.
+    const spot = thing("room").at;
+    if (spot === undefined) throw new Error("The room names no spot to walk to");
+    expect(Math.hypot(spot[0] - footX, spot[1] - footZ)).toBeLessThan(0.6);
+    expect(onGround(stage, [spot[0], spot[1], 0])).toBe(true);
+    expect(thingSpot(stage, thing("room"))).toEqual([house[0], house[1]]);
   });
 
   test("[world:ride-sheet-shows-fares] given the canoe moored at the walk, when it is tapped, then Go by canoe opens the ride sheet, the way back to the city by water", () => {

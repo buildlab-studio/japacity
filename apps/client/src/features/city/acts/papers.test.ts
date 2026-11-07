@@ -13,7 +13,7 @@ const BOXES = builtPlaces().flatMap(({ folder, file }) => thingsOf(stageOf(file)
 
 describe("the papers box", () => {
   test("[world:phone-holds-what-phones-hold] given the papers box in every home, when its acts are read, then its one act opens the Papers app, named Look in the box, and no sheet of papers is left", () => {
-    expect(BOXES.map(({ folder }) => folder).sort()).toEqual(["home-family-house", "home-hostel-house", "home-room-house", "makoko"]);
+    expect(BOXES.map(({ folder }) => folder).sort()).toEqual(["home-family-house", "home-hostel-house", "home-room-house", "makoko-room"]);
     for (const { folder, thing } of BOXES) {
       expect({ folder, acts: thing.acts }).toEqual({ folder, acts: [{ id: "papers", label: "city.act.papers", kind: "app", app: "papers" }] });
       expect(cityWords(thing.acts[0]!.label)).toBe("Look in the box");
