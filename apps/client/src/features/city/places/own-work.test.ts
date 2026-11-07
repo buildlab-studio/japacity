@@ -1,13 +1,13 @@
 // Own work opened with its capital, and the trades' side jobs, where the work is (activity:capital-opens-own-work,
-// activity:fish-racks-at-makoko, activity:each-trade-climbs-its-ladder): the kiln at the racks and the canoes' trade and deliveries at
-// Makoko, the POS stand at Ojuelegba's stall, the weekend repairs at a bench in Computer Village. Each stands on a model already in the
+// activity:fish-racks-at-makoko, activity:each-trade-climbs-its-ladder): the kiln and the canoes' trade and deliveries on Makoko's
+// smoking deck (city:makoko-holds-five-scenes), the POS stand at Ojuelegba's stall, the weekend repairs at a bench in Computer Village. Each stands on a model already in the
 // scene, opens its act as a sheet that names the cost before the tap (world:costly-acts-confirmed), and has its words in content.
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import computerVillageRaw from "../../../../public/assets/places/computer-village/place.json";
-import makokoRaw from "../../../../public/assets/places/makoko/place.json";
+import makokoRaw from "../../../../public/assets/places/makoko-smoking-deck/place.json";
 import ojuelegbaRaw from "../../../../public/assets/places/ojuelegba-front/place.json";
 import { cityWords } from "../city.words";
 import { staged } from "./place.testing";
@@ -17,7 +17,7 @@ const PLACES: { raw: unknown; id: Id<"place">; things: { thing: string; model: s
     raw: makokoRaw,
     id: "place.makoko",
     things: [
-      { thing: "kiln", model: "places/makoko/prop_fish-racks.glb", stages: ["activity.buy-kiln"] },
+      { thing: "kiln", model: "places/makoko/prop_drum-kilns.glb", stages: ["activity.buy-kiln"] },
       { thing: "canoe-trade", model: "places/third-mainland-bridge/prop_canoe.glb", stages: ["activity.canoe-deliveries", "activity.start-fish-trade"] },
     ],
   },

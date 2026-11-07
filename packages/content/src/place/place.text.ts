@@ -446,11 +446,12 @@ export const placeText: Record<string, string> = {
   "place.makoko.overheard.4": "All those cars on the bridge, and not one of them knows our names.",
   "place.makoko.overheard.5": "When they cleared the far side, people lost their rooms in one morning. Some of them slept in their canoes.",
   "place.makoko.overheard.6": "Bail the canoe before you load it. The water is coming in again.",
-  // The boards over the walk: the classroom on stilts, a church in a house up a ladder, the fish seller at the racks, phones charged off a generator. No business is named.
+  // The boards over the walk: the classroom on stilts, a church in a house up a ladder, the fish seller at the racks, phones charged off a generator, the match on the viewing centre's screens. No business, club or league is named.
   "place.makoko.sign.1": "NURSERY AND\nPRIMARY SCHOOL",
   "place.makoko.sign.2": "CHURCH\nSUNDAY SERVICE 8AM",
   "place.makoko.sign.3": "SMOKED FISH\nSOLD HERE",
   "place.makoko.sign.4": "PHONE CHARGING\nHERE",
+  "place.makoko.sign.5": "FOOTBALL\nLIVE TODAY",
   // The things on the walk and what they do (world:things-are-tappable-models); the room's acts are the parlour's.
   "place.makoko.thing.room": "The room",
   "place.makoko.thing.canoe": "Canoe",
@@ -467,6 +468,13 @@ export const placeText: Record<string, string> = {
   "place.makoko.act.deliveries": "Canoe deliveries",
   "place.makoko.act.fish-trade": "Trade fish",
   "place.makoko.thing.net-shed": "Net shed",
+  "place.makoko.thing.viewing-centre": "Viewing centre",
+  "place.makoko.thing.smoking-deck": "Smoking deck",
+  // The band's name for each of Makoko's scenes behind a door (world:top-band-is-a-pill), short enough to stand whole beside the age.
+  "place.makoko.scene.room": "Your room, Makoko",
+  "place.makoko.scene.viewing-centre": "Viewing centre",
+  "place.makoko.scene.net-shed": "Net shed",
+  "place.makoko.scene.smoking-deck": "Smoking deck",
   "place.makoko.thing.school": "School",
   "place.makoko.act.school": "Listen",
   "place.makoko.act.school.done": "A class saying the times table together, loud enough to hear across the water.",

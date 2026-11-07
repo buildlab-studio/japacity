@@ -1,0 +1,542 @@
+{
+  "place": "place.makoko",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Makoko's smoking deck (world:place-is-one-screen), reached from the channel's walk (world:entering-is-a-cut), half open and held to the outdoor limits. Counts are the most in view from the whole view; the women work the kilns, the pot and the baskets.",
+  "instances": [
+    {
+      "file": "places/makoko/building_makoko-smoking-deck.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_drum-kilns.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_fish-baskets.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_wash-pot.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_firewood-sacks.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_fish-racks.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_plank-walkway.glb",
+      "count": 3
+    },
+    {
+      "file": "places/third-mainland-bridge/prop_canoe.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_canoe-goods.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-house_f.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-house_e.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-church.glb",
+      "count": 1
+    },
+    {
+      "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
+      "count": 2
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 4,
+    "sample": [
+      "shared/person/person_iya.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_amaka.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_hawker_c.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "Makoko's smoking deck (world:place-is-one-screen), behind its door on the channel (world:entering-is-a-cut): a wide plank deck at the walk's height, half open, the women's trade. Drum kilns with round wire trays of fish and thin smoke rising under the lean-to of rusty iron, baskets of small fish and a cooler, a woman washing fish in a big black pot, the striped tarp over the front, firewood stacked by sacks of sawdust, washing on a line, the racks with their board beside the deck and a work canoe tied at its end. The deck is stood lowered by its height, so its boards are where the character walks; at night the embers glow and one bulb hangs under the lean-to.",
+    "ground": {
+      "size": [
+        0.2,
+        0.2
+      ],
+      "colour": "black"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        -14,
+        30,
+        26
+      ],
+      "sky": "sky",
+      "ground": "lagoon",
+      "lamps": [
+        {
+          "at": [
+            0.6,
+            2.3,
+            0.0
+          ],
+          "size": 1.0,
+          "bulb": true,
+          "light": {
+            "strength": 3.0,
+            "reach": 6.0
+          }
+        },
+        {
+          "at": [
+            -1.45,
+            0.3,
+            1.4
+          ],
+          "size": 1.4
+        }
+      ]
+    },
+    "start": [
+      0.0,
+      3.3,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -3.55,
+          -2.35
+        ],
+        [
+          3.55,
+          -2.35
+        ],
+        [
+          3.55,
+          2.65
+        ],
+        [
+          -3.55,
+          2.65
+        ]
+      ],
+      [
+        [
+          -7.0,
+          -1.2
+        ],
+        [
+          -3.4,
+          -1.2
+        ],
+        [
+          -3.4,
+          1.2
+        ],
+        [
+          -7.0,
+          1.2
+        ]
+      ],
+      [
+        [
+          -6.5,
+          2.6
+        ],
+        [
+          6.5,
+          2.6
+        ],
+        [
+          6.5,
+          4.0
+        ],
+        [
+          -6.5,
+          4.0
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/makoko/building_makoko-smoking-deck.glb",
+        "at": [
+          [
+            0,
+            0,
+            0.0
+          ]
+        ],
+        "lift": -0.1
+      },
+      {
+        "file": "places/makoko/prop_drum-kilns.glb",
+        "at": [
+          [
+            -1.45,
+            1.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_fish-baskets.glb",
+        "at": [
+          [
+            1.4,
+            0.9,
+            -0.3
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_wash-pot.glb",
+        "at": [
+          [
+            -2.75,
+            1.85,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_firewood-sacks.glb",
+        "at": [
+          [
+            -1.4,
+            -1.75,
+            0.0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_fish-racks.glb",
+        "at": [
+          [
+            -5.35,
+            0,
+            0.0
+          ]
+        ],
+        "signs": [
+          [
+            "place.makoko.sign.3"
+          ]
+        ],
+        "lift": -0.1
+      },
+      {
+        "file": "places/makoko/prop_plank-walkway.glb",
+        "at": [
+          [
+            -4.0,
+            3.3,
+            1.5708
+          ],
+          [
+            0.0,
+            3.3,
+            1.5708
+          ],
+          [
+            4.0,
+            3.3,
+            1.5708
+          ]
+        ],
+        "lift": -0.1
+      },
+      {
+        "file": "places/third-mainland-bridge/prop_canoe.glb",
+        "at": [
+          [
+            4.15,
+            -0.2,
+            0.0
+          ]
+        ],
+        "bob": true,
+        "lift": -0.1
+      },
+      {
+        "file": "places/makoko/prop_canoe-goods.glb",
+        "at": [
+          [
+            -8.0,
+            6.2,
+            1.5708
+          ]
+        ],
+        "glide": 14
+      },
+      {
+        "file": "places/makoko/building_makoko-house_f.glb",
+        "at": [
+          [
+            -6.5,
+            -7.5,
+            0.1
+          ]
+        ],
+        "lift": -0.1
+      },
+      {
+        "file": "places/makoko/building_makoko-house_e.glb",
+        "at": [
+          [
+            3.5,
+            -8.5,
+            -0.08
+          ]
+        ],
+        "lift": -0.1
+      },
+      {
+        "file": "places/makoko/building_makoko-church.glb",
+        "at": [
+          [
+            -1.5,
+            -14.0,
+            0.05
+          ]
+        ],
+        "signs": [
+          [
+            "place.makoko.sign.2"
+          ]
+        ],
+        "lift": -0.1
+      },
+      {
+        "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
+        "at": [
+          [
+            -22.5,
+            -90,
+            0.0
+          ],
+          [
+            22.5,
+            -90,
+            0.0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -2.75,
+        1.22,
+        0.0
+      ],
+      [
+        -1.45,
+        0.35,
+        0.0
+      ],
+      [
+        1.6,
+        1.85,
+        -0.4
+      ],
+      [
+        2.6,
+        2.0,
+        -2.5
+      ],
+      [
+        -0.4,
+        3.3,
+        1.2
+      ]
+    ],
+    "prefer": {
+      "trader": [
+        2
+      ]
+    },
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit",
+        "sex": "f",
+        "staff": true
+      },
+      {
+        "spot": 1,
+        "sex": "f",
+        "staff": true
+      },
+      {
+        "spot": 2,
+        "pose": "sit",
+        "sex": "f"
+      }
+    ],
+    "motion": [
+      {
+        "kind": "water",
+        "at": [
+          0,
+          -0.13,
+          -4
+        ],
+        "size": [
+          40,
+          48
+        ],
+        "colours": [
+          "lagoon"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          -2.3,
+          0.95,
+          1.0
+        ],
+        "count": 6,
+        "colours": [
+          "concrete",
+          "white",
+          "hub",
+          "concrete"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          -0.6,
+          0.95,
+          1.0
+        ],
+        "count": 6,
+        "colours": [
+          "white",
+          "concrete",
+          "white",
+          "hub"
+        ]
+      }
+    ],
+    "shot": {
+      "centre": [
+        -1.4,
+        0.7,
+        0.6
+      ],
+      "far": 11,
+      "near": 6.5,
+      "farPitch": 24,
+      "nearPitch": 16,
+      "turn": 30,
+      "yaw": 180,
+      "width": 11.5
+    },
+    "name": "place.makoko.scene.smoking-deck",
+    "things": [
+      {
+        "id": "racks",
+        "file": "places/makoko/prop_fish-racks.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.racks",
+        "at": [
+          -4.6,
+          0.7
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "place.makoko.act.racks",
+            "kind": "plain"
+          },
+          {
+            "id": "work",
+            "label": "place.makoko.act.racks-work",
+            "kind": "sheet",
+            "stages": "activity.job-fish-racks"
+          }
+        ]
+      },
+      {
+        "id": "kiln",
+        "file": "places/makoko/prop_drum-kilns.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.kiln",
+        "at": [
+          -0.5,
+          0.2
+        ],
+        "acts": [
+          {
+            "id": "kiln",
+            "label": "place.makoko.act.kiln",
+            "kind": "sheet",
+            "stages": "activity.buy-kiln"
+          }
+        ]
+      },
+      {
+        "id": "canoe-trade",
+        "file": "places/third-mainland-bridge/prop_canoe.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.canoe-trade",
+        "at": [
+          3.3,
+          0.6
+        ],
+        "acts": [
+          {
+            "id": "deliveries",
+            "label": "place.makoko.act.deliveries",
+            "kind": "sheet",
+            "stages": "activity.canoe-deliveries"
+          },
+          {
+            "id": "fish-trade",
+            "label": "place.makoko.act.fish-trade",
+            "kind": "sheet",
+            "stages": "activity.start-fish-trade"
+          }
+        ]
+      },
+      {
+        "id": "out",
+        "file": "places/makoko/prop_plank-walkway.glb",
+        "copy": 1,
+        "label": "city.thing.out",
+        "at": [
+          0.0,
+          3.3
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.act.go-out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

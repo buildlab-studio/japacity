@@ -37,8 +37,9 @@ export function actEntries(raw: unknown, id: Id<"place">): string[] {
 /**
  * The tests every frontage shares; `raw` is the place's file as imported. `boards: false` is for a frontage whose
  * models carry no sign at all (the site in Dubai, behind its hoarding): it is held to that instead, no model lettered.
+ * `scenes` are the place's other scenes behind its doors (city:makoko-holds-five-scenes), whose things stage the place's entries too.
  */
-export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: { boards?: boolean } = {}): void {
+export function frontageTests(raw: unknown, id: Id<"place">, { boards = true, scenes = [] }: { boards?: boolean; scenes?: readonly unknown[] } = {}): void {
   const { file, stage, entry } = staged(raw, id);
   const models = [...new Set(stage.models.map((model) => model.file))];
 
@@ -146,7 +147,7 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
   });
 
   test(`[world:things-are-tappable-models] given what ${id} stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there`, () => {
-    const opened = new Set(actEntries(raw, id));
+    const opened = new Set([raw, ...scenes].flatMap((scene) => actEntries(scene, id)));
     expect(entry.stages.filter((staged) => !opened.has(staged))).toEqual([]);
   });
 }

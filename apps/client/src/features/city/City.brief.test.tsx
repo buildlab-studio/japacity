@@ -152,10 +152,10 @@ describe("the road in the world, only in the moment", () => {
     expect(document.querySelector('[data-fan="jobs"]')).not.toBeNull();
   });
 
-  test("[world:nudge-says-one-thing] [activity:fish-racks-at-makoko] given the child of the water at the racks, when the racks are hunted this month, then the marker leaves the racks and no chip stands at them", async () => {
+  test("[world:nudge-says-one-thing] [activity:fish-racks-at-makoko] [world:entering-is-a-cut] given the child of the water on the channel, when the racks are hunted this month, then the marker leaves the smoking deck's door, behind which the racks stand, and no chip stands there", async () => {
     const game = waterLife();
     await standing("place.makoko", game.view());
-    expect(found("[data-marker]").dataset.marker).toBe("racks");
+    expect(found("[data-marker]").dataset.marker).toBe("smoking-deck");
     cleanup();
     game.accept({ type: "activity/now", activity: HUNT, param: RACKS });
     await standing("place.makoko", game.view());

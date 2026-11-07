@@ -25,7 +25,19 @@
       "count": 1
     },
     {
-      "file": "places/family-house/prop_cooking-fire.glb",
+      "file": "places/makoko/prop_clothes-sack.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_leak-bucket.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_mat-stool.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_three-stones.glb",
       "count": 1
     },
     {
@@ -45,8 +57,12 @@
       "count": 1
     },
     {
-      "file": "places/makoko/building_makoko-house_a.glb",
-      "count": 2
+      "file": "places/makoko/building_makoko-house_f.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-house_g.glb",
+      "count": 1
     },
     {
       "file": "places/third-mainland-bridge/building_stilt-house.glb",
@@ -79,7 +95,7 @@
     "triangles": 2
   },
   "stage": {
-    "note": "One room of about 5 by 4 metres on short stilts over the lagoon, its porch on the water side, seen whole with its roof off and its near walls at the knee (home:home-is-the-home-point). The house is stood lowered by its floor's height, so the floor is where the character walks and the stilts go down into the water; the water under the floor shows through the boards' gaps and the day through the walls'; the ground is only a scrap under the boards. Inside: the mattress on the floor with the mat rolled by it and the net knotted up on its rope, the wrapper hung across the corner, the cupboard with clothes on top, clothes on nails, buckets with lids, a low stool, the tin trunk the papers are kept in, the calendar, the kerosene lamp. On the porch: the fire on its tin sheet, the drum and the jerrycans, the washing on its line, a bundle of net, and the tarp screen over the water at its back corner. The heavy plank comes down from the porch to the walk, the canoe is tied at the stilts, and the neighbours' houses stand across the water. At night the lamp is the room's one light.",
+    "note": "One room of about 5 by 4 metres on short stilts over the lagoon, its porch on the water side, seen whole with its roof off and its near walls at the knee (home:home-is-the-home-point). The house is stood lowered by its floor's height, so the floor is where the character walks and the stilts go down into the water; the water shows dark between the boards, where one is gone by the door and a short board is nailed across, and the day shows through the walls' gaps; the ground is only a scrap under the boards. Inside, something against every wall: the mattress on the floor with the mat rolled by it and the net knotted up on its rope, the wrapper hung across the corner, the cupboard with clothes on top and its buckets, clothes on nails and a new plank nailed over a split one on the back wall, the sack of clothes against the patched side, the tin trunk the papers are kept in by the stems, the kerosene lamp, and the bucket stood under the leak with the drips falling into it, and a raffia mat spread on the boards with a low stool and a basin on it. On the porch: the small pot on three stones, the drum and the jerrycans, the washing on its line, a bundle of net, and the tarp screen over the water at its back corner. The heavy plank comes down from the porch to the walk, the canoe is tied at the stilts, and the neighbours' houses stand across the water. At night the lamp is the room's one light.",
     "ground": {
       "size": [
         0.2,
@@ -112,10 +128,10 @@
         {
           "at": [
             -0.45,
-            0.3,
+            0.25,
             2.1
           ],
-          "size": 0.7
+          "size": 0.6
         }
       ],
       "room": true
@@ -152,7 +168,7 @@
           [
             0,
             0,
-            0
+            0.0
           ]
         ],
         "lift": -0.84
@@ -163,7 +179,7 @@
           [
             -1.25,
             -1.95,
-            0
+            0.0
           ]
         ]
       },
@@ -173,7 +189,7 @@
           [
             1.55,
             -2.5,
-            0
+            0.0
           ]
         ]
       },
@@ -193,17 +209,47 @@
           [
             -0.15,
             -1.15,
-            0
+            0.0
           ]
         ]
       },
       {
-        "file": "places/family-house/prop_cooking-fire.glb",
+        "file": "places/makoko/prop_clothes-sack.glb",
+        "at": [
+          [
+            2.15,
+            -0.3,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_leak-bucket.glb",
+        "at": [
+          [
+            1.3,
+            0.55,
+            0.4
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_mat-stool.glb",
+        "at": [
+          [
+            -0.55,
+            -0.15,
+            0.1
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_three-stones.glb",
         "at": [
           [
             -0.45,
             2.1,
-            0
+            0.0
           ]
         ]
       },
@@ -213,7 +259,7 @@
           [
             -2.0,
             1.6,
-            0
+            0.0
           ]
         ]
       },
@@ -254,20 +300,26 @@
           [
             3.3,
             0.6,
-            0
+            0.0
           ]
         ],
         "bob": true,
         "lift": -0.84
       },
       {
-        "file": "places/makoko/building_makoko-house_a.glb",
+        "file": "places/makoko/building_makoko-house_f.glb",
         "at": [
           [
             -7.8,
             -8.0,
             0.12
-          ],
+          ]
+        ],
+        "lift": -0.84
+      },
+      {
+        "file": "places/makoko/building_makoko-house_g.glb",
+        "at": [
           [
             8.0,
             -9.0,
@@ -328,6 +380,22 @@
           "gold",
           "teal"
         ]
+      },
+      {
+        "kind": "drops",
+        "at": [
+          1.3,
+          2.3,
+          0.55
+        ],
+        "size": [
+          0.08,
+          0.08
+        ],
+        "count": 3,
+        "colours": [
+          "white"
+        ]
       }
     ],
     "shows": [
@@ -339,7 +407,7 @@
             "kind": "smoke",
             "at": [
               -0.45,
-              0.6,
+              0.45,
               2.1
             ],
             "count": 6,
@@ -357,7 +425,7 @@
             "kind": "smoke",
             "at": [
               -0.45,
-              0.6,
+              0.45,
               2.1
             ],
             "count": 12,
@@ -486,7 +554,7 @@
       },
       {
         "id": "cooking",
-        "file": "places/family-house/prop_cooking-fire.glb",
+        "file": "places/makoko/prop_three-stones.glb",
         "copy": 0,
         "label": "city.thing.cooking",
         "at": [
@@ -599,6 +667,7 @@
           0
         ]
       }
-    ]
+    ],
+    "name": "place.makoko.scene.room"
   }
 }

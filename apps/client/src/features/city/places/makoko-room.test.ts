@@ -7,7 +7,7 @@ import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import { DOOR, ROOM_SPOTS, WATER_HOUSE, waterLines } from "@japacity/models/buildings/makoko-house/water";
-import { FLOOR_BED } from "@japacity/models/props/makoko-room/build";
+import { FLOOR_BED, STONES } from "@japacity/models/props/makoko-room/build";
 import { WALKWAY } from "@japacity/models/props/plank-walkway/build";
 
 import budgets from "../../../../../../models/budgets.json";
@@ -49,7 +49,7 @@ describe("the room on the water", () => {
     expect(nap?.top).toBe(FLOOR_BED.top);
   });
 
-  test("[world:room-seen-down-its-length] [world:place-is-one-screen] given the room's file, when it is read, then it is an interior of the place, a room of about 5 by 4 metres and its porch inside the room's limits, nobody else in it, its walls in pairs that turn with the view, and the room and the porch each eased in on", async () => {
+  test("[world:room-seen-down-its-length] [world:place-is-one-screen] [city:players-fill-the-crowd] given the room's file, when it is read, then it is an interior of the place, a room of about 5 by 4 metres and its porch inside the room's limits, nobody else in it, its walls in pairs that turn with the view, and the room and the porch each eased in on", async () => {
     expect(file.place).toBe(ID);
     expect(file.scope).toBe("interior");
     expect(checkLimits(file)).toEqual([]);
@@ -117,6 +117,29 @@ describe("the room on the water", () => {
     expect(checkWalkable(ID, stage, footprints)).toEqual([]);
     // The door in the front wall is the one way between the room and the porch.
     expect(DOOR.width).toBeGreaterThanOrEqual(0.8);
+  });
+
+  test("[city:makoko-holds-five-scenes] [home:home-is-the-home-point] given the room's dressing, when its models are read, then something stands against every wall, the cooking is a small pot on three stones, a bucket stands under the drips of the leak, and the band names the room", async () => {
+    const at = (name: string) => copiesOf(stage, name)[0];
+    const near = (name: string, side: "back" | "left" | "right" | "front") => {
+      const spot = at(name);
+      if (spot === undefined) throw new Error(`No ${name}`);
+      const { back, front } = waterLines();
+      const half = WATER_HOUSE.width / 2;
+      const gap = { back: spot[1] - back, front: front - spot[1], left: spot[0] + half, right: half - spot[0] }[side];
+      // Its middle within a metre of the wall: a thing stood against it, never out on the floor.
+      return { name, side, against: gap < 1.0 };
+    };
+    for (const [name, side] of [["prop_floor-bed.glb", "back"], ["prop_cupboard-clothes.glb", "back"], ["prop_tin-trunk.glb", "left"], ["prop_clothes-sack.glb", "right"], ["prop_leak-bucket.glb", "front"]] as const) expect(near(name, side)).toEqual({ name, side, against: true });
+    // A pot at a pot's size, never a drum: the pot and its stones under half a metre.
+    expect(thing("cooking").file).toBe("places/makoko/prop_three-stones.glb");
+    expect(STONES.top).toBeLessThan(0.5);
+    expect((await measured("places/makoko/prop_three-stones.glb")).maxY).toBeLessThan(0.5);
+    const bucket = at("prop_leak-bucket.glb");
+    const drips = stage.motion.find((motion) => motion.kind === "drops");
+    if (bucket === undefined || drips === undefined) throw new Error("No bucket or no drips");
+    expect(Math.hypot(drips.at[0] - bucket[0], drips.at[2] - bucket[1])).toBeLessThan(0.1);
+    expect(cityWords(stage.name ?? "")).toBe("Your room, Makoko");
   });
 
   test("[assets:lighting-set-by-place] given the room at night, when its lamps are read, then the kerosene lamp on its stool carries the room's one real light and the fire on the porch only glows", () => {

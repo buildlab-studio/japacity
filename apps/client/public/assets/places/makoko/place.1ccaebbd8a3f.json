@@ -2,10 +2,14 @@
   "place": "place.makoko",
   "scope": "exterior",
   "hub": false,
-  "note": "Makoko's frontage on the lagoon (world:place-is-one-screen, home:home-is-the-home-point). Counts are the most in view from the whole view; the crowd is the place's busy figures under the rule's outdoor caps.",
+  "note": "Makoko's channel on the lagoon (world:place-is-one-screen, home:home-is-the-home-point): the walk, the rented house and the doors into the place's other scenes. Counts are the most in view from the whole view; the crowd is the place's busy figures under the rule's outdoor caps.",
   "instances": [
     {
       "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
+      "count": 2
+    },
+    {
+      "file": "places/makoko/prop_pylon.glb",
       "count": 2
     },
     {
@@ -14,18 +18,34 @@
     },
     {
       "file": "places/makoko/building_makoko-house_a.glb",
-      "count": 8
+      "count": 1
     },
     {
-      "file": "places/makoko/building_makoko-house_b.glb",
-      "count": 2
+      "file": "places/makoko/building_makoko-smoking-deck.glb",
+      "count": 1
     },
     {
-      "file": "places/third-mainland-bridge/building_stilt-house.glb",
-      "count": 6
+      "file": "places/makoko/prop_drum-kilns.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/prop_fish-baskets.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-viewing-centre.glb",
+      "count": 1
     },
     {
       "file": "places/makoko/building_makoko-net-shed.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-church.glb",
+      "count": 1
+    },
+    {
+      "file": "places/makoko/building_makoko-house_b.glb",
       "count": 1
     },
     {
@@ -33,8 +53,32 @@
       "count": 1
     },
     {
-      "file": "places/makoko/prop_fish-racks.glb",
-      "count": 1
+      "file": "places/makoko/building_makoko-house_c.glb",
+      "count": 3
+    },
+    {
+      "file": "places/makoko/building_makoko-house_d.glb",
+      "count": 2
+    },
+    {
+      "file": "places/makoko/building_makoko-house_e.glb",
+      "count": 2
+    },
+    {
+      "file": "places/makoko/building_makoko-house_f.glb",
+      "count": 3
+    },
+    {
+      "file": "places/makoko/building_makoko-house_g.glb",
+      "count": 2
+    },
+    {
+      "file": "places/third-mainland-bridge/building_stilt-house.glb",
+      "count": 2
+    },
+    {
+      "file": "places/makoko/prop_bamboo-wires.glb",
+      "count": 2
     },
     {
       "file": "places/third-mainland-bridge/prop_canoe.glb",
@@ -108,6 +152,19 @@
             "strength": 2.5,
             "reach": 5
           }
+        },
+        {
+          "at": [
+            9.0,
+            2.4,
+            -0.95
+          ],
+          "size": 1.0,
+          "bulb": true,
+          "light": {
+            "strength": 2.0,
+            "reach": 5
+          }
         }
       ]
     },
@@ -137,73 +194,73 @@
       ],
       [
         [
-          -4.2,
-          -1.3
-        ],
-        [
-          -0.8,
-          -1.3
-        ],
-        [
-          -0.8,
-          1.3
-        ],
-        [
-          -4.2,
-          1.3
-        ]
-      ],
-      [
-        [
-          -0.7,
-          -6.7
-        ],
-        [
-          0.7,
-          -6.7
-        ],
-        [
-          0.7,
-          1.3
-        ],
-        [
-          -0.7,
-          1.3
-        ]
-      ],
-      [
-        [
           -4.8,
-          2.7
+          -3.7
         ],
         [
-          -3.7,
-          2.7
+          2.2,
+          -3.7
         ],
         [
-          -3.7,
-          3.75
+          2.2,
+          1.35
         ],
         [
           -4.8,
+          1.35
+        ]
+      ],
+      [
+        [
+          2.5,
+          -6.7
+        ],
+        [
+          3.9000000000000004,
+          -6.7
+        ],
+        [
+          3.9000000000000004,
+          1.3
+        ],
+        [
+          2.5,
+          1.3
+        ]
+      ],
+      [
+        [
+          4.45,
+          2.7
+        ],
+        [
+          5.55,
+          2.7
+        ],
+        [
+          5.55,
+          3.75
+        ],
+        [
+          4.45,
           3.75
         ]
       ],
       [
         [
-          3.2,
+          -11.05,
           2.7
         ],
         [
-          4.3,
+          -9.95,
           2.7
         ],
         [
-          4.3,
+          -9.95,
           3.75
         ],
         [
-          3.2,
+          -11.05,
           3.75
         ]
       ]
@@ -215,12 +272,27 @@
           [
             -22.5,
             -90,
-            0
+            0.0
           ],
           [
             22.5,
             -90,
-            0
+            0.0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_pylon.glb",
+        "at": [
+          [
+            -24,
+            -80,
+            1.25
+          ],
+          [
+            20,
+            -84,
+            1.3
           ]
         ]
       },
@@ -258,14 +330,14 @@
             1.5708
           ],
           [
-            0,
+            3.2,
             -0.7,
-            0
+            0.0
           ],
           [
-            0,
+            3.2,
             -4.7,
-            0
+            0.0
           ]
         ]
       },
@@ -275,100 +347,54 @@
           [
             -7.5,
             -3.0,
-            0
-          ],
-          [
-            -12.5,
-            -19.5,
-            0.15
-          ],
-          [
-            7.5,
-            -21.5,
-            -0.1
-          ],
-          [
-            -9.5,
-            18.5,
-            3.1416
-          ],
-          [
-            0.5,
-            19,
-            3.06
-          ],
-          [
-            10,
-            18.5,
-            3.1416
-          ],
-          [
-            -4.5,
-            -33,
-            0.1
-          ],
-          [
-            13,
-            -31,
-            -0.2
+            0.0
           ]
         ]
       },
       {
-        "file": "places/makoko/building_makoko-house_b.glb",
+        "file": "places/makoko/building_makoko-smoking-deck.glb",
         "at": [
           [
-            -4.6,
-            -9.2,
-            0
-          ],
+            -1.3,
+            -1.3,
+            0.0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_drum-kilns.glb",
+        "at": [
           [
-            10,
-            -10,
-            0
+            -2.75,
+            -0.3,
+            0.0
+          ]
+        ],
+        "lift": 0.115
+      },
+      {
+        "file": "places/makoko/prop_fish-baskets.glb",
+        "at": [
+          [
+            0.1,
+            -0.4,
+            -0.3
+          ]
+        ],
+        "lift": 0.115
+      },
+      {
+        "file": "places/makoko/building_makoko-viewing-centre.glb",
+        "at": [
+          [
+            7.4,
+            -3.05,
+            0.0
           ]
         ],
         "signs": [
           [
-            "place.makoko.sign.2"
-          ],
-          [
-            "place.makoko.sign.4"
-          ]
-        ]
-      },
-      {
-        "file": "places/third-mainland-bridge/building_stilt-house.glb",
-        "at": [
-          [
-            -10,
-            -10.5,
-            0.05
-          ],
-          [
-            6.0,
-            -15.6,
-            -0.05
-          ],
-          [
-            -1.5,
-            -21.5,
-            0
-          ],
-          [
-            -15,
-            -30,
-            0.2
-          ],
-          [
-            5,
-            -34,
-            -0.05
-          ],
-          [
-            18,
-            -22,
-            -0.3
+            "place.makoko.sign.5"
           ]
         ]
       },
@@ -376,9 +402,39 @@
         "file": "places/makoko/building_makoko-net-shed.glb",
         "at": [
           [
-            1.6,
+            4.8,
             -10.3,
-            0
+            0.0
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/building_makoko-church.glb",
+        "at": [
+          [
+            -6.0,
+            -12.5,
+            0.08
+          ]
+        ],
+        "signs": [
+          [
+            "place.makoko.sign.2"
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/building_makoko-house_b.glb",
+        "at": [
+          [
+            13.5,
+            -9.5,
+            -0.15
+          ]
+        ],
+        "signs": [
+          [
+            "place.makoko.sign.4"
           ]
         ]
       },
@@ -386,9 +442,9 @@
         "file": "places/makoko/building_makoko-school.glb",
         "at": [
           [
-            5.6,
-            -1.5,
-            0
+            12.0,
+            -17.5,
+            -0.1
           ]
         ],
         "signs": [
@@ -398,17 +454,117 @@
         ]
       },
       {
-        "file": "places/makoko/prop_fish-racks.glb",
+        "file": "places/makoko/building_makoko-house_c.glb",
         "at": [
           [
-            -2.5,
-            0,
-            0
-          ]
-        ],
-        "signs": [
+            -14.0,
+            -14.5,
+            0.2
+          ],
           [
-            "place.makoko.sign.3"
+            -1.0,
+            -17.5,
+            -0.08
+          ],
+          [
+            15.0,
+            14.0,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/building_makoko-house_d.glb",
+        "at": [
+          [
+            -12.0,
+            -22.0,
+            0.1
+          ],
+          [
+            5.5,
+            -22.5,
+            -0.12
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/building_makoko-house_e.glb",
+        "at": [
+          [
+            -14.5,
+            -4.0,
+            0.06
+          ],
+          [
+            -6.5,
+            -25.5,
+            0.04
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/building_makoko-house_f.glb",
+        "at": [
+          [
+            17.5,
+            -4.5,
+            -0.2
+          ],
+          [
+            0.5,
+            -28.0,
+            0.15
+          ],
+          [
+            -13.5,
+            14.5,
+            3.05
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/building_makoko-house_g.glb",
+        "at": [
+          [
+            -19.0,
+            -19.0,
+            0.3
+          ],
+          [
+            19.0,
+            -18.0,
+            -0.3
+          ]
+        ]
+      },
+      {
+        "file": "places/third-mainland-bridge/building_stilt-house.glb",
+        "at": [
+          [
+            -18.0,
+            -31.0,
+            0.2
+          ],
+          [
+            13.0,
+            -30.0,
+            -0.05
+          ]
+        ]
+      },
+      {
+        "file": "places/makoko/prop_bamboo-wires.glb",
+        "at": [
+          [
+            -1.5,
+            4.6,
+            0.05
+          ],
+          [
+            -3.5,
+            -7.5,
+            0.25
           ]
         ]
       },
@@ -416,17 +572,17 @@
         "file": "places/third-mainland-bridge/prop_canoe.glb",
         "at": [
           [
-            -4.4,
+            -3.4,
             3.35,
             1.5708
           ],
           [
-            3.6,
+            5.0,
             3.35,
             1.5708
           ],
           [
-            -11,
+            -10.5,
             3.35,
             -1.5708
           ]
@@ -464,21 +620,21 @@
         "file": "shared/prop/prop_mat.glb",
         "at": [
           [
-            7,
-            2,
-            0
+            -8.9,
+            2.0,
+            0.0
           ]
         ]
       }
     ],
     "people": [
       [
-        -2.4,
-        0.45,
+        1.3,
+        0.6,
         3.1416
       ],
       [
-        -4.25,
+        5.0,
         3.35,
         1.5708
       ],
@@ -493,17 +649,17 @@
         3.1416
       ],
       [
-        1.6,
+        0.4,
         2.3,
         -1.5708
       ],
       [
-        3.75,
+        -10.5,
         3.35,
         1.5708
       ],
       [
-        0,
+        3.2,
         0.5,
         3.1416
       ],
@@ -513,12 +669,12 @@
         0.4
       ],
       [
-        -3.6,
-        0.8,
+        -4.1,
+        -1.9,
         2.5
       ],
       [
-        5,
+        6.2,
         1.8,
         0.3
       ],
@@ -549,15 +705,15 @@
       {
         "spot": 2,
         "to": [
-          -1.8,
+          -6.8,
           1.9
         ]
       },
       {
         "spot": 6,
         "to": [
-          0,
-          -6
+          3.2,
+          -6.0
         ]
       }
     ],
@@ -580,16 +736,31 @@
       {
         "kind": "smoke",
         "at": [
-          -2.7,
-          1.15,
-          -0.55
+          -3.6,
+          0.95,
+          -0.3
         ],
-        "count": 12,
+        "count": 8,
         "colours": [
           "concrete",
           "white",
           "hub",
           "concrete"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          -1.9,
+          0.95,
+          -0.3
+        ],
+        "count": 8,
+        "colours": [
+          "white",
+          "concrete",
+          "white",
+          "hub"
         ]
       },
       {
@@ -603,27 +774,27 @@
           22,
           8
         ],
-        "count": 14,
+        "count": 12,
         "colours": [
-          "white",
-          "basin",
-          "khaki",
-          "black"
+          "green",
+          "pepper",
+          "roofGreen",
+          "green"
         ]
       },
       {
         "kind": "hang",
         "at": [
-          -12.2,
+          -15.5,
           3.05,
-          -7.7
+          -2.0
         ],
         "to": [
-          -8,
+          -12.6,
           3.05,
-          -7.7
+          -2.0
         ],
-        "count": 5,
+        "count": 4,
         "size": [
           0.6,
           0.8
@@ -632,8 +803,7 @@
           "wine",
           "gold",
           "teal",
-          "orange",
-          "khaki"
+          "orange"
         ]
       }
     ],
@@ -642,17 +812,18 @@
       "centre": [
         0,
         0.5,
-        -1.5
+        -3.0
       ],
-      "far": 32,
+      "far": 30,
       "near": 10,
-      "farPitch": 28,
+      "farPitch": 32,
       "nearPitch": 20,
       "turn": 30,
       "yaw": 180,
-      "width": 24
+      "width": 20
     },
     "inside": "makoko-room",
+    "name": "place.makoko.name",
     "things": [
       {
         "id": "room",
@@ -667,7 +838,14 @@
           {
             "id": "enter",
             "label": "city.act.go-in",
-            "kind": "enter"
+            "kind": "enter",
+            "home": true,
+            "leads": [
+              "bed",
+              "cooking",
+              "drum",
+              "papers-box"
+            ]
           }
         ]
       },
@@ -677,7 +855,7 @@
         "copy": 0,
         "label": "place.makoko.thing.canoe",
         "at": [
-          -4.4,
+          -3.4,
           2.3
         ],
         "acts": [
@@ -689,25 +867,25 @@
         ]
       },
       {
-        "id": "racks",
-        "file": "places/makoko/prop_fish-racks.glb",
+        "id": "smoking-deck",
+        "file": "places/makoko/building_makoko-smoking-deck.glb",
         "copy": 0,
-        "label": "place.makoko.thing.racks",
+        "label": "place.makoko.thing.smoking-deck",
         "at": [
-          -3,
-          1
+          -0.7,
+          1.75
         ],
         "acts": [
           {
-            "id": "look",
-            "label": "place.makoko.act.racks",
-            "kind": "plain"
-          },
-          {
-            "id": "work",
-            "label": "place.makoko.act.racks-work",
-            "kind": "sheet",
-            "stages": "activity.job-fish-racks"
+            "id": "enter",
+            "label": "city.act.go-in",
+            "kind": "enter",
+            "inside": "makoko-smoking-deck",
+            "leads": [
+              "racks",
+              "kiln",
+              "canoe-trade"
+            ]
           }
         ]
       },
@@ -717,7 +895,7 @@
         "copy": 0,
         "label": "place.makoko.thing.net-shed",
         "at": [
-          0,
+          3.2,
           -6.3
         ],
         "acts": [
@@ -730,12 +908,30 @@
         ]
       },
       {
+        "id": "viewing-centre",
+        "file": "places/makoko/building_makoko-viewing-centre.glb",
+        "copy": 0,
+        "label": "place.makoko.thing.viewing-centre",
+        "at": [
+          9.0,
+          1.75
+        ],
+        "acts": [
+          {
+            "id": "enter",
+            "label": "city.act.go-in",
+            "kind": "enter",
+            "inside": "makoko-viewing-centre"
+          }
+        ]
+      },
+      {
         "id": "school",
         "file": "places/makoko/building_makoko-school.glb",
         "copy": 0,
         "label": "place.makoko.thing.school",
         "at": [
-          8.9,
+          10.6,
           1.9
         ],
         "acts": [
@@ -743,48 +939,6 @@
             "id": "listen",
             "label": "place.makoko.act.school",
             "kind": "plain"
-          }
-        ]
-      },
-      {
-        "id": "kiln",
-        "file": "places/makoko/prop_fish-racks.glb",
-        "copy": 0,
-        "label": "place.makoko.thing.kiln",
-        "at": [
-          -2,
-          1
-        ],
-        "acts": [
-          {
-            "id": "kiln",
-            "label": "place.makoko.act.kiln",
-            "kind": "sheet",
-            "stages": "activity.buy-kiln"
-          }
-        ]
-      },
-      {
-        "id": "canoe-trade",
-        "file": "places/third-mainland-bridge/prop_canoe.glb",
-        "copy": 1,
-        "label": "place.makoko.thing.canoe-trade",
-        "at": [
-          3.6,
-          2.3
-        ],
-        "acts": [
-          {
-            "id": "deliveries",
-            "label": "place.makoko.act.deliveries",
-            "kind": "sheet",
-            "stages": "activity.canoe-deliveries"
-          },
-          {
-            "id": "fish-trade",
-            "label": "place.makoko.act.fish-trade",
-            "kind": "sheet",
-            "stages": "activity.start-fish-trade"
           }
         ]
       }

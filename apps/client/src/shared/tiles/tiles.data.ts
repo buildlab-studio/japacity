@@ -367,8 +367,6 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "thing.laptop": "prop_dining-table",
   "thing.post": "prop_post",
   "thing.room": "building_makoko-house_a",
-  "thing.room-chores": "prop_cooking-corner",
-  "thing.room-papers": "prop_papers-box",
   // The market's things, keyed `market.<slug>` for the thing `thing.<slug>` of content so they never
   // meet the home's place things above: each the very model that lands in the room.
   "market.fan": "prop_fan",
