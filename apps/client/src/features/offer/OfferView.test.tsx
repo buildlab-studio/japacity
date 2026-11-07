@@ -72,7 +72,7 @@ describe("offers", () => {
     await waitFor(() => expect(authority.sent[0]).toMatchObject({ amount: 4_000_000_000 }));
   });
 
-  test("given a job offer, then the card names the job and its pay", async () => {
+  test("[text:show-then-tell] given a job offer, then the card names the job and its pay as a chip", async () => {
     const offer: Offer = {
       id: "offer-1",
       entry: "offer.job",
@@ -89,7 +89,9 @@ describe("offers", () => {
     await renderWithView(<OfferView />, view);
     const pay = content.activity["activity.job-teacher"]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The teacher job has no pay.");
-    expect(screen.getByText(say("ui.offer.job", { job: nameOf("activity.job-teacher"), amount: formatMoney(pay.amount, pay.currency) }))).toBeDefined();
+    // text:show-then-tell: the job's name, then its pay a month as a chip, never a sentence that says the pay.
+    expect(document.querySelector("[data-offer-job]")?.textContent).toBe(nameOf("activity.job-teacher"));
+    expect(document.querySelector('[data-fact="pay"]')?.textContent).toBe(say("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) }));
   });
 
   test("given a choice that costs money, then its button shows the amount", async () => {

@@ -18,6 +18,8 @@ import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
 import { routeKeptBy } from "../../shared/words/keepJob";
 import { byMonths, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
+import { Facts } from "../../shared/ui/Facts";
+import { FACT_ORDER, type Fact } from "../../shared/words/facts";
 import { choiceCurrency, offerParams } from "./terms";
 
 /** A content amount as a figure, when the offer's terms or the entry say it outright. */
@@ -64,22 +66,50 @@ function choiceLabel(offer: Offer, choice: Offer["choices"][number]): string {
   return price === "" ? label : say("ui.offer.choice-cost", { choice: label, amount: price });
 }
 
-/** The job and its pay, for an offer that carries a job in its terms. */
+/**
+ * The job and its pay, for an offer that carries a job in its terms (world:one-action-one-sheet, text:show-then-tell): the job's name,
+ * then its pay a month as a chip, never a sentence that says the pay again; a boat's pay scales with the catch, so its chip says about
+ * and a catch says why (activity:catch-drawn-each-month).
+ */
 function JobFigures({ terms }: { terms: Terms }) {
   const job = terms.job;
   if (typeof job !== "string") return null;
   const view = useView();
   const pay = payAMonth(job);
-  const amount = pay === null ? null : formatMoney(pay.amount, pay.currency);
   const kept = routeKeptBy(view);
+  const catchPaid = content.activity[job as Id<"activity">]?.catch === true;
+  const facts: Fact[] =
+    pay === null
+      ? []
+      : [
+          { kind: "pay", words: say(catchPaid ? "ui.offer.job.about" : "jobs.pay", { amount: formatMoney(pay.amount, pay.currency) }) },
+          ...(catchPaid ? [{ kind: "catch" as const, words: say("ui.offer.job.catch") }] : []),
+        ];
   return (
     <>
-      {/* activity:catch-drawn-each-month: a boat rung's pay is its base, which the catch scales. */}
-      <p className="font-semibold">{amount === null ? nameOf(job) : say(content.activity[job as Id<"activity">]?.catch === true ? "ui.offer.job.catch" : "ui.offer.job", { job: nameOf(job), amount })}</p>
+      <p className="font-semibold" data-offer-job>
+        {nameOf(job)}
+      </p>
+      <Facts facts={facts} />
       {/* A way out that counts the months in the job held: the offer says what taking another ends. */}
       {/* A side job sits beside the day job and ends nothing. */}
       {kept === null || job === view.job.id || content.activity[job as Id<"activity">]?.slot === "side" ? null : <p className="text-sm text-out" data-offer-job-ends>{say("ui.offer.job-ends")}</p>}
     </>
+  );
+}
+
+/**
+ * An ask's terms as chips (text:show-then-tell): content's `<offer>.term.<kind>`, and `<kind>-2` for a second of a kind, each a fact
+ * of that kind (a bill, a fee, a catch), in the one order facts stand in; the person's own sentence stays the body, in quotes.
+ */
+function termFacts(offer: Offer): Fact[] {
+  const params = offerParams(offer);
+  return FACT_ORDER.flatMap((kind) =>
+    ["", "-2", "-3"].flatMap((more): Fact[] => {
+      const key = `${offer.entry}.term.${kind}${more}`;
+      if (!hasWords(key) || kind === "chance" || kind === "counts") return [];
+      return [{ kind, words: words(key, params) }];
+    }),
   );
 }
 
@@ -275,6 +305,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
       </div>
       <JobFigures terms={offer.terms} />
       <p className="text-[16px] leading-snug">{words(`${offer.entry}.body`, params)}</p>
+      <Facts facts={termFacts(offer)} />
       <div className="flex flex-wrap gap-2">
         <StickerChip tilt={-2} className="bg-sheet-2">
           {say("ui.offer.expires", { when: byMonths(offer.expiresMonth, month) })}
