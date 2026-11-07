@@ -270,6 +270,12 @@ export const offerText: Record<string, string> = {
   "offer.job-word.body": "“I put in a word for you with {lead}, so go and see them again.”",
   "offer.job-word.choice.accept": "Take it",
   "offer.job-word.choice.decline": "Keep looking",
+  // activity:boat-work-at-the-net-shed: Sewanu's place in his canoe, in his Pidgin.
+  "offer.canoe-place.name": "A place in Sewanu's canoe",
+  "offer.canoe-place.title": "Third for canoe",
+  "offer.canoe-place.body": "“Come be third for my canoe: you sort the fish, I share the catch.”",
+  "offer.canoe-place.choice.accept": "Take it",
+  "offer.canoe-place.choice.decline": "Not now",
 
   // Report lines. Each carries `offer`, the entry id, so the interface can show its title.
   "line.offer.opened": "Something new needs an answer: {offer}.",
@@ -515,6 +521,7 @@ export const offerText: Record<string, string> = {
   "offer.job.who": "The employer",
   "offer.job-lead.who": "Lanre",
   "offer.job-word.who": "Lanre",
+  "offer.canoe-place.who": "Sewanu",
   "offer.road-radio.who": "The radio",
   "offer.road-park.who": "A man at the park",
   "offer.road-cousin.who": "Your cousin",

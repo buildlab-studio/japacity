@@ -81,6 +81,12 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.buy-kiln": stand("🐟"),
   "activity.start-fish-trade": stand("🐟"),
   "activity.open-pos-stand": stand("💳"),
+  // The boat work at the net shed (activity:boat-work-at-the-net-shed) and the match (activity:watch-the-match).
+  "activity.ask-fisherman": stand("🎣"),
+  "activity.take-net-work": stand("🎣"),
+  "activity.buy-canoe": stand("🛶"),
+  "activity.start-canoe-taxi": stand("🛶"),
+  "activity.watch-match": "shopfront_viewing-centre",
   "activity.get-trcn": stand("📜"),
   // The street's enjoyment and spending.
   "activity.buy-suya": "prop_suya-grill",
@@ -222,6 +228,10 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.job-italy-farm-cash": "prop_tarp-table",
   "activity.job-phone-sales": "shopfront_container-phones",
   "activity.job-fish-racks": "prop_fish-racks",
+  "activity.job-canoe-crew": stand("🛶"),
+  "activity.job-own-canoe": stand("🛶"),
+  "activity.mend-nets": stand("🎣"),
+  "activity.canoe-taxi": stand("🛶"),
   // The offers a thing in the world carries.
   "offer.agent-office": "prop_office-desk",
   "offer.held-funds-agent": "prop_office-desk",

@@ -148,7 +148,9 @@ export type Stream =
   /** The people kind's draws: courting, a computer's answers, gossip (docs/rules/person.md). */
   | "people"
   /** The settlement cleared (home:makoko-eviction-draw), on its own stream so living in Makoko moves no other draw. */
-  | "home";
+  | "home"
+  /** The month's catch of a boat rung (activity:catch-drawn-each-month, decision 0037), so a life that works no boat moves no other draw. */
+  | "catch";
 
 /** Where a character is. `road` is the chain in docs/rules/road.md. */
 export type Where = "home" | "abroad" | "road";
@@ -496,6 +498,17 @@ export interface QualityEntry {
   start?: number;
 }
 
+/** The catch's band (activity:catch-drawn-each-month). */
+export type CatchBand = "lean" | "fair" | "good";
+
+/** One band of the catch: what it pays of the base, its chance a month, and its chance while `var.season-rains` is 1. */
+export interface CatchBandTuning {
+  band: CatchBand;
+  payBp: number;
+  chanceBp: number;
+  rainsBp: number;
+}
+
 export interface ActivityEntry {
   id: Id<"activity">;
   /** `side` holds one free slot while kept: activity:side-job-holds-a-slot. `none` fills no slot: it rides with the month (turn:free-slots-per-month, advice:someone-who-went-answers-free). */
@@ -521,6 +534,8 @@ export interface ActivityEntry {
   tiers?: ActivityTier[];
   /** A naira job's employer, read by the yearly pay review (activity:naira-pay-reviewed-yearly): `own` work grows by its own rule. Missing: not reviewed. */
   employer?: "formal" | "informal" | "own";
+  /** A boat rung: the month's pay is its base scaled by the catch's band, drawn on `catch` (activity:catch-drawn-each-month). Missing: a written pay. */
+  catch?: true;
   /**
    * A tech study's gain a month by band of `quality.tech` (quality:skill-bands-slow-gains), one figure for each band of
    * `tuning.quality.techBands` from the first; a band with no figure gives nothing. Missing: no gain by band.
@@ -1503,6 +1518,10 @@ export interface Tuning {
     bootcampFee: number;
     bootcampHireBp: number;
     bootcampHireMonths: number;
+    /** The catch's bands in order lean, fair, good (activity:catch-drawn-each-month): the share of the base each pays, its chance, and its chance in the rains. */
+    catch: CatchBandTuning[];
+    /** The chance a watch of the match after the first opens the savings circle, on `offer` (activity:watch-the-match). */
+    matchCircleBp: number;
   };
   /** The room's basics (obligation:cooking-and-fetching-water): the share of the upkeep's next charge that cooking and fetching water take off. */
   room: { cookedBp: number; waterBp: number };

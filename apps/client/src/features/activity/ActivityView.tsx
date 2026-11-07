@@ -41,7 +41,7 @@ function Job() {
   const [confirming, setConfirming] = useState(false);
   const job = view.job.id;
   // wallet:view-carries-month-pay: the month's pay as the wallet will book it, from the view; never content's written figure.
-  const pay = payLine(view.job.pay);
+  const pay = payLine(view.job.pay, job);
 
   return (
     <Card>
@@ -97,7 +97,7 @@ function SideJob() {
   const side = view.job.side;
   if (side === null && !view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
   // activity:side-jobs-pay-by-tier, wallet:view-carries-month-pay: the side job's pay at its level now from the view, and what lifts it next.
-  const pay = side === null ? null : payLine(view.job.sidePay);
+  const pay = side === null ? null : payLine(view.job.sidePay, side);
   return (
     <Card data-side-job>
       {/* On a phone the quit button goes under the words, so they keep the card's width. */}

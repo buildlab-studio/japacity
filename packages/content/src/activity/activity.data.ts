@@ -16,6 +16,7 @@ import { roomActivityTable } from "./activity.room.data";
 import { shopActivityTable } from "./activity.shop.data";
 import { streetActivityTable } from "./activity.street.data";
 import { waterActivityTable } from "./activity.water.data";
+import { boatActivityTable } from "./activity.boat.data";
 import { ladderActivityTable, SUPPORT_JOBS, TEACHER_JOBS } from "./activity.ladder.data";
 import { learningActivityTable } from "./activity.learning.data";
 import { peopleApplyActivities } from "../route/route.data";
@@ -690,6 +691,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...shopActivityTable,
   // The fish racks at Makoko (activity:fish-racks-at-makoko).
   ...waterActivityTable,
+  // The boat work at the net shed and the match (activity:boat-work-at-the-net-shed, activity:watch-the-match).
+  ...boatActivityTable,
   // activity:each-trade-climbs-its-ladder: the trades' rungs and side jobs, and own work opened with its capital (activity:capital-opens-own-work).
   ...ladderActivityTable,
   // quality:skill-bands-slow-gains: learning tech in bands, and the trades' papers (document:trade-papers).

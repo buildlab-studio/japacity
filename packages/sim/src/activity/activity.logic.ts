@@ -4,7 +4,7 @@
 // checked (activity:illegal-slot-rejects-turn), and again when each slot resolves (activity:slots-resolve-in-order),
 // because an earlier slot can change the state.
 import { check, resolveAmount, worldVarOr } from "../engine/check";
-import { DOCUMENT, QUALITY } from "../engine/ids";
+import { DOCUMENT, QUALITY, VAR } from "../engine/ids";
 import { bp, mulDiv, roundDownTo, valueInKobo } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
@@ -15,6 +15,7 @@ import type {
   ActivityOption,
   ActivitySlice,
   BaseEvent,
+  CatchBandTuning,
   Cause,
   Command,
   Content,
@@ -51,6 +52,7 @@ import {
   jobTerms,
   localTenure,
   bookedPay,
+  catchBandAt,
   monthlyPay,
   monthlyTax,
   overtimePay,
@@ -103,6 +105,13 @@ const PHONE: Id<"activity"> = "activity.buy-phone";
 const NOTICED: Id<"activity"> = "activity.be-noticed";
 /** activity:waiting-months-build-profile: open source tells its month even when no piece comes of it. */
 const OPEN_SOURCE: Id<"activity"> = "activity.open-source";
+/** activity:boat-work-at-the-net-shed: asking Sewanu, the place in his canoe he offers once a life, and the crew's job it starts. */
+const ASK_FISHERMAN: Id<"activity"> = "activity.ask-fisherman";
+const CANOE_PLACE: Id<"offer"> = "offer.canoe-place";
+const CANOE_CREW: Id<"activity"> = "activity.job-canoe-crew";
+/** activity:watch-the-match: the match, and the savings circle a later watch may open. */
+const MATCH: Id<"activity"> = "activity.watch-match";
+const CIRCLE: Id<"offer"> = "offer.join-ajo";
 /** activity:one-chance-bus-robbery: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
 /** activity:now-acts-and-month-acts: the now-acts whose draw lands with the month: the kiosk's draw and the match. */
@@ -677,13 +686,17 @@ function workJob(ctx: Ctx): BaseEvent[] {
   const terms = jobTerms(read);
   const cause: Cause = { source: job, param: null, terms };
   const tenure = (ctx.state.activity.tenure[job] ?? 0) + 1;
-  const full = monthlyPay(read, entry, terms);
+  const written = monthlyPay(read, entry, terms);
+  // activity:catch-drawn-each-month: a boat rung's band, drawn every month it is held, scales its base to whole naira.
+  const caught = entry.catch === true ? drawCatch(ctx) : null;
+  const full = written === null || caught === null ? written : { currency: written.currency, amount: roundDownTo(bp(written.amount, caught.payBp), KOBO_PER_NAIRA) };
+  const band = caught === null ? {} : { catch: caught.band };
   const events: BaseEvent[] = [];
   // Always drawn for cash work, so the stream's position does not hang on the chance's size.
   const withheld = entry.cash === true && ctx.random.chance("status", entry.withheldBp ?? 0);
   if (full === null || withheld) {
     if (full !== null) events.push(...record(ctx, { type: "activity/pay-withheld", job, pay: full }));
-    events.push(...record(ctx, { type: "activity/month-worked", job, tenure, pay: null }));
+    events.push(...record(ctx, { type: "activity/month-worked", job, tenure, pay: null, ...band }));
     ctx.apply(entry.effects, cause);
     return events;
   }
@@ -696,8 +709,8 @@ function workJob(ctx: Ctx): BaseEvent[] {
   if (sick) events.push(...record(ctx, { type: "activity/sick-pay", job, pay }));
   const worked: ActivityEvent =
     pay.currency === "NGN"
-      ? { type: "activity/month-worked", job, tenure, pay }
-      : { type: "activity/month-worked", job, tenure, pay, naira: valueInKobo(pay.amount, pay.currency, officialRates(read.world)) };
+      ? { type: "activity/month-worked", job, tenure, pay, ...band }
+      : { type: "activity/month-worked", job, tenure, pay, naira: valueInKobo(pay.amount, pay.currency, officialRates(read.world)), ...band };
   events.push(...record(ctx, worked));
   ctx.apply(entry.effects, cause);
   return events;
@@ -921,9 +934,38 @@ function runById(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, cause: Cause): 
       return adviserReads(ctx, cause);
     case NOTICED:
       return beNoticed(ctx);
+    case ASK_FISHERMAN:
+      return askFisherman(ctx, cause);
     default:
       return [];
   }
+}
+
+/**
+ * activity:boat-work-at-the-net-shed: Sewanu offers the place in his canoe, once a life, to a life living in Makoko with no boat job; the
+ * offer's own conditions and its limit of times decide (offer:effect-opens-named-offer). The crew's job goes with it as the term `job`.
+ */
+function askFisherman(ctx: Ctx, cause: Cause): BaseEvent[] {
+  if (ctx.content.offer[CANOE_PLACE] === undefined) return [];
+  return ctx.apply([{ type: "offer/open", offer: CANOE_PLACE }], { ...cause, terms: { job: CANOE_CREW } });
+}
+
+/**
+ * activity:watch-the-match: a watch after the first draws once on `offer`; on the draw the savings circle opens when its own
+ * conditions hold and it is not open already. The draw is made whether or not the circle could open.
+ */
+function matchCircle(ctx: Ctx, cause: Cause): BaseEvent[] {
+  const drawn = ctx.random.chance("offer", ctx.content.tuning.activity.matchCircleBp);
+  if (!drawn || ctx.content.offer[CIRCLE] === undefined || Object.values(ctx.state.offer.items).some((item) => item.entry === CIRCLE)) return [];
+  return ctx.apply([{ type: "offer/open", offer: CIRCLE }], cause);
+}
+
+/**
+ * activity:catch-drawn-each-month: the month's band of a boat rung, one draw on `catch` under 10,000 read against the bands' chances
+ * in order, the rains' chances while `var.season-rains` is 1.
+ */
+function drawCatch(ctx: Ctx): CatchBandTuning {
+  return catchBandAt(ctx.content.tuning.activity.catch, worldVarOr(ctx.world, VAR.seasonRains) === 1, ctx.random.int("catch", BP_WHOLE));
 }
 
 /**
@@ -1074,6 +1116,9 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (problem === "requirements") return reject("not-legal", `${entry.id} cannot be done here and now.`);
   if (problem === "param") return reject("not-legal", `${String(pick.param)} is not a param ${entry.id} may take now.`);
   if (problem === "cost") return reject("cannot-afford", earnedShort(ctx, entry, pick) ? EARNED_ONLY : `${entry.id} cannot be paid now.`);
+  // activity:watch-the-match and activity:boat-work-at-the-net-shed: what the answer's words read, before the act moves anything.
+  const firstWatch = entry.id === MATCH && (ctx.state.activity.played[MATCH] ?? 0) === 0;
+  const placesOffered = ctx.state.offer.timesOpened[CANOE_PLACE] ?? 0;
   const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param, ...(entry.repeat === true ? { counted: true as const } : {}) });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
@@ -1086,7 +1131,10 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   );
   milestones(ctx, entry, cause);
   events.push(...learn(ctx, entry, cause, classDaysNow(ctx.state)));
-  events.push(...record(ctx, { type: "activity/now-said", activity: entry.id, param: pick.param, ready: paperDue(ctx, entry) }));
+  if (entry.id === MATCH && !firstWatch) events.push(...matchCircle(ctx, cause));
+  const offered = entry.id === ASK_FISHERMAN && (ctx.state.offer.timesOpened[CANOE_PLACE] ?? 0) > placesOffered;
+  const variant = offered ? { variant: "offer" as const } : firstWatch ? { variant: "first" as const } : {};
+  events.push(...record(ctx, { type: "activity/now-said", activity: entry.id, param: pick.param, ready: paperDue(ctx, entry), ...variant }));
   return events;
 }
 
@@ -1507,7 +1555,8 @@ function salaryLines(state: State, event: Extract<ActivityEvent, { type: "activi
     const key = state.place.where === "abroad" ? FIRST_PAY_ABROAD : "line.activity.salary-first-foreign";
     return [{ ...line(key, { job: event.job, amount, naira }, "good"), big: true }];
   }
-  const salary = line("line.activity.salary", { job: event.job, amount }, "good");
+  // activity:catch-drawn-each-month: a boat rung's pay line carries its band, which the results lead with.
+  const salary = line("line.activity.salary", { job: event.job, amount, ...(event.catch === undefined ? {} : { catch: event.catch }) }, "good");
   return [onlyPay(state, event.pay, null) ? { ...salary, big: true } : salary];
 }
 
@@ -1604,7 +1653,13 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/advised":
       return event.routes.flatMap(adviserLines);
     case "activity/now-said":
-      return [line(nowLineKey(event.activity), { ...pickParams(event.activity, event.param), ...(event.ready === null ? {} : { month: event.ready }) }, "plain")];
+      return [
+        line(
+          nowLineKey(event.activity),
+          { ...pickParams(event.activity, event.param), ...(event.ready === null ? {} : { month: event.ready }), ...(event.variant === undefined ? {} : { variant: event.variant }) },
+          "plain",
+        ),
+      ];
     case "activity/now-played":
       // The act itself, told with the month's other lines as a slot's is, and named before the money it spends. A repeat act
       // answers on the spot and is not listed at the month's end (activity:acts-may-repeat-in-month).
@@ -1631,7 +1686,10 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
   }
 }
 
-/** activity:now-acts-and-month-acts: the place's answer to a now-act, `line.activity.<slug>.now`. */
+/**
+ * activity:now-acts-and-month-acts: the place's answer to a now-act, `line.activity.<slug>.now`. An answer with words of its own for this
+ * time carries `variant`, and the screens say `line.activity.<slug>.now.<variant>`.
+ */
 function nowLineKey(activity: Id<"activity">): string {
   return `line.activity.${activity.slice("activity.".length)}.now`;
 }

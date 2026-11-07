@@ -177,6 +177,12 @@ function requestedFor(line: ReportLine): string | null {
 function variant(line: ReportLine): ReportLine {
   const said = saidFor(line) ?? requestedFor(line);
   if (said !== null) return { ...line, key: said };
+  // activity:boat-work-at-the-net-shed, activity:watch-the-match: a place's answer with its own words for this time says them.
+  const told = line.params["variant"];
+  if (line.key.startsWith("line.activity.") && line.key.endsWith(".now") && typeof told === "string" && hasWords(`${line.key}.${told}`)) return { ...line, key: `${line.key}.${told}` };
+  // activity:catch-drawn-each-month: a boat rung's pay leads with the catch's word.
+  const caught = line.params["catch"];
+  if (line.key === "line.activity.salary" && typeof caught === "string" && hasWords(`${line.key}.catch.${caught}`)) return { ...line, key: `${line.key}.catch.${caught}` };
   // A job with its own words for its pay says them: the stall's takings are not a salary.
   const job = line.params["job"];
   if (line.key === "line.activity.salary" && typeof job === "string" && hasWords(`${line.key}.${job}`)) return { ...line, key: `${line.key}.${job}` };

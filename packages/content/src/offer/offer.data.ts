@@ -4,6 +4,7 @@
 import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
 import { ACCOUNTING_JOBS, CHARTERED_JOBS, TRADE_LADDERS } from "../activity/activity.ladder.data";
+import { BOAT_JOBS } from "../activity/activity.boat.data";
 import { routeTable } from "../route/route.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira, pct, pounds } from "../units";
@@ -1129,6 +1130,15 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   // the lead costs the trade missed, as terms. Once a life; the activity slice's mark keeps it so.
   "offer.job-lead": jobLead("offer.job-lead"),
   "offer.job-word": jobLead("offer.job-word"),
+  // activity:boat-work-at-the-net-shed: Sewanu's place in his canoe, offered once a life when the act is asked by a life living in
+  // Makoko with no boat job. Never rolled; the act hands over the crew's job as the term `job`. Not now lapses into nothing.
+  "offer.canoe-place": {
+    ...jobLead("offer.canoe-place"),
+    when: [
+      { type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-makoko" },
+      { type: "not", of: { type: "job/is", activities: BOAT_JOBS } },
+    ],
+  },
 
   ...abroadOfferTable,
   ...healthOfferTable,

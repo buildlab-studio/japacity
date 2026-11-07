@@ -425,7 +425,7 @@ export const miniContent: Content = {
     },
     chapter: { cardLines: 3, sendOffNaira: 15000000 },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
-    activity: { raiseBp: 1000, raiseChanceBp: 3000, reviewFormalBp: 1000, reviewShareBp: 5000, reviewCapBp: 3000, reviewInformalBp: 500, freePathData: 650000, freeStreakMonths: 5, freeCertTech: 2, bootcampFee: 300000000, bootcampHireBp: 2000, bootcampHireMonths: 6 },
+    activity: { raiseBp: 1000, raiseChanceBp: 3000, reviewFormalBp: 1000, reviewShareBp: 5000, reviewCapBp: 3000, reviewInformalBp: 500, freePathData: 650000, freeStreakMonths: 5, freeCertTech: 2, bootcampFee: 300000000, bootcampHireBp: 2000, bootcampHireMonths: 6, catch: [{ band: "lean", payBp: 5000, chanceBp: 2500, rainsBp: 3500 }, { band: "fair", payBp: 10000, chanceBp: 5000, rainsBp: 5000 }, { band: "good", payBp: 16000, chanceBp: 2500, rainsBp: 1500 }], matchCircleBp: 2000 },
     room: { cookedBp: 1500, waterBp: 400 },
     lottery: {
       ticket: 20000,

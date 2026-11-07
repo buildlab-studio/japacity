@@ -96,11 +96,13 @@ export function nowActOf(line: Pick<ReportLine, "params">): string {
 }
 
 /**
- * A now-line's words: the line's own for the thing picked where content has one (`<key>.<slug>`: the racks' answer to a
- * hunt), else the line with its param.
+ * A now-line's words: the line's own for this time where it carries a variant (`<key>.<variant>`: Sewanu's offer), the line's own
+ * for the thing picked where content has one (`<key>.<slug>`: the racks' answer to a hunt), else the line with its param.
  */
 export function nowLineWords(line: Pick<ReportLine, "key" | "params">): string {
-  const { param } = line.params;
+  const { param, variant } = line.params;
+  // activity:boat-work-at-the-net-shed, activity:watch-the-match: an answer with its own words for this time says them.
+  if (typeof variant === "string" && hasWords(`${line.key}.${variant}`)) return words(`${line.key}.${variant}`, line.params);
   const own = typeof param === "string" ? `${line.key}.${param.replace(/^[a-z]+\./, "")}` : null;
   return words(own !== null && hasWords(own) ? own : line.key, line.params);
 }

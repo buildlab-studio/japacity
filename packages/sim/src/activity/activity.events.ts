@@ -1,4 +1,4 @@
-import type { Currency, Id, MoneyParam, SlotPick } from "../engine/types";
+import type { CatchBand, Currency, Id, MoneyParam, SlotPick } from "../engine/types";
 
 /** Why a slot did not happen (activity:slots-resolve-in-order). `param`: the pick is no longer one it may take. */
 export type SlotFailure = "requirements" | "param" | "cost";
@@ -22,6 +22,8 @@ export type ActivityEvent =
       tenure: number;
       pay: { currency: Currency; amount: number } | null;
       naira?: number;
+      /** A boat rung's band this month (activity:catch-drawn-each-month). */
+      catch?: CatchBand;
     }
   /** A cash job's pay was not paid this month (ladders:cash-jobs-paid-in-hand). */
   | { type: "activity/pay-withheld"; job: Id<"activity">; pay: MoneyParam }
@@ -99,7 +101,14 @@ export type ActivityEvent =
    */
   | { type: "activity/now-played"; activity: Id<"activity">; param: string | null; counted?: true }
   /** The place answers a now-act in a person's voice (activity:now-acts-and-month-acts). `ready`: the month a paper asked for is due, else null. Changes nothing. */
-  | { type: "activity/now-said"; activity: Id<"activity">; param: string | null; ready: number | null }
+  | {
+      type: "activity/now-said";
+      activity: Id<"activity">;
+      param: string | null;
+      ready: number | null;
+      /** The answer's own words for this time, carried as the line's `variant` (`line.activity.<slug>.now.<variant>`): Sewanu's offer, the first watch of the match. */
+      variant?: "offer" | "first";
+    }
   /** The month closed: its now-acts are done with, and the next month starts with none (activity:now-acts-and-month-acts). */
   | { type: "activity/now-cleared" }
   /** The adviser read the whole file (advice:licensed-adviser-is-truthful): each route heard or known, whether it fits, what is missing, the months away. Changes nothing. */

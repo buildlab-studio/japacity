@@ -268,6 +268,15 @@ export const tuning: Tuning = {
     bootcampFee: naira(3000000),
     bootcampHireBp: 2000,
     bootcampHireMonths: 6,
+    // activity:catch-drawn-each-month: lean pays half the base, fair the base, good 1.6 times; lean 25%, fair 50%, good 25%, and in the
+    // rains (June to September) lean 35%, fair 50%, good 15%. Working values.
+    catch: [
+      { band: "lean", payBp: pct(50), chanceBp: pct(25), rainsBp: pct(35) },
+      { band: "fair", payBp: pct(100), chanceBp: pct(50), rainsBp: pct(50) },
+      { band: "good", payBp: pct(160), chanceBp: pct(25), rainsBp: pct(15) },
+    ],
+    // activity:watch-the-match: a watch after the first opens the savings circle on a 20% draw. A working value.
+    matchCircleBp: pct(20),
   },
   room: { cookedBp: pct(15), waterBp: pct(4) },
 

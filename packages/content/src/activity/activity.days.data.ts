@@ -22,6 +22,12 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.buy-kiln": 2,
   "activity.start-fish-trade": 2,
   "activity.open-pos-stand": 2,
+  "activity.buy-canoe": 2,
+  // activity:boat-work-at-the-net-shed and activity:watch-the-match: a word at the shed and a match on the bench, a morning each; a side job taken as it is asked, a morning.
+  "activity.ask-fisherman": 1,
+  "activity.take-net-work": 1,
+  "activity.start-canoe-taxi": 1,
+  "activity.watch-match": 1,
   // The street's enjoyment and spending (streets:lagos-street-spending): the water is a purchase and spends none.
   "activity.buy-suya": 1,
   "activity.mallam-tea": 1,

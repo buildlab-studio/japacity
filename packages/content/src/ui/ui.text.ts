@@ -240,6 +240,8 @@ export const uiText: Record<string, string> = {
   "ui.job.months.one": "1 month in",
   "ui.job.months.zero": "Started this month",
   "ui.job.pay": "Pays {amount} a month",
+  // activity:catch-drawn-each-month: a boat rung's base, which the month's catch scales.
+  "ui.job.pay.catch": "About {amount} a month: it depends on the catch",
   "ui.job.quit": "Quit the job",
   "ui.job.quit-sure": "Quit for real? The pay stops this month.",
   "ui.job.quit-yes": "Yes, quit",

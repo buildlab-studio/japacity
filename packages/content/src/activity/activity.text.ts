@@ -10,6 +10,7 @@ import { activityRoomText } from "./activity.room.text";
 import { activityShopText } from "./activity.shop.text";
 import { activityStreetText } from "./activity.street.text";
 import { activityWaterText } from "./activity.water.text";
+import { activityBoatText } from "./activity.boat.text";
 import { activityLadderText, activityLearningText } from "./activity.ladder.text";
 import { activityLeadText } from "./activity.lead.text";
 
@@ -218,6 +219,8 @@ export const activityText: Record<string, string> = {
   ...activityProfileText,
   ...activityShopText,
   ...activityWaterText,
+  // activity:boat-work-at-the-net-shed, activity:catch-drawn-each-month and activity:watch-the-match.
+  ...activityBoatText,
   // activity:each-trade-climbs-its-ladder and activity:capital-opens-own-work: the rungs, the side jobs and own work.
   ...activityLadderText,
   ...activityLearningText,

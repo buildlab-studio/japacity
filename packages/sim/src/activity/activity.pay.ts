@@ -4,7 +4,7 @@
 import { check, resolveAmount } from "../engine/check";
 import { DOCUMENT } from "../engine/ids";
 import { bp, divFloor, mulDiv } from "../engine/int";
-import type { ActivityEntry, Content, Id, MoneyParam, ReadCtx, State, Terms } from "../engine/types";
+import type { ActivityEntry, CatchBandTuning, Content, Id, MoneyParam, ReadCtx, State, Terms } from "../engine/types";
 
 export const MONTHS_PER_YEAR = 12;
 const WEEKS_PER_YEAR = 52;
@@ -193,4 +193,19 @@ export function sideJobHeld(read: ReadCtx): boolean {
 /** Attempts made at the driving test so far (car:licence-and-driving-test). */
 export function drivingAttempts(state: State): number {
   return state.activity.tenure[DRIVING_TEST] ?? 0;
+}
+
+/**
+ * activity:catch-drawn-each-month: the band a draw under 10,000 lands in, read against the bands' chances in order (lean, fair,
+ * good), the rains' chances while the rains run. A roll past every chance takes the last band.
+ */
+export function catchBandAt(bands: readonly CatchBandTuning[], rains: boolean, roll: number): CatchBandTuning {
+  let reach = 0;
+  for (const band of bands) {
+    reach += rains ? band.rainsBp : band.chanceBp;
+    if (roll < reach) return band;
+  }
+  const last = bands.at(-1);
+  if (last === undefined) throw new Error("The catch has no bands in content.");
+  return last;
 }

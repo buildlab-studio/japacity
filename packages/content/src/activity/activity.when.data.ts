@@ -42,6 +42,13 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.buy-kiln": "once",
   "activity.start-fish-trade": "once",
   "activity.open-pos-stand": "once",
+  // The net shed (activity:boat-work-at-the-net-shed): a word with Sewanu, the canoe bought, a side job taken as it is asked.
+  "activity.ask-fisherman": "once",
+  "activity.take-net-work": "once",
+  "activity.buy-canoe": "once",
+  "activity.start-canoe-taxi": "once",
+  // The match at the viewing centre (activity:watch-the-match): once a month.
+  "activity.watch-match": "once",
   // Signing for a car, a flat or a phone abroad, and sending money home: done at a counter.
   "activity.buy-car-finance": "once",
   "activity.rent-flat-uk": "once",

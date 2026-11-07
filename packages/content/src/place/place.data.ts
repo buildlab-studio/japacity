@@ -326,7 +326,7 @@ const entries: PlaceEntry[] = [
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   // Home opens in the compound; the house door cuts to the parlour (world:opens-where-last-stopped).
   // home:home-is-the-home-point: the settlement on the lagoon the character may live in.
-  lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks", "activity.buy-kiln", "activity.start-fish-trade", "activity.canoe-deliveries"] }),
+  lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE, stages: ["activity.job-fish-racks", "activity.buy-kiln", "activity.start-fish-trade", "activity.canoe-deliveries", "activity.ask-fisherman", "activity.take-net-work", "activity.buy-canoe", "activity.start-canoe-taxi", "activity.watch-match"] }),
   // On a made-up street in Surulere near the hub: the spot the map and the fares read (city:positions-rough-on-purpose). The house
   // is one wide floor seen whole, its yard and carport inside its walls (decision 0018), so it stays an exterior.
   unnamed("place.family-house", "stylised", "home", "lagos", null, {

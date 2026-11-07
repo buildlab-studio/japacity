@@ -4,6 +4,7 @@
 import type { ActivityEntry, Effect, Id, Requirement } from "@japacity/sim";
 
 import { dollars, naira, pct } from "../units";
+import { BOAT_JOBS } from "./activity.boat.data";
 
 const NURSE: Id<"activity"> = "activity.job-nurse";
 const SENIOR_NURSE: Id<"activity"> = "activity.job-senior-nurse";
@@ -47,6 +48,7 @@ export const TRADE_LADDERS: Id<"activity">[][] = [
   SUPPORT_JOBS,
   [PHONE_SALES, "activity.job-shop-supervisor", "activity.run-shop"],
   FISH_JOBS,
+  BOAT_JOBS,
   BANK_JOBS,
   ACCOUNTING_JOBS,
   ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"],

@@ -25,7 +25,7 @@ import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
  * reads none. A side job paid by level adds what lifts it next (activity:side-jobs-pay-by-tier).
  */
 function payWords(job: Id<"activity">, pay: OfferView["pay"] | PlayerView["job"]["pay"], view: Pick<PlayerView, "qualities">): string | null {
-  const said = payLine(pay);
+  const said = payLine(pay, job);
   if (said === null) return null;
   return (content.activity[job]?.tiers ?? []).length > 0 ? withNextTier(view, job, said) : said;
 }
@@ -206,7 +206,7 @@ export function Jobs() {
   const review = reviewWords(view);
   const rung = ladderRung(view);
   const across = roadAcross(view, rung);
-  const acrossPay = across === null ? null : payLine(writtenPay(across) ?? null);
+  const acrossPay = across === null ? null : payLine(writtenPay(across) ?? null, across);
   const sideToTake = sideRoad(view);
   const months = sayCount("ui.job.months", view.job.months, { months: view.job.months });
   // The offer picked: the first until another is tapped.
@@ -266,7 +266,7 @@ export function Jobs() {
       {rung === null || view.ended ? null : (
         <>
           <Head>{say("phone.jobs.rung")}</Head>
-          <RoadRow road={rung} pay={payLine(writtenPay(rung.via as Id<"activity">) ?? null)} line={roadLine(view, rung)} data="rung" />
+          <RoadRow road={rung} pay={payLine(writtenPay(rung.via as Id<"activity">) ?? null, rung.via)} line={roadLine(view, rung)} data="rung" />
           {across === null ? null : (
             <>
               <Head>{say("phone.jobs.across")}</Head>

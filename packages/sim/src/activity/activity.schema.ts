@@ -28,6 +28,7 @@ export const ActivityEntrySchema = z.strictObject({
   carBonus: CountSchema.exactOptional(),
   tiers: z.array(z.strictObject({ needs: z.array(RequirementSchema).min(1), pay: MoneySchema })).exactOptional(),
   employer: z.enum(["formal", "informal", "own"]).exactOptional(),
+  catch: z.literal(true).exactOptional(),
   bandGains: z.array(CountSchema).min(1).exactOptional(),
   bandUntil: CountSchema.exactOptional(),
   course: z.strictObject({ months: z.int().positive(), effects: z.array(EffectSchema) }).exactOptional(),

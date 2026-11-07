@@ -632,6 +632,8 @@ export const TuningSchema = z.strictObject({
     bootcampFee: CountSchema,
     bootcampHireBp: BpSchema,
     bootcampHireMonths: CountSchema,
+    catch: z.array(z.strictObject({ band: z.enum(["lean", "fair", "good"]), payBp: CountSchema, chanceBp: BpSchema, rainsBp: BpSchema })).min(1),
+    matchCircleBp: BpSchema,
   }),
   room: z.strictObject({ cookedBp: BpSchema, waterBp: BpSchema }),
   lottery: z.strictObject({
