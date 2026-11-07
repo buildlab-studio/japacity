@@ -46,8 +46,13 @@ describe("Send money home", () => {
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
     const chooser = document.querySelector<HTMLElement>('[data-chooser="send"]');
     expect(chooser).not.toBeNull();
-    const channels = [...(chooser?.querySelectorAll<HTMLElement>("[data-channel]") ?? [])];
+    // world:phone-holds-what-phones-hold, world:ride-sheet-shows-fares: the ways are tiles side by side, as the ride sheet's ways.
+    expect(chooser?.querySelector("[data-ways='tiles']")?.className).toContain("grid-cols-3");
+    const channels = [...(chooser?.querySelectorAll<HTMLElement>("[data-ways='tiles'] [data-channel]") ?? [])];
     expect(channels.map((row) => row.getAttribute("data-channel"))).toEqual(["app", "bank", "informal"]);
+    expect(channels.map((tile) => tile.getAttribute("role"))).toEqual(["radio", "radio", "radio"]);
+    // Under the tiles, the picked way's fee and rate are chips.
+    expect([...(chooser?.querySelectorAll("[data-facts='chips'] [data-fact]") ?? [])].map((chip) => chip.getAttribute("data-fact"))).toEqual(["fee", "rate"]);
     const quarter = Math.floor(view.pockets.GBP.bank / 4 / 100) * 100;
     const quote = remitQuote(view.rates, content.tuning.remit, "GBP", quarter);
     expect(channels[0]?.textContent).toContain(say("ui.remit.when.app"));
