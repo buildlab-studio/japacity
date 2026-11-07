@@ -246,6 +246,19 @@ export interface FanButton {
 }
 
 /**
+ * A thing's act's button as the driver finds it: on the fan round the thing, or on the fan's small sheet, which opens in the
+ * fan's place when the fan has no room beside the thing (world:fan-of-sticker-buttons).
+ */
+export function fanActButton(thing: string, act: string): string {
+  return `[data-fan="${thing}"] [data-fan-act="${act}"] button, [data-fan-sheet="${thing}"] [data-fan-act="${act}"] button`;
+}
+
+/** The things marked in the scene, each once, in the order read: a scene thing's mark only, never a state's mark on a card over it. */
+export function sceneThings(marks: readonly { id: string; thing: boolean }[]): string[] {
+  return [...new Set(marks.filter((mark) => mark.thing && mark.id !== "").map((mark) => mark.id))];
+}
+
+/**
  * The fan button the driver takes, as a player doing what the nudge says would: the act the nudge's step opens when the fan
  * carries it open; else the first open act that stages an entry (an activity, a set piece, a chapter's step), so the racks'
  * Work the racks comes before their Look; else the first open act. Never a Stop, which takes an act out of the month's

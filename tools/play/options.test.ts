@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { DEFAULT_PORT, doorButton, fanChoice, inside, keptSummary, livesFrom, localCertificate, parseOptions, playUsername, readKept, shotName } from "./options";
+import { DEFAULT_PORT, doorButton, fanActButton, fanChoice, inside, keptSummary, livesFrom, localCertificate, parseOptions, playUsername, readKept, sceneThings, shotName } from "./options";
 
 const ROOT = "/work/japacity";
 const OUTSIDE = "/tmp/plays/one";
@@ -116,6 +116,23 @@ describe("the pictures' names", () => {
     const long = shotName(4, "a ".repeat(80));
     expect(long.length).toBeLessThanOrEqual("04-".length + 48 + ".png".length);
     expect(long).toMatch(/^04-[a-z0-9-]+[a-z0-9]\.png$/);
+  });
+});
+
+describe("a thing's act as the driver finds it", () => {
+  test("given a thing whose fan has no room beside it, when the driver looks for an act's button, then it finds it on the fan or on the fan's small sheet that opens in its place", () => {
+    expect(fanActButton("out", "out")).toBe('[data-fan="out"] [data-fan-act="out"] button, [data-fan-sheet="out"] [data-fan-act="out"] button');
+    expect(fanActButton("tvs", "activity.watch-match")).toBe('[data-fan="tvs"] [data-fan-act="activity.watch-match"] button, [data-fan-sheet="tvs"] [data-fan-act="activity.watch-match"] button');
+  });
+
+  test("given the scene's marks and a state's mark on a card over the scene, when the driver reads the things here, then only the scene's things are read, each once", () => {
+    const marks = [
+      { id: "tvs", thing: true },
+      { id: "done", thing: false },
+      { id: "out", thing: true },
+      { id: "tvs", thing: true },
+    ];
+    expect(sceneThings(marks)).toEqual(["tvs", "out"]);
   });
 });
 

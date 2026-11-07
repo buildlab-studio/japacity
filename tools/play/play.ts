@@ -14,7 +14,7 @@ import { text } from "@japacity/content";
 import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type Locator, type Page } from "@playwright/test";
 
 import { accessHeaders, withAccess } from "../local/access";
-import { doorButton, fanChoice, type FanButton, type KeptStorage, keptSummary, livesFrom, localCertificate, parseOptions, type PlayOptions, playUsername, readKept, shotName, USAGE } from "./options";
+import { doorButton, fanActButton, fanChoice, type FanButton, type KeptStorage, keptSummary, livesFrom, localCertificate, parseOptions, type PlayOptions, playUsername, readKept, sceneThings, shotName, USAGE } from "./options";
 import { REPO_ROOT } from "../repo";
 
 /** A mid-range phone, the size the game is built for and the browser tests use. */
@@ -677,15 +677,7 @@ async function takeWanted(run: Run, month: number): Promise<void> {
   const { page } = run;
   await takeHere(run, month, take);
   // A scene behind a door (the room on the water) is left first, so the doors of the scene outside it can be gone through.
-  if ((await marksHere(run)).includes("out")) {
-    await tapMark(run, "out");
-    await page.waitForTimeout(600);
-    if (await tap(run, page.locator('[data-fan="out"] [data-fan-act="out"] button'), "Out")) {
-      await page.waitForTimeout(1_500);
-      await placeDrawn(run);
-      await takeHere(run, month, take);
-    }
-  }
+  if ((await marksHere(run)).includes("out") && (await goOut(run))) await takeHere(run, month, take);
   // The things behind a door (Makoko's net shed and viewing centre) are reached through it, and the way out is taken back.
   for (const mark of await marksHere(run)) {
     if ((HOME_DOORS as readonly string[]).includes(mark) || mark === "out") continue;
@@ -701,19 +693,35 @@ async function takeWanted(run: Run, month: number): Promise<void> {
     await placeDrawn(run);
     await settle(run, `inside ${mark} in month ${String(month)}`);
     await takeHere(run, month, take);
-    await tapMark(run, "out");
-    await page.waitForTimeout(600);
-    if (await tap(run, page.locator('[data-fan="out"] [data-fan-act="out"] button'), "Out")) {
-      await page.waitForTimeout(1_500);
-      await placeDrawn(run);
-    }
+    await goOut(run);
   }
 }
 
-/** The things marked in the scene as it stands, each once. */
+/**
+ * Out of a scene behind a door by its way out, as a player would: whatever stands open over the scene (a card, the fan's small
+ * sheet) is put away first, then the way out's mark is tapped until its Out shows, on the fan or on the fan's small sheet when
+ * the fan has no room (world:fan-of-sticker-buttons), and Out is tapped. True once the scene outside is drawn.
+ */
+async function goOut(run: Run): Promise<boolean> {
+  const { page } = run;
+  const out = page.locator(fanActButton("out", "out"));
+  for (let tries = 0; tries < 4 && !(await shown(out)); tries += 1) {
+    await closeSheets(run);
+    await tapMark(run, "out");
+    await appear(out, 3_000);
+  }
+  if (!(await tap(run, out, "Out"))) return false;
+  await page.waitForTimeout(1_500);
+  await placeDrawn(run);
+  return true;
+}
+
+/** The things marked in the scene as it stands, each once: the scene's own marks, never a state's mark on a card over it. */
 async function marksHere(run: Run): Promise<string[]> {
-  const marks = JSON.parse(String(await run.page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-mark]")].map((item) => item.getAttribute("data-mark") ?? ""))`))) as string[];
-  return [...new Set(marks)];
+  const marks = JSON.parse(
+    String(await run.page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-mark]")].map((item) => ({ id: item.getAttribute("data-mark") ?? "", thing: item.hasAttribute("data-thing-mark") })))`)),
+  ) as { id: string; thing: boolean }[];
+  return sceneThings(marks);
 }
 
 /** --take in the scene as it stands: each thing tapped, and an act asked for that its fan offers open taken with its sheets' main answers. */
@@ -721,8 +729,11 @@ async function takeHere(run: Run, month: number, take: readonly string[]): Promi
   const { page } = run;
   for (const mark of await marksHere(run)) {
     if (mark === "out") continue;
+    await closeSheets(run);
     await tapMark(run, mark);
-    await page.waitForTimeout(600);
+    // The fan, or its small sheet when the fan has no room, opens once the scene says where the thing stands; a thing with no act shows its name alone.
+    await appear(page.locator(`[data-fan="${mark}"] [data-fan-act], [data-fan-sheet="${mark}"] [data-fan-act]`), 2_500);
+    await page.waitForTimeout(300);
     const buttons = await fanButtons(run);
     const wanted = buttons.find((button) => button.enabled && take.includes(button.id));
     if (wanted === undefined) {
@@ -732,7 +743,7 @@ async function takeHere(run: Run, month: number, take: readonly string[]): Promi
       continue;
     }
     log(run, `month ${String(month)}: taking ${wanted.id} at ${mark}`);
-    await tap(run, page.locator(`[data-fan] [data-fan-act="${wanted.id}"] button, [data-fan-sheet] [data-fan-act="${wanted.id}"] button`), wanted.id);
+    await tap(run, page.locator(fanActButton(mark, wanted.id)), wanted.id);
     await appear(page.locator(OPEN_SHEET), SHORT);
     for (let step = 0; step < 3; step += 1) {
       const sheet = page.locator(OPEN_SHEET);
@@ -823,14 +834,7 @@ async function bedEnd(run: Run, month: number): Promise<boolean> {
   const doors = page.locator(HOME_DOORS.map((door) => `[data-mark="${door}"]`).join(", "));
   // In a scene behind a door (Makoko's smoking deck), the way out comes first: the home's door may stand outside it.
   const out = page.locator('[data-mark="out"]');
-  if ((await beds.count()) === 0 && (await doors.count()) === 0 && !(await shown(page.locator(BED_END))) && (await shown(out))) {
-    await tapMark(run, "out");
-    await page.waitForTimeout(600);
-    if (await tap(run, page.locator('[data-fan="out"] [data-fan-act="out"] button'), "Out")) {
-      await page.waitForTimeout(1_500);
-      await placeDrawn(run);
-    }
-  }
+  if ((await beds.count()) === 0 && (await doors.count()) === 0 && !(await shown(page.locator(BED_END))) && (await shown(out))) await goOut(run);
   if ((await beds.count()) === 0 && (await doors.count()) === 0 && !(await shown(page.locator(BED_END)))) await rideHome(run, month);
   for (const door of HOME_DOORS) {
     if ((await shown(page.locator(BED_END))) || !(await shown(page.locator(`[data-mark="${door}"]`)))) continue;
