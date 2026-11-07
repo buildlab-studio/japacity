@@ -13,7 +13,7 @@ import { test } from "../support/policy";
 // the same tests run against staging behind Access; those that need Mailpit or the local database are skipped.
 import { realTarget, withAccess } from "../../../../tools/local/access";
 import { cronUrl, readLocalStack } from "../../../../tools/local/env";
-import { passOpeningWords, passThePage } from "../support/door";
+import { giveName, passOpeningWords, passThePage } from "../support/door";
 import { shoot } from "../support/preview";
 
 const ROOT = fileURLToPath(new URL("../../../..", import.meta.url));
@@ -162,6 +162,7 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "May" });
     await page.getByRole("combobox", { name: "Year" }).selectOption("1990");
     await page.getByRole("button", { name: "Continue" }).click();
+    await giveName(page);
     await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 30_000 });
     await page.getByRole("radio", { name: "The nurse", exact: true }).click({ timeout: 30_000 });
     await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();

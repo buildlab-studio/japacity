@@ -12,7 +12,7 @@ import { content } from "../../../../packages/content/src/index";
 import { ADMIN_GETS } from "../../src/features/admin/admin.testing";
 import { NOT_FAKED, ONLINE, quietSocket, SIGNED_OUT, STANDING, viewReply } from "../support/api";
 import { type AbroadLife, clear as clearAbroad, lifeIn } from "../support/abroad";
-import { passOpeningWords, passThePage } from "../support/door";
+import { giveName, passOpeningWords, passThePage } from "../support/door";
 import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../support/live";
 import { recorded, recordedUpTo } from "../support/saves";
 import { attempt, missed, shot, shotPages } from "./shoot";
@@ -195,8 +195,9 @@ async function pick(page: Page, name: string): Promise<void> {
   else await page.getByRole("button", { name, exact: true }).first().click();
 }
 
-/** From the door's first step to Where you live, on an archetype. */
+/** From the door's first step to Where you live, on an archetype, with a name from the dice. */
 async function toWhereYouLive(page: Page, archetype: string): Promise<void> {
+  await giveName(page);
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 30_000 });
   await pick(page, archetype);
   await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
@@ -226,6 +227,7 @@ test("door: the three steps, every path and every home, by day and with the nigh
     const close = page.getByRole("button", { name: /^(Done|Close)$/ });
     if (await close.first().isVisible().catch(() => false)) await close.first().click();
   });
+  await giveName(page);
   await page.getByRole("button", { name: /^Next/ }).first().click();
   await page.locator("[data-gate='life']").waitFor();
   for (const [name, key] of ARCHETYPES) {
@@ -250,6 +252,7 @@ test("door: the three steps, every path and every home, by day and with the nigh
   await page.goto(`/${NIGHT}`);
   await page.getByRole("button", { name: /^Next/ }).first().waitFor({ timeout: 30_000 });
   await attempt(page, "door-you-night", () => shot(page, "door-you-night", 1200));
+  await giveName(page);
   await page.getByRole("button", { name: /^Next/ }).first().click();
   await page.locator("[data-gate='life']").waitFor();
   await attempt(page, "door-life-night", () => shot(page, "door-life-night"));

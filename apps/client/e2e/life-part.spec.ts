@@ -15,7 +15,7 @@ import { playPresetOn } from "../src/shared/net/preset.testing";
 import { accountView } from "../src/shared/testing/fixtures";
 import { clockAt, fakeTurnstile, json, NO_CHARACTER, NOT_FAKED, ONLINE, quietSocket, SIGNED_OUT, STANDING, viewReply } from "./support/api";
 import { SOFTWARE_WEBGL } from "./support/browser";
-import { passOpeningWords, passThePage } from "./support/door";
+import { giveName, passOpeningWords, passThePage } from "./support/door";
 import { placeReady } from "./support/live";
 
 test.use({ baseURL: ONLINE, launchOptions: SOFTWARE_WEBGL });
@@ -111,6 +111,7 @@ test.describe("the life's screens, a part apart from the start screen (world:laz
     await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "May" });
     await page.getByRole("combobox", { name: "Year" }).selectOption("1990");
     await page.getByRole("button", { name: "Continue" }).click();
+    await giveName(page, 20_000);
     await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 20_000 });
     await page.getByRole("radio", { name: "The developer", exact: true }).click();
     await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();

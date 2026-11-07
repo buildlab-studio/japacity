@@ -20,9 +20,9 @@ export interface DoorDraft {
   archetype: string | null;
   /** The ready life picked instead of a tile, or null. */
   ready: string | null;
-  /** The name as it stands: filled from the pool, or typed. */
+  /** The name as it stands: empty until typed, rolled with the dice or taken from the pool's three. */
   name: string;
-  /** True once the name is the player's own, typed or given by the username: a new look then keeps it, where a filled one follows the look's sex. */
+  /** True once the name was typed or taken: focusing the box keeps the caret, where a rolled one is selected whole to type over. */
   typed?: boolean;
   /** True for a run Settings asked for: its second screen lists the ready lives in the place of the tiles. */
   asked?: boolean;

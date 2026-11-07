@@ -28,6 +28,7 @@ import { counting } from "../../shared/analytics/start";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { AccountApi, AgeStanding, Full as FullStanding, HeldProof, NewLifeEmail } from "../../shared/net/auth";
 import { Loader } from "../../shared/ui/Loader";
+import { FIRST_FIELD } from "../../shared/ui/firstField";
 import { say } from "../../shared/words/text";
 import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
@@ -137,8 +138,8 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const [kept] = useState(keptHere);
   // Once the player moves on from the screen the gate opened on, the notice it carried is done with.
   const [moved, setMoved] = useState(false);
-  // How the ways back in open after a new life's step was left: the address filled in, or emptied with the focus in it.
-  const [waysFill, setWaysFill] = useState<{ email: string; focus: boolean } | null>(null);
+  // How the ways back in open after a new life's step was left: the address filled in, or emptied.
+  const [waysFill, setWaysFill] = useState<{ email: string } | null>(null);
   const go = (next: Step) => {
     setMoved(true);
     setStep(next);
@@ -154,13 +155,13 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // How many times in a row the guest start found the age answer or the session gone: the cookie did not stay.
   const [lapses, setLapses] = useState(0);
   const shown = shownOf(standing, step, embedded, proof);
-  // A new life's step is left for the ways back in: its proof is dropped, and the address goes back filled in, or emptied with
-  // the focus in it; where Google proved it, the ways back in open as they stand.
+  // A new life's step is left for the ways back in: its proof is dropped, and the address goes back filled in, or emptied;
+  // where Google proved it, the ways back in open as they stand.
   const leaveProof = (fill: string | null) => {
     void account?.dropNewLife();
     setProof(null);
     go("returning");
-    if (fill !== null) setWaysFill({ email: fill, focus: true });
+    if (fill !== null) setWaysFill({ email: fill });
   };
   const backFill = (held: Proof) => (held.google ? null : held.email);
   const otherFill = (held: Proof) => (held.google ? null : "");
@@ -183,15 +184,16 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
 
   useEffect(() => setSaid(notice === null || moved ? null : say(notice)), [notice, moved]);
 
-  // A move to another screen takes the focus to its heading; the screen the gate opened on keeps the page's own, and the ways
-  // back in opened from a new life's step keep it in the email field.
+  // A move to another screen takes the focus to its heading; the screen the gate opened on keeps the page's own, and a screen
+  // whose first field took it on a desktop keeps it there (account:username-typed-and-checked, account:code-form-forgives).
   useEffect(() => {
-    if (!moved || (shown === "returning" && waysFill?.focus === true)) return;
+    if (!moved) return;
+    if (sheet.current?.querySelector(`[${FIRST_FIELD}]`) === document.activeElement && document.activeElement !== null) return;
     const heading = sheet.current?.querySelector<HTMLElement>("h1");
     if (heading === null || heading === undefined) return;
     heading.tabIndex = -1;
     heading.focus({ preventScroll: true });
-  }, [moved, shown, waysFill]);
+  }, [moved, shown]);
 
   // A trip to Google that was refused comes back here with the reason (account:guest-and-secured-states). One that went through opens
   // the life instead, where the shell tells it (Secure.tsx), so it never lands here; one that proved a new life's address is
@@ -264,7 +266,6 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       problem={back?.said ?? null}
       noneFound={back?.none === true}
       filled={waysFill?.email ?? asked?.email ?? null}
-      focusEmail={waysFill?.focus === true}
       onBack={toStart}
       onSignedIn={(by) => void enter(api, by)}
       onNewLife={(proved) => {

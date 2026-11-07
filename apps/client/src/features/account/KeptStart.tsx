@@ -120,6 +120,8 @@ export function KeptName({ account, email, google = false, door, username, onUse
         () => {
           if (asked === null && !busy) void go();
         },
+        false,
+        true,
       )}
       {asked === null ? (
         <div>

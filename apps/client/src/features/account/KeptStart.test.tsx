@@ -9,6 +9,7 @@ import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import type { AccountApi, AuthResult, GuestAnswer } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
+import { stubPointer } from "../../shared/testing/pointer";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { AccountGate } from "./AccountGate";
@@ -26,6 +27,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 /** Turnstile's stand-in: a token a moment after the widget is drawn, and a fresh one a moment after each reset, as Turnstile gives. */
@@ -102,7 +104,8 @@ describe("the right code for an address no account uses", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.age.returning") })).toBeNull();
   });
 
-  test("[account:sign-in-without-secret] given the age screen of a life that came by the code, when Use another email is pressed, then the proof is dropped and the ways back in open with the address emptied and focused", async () => {
+  test("[account:sign-in-without-secret] given the age screen of a life that came by the code, when Use another email is pressed on a desktop, then the proof is dropped and the ways back in open with the address emptied and focused", async () => {
+    stubPointer("fine");
     const { account } = gate();
     await proveByCode();
     await screen.findByText(say("ui.account.age.title"));
@@ -153,6 +156,48 @@ describe("the username's own step (account:sign-in-without-secret)", () => {
     const main = screen.getAllByRole("button").filter((button) => button.className.includes("bg-accent"));
     expect(main.map((button) => button.textContent)).toEqual([say("ui.account.kept.go")]);
     expect(screen.queryByRole("button", { name: say("ui.account.name.go") })).toBeNull();
+  });
+
+  test("[account:username-typed-and-checked] given the age passed on the sign-in path on a desktop, when the username's step opens, then its box takes the focus as the first field to fill, never its heading", async () => {
+    stubPointer("fine");
+    gate();
+    await proveByCode();
+    await answerTheAge();
+    await screen.findByRole("heading", { name: say("ui.account.kept.name.title") });
+    const box = screen.getByLabelText<HTMLInputElement>(say("ui.account.name.label"));
+    await waitFor(() => expect(document.activeElement).toBe(box));
+    expect(box.hasAttribute("data-first-field")).toBe(true);
+  });
+
+  test("[account:username-typed-and-checked] given the server naming a live proof and an age pass, on a desktop, when the gate opens on the username's step, then its box holds the focus", async () => {
+    stubPointer("fine");
+    gate({ ageStatus: () => Promise.resolve({ proved: EMAIL, passed: true }) });
+    await screen.findByRole("heading", { name: say("ui.account.kept.name.title") });
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText(say("ui.account.name.label"))));
+  });
+
+  test("[account:username-typed-and-checked] given the age passed on the sign-in path on a touch phone, when the username's step opens, then the box waits unfocused under its heading, which holds the focus; Continue with the box empty focuses it with the reason under it", async () => {
+    stubPointer("coarse");
+    gate();
+    await proveByCode();
+    await answerTheAge();
+    const heading = await screen.findByRole("heading", { name: say("ui.account.kept.name.title") });
+    const box = screen.getByLabelText<HTMLInputElement>(say("ui.account.name.label"));
+    await waitFor(() => expect(document.activeElement).toBe(heading));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.kept.go") }));
+    await waitFor(() => expect(document.activeElement).toBe(box));
+    expect(document.getElementById("guest-username-said")?.getAttribute("role")).toBe("alert");
+  });
+
+  test("[account:code-form-forgives] given the age screen of a life that came by the code on a touch phone, when Use another email is pressed, then the ways back in open with the address emptied and no focus in it, the heading holding it", async () => {
+    stubPointer("coarse");
+    gate();
+    await proveByCode();
+    await screen.findByText(say("ui.account.age.title"));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.kept.other") }));
+    const email = await screen.findByLabelText<HTMLInputElement>(say("ui.account.email.label"));
+    expect(email.value).toBe("");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("heading", { name: say("ui.account.returning.title") })));
   });
 
   test("[account:sign-in-without-secret] given an age pass this browser holds already, when the code proves the address, then the age screen is skipped and the username's step opens", async () => {

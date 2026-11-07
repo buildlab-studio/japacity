@@ -120,13 +120,21 @@ function signedInAccount(username: string): AccountApi {
 }
 
 describe("the door on the sign-in path (prologue:front-door-builds-a-person)", () => {
-  test("[prologue:front-door-builds-a-person] given a signed-in account with no character whose username is olamide_88, when the door opens, then its name is Olamide, and Begin keeps that name with the life", async () => {
+  test("[prologue:front-door-builds-a-person] given a signed-in account with no character whose username is olamide_88, when the door opens, then the box is empty with Olamide as its placeholder, Begin with it empty does not take it, and Begin keeps the name typed with the life", async () => {
     const { server } = onlineServer("signed-in-name");
     const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wait: () => Promise.resolve() });
     const store = createGameStore(remote, { life: remote, lifeAgain: false, choosingLife: true, account: signedInAccount("olamide_88") });
     render(<App store={store} />);
     const name = await screen.findByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") }, { timeout: 10_000 });
-    await waitFor(() => expect(name.value).toBe("Olamide"));
+    await waitFor(() => expect(name.placeholder).toBe("Olamide"));
+    expect(name.value).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
+    expect(document.querySelector("[data-gate]")?.getAttribute("data-gate")).toBe("you");
+    expect(readPerson()).toBeNull();
+    const box = screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
+    expect(document.activeElement).toBe(box);
+    fireEvent.change(box, { target: { value: "Olamide" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     await waitFor(() => expect(readPerson()?.name).toBe("Olamide"), { timeout: 10_000 });

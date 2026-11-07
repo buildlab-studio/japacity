@@ -1,8 +1,9 @@
-// The front door in three screens with everything chosen (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in the game's look:
-// You (a name filled from the pool for the look's sex, a dice, the look strip as face stickers), Your life so far (the
-// lives as cards, the first chosen, with the age under them) and Where you live (the homes as postcards, with the strip
-// of who you are so far at the top, the look as its face), then Begin; the page prints after Begin. Next, Next, Begin
-// starts a life; Skip goes to Where you live and Shuffle picks at random; a reload at any step comes back to that step.
+// The front door in three screens with everything chosen but the name (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in the game's look:
+// You (the name box, empty with the pool's name for the look's sex as its placeholder, a dice to fill it, the look strip
+// as face stickers), Your life so far (the lives as cards, the first chosen, with the age under them) and Where you live
+// (the homes as postcards, with the strip of who you are so far at the top, the look as its face), then Begin; the page
+// prints after Begin. A name given and Next, Next, Begin starts a life; Skip goes to Where you live and Shuffle picks at
+// random; a reload at any step comes back to that step.
 import { render, screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -51,10 +52,13 @@ const board = (): string => document.querySelector("[data-door-board]")?.textCon
 const lookButton = (id: string): HTMLElement => document.querySelector<HTMLElement>(`[role="radio"][data-look="${id}"]`)!;
 
 describe("the run through the front door", () => {
-  test("[prologue:front-door-three-screens] given a new player who changes nothing, when they press Next, Next and Begin, then the first screen has a name from the pool for the look's sex and the look strip, the second the first tile chosen with the age under it, the page prints them all, and Begin starts that tile's life", async () => {
+  test("[prologue:front-door-three-screens] given a new player who rolls the dice and changes nothing else, when they press Next, Next and Begin, then the first screen has the empty box with the pool's name for the look's sex as its placeholder and the look strip, the dice fills it, the second has the first tile chosen with the age under it, the page prints them all, and Begin starts that tile's life", async () => {
     const store = door();
     expect(stage()).toBe("you");
     const look = lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!;
+    expect(nameBox().value).toBe("");
+    expect(nameBox().placeholder).toBe(namesFor(look.sex, keptRoll())[0]);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     const filled = nameBox().value;
     expect(filled.length).toBeGreaterThan(1);
     expect(namesFor(look.sex, keptRoll())).toContain(filled);
@@ -87,7 +91,7 @@ describe("the run through the front door", () => {
     expect(readPerson()).toEqual({ look: look.id, name: filled, archetype: first.id });
   });
 
-  test("[prologue:front-door-three-screens] given the first screen, when a look of the other sex is tapped, the dice rolled or a name typed, then a filled name follows the look's sex, the dice gives another from the pool, typing keeps the name through a new look, and a name that fails the checks is refused in words", () => {
+  test("[prologue:front-door-three-screens] given the first screen, when a look of the other sex is tapped, the dice rolled or a name typed, then the empty box's suggestion follows the look's sex, the dice gives a name from the pool and another, a rolled or typed name stays through a new look, a name that fails the checks is refused in words, and an empty box passes Next and Skip", () => {
     door();
     const sexOf = (): "f" | "m" => lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
     const mine = sexOf();
@@ -100,11 +104,18 @@ describe("the run through the front door", () => {
     expect(sexOf()).toBe(other.sex);
     expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(other.id);
     expect(lookButton(other.id).getAttribute("aria-checked")).toBe("true");
-    expect(nameBox().value).toBe(namesFor(other.sex, keptRoll())[0]);
+    expect(nameBox().value).toBe("");
+    expect(nameBox().placeholder).toBe(namesFor(other.sex, keptRoll())[0]);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     const before = nameBox().value;
+    expect(before).toBe(namesFor(other.sex, keptRoll())[0]);
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     expect(nameBox().value).toBe(namesFor(other.sex, keptRoll())[0]);
     expect(nameBox().value).not.toBe(before);
+    const rolled = nameBox().value;
+    fireEvent.click(lookButton(LOOKS.find((one) => one.sex === mine)!.id));
+    expect(nameBox().value).toBe(rolled);
+    fireEvent.click(lookButton(other.id));
     fireEvent.change(nameBox(), { target: { value: "Ifeoma" } });
     fireEvent.click(lookButton(LOOKS.find((one) => one.sex === mine)!.id));
     expect(sexOf()).toBe(mine);
@@ -116,7 +127,7 @@ describe("the run through the front door", () => {
     expect(screen.getByRole("alert").textContent).toBe(problemWords("letters"));
     fireEvent.change(nameBox(), { target: { value: "Japacity" } });
     expect(screen.getByRole("alert").textContent).toBe(problemWords("reserved"));
-    fireEvent.change(nameBox(), { target: { value: "" } });
+    fireEvent.change(nameBox(), { target: { value: "A" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
     expect(stage()).toBe("you");
     expect(screen.getByRole("alert").textContent).toBe(problemWords("short"));
@@ -124,9 +135,18 @@ describe("the run through the front door", () => {
     expect(screen.queryByRole("alert")).toBeNull();
     fireEvent.click(next(say("ui.door.next")));
     expect(stage()).toBe("life");
+    // An empty box is no problem until Begin: Next and Skip pass it.
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    fireEvent.change(nameBox(), { target: { value: "" } });
+    fireEvent.click(next(say("ui.door.next")));
+    expect(stage()).toBe("life");
+    expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
+    expect(stage()).toBe("page");
   });
 
-  test("[prologue:front-door-three-screens] given the first two screens, then Skip goes straight to Where you live with everything chosen, and Shuffle picks a look, a filled name and a tile; Where you live has neither", () => {
+  test("[prologue:front-door-three-screens] given the first two screens, then Skip goes straight to Where you live with everything chosen, and Shuffle picks a look, a tile and a new suggestion for the empty box, never filling it; Where you live has neither", () => {
     door();
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
     expect(stage()).toBe("page");
@@ -146,7 +166,9 @@ describe("the run through the front door", () => {
       seen.looks.add(kept.look);
       seen.tiles.add(kept.archetype);
       seen.names.add(kept.name);
-      expect(kept.name).toBe(namesFor(lookOf(kept.look)!.sex, kept.roll)[0]);
+      // The box stays empty; the new roll is the new suggestion the first screen shows.
+      expect(kept.name).toBe("");
+      seen.names.add(namesFor(lookOf(kept.look)!.sex, kept.roll)[0]!);
       expect(kept.typed).toBe(false);
       expect(kept.age).toBe(0);
       expect(screen.getByRole("radio", { name: say(`prologue.archetype.${kept.archetype}.name`) }).getAttribute("aria-checked")).toBe("true");
@@ -154,6 +176,10 @@ describe("the run through the front door", () => {
     expect(seen.looks.size).toBeGreaterThan(3);
     expect(seen.tiles.size).toBeGreaterThan(2);
     expect(seen.names.size).toBeGreaterThan(5);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    const last = JSON.parse(localStorage.getItem(DOOR_KEY)!) as { look: string; roll: number };
+    expect(nameBox().value).toBe("");
+    expect(nameBox().placeholder).toBe(namesFor(lookOf(last.look)!.sex, last.roll)[0]);
   });
 
   test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a reload at any screen, then the door comes back to that screen with what was answered", () => {
@@ -219,6 +245,11 @@ describe("the run through the front door", () => {
   test("[prologue:front-door-three-screens] [prologue:front-door-builds-a-person] given a run Settings asked for, then the ready lives name nothing beside the name before a pick, and a ready life's Where you live names its home and district, as a tile's does", () => {
     askReadyLives();
     door();
+    expect(stage()).toBe("ready");
+    // A name rolled a screen back, so the strip holds a name and nothing beside it.
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
+    fireEvent.click(next(say("ui.door.next")));
     expect(stage()).toBe("ready");
     // No path and no age beside the name: neither the first tile's nor any ready life's.
     expect(document.body.textContent).not.toMatch(/years old|\d+ yrs/);
@@ -296,7 +327,9 @@ describe("the run through the front door", () => {
 
   test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given the door's screens, then you stand whole on a photo card as a sticker with your name stuck on it, never on a turntable, the lives carry your face, Where you live heads itself with it, and no scene is drawn behind any of them", () => {
     door();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     const name = nameBox().value;
+    expect(name).not.toBe("");
     const look = document.querySelector("[data-gate]")?.getAttribute("data-look") ?? "";
     // The sky, not the band; the figure is the shooter's still of the look, never a canvas.
     expect(document.querySelector("[data-gate]")?.className).toContain("door-sky");

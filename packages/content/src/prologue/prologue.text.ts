@@ -222,6 +222,7 @@ const words: Record<string, string> = {
   "prologue.door.name.hint": "What people in your story call you.",
   "prologue.door.name.suggested": "Names to take",
   "prologue.door.name.placeholder": "Name",
+  "prologue.door.name.needed": "Your story needs a name.",
   "prologue.door.name.short": "A name needs at least {shortest} letters.",
   "prologue.door.name.long": "Keep it to {longest} letters.",
   "prologue.door.name.letters": "Letters only. No numbers, spaces or signs.",

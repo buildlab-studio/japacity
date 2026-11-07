@@ -1,5 +1,5 @@
 // The front door in the app, on the real content (prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:front-door-three-screens, prologue:printed-page-hands-over): a person built on the
-// door's sky from a look, a name filled from the pool (a dice, or typed) and an archetype, never a
+// door's sky from a look, a name typed or rolled from the pool with the dice (the box starts empty, the pool's name its placeholder) and an archetype, never a
 // named life picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
 import type { CounterRow } from "@japacity/api";
@@ -21,7 +21,7 @@ import { ROSTER } from "../shared/scene/roster";
 import { ownLook } from "../features/map/Ride";
 import { ARCHETYPES, archetypeOf, opensChips, savingsOf } from "../shared/front-door/archetypes";
 import { formatMoney } from "../shared/words/format";
-import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "../shared/front-door/frontDoor.testing";
+import { askReadyLives, startArchetype, startReadyLife, toTheArchetypes } from "../shared/front-door/frontDoor.testing";
 import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../shared/front-door/looks";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
@@ -76,7 +76,7 @@ afterEach(() => {
 });
 
 describe("the front door", () => {
-  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given no save, when the game opens, then you stand whole on a photo card under the question who you are, with a name already filled from the pool and the look strip of every one of the city's passers-by on the same screen, and no named life anywhere", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given no save, when the game opens, then you stand whole on a photo card under the question who you are, with the name box empty and a name from the pool as its placeholder and the look strip of every one of the city's passers-by on the same screen, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
     // Never a bare page: you stand whole on a photo card as a sticker, never on a turntable.
@@ -91,9 +91,10 @@ describe("the front door", () => {
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
     for (const id of ["person_ada", "person_tunde", "person_zainab", "person_ngozi", "person_tobi", "person_femi", "person_kemi", "person_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
     for (const id of ["person_hawker_a", "person_corper", "person_chief", "person_rider", "person_iya"]) expect(LOOKS.some((look) => look.id === id)).toBe(false);
-    // The name and the look share the first screen; the name is filled already. A ready life has no name to offer (person.names.test).
+    // The name and the look share the first screen; the box is empty with the pool's suggestion as its placeholder. A ready life has no name to offer (person.names.test).
     const box = screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
-    expect(box.value.length).toBeGreaterThan(1);
+    expect(box.value).toBe("");
+    expect(box.placeholder.length).toBeGreaterThan(1);
 
     const said: string[] = [sheet().textContent];
     await toTheArchetypes();
@@ -103,13 +104,14 @@ describe("the front door", () => {
     expect(said.join(" ")).not.toContain(say("ui.life.start"));
   });
 
-  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a look tapped, then the character at the gate wears it, and the name filled, and each name the dice gives, comes from the pool for that look's sex, with no ready life's person to give", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a look tapped, then the character at the gate wears it, and the empty box's suggestion, and each name the dice gives, comes from the pool for that look's sex, with no ready life's person to give", async () => {
     door();
     const box = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
       fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
       expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
-      const names = [box().value];
+      if (box().value !== "") fireEvent.change(box(), { target: { value: "" } });
+      const names = [box().placeholder];
       for (let roll = 0; roll < 6; roll += 1) {
         fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
         names.push(box().value);
@@ -172,8 +174,8 @@ describe("the front door", () => {
       expect(within(life).getByRole("button", { name: `${say("prologue.door.pick")}: ${say(`${id}.kind`)}` })).toBeDefined();
       for (const word of [" he ", " she ", " his ", " her ", " him "]) expect(` ${text[`${id}.blurb`] ?? ""} `.toLowerCase()).not.toContain(word);
     }
-    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.banker.kind")}` }));
-    await begin();
+    // The name is given a screen back (the box starts empty), then the pick and Begin.
+    await startReadyLife("scenario.banker");
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.banker"));
     expect(store.getState().view?.prologue).toBeNull();
   });

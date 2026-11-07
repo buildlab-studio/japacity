@@ -4,7 +4,7 @@
 // token, then the character, then the game opens on it.
 import type { Id } from "@japacity/sim";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../authority/GameProvider";
 import { createGameStore, type GameStore } from "../authority/store";
@@ -15,6 +15,7 @@ import { FrontDoor } from "../features/front-door/FrontDoor";
 import type { AccountApi, FreeAnswer, GuestAnswer } from "../shared/net/auth";
 import { reportedError } from "../shared/net/http";
 import { accountView, engineView } from "../shared/testing/fixtures";
+import { stubPointer } from "../shared/testing/pointer";
 import { lookOf, namesFor } from "../shared/front-door/looks";
 import { DOOR_KEY } from "../shared/storage/storage";
 import { say } from "../shared/words/text";
@@ -23,6 +24,7 @@ import "../shared/testing/render";
 
 afterEach(() => {
   localStorage.clear();
+  vi.unstubAllGlobals();
 });
 
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
@@ -104,11 +106,12 @@ const stage = (): string | null => document.querySelector("[data-gate]")?.getAtt
 const next = (label: string) => screen.getByRole("button", { name: new RegExp(`^${label}`) });
 const usernameBox = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("ui.account.name.label") });
 
-/** Play, the age screen passed, and the door's name as it was filled in from the pool. */
-async function toTheDoor(): Promise<string> {
+/** Play, the age screen passed, and the door's name: rolled with the dice, since the box starts empty, unless `roll` is false. */
+async function toTheDoor(roll = true): Promise<string> {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
   await answerAge("1990-05-17");
   const name = await screen.findByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
+  if (roll) fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
   return name.value;
 }
 
@@ -143,6 +146,17 @@ describe("the username box (account:username-typed-and-checked)", () => {
     fireEvent.click(await screen.findByRole("button", { name: say("ui.door.reroll") }));
     toThePage();
     expect(usernameBox().value).toBe("my_own_name");
+  });
+
+  test("[account:username-typed-and-checked] given Play and the age passed on a desktop, when Where you live opens, then the username box, the first field to fill there, takes the focus; the door's first screen gave it to the character name box", async () => {
+    stubPointer("fine");
+    online(fakeAccount());
+    await toTheDoor(false);
+    expect(document.activeElement).toBe(screen.getByRole("textbox", { name: say("prologue.door.name.title") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
+    toThePage();
+    expect(document.activeElement).toBe(usernameBox());
+    expect(usernameBox().hasAttribute("data-first-field")).toBe(true);
   });
 
   test("[account:username-typed-and-checked] given a name typed in pieces, when the typing pauses, then the server is asked once, for the last, and the box says it is free; a held one is said taken", async () => {
@@ -267,6 +281,20 @@ describe("Enter and a refused Begin (account:username-typed-and-checked)", () =>
     fireEvent.keyDown(usernameBox(), { key: "Enter", code: "Enter", shiftKey: true });
     await act(() => Promise.resolve());
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual([]);
+  });
+
+  test("[account:username-typed-and-checked] given Play and the age passed on a touch phone, when the door's first screen and then Where you live open, then neither box takes the focus, so no keyboard rises over the homes; Begin with the username empty then focuses its box", async () => {
+    stubPointer("coarse");
+    online(fakeAccount());
+    await toTheDoor(false);
+    expect(document.activeElement).not.toBe(screen.getByRole("textbox", { name: say("prologue.door.name.title") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
+    toThePage();
+    expect(document.activeElement).not.toBe(usernameBox());
+    fireEvent.click(next(say("ui.door.begin")));
+    expect(await screen.findByText(say("ui.account.name.empty"))).toBeDefined();
+    expect(document.activeElement).toBe(usernameBox());
+    expect(brought).toContain(usernameBox());
   });
 
   test("[account:username-typed-and-checked] given the box empty, when Begin is pressed, then the box is brought into view and focused, with the reason under it", async () => {
@@ -505,14 +533,17 @@ describe("the guest start at Begin", () => {
 });
 
 describe("the door's name on Play's path (prologue:front-door-builds-a-person)", () => {
-  test("[prologue:front-door-builds-a-person] given Play, where the username is asked on the door's last page, when the door opens, then its name is the pool's whatever the account would say, and the username box is still empty", async () => {
+  test("[prologue:front-door-builds-a-person] given Play, where the username is asked on the door's last page, when the door opens, then the name box is empty with the pool's suggestion as its placeholder whatever the account would say, and the username box is still empty", async () => {
     const account = { ...fakeAccount(), view: () => Promise.resolve(accountView({ username: "olamide_88", character: null })) };
     online(account);
-    const filled = await toTheDoor();
+    const filled = await toTheDoor(false);
+    expect(filled).toBe("");
+    const box = screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     const sex = lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
     const roll = (JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}") as { roll?: number }).roll ?? -1;
-    expect(filled).toBe(namesFor(sex, roll)[0]);
-    expect(filled).not.toBe("Olamide");
+    expect(box.placeholder).toBe(namesFor(sex, roll)[0]);
+    expect(box.placeholder).not.toBe("Olamide");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     toThePage();
     expect(usernameBox().value).toBe("");
   });

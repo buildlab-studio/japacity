@@ -25,7 +25,7 @@ From a fresh clone, install the browser once: `pnpm exec playwright install chro
 
 ## What a run does
 
-1. The front door, three screens with everything chosen (prologue:front-door-three-screens): Next on "Who are you?" with the name offered, the tile and its age on "Your life so far", then Next; Begin on "Where you live" with the home as it stands.
+1. The front door, three screens with everything chosen but the name (prologue:front-door-three-screens): the dice for a name on "Who are you?" (the box starts empty), then Next; the tile and its age on "Your life so far", then Next; Begin on "Where you live" with the home as it stands.
 2. The page fills as the handover (prologue:printed-page-hands-over): the family card turns over and the years' chips show; Go opens the world.
 3. The first chapter's title stands over the world for a moment (chapter:first-chapter-mission-card); the nudge gives the first step; the map with the stop picked, Go by danfo, the ride (a picture, then Skip), the place.
 4. The first-use labels at the Map and Phone thumbs, unless `--played` (world:no-walkthrough-before-play).

@@ -6,6 +6,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { test } from "./support/policy";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
+import { onDesktop, opensWithFocus } from "./support/focus";
 
 // The rows follow what the figure reads of its look, so the figure must be drawn: WebGL in software, as the smoke spec has it.
 test.use({ launchOptions: SOFTWARE_WEBGL });
@@ -55,9 +56,36 @@ test("[prologue:front-door-builds-a-person] given the first screen on the narrow
   const hint = page.locator("[data-door-name-hint]");
   await expect(hint).toHaveText("What people in your story call you.", { timeout: 30_000 });
   await expect(page.locator("label[for='door-name']")).toHaveText("Character name");
-  await expect(page.locator("#door-name")).toHaveAttribute("placeholder", "Name");
+  await expect(page.locator("#door-name")).toHaveValue("");
+  await expect(page.locator("#door-name")).not.toHaveAttribute("placeholder", /^(Name)?$/);
   const lines = await hint.evaluate((line) => Math.round(line.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(line).lineHeight)));
   expect(lines).toBe(1);
   const [title, said, box] = await Promise.all(["label[for='door-name']", "[data-door-name-hint]", "#door-name"].map((at) => page.locator(at).boundingBox()));
   expect((title?.y ?? 0) < (said?.y ?? 0) && (said?.y ?? 0) < (box?.y ?? 0)).toBe(true);
+});
+
+test("[prologue:front-door-builds-a-person] given the first screen, then the empty box holds the focus with its ring in view on a desktop and no focus on a phone, its suggestion in a lighter ink than a name; the dice fills it; Begin with it empty comes back to it focused on both, saying the story needs a name", async ({ page }) => {
+  await page.goto("/");
+  const box = page.locator("#door-name");
+  await opensWithFocus(page, box, { timeout: 30_000 });
+  await expect(box).toHaveValue("");
+  if (await onDesktop(page)) {
+    const ring = await box.evaluate((input) => getComputedStyle(input).boxShadow);
+    expect(ring).not.toBe("none");
+  }
+  const [placeholder, typed] = await box.evaluate((input) => [getComputedStyle(input, "::placeholder").color, getComputedStyle(input).color]);
+  expect(placeholder).not.toBe(typed);
+  const suggestion = await box.getAttribute("placeholder");
+  await page.getByRole("button", { name: /^Next/ }).first().click();
+  await page.locator("[data-gate='life']").getByRole("button", { name: /^Next/ }).click();
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  await expect(page.locator("[data-gate='you']")).toBeVisible();
+  await expect(box).toBeFocused();
+  await expect(box).toHaveValue("");
+  await expect(box).toBeInViewport();
+  await expect(page.locator("[data-door-name-needed]")).toHaveText("Your story needs a name.");
+  await page.locator("[data-door-dice]").click();
+  await expect(box).not.toHaveValue("");
+  await expect(page.locator("[data-door-name-needed]")).toHaveCount(0);
+  expect(suggestion).not.toBe("");
 });

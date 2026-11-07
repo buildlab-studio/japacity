@@ -111,6 +111,8 @@ describe("Make it yours", () => {
     act(() => reportOwn(look, SENATOR));
     fireEvent.click(swatch("skin", "skin1"));
     fireEvent.click(swatch("top", "charcoal"));
+    // The box starts empty: the dice gives the name Begin needs.
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.skip")}`) }));
     await waitFor(() => expect(document.querySelector("[data-door-home]")).not.toBeNull());
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));

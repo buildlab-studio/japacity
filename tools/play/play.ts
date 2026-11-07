@@ -1,5 +1,5 @@
 // pnpm play --out <folder> [--life developer] [--months 3]
-// Plays the game on a phone-sized browser from the front door: the name it fills, an archetype's tile (or a
+// Plays the game on a phone-sized browser from the front door: a name from the dice (the box starts empty), an archetype's tile (or a
 // ready life), Next to Where you live and Begin, the page filling as the years go by and Go opening the world, the
 // first chapter's title, then each month: the nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
 // picture at each step into the folder given and prints a plain log, also saved there as play.log. With --keep it saves
@@ -158,11 +158,19 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
     return false;
   }
   log(run, `front door: ${await words(page.locator("[data-gate-sheet]"))}`);
-  if (!options.ready) {
-    log(run, `name filled: ${await page.getByRole("textbox", { name: "Your name" }).inputValue().catch(() => "")}`);
-    await shot(run, "front door");
-    if (!(await tap(run, next, "Next"))) return false;
+  // The name box starts empty and Begin never takes its placeholder (prologue:front-door-builds-a-person): the dice gives the name.
+  // Settings' run opens on the ready lives, so the driver goes Back to the name first and Next again.
+  if (options.ready && !(await tap(run, page.locator("[data-door-back]"), "Back to the name"))) return false;
+  const box = page.locator("#door-name");
+  if (!(await appear(box, LONG))) {
+    problem(run, "the name box never came");
+    return false;
   }
+  log(run, `name suggested: ${(await box.getAttribute("placeholder").catch(() => null)) ?? ""}`);
+  await shot(run, "front door");
+  if ((await box.inputValue().catch(() => "")) === "" && !(await tap(run, page.locator("[data-door-dice]"), "the dice"))) return false;
+  log(run, `name rolled: ${await box.inputValue().catch(() => "")}`);
+  if (!(await tap(run, page.locator("[data-gate='you']").getByRole("button", { name: /^Next/ }), "Next"))) return false;
 
   await shot(run, options.ready ? "ready lives" : "your life so far");
   if (!(await tap(run, page.getByRole(options.ready ? "button" : "radio", { name: button, exact: true }), button))) return false;

@@ -9,7 +9,7 @@ import { test } from "./support/policy";
 
 import { content, text } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
-import { passOpeningWords, passThePage } from "./support/door";
+import { giveName, passOpeningWords, passThePage } from "./support/door";
 import { closeGranted, LIVED, placeReady, seedSave } from "./support/live";
 import { type Raster, rastersOnScreen } from "./support/rasters";
 import { graduateBeforeFlight } from "./support/saves";
@@ -62,6 +62,8 @@ test("[assets:pictures-sharp-at-three] [prologue:front-door-three-screens] given
   await page.locator("[data-figure]").first().waitFor();
   found.push(...(await softOn(page, "You")));
 
+  // The name box starts empty: the dice gives the name Begin needs (prologue:front-door-builds-a-person).
+  await giveName(page);
   await page.getByRole("button", { name: /^Next/ }).first().click();
   const lives = page.locator("[data-gate='life'] [role='radio']");
   await lives.first().waitFor();

@@ -1,9 +1,10 @@
 // Signing in by a code sent to an email address (account:email-code-is-short-lived, account:code-form-forgives): the address,
 // then the 6 digits. It signs the player in, or, for an address no account uses, hands on the address its right code proved
 // for a new life (account:sign-in-without-secret); and it confirms deleting (account:player-deletes-account), where the code
-// goes to the server with the deletion instead of signing in. Once the
+// goes to the server with the deletion instead of signing in. Each step's field is the first to fill there and takes the
+// focus as the step opens on a desktop, never on a touch phone; a refusal for it focuses it on both. Once the
 // code is sent the step says one thing at a time: where the code went, with a quiet way back to the address; the field,
-// which takes the focus and sends itself at the sixth digit; the one button; and one status slot under them, a polite live
+// which sends itself at the sixth digit; the one button; and one status slot under them, a polite live
 // region mounted from the start, holding one line at a time, an error replacing whatever stood there. A refused code is
 // never sent again unchanged, a code that is spent or ran out leaves only "Send a new code", and the way to a new code
 // shows once the wait after a send is over.
@@ -11,6 +12,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
+import { FIRST_FIELD, focusFirstField } from "../../shared/ui/firstField";
 import { say } from "../../shared/words/text";
 
 const CODE = /^\d{6}$/;
@@ -41,7 +43,7 @@ export interface CodeFormProps {
   sent?: boolean;
   /** The line the code step opens with in place of "We sent a code to {email}.": why a new code was sent unasked. */
   sentSaid?: string;
-  /** The address field takes the focus as the form opens. */
+  /** The address field takes the focus as the form opens, on a desktop (account:code-form-forgives). */
   focusEmail?: boolean;
   /** The field also offers this browser's passkeys in its autofill (account:passkey-in-email-autofill). */
   passkeyAutofill?: boolean;
@@ -118,7 +120,8 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
   const [line, setLine] = useState<Line>("none");
   const codeField = useRef<HTMLInputElement>(null);
   const emailField = useRef<HTMLInputElement>(null);
-  // The field the focus goes to once the form has turned: the code's after a send, the address's after a change.
+  // The field the focus goes to once the form has turned, the first to fill on its step: the code's after a send, the
+  // address's after a change; on a desktop only, so no phone's keyboard rises over the step by itself.
   const focusNext = useRef<"code" | "email" | null>(sentTo !== null ? "code" : focusEmail ? "email" : null);
   // After a wrong code the field's digits are selected, so typing replaces them.
   const selectNext = useRef(false);
@@ -126,8 +129,8 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
   useEffect(() => {
     const next = focusNext.current;
     focusNext.current = null;
-    if (next === "code") codeField.current?.focus();
-    if (next === "email") emailField.current?.focus();
+    if (next === "code") focusFirstField(codeField.current);
+    if (next === "email") focusFirstField(emailField.current);
   }, [sentTo, sends]);
 
   useEffect(() => {
@@ -166,12 +169,15 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
     event?.preventDefault();
     const again = sentTo !== null;
     const address = (sentTo ?? email).trim();
+    // A send refused for the address: the field it is about takes the focus on every device.
     if (address === "") {
       setProblem(say("ui.account.email.empty"));
+      focusFirstField(emailField.current, true);
       return;
     }
     if (known === undefined && !EMAIL_SHAPE.test(address)) {
       setProblem(say("ui.account.email.shape"));
+      focusFirstField(emailField.current, true);
       return;
     }
     void run(
@@ -196,6 +202,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
     if (sentTo === null || typed === refused) return;
     if (!CODE.test(typed)) {
       setProblem(say("ui.account.code.short"));
+      focusFirstField(codeField.current, true);
       return;
     }
     void run(
@@ -254,6 +261,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
               <input
                 ref={emailField}
                 className={FIELD}
+                {...{ [FIRST_FIELD]: "" }}
                 type="email"
                 name="email"
                 autoComplete={passkeyAutofill ? "username webauthn" : "email"}
@@ -303,6 +311,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
             <input
               ref={codeField}
               className={`${FIELD} tracking-[0.3em]`}
+              {...{ [FIRST_FIELD]: "" }}
               name="code"
               aria-label={say("ui.account.code.label")}
               inputMode="numeric"
