@@ -12,6 +12,7 @@ import { qualityIn } from "@japacity/sim";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
+import { CheckMeter } from "../../shared/ui/CheckMeter";
 import { StateTag } from "../../shared/ui/StateTag";
 import { Counter } from "../../shared/world/TopBand";
 import { WorldSheet } from "../../shared/world/WorldSheet";
@@ -319,9 +320,42 @@ function momentPicture(key: string): string {
   return "✨";
 }
 
+/** The month's funds check (world:month-end-results-sheet): shown against needed, as a bar with both figures and a stamp. */
+const FUNDS_SHORT = "line.route.funds-short";
+const FUNDS_COVERED = "line.route.funds-covered";
+
+function FundsCheck({ line }: { line: ReportLine }) {
+  const { route, shown, required, months } = line.params;
+  const shownMoney = moneyOf(shown);
+  const neededMoney = moneyOf(required);
+  if (typeof route !== "string" || shownMoney === null || neededMoney === null) return null;
+  const met = line.key === FUNDS_COVERED;
+  return (
+    <li data-funds-check={met ? "covered" : "short"} data-story-line={line.key}>
+      <CheckMeter
+        title={words("ui.results.funds.title", { route })}
+        value={shownMoney.amount}
+        max={neededMoney.amount}
+        shown={say("ui.results.funds.shown", { amount: formatMoney(shownMoney.amount, shownMoney.currency) })}
+        needed={say("ui.results.funds.needed", { amount: formatMoney(neededMoney.amount, neededMoney.currency) })}
+        met={met}
+        stamp={say(met ? "ui.results.funds.covered" : "ui.results.funds.short")}
+        note={met && typeof months === "number" ? sayCount("ui.results.funds.months", months, { count: months }) : null}
+      />
+    </li>
+  );
+}
+
+/** A typed money param of a line, or null. */
+function moneyOf(param: ReportLine["params"][string] | undefined): { amount: number; currency: Parameters<typeof formatMoney>[1] } | null {
+  if (param === null || typeof param !== "object" || !("amount" in param) || !("currency" in param)) return null;
+  return { amount: param.amount, currency: param.currency };
+}
+
 /** One moment of the month: a picture and its words; the best one leads as a card with a larger picture. */
 function StoryRow({ line, hero }: { line: ReportLine; hero: boolean }) {
   const view = useView();
+  if (line.key === FUNDS_SHORT || line.key === FUNDS_COVERED) return <FundsCheck line={line} />;
   const told = toldOnResults(line, view);
   // home:makoko-eviction-draw: the room cleared away is told in the same red as a bill unpaid.
   const unpaid = isUnpaid(line) || isEvicted(line);
