@@ -176,17 +176,18 @@ describe("old saves", () => {
     expect(() => contentNamed(overlaid, "0", "dials-1")).toThrow(/bundles no content 0 under overlay dials-1/);
   });
 
-  test("[server:older-contents-bundled] [server:older-content-frozen] given content version 2 with version 1 frozen as it shipped, when the worker's contents are built, then version 1 is bundled beside the current and each is named by its own version", () => {
-    expect(content.version).toBe("2");
-    expect(olderContents.map((older) => older.version)).toEqual(["1"]);
+  test("[server:older-contents-bundled] [server:older-content-frozen] given content version 3 with versions 1 and 2 frozen as they shipped, when the worker's contents are built, then both are bundled beside the current and each is named by its own version", () => {
+    expect(content.version).toBe("3");
+    expect(olderContents.map((older) => older.version)).toEqual(["1", "2"]);
     const worker = withContentBefore(contentsFor(content, undefined), undefined);
     expect(worker).toEqual({ current: content, previous: null, older: olderContents });
-    expect(contentNamed(worker, "2", undefined)).toBe(content);
+    expect(contentNamed(worker, "3", undefined)).toBe(content);
     expect(contentNamed(worker, "1", undefined)).toBe(olderContents[0]);
+    expect(contentNamed(worker, "2", undefined)).toBe(olderContents[1]);
     expect(() => contentNamed(worker, "0", undefined)).toThrow(/bundles no content 0/);
   });
 
-  test("[server:newer-content-upgrades-state] [server:older-contents-bundled] [activity:missed-hunt-opens-a-lead] given a character played three months under the shipped version 1, when its view is fetched under version 2, then its end state is upgraded with no lead marked, checked, and made the base of a new segment", async () => {
+  test("[server:newer-content-upgrades-state] [server:older-contents-bundled] [activity:missed-hunt-opens-a-lead] given a character played three months under the shipped version 1, when its view is fetched under the current version, then its end state is upgraded with no lead marked, checked, and made the base of a new segment", async () => {
     const shipped = olderContents[0]!;
     const server = testServer();
     server.deps.contents = { current: shipped, previous: null };
@@ -198,10 +199,29 @@ describe("old saves", () => {
     const reply = await view(server, "acc-1");
     if (!reply.body.ok) throw new Error(reply.body.detail);
     const stored = await held(server, id);
-    expect(stored.segments.map((segment) => segment.content)).toEqual(["1", "2"]);
+    expect(stored.segments.map((segment) => segment.content)).toEqual(["1", "3"]);
     const base = stored.snapshot.state;
-    expect(base.content).toBe("2");
+    expect(base.content).toBe("3");
     expect(base.activity.lead).toBeUndefined();
+    expect(checkInvariants(base, content)).toEqual([]);
+  });
+
+  test("[server:newer-content-upgrades-state] [server:older-contents-bundled] [activity:catch-drawn-each-month] given a character played three months under the shipped version 2, when its view is fetched under version 3, then its end state is upgraded with no catch drawn, checked, and made the base of a new segment", async () => {
+    const shipped = olderContents[1]!;
+    expect(shipped.version).toBe("2");
+    const server = testServer();
+    server.deps.contents = { current: shipped, previous: null };
+    const id = await newLife(server, "acc-2");
+    for (let v = 0; v < 3; v += 1) expect((await send(server, "acc-2", restMonth({ v }))).body.ok).toBe(true);
+    expect((await held(server, id)).segments.map((segment) => segment.content)).toEqual(["2"]);
+    server.deps.contents = withContentBefore(contentsFor(content, undefined), undefined);
+    const reply = await view(server, "acc-2");
+    if (!reply.body.ok) throw new Error(reply.body.detail);
+    const stored = await held(server, id);
+    expect(stored.segments.map((segment) => segment.content)).toEqual(["2", "3"]);
+    const base = stored.snapshot.state;
+    expect(base.content).toBe("3");
+    expect(base.draws.catch).toBeUndefined();
     expect(checkInvariants(base, content)).toEqual([]);
   });
 });

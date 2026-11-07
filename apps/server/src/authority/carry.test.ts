@@ -28,6 +28,10 @@ const PROLOGUE = "scenario.prologue";
 const DEVELOPER = { archetype: "developer", age: 0, home: "family-house" } as const;
 const WATER = { archetype: "water", age: 0, home: "makoko" } as const;
 const HUNT = "activity.job-hunt";
+const ASK_FISHERMAN = "activity.ask-fisherman";
+const CREW = "activity.job-canoe-crew";
+const RACKS = "activity.job-fish-racks";
+const DELIVERIES = "activity.canoe-deliveries";
 /** The shortest recorded life that ends abroad. */
 const ABROAD = "developer-remote";
 
@@ -107,6 +111,14 @@ async function hunt(life: Life): Promise<PlayerView> {
   const job = (await viewOf(life)).activities.find((option) => option.id === HUNT)?.params?.[0];
   if (job === undefined) throw new Error("The life has no job to hunt.");
   return play(life, { type: "activity/now", activity: HUNT, param: job });
+}
+
+/** activity:boat-work-at-the-net-shed: Sewanu asked at the net shed, and his place in the canoe taken. */
+async function takeTheCanoe(life: Life): Promise<void> {
+  const asked = await play(life, { type: "activity/now", activity: ASK_FISHERMAN, param: null });
+  const offer = asked.offers.find((open) => open.entry === "offer.canoe-place")?.id;
+  if (offer === undefined) throw new Error("Sewanu offered no place.");
+  await play(life, { type: "offer/choose", offer, choice: "accept" });
 }
 
 function jobOffer(view: PlayerView): string | null {
@@ -312,6 +324,32 @@ describe.each(VERSIONS)("lives carried from %s to the current content", (_label,
     await deploy(life, older, worker);
     expect((await loadedState(life)).home.place).toBe("place.makoko");
     await month(life);
+    await carriedOn(life);
+  }, 30_000);
+
+  test("[server:newer-content-upgrades-state] [server:older-contents-bundled] [activity:boat-work-at-the-net-shed] given the water life past its first month with work on the water held and its month planned, when the content changes, then it is carried mid-month, takes Sewanu's place in his canoe and is paid by the catch", async () => {
+    const life = await handedOver(older, WATER);
+    // The boats where the older content has them, else the racks: either way a job on the water is held before the change.
+    const boats = older.activity[ASK_FISHERMAN] !== undefined;
+    if (boats) await takeTheCanoe(life);
+    else {
+      await play(life, { type: "activity/now", activity: HUNT, param: RACKS });
+      const offer = jobOffer(await month(life));
+      if (offer === null) throw new Error("The racks' hunt landed no offer.");
+      await play(life, { type: "offer/choose", offer, choice: "accept" });
+    }
+    while ((await viewOf(life)).month < 2) await month(life);
+    // Mid-month: the canoe deliveries asked for now, answered with the month.
+    await play(life, { type: "activity/now", activity: HUNT, param: DELIVERIES });
+    const held = (await loadedState(life)).activity.job;
+    expect(held).toBe(boats ? CREW : RACKS);
+    await deploy(life, older, worker);
+    expect((await viewOf(life)).activities.find((option) => option.id === HUNT)).toMatchObject({ done: true });
+    if (!boats) await takeTheCanoe(life);
+    expect((await viewOf(life)).job.id).toBe(CREW);
+    await month(life);
+    expect((await loadedState(life)).activity.tenure[CREW]).toBeGreaterThan(0);
+    expect((await loadedState(life)).draws.catch).toBeGreaterThan(0);
     await carriedOn(life);
   }, 30_000);
 
