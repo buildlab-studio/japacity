@@ -96,16 +96,18 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
     card.scrollIntoView({ behavior: smooth ? "smooth" : "instant", block: "nearest", inline: "center" });
     shown.current = true;
   }, [at]);
-  // A card swiped to the middle is picked once the deck comes to rest.
+  // A card swiped to the middle is picked once the deck comes to rest. The middle and the cards are measured on the screen,
+  // since a card's offset counts from the door laid out round the deck, not from the deck's own scroll.
   const rest = (): void => {
     const strip = deck.current;
     if (strip === null) return;
-    const middle = strip.scrollLeft + strip.clientWidth / 2;
+    const box = strip.getBoundingClientRect();
+    const middle = box.left + box.width / 2;
     let nearest = at;
     let best = Number.POSITIVE_INFINITY;
     [...strip.children].forEach((child, index) => {
-      const card = child as HTMLElement;
-      const gap = Math.abs(card.offsetLeft + card.offsetWidth / 2 - middle);
+      const card = (child as HTMLElement).getBoundingClientRect();
+      const gap = Math.abs(card.left + card.width / 2 - middle);
       if (gap < best) {
         best = gap;
         nearest = index;
