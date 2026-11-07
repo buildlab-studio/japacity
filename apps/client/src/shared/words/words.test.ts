@@ -4,7 +4,8 @@ import { describe, expect, test } from "vitest";
 
 import { formatBand, formatMoney, formatRate } from "./format";
 import { newGame } from "../testing/fixtures";
-import { jobCardWords } from "./jobs";
+import { factWords } from "../ui/Facts";
+import { jobFacts } from "./facts";
 import { valueWords } from "./quality";
 import { requirementSentence } from "./requirement";
 import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
@@ -175,9 +176,9 @@ describe("the words the world's sheets borrow", () => {
     expect(say("ui.world.ask-away.place.family-house")).toContain(text["family.from.mum"] ?? "-");
   });
 
-  test("[world:things-are-tappable-models] given the night shift beside a day job, when its card words are read, then they carry its pay a month and its chance, as the board's do", () => {
+  test("[world:things-are-tappable-models] [text:show-then-tell] given the night shift beside a day job, when its card's chips are read, then they carry its pay a month and its chance, as the board's do", () => {
     const view = newGame("scenario.graduate").view();
-    const said = jobCardWords(view, "activity.night-support");
+    const said = jobFacts(view, "activity.job-hunt", "activity.night-support").facts.map(factWords).join(" ");
     const pay = content.activity["activity.night-support"]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The night shift has no pay.");
     expect(said).toContain(formatMoney(pay.amount, pay.currency));

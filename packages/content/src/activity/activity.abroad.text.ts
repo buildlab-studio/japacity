@@ -78,7 +78,7 @@ export const activityAbroadText: Record<string, string> = {
   "activity.driving-test.blurb": "You pay for the lessons once, then for each attempt at the test.",
   "activity.buy-car-finance.name": "Buy a car on finance",
   "activity.buy-car-finance.button": "Sign deal",
-  "activity.buy-car-finance.blurb": "A used hatchback, ten percent down and thirty-six payments. The rate depends on your file.",
+  "activity.buy-car-finance.blurb": "A used hatchback, a deposit down and thirty-six payments. The rate depends on your file.",
   "activity.rent-flat-uk.name": "Rent a flat, UK",
   "activity.rent-flat-uk.button": "Rent",
   "activity.rent-flat-uk.blurb": "A flat in your own name. One month down as a deposit, returned when you leave.",

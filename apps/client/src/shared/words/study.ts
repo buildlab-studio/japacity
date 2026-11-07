@@ -39,33 +39,24 @@ export function bandGainNow(view: Pick<PlayerView, "qualities">, activity: strin
 }
 
 /**
- * What a study by band does, on one line: "+3 Tech skill a month" for a month's study, "+1 Tech skill" for a day of class, or that it has
- * taught what it can at this level (quality:skill-bands-slow-gains). Null for an entry not read by band.
+ * What a study by band gives, as a gain's words: "+3 Tech skill a month" for a month's study, "+1 Tech skill over three days" for a day
+ * of class; taught once it has taught what it can at this level (quality:skill-bands-slow-gains). Null for an entry not read by band.
  */
-export function studyDoesWords(view: Pick<PlayerView, "qualities">, activity: string): string | null {
+export function studyGainNow(view: Pick<PlayerView, "qualities">, activity: string): { taught: true } | { taught: false; words: string } | null {
   const gain = bandGainNow(view, activity);
   if (gain === null) return null;
-  if (gain === 0) return say("ui.act.does.taught");
+  if (gain === 0) return { taught: true };
   const entry = content.activity[activity as Id<"activity">];
   // activity:study-days-capped: a day of class gives a third of the month's figure, so it says the month's three days together.
-  if (entry?.repeat === true) return say("ui.act.does.days", { amount: gain, skill: nameOf(TECH) });
-  return say("ui.act.does.skill-month", { amount: gain, skill: nameOf(TECH) });
+  if (entry?.repeat === true) return { taught: false, words: say("ui.act.does.days", { amount: gain, skill: nameOf(TECH) }) };
+  return { taught: false, words: say("ui.act.does.skill-month", { amount: gain, skill: nameOf(TECH) }) };
 }
 
 function gainsOf(effects: readonly Effect[]): string[] {
   return effects.flatMap((effect) => (effect.type === "quality/add" && effect.amount > 0 && SAID.has(content.quality[effect.quality]?.group ?? "") ? [say("ui.act.does.skill", { amount: effect.amount, skill: nameOf(effect.quality) })] : []));
 }
 
-/** activity:paid-tech-courses: a course's months and what it ends with, "Three months. It ends with +1 Portfolio."; null for no course. */
-export function courseWords(activity: string): string | null {
-  const course = content.activity[activity as Id<"activity">]?.course;
-  if (course === undefined) return null;
-  const months = sayCount("ui.act.course.months", course.months, { count: course.months });
-  const gains = gainsOf(course.effects);
-  return gains.length === 0 ? say("ui.act.course.only", { months }) : say("ui.act.course.ends", { months, gains: gains.join(", ") });
-}
-
-/** activity:paid-tech-courses: a course's months and what it ends with, as words for chips: "3 months", ["+1 Portfolio"]; null for no course. */
+/** activity:paid-tech-courses: a course's months and what it ends with, as words for a chip and tags: "3 months", ["+1 Portfolio"]; null for no course. */
 export function courseParts(activity: string): { months: string; gains: string[] } | null {
   const course = content.activity[activity as Id<"activity">]?.course;
   if (course === undefined) return null;
@@ -73,8 +64,8 @@ export function courseParts(activity: string): { months: string; gains: string[]
 }
 
 /**
- * What a study costs when it is not a price paid now: the diploma's fees a month as a bill (activity:paid-tech-courses), the bootcamp's
- * fee once a developer job is held (activity:bootcamp-paid-after-a-job). Null for any other.
+ * What a study costs when it is not a price paid now, as a bill's chip: the diploma's fees a month (activity:paid-tech-courses), "₦40,000 a
+ * month × 12", the bootcamp's fee once a developer job is held (activity:bootcamp-paid-after-a-job). Null for any other.
  */
 export function studyPaysWords(activity: string): string | null {
   const entry = content.activity[activity as Id<"activity">];

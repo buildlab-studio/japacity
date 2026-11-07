@@ -43,10 +43,10 @@ export const activityText: Record<string, string> = {
   "activity.job-hunt.blurb": "You send applications and follow up on every lead.",
   "activity.study-english.name": "Study for the English test",
   "activity.study-english.button": "Study",
-  "activity.study-english.blurb": "You buy the practice books and work through them at night. A month of study lifts your chance at the test.",
+  "activity.study-english.blurb": "You buy the practice books and work through them at night.",
   "activity.learn-tech.name": "A day's coding class",
   "activity.learn-tech.button": "Attend class",
-  "activity.learn-tech.blurb": "A paid day of class or a day at a cyber cafe. Three days a month at most.",
+  "activity.learn-tech.blurb": "A paid day of class or a day at a cyber cafe.",
   "activity.build-portfolio.name": "Build something to show",
   "activity.build-portfolio.button": "Build",
   "activity.build-portfolio.blurb": "You finish a project you can put in front of an employer.",
@@ -72,9 +72,9 @@ export const activityText: Record<string, string> = {
   "activity.sit-english-test.button": "Sit test",
   "activity.sit-english-test.blurb": "You book a date and sit the test. Your band comes in.",
   // world:one-action-one-sheet: the chance of the band the route needs, said before the fee is paid ({chance} is likely, a fair chance or a long shot).
-  "activity.sit-english-test.chance": "Band {band} this sitting: {chance}.",
+  "activity.sit-english-test.chance": "Band {band}: {chance}",
   // world:one-action-one-sheet: with no plan, or a plan that asks no band, the band a sitting would likely give, and no route's figure.
-  "activity.sit-english-test.band-alone": "Likely overall band score: {band}",
+  "activity.sit-english-test.band-alone": "Likely band {band}",
   "activity.sit-english-test.study-first": "Study first: a month of study lifts the chance.",
   // When one month of study cannot lift it, the card says how many.
   "activity.sit-english-test.study-months": "Study first: {count} months of study lift the chance.",

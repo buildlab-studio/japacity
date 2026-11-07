@@ -61,16 +61,16 @@ describe("the English test's chance", () => {
     expect([...seen].some((band) => band < bandNeeded())).toBe(true);
   });
 
-  test("[world:one-action-one-sheet] given Canada's pool as the plan and English at a long shot, a fair chance and likely, when the card's words are read, then each says the chance of 6.0 in the jobs' words and only the long shot says to study first", () => {
+  test("[world:one-action-one-sheet] [text:show-then-tell] given Canada's pool as the plan and English at a long shot, a fair chance and likely, when the card's chance chip is read, then each says the chance of 6.0 in the jobs' words and only the long shot says to study first", () => {
     expect(routeBand("route.canada-points")).toBe(60);
     const long = testChance(poolPlanWith(40));
-    expect(long.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.long").toLowerCase()}.`);
+    expect(long.words).toBe(`Band 6.0: ${say("jobs.chance.long").toLowerCase()}`);
     expect(long.study).toBe("Study first: a month of study lifts the chance.");
     const fair = testChance(poolPlanWith(55));
-    expect(fair.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.fair").toLowerCase()}.`);
+    expect(fair.words).toBe(`Band 6.0: ${say("jobs.chance.fair").toLowerCase()}`);
     expect(fair.study).toBeNull();
     const likely = testChance(poolPlanWith(75));
-    expect(likely.words).toBe(`Band 6.0 this sitting: ${say("jobs.chance.likely").toLowerCase()}.`);
+    expect(likely.words).toBe(`Band 6.0: ${say("jobs.chance.likely").toLowerCase()}`);
     expect(likely.study).toBeNull();
   });
 

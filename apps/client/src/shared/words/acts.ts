@@ -42,25 +42,42 @@ export function timeWordsOf(activity: string, halfDays?: number): string | null 
 /** The body's qualities and what an act that adds to them does, in words (quality:body-belly-and-energy: never a figure for the body). */
 const BODY_DOES: Readonly<Record<string, string>> = { "quality.belly": "ui.act.does.fills", "quality.energy": "ui.act.does.rests", "quality.wellbeing": "ui.act.does.lifts" };
 
+/** What an act that takes from the body or the mood costs, in a person's words (text:show-then-tell): it tires you, it wears you. */
+const BODY_COSTS: Readonly<Record<string, string>> = { "quality.energy": "ui.act.does.tires", "quality.wellbeing": "ui.act.does.wears" };
+
+/** What an act changes, as a tag's arrow and its words. */
+export interface EffectTag {
+  tone: "up" | "down";
+  words: string;
+}
+
 /** The groups of quality an act's sheet may name with its figure: a skill or a proof ("+2 English"). */
 const SKILLS: ReadonlySet<string> = new Set(["skills", "proof"]);
 
 /**
- * What an act does, in words, on one line (world:one-action-one-sheet): from its `quality/add` effects, short: "Fills you" for the belly,
- * "rests you" for the energy, "lifts you" for wellbeing, and a skill with its figure, "+2 English". Null when it adds
- * none of these.
+ * What an act changes, as tags with their arrows (world:one-action-one-sheet, text:show-then-tell): from its `quality/add` effects, a
+ * gain up ("Fills you" for the belly, "Rests you" for the energy, "Lifts you" for wellbeing, a skill with its figure, "+2 English") and a
+ * cost to the body or the mood down ("Tires you", "Wears you"), never a figure for the body. Each said once, in the act's order.
  */
-export function effectWordsOf(activity: string): string | null {
+export function effectTagsOf(activity: string): EffectTag[] {
   const entry = content.activity[activity as keyof typeof content.activity];
-  if (entry === undefined) return null;
-  const parts = entry.effects.flatMap((effect) => {
-    if (effect.type !== "quality/add" || effect.amount <= 0) return [];
+  if (entry === undefined) return [];
+  const tags = entry.effects.flatMap((effect): EffectTag[] => {
+    if (effect.type !== "quality/add" || effect.amount === 0) return [];
+    if (effect.amount < 0) {
+      const cost = BODY_COSTS[effect.quality];
+      return cost === undefined ? [] : [{ tone: "down" as const, words: raised(say(cost)) }];
+    }
     const body = BODY_DOES[effect.quality];
-    if (body !== undefined) return [say(body)];
-    return SKILLS.has(content.quality[effect.quality]?.group ?? "") ? [say("ui.act.does.skill", { amount: effect.amount, skill: nameOf(effect.quality) })] : [];
+    if (body !== undefined) return [{ tone: "up" as const, words: raised(say(body)) }];
+    return SKILLS.has(content.quality[effect.quality]?.group ?? "") ? [{ tone: "up" as const, words: say("ui.act.does.skill", { amount: effect.amount, skill: nameOf(effect.quality) }) }] : [];
   });
-  const line = [...new Set(parts)].join(", ");
-  return line === "" ? null : line.charAt(0).toUpperCase() + line.slice(1);
+  return tags.filter((tag, index) => tags.findIndex((other) => other.words === tag.words) === index);
+}
+
+/** A tag's words start with a capital, as every chip does. */
+function raised(words: string): string {
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /** Rest, which an empty slot already is (turn:free-slots-per-month): never planned, never a thing's act, never in a picker. */

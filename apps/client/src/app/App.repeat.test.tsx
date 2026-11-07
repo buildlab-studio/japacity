@@ -41,7 +41,7 @@ const FAMILY = "activity.family-time";
 const COOK = "activity.cook-at-home";
 
 describe("an act that repeats, at its thing", () => {
-  test("[activity:acts-may-repeat-in-month] [activity:now-acts-spend-half-days] [world:things-are-tappable-models] given time with Mama, when her sheet opens twice, then each time its card's button does it now, the card names no time taken, it never counts at the month's end nor says Ongoing, each press is sent at once, and her words land over her head", async () => {
+  test("[activity:acts-may-repeat-in-month] [activity:now-acts-spend-half-days] [world:things-are-tappable-models] given time with Mama, when her sheet opens twice, then each time her row picked, the one button does it now, the row names no time taken, it never counts at the month's end nor says Ongoing, each press is sent at once, and her words land over her head", async () => {
     resetLines();
     const game = newGame("scenario.graduate");
     const { authority, store } = await renderWithGame(<City world results={() => <p />} actions={(ids) => <ActivityPicker only={ids} />} />, game);
@@ -50,17 +50,20 @@ describe("an act that repeats, at its thing", () => {
       // Her fan's button for her time opens her sheet once the walk has reached her (world:fan-of-sticker-buttons).
       await pressFanAct("mama", FAMILY);
       const picker = await waitFor(() => found("[data-activity-picker]"));
-      // Her sheet holds her shop beside the gist.
-      expect(picker.querySelector(`button[data-act-main="activity.help-shop"]`)).not.toBeNull();
-      const card = picker.querySelector<HTMLButtonElement>(`button[data-act-main="${FAMILY}"]`)?.closest("li");
-      const main = card?.querySelector<HTMLButtonElement>("button");
-      if (card === null || card === undefined || main === null || main === undefined) throw new Error("No card for time with Mama.");
-      // Gist takes no time (halfDays 0), so the card names none.
-      expect(card.querySelector("[data-time]")).toBeNull();
+      // Her sheet holds her shop beside the gist, as rows with one button in the foot (world:one-action-one-sheet).
+      expect(picker.querySelector('[data-act-row="activity.help-shop"]')).not.toBeNull();
+      const row = picker.querySelector<HTMLButtonElement>(`[data-act-row="${FAMILY}"]`);
+      if (row === null) throw new Error("No row for time with Mama.");
+      fireEvent.click(row);
+      const card = row.closest("li");
+      const main = picker.querySelector<HTMLButtonElement>(`button[data-act-main="${FAMILY}"]`);
+      if (card === null || main === null) throw new Error("No card for time with Mama.");
+      // Gist takes no time (halfDays 0), so the row names none.
+      expect(card.querySelector('[data-fact="time"]')).toBeNull();
       expect(main.hasAttribute("disabled")).toBe(false);
-      expect(card.textContent).not.toContain(say("ui.world.counts-at-end"));
-      expect(card.textContent).not.toContain(say("ui.activity.planned"));
-      expect(card.textContent).not.toContain(say("ui.activity.uses-free"));
+      expect(picker.textContent).not.toContain(say("ui.world.counts-at-end"));
+      expect(picker.textContent).not.toContain(say("ui.activity.planned"));
+      expect(picker.textContent).not.toContain(say("ui.activity.uses-free"));
       act(() => hush());
       fireEvent.click(main);
       await waitFor(() => expect(authority.sent.filter((command) => command.type === "activity/now" && command.activity === FAMILY)).toHaveLength(time));

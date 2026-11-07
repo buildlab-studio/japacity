@@ -8,12 +8,19 @@ import { describe, expect, test } from "vitest";
 
 import { ARCHETYPES, doorAnswer } from "../front-door/archetypes";
 import { newGame } from "../testing/fixtures";
-import { chanceOf, huntBand, jobCardWords } from "./jobs";
+import { factWords } from "../ui/Facts";
+import { jobFacts } from "./facts";
+import { chanceOf, huntBand } from "./jobs";
 import { say } from "./text";
 
 const HUNT = "activity.job-hunt" as Id<"activity">;
 const SCENARIOS = Object.keys(content.scenario).filter((id) => id !== "scenario.prologue");
 const CAP = content.tuning.quality.hireMaxBp;
+
+/** What the hunt's card says of a job in its chips: its pay and its chance, in their order (text:show-then-tell). */
+function jobCardWords(view: PlayerView, job: string): string {
+  return jobFacts(view, HUNT, job).facts.map(factWords).join(" ");
+}
 
 function tileView(tile: string): PlayerView {
   const archetype = ARCHETYPES.find((each) => each.id === tile)!;

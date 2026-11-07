@@ -1,6 +1,7 @@
-// One shut reason per card (advice:four-ways-to-learn-route, world:one-action-one-sheet): the adviser's card and the word
-// of someone who went never say their reason twice, once over the button and again on it. The reason is said once, on the card; the button is shut and
-// says only "Not yet". Real content, a real life from sixteen.
+// One shut reason per act (advice:four-ways-to-learn-route, world:one-action-one-sheet): the adviser and the word of someone
+// who went never say their reason twice, once over the button and again on it. The reason is said once, on the row picked;
+// the one button in the foot is shut and says only "Not yet". Real content, a real life from sixteen.
+import { fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ActivityPicker } from "./ActivityView";
@@ -31,17 +32,18 @@ function count(text: string, part: string): number {
 }
 
 describe("a shut card says why once", () => {
-  test("[advice:four-ways-to-learn-route] [world:one-action-one-sheet] given a developer's first month with no way out heard of, when Ask about routes shows the adviser and someone who went, then each card says its reason once, its button is shut and says only Not yet, and no second sentence says it again", async () => {
+  test("[advice:four-ways-to-learn-route] [world:one-action-one-sheet] given a developer's first month with no way out heard of, when Ask about routes shows the adviser and someone who went, then each row picked says its reason once, the one button is shut and says only Not yet, and no second sentence says it again", async () => {
     const view = developer().view();
     await renderWithView(<ActivityPicker only={[ADVISER, FRIEND]} />, view);
-    const cards = [...document.querySelectorAll<HTMLElement>("[data-activity-picker] > li")];
-    expect(cards).toHaveLength(2);
-    for (const [card, id] of cards.map((card, index) => [card, [ADVISER, FRIEND][index]!] as const)) {
+    const rows = [...document.querySelectorAll<HTMLElement>("[data-act-row]")];
+    expect(rows.map((row) => row.getAttribute("data-act-row"))).toEqual([ADVISER, FRIEND]);
+    for (const id of [ADVISER, FRIEND]) {
+      fireEvent.click(document.querySelector(`[data-act-row="${id}"]`)!);
       const option = view.activities.find((candidate) => candidate.id === id)!;
       expect(option.allowed).toBe(false);
-      const text = card.textContent ?? "";
+      const text = document.querySelector("[data-activity-picker]")?.textContent ?? "";
       for (const requirement of option.missing) expect(count(text.toLowerCase(), requirementSentence(requirement, { routes: view.routes }).toLowerCase())).toBe(1);
-      const button = card.querySelector<HTMLButtonElement>(`button[data-act-main="${id}"]`)!;
+      const button = document.querySelector<HTMLButtonElement>(`button[data-act-main="${id}"]`)!;
       expect(button.disabled).toBe(true);
       expect(button.querySelector("[data-after]")?.textContent).toBe(say("ui.needs.not-yet"));
       expect(text).not.toContain(say("ui.needs.route"));
@@ -49,13 +51,13 @@ describe("a shut card says why once", () => {
     }
   });
 
-  test("[advice:four-ways-to-learn-route] [world:one-action-one-sheet] given a developer's first month with no way out heard of, when the adviser's card shows, then its reason reads as a person says it, Hear of a way out first, and Not yet is said once, on the shut button, never again over the reason", async () => {
+  test("[advice:four-ways-to-learn-route] [world:one-action-one-sheet] given a developer's first month with no way out heard of, when the adviser's row is picked, then its reason reads as a person says it, Hear of a way out first, and Not yet is said once, on the shut button, never again over the reason", async () => {
     const view = developer().view();
     await renderWithView(<ActivityPicker only={[ADVISER, FRIEND]} />, view);
-    const cards = [...document.querySelectorAll<HTMLElement>("[data-activity-picker] > li")];
-    const adviser = cards[0]!.textContent ?? "";
+    fireEvent.click(document.querySelector(`[data-act-row="${ADVISER}"]`)!);
+    const adviser = document.querySelector(`[data-act-row="${ADVISER}"]`)?.closest("li")?.textContent ?? "";
     expect(say("ui.req.any-route")).toBe("Hear of a way out first");
     expect(count(adviser, say("ui.req.any-route"))).toBe(1);
-    for (const card of cards) expect(count(card.textContent ?? "", say("ui.needs.not-yet"))).toBe(1);
+    expect(count(document.querySelector("[data-activity-picker]")?.textContent ?? "", say("ui.needs.not-yet"))).toBe(1);
   });
 });

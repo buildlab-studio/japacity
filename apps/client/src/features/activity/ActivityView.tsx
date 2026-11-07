@@ -4,15 +4,15 @@
 import { content } from "@japacity/content";
 import type { ActivityOption, Currency, PlayerView, SlotPick } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
-import { Briefcase, Clock, Coins, Lock, Plus, Receipt, X } from "lucide-react";
+import { Briefcase, Coins, Lock, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/view/person";
 import { actOnCard, answersNow, buttonOf, pickable } from "../../shared/words/acts";
-import { chipEffectsLine, chipTimeOf, freeShown } from "../../shared/words/chips";
-import { courseParts, courseWords, heldBackWords, studyDoesWords, studyPaysWords } from "../../shared/words/study";
+import { freeShown } from "../../shared/words/chips";
+import { heldBackWords } from "../../shared/words/study";
 import { Balance, pricedLabel } from "../../shared/world/Balance";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
@@ -24,14 +24,12 @@ import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/engl
 import { studyWords } from "./study";
 import { PressButton } from "../../shared/ui/look/PressButton";
 import { Tile } from "../../shared/tiles/Tile";
-import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
+import { hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payLine } from "../../shared/words/pay";
 import { localCurrency } from "../../shared/words/wayHome";
 import { withNextTier } from "../../shared/words/profile";
-import { CountsChip } from "../../shared/ui/CountsChip";
-import { pickerRows } from "../../shared/ui/Facts";
-import { StateTag } from "../../shared/ui/StateTag";
-import { flavourOf } from "../../shared/words/facts";
+import { ChangesAndNeeds, Facts } from "../../shared/ui/Facts";
+import { actFacts, missingNeeds } from "../../shared/words/facts";
 import { ApplyFor, firstJob, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 
@@ -304,13 +302,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const [param, setParam] = useState<string>("");
   const name = nameOf(option.id);
   const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
-  const blurb = blurbOf(option.id);
-  // Chips earn their place (docs/design/09-the-games-look.md section 2): the time only past a morning, at most two effects, Free only on a meal.
-  const time = chipTimeOf(option.id, option.halfDays);
-  // quality:skill-bands-slow-gains: a tech study says its gain at the band the character is in.
-  const does = studyDoesWords(view, option.id) ?? chipEffectsLine(option.id);
-  const course = courseWords(option.id);
-  const pays = studyPaysWords(option.id);
+  // world:one-action-one-sheet, text:show-then-tell: the act's line is content's own words; its facts chips, its changes tags, its needs marks.
+  const parts = actFacts(view, option);
   // turn:free-slots-per-month: an activity that fills no slot can be planned however full the month is.
   // activity:now-acts-and-month-acts: an act done at once fills no slot either, so a full month never shuts it.
   const now = answersNow(option.id);
@@ -352,51 +345,17 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           </span>
           <div className="min-w-0 flex-1">
             <h3 className="text-[17px] leading-tight font-bold">{name}</h3>
-            {blurb === null ? null : <p className="mt-0.5 text-[14px] leading-snug text-text-2">{blurb}</p>}
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-              {option.cost.length === 0 ? (
-                freeShown(option.id) ? (
-                  <span className="sticker-chip bg-tint-money" style={{ rotate: "-2deg", color: "var(--money-ink)" }}>
-                    {say("ui.activity.free")}
-                  </span>
-                ) : null
-              ) : (
-                <span className={`sticker-chip num ${option.affordable ? "bg-[var(--soft)]" : "bg-sheet-2"}`} style={{ rotate: "-2deg", ...(option.affordable ? {} : { color: "var(--out)" }) }}>
-                  {say("ui.activity.cost", {
-                    amount: option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + "),
-                  })}
-                </span>
-              )}
-              {/* activity:now-acts-spend-half-days: an act done at once says the time it takes in words, never a number of days. */}
-              {time === null ? null : (
-                <span className="sticker-chip bg-tint-study" style={{ rotate: "1.5deg" }} data-time>
-                  {time}
-                </span>
-              )}
-              {does === null ? null : (
-                <span className="sticker-chip bg-tint-body chip-wrap" style={{ rotate: "-1deg" }} data-does>
-                  {does}
-                </span>
-              )}
-              {/* activity:waiting-months-build-profile: what the act counts toward, a chip beside its figures. */}
-              <CountsChip id={option.id} />
+            {parts.line === null ? null : <p className="mt-0.5 text-[14px] leading-snug text-text-2">{parts.line}</p>}
+            <div className="mt-1.5 flex flex-col gap-1.5">
+              <PriceChip option={option} />
+              <Facts facts={parts.facts} />
+              <ChangesAndNeeds changes={parts.changes} needs={parts.needs.filter((need) => need.id !== "held")} />
             </div>
           </div>
         </div>
-        {/* activity:paid-tech-courses: a course's months and what it ends with, and its cost where nothing is paid now. */}
-        {course === null ? null : (
-          <p className="text-sm" data-course>
-            {course}
-          </p>
-        )}
-        {pays === null ? null : (
-          <p className="text-sm font-medium" data-course-pays>
-            {pays}
-          </p>
-        )}
+        {/* world:one-action-one-sheet: on a long shot the English test's card says to study first, and how long. */}
         {chance === null ? null : (
           <div className="flex flex-col gap-1 text-sm" data-test-chance={chance.band}>
-            <p className="font-medium">{chance.words}</p>
             {chance.study === null ? null : <p className="text-text-2">{studyWords(view)}</p>}
           </div>
         )}
@@ -497,108 +456,123 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   );
 }
 
-/**
- * One act of a picker as a row (world:one-action-one-sheet, text:show-then-tell): its picture, its name and its facts as chips,
- * its price, its time past a morning, what it gives as tags, where it counts, and a mark for a study taught out or held back. The
- * row picked is ringed and shows its one line and what it still needs; the others stay short.
- */
-function ActRow({ option, picked, onPick }: { option: ActivityOption; picked: boolean; onPick: (id: string) => void }) {
-  const view = useView();
-  const time = chipTimeOf(option.id, option.halfDays);
-  // quality:skill-bands-slow-gains: a study taught out at the band held is a mark, not a gain.
-  const study = studyDoesWords(view, option.id);
-  const taught = study !== null && study === say("ui.act.does.taught");
-  const does = taught ? null : (study ?? chipEffectsLine(option.id));
-  const held = heldBackWords(option);
-  const flavour = flavourOf(option.id);
-  const missing = option.missing.filter((requirement) => !alreadyDone(requirement, { routes: view.routes }));
-  // activity:paid-tech-courses: a course's months as a time chip and what it ends with as a tag; a bill over months as its own chip.
-  const course = courseParts(option.id);
-  const bill = studyPaysWords(option.id);
-  // world:one-action-one-sheet: the English test says its chance before the fee is paid.
-  const chance = option.id === ENGLISH_TEST ? testChance(view) : null;
+/** An act's price as a chip with a coin, short in the warning ink when it cannot be paid; "Free" only on a meal (docs/design/09-the-games-look.md section 2). */
+function PriceChip({ option }: { option: ActivityOption }) {
+  if (option.cost.length === 0) {
+    return freeShown(option.id) ? (
+      <span className="sticker-chip self-start bg-tint-money" style={{ rotate: "-2deg", color: "var(--money-ink)" }} data-cost="free">
+        {say("ui.activity.free")}
+      </span>
+    ) : null;
+  }
+  const price = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
+  // The coin and the figure on the chip; a screen reader hears what the figure is, "Costs ₦3,000".
+  const said = say("ui.activity.cost", { amount: price });
   return (
-    <li>
+    <span role="img" aria-label={said} title={said} className={`sticker-chip num self-start ${option.affordable ? "bg-[var(--soft)]" : "bg-sheet-2"}`} style={{ rotate: "-2deg", ...(option.affordable ? {} : { color: "var(--out)" }) }} data-cost>
+      <Coins size={13} aria-hidden strokeWidth={2.4} />
+      <span aria-hidden>{price}</span>
+    </span>
+  );
+}
+
+/** The choice inside an act a row was picked for: a route from the list, a university from the select (world:one-action-one-sheet). */
+function InnerChoice({ option, chosen, onPick }: { option: ActivityOption; chosen: string; onPick: (param: string) => void }) {
+  const view = useView();
+  const kind = content.activity[option.id]?.param;
+  if (option.params === null) return null;
+  if (option.params.length === 0) {
+    if (!option.allowed && option.missing.length > 0) return null;
+    if (kind === "school") {
+      return (
+        <div className="text-sm" data-act-choice>
+          <p className="font-medium">{say("ui.activity.no-school")}</p>
+          <ul className="list-disc pl-5">
+            {noSchoolReasons(view).map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    return <p className="text-sm text-text-2" data-act-choice>{say(kind === "route" || kind === "known-route" ? "ui.activity.no-route" : "ui.activity.nothing-to-pick")}</p>;
+  }
+  if (!option.allowed) return null;
+  if (kind === "route" || kind === "known-route") return <RouteList view={view} routes={option.params} chosen={chosen} onPick={onPick} label={`routes-${option.id}`} />;
+  const selectId = `param-${option.id}`;
+  return (
+    <label htmlFor={selectId} className="flex flex-col gap-1 text-sm" data-act-choice>
+      <span className="font-medium">{say("ui.activity.pick")}</span>
+      <select id={selectId} value={chosen} onChange={(event) => onPick(event.target.value)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3">
+        {option.params.map((value) => (
+          <option key={value} value={value}>
+            {paramWords(value)}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+/**
+ * One act of a picker as a row (world:one-action-one-sheet, text:show-then-tell): its picture, its name, its price and its facts as chips,
+ * what it changes as tags and why it waits as a mark. The row picked is ringed and alone shows its one line, what it still needs and any
+ * choice inside it; the others stay short.
+ */
+function ActRow({ option, picked, chosen, onPick, onChoose }: { option: ActivityOption; picked: boolean; chosen: string; onPick: (id: string) => void; onChoose: (param: string) => void }) {
+  const view = useView();
+  const parts = actFacts(view, option);
+  const missing = missingNeeds(option.missing, view, (requirement) => alreadyDone(requirement, { routes: view.routes }));
+  // world:one-action-one-sheet: on a long shot the English test says to study first, and how long.
+  const study = option.id === ENGLISH_TEST ? studyWords(view) : null;
+  return (
+    <li className="flex flex-col gap-2">
       <button type="button" role="radio" aria-checked={picked} onClick={() => onPick(option.id)} className="press block w-full text-left" data-act-row={option.id} data-picked={picked ? "true" : undefined}>
-        <span className={`look-card flex items-start gap-3 p-2.5 ${picked ? "phone-picked" : ""} ${option.allowed ? "" : "opacity-80"}`}>
+        <span className={`look-card flex items-start gap-3 p-2.5 ${picked ? "phone-picked" : ""} ${option.allowed ? "" : "opacity-80"}`} data-act-card={option.id}>
           <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-tint-study" aria-hidden>
             <span className="sticker-cut" style={{ rotate: "-5deg" }}>
               <Tile of={option.id} size={34} />
             </span>
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <span className="text-[16px] leading-tight font-bold">{nameOf(option.id)}</span>
-            {picked && flavour !== null ? <span className="text-[14px] leading-snug text-text-2" data-act-line>{flavour}</span> : null}
-            <span className="flex flex-wrap items-center gap-1.5">
-              {option.cost.length === 0 ? (
-                freeShown(option.id) ? (
-                  <span className="sticker-chip bg-tint-money" style={{ rotate: "-2deg", color: "var(--money-ink)" }}>
-                    {say("ui.activity.free")}
-                  </span>
-                ) : null
-              ) : (
-                <span className={`sticker-chip num ${option.affordable ? "bg-[var(--soft)]" : "bg-sheet-2"}`} style={{ rotate: "-2deg", ...(option.affordable ? {} : { color: "var(--out)" }) }} data-cost>
-                  <Coins size={13} aria-hidden strokeWidth={2.4} />
-                  {option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ")}
-                </span>
-              )}
-              {time === null ? null : (
-                <span className="sticker-chip bg-tint-study" style={{ rotate: "1.5deg" }} data-time>
-                  <Clock size={13} aria-hidden strokeWidth={2.4} />
-                  {time}
-                </span>
-              )}
-              {does === null ? null : (
-                <span className="sticker-chip bg-tint-body chip-wrap" style={{ rotate: "-1deg" }} data-does>
-                  {does}
-                </span>
-              )}
-              {course === null ? null : (
-                <span className="sticker-chip bg-tint-study" style={{ rotate: "1deg" }} data-course>
-                  <Clock size={13} aria-hidden strokeWidth={2.4} />
-                  {course.months}
-                </span>
-              )}
-              {course === null || course.gains.length === 0 ? null : (
-                <span className="sticker-chip bg-tint-body chip-wrap" style={{ rotate: "-1deg" }}>
-                  {course.gains.join(", ")}
-                </span>
-              )}
-              {bill === null ? null : (
-                <span className="sticker-chip chip-wrap bg-[var(--soft)]" style={{ rotate: "1deg" }} data-course-pays>
-                  <Receipt size={13} aria-hidden strokeWidth={2.4} />
-                  {bill}
-                </span>
-              )}
-              <CountsChip id={option.id} />
-              {taught ? <StateTag state="setback" id="taught">{say("ui.fact.taught")}</StateTag> : null}
-              {held === null ? null : <StateTag state="waiting" id="held">{held}</StateTag>}
+            <span className="text-[16px] leading-tight font-bold" data-act-name>
+              {nameOf(option.id)}
             </span>
-            {picked && chance !== null ? (
-              <span className="flex flex-col gap-0.5 text-[14px]" data-test-chance={chance.band}>
-                <span className="font-semibold">{chance.words}</span>
-                {chance.study === null ? null : <span className="text-text-2">{studyWords(view)}</span>}
+            {picked && parts.line !== null ? (
+              <span className="text-[14px] leading-snug text-text-2" data-act-line>
+                {parts.line}
               </span>
             ) : null}
-            {picked && missing.length > 0 ? (
-              <span className="flex flex-wrap gap-1.5" data-act-needs>
-                {missing.map((requirement, index) => (
-                  <StateTag key={index} state="failed">
-                    {requirementSentence(requirement, { routes: view.routes })}
-                  </StateTag>
-                ))}
+            <span className="flex flex-wrap items-center gap-2">
+              <PriceChip option={option} />
+            </span>
+            <Facts facts={parts.facts} />
+            <ChangesAndNeeds changes={parts.changes} needs={[...parts.needs, ...(picked ? missing : [])]} />
+            {picked && study !== null ? (
+              <span className="text-[14px] text-text-2" data-test-study>
+                {study}
               </span>
             ) : null}
           </span>
         </span>
       </button>
+      {picked ? <InnerChoice option={option} chosen={chosen} onPick={onChoose} /> : null}
     </li>
   );
 }
 
+/** The param a row's act is done with: the one picked inside it, else the only one there is; a route is never picked for the player. */
+function paramFor(option: ActivityOption, picked: string): string | null {
+  if (option.params === null) return null;
+  if (option.params.includes(picked)) return picked;
+  const kind = content.activity[option.id]?.param;
+  if ((kind === "route" || kind === "known-route") && option.params.length > 1) return null;
+  return option.params[0] ?? null;
+}
+
 /**
- * A picker of several acts as rows (world:one-action-one-sheet): a tap picks a row, and one button in the foot does the act
- * picked, with its price and, under it, the balance before and after; nothing moves until that tap.
+ * A picker of several acts as rows (world:one-action-one-sheet): a tap picks a row, and one button in the foot does the act picked, with
+ * its price and, under it, the balance before and after; nothing moves until that tap.
  */
 function ActivityRows({ options }: { options: readonly ActivityOption[] }) {
   const view = useView();
@@ -607,22 +581,35 @@ function ActivityRows({ options }: { options: readonly ActivityOption[] }) {
   const send = useGame((state) => state.send);
   const first = options.find((option) => option.allowed && option.spent !== true) ?? options[0];
   const [pickedId, setPicked] = useState<string | null>(null);
+  const [inner, setInner] = useState<string>("");
   const option = options.find((candidate) => candidate.id === pickedId) ?? first;
   if (option === undefined) return null;
+  const param = paramFor(option, inner);
+  const unpicked = option.params !== null && param === null;
   const now = answersNow(option.id);
   const full = !now && content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const planned = plannedCosts(view, plan);
   const paying = option.cost.length === 0 ? null : afterPaying(view, planned, option.cost);
-  const already = plannedShut(plan, { activity: option.id, param: null });
-  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !view.ended && !already;
-  const line = buttonLine(option, paying, view, already);
+  const already = plannedShut(plan, { activity: option.id, param });
+  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !view.ended && !already && !unpicked;
+  const line = unpicked && option.allowed && (option.params?.length ?? 0) > 0 ? { words: say("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
   const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const costWords = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   return (
     <div className="flex flex-col gap-3" data-activity-picker data-picker="rows">
       <ul role="radiogroup" aria-label={say("ui.activity.title")} className="flex flex-col gap-2">
         {options.map((candidate) => (
-          <ActRow key={candidate.id} option={candidate} picked={candidate.id === option.id} onPick={setPicked} />
+          <ActRow
+            key={candidate.id}
+            option={candidate}
+            picked={candidate.id === option.id}
+            chosen={param ?? ""}
+            onPick={(id) => {
+              setPicked(id);
+              setInner("");
+            }}
+            onChoose={setInner}
+          />
         ))}
       </ul>
       {cannotPay ? <p className="text-sm text-bad">{cannotPayWords(view, option, planned, paying)}</p> : null}
@@ -633,10 +620,11 @@ function ActivityRows({ options }: { options: readonly ActivityOption[] }) {
             {say("ui.act.spent")}
           </p>
         ) : (
+          // The one yellow action: the picked act's verb and its price, its name for a screen reader its visible words (world:one-action-one-sheet).
           <PressButton
             disabled={!canAdd}
             data-act-main={option.id}
-            onClick={() => void actOnCard({ activity: option.id, param: null }, { send, addToPlan })}
+            onClick={() => void actOnCard({ activity: option.id, param }, { send, addToPlan })}
             className="w-full px-4 py-2 text-center text-[16px] leading-tight"
           >
             {already ? say("ui.activity.planned") : full && option.allowed ? say("ui.activity.full") : option.cost.length === 0 ? buttonOf(option.id) : pricedLabel(buttonOf(option.id), costWords)}
@@ -713,8 +701,8 @@ export function ActivityPicker({ only }: { only: readonly string[] }) {
   const options = pickable(view.activities)
     .filter((option) => shown.includes(option.id))
     .sort((a, b) => shown.indexOf(a.id) - shown.indexOf(b.id));
-  // Several acts with nothing to choose inside them are rows with one button; an act with a choice inside it keeps its card.
-  if (pickerRows() && options.length > 1 && options.every((option) => option.params === null)) return <ActivityRows options={options} />;
+  // world:one-action-one-sheet: several acts are rows with one button in the foot; a job to hunt keeps its list of jobs, and one act alone its card.
+  if (options.length > 1 && options.every((option) => content.activity[option.id]?.param !== "job")) return <ActivityRows options={options} />;
   return (
     <ul className="grid gap-3" data-activity-picker>
       {options.map((option) => (

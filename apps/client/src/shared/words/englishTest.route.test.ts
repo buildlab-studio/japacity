@@ -33,7 +33,7 @@ describe("one band for the route", () => {
     const view = game.view();
     expect(view.plan.route).toBe(CARE);
     expect(bandNeeded(view)).toBe(routeBand(CARE));
-    expect(testChance(view).words.startsWith(`Band ${formatBand(routeBand(CARE)!)} this sitting:`)).toBe(true);
+    expect(testChance(view).words.startsWith(`Band ${formatBand(routeBand(CARE)!)}: `)).toBe(true);
     const issued = (band: number): ReportLine => ({ key: "line.document.issued-band", params: { document: PAPER, band }, tone: "good", attention: true, counts: [] });
     // A 5.5 meets care's 5.5: told on the results and in News as meeting it; a 5.0 is short of it.
     const [met] = tidyLines([issued(55)]);

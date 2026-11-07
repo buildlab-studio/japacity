@@ -204,7 +204,7 @@ describe("a spent body", () => {
   });
 
   test("[activity:spent-body-refuses-acts] given an act's card whose body is spent, when it opens, then You are spent. Sleep. stands where its button was and there is no main button", () => {
-    const ask: Ask = { form: "card", icon: "hand", who: "The family house", title: "Nap", line: "Twenty minutes.", cost: null, button: "Nap", when: "now", time: "A morning", spent: say("ui.act.spent"), act: () => undefined, dismiss: () => undefined };
+    const ask: Ask = { form: "card", icon: "hand", who: "The family house", title: "Nap", line: "Twenty minutes.", cost: null, button: "Nap", when: "now", chips: [{ kind: "time", words: "A day" }], spent: say("ui.act.spent"), act: () => undefined, dismiss: () => undefined };
     render(<AskSheet ask={ask} formatMoney={(amount) => String(amount)} />);
     expect(found("[data-ask-spent]").textContent).toBe("You are spent. Sleep.");
     expect(document.querySelector("[data-ask-main]")).toBeNull();

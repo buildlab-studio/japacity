@@ -1,7 +1,7 @@
 // The price and the balance on every priced act (world:one-action-one-sheet; decision 0013): the button says the
 // act and its price ("Indomie and egg · ₦1,500"); under it the balance before stands struck beside the balance after,
 // from the view's pockets and the act's cost; nothing moves until the tap; short, the button says how much instead. The
-// time in words stays beside it, and what the act does, in words, on one line.
+// act's facts stand as chips above it, and what it changes as tags with their arrows (text:show-then-tell).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render } from "@testing-library/react";
@@ -11,7 +11,7 @@ import { ActivityPicker } from "../features/activity/ActivityView";
 import { RideSheet } from "../features/map/RideSheet";
 import { engineView } from "../shared/testing/fixtures";
 import { found, renderWithView } from "../shared/testing/render";
-import { effectWordsOf, timeWordsOf } from "../shared/words/acts";
+import { effectTagsOf, timeWordsOf } from "../shared/words/acts";
 import { formatMoney } from "../shared/words/format";
 import { nameOf, say } from "../shared/words/text";
 import { AskSheet } from "../shared/world/AskSheet";
@@ -30,11 +30,11 @@ function holding(cash: number, bank: number): PlayerView {
 }
 
 function meal(act: () => void = () => undefined): Ask {
-  return { form: "card", icon: "hand", who: "The family house", title: nameOf(COOK), line: "Indomie and egg.", cost: { amount: MEAL, currency: "NGN" }, button: nameOf(COOK), when: "now", time: "A morning", does: "Fills you, lifts you", priced: true, act, dismiss: () => undefined };
+  return { form: "card", icon: "hand", who: "The family house", title: nameOf(COOK), line: "Indomie and egg.", cost: { amount: MEAL, currency: "NGN" }, button: nameOf(COOK), when: "now", chips: [{ kind: "time", words: "A day" }], changes: effectTagsOf(COOK), priced: true, act, dismiss: () => undefined };
 }
 
 describe("the price and the balance", () => {
-  test("[world:one-action-one-sheet] given ₦48,500 in hand and the meal's card, when it opens, then the button says Indomie and egg · ₦1,500, and under it ₦48,500 struck beside ₦47,000; nothing moves until the tap", async () => {
+  test("[world:one-action-one-sheet] [text:show-then-tell] given ₦48,500 in hand and the meal's card, when it opens, then the button says Indomie and egg · ₦1,500, and under it ₦48,500 struck beside ₦47,000; its time is a chip and what it does tags with arrows, never a Takes or Does row; nothing moves until the tap", async () => {
     expect(content.activity[COOK]?.cost[0]?.amount).toBe(MEAL);
     const act = vi.fn();
     const { store } = await renderWithView(<AskSheet ask={meal(act)} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} />, holding(4_850_000, 0));
@@ -46,10 +46,14 @@ describe("the price and the balance", () => {
     expect(before.tagName).toBe("S");
     expect([before.textContent, before.getAttribute("data-balance-before")]).toEqual(["₦48,500", "4850000"]);
     expect([after.textContent, after.getAttribute("data-balance-after")]).toEqual(["₦47,000", "4700000"]);
-    // The price is on the button, so no second row says it again; the time and what it does stand above.
+    // The price is on the button, so no second row says it again; the time is a chip and what it does tags, above.
     expect(document.querySelector("[data-ask-form]")?.textContent).not.toContain(say("ui.world.costs"));
-    expect(found("[data-ask-time]").textContent).toBe(`${say("ui.world.takes")}A morning`);
-    expect(found("[data-ask-does]").textContent).toBe(`${say("ui.world.does")}Fills you, lifts you`);
+    expect(found('[data-ask-chips] [data-fact="time"]').textContent).toBe("A day");
+    expect([...document.querySelectorAll("[data-ask-changes] [data-change]")].map((tag) => [tag.getAttribute("data-change"), tag.textContent])).toEqual([
+      ["up", "Fills you"],
+      ["up", "Lifts you"],
+    ]);
+    expect(document.querySelector("[data-ask-time], [data-ask-does]")).toBeNull();
     expect(store.getState().view?.pockets.NGN.cash).toBe(4_850_000);
     fireEvent.click(main);
     expect(act).toHaveBeenCalledTimes(1);
@@ -78,9 +82,9 @@ describe("the price and the balance", () => {
     expect(card.querySelector("button")?.textContent).not.toMatch(/left/);
     expect(card.querySelector("[data-balance-before]")?.textContent).toBe("₦48,500");
     expect(card.querySelector("[data-balance-after]")?.textContent).toBe("₦47,000");
-    expect(card.querySelector("[data-does]")?.textContent).toBe("Fills you, lifts you");
+    expect([...card.querySelectorAll("[data-change]")].map((tag) => tag.textContent)).toEqual(["Fills you", "Lifts you"]);
     // Chips earn their place (docs/design/09-the-games-look.md section 2): a morning is no chip; past a morning the time shows.
-    expect(card.querySelector("[data-time]")).toBeNull();
+    expect(card.querySelector('[data-fact="time"]')).toBeNull();
   });
 
   test("[world:one-action-one-sheet] given a stop picked on the map, when the ride sheet shows, then the button says the ride and its fare, and the balance before is struck beside the balance after; short, it says how much", () => {
@@ -96,13 +100,16 @@ describe("the price and the balance", () => {
     expect(document.querySelector("[data-balance]")).toBeNull();
   });
 
-  test("[world:one-action-one-sheet] [quality:body-belly-and-energy] given the room's acts, when what each does is said, then the belly fills, the energy rests, wellbeing lifts and a skill has its figure, short, on one line, and the body never a number", () => {
-    expect(effectWordsOf(COOK)).toBe("Fills you, lifts you");
-    expect(effectWordsOf("activity.nap")).toBe("Rests you, lifts you");
-    expect(effectWordsOf("activity.study-english")).toBe("+2 English");
-    expect(effectWordsOf("activity.family-time")).toBe("Lifts you");
-    expect(effectWordsOf("activity.fetch-water")).toBeNull();
-    for (const id of [COOK, "activity.nap", "activity.cook-jollof", "activity.bucket-bath"]) expect(effectWordsOf(id) ?? "").not.toMatch(/\d/);
+  test("[world:one-action-one-sheet] [quality:body-belly-and-energy] [text:show-then-tell] given the room's acts, when what each does is said, then the belly fills, the energy rests, wellbeing lifts and a skill has its figure, each a tag with an up arrow; a cost to the body or the mood is a tag with a down arrow; the body never a number", () => {
+    const up = (words: string) => ({ tone: "up", words });
+    const down = (words: string) => ({ tone: "down", words });
+    expect(effectTagsOf(COOK)).toEqual([up("Fills you"), up("Lifts you")]);
+    expect(effectTagsOf("activity.nap")).toEqual([up("Rests you"), up("Lifts you")]);
+    expect(effectTagsOf("activity.study-english")).toEqual([up("+2 English"), down(say("ui.act.does.tires"))]);
+    expect(effectTagsOf("activity.family-time")).toEqual([up("Lifts you")]);
+    expect(effectTagsOf("activity.fetch-water")).toEqual([down("Tires you")]);
+    expect(effectTagsOf("activity.job-nurse")).toContainEqual(down("Wears you"));
+    for (const id of [COOK, "activity.nap", "activity.cook-jollof", "activity.bucket-bath", "activity.fetch-water", "activity.night-out"]) for (const tag of effectTagsOf(id)) expect(tag.words).not.toMatch(/\d/);
   });
 
   test("[activity:now-acts-spend-half-days] [activity:spent-body-refuses-acts] given gist, which takes no time, when its time is said, then it says none; a morning's act says a morning", () => {

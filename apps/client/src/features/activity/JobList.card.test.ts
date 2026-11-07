@@ -1,14 +1,16 @@
 // The racks' card (activity:fish-racks-at-makoko, world:one-action-one-sheet): "Work the racks"
 // never opens with the hunt's own words, "You send applications and follow up on every lead", or "Likely" at the
 // bar every hunt stops at. A job named on its card speaks in its own words where content has them (`<job>.card`,
-// else the job's blurb), and the chance at the bar is said as it is: as good as certain. Real content, the child of the
-// water played from the front door.
+// else the job's blurb), its pay and its chance as chips beside them (text:show-then-tell), and the chance at the bar is said
+// as it is: as good as certain. Real content, the child of the water played from the front door.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/front-door/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
-import { chanceOf, huntBand, jobCardLine } from "../../shared/words/jobs";
+import { factWords } from "../../shared/ui/Facts";
+import { jobFacts } from "../../shared/words/facts";
+import { chanceOf, huntBand } from "../../shared/words/jobs";
 import { say } from "../../shared/words/text";
 
 const RACKS = "activity.job-fish-racks";
@@ -32,8 +34,8 @@ describe("the racks' card", () => {
   test("[activity:fish-racks-at-makoko] [world:one-action-one-sheet] given the child of the water at the racks, when the hunt's card names the racks, then it speaks in the racks' own words, never the hunt's applications", () => {
     const view = play("water", "racks-nudge-0").view();
     expect(view.activities.find((option) => option.id === HUNT)?.params).toContain(RACKS);
-    const line = jobCardLine(view, HUNT, RACKS);
-    expect(line).toContain(text[`${RACKS}.card`] ?? text[`${RACKS}.blurb`] ?? "no words");
+    const { line } = jobFacts(view, HUNT, RACKS);
+    expect(line).toBe(text[`${RACKS}.card`] ?? text[`${RACKS}.blurb`] ?? "no words");
     expect(line).not.toContain(text[`${HUNT}.blurb`]);
   });
 
@@ -44,16 +46,24 @@ describe("the racks' card", () => {
     expect(huntBand(bar)).toBe("certain");
     expect(huntBand(bar - 1)).toBe("likely");
     expect(say("jobs.chance.certain")).toBe("As good as certain");
-    expect(jobCardLine(view, HUNT, RACKS)).toContain("As good as certain");
-    expect(jobCardLine(view, HUNT, RACKS)).not.toContain(say("jobs.chance.likely"));
+    const chance = jobFacts(view, HUNT, RACKS).facts.find((fact) => fact.kind === "chance");
+    expect(chance === undefined ? null : factWords(chance)).toBe("As good as certain");
   });
 
-  test("[world:one-action-one-sheet] given every main job on the real content, when a card names it, then its words are its own where content has them, else the hunt's", () => {
+  test("[world:one-action-one-sheet] [text:show-then-tell] given every main job on the real content, when a card names it, then its line is its own words where content has them, else the hunt's, and never says the pay or the chance its chips say", () => {
     const view = play("water", "racks-nudge-0").view();
     for (const entry of Object.values(content.activity)) {
       if (entry === undefined || entry.slot !== "main" || entry.hireBp === null) continue;
       const own = text[`${entry.id}.card`] ?? text[`${entry.id}.blurb`] ?? text[`${HUNT}.blurb`];
-      expect(jobCardLine(view, HUNT, entry.id).startsWith(own!)).toBe(true);
+      const { line, facts } = jobFacts(view, HUNT, entry.id);
+      expect(line).toBe(own);
+      for (const fact of facts) expect(line ?? "").not.toContain(factWords(fact));
     }
+  });
+
+  test("[world:one-action-one-sheet] [text:show-then-tell] given the racks' card, when its facts are read, then they stand in their one order: the pay, the chance, then when it pays", () => {
+    const view = play("water", "racks-nudge-0").view();
+    expect(jobFacts(view, HUNT, RACKS).facts.map((fact) => fact.kind)).toEqual(["pay", "chance", "when"]);
+    expect(factWords(jobFacts(view, HUNT, RACKS).facts[2]!)).toBe(text[`${RACKS}.when`]);
   });
 });

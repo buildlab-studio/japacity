@@ -9,7 +9,8 @@ import { renderWithView } from "../../../shared/testing/render";
 import { formatBand } from "../../../shared/words/format";
 import { tidyLines } from "../../../shared/words/lines";
 import { bandNeeded, bandResultLine, routeBand } from "../../../shared/words/englishTest";
-import { blurbOf, inMonths, say, words } from "../../../shared/words/text";
+import { actFacts } from "../../../shared/words/facts";
+import { blurbOf, inMonths, nameOf, say, words } from "../../../shared/words/text";
 import { City } from "../City";
 import { nudgeOf } from "./nudge";
 
@@ -95,8 +96,10 @@ describe("the English result told", () => {
     expect(plain).toContain(`Band ${formatBand(needed + 5)}.`);
   });
 
-  test("[world:one-action-one-sheet] given the study card, when its line is read, then it says a month of study lifts the chance at the test", () => {
-    expect(blurbOf("activity.study-english")).toContain("A month of study lifts your chance at the test.");
-    expect(richView()).toBeTruthy();
+  test("[world:one-action-one-sheet] [text:show-then-tell] given the study card, when it is read, then a tag with an up arrow says what a month of study adds to English, and its line never says it again", () => {
+    const { line, changes } = actFacts(richView(), { id: "activity.study-english" });
+    expect(changes[0]).toEqual({ tone: "up", words: `+2 ${nameOf("quality.english")}` });
+    expect(line).toBe(blurbOf("activity.study-english"));
+    expect(line).not.toMatch(/lifts|English/);
   });
 });

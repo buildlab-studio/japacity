@@ -1,31 +1,18 @@
-// An act's facts in one of two looks (text:show-then-tell). Chips: tilted sticker pills in a row that wraps, each an icon and
-// a few words. Rows: each fact a short line with its icon on a soft square at the left, one under another. Both read the
-// same typed facts in the same order, and both take the night's paint from the role tokens alone.
+// An act's facts (text:show-then-tell): tilted sticker pills in a row that wraps, each an icon and a few words, in their one order.
+// Where a chip cannot carry a fact (a long fact, the dense lines inside a card that lists several things) the same facts stand as
+// rows, each a short line with its icon on a soft square at the left. Beside them, what the act changes as arrow tags and what it
+// needs as marks. All take the night's paint from the role tokens alone.
 import { ArrowLeftRight, CalendarDays, Clock, Coins, PlaneTakeoff, Receipt, Tag, TriangleAlert } from "lucide-react";
 import type { ComponentType } from "react";
 
-import { pageSearch } from "../world/dayClock";
-import { type Fact, ordered } from "../words/facts";
+import { type Change, type Fact, type Need, ordered } from "../words/facts";
 import { countsRoutes, countsWords } from "../words/profile";
 import { say } from "../words/text";
 import { chanceTint, Gauge } from "./ChanceGauge";
+import { StateTag } from "./StateTag";
+import { ToneTag } from "./ToneTag";
 
 export type FactsLook = "chips" | "rows";
-
-/** The look a development build was asked for (`?facts=rows`); the chips otherwise, and always in a build for players. */
-export function factsLook(search: string = pageSearch(), dev: boolean = import.meta.env.DEV): FactsLook {
-  if (!import.meta.env.DEV || !dev) return "chips";
-  return new URLSearchParams(search).get("facts") === "rows" ? "rows" : "chips";
-}
-
-/**
- * Whether a development build was asked for a picker's acts as rows with one button (`?picker=rows`); the cards otherwise, and
- * always in a build for players.
- */
-export function pickerRows(search: string = pageSearch(), dev: boolean = import.meta.env.DEV): boolean {
-  if (!import.meta.env.DEV || !dev) return false;
-  return new URLSearchParams(search).get("picker") === "rows";
-}
 
 type Icon = ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean; strokeWidth?: number }>;
 
@@ -44,7 +31,7 @@ const ICONS: Readonly<Record<Exclude<Fact["kind"], "chance">, Icon>> = {
 export function factWords(fact: Fact): string {
   switch (fact.kind) {
     case "chance":
-      return say(`jobs.chance.${fact.band}`);
+      return fact.words ?? say(`jobs.chance.${fact.band}`);
     case "counts":
       return countsRoutes(fact.id) ?? "";
     case "pay":
@@ -95,6 +82,7 @@ function Chips({ facts }: { facts: readonly Fact[] }) {
             className={`sticker-chip chip-wrap text-[13px] ${tintOf(fact)} ${fact.kind === "pay" || fact.kind === "counts" ? "num" : ""}`}
             style={{ rotate: `${index % 2 === 0 ? -1.5 : 1.5}deg`, ...(fact.kind === "pay" || fact.kind === "counts" ? { color: "var(--money-ink)" } : {}) }}
             data-fact={fact.kind}
+            {...(fact.kind === "counts" ? { "data-counts": fact.id } : {})}
             {...(spoken === undefined ? {} : { role: "img", "aria-label": spoken, title: spoken })}
           >
             <FactIcon fact={fact} size={14} />
@@ -151,10 +139,31 @@ function Lines({ facts }: { facts: readonly Fact[] }) {
   );
 }
 
-/** The facts, in their one order, in the look asked for; `dense` draws rows as small lines. Nothing when there are none. */
-export function Facts({ facts, look = factsLook(), dense = false }: { facts: readonly Fact[]; look?: FactsLook; dense?: boolean }) {
+/** The facts, in their one order, as chips, or as rows where a chip cannot carry them; `dense` draws rows as small lines. Nothing when there are none. */
+export function Facts({ facts, look = "chips", dense = false }: { facts: readonly Fact[]; look?: FactsLook; dense?: boolean }) {
   const shown = ordered(facts).filter((fact) => factWords(fact) !== "");
   if (shown.length === 0) return null;
   if (look === "chips") return <Chips facts={shown} />;
   return dense ? <Lines facts={shown} /> : <Rows facts={shown} />;
+}
+
+/** What an act changes as arrow tags and what it needs as marks, in one row that wraps (text:show-then-tell). Nothing when there are none. */
+export function ChangesAndNeeds({ changes, needs }: { changes: readonly Change[]; needs: readonly Need[] }) {
+  if (changes.length === 0 && needs.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5" data-act-changes>
+      {changes.map((change) => (
+        <span key={`${change.tone}-${change.words}`} className="contents" data-change={change.tone}>
+          <ToneTag tone={change.tone} wrap>
+            {change.words}
+          </ToneTag>
+        </span>
+      ))}
+      {needs.map((need) => (
+        <StateTag key={need.id} state={need.state} id={need.id} wrap>
+          {need.words}
+        </StateTag>
+      ))}
+    </div>
+  );
 }

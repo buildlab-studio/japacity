@@ -21,21 +21,24 @@ function graduateWith(english: number, plan = true) {
 }
 
 describe("the sit-the-test sheet", () => {
-  test("[world:one-action-one-sheet] given the pool as the plan and the graduate's English a long shot from 6.0, when the test's sheet opens from the desk, then it says the chance and to study first, and the study act is on the same sheet after the test", async () => {
+  test("[world:one-action-one-sheet] [text:show-then-tell] given the pool as the plan and the graduate's English a long shot from 6.0, when the test's sheet opens from the desk, then it says the chance as a chip and to study first, and the study act is a row on the same sheet after the test", async () => {
     const view = graduateWith(40);
     expect(view.activities.find((option) => option.id === ENGLISH_TEST)?.allowed).toBe(true);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     const chance = testChance(view);
     expect(chance.band).toBe("long");
-    expect(screen.getByText(chance.words)).toBeDefined();
+    // text:show-then-tell: the chance is the test's chip, with its gauge.
+    expect(document.querySelector(`[data-act-row="${ENGLISH_TEST}"] [data-fact="chance"]`)?.textContent).toBe(chance.words);
     expect(screen.getByText("Study first: a month of study lifts the chance.")).toBeDefined();
-    expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([nameOf(ENGLISH_TEST), nameOf(STUDY_ENGLISH)]);
+    // world:one-action-one-sheet: two acts are rows, the test first and picked, the study after it.
+    expect([...document.querySelectorAll("[data-act-name]")].map((name) => name.textContent)).toEqual([nameOf(ENGLISH_TEST), nameOf(STUDY_ENGLISH)]);
+    expect(document.querySelector("[data-act-main]")?.getAttribute("data-act-main")).toBe(ENGLISH_TEST);
   });
 
   test("[world:one-action-one-sheet] given the pool as the plan and the graduate's English likely to reach 6.0, when the test's sheet opens, then it says so and holds the test alone", async () => {
     const view = graduateWith(75);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
-    expect(screen.getByText("Band 6.0 this sitting: likely.")).toBeDefined();
+    expect(document.querySelector('[data-fact="chance"]')?.textContent).toBe("Band 6.0: likely");
     expect(screen.queryByText("Study first: a month of study lifts the chance.")).toBeNull();
     expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([nameOf(ENGLISH_TEST)]);
   });
@@ -45,7 +48,7 @@ describe("the sit-the-test sheet", () => {
     expect(view.plan.route).toBeNull();
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     expect(screen.getByText(say("activity.sit-english-test.band-alone", { band: "5.0" }))).toBeDefined();
-    expect(screen.queryByText(/Band 6\.0 this sitting/)).toBeNull();
+    expect(screen.queryByText(/Band 6\.0/)).toBeNull();
     expect(screen.queryByText(/^Study first/)).toBeNull();
     expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([nameOf(ENGLISH_TEST)]);
   });
