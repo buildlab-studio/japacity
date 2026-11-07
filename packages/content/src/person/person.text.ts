@@ -98,17 +98,17 @@ export const personText: Record<string, string> = {
 
   // Where each partner is met and their home (world:nobody-picked-from-list, person.meet.data.ts). The
   // meeting line is what you see and hear when you first tap them.
-  "person.dele-banker.met": "After service, your mother brings him home for lunch. \"You sit by the choir every week, abi? I have seen you.\"",
+  "person.dele-banker.met": "After service, your mother brings him home for lunch. “You sit by the choir every week, abi? I have seen you.”",
   "person.dele-banker.home": "A flat off Bode Thomas, two floors up",
-  "person.hauwa-nurse.met": "A friend of the family, at the house after her night shift, still in her blue scrubs. \"Is there tea? Please say there is tea.\"",
+  "person.hauwa-nurse.met": "A friend of the family, at the house after her night shift, still in her blue scrubs. “Is there tea? Please say there is tea.”",
   "person.hauwa-nurse.home": "A room near the general hospital",
-  "person.kelechi-developer.met": "Home for December, he gives the meetup's talk on working abroad. After it he finds you. \"You asked the only good question.\"",
+  "person.kelechi-developer.met": "Home for December, he gives the meetup's talk on working abroad. After it he finds you. “You asked the only good question.”",
   "person.kelechi-developer.home": "His mother's house in Lagos, for December",
-  "person.ejiro-uk.met": "Home for December, she comes back from service with your aunty. \"You have been singing the wrong verse. Don't worry, so have I.\"",
+  "person.ejiro-uk.met": "Home for December, she comes back from service with your aunty. “You have been singing the wrong verse. Don't worry, so have I.”",
   "person.ejiro-uk.home": "The family house in Lagos, for December",
-  "person.uduak-canada.met": "At the meetup in December, home from Calgary with a laptop full of plans. \"Ask me anything about the winter. I will lie.\"",
+  "person.uduak-canada.met": "At the meetup in December, home from Calgary with a laptop full of plans. “Ask me anything about the winter. I will lie.”",
   "person.uduak-canada.home": "A sister's flat in Lagos, for December",
-  "person.tonye-dubai.met": "At the house in December, a friend of the family back from Dubai with gifts for everybody. \"Take. It is perfume. Everybody gets perfume.\"",
+  "person.tonye-dubai.met": "At the house in December, a friend of the family back from Dubai with gifts for everybody. “Take. It is perfume. Everybody gets perfume.”",
   "person.tonye-dubai.home": "His uncle's house in Lagos, for December",
 
   // Once courted (person:courting-opens-a-bond): their answer, in the voice of their

@@ -6,7 +6,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.salary": "Salary paid: {amount}.",
   "line.wallet.salary.label": "Salary",
   "line.wallet.gig": "Paid for side work: {amount}.",
-  "line.wallet.gift": "A gift landed: {amount}.",
+  "line.wallet.gift": "A gift arrived: {amount}.",
   "line.wallet.sale": "Sold. {amount} came in.",
   "line.wallet.loan": "The loan was paid out: {amount}.",
   "line.wallet.held-funds": "{amount} went into your account, locked. It counts when funds are shown. It cannot be spent.",

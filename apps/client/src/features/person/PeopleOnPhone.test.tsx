@@ -10,7 +10,8 @@ import { useView } from "../../authority/GameProvider";
 import { bondName, interviewName, personOf } from "../../shared/view/person";
 import { renderWithView } from "../../shared/testing/render";
 import { courted, eagerContent, FRIEND, interviewGame, linkedFriend, partnered, peopleGame, renderWithGame, DELE } from "../../shared/testing/person";
-import { formatBp, formatMoney } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
+import { chanceBand } from "../../shared/words/jobs";
 import { forMonths, inMonths, nameOf, say, sayCount } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";
 import { BondHead, PeopleSlots, togetherWords } from "./PeopleOnPhone";
@@ -298,12 +299,14 @@ describe("a bond's thread head", () => {
     expect(within(row(bond, "stage")).getByText(say("ui.people.stand-in.warned"))).toBeDefined();
   });
 
-  test("[person:gossip-when-two-timing] given a partner and someone else courted, then the courted head warns that people talk, at the tuning's chance", async () => {
+  test("[person:gossip-when-two-timing] [text:voice-by-surface] given a partner and someone else courted, then the courted head warns that people talk, at the tuning's chance said as a chance word, never a percentage", async () => {
     const game = peopleGame(eagerContent());
     partnered(game);
     const other = courted(game, "person.hauwa-nurse");
     await renderWithGame(offline(<Head id={other} />), game);
-    expect(within(row(other, "stage")).getByText(say("ui.people.gossip", { chance: formatBp(people.gossipBp) }))).toBeDefined();
+    const warning = within(row(other, "stage")).getByText(say("ui.people.gossip", { chance: say(`ui.people.gossip.${chanceBand(people.gossipBp)}`) }));
+    expect(warning.textContent).toBe("You have a partner and you are seeing someone else. People talk, now and then. If your partner hears, you lose standing, and they may leave.");
+    expect(warning.textContent).not.toMatch(/%|\d/);
   });
 
   test("[person:computer-partner-drifts] given a computer partner with no time together for a month short of its patience, then the head warns it will stop waiting; with time together it only states the rule", async () => {

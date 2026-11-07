@@ -113,7 +113,7 @@ const PINNED: Record<string, string> = {
   "line.interview.waiting": "Your answers are in. Now the officer hears your partner.",
   "news.era-strike.in-force.body": "No transcripts, no results, until it ends.",
   "offer.parcel-shipped.away": "Your parcel is at the cargo office on Bode Thomas Street.",
-  "offer.relative-sends.said.thank": "You call to thank her. The $500 lands with nothing to say where it came from, and a visa officer will ask. Ask her for a note saying it was a gift, or let it sit three months before you apply.",
+  "offer.relative-sends.said.thank": "You call to thank her. The $500 arrives with nothing to say where it came from, and a visa officer will ask. Ask her for a note saying it was a gift, or let it sit three months before you apply.",
   "line.people.wedding-december": "{who} said yes. The wedding is in December, when everybody is home.",
   "line.people.proposal-received": "Your partner asked: {step}. The answer is yours.",
   "line.people.drifted": "You stopped making time. {who} moved on.",

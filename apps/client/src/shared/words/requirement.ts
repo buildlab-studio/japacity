@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { ActivityOption, Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { countWords } from "./count";
-import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
+import { formatBand, formatMoney, formatNumber, playerMonth } from "./format";
 import { AGE, yearsOf } from "./quality";
 import { bandOpening, bandWords, hasWords, lowerFirst, nameOf, runningName, say, sayCount, words } from "./text";
 
@@ -141,7 +141,7 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "route/funds":
       return sayCount("ui.req.route-funds", requirement.heldMonths, { route: runningName(requirement.route), months: requirement.heldMonths });
     case "route/unexplained-max":
-      return say("ui.req.route-unexplained", { route: runningName(requirement.route), percent: formatBp(requirement.bp) });
+      return say("ui.req.route-unexplained", { route: runningName(requirement.route), share: shareWords(requirement.bp) });
     case "money/min": {
       const amount = amountWords(requirement.amount, requirement.currency);
       return requirement.pocket === undefined
@@ -312,4 +312,15 @@ export function saysWhyOnCard(option: Pick<ActivityOption, "allowed" | "missing"
   if (option.allowed) return false;
   if (option.missing.length > 0) return !option.missing.every(done);
   return option.params?.length === 0;
+}
+
+/**
+ * A share of a sum in words, never a percentage (docs/rules/text.md, "Money on screen"): "one in five" for a fifth, "three in ten" for
+ * three tenths, "25 in a hundred" for anything finer.
+ */
+export function shareWords(bp: number): string {
+  const whole = 10_000;
+  if (bp > 0 && whole % bp === 0) return say("ui.share.one-in", { count: countWords(whole / bp) });
+  if (bp % 1_000 === 0) return say("ui.share.in-ten", { count: countWords(bp / 1_000) });
+  return say("ui.share.in-hundred", { count: countWords(bp / 100) });
 }

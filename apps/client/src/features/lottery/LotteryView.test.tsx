@@ -153,7 +153,9 @@ describe("the jackpot and the odds on the kiosk", () => {
       say("ui.lottery.chance.small", { every: formatNumber(10), amount: money(50_000) }),
     ]);
     expect(odds.textContent).toContain("1 in 5,000 wins the jackpot of ₦200,000");
-    expect(screen.getByText(say("ui.lottery.grows", { share: "10%", cap: money(tuning.odds.jackpotCap) }))).toBeDefined();
+    // docs/rules/text.md, "Money on screen": the share the jackpot keeps is said in money, never a percentage.
+    expect(screen.getByText(say("ui.lottery.grows", { kept: "₦10", each: "₦100", cap: money(tuning.odds.jackpotCap) }))).toBeDefined();
+    expect(document.body.textContent).not.toContain("%");
     expect(document.body.textContent).not.toMatch(/\bpot\b|top.?up/i);
     expect(document.querySelector("[data-lottery-forced]")).toBeNull();
   });
