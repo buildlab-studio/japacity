@@ -71,9 +71,15 @@ export const BALANCE_LIVES: BalanceLife[] = [
 // ---------------------------------------------------------------------------
 
 /** The styles the balance test plays: the strategies' own and the three of scenario:economy-meets-its-targets. */
-export type BalanceStyle = "trade-loyal" | "free-pivot" | "paid-pivot" | "careful" | "borrower" | "risky" | "canada";
+export type BalanceStyle = "trade-loyal" | "boat-loyal" | "free-pivot" | "paid-pivot" | "careful" | "borrower" | "risky" | "canada";
 
-export const BALANCE_STYLES: BalanceStyle[] = ["trade-loyal", "free-pivot", "paid-pivot", "careful", "borrower", "risky", "canada"];
+export const BALANCE_STYLES: BalanceStyle[] = ["trade-loyal", "boat-loyal", "free-pivot", "paid-pivot", "careful", "borrower", "risky", "canada"];
+
+/**
+ * The boat-loyal style (scenario:economy-meets-its-targets): the child of the water on the boat ladder (activity:boat-work-at-the-net-shed),
+ * a trade-loyal player whose trade is the boats, toward the fish trade's ways. It plays the water life alone.
+ */
+const BOAT_LOYAL_LIVES: ReadonlySet<string> = new Set(["water"]);
 
 /** The golden world, which draws the UAE ban of months 13 to 30 as the real one ran (scenario:economy-meets-its-targets, decision 0035). */
 export const GOLDEN_WORLD = "golden-world";
@@ -175,7 +181,8 @@ function keepOf(view: PlayerView, content: Content): number | null {
 export function playBalance(content: Content, preset: PresetAnswer, life: BalanceLife, style: BalanceStyle, world: string, n: number): BalanceRun {
   const seed = `balance-${life.name}-${String(n)}`;
   const pivot = style === "free-pivot" || style === "paid-pivot";
-  const tradeStyle = style === "trade-loyal" || pivot;
+  const boat = style === "boat-loyal";
+  const tradeStyle = style === "trade-loyal" || boat || pivot;
   // A pivot is a careful player (scenario:economy-meets-its-targets): it works the careful player's ways, Canada its plan as the developer's
   // (design page 13 section 5), and takes no Gulf contract.
   const routes = pivot ? [CANADA, MASTERS, CARE, SKILLED, TALENT] : life.routes;
@@ -238,13 +245,13 @@ export function playBalance(content: Content, preset: PresetAnswer, life: Balanc
     }
     return style !== "careful";
   };
-  const { record } = runLife(style, life.scenario, seed, content, {
+  const { record } = runLife(boat ? "trade-loyal" : style, life.scenario, seed, content, {
     months: crash ? CRASH_MONTH : world === CALM_WORLD ? MONTHS : MONTHS + STUDENT_MONTHS,
     worldSeed: world,
     ...(tradeStyle
       ? pivot
         ? { play: { trade: life.trade, routes, plan: CANADA } }
-        : { play: { trade: life.trade, routes, plan: life.routes[0]!, ...(life.fallback === undefined ? {} : { fallback: life.fallback }), ...(life.pledgeMasters === true ? { pledgeMasters: true } : {}) } }
+        : { play: { trade: boat ? "boat" : life.trade, routes, plan: life.routes[0]!, ...(life.fallback === undefined ? {} : { fallback: life.fallback }), ...(life.pledgeMasters === true ? { pledgeMasters: true } : {}) } }
       : {}),
     ...(life.preset === null ? {} : { prologue: (step: string, answers: readonly { id: string; allowed: boolean }[]) => preset(life.preset!, life.home, step, answers) }),
     onEvents: (events, game) => {
@@ -280,13 +287,14 @@ export function stylePlays(content: Content, preset: PresetAnswer, style: Balanc
   const runs: BalanceRun[] = [];
   for (const life of BALANCE_LIVES) {
     if ((style === "free-pivot" || style === "paid-pivot") && life.trade === "developer") continue;
+    if (style === "boat-loyal" && !BOAT_LOYAL_LIVES.has(life.name)) continue;
     for (let n = 0; n < SEEDS; n += 1) runs.push(playBalance(content, preset, life, style, world, n));
   }
   return runs;
 }
 
 /** The styles the bands and the pivot's pace read, in the calm world (the first, second, third and fifth measures). */
-export const CALM_STYLES: BalanceStyle[] = ["trade-loyal", "free-pivot", "paid-pivot"];
+export const CALM_STYLES: BalanceStyle[] = ["trade-loyal", "boat-loyal", "free-pivot", "paid-pivot"];
 
 /** The trade-loyal lives the crash measure reads (the shop, the racks and the nurse) in the crash world. */
 export function crashPlays(content: Content, preset: PresetAnswer): BalanceRun[] {
@@ -364,10 +372,16 @@ export function measures(runs: BalanceRun[], review: Record<string, ReviewRead>)
 
   // 1 to 3: the trade-loyal lives against each trade's cheap band, in the calm world.
   const loyal = BAND_TRADES.map((band) => ({ band, months: monthsOf(byBand(runs, "trade-loyal", band)) }));
+  // The child of the water on the boats is read against the fish trade's band beside the racks' players.
+  const boats = { band: "fish" as const, months: monthsOf(byBand(runs, "boat-loyal", "fish")) };
+  const banded = [...loyal, ...(boats.months.length === 0 ? [] : [boats])];
   out.push({
-    name: "1. the median first flight of each trade, trade-loyal, inside the trade's cheap band",
-    figures: loyal.map(({ band, months }) => `${band} ${String(median(months))} (${CHEAP_BAND[band].join(" to ")})`).join("; "),
-    pass: loyal.every(({ band, months }) => median(months) >= CHEAP_BAND[band][0] && median(months) <= CHEAP_BAND[band][1]),
+    name: "1. the median first flight of each trade, trade-loyal, and the water life boat-loyal, inside the trade's cheap band",
+    figures: [
+      ...loyal.map(({ band, months }) => `${band} ${String(median(months))} (${CHEAP_BAND[band].join(" to ")})`),
+      ...(boats.months.length === 0 ? [] : [`fish boat-loyal ${String(median(boats.months))} (${CHEAP_BAND.fish.join(" to ")})`]),
+    ].join("; "),
+    pass: banded.every(({ band, months }) => median(months) >= CHEAP_BAND[band][0] && median(months) <= CHEAP_BAND[band][1]),
   });
   out.push({
     name: "2. the 75th percentile of the first flight, trade-loyal, at most the cheap band's top plus 12",

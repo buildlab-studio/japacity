@@ -40,7 +40,7 @@ export type StrategyName =
   | "paid-pivot";
 
 /** The trades at home, each with its own ladder (activity:each-trade-climbs-its-ladder). */
-export type TradeName = "nurse" | "teacher" | "support" | "shop" | "fish" | "bank" | "accounting" | "developer";
+export type TradeName = "nurse" | "teacher" | "support" | "shop" | "fish" | "boat" | "bank" | "accounting" | "developer";
 
 /** A trade as a player who stays in it reads it: its rungs, its side job, the own work it opens, its papers and what its rungs ask. */
 export interface Trade {
@@ -55,6 +55,10 @@ export interface Trade {
   english: number;
   /** The tech the trade's own rungs ask; a tech trade studies on to the top. */
   tech: number;
+  /** Acts done at once while no job of the trade is held, to be offered its first rung (activity:boat-work-at-the-net-shed). Missing: none. */
+  asks?: Id<"activity">[];
+  /** A side job let go for a better one the main job opens: `from` is quit while `when` is held, so `to` can be taken. Missing: none. */
+  swaps?: { from: Id<"activity">; to: Id<"activity">; when: Id<"activity"> }[];
 }
 
 const DEVELOPER_JOBS: Id<"activity">[] = ["activity.job-junior-developer", "activity.job-mid-developer", "activity.job-remote-developer"];
@@ -82,6 +86,22 @@ export const TRADES: Record<TradeName, Trade> = {
     papers: [],
     english: 0,
     tech: 0,
+  },
+  // The boat ladder beside the racks (activity:boat-work-at-the-net-shed): Sewanu's place asked for, the canoe bought with its capital,
+  // the nets mended on the side until the canoe carries passengers.
+  boat: {
+    jobs: ["activity.job-canoe-crew", "activity.job-own-canoe"],
+    opens: [
+      { act: "activity.buy-canoe", job: "activity.job-own-canoe" },
+      { act: "activity.start-canoe-taxi", job: "activity.canoe-taxi" },
+      { act: "activity.take-net-work", job: "activity.mend-nets" },
+    ],
+    side: null,
+    papers: [],
+    english: 0,
+    tech: 0,
+    asks: ["activity.ask-fisherman"],
+    swaps: [{ from: "activity.mend-nets", to: "activity.canoe-taxi", when: "activity.job-own-canoe" }],
   },
   bank: { jobs: ["activity.job-bank-officer", "activity.job-bank-senior", "activity.job-relationship-manager"], opens: [{ act: "activity.open-pos-stand", job: "activity.pos-stand" }], side: "activity.pos-stand", papers: [], english: 0, tech: 0 },
   accounting: {
@@ -635,6 +655,8 @@ function commonOffer(view: PlayerView, content: Content, habits: Habits, offer: 
       return chooseFirst(offer, habits.takesGulf ? ["take", "walk-away"] : ["walk-away"]);
     // A lead after a first miss (activity:missed-hunt-opens-a-lead) is answered as a job offer is.
     case "offer.job":
+    // activity:boat-work-at-the-net-shed: Sewanu's place is answered as a job offer is.
+    case "offer.canoe-place":
     case "offer.job-lead":
     case "offer.job-word": {
       const job = offer.terms.job;
@@ -858,7 +880,10 @@ const SIDE_JOB_QUIT = 30;
 
 /** activity:side-job-holds-a-slot: a side job worn into the ground is let go, so its slot rests the body again. */
 function sideJobLetGo(view: PlayerView, habits: Habits): Loose[] {
-  if (habits.trade === undefined || view.job.side === null || quality(view, "quality.wellbeing") >= SIDE_JOB_QUIT) return [];
+  if (habits.trade === undefined || view.job.side === null) return [];
+  // A side job the trade swaps for a better one once the main job opens it (the nets for the taxi canoe).
+  const swapped = (habits.trade.swaps ?? []).some((swap) => view.job.side === swap.from && view.job.id === swap.when);
+  if (!swapped && quality(view, "quality.wellbeing") >= SIDE_JOB_QUIT) return [];
   return [{ type: "activity/quit", side: true }];
 }
 
@@ -885,6 +910,9 @@ function mastersAtHome(view: PlayerView, habits: Habits): Id<"activity"> | null 
 function tradePicks(view: PlayerView, content: Content, trade: Trade, habits: Habits, hunting: boolean): SlotPick[] {
   const picks: SlotPick[] = [];
   const hunt = option(view, "activity.job-hunt");
+  // A trade whose first rung is offered, not hunted, asks for it while none of its jobs is held.
+  const inTrade = view.job.id !== null && trade.jobs.includes(view.job.id);
+  if (!inTrade) for (const act of trade.asks ?? []) if (playable(view, act)) picks.push({ activity: act, param: null });
   // The side job is hunted the same way, in a month no rung is, and only with the body to carry it.
   const fresh = quality(view, "quality.wellbeing") >= SIDE_JOB_WELLBEING;
   if (fresh && !hunting && trade.side !== null && view.job.id !== null && view.job.side === null && hunt?.allowed === true && (hunt.params ?? []).includes(trade.side)) {
