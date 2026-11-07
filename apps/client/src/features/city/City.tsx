@@ -273,6 +273,17 @@ function readKept(key: string): string[] {
   }
 }
 
+/** The scene a kept place stands inside: `""` for the file's own room, the folder after `inside:` for another, null when outside. */
+function insideKept(kept: string | undefined): string | null {
+  if (kept === "inside") return "";
+  return kept?.startsWith("inside:") === true ? kept.slice("inside:".length) : null;
+}
+
+/** The scene a kept place names by its folder, or null for the file's own room or outside. */
+function sceneKept(kept: string | null): string | null {
+  return kept === null || kept === "" ? null : kept;
+}
+
 function keep(key: string, value: string[]): void {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
@@ -493,7 +504,9 @@ export function City({
   const [date] = useState(() => localDate(new Date()));
   const [looking, setLooking] = useState(world);
   const [map, setMap] = useState(false);
-  const [inside, setInside] = useState(() => world && readKept(CITY_LAST_KEY)[1] === "inside");
+  const [inside, setInside] = useState(() => world && insideKept(readKept(CITY_LAST_KEY)[1]) !== null);
+  // Which of the place's scenes the door opened (world:entering-is-a-cut): one an act named, else the file's own `stage.inside`.
+  const [insideAt, setInsideAt] = useState<string | null>(() => (world ? sceneKept(insideKept(readKept(CITY_LAST_KEY)[1])) : null));
   const { cutting, cutTo } = useCut();
   // The world opens with nothing said yet: lines from a life before are not carried into this one.
   useEffect(() => resetLines(), []);
@@ -755,7 +768,10 @@ export function City({
   }, [placeId, inside]);
   useEffect(() => {
     watch.current = enterPlace(watch.current);
-    if (placeSeen.current !== placeId) setInside(false);
+    if (placeSeen.current !== placeId) {
+      setInside(false);
+      setInsideAt(null);
+    }
     placeSeen.current = placeId;
     setZoomed(false);
     setPicked(null);
@@ -796,8 +812,10 @@ export function City({
   // places/, fetched with the place so the cut is quick (world:entering-is-a-cut); the room's own file names the entry
   // it belongs to (the hub's room is place.yaba, the parlour the family house). A place that names no room
   // has one cut from its own file.
-  const insideId = insideOf(outsideFile);
+  const insideId = insideAt ?? insideOf(outsideFile);
   const insideFile = useRoomFile(insideId, drawing);
+  // A home's room behind its door holds what the life owns, as a home drawn whole does (Makoko's room on the water).
+  const insideShown = useMemo(() => (insideFile === null ? null : showOwned(insideFile, standingKey === "" ? [] : standingKey.split("|"), arranged)), [insideFile, standingKey, arranged]);
   const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
   // The room's models are fetched and decoded while the player still stands outside, so the cut into it stays short (world:entering-is-a-cut).
   // The model loader comes with them, by a dynamic import, so a first visit never downloads it (engine:first-download-has-budget); a fetch
@@ -812,12 +830,12 @@ export function City({
   useEffect(() => {
     if (!world) return;
     // The world's day is kept with the place, so a return after the sky has turned starts at home.
-    keep(CITY_LAST_KEY, [placeId, inside ? "inside" : "", ...(dayClock.served ? [String(dayClock.day)] : [])]);
+    keep(CITY_LAST_KEY, [placeId, inside ? (insideAt === null ? "inside" : `inside:${insideAt}`) : "", ...(dayClock.served ? [String(dayClock.day)] : [])]);
     const been = readKept(CITY_BEEN_KEY);
     const here = inside && insideEntry !== null ? [placeId, insideEntry.id] : [placeId];
     const fresh = here.filter((id) => !been.includes(id));
     if (fresh.length > 0) keep(CITY_BEEN_KEY, [...been, ...fresh]);
-  }, [world, placeId, inside, insideEntry]);
+  }, [world, placeId, inside, insideAt, insideEntry]);
   // world:room-seen-down-its-length: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
   // the pot steaming once cooked and the drum full once fetched (obligation:cooking-and-fetching-water).
   const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
@@ -831,9 +849,9 @@ export function City({
   // The list is read by its key, so a new view with the same candidates keeps the place as it is.
   const standing = useMemo(() => (world ? standingAt(meetPlace, view.people.candidates, december) : []), [world, meetPlace, candidatesKey, december]);
   const file = useMemo(() => {
-    const here = outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile;
+    const here = outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideShown;
     return here === null ? null : withStanding(showPlanned(here, [...plannedKey.split("|"), ...doneKey.split("|")]), standing);
-  }, [outsideFile, inside, insideId, insideFile, plannedKey, doneKey, standing]);
+  }, [outsideFile, inside, insideId, insideShown, plannedKey, doneKey, standing]);
   useEffect(() => {
     setZoomed(false);
     setPicked(null);
@@ -1041,7 +1059,7 @@ export function City({
         return;
       }
       case "enter":
-        setPicked({ kind: "inside" });
+        setPicked(act.inside === undefined ? { kind: "inside" } : { kind: "inside", scene: act.inside });
         return;
       case "out":
         setPicked({ kind: "out" });
@@ -1147,14 +1165,22 @@ export function City({
       setPicked(null);
     }
     if (picked?.kind === "inside") {
+      const scene = picked.scene ?? null;
       setPicked(null);
-      cutTo(() => setInside(true));
+      cutTo(() => {
+        setInsideAt(scene);
+        setInside(true);
+      });
     }
     if (picked?.kind === "out") {
       setPicked(null);
       // world:entering-is-a-cut: the door cuts out to the street. A room reached from the map (the hub in Yaba) steps out to the place whose door opens into it.
       const outside = OUTSIDE_OF[placeId];
-      if (inside) cutTo(() => setInside(false));
+      if (inside)
+        cutTo(() => {
+          setInside(false);
+          setInsideAt(null);
+        });
       else if (outside !== undefined) cutTo(() => setPlaceId(outside));
       // A room with no street of its own (the arrivals hall): the door opens the map.
       else setMap(true);
