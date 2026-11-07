@@ -6,7 +6,7 @@
 // on a fine pointer, the line of keys. The page never scrolls; the panel's body scrolls inside it where the window is short.
 // `data-gate` carries the step's mark as DoorFrame's does, so tests and the browser suite find each step in both layouts.
 import { Check, ChevronLeft, Shuffle } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
 
 import { Wordmark } from "../ui/Wordmark";
 import { usePaint } from "../world/paint";
@@ -72,6 +72,11 @@ function StepTabs({ steps }: { steps: readonly DeskStep[] }) {
 
 export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, onSkip = null, stage, title, line, foot, keys = null, children }: DoorDeskProps) {
   const ground = usePaint() === "night" ? "dark" : "light";
+  // The panel stays mounted from step to step, so each step's body opens at its top.
+  const body = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (body.current !== null) body.current.scrollTop = 0;
+  }, [mark]);
   return (
     <div className="door-sky fixed inset-0 flex flex-col overflow-hidden" data-gate={mark} data-door-frame data-door-desk data-look={look}>
       <div className="relative z-10 grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 pt-4 pb-3" data-door-progress>
@@ -110,7 +115,7 @@ export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, o
             </h1>
             {line === undefined || line === null ? null : <div className="mt-1 text-[14px] leading-snug text-text-2">{line}</div>}
           </div>
-          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-3" data-door-body>
+          <div ref={body} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-3" data-door-body>
             {children}
           </div>
           <div className="shrink-0 border-t-[1.5px] border-sheet-line px-5 pt-3.5 pb-4" data-door-foot>

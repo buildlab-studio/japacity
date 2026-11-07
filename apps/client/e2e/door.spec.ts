@@ -18,10 +18,20 @@ async function wholeInBody(page: Page, element: Locator): Promise<boolean> {
   return box.y >= body.y - 1 && box.y + box.height <= body.y + body.height + 1;
 }
 
+/**
+ * Make it yours opened: on a phone with a tap; on a desk it stands open from the start (prologue:front-door-three-screens), so the
+ * body is scrolled back to its top, where the name and the looks are, and the tap closes and opens it again.
+ */
 async function openYours(page: Page): Promise<void> {
   await page.goto("/");
   const open = page.locator("[data-yours-open]");
   await open.waitFor({ timeout: 30_000 });
+  if (await page.locator("[data-door-desk]").isVisible()) {
+    await expect(open).toHaveAttribute("aria-expanded", "true");
+    await open.click();
+    await expect(open).toHaveAttribute("aria-expanded", "false");
+    await page.locator("[data-door-body]").evaluate((body) => body.scrollTo({ top: 0, behavior: "instant" }));
+  }
   await open.click();
   await page.locator("[data-yours-row='skin']").waitFor({ timeout: 30_000 });
 }
