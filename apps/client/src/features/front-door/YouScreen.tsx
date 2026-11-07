@@ -1,6 +1,8 @@
 // The door's first screen, You (prologue:front-door-three-screens, prologue:player-colours-on-looks): you as a big photo card,
 // the whole figure standing with a hand on the hip on a sticker with your name stuck on it, a danfo and a travel bag
-// slapped on; the name with its line of what it is for and its dice, and the pool's three names under an empty box; the
+// slapped on; the name with its line of what it is for and its dice, the box empty with a suggested name as its
+// placeholder in the placeholder's lighter ink, and the pool's three names under it while it is empty; the box takes the
+// focus as the screen opens, the first field to fill there (prologue:front-door-builds-a-person); the
 // look strip as round face stickers, every look in one strip; and "Make it yours" under it, opened on a tap, the figure
 // then drawn in your colours.
 import { Check, ChevronDown, Dices } from "lucide-react";
@@ -13,6 +15,7 @@ import { LOOKS } from "../../shared/front-door/looks";
 import { OwnColoursRows } from "../../shared/front-door/OwnColours";
 import { isMade, type LookStyle, ownOf, reportOwn, useOwnColours } from "../../shared/front-door/style";
 import { bringIntoView } from "../../shared/front-door/view";
+import { focusFirstField } from "../../shared/ui/firstField";
 import type { Tint } from "../../shared/ui/look/tint";
 import { say } from "../../shared/words/text";
 
@@ -23,9 +26,13 @@ export interface YouProps {
   look: string;
   style: LookStyle | undefined;
   name: string;
+  /** The name the empty box suggests as its placeholder, never its value. */
+  suggestion: string;
   typed: boolean;
   problem: NameProblem | null;
   tried: boolean;
+  /** Begin was refused for the empty box: it is brought into view and the line under it says the story needs a name. */
+  needed: boolean;
   /** The pool's names offered under an empty box, each taken with a tap; none while the box holds a name. */
   suggestions: readonly string[];
   onName: (name: string) => void;
@@ -60,8 +67,14 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
   );
 }
 
-export function YouScreen({ look, style, name, typed, problem, tried, suggestions, onName, onReroll, onLook, onStyle, onEnter }: YouProps) {
+export function YouScreen({ look, style, name, suggestion, typed, problem, tried, needed, suggestions, onName, onReroll, onLook, onStyle, onEnter }: YouProps) {
   const [yours, setYours] = useState(false);
+  // The first field to fill takes the focus as the screen opens; after a Begin refused for the empty box it comes into view too.
+  const box = useRef<HTMLInputElement>(null);
+  const openedNeeding = useRef(needed);
+  useEffect(() => {
+    focusFirstField(box.current, openedNeeding.current);
+  }, []);
   // "Make it yours" reads what the look is made of once it is opened: nothing else on the door loads the model.
   useEffect(() => {
     if (!yours || ownOf(look) !== null || !canDraw()) return;
@@ -103,16 +116,18 @@ export function YouScreen({ look, style, name, typed, problem, tried, suggestion
         </p>
         <div className="mt-2 flex gap-2.5">
           <input
+            ref={box}
             id="door-name"
-            className="h-[54px] min-w-0 flex-1 rounded-[14px] border-2 border-[var(--edge)] bg-sheet-2 px-4 text-[20px] font-bold text-text outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)]"
-            placeholder={say("prologue.door.name.placeholder")}
+            className="h-[54px] min-w-0 flex-1 rounded-[14px] border-2 border-[var(--edge)] bg-sheet-2 px-4 text-[20px] font-bold text-text outline-none placeholder:font-semibold placeholder:text-text-2 placeholder:opacity-70 focus-visible:ring-2 focus-visible:ring-[var(--action)]"
+            placeholder={suggestion}
+            data-first-field
             value={name}
             maxLength={NAME_LONGEST + 4}
             autoComplete="off"
             autoCapitalize="words"
             spellCheck={false}
-            aria-invalid={tried && problem !== null}
-            aria-describedby="door-name-hint"
+            aria-invalid={needed || (tried && problem !== null)}
+            aria-describedby={needed ? "door-name-hint door-name-needed" : "door-name-hint"}
             onFocus={(event) => {
               if (!typed) event.target.select();
             }}
@@ -134,7 +149,11 @@ export function YouScreen({ look, style, name, typed, problem, tried, suggestion
             ))}
           </div>
         )}
-        {tried && problem !== null ? (
+        {needed ? (
+          <p id="door-name-needed" role="alert" className="mt-1.5 text-[13px] font-bold text-out" data-door-name-needed>
+            {say("prologue.door.name.needed")}
+          </p>
+        ) : tried && problem !== null ? (
           <p role="alert" className="mt-1.5 text-[13px] font-bold text-out">
             {problemWords(problem)}
           </p>

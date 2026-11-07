@@ -1,5 +1,5 @@
 // After "Start a new life" the door starts clean (account:start-a-new-life): no name, look or
-// colours of the life that ended are kept; the door opens as a first visit does.
+// colours of the life that ended are kept; the door opens as a first visit does, the name box empty with its suggestion.
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("the door after a life ends", () => {
-  test("[account:start-a-new-life] given a life begun as Obinna in another look and colours, when it ends, then the door opens on the first screen with a name of its own, the first look and no colours", async () => {
+  test("[account:start-a-new-life] given a life begun as Obinna in another look and colours, when it ends, then the door opens on the first screen with the name box empty and a suggestion of its own as its placeholder, the first look and no colours", async () => {
     let seed = 0;
     const store = bootGame({ storage: localStorage, fastClock: true, makeSeed: () => `clean-${String((seed += 1))}` });
     render(<App store={store} />);
@@ -36,8 +36,10 @@ describe("the door after a life ends", () => {
     await end();
     const name = await screen.findByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") }, { timeout: 10_000 });
     expect(document.querySelector("[data-gate]")?.getAttribute("data-gate")).toBe("you");
-    expect(name.value).not.toBe("Obinna");
-    expect(name.value.length).toBeGreaterThan(1);
+    expect(name.value).toBe("");
+    expect(name.placeholder).not.toBe("Obinna");
+    expect(name.placeholder.length).toBeGreaterThan(1);
+    expect(readDoor()?.name).toBe("");
     expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(LOOKS[0]?.id);
     expect(readDoor()?.style).toBeUndefined();
     expect(readDoor()?.typed ?? false).toBe(false);

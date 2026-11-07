@@ -535,7 +535,7 @@ export const uiText: Record<string, string> = {
   "ui.door.page.lead": "Where this life can lead",
   "ui.door.back": "Back",
   "ui.door.skip": "Skip",
-  "ui.door.shuffle.all": "Shuffle the look, the name and the life",
+  "ui.door.shuffle.all": "Shuffle the look and the life",
   "ui.door.tag.developer": "Balanced",
   "ui.door.tag.nurse": "Head start",
   "ui.door.tag.accountant": "Balanced",

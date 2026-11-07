@@ -28,6 +28,7 @@ import { counting } from "../../shared/analytics/start";
 import { Gate, GateSheet } from "../../shared/front-door/Gate";
 import type { AccountApi, AgeStanding, Full as FullStanding, HeldProof, NewLifeEmail } from "../../shared/net/auth";
 import { Loader } from "../../shared/ui/Loader";
+import { FIRST_FIELD } from "../../shared/ui/firstField";
 import { say } from "../../shared/words/text";
 import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
@@ -183,10 +184,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
 
   useEffect(() => setSaid(notice === null || moved ? null : say(notice)), [notice, moved]);
 
-  // A move to another screen takes the focus to its heading; the screen the gate opened on keeps the page's own, and the ways
-  // back in opened from a new life's step keep it in the email field.
+  // A move to another screen takes the focus to its heading; the screen the gate opened on keeps the page's own, the ways
+  // back in opened from a new life's step keep it in the email field, and a screen whose first field took it keeps it there
+  // (account:username-typed-and-checked).
   useEffect(() => {
     if (!moved || (shown === "returning" && waysFill?.focus === true)) return;
+    if (sheet.current?.querySelector(`[${FIRST_FIELD}]`) === document.activeElement && document.activeElement !== null) return;
     const heading = sheet.current?.querySelector<HTMLElement>("h1");
     if (heading === null || heading === undefined) return;
     heading.tabIndex = -1;

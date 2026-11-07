@@ -155,6 +155,22 @@ describe("the username's own step (account:sign-in-without-secret)", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.name.go") })).toBeNull();
   });
 
+  test("[account:username-typed-and-checked] given the age passed on the sign-in path, when the username's step opens, then its box takes the focus as the first field to fill, never its heading", async () => {
+    gate();
+    await proveByCode();
+    await answerTheAge();
+    await screen.findByRole("heading", { name: say("ui.account.kept.name.title") });
+    const box = screen.getByLabelText<HTMLInputElement>(say("ui.account.name.label"));
+    await waitFor(() => expect(document.activeElement).toBe(box));
+    expect(box.hasAttribute("data-first-field")).toBe(true);
+  });
+
+  test("[account:username-typed-and-checked] given the server naming a live proof and an age pass, when the gate opens on the username's step, then its box holds the focus", async () => {
+    gate({ ageStatus: () => Promise.resolve({ proved: EMAIL, passed: true }) });
+    await screen.findByRole("heading", { name: say("ui.account.kept.name.title") });
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText(say("ui.account.name.label"))));
+  });
+
   test("[account:sign-in-without-secret] given an age pass this browser holds already, when the code proves the address, then the age screen is skipped and the username's step opens", async () => {
     gate({ ageStatus: () => Promise.resolve("passed") });
     await proveByCode();

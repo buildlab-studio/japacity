@@ -34,9 +34,10 @@ function door(): void {
 const stage = (): string | null => document.querySelector("[data-gate]")?.getAttribute("data-gate") ?? null;
 const button = (key: string): HTMLElement => screen.getByRole("button", { name: new RegExp(`^${say(key)}`) });
 
-/** Through the first two screens on a tile, to Where you live. */
+/** Through the first two screens on a tile, to Where you live, with a name rolled with the dice. */
 async function toTheArchetypesFor(id: string): Promise<void> {
-  fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+  fireEvent.click(await screen.findByRole("button", { name: say("ui.door.reroll") }));
+  fireEvent.click(button("ui.door.next"));
   fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${id}.name`) }));
   fireEvent.click(button("ui.door.next"));
 }

@@ -238,13 +238,12 @@ function useBootCharacter(): boolean {
 
 /**
  * The door for a signed-in account with no character, on the sign-in path or for a later life: its username was chosen
- * before the door (account:sign-in-without-secret), so the door's name starts from it, never from the pool
- * (prologue:front-door-builds-a-person). Offline there is no account and no username, and the pool fills the name.
+ * before the door (account:sign-in-without-secret), so the empty name box suggests a name from it where it can
+ * (prologue:front-door-builds-a-person). Offline there is no account and no username, and the suggestion is the pool's.
  */
 function ChosenDoor() {
   const me = useAccountView();
-  const signedIn = useGame((state) => state.account !== null);
-  return <FrontDoor username={me?.username ?? null} signedIn={signedIn} />;
+  return <FrontDoor username={me?.username ?? null} />;
 }
 
 /** The screen, with the card over it while a request waits to be sent again; the loading screen shows the card in its own place. */
