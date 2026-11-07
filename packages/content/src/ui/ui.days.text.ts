@@ -16,6 +16,8 @@ export const uiDaysText: Record<string, string> = {
   "ui.days.short.activity.home-care-visits": "the home visits",
   "ui.days.short.activity.phone-repairs": "the repairs",
   "ui.days.short.activity.canoe-deliveries": "the deliveries",
+  "ui.days.short.activity.mend-nets": "the nets",
+  "ui.days.short.activity.canoe-taxi": "the taxi canoe",
   "ui.days.short.activity.pos-stand": "the stand",
   "ui.days.short.activity.bookkeeping": "the books",
   "ui.days.short.activity.learn-free": "the videos",

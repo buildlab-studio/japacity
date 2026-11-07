@@ -15,7 +15,7 @@ export const activityBoatText: Record<string, string> = {
   "activity.ask-fisherman.button": "Ask",
   "activity.ask-fisherman.blurb": "Sewanu mends his net at the shed. The men here go out before light.",
   "activity.take-net-work.name": "Mend nets at the shed",
-  "activity.take-net-work.button": "Take it",
+  "activity.take-net-work.button": "Start",
   "activity.take-net-work.blurb": "Sewanu's nets need hands in the afternoon. Quiet work in the shade.",
   "activity.buy-canoe.name": "Buy a canoe",
   "activity.buy-canoe.button": "Buy",
@@ -29,7 +29,7 @@ export const activityBoatText: Record<string, string> = {
 
   // The place's answers (activity:now-acts-and-month-acts). Sewanu's offer the first time; after that he talks.
   "line.activity.ask-fisherman.now.offer": "Sewanu puts the net down and says: kudo, you want learn the water? Third for my canoe dey free.",
-  "line.activity.ask-fisherman.now": "Sewanu says: kudo. The water dey give small small this season.",
+  "line.activity.ask-fisherman.now": "Sewanu says: kudo. The water no dey give much this season.",
   "line.activity.take-net-work.now": "Sewanu hands you a needle and a heap of net: start from the torn side.",
   "line.activity.buy-canoe.now": "Sewanu runs his hand along the hull and says: she go carry you well. The canoe is yours.",
   "line.activity.start-canoe-taxi.now": "The boys at the pier shout come, come, and your first passenger steps in.",

@@ -27,6 +27,12 @@ export const activitySignals: Record<string, ActivitySignal> = {
   "activity.run-shop.signal.2": { week: 3, words: "The shop: a regular now. She sends her neighbour." },
   // The fish racks at Makoko (activity:fish-racks-at-makoko).
   "activity.job-fish-racks.signal.1": { week: 1, words: "The racks: the boats came in before light. Your eyes stung from the smoke till noon." },
+  // The boat work at the net shed (activity:boat-work-at-the-net-shed).
+  "activity.job-canoe-crew.signal.1": { week: 1, words: "The canoe: out under the bridge before light. You sorted the fish while Sewanu threw." },
+  "activity.job-canoe-crew.signal.2": { week: 3, words: "The canoe: Sewanu let you throw the net once. Most of it came back empty." },
+  "activity.job-own-canoe.signal.1": { week: 1, words: "Your canoe: out before light, back by mid-morning with what the water gave." },
+  "activity.mend-nets.signal.1": { week: 2, words: "The nets: an afternoon in the shade of the shed with a needle." },
+  "activity.canoe-taxi.signal.1": { week: 2, words: "The taxi canoe: market women and schoolchildren from the shore, all afternoon." },
 
   // Jobs abroad.
   "activity.job-uk-nurse.signal.1": { week: 1, words: "The ward: twelve hours and a handover. You ate standing up." },
