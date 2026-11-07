@@ -81,6 +81,7 @@ import { uiText } from "./ui/ui.text";
 import { uiBoardsText } from "./ui/ui.boards.text";
 import { uiColoursText } from "./ui/ui.colours.text";
 import { uiDaysText } from "./ui/ui.days.text";
+import { uiFactsText } from "./ui/ui.facts.text";
 import { uiJobsText } from "./ui/ui.jobs.text";
 import { uiLookText } from "./ui/ui.look.text";
 import { uiLotteryText } from "./ui/ui.lottery.text";
@@ -239,6 +240,7 @@ export const textTables: Record<string, Record<string, string>> = {
   uiBoards: uiBoardsText,
   uiColours: uiColoursText,
   uiDays: uiDaysText,
+  uiFacts: uiFactsText,
   uiJobs: uiJobsText,
   uiLook: uiLookText,
   uiLottery: uiLotteryText,

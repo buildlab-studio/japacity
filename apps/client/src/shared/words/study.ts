@@ -65,6 +65,13 @@ export function courseWords(activity: string): string | null {
   return gains.length === 0 ? say("ui.act.course.only", { months }) : say("ui.act.course.ends", { months, gains: gains.join(", ") });
 }
 
+/** activity:paid-tech-courses: a course's months and what it ends with, as words for chips: "3 months", ["+1 Portfolio"]; null for no course. */
+export function courseParts(activity: string): { months: string; gains: string[] } | null {
+  const course = content.activity[activity as Id<"activity">]?.course;
+  if (course === undefined) return null;
+  return { months: sayCount("ui.act.course.months", course.months, { count: course.months }), gains: gainsOf(course.effects) };
+}
+
 /**
  * What a study costs when it is not a price paid now: the diploma's fees a month as a bill (activity:paid-tech-courses), the bootcamp's
  * fee once a developer job is held (activity:bootcamp-paid-after-a-job). Null for any other.

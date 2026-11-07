@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 
 import { recordedGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
-import { formatBp, formatMoney } from "../../../shared/words/format";
+import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { Bank } from "./Bank";
 import { askCard as card, sent } from "../phone.testing";
@@ -40,7 +40,7 @@ describe("Change money says what you get", () => {
 });
 
 describe("Send money home", () => {
-  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given the graduate just landed, when Send money home opens in the Bank, then each channel says what it costs and how fast it lands, and the amount says its rate and the naira that lands", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] [text:show-then-tell] given the graduate just landed, when Send money home opens in the Bank, then each way says the naira it lands and when, the way picked its fee in money and its rate, the way through someone that it sometimes never arrives, and no percentage stands anywhere", async () => {
     const view = recordedGame("graduate-careful").view();
     await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
@@ -48,15 +48,17 @@ describe("Send money home", () => {
     expect(chooser).not.toBeNull();
     const channels = [...(chooser?.querySelectorAll<HTMLElement>("[data-channel]") ?? [])];
     expect(channels.map((row) => row.getAttribute("data-channel"))).toEqual(["app", "bank", "informal"]);
-    expect(channels[0]?.textContent).toContain("Lands today");
-    expect(channels[1]?.textContent).toContain("Lands next month");
-    expect(channels[1]?.textContent).toContain(formatBp(content.tuning.remit.bankFeeBp));
-    expect(channels[2]?.textContent).toContain(formatBp(content.tuning.remit.informalLossBp));
     const quarter = Math.floor(view.pockets.GBP.bank / 4 / 100) * 100;
-    const naira = remitQuote(view.rates, content.tuning.remit, "GBP", quarter).app.naira;
-    const quote = chooser?.querySelector("[data-send-quote]")?.textContent ?? "";
-    expect(quote).toContain(`${formatMoney(naira, "NGN")} lands at home`);
-    expect(quote).toContain(formatMoney(100, "GBP"));
+    const quote = remitQuote(view.rates, content.tuning.remit, "GBP", quarter);
+    expect(channels[0]?.textContent).toContain(say("ui.remit.when.app"));
+    expect(channels[1]?.textContent).toContain(say("ui.remit.when.bank"));
+    expect(channels[0]?.querySelector("[data-arrives]")?.textContent).toBe(formatMoney(quote.app.naira, "NGN"));
+    expect(chooser?.textContent).toContain(formatMoney(100, "GBP"));
+    fireEvent.click(channels[1]!);
+    expect(chooser?.textContent).toContain(say("ui.remit.fact.fee", { fee: formatMoney(quote.bank.fee, "GBP") }));
+    fireEvent.click(channels[2]!);
+    expect(chooser?.textContent).toContain(say("ui.remit.fact.loss"));
+    expect(chooser?.textContent).not.toMatch(/\d\s*%/);
   });
 
   test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given a quarter of the pounds by app, when the card opens and is confirmed, then its button says Send and the amount with what is left in pounds, and the money goes at once", async () => {

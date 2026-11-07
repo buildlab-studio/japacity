@@ -4,6 +4,8 @@
 import type { DayPart } from "@japacity/sim";
 import type { ReactNode } from "react";
 
+import type { Fact } from "../words/facts";
+
 /** What a tap on a thing does (world:things-are-tappable-models). */
 type ActKind =
   /** Happens at once with no sheet: sit, turn on, look. */
@@ -167,6 +169,8 @@ export interface Ask {
   spent?: string;
   /** What the act means, a few words each, as chips under the line: the bag's Go home says what ends and what waits (return.md). */
   facts?: string[];
+  /** The act's facts, typed, drawn by the shared Facts in their one order under the line (text:show-then-tell). */
+  chips?: Fact[];
   /** The act whose ways it counts toward show as a chip under the line (activity:waiting-months-build-profile). */
   counts?: string;
   /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (return:return-reopens-home-charges). */

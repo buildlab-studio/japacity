@@ -5,6 +5,7 @@ import { content, text } from "@japacity/content";
 import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
 
+import { type Fact, flavourOf, whenFactOf } from "./facts";
 import { formatMoney } from "./format";
 import { payAMonth } from "./pay";
 import { tierPay, withNextTier } from "./profile";
@@ -99,6 +100,20 @@ export function jobCardWords(view: PlayerView, id: string): string {
   const chance = say(`jobs.chance.${huntBand(chanceOf(view, id))}`);
   const pay = payLiftWords(id, view);
   return pay === null ? say("jobs.card.chance", { chance }) : say("jobs.card", { pay, chance });
+}
+
+/**
+ * A hunt's card that names one job, as a line and its facts (world:one-action-one-sheet, text:show-then-tell): the line is the job's own
+ * words where content has them (`<job>.card`), else its blurb cut to what no fact says, else the hunt's; the facts are its pay a month
+ * (with what lifts it next, activity:side-jobs-pay-by-tier), its own chance (activity:job-hunt-lands-offer) and when it pays where the
+ * blurb said so.
+ */
+export function jobCardFacts(view: PlayerView, hunt: string, job: string): { line: string | null; facts: Fact[] } {
+  const line = text[`${job}.card`] ?? flavourOf(job) ?? flavourOf(hunt);
+  const pay = payLiftWords(job, view);
+  const when = whenFactOf(job);
+  const facts: Fact[] = [...(pay === null ? [] : [{ kind: "pay" as const, words: pay }]), { kind: "chance", band: huntBand(chanceOf(view, job)) }, ...(when === null ? [] : [when])];
+  return { line, facts };
 }
 
 /**
