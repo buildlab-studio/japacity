@@ -46,7 +46,7 @@ function fairSettlement(): number {
 }
 
 describe("the trader's way to her own shop", () => {
-  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] given a trader from the tile with the settlement, when the living costs take her under the settlement and she has heard of a way out and read up on it, then she is still a trader with a shop's capital, and her own way to a job is the shop's act at her stall", () => {
+  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] [world:nudge-says-one-thing] given a trader from the tile with the settlement, when the living costs take her under the settlement and she has heard of a way out and read up on it, then she is still a trader with a shop's capital, her own way to a job is the shop's act at her stall, and the shop planned waits on the month's end", () => {
     const game = settledTrader();
     // Decision 0013 (home:living-by-hand): the living is not charged as the month turns but paid at the act, so it is a meal
     // cooked at home that takes her under the settlement: at the family house the pot is free, so it is the big pot's
@@ -67,6 +67,8 @@ describe("the trader's way to her own shop", () => {
     // The nudge names the shop in its own words and rides to the stall (an ask that came this month waits aside).
     expect(nudgeOf({ ...view, offers: [] })).toEqual({ key: `${FIRST_CHAPTER}.item.job.nudge.shop`, about: "step" });
     expect(stepWayOf(view)).toEqual({ go: "place.tejuosho-market", at: ["place.tejuosho-market:own-stall"] });
+    // The shop planned takes the step as a hunt does (world:nudge-says-one-thing): the wait, and the month's end for its way.
+    expect(nudgeOf({ ...view, offers: [] }, undefined, [OPEN_SHOP])).toEqual({ key: `${FIRST_CHAPTER}.item.job.planned.open-shop`, about: "step", way: { go: null, at: [] } });
 
     game.endTurn([{ activity: OPEN_SHOP, param: null }]);
     view = game.view();

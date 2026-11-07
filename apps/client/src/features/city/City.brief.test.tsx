@@ -2,10 +2,12 @@
 // nothing under the band by default; at the step's place the brief's chip with its dots and the marker
 // on the thing to do; a thing done ticks its dot and the giver says so under the chip for three seconds; walking out takes
 // the chip away; a chapter closed brings the brief back with its stamp and the next brief as a picture card.
-import { act, fireEvent, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
+import { archetypeOf } from "../../shared/front-door/archetypes";
+import { playTile } from "../../shared/front-door/archetypes.testing";
+import { engineView, newGame } from "../../shared/testing/fixtures";
 import { found, renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { resetLines, tell } from "../../shared/world/Lines";
@@ -41,6 +43,22 @@ afterEach(() => {
 
 
 const world = () => <City world results={(place) => <p data-results-for={place} />} />;
+
+const FIRST_CHAPTER = "chapter.find-your-feet";
+const HUNT = "activity.job-hunt";
+const RACKS = "activity.job-fish-racks";
+/** A graduate's seed on which a hunt for the bank officer's job misses in the first month. */
+const MISS_SEED = "marker-miss-0";
+const MISSED_JOB = "activity.job-bank-officer";
+
+/** The child of the water's tile played to the world: a life in Makoko's room with no job, the racks at hand. */
+function waterLife(): ReturnType<typeof newGame> {
+  const archetype = archetypeOf("water");
+  if (archetype === null) throw new Error("No water tile.");
+  const game = newGame("scenario.prologue", "racks-nudge-0");
+  playTile(game, archetype);
+  return game;
+}
 
 /** A fresh life whose first brief was handed in an earlier visit, standing at `place`. */
 async function standing(place: string, view = engineView()) {
@@ -132,6 +150,32 @@ describe("the road in the world, only in the moment", () => {
     fireEvent.click(found("[data-brief-chip] [data-nudge-open]"));
     // The board's fan opens over it (world:fan-of-sticker-buttons).
     expect(document.querySelector('[data-fan="jobs"]')).not.toBeNull();
+  });
+
+  test("[world:nudge-says-one-thing] [activity:fish-racks-at-makoko] given the child of the water at the racks, when the racks are hunted this month, then the marker leaves the racks and no chip stands at them", async () => {
+    const game = waterLife();
+    await standing("place.makoko", game.view());
+    expect(found("[data-marker]").dataset.marker).toBe("racks");
+    cleanup();
+    game.accept({ type: "activity/now", activity: HUNT, param: RACKS });
+    await standing("place.makoko", game.view());
+    expect(document.querySelector("[data-marker]")).toBeNull();
+    expect(document.querySelector("[data-brief-chip='here']")).toBeNull();
+    expect(document.querySelector("[data-band]")?.textContent).not.toContain(say(`${FIRST_CHAPTER}.item.job`));
+  });
+
+  test("[world:nudge-says-one-thing] given a life at the hub, when a job on the board is hunted this month, then the marker and the chip leave the board; when that hunt misses, then the month after the marker stands on the board again", async () => {
+    const game = newGame("scenario.graduate", MISS_SEED);
+    game.accept({ type: "activity/now", activity: HUNT, param: MISSED_JOB });
+    await standing("place.yaba", game.view());
+    expect(document.querySelector("[data-marker]")).toBeNull();
+    expect(document.querySelector("[data-brief-chip='here']")).toBeNull();
+    cleanup();
+    game.endTurn([]);
+    expect(game.view().report?.lines.some((line) => line.key === "line.activity.hunt-missed")).toBe(true);
+    expect(game.view().job.id).toBeNull();
+    await standing("place.yaba", { ...game.view(), offers: [] });
+    expect(found("[data-marker]").dataset.marker).toBe("jobs");
   });
 
   test("[world:nudge-says-one-thing] [world:things-are-tappable-models] given the marker on the step's thing, when its pill is tapped, then the thing is picked as the chip's tap picks it, whoever stands in front of the thing", async () => {

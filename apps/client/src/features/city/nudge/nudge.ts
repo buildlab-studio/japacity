@@ -673,6 +673,15 @@ function nairaDues(view: NudgeView): number {
 }
 
 /**
+ * A step whose act is planned or done this month, or whose paper or school's answer is on its way, is taken: it waits on the month's end, so
+ * its way is the month's (world:nudge-says-one-thing). No marker or chip stands on the thing that took it, and the nudge's tap opens the Calendar, until a
+ * month in which it is not taken: a hunt that missed brings the marker back the month after.
+ */
+function taken(key: string): { key: string; way: StepWay } {
+  return { key, way: MONTH_END };
+}
+
+/**
  * A step already started names the wait instead of the thing to do again:
  * a paper on its way says when, a school applied to says when it answers, a hunt or a test planned
  * says to end the month, funds short of the line say how much more to show, and a step refused says when it can be
@@ -700,22 +709,22 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
       if (betterJobOnBoard(view) && has(BETTER_JOB)) return { key: BETTER_JOB };
       const meanwhile = meanwhileSaid(view, planned, has);
       if (meanwhile !== null) return meanwhile;
-      if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.onItsWay, month) } };
+      if (has(`${own}.started`)) return { ...taken(`${own}.started`), params: { when: inMonths(held.onItsWay, month) } };
     }
   }
   // The trader's shop planned at her stall (activity:trader-opens-own-shop): the job step has no hunt to name, so its own planned words say it.
-  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.open-shop") && has(`${own}.planned.open-shop`)) return { key: `${own}.planned.open-shop` };
+  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.open-shop") && has(`${own}.planned.open-shop`)) return taken(`${own}.planned.open-shop`);
   const activity = STEP_ACTIVITY[stepKey];
   if (activity !== undefined) {
     // Planned this month: the step waits on the month's end, not on another tap.
     if (done.includes(activity)) {
-      if (has(`${own}.started`)) return { key: `${own}.started` };
+      if (has(`${own}.started`)) return taken(`${own}.started`);
       const key = doneKey(own);
-      if (key !== null) return { key };
+      if (key !== null) return taken(key);
     }
     if (planned.includes(activity)) {
-      if (has(`${own}.planned`)) return { key: `${own}.planned` };
-      if (has(`${own}.started`)) return { key: `${own}.started` };
+      if (has(`${own}.planned`)) return taken(`${own}.planned`);
+      if (has(`${own}.started`)) return taken(`${own}.started`);
     }
     // Another act that takes the step is planned or done: its own words where content has them.
     const also = (STEP_ACTIVITY_ALSO[stepKey] ?? []).find((other) => planned.includes(other));
@@ -723,10 +732,10 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
       const short = also.replace(/^activity\./, "");
       if (done.includes(also)) {
         const key = doneKey(`${own}.${short}`) ?? doneKey(own);
-        if (key !== null) return { key };
+        if (key !== null) return taken(key);
       }
-      if (has(`${own}.planned.${short}`)) return { key: `${own}.planned.${short}` };
-      if (has(`${own}.planned`)) return { key: `${own}.planned` };
+      if (has(`${own}.planned.${short}`)) return taken(`${own}.planned.${short}`);
+      if (has(`${own}.planned`)) return taken(`${own}.planned`);
     }
     // The act is shut by what it needs (the endorsement before the portfolio and the people who will write): its own
     // needs words, so the nudge never points at an act the player cannot see.
@@ -751,16 +760,16 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   const route = view.routes?.find((candidate) => candidate.id === STORY_ROUTE);
   if (stepKey === "chapter.build-the-file.offer") {
     const applied = route?.schools.find((school) => school.state === "pending") ?? null;
-    if (applied !== null && has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(applied.readyMonth, month) } };
+    if (applied !== null && has(`${own}.started`)) return { ...taken(`${own}.started`), params: { when: inMonths(applied.readyMonth, month) } };
     return null;
   }
   if (stepKey === "chapter.decision-day.held" && route !== undefined && !route.funds.covered && route.funds.required > route.funds.shown && has(`${own}.short`)) {
     return { key: `${own}.short`, params: { amount: formatMoney(route.funds.required - route.funds.shown, "GBP") } };
   }
-  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.job-hunt") && has(`${own}.started`)) return { key: `${own}.started` };
+  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.job-hunt") && has(`${own}.started`)) return taken(`${own}.started`);
   // The plane waits on the held funds: the nudge says what blocks it.
   if (stepKey === "chapter.send-off.departed" && heldFundsOpen(view) && has(`${own}.blocked`)) return { key: `${own}.blocked` };
-  if (stepKey === "chapter.build-the-file.english" && planned.includes("activity.sit-english-test") && has(`${own}.started`)) return { key: `${own}.started` };
+  if (stepKey === "chapter.build-the-file.english" && planned.includes("activity.sit-english-test") && has(`${own}.started`)) return taken(`${own}.started`);
   // A long shot at the band: the nudge says to study first, as the test's sheet does, instead of sending the player to pay
   // for a sitting they will most likely fail, sitting after sitting at the fee.
   if ((stepKey === "chapter.build-the-file.english" || stepKey === "chapter.build-the-file-points.english") && view.qualities !== undefined && !planned.includes("activity.sit-english-test")) {
@@ -894,9 +903,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const free = reach === undefined ? null : freeStep(view, reach, has);
   if (free !== null) return free;
   // While a life in Makoko's room has no job, the racks beside it come before any other step (activity:fish-racks-at-makoko).
-  // Applied at once (activity:now-acts-and-month-acts) counts as planned: the racks' nudge then says the wait, not the racks again.
-  const huntTaken = planned.includes("activity.job-hunt") || (view.activities ?? []).some((option) => option.id === "activity.job-hunt" && option.done);
-  if (racksAtHand(view)) return { key: huntTaken ? `${FIRST_CHAPTER}.item.job.started` : RACKS_STEP, about: "step" };
+  // A hunt applied for at once (activity:now-acts-and-month-acts) or planned takes the step as any job's does: the wait, not the racks again.
+  if (racksAtHand(view)) return { ...(startedKey(view, `${FIRST_CHAPTER}.item.job`, `${FIRST_CHAPTER}.job`, planned, has) ?? { key: RACKS_STEP }), about: "step" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     const care = CARE_CHAPTERS.has(view.chapter.current);

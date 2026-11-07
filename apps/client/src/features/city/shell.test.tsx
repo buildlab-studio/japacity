@@ -251,6 +251,25 @@ describe("the nudge", () => {
     expect(nudgeOf(short)).toMatchObject({ key: "chapter.decision-day.item.held.short", params: { amount: formatMoney(200000, "GBP") } });
   });
 
+  test("[world:nudge-says-one-thing] given a step taken, its act planned this month or its paper or school's answer on its way, when the nudge is chosen, then its way is the month's end; a step short of funds keeps its own way", () => {
+    const monthEnd = { go: null, at: [] };
+    const base = { ...quiet, month: 10 };
+    const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [], closes: false, next: null } };
+    expect(nudgeOf(file).way).toBeUndefined();
+    expect(nudgeOf(file, undefined, ["activity.get-passport"]).way).toEqual(monthEnd);
+    const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
+    expect(nudgeOf(waiting)).toEqual({ key: "chapter.build-the-file.item.passport.started", params: { when: inMonths(12, 10) }, about: "step", way: monthEnd });
+    const testing = { ...file, chapter: { ...file.chapter, items: [{ id: "english", met: false }, { id: "offer", met: false }] } };
+    expect(nudgeOf(testing, undefined, ["activity.sit-english-test"]).way).toEqual(monthEnd);
+    const applied = { ...file, chapter: { ...file.chapter, items: [{ id: "offer", met: false }] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, schools: [{ id: "school.one" as never, state: "pending" as const, readyMonth: 11, discount: 0 }] }] };
+    expect(nudgeOf(applied).way).toEqual(monthEnd);
+    const hunting = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [], closes: false, next: null } };
+    expect(nudgeOf(hunting).way).toBeUndefined();
+    expect(nudgeOf(hunting, undefined, ["activity.job-hunt"])).toEqual({ key: "chapter.find-your-feet.item.job.started", about: "step", way: monthEnd });
+    const short = { ...base, chapter: { current: "chapter.decision-day" as const, items: [{ id: "held", met: false }], done: [], closes: false, next: null }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, funds: { heldMonths: 0, covered: false, shown: 100000, required: 300000 } }] };
+    expect(nudgeOf(short).way).toBeUndefined();
+  });
+
   test("[world:nudge-says-one-thing] given a step planned this month, or one the player cannot afford, when the nudge is chosen, then it says so: the planned step waits on the month, the dear one names the gap", () => {
     const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(file, undefined, ["activity.get-passport"]).key).toBe("chapter.build-the-file.item.passport.planned");

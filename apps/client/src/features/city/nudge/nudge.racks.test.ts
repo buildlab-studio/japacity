@@ -16,6 +16,8 @@ const RACKS = "activity.job-fish-racks";
 const HUNT = "activity.job-hunt";
 const RACKS_NUDGE = "chapter.find-your-feet.item.job.nudge.racks";
 const NUDGE_WORDS = 8;
+/** The month's end as a step's way: no stop and no thing (world:nudge-says-one-thing). */
+const MONTH_END = { go: null, at: [] };
 
 /** Plays an archetype's tile on one seed: its preset answers while allowed, else the answer that suits it. */
 function play(id: string, seed: string): ReturnType<typeof newGame> {
@@ -36,7 +38,24 @@ describe("the racks as the work at hand", () => {
     const words = text[RACKS_NUDGE] ?? "";
     expect(words.split(/\s+/).filter(Boolean).length).toBeGreaterThan(0);
     expect(words.split(/\s+/).filter(Boolean).length).toBeLessThan(NUDGE_WORDS);
-    expect(nudgeOf({ ...view, offers: [] }, undefined, [HUNT])).toEqual({ key: "chapter.find-your-feet.item.job.started", about: "step" });
+    expect(nudgeOf({ ...view, offers: [] }, undefined, [HUNT])).toEqual({ key: "chapter.find-your-feet.item.job.started", about: "step", way: MONTH_END });
+  });
+
+  test("[activity:fish-racks-at-makoko] [world:nudge-says-one-thing] given the child of the water, when the racks are hunted at once this month, then the step is taken: the nudge says to live the month and its way is the month's end, not the racks", () => {
+    const game = play("water", "racks-nudge-0");
+    game.accept({ type: "activity/now", activity: HUNT, param: RACKS });
+    const view = game.view();
+    expect(view.activities.find((option) => option.id === HUNT)?.done).toBe(true);
+    expect(nudgeOf({ ...view, offers: [] })).toEqual({ key: "chapter.find-your-feet.item.job.started", about: "step", way: MONTH_END });
+  });
+
+  test("[world:nudge-says-one-thing] given the graduate, whose job is on the board in town, when a job is hunted at once this month, then the step is taken as the racks' is: the same wait and the month's end for its way", () => {
+    const game = newGame("scenario.graduate", "racks-nudge-0");
+    expect(nudgeOf({ ...game.view(), offers: [] }).key.startsWith("chapter.find-your-feet.item.job")).toBe(true);
+    const job = game.view().activities.find((option) => option.id === HUNT)?.params?.[0];
+    if (job === undefined) throw new Error("The board lists no job.");
+    game.accept({ type: "activity/now", activity: HUNT, param: job });
+    expect(nudgeOf({ ...game.view(), offers: [] })).toEqual({ key: "chapter.find-your-feet.item.job.started", about: "step", way: MONTH_END });
   });
 
   test("[activity:fish-racks-at-makoko] [world:nudge-says-one-thing] given the child of the water at the racks, when the nudge is read, then the racks are no longer named and the life's own way out leads again", () => {
