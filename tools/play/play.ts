@@ -632,9 +632,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
       // An act that carries on in the plan is a refused Ongoing button with a Stop beside it (world:month-acts-carry-on), and a refused
       // button (spent, short, locked) only shakes: only an open act is taken, never the Stop. The act the nudge's step opens comes first, then one that stages an entry, then any (fanChoice).
-      const buttons = JSON.parse(
-        String(await page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-fan] [data-fan-act], [data-fan-sheet] [data-fan-act]")].map((item) => ({ id: item.getAttribute("data-fan-act") ?? "", kind: item.getAttribute("data-fan-kind") ?? "", enabled: !item.hasAttribute("data-fan-refused") && item.querySelector("button:enabled") !== null })))`)),
-      ) as FanButton[];
+      const buttons = await fanButtons(run);
       const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens", { timeout: 1_000 }).catch(() => null);
       const chosen = fanChoice(buttons, opens);
       if (chosen === null) {
@@ -653,6 +651,58 @@ async function followNudge(run: Run, month: number): Promise<void> {
   }
   await closeSheets(run);
   await settle(run, `after the nudge in month ${String(month)}`);
+}
+
+/** The fan's buttons as they stand: each act's id, its kind, and whether it may be tapped now. */
+async function fanButtons(run: Run): Promise<FanButton[]> {
+  return JSON.parse(
+    String(await run.page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-fan] [data-fan-act], [data-fan-sheet] [data-fan-act]")].map((item) => ({ id: item.getAttribute("data-fan-act") ?? "", kind: item.getAttribute("data-fan-kind") ?? "", enabled: !item.hasAttribute("data-fan-refused") && item.querySelector("button:enabled") !== null })))`)),
+  ) as FanButton[];
+}
+
+/**
+ * --take: before the nudge, each thing in the place is tapped, and an act the run was asked to take that its fan offers open is taken,
+ * with the main answer of each sheet it opens (an offer's first answer, Sewanu's Take it), as the nudge's own act is.
+ */
+async function takeWanted(run: Run, month: number): Promise<void> {
+  const take = run.options.take ?? [];
+  if (take.length === 0) return;
+  const { page } = run;
+  const marks = JSON.parse(String(await page.evaluate(`JSON.stringify([...document.querySelectorAll("[data-mark]")].map((item) => item.getAttribute("data-mark") ?? ""))`))) as string[];
+  for (const mark of [...new Set(marks)]) {
+    await tapMark(run, mark);
+    await page.waitForTimeout(600);
+    const wanted = (await fanButtons(run)).find((button) => button.enabled && take.includes(button.id));
+    if (wanted === undefined) {
+      await closeSheets(run);
+      continue;
+    }
+    log(run, `month ${String(month)}: taking ${wanted.id} at ${mark}`);
+    await tap(run, page.locator(`[data-fan] [data-fan-act="${wanted.id}"] button, [data-fan-sheet] [data-fan-act="${wanted.id}"] button`), wanted.id);
+    await appear(page.locator(OPEN_SHEET), SHORT);
+    for (let step = 0; step < 3; step += 1) {
+      const sheet = page.locator(OPEN_SHEET);
+      if (!(await shown(sheet))) break;
+      const before = await words(sheet, 400);
+      const label = (await sheet.first().getAttribute("data-world-sheet")) ?? "card";
+      log(run, `${label} sheet: ${oneLine(before, 240)}`);
+      await shot(run, `month ${String(month)} ${wanted.id.replace("activity.", "")} ${label}`);
+      const main = await mainButton(sheet.first());
+      if (main === null) break;
+      const name = oneLine((await main.getAttribute("aria-label")) ?? (await main.innerText().catch(() => "")), 80);
+      log(run, `tapped "${name}"`);
+      await tap(run, main, name);
+      await page.waitForTimeout(1_200);
+      const actToast = page.locator("[data-act-toast]");
+      if (await shown(actToast)) {
+        log(run, `act toast: ${await words(actToast)}`);
+        await shot(run, `month ${String(month)} ${wanted.id.replace("activity.", "")} toast`);
+      }
+      if ((await shown(page.locator(OPEN_SHEET))) && (await words(page.locator(OPEN_SHEET), 400)) === before) break;
+    }
+    await closeSheets(run);
+    await settle(run, `after taking ${wanted.id} in month ${String(month)}`);
+  }
 }
 
 /**
@@ -1020,6 +1070,7 @@ async function play(options: PlayOptions, button: string): Promise<number> {
         }
         // Online the brief's card can come over the world after it opened, once the server's view is in: it is passed first.
         await settle(run, `before month ${String(month)}`);
+        await takeWanted(run, month);
         await followNudge(run, month);
         if (!(await endMonth(run, month))) break;
       }

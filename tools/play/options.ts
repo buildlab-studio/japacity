@@ -2,7 +2,7 @@
 // check them without one. `pnpm play --help` prints USAGE.
 import { isAbsolute, relative, resolve } from "node:path";
 
-export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--months <n>] [--url <address> | --port <n>] [--keep <file>] [--resume <file>] [--stop <door|planned>] [--played] [--headed]
+export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--months <n>] [--url <address> | --port <n>] [--keep <file>] [--resume <file>] [--stop <door|planned>] [--take <acts>] [--played] [--headed]
 
   --out <folder>       Where the pictures and play.log go. Required. Must be outside the repository.
   --life <name>        The life to play, by its short name: developer, nurse, trader and so on (default developer).
@@ -17,6 +17,8 @@ export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--mont
                        stands and plays --months more. Use the same --url or --port it was kept on.
   --stop <where>       Stop the life part way and keep it there: door (the life made, its years before not played)
                        or planned (after --months, the next month's nudge followed and the month not ended).
+  --take <acts>        Each month before the nudge, take these acts wherever a thing in the place offers them open,
+                       comma separated (activity.ask-fisherman,activity.buy-canoe), and the main answer of what they open.
   --played             Mark the device as played, so the first-use labels on the thumbs never show.
   --headed             Show the browser window.
   --help               Print this and stop.`;
@@ -37,6 +39,8 @@ export interface PlayOptions {
   readonly resume?: string;
   /** Where the life is stopped part way; absent to play every month asked and the phone. */
   readonly stop?: Stop;
+  /** The acts taken each month before the nudge, wherever a thing in the place offers them open; absent to follow the nudge alone. */
+  readonly take?: readonly string[];
 }
 
 /** Where a run stops part way: with the life made and its years before unplayed, or with the next month planned and not ended. */
@@ -49,7 +53,7 @@ export const DEFAULT_PORT = 5190;
 const MAX_MONTHS = 60;
 
 const FLAGS = new Set(["--ready", "--played", "--headed", "--help"]);
-const VALUED = new Set(["--life", "--months", "--out", "--url", "--port", "--keep", "--resume", "--stop"]);
+const VALUED = new Set(["--life", "--months", "--out", "--url", "--port", "--keep", "--resume", "--stop", "--take"]);
 
 function whole(value: string, name: string, low: number, high: number): number | string {
   if (!/^\d+$/.test(value)) return `${name} takes a whole number, got "${value}".`;
@@ -123,6 +127,10 @@ export function parseOptions(argv: readonly string[], cwd: string, repoRoot: str
   if (stopGiven !== undefined && stop === null) return { ok: false, help: false, problem: `--stop takes ${STOPS.join(" or ")}, got "${stopGiven}".` };
   if (stop === "door" && resume !== null) return { ok: false, help: false, problem: "--stop door stops a new life at the door; a resumed life is past it." };
 
+  const take = (values.get("--take") ?? "").split(",").map((each) => each.trim()).filter((each) => each !== "");
+  const notAct = take.find((each) => !/^activity\.[a-z0-9-]+$/.test(each));
+  if (notAct !== undefined) return { ok: false, help: false, problem: `--take takes activity ids such as activity.ask-fisherman, got "${notAct}".` };
+
   return {
     ok: true,
     options: {
@@ -137,6 +145,7 @@ export function parseOptions(argv: readonly string[], cwd: string, repoRoot: str
       ...(kept["--keep"] === null ? {} : { keep: kept["--keep"] }),
       ...(resume === null ? {} : { resume }),
       ...(stop === null ? {} : { stop }),
+      ...(take.length === 0 ? {} : { take }),
     },
   };
 }

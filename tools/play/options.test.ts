@@ -34,6 +34,13 @@ describe("the play driver's options", () => {
     });
   });
 
+  test("given --take with activity ids, when parsed, then they are read in order; anything else is refused", () => {
+    expect(parsed(["--out", OUTSIDE, "--take", "activity.ask-fisherman, activity.buy-canoe"])).toMatchObject({ ok: true, options: { take: ["activity.ask-fisherman", "activity.buy-canoe"] } });
+    const plain = parsed(["--out", OUTSIDE]);
+    expect(plain.ok && "take" in plain.options).toBe(false);
+    expect(refusal(["--out", OUTSIDE, "--take", "ask-fisherman"])).toContain("--take takes activity ids");
+  });
+
   test("given no --out, when parsed, then it is refused", () => {
     expect(refusal(["--life", "developer"])).toContain("--out is required");
   });

@@ -17,6 +17,7 @@ pnpm play --life developer --months 3 --out /tmp/japacity-play
 - `--life` takes a short name: a tile (developer, nurse, accountant, writer, trader, shop-worker, water) or, with `--ready`, a ready life (graduate, banker, developer, nurse, teacher). The names come from the game's words, so a new life needs no change to the driver.
 - `--months` is how many months to end once in the world (1 to 60).
 - `--port <n>` starts the dev server there, or reuses one that already answers. In a worktree, use the port your task gives. `--url <address>` plays a server already running elsewhere.
+- `--take <acts>` takes the acts named (comma separated activity ids) wherever a thing in the place offers them open, each month before the nudge: `--life water --take activity.ask-fisherman,activity.take-net-work,activity.buy-canoe,activity.start-canoe-taxi` plays the child of the water on the boats.
 - `--played` marks the device as played, so the first-use labels on the Map and Phone thumbs never show; leave it off to see what a new player sees.
 - `--keep <file>` saves the browser's storage at the end (mode 600, outside the repository, never printed); `--resume <file>` opens that life where it stands, with no front door, and plays `--months` more. `--stop door` keeps a life made with its years before unplayed, `--stop planned` one with its next month planned and not ended. A resumed life the server refuses is a `PROBLEM` naming the status and the run fails.
 
