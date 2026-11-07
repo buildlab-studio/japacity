@@ -89,7 +89,7 @@ export interface GuestDoor {
   /**
    * The username field, empty until typed and checked as it is typed, its rule's words, the guest line and the unseen check, for the page; Enter in it is `onEnter`.
    * `apart`: the guest line is left to the page, which says it under its own button (`reminder`).
-   * `first`: the box is the first field to fill on its screen, so it takes the focus as the screen opens.
+   * `first`: the box is the first field to fill on its screen, so it takes the focus as the screen opens on a desktop.
    */
   fields: (value: string, onChange: (username: string) => void, problem: string | null, onEnter?: () => void, apart?: boolean, first?: boolean) => ReactNode;
   /** The guest line (account:guest-reminded-to-secure), for a page that says it apart from the fields; null for a life that starts kept. */
@@ -247,11 +247,12 @@ export function useFreeCheck(value: string, ask: (username: string) => Promise<F
  * account:username-typed-and-checked, account:guest-reminded-to-secure); a life that starts kept by a proved email says no guest line
  * and nothing in its place (account:guest-secures-the-life). The line on who sees the name shows while the box is empty or typed
  * in; a name left in it keeps only its free or taken line, so one thing is said under the box at a time once the player moves on.
- * `first`: the box is the first field to fill on its screen and takes the focus as it opens (account:username-typed-and-checked).
+ * `first`: the box is the first field to fill on its screen and takes the focus as it opens on a desktop, never on a touch phone
+ * (account:username-typed-and-checked).
  */
 function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept = false, first = false }: { box: RefObject<HTMLInputElement | null>; value: string; onChange: (username: string) => void; onEnter?: () => void; problem: string | null; ask: (username: string) => Promise<FreeAnswer | null>; widget: ReactNode; kept?: boolean; first?: boolean }) {
   const free = useFreeCheck(value, ask);
-  // Once, as the screen opens; a sheet over it keeps its own focus.
+  // Once, as the screen opens, on a desktop; a sheet over it keeps its own focus.
   const firstAtOpen = useRef(first);
   useEffect(() => {
     if (firstAtOpen.current) focusFirstField(box.current);
@@ -317,7 +318,10 @@ export interface GuestFormProps {
   onReturning: () => void;
 }
 
-/** Inside the invite page: the username and the guest line under the age screen, and a button that starts the guest life. */
+/**
+ * Inside the invite page: the username and the guest line under the age screen, and a button that starts the guest life. The
+ * username is the first field to fill there (account:username-typed-and-checked).
+ */
 export function GuestForm({ door, onReturning }: GuestFormProps) {
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
@@ -341,7 +345,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={(event) => void start(event)} noValidate data-guest-form>
-      <GuestFields box={door.box} value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} kept={door.kept === true} />
+      <GuestFields box={door.box} value={username} onChange={setUsername} problem={problem} ask={door.ask} widget={door.widget} kept={door.kept === true} first />
       <div>
         <Button type="submit" variant="primary" disabled={busy}>
           {say("ui.account.name.go")}

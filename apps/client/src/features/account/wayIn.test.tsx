@@ -10,6 +10,7 @@ import { createGameStore, type GameStore } from "../../authority/store";
 import { KEPT_MARK_KEY, PASSKEY_MARK_KEY } from "../../shared/storage/storage";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { accountView, engineView } from "../../shared/testing/fixtures";
+import { stubPointer } from "../../shared/testing/pointer";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { AccountGate } from "./AccountGate";
@@ -450,7 +451,8 @@ describe("the code form forgives (account:code-form-forgives)", () => {
     expect(account.calls).toEqual([]);
   });
 
-  test("[account:code-form-forgives] given a code sent, then the code field takes the focus, the line says where it went with Change after the address, and Change goes back with the address filled", async () => {
+  test("[account:code-form-forgives] given a code sent on a desktop, then the code field takes the focus, the line says where it went with Change after the address, and Change goes back with the address filled", async () => {
+    stubPointer("fine");
     const { account } = form();
     sendTo("ada@exmaple.test");
     const code = await screen.findByLabelText(say("ui.account.code.label"));

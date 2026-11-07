@@ -1,10 +1,11 @@
 // The ways back in once a code is sent (account:code-form-forgives, account:sign-in-without-secret): the code step stands alone;
 // the send answers every address alike, and only the right code tells the two apart: it signs in, or hands on the address it
 // proved for a new life. A passkey or a trip to Google that found no life keeps its words, with a new life under them.
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { AccountApi } from "../../shared/net/auth";
+import { stubPointer } from "../../shared/testing/pointer";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { answers, codeAccount } from "./code.testing";
@@ -14,6 +15,10 @@ const cannot = () => Promise.resolve(false);
 
 beforeEach(() => {
   localStorage.clear();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 function ways(over: Partial<AccountApi> = {}) {
@@ -33,8 +38,35 @@ const heading = () => screen.getByRole("heading").textContent;
 const google = () => screen.queryByRole("button", { name: say("ui.account.google") });
 const passkey = () => screen.queryByRole("button", { name: say("ui.account.passkey") });
 
+describe("the email box on the ways back in (account:code-form-forgives)", () => {
+  test("[account:code-form-forgives] given a desktop, when the ways back in open, then the email box takes the focus as the first field to fill", async () => {
+    stubPointer("fine");
+    ways();
+    const email = screen.getByLabelText(say("ui.account.email.label"));
+    await waitFor(() => expect(document.activeElement).toBe(email));
+    expect(email.hasAttribute("data-first-field")).toBe(true);
+  });
+
+  test("[account:code-form-forgives] given a touch phone, when the ways back in open, then no focus moves, so no keyboard covers Google and the field; once a code is sent the code field waits unfocused too", async () => {
+    stubPointer("coarse");
+    ways();
+    const email = screen.getByLabelText(say("ui.account.email.label"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.activeElement).not.toBe(email);
+    send("ada@example.test");
+    const code = await screen.findByLabelText(say("ui.account.code.label"));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(document.activeElement).not.toBe(code);
+  });
+});
+
 describe("the code step stands alone (account:code-form-forgives)", () => {
-  test("[account:code-form-forgives] given a code sent, then the sheet holds the code step alone under Check your email: no Google, no passkey, no intro; Change brings the ways back with the address filled and focused", async () => {
+  test("[account:code-form-forgives] given a code sent on a desktop, then the sheet holds the code step alone under Check your email: no Google, no passkey, no intro; Change brings the ways back with the address filled and focused", async () => {
+    stubPointer("fine");
     ways();
     expect(heading()).toBe(say("ui.account.returning.title"));
     expect(google()).not.toBeNull();
@@ -58,7 +90,8 @@ describe("the code step stands alone (account:code-form-forgives)", () => {
 });
 
 describe("an address no account uses (account:sign-in-without-secret)", () => {
-  test("[account:sign-in-without-secret] given an address no account uses, when Send me a code is pressed, then the send answers as for any address and the code step stands, the code sent there", async () => {
+  test("[account:sign-in-without-secret] given an address no account uses, when Send me a code is pressed on a desktop, then the send answers as for any address and the code step stands, the code sent there", async () => {
+    stubPointer("fine");
     const { account } = ways();
     send("new@example.test");
     const code = await screen.findByLabelText(say("ui.account.code.label"));
@@ -80,7 +113,8 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     expect(account.calls).toEqual(['sendCode("new@example.test")', 'signInWithCode("new@example.test","123456")']);
   });
 
-  test("[account:sign-in-without-secret] [account:code-form-forgives] given a wrong code for an address no account uses, then it is told as any wrong code is and nothing starts; Change goes back to the address, filled", async () => {
+  test("[account:sign-in-without-secret] [account:code-form-forgives] given a wrong code for an address no account uses, on a desktop, then it is told as any wrong code is and nothing starts; Change goes back to the address, filled", async () => {
+    stubPointer("fine");
     const { newLife, signedIn } = ways({ signInWithCode: answers({ ok: false, why: "wrong-code" }) });
     send("new@example.test");
     fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "000000" } });
@@ -93,9 +127,10 @@ describe("an address no account uses (account:sign-in-without-secret)", () => {
     await waitFor(() => expect(document.activeElement).toBe(email));
   });
 
-  test("[account:sign-in-without-secret] given the ways back in opened from a new life's Use another email, then the email field is empty and holds the focus", async () => {
+  test("[account:sign-in-without-secret] given the ways back in opened from a new life's Use another email on a desktop, then the email field is empty and holds the focus", async () => {
+    stubPointer("fine");
     const account = codeAccount();
-    render(<SignIn account={account} onSignedIn={() => undefined} filled="" focusEmail autofill={cannot} passkeyUsed={false} />);
+    render(<SignIn account={account} onSignedIn={() => undefined} filled="" autofill={cannot} passkeyUsed={false} />);
     const email = await screen.findByLabelText<HTMLInputElement>(say("ui.account.email.label"));
     expect(email.value).toBe("");
     await waitFor(() => expect(document.activeElement).toBe(email));
