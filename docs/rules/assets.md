@@ -11,7 +11,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:starting-palette-frozen** The starting palette is the 37 colours of the four experiments of `../design/06-assets-and-visuals.md`, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. Four scene colours are named entries: sand, asphalt, road marking and sky.
 
-**assets:metre-units-and-origin** One unit is one metre. +Y is up. A model faces +Z (the glTF convention). Its origin is the centre of its footprint at ground level, and its lowest point is at y = 0 within 0.01 m.
+**assets:metre-units-and-origin** One unit is one metre. +Y is up. A model faces +Z (the glTF convention). Its origin is the centre of its footprint at ground level, and its lowest point is at y = 0 within 0.01 m. A place may stand a model's copies lifted or lowered (`lift` in its file, at most 1.5 m either way): a house on stilts seen from inside is stood lowered by its floor's height, so its floor is the ground the scene walks on and its stilts go down into the water, while the model itself still stands at y = 0. The scene's walked ground stays at y = 0 in every place.
 
 **assets:people-and-door-sizes** Adults are 1.7 m nominal; built people run from 1.59 m to 1.82 m before hair and headwear, as measured in the people experiments of `../design/06-assets-and-visuals.md`. A single door is 2.1 m high and 0.9 m wide; a double door is 2.1 m by 1.2 m. Every part in the kit takes its sizes from the part table below.
 
