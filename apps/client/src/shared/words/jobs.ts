@@ -26,13 +26,42 @@ export function chanceBand(bp: number): Exclude<ChanceBand, "certain"> {
 }
 
 /**
- * A month's chance of the hunt landing this job, as the hunt rolls it (activity.logic.ts hireChanceBp, activity:job-hunt-lands-offer):
- * the job's own chance plus the network's share, under the cap. The remote-hiring boom's bonus is the world's and is
- * not in the view, so the remote job may read a band low while it lasts.
+ * A month's chance of the hunt landing this job, as the hunt rolls it (activity.logic.ts huntChanceBp, activity:job-hunt-lands-offer):
+ * the job's own chance plus the network's share and the world's `bonus`, under the cap.
  */
-export function jobChanceBp(entry: Pick<ActivityEntry, "hireBp">, network: number): number {
+export function jobChanceBp(entry: Pick<ActivityEntry, "hireBp">, network: number, bonus = 0): number {
   const { networkHireBp, hireMaxBp } = content.tuning.quality;
-  return Math.min(hireMaxBp, (entry.hireBp ?? 0) + networkHireBp * network);
+  return Math.min(hireMaxBp, (entry.hireBp ?? 0) + networkHireBp * network + bonus);
+}
+
+/** director.md: the remote-hiring boom adds its bonus to the remote job's hire chance, under the same cap. */
+const REMOTE_JOB = "activity.job-remote-developer";
+const REMOTE_BONUS = "var.remote-hire-bonus";
+
+/**
+ * A world variable as the view's news holds it (rate:latest-story-sets-variable): the value the story in force that came into
+ * force last sets it to, else its start. Every story that sets the remote job's bonus reverts when it ends (jobs.chance.test.ts
+ * holds it), so the stories in force are the whole of it.
+ */
+function worldVarOf(view: Pick<PlayerView, "news">, variable: string): number {
+  let value = content.var[variable as Id<"var">]?.start ?? 0;
+  let since = -Infinity;
+  for (const story of view.news) {
+    if (story.stage !== "in-force" || story.since < since) continue;
+    const set = content.news[story.id]?.standIn.sets.find((each) => each.var === variable);
+    if (set === undefined) continue;
+    value = set.value;
+    since = story.since;
+  }
+  return value;
+}
+
+/**
+ * The world's bonus to a job's hire chance that the view holds: the remote-hiring boom's for the remote job while it is in force.
+ * The bootcamp's help to the junior developer's hunt (activity:paid-tech-courses) is the life's and is not in the view.
+ */
+function worldBonusOf(view: Pick<PlayerView, "news">, id: string): number {
+  return id === REMOTE_JOB ? worldVarOf(view, REMOTE_BONUS) : 0;
 }
 
 
@@ -46,7 +75,7 @@ export function huntBand(bp: number): ChanceBand {
 
 export function chanceOf(view: PlayerView, id: string): number {
   const entry = content.activity[id as Id<"activity">];
-  return entry === undefined ? 0 : jobChanceBp(entry, qualityIn(view, NETWORK));
+  return entry === undefined ? 0 : jobChanceBp(entry, qualityIn(view, NETWORK), worldBonusOf(view, id));
 }
 
 /** A job's pay a month in words; with the view, a side job paid by level says the tier it is paid at now (activity:side-jobs-pay-by-tier). */
