@@ -235,11 +235,17 @@ function ownWay(view: StepView): ReturnType<typeof ownWayOf> {
   return ownWayOf({ chapter: view.chapter, scenario, qualities, pockets, ...(view.routes === undefined ? {} : { routes: view.routes }), ...(view.documents === undefined ? {} : { documents: view.documents }), ...(view.job === undefined ? {} : { job: view.job }) });
 }
 
-/** The thing in `here` that the step's way names, the first of its order that stands among `things`. */
-export function stepThingHere(way: StepWay, here: string | null, things: readonly { id: string }[]): string | null {
+/**
+ * The thing in `here` that the step's way names, the first of its order that stands among `things`; where it stands in a scene behind
+ * a door here (Makoko's racks on the smoking deck, seen from the channel), the door that leads to it (world:entering-is-a-cut).
+ */
+export function stepThingHere(way: StepWay, here: string | null, things: readonly { id: string; acts?: readonly { kind: string; leads?: readonly string[] }[] }[]): string | null {
   for (const entry of way.at) {
     const [place, thing] = entry.split(":");
-    if (place === here && things.some((candidate) => candidate.id === thing)) return thing ?? null;
+    if (place !== here || thing === undefined) continue;
+    if (things.some((candidate) => candidate.id === thing)) return thing;
+    const door = things.find((candidate) => candidate.acts?.some((act) => act.kind === "enter" && act.leads?.includes(thing) === true) === true);
+    if (door !== undefined) return door.id;
   }
   return null;
 }

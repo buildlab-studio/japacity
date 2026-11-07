@@ -115,6 +115,11 @@ export interface Stage {
   things?: Thing[];
   /** The place a door here opens into, as a place id (world:entering-is-a-cut): a room is just another place. */
   inside?: string;
+  /**
+   * The words key of the scene's own name, for a place that holds several scenes (Makoko's channel, its room on the water, its
+   * viewing centre, net shed and smoking deck): the band says it in place of the place's name (world:top-band-is-a-pill).
+   */
+  name?: string;
   /** A home's car spot, in its yard or by its gate: the car stands there while the life has one, else it is empty. */
   car?: Spot;
   /** A wide home's rooms: a tap on one or a pinch eases the camera in on it from the whole house. */
@@ -300,6 +305,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.shot === undefined ? {} : { shot: plain.shot }),
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
+    ...(plain.name === undefined ? {} : { name: plain.name }),
     ...(plain.car === undefined ? {} : { car: plain.car }),
     ...(plain.rooms === undefined ? {} : { rooms: plain.rooms }),
     ...(plain.owned === undefined ? {} : { owned: plain.owned }),

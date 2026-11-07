@@ -49,6 +49,13 @@ export interface Act {
    * water and its net shed, world:entering-is-a-cut); the file's own `stage.inside` when absent.
    */
   inside?: string;
+  /**
+   * For `enter`: the things of the scene behind the door, by their ids in that scene's file. A nudge that points at one of them
+   * from outside points at the door instead, so the way to the bed or the racks leads through it (world:entering-is-a-cut).
+   */
+  leads?: string[];
+  /** For `enter`: the door of a home, which opens only for the life that lives there; to anyone else the house is a neighbour's (home:home-is-the-home-point). */
+  home?: true;
   /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
   app?: string;
   /** For `command`: which command the card sends; `return/home` is the bag's Go home in the room abroad (return.md). */

@@ -75,13 +75,13 @@ import { type Device, enterPlace, judgeFrame, keepChoice, type Mode, type ModeCh
 import { overheard, speakerOf } from "./overheard";
 import { dancerShown, dressPlace, filesOf, openGround, parkCar, type PlaceFile, showPlanned, stageFilePath, stageOf } from "../../shared/scene/placeFile";
 import { shotOf, turnsRound } from "./scene/shot";
-import { HOUSE, insideOf, roomOf } from "./acts/room";
+import { homeSceneOf, HOUSE, insideOf, outOfHome, roomOf } from "./acts/room";
 import { personOf } from "../../shared/scene/roster";
 import type { Picked, ScenePick } from "./scene/scene.types";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./acts/school";
 import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, type ViewPlace } from "../../shared/scene/staging";
 import { type Coming, soonest } from "../../shared/words/coming";
-import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
+import { doorsFor, doorTo, stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
 import { Fan } from "./fan/Fan";
 import { GO_HOME, goHomeAsk, goHomeOffered } from "./acts/goHome";
 import { type Brief, briefOf, doneToast, giverToastMs, itemsDone, markerAllowed, metBefore, nextBase, briefTitle } from "./brief/brief";
@@ -168,6 +168,8 @@ const SEND_MONEY = "activity.send-money";
 // tuning.city.roam is false, so nothing roams.
 /** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world:nothing-roams). */
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
+/** The bed's thing in a home seen behind a door (Makoko's room on the water), which the night's nudge leads to through the door. */
+const BED = "bed";
 /** The home of each where when the view names none: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
 /** Where the character lives (home:home-is-the-home-point, home:compound-room-is-a-home): the room in Makoko or in the compound while they live there, else the where's home. */
@@ -814,6 +816,14 @@ export function City({
   // has one cut from its own file.
   const insideId = insideAt ?? insideOf(outsideFile);
   const insideFile = useRoomFile(insideId, drawing);
+  // A home's room behind its own door is stood in only while the life lives there: a life that leaves it (an eviction, a move)
+  // is back on the walk outside, where the house is a neighbour's (home:home-is-the-home-point).
+  const homeScene = useMemo(() => homeSceneOf(outsideFile), [outsideFile]);
+  useEffect(() => {
+    if (!outOfHome(inside, insideId, homeScene, livedIn)) return;
+    setInside(false);
+    setInsideAt(null);
+  }, [inside, homeScene, insideId, livedIn]);
   // A home's room behind its door holds what the life owns, as a home drawn whole does (Makoko's room on the water).
   const insideShown = useMemo(() => (insideFile === null ? null : showOwned(insideFile, standingKey === "" ? [] : standingKey.split("|"), arranged)), [insideFile, standingKey, arranged]);
   const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
@@ -893,7 +903,10 @@ export function City({
   const [drawnAt, setDrawnAt] = useState<string | null>(null);
   // The place's name, and inside a room that is another entry's (the hub's room is place.yaba) that entry's own name.
   const name = entry === null ? "" : placeName(entry.id);
-  const hereName = (inside && insideEntry?.id === "place.yaba") || placeId === "place.yaba" ? say("ui.inside.hub") : inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
+  // A place of several scenes names each in the band, the room on the water as the room it is (world:top-band-is-a-pill).
+  const sceneKey = file === null ? undefined : stageOf(file).name;
+  const sceneName = sceneKey === undefined ? null : cityWords(sceneKey);
+  const hereName = inside && sceneName !== null ? sceneName : (inside && insideEntry?.id === "place.yaba") || placeId === "place.yaba" ? say("ui.inside.hub") : inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
 
   const choose = (next: ModeChoice): void => {
     chooseGraphics(next);
@@ -980,8 +993,10 @@ export function City({
     // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (person:computer-mark-is-quiet).
     // A job held abroad is held at its thing: the job's act there becomes the shift, its label On shift (world:ride-abroad-and-workplace).
     const held = onShift(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), heldJob, here.where === "abroad");
-    return [...thingsNow(held, stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow), dayPart), ...standingAsThemselves(stageOf(file))];
-  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart, heldJob]);
+    // A home's door opens only for the life that lives there; to anyone else the house is a neighbour's (home:home-is-the-home-point).
+    const doors = doorsFor(held, livedIn);
+    return [...thingsNow(doors, stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow), dayPart), ...standingAsThemselves(stageOf(file))];
+  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart, heldJob, livedIn]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
   // activity:spent-body-refuses-acts: an act done at once that waits for sleep says so on its fan button.
@@ -1263,7 +1278,8 @@ export function City({
   );
   const toBed = shownNudge?.key === NIGHT;
   // The night's nudge opens the bed's fan where the bed stands; elsewhere it only says so.
-  const bed = things?.find((thing) => thing.acts.some((one) => one.kind === "end")) ?? null;
+  // Seen from outside a home with a door of its own (Makoko's channel), the way to the bed leads through the door (world:entering-is-a-cut).
+  const bed = things?.find((thing) => thing.acts.some((one) => one.kind === "end")) ?? things?.find((thing) => thing.id === doorTo(things, BED)) ?? null;
   const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
   // A step shut by its needs says "See Japa": its tap opens the Japa app, where the needs are listed.
   const nudgeNeeds = nudge?.about === "step" && nudge.key.endsWith(".needs");
@@ -1940,7 +1956,7 @@ export function City({
           <div aria-hidden className={`fixed inset-0 z-[36] bg-device/35 transition-opacity duration-200 ease-out ${asleep === null ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`} data-sleep-wash={asleep === null ? "off" : "on"} />
           <TopBand
             when={clock}
-            name={homeLine(hereId, view) ?? bandName(hereName)}
+            name={sceneName ?? homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
             month={bandMonth(view, beganAt, dayClock)}
             sky={dayClock.served ? dayClock.part : "afternoon"}
