@@ -29,11 +29,14 @@ function storeOf(account: AccountApi | null): StoreApi<Held> {
   return made;
 }
 
-/** Reads the account again and tells every screen that shows it. */
+/**
+ * Reads the account again and tells every screen that shows it. A read that gives no answer (refused over the read limit, or
+ * out of reach) keeps the account last read, so no screen goes empty where a good answer stood (server:per-account-rate-limits).
+ */
 export async function refreshAccount(account: AccountApi): Promise<AccountView | null> {
   const store = storeOf(account);
   store.setState({ asked: true });
-  const view = await account.view();
+  const view = (await account.view()) ?? store.getState().view;
   if (view?.state === "secured") markKeptHere();
   store.setState({ view });
   return view;

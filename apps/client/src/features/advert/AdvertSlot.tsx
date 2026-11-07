@@ -12,7 +12,7 @@ import { BlockReport } from "../../shared/moderation/BlockReport";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
-import { ADVERT_COUNTERS, advertsShown, countImpression } from "./advert";
+import { ADVERT_COUNTERS, advertsShown, countImpression, holdPicture } from "./advert";
 import type { CountAdvert } from "./advert";
 
 export interface AdvertSlotProps {
@@ -101,6 +101,10 @@ export function AdvertSlot({ slot, served, baseUrl = "", onCount }: AdvertSlotPr
   const filled = shown && served !== null && served !== undefined;
   const ref = useImpression(slot, filled, onCount);
   const [open, setOpen] = useState(false);
+  const picture = filled ? `${baseUrl}${served.image}` : null;
+  useEffect(() => {
+    if (picture !== null) holdPicture(picture);
+  }, [picture]);
   if (!shown) return null;
   const ratio = { aspectRatio: `${String(entry.width)} / ${String(entry.height)}` };
   if (served === null || served === undefined) {

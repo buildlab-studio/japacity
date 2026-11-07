@@ -207,6 +207,75 @@ test("[advert:slots-capped-per-place] the phone tile shows the hour's sponsored 
   await shootAtSize(page, "advert-card", info.project.name);
 });
 
+/** Every phone app on the home screen, in the order it stands. */
+async function phoneApps(page: Page): Promise<string[]> {
+  return (await page.locator("[data-phone] [data-app]").evaluateAll((tiles) => tiles.map((tile) => tile.getAttribute("data-app") ?? ""))).filter((app) => app !== "");
+}
+
+/** The requests heard by route, an image's path cut to its route. */
+function byRoute(heard: readonly string[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const asked of heard) {
+    const route = asked.replace(/^(GET \/api\/adverts\/image)\/.*$/, "$1").replace(/^(GET \/api\/place)\/.*$/, "$1");
+    counts[route] = (counts[route] ?? 0) + 1;
+  }
+  return counts;
+}
+
+test("[server:per-account-rate-limits] [server:public-replies-cached] a guest who opens every phone app in turn, back and forth, for a minute asks nothing more of the hour's adverts or the account once the phone tile stands, and the image at most once", async ({ page }) => {
+  const game = start({ scenario: "scenario.banker", content });
+  game.grant(1);
+  game.endTurn([]);
+  const heard: string[] = [];
+  await fakeServer(
+    page,
+    {
+      "GET /api/view": { body: viewReply(game, CLOCK.tick) },
+      "GET /api/account": { body: { ok: true, account: accountView({ state: "guest" }) } },
+      "GET /api/adverts": {
+        body: {
+          ok: true,
+          region: "NG",
+          hour: 1,
+          until: Date.now() + time.HOUR_MS,
+          slots: { "advert.phone-tile": { campaign: "campaign-1", creative: "creative-1", version: 1, image: "/api/adverts/image/creative-1/1", width: 256, height: 256, advertiser: "Mama Put Kitchen", text: "Jollof and plantain on the island, open late.", link: null } },
+        },
+      },
+      "GET /api/adverts/image/creative-1/1": { body: POSTER, type: "image/svg+xml" },
+      "GET /api/moderation/standing": { body: STANDING },
+    },
+    { heard: (asked) => heard.push(asked) },
+  );
+  test.setTimeout(240_000);
+  await intoTheWorld(page);
+  await page.locator('[data-thumb="phone"]').click();
+  const tile = page.locator("[data-phone] [data-advert-slot='advert.phone-tile']");
+  await expect(tile).toBeVisible({ timeout: 20_000 });
+  const before = heard.length;
+  const apps = await phoneApps(page);
+  expect(apps.length).toBeGreaterThan(5);
+  // A fast human: every app in turn and back to the home screen, over and over, for a minute.
+  const until = Date.now() + 60_000;
+  let opened = 0;
+  while (Date.now() < until) {
+    for (const app of apps) {
+      await openApp(page, app);
+      opened += 1;
+      await page.locator("[data-phone-back]").click();
+      await expect(tile).toBeVisible();
+      if (Date.now() >= until) break;
+    }
+  }
+  const sweep = byRoute(heard.slice(before));
+  console.log(`apps opened ${String(opened)}; before the sweep ${JSON.stringify(byRoute(heard.slice(0, before)))}; in the sweep ${JSON.stringify(sweep)}`);
+  expect(sweep["GET /api/adverts"] ?? 0).toBe(0);
+  // The image is the browser's to keep until the hour ends (its reply says so); a page whose requests are routed keeps no HTTP
+  // cache, so only the page's own memory of the picture stands here, and it may fetch it once more.
+  expect(sweep["GET /api/adverts/image"] ?? 0).toBeLessThanOrEqual(1);
+  expect(sweep["GET /api/account"] ?? 0).toBe(0);
+  expect(byRoute(heard)["GET /api/adverts"] ?? 0).toBe(1);
+});
+
 /** The banker, online, in a world whose Friday draw is on sale: draw 7, closing at tick 14, with nothing sold to the life yet. */
 function drawGame(): Game {
   const base = standInWorld("world-1", 0, content);

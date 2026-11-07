@@ -38,8 +38,12 @@ export async function putUsageCounts(server: Api, on: boolean): Promise<AccountR
   return reply;
 }
 
-/** The region the account was made in, the advert slots' key (advert:campaign-chosen-without-player-data); `default` when unknown. */
-export async function regionOf(server: Api): Promise<string> {
+/**
+ * The region the account was made in, the advert slots' key (advert:campaign-chosen-without-player-data); `default` when the
+ * account names no country, and null when the read was refused, so a refusal never stands for another region.
+ */
+export async function regionOf(server: Api): Promise<string | null> {
   const reply = await readAccount(server);
-  return reply.ok && reply.account.country !== "" ? reply.account.country : "default";
+  if (!reply.ok) return null;
+  return reply.account.country !== "" ? reply.account.country : "default";
 }

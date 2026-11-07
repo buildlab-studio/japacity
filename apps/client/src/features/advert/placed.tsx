@@ -4,7 +4,7 @@
 // Nothing shows offline, or wherever the view says no advert may (advert:no-adverts-on-protected-screens).
 import { content } from "@japacity/content";
 import type { AdvertSlotEntry } from "@japacity/sim";
-import { createContext, createElement, use, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, createElement, use, useEffect, useState, type ReactNode } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { authorityMode } from "../../shared/net/authorityMode";
@@ -28,22 +28,38 @@ export function AdvertsProvider({ value, children }: { value: AdvertsServer | nu
   return createElement(AdvertsContext, { value }, children);
 }
 
-function useAdvertsServer(): AdvertsServer | null {
-  const given = use(AdvertsContext);
-  const built = useMemo(() => {
-    if (given !== undefined) return null;
-    const mode = authorityMode();
-    return mode.authority === "remote" ? { api: api({ baseUrl: mode.baseUrl }), baseUrl: mode.baseUrl.replace(/\/+$/, "") } : null;
-  }, [given]);
-  return given === undefined ? built : given;
+/** The build's server, made once for the page, so every slot shares its account read and its kept hour. */
+let builtServer: AdvertsServer | null | undefined;
+
+function buildServer(): AdvertsServer | null {
+  if (builtServer !== undefined) return builtServer;
+  const mode = authorityMode();
+  builtServer = mode.authority === "remote" ? { api: api({ baseUrl: mode.baseUrl }), baseUrl: mode.baseUrl.replace(/\/+$/, "") } : null;
+  return builtServer;
 }
 
+function useAdvertsServer(): AdvertsServer | null {
+  const given = use(AdvertsContext);
+  return given === undefined ? buildServer() : given;
+}
+
+/** The region each server's account was made in, once known: it never changes in a page's life. */
+const regions = new WeakMap<Api, string>();
+
 function useRegion(server: AdvertsServer | null, wanted: boolean): string | null {
-  const [region, setRegion] = useState<string | null>(null);
+  const [region, setRegion] = useState<string | null>(() => (server === null ? null : (regions.get(server.api) ?? null)));
   useEffect(() => {
     if (server === null || !wanted) return;
+    const known = regions.get(server.api);
+    if (known !== undefined) {
+      setRegion(known);
+      return;
+    }
     let live = true;
+    // A refused read is no answer: no region yet, and the next slot to stand asks again.
     void regionOf(server.api).then((found) => {
+      if (found === null) return;
+      regions.set(server.api, found);
       if (live) setRegion(found);
     });
     return () => {
