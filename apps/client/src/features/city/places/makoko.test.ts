@@ -65,6 +65,9 @@ describe("Makoko", () => {
     for (const [folder, scene] of Object.entries(SCENES)) {
       expect({ folder, place: (scene as PlaceFile).place }).toEqual({ folder, place: ID });
       expect({ folder, named: stageOf(scene as PlaceFile).name !== undefined }).toEqual({ folder, named: true });
+      // Each model is listed once, its copies together, so the file's counts are the copies drawn.
+      const files = stageOf(scene as PlaceFile).models.map((model) => model.file);
+      expect({ folder, once: new Set(files).size === files.length }).toEqual({ folder, once: true });
     }
   });
 

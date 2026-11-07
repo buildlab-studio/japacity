@@ -177,12 +177,12 @@ export function buildMatStool(): Group {
   const g = new Group();
   g.name = "prop_mat-stool";
   // The mat a little thick, so it never shares the boards' height; its woven bands across.
-  box(g, 1.3, 0.03, 0.9, 0, 0, 0, "tan");
-  for (const x of [-0.45, -0.15, 0.15, 0.45]) box(g, 0.05, 0.034, 0.9, x, 0, 0, "khaki");
+  box(g, 1.3, 0.05, 0.9, 0, 0, 0, "tan");
+  for (const x of [-0.45, -0.15, 0.15, 0.45]) box(g, 0.05, 0.062, 0.9, x, 0, 0, "khaki");
   box(g, 0.3, 0.04, 0.26, 0.55, 0.26, -0.55, "wood");
   for (const sx of [-0.11, 0.11]) for (const sz of [-0.09, 0.09]) box(g, 0.04, 0.26, 0.04, 0.55 + sx, 0, -0.55 + sz, "darkWood");
-  cylinder(g, 0.2, 0.08, -0.35, 0.03, 0.15, "white", 10, 0.24);
-  cylinder(g, 0.205, 0.012, -0.35, 0.11, 0.15, "blue", 10);
-  for (const [x, z] of [[0.1, 0.2], [0.22, 0.12]] as const) cylinder(g, 0.04, 0.09, x, 0.03, z, "red", 6);
+  cylinder(g, 0.2, 0.08, -0.35, 0.05, 0.15, "white", 10, 0.24);
+  cylinder(g, 0.205, 0.012, -0.35, 0.13, 0.15, "blue", 10);
+  for (const [x, z] of [[0.1, 0.2], [0.22, 0.12]] as const) cylinder(g, 0.04, 0.09, x, 0.05, z, "red", 6);
   return setFootprint(g, [{ x: 0.55, z: -0.55, width: 0.34, depth: 0.3 }]);
 }

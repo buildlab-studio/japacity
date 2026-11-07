@@ -11,6 +11,7 @@ import { FLOOR_BED, STONES } from "@japacity/models/props/makoko-room/build";
 import { WALKWAY } from "@japacity/models/props/plank-walkway/build";
 
 import budgets from "../../../../../../models/budgets.json";
+import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, checkThings, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
 import raw from "../../../../public/assets/places/makoko-room/place.json";
@@ -100,7 +101,7 @@ describe("the room on the water", () => {
     expect(Math.abs(walkBack - foot)).toBeLessThan(0.05);
   });
 
-  test("[assets:assets-and-places-within-budget] [assets:models-record-their-footprint] given the room's shipped files, when it is counted as the build check counts it, then both modes fit the interior row and its bytes, its instances are its copies with what the life may own, every colour is a palette name, and the start stands on free floor inside the door's reach", async () => {
+  test("[assets:assets-and-places-within-budget] [assets:models-record-their-footprint] [world:faces-never-share-height] given the room's shipped files, when it is counted as the build check counts it, then both modes fit the interior row and its bytes, its instances are its copies with what the life may own, every colour is a palette name, and the start stands on free floor inside the door's reach", async () => {
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(budgets.place.interior.drawCalls);
@@ -115,6 +116,8 @@ describe("the room on the water", () => {
       if (isFootprint(footprint)) footprints.set(model.file, footprint);
     }
     expect(checkWalkable(ID, stage, footprints)).toEqual([]);
+    const floors = new Map<string, readonly ModelFace[]>(await Promise.all(stage.models.map(async (model) => [model.file, (await measured(model.file)).floors ?? []] as const)));
+    expect(checkFaces(ID, stage, (path) => floors.get(path) ?? [])).toEqual([]);
     // The door in the front wall is the one way between the room and the porch.
     expect(DOOR.width).toBeGreaterThanOrEqual(0.8);
   });
