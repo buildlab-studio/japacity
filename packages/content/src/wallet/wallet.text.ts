@@ -7,9 +7,9 @@ export const walletText: Record<string, string> = {
   "line.wallet.salary.label": "Salary",
   "line.wallet.gig": "Paid for side work: {amount}.",
   "line.wallet.gift": "A gift arrived: {amount}.",
-  "line.wallet.sale": "Sold. {amount} came in.",
+  "line.wallet.sale": "Sold. {amount} received.",
   "line.wallet.loan": "The loan was paid out: {amount}.",
-  "line.wallet.held-funds": "{amount} went into your account, locked. It counts when funds are shown. It cannot be spent.",
+  "line.wallet.held-funds": "{amount} credited to your account, locked. It counts when funds are shown. It cannot be spent.",
   "line.wallet.refund": "Refund received: {amount}.",
 
   // Money out.
@@ -51,7 +51,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.flagged": "A deposit of {amount} came from somewhere a visa officer will ask about. It will show for three months.",
   "line.wallet.rent": "Rent paid: {amount}.",
   "line.wallet.rent.label": "Rent",
-  "line.wallet.deposit-return": "Your deposit came back: {amount}.",
+  "line.wallet.deposit-return": "Your deposit was paid back: {amount}.",
   "line.wallet.phone": "Phone bill paid: {amount}.",
   "line.wallet.car-payment": "Car payment made: {amount}.",
   "line.wallet.car-deposit": "Car deposit paid: {amount}.",
@@ -66,12 +66,12 @@ export const walletText: Record<string, string> = {
   "line.wallet.ticket": "Lottery tickets: {amount}.",
   "line.wallet.wedding": "Your share of the wedding: {amount}.",
   "line.wallet.undertaking": "The undertaking you signed took {amount}.",
-  "line.wallet.assistance": "Social assistance came in: {amount}.",
+  "line.wallet.assistance": "Social assistance received: {amount}.",
   // wallet:top-ups-are-marked: naira bought with real money; it buys anything but a ticket.
   "line.wallet.top-up": "Topped up: {amount}.",
-  "line.wallet.remit-app": "You sent {sent} home by app. {naira} reached your naira account.",
-  "line.wallet.remit-bank": "You sent {sent} home through the bank. About {naira} reaches your naira account {readyMonth}.",
-  "line.wallet.remit-informal": "You handed {sent} to the man who sends money home. {naira} reached your people in cash.",
+  "line.wallet.remit-app": "You sent {sent} home by app. {naira} arrived in your naira account.",
+  "line.wallet.remit-bank": "You sent {sent} home through the bank. About {naira} arrives in your naira account {readyMonth}.",
+  "line.wallet.remit-informal": "You handed {sent} to the man who sends money home. {naira} arrived with your people, as cash.",
   "line.wallet.remit-lost": "You handed {sent} to the man who sends money home. It never arrived, and his number is off.",
 
   // world:month-end-results-sheet: each change of money in the month, said under Kept

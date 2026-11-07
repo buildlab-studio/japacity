@@ -29,6 +29,7 @@ import { payLine } from "../../shared/words/pay";
 import { localCurrency } from "../../shared/words/wayHome";
 import { withNextTier } from "../../shared/words/profile";
 import { ChangesAndNeeds, Facts } from "../../shared/ui/Facts";
+import { StateTag } from "../../shared/ui/StateTag";
 import { actFacts, missingNeeds } from "../../shared/words/facts";
 import { ApplyFor, firstJob, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
@@ -368,9 +369,14 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 {option.missing.every((requirement) => alreadyDone(requirement, { routes: view.routes })) ? say("ui.activity.done-already") : say("ui.activity.why-not")}
               </p>
             )}
-            <ul className="list-disc pl-5">
+            {/* world:one-action-one-sheet: what it still needs as marks, a cross while unmet, a tick for what is done already. */}
+            <ul className="mt-1 flex flex-wrap gap-1.5" data-act-needs>
               {option.missing.map((requirement, index) => (
-                <li key={index}>{requirementSentence(requirement, { routes: view.routes })}</li>
+                <li key={index} className="max-w-full">
+                  <StateTag state={alreadyDone(requirement, { routes: view.routes }) ? "done" : "failed"} id={`missing-${String(index)}`} wrap>
+                    {requirementSentence(requirement, { routes: view.routes })}
+                  </StateTag>
+                </li>
               ))}
             </ul>
           </div>
