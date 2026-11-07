@@ -4385,10 +4385,10 @@
       "approvedBy": null,
       "date": "2026-11-07",
       "modified": false,
-      "triangles": 1292,
+      "triangles": 1368,
       "drawCalls": 5,
       "materials": 1,
-      "bytes": 21508,
+      "bytes": 22488,
       "paletteCheck": {
         "passed": true,
         "date": "2026-11-07"

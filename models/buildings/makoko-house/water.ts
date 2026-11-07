@@ -141,7 +141,7 @@ function fullWall(g: Object3D, wall: Side, random: () => number, floor: number, 
   const { frame, length } = frameOf(g, wall, floor);
   const holes = holesOf(wall);
   for (const [a, b] of spans(length, holes)) {
-    if (wall.kind === "bamboo") bambooSpan(frame, a, b, walls, faces, faces === 2 ? 0.2 : 0.16);
+    if (wall.kind === "bamboo") bambooSpan(frame, a, b, walls, faces, faces === 2 ? 0.11 : 0.16);
     else plankSpan(frame, random, a, b, walls, faces);
   }
   if (wall.kind === "patched") patch(frame, faces);
@@ -354,17 +354,14 @@ export const ROOM_SPOTS = {
   net: [2.1, 2.2],
 } as const;
 
-/** A wrapper hung as a curtain across the room's back right corner, on its rope; and the mosquito net's rope across. */
+/** A wrapper hung as a curtain across the room's back right corner, half drawn on its rope; and the mosquito net's rope across. */
 function curtain(g: Group, floor: number): void {
   const { back } = waterLines();
-  const from: [number, number] = [0.35, back + 0.05];
-  const to: [number, number] = [0.35, back + 1.35];
-  beam(g, [from[0], floor + 1.95, from[1]], [to[0], floor + 1.95, to[1]], 0.02, "black");
+  const z = back + 1.35;
+  beam(g, [0.3, floor + 1.95, back + 0.05], [0.3, floor + 1.95, z], 0.02, "black");
+  beam(g, [0.3, floor + 1.95, z], [1.15, floor + 1.95, z], 0.02, "black");
   const bands: PaletteName[] = ["orange", "wine", "gold", "wine"];
-  bands.forEach((colour, i) => {
-    const z = from[1] + 0.15 + i * 0.3;
-    box(g, 0.03, 1.75, 0.3, from[0] + (i % 2) * 0.03, floor + 0.15, z, colour);
-  });
+  bands.forEach((colour, i) => box(g, 0.17, 1.75, 0.03, 0.39 + i * 0.17, floor + 0.15, z + (i % 2) * 0.03, colour));
   // The rope the net hangs from, wall to wall over the mattress.
   beam(g, [-WATER_HOUSE.width / 2 + 0.05, floor + 1.95, back + 0.9], [-0.1, floor + 1.95, back + 0.9], 0.015, "black");
 }
