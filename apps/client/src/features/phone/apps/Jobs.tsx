@@ -70,7 +70,7 @@ function roadLine(view: Pick<PlayerView, "routes" | "job">, road: PassbookRoad):
   );
 }
 
-/** A rung or a side job to reach for: its picture, name and pay as a chip, what lifts it as a tag, and what it still asks. */
+/** A rung or a side job to reach for: its picture, name and what it still asks, then its pay as a chip and what lifts it as a tag across the card. */
 function RoadRow({ road, pay, lift = [], line, data }: { road: PassbookRoad; pay: Fact[]; lift?: Change[]; line: ReactNode; data: "rung" | "side" }) {
   return (
     <PicCard
@@ -78,7 +78,7 @@ function RoadRow({ road, pay, lift = [], line, data }: { road: PassbookRoad; pay
       tint="study"
       title={nameOf(road.via)}
       line={line}
-      chips={pay.length === 0 && lift.length === 0 ? null : <FactsAndTags facts={pay} changes={lift} />}
+      foot={pay.length === 0 && lift.length === 0 ? null : <FactsAndTags facts={pay} changes={lift} />}
       {...(data === "rung" ? { "data-job-rung": road.via } : { "data-job-side-road": road.via })}
     />
   );
@@ -162,16 +162,17 @@ function FactsAndTags({ facts, changes }: { facts: readonly Fact[]; changes: rea
 }
 
 /**
- * The job held as a card (text:show-then-tell): its picture, its name, its pay, its months in it and its next pay review as chips, a
- * raise as a gain's tag, and the small act at its side.
+ * The job held as a card (text:show-then-tell): its picture, its name and the small act at its side, then across the card's whole
+ * width its pay, its months in it and its next pay review as chips and a raise as a gain's tag, so no chip is squeezed beside the act.
  */
 function JobRow({ id, name, facts, changes, act, actLabel }: { id: Id<"activity">; name: string; facts: Fact[]; changes: Change[]; act: (() => void) | null; actLabel: string }) {
   return (
     <PicCard
       pic={id}
       tint="money"
-      title={name}
-      chips={facts.length === 0 && changes.length === 0 ? null : <FactsAndTags facts={facts} changes={changes} />}
+      // A long name beside the act breaks at a syllable rather than running under it (world:reach-and-read).
+      title={<span className="[hyphens:auto]">{name}</span>}
+      foot={facts.length === 0 && changes.length === 0 ? null : <FactsAndTags facts={facts} changes={changes} />}
       side={
         act === null ? null : (
           <button type="button" onClick={act} className="phone-ghost press min-h-10 px-3 text-[14px]">
