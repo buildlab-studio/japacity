@@ -489,19 +489,26 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await page.getByRole("button", { name: /^Begin/ }).click();
   await passThePage(page, 20_000);
   await expect(page.locator("[data-thumb='map']")).toBeVisible({ timeout: 20_000 });
+  expect(faked.sent.filter((request) => request.route === "POST /api/guest")).toHaveLength(1);
+  expect(faked.sent.map((request) => request.route).filter((route) => route === "POST /api/guest" || route === "POST /api/character")).toEqual(["POST /api/guest", "POST /api/character"]);
+
+  // The life is kept by that email: the Kept sheet over the world with the passkey as its next step, as after any keep, its line as
+  // it closes, no chip, the account sheet naming the address, and nothing asking to save it. The first chapter's card stands first;
+  // the Kept sheet waits for it.
+  await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
+  const kept = page.getByRole("dialog", { name: "Saved" });
+  await expect(kept).toBeVisible({ timeout: 10_000 });
+  await expect(kept.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator("[data-passkey-card]")).toHaveCount(0);
+  await shootSmall(page, "one-code-kept", info.project.name);
+  await shootAtSize(page, "one-code-kept", info.project.name);
+  await kept.locator("[data-passkey-step]").getByRole("button", { name: "Not now" }).click();
+  await expect(kept).toHaveCount(0);
   await expect(page.locator("[data-way-toast]")).toHaveText("Saved with your email");
   // The line stands a few seconds: the small phone's picture first, while it does.
   await shootSmall(page, "one-code-welcome", info.project.name);
   await shootAtSize(page, "one-code-welcome", info.project.name);
-  expect(faked.sent.filter((request) => request.route === "POST /api/guest")).toHaveLength(1);
-  expect(faked.sent.map((request) => request.route).filter((route) => route === "POST /api/guest" || route === "POST /api/character")).toEqual(["POST /api/guest", "POST /api/character"]);
-
-  // The life is kept by that email: the passkey card as after any keep, the account sheet names the address, and nothing asks to save it.
-  // The first chapter's card stands first; the passkey card waits for it, then follows the line.
-  await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
-  const offer = page.locator("[data-passkey-card]");
-  await expect(offer).toBeVisible({ timeout: 10_000 });
-  await offer.getByRole("button", { name: "Not now" }).click();
+  await expect(page.locator("[data-save-chip]")).toHaveCount(0);
   await page.locator('[data-thumb="phone"]').click();
   await page.locator('[data-app="settings"]').click();
   const row = page.locator("[data-account-row]");
@@ -632,15 +639,18 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] Continue
   await page.getByRole("button", { name: /^Begin/ }).click();
   await passThePage(page, 20_000);
   await expect(page.locator("[data-thumb='map']")).toBeVisible({ timeout: 20_000 });
+
+  // The Kept sheet stands once the first brief's card is handed, with the passkey as its next step; its line is said as it closes,
+  // and the account sheet shows Google as the way in, with nothing asking to save the life.
+  await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
+  const kept = page.getByRole("dialog", { name: "Saved" });
+  await expect(kept).toBeVisible({ timeout: 10_000 });
+  await expect(kept.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
+  await kept.locator("[data-passkey-step]").getByRole("button", { name: "Not now" }).click();
   await expect(page.locator("[data-way-toast]")).toHaveText("Saved with Google");
   await shootSmall(page, "google-start-welcome", info.project.name);
   await shootAtSize(page, "google-start-welcome", info.project.name);
-
-  // The passkey card follows the line, and the account sheet shows Google as the way in, with nothing asking to save the life.
-  await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
-  const offer = page.locator("[data-passkey-card]");
-  await expect(offer).toBeVisible({ timeout: 10_000 });
-  await offer.getByRole("button", { name: "Not now" }).click();
+  await expect(page.locator("[data-passkey-card]")).toHaveCount(0);
   await page.locator('[data-thumb="phone"]').click();
   await page.locator('[data-app="settings"]').click();
   const row = page.locator("[data-account-row]");

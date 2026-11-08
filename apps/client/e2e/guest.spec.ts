@@ -4,9 +4,9 @@ import { test } from "./support/policy";
 // The guest start and keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email, account:guest-floods-are-capped, account:idle-guests-cleaned-by-hand and account:guest-reminded-to-secure), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
 import { uiOnlineText, uiText } from "../../../packages/content/src/index";
-import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastTheCard } from "./support/account";
+import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastFirstMonth, pastTheCard } from "./support/account";
 import { type Answer, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
-import { shootAtSize, shootPhone } from "./support/preview";
+import { shoot, shootAtSize, shootPhone } from "./support/preview";
 import { giveName } from "./support/door";
 
 test.use({ baseURL: ONLINE });
@@ -58,22 +58,26 @@ test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email
   expect(sent.some((route) => route.includes("/api/auth/"))).toBe(false);
 });
 
-test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] a guest past its first chapter is asked once to keep the life, and the month's line stays after", async ({ page }, info) => {
+test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] a guest past its first month is asked once to keep the life, and after Not now and a reload the chip stays as the way to it and nothing asks again", async ({ page }, info) => {
   await serve(page, {
-    "GET /api/view": pastFirstChapter(),
+    "GET /api/view": pastFirstMonth(),
     "GET /api/account": { body: { ok: true, account: GUEST } },
     "GET /api/moderation/standing": { body: STANDING },
   });
   await page.goto("/");
-  await pastTheCard(page);
   const ask = page.getByRole("dialog", { name: "Save this life" });
-  await expect(ask).toBeVisible({ timeout: 20_000 });
+  await expect(ask).toBeVisible({ timeout: 30_000 });
   // Read through the words table, so the line the sheet says is the one the test looks for.
-  await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
+  await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-month"] ?? "ui.secure.ask.first-month")).toBeVisible();
   // Google's own button, in one of Google's texts (account:guest-secures-the-life).
   await expect(ask.getByRole("button", { name: "Continue with Google" })).toBeVisible();
-  await shootPhone(page, "first-chapter-ask-phone", info.project.name, PICTURE);
+  await shootPhone(page, "first-month-ask-phone", info.project.name, PICTURE);
   await ask.getByRole("button", { name: "Not now" }).click();
+  await expect(ask).toHaveCount(0);
+  await expect(page.locator("[data-band] [data-save-chip]")).toBeVisible();
+  await page.reload();
+  await expect(page.locator("[data-band] [data-save-chip]")).toBeVisible({ timeout: 30_000 });
+  await page.waitForTimeout(2000);
   await expect(ask).toHaveCount(0);
 });
 
@@ -81,16 +85,15 @@ test.describe("inside a messaging app's browser", () => {
   test.use({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36 WhatsApp/2.24.1" });
 
   test("[account:guest-secures-the-life] the securing sheet offers the emailed code alone, with no Google and no way out before the life is kept", async ({ page }, info) => {
-    const view = pastFirstChapter();
+    const view = pastFirstMonth();
     await serve(page, {
       "GET /api/view": view,
       "GET /api/account": { body: { ok: true, account: GUEST } },
       "GET /api/moderation/standing": { body: STANDING },
     });
     await page.goto("/");
-    await pastTheCard(page);
     const sheet = page.getByRole("dialog", { name: "Save this life" });
-    await expect(sheet).toBeVisible({ timeout: 20_000 });
+    await expect(sheet).toBeVisible({ timeout: 30_000 });
     await expect(sheet.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
     await expect(sheet.getByText("Google does not open inside this app. Save this life with your email here, then open it in any browser.")).toBeVisible();
     await expect(sheet.getByRole("link", { name: "Open in my browser" })).toHaveCount(0);
@@ -99,9 +102,10 @@ test.describe("inside a messaging app's browser", () => {
   });
 });
 
-test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secures the life later by a code sent to an email, from the ask after the first chapter, and the same life goes on", async ({ page }) => {
+test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secures the life later by a code sent to an email, from the ask after the first month, and the same life goes on", async ({ page }) => {
+  await passkeysHere(page);
   const sent: string[] = [];
-  const view = pastFirstChapter();
+  const view = pastFirstMonth();
   const answers: Record<string, Answer> = {
     "GET /api/view": view,
     "GET /api/account": { body: { ok: true, account: GUEST } },
@@ -111,19 +115,20 @@ test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secu
   };
   await serve(page, answers, sent);
   await page.goto("/");
-  await pastTheCard(page);
   const sheet = page.getByRole("dialog", { name: "Save this life" });
-  await expect(sheet).toBeVisible({ timeout: 20_000 });
+  await expect(sheet).toBeVisible({ timeout: 30_000 });
   await sheet.getByLabel("Email").fill("ada@example.com");
   await sheet.getByRole("button", { name: "Send me a code" }).click();
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured" } } };
   // The sixth digit sends the code (account:code-form-forgives).
   await sheet.getByLabel("6-digit code").fill("123456");
   await expect(page.getByText("Saved. Sign in on any phone to carry on.")).toBeVisible();
-  // Saved, the sheet says only that.
+  // Saved, the sheet says only that and its next step: the passkey, whose Not now is the one left.
   const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible();
-  await expect(kept.getByRole("button", { name: "Not now" })).toHaveCount(0);
+  await expect(kept.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
+  await expect(kept.getByRole("button", { name: "Not now" })).toHaveCount(1);
+  await expect(kept.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(kept.getByLabel("Email")).toHaveCount(0);
   expect(sent).toContain("POST /api/auth/sign-in/email-otp");
   // The life goes on as it was: no new character was asked for.
@@ -257,7 +262,7 @@ async function lineTold(page: Page, line: string): Promise<void> {
   await expect(page.locator("[data-way-toast]")).toHaveCount(0, { timeout: 10_000 });
 }
 
-test("[account:passkey-offered-where-it-works] a guest that keeps its life by the code is offered a passkey on a card after the welcome line; Add a passkey makes one through the browser, and a reload offers nothing", async ({ page }, info) => {
+test("[account:guest-reminded-to-secure] [account:guest-secures-the-life] [account:passkey-offered-where-it-works] a guest sees the Not saved chip under the band's money, saves the life by the code through it, is offered a passkey as the Kept sheet's next step and makes one through the browser; the chip is gone, closing says Saved with your email with no card after it, and a reload offers nothing", async ({ page }, info) => {
   if (info.project.name.startsWith("Pixel")) await page.setViewportSize(PICTURE);
   await passkeysHere(page);
   const sent: string[] = [];
@@ -272,44 +277,53 @@ test("[account:passkey-offered-where-it-works] a guest that keeps its life by th
   await serve(page, answers, sent);
   await page.goto("/");
   await pastTheCard(page);
+  // No month played: nothing asks, and the chip is the way to the sheet.
+  const chip = page.locator("[data-band] [data-save-chip]");
+  await expect(chip).toBeVisible({ timeout: 20_000 });
+  await expect(chip).toHaveText("Not saved");
+  await expect(page.getByRole("dialog", { name: "Save this life" })).toHaveCount(0);
+  await chip.click();
   const sheet = page.getByRole("dialog", { name: "Save this life" });
-  await expect(sheet).toBeVisible({ timeout: 20_000 });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByText(uiOnlineText["ui.secure.why"] ?? "ui.secure.why")).toBeVisible();
   await sheet.getByLabel("Email").fill("ada@example.com");
   await sheet.getByRole("button", { name: "Send me a code" }).click();
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured", ways: { google: null, email: "ada@example.com", passkeys: 0 } } } };
   await sheet.getByLabel("6-digit code").fill("123456");
   const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible();
-  const card = page.locator("[data-passkey-card]");
-  // The card never stands over an open sheet: it waits for the welcome line, which comes as the sheet closes.
-  await page.waitForTimeout(1000);
-  await expect(card).toHaveCount(0);
-  await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
-  await lineTold(page, "Saved with your email");
-  await expect(card).toBeVisible({ timeout: 10_000 });
-  await expect(card.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible();
-  await expect(card.getByText("Use your face, fingerprint or screen lock instead of a code.")).toBeVisible();
-  await expect(card.getByRole("button", { name: "Not now" })).toBeVisible();
+  // Saved, then the passkey as the next step in the same sheet.
+  const step = kept.locator("[data-passkey-step]");
+  await expect(step.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
+  await expect(step.getByText("Use your face, fingerprint or screen lock instead of a code.")).toBeVisible();
+  await expect(step.getByRole("button", { name: "Not now" })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem("japacity.passkey.offered"))).not.toBeNull();
-  await page.waitForTimeout(400);
-  await shootAtSize(page, "passkey-card", info.project.name);
+  // The chip goes the moment the life is saved.
+  await expect(chip).toHaveCount(0);
+  await shootAtSize(page, "kept-passkey-step", info.project.name);
   answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured", ways: { google: null, email: "ada@example.com", passkeys: 1 } } } };
-  await card.getByRole("button", { name: "Add a passkey" }).click();
-  await expect(card.getByText("Passkey added. Use it next time you sign in.")).toBeVisible();
+  await step.getByRole("button", { name: "Add a passkey" }).click();
+  await expect(step.getByText("Passkey added. Use it next time you sign in.")).toBeVisible();
   expect(sent.filter((asked) => asked.startsWith("GET /api/auth/passkey/generate-register-options") || asked === "POST /api/auth/passkey/verify-registration")).toEqual([
     "GET /api/auth/passkey/generate-register-options",
     "POST /api/auth/passkey/verify-registration",
   ]);
   expect(await page.evaluate(() => localStorage.getItem("japacity.account.passkey"))).toBe("1");
-  await expect(card).toHaveCount(0, { timeout: 10_000 });
+  await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
+  await lineTold(page, "Saved with your email");
+  // The Kept sheet offered the passkey: no card follows its line.
+  await page.waitForTimeout(2000);
+  await expect(page.locator("[data-passkey-card]")).toHaveCount(0);
+  await expect(chip).toHaveCount(0);
 
   await page.reload();
   await expect(page.locator('[data-thumb="phone"]')).toBeVisible({ timeout: 30_000 });
   await page.waitForTimeout(5000);
-  await expect(card).toHaveCount(0);
+  await expect(page.locator("[data-passkey-card]")).toHaveCount(0);
+  await expect(chip).toHaveCount(0);
 });
 
-test("[account:passkey-offered-where-it-works] a life kept with Google is offered a passkey once on this device: after Not now and a reload, a sign-in with Google offers nothing", async ({ page }, info) => {
+test("[account:passkey-offered-where-it-works] a life kept with Google is offered a passkey once on this device, as its Kept sheet's next step: Not now closes the sheet, and after a reload a sign-in with Google offers nothing", async ({ page }, info) => {
   await passkeysHere(page);
   const sent: string[] = [];
   await serve(
@@ -325,18 +339,18 @@ test("[account:passkey-offered-where-it-works] a life kept with Google is offere
   await page.goto("/?google=kept");
   const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible({ timeout: 20_000 });
-  await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
+  const step = kept.locator("[data-passkey-step]");
+  await expect(step.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
+  await shootAtSize(page, "kept-google-passkey-step", info.project.name);
+  await step.getByRole("button", { name: "Not now" }).click();
+  await expect(kept).toHaveCount(0);
   await lineTold(page, "Saved with Google");
-  // The second chapter's mission card holds the screen as the world loads: the passkey's card waits for it to close.
+  // The second chapter's mission card holds the screen as the world loads; no passkey's card waits behind it.
   const card = page.locator("[data-passkey-card]");
   const brief = page.locator("[data-brief='chapter.build-the-file']");
   await expect(brief).toBeVisible({ timeout: 20_000 });
-  await page.waitForTimeout(1500);
-  await expect(card).toHaveCount(0);
   await brief.getByRole("button", { name: "Let's go" }).click();
-  await expect(card).toBeVisible({ timeout: 10_000 });
-  await shootAtSize(page, "passkey-card-google", info.project.name);
-  await card.getByRole("button", { name: "Not now" }).click();
+  await page.waitForTimeout(2000);
   await expect(card).toHaveCount(0);
   expect(sent.some((asked) => asked.startsWith("GET /api/auth/passkey/generate-register-options"))).toBe(false);
 
@@ -350,3 +364,83 @@ test("[account:passkey-offered-where-it-works] a life kept with Google is offere
   await page.waitForTimeout(2000);
   await expect(card).toHaveCount(0);
 });
+
+/** The parts of the day the chip's pictures are taken at, by the world's clock (`?clock=`, a development build's own). */
+const PAINTS = [
+  { paint: "day", clock: "morning" },
+  { paint: "night", clock: "night" },
+] as const;
+
+for (const { paint, clock } of PAINTS) {
+  test(`[account:guest-reminded-to-secure] [world:top-band-is-a-pill] [account:guest-secures-the-life] [account:passkey-offered-where-it-works] by ${paint}, at each size, a guest past its first month is asked, then finds the Not saved chip clear under the band's money, opens the sheet from it, saves by the code to the Kept state's passkey step, and the world stands saved with no chip`, async ({ page }, info) => {
+    test.setTimeout(240_000);
+    await passkeysHere(page);
+    const sizes = info.project.name.startsWith("Pixel") ? [PICTURE, { width: 360, height: 780 }] : [{ width: 1440, height: 900 }];
+    for (const size of sizes) {
+      await page.setViewportSize(size);
+      const name = (step: string) => `save-nudge-${String(size.width)}x${String(size.height)}-${paint}-${step}`;
+      const answers: Record<string, Answer> = {
+        "GET /api/view": pastFirstMonth(),
+        "GET /api/account": { body: { ok: true, account: GUEST } },
+        "GET /api/moderation/standing": { body: STANDING },
+        "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
+        "POST /api/auth/sign-in/email-otp": { body: { token: "session-2", user: { id: GUEST.id, email: "ada@example.com", emailVerified: true, name: "", createdAt: "2026-10-10T00:00:00.000Z", updatedAt: "2026-10-10T00:00:00.000Z" } } },
+        ...REGISTER,
+      };
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+      await serve(page, answers);
+      // Each size meets the life afresh: no ask marked, no passkey offered on this device yet.
+      await page.goto(`/?clock=${clock}`);
+      await page.evaluate(() => localStorage.clear());
+      await page.reload();
+
+      // The first ask, once the first month's results are read.
+      const ask = page.getByRole("dialog", { name: "Save this life" });
+      await expect(ask).toBeVisible({ timeout: 30_000 });
+      await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-month"] ?? "ui.secure.ask.first-month")).toBeVisible();
+      await shoot(page, name("1-first-ask"), { settleMs: 400 });
+      await ask.getByRole("button", { name: "Not now" }).click();
+      await expect(ask).toHaveCount(0);
+
+      // The chip hangs under the pill at the money's end, whole on the screen, clear of the money, the nudge and the thumbs.
+      const chip = page.locator("[data-band] [data-save-chip]");
+      await expect(chip).toBeVisible();
+      await page.waitForTimeout(600);
+      const box = await chip.boundingBox();
+      const pill = await page.locator("[data-band-pill]").boundingBox();
+      const money = await page.locator("[data-band-money]").boundingBox();
+      if (box === null || pill === null || money === null) throw new Error("The chip, the pill or the money is not drawn.");
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(size.width);
+      expect(box.y).toBeGreaterThanOrEqual(pill.y + pill.height - 6);
+      expect(box.y + box.height).toBeLessThan(pill.y + pill.height + 40);
+      expect(box.x + box.width).toBeGreaterThan(money.x + money.width / 2);
+      for (const other of ["[data-band-money]", "[data-band-handle]", '[data-thumb="map"]', '[data-thumb="phone"]']) {
+        const near = await page.locator(other).first().boundingBox();
+        if (near === null) continue;
+        const apart = box.x + box.width <= near.x || near.x + near.width <= box.x || box.y + box.height <= near.y || near.y + near.height <= box.y;
+        expect(apart, `the chip stands clear of ${other}`).toBe(true);
+      }
+      await shoot(page, name("2-world-chip"), { settleMs: 300 });
+
+      await chip.click();
+      const sheet = page.getByRole("dialog", { name: "Save this life" });
+      await expect(sheet).toBeVisible();
+      await expect(sheet.getByText(uiOnlineText["ui.secure.why"] ?? "ui.secure.why")).toBeVisible();
+      await shoot(page, name("3-chip-sheet"), { settleMs: 400 });
+      await sheet.getByLabel("Email").fill("ada@example.com");
+      await sheet.getByRole("button", { name: "Send me a code" }).click();
+      answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured", ways: { google: null, email: "ada@example.com", passkeys: 0 } } } };
+      await sheet.getByLabel("6-digit code").fill("123456");
+      const kept = page.getByRole("dialog", { name: "Saved" });
+      await expect(kept.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
+      await expect(chip).toHaveCount(0);
+      await shoot(page, name("4-kept-passkey"), { settleMs: 400 });
+      await kept.locator("[data-passkey-step]").getByRole("button", { name: "Not now" }).click();
+      await expect(kept).toHaveCount(0);
+      await lineTold(page, "Saved with your email");
+      await expect(chip).toHaveCount(0);
+      await shoot(page, name("5-saved-no-chip"), { settleMs: 300 });
+    }
+  });
+}

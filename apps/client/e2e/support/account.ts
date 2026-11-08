@@ -1,6 +1,6 @@
-// A life past its first chapter on a faked server, for the specs that open the account's sheets (guest.spec.ts,
-// sheets.spec.ts): the guest and the life saved with Google, the view the server answers, and the way past the second
-// chapter's card, which the asks wait for (account:guest-secures-the-life).
+// A life on a faked server for the specs that open the account's sheets (guest.spec.ts, sheets.spec.ts): the guest and the
+// life saved with Google, the view the server answers past the first chapter and past the first month, and the way past the
+// second chapter's card, which the asks and the chip's sheet wait for (account:guest-secures-the-life).
 import { start } from "@japacity/sim/testing";
 
 import { expect, type Page } from "@playwright/test";
@@ -36,4 +36,17 @@ export function pastFirstChapter(): Answer {
   // The file's own items, none met yet: the first chapter's items under the file's id would name steps it does not have.
   const items = (content.chapter["chapter.build-the-file"]?.items ?? []).map((item) => ({ id: item.id, met: false }));
   return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file", items } }, lines: [], clock: CLOCK } };
+}
+
+/**
+ * A guest's life with its first month played and its results read, as a reload after the first Sleep finds it: the first ask
+ * is due as the world opens (account:guest-secures-the-life). The banker's month is paid, so its results hold the early win
+ * (guide:early-win-in-three-turns), and a life that has played a month opens on no mission card.
+ */
+export function pastFirstMonth(): Answer {
+  const game = start({ scenario: "scenario.banker", content });
+  game.grant(1);
+  game.endTurn();
+  game.grant(1);
+  return { body: { ok: true, view: game.view(), lines: [], clock: CLOCK } };
 }

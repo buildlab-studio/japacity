@@ -44,10 +44,12 @@ Each of them, tried as a guest, brings the ask to save the life, never a dead en
 
 ## Saving the life
 
-The ask comes after the first chapter, before the visa decision, and whenever a guest tries one of the things above. Never at the door, never before the first chapter's win. A quiet line on the settings and on the month's results says the same thing, plainly: this life lives only on this phone until you save it.
+The ask comes once the first month's results are read, before the visa decision, and whenever a guest tries one of the things above. Never at the door, never before the life's first win. A small "Not saved" chip under the money stands over the world for as long as the life is a guest's, and a tap on it opens the same sheet; it goes the moment the life is saved. A quiet line on the settings and on the month's results says the same thing, plainly: this life lives only on this phone until you save it.
+
+Once the life is saved, the sheet says so and offers a passkey as the next step, so the next sign-in is a face, a fingerprint or the screen lock; "Not now" skips it.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
-<img src="/pictures/accounts-keep-this-life.webp" alt="Save this life: after the first chapter, save it with Google, or with your email, or Not now" width="260">
+<img src="/pictures/accounts-keep-this-life.webp" alt="Save this life: save it with Google, or with your email, or Not now" width="260">
 <img src="/pictures/accounts-sign-back-in.webp" alt="Sign back in: Continue with Google, an email code, Use a passkey" width="260">
 </div>
 
@@ -55,7 +57,7 @@ The ask comes after the first chapter, before the visa decision, and whenever a 
 |---|---|
 | Google | First, wherever Google sign-in opens |
 | A code by email | Six digits, good for five minutes and three tries; a new code replaces the old |
-| A passkey | Added from the settings once the life is saved; bound to the game's own address |
+| A passkey | Offered right after the life is saved, and added from the settings any time after; bound to the game's own address |
 
 ::: tip Inside a chat app's browser
 Some apps' built-in browsers block Google sign-in. There the game does not show Google. The ways back in offer the email code and a way to open the game in the phone's own browser; a guest life there is saved with the email code alone, since it lives in that app's browser, and once saved it opens in any browser.

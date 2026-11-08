@@ -6,7 +6,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 import { uiOnlineText } from "../../../packages/content/src/index";
-import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastTheCard } from "./support/account";
+import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastFirstMonth, pastTheCard } from "./support/account";
 import { type Answer, type Answering, fakeServer, ONLINE, STANDING } from "./support/api";
 import { shootAtSize } from "./support/preview";
 import { test } from "./support/policy";
@@ -106,15 +106,14 @@ async function openAccount(page: Page, guest: boolean): Promise<Locator> {
 
 test("[world:sheets-one-frame] [world:reach-and-read] [account:guest-secures-the-life] [account:code-form-forgives] the save sheet holds Google and its close at each size, and once the code is sent, the field, Save and Not now", async ({ page }, info) => {
   await fakeServer(page, {
-    "GET /api/view": pastFirstChapter(),
+    "GET /api/view": pastFirstMonth(),
     "GET /api/account": { body: { ok: true, account: GUEST } },
     "GET /api/moderation/standing": { body: STANDING },
     "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
   });
   await page.goto("/");
-  await pastTheCard(page);
   const sheet = page.getByRole("dialog", { name: "Save this life" });
-  await expect(sheet).toBeVisible({ timeout: 20_000 });
+  await expect(sheet).toBeVisible({ timeout: 30_000 });
   await fits(page, sheet, "the save sheet", [sheet.getByRole("button", { name: "Continue with Google" }), sheet.getByRole("button", { name: "Send me a code" })]);
   await picture(page, sheet, "10-save-ask-375", info.project.name);
   await sheet.getByLabel("Email").fill("ada@example.com");
