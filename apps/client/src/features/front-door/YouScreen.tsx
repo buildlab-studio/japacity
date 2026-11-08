@@ -119,7 +119,7 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
       {suggestions.length === 0 ? null : (
         <div role="group" aria-label={say("prologue.door.name.suggested")} className="mt-2.5 flex flex-wrap gap-2" data-door-suggested>
           {suggestions.map((one) => (
-            <button key={one} type="button" className="pill-button h-10! px-4! text-[16px]! font-bold" onClick={() => onName(one)}>
+            <button key={one} type="button" className="pill-button reach h-10! px-4! text-[16px]! font-bold" onClick={() => onName(one)}>
               {one}
             </button>
           ))}
