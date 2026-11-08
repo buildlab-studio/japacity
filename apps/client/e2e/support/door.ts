@@ -64,9 +64,12 @@ export async function startReadyLife(page: Page, kind?: string, timeout = 30_000
   await passOpeningWords(page);
 }
 
-/** The page as the handover waits for the player (prologue:printed-page-hands-over): Go on it, once its years are in, if it shows. */
+/**
+ * The page as the handover waits for the player (prologue:printed-page-hands-over): Go on it, once its years are in, if it shows. On a
+ * desk Go stands in the desk's panel, the handover's mark on the desk itself.
+ */
 export async function passThePage(page: Page, timeout = 30_000): Promise<void> {
-  const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
+  const go = page.locator("[data-page-handover], [data-door-desk][data-gate='handover']").getByRole("button", { name: "Go", exact: true });
   // A life whose page is not shown (online, the server closes the years) goes straight to the world.
   await go.or(page.locator("[data-thumb='phone']")).first().waitFor({ state: "visible", timeout }).catch(() => undefined);
   if (await go.isVisible().catch(() => false)) await go.click();
