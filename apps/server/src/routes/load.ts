@@ -157,11 +157,15 @@ async function loadView(deps: ServerDeps, character: string): Promise<LoadView |
   return { ok: true, character: live.id, account: live.account, basedOn: live.storedV, ended: view.ended, legal: legalCommands(view) };
 }
 
+/** load:runs-against-local-stack: the hosts of this machine, the only ones the load routes answer on. */
+const THIS_MACHINE: ReadonlySet<string> = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
 /** The load test's routes, over the counts its Worker keeps. */
 export function loadRoutes(deps: ServerDeps, counts: WriteCounts): Hono {
   const route = new Hono();
   route.use("/api/load/*", async (c, next) => {
-    if (!deps.config.testing.testLogin) {
+    // load:runs-against-local-stack: a deployed Worker is reached by its own host, so whatever its config it never serves these.
+    if (!deps.config.testing.testLogin || !THIS_MACHINE.has(new URL(c.req.url).hostname)) {
       const { status, body } = notFound();
       return c.json(body, status);
     }

@@ -7,7 +7,7 @@ The load test asks one question: does the authority, with its stores, take the v
 
 ## Rules: what is simulated
 
-**load:runs-against-local-stack** The test runs against the load Worker (`apps/server/src/load.worker.ts`, `apps/server/wrangler.load.jsonc`) under the local Workers runtime: the server's own routes on the in-memory stores of `packages/store`, with the test sign-in, the fast clock and the server's own rate limits, on one machine, with nothing in between that the hosted build would not also have.
+**load:runs-against-local-stack** The test runs against the load Worker (`apps/server/src/load.worker.ts`, `apps/server/wrangler.load.jsonc`) under the local Workers runtime: the server's own routes on the in-memory stores of `packages/store`, with the test sign-in, the fast clock and the server's own rate limits, on one machine, with nothing in between that the hosted build would not also have. The load routes (`/api/load/*`) answer only while the test sign-in is on and the request reaches the Worker on this machine (`localhost`, `127.0.0.1` or `[::1]`); asked on any other host they are not found and write nothing, so a Worker deployed with any config never serves them.
 
 **load:seeded-test-accounts** Before the run, a seeding script creates `config.load.accounts` test accounts through the server's own test sign-in, each with a character started from the scenario fixtures and played forward a random number of turns between 0 and `config.load.warmTurns`, so snapshots and command logs of every length exist. `config.load.pairShareBp` of the accounts are joined in pairs (`pair.md`).
 
