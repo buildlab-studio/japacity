@@ -805,6 +805,7 @@ export const uiText: Record<string, string> = {
   "ui.req.goal-done": "Finish the goal \"{goal}\"",
   "ui.req.era-is": "While the era is {eras}",
   "ui.req.obligation-has": "Have {type}",
+  "ui.req.obligation-defaulted-lately": "A default on {obligations} in the last {time}",
   "ui.req.route-gate-step": "{route} at the step \"{step}\"",
   "ui.req.local-tenure": "{time} in a job here",
   "ui.req.activity-played": "{activity} this month",
