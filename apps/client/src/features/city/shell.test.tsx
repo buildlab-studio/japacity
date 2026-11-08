@@ -161,6 +161,22 @@ describe("the band and the thumb buttons", () => {
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
 
+  test("[world:top-band-is-a-pill] [account:guest-reminded-to-secure] given a guest's chip handed to the band, when the results are up or the map with its ride is open, then the chip steps back with the band, and stands again with it after", async () => {
+    const { store } = await opened(world({ bandTag: <button type="button" data-save-chip>Not saved</button>, cityMap: () => <p data-map-slot /> }), richView());
+    const chip = () => document.querySelector("[data-band] [data-save-chip]");
+    expect(chip()).not.toBeNull();
+    expect(band().getAttribute("aria-hidden")).toBe("false");
+    act(() => store.setState({ reportOpen: true }));
+    await waitFor(() => expect(band().getAttribute("aria-hidden")).toBe("true"), { timeout: RESULTS_BEAT_MS + 1500 });
+    expect(chip()?.closest("[aria-hidden='true']")).toBe(band());
+    act(() => store.setState({ reportOpen: false }));
+    expect(band().getAttribute("aria-hidden")).toBe("false");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.world.map") }));
+    expect(document.querySelector("[data-map-slot]")).not.toBeNull();
+    expect(band().getAttribute("aria-hidden")).toBe("true");
+    expect(chip()?.closest("[aria-hidden='true']")).toBe(band());
+  });
+
   test("[world:top-band-is-a-pill] given the staged wins still to show, when the month has ended, then the band stays until the results come up", async () => {
     const { store } = await opened(world(), richView());
     const view = richView();

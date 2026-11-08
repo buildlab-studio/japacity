@@ -8,6 +8,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { uiOnlineText } from "../../../packages/content/src/index";
 import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastFirstMonth, pastTheCard } from "./support/account";
 import { type Answer, type Answering, fakeServer, ONLINE, STANDING } from "./support/api";
+import { passHomeTeach } from "./support/live";
 import { shootAtSize } from "./support/preview";
 import { test } from "./support/policy";
 
@@ -111,6 +112,8 @@ test("[world:sheets-one-frame] [world:reach-and-read] [account:guest-secures-the
     "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
   });
   await page.goto("/");
+  // The ask waits for the home's teach card to be dismissed (account:guest-secures-the-life).
+  await passHomeTeach(page, 30_000);
   const sheet = page.getByRole("dialog", { name: "Save this life" });
   await expect(sheet).toBeVisible({ timeout: 30_000 });
   await fits(page, sheet, "the save sheet", [sheet.getByRole("button", { name: "Continue with Google" }), sheet.getByRole("button", { name: "Send me a code" })]);

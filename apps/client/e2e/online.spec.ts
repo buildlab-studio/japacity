@@ -38,22 +38,22 @@ const POSTER = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"
  * home's teach card put away (home:moves-carry-cost-and-reason), and the place drawn.
  */
 /**
- * `asked`: a guest past its first month with its early win in, asked once to save the life as the world opens
- * (account:guest-secures-the-life); Not now goes on.
+ * `asked`: a guest past its first month with its early win in, asked once to save the life once the home's teach card is
+ * dismissed (account:guest-secures-the-life); Not now goes on.
  */
 async function intoTheWorld(page: Page, asked = false): Promise<void> {
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto("/");
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+  await passOpeningWords(page);
+  await placeReady(page);
+  await passHomeTeach(page);
   if (asked) {
     const ask = page.getByRole("dialog", { name: "Save this life" });
     await expect(ask).toBeVisible({ timeout: 20_000 });
     await ask.getByRole("button", { name: "Not now" }).click();
     await expect(ask).toHaveCount(0);
   }
-  await passOpeningWords(page);
-  await placeReady(page);
-  await passHomeTeach(page);
   await passCards(page);
 }
 

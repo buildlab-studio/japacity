@@ -411,6 +411,21 @@ describe("when the asks come", () => {
     expect(await screen.findByText(say("ui.secure.ask.first-month"), undefined, { timeout: 2000 })).toBeDefined();
   });
 
+  test.each(["data-home-teach", "data-night-teach"])("[account:guest-secures-the-life] given a teach card (%s) open over the world when the first ask is due, then the ask waits and opens once the card is dismissed", async (mark) => {
+    const teach = document.createElement("div");
+    teach.setAttribute("role", "note");
+    teach.setAttribute(mark, "");
+    document.body.append(teach);
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureAsk />, firstMonth(), true);
+    await waitFor(() => expect(account.calls).toContain("view()"));
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(firstLine()).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    teach.remove();
+    expect(await screen.findByText(say("ui.secure.ask.first-month"), undefined, { timeout: 2000 })).toBeDefined();
+  });
+
   test("[account:guest-secures-the-life] given a guest reaching the decision-day chapter after its win, then the visa ask opens; a secured account is never asked", async () => {
     const decision = withChapter(engineView(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day");
     const guest = fakeAccount(me("guest"));

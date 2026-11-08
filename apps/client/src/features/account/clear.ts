@@ -11,3 +11,11 @@ export const CLEAR_EVERY_MS = 500;
 export function otherSheetUp(): boolean {
   return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open], [data-brief-pending]') !== null;
 }
+
+/**
+ * A teach card stands open over the world (the home's card or the first night's): the keep-this-life ask waits for it to be
+ * dismissed, as for a sheet (account:guest-secures-the-life).
+ */
+export function teachUp(): boolean {
+  return typeof document !== "undefined" && document.querySelector("[data-home-teach], [data-night-teach]") !== null;
+}

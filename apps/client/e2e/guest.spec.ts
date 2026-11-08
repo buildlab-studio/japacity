@@ -8,6 +8,7 @@ import { GUEST, KEPT_WITH_GOOGLE, pastFirstChapter, pastFirstMonth, pastTheCard 
 import { type Answer, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
 import { shoot, shootAtSize, shootPhone } from "./support/preview";
 import { giveName } from "./support/door";
+import { passHomeTeach } from "./support/live";
 
 test.use({ baseURL: ONLINE });
 
@@ -65,7 +66,12 @@ test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] a gues
     "GET /api/moderation/standing": { body: STANDING },
   });
   await page.goto("/");
+  // The ask waits for the home's teach card to be dismissed (account:guest-secures-the-life).
   const ask = page.getByRole("dialog", { name: "Save this life" });
+  await expect(page.locator("[data-home-teach-ok]")).toBeVisible({ timeout: 30_000 });
+  await page.waitForTimeout(1500);
+  await expect(ask).toHaveCount(0);
+  await passHomeTeach(page);
   await expect(ask).toBeVisible({ timeout: 30_000 });
   // Read through the words table, so the line the sheet says is the one the test looks for.
   await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-month"] ?? "ui.secure.ask.first-month")).toBeVisible();
@@ -92,6 +98,7 @@ test.describe("inside a messaging app's browser", () => {
       "GET /api/moderation/standing": { body: STANDING },
     });
     await page.goto("/");
+    await passHomeTeach(page, 30_000);
     const sheet = page.getByRole("dialog", { name: "Save this life" });
     await expect(sheet).toBeVisible({ timeout: 30_000 });
     await expect(sheet.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
@@ -115,6 +122,7 @@ test("[account:guest-secures-the-life] [account:code-form-forgives] a guest secu
   };
   await serve(page, answers, sent);
   await page.goto("/");
+  await passHomeTeach(page, 30_000);
   const sheet = page.getByRole("dialog", { name: "Save this life" });
   await expect(sheet).toBeVisible({ timeout: 30_000 });
   await sheet.getByLabel("Email").fill("ada@example.com");
@@ -393,8 +401,9 @@ for (const { paint, clock } of PAINTS) {
       await page.goto(`/?clock=${clock}`);
       await page.evaluate(() => localStorage.clear());
       await page.reload();
+      await passHomeTeach(page, 30_000);
 
-      // The first ask, once the first month's results are read.
+      // The first ask, once the first month's results are read and the home's teach card is dismissed.
       const ask = page.getByRole("dialog", { name: "Save this life" });
       await expect(ask).toBeVisible({ timeout: 30_000 });
       await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-month"] ?? "ui.secure.ask.first-month")).toBeVisible();

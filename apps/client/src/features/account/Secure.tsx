@@ -28,7 +28,7 @@ import { askWaysBackIn, backFromDeleteTrip } from "./marks";
 import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { keptOpened, tellWay, useKeptDue, WayToast, type KeptWay } from "./WayToast";
-import { CLEAR_EVERY_MS, otherSheetUp } from "./clear";
+import { CLEAR_EVERY_MS, otherSheetUp, teachUp } from "./clear";
 import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 import { secureAskedKey } from "../../shared/storage/storage";
 
@@ -353,9 +353,14 @@ export function SecureAsk() {
   const keptDue = useKeptDue(account);
   const due = ((moment !== null && me !== null) || keptDue !== null) && quiet && !open;
   const [clear, setClear] = useState(true);
+  // The staged asks also wait for a teach card over the world to be dismissed (account:guest-secures-the-life).
+  const [teaching, setTeaching] = useState(false);
   useEffect(() => {
     if (!due) return;
-    const look = () => setClear(!otherSheetUp());
+    const look = () => {
+      setClear(!otherSheetUp());
+      setTeaching(teachUp());
+    };
     look();
     const timer = window.setInterval(look, CLEAR_EVERY_MS);
     return () => window.clearInterval(timer);
@@ -370,7 +375,7 @@ export function SecureAsk() {
     setOpen(true);
   }, [account, keptDue, quiet, open, clear]);
   useEffect(() => {
-    if (moment === null || me === null || !quiet || open || !clear || otherSheetUp()) return;
+    if (moment === null || me === null || !quiet || open || !clear || teaching || otherSheetUp() || teachUp()) return;
     const key = secureAskedKey(me.id, moment);
     if (askedBefore(key) || (moment === "first-month" && askedBefore(secureAskedKey(me.id, FIRST_CHAPTER)))) return;
     markAsked(key);
@@ -379,7 +384,7 @@ export function SecureAsk() {
     setKept(null);
     setOpen(true);
     countAsk("sign-in", "shown", true);
-  }, [moment, me, quiet, open, clear]);
+  }, [moment, me, quiet, open, clear, teaching]);
 
   if (account === null) return null;
   return (
