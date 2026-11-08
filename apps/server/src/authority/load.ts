@@ -42,6 +42,8 @@ export interface Diverged {
   account: string;
   v: number;
   detail: string;
+  /** server:older-contents-bundled: the segment names a content the server does not bundle, so nothing was replayed. */
+  unbundled?: true;
 }
 
 export type Loaded = { ok: true; live: Live } | { ok: false; diverged: Diverged };
@@ -84,6 +86,17 @@ export function snapshotOf(character: string, segment: number, content: Content,
 }
 
 /**
+ * server:snapshots-bound-replay: the hash the snapshot must have when nothing is logged after it: a segment's first
+ * snapshot its base, any other the row at its version; null when that row is not stored. A new life's first snapshot
+ * is the only state its creation wrote: a state made again from its scenario by later code may differ, so it is its own.
+ */
+function standsOn(held: Held, segment: SegmentRow): string | null {
+  if (held.snapshot.v !== segment.fromV) return held.anchor ?? null;
+  const start = segment.start;
+  return hashState("base" in start ? start.base : held.snapshot.state);
+}
+
+/**
  * server:log-rows-hash-state, server:newer-content-upgrades-state: replays the held tail under the segment's own
  * content and checks the hash, then carries the state to the current content
  * when the segment names another (opening a segment with that state as its
@@ -92,8 +105,13 @@ export function snapshotOf(character: string, segment: number, content: Content,
 export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number, World>): Loaded {
   const row = held.character;
   const segment = segmentOf(held);
-  const content = contentNamed(contents, segment.content, segment.overlay);
   const refuse = (detail: string): Loaded => ({ ok: false, diverged: { character: row.id, account: row.account, v: row.v, detail } });
+  const content = namedContent(contents, segment.content, segment.overlay);
+  // server:older-contents-bundled: a segment under a content the server no longer bundles is refused, never replayed.
+  if (content === null) {
+    const detail = `The server bundles no content ${segment.content} under overlay ${segment.overlay ?? "none"}.`;
+    return { ok: false, diverged: { character: row.id, account: row.account, v: row.v, detail, unbundled: true } };
+  }
 
   let state = held.snapshot.state;
   const sentFor: Live["sentFor"] = [];
@@ -108,6 +126,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
   }
   const last = held.tail.at(-1);
   if (last !== undefined && hashState(state) !== last.hash) return refuse(`Version ${String(last.v)} replays to another hash.`);
+  if (last === undefined && hashState(state) !== standsOn(held, segment)) return refuse(`The snapshot at version ${String(held.snapshot.v)} is not the state it stands on.`);
   if (state.v !== row.v) return refuse(`The log ends at version ${String(state.v)}, the row says ${String(row.v)}.`);
 
   const live: Live = {

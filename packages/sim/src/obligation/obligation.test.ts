@@ -660,6 +660,40 @@ describe("how the group loan reaches you", () => {
     expect(offerOf(marked, "offer.group-loan")).toBeNull();
   });
 
+  test("[obligation:three-roads-to-group-loan] given a group loan defaulted, then cleared and the credit mark clean again, when the group loan and the guarantor's ask are opened, then neither opens until shutAfterDefault months from the default, and both open from that month", () => {
+    const shut = GROUP.shutAfterDefault;
+    expect(shut).toBe(24);
+    const game = start({ scenario: GRADUATE, content });
+    expect(offerOf(start({ scenario: GRADUATE, content }), "offer.stand-guarantor")).not.toBeNull();
+    const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
+    for (let month = 0; month < 3; month += 1) restMonth(game);
+    expect(item(game, loan.id)).toMatchObject({ state: "defaulted" });
+    const defaultedIn = game.state.turn.month;
+    expect(game.state.obligation.defaulted).toEqual({ [GROUP_LOAN]: defaultedIn });
+    expect(offerOf(game, "offer.stand-guarantor")).toBeNull();
+    // The debt cleared and the credit file clean: only the default's months keep the group's door shut.
+    apply(game, [{ type: "obligation/close", obligationType: "group-loan" }, { type: "quality/add", quality: CREDIT, amount: -game.state.quality[CREDIT]! }]);
+    setPockets(game, { NGN: { cash: 0, bank: 100_000_000_00 } });
+    // Standing and network where the group loan's own conditions hold, so the default alone is judged.
+    const ready = () => apply(game, [{ type: "quality/add", quality: STANDING, amount: 60 - game.state.quality[STANDING]! }, { type: "quality/add", quality: NETWORK, amount: 30 - game.state.quality[NETWORK]! }]);
+    while (game.state.turn.month < defaultedIn + shut - 1) restMonth(game);
+    ready();
+    expect(offerOf(game, "offer.group-loan")).toBeNull();
+    expect(offerOf(game, "offer.stand-guarantor")).toBeNull();
+    restMonth(game);
+    expect(game.state.turn.month).toBe(defaultedIn + shut);
+    ready();
+    expect(offerOf(game, "offer.group-loan")).not.toBeNull();
+    expect(offerOf(game, "offer.stand-guarantor")).not.toBeNull();
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
+  test("[obligation:three-roads-to-group-loan] given the two asks, when their conditions are read, then each is shut by a recent default of a group loan or of a sponsor's undertaking", () => {
+    const lately = { type: "not", of: { type: "obligation/defaulted-lately", obligations: [GROUP_LOAN, "obligation.undertaking-canada"] } };
+    for (const offer of ["offer.group-loan", "offer.stand-guarantor"] as const) expect(content.offer[offer]?.when).toContainEqual(lately);
+  });
+
   test("[obligation:three-roads-to-group-loan] given the group at the door over a parent's shop loan, when it is paid, ₦120,000 goes as family money; refused or left, standing falls 15", () => {
     const paid = start({ scenario: BANKER, content });
     const result = choose(paid, "offer.parents-group-debt", "pay");

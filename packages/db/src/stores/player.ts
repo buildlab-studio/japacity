@@ -79,7 +79,13 @@ async function readHeld(tx: Queries, row: CharacterRow): Promise<Held> {
     .from(commandLog)
     .where(and(eq(commandLog.character, row.id), gt(commandLog.v, latest.v)))
     .orderBy(asc(commandLog.v));
-  return { character: row, segments: stored.map(toSegment), snapshot: toSnapshot(latest), tail: tail.map(toLog) };
+  // server:snapshots-bound-replay: the hash of the row the snapshot stands on, for a load with nothing logged after it.
+  const [anchor] = await tx
+    .select({ hash: commandLog.hash })
+    .from(commandLog)
+    .where(and(eq(commandLog.character, row.id), eq(commandLog.v, latest.v)))
+    .limit(1);
+  return { character: row, segments: stored.map(toSegment), snapshot: toSnapshot(latest), tail: tail.map(toLog), ...(anchor === undefined ? {} : { anchor: anchor.hash }) };
 }
 
 /** What one character's accepted write does to the tables. */

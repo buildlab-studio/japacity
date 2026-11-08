@@ -68,6 +68,40 @@ describe("every command through the server", () => {
     ]);
   });
 
+  test("[clock:earned-turns-granted-first] [server:rejections-write-nothing] given a turn earned and a command written on a later tick while this request's clock still stands on an earlier one, when a command or the view is asked for, then the grant is refused clock-went-back with nothing written, never a server error, and a request on the later tick grants", async () => {
+    const server = testServer();
+    const character = await newLife(server, "acc-1");
+    accepted((await send(server, "acc-1", restMonth({ v: 0 }))).body);
+    const { turnRefillMs } = productionConfig.clock;
+    // Another request's command, written on tick 2 with nothing granted.
+    server.setNow(epoch + 2 * worldTickMs);
+    const later = await transact(
+      server.deps,
+      [character],
+      (lives, turn) => {
+        const live = lives[0];
+        if (live === undefined) throw new Error("No character.");
+        const stepped = turn.send(live, restMonth(live.state), "player");
+        return stepped.ok ? { ok: true, value: null } : stepped;
+      },
+      { grant: false },
+    );
+    expect(later.kind).toBe("done");
+    // This request's clock: a turn earned, on tick 0.
+    server.setNow(epoch + turnRefillMs);
+    const before = await held(server, character);
+    const sent = await send(server, "acc-1", restMonth({ v: before.character.v }));
+    expect(sent.status).toBe(200);
+    expect(sent.body).toMatchObject({ ok: false, code: "clock-went-back" });
+    const seen = await view(server, "acc-1");
+    expect(seen.status).toBe(409);
+    expect(seen.body).toMatchObject({ ok: false, code: "clock-went-back" });
+    expect(await held(server, character)).toEqual(before);
+    server.setNow(epoch + 2 * worldTickMs + turnRefillMs);
+    expect((await view(server, "acc-1")).status).toBe(200);
+    expect((await held(server, character)).tail.at(-1)).toMatchObject({ sender: "authority", tick: 2, command: { type: "turns/grant" } });
+  });
+
   test("[server:log-rows-hash-state] given accepted commands, when the log is read, then each row holds the command, its tick, its sender, the version after it and the hash of the state after it", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
@@ -102,6 +136,27 @@ describe("every command through the server", () => {
     expect(queued[0]?.note.startsWith(DIVERGED_NOTE)).toBe(true);
     expect((await held(server, broken)).character.v).toBe(2);
     expect(accepted((await send(server, "acc-2", restMonth({ v: 0 }))).body).view.v).toBe(1);
+  });
+
+  test("[server:snapshots-bound-replay] [server:log-rows-hash-state] given a snapshot with nothing logged after it whose state is not the one its version's row hashed, when the life is loaded, then it is refused diverged and queued once, while a true snapshot with nothing after it and a new life load", async () => {
+    const server = testServer({ config: testConfig({ testing: { testLogin: true }, server: { snapshotEvery: 3 } }) });
+    const forged = await newLife(server, "acc-1");
+    const fine = await newLife(server, "acc-2");
+    await newLife(server, "acc-3");
+    for (let v = 0; v < 2; v += 1) accepted((await send(server, "acc-1", restMonth({ v }))).body);
+    for (let v = 0; v < 3; v += 1) accepted((await send(server, "acc-2", restMonth({ v }))).body);
+    expect((await held(server, fine)).tail).toEqual([]);
+    const stored = await held(server, forged);
+    const out = await transact(server.deps, [forged], (lives) => ({ ok: true, value: lives[0]?.state }), { grant: false });
+    if (out.kind !== "done" || out.value === undefined) throw new Error("No load.");
+    const state = { ...out.value, turn: { ...out.value.turn, banked: out.value.turn.banked + 1 } };
+    const wrote = await server.deps.stores.player.transact([forged], () => ({ writes: { characters: [{ id: forged, snapshots: [{ character: forged, v: 2, segment: stored.character.segment, content: stored.snapshot.content, state }] }] }, result: null }));
+    expect(wrote.ok).toBe(true);
+    expect((await held(server, forged)).tail).toEqual([]);
+    for (let attempt = 0; attempt < 2; attempt += 1) expect((await view(server, "acc-1")).body).toMatchObject({ ok: false, code: "diverged" });
+    expect((await server.deps.stores.audit.list(forged)).filter((entry) => entry.note.startsWith(DIVERGED_NOTE))).toHaveLength(1);
+    expect((await view(server, "acc-2")).status).toBe(200);
+    expect((await view(server, "acc-3")).status).toBe(200);
   });
 
   test("[server:snapshots-bound-replay] given snapshots every 3 versions, when 8 commands are played, then a snapshot is stored at 3 and 6 and every load replays fewer than 3 rows", async () => {

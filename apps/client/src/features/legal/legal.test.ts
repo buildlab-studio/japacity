@@ -171,6 +171,23 @@ describe("the privacy notice", () => {
     for (const name of ["Cloudflare", "Turnstile", "Neon", "Google"]) expect(providers).toContain(name);
   });
 
+  test("[analytics:store-holds-nothing-personal] given the notice, when it is read, then it names Cloudflare Web Analytics under who else handles the information: what it counts, no cookie, nothing on the device and no profile of anyone", () => {
+    const beacon = [...privacy().querySelectorAll("[data-providers] li")].map(words).find((item) => item.includes("Web Analytics"));
+    expect(beacon).toBe("Cloudflare Web Analytics counts visits to the game's page: how many, from which countries, and which sites led to it. It sets no cookie, keeps nothing on your device and builds no profile of you.");
+  });
+
+  test("[account:session-renewal-reaches-browser] given the notice, when it is read, then it says a session's internet address and device are kept with that session alone, for up to 400 days counted again from each day of play, and the rest while the account exists", () => {
+    const account = words(privacy().querySelector('[data-kept-item="account"]'));
+    expect(account).toContain("With each sign-in session: your internet address and the kind of device and browser, kept with that session alone. A session lasts up to 400 days, counted again from each day you play, for a guest as for a saved life.");
+    expect(account).not.toContain("while it lasts");
+    expect(account.endsWith("Everything else here is kept while your account exists.")).toBe(true);
+  });
+
+  test("[account:idle-guests-cleaned-by-hand] given the notice, when it is read, then it says an idle guest life may be removed by hand, never on a schedule, so it may stay longer", () => {
+    const save = words(privacy().querySelector('[data-kept-item="save"]'));
+    expect(save).toContain("A guest life, one never kept with Google or an email address, that has not been played for 90 days may be removed. We remove these by hand from time to time, never on a schedule, so one may stay longer.");
+  });
+
   test("given the notice, when it is read, then it gives the player's rights of access, correction, deletion and complaint, and the operator's address for them", () => {
     const rights = words(privacy().querySelector("[data-rights]"));
     for (const right of ["a copy of the information", "correct it", "delete it", "complain"]) expect(rights).toContain(right);

@@ -248,7 +248,8 @@ export const tuning: Tuning = {
   chapter: { cardLines: 3, sendOffNaira: naira(150000) },
 
   // obligation.md, the group loan
-  groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
+  // obligation:three-roads-to-group-loan: a default keeps the group's door shut two years, as the family's own asks of the kind wait 24 months between them.
+  groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 }, shutAfterDefault: 24 },
   // obligation:cooking-and-fetching-water: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting figures.
   // activity:waiting-months-build-profile: being noticed raises the job's pay 10%, once, on a 30% draw.
   activity: {

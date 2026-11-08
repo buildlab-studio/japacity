@@ -21,7 +21,7 @@ Analytics answers a few questions: are people playing, where do they stop, and i
 
 ## Rules: what is never counted
 
-**analytics:store-holds-nothing-personal** The analytics store never holds: an account id, a session id, an IP address, a user agent string, a device or advertising id, a fingerprint, a precise location (region is the finest), a display name, who talked to whom, which phrases a pair sent, a report's content, any money figure for one player, or a per-player timeline. A test proves the counter route discards every field not in `{ name, key, count }`. The one third-party script allowed is Cloudflare's Web Analytics beacon, cookieless, loaded only when the build carries its tag; it reports visits, referrers and countries to Cloudflare and nothing to us; no other third-party script is ever loaded.
+**analytics:store-holds-nothing-personal** The analytics store never holds: an account id, a session id, an IP address, a user agent string, a device or advertising id, a fingerprint, a precise location (region is the finest), a display name, who talked to whom, which phrases a pair sent, a report's content, any money figure for one player, or a per-player timeline. A test proves the counter route discards every field not in `{ name, key, count }`. The one third-party script allowed is Cloudflare's Web Analytics beacon, cookieless, loaded only when the build carries its tag; it reports visits, referrers and countries to Cloudflare and nothing to us; no other third-party script is ever loaded. The privacy notice names it under who else handles the information, in plain words: it counts visits to the game's page, sets no cookie, keeps nothing on the device and builds no profile of anyone.
 
 ## Rules: the counters and the dashboard
 

@@ -299,6 +299,8 @@ export type Requirement =
    * and `localCurrency` only one owed in the currency of the country the character is in (offer.court-date).
    */
   | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation">; defaulted?: boolean; localCurrency?: boolean }
+  /** One of these obligation entries went into default within `tuning.groupLoan.shutAfterDefault` months, open or since closed (obligation:three-roads-to-group-loan). */
+  | { type: "obligation/defaulted-lately"; obligations: Id<"obligation">[] }
   /** A route's gate has reached the named step: docs/rules/route-gates.md. */
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */
@@ -1499,7 +1501,8 @@ export interface Tuning {
   /** `cardLines`: the lines the send-off card names (chapter:send-off-card-on-close). `sendOffNaira`: the party at the house the month of the grant, in kobo (chapter:family-marks-the-grant). */
   chapter: { cardLines: number; sendOffNaira: number };
   /** `visit`: the second miss in a row, the officer and the group at the house (obligation:group-covers-misses-at-cost). */
-  groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
+  /** `shutAfterDefault`: the months a default of a group loan or a sponsor's undertaking keeps the group's asks away (obligation:three-roads-to-group-loan). */
+  groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number }; shutAfterDefault: number };
   /** The waiting months' acts (activity:waiting-months-build-profile): a raise's size and its chance each month the player tries to be noticed. */
   /**
    * activity:waiting-months-build-profile's raise, activity:naira-pay-reviewed-yearly's review, activity:free-path-keeps-a-streak's path and
@@ -1870,6 +1873,12 @@ export interface QueuedConversion {
   /** Already taken from the `from` pocket. */
   paid: number;
   readyMonth: number;
+  /**
+   * What the `to` pocket gets, fixed when it was queued: a bank remit's naira at the rate of the day it was sent
+   * (abroad-money:remit-sends-money-home). Absent on a bank purchase, which gets the rate of the day it arrives
+   * (wallet:bank-queue-delays-purchases).
+   */
+  received?: number;
 }
 
 /** A recent deposit into the bank from a source a visa officer would question. */
@@ -2087,6 +2096,8 @@ export interface Relief {
 export interface ObligationSlice {
   /** Open obligations only. A closed one is removed. */
   items: Record<string, ObligationState>;
+  /** obligation:three-roads-to-group-loan: the month each obligation entry last went into default, kept after it closes. Absent before any default. */
+  defaulted?: Partial<Record<Id<"obligation">, number>>;
 }
 
 export interface OfferState {

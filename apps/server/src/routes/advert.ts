@@ -16,7 +16,7 @@ import { advertRegion, statusAt } from "../advert/campaign";
 import { emptyReply, hourOf, servedAt } from "../advert/serve";
 import type { ServerDeps } from "../dependencies";
 import type { SessionEnv } from "../limits/limit";
-import { limit } from "../limits/limit";
+import { limit, sessionOf } from "../limits/limit";
 import type { EdgeCache } from "./cache";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge, throughEdgeIfAny } from "./cache";
 
@@ -49,6 +49,12 @@ export function advertRoutes(deps: ServerDeps, on: AdvertsOn = advertsOnByDefaul
   route.get("/api/adverts", limit(deps, "reads"), async (c) => {
     const now = deps.now();
     const region = advertRegion(deps.config.advert.regions, c.req.query("region"));
+    // advert:campaign-chosen-without-player-data: an account in the admin list is served nothing, and the reply is kept by no cache.
+    const account = sessionOf(c)?.account;
+    if (account !== undefined && deps.config.admin.accounts.includes(account)) {
+      c.header("cache-control", "no-store");
+      return c.json(emptyReply(region, now));
+    }
     if (!(await on())) {
       const empty: AdvertsReply = emptyReply(region, now);
       c.header("cache-control", `public, max-age=${String(secondsTo(empty.until, now))}`);

@@ -47,6 +47,29 @@ describe("the load test's routes", () => {
     expect(counts).toEqual(emptyCounts());
   });
 
+  test("[load:runs-against-local-stack] given the test sign-in on, when a load route is asked on a host that is not this machine, then it answers 404 and writes nothing, while on this machine it answers", async () => {
+    const { server, counts } = loadServer();
+    for (const site of ["https://japacity.app", "https://staging.japacity.app", "https://load.example.workers.dev"]) {
+      for (const [method, path] of [
+        ["POST", "/api/load/account"],
+        ["POST", "/api/load/warm/character-x"],
+        ["GET", "/api/load/view/character-x"],
+        ["GET", "/api/load/rows/character-x"],
+        ["GET", "/api/load/world/0"],
+        ["GET", "/api/load/stats"],
+      ] as const) {
+        const reply = await server.app.request(`${site}${path}`, { method, headers: { "x-test-account": "acc-1", "content-type": "application/json" }, ...(method === "POST" ? { body: "{}" } : {}) });
+        expect({ site, path, status: reply.status }).toEqual({ site, path, status: 404 });
+      }
+    }
+    expect(await server.deps.stores.account.get("acc-1")).toBeNull();
+    expect(counts).toEqual(emptyCounts());
+    for (const site of ["http://localhost:8787", "http://127.0.0.1:8787", "http://[::1]:8787"]) {
+      const reply = await server.app.request(`${site}/api/load/account`, { method: "POST", headers: { "x-test-account": "acc-1" } });
+      expect({ site, status: reply.status }).toEqual({ site, status: 200 });
+    }
+  });
+
   test("[load:runs-against-local-stack] given the production Worker, when its sources are read, then neither it nor the app mounts the load routes or the load Worker", () => {
     for (const file of ["../index.ts", "../app.ts"]) {
       const text = readFileSync(fileURLToPath(new URL(file, import.meta.url).href), "utf8");

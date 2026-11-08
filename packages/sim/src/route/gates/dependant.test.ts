@@ -124,6 +124,27 @@ describe("person:dependant-gate-needs: applying as a dependant", () => {
   });
 });
 
+describe("person:dependant-gate-needs: a fee that cannot be paid", () => {
+  test("[person:dependant-gate-needs] given a lead in Canada's pool applying and a Canadian dollar short of the fee with no naira, when the act is read and taken, then it shows the fee as its cost, unaffordable, and is refused cannot-afford with nothing spent; with the fee held it is taken and the fee paid once", () => {
+    const fee = content.var["var.canada-accompany-fee"]!.start;
+    const short: LifeOptions["pockets"] = { NGN: { bank: 0, cash: 0 }, CAD: { bank: fee - 100, cash: 0 } };
+    const game = joined(CANADA_ROUTE, CA_ACCOMPANY, leadOn(CANADA_ROUTE, "applying"), { pockets: short });
+    const option = game.view().activities.find((act) => act.id === APPLY_CA);
+    expect(option).toMatchObject({ allowed: true, cost: [{ currency: "CAD", amount: fee }], affordable: false });
+    const before = game.state;
+    game.expectRejected({ type: "activity/now", activity: APPLY_CA, param: null }, "cannot-afford");
+    expect(game.state).toEqual(before);
+    expect(routeOf(game, CA_ACCOMPANY).state).toBe("known");
+
+    const held: LifeOptions["pockets"] = { NGN: { bank: 0, cash: 0 }, CAD: { bank: fee, cash: 0 } };
+    const paid = joined(CANADA_ROUTE, CA_ACCOMPANY, leadOn(CANADA_ROUTE, "applying"), { pockets: held });
+    expect(paid.view().activities.find((act) => act.id === APPLY_CA)).toMatchObject({ allowed: true, affordable: true });
+    paid.accept({ type: "activity/now", activity: APPLY_CA, param: null });
+    expect(routeOf(paid, CA_ACCOMPANY).state).toBe("applying");
+    expect(paid.state.wallet.pockets.CAD.bank).toBe(0);
+  });
+});
+
 describe("person:dependant-application-decided: the dependant's decision follows the lead", () => {
   test("[person:dependant-application-decided] given the lead still applying, when the decision month passes, then the dependant waits", () => {
     const game = sent("applying");

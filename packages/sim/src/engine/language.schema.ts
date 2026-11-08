@@ -238,6 +238,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
     defaulted: z.boolean().exactOptional(),
     localCurrency: z.boolean().exactOptional(),
   }),
+  z.strictObject({ type: z.literal("obligation/defaulted-lately"), obligations: z.array(idOf("obligation")).min(1) }),
   z.strictObject({ type: z.literal("route/gate-step"), route: idOf("route"), step: z.string().min(1) }),
   z.strictObject({ type: z.literal("activity/local-tenure"), months: CountSchema }),
   z.strictObject({ type: z.literal("activity/played"), activity: idOf("activity") }),
@@ -618,7 +619,7 @@ export const TuningSchema = z.strictObject({
     gapMonths: CountSchema,
   }),
   chapter: z.strictObject({ cardLines: z.int().positive(), sendOffNaira: CountSchema }),
-  groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
+  groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }), shutAfterDefault: CountSchema }),
   activity: z.strictObject({
     raiseBp: BpSchema,
     raiseChanceBp: BpSchema,

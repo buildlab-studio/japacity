@@ -246,6 +246,18 @@ describe("the username's own step (account:sign-in-without-secret)", () => {
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual(['startGuest("ada_lagos","proved")', 'startGuest("ada_lagos","proved")']);
   });
 
+  test("[account:bot-check-on-code-send] [account:sign-in-without-secret] given a proof that ran out, when Continue answers proof-gone, then the new code sent unasked carries a token of the code send's own check", async () => {
+    const tokens: (string | null)[] = [];
+    const { account } = gate({ signInWithCode: answers(NEW_LIFE, NEW_LIFE), sendCode: (_email, bot) => (tokens.push(bot), Promise.resolve({ ok: true })) }, [{ ok: false, why: "proof-gone" }]);
+    await proveByCode();
+    await answerTheAge();
+    await chooseAndContinue("ada_lagos");
+    await screen.findByLabelText(say("ui.account.code.label"));
+    expect(account.calls.filter((call) => call.startsWith("sendCode"))).toEqual([`sendCode("${EMAIL}")`, `sendCode("${EMAIL}")`]);
+    expect(tokens).toHaveLength(2);
+    for (const token of tokens) expect(token).toBe("XXXX.DUMMY.TOKEN.XXXX");
+  });
+
   test("[account:sign-in-without-secret] given an address an account took before Continue, when Continue answers so, then a code goes to the address to open it, and its right code signs in with no second account asked for", async () => {
     const { account, store } = gate({ signInWithCode: answers(NEW_LIFE, { ok: true }) }, [{ ok: false, why: "email-taken" }]);
     await proveByCode();

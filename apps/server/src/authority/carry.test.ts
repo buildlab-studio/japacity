@@ -7,7 +7,7 @@
 import { content, olderContents, presetAnswer } from "@japacity/content";
 import type { PresetReply, ServerReply, ViewReply } from "@japacity/api";
 import type { Command, Content, FlatSave, PlayerView, State, World } from "@japacity/sim";
-import { checkContent, checkInvariants, hashState, newState, offlineCalendar, stepWorld, upgradeState } from "@japacity/sim";
+import { checkContent, checkInvariants, hashState, newState, offlineCalendar, remitQuote, stepWorld, upgradeState } from "@japacity/sim";
 import { lifeSaves } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
@@ -361,6 +361,26 @@ describe.each(VERSIONS)("lives carried from %s to the current content", (_label,
     await deploy(life, older, worker);
     expect((await loadedState(life)).place.where).toBe("abroad");
     await month(life);
+    await carriedOn(life);
+  }, 60_000);
+
+  test("[server:newer-content-upgrades-state] [server:older-contents-bundled] [abroad-money:remit-sends-money-home] given the recorded life that ends abroad with a bank remit on its way under the older content, when the content changes, then the remit arrives with the month at the naira it was sent for", async () => {
+    const save = lifeSaves[ABROAD];
+    if (save === undefined) throw new Error(`No recorded life ${ABROAD}.`);
+    const life = await recorded(older, save);
+    const view = await viewOf(life);
+    const currency = (["GBP", "USD", "CAD", "AED", "EUR"] as const).find((held) => view.pockets[held].bank >= 100);
+    if (currency === undefined) throw new Error("The life abroad holds no foreign money in a bank.");
+    const amount = view.pockets[currency].bank;
+    const quote = remitQuote(view.rates, older.tuning.remit, currency, amount).bank;
+    const sent = await play(life, { type: "wallet/remit", currency, amount, channel: "bank" });
+    expect(sent.queued).toHaveLength(1);
+    await deploy(life, older, worker);
+    expect((await loadedState(life)).wallet.queued).toHaveLength(1);
+    const arrived = async (): Promise<number> => (await loadedState(life)).wallet.totals.in.remit?.NGN ?? 0;
+    const sentBefore = await arrived();
+    expect((await month(life)).queued).toEqual([]);
+    expect((await arrived()) - sentBefore).toBe(quote.naira);
     await carriedOn(life);
   }, 60_000);
 });

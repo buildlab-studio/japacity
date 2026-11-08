@@ -477,6 +477,8 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   await elsewhere.getByRole("button", { name: "Sign in", exact: true }).click({ timeout: 20_000 });
   await elsewhere.getByLabel("Email").fill(NEW_EMAIL);
   await elsewhere.getByRole("button", { name: "Send me a code" }).click();
+  // The code is read once it was sent: the send waits for the bot check's token (account:bot-check-on-code-send).
+  await expect(elsewhere.getByText(`We sent a code to ${NEW_EMAIL}.`)).toBeVisible();
   await elsewhere.getByLabel("6-digit code").fill(shared.mailed.at(-1) ?? "");
   await expect(elsewhere.getByRole("textbox", { name: "Character name" })).toHaveAttribute("placeholder", "Olamide", { timeout: 20_000 });
   await expect(elsewhere.getByRole("heading", { name: "When were you born?" })).toHaveCount(0);

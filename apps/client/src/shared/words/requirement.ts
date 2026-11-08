@@ -190,6 +190,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.era-is", { eras: list(requirement.eras.map(nameOf)) });
     case "obligation/has":
       return say("ui.req.obligation-has", { type: say(`ui.obligation.type.${requirement.obligationType}`) });
+    case "obligation/defaulted-lately":
+      return say("ui.req.obligation-defaulted-lately", { obligations: list(requirement.obligations.map((id) => lowerFirst(nameOf(id)))), time: timeWords(content.tuning.groupLoan.shutAfterDefault) });
     case "route/gate-step":
       return say("ui.req.route-gate-step", { route: nameOf(requirement.route), step: requirement.step });
     case "activity/local-tenure":

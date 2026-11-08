@@ -1,4 +1,5 @@
-// Cloudflare Turnstile's widget, the bot check on sign-up (account:bot-check-on-guest-creation).
+// Cloudflare Turnstile's widget, the bot check on sign-up and on every code send (account:bot-check-on-guest-creation,
+// account:bot-check-on-code-send).
 // Rendered explicitly, as Cloudflare's client-side rendering page describes:
 // https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/
 // Test keys: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
@@ -32,10 +33,13 @@ export interface TurnstileApi {
 export type LoadTurnstile = () => Promise<TurnstileApi>;
 
 /**
- * account:bot-check-on-guest-creation: the action the widget is rendered with. The guest start is the one surface it guards,
- * and the server refuses a pass made for any other (apps/server/src/account/turnstile.ts, TURNSTILE_ACTION).
+ * account:bot-check-on-guest-creation: the action the widget is rendered with at the guest start; the server refuses a pass
+ * made for any other there (apps/server/src/account/turnstile.ts, TURNSTILE_ACTION).
  */
 export const TURNSTILE_ACTION = "guest";
+
+/** account:bot-check-on-code-send: the action of the widget on every form that sends an email code (CODE_ACTION on the server). */
+export const CODE_ACTION = "code";
 
 /** Cloudflare's test site key that always passes, for builds that are not production. */
 export const TEST_SITE_KEY = "1x00000000000000000000AA";
@@ -80,9 +84,9 @@ export type CheckTrouble = "unloaded" | "error";
 
 /**
  * `onShown`: the widget is up, so a token is on its way; a script that never loads never calls it. `attempt`: a new
- * number loads the script again after it failed. `onTrouble`: why no pass is coming.
+ * number loads the script again after it failed. `onTrouble`: why no pass is coming. `action`: the surface it guards, the guest start's unless named.
  */
-export function Turnstile({ sitekey, load, round, attempt = 0, onToken, onShown, onTrouble }: { sitekey: string; load: LoadTurnstile; round: number; attempt?: number; onToken: (token: string | null) => void; onShown?: () => void; onTrouble?: (trouble: CheckTrouble) => void }) {
+export function Turnstile({ sitekey, load, round, attempt = 0, action = TURNSTILE_ACTION, onToken, onShown, onTrouble }: { sitekey: string; load: LoadTurnstile; round: number; attempt?: number; action?: string; onToken: (token: string | null) => void; onShown?: () => void; onTrouble?: (trouble: CheckTrouble) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const widget = useRef<{ api: TurnstileApi; id: string } | null>(null);
   const tell = useRef(onToken);
@@ -100,7 +104,7 @@ export function Turnstile({ sitekey, load, round, attempt = 0, onToken, onShown,
         if (gone || container === null) return;
         const id = api.render(container, {
           sitekey,
-          action: TURNSTILE_ACTION,
+          action,
           callback: (token) => tell.current(token),
           "expired-callback": () => tell.current(null),
           "error-callback": () => {
@@ -125,7 +129,7 @@ export function Turnstile({ sitekey, load, round, attempt = 0, onToken, onShown,
       widget.current = null;
       if (shown !== null) shown.api.remove(shown.id);
     };
-  }, [sitekey, load, attempt]);
+  }, [sitekey, load, attempt, action]);
 
   useEffect(() => {
     const shown = widget.current;

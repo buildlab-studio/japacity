@@ -47,6 +47,8 @@ async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, id: str
       // clock:command-uses-stamped-tick: the stored world of each logged tick, read through the transaction's own client.
       const worlds = await heldWorlds(stores.world, new Set(held.tail.map((row) => row.tick)));
       const loaded = load(held, contents, worlds);
+      // server:older-contents-bundled: a segment under a content not bundled is listed as failed, a replay that differs as diverged.
+      if (!loaded.ok && loaded.diverged.unbundled === true) return { writes: {}, result: { id, outcome: "failed", before: v, after: v, detail: loaded.diverged.detail } };
       if (!loaded.ok) return { writes: {}, result: { id, outcome: "diverged", before: v, after: v, detail: loaded.diverged.detail } };
       // A load that carried the state to the current content (server:newer-content-upgrades-state) is folded into this one new segment.
       const { content, state } = loaded.live;

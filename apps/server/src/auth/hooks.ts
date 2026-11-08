@@ -1,4 +1,5 @@
-// The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited), the code check that
+// The auth library's request hooks: the bot check on every code send (account:bot-check-on-code-send), the code sends per
+// email (account:sign-in-routes-rate-limited), the code check that
 // proves an address no account uses for a new life and Google's return that proves one (account:sign-in-without-secret),
 // the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
 // passkey for a guest (account:guest-secures-the-life), the other sessions that end when a method is
@@ -14,6 +15,7 @@ import type { GenericEndpointContext } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
 import { keepProof, NEW_LIFE_COOKIE, NEW_LIFE_COOKIE_OPTIONS, spendCode } from "../account/newlife";
+import { checkTurnstile, CODE_ACTION } from "../account/turnstile";
 import type { CodeSpent, Proved } from "../account/newlife";
 import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../dependencies";
@@ -33,6 +35,8 @@ const EMAIL_LIMIT_PREFIX = "otp-email:";
 export const EMAIL_LIMIT_WINDOW_MS = 60_000;
 
 const SEND_PATH = "/email-otp/send-verification-otp";
+/** The header the game's forms send the bot check's token in, the guest start's too (account:bot-check-on-guest-creation). */
+const CAPTCHA_HEADER = "x-captcha-response";
 const CODE_CHECK_PATH = "/sign-in/email-otp";
 const UNLINK_PATHS = new Set(["/unlink-account", "/passkey/delete-passkey"]);
 const REVOKE_PATH = "/revoke-sessions";
@@ -151,6 +155,18 @@ async function limitEmailSends(deps: ServerDeps, ctx: HookContext): Promise<void
   if (day.over(otpSendPerDay)) throw new APIError("TOO_MANY_REQUESTS", { message: "Too many codes for this email today. Try again tomorrow." });
   await minute.write();
   await day.write();
+}
+
+/**
+ * account:bot-check-on-code-send: a code is sent only with a pass from the code form's widget, checked before the send is
+ * counted against the email's limits, so a send with no pass mails nothing and spends none of them.
+ */
+async function botCheckOnSend(keys: AuthKeys, ctx: HookContext): Promise<void> {
+  if (ctx.path !== SEND_PATH) return;
+  const headers = ctx.request?.headers ?? ctx.headers;
+  const token = headers?.get(CAPTCHA_HEADER) ?? null;
+  const check = await checkTurnstile(keys.turnstile, token, headers?.get("cf-connecting-ip") ?? null, new URL(keys.siteUrl).hostname, CODE_ACTION);
+  if (!check.ok) throw new APIError("FORBIDDEN", { code: "bot-check", message: check.reason });
 }
 
 /**
@@ -358,12 +374,13 @@ async function guardStepUp(ctx: HookContext): Promise<void> {
 }
 
 /** The hooks run before every library route; the code check for an address no account uses answers here, in the library's place. */
-export function beforeAuth(deps: ServerDeps) {
+export function beforeAuth(deps: ServerDeps, keys: AuthKeys) {
   return createAuthMiddleware(async (ctx) => {
     closedRouteCheck(ctx);
     guestStartCheck(ctx);
     await guardGuestPasskeys(ctx);
     signInCodesOnly(ctx);
+    await botCheckOnSend(keys, ctx);
     await limitEmailSends(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
     await guardStepUp(ctx);

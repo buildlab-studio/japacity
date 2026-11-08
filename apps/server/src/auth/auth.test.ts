@@ -7,7 +7,8 @@ import { setSwitch } from "../switches/switches";
 import { makeAuth, relyingPartyOf } from "./auth";
 import { EMAIL_DAY_WINDOW_MS, EMAIL_LIMIT_WINDOW_MS, pruneLimitRows } from "./hooks";
 import { memoryAuthAdapter } from "./memory";
-import { GOOGLE_PROFILE, GOOGLE_TOKENS, SITE, harness, makeJar, stubGoogle, withGoogle } from "./auth.testing";
+import { CODE_TOKEN, GOOGLE_PROFILE, GOOGLE_TOKENS, SITE, harness, makeJar, stubGoogle, withGoogle } from "./auth.testing";
+import { TURNSTILE_TEST } from "../account/turnstile";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -367,6 +368,54 @@ describe("the sign-in limits", () => {
     }
     expect(statuses.slice(0, 3).every((status) => status !== 429)).toBe(true);
     expect(statuses[3]).toBe(429);
+  });
+});
+
+describe("the bot check on a code send", () => {
+  const SEND = "/api/auth/email-otp/send-verification-otp";
+
+  test("[account:bot-check-on-code-send] given a send with the code widget's pass, when a code is asked for, then it is sent", async () => {
+    const h = harness();
+    const reply = await h.call(SEND, { method: "POST", bot: CODE_TOKEN, json: { email: "ada@example.com", type: "sign-in" } });
+    expect(reply.status).toBe(200);
+    expect(h.sent.map((message) => message.email)).toEqual(["ada@example.com"]);
+  });
+
+  test("[account:bot-check-on-code-send] [account:sign-in-routes-rate-limited] given sends with no token, a token too long, the guest start's pass or a pass solved on another host, when a code is asked for, then each is refused bot-check 403, nothing is sent and none counts against the email's limits", async () => {
+    const tries: { bot: string | null; host?: string }[] = [{ bot: null }, { bot: "" }, { bot: "x".repeat(2049) }, { bot: TURNSTILE_TEST.dummyToken }, { bot: CODE_TOKEN, host: "elsewhere.example" }];
+    for (const { bot, host } of tries) {
+      const h = harness(host === undefined ? {} : { turnstileHost: host });
+      const { otpSendPer60s } = h.deps.config.auth.limits;
+      for (let n = 0; n <= otpSendPer60s; n++) {
+        const reply = await h.call(SEND, { method: "POST", ip: `198.51.100.${String(150 + n)}`, bot, json: { email: "ada@example.com", type: "sign-in" } });
+        expect({ bot: bot?.slice(0, 24) ?? null, status: reply.status }).toEqual({ bot: bot?.slice(0, 24) ?? null, status: 403 });
+        expect(await reply.json()).toMatchObject({ code: "bot-check" });
+      }
+      expect(h.sent).toEqual([]);
+      expect(JSON.stringify(h.tables.rateLimit)).not.toContain("otp-email");
+      if (host !== undefined) continue;
+      // The address still has every send of its minute.
+      for (let n = 0; n < otpSendPer60s; n++) expect((await h.call(SEND, { method: "POST", ip: `198.51.100.${String(200 + n)}`, json: { email: "ada@example.com", type: "sign-in" } })).status).toBe(200);
+    }
+  });
+
+  test("[account:bot-check-on-code-send] given a failed or a spent token, when a code is asked for, then it is refused bot-check 403 and nothing is sent", async () => {
+    for (const turnstileSecret of [TURNSTILE_TEST.failSecret, TURNSTILE_TEST.spentSecret]) {
+      const h = harness({ turnstileSecret });
+      const reply = await h.call(SEND, { method: "POST", bot: CODE_TOKEN, json: { email: "ada@example.com", type: "sign-in" } });
+      expect(reply.status).toBe(403);
+      expect(await reply.json()).toMatchObject({ code: "bot-check" });
+      expect(h.sent).toEqual([]);
+    }
+  });
+
+  test("[account:bot-check-on-code-send] given a signed-in account asking a code to confirm its deletion, when it carries no token, then it is refused bot-check 403 as any other send is", async () => {
+    const h = harness();
+    const { jar } = await h.signUp("ada@example.com");
+    const before = h.sent.length;
+    const reply = await h.call(SEND, { method: "POST", jar, bot: null, json: { email: "ada@example.com", type: "sign-in" } });
+    expect(reply.status).toBe(403);
+    expect(h.sent.length).toBe(before);
   });
 });
 

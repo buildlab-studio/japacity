@@ -8,7 +8,7 @@ import type { CounterTotal } from "@japacity/store";
 import { Hono } from "hono";
 
 import { advertRegion } from "../advert/campaign";
-import { addAdvertCounters, withinAccountDay } from "../advert/counts";
+import { ADVERT_COUNTERS, addAdvertCounters, withinAccountDay } from "../advert/counts";
 import { checkBatch, isDoorRow } from "../analytics/batch";
 import type { DropReason } from "../analytics/list";
 import { NO_REGION, regionOf, requestRegion } from "../analytics/list";
@@ -19,6 +19,9 @@ import { overLimit } from "../limits/limit";
 import { countryOf } from "../account/country";
 
 const DROPPED = "analytics/dropped";
+
+/** The advert counters, which an admin's batch never adds to. */
+const ADVERT_NAMES: ReadonlySet<string> = new Set(Object.values(ADVERT_COUNTERS));
 
 function droppedRows(day: string, region: string, dropped: Partial<Record<DropReason, number>>): CounterTotal[] {
   return Object.entries(dropped).map(([key, count]) => ({ day, region, name: DROPPED, key, count }));
@@ -57,7 +60,10 @@ export function countersRoute(deps: ServerDeps): Hono {
       await deps.stores.counters.add(droppedRows(day, region, { rate: 1 }));
       return done();
     }
-    const checked = checkBatch(deps.contents.current, await c.req.text());
+    const batch = checkBatch(deps.contents.current, await c.req.text());
+    // advert:impression-counted-when-seen: an account in the admin list is never an advertiser's number.
+    const admin = deps.config.admin.accounts.includes(session.account);
+    const checked = admin ? { ...batch, rows: batch.rows.filter((row) => !ADVERT_NAMES.has(row.name)) } : batch;
     const counted = checked.rows.map((row) => ({ day, region, name: row.name, key: row.key, count: row.count }));
     await deps.stores.counters.add([...counted, ...droppedRows(day, region, checked.dropped)]);
     // advert:advertiser-records-stored: the advert rows also reach the campaign's daily totals, by the slot and the hour's campaign there,

@@ -48,6 +48,15 @@ describe("the headers on every reply", () => {
     expectDressed(missing.headers);
   });
 
+  test("[server:security-headers-on-replies] given any reply, when it leaves the Worker, then it asks for https only for two years over the host and its subdomains, and is not marked for the preload list", async () => {
+    const server = testServer();
+    for (const path of ["/api/health", "/api/no-such-route", "/api/world"]) {
+      const reply = await server.app.request(path);
+      expect({ path, hsts: reply.headers.get("strict-transport-security") }).toEqual({ path, hsts: "max-age=63072000; includeSubDomains" });
+    }
+    expect(SECURITY_HEADERS["strict-transport-security"]).not.toContain("preload");
+  });
+
   test("[server:security-headers-on-replies] given a reply that names its own caching, when it leaves the Worker, then that caching is kept and the other headers are added", async () => {
     const server = testServer();
     const world = await call(server, "GET", "/api/world", null);

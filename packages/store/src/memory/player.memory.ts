@@ -38,11 +38,13 @@ function held(stored: Stored): Held {
     .filter((each) => each.segment === stored.row.segment)
     .reduce<SnapshotRow | undefined>((best, each) => (best === undefined || each.v > best.v ? each : best), undefined);
   if (snapshot === undefined) throw new Error(`Character ${stored.row.id} has no snapshot in segment ${String(stored.row.segment)}.`);
+  const anchor = stored.log.find((row) => row.v === snapshot.v)?.hash;
   return copy({
     character: stored.row,
     segments: [...stored.segments].sort((x, y) => x.segment - y.segment),
     snapshot,
     tail: stored.log.filter((row) => row.v > snapshot.v).sort(byV),
+    ...(anchor === undefined ? {} : { anchor }),
   });
 }
 

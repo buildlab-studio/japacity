@@ -13,6 +13,8 @@ export const SECURITY_HEADERS: Readonly<Record<string, string>> = {
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
   "referrer-policy": "no-referrer",
+  // Two years over the host and its subdomains; the preload list is a later choice, since leaving it takes months.
+  "strict-transport-security": "max-age=63072000; includeSubDomains",
 };
 
 /** A reply that says nothing of its caching is stored nowhere: most replies here are one player's. */

@@ -1,4 +1,4 @@
-// account:bot-check-on-guest-creation: the bot check, against Turnstile's verify endpoint.
+// account:bot-check-on-guest-creation and account:bot-check-on-code-send: the bot check, against Turnstile's verify endpoint.
 // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 // https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 
@@ -20,8 +20,11 @@ export interface TurnstileKeys {
   fetch?: typeof fetch;
 }
 
-/** account:bot-check-on-guest-creation: the action the widget is rendered with at the guest start, the one surface it guards. */
+/** account:bot-check-on-guest-creation: the action the widget is rendered with at the guest start. */
 export const TURNSTILE_ACTION = "guest";
+
+/** account:bot-check-on-code-send: the action the widget is rendered with on every form that sends an email code. */
+export const CODE_ACTION = "code";
 
 /** Siteverify's documented longest token; a longer one is refused before the call. */
 export const TOKEN_MAX_LENGTH = 2048;
@@ -37,12 +40,12 @@ export type BotCheck = { ok: true } | { ok: false; reason: string };
  * reply that is not JSON, a pass for a token solved on a host other than
  * `host`, the site's own, so a token solved elsewhere with the same key is no
  * pass, and a pass whose action is not
- * `TURNSTILE_ACTION`, so a token made for another page or site is no pass. The one
+ * `action` (the guest start's unless the caller names another), so a token made for another page or site is no pass. The one
  * exception: a pass Turnstile marks as made with a test key
  * (`metadata.result_with_testing_key`), whose host is always example.com and
  * which carries no action, on a SITE_URL of this machine.
  */
-export async function checkTurnstile(keys: TurnstileKeys, token: string | null, remoteIp: string | null, host: string): Promise<BotCheck> {
+export async function checkTurnstile(keys: TurnstileKeys, token: string | null, remoteIp: string | null, host: string, action: string = TURNSTILE_ACTION): Promise<BotCheck> {
   if (token === null || token === "") return { ok: false, reason: "missing-input-response" };
   if (token.length > TOKEN_MAX_LENGTH) return { ok: false, reason: "token-too-long" };
   let reply: Response;
@@ -71,7 +74,7 @@ export async function checkTurnstile(keys: TurnstileKeys, token: string | null, 
     // account:bot-check-on-guest-creation: a test key's pass always says example.com and names no action, so it stands only on the local stack.
     const testing = body.metadata?.result_with_testing_key === true;
     if (body.hostname !== host && !(testing && LOCAL_SITE_HOSTS.has(host))) return { ok: false, reason: "hostname-mismatch" };
-    if (!testing && body.action !== TURNSTILE_ACTION) return { ok: false, reason: "action-mismatch" };
+    if (!testing && body.action !== action) return { ok: false, reason: "action-mismatch" };
     return { ok: true };
   }
   const codes = Array.isArray(body["error-codes"]) ? body["error-codes"].join(",") : "";

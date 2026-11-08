@@ -181,9 +181,26 @@ describe("the months kept", () => {
   });
 
   test("[world:month-end-results-sheet] given a recorded life that ends on its flight, when it is read, then the month of the flight, not ended, is not counted", () => {
-    const game = replay("graduate-careful");
-    expect(game.state.wallet.monthNet).toBeDefined();
-    const closed = replay("graduate-careful", upToMonth("graduate-careful", game.state.turn.month));
-    expect(game.view().keptMonths).toBe(closed.view().keptMonths);
+    const save = SAVES["graduate-careful"];
+    if (save === undefined) throw new Error("No recorded life graduate-careful.");
+    const game = start({ content, scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed });
+    const closed: Closed[] = [];
+    for (const { command, tick, sender } of save.commands) {
+      game.tick = tick;
+      const told = closedOf(game.accept(command, sender));
+      if (told !== undefined) closed.push(told);
+    }
+    // The flight's month is in hand: its money is held as the month's net, and no month closed after the last month's end.
+    expect(save.commands.at(-1)?.command.type).toBe("route/depart");
+    expect(Object.values(game.state.wallet.monthNet ?? {}).some((net) => net !== 0)).toBe(true);
+    const ends = save.commands.filter((entry) => entry.command.type === "turn/end").length;
+    expect(closed.length).toBeLessThanOrEqual(ends);
+    const kept = closed.filter((month) => month.net > 0).length;
+    expect(game.view().keptMonths).toBe(kept);
+    // Ended, the same month closes, and is counted then and only if its own net was kept.
+    const ended = closedOf(game.endTurn());
+    expect(ended).toMatchObject({ type: "wallet/month-closed", currency: local(game.state) });
+    expect(game.view().keptMonths).toBe(kept + ((ended?.net ?? 0) > 0 ? 1 : 0));
+    expect(game.state.wallet).not.toHaveProperty("monthNet");
   });
 });

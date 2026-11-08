@@ -9,6 +9,7 @@ import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { answers, codeAccount } from "./code.testing";
 import { CodeForm, RESEND_WAIT_S } from "./CodeForm";
+import { TEST_SITE_KEY, type LoadTurnstile } from "./Turnstile";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -293,5 +294,72 @@ describe("the go button's look (account:player-deletes-account)", () => {
       .filter(([file, source]) => !file.includes(".test.") && file !== "./CodeForm.tsx" && source.includes("goVariant"))
       .map(([file]) => file);
     expect(callers).toEqual(["./Settings.tsx"]);
+  });
+});
+
+/** Turnstile's stand-in, keeping the action each widget was drawn with: a token named by its action and its count a moment after each draw and reset. */
+function drawn(): { load: LoadTurnstile; actions: string[] } {
+  const actions: string[] = [];
+  const load: LoadTurnstile = () => {
+    let given = 0;
+    let solve: (() => void) | null = null;
+    return Promise.resolve({
+      render: (_container, options) => {
+        actions.push(options.action);
+        solve = () => setTimeout(() => options.callback(`${options.action}-${String((given += 1))}`), 0);
+        solve();
+        return "widget-1";
+      },
+      reset: () => solve?.(),
+      remove: () => undefined,
+    });
+  };
+  return { load, actions };
+}
+
+describe("the bot check on each send (account:bot-check-on-code-send)", () => {
+  test("[account:bot-check-on-code-send] given the form's unseen check, when a code is sent and sent again, then the widget is drawn for the code send and each send carries a fresh token of its own", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { load, actions } = drawn();
+    const tokens: (string | null)[] = [];
+    const account = codeAccount({ sendCode: (_email, bot) => (tokens.push(bot), Promise.resolve({ ok: true })) });
+    render(<CodeForm account={account} sitekey={TEST_SITE_KEY} load={load} onSignedIn={() => undefined} />);
+    await waitFor(() => expect(actions).toEqual(["code"]));
+    await sent();
+    expect(tokens).toEqual(["code-1"]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RESEND_WAIT_S * 1000);
+    });
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.code.nudge.again") }));
+    await waitFor(() => expect(tokens).toEqual(["code-1", "code-2"]));
+  });
+
+  test("[account:bot-check-on-code-send] given a send refused for its bot check, when the slot speaks, then it says the check did not go through and to send the code again", async () => {
+    const { load } = drawn();
+    const account = codeAccount({ sendCode: answers({ ok: false, why: "bot-check" }) });
+    render(<CodeForm account={account} sitekey={TEST_SITE_KEY} load={load} onSignedIn={() => undefined} />);
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
+    await waitFor(() => expect(slot().textContent).toBe(say("ui.account.fail.bot-check")));
+    expect(say("ui.account.fail.bot-check")).toBe("The quick check did not go through. Wait a moment, then send the code again.");
+    expect(screen.queryByLabelText(say("ui.account.code.label"))).toBeNull();
+  });
+
+  test("[account:bot-check-on-code-send] given a check whose script could not load, when a send is asked, then the script is loaded again for it, and a refusal for the check says it could not load and to send the code again", async () => {
+    let loads = 0;
+    const load: LoadTurnstile = () => {
+      loads += 1;
+      return Promise.reject(new Error("blocked"));
+    };
+    const account = codeAccount({ sendCode: answers({ ok: false, why: "bot-check" }, { ok: false, why: "bot-check" }) });
+    render(<CodeForm account={account} sitekey={TEST_SITE_KEY} load={load} onSignedIn={() => undefined} />);
+    await waitFor(() => expect(loads).toBe(1));
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
+    await waitFor(() => expect(slot().textContent).toBe(say("ui.account.bot.unloaded.code")));
+    expect(say("ui.account.bot.unloaded.code")).toBe("The quick check could not load. Check your connection, or turn off any blocker for this page, then send the code again.");
+    expect(loads).toBe(2);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
+    await waitFor(() => expect(loads).toBe(3));
   });
 });
