@@ -94,6 +94,9 @@ Every command has `type`, `basedOn` (the state version) and its own fields. The 
 | `place/ride` | `from`, `to`, `way`: danfo, keke or okada (place:rides-between-city-places) | No |
 | `activity/now` | `activity`, `param`: a now-act answered at once where it is staged (activity:now-acts-and-month-acts) | No |
 | `chapter/lean` | `route`: make a way out heard of or looked into the plan the chapters follow (chapter.md) | No |
+| `thing/buy` | `thing`: bought at a home in Lagos, the price held, delivered at once (home:things-a-life-owns) | No |
+| `thing/sell` | `thing`: an owned thing sold back at its resale share (home:things-a-life-owns) | No |
+| `wallet/top-up` | `amount` in kobo. Sent by the authority only; no server route sends it (wallet:top-ups-are-marked) | No |
 | `home/move` | `to`: the home place moved to (home:move-home-once-a-month, home:taken-in-after-eviction) | No |
 | `home/host` | `pair`, `until`. Sent by the authority only: a joined player's character stays with this one (home:hosting-costs-the-host) | No |
 | `interview/answer` | `question`, `option` (interview.md) | No |
@@ -117,7 +120,7 @@ Then the phases run in this order (`PHASES` in `engine/kind.ts`). In each, every
 | 1 | spend | turn, credit, people, home | The month number goes up by one and one banked turn is spent while the bank holds any; spent locks drop; the first month of a second stay takes the penalty off the kept credit file (credit:file-starts-at-zero-abroad); the sibling slots not yet drawn are drawn (person:computer-siblings-drawn-with-family); the family house takes a returned character back and a hosted stay that has run out ends |
 | 2 | main | activity | The job, if any: the licence and status checks, then the catch of a boat rung (activity:catch-drawn-each-month), then pay and tax, then the side job |
 | 3 | slots | activity, interview | Now-acts answered this month are counted, each free slot resolves first slot first, empty slots rest; the interview's month |
-| 4 | due | obligation, home | Everything owed this month is charged, oldest first. What cannot be paid moves along its ladder; the hosting rise |
+| 4 | due | obligation, home, things | Everything owed this month is charged, oldest first. What cannot be paid moves along its ladder; the hosting rise; each thing that works takes its running cost and gives its monthly lift, or stands idle short of money (home:things-a-life-owns) |
 | 5 | settle | wallet | Queued conversions and bank remits arrive. The allowance resets. Old lots drop |
 | 6 | papers | document | Papers due are issued. Old ones expire |
 | 7 | clocks | route, status, home | Schools answer, each gate's clock runs, the funds check runs, a due visa decision is made, a refund or a lifted ban lands; a status is detected, clocked, renewed by the employer, expired or settled, in that order; the Makoko draw (home:makoko-eviction-draw) and a guest whose stay is up is asked where next (home:taken-in-after-eviction) |
