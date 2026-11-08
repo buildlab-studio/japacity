@@ -1,0 +1,508 @@
+/* The game's look on the kit (the kit's references/looks.md, From a codebase): the day paint's role tokens from
+   apps/client/src/index.css mapped onto the kit's, and the game's own pieces (the band, the brief's chip and toast, the
+   sticker chips, the cards, the sheets, the yellow action, the phone's apps) copied from the same file, each scoped to
+   the stage so nothing leaks into a page round it. */
+@import "@fontsource/rubik/latin-500.css";
+@import "@fontsource/rubik/latin-700.css";
+
+.jc .ss-stage {
+  --ss-font: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ss-canvas: #eaf3fb;
+  --ss-surface: #ffffff;
+  --ss-well: #dae8f5;
+  --ss-raised: #ffffff;
+  --ss-text-strong: #131a33;
+  --ss-text: #131a33;
+  --ss-text-faint: #56607e;
+  --ss-icon: #131a33;
+  --ss-icon-faint: #56607e;
+  --ss-line: rgba(28, 42, 94, 0.12);
+  --ss-line-faint: rgba(28, 42, 94, 0.08);
+  --ss-accent: #1c2a5e;
+  --ss-accent-2: #2c3f87;
+  --ss-accent-soft: #dde9fb;
+  --ss-success: #1d7346;
+  --ss-radius-sm: 9px;
+  --ss-radius-md: 16px;
+  --ss-radius-lg: 20px;
+
+  /* The game's role tokens, day paint. */
+  --strong: #1c2a5e;
+  --on-strong: #f3efe6;
+  --sheet: #eaf3fb;
+  --sheet-2: #ffffff;
+  --sheet-muted: #dae8f5;
+  --text: #131a33;
+  --text-2: #56607e;
+  --sheet-line: rgba(28, 42, 94, 0.12);
+  --edge: #1c2a5e;
+  --tint-food: #ffe8dc;
+  --tint-study: #dde9fb;
+  --tint-money: #dcf5e6;
+  --tint-body: #ebe3f7;
+  --tint-people: #fde0e8;
+  --tint-plain: #eaf3fb;
+  --cut: #ffffff;
+  --face-1: #c2185b;
+  --face-2: #2a8656;
+  --face-3: #2c3f87;
+  --face-4: #d4602e;
+  --face-5: #7a3b69;
+  --face-6: #1f6f78;
+  --action: #f2b705;
+  --action-text: #131a33;
+  --action-edge: #131a33;
+  --action-under: #1c2a5e;
+  --signal: #f2b705;
+  --in: #1d7346;
+  --out: #b3261e;
+  --money-ink: #0f7343;
+  --soft: #fff3c4;
+  --soft-ink: #8a6400;
+  --tick: #1fb866;
+  --device: #0d1124;
+  --scrim: rgba(12, 16, 34, 0.5);
+  --door-sky: #d6ecfc;
+  --app-japa: #d4602e;
+  --app-bank: #2a8656;
+  /* The kit's filler lines in the paint's own ink, solid, so two never darken where they cross. */
+  --ss-fill: #dae8f5;
+  --ss-ink-1: #e6eef7;
+  --ss-ink-2: #dae8f5;
+  --ss-ink-3: #ccdcee;
+  --ss-ink-4: #bfd1e6;
+  --ss-ink-5: #aec3dc;
+
+  overflow: hidden;
+  background: var(--sheet);
+  color: var(--text);
+  font-family: var(--ss-font);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The game sizes every box by its border, as Tailwind's base does in the client. */
+.jc .jc-screen,
+.jc .jc-screen *,
+.jc .jc-screen *::before,
+.jc .jc-screen *::after { box-sizing: border-box; }
+
+/* The hosts: a laptop's browser with the game in it, and the phone in the hand. */
+.jc .jc-window {
+  position: absolute;
+  box-shadow: var(--ss-shadow-hero);
+}
+.jc .jc-window .ss-window__body {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: var(--sheet);
+}
+.jc .jc-phone {
+  position: absolute;
+}
+.jc .jc-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--sheet);
+}
+.jc .jc-world {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* On the phone the house fills the screen's middle, closer than the recording frames it, as the game's camera stands on a phone. */
+.jc .jc-world[data-shape="tall"] { scale: 1.5; transform-origin: 50% 50%; }
+.jc .jc-column {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+}
+
+/* Type: the three sizes of the game's look, titles and money, the body, chips. */
+.jc .jc-title { font-size: 22px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.jc .jc-label { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-2); }
+.jc .jc-num { font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: -0.02em; }
+.jc .jc-quiet { color: var(--text-2); }
+
+/* The pictures: a model's tile cut as a sticker, and a stand-in drawn from its attribute as the game draws one. */
+.jc .sticker-cut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  filter: drop-shadow(3px 0 0 var(--cut)) drop-shadow(-3px 0 0 var(--cut)) drop-shadow(0 3px 0 var(--cut)) drop-shadow(0 -3px 0 var(--cut)) drop-shadow(0 6px 5px rgba(20, 40, 50, 0.28));
+}
+.jc .jc-tile { display: block; flex: none; object-fit: contain; }
+.jc .drawn-pic { display: inline-flex; align-items: center; justify-content: center; line-height: 1; flex: none; }
+.jc .drawn-pic::before { content: attr(data-pic); }
+
+/* The sticker chip: a tilted pill with the sticker's white edge. */
+.jc .sticker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--sheet-2);
+  box-shadow: 0 0 0 2px var(--cut), 0 3px 6px rgba(20, 40, 50, 0.18);
+}
+.jc .tint-plain { background: var(--tint-plain); }
+.jc .tint-study { background: var(--tint-study); }
+.jc .tint-money { background: var(--tint-money); }
+.jc .tint-people { background: var(--tint-people); }
+.jc .tint-food { background: var(--tint-food); }
+.jc .tint-body { background: var(--tint-body); }
+.jc .tint-soft { background: var(--soft); color: var(--soft-ink); }
+
+/* A person: the name in a pill with a flat round mark carrying the initial. */
+.jc .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--edge);
+  border-radius: 9999px;
+  padding: 4px 12px 4px 4px;
+  background: var(--sheet-2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.jc .face-mark {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* The band: a white pill with the edge and its underside, the sky's picture, the name and the money in green. */
+.jc .band-pill {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
+}
+.jc .band-sky { width: 32px; height: 32px; border-radius: 9999px; background: var(--tint-plain); font-size: 18px; }
+.jc .band-person { min-width: 0; flex: 1; line-height: 1.3; }
+.jc .band-person > div + div { margin-top: 2px; }
+.jc .band-name { font-size: 16px; font-weight: 700; }
+.jc .band-part { font-size: 14px; color: var(--text-2); }
+.jc .band-part::before { content: "· "; }
+.jc .band-where { overflow: hidden; font-size: 12px; font-weight: 700; color: var(--text-2); white-space: nowrap; text-overflow: ellipsis; }
+.jc .band-money { flex: none; padding: 6px 12px; border-radius: 9999px; background: var(--tint-money); color: var(--money-ink); font-size: 16px; font-weight: 700; white-space: nowrap; }
+
+/* The brief's chip under the band, its dots, and the giver's toast under it. */
+.jc .brief-chip {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 0 0 1.5px var(--edge), 0 3px 0 var(--edge);
+}
+.jc .chip-pic { display: flex; width: 30px; height: 30px; flex: none; align-items: center; justify-content: center; border-radius: 9999px; background: var(--tint-plain); }
+.jc .brief-dots { display: flex; align-items: center; gap: 3px; }
+.jc .brief-dot { display: block; width: 7px; height: 7px; border-radius: 9999px; transition: background-color 180ms ease, box-shadow 180ms ease; }
+.jc .brief-dot[data-dot="done"] { background: var(--tick); }
+.jc .brief-dot[data-dot="now"] { background: var(--signal); box-shadow: 0 0 0 1.5px var(--edge); }
+.jc .brief-dot[data-dot="later"] { background: var(--sheet-line); box-shadow: inset 0 0 0 1px var(--sheet-line); }
+.jc .brief-toast {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge), 0 12px 24px rgba(0, 0, 0, 0.18);
+}
+.jc .brief-toast-pic { display: flex; width: 48px; height: 48px; flex: none; align-items: center; justify-content: center; border-radius: 14px; background: var(--tint-plain); }
+.jc .brief-toast-words { margin-top: 4px; font-size: 16px; line-height: 1.3; font-weight: 700; }
+
+/* The thumbs at the foot of the world: round white buttons with a picture each, the edge and its underside. */
+.jc .thumb-round {
+  display: flex;
+  width: 62px;
+  height: 62px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 4px 0 var(--edge);
+}
+
+/* A card: white with the thin edge. */
+.jc .look-card {
+  border: 1px solid var(--edge);
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 6px 16px rgba(19, 26, 51, 0.1);
+  transition: scale 120ms cubic-bezier(0.2, 0.9, 0.25, 1.3);
+}
+.jc .look-card[data-pressed] { scale: 0.97; }
+
+/* The one yellow action, with its underside that flattens on press. */
+.jc .btn-main {
+  display: flex;
+  width: 100%;
+  height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  border-radius: 6px;
+  background: var(--action);
+  color: var(--action-text);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: inset 0 -4px 0 var(--action-edge);
+  transition: transform 60ms, box-shadow 60ms;
+}
+.jc .btn-main[data-pressed] { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--action-edge); }
+.jc .btn-main-then { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 500; opacity: 0.85; }
+.jc .press-button {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px;
+  border: 2px solid var(--action-under);
+  border-radius: 16px;
+  background: var(--action);
+  color: var(--action-text);
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--action-under);
+  will-change: transform;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+.jc .press-button[data-pressed] { transform: translateY(3px); box-shadow: 0 1px 0 var(--action-under); }
+
+/* Round white buttons with the edge's underside, and the pill button beside them. */
+.jc .round-button,
+.jc .pill-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px solid var(--edge);
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 3px 0 var(--edge);
+  font-weight: 700;
+}
+.jc .round-button { width: 44px; height: 44px; border-radius: 9999px; }
+.jc .pill-button { height: 44px; padding: 0 16px; border-radius: 9999px; font-size: 15px; }
+
+/* The front door: the pale sky, the lives as cards with a firmer edge, the face sticker, the pager. */
+.jc .door { position: absolute; inset: 0; background: var(--door-sky); color: var(--text); }
+.jc .door-card {
+  border: 1.5px solid var(--edge);
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 4px 0 rgba(27, 42, 74, 0.12);
+}
+.jc .door-life {
+  position: absolute;
+  top: 0;
+  width: 282px;
+  padding: 10px;
+  will-change: transform;
+  transition-property: transform, opacity, rotate;
+  transition-duration: 220ms;
+  transition-timing-function: ease-out;
+}
+.jc .door-life[aria-checked="false"] { opacity: 0.86; transform: scale(0.95); }
+.jc .face-sticker {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 3px var(--cut), 0 4px 8px rgba(20, 40, 50, 0.25);
+}
+.jc .face-sticker > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.jc .door-dots { display: inline-flex; align-items: center; gap: 6px; }
+.jc .door-dots > i { display: block; width: 9px; height: 9px; border-radius: 9999px; background: color-mix(in srgb, var(--text-2) 32%, transparent); transition-property: width, background-color; transition-duration: 180ms; }
+.jc .door-dots > i[data-done] { background: var(--edge); }
+.jc .door-dots > i[data-now] { width: 26px; border-radius: 5px; background: var(--action); box-shadow: 0 0 0 1.5px var(--action-under); }
+
+/* A sheet rises from the foot over the world, the sheet's own pale ground with a grabber. */
+.jc .sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--sheet);
+  color: var(--text);
+  box-shadow: 0 -10px 30px rgba(10, 14, 30, 0.22);
+  transition: transform 220ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+.jc .sheet[data-down] { transform: translateY(105%); }
+.jc .sheet-grab { display: block; width: 40px; height: 5px; margin: 12px auto 0; border-radius: 3px; background: color-mix(in srgb, var(--text) 25%, transparent); }
+.jc .sheet-close { position: absolute; top: 12px; right: 12px; display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; color: var(--text-2); }
+
+/* The asks: each reply a white row with the edge; the asker's mark a large flat round with a ring. */
+.jc .ask-mark {
+  position: relative;
+  display: flex;
+  width: 76px;
+  height: 76px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: #ffffff;
+  font-size: 34px;
+  font-weight: 700;
+  box-shadow: 0 0 0 4px var(--sheet-2), 0 0 0 5.5px var(--edge), 0 5px 0 5.5px var(--edge);
+}
+.jc .ask-reply {
+  display: flex;
+  min-height: 56px;
+  width: 100%;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--sheet-2);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: 0 0 0 1.5px var(--edge);
+}
+
+/* The game's phone: the handset over the world, its apps' heads and the white cards inside. */
+.jc .handset {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  padding: 7px;
+  border-radius: 34px;
+  background: var(--device);
+  box-shadow: 0 24px 60px rgba(10, 14, 30, 0.55);
+  transition: transform 380ms cubic-bezier(0.2, 0.9, 0.25, 1.05);
+}
+.jc .handset[data-away] { transform: translateY(125%) rotate(5deg); }
+.jc .handset-glass { position: relative; display: flex; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; border-radius: 28px; background: var(--sheet); color: var(--text); }
+.jc .app-head { display: flex; align-items: center; gap: 8px; padding: 12px 10px 8px; }
+.jc .phone-round { display: flex; width: 44px; height: 44px; flex: none; align-items: center; justify-content: center; border-radius: 9999px; }
+.jc .app-tile { display: flex; width: 40px; height: 40px; flex: none; align-items: center; justify-content: center; border-radius: 12px; color: #ffffff; rotate: -4deg; box-shadow: 0 0 0 2px var(--cut), 0 3px 6px rgba(20, 40, 50, 0.22); }
+.jc .app-name { font-size: 24px; line-height: 1.15; font-weight: 700; }
+.jc .app-body { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 12px; padding: 4px 12px 12px; }
+.jc .app-head-words { font-size: 14px; font-weight: 700; color: var(--text-2); }
+.jc .phone-pic { display: flex; flex: none; align-items: center; justify-content: center; border-radius: 16px; }
+/* The readiness bar and the savings bar: the kit's meter in the game's colours, the muted track and the tick's green or
+   the paint's ink, the savings filling slower, as the results sheet fills it. */
+.jc .phone-meter { height: 10px; border-radius: 9999px; background: var(--sheet-muted); --ss-meter-tone: var(--tick); }
+.jc .save-meter { height: 10px; border-radius: 2px; background: var(--sheet-muted); --ss-meter-tone: var(--text); }
+.jc .save-meter .ss-meter__fill { transition-duration: 1.2s; }
+.jc .home-bar { display: flex; justify-content: center; padding: 6px 0 16px; }
+.jc .home-bar > span { display: block; width: 112px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--text) 30%, transparent); }
+
+/* What arrives: a sticker chip settles in from just above, a toast slides down under the chip. */
+.jc .arrive { will-change: transform; transition: opacity 240ms ease, transform 320ms cubic-bezier(0.2, 0.9, 0.25, 1.1); }
+.jc .arrive[data-out] { opacity: 0; transform: translateY(-10px) scale(0.9); }
+
+/* The phone's own line over the handset when an act in it is answered: the corner's white pill with the edge. */
+.jc .talk-corner {
+  border-radius: 9999px;
+  background: var(--sheet-2);
+  color: var(--text);
+  box-shadow: 0 0 0 1.5px var(--edge), 0 3px 0 var(--edge);
+}
+.jc .scrim { position: absolute; inset: 0; background: var(--scrim); transition: opacity 200ms ease; }
+.jc .scrim[data-out] { opacity: 0; }
+.jc .slide { will-change: transform; transition: opacity 280ms ease, transform 280ms cubic-bezier(0.2, 0.9, 0.25, 1.1); }
+.jc .slide[data-out] { opacity: 0; transform: translateY(-24px); }
+.jc .rise { will-change: transform; transition: opacity 240ms ease, transform 300ms cubic-bezier(0.2, 0.9, 0.25, 1.04); }
+.jc .rise[data-out] { opacity: 0; transform: translateY(12px); }
+
+/* An app opening inside the phone comes in from the right over the home screen. */
+.jc .app-open { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--sheet); will-change: transform; transition: transform 220ms cubic-bezier(0.2, 0.9, 0.25, 1), opacity 160ms ease-out; }
+.jc .app-open[data-out] { transform: translateX(100%); opacity: 0; }
+
+/* The second cut's pieces. The act's card on its sheet: the pale sky with its handle, the corner's icon, where and the
+   act's title, the line, how long it takes over a rule, and the yellow button with the act's verb and when it answers. */
+.jc .act-card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 26px 26px 0 0;
+  background: var(--sheet);
+  color: var(--text);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.22);
+  will-change: transform;
+  transition: transform 320ms cubic-bezier(0.3, 0.75, 0.1, 1);
+}
+.jc .act-card[data-down] { transform: translateY(105%); }
+.jc .act-head { position: relative; display: flex; align-items: center; gap: 12px; padding: 4px 56px 4px 16px; }
+.jc .act-head .sheet-close { top: 50%; translate: 0 -50%; }
+.jc .act-icon { display: flex; width: 48px; height: 48px; flex: none; align-items: center; justify-content: center; border-radius: 14px; background: var(--tint-plain); color: var(--text); }
+.jc .act-who { font-size: 13px; font-weight: 500; color: var(--text-2); }
+.jc .act-title { font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.jc .act-body { padding: 16px 16px 40px; }
+.jc .act-line { margin: 0; font-size: 15px; line-height: 1.4; color: var(--text-2); }
+.jc .act-takes { display: flex; align-items: baseline; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--sheet-line); }
+.jc .act-main { width: 100%; margin-top: 16px; justify-content: space-between; }
+.jc .act-when { font-size: 13px; font-weight: 700; opacity: 0.8; }
+
+/* A short fact with its state: the waiting mark, a small square with the clock, then the words, on the muted ground. */
+.jc .state-tag { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; padding: 4px 8px 4px 4px; border-radius: 4px; background: var(--sheet-muted); color: var(--text); font-size: 12px; line-height: 1; font-weight: 700; }
+.jc .state-mark { display: inline-flex; width: 16px; height: 16px; flex: none; align-items: center; justify-content: center; border-radius: 4px; background: var(--sheet-line); color: var(--text-2); }
+
+/* The brief the Japa app carries: the card ringed as the picked one, the giver's words, and each thing a row with one look
+   for each state: a thing in recedes with its tick, the thing now stands out on the soft yellow, the rest plain. */
+.jc .carried { display: flex; flex-direction: column; gap: 10px; padding: 12px; box-shadow: 0 0 0 2px var(--signal), 0 6px 16px rgba(19, 26, 51, 0.1); }
+.jc .carried-pic { display: flex; width: 60px; height: 60px; flex: none; align-items: center; justify-content: center; border-radius: 16px; background: var(--soft); }
+.jc .carried-line { margin: 0; font-size: 14px; line-height: 1.35; color: var(--text-2); }
+.jc .brief-rows { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.jc .brief-row { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 14px; background: var(--tint-plain); transition: background-color 200ms ease, box-shadow 200ms ease; }
+.jc .brief-row[data-state="now"] { background: var(--soft); box-shadow: inset 0 0 0 2px var(--signal); }
+.jc .brief-row[data-state="done"] { background: color-mix(in srgb, var(--tint-plain) 45%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--edge) 14%, transparent); }
+.jc .brief-row-pic { display: flex; width: 30px; flex: none; justify-content: center; transition: opacity 200ms ease, filter 200ms ease; }
+.jc .brief-row[data-state="done"] .brief-row-pic { opacity: 0.5; filter: saturate(0.4); }
+.jc .brief-row-words { display: block; font-size: 15px; line-height: 1.25; font-weight: 700; }
+.jc .brief-row[data-state="done"] .brief-row-words { color: var(--text-2); }
+.jc .brief-row-place { display: block; font-size: 12px; line-height: 1.3; color: var(--text-2); }
+.jc .brief-tick { display: flex; width: 24px; height: 24px; flex: none; align-items: center; justify-content: center; border-radius: 9999px; background: var(--tick); color: #ffffff; box-shadow: 0 0 0 2.5px var(--sheet-2); }
+
+/* An app's body that moves down its sections: the column slides under a fixed head, its top edge soft while it moves. */
+.jc .app-scroll { position: relative; min-height: 0; flex: 1; overflow: hidden; }
+.jc .app-track { display: flex; flex-direction: column; gap: 12px; padding: 4px 12px 12px; will-change: transform; transition: transform 700ms cubic-bezier(0.45, 0, 0.1, 1); }
+/* Makoko's still is the phone's own recording, the stilts and the canoes already at the phone's distance. */
+.jc .jc-world[data-place="makoko"] { scale: 1.12; transform-origin: 50% 40%; }

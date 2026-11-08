@@ -1,0 +1,12 @@
+/* The page round a scene: nothing but the stage, edge to edge, on the scene's own ground. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #eaf3fb;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+}
