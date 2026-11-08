@@ -37,10 +37,20 @@ const POSTER = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"
  * The world as an online life opens it, with nothing standing over the place: the chapter's opening words passed, the
  * home's teach card put away (home:moves-carry-cost-and-reason), and the place drawn.
  */
-async function intoTheWorld(page: Page): Promise<void> {
+/**
+ * `asked`: a guest past its first month with its early win in, asked once to save the life as the world opens
+ * (account:guest-secures-the-life); Not now goes on.
+ */
+async function intoTheWorld(page: Page, asked = false): Promise<void> {
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto("/");
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+  if (asked) {
+    const ask = page.getByRole("dialog", { name: "Save this life" });
+    await expect(ask).toBeVisible({ timeout: 20_000 });
+    await ask.getByRole("button", { name: "Not now" }).click();
+    await expect(ask).toHaveCount(0);
+  }
   await passOpeningWords(page);
   await placeReady(page);
   await passHomeTeach(page);
@@ -247,7 +257,7 @@ test("[server:per-account-rate-limits] [server:public-replies-cached] a guest wh
     { heard: (asked) => heard.push(asked) },
   );
   test.setTimeout(240_000);
-  await intoTheWorld(page);
+  await intoTheWorld(page, true);
   await page.locator('[data-thumb="phone"]').click();
   const tile = page.locator("[data-phone] [data-advert-slot='advert.phone-tile']");
   await expect(tile).toBeVisible({ timeout: 20_000 });

@@ -86,16 +86,15 @@ async function picture(page: Page, sheet: Locator, name: string, project: string
   if (was !== null) await page.setViewportSize(was);
 }
 
-/** The world past the second chapter's card, the save ask answered Not now where it comes, and the account's sheet opened from Settings. */
+/**
+ * The world past the second chapter's card and the account's sheet opened from Settings. No month is played, so nothing asks to
+ * save the life; a guest's band carries the Not saved chip (account:guest-reminded-to-secure), a saved life's none.
+ */
 async function openAccount(page: Page, guest: boolean): Promise<Locator> {
   await page.goto("/");
   await pastTheCard(page);
-  if (guest) {
-    const ask = page.getByRole("dialog", { name: "Save this life" });
-    await expect(ask).toBeVisible({ timeout: 20_000 });
-    await ask.getByRole("button", { name: "Not now" }).click();
-    await expect(ask).toHaveCount(0);
-  }
+  await expect(page.locator("[data-band] [data-save-chip]")).toHaveCount(guest ? 1 : 0, { timeout: 20_000 });
+  await expect(page.getByRole("dialog", { name: "Save this life" })).toHaveCount(0);
   await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
   await page.locator('[data-app="settings"]').click();
   await page.locator("[data-account-row]").click();
