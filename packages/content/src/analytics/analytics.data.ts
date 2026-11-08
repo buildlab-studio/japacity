@@ -22,6 +22,8 @@ const REJECTION_CODES = [
   "rate-limited",
   "signed-out",
   "diverged",
+  // server:older-contents-bundled: a life under a content the server does not bundle.
+  "no-content",
   "one-character",
   "no-character",
   "switched-off",

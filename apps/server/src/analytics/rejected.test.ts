@@ -22,6 +22,7 @@ const CODES: Record<ServerCode, true> = {
   "rate-limited": true,
   "signed-out": true,
   diverged: true,
+  "no-content": true,
   "one-character": true,
   "no-character": true,
   "switched-off": true,

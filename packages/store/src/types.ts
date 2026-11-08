@@ -114,6 +114,8 @@ export interface Held {
   segments: SegmentRow[];
   snapshot: SnapshotRow;
   tail: LogRow[];
+  /** server:snapshots-bound-replay: the hash of the log row at the snapshot's version, where one is stored. */
+  anchor?: string;
 }
 
 /** server:paired-rows-locked-in-order: what a transaction's work is given. */

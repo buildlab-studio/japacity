@@ -68,6 +68,8 @@ function onlyLive(lives: readonly Live[]): Live {
 async function unusual<T>(deps: ServerDeps, outcome: Exclude<TxResult<T>, { kind: "done" | "rejected" }>): Promise<Answer<never>> {
   if (outcome.kind === "diverged") {
     await queueDiverged(deps, outcome.diverged);
+    // server:older-contents-bundled: a life under a content no longer bundled is told apart from one that replays differently.
+    if (outcome.diverged.unbundled === true) return refusal(409, "no-content", "This character's save needs a version of the game the server does not hold. Play resumes once it is mended.");
     return refusal(409, "diverged", "This character is being checked. Play resumes once it is mended.");
   }
   return refusal(404, "no-character", outcome.refusal.detail);
@@ -223,7 +225,8 @@ export async function readView(deps: ServerDeps, account: string, since: number 
       return { status: 200, body: { ok: true, view, lines, clock: clockOf(deps, live, outcome.at), ...(person === null ? {} : { person }) } };
     }
     case "rejected":
-      throw new Error("A view steps nothing and cannot be rejected.");
+      // clock:earned-turns-granted-first: a view steps nothing of its own; only its grant can be refused, when the clock went back under it.
+      return refusal(409, outcome.rejection.code, outcome.rejection.detail);
     case "diverged":
     case "refused":
       return unusual(deps, outcome);

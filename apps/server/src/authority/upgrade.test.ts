@@ -156,6 +156,24 @@ describe("old saves", () => {
     expect(checkInvariants(base, content)).toEqual([]);
   });
 
+  test("[server:older-contents-bundled] given a life whose segment names a content the worker no longer bundles, when its view or a command is asked for, then each is refused 409 no-content with nothing written, never a server error, the life is listed for the rollback tool once, and another life plays on", async () => {
+    const server = testServer();
+    server.deps.contents = { current: previous, previous: null };
+    const id = await newLife(server, "acc-1");
+    server.deps.contents = contentsFor(content, undefined);
+    await newLife(server, "acc-2");
+    const before = await held(server, id);
+    const seen = await view(server, "acc-1");
+    expect(seen.status).toBe(409);
+    expect(seen.body).toMatchObject({ ok: false, code: "no-content" });
+    const sent = await send(server, "acc-1", restMonth({ v: before.character.v }));
+    expect(sent.status).toBe(409);
+    expect(sent.body).toMatchObject({ ok: false, code: "no-content" });
+    expect(await held(server, id)).toEqual(before);
+    expect((await server.deps.stores.audit.list(id)).filter((entry) => entry.why === "rollback")).toHaveLength(1);
+    expect((await view(server, "acc-2")).status).toBe(200);
+  });
+
   test("[server:older-contents-bundled] [server:overlay-change-opens-segment] given the worker's contents with an older version, with and without an overlay, when a segment names the current or the older version, then each is bundled under its own overlay", () => {
     const plain = withContentBefore(contentsFor(content, undefined), undefined, [previous]);
     expect(contentNamed(plain, content.version, undefined)).toBe(content);

@@ -9,6 +9,8 @@ export type ServerCode =
   | "rate-limited"
   | "signed-out"
   | "diverged"
+  /** server:older-contents-bundled: the life's segment names a content the server does not bundle. */
+  | "no-content"
   | "one-character"
   | "no-character"
   /** server:four-off-switches: the feature's switch is off. */

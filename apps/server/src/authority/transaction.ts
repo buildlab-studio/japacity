@@ -54,15 +54,18 @@ function writeOf(live: Live): CharacterWrite | null {
 
 /**
  * clock:earned-turns-granted-first, clock:full-bank-earns-nothing: one `turns/grant` from the authority for what
- * real time earned, logged like any command, and `refilledAt` moved on.
+ * real time earned, logged like any command, and `refilledAt` moved on. The tick was stamped before the lock, so a
+ * command written meanwhile on a later tick makes the grant `clock-went-back`: that refusal is handed back, to write nothing.
  */
-function grantEarned(deps: ServerDeps, live: Live, turn: Turn): void {
+function grantEarned(deps: ServerDeps, live: Live, turn: Turn): Rejection | null {
   const earned = earnTurns(live.state, live.refilledAt, turn.at, turnClock(deps.config, live.content.tuning.turn.cap));
   if (earned.grant > 0) {
     const granted = turn.send(live, { type: "turns/grant", count: earned.grant, basedOn: live.state.v }, "authority");
+    if (!granted.ok && granted.code === "clock-went-back") return granted;
     if (!granted.ok) throw new Error(`The earned grant for ${live.id} was rejected with ${granted.code}: ${granted.detail}`);
   }
   live.refilledAt = earned.refilledAt;
+  return null;
 }
 
 /**
@@ -90,7 +93,12 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
       if (!loaded.ok) return { writes: {}, result: { kind: "diverged", diverged: loaded.diverged } };
       lives.push(loaded.live);
     }
-    if (options.grant !== false) for (const live of lives) grantEarned(deps, live, turn);
+    if (options.grant !== false) {
+      for (const live of lives) {
+        const refused = grantEarned(deps, live, turn);
+        if (refused !== null) return { writes: {}, result: { kind: "rejected", rejection: refused, lives, world, at } };
+      }
+    }
     const acted = act(lives, turn);
     if (!acted.ok) return { writes: {}, result: { kind: "rejected", rejection: acted, lives, world, at } };
     const unsold = await sellTickets(stores.world, lives, world);
