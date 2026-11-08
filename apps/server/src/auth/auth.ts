@@ -215,7 +215,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
     },
     hooks: {
-      before: beforeAuth(deps),
+      before: beforeAuth(deps, keys),
       after: afterAuth(deps, keys, googleNewLives),
     },
     advanced: {

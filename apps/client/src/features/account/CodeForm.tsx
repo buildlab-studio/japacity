@@ -1,7 +1,8 @@
 // Signing in by a code sent to an email address (account:email-code-is-short-lived, account:code-form-forgives): the address,
 // then the 6 digits. It signs the player in, or, for an address no account uses, hands on the address its right code proved
 // for a new life (account:sign-in-without-secret); and it confirms deleting (account:player-deletes-account), where the code
-// goes to the server with the deletion instead of signing in. Each step's field is the first to fill there and takes the
+// goes to the server with the deletion instead of signing in. Every send carries the unseen bot check's token
+// (account:bot-check-on-code-send). Each step's field is the first to fill there and takes the
 // focus as the step opens on a desktop, never on a touch phone; a refusal for it focuses it on both. Once the
 // code is sent the step says one thing at a time: where the code went, with a quiet way back to the address; the field,
 // which sends itself at the sixth digit; the one button; and one status slot under them, a polite live
@@ -14,6 +15,8 @@ import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
 import { FIRST_FIELD, focusFirstField } from "../../shared/ui/firstField";
 import { say } from "../../shared/words/text";
+import { CODE_ACTION, loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
+import { useUnseenCheck, type UnseenCheck } from "./useUnseenCheck";
 
 const CODE = /^\d{6}$/;
 const CODE_DIGITS = 6;
@@ -26,15 +29,19 @@ export const RESEND_WAIT_S = 30;
 
 export const failureWords = (result: AuthResult): string | null => (result.ok ? null : say(`ui.account.fail.${result.why}`));
 
+/** account:bot-check-on-code-send: what a send refused for its bot check is told as, when the check said why no pass came. */
+const BOT_WORDS = { unloaded: "ui.account.bot.unloaded.code", error: "ui.account.bot.error.code" } as const;
+
 /** The answers that leave the code with nothing to try: its tries are used up, or it ran out. */
 const DEAD: ReadonlySet<string> = new Set(["used-up", "expired"]);
 
 export interface CodeFormProps {
   account: AccountApi;
-  /** The bot check's token, sent where an account could be made (account:bot-check-on-guest-creation). */
-  bot?: string | null;
-  /** Called after any request that spent the token. */
-  spentBot?: () => void;
+  /** account:bot-check-on-code-send: the site key and the script of the form's own unseen check; the build's unless a test names others. */
+  sitekey?: string | null;
+  load?: LoadTurnstile;
+  /** A code check the parent holds and mounts, used for the sends in place of the form's own: one that sent a code before the form stood. */
+  check?: UnseenCheck;
   /** The address is known already: the signed-in account's own, or a new life's. */
   email?: string;
   /** The address the field starts with, which the player can change. */
@@ -105,7 +112,7 @@ function withAddress(line: string, email: string, button: ReactNode): ReactNode 
   );
 }
 
-export function CodeForm({ account, bot = null, spentBot, email: known, filled, sent = false, sentSaid, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, goVariant = "primary", onSignedIn, onNewLife, onTaken, onStep, onChange }: CodeFormProps) {
+export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, email: known, filled, sent = false, sentSaid, focusEmail = false, passkeyAutofill = false, onEmailTyped, sendLabel, confirm, goLabel, goVariant = "primary", onSignedIn, onNewLife, onTaken, onStep, onChange }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? filled ?? "");
   const [sentTo, setSentTo] = useState<string | null>(sent && known !== undefined ? known : null);
   // Each code sent, counted: the wait for the way to a new one starts again with each.
@@ -118,6 +125,9 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [line, setLine] = useState<Line>("none");
+  // The form's own check is mounted only where the parent holds none.
+  const own = useUnseenCheck(held !== undefined ? null : sitekey === undefined ? siteKey() : sitekey, load, undefined, CODE_ACTION);
+  const bot = held ?? own;
   const codeField = useRef<HTMLInputElement>(null);
   const emailField = useRef<HTMLInputElement>(null);
   // The field the focus goes to once the form has turned, the first to fill on its step: the code's after a send, the
@@ -156,9 +166,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
     setBusy(true);
     setProblem(null);
     try {
-      const result = await action();
-      if (bot !== null) spentBot?.();
-      after(result);
+      after(await action());
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -181,8 +189,15 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
       return;
     }
     void run(
-      () => account.sendCode(address, bot),
+      async () => {
+        const token = await bot.token();
+        const result = await account.sendCode(address, token);
+        if (token !== null) bot.spent();
+        return result;
+      },
       (result) => {
+        const trouble = bot.trouble();
+        if (!result.ok && result.why === "bot-check" && trouble !== null) return setProblem(say(BOT_WORDS[trouble]));
         if (!result.ok) return setProblem(failureWords(result));
         focusNext.current = "code";
         if (!again) {
@@ -206,7 +221,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
       return;
     }
     void run(
-      () => (confirm === undefined ? account.signInWithCode(sentTo, typed, bot) : confirm(typed)),
+      () => (confirm === undefined ? account.signInWithCode(sentTo, typed, null) : confirm(typed)),
       (result) => {
         if (result.ok && result.newLife === true && onNewLife !== undefined) return onNewLife(sentTo);
         if (result.ok) return onSignedIn();
@@ -338,6 +353,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
       <p role="status" className={`text-[14px] leading-snug ${problem === null ? "text-text-2" : "text-bad"}`} data-code-said={problem === null ? line : "problem"}>
         {said}
       </p>
+      {own.widget}
     </div>
   );
 }

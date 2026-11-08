@@ -8,7 +8,8 @@
 // and Continue goes on with the username kept. An address an account took meanwhile is sent a code that opens it. Where
 // Google proved the address, the steps are the same and only the words for Google's way differ: "Use another way", and a
 // proof run out or an address taken is told with "Continue with Google" in place of the code form, which sends no code;
-// Google makes a fresh proof or signs in, and the username comes back with the step.
+// Google makes a fresh proof or signs in, and the username comes back with the step. The code sent unasked carries the code
+// form's unseen bot check (account:bot-check-on-code-send), mounted with the step so its token is ready.
 import { useState, type ReactNode } from "react";
 
 import type { AccountApi } from "../../shared/net/auth";
@@ -18,6 +19,8 @@ import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import type { GuestDoor } from "./GuestStart";
 import { holdNameForGoogle } from "./marks";
+import { CODE_ACTION, loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
+import { useUnseenCheck } from "./useUnseenCheck";
 
 // Inline in its line of words, with a pad round it that takes the tap (world:reach-and-read), as the code step's quiet links.
 const QUIET_LINK = "press reach inline px-0.5 text-text-2 underline underline-offset-4";
@@ -56,10 +59,15 @@ export interface KeptNameProps {
   onSignedIn: () => void;
   /** The back arrow; none inside another page. */
   back?: ReactNode;
+  /** account:bot-check-on-code-send: the code check's site key and script; the build's unless a test names others. */
+  sitekey?: string | null;
+  load?: LoadTurnstile;
 }
 
-export function KeptName({ account, email, google = false, door, username, onUsername, onOther, onHere, onSignedIn, back = null }: KeptNameProps) {
+export function KeptName({ account, email, google = false, door, username, onUsername, onOther, onHere, onSignedIn, back = null, sitekey, load = loadTurnstile }: KeptNameProps) {
   const [busy, setBusy] = useState(false);
+  // Google's way sends no code, so it needs no code check.
+  const codeCheck = useUnseenCheck(google ? null : sitekey === undefined ? siteKey() : sitekey, load, undefined, CODE_ACTION);
   const [problem, setProblem] = useState<string | null>(null);
   const [asked, setAsked] = useState<Asked | null>(null);
 
@@ -84,7 +92,9 @@ export function KeptName({ account, email, google = false, door, username, onUse
         setAsked((was) => ({ why, sent: false, problem: null, at: (was?.at ?? 0) + 1 }));
         return;
       }
-      const sent = await account.sendCode(email, null);
+      const token = await codeCheck.token();
+      const sent = await account.sendCode(email, token);
+      if (token !== null) codeCheck.spent();
       setAsked((was) => ({ why, sent: sent.ok, problem: sent.ok ? null : failureWords(sent), at: (was?.at ?? 0) + 1 }));
       return;
     }
@@ -153,6 +163,7 @@ export function KeptName({ account, email, google = false, door, username, onUse
             account={account}
             email={email}
             sent={asked.sent}
+            check={codeCheck}
             sentSaid={say(asked.why === "proof-gone" ? "ui.account.kept.gone" : "ui.account.kept.taken", { email })}
             goLabel={say("ui.account.kept.go")}
             onSignedIn={onSignedIn}
@@ -163,6 +174,7 @@ export function KeptName({ account, email, google = false, door, username, onUse
           />
         </div>
       )}
+      {codeCheck.widget}
     </div>
   );
 }

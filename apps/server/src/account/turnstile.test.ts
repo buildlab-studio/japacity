@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { checkTurnstile, TOKEN_MAX_LENGTH, TURNSTILE_ACTION, TURNSTILE_TEST } from "./turnstile";
+import { checkTurnstile, CODE_ACTION, TOKEN_MAX_LENGTH, TURNSTILE_ACTION, TURNSTILE_TEST } from "./turnstile";
 
 /** Siteverify answered as Cloudflare answers a test secret: a pass on example.com, marked as made with a testing key. */
 function siteverify(answer: Record<string, unknown>): typeof fetch {
@@ -78,5 +78,26 @@ describe("the bot check's action, size and reply", () => {
       const answering: typeof fetch = () => Promise.resolve(new Response(text, { status: 200, headers: { "content-type": "application/json" } }));
       expect({ text, check: await checkTurnstile({ secretKey: TURNSTILE_TEST.passSecret, fetch: answering }, TURNSTILE_TEST.dummyToken, null, "japacity.app") }).toEqual({ text, check: { ok: false, reason: "bad-reply" } });
     }
+  });
+});
+
+describe("the bot check on a code send", () => {
+  test("[account:bot-check-on-code-send] given the code send's action, then it is code, apart from the guest start's", () => {
+    expect(CODE_ACTION).toBe("code");
+    expect(CODE_ACTION).not.toBe(TURNSTILE_ACTION);
+  });
+
+  test("[account:bot-check-on-code-send] given a pass on SITE_URL's own host, when it is checked for the code send, then a pass for code is accepted and one for the guest start or none is refused as an action mismatch", async () => {
+    expect(await checkTurnstile(keys({ success: true, hostname: "japacity.app", action: "code" }), TURNSTILE_TEST.dummyToken, null, "japacity.app", CODE_ACTION)).toEqual({ ok: true });
+    for (const action of [undefined, "guest", "Code", ""]) {
+      const answer = { success: true, hostname: "japacity.app", ...(action === undefined ? {} : { action }) };
+      expect({ action, check: await checkTurnstile(keys(answer), TURNSTILE_TEST.dummyToken, null, "japacity.app", CODE_ACTION) }).toEqual({ action, check: { ok: false, reason: "action-mismatch" } });
+    }
+    expect(await checkTurnstile(keys({ success: true, hostname: "japacity.app", action: "code" }), TURNSTILE_TEST.dummyToken, null, "japacity.app")).toEqual({ ok: false, reason: "action-mismatch" });
+  });
+
+  test("[account:bot-check-on-code-send] given a testing key's pass, when it is checked for the code send, then it stands on the local stack's host alone, as the guest start's does", async () => {
+    for (const host of ["localhost", "127.0.0.1"]) expect(await checkTurnstile(keys(TESTING_PASS), TURNSTILE_TEST.dummyToken, null, host, CODE_ACTION)).toEqual({ ok: true });
+    expect(await checkTurnstile(keys(TESTING_PASS), TURNSTILE_TEST.dummyToken, null, "japacity.app", CODE_ACTION)).toEqual({ ok: false, reason: "hostname-mismatch" });
   });
 });

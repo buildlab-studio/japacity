@@ -118,7 +118,7 @@ function StartLights() {
 /** The username's own step of a life that came by the code or by Google: the guest start marked proved and kept (account:sign-in-without-secret). */
 function KeptLife({ account, proof, sitekey, load, botWaitMs, lapses, username, onUsername, onLapse, onExpired, onFull, onStarted, onOther, onSignedIn, back }: { account: AccountApi; proof: Proof; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; lapses: number; username: string; onUsername: (username: string) => void; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: (email: NewLifeEmail | null) => Promise<void>; onOther: () => void; onSignedIn: () => void; back: ReactNode }) {
   const guest = useGuestDoor({ account, sitekey, load, lapses, kept: true, proved: true, onLapse, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
-  return <KeptName account={account} email={proof.email} google={proof.google} door={guest} username={username} onUsername={onUsername} onOther={onOther} onHere={() => void onStarted("kept")} onSignedIn={onSignedIn} back={back} />;
+  return <KeptName account={account} email={proof.email} google={proof.google} door={guest} username={username} onUsername={onUsername} onOther={onOther} onHere={() => void onStarted("kept")} onSignedIn={onSignedIn} back={back} sitekey={sitekey} load={load} />;
 }
 
 /** The new life after the age screen: the door with the guest start at Begin, or, inside the invite page, the form. */
@@ -267,6 +267,8 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       noneFound={back?.none === true}
       filled={waysFill?.email ?? asked?.email ?? null}
       onBack={toStart}
+      sitekey={sitekeyShown}
+      load={load}
       onSignedIn={(by) => void enter(api, by)}
       onNewLife={(proved) => {
         setProof(proved === null ? null : { email: proved, google: false });

@@ -9,7 +9,7 @@ import { splitSetCookieHeader } from "better-auth/cookies";
 import type { Hono } from "hono";
 import { vi } from "vitest";
 
-import { TURNSTILE_ACTION, TURNSTILE_TEST } from "../account/turnstile";
+import { CODE_ACTION, TURNSTILE_ACTION, TURNSTILE_TEST } from "../account/turnstile";
 import { makeApp } from "../app";
 import { seededBytes } from "../app.testing";
 import { testConfig } from "../config";
@@ -25,14 +25,20 @@ import { sessionReader } from "./session";
 export const SITE = "https://japacity.test";
 export const SECRET = "test-secret-that-is-long-enough-for-the-library-0123456789";
 const STUB_SITEVERIFY = "https://turnstile.stub/siteverify";
+const SEND_PATH = "/api/auth/email-otp/send-verification-otp";
+
+/** The token the stand-in reads as solved by a widget rendered for the code send (account:bot-check-on-code-send); the dummy token stands for the guest start's. */
+export const CODE_TOKEN = `${TURNSTILE_TEST.dummyToken}.code`;
 
 /**
  * Cloudflare's three test secrets, answered as Cloudflare documents them, a pass naming `hostname` as where the
- * token was solved and `action` as the widget's action (account:bot-check-on-guest-creation: the guest start's, unless a test names another).
+ * token was solved and `action` as the widget's action: the code send's for `CODE_TOKEN`, the guest start's for any other
+ * (account:bot-check-on-guest-creation, account:bot-check-on-code-send), unless a test names one.
  */
-function turnstileStub(hostname: string, action: string = TURNSTILE_ACTION): typeof fetch {
+function turnstileStub(hostname: string, named?: string): typeof fetch {
   return async (_input, init) => {
     const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as { secret?: string; response?: string };
+    const action = named ?? (body.response === CODE_TOKEN ? CODE_ACTION : TURNSTILE_ACTION);
     const answer = (success: boolean, codes: string[]) => new Response(JSON.stringify({ success, "error-codes": codes, ...(success ? { hostname, action } : {}) }), { headers: { "content-type": "application/json" } });
     if (body.secret === TURNSTILE_TEST.passSecret) return Promise.resolve(answer(true, []));
     if (body.secret === TURNSTILE_TEST.spentSecret) return Promise.resolve(answer(false, ["timeout-or-duplicate"]));
@@ -78,8 +84,11 @@ export interface Harness {
   notices: AuthNotice[];
   background: Promise<unknown>[];
   helpers: () => Promise<TestHelpers>;
-  /** A request to the app as a browser from `country` at `ip`, carrying the jar's cookies and keeping the ones it sets. */
-  call: (path: string, init?: RequestInit & { jar?: Jar; country?: string; ip?: string; json?: unknown }) => Promise<Response>;
+  /**
+   * A request to the app as a browser from `country` at `ip`, carrying the jar's cookies and keeping the ones it sets. A code send
+   * carries `bot` as the bot check's token, as the game's forms do (account:bot-check-on-code-send): the code widget's pass unless a test names another, or null for none.
+   */
+  call: (path: string, init?: RequestInit & { jar?: Jar; country?: string; ip?: string; json?: unknown; bot?: string | null }) => Promise<Response>;
   /** The age screen passed with a date of birth from 1990. */
   passAge: (jar: Jar, over?: { dateOfBirth?: string; country?: string }) => Promise<Response>;
   /** `POST /api/guest` with the dummy Turnstile token; the jar holds the guest's session when it answers 200. */
@@ -154,8 +163,9 @@ export function harness(options: HarnessOptions = {}): Harness {
   const app = makeApp(deps, { auth, keys });
 
   const call: Harness["call"] = async (path, init = {}) => {
-    const { jar, country = "NG", ip = "203.0.113.7", json, ...rest } = init;
+    const { jar, country = "NG", ip = "203.0.113.7", json, bot = CODE_TOKEN, ...rest } = init;
     const headers = new Headers(rest.headers);
+    if (path === SEND_PATH && bot !== null && !headers.has("x-captcha-response")) headers.set("x-captcha-response", bot);
     headers.set("cf-ipcountry", country);
     headers.set("cf-connecting-ip", ip);
     if (jar !== undefined && jar.cookies.size > 0) headers.set("cookie", jar.header());

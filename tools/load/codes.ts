@@ -9,7 +9,9 @@
 //   pnpm tsx tools/load/codes.ts --target http://127.0.0.1:8787 --rate 20 --seconds 60
 //
 // The target is a Worker with the accounts mounted (the load Worker has none)
-// and the test server's email stand-in, so no email leaves this machine.
+// and the test server's email stand-in, so no email leaves this machine. Each send
+// carries Cloudflare's dummy token, which the always-pass test secret passes on a
+// local SITE_URL (account:bot-check-on-code-send).
 import { int } from "@japacity/sim";
 import { setTimeout as sleep } from "node:timers/promises";
 
@@ -21,6 +23,9 @@ import { isMain } from "../repo";
 
 // No rule page gives the codes' target rate; 20 a second is a working value, a twentieth of the peak's commands.
 export const CODES_PER_SECOND = 20;
+
+/** Cloudflare's dummy Turnstile token, the one its test secrets answer. */
+const DUMMY_TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
 
 export interface CodesResult {
   target: number;
@@ -55,7 +60,7 @@ async function sendOne(base: string, index: number): Promise<{ status: number; u
   try {
     const reply = await fetch(`${base}/api/auth/email-otp/send-verification-otp`, {
       method: "POST",
-      headers: { "content-type": "application/json", "cf-connecting-ip": `10.${String(int.divFloor(index, 65536) % 256)}.${String(int.divFloor(index, 256) % 256)}.${String(index % 256)}` },
+      headers: { "content-type": "application/json", "x-captcha-response": DUMMY_TOKEN, "cf-connecting-ip": `10.${String(int.divFloor(index, 65536) % 256)}.${String(int.divFloor(index, 256) % 256)}.${String(index % 256)}` },
       // A new address has no account; the send mails it a code as it mails every address (account:sign-in-without-secret).
       body: JSON.stringify({ email: `load-${String(index)}@example.test`, type: "sign-in" }),
     });

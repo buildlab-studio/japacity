@@ -72,7 +72,8 @@ type AuthFailure =
   | "passkey-gone"
   | "other-account"
   | "sign-out"
-  | "google";
+  | "google"
+  | "bot-check";
 
 /**
  * Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), to sign back in to a kept one, or to
@@ -156,7 +157,7 @@ export interface AccountApi {
   /** account:age-screen-refuses-minors: sends the date as typed. The server decides and keeps no date of birth. */
   declareAge(birth: string): Promise<AgeAnswer>;
   /**
-   * account:email-code-is-short-lived. `bot` is the Turnstile token, sent wherever an account could be made (account:bot-check-on-guest-creation).
+   * account:email-code-is-short-lived. `bot` is the Turnstile token of the code form's widget, sent with every code (account:bot-check-on-code-send).
    * The send answers every address alike (account:sign-in-without-secret).
    */
   sendCode(email: string, bot: string | null): Promise<AuthResult>;
@@ -242,6 +243,8 @@ const FAILURES: Record<string, AuthFailure> = {
   // apps/server/src/account/signup.ts: a way in that would make a new account; a life starts as a guest.
   "no-account": "no-life",
   "guest-only": "guest-only",
+  // account:bot-check-on-code-send: a code send with no pass.
+  "bot-check": "bot-check",
   SESSION_NOT_FRESH: "not-fresh",
   INVALID_OTP: "wrong-code",
   OTP_EXPIRED: "expired",

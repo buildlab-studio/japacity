@@ -11,7 +11,7 @@
 // account uses proves it the same way. A passkey this site does not know, or a trip to Google that finds no account and
 // proves nothing (an address Google has not verified), keeps its words, with "Start a new life" under them.
 // Once a code is sent the sheet holds the code step alone (account:code-form-forgives). Signing in again needs no bot check
-// (account:bot-check-on-guest-creation).
+// of its own beyond the code form's on each send (account:bot-check-on-guest-creation, account:bot-check-on-code-send).
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -24,6 +24,7 @@ import { inAppBrowser } from "./inApp";
 import { markPasskeyHere, passkeyHere } from "./marks";
 import { NoAccount } from "./NoAccount";
 import { OpenInBrowser } from "./OpenInBrowser";
+import type { LoadTurnstile } from "./Turnstile";
 
 /** The way a sign-in on this sheet went through, for the welcome that names it (account:guest-secures-the-life); Google's comes back by its own trip. */
 export type SignedInBy = "email" | "passkey";
@@ -41,6 +42,9 @@ export interface SignInProps {
   filled?: string | null;
   /** On to a new life's start: from a way in that found no account (null), or with the address its right code proved (account:sign-in-without-secret). */
   onNewLife?: (proved: string | null) => void;
+  /** account:bot-check-on-code-send: the code form's check, its site key and script; the build's unless the gate names others. */
+  sitekey?: string | null;
+  load?: LoadTurnstile;
   /** Seams for tests: the browser's user agent and the page's address, whether the browser offers passkeys in a field's autofill, and whether a passkey was used here. */
   agent?: string;
   href?: string;
@@ -84,7 +88,7 @@ const PICKED_AND_REFUSED: ReadonlySet<string> = new Set(["passkey-gone", "other-
 /** The refusals of a way in that found no account behind it: told in their own words, with a new life under them. */
 const NONE_FOUND: ReadonlySet<string> = new Set(["passkey-gone", "no-life"]);
 
-export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, noneFound = false, filled = null, onNewLife = () => undefined, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere() }: SignInProps) {
+export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, noneFound = false, filled = null, onNewLife = () => undefined, agent = browserAgent(), href = pageHref(), autofill = browserAutofill, passkeyUsed = passkeyHere(), sitekey, load }: SignInProps) {
   const [busy, setBusy] = useState(false);
   // The address a code went to from the ways in: the sheet then holds the code step alone.
   const [codeTo, setCodeTo] = useState<string | null>(null);
@@ -169,6 +173,8 @@ export function SignIn({ account, onSignedIn, onBack = null, problem: given = nu
   const codeForm = (
     <CodeForm
       account={account}
+      {...(sitekey === undefined ? {} : { sitekey })}
+      {...(load === undefined ? {} : { load })}
       passkeyAutofill={withAutofill}
       {...(filled === null ? {} : { filled })}
       focusEmail
