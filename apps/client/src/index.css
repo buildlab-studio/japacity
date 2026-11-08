@@ -819,6 +819,18 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .door-dots > i { display: block; width: 9px; height: 9px; border-radius: 9999px; background: color-mix(in srgb, var(--text-2) 32%, transparent); transition-property: width, background-color; transition-duration: 180ms; }
 .door-dots > i[data-done] { background: var(--edge); }
 .door-dots > i[data-now] { width: 26px; border-radius: 5px; background: var(--action); box-shadow: 0 0 0 1.5px var(--action-under); }
+/* The door's frame and the first screen's photo card and name box, as DoorFrame.tsx and YouScreen.tsx draw them. */
+.door-head { position: relative; z-index: 10; display: flex; flex-shrink: 0; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 16px 4px; }
+.door-body { min-height: 0; flex: 1; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+.door-body::-webkit-scrollbar { display: none; }
+.door-fold { pointer-events: none; position: absolute; inset-inline: 0; top: 0; height: 1px; background-color: var(--sheet-line); box-shadow: 0 -6px 12px rgba(19, 26, 51, 0.16); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.door-photo-card { position: relative; margin-inline: auto; margin-top: 16px; height: clamp(240px, calc(100dvh - 540px), 318px); width: 302px; max-width: calc(100% - 56px); }
+.door-photo-figure { position: absolute; bottom: -6px; left: 50%; height: calc(100% + 6px); max-width: none; translate: -50% 0; transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.sticker-chip.door-name-chip { position: absolute; bottom: -14px; left: 14px; z-index: 2; border-radius: 14px; padding: 8px 16px; font-size: 22px; }
+.sticker-chip.door-life-tag { position: absolute; top: 12px; left: 12px; z-index: 3; background-color: var(--soft); padding: 4px 12px; font-size: 14px; color: var(--soft-ink); }
+.door-name-box { height: 54px; min-width: 0; flex: 1; border: 2px solid var(--edge); border-radius: 14px; background-color: var(--sheet-2); padding-inline: 16px; color: var(--text); font-size: 20px; font-weight: 700; outline-style: none; }
+.door-name-box::placeholder { color: var(--text-2); font-weight: 600; opacity: 0.7; }
+.door-name-box:focus-visible { box-shadow: 0 0 0 2px var(--action); }
 /* The lives swiped sideways: a strip that snaps a card to the middle, no scrollbar. */
 .door-deck { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
 .door-deck::-webkit-scrollbar { display: none; }
@@ -836,7 +848,8 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   filter: drop-shadow(0 4px 5px rgba(20, 40, 50, 0.25));
 }
 .door-stamp > span { display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 2px solid var(--action-under); background: var(--action); color: var(--action-text); }
-.door-home { transition-property: transform; transition-duration: 160ms; }
+.door-home { position: relative; border-radius: 10px; background-color: var(--sheet-2); padding: 6px 6px 8px; text-align: left; box-shadow: 0 0 0 1.5px var(--sheet-line), 0 4px 8px rgba(20, 40, 50, 0.12); transition-property: transform; transition-duration: 160ms; }
+.door-home:disabled { opacity: 0.7; }
 .door-home[aria-checked="true"] { box-shadow: 0 0 0 3px var(--action), 0 0 0 4.5px var(--edge), 0 5px 0 4.5px var(--edge); }
 .door-goal { border-style: dashed; background: var(--tint-plain); }
 @media (prefers-reduced-motion: reduce) {
@@ -893,8 +906,8 @@ button.desk-tab:focus-visible { outline: 2px solid var(--text); outline-offset: 
 .desk-keys > span { display: inline-flex; align-items: center; gap: 4px; }
 .desk-stage, .desk-figure, .desk-side { position: absolute; }
 .desk-stage { inset: 0; }
-.desk-figure { top: 0; bottom: 0; left: 0; right: 30%; }
-.desk-side { right: 0; bottom: 0; display: flex; width: 380px; flex-direction: column; gap: 16px; transform: scale(0.68); transform-origin: bottom right; }
+.desk-figure { top: 0; bottom: 0; left: 0; right: 44%; }
+.desk-side { right: 0; bottom: 0; display: flex; width: 380px; flex-direction: column; gap: 16px; transform: scale(0.62); transform-origin: bottom right; }
 .desk-sun { position: absolute; top: 7%; right: 14%; width: 86px; height: 86px; }
 .desk-home { position: absolute; top: 12%; left: 50%; width: min(78%, 420px); translate: -50% 0; }
 .desk-home-picture { aspect-ratio: 840 / 594; width: 100%; border-radius: 4px; }

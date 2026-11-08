@@ -28,6 +28,11 @@ import { type Archetype, answersInOrder, archetypeOf, fullPrologue, type Home, h
 import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorAction, DoorFrame } from "../../shared/front-door/DoorFrame";
+import type { DeskStep } from "../../shared/front-door/DoorDesk";
+import { DeskKeys, DeskSlot } from "../../shared/front-door/DeskHost";
+import { DeskStage } from "../../shared/front-door/DeskStage";
+import { useDoorKeys } from "../../shared/front-door/keys";
+import { FINE_POINTER, useDesk, useMedia } from "../../shared/ui/desk";
 import { homePicture, LIFE_THINGS } from "../../shared/front-door/lives";
 import { plannedYears } from "../../shared/front-door/planned";
 import { FigurePicture, ModelPicture } from "../../shared/front-door/LookPicture";
@@ -492,9 +497,29 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   }, [handover, revealing, brought, reveal.every]);
 
   const look = gateLook(person?.look);
+  const desk = useDesk();
+  const fine = useMedia(FINE_POINTER);
+  // prologue:printed-page-hands-over: on a desk Enter is Go.
+  useDoorKeys(desk && handover, (key) => {
+    if (key !== "go") return false;
+    finish();
+    return true;
+  });
+  const waiting = !handover && online && trail.steps.length === 0;
+  // On a desk the wait stands in the panel, and the stage keeps the page as Begin left it.
+  if (waiting && desk)
+    return (
+      <div data-page-running="" data-page-waiting="" data-v={view.v}>
+        <DeskSlot fill={{ mark: "years", look, steps: deskSteps(), stage: null, title: say("prologue.door.page.title") }} foot={null}>
+          <div className="px-5 pt-[18vh]">
+            <Waiting words={say("ui.page.family.drawing")} />
+          </div>
+        </DeskSlot>
+      </div>
+    );
   // Online the server plays the years in one request (server:server-plays-prologue-preset): until its first step is in, the page is the splash's
   // wait in the page's own frame, its words where the opening's stand and the bar under them.
-  if (!handover && online && trail.steps.length === 0)
+  if (waiting)
     return (
       <div data-page-running="" data-page-waiting="" data-v={view.v}>
         <DoorFrame mark="years" look={look} title={null}>
@@ -538,13 +563,82 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
       <DoorAction word={say("ui.prologue.start")} then={say("ui.door.begin.then")} onClick={finish} />
     </>
   ) : undefined;
+  const title = named ? say(handover ? "ui.door.page.printed" : "prologue.door.page.title") : words(PROLOGUE_CLOSED);
+  const line = named && handover ? say("ui.door.page.over", { name: person.name }) : say("ui.profile.age", { years: ageYears(view) });
+  const yearsPart = (
+    <div className="mx-4 mt-4 flex flex-col" data-prologue-handover={handover ? "" : undefined}>
+      {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} hometown={view.hometown} />}
+      {/* The heading only over chips: a page with no years yet shows no empty heading. */}
+      {years.length === 0 ? null : <h2 className="mt-4 text-[14px] font-bold text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>}
+      <Chips chips={years} mark="data-years" />
+      {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
+      {handover ? (
+        <>
+          <div className="mt-3 grid grid-cols-2 gap-1.5">
+            <StatBox label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
+            <StatBox label={say("ui.page.ready")} value={readyWords(readyPercent(view) ?? 0)} mark="ready" />
+          </div>
+          <JapacityLine />
+        </>
+      ) : null}
+    </div>
+  );
+  const ways =
+    archetype === null ? null : (
+      <div className="mt-4 mb-4 px-4">
+        <p className="mb-2.5 text-center text-[13px] text-text-2">{say("ui.door.page.lead")}</p>
+        <WayChips id={archetype.id} mark="data-page-ways" />
+      </div>
+    );
+  // prologue:printed-page-hands-over: on a desk the years fill the desk the door stood on; the page on the stage prints in place at the handover.
+  if (desk)
+    return (
+      <div data-page-handover={handover ? "" : undefined} data-page-running={handover ? undefined : ""} data-v={view.v}>
+        <DeskSlot
+          fill={{
+            mark: handover ? "handover" : "years",
+            look,
+            steps: deskSteps(),
+            stage: (
+              <DeskStage
+                look={look}
+                style={person?.style}
+                page={<DataPage page={page} print={handover} />}
+                onPage={
+                  handover && archetype !== null ? (
+                    <span className="sticker-cut door-deal absolute top-[46px] right-[-14px] z-[2]" style={{ rotate: "10deg" }} aria-hidden>
+                      <ModelPicture model={LIFE_THINGS[archetype.id].tile} size={64} />
+                    </span>
+                  ) : null
+                }
+                life={null}
+                home={null}
+                cheer={handover}
+              />
+            ),
+            title,
+            line,
+            keys: handover && fine ? <DeskKeys keys={[{ caps: [say("ui.door.keys.enter")], does: say("ui.prologue.start") }]} /> : null,
+          }}
+          foot={foot ?? null}
+        >
+          {starts === null ? null : (
+            <div className="mx-4 mt-4">
+              <StartsIn home={home} chip={starts} />
+            </div>
+          )}
+          {yearsPart}
+          {ways}
+        </DeskSlot>
+      </div>
+    );
   return (
     <div onClick={handover ? finish : undefined} data-page-handover={handover ? "" : undefined} data-page-running={handover ? undefined : ""} data-v={view.v}>
       <DoorFrame mark={handover ? "handover" : "years"} look={look} title={null} {...(foot === undefined ? {} : { foot })}>
         <div className="px-5 pt-4 text-center">
           {/* A life with no name of its own (a fixed life a test starts) is told by the prologue's closing line instead. */}
-          <h1 className="text-[24px] leading-tight font-bold">{named ? say(handover ? "ui.door.page.printed" : "prologue.door.page.title") : words(PROLOGUE_CLOSED)}</h1>
-          <p className="mt-0.5 text-[14px] text-text-2">{named && handover ? say("ui.door.page.over", { name: person.name }) : say("ui.profile.age", { years: ageYears(view) })}</p>
+          <h1 className="text-[24px] leading-tight font-bold">{title}</h1>
+          <p className="mt-0.5 text-[14px] text-text-2">{line}</p>
         </div>
         <div className="relative mx-5 mt-4 -rotate-2" data-gate-sheet={handover ? "handover" : "years"}>
           <DataPage page={page} print />
@@ -562,31 +656,16 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
           </span>
           {starts === null ? null : <StartsIn home={home} chip={starts} />}
         </div>
-        <div className="mx-4 mt-4 flex flex-col" data-prologue-handover={handover ? "" : undefined}>
-          {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} hometown={view.hometown} />}
-          {/* The heading only over chips: a page with no years yet shows no empty heading. */}
-          {years.length === 0 ? null : <h2 className="mt-4 text-[14px] font-bold text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>}
-          <Chips chips={years} mark="data-years" />
-          {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
-          {handover ? (
-            <>
-              <div className="mt-3 grid grid-cols-2 gap-1.5">
-                <StatBox label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
-                <StatBox label={say("ui.page.ready")} value={readyWords(readyPercent(view) ?? 0)} mark="ready" />
-              </div>
-              <JapacityLine />
-            </>
-          ) : null}
-        </div>
-        {archetype === null ? null : (
-          <div className="mt-4 mb-4 px-4">
-            <p className="mb-2.5 text-center text-[13px] text-text-2">{say("ui.door.page.lead")}</p>
-            <WayChips id={archetype.id} mark="data-page-ways" />
-          </div>
-        )}
+        {yearsPart}
+        {ways}
       </DoorFrame>
     </div>
   );
+}
+
+/** The desk's band after Begin: every step done, and no way back (prologue:front-door-three-screens). */
+function deskSteps(): DeskStep[] {
+  return ["ui.life.title", "ui.door.life", "ui.door.home"].map((key) => ({ title: say(key), state: "done", onGo: null }));
 }
 
 /** The page as the handover (prologue:printed-page-hands-over): shown once, right after the prologue's last answer. */

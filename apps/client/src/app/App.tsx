@@ -28,6 +28,7 @@ import { replaceAddress } from "../shared/back/back";
 import { api } from "../shared/net/http";
 import { addressOf, listedAsAdmin, showRoot, type Address } from "./address";
 import { FrontDoor } from "../features/front-door/FrontDoor";
+import { DeskHost } from "../shared/front-door/DeskHost";
 import { say } from "../shared/words/text";
 import { useScreenCount } from "../shared/analytics/useScreenCount";
 
@@ -251,7 +252,10 @@ function Shell({ life }: { life: LifeParts }) {
   const waiting = useGame((state) => state.view === null && !state.signedOut && !state.choosingLife && state.failed === null);
   return (
     <>
-      <Screen life={life} />
+      {/* The desk stands over the door and the years alike, so it stays mounted from the first screen to Go (prologue:printed-page-hands-over). */}
+      <DeskHost>
+        <Screen life={life} />
+      </DeskHost>
       <LifeAhead parts={life} />
       <HoldParts />
       {waiting ? null : <TroubleCard />}

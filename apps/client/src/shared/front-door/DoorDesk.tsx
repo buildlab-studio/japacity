@@ -48,20 +48,14 @@ function StepTabs({ steps }: { steps: readonly DeskStep[] }) {
               {step.state === "done" ? <Check size={14} strokeWidth={3.2} /> : at + 1}
             </span>
           );
+          const Tab = step.state === "done" && step.onGo !== null ? "button" : "span";
           return (
             <li key={step.title}>
               {at === 0 ? null : <span className="desk-tab-rule" aria-hidden />}
-              {step.state === "done" && step.onGo !== null ? (
-                <button type="button" className="desk-tab" onClick={step.onGo} data-door-tab="done">
-                  {disc}
-                  <span>{step.title}</span>
-                </button>
-              ) : (
-                <span className="desk-tab" {...(step.state === "now" ? { "aria-current": "step" as const } : {})} data-door-tab={step.state}>
-                  {disc}
-                  <span>{step.title}</span>
-                </span>
-              )}
+              <Tab {...(Tab === "button" ? { type: "button" as const, onClick: step.onGo ?? undefined } : {})} className="desk-tab" aria-current={step.state === "now" ? "step" : undefined} data-door-tab={step.state}>
+                {disc}
+                <span>{step.title}</span>
+              </Tab>
             </li>
           );
         })}
@@ -125,23 +119,5 @@ export function DoorDesk({ mark, look, steps, onBack = null, onShuffle = null, o
         </section>
       </div>
     </div>
-  );
-}
-
-/** The line of keys under the action, on a fine pointer: each key as a cap with what it does. */
-export function DeskKeys({ keys }: { keys: readonly { caps: readonly string[]; does: string }[] }) {
-  return (
-    <p className="desk-keys" data-door-keys>
-      {keys.map((one) => (
-        <span key={one.does}>
-          {one.caps.map((cap) => (
-            <kbd key={cap} className="desk-key">
-              {cap}
-            </kbd>
-          ))}
-          <span>{one.does}</span>
-        </span>
-      ))}
-    </p>
   );
 }

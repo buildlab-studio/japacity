@@ -9,7 +9,8 @@ import { Lock } from "lucide-react";
 
 import { type Archetype, type Home, homesFor, moneyDrawn } from "../../shared/front-door/archetypes";
 import { homeFigures, pocketIn, selfContainReached, selfContainYear, startIn } from "../../shared/front-door/homes";
-import { homePicture, LIFE_THINGS } from "../../shared/front-door/lives";
+import { HomePicture } from "../../shared/front-door/HomePicture";
+import { LIFE_THINGS } from "../../shared/front-door/lives";
 import { FaceSticker, ModelPicture } from "../../shared/front-door/LookPicture";
 import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { Mark } from "../../shared/ui/Wordmark";
@@ -29,17 +30,6 @@ function homeCosts(home: Home | "self-contain"): string {
   if (home === "self-contain") return say("ui.door.home.costs.self-contain", { amount: formatMoney(selfContainYear(), "NGN") });
   const { now, monthly, rentYear } = homeFigures(home);
   return say(`ui.door.home.costs.${home}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN"), movein: formatMoney(now, "NGN") });
-}
-
-/** A home's picture: the room as the game draws it, or the model on a soft tile. */
-export function HomePicture({ home, className = "", size }: { home: Home | "self-contain"; className?: string; size: number }) {
-  const picture = homePicture(home);
-  if ("src" in picture) return <span className={`block bg-cover ${className}`} style={{ backgroundImage: `url(${picture.src})`, backgroundPosition: "center 55%" }} aria-hidden data-home-picture={home} />;
-  return (
-    <span className={`flex items-center justify-center bg-tint-study ${className}`} aria-hidden data-home-picture={home}>
-      <ModelPicture model={picture.model} size={size} />
-    </span>
-  );
 }
 
 /** The strip at the top: your face, your name and who you are so far; the face goes back to the look, the words to the life. */
@@ -189,7 +179,7 @@ export function HomeRow({ archetype, years, home, onHome, low = false }: HomePro
               disabled={shut}
               data-home={one}
               onClick={() => onHome(one)}
-              className="door-home relative rounded-[10px] bg-sheet-2 p-1.5 pb-2 text-left shadow-[0_0_0_1.5px_var(--sheet-line),0_4px_8px_rgba(20,40,50,0.12)] disabled:opacity-70"
+              className="door-home"
               style={{ rotate: on ? "0deg" : at % 2 === 0 ? "-2deg" : "2deg" }}
             >
               <HomePicture home={one} size={56} className="h-[58px] rounded-[6px]" />

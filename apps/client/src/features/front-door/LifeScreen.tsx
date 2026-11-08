@@ -52,7 +52,7 @@ function LifeCard({ tile, look, on, onPick }: { tile: Archetype; look: string; o
       {/* The picture gives way on a phone so a life whose ways run to two rows still shows the age whole above the dots;
           on a taller screen it keeps its full height. */}
       <span className={`relative block h-[clamp(150px,calc(100dvh-660px),200px)] rounded-[14px] ${TINTS[thing.tint]}`}>
-        <span className="sticker-chip absolute top-3 left-3 z-[3] bg-[var(--soft)]! px-3! py-1! text-[14px]! text-[var(--soft-ink)]!" style={{ rotate: "-4deg" }} data-tile-tag>
+        <span className="sticker-chip door-life-tag" style={{ rotate: "-4deg" }} data-tile-tag>
           {say(`ui.door.tag.${tile.id}`)}
         </span>
         <span className="sticker-cut absolute top-6 right-2" style={{ rotate: "5deg" }} aria-hidden>

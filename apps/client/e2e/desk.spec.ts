@@ -111,3 +111,37 @@ test("[prologue:front-door-three-screens] given a desk, then the arrows move the
   await page.keyboard.press("Enter");
   await expect(page.locator("[data-gate='page']")).toBeVisible();
 });
+
+for (const size of SIZES) {
+  test(`[prologue:printed-page-hands-over] given a desk at ${String(size.width)} by ${String(size.height)}, when Begin is pressed, then the years and the handover stand on the same desk with nothing scrolling the page: the stage is the same element, the page prints in place, and Go keeps the place Begin stood in`, async ({ page }, info) => {
+    test.skip(!info.project.name.startsWith("Desktop"), DESK_ONLY);
+    await page.setViewportSize(size);
+    await page.goto("/");
+    await expect(page.locator("[data-door-desk][data-gate='you']")).toBeVisible({ timeout: 30_000 });
+    await page.locator("[data-door-dice]").click();
+    await page.locator("[data-door-foot] [data-door-action]").click();
+    await page.getByRole("radio", { name: "The nurse", exact: true }).click();
+    await page.locator("[data-door-foot] [data-door-action]").click();
+    await expect(page.locator("[data-door-desk][data-gate='page']")).toBeVisible();
+    const begin = await actionBox(page);
+    // A mark on the stage's elements, which a stage drawn again would not carry.
+    await page.evaluate(() => {
+      for (const at of ["[data-desk-stage]", "[data-desk-stage] [data-figure]", "[data-desk-page] [data-page]"]) {
+        const element = document.querySelector<HTMLElement & { kept?: boolean }>(at);
+        if (element !== null) element.kept = true;
+      }
+    });
+    await page.locator("[data-door-foot] [data-door-action]").click();
+    await expect(page.locator("[data-door-desk][data-gate='handover']")).toBeVisible({ timeout: 30_000 });
+    const kept = await page.evaluate(() => ["[data-desk-stage]", "[data-desk-stage] [data-figure]", "[data-desk-page] [data-page]"].map((at) => document.querySelector<HTMLElement & { kept?: boolean }>(at)?.kept === true));
+    expect(kept).toEqual([true, true, true]);
+    await expect(page.locator("[data-desk-page] .drop").first()).toBeAttached();
+    await expect(page.locator("[data-desk-stage] [data-figure]")).toHaveAttribute("data-figure-view", "cheer");
+    await page.waitForTimeout(2600);
+    expect(await pageStill(page)).toBe(true);
+    expect(await actionBox(page)).toEqual(begin);
+    await expect(page.locator("[data-door-foot] [data-door-action]")).toHaveText(/^Go/);
+    await page.keyboard.press("Enter");
+    await expect(page.locator("[data-door-desk]")).toHaveCount(0, { timeout: 20_000 });
+  });
+}

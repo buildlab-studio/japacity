@@ -158,5 +158,5 @@ export function FigurePicture({ look, style, view = "figure", className = "" }: 
   const own = useFigureInColours(look, style, view);
   const src = own ?? published;
   // The figure's place stands while its picture is on its way, with nothing fetched.
-  return <img {...(src === "" ? {} : { src })} alt="" draggable={false} className={className} data-figure={look} data-figure-worn={own === null ? "made" : "own"} />;
+  return <img {...(src === "" ? {} : { src })} alt="" draggable={false} className={className} data-figure={look} data-figure-view={view} data-figure-worn={own === null ? "made" : "own"} />;
 }

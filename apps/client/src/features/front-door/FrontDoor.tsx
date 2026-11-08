@@ -31,7 +31,10 @@ import { keepPerson } from "../../shared/front-door/person";
 import { blurbOf, say } from "../../shared/words/text";
 import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor } from "../../shared/front-door/archetypes";
 import { DoorAction, DoorFrame } from "../../shared/front-door/DoorFrame";
-import { DeskKeys, type DeskStep, DoorDesk } from "../../shared/front-door/DoorDesk";
+import type { DeskStep } from "../../shared/front-door/DoorDesk";
+import { DeskKeys, DeskSlot } from "../../shared/front-door/DeskHost";
+import { DeskStage } from "../../shared/front-door/DeskStage";
+import { DataPage } from "../../shared/datapage/DataPage";
 import { fitHome, pocketIn } from "../../shared/front-door/homes";
 import { StartHook } from "../../shared/front-door/Hook";
 import { gateLook } from "../../shared/front-door/Gate";
@@ -43,9 +46,8 @@ import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared
 import { nameFromUsername, nameProblem } from "../../shared/datapage/name";
 import { startYearFor, stepsOpen } from "../../shared/datapage/age";
 import { FINE_POINTER, useDesk, useMedia } from "../../shared/ui/desk";
-import { DeskStage } from "./DeskStage";
 import { Board, HomeRow, ReadyHome, thingOf } from "./HomeScreen";
-import { type DoorKey, movedPick, useDoorKeys } from "./keys";
+import { type DoorKey, movedPick, useDoorKeys } from "../../shared/front-door/keys";
 import { AgeCard, LifeGrid, LifeScreen, OnceLine } from "./LifeScreen";
 import { livePage, pathWords, READY, readyOf, yearsFor } from "./livePage";
 import { LOOK_COLUMNS, LookChoice, MakeItYours, NameField, YouScreen } from "./YouScreen";
@@ -351,50 +353,66 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
   // prologue:front-door-three-screens: the desk's keys move the pick on the step's grid, Enter is the yellow action, R rolls the name.
   const homes = archetype === null ? [] : homesFor(archetype).filter((one) => pocketIn(archetype, draft.age, one) >= 0);
   const act = (key: DoorKey): boolean => {
-    const follow = document.activeElement?.getAttribute("role") === "radio";
-    const moved = (index: number, count: number, columns: number, pick: (to: number) => void): boolean => {
-      if (key === "go" || key === "roll") return false;
-      const to = movedPick(index, count, columns, key);
-      if (to === null) return true;
-      pick(to);
-      // A pick moved while the focus is on the picked tile takes the focus with it.
-      if (follow) window.setTimeout(() => document.querySelector<HTMLElement>("[data-door-panel] [role='radiogroup'] [role='radio'][aria-checked='true']")?.focus(), 0);
-      return true;
-    };
-    switch (draft.stage) {
-      case "you":
-        if (key === "go") onward();
-        else if (key === "roll") reroll();
-        else return moved(Math.max(0, LOOKS.findIndex((one) => one.id === draft.look)), LOOKS.length, LOOK_COLUMNS, (to) => chooseLook(LOOKS[to]?.id ?? draft.look));
-        return true;
-      case "life": {
-        if (key === "go") {
-          go("page");
-          return true;
-        }
-        const index = Math.max(0, ARCHETYPES.findIndex((tile) => tile.id === archetype?.id));
-        return moved(index, ARCHETYPES.length, LIFE_COLUMNS, (to) => {
-          const tile = ARCHETYPES[to];
-          if (tile !== undefined) pickLife(tile);
-        });
-      }
-      case "page":
-        if (key === "go") {
-          begin();
-          return true;
-        }
-        if (home === null) return false;
-        return moved(homes.indexOf(home), homes.length, homes.length, (to) => change({ home: homes[to] ?? home, homePicked: true }));
-      case "ready":
-      case "begun":
-        return false;
-      default: {
-        const never: never = draft.stage;
-        throw new Error(`Unknown door stage ${String(never)}.`);
-      }
+    const action = draft.stage === "you" ? onward : draft.stage === "life" ? () => go("page") : draft.stage === "page" ? begin : null;
+    if (key === "go" || action === null) {
+      action?.();
+      return action !== null;
     }
+    if (key === "roll") {
+      if (draft.stage === "you") reroll();
+      return draft.stage === "you";
+    }
+    // The step's grid: the looks, the lives, or the homes the life can pay for, a row of `columns` each.
+    const [ids, now, columns, pick]: [readonly string[], string, number, (id: string) => void] =
+      draft.stage === "you"
+        ? [LOOKS.map((one) => one.id), draft.look, LOOK_COLUMNS, chooseLook]
+        : draft.stage === "life"
+          ? [ARCHETYPES.map((one) => one.id), archetype?.id ?? "", LIFE_COLUMNS, (id) => pickLife(archetypeOf(id) ?? ARCHETYPES[0]!)]
+          : [homes, home ?? "", homes.length, (id) => change({ home: id, homePicked: true })];
+    const to = movedPick(Math.max(0, ids.indexOf(now)), ids.length, columns, key);
+    const id = to === null ? undefined : ids[to];
+    if (id !== undefined) {
+      const follow = document.activeElement?.getAttribute("role") === "radio";
+      pick(id);
+      // A pick moved while the focus is on the picked tile takes the focus with it.
+      if (follow) window.setTimeout(() => document.querySelector<HTMLElement>("[data-door-panel] [role='radio'][aria-checked='true']")?.focus(), 0);
+    }
+    return true;
   };
   useDoorKeys(desk && !pressed, act);
+
+  // Each screen's heading, its one line and its foot, the same in both layouts (prologue:front-door-three-screens).
+  const head: { title: string; line: ReactNode; foot?: ReactNode } =
+    draft.stage === "you"
+      ? {
+          title: say("ui.life.title"),
+          // text:hook-not-explanation: no sentence about the game. Offline, where the door is the first screen, it opens
+          // with the start screen's hook and three steps; online the hook was just seen, and the question and the fields carry it.
+          line: offline ? (
+            <div data-door-intro>
+              <StartHook heading={false} />
+            </div>
+          ) : null,
+          foot: <DoorAction word={say("ui.door.next")} then={say(asked ? "ui.door.ready.title" : "ui.door.next.then")} onClick={onward} />,
+        }
+      : draft.stage === "life"
+        ? { title: say("ui.door.life"), line: say("ui.door.life.line"), foot: <DoorAction word={say("ui.door.next")} then={say("ui.door.next.home")} onClick={() => go("page")} /> }
+        : draft.stage === "ready"
+          ? { title: say("ui.door.ready.title"), line: say("ui.door.ready.hint") }
+          : {
+              title: say("ui.door.home"),
+              line: archetype === null ? null : say("ui.door.home.hint"),
+              foot: (
+                <>
+                  <DoorAction word={say("ui.door.begin")} onClick={begin} disabled={pressed} />
+                  {guest === null || guest.reminder === null ? null : (
+                    <p className="mt-2 text-center text-[13px] leading-snug text-text-2" data-guest-line>
+                      {guest.reminder}
+                    </p>
+                  )}
+                </>
+              ),
+            };
 
   if (desk) {
     const reached = draft.stage === "page" || draft.stage === "begun" ? 2 : draft.stage === "you" ? 0 : 1;
@@ -404,9 +422,7 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
       { title: say(asked ? "ui.door.ready.title" : "ui.door.life"), state: reached > 1 ? "done" : reached === 1 ? "now" : "ahead", onGo: pressed ? null : () => go(second) },
       { title: say("ui.door.home"), state: reached === 2 ? "now" : "ahead", onGo: null },
     ];
-    const deskStage = (
-      <DeskStage look={draft.look} style={draft.style} page={livePage(draft)} life={draft.stage === "life" ? archetype : null} home={reached === 2 ? (home ?? READY_HOME) : null} />
-    );
+    const deskStage = <DeskStage look={draft.look} style={draft.style} page={<DataPage page={livePage(draft, reached, home ?? READY_HOME)} />} life={draft.stage === "life" ? archetype : null} home={reached === 2 ? (home ?? READY_HOME) : null} />;
     const shared = { mark: draft.stage, look: draft.look, steps, onBack, onShuffle: frame.onShuffle, onSkip: frame.onSkip, stage: deskStage };
     const keys = (word: string, roll: boolean, pick: boolean) =>
       fine ? (
@@ -418,21 +434,10 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
           ]}
         />
       ) : null;
-    if (draft.stage === "you")
-      return (
-        <DoorDesk
-          {...shared}
-          title={say("ui.life.title")}
-          line={
-            offline ? (
-              <div data-door-intro>
-                <StartHook heading={false} />
-              </div>
-            ) : null
-          }
-          foot={<DoorAction word={say("ui.door.next")} then={say(asked ? "ui.door.ready.title" : "ui.door.next.then")} onClick={onward} />}
-          keys={keys(say("ui.door.next"), true, true)}
-        >
+    const keyed = draft.stage === "you" ? keys(say("ui.door.next"), true, true) : draft.stage === "life" ? keys(say("ui.door.next"), false, true) : draft.stage === "ready" ? null : keys(say("ui.door.begin"), false, homes.length > 1);
+    const body =
+      draft.stage === "you" ? (
+        <>
           {notice === null ? null : (
             <p role="status" className="door-card mx-5 mt-3 px-3.5 py-2.5 text-[14px]">
               {say(notice)}
@@ -441,68 +446,32 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
           <NameField {...name} className="mt-4 px-5" />
           <LookChoice look={draft.look} onLook={chooseLook} grid />
           <MakeItYours look={draft.look} style={draft.style} onStyle={(style) => change({ style })} open />
-        </DoorDesk>
-      );
-    if (draft.stage === "life")
-      return (
-        <DoorDesk
-          {...shared}
-          title={say("ui.door.life")}
-          line={say("ui.door.life.line")}
-          foot={<DoorAction word={say("ui.door.next")} then={say("ui.door.next.home")} onClick={() => go("page")} />}
-          keys={keys(say("ui.door.next"), false, true)}
-        >
+        </>
+      ) : draft.stage === "life" ? (
+        <>
           {once ? <OnceLine className="mt-1 px-5" /> : null}
           <LifeGrid picked={archetype} onPick={pickLife} />
           {lowest === null ? null : <AgeCard picked={archetype} lowest={lowest} older={older} open={open} onStep={step} className="door-card mx-5 mt-3 mb-4 px-3.5 py-3" />}
-        </DoorDesk>
+        </>
+      ) : draft.stage === "ready" ? (
+        <ReadyList className="mx-5 mt-4 mb-4" onPick={pickReady} />
+      ) : (
+        <>
+          {guestBox}
+          {archetype === null || home === null ? <ReadyHome home={READY_HOME} low /> : <HomeRow archetype={archetype} years={draft.age} home={home} onHome={(one) => change({ home: one, homePicked: true })} low />}
+        </>
       );
-    if (draft.stage === "ready")
-      return (
-        <DoorDesk {...shared} title={say("ui.door.ready.title")} line={say("ui.door.ready.hint")} foot={null}>
-          <ReadyList className="mx-5 mt-4 mb-4" onPick={pickReady} />
-        </DoorDesk>
-      );
+    // A life from sixteen hands the desk to its years at Begin: the band and the stage stand on while they open (prologue:printed-page-hands-over).
     return (
-      <DoorDesk
-        {...shared}
-        title={say("ui.door.home")}
-        line={archetype === null ? null : say("ui.door.home.hint")}
-        foot={
-          <>
-            <DoorAction word={say("ui.door.begin")} onClick={begin} disabled={pressed} />
-            {guest === null || guest.reminder === null ? null : (
-              <p className="mt-2 text-center text-[13px] leading-snug text-text-2" data-guest-line>
-                {guest.reminder}
-              </p>
-            )}
-          </>
-        }
-        keys={keys(say("ui.door.begin"), false, homes.length > 1)}
-      >
-        {guestBox}
-        {archetype === null || home === null ? <ReadyHome home={READY_HOME} low /> : <HomeRow archetype={archetype} years={draft.age} home={home} onHome={(one) => change({ home: one, homePicked: true })} low />}
-      </DoorDesk>
+      <DeskSlot fill={{ ...shared, title: head.title, line: head.line, keys: keyed }} foot={head.foot ?? null} hands={pressed && archetype !== null}>
+        {body}
+      </DeskSlot>
     );
   }
 
   if (draft.stage === "page" || draft.stage === "begun") {
     return (
-      <DoorFrame
-        {...frame}
-        title={say("ui.door.home")}
-        line={archetype === null ? null : say("ui.door.home.hint")}
-        foot={
-          <>
-            <DoorAction word={say("ui.door.begin")} onClick={begin} disabled={pressed} />
-            {guest === null || guest.reminder === null ? null : (
-              <p className="mt-2 text-center text-[13px] leading-snug text-text-2" data-guest-line>
-                {guest.reminder}
-              </p>
-            )}
-          </>
-        }
-      >
+      <DoorFrame {...frame} {...head}>
         <Board look={draft.look} name={draft.name.trim()} caption={captionOf(draft)} thing={thingOf(archetype)} onYou={pressed ? null : () => change({ stage: "you" })} onLife={pressed ? null : () => change({ stage: draft.ready === null ? "life" : "ready" })} />
         {guestBox}
         {archetype === null || home === null ? <ReadyHome home={READY_HOME} /> : <HomeRow archetype={archetype} years={draft.age} home={home} onHome={(one) => change({ home: one, homePicked: true })} />}
@@ -513,21 +482,7 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
 
   if (draft.stage === "you") {
     return (
-      <DoorFrame
-        {...frame}
-        title={say("ui.life.title")}
-        lockup
-        // text:hook-not-explanation: no sentence about the game. Offline, where the door is the first screen, it opens
-        // with the start screen's hook and three steps; online the hook was just seen, and the question and the fields carry it.
-        line={
-          offline ? (
-            <div data-door-intro>
-              <StartHook heading={false} />
-            </div>
-          ) : null
-        }
-        foot={<DoorAction word={say("ui.door.next")} then={say(asked ? "ui.door.ready.title" : "ui.door.next.then")} onClick={onward} />}
-      >
+      <DoorFrame {...frame} {...head} lockup>
         {notice === null ? null : (
           <p role="status" className="door-card mx-5 mt-3 px-3.5 py-2.5 text-[14px]">
             {say(notice)}
@@ -540,7 +495,7 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
 
   if (draft.stage === "life") {
     return (
-      <DoorFrame {...frame} title={say("ui.door.life")} line={say("ui.door.life.line")} foot={<DoorAction word={say("ui.door.next")} then={say("ui.door.next.home")} onClick={() => go("page")} />}>
+      <DoorFrame {...frame} {...head}>
         <LifeScreen
           look={draft.look}
           picked={archetype}
@@ -556,7 +511,7 @@ export function FrontDoor({ guest = null, username: chosen = null }: { guest?: D
   }
 
   return (
-    <DoorFrame {...frame} title={say("ui.door.ready.title")} line={say("ui.door.ready.hint")}>
+    <DoorFrame {...frame} {...head}>
       <Board look={draft.look} name={draft.name.trim()} caption={captionOf(draft)} thing={null} onYou={() => change({ stage: "you" })} onLife={null} />
       <ReadyList className="mx-5 mt-4 mb-4" onPick={pickReady} />
     </DoorFrame>

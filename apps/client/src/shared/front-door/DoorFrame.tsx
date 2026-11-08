@@ -80,7 +80,7 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
       <SheetColumn className="flex h-full flex-col">
         {/* The head row stands on the sky's own ground over the body, so a card scrolled up never shows through it (the figure's
             card under the lockup, Shuffle and Skip). */}
-        <div className="door-sky relative z-10 flex shrink-0 items-center gap-2.5 px-4 pt-[max(14px,env(safe-area-inset-top))] pb-1" data-door-progress>
+        <div className="door-sky door-head relative z-10" data-door-progress>
           {onBack === null ? null : (
             <button type="button" className="round-button" aria-label={say("ui.door.back")} onClick={onBack} data-door-back>
               <ChevronLeft size={22} strokeWidth={2.4} aria-hidden />
@@ -99,7 +99,7 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
             </button>
           )}
         </div>
-        <div ref={body} onScroll={measure} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-door-body>
+        <div ref={body} onScroll={measure} className="door-body" data-door-body>
           {title === null ? null : (
             <div className="px-5 pt-4">
               <h1 className="text-[24px] leading-[1.15] font-bold">{title}</h1>
@@ -110,7 +110,7 @@ export function DoorFrame({ mark, look, title, line, lockup = false, onBack = nu
         </div>
         {foot === undefined && at === null ? null : (
           <div className="relative shrink-0 px-4 pt-2 pb-[max(18px,env(safe-area-inset-bottom))]" data-door-foot data-door-more={more ? "" : undefined}>
-            <span aria-hidden className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-sheet-line shadow-[0_-6px_12px_rgba(19,26,51,0.16)] transition-opacity duration-200 ${more ? "opacity-100" : "opacity-0"}`} data-door-fold />
+            <span aria-hidden className={`door-fold ${more ? "opacity-100" : "opacity-0"}`} data-door-fold />
             {at === null ? null : (
               <div className="mb-3 flex justify-center">
                 <DoorDots at={at} count={3} label={say("prologue.door.step", { n: at + 1, count: 3 })} />

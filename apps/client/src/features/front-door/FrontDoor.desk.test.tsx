@@ -9,6 +9,7 @@ import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
 import { readDoor } from "../../shared/datapage/door";
+import { DeskHost } from "../../shared/front-door/DeskHost";
 import { ARCHETYPES } from "../../shared/front-door/archetypes";
 import { LOOKS } from "../../shared/front-door/looks";
 import { stubDesk } from "../../shared/testing/desk";
@@ -38,7 +39,9 @@ function door(guest: DoorGuest | null = null): void {
   const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
   render(
     <GameProvider store={store}>
-      <FrontDoor guest={guest} />
+      <DeskHost>
+        <FrontDoor guest={guest} />
+      </DeskHost>
     </GameProvider>,
   );
 }

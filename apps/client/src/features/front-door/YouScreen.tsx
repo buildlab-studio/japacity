@@ -52,15 +52,15 @@ export interface YouProps extends NameProps {
 function PhotoCard({ look, style, name }: { look: string; style: LookStyle | undefined; name: string }) {
   return (
     // The card gives way on a short screen (a laptop's), so the look strip stays in view over Next.
-    <div className="relative mx-auto mt-4 h-[clamp(240px,calc(100dvh-540px),318px)] w-[302px] max-w-[calc(100%-56px)]" data-door-photo>
+    <div className="door-photo-card" data-door-photo>
       <div className="door-card absolute inset-0 rotate-[-2.5deg] p-2.5">
         <div className="door-photo relative h-full overflow-hidden rounded-[14px]">
           <span className="door-arch absolute bottom-0 left-1/2 h-[62%] w-[56%] -translate-x-1/2" aria-hidden />
           <span className="door-sun absolute top-[22px] right-[26px] size-[58px]" aria-hidden />
-          <FigurePicture look={look} style={style} className="absolute bottom-[-6px] left-1/2 h-[calc(100%+6px)] max-w-none -translate-x-1/2 transition-opacity duration-200" />
+          <FigurePicture look={look} style={style} className="door-photo-figure" />
         </div>
       </div>
-      <span className="sticker-chip absolute bottom-[-14px] left-[14px] z-[2] rounded-[14px]! px-4! py-2! text-[22px]!" style={{ rotate: "3deg" }} data-door-name-chip>
+      <span className="sticker-chip door-name-chip" style={{ rotate: "3deg" }} data-door-name-chip>
         {name === "" ? say("prologue.page.empty") : name}
       </span>
       <span className="sticker-cut absolute top-[-24px] right-[-30px] z-[2]" style={{ rotate: "9deg" }} aria-hidden>
@@ -94,7 +94,7 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
         <input
           ref={box}
           id="door-name"
-          className="h-[54px] min-w-0 flex-1 rounded-[14px] border-2 border-[var(--edge)] bg-sheet-2 px-4 text-[20px] font-bold text-text outline-none placeholder:font-semibold placeholder:text-text-2 placeholder:opacity-70 focus-visible:ring-2 focus-visible:ring-[var(--action)]"
+          className="door-name-box text-text placeholder:text-text-2"
           placeholder={suggestion}
           data-first-field
           value={name}

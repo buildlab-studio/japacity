@@ -6,13 +6,12 @@
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
 
-import { archetypeOf, homeOf } from "../../shared/front-door/archetypes";
-import { fitHome } from "../../shared/front-door/homes";
+import { archetypeOf } from "../../shared/front-door/archetypes";
 import { lookOf } from "../../shared/front-door/looks";
 import { isMade } from "../../shared/front-door/style";
 import { startYearFor } from "../../shared/datapage/age";
 import type { PageFields } from "../../shared/datapage/DataPage";
-import type { DoorDraft, DoorStage } from "../../shared/datapage/door";
+import type { DoorDraft } from "../../shared/datapage/door";
 import { readyMonths, yearsOf } from "../../shared/datapage/years";
 import { say } from "../../shared/words/text";
 
@@ -39,34 +38,8 @@ export function pathWords(draft: DoorDraft): string {
   return archetype !== null ? say(`prologue.archetype.${archetype.id}.name`) : ready !== null ? say(`${ready}.kind`) : "";
 }
 
-/** How far the run has come: 0 on Who are you?, 1 on the lives, 2 on Where you live and once begun. */
-export function reachedOf(stage: DoorStage): 0 | 1 | 2 {
-  switch (stage) {
-    case "you":
-      return 0;
-    case "life":
-    case "ready":
-      return 1;
-    case "page":
-    case "begun":
-      return 2;
-    default: {
-      const never: never = stage;
-      throw new Error(`Unknown door stage ${String(never)}.`);
-    }
-  }
-}
-
-/** Where the run's life starts: the home picked for a tile, as Begin would fit it, or the family house for a ready life. */
-export function homeAt(draft: DoorDraft): string {
-  const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
-  if (archetype === null) return "family-house";
-  return fitHome(archetype, draft.age, { home: draft.home ?? homeOf(archetype), homePicked: true });
-}
-
 /** The page as the run stands: each row as far as the run has come, the rest empty. */
-export function livePage(draft: DoorDraft): PageFields {
-  const reached = reachedOf(draft.stage);
+export function livePage(draft: DoorDraft, reached: number, home: string): PageFields {
   const tile = draft.ready === null ? archetypeOf(draft.archetype) : null;
   // On the ready lives' list nothing is picked until Pick.
   const picked = draft.stage !== "ready" || draft.ready !== null;
@@ -81,7 +54,7 @@ export function livePage(draft: DoorDraft): PageFields {
     ready: "",
     from: "",
     family: "",
-    strip: { district: reached >= 2 ? say(`ui.door.home.where.${homeAt(draft)}`) : "", years, percent: null },
+    strip: { district: reached >= 2 ? say(`ui.door.home.where.${home}`) : "", years, percent: null },
     photo: lookOf(draft.look)?.picture ?? "",
     wear: { look: draft.look, ...(style === undefined ? {} : { style }) },
   };
