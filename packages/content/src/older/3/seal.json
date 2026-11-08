@@ -1,0 +1,6 @@
+{
+  "about": "server:older-content-frozen: the fingerprint of this content version as it shipped (the content part of the seal's hash) and the SHA-256 of content.json as written. Written by pnpm content:freeze; read by pnpm check:version. Never edited.",
+  "version": "3",
+  "fingerprint": "34e2d2cf75d5cadf4cc8c2fba1ad4bbccd966cd19d278ca0b1500052182cf9b4",
+  "file": "a27a77c94afcc4d15336eca8a0e21e66bcee41b4c3228bde0cb743290c0a55d1"
+}
