@@ -105,6 +105,18 @@ describe("serving the hour's campaign", () => {
     expect((await served(app, "GB")).slots).toEqual({});
   });
 
+  test("[advert:campaign-chosen-without-player-data] given a live campaign, when an account in the admin list asks, then no slot is filled and the reply is stored nowhere, while a player and a stranger asking after it are still served the campaign", async () => {
+    const app = makeApp(world());
+    const { campaign: id } = await live(app);
+    const asked = await call(app, "GET", "/api/adverts?region=NG", undefined, ADMIN);
+    expect(asked.status).toBe(200);
+    expect((asked.body as unknown as AdvertsReply).slots).toEqual({});
+    expect(asked.headers.get("cache-control")).toBe("no-store");
+    expect((await served(app, "NG", "account.one")).slots["advert.road-billboard"]?.campaign).toBe(id);
+    expect((await served(app, "NG", null)).slots["advert.road-billboard"]?.campaign).toBe(id);
+    expect((await served(app, "NG", ADMIN)).slots).toEqual({});
+  });
+
   test("[advert:campaign-chosen-without-player-data] given two live campaigns in one slot, when the hour turns, then the slot changes campaign exactly at the boundary and the reply is cached to it", async () => {
     const clock = { at: EPOCH };
     const app = makeApp(world(clock));
@@ -527,6 +539,19 @@ describe("what one account can add to a campaign's day", () => {
 
     expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 1 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: 1 }])).toBe(204);
     expect(await totals(deps, id)).toEqual([{ day, slot: "advert.road-billboard", impressions, taps }]);
+  });
+
+  test("[advert:impression-counted-when-seen] given an account in the admin list, when its batch carries advert impressions and taps, then none reaches the campaign's totals or the day's counters, while its other rows count", async () => {
+    const deps = world();
+    const app = makeApp(deps);
+    const { campaign: id } = await live(app);
+    await deps.stores.account.create(player(ADMIN));
+    expect(await send(app, ADMIN, [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 3 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: 1 }, { name: "screen/opened", key: "door-1", count: 1 }])).toBe(204);
+    expect(await totals(deps, id)).toEqual([]);
+    const day = time.dayName(time.utcDay(EPOCH));
+    const rows = await deps.stores.counters.days(day, day);
+    expect(rows.filter((row) => row.name === ADVERT_COUNTERS.impression || row.name === ADVERT_COUNTERS.tap)).toEqual([]);
+    expect(rows.filter((row) => row.name === "screen/opened")).toMatchObject([{ key: "door-1", count: 1 }]);
   });
 
   test("[advert:advertiser-records-stored] given a row that crosses the allowance, when it arrives, then only the part within it counts, while another account, another slot and the next day each start afresh", async () => {

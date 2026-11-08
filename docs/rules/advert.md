@@ -21,7 +21,7 @@ An advert is a picture a real business pays to put in the world: a billboard on 
 
 **advert:adverts-change-no-simulation** An advert changes nothing in the simulation. No command, effect, requirement or reward reads an advert, and tapping one earns nothing. The simulation has no advert state.
 
-**advert:campaign-chosen-without-player-data** Which campaign fills a slot is chosen by the server from the slot, the player's advert region and the hour, never from anything about the player. The same slot shows the same campaign to everyone in a region in the same hour. An advert region is a country's code from the list in the server's config (`advert.regions`: Nigeria, the United States, Canada, the United Kingdom, Australia and the 27 EU states), or `default` for any other country. No per-player targeting, so no profile of a player is ever built for an advertiser.
+**advert:campaign-chosen-without-player-data** Which campaign fills a slot is chosen by the server from the slot, the player's advert region and the hour, never from anything about the player. The same slot shows the same campaign to everyone in a region in the same hour. An advert region is a country's code from the list in the server's config (`advert.regions`: Nigeria, the United States, Canada, the United Kingdom, Australia and the 27 EU states), or `default` for any other country. No per-player targeting, so no profile of a player is ever built for an advertiser. The one thing read about an account is read only to serve it nothing: an account in the deployment's admin list (`config.admin.accounts`, moderation:admin-view-for-admin-list) is served no advert on any surface, its `GET /api/adverts` answered with no slot filled and kept in no cache, the server's or the browser's.
 
 **advert:no-radio-adverts** No radio adverts. The radio carries the news (`news.md`), and paid words read in the news voice would blur paid copy and news; it also needs a native speaker review for every voice (`../design/05-audio.md`).
 
@@ -80,7 +80,7 @@ An advert is a picture a real business pays to put in the world: a billboard on 
 
 **advert:advertisers-get-daily-counts-only** Advertisers receive only the daily counts of advert:advertiser-records-stored. No player id, region finer than the advert regions of advert:campaign-chosen-without-player-data, or behaviour is ever shared with an advertiser.
 
-**advert:impression-counted-when-seen** An impression is counted when a slot has been on screen for `tuning.advert.impressionMs` with at least half of it visible, at most once per slot per session, and sent with the interface counters (`analytics.md`).
+**advert:impression-counted-when-seen** An impression is counted when a slot has been on screen for `tuning.advert.impressionMs` with at least half of it visible, at most once per slot per session, and sent with the interface counters (`analytics.md`). An account in the admin list is never counted: its impressions and taps are dropped before any total, the day's counters and the campaign's alike.
 
 ## Entries: slots
 
