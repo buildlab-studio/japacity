@@ -30,7 +30,7 @@ function ItemPicture({ tile, size }: { tile: string | null; size: number }) {
 
 /**
  * The act's card on its sheet (world:one-action-one-sheet): the handle, the corner's icon, where and the act's title, its
- * line, how long it takes, and the one yellow button with the act's verb and when it answers.
+ * line, its facts (the pay, the chance, how long it takes), and the one yellow button with the act's verb and when it answers.
  */
 export function ActCard({ target, down }: { target: string; down: boolean }) {
   return (
@@ -47,12 +47,11 @@ export function ActCard({ target, down }: { target: string; down: boolean }) {
         <SheetClose />
       </div>
       <div className="act-body">
-        <p className="act-line">
-          {W.racksBlurb} {W.racksCard}
-        </p>
+        <p className="act-line">{W.racksBlurb}</p>
         <div className="act-takes">
-          <span style={{ fontSize: 14, fontWeight: 700 }}>{W.takes}</span>
-          <span style={{ fontSize: 16, fontWeight: 700 }}>{W.aDay}</span>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>{W.racksPay}</span>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>{W.certain}</span>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>{W.aDay}</span>
         </div>
         <span className="press-button act-main" data-target={target}>
           <span>{W.startWork}</span>
