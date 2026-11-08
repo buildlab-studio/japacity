@@ -109,6 +109,7 @@ An accepted record's decision is never edited. A record may have its wording, li
 | [0035](0035-the-balance-test-reads-calm-and-crash-worlds.md) | The balance test reads calm and crash worlds |
 | [0036](0036-a-miss-moves-the-story.md) | A miss moves the story |
 | [0037](0037-the-catch-is-its-own-stream.md) | The catch is its own stream |
+| [0038](0038-a-bank-remit-arrives-as-quoted.md) | A bank remit arrives as quoted |
 
 ### The city
 
