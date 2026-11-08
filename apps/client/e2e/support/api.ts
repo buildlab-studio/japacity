@@ -53,22 +53,35 @@ export interface CheckStandIn {
 }
 
 /**
- * Cloudflare's widget as its always-pass test key behaves: it passes with the dummy token, and with `interaction-only`
- * it draws nothing, as the real one does when no tap is needed (account:start-screen-over-live-city).
+ * Cloudflare's widget as its always-pass test key behaves: it passes with the dummy token, again after each reset, and with
+ * `interaction-only` it draws nothing, as the real one does when no tap is needed (account:start-screen-over-live-city). Each
+ * widget drawn has its own id, so a page with the guest start's and a code form's (account:bot-check-on-code-send) resets each alone.
  */
 export async function fakeTurnstile(page: Page, { afterMs = 0, drawn = false }: CheckStandIn = {}): Promise<void> {
-  const widget = `window.turnstile = {
-  render(container, options) {
-    const box = document.createElement("div");
-    box.textContent = "Check passed";
-    box.style.cssText = "border:1px solid #bbb;border-radius:6px;padding:10px 12px;font:14px system-ui;width:max-content";
-    if (${String(drawn)} || options.appearance !== "interaction-only") container.append(box);
-    setTimeout(() => options.callback("${CAPTCHA_TOKEN}"), ${String(afterMs)});
-    return "widget-1";
-  },
-  reset() {},
-  remove() {},
-};`;
+  const widget = `(() => {
+  const passes = new Map();
+  let count = 0;
+  window.turnstile = {
+    render(container, options) {
+      const box = document.createElement("div");
+      box.textContent = "Check passed";
+      box.style.cssText = "border:1px solid #bbb;border-radius:6px;padding:10px 12px;font:14px system-ui;width:max-content";
+      if (${String(drawn)} || options.appearance !== "interaction-only") container.append(box);
+      count += 1;
+      const id = "widget-" + String(count);
+      const pass = () => setTimeout(() => options.callback("${CAPTCHA_TOKEN}"), ${String(afterMs)});
+      passes.set(id, pass);
+      pass();
+      return id;
+    },
+    reset(id) {
+      passes.get(id)?.();
+    },
+    remove(id) {
+      passes.delete(id);
+    },
+  };
+})();`;
   await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: widget }));
 }
 
