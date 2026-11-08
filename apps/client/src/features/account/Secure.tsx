@@ -353,7 +353,7 @@ export function SecureAsk() {
   const keptDue = useKeptDue(account);
   const due = ((moment !== null && me !== null) || keptDue !== null) && quiet && !open;
   const [clear, setClear] = useState(true);
-  // The staged asks also wait for a teach card over the world to be dismissed (account:guest-secures-the-life).
+  // The staged asks and a kept-from-start Kept sheet also wait for a teach card over the world to be dismissed (account:guest-secures-the-life).
   const [teaching, setTeaching] = useState(false);
   useEffect(() => {
     if (!due) return;
@@ -366,14 +366,14 @@ export function SecureAsk() {
     return () => window.clearInterval(timer);
   }, [due]);
   useEffect(() => {
-    if (account === null || keptDue === null || !quiet || open || !clear || otherSheetUp()) return;
+    if (account === null || keptDue === null || !quiet || open || !clear || teaching || otherSheetUp() || teachUp()) return;
     keptOpened(account);
     setReason(null);
     setProblem(null);
     setTaken(false);
     setKept(keptDue);
     setOpen(true);
-  }, [account, keptDue, quiet, open, clear]);
+  }, [account, keptDue, quiet, open, clear, teaching]);
   useEffect(() => {
     if (moment === null || me === null || !quiet || open || !clear || teaching || otherSheetUp() || teachUp()) return;
     const key = secureAskedKey(me.id, moment);

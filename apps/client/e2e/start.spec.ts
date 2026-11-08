@@ -4,6 +4,7 @@ import { standInWorld } from "@japacity/sim";
 import { finishPrologue, start } from "@japacity/sim/testing";
 import { expect, type Page } from "@playwright/test";
 import { test } from "./support/policy";
+import { passHomeTeach } from "./support/live";
 
 // The start screen online (account:start-screen-over-live-city), played against a faked server on the online dev server: every
 // /api route is answered here, in the shapes of @japacity/api, and the
@@ -496,6 +497,8 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] [account
   // it closes, no chip, the account sheet naming the address, and nothing asking to save it. The first chapter's card stands first;
   // the Kept sheet waits for it.
   await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
+  // The Kept sheet waits for the home's teach card too (account:guest-secures-the-life).
+  await passHomeTeach(page);
   const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible({ timeout: 10_000 });
   await expect(kept.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });
@@ -643,6 +646,8 @@ test("[account:sign-in-without-secret] [account:guest-secures-the-life] Continue
   // The Kept sheet stands once the first brief's card is handed, with the passkey as its next step; its line is said as it closes,
   // and the account sheet shows Google as the way in, with nothing asking to save the life.
   await page.locator("[data-brief]").getByRole("button", { name: "Let's go" }).click({ timeout: 20_000 });
+  // The Kept sheet waits for the home's teach card too (account:guest-secures-the-life).
+  await passHomeTeach(page);
   const kept = page.getByRole("dialog", { name: "Saved" });
   await expect(kept).toBeVisible({ timeout: 10_000 });
   await expect(kept.getByRole("heading", { name: "Sign in faster next time" })).toBeVisible({ timeout: 10_000 });

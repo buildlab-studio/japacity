@@ -156,6 +156,20 @@ describe("the kept life says so (account:guest-secures-the-life)", () => {
     expect(screen.queryByRole("dialog", { name: say("ui.secure.done.title") })).toBeNull();
   });
 
+  test.each(["data-home-teach", "data-night-teach"])("[account:guest-secures-the-life] given a new life kept from the start and a teach card (%s) open over the world, then the Kept sheet waits and opens once the card is dismissed", async (mark) => {
+    const teach = document.createElement("div");
+    teach.setAttribute("role", "note");
+    teach.setAttribute(mark, "");
+    document.body.append(teach);
+    const account = fakeAccount(me("secured"));
+    act(() => tellWay(account, "start.email"));
+    await mount(account, <SecureAsk />);
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(screen.queryByRole("dialog", { name: say("ui.secure.done.title") })).toBeNull();
+    teach.remove();
+    expect(await screen.findByRole("dialog", { name: say("ui.secure.done.title") }, { timeout: 2000 })).toBeDefined();
+  });
+
   test("[account:guest-secures-the-life] given Google on an address whose life was kept by a code, which the library would not join, then the player is pointed to the code in the game's words, never the library's", () => {
     const words = failureWords({ ok: false, why: "not-linked" }) ?? "";
     expect(words).toContain("code");
