@@ -476,8 +476,8 @@ export interface RemitTerms {
  * What each channel gives for an amount sent from a foreign bank pocket, from the
  * view's rates and the content's tuning (abroad-money:remit-quote-is-shared), so the interface quotes the
  * same figures the command pays. The app pays the official rate less its margin;
- * the bank the official rate, here today's, though the money arrives next month at
- * that month's; the informal channel the street rate with no fee. The fee
+ * the bank today's official rate, fixed on the queued remit so the naira that arrives
+ * next month is the naira quoted; the informal channel the street rate with no fee. The fee
  * comes out of the amount sent, so the amount is what leaves the pocket.
  * The contract's PlayerView has no `remit` field, so the quote is this pure function over the view's rates.
  */
@@ -527,7 +527,7 @@ function remit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
       events.push(credit("NGN", "bank", terms.naira, "remit"), remitted(false, month));
       break;
     case "bank": {
-      const conversion = { id: ctx.nextId(REMIT_PREFIX), from: currency, to: "NGN" as const, paid: amount - terms.fee, readyMonth: month + 1 };
+      const conversion = { id: ctx.nextId(REMIT_PREFIX), from: currency, to: "NGN" as const, paid: amount - terms.fee, readyMonth: month + 1, received: terms.naira };
       events.push({ type: "wallet/queued", conversion }, remitted(false, month + 1));
       break;
     }
@@ -565,7 +565,9 @@ function settle(ctx: Ctx): BaseEvent[] {
     if (conversion.readyMonth > month) continue;
     events.push({ type: "wallet/arrived", id: conversion.id });
     const reason: Reason = isRemit(conversion) ? "remit" : "convert";
-    events.push(credit(conversion.to, "bank", convertMinor(conversion.paid, conversion.from, conversion.to, official), reason));
+    // abroad-money:remit-sends-money-home: a remit's naira was fixed when it was sent; a purchase takes the day's rate.
+    const received = conversion.received ?? convertMinor(conversion.paid, conversion.from, conversion.to, official);
+    events.push(credit(conversion.to, "bank", received, reason));
   }
   // wallet:large-deposits-record-lots: a lot is remembered for lotMonths whole months after the one it landed in.
   const keepFrom = month - content.tuning.wallet.lotMonths;
@@ -871,6 +873,8 @@ function invariants(state: State): string[] {
   }
   for (const conversion of state.wallet.queued) {
     if (!Number.isSafeInteger(conversion.paid) || conversion.paid <= 0) problems.push(`Queued conversion ${conversion.id} carries ${String(conversion.paid)}.`);
+    const { received } = conversion;
+    if (received !== undefined && (!Number.isSafeInteger(received) || received <= 0)) problems.push(`Queued conversion ${conversion.id} is to give ${String(received)}.`);
   }
   return problems;
 }

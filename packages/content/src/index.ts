@@ -154,7 +154,7 @@ export const olderContents: readonly Content[] = [frozenContent(content1), froze
 
 export const content: Content = {
   // Raised by one with any change to the content or the simulation, then sealed in seal.json (server:content-version-sealed).
-  version: "3",
+  version: "4",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
   activity: withWhen({ ...activityTable, ...adviceActivityTable }),

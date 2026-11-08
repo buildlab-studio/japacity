@@ -894,7 +894,7 @@ function typeOf(content: Content, item: ObligationState): ObligationType {
   return entryOf(content, item.entry).type;
 }
 
-function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, content: Content): ObligationSlice {
+function evolve(slice: ObligationSlice, event: ObligationEvent, state: State, content: Content): ObligationSlice {
   switch (event.type) {
     case "obligation/opened":
       return { ...slice, items: { ...slice.items, [event.item.id]: event.item } };
@@ -922,11 +922,14 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - 1),
         missed: event.missed,
       }));
-    case "obligation/defaulted":
+    case "obligation/defaulted": {
       // A debt stays open in default; a rent or a phone starts over, or its onDefault has closed it.
-      return withItem(slice, event.id, (item) =>
+      const changed = withItem(slice, event.id, (item) =>
         DEBT_TYPES.includes(typeOf(content, item)) ? { ...item, state: "defaulted" } : { ...item, state: "active", missed: 0 },
       );
+      // obligation:three-roads-to-group-loan: the month of the default is kept after the obligation closes.
+      return { ...changed, defaulted: { ...slice.defaulted, [event.entry]: state.turn.month } };
+    }
     case "obligation/seized":
     case "obligation/repaid":
     case "obligation/pot-paid":
@@ -1153,8 +1156,23 @@ function judgeHas(read: ReadCtx, requirement: Requirement): RequirementResult {
   return { met };
 }
 
+/** obligation:three-roads-to-group-loan: one of the entries went into default within the tuning's months, open or since closed. */
+function judgeDefaultedLately(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "obligation/defaulted-lately") throw new Error(`obligation/defaulted-lately cannot judge ${requirement.type}.`);
+  const month = read.state.turn.month;
+  const shut = read.content.tuning.groupLoan.shutAfterDefault;
+  const met = requirement.obligations.some((entry) => {
+    const at = read.state.obligation.defaulted?.[entry];
+    return at !== undefined && month - at < shut;
+  });
+  return { met };
+}
+
 function invariants(state: State, content: Content): string[] {
   const problems: string[] = [];
+  for (const [entry, month] of Object.entries(state.obligation.defaulted ?? {})) {
+    if (month === undefined || !Number.isSafeInteger(month) || month < 0 || month > state.turn.month) problems.push(`The default of ${entry} is kept at month ${String(month)}, not a month played.`);
+  }
   for (const [id, item] of Object.entries(state.obligation.items)) {
     if (item.id !== id) problems.push(`Obligation ${id} is stored under the wrong key.`);
     const entry = content.obligation[item.entry];
@@ -1235,7 +1253,7 @@ export const obligationKind: RegisteredKind<ObligationSlice, ObligationEvent> = 
   phases: { due },
   evolve,
   lines,
-  requirements: { "obligation/has": judgeHas },
+  requirements: { "obligation/has": judgeHas, "obligation/defaulted-lately": judgeDefaultedLately },
   invariants,
   view: (read) => ({ obligations: obligationsView(read) }),
 };

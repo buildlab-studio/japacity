@@ -70,7 +70,7 @@ export const walletText: Record<string, string> = {
   // wallet:top-ups-are-marked: naira bought with real money; it buys anything but a ticket.
   "line.wallet.top-up": "Topped up: {amount}.",
   "line.wallet.remit-app": "You sent {sent} home by app. {naira} arrived in your naira account.",
-  "line.wallet.remit-bank": "You sent {sent} home through the bank. About {naira} arrives in your naira account {readyMonth}.",
+  "line.wallet.remit-bank": "You sent {sent} home through the bank. {naira} arrives in your naira account {readyMonth}.",
   "line.wallet.remit-informal": "You handed {sent} to the man who sends money home. {naira} arrived with your people, as cash.",
   "line.wallet.remit-lost": "You handed {sent} to the man who sends money home. It never arrived, and his number is off.",
 

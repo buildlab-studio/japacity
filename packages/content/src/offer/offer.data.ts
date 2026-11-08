@@ -28,6 +28,8 @@ const LEAVING: Requirement = {
 const NOT_BROKE: Requirement = { type: "money/min", currency: "NGN", amount: naira(150000) };
 
 const CREDIT_CLEAN: Requirement = { type: "quality/max", quality: "quality.credit-mark", value: 0 };
+/** obligation:three-roads-to-group-loan: a recent default of a group loan or a sponsor's undertaking keeps the group's asks away. */
+const GROUP_SHUT: Requirement = { type: "not", of: { type: "obligation/defaulted-lately", obligations: ["obligation.group-loan", "obligation.undertaking-canada"] } };
 const SIX_MONTHS_IN_ANY_JOB: Requirement = { type: "activity/tenure", activities: [], months: 6 };
 
 /** A sponsor or agent comes up while its route is known and its window is not closed (route-gates:sponsor-offers-come-up, route-gates:gulf-agent-offer). */
@@ -754,6 +756,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       { type: "quality/min", quality: "quality.network", value: 20 },
       CREDIT_CLEAN,
       { type: "not", of: { type: "obligation/has", obligationType: "group-loan" } },
+      GROUP_SHUT,
     ],
     // 3% a month; the page gives none.
     chanceBp: 300,
@@ -810,7 +813,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.stand-guarantor": {
     id: "offer.stand-guarantor",
     group: "family",
-    when: [{ type: "not", of: { type: "obligation/has", obligationType: "undertaking" } }],
+    when: [{ type: "not", of: { type: "obligation/has", obligationType: "undertaking" } }, GROUP_SHUT],
     // 1% a month; the page gives none.
     chanceBp: 100,
     cooldown: 24,

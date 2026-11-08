@@ -974,6 +974,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "goal/done":
     case "era/is":
     case "obligation/has":
+    case "obligation/defaulted-lately":
     case "activity/local-tenure":
     case "activity/played":
     case "setpiece/answered":

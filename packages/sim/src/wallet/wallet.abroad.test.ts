@@ -131,7 +131,7 @@ describe("sending money home", () => {
     expect(tones({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 1000, reason: "remit" })).toEqual(["good"]);
   });
 
-  test("[abroad-money:remit-sends-money-home] given $100 sent home through the bank, when it is sent and the month ends, then the fee is kept at once and the rest arrives in the naira bank next month at that month's official rate", () => {
+  test("[abroad-money:remit-sends-money-home] given $100 sent home through the bank, when it is sent and the month ends, then the fee is kept at once and the rest arrives in the naira bank next month at the official rate of the day it was sent", () => {
     const game = graduateAbroad();
     const fee = bp(HUNDRED_DOLLARS, remit.bankFeeBp);
     const sent = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "bank" });
@@ -143,11 +143,28 @@ describe("sending money home", () => {
     expect(sent.lines.map((line) => line.key)).toContain("line.wallet.remit-bank");
     expect(sent.lines.map((line) => line.key)).not.toContain("line.wallet.queued");
 
+    const naira = mulDiv(HUNDRED_DOLLARS - fee, game.world().rates.USD.official, 100);
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
-    const rate = game.world().rates.USD.official;
     const month = game.endTurn();
-    const naira = mulDiv(HUNDRED_DOLLARS - fee, rate, 100);
     expect(creditsOf(month, "remit")).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: naira, reason: "remit" });
+    expect(game.state.wallet.queued).toEqual([]);
+  });
+
+  test("[abroad-money:remit-sends-money-home] [abroad-money:remit-quote-is-shared] given $100 sent home through the bank and the official rate moved before the month ends, when the month ends, then the naira quoted on the day it was sent is what arrives", () => {
+    const game = graduateAbroad();
+    const quote = remitQuote(game.view().rates, remit, "USD", HUNDRED_DOLLARS).bank;
+    const sentAt = game.world().rates.USD.official;
+    const sent = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "bank" });
+    expect(remitted(sent)).toMatchObject({ channel: "bank", naira: quote.naira });
+    // The world walks on while the month is open; the month ends on a later tick whose rate is not the day's.
+    const from = game.tick;
+    while (game.world().rates.USD.official === sentAt && game.tick < from + 60) game.tick += 1;
+    const movedTo = game.world().rates.USD.official;
+    expect(movedTo).not.toBe(sentAt);
+    expect(mulDiv(HUNDRED_DOLLARS - quote.fee, movedTo, 100)).not.toBe(quote.naira);
+    if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
+    const month = game.endTurn();
+    expect(creditsOf(month, "remit")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: quote.naira, reason: "remit" }]);
     expect(game.state.wallet.queued).toEqual([]);
   });
 
@@ -234,13 +251,17 @@ describe("the remit quote", () => {
     });
   });
 
-  test("[abroad-money:remit-quote-is-shared] given the view's rates abroad, when each channel is quoted and then used, then the app and informal quotes are what arrives, and the bank's is what today's rate would give", () => {
+  test("[abroad-money:remit-quote-is-shared] given the view's rates abroad, when each channel is quoted and then used, then each quote is what arrives: the app's and the informal channel's at once, the bank's when the month ends", () => {
     for (const channel of ["app", "bank", "informal"] as const) {
       const game = graduateAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: 0 } } }));
       const quote = remitQuote(game.view().rates, remit, "USD", HUNDRED_DOLLARS)[channel];
       const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel });
       expect(remitted(result)).toMatchObject({ channel, fee: quote.fee, naira: quote.naira });
       expect(creditsOf(result, "remit").map((event) => event.amount)).toEqual(channel === "bank" ? [] : [quote.naira]);
+      if (channel !== "bank") continue;
+      if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
+      game.tick += 1;
+      expect(creditsOf(game.endTurn(), "remit").map((event) => event.amount)).toEqual([quote.naira]);
     }
   });
 });

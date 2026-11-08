@@ -36,6 +36,7 @@ const REQUIREMENT_TYPES = [
   "goal/done",
   "era/is",
   "obligation/has",
+  "obligation/defaulted-lately",
   "route/gate-step",
   "activity/local-tenure",
   "activity/played",

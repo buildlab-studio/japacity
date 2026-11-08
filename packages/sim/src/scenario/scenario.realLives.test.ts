@@ -15,7 +15,7 @@ const lives = Object.keys(content.scenario) as Id<"scenario">[];
 
 describe("the real content", () => {
   test("[engine:content-checked-before-play] given the real content, when checked, then nothing is wrong", () => {
-    expect(content.version).toBe("3");
+    expect(content.version).toBe("4");
     expect(checkContent(content)).toEqual([]);
   });
 

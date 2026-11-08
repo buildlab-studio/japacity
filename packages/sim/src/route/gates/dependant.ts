@@ -95,6 +95,16 @@ function maintenanceAsked(entry: RouteEntry, facts: PersonFacts | null): boolean
   return block.leadMonthsExempt === null || facts === null || facts.monthsInCountry < block.leadMonthsExempt;
 }
 
+/**
+ * person:dependant-gate-needs: the fee as the apply act shows it and is judged by, the lead's facts read as the gate reads
+ * them; none for a route on another gate, or while no lead route names the fee.
+ */
+export function dependantApplyFees(read: ReadCtx, route: Id<"route">): Fee[] {
+  const entry = read.content.route[route];
+  if (entry?.gate !== "dependant") return [];
+  return dependantFee(read, entry, leadOf(read, entry)?.bond.facts ?? null) ?? [];
+}
+
 function canPay(ctx: Ctx, fees: readonly Fee[]): boolean {
   const totals = new Map<ForeignCurrency, number>();
   for (const fee of fees) totals.set(fee.currency, (totals.get(fee.currency) ?? 0) + fee.amount);

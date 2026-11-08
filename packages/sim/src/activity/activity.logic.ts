@@ -39,6 +39,7 @@ import type {
   Tuning,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
+import { dependantApplyFees } from "../route/gates/dependant";
 import { isKept, statusEntry, workAllows } from "../status/status.logic";
 import { activeLocks, fillsSlot, freeSlots } from "../turn/turn.logic";
 import type { ActivityEvent, Prize, SlotFailure } from "./activity.events";
@@ -381,6 +382,8 @@ interface Price {
   reason: Reason;
   cash: boolean;
   earned: boolean;
+  /** Shown and judged as the act's cost, but taken by the route's gate as the application goes in (person:dependant-gate-needs). */
+  byGate?: true;
 }
 
 /**
@@ -432,6 +435,11 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   // advice:licensed-adviser-is-truthful: the adviser's fee under its own reason, `fee-advice`.
   // The licensed adviser is paid by transfer like any office; the street prices above are cash first.
   if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: false, earned: false });
+  // person:dependant-gate-needs: a dependant's fee follows the lead's route, so the gate reckons it; the act shows it and is judged by it.
+  for (const effect of entry.effects) {
+    if (effect.type !== "route/apply") continue;
+    for (const fee of dependantApplyFees(read, effect.route)) prices.push({ currency: fee.currency, amount: fee.amount, reason: fee.reason, cash: false, earned: false, byGate: true });
+  }
   if (entry.id === DRIVING_TEST) {
     const currency = entry.country === undefined || entry.country === null ? null : read.content.country[entry.country]?.currency;
     if (currency === undefined || currency === null) throw new Error(`${entry.id} names no country to pay in.`);
@@ -444,7 +452,7 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
 /** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0014); a foreign fee by wallet:foreign-fee-payment-order (activity:costs-paid-bank-or-cash). */
 function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
   for (const price of prices) {
-    if (price.amount <= 0) continue;
+    if (price.amount <= 0 || price.byGate === true) continue;
     const { currency, amount, reason } = price;
     if (currency === "NGN") ctx.apply([{ type: "money/take", currency, pocket: price.cash ? "any" : "transfer", amount, reason }], cause);
     else ctx.apply([{ type: "money/pay-fee", currency, amount, reason }], cause);
@@ -1457,6 +1465,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "goal/done":
     case "era/is":
     case "obligation/has":
+    case "obligation/defaulted-lately":
     case "route/gate-step":
     case "setpiece/answered":
     case "setpiece/answered-with":
