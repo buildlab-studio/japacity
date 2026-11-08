@@ -10,6 +10,7 @@ import { DedicationLater } from "../features/account/DedicationLater";
 import { glowFill } from "../features/account/TwoLights";
 import { AgentSheets } from "../features/advice/AgentSheet";
 import { GuestReminder, SecureAsk } from "../features/account/Secure";
+import { SaveChip } from "../features/account/SaveChip";
 import { OFFER_PLACES } from "../features/city/nudge/nudge";
 import { PARCEL } from "../shared/world/parcel.ask";
 import { ParcelWaybill } from "../shared/world/Waybill";
@@ -148,6 +149,8 @@ function WorldPlaying() {
             <PlaneCut {...slot} />
           </Suspense>
         )}
+        // account:guest-reminded-to-secure: a guest's standing way to the keep-this-life sheet, under the band's money.
+        bandTag={<SaveChip />}
       />
       {/* The share card opens full screen when it is due; its tile has no place in the world. */}
       <div hidden>

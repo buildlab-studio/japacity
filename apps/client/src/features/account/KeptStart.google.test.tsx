@@ -1,10 +1,10 @@
 // Google's return with no life on the gate (account:sign-in-without-secret, account:guest-secures-the-life): the page comes home with
 // the new life's error, the standing names the proof Google made, and the gate opens the steps the code opens, in Google's words
 // where Google is the way; Continue makes the account saved with Google, and a proof run out offers Google again.
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { GameProvider } from "../../authority/GameProvider";
+import { GameProvider, useGame } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import type { AccountApi, AgeStanding, Full, GuestAnswer, HeldProof } from "../../shared/net/auth";
 import { NEW_LIFE_NAME_KEY } from "../../shared/storage/storage";
@@ -15,7 +15,7 @@ import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { codeAccount, type Faked } from "./code.testing";
 import { TEST_SITE_KEY, type LoadTurnstile } from "./Turnstile";
-import { WayToast } from "./WayToast";
+import { SecureAsk } from "./Secure";
 
 const EMAIL = "ada@example.test";
 const BY_GOOGLE: HeldProof = { proved: EMAIL, google: true, passed: false };
@@ -39,6 +39,12 @@ const passing: LoadTurnstile = () => {
   });
 };
 
+/** The world's asks, mounted once the life is signed in, as the shell mounts them with the world (account:guest-secures-the-life). */
+function World() {
+  const signedOut = useGame((state) => state.signedOut);
+  return signedOut ? null : <SecureAsk />;
+}
+
 /** The gate signed out over the world's line, back from Google with the new life's mark and the standing given. */
 function backFromGoogle(standing: AgeStanding | Full | HeldProof, guest: GuestAnswer[] = [], over: Partial<AccountApi> = {}) {
   let returned: ReturnType<AccountApi["returnedFromGoogle"]> = "new-life";
@@ -61,7 +67,7 @@ function backFromGoogle(standing: AgeStanding | Full | HeldProof, guest: GuestAn
   const view = render(
     <GameProvider store={store}>
       <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
-      <WayToast account={account} />
+      <World />
     </GameProvider>,
   );
   return { account, store, view };
@@ -94,13 +100,18 @@ describe("the page home from Google with the new life's mark", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.age.returning") })).toBeNull();
   });
 
-  test("[account:sign-in-without-secret] [account:guest-secures-the-life] given the age passed, when Continue sends the username, then the guest start goes marked proved, the gate signs in, no code is sent, and the world says Saved with Google", async () => {
+  test("[account:sign-in-without-secret] [account:guest-secures-the-life] given the age passed, when Continue sends the username, then the guest start goes marked proved, the gate signs in, no code is sent, and the world opens on the keep-this-life sheet in its Kept state, which says Saved with Google as it closes", async () => {
     const { account, store } = backFromGoogle(BY_GOOGLE);
     await answerTheAge();
     expect(await screen.findByRole("heading", { name: say("ui.account.kept.name.title") })).toBeDefined();
     expect(line()).toContain(say("ui.account.kept.why", { email: EMAIL }));
     await chooseAndContinue("ada_lagos");
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
+    // The world opens on the keep-this-life sheet in its Kept state; its line is said as it closes.
+    const kept = await screen.findByRole("dialog", { name: say("ui.secure.done.title") });
+    expect(within(kept).getByText(say("ui.secure.done"))).toBeDefined();
+    expect(document.querySelector("[data-way-toast]")).toBeNull();
+    fireEvent.click(within(kept).getByRole("button", { name: say("ui.report.close") }));
     await waitFor(() => expect(document.querySelector("[data-way-toast]")?.textContent).toBe(say("ui.account.toast.kept.google")));
     expect(say("ui.account.toast.kept.google")).toBe("Saved with Google");
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual(['startGuest("ada_lagos","proved")']);

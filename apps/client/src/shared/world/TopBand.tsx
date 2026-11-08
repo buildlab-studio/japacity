@@ -1,6 +1,7 @@
 // The top band (world:top-band-is-a-pill): the age and the place's name, the month's name with the world's part of
-// the day (clock:game-day-on-real-time), and the money as a counter. Nothing else. It hides while riding and while the results
-// show. The month turns when the life sleeps (decision 0011), so the band carries no Next month and no count of anything.
+// the day (clock:game-day-on-real-time), and the money as a counter. Nothing else but, for a guest, the "Not saved" chip the shell
+// hangs under the money (account:guest-reminded-to-secure). It hides while riding and while the results show. The month turns when
+// the life sleeps (decision 0011), so the band carries no Next month and no count of anything.
 import { text } from "@japacity/content";
 import type { DayPart, PlayerView } from "@japacity/sim";
 import { ChevronDown } from "lucide-react";
@@ -98,6 +99,8 @@ export interface TopBandProps {
   more?: ReactNode;
   open?: boolean;
   onToggle?: () => void;
+  /** A guest's "Not saved" chip, hung under the pill at the money's end (account:guest-reminded-to-secure); the shell hands it in. */
+  tag?: ReactNode;
 }
 
 /** Each place's name with a short one, as the band may be handed it: content's casing and with its first letter raised. */
@@ -145,7 +148,7 @@ const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", af
  * closed, that row peeks for a few seconds whenever its words change. On a laptop it stands in the centred column.
  * While a fan's button is pressed the counter shows what would be left, and settles back when it is let go.
  */
-export function TopBand({ when, name, money, formatMoney, month, body = null, onMonth, sky, preview = null, hidden = false, more, open = false, onToggle }: TopBandProps) {
+export function TopBand({ when, name, money, formatMoney, month, body = null, onMonth, sky, preview = null, hidden = false, more, open = false, onToggle, tag }: TopBandProps) {
   const previewing = preview !== null && preview !== money;
   return (
     <CentredColumn className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(12px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
@@ -160,11 +163,22 @@ export function TopBand({ when, name, money, formatMoney, month, body = null, on
           <Counter value={previewing ? preview : money} format={formatMoney} className="text-[16px]" />
         </div>
       </div>
-      {onToggle === undefined ? null : (
-        <div className="flex justify-center">
-          <button type="button" className="band-pill reach pointer-events-auto -mt-1 flex h-5 w-12 items-center justify-center rounded-b-[10px] rounded-t-none" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
-            <ChevronDown size={14} strokeWidth={2.6} className={open ? "rotate-180" : ""} aria-hidden />
-          </button>
+      {onToggle === undefined && tag === undefined ? null : (
+        // The handle in the middle and a guest's chip at the money's end, one row under the pill.
+        <div className="grid grid-cols-[1fr_auto_1fr] items-start">
+          <span />
+          {onToggle === undefined ? (
+            <span />
+          ) : (
+            <button type="button" className="band-pill reach pointer-events-auto -mt-1 flex h-5 w-12 items-center justify-center rounded-b-[10px] rounded-t-none" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
+              <ChevronDown size={14} strokeWidth={2.6} className={open ? "rotate-180" : ""} aria-hidden />
+            </button>
+          )}
+          {tag === undefined ? null : (
+            <div className="-mt-0.5 flex justify-end pr-2" data-band-tag>
+              {tag}
+            </div>
+          )}
         </div>
       )}
       {more}

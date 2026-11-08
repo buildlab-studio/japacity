@@ -209,7 +209,7 @@ export const uiOnlineText: Record<string, string> = {
   // Saving a guest life (account:guest-and-secured-states, account:guest-secures-the-life, account:guest-reminded-to-secure)
   "ui.secure.title": "Save this life",
   "ui.secure.why": "This life lives only on this phone until you save it with Google or your email.",
-  "ui.secure.ask.first-chapter": "You finished your first brief. Save this life to play it on any phone.",
+  "ui.secure.ask.first-month": "Your first month is done. Save this life to play it on any phone.",
   "ui.secure.ask.visa": "Big decisions are coming, so save this life before anything you build is lost with this phone.",
   "ui.secure.google": "Continue with Google",
   "ui.secure.in-app": "Google does not open inside this app. Save this life with your email here, then open it in any browser.",
@@ -225,6 +225,8 @@ export const uiOnlineText: Record<string, string> = {
   "ui.guest.sign-out.stay": "Carry on playing",
   "ui.guest.reminder": "This life lives only on this phone until you save it.",
   "ui.guest.keep": "Save this life",
+  // The chip over the world while the life is a guest's, which opens the keep-this-life sheet (account:guest-reminded-to-secure)
+  "ui.guest.chip": "Not saved",
   "ui.invite.keep-first": "To take a friend's card, save this life first with Google or your email.",
 
   // The terms and the privacy notice, linked from the sign-in, the settings and the guides menu

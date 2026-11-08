@@ -6,6 +6,7 @@ import { content, text } from "@japacity/content";
 import { type Currency, type PlayerView, time, worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { setPockets } from "@japacity/sim/testing";
+import type { ReactNode } from "react";
 import { describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -206,5 +207,28 @@ describe("the body on the band", () => {
     unmount();
     render(<TopBand when="23 yrs 4 mo" name="The family house" money={0} formatMoney={String} body={bodyWords(bodyAt(80, 80))} />);
     expect(document.querySelector("[data-band-body]")).toBeNull();
+  });
+});
+
+describe("the guest's chip on the band", () => {
+  test("[world:top-band-is-a-pill] [account:guest-reminded-to-secure] given a chip handed to the band, then it hangs under the pill at the money's side, inside the band, and steps back with it; with none the band carries nothing more", () => {
+    const band = (tag?: ReactNode, hidden = false) => (
+      <TopBand when="23 yrs 4 mo" name="The family house" money={42_000_000} formatMoney={(value) => formatMoney(value, "NGN")} hidden={hidden} {...(tag === undefined ? {} : { tag })} />
+    );
+    const { rerender } = render(band(<button type="button">Not saved</button>));
+    const chip = screen.getByRole("button", { name: "Not saved" });
+    const shell = document.querySelector("[data-band]");
+    const hung = chip.closest("[data-band-tag]");
+    expect(hung).not.toBeNull();
+    expect(shell?.contains(hung)).toBe(true);
+    // Under the pill, never in it, and at the money's end of the row.
+    expect(document.querySelector("[data-band-pill]")?.contains(chip)).toBe(false);
+    expect(document.querySelector("[data-band-pill]")!.compareDocumentPosition(hung!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hung?.className).toContain("justify-end");
+    rerender(band(<button type="button">Not saved</button>, true));
+    expect(shell?.getAttribute("aria-hidden")).toBe("true");
+    expect(shell?.className).toContain("opacity-0");
+    rerender(band());
+    expect(document.querySelector("[data-band-tag]")).toBeNull();
   });
 });

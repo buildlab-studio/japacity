@@ -1,6 +1,6 @@
-// The passkey offered right after a way in (account:passkey-offered-where-it-works): the small card that follows the welcome
-// line over the world, where a passkey can be made, once per device, never over a sheet or a moment, and what its two
-// buttons do.
+// The passkey offered right after a kept life is signed back in to (account:passkey-offered-where-it-works): the small card that
+// follows the welcome line over the world, where a passkey can be made, once per device, never over a sheet or a moment, and
+// what its two buttons do. A life just kept is offered its passkey in the Kept sheet instead (guest.test.tsx).
 import type { AccountView } from "@japacity/api";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
@@ -94,10 +94,10 @@ async function settled(): Promise<void> {
 }
 
 describe("the card after a way in (account:passkey-offered-where-it-works)", () => {
-  test("[account:passkey-offered-where-it-works] given a guest that kept its life by the code, once the welcome line has been told, then the card follows it with its title, line, Add a passkey as the main button and Not now, and the offer is marked on this device", async () => {
+  test("[account:passkey-offered-where-it-works] given a kept life signed back in to by the code, once the welcome line has been told, then the card follows it with its title, line, Add a passkey as the main button and Not now, and the offer is marked on this device", async () => {
     const account = fakeAccount();
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     const shown = await screen.findByText(say("ui.account.passkey.card.title"));
     expect(card()?.contains(shown)).toBe(true);
     expect(say("ui.account.passkey.card.title")).toBe("Sign in faster next time");
@@ -113,7 +113,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
   test("[account:passkey-offered-where-it-works] given the welcome line still up, then the card waits for it to be told", async () => {
     const account = fakeAccount();
     await world(account);
-    act(() => tellWay(account, "kept.google"));
+    act(() => tellWay(account, "in.google"));
     await act(async () => {
       await vi.advanceTimersByTimeAsync(SAID_TOAST_MS - 500);
     });
@@ -124,11 +124,20 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
     expect(await screen.findByText(say("ui.account.passkey.card.title"))).toBeDefined();
   });
 
-  test.each<Way>(["kept.google", "kept.email", "in.google", "in.email"])("[account:passkey-offered-where-it-works] given the way %s and an account with no passkey, then the card follows its line", async (way) => {
+  test.each<Way>(["in.google", "in.email"])("[account:passkey-offered-where-it-works] given the way %s and an account with no passkey, then the card follows its line", async (way) => {
     const account = fakeAccount();
     await world(account);
     await told(account, way);
     expect(await screen.findByText(say("ui.account.passkey.card.title"))).toBeDefined();
+  });
+
+  test.each<Way>(["kept.google", "kept.email"])("[account:passkey-offered-where-it-works] given the line %s, which a Kept sheet tells as it closes, then no card follows it, so one save is offered a passkey once", async (way) => {
+    const account = fakeAccount();
+    await world(account);
+    await told(account, way);
+    await settled();
+    expect(card()).toBeNull();
+    expect(localStorage.getItem(PASSKEY_OFFERED_KEY)).toBeNull();
   });
 
   test("[account:passkey-offered-where-it-works] given a sign-in by passkey, then nothing is offered", async () => {
@@ -151,7 +160,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
   test("[account:passkey-offered-where-it-works] given a browser that cannot make a passkey, then nothing is offered", async () => {
     const account = fakeAccount(accountView(), { passkeysWork: () => Promise.resolve(false) });
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     await settled();
     expect(card()).toBeNull();
   });
@@ -160,7 +169,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
     vi.spyOn(navigator, "userAgent", "get").mockReturnValue(WHATSAPP);
     const account = fakeAccount();
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     await settled();
     expect(card()).toBeNull();
   });
@@ -178,7 +187,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
     const account = fakeAccount();
     const { rerender } = render(<div role="dialog" data-open />);
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     await settled();
     expect(card()).toBeNull();
     rerender(<div />);
@@ -189,7 +198,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
     const account = fakeAccount();
     const store = await world(account);
     act(() => store.setState({ reportOpen: true }));
-    await told(account, "kept.email");
+    await told(account, "in.email");
     await settled();
     expect(card()).toBeNull();
     act(() => store.setState({ reportOpen: false }));
@@ -199,7 +208,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
   test("[account:passkey-offered-where-it-works] given Not now, then the card goes, and a later way in on this device offers nothing", async () => {
     const account = fakeAccount();
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.later") }));
     await waitFor(() => expect(card()).toBeNull());
     expect(account.calls).not.toContain("addPasskey()");
@@ -211,7 +220,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
   test("[account:passkey-offered-where-it-works] [account:passkey-in-email-autofill] given Add a passkey, then the passkey is made at once, the card says so and the passkey mark is set", async () => {
     const account = fakeAccount();
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.add") }));
     expect(await screen.findByText(say("ui.account.passkey.added"))).toBeDefined();
     expect(say("ui.account.passkey.added")).toBe("Passkey added. Use it next time you sign in.");
@@ -222,7 +231,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
   test("[account:passkey-offered-where-it-works] [account:passkey-errors-told-apart] given the passkey prompt cancelled, then the card closes quietly", async () => {
     const account = fakeAccount(accountView(), { addPasskey: () => Promise.resolve({ ok: false, why: "cancelled" }) });
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.add") }));
     await waitFor(() => expect(card()).toBeNull());
     expect(screen.queryByRole("alert")).toBeNull();
@@ -232,7 +241,7 @@ describe("the card after a way in (account:passkey-offered-where-it-works)", () 
   test("[account:passkey-offered-where-it-works] [account:passkey-errors-told-apart] given any other failure, then it is told in the card in its own words, as the sheet tells it", async () => {
     const account = fakeAccount(accountView(), { addPasskey: () => Promise.resolve({ ok: false, why: "already-here" }) });
     await world(account);
-    await told(account, "kept.email");
+    await told(account, "in.email");
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey.add") }));
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toBe(say("ui.account.fail.already-here"));

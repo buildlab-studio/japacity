@@ -2,10 +2,10 @@
 // account:age-screen-refuses-minors, account:bot-check-on-guest-creation, account:guest-reminded-to-secure): the right code for an
 // address no account uses hands the gate to the age screen under a line that says why, then the username's own step, whose
 // Continue makes the account kept by the email; a proof that ran out is told with the code form inline, the username kept.
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { GameProvider } from "../../authority/GameProvider";
+import { GameProvider, useGame } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import type { AccountApi, AuthResult, GuestAnswer } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
@@ -16,7 +16,7 @@ import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { answers, codeAccount, type Faked } from "./code.testing";
 import { TEST_SITE_KEY, type LoadTurnstile } from "./Turnstile";
-import { WayToast } from "./WayToast";
+import { SecureAsk } from "./Secure";
 
 const EMAIL = "new@example.test";
 const NEW_LIFE: AuthResult = { ok: true, newLife: true };
@@ -52,6 +52,12 @@ function starting(account: () => Faked, ...given: GuestAnswer[]): AccountApi["st
   };
 }
 
+/** The world's asks, mounted once the life is signed in, as the shell mounts them with the world (account:guest-secures-the-life). */
+function World() {
+  const signedOut = useGame((state) => state.signedOut);
+  return signedOut ? null : <SecureAsk />;
+}
+
 /** The gate signed out over the world's line, with the account seam given. */
 function gate(over: Partial<AccountApi> = {}, guest: GuestAnswer[] = []) {
   let account: Faked | null = null;
@@ -61,7 +67,7 @@ function gate(over: Partial<AccountApi> = {}, guest: GuestAnswer[] = []) {
   render(
     <GameProvider store={store}>
       <AccountGate load={passing} sitekey={TEST_SITE_KEY} />
-      <WayToast account={account} />
+      <World />
     </GameProvider>,
   );
   return { account, store };
@@ -207,12 +213,17 @@ describe("the username's own step (account:sign-in-without-secret)", () => {
     expect(screen.queryByText(say("ui.account.age.title"))).toBeNull();
   });
 
-  test("[account:sign-in-without-secret] [account:guest-secures-the-life] given the username's step, when Continue is pressed, then the guest start goes marked as one that came by the code, the gate signs in, and the world says it is saved with the email", async () => {
+  test("[account:sign-in-without-secret] [account:guest-secures-the-life] given the username's step, when Continue is pressed, then the guest start goes marked as one that came by the code, the gate signs in, and the world opens on the keep-this-life sheet in its Kept state, which says Saved with your email as it closes", async () => {
     const { account, store } = gate();
     await proveByCode();
     await answerTheAge();
     await chooseAndContinue("ada_lagos");
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
+    // The world opens on the keep-this-life sheet in its Kept state; its line is said as it closes.
+    const kept = await screen.findByRole("dialog", { name: say("ui.secure.done.title") });
+    expect(within(kept).getByText(say("ui.secure.done"))).toBeDefined();
+    expect(document.querySelector("[data-way-toast]")).toBeNull();
+    fireEvent.click(within(kept).getByRole("button", { name: say("ui.report.close") }));
     await waitFor(() => expect(document.querySelector("[data-way-toast]")?.textContent).toBe(say("ui.account.toast.kept.email")));
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual(['startGuest("ada_lagos","proved")']);
     expect(account.calls.filter((call) => call.startsWith("sendCode") || call.startsWith("signInWithCode"))).toEqual([`sendCode("${EMAIL}")`, `signInWithCode("${EMAIL}","123456")`]);

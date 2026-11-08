@@ -36,8 +36,9 @@ import { GuestReminder, SecureSheet } from "./Secure";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
 import { FocusLine, StepsProvider, StepView, useShownWhole, useSteps } from "./steps";
 
-// The card that offers a passkey after a way in rides this chunk, which holds the passkey code it shares (WayToast.tsx).
-export { PasskeyCard } from "./PasskeyCard";
+// The card that offers a passkey after a way in (WayToast.tsx) and the Kept sheet's passkey step (Secure.tsx) ride this chunk, which
+// holds the passkey code they share.
+export { PasskeyCard, PasskeyStep } from "./PasskeyCard";
 
 /**
  * analytics:player-can-stop-usage-counts: "Send usage counts", stored on the account and on by

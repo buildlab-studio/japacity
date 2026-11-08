@@ -3,7 +3,7 @@
 // phone's Settings, and its sheet's rows for each shape of the ways back in.
 import type { AccountView } from "@japacity/api";
 import type { PlayerView } from "@japacity/sim";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -18,7 +18,8 @@ import { failureWords } from "./CodeForm";
 import { SecureAsk, SecureSheet } from "./Secure";
 import { AccountButton } from "./AccountButton";
 import { AccountSettings } from "./Settings";
-import { WayToast } from "./WayToast";
+import { tellWay, WayToast } from "./WayToast";
+import { PASSKEY_OFFERED_KEY } from "../../shared/storage/storage";
 import { loadLaterWords } from "../../shared/words/later";
 
 // The account sheet's words ride a chunk of their own (engine:first-download-has-budget): added before the sheet is drawn, as its row adds them before it opens.
@@ -88,7 +89,8 @@ afterEach(() => {
 
 describe("the kept life says so (account:guest-secures-the-life)", () => {
   test("[account:guest-secures-the-life] given the trip to Google came back having kept the guest's life, then the keeping sheet opens in its kept state, the account is read again, and as it closes the world says Saved with Google", async () => {
-    const account = fakeAccount(me("secured", { google: "ada@example.com", email: "ada@example.com", passkeys: 0 }), { returnedFromGoogle: () => "kept" });
+    // A browser that makes no passkey: the Kept state is the line and its close alone (account:passkey-offered-where-it-works has its step).
+    const account = fakeAccount(me("secured", { google: "ada@example.com", email: "ada@example.com", passkeys: 0 }), { returnedFromGoogle: () => "kept", passkeysWork: () => Promise.resolve(false) });
     await mount(account, <SecureAsk />);
     const sheet = await screen.findByRole("dialog", { name: say("ui.secure.done.title") });
     expect(within(sheet).getByText(say("ui.secure.done"))).toBeDefined();
@@ -128,6 +130,30 @@ describe("the kept life says so (account:guest-secures-the-life)", () => {
     expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.report.close") }));
     await waitFor(() => expect(toast()?.textContent).toBe(say("ui.account.toast.kept.email")));
+  });
+
+  test.each(["email", "google"] as const)("[account:guest-secures-the-life] [account:passkey-offered-where-it-works] given a new life kept from the start with %s, when the world opens under a card, then the keep-this-life sheet waits for the card, opens in its Kept state with the passkey as its next step and no ask, and says its line as it closes", async (way) => {
+    localStorage.removeItem(PASSKEY_OFFERED_KEY);
+    const card = document.createElement("div");
+    card.setAttribute("role", "dialog");
+    card.setAttribute("data-open", "");
+    document.body.append(card);
+    const account = fakeAccount(me("secured", way === "google" ? { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } : { google: null, email: "ada@example.com", passkeys: 0 }));
+    act(() => tellWay(account, `start.${way}`));
+    await mount(account, <SecureAsk />);
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(screen.queryByRole("dialog", { name: say("ui.secure.done.title") })).toBeNull();
+    expect(toast()).toBeNull();
+    card.remove();
+    const sheet = await screen.findByRole("dialog", { name: say("ui.secure.done.title") }, { timeout: 2000 });
+    expect(within(sheet).getByText(say("ui.secure.done"))).toBeDefined();
+    expect(await within(sheet).findByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeDefined();
+    expect(within(sheet).queryByLabelText(say("ui.account.email.label"))).toBeNull();
+    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.report.close") }));
+    await waitFor(() => expect(toast()?.textContent).toBe(say(`ui.account.toast.kept.${way}`)));
+    // Told once: the sheet does not open again.
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(screen.queryByRole("dialog", { name: say("ui.secure.done.title") })).toBeNull();
   });
 
   test("[account:guest-secures-the-life] given Google on an address whose life was kept by a code, which the library would not join, then the player is pointed to the code in the game's words, never the library's", () => {

@@ -4,9 +4,12 @@
 // its line here as it closes. One store for each account seam, as standing.ts keeps the account. The line is read out
 // through one polite live region, mounted with the world before any line comes; the toast itself is for the eye. The
 // region is polite by its `status` role alone: an `aria-live` attribute would keep it out of what an open sheet hides,
-// so the sheet's hiding would reach down past the shell to each part of the world, the band among them. Once a line other
-// than a passkey's has been told, the card that offers a passkey follows it (account:passkey-offered-where-it-works), fetched
-// then with the account sheet's code and words, so a first visit carries none of it (engine:first-download-has-budget).
+// so the sheet's hiding would reach down past the shell to each part of the world, the band among them. Once a kept life
+// signed back in to by Google or the code has said its line, the card that offers a passkey follows it
+// (account:passkey-offered-where-it-works), fetched then with the account sheet's code and words, so a first visit carries none of
+// it (engine:first-download-has-budget); a life just kept is offered its passkey in the Kept sheet, so no card follows that line.
+// A new life kept from the start hands its way here before the world is up: the Kept sheet is due over the world (Secure.tsx),
+// and its line is told as that sheet closes.
 import { ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
@@ -19,32 +22,52 @@ import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 
 /**
  * What was done and by which way: each names its line in the words (`ui.account.toast.<way>`). `taken.email`: a new life whose
- * proved address an account took meanwhile started as a guest (account:guest-secures-the-life).
+ * proved address an account took meanwhile started as a guest (account:guest-secures-the-life). `start.email` and `start.google`:
+ * a new life kept from the start, whose Kept sheet is due over the world and tells `kept.<way>` as it closes.
  */
-export type Way = "kept.google" | "kept.email" | "in.google" | "in.email" | "in.passkey" | "taken.email";
+export type Way = "kept.google" | "kept.email" | "in.google" | "in.email" | "in.passkey" | "taken.email" | "start.email" | "start.google";
 
-/** The lines no passkey's card follows: a passkey's own way in, and a life that is still a guest's. */
-const NO_CARD: ReadonlySet<Way> = new Set(["in.passkey", "taken.email"]);
+/** The way a life was kept with: the Kept sheet's, and the one a new life kept from the start hands to the world. */
+export type KeptWay = "google" | "email";
+
+/** The lines no passkey's card follows: a passkey's own way in, a life that is still a guest's, and a life just kept, whose Kept sheet offered it. */
+const NO_CARD: ReadonlySet<Way> = new Set(["in.passkey", "taken.email", "kept.google", "kept.email"]);
 
 interface Held {
   told: { way: Way; at: number } | null;
-  /** A line told and gone that a passkey's card may follow: any way but a passkey's own. */
+  /** A line told and gone that a passkey's card may follow: a kept life's way back in. */
   after: boolean;
+  /** A new life kept from the start: its Kept sheet waits to open over the world. */
+  due: KeptWay | null;
 }
 
 const stores = new WeakMap<AccountApi, StoreApi<Held>>();
+/** The key the hook reads with no account, so it is called the same way offline. */
+const NO_ACCOUNT = {} as AccountApi;
 
 function storeOf(account: AccountApi): StoreApi<Held> {
   const kept = stores.get(account);
   if (kept !== undefined) return kept;
-  const made = createStore<Held>(() => ({ told: null, after: false }));
+  const made = createStore<Held>(() => ({ told: null, after: false, due: null }));
   stores.set(account, made);
   return made;
 }
 
-/** Hands the line to the world, to be told once it is up. */
+/** Hands the line to the world, to be told once it is up; a new life kept from the start hands its Kept sheet instead. */
 export function tellWay(account: AccountApi, way: Way): void {
-  storeOf(account).setState({ told: { way, at: Date.now() } });
+  if (way === "start.email" || way === "start.google") storeOf(account).setState({ due: way === "start.email" ? "email" : "google" });
+  else storeOf(account).setState({ told: { way, at: Date.now() } });
+}
+
+/** The Kept sheet a new life kept from the start has due over the world, or null (account:guest-secures-the-life). */
+export function useKeptDue(account: AccountApi | null): KeptWay | null {
+  const due = useStore(storeOf(account ?? NO_ACCOUNT), (held) => held.due);
+  return account === null ? null : due;
+}
+
+/** The due Kept sheet is opening: it is due no more. */
+export function keptOpened(account: AccountApi): void {
+  storeOf(account).setState({ due: null });
 }
 
 type Card = AccountSheet["PasskeyCard"];

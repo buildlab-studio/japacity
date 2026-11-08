@@ -1,13 +1,16 @@
 import type { AccountView } from "@japacity/api";
+import { content } from "@japacity/content";
 import { time, type Id, type PlayerView } from "@japacity/sim";
+import { start } from "@japacity/sim/testing";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { heardBody } from "../../shared/net/guest";
 import { engineView } from "../../shared/testing/fixtures";
+import { PASSKEY_MARK_KEY, PASSKEY_OFFERED_KEY, secureAskedKey } from "../../shared/storage/storage";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { CHECK_AFTER_MS } from "./GuestStart";
@@ -92,8 +95,8 @@ describe("the in-app browsers", () => {
 });
 
 describe("the securing sheet", () => {
-  test("[account:guest-secures-the-life] given a guest in the phone's own browser, then Google comes first, and an emailed code keeps the life and says so", async () => {
-    const account = fakeAccount(me("guest"));
+  test("[account:guest-secures-the-life] given a guest in the phone's own browser where no passkey can be made, then Google comes first, and an emailed code keeps the life and says so", async () => {
+    const account = fakeAccount(me("guest"), { passkeysWork: () => Promise.resolve(false) });
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
     const buttons = screen.getAllByRole("button").map((button) => button.textContent);
     expect(buttons.indexOf(say("ui.secure.google"))).toBeLessThan(buttons.indexOf(say("ui.secure.code.send")));
@@ -104,8 +107,8 @@ describe("the securing sheet", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.go") }));
     expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","123456")', "view()"]);
-    // Kept, the sheet says only that: the kept heading, the one line and the close, with no reason, Google, email or
-    // Not now.
+    // Kept where no passkey can be made, the sheet says only that: the kept heading, the one line and the close, with no
+    // reason, Google, email, passkey step or Not now.
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
     expect(within(sheet).queryByText(say("ui.secure.title"))).toBeNull();
@@ -113,18 +116,20 @@ describe("the securing sheet", () => {
     expect(within(sheet).queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
     expect(within(sheet).queryByLabelText(say("ui.account.email.label"))).toBeNull();
     expect(within(sheet).queryByRole("button", { name: say("ui.secure.later") })).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(within(sheet).queryByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeNull();
     expect(within(sheet).getAllByRole("button").map((button) => button.getAttribute("aria-label"))).toEqual([say("ui.report.close")]);
   });
 
   test("[account:guest-secures-the-life] [account:code-form-forgives] given the email way chosen, when the code is sent, then the reason, Google and Or with your email step back, and the address, the code field, Save and a quiet Not now remain", async () => {
     const account = fakeAccount(me("guest"));
-    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-chapter")} agent={PLAIN_CHROME} />);
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-month")} agent={PLAIN_CHROME} />);
     fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.send") }));
     expect(await screen.findByLabelText(say("ui.account.code.label"))).toBeDefined();
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByText(say("ui.secure.title"))).toBeDefined();
-    expect(within(sheet).queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    expect(within(sheet).queryByText(say("ui.secure.ask.first-month"))).toBeNull();
     expect(within(sheet).queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
     expect(within(sheet).queryByText(say("ui.secure.or"))).toBeNull();
     expect(within(sheet).getByText(/ada@example\.test/)).toBeDefined();
@@ -135,27 +140,27 @@ describe("the securing sheet", () => {
     // Change goes back to the address, and the first step stands whole again with Google first.
     fireEvent.click(within(sheet).getByRole("button", { name: say("ui.account.code.change") }));
     expect(await within(sheet).findByRole("button", { name: say("ui.secure.google") })).toBeDefined();
-    expect(within(sheet).getByText(say("ui.secure.ask.first-chapter"))).toBeDefined();
+    expect(within(sheet).getByText(say("ui.secure.ask.first-month"))).toBeDefined();
     expect(within(sheet).getByText(say("ui.secure.or"))).toBeDefined();
   });
 
-  test("[account:guest-secures-the-life] [text:show-then-tell] given the save sheet's reasons, then the plain one and the visa ask's are one sentence each, and the first brief's is two short ones", () => {
+  test("[account:guest-secures-the-life] [text:show-then-tell] given the save sheet's reasons, then the plain one and the visa ask's are one sentence each, and the first month's is two short ones", () => {
     const sentences = (line: string) => line.split(/[.?]\s+|[.?]$/).filter((part) => part.trim() !== "").length;
     expect(sentences(say("ui.secure.why"))).toBe(1);
     expect(sentences(say("ui.secure.ask.visa"))).toBe(1);
-    expect(sentences(say("ui.secure.ask.first-chapter"))).toBe(2);
+    expect(sentences(say("ui.secure.ask.first-month"))).toBe(2);
   });
 
-  test("[account:guest-secures-the-life] given the first-chapter ask, when the life is kept by the emailed code, then the ask's reason goes with the rest and the kept state stands alone", async () => {
+  test("[account:guest-secures-the-life] given the first month's ask, when the life is kept by the emailed code, then the ask's reason goes with the rest and the kept state stands alone", async () => {
     const account = fakeAccount(me("guest"));
-    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-chapter")} agent={PLAIN_CHROME} />);
-    expect(screen.getByText(say("ui.secure.ask.first-chapter"))).toBeDefined();
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-month")} agent={PLAIN_CHROME} />);
+    expect(screen.getByText(say("ui.secure.ask.first-month"))).toBeDefined();
     fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.send") }));
     fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.go") }));
     expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
-    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    expect(screen.queryByText(say("ui.secure.ask.first-month"))).toBeNull();
     expect(screen.getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
   });
 
@@ -202,29 +207,181 @@ describe("the securing sheet", () => {
   });
 });
 
-describe("when the asks come", () => {
-  const firstDone = () => withChapter(engineView(), ["chapter.find-your-feet"], "chapter.build-the-file");
+describe("the Kept state's next step (account:passkey-offered-where-it-works)", () => {
+  beforeEach(() => {
+    localStorage.removeItem(PASSKEY_OFFERED_KEY);
+    localStorage.removeItem(PASSKEY_MARK_KEY);
+  });
 
-  test("[account:guest-secures-the-life] given the view, then the first chapter done is the first moment and the decision-day chapter the visa one; before either there is none", () => {
+  /** The life kept by the emailed code on the sheet the asks open. */
+  async function keptByCode(account: AccountApi, agent = PLAIN_CHROME, closed: boolean[] = []): Promise<HTMLElement> {
+    await mount(account, <SecureSheet account={account} open onOpenChange={(open) => closed.push(open)} reason={null} agent={agent} />);
+    fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.send") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.secure.code.go") }));
+    expect(await screen.findByText(say("ui.secure.done"))).toBeDefined();
+    return screen.getByRole("dialog");
+  }
+
+  test("[account:passkey-offered-where-it-works] [account:guest-secures-the-life] given a guest in a browser that can make a passkey, when the life is kept by the emailed code, then the Kept state says Saved and its line, then Sign in faster next time with Add a passkey as its main button and Not now, and the device is marked as offered", async () => {
+    const sheet = await keptByCode(fakeAccount(me("guest")));
+    const step = await within(sheet).findByRole("heading", { name: say("ui.account.passkey.card.title") });
+    expect(say("ui.account.passkey.card.title")).toBe("Sign in faster next time");
+    expect(within(sheet).getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
+    expect(within(sheet).getByText(say("ui.account.passkey.card.line"))).toBeDefined();
+    // Saved first, then the step under it.
+    expect(within(sheet).getByText(say("ui.secure.done")).compareDocumentPosition(step) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const add = within(sheet).getByRole("button", { name: say("ui.account.passkey.add") });
+    const later = within(sheet).getByRole("button", { name: say("ui.account.passkey.later") });
+    expect(add.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(localStorage.getItem(PASSKEY_OFFERED_KEY)).not.toBeNull();
+    expect(within(sheet).queryByText(say("ui.secure.why"))).toBeNull();
+    expect(within(sheet).queryByLabelText(say("ui.account.email.label"))).toBeNull();
+  });
+
+  test("[account:passkey-offered-where-it-works] given the Kept state's step, when Not now is pressed, then the sheet closes and nothing is made", async () => {
+    const closed: boolean[] = [];
+    const calls: string[] = [];
+    const sheet = await keptByCode(fakeAccount(me("guest"), { addPasskey: () => (calls.push("addPasskey()"), Promise.resolve(OK)) }), PLAIN_CHROME, closed);
+    fireEvent.click(await within(sheet).findByRole("button", { name: say("ui.account.passkey.later") }));
+    expect(closed).toEqual([false]);
+    expect(calls).toEqual([]);
+  });
+
+  test("[account:passkey-offered-where-it-works] [account:passkey-added-in-place] given the Kept state's step, when Add a passkey is pressed, then the passkey is made at once, the step says it is added and the passkey mark is set", async () => {
+    const calls: string[] = [];
+    const sheet = await keptByCode(fakeAccount(me("guest"), { addPasskey: () => (calls.push("addPasskey()"), Promise.resolve(OK)) }));
+    fireEvent.click(await within(sheet).findByRole("button", { name: say("ui.account.passkey.add") }));
+    expect(await within(sheet).findByText(say("ui.account.passkey.added"))).toBeDefined();
+    expect(calls).toEqual(["addPasskey()"]);
+    expect(localStorage.getItem(PASSKEY_MARK_KEY)).toBe("1");
+    expect(within(sheet).queryByRole("button", { name: say("ui.account.passkey.add") })).toBeNull();
+    expect(within(sheet).queryByRole("button", { name: say("ui.account.passkey.later") })).toBeNull();
+  });
+
+  test("[account:passkey-offered-where-it-works] [account:passkey-errors-told-apart] given the Kept state's step, when the passkey prompt is cancelled, then nothing is said and the step stands; another failure is told in the step in its own words", async () => {
+    const cancelled = await keptByCode(fakeAccount(me("guest"), { addPasskey: () => Promise.resolve({ ok: false, why: "cancelled" }) }));
+    fireEvent.click(await within(cancelled).findByRole("button", { name: say("ui.account.passkey.add") }));
+    await waitFor(() => expect(within(cancelled).getByRole("button", { name: say("ui.account.passkey.add") }).hasAttribute("disabled")).toBe(false));
+    expect(within(cancelled).queryByRole("alert")).toBeNull();
+    expect(within(cancelled).getByRole("button", { name: say("ui.account.passkey.later") })).toBeDefined();
+    cleanup();
+    localStorage.removeItem(PASSKEY_OFFERED_KEY);
+    const here = await keptByCode(fakeAccount(me("guest"), { addPasskey: () => Promise.resolve({ ok: false, why: "already-here" }) }));
+    fireEvent.click(await within(here).findByRole("button", { name: say("ui.account.passkey.add") }));
+    expect((await within(here).findByRole("alert")).textContent).toBe(say("ui.account.fail.already-here"));
+  });
+
+  test("[account:passkey-offered-where-it-works] given the trip to Google came back having kept the life, then its Kept state offers the passkey as its next step too", async () => {
+    const account = fakeAccount(me("secured", { ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } }));
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} kept="google" agent={PLAIN_CHROME} />);
+    const sheet = screen.getByRole("dialog");
+    expect(await within(sheet).findByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeDefined();
+    expect(within(sheet).getByRole("button", { name: say("ui.account.passkey.add") })).toBeDefined();
+  });
+
+  test("[account:passkey-offered-where-it-works] given an account that holds a passkey, a device offered one before, or a browser that cannot make one, then the Kept state offers no passkey", async () => {
+    const held = await keptByCode(fakeAccount(me("guest"), { signInWithCode: () => Promise.resolve(OK), view: () => Promise.resolve(me("secured", { ways: { google: null, email: "ada@example.test", passkeys: 1 } })) }));
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(within(held).queryByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeNull();
+    cleanup();
+    localStorage.setItem(PASSKEY_OFFERED_KEY, "1");
+    const offered = await keptByCode(fakeAccount(me("guest")));
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(within(offered).queryByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeNull();
+    cleanup();
+    localStorage.removeItem(PASSKEY_OFFERED_KEY);
+    const cannot = await keptByCode(fakeAccount(me("guest"), { passkeysWork: () => Promise.resolve(false) }));
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(within(cannot).queryByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeNull();
+    expect(localStorage.getItem(PASSKEY_OFFERED_KEY)).toBeNull();
+  });
+
+  test("[account:passkey-offered-where-it-works] [account:guest-secures-the-life] given an in-app browser, when the life is kept by the code, then the Kept state offers Open in my browser and no passkey", async () => {
+    const sheet = await keptByCode(fakeAccount(me("guest")), ANDROID_WHATSAPP);
+    expect(await within(sheet).findByRole("link", { name: say("ui.account.in-app.open") })).toBeDefined();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(within(sheet).queryByRole("heading", { name: say("ui.account.passkey.card.title") })).toBeNull();
+    expect(localStorage.getItem(PASSKEY_OFFERED_KEY)).toBeNull();
+  });
+});
+
+describe("when the asks come", () => {
+  /** A life with its first month played: the month's results told, as the authority answers after the first Sleep. */
+  const firstMonth = (): PlayerView => {
+    const game = start({ scenario: "scenario.banker", content });
+    game.grant(1);
+    game.endTurn();
+    return game.view();
+  };
+  const firstLine = () => screen.queryByText(say("ui.secure.ask.first-month"));
+
+  test("[account:guest-secures-the-life] given the view, then a month played is the first moment and the decision-day chapter the visa one; before any month is played there is none, the first chapter done or not", () => {
+    expect(engineView().month).toBe(0);
     expect(askMoment(withChapter(engineView(), [], "chapter.find-your-feet"))).toBeNull();
-    expect(askMoment(firstDone())).toBe("first-chapter");
-    expect(askMoment(withChapter(engineView(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day"))).toBe("visa");
+    expect(askMoment(withChapter(engineView(), ["chapter.find-your-feet"], "chapter.build-the-file"))).toBeNull();
+    expect(firstMonth().month).toBe(1);
+    expect(askMoment(firstMonth())).toBe("first-month");
+    expect(askMoment(withChapter(firstMonth(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day"))).toBe("visa");
     expect(askMoment(null)).toBeNull();
   });
 
-  test("[account:guest-secures-the-life] [guide:nothing-asked-before-early-win] given a guest past its first chapter but not its early win, then nothing is asked; once the win is in, the ask opens once", async () => {
-    const view = me("guest");
-    const account = fakeAccount(view);
-    const store = await mount(account, <SecureAsk />, firstDone(), false);
+  test("[account:guest-secures-the-life] given a guest whose first month has ended, when its results are still open, then nothing is asked; once they are closed, the ask opens with the first month's reason, and closing the next month's results asks nothing again", async () => {
+    const account = fakeAccount(me("guest"));
+    // The month's end as the store holds it: the report opens with the view it reports on.
+    const view = firstMonth();
+    const store = createGameStore({ view: () => Promise.resolve(view), send: () => Promise.reject(new Error("unused")) }, { account });
+    await store.getState().refresh();
+    store.setState({ earlyWin: true, moments: [], reportOpen: true });
+    render(<GameProvider store={store}><SecureAsk /></GameProvider>);
     await waitFor(() => expect(account.calls).toContain("view()"));
-    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
-    act(() => store.setState({ earlyWin: true }));
-    expect(await screen.findByText(say("ui.secure.ask.first-chapter"))).toBeDefined();
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(firstLine()).toBeNull();
+    act(() => store.setState({ reportOpen: false }));
+    expect(await screen.findByText(say("ui.secure.ask.first-month"))).toBeDefined();
+    expect(screen.getByRole("dialog", { name: say("ui.secure.title") })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.secure.later") }));
-    await waitFor(() => expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull());
+    await waitFor(() => expect(firstLine()).toBeNull());
     act(() => store.setState({ reportOpen: true }));
     act(() => store.setState({ reportOpen: false }));
-    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(firstLine()).toBeNull();
+  });
+
+  test("[account:guest-secures-the-life] [guide:nothing-asked-before-early-win] given a guest past its first month but not its early win, then nothing is asked; once the win is in, the ask opens once", async () => {
+    const view = me("guest");
+    const account = fakeAccount(view);
+    const store = await mount(account, <SecureAsk />, firstMonth(), false);
+    await waitFor(() => expect(account.calls).toContain("view()"));
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(firstLine()).toBeNull();
+    act(() => store.setState({ earlyWin: true }));
+    expect(await screen.findByText(say("ui.secure.ask.first-month"))).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.secure.later") }));
+    await waitFor(() => expect(firstLine()).toBeNull());
+    act(() => store.setState({ reportOpen: true }));
+    act(() => store.setState({ reportOpen: false }));
+    expect(firstLine()).toBeNull();
+  });
+
+  test("[account:guest-secures-the-life] [guide:nothing-asked-before-early-win] given a guest whose first chapter is done before any month is played, then nothing is asked until a month's results are closed", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureAsk />, withChapter(engineView(), ["chapter.find-your-feet"], "chapter.build-the-file"), true);
+    await waitFor(() => expect(account.calls).toContain("view()"));
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  test("[account:guest-secures-the-life] given a life that holds the first chapter's mark of the ask, when its first month is played, then the first month's ask is not made again", async () => {
+    const view = me("guest");
+    localStorage.setItem(secureAskedKey(view.id, "first-chapter"), "1");
+    const account = fakeAccount(view);
+    await mount(account, <SecureAsk />, firstMonth(), true);
+    await waitFor(() => expect(account.calls).toContain("view()"));
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(firstLine()).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   test("[account:guest-secures-the-life] given a chapter's card up over the world when the first ask is due, then the ask waits and opens once the card is gone", async () => {
@@ -233,25 +390,25 @@ describe("when the asks come", () => {
     card.setAttribute("data-open", "");
     document.body.append(card);
     const account = fakeAccount(me("guest"));
-    await mount(account, <SecureAsk />, withChapter(engineView(), ["chapter.find-your-feet"]), true);
+    await mount(account, <SecureAsk />, firstMonth(), true);
     await waitFor(() => expect(account.calls).toContain("view()"));
     await new Promise((resolve) => setTimeout(resolve, 700));
-    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    expect(firstLine()).toBeNull();
     card.remove();
-    expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
+    expect(await screen.findByText(say("ui.secure.ask.first-month"), undefined, { timeout: 2000 })).toBeDefined();
   });
 
-  test("[account:guest-secures-the-life] [chapter:first-chapter-mission-card] given the first brief's card still waiting for the place's first frame when the first ask is due, then the ask waits for the card as for an open sheet and opens once the card is handed", async () => {
+  test("[account:guest-secures-the-life] [chapter:first-chapter-mission-card] given a brief's card still waiting for the place's first frame when the first ask is due, then the ask waits for the card as for an open sheet and opens once the card is handed", async () => {
     const pending = document.createElement("span");
     pending.setAttribute("data-brief-pending", "");
     document.body.append(pending);
     const account = fakeAccount(me("guest"));
-    await mount(account, <SecureAsk />, withChapter(engineView(), ["chapter.find-your-feet"]), true);
+    await mount(account, <SecureAsk />, firstMonth(), true);
     await waitFor(() => expect(account.calls).toContain("view()"));
     await new Promise((resolve) => setTimeout(resolve, 700));
-    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    expect(firstLine()).toBeNull();
     pending.remove();
-    expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
+    expect(await screen.findByText(say("ui.secure.ask.first-month"), undefined, { timeout: 2000 })).toBeDefined();
   });
 
   test("[account:guest-secures-the-life] given a guest reaching the decision-day chapter after its win, then the visa ask opens; a secured account is never asked", async () => {

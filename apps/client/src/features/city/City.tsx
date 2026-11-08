@@ -464,6 +464,7 @@ export function City({
   cityMap,
   kiosk,
   planeCut,
+  bandTag,
 }: {
   /** `adverts`: the shell's advert slots for the place on screen (advert:adverts-only-in-slots), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
@@ -496,6 +497,8 @@ export function City({
   kiosk?: (close: () => void, label: string) => ReactNode;
   /** The send-off's plane cut over the painted map at night (world:plane-cut-at-send-off), handed in by the shell. */
   planeCut?: (slot: PlaneCutSlot) => ReactNode;
+  /** A guest's "Not saved" chip, hung under the band's money (world:top-band-is-a-pill, account:guest-reminded-to-secure), handed in by the shell. */
+  bandTag?: ReactNode;
 } = {}) {
   const view = useView();
   const send = useGame((state) => state.send);
@@ -1953,6 +1956,7 @@ export function City({
             hidden={map || (resultsOpen && resultsShown)}
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
+            {...(bandTag === undefined ? {} : { tag: bandTag })}
             more={
               rowUnderBand ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>

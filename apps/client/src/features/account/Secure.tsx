@@ -1,14 +1,15 @@
 // Keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:guest-reminded-to-secure). The securing sheet: Google
 // first, then a code by email; inside an in-app browser the code alone, here, since the life lives in that app's own
 // browser and nowhere else, and once it is kept the way out to the phone's own browser. A way in that already has a life is refused, with the way to open that kept life
-// instead, which ends this one; the account sheet offers the same. The asks that open it: after the first
-// chapter, before the visa decision (the decision-day chapter), and at every
-// `guest-only` refusal; never at the door and never before the early win
-// (guide:nothing-asked-before-early-win). And the quiet lines, on the settings and on the
+// instead, which ends this one; the account sheet offers the same. The asks that open it: once the first month's results are
+// closed, before the visa decision (the decision-day chapter), and at every `guest-only` refusal; never at the door and never
+// before the early win (guide:nothing-asked-before-early-win). The standing way to it is the "Not saved" chip over the world
+// (SaveChip.tsx). And the quiet lines, on the settings and on the
 // month results after the first chapter, each saying plainly that the life
 // lives only on this phone; the page at the door says it when the life starts
 // (GuestStart.tsx). Once kept, by the code here or by the trip to Google and back, the sheet says so in its kept
-// state, and as it closes the world says which way in a short line (WayToast.tsx).
+// state with the passkey as its next step (account:passkey-offered-where-it-works), and as it closes the world says which way in a
+// short line (WayToast.tsx). A new life kept from the start opens the same Kept state over the world once nothing else is up.
 import type { PlayerView } from "@japacity/sim";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -26,7 +27,7 @@ import { inAppBrowser } from "./inApp";
 import { askWaysBackIn, backFromDeleteTrip } from "./marks";
 import { OpenInBrowser } from "./OpenInBrowser";
 import { refreshAccount, useAccountView, useGuest } from "./standing";
-import { tellWay, WayToast } from "./WayToast";
+import { keptOpened, tellWay, useKeptDue, WayToast, type KeptWay } from "./WayToast";
 import { CLEAR_EVERY_MS, otherSheetUp } from "./clear";
 import { loadAccountSheet, type AccountSheet } from "./AccountButton";
 import { secureAskedKey } from "../../shared/storage/storage";
@@ -102,8 +103,8 @@ export interface SecureSheetProps {
   reason: string | null;
   /** A failure to say at the top as the sheet opens, as when Google came back refused (account:guest-secures-the-life). */
   problem?: string | null;
-  /** The life came back kept from Google: the sheet opens in its kept state. */
-  kept?: "google" | null;
+  /** The life came back kept from Google, or a new life was kept from the start: the sheet opens in its kept state. */
+  kept?: KeptWay | null;
   /** Google came back refused because its address already has a life: the way to that life is offered. */
   taken?: boolean;
   /** Seam for tests: the browser's user agent. */
@@ -111,11 +112,33 @@ export interface SecureSheetProps {
 }
 
 /**
- * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code; a passkey is offered once the life is
- * kept, by the card after the welcome line and on the settings (account:passkey-offered-where-it-works). Once the code is sent the
+ * The Kept state's next step (account:passkey-offered-where-it-works): the passkey, whose code and words ride the account sheet's
+ * chunk, fetched as the life is kept, so a first visit carries neither (engine:first-download-has-budget). A step that cannot be
+ * fetched is simply not offered.
+ */
+function KeptNext({ account, onSkip }: { account: AccountApi; onSkip: () => void }) {
+  const [sheet, setSheet] = useState<AccountSheet | null>(null);
+  useEffect(() => {
+    let live = true;
+    loadAccountSheet().then(
+      (loaded) => {
+        if (live) setSheet(loaded);
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
+  return sheet === null ? null : <sheet.PasskeyStep account={account} onSkip={onSkip} />;
+}
+
+/**
+ * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code. Once the code is sent the
  * sheet says one thing at a time (account:code-form-forgives): the reason, Google and "Or with your email" step back, and the
- * code step stands alone with Not now. Once kept, the sheet says only that: the kept heading, the one line and its close, with no
- * reason, no ways to keep and no Not now.
+ * code step stands alone with Not now. Once kept, the sheet says only that and its next step: the kept heading, the one line and
+ * its close, then the passkey with its own Not now (account:passkey-offered-where-it-works), or Open in my browser inside an in-app
+ * browser; no reason and no ways to keep.
  */
 export function SecureSheet({ account, open, onOpenChange, reason, problem: given = null, kept: back = null, taken: takenBack = false, agent }: SecureSheetProps) {
   const earlyWin = useEarlyWin();
@@ -123,7 +146,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   const [returned, setReturned] = useState<string | null>(given);
   const [problem, setProblem] = useState<string | null>(null);
   // Which way the life was kept, once it is: the sheet's kept state, and the line the world says as it closes.
-  const [keptWith, setKeptWith] = useState<"google" | "email" | null>(back);
+  const [keptWith, setKeptWith] = useState<KeptWay | null>(back);
   const done = keptWith !== null;
   const [busy, setBusy] = useState(false);
   const browser = agent ?? userAgent();
@@ -175,12 +198,14 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
           <p role="status" data-secure-kept>
             {say("ui.secure.done")}
           </p>
-          {/* Kept inside an app's own browser: now the life can go to the phone's own. */}
+          {/* Kept inside an app's own browser, the life can go to the phone's own, where a passkey is made; elsewhere the passkey is next. */}
           {inApp ? (
             <div>
               <OpenInBrowser agent={browser} />
             </div>
-          ) : null}
+          ) : (
+            <KeptNext account={account} onSkip={() => openChange(false)} />
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-4" data-secure-sheet>
@@ -216,17 +241,21 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   );
 }
 
-/** The staged moments of account:guest-secures-the-life the view is at, if any. */
-export type AskMoment = "first-chapter" | "visa";
+/** The staged moments of account:guest-secures-the-life the view is at, if any: a month played, and the visa decision. */
+export type AskMoment = "first-month" | "visa";
 
 const DECISION_DAY = "chapter.decision-day";
 
 export function askMoment(view: PlayerView | null): AskMoment | null {
   if (view === null) return null;
   if (view.chapter.current === DECISION_DAY) return "visa";
-  if (view.chapter.done.length > 0) return "first-chapter";
+  // A month number counts the months played: from 1 the first month's results have been told.
+  if (view.month > 0) return "first-month";
   return null;
 }
+
+/** The mark an ask after the first chapter left: a life that holds it was asked once already, so its first month asks nothing. */
+const FIRST_CHAPTER = "first-chapter";
 
 /** An ask is made once per account and moment; kept in this browser, as the life is. */
 const askedHere = new Set<string>();
@@ -264,7 +293,7 @@ export function SecureAsk() {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-  const [kept, setKept] = useState<"google" | null>(null);
+  const [kept, setKept] = useState<KeptWay | null>(null);
   const [taken, setTaken] = useState(false);
   // account:player-deletes-account: the account sheet's code, fetched to open the delete confirmation again after Google.
   const [again, setAgain] = useState<AccountSheet | null>(null);
@@ -320,7 +349,9 @@ export function SecureAsk() {
 
   const guest = me?.state === "guest";
   const moment = guest && earlyWin ? askMoment(view) : null;
-  const due = moment !== null && me !== null && quiet && !open;
+  // A new life kept from the start: its Kept sheet waits over the world for the screen to clear, as an ask does.
+  const keptDue = useKeptDue(account);
+  const due = ((moment !== null && me !== null) || keptDue !== null) && quiet && !open;
   const [clear, setClear] = useState(true);
   useEffect(() => {
     if (!due) return;
@@ -330,9 +361,18 @@ export function SecureAsk() {
     return () => window.clearInterval(timer);
   }, [due]);
   useEffect(() => {
+    if (account === null || keptDue === null || !quiet || open || !clear || otherSheetUp()) return;
+    keptOpened(account);
+    setReason(null);
+    setProblem(null);
+    setTaken(false);
+    setKept(keptDue);
+    setOpen(true);
+  }, [account, keptDue, quiet, open, clear]);
+  useEffect(() => {
     if (moment === null || me === null || !quiet || open || !clear || otherSheetUp()) return;
     const key = secureAskedKey(me.id, moment);
-    if (askedBefore(key)) return;
+    if (askedBefore(key) || (moment === "first-month" && askedBefore(secureAskedKey(me.id, FIRST_CHAPTER)))) return;
     markAsked(key);
     setReason(say(`ui.secure.ask.${moment}`));
     setProblem(null);

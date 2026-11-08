@@ -49,7 +49,7 @@ describe("the player's words never count the engine", () => {
     expect(text["line.chapter.closed"]).toBe("Done: {chapter}.");
     expect(text["moment.chapter.kicker"]).toBe("Brief done");
     expect(text["share.chapter.kicker"]).toBe("Brief done");
-    expect(text["ui.secure.ask.first-chapter"]).toMatch(/^You finished your first brief\./);
+    expect(text["ui.secure.ask.first-month"]).toMatch(/^Your first month is done\./);
     expect(text["ui.nudge.chapter-done"]).toBe("That brief is done. Live the month.");
     expect(text["share.official.never.turns"]).toBe("We never sell months to play.");
     expect(text["line.people.linked"]).toBe("A friend took your card, and they are your {slot} now.");

@@ -254,9 +254,10 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const enter = async (api: AccountApi, by: SignedInBy | null = null, email: NewLifeEmail | null = null, google = false): Promise<void> => {
     setMoved(true);
     // account:guest-secures-the-life: the sheet closes as the life opens, and the world says which way it was; a new life born
-    // kept by its email, or with Google, says so as a kept guest's does, and one whose address an account took meanwhile says that.
+    // kept by its email, or with Google, opens the Kept sheet over the world as a kept guest's does, and one whose address an
+    // account took meanwhile says that.
     if (by !== null) tellWay(api, `in.${by}`);
-    if (email !== null) tellWay(api, email === "taken" ? "taken.email" : google ? "kept.google" : "kept.email");
+    if (email !== null) tellWay(api, email === "taken" ? "taken.email" : google ? "start.google" : "start.email");
     void refreshAccount(api);
     await signedIn();
   };
