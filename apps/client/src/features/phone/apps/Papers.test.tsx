@@ -15,6 +15,7 @@ import { forMonths, inMonths, nameOf, runningName, say } from "../../../shared/w
 import { PHONE_ACTS, paperNotices, papersMarkOf, papersOf, placeOf, requestOf } from "../papers";
 import { PhoneApps } from "../PhoneApps";
 import { Papers } from "./Papers";
+import { routeShortName } from "../../../shared/ui/CountsChip";
 import { marksOf, reloadSeen, waitingOf } from "../seen";
 import { CITY_LAST_KEY } from "../../../shared/storage/storage";
 
@@ -81,7 +82,7 @@ describe("the Papers app", () => {
     );
   });
 
-  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] [route:degree-meets-masters-english] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's, the transcript a call on the phone and the passport a visit to the passport office, and no English result, since the degree is the master's English", async () => {
+  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] [route:degree-meets-masters-english] [text:show-then-tell] given the graduate with the master's looked into and no paper yet, when Papers opens, then every paper the plan asks for is there, not yet, counting toward the master's as a plane chip, the transcript a call on the phone and the passport a visit to the passport office, and no English result, since the degree is the master's English", async () => {
     const view = graduatePlanned();
     const onMap = vi.fn();
     await openPhone(view, null, onMap);
@@ -92,7 +93,8 @@ describe("the Papers app", () => {
     for (const row of rows) {
       expect(row.dataset.state).toBe("not-yet");
       expect(row.textContent).toContain(say("phone.papers.not-yet"));
-      expect(row.querySelector("[data-paper-counts]")?.textContent).toBe(say("phone.papers.for", { routes: runningName(UK) }));
+      // text:show-then-tell: the way it counts toward is a plane chip with its short name, never a sentence under every paper.
+      expect([...row.querySelectorAll("[data-counts]")].map((chip) => [chip.getAttribute("data-counts"), chip.textContent])).toEqual([[UK, routeShortName(UK)]]);
     }
     const transcript = document.querySelector<HTMLElement>(`[data-paper="${TRANSCRIPT}"] [data-paper-act]`);
     expect(transcript?.dataset.actHow).toBe("phone");

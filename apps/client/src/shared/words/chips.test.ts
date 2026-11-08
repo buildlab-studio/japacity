@@ -1,10 +1,12 @@
 // Chips earn their place (docs/design/09-the-games-look.md section 2): no Free on sleep, a bath or water,
-// Free on a meal; no time chip for a morning; at most two effect chips.
+// Free on a meal; no time chip for a morning; at most two gains, and a cost to the body or the mood always shown.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { chipEffectsOf, chipTimeOf, EFFECTS_MAX, freeShown } from "./chips";
-import { effectWordsOf, timeWordsOf } from "./acts";
+import { engineView } from "../testing/fixtures";
+import { chipTimeOf, freeShown } from "./chips";
+import { effectTagsOf, timeWordsOf } from "./acts";
+import { actFacts } from "./facts";
 import { say } from "./text";
 
 describe("chips earn their place", () => {
@@ -22,9 +24,18 @@ describe("chips earn their place", () => {
     expect(chipTimeOf(longer)).toBe(timeWordsOf(longer));
   });
 
-  test("[world:one-action-one-sheet] given an act that does several things, when its effect chips are read, then there are at most two", () => {
-    expect(EFFECTS_MAX).toBe(2);
-    expect(chipEffectsOf("activity.cook-at-home").length).toBeLessThanOrEqual(2);
-    expect(chipEffectsOf("activity.cook-at-home")).toEqual((effectWordsOf("activity.cook-at-home") ?? "").split(", ").slice(0, 2).map((part) => part.charAt(0).toUpperCase() + part.slice(1)));
+  test("[world:one-action-one-sheet] [text:show-then-tell] given an act that does several things, when its tags are read, then at most two gains show, and a cost to the body or the mood stands beside them with a down arrow", () => {
+    const view = engineView();
+    const many = Object.keys(content.activity).find((act) => effectTagsOf(act).filter((tag) => tag.tone === "up").length > 2 && effectTagsOf(act).some((tag) => tag.tone === "down"));
+    const acts = many === undefined ? Object.keys(content.activity) : [many, ...Object.keys(content.activity)];
+    for (const id of acts) {
+      const { changes } = actFacts(view, { id: id as never });
+      expect(changes.filter((change) => change.tone === "up").length).toBeLessThanOrEqual(2);
+      expect(changes.filter((change) => change.tone === "down")).toEqual(effectTagsOf(id).filter((tag) => tag.tone === "down"));
+    }
+    expect(effectTagsOf("activity.study-english")).toEqual([
+      { tone: "up", words: "+2 English" },
+      { tone: "down", words: say("ui.act.does.tires") },
+    ]);
   });
 });

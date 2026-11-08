@@ -33,7 +33,7 @@ export const uiLotteryText: Record<string, string> = {
   "ui.lottery.jackpot": "The jackpot",
   "ui.lottery.rolled": "Nobody won it last draw, so it rolled over and grew.",
   "ui.lottery.restarted": "It was won last draw, so it starts again.",
-  "ui.lottery.grows": "Every draw nobody wins it, it grows by {share} of the tickets sold, up to {cap}.",
+  "ui.lottery.grows": "Every draw nobody wins it, it keeps {kept} of every {each} the tickets take, up to {cap}.",
   "ui.lottery.odds": "Your chances on each ticket, the same however many people play",
   "ui.lottery.chance.jackpot": "1 in {every} wins the jackpot of {amount}",
   "ui.lottery.chance.jackpot-about": "About 1 in {every} wins the jackpot of {amount}",

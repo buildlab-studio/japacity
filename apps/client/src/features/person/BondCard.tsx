@@ -17,7 +17,8 @@ import { GhostButton } from "../../shared/ui/look/GhostButton";
 import { PressButton } from "../../shared/ui/look/PressButton";
 import { StickerChip } from "../../shared/ui/look/StickerChip";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatBand, formatBp, formatMoney, formatNumber } from "../../shared/words/format";
+import { formatBand, formatMoney, formatNumber } from "../../shared/words/format";
+import { chanceBand } from "../../shared/words/jobs";
 import { countryWords, jobWords } from "../../shared/words/person";
 import { inMonths, nameOf, runningName, say, sayCount } from "../../shared/words/text";
 
@@ -348,7 +349,7 @@ export function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
   const warnings: string[] = [];
   if (bond.standIn !== null) warnings.push(say(`ui.people.stand-in.${bond.standIn}`, { piece: interviewName() }));
   const partnered = view.people.bonds.some((other) => other.id !== bond.id && TOGETHER.includes(other.stage));
-  if (bond.stage === "courting" && partnered) warnings.push(say("ui.people.gossip", { chance: formatBp(content.tuning.people.gossipBp) }));
+  if (bond.stage === "courting" && partnered) warnings.push(say("ui.people.gossip", { chance: say(`ui.people.gossip.${chanceBand(content.tuning.people.gossipBp)}`) }));
   const person = personOf(bond);
   const patience = person === null ? null : (content.person[person]?.behaviour.patienceMonths ?? null);
   if (patience !== null && bond.role === "partner" && bond.stage !== "connected" && bond.stage !== "ended") {

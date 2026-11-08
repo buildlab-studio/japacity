@@ -25,8 +25,10 @@ const COOK = "activity.cook-at-home";
 const addButton = (id: string): HTMLButtonElement => found(`[data-act-main="${id}"]`) as HTMLButtonElement;
 
 describe("a thing started is ongoing", () => {
-  test("[world:month-acts-carry-on] [turn:free-slots-per-month] given a course started this month, when the sheet shows it, then its button says Ongoing and is shut while time with family stays open", async () => {
+  test("[world:month-acts-carry-on] [turn:free-slots-per-month] [world:one-action-one-sheet] given a course started this month, when its row is picked, then the one button says Ongoing and is shut, while time with family picked stays open", async () => {
     const { store } = await renderWithView(<ActivityPicker only={[LEARN, FAMILY]} />, engineView("scenario.graduate"));
+    // world:one-action-one-sheet: several acts are rows; the one button in the foot is the picked row's.
+    fireEvent.click(found(`[data-act-row="${LEARN}"]`));
     expect(addButton(LEARN).disabled).toBe(false);
     act(() => {
       store.getState().addToPlan({ activity: LEARN, param: null });
@@ -34,6 +36,7 @@ describe("a thing started is ongoing", () => {
     expect(addButton(LEARN).disabled).toBe(true);
     expect(addButton(LEARN).textContent).toContain(say("ui.activity.planned"));
     expect(say("ui.activity.planned")).toBe("Ongoing");
+    fireEvent.click(found(`[data-act-row="${FAMILY}"]`));
     expect(addButton(FAMILY).disabled).toBe(false);
     expect(addButton(FAMILY).textContent).not.toContain(say("ui.activity.planned"));
   });
@@ -58,7 +61,7 @@ describe("a thing started is ongoing", () => {
     // The price as the view gives it, as the card reads it.
     const price = store.getState().view!.activities.find((option) => option.id === CLASS)!.cost[0]!;
     expect(content.activity[CLASS]?.halfDays).toBe(2);
-    expect(document.querySelector("[data-time]")?.textContent).toBe("A day");
+    expect(document.querySelector('[data-fact="time"]')?.textContent).toBe("A day");
     expect(document.body.textContent).toContain(formatMoney(price.amount, price.currency));
     for (let time = 1; time <= 2; time += 1) {
       const held = store.getState().view!.pockets.NGN.cash + store.getState().view!.pockets.NGN.bank;

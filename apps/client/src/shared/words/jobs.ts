@@ -1,7 +1,7 @@
 // The jobs' words and figures the list, the hunt's card and the offer share (world:one-action-one-sheet): a
 // job's pay a month and its chance in words, read from content's ui/ui.jobs.text.ts. In shared/ so the city and the activity
 // feature both read them without one feature importing another.
-import { content, text } from "@japacity/content";
+import { content } from "@japacity/content";
 import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
 
@@ -89,24 +89,4 @@ export function payWords(id: string, view?: Pick<PlayerView, "qualities">): stri
 export function payLiftWords(id: string, view: Pick<PlayerView, "qualities">): string | null {
   const pay = payWords(id, view);
   return pay === null ? null : withNextTier(view, id, pay);
-}
-
-/**
- * A job's pay a month and its chance in words, as its row on the list says them, for the hunt's card when a
- * board or a notice names the job (Peckham's notice shows pay and chance like the hub's board).
- */
-export function jobCardWords(view: PlayerView, id: string): string {
-  const chance = say(`jobs.chance.${huntBand(chanceOf(view, id))}`);
-  const pay = payLiftWords(id, view);
-  return pay === null ? say("jobs.card.chance", { chance }) : say("jobs.card", { pay, chance });
-}
-
-/**
- * The line of a hunt's card that names one job (world:one-action-one-sheet): the job's own words where content has them, `<job>.card`
- * else its blurb, and only then the hunt's ("You send applications"), then its pay and its own chance (activity:job-hunt-lands-offer).
- * The racks speak as the racks, never as a hunt for applications.
- */
-export function jobCardLine(view: PlayerView, hunt: string, job: string): string {
-  const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${hunt}.blurb`] ?? null;
-  return [own, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
 }

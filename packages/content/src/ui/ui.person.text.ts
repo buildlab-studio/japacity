@@ -1,7 +1,7 @@
 // The people around the character: the slots, the bonds, courting, proposals, the invite card, the stand-in, the
 // interview, the undertaking and the conversation in preset phrases, in the voice of docs/rules/text.md.
 export const uiPersonText: Record<string, string> = {
-  "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a place. The game plays anyone a friend has not taken.",
+  "ui.people.intro": "Your partner, your brothers and sisters, your parents. A friend you invite can be one of them.",
 
   // The slots (person:family-and-partner-slots)
   "ui.people.slot.partner": "Partner",
@@ -179,7 +179,11 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.head.ended.other": "It is over with {name}.",
 
   // Gossip and drift (person:gossip-when-two-timing, person:computer-partner-drifts)
-  "ui.people.gossip": "You have a partner and you are seeing someone else. People talk: about {chance} a month. If your partner hears, you lose standing, and they may leave.",
+  "ui.people.gossip": "You have a partner and you are seeing someone else. People talk, {chance}. If your partner hears, you lose standing, and they may leave.",
+  // How often people talk, by the chance's band (person:gossip-when-two-timing): a chance word, never a percentage.
+  "ui.people.gossip.long": "now and then",
+  "ui.people.gossip.fair": "and often",
+  "ui.people.gossip.likely": "and most months",
   "ui.people.drift.near": "No time together for {months} months. After {patience} with nothing, {name} moves on.",
   "ui.people.drift.near.one": "No time together this past month. After {patience} with nothing, {name} moves on.",
   "ui.people.drift.rule": "{name} gives it {patience} months without time together. No longer.",

@@ -31,9 +31,9 @@ export const comedyText: Record<string, string> = {
   "line.wallet.converted.v2": "Changed money. {amount} in hand. The rate moved twice while you were deciding.",
   "line.wallet.converted.v3": "Changed money. {amount} in hand. You checked the sum twice anyway.",
 
-  "line.wallet.gift.v2": "A gift landed: {amount}. It came with a voice note you played at least twice.",
-  "line.wallet.gift.v3": "A gift landed: {amount}. Your uncle said it is \"for something small\". Nobody said what.",
-  "line.wallet.gift.v4": "A gift landed: {amount}. You said thank you in three messages and one sticker.",
+  "line.wallet.gift.v2": "A gift arrived: {amount}. It came with a voice note you played at least twice.",
+  "line.wallet.gift.v3": "A gift arrived: {amount}. Your uncle said it is \"for something small\". Nobody said what.",
+  "line.wallet.gift.v4": "A gift arrived: {amount}. You said thank you in three messages and one sticker.",
 
   "line.document.requested.v2": "Your {document} is on the way. It should be ready {month}. \"Should\" is doing a lot of work in that sentence.",
   "line.document.requested.v3": "Your {document} is on the way. It should be ready {month}. The man at the desk said to check back. He says it to everyone.",

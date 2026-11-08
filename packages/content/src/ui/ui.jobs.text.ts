@@ -12,6 +12,4 @@ export const uiJobsText: Record<string, string> = {
   "jobs.needs": "Needs: {needs}",
   "jobs.needs-count": "Needs {count} things first",
   "jobs.needs-count.one": "Needs 1 thing first",
-  "jobs.card": "{pay}. {chance}.",
-  "jobs.card.chance": "{chance}.",
 };

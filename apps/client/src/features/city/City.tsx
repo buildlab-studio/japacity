@@ -21,8 +21,7 @@ import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
-import { jobCardLine, jobCardWords } from "../../shared/words/jobs";
-import { countsWords } from "../../shared/words/profile";
+import { actFacts, jobFacts } from "../../shared/words/facts";
 import { needsWords } from "../../shared/words/requirement";
 import { onPhoneAppAsked } from "../../shared/phone/ask";
 import { newsRead } from "../../shared/phone/newsSeen";
@@ -56,8 +55,7 @@ import { WorldSheet } from "../../shared/world/WorldSheet";
 import { useDayClock } from "../../shared/world/dayClock";
 import { bodyWords, tired } from "../../shared/words/body";
 import { actOnCard, answersNow, buttonOf, nowActOf, nowActsIn, nowLineIn } from "../../shared/words/acts";
-import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
-import { courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "../../shared/words/study";
+import { heldBackWords } from "../../shared/words/study";
 import { actsOffered, actToast, answerAsk, answerStays, askHeader, isPaper, KIOSK_CAP, kioskAnswer, ownActOf, withPlanned, withSpent } from "./acts/acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lottoLines";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./acts/actLines";
@@ -78,7 +76,7 @@ import { shotOf, turnsRound } from "./scene/shot";
 import { homeSceneOf, HOUSE, insideOf, outOfHome, roomOf } from "./acts/room";
 import { personOf } from "../../shared/scene/roster";
 import type { Picked, ScenePick } from "./scene/scene.types";
-import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./acts/school";
+import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolFacts } from "./acts/school";
 import { byHandAt, enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, type ViewPlace } from "../../shared/scene/staging";
 import { type Coming, soonest } from "../../shared/words/coming";
 import { doorsFor, doorTo, stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./scene/things";
@@ -1496,19 +1494,17 @@ export function City({
     const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
-    // Chips earn their place (docs/design/09-the-games-look.md section 2): the time only past a morning, at most two effects.
-    const time = chipTimeOf(activity, option.halfDays);
-    // quality:skill-bands-slow-gains: a tech study says its gain at the band the character is in.
-    const does = studyDoesWords(view, activity) ?? chipEffectsLine(activity);
     // activity:study-days-capped, activity:paid-tech-courses: a study held back says why where its button was.
     const held = heldBackWords(option);
-    // activity:capital-opens-own-work, world:costly-acts-confirmed: the capital for own work is not given back when the work ends, so the sheet names it.
-    const capital = ownWorkCapital(activity);
+    // world:one-action-one-sheet, text:show-then-tell: the act's facts as chips in their one order, what it changes as arrow tags and what it
+    // needs as marks; its line only content's own words. A job a board names says the job's; a university the school's.
+    const job = chosen !== null && content.activity[activity as Id<"activity">]?.param === "job" ? jobFacts(view, activity, chosen) : null;
+    const parts = job ?? (school !== null ? schoolFacts(view, school) : actFacts(view, option));
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
       who: hereName,
-      // A side job on the hunt's card says it sits beside the day job and carries its own line; a job a board names carries its pay and chance.
+      // A side job on the hunt's card says it sits beside the day job; a job a board names its own words.
       // A job with its own act words (the racks: "Work the fish racks") titles the card and its button with them.
       title:
         ownActOf(chosen) ??
@@ -1518,33 +1514,19 @@ export function City({
             ? say("ui.world.side-job-title", { job: paramWords(chosen) })
             : `${nameOf(activity)}: ${paramWords(chosen)}`),
       line:
-        chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
-          ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
-          : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
-            ? jobCardLine(view, activity, chosen)
-            : chance !== null
-              ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
-              : school !== null
-                ? schoolSheetLine(view, school)
-                : // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk says it before it sells again.
-                  activity === "activity.play-lotto" && kioskCapReached(monthLines)
-                  ? words(KIOSK_CAP)
-                  : [blurbOf(activity), courseWords(activity), studyPaysWords(activity)].filter((part): part is string => part !== null).join(" "),
-      // activity:waiting-months-build-profile: what the act counts toward, a chip under the line, never a clause of it.
-      ...(chosen === null && countsWords(activity) !== null ? { counts: activity } : {}),
+        // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk says it before it sells again.
+        activity === "activity.play-lotto" && kioskCapReached(monthLines) ? words(KIOSK_CAP) : (parts.line ?? ""),
+      // A slip is a paper: its figure and its line, never chips.
+      ...(paper ? {} : { chips: parts.facts, changes: parts.changes, needs: parts.needs.filter((need) => need.id !== "held") }),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       // world:one-action-one-sheet: the button says the act's verb; the title above names the act.
       button: shut ? say("ui.activity.planned") : buttonOf(activity, chosen),
       // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
-      // activity:now-acts-spend-half-days: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
-      ...(time === null ? {} : { time }),
-      ...(does === null ? {} : { does }),
       // world:one-action-one-sheet: the act's button says its verb and its price.
       ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: held ?? needsWords(option.missing) }),
-      ...(capital ? { facts: [say("ui.world.capital-kept")] } : {}),
       // wallet:top-ups-are-marked: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.
       ...(activity === KIOSK && cost !== null && earnedShort(view, cost.amount) ? { blocked: say("ui.lottery.earned-only") } : {}),
       // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk's button is shut with the kiosk man's line.

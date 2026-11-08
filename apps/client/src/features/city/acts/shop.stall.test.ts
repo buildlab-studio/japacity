@@ -9,6 +9,7 @@ import tejuosho from "../../../../public/assets/places/tejuosho-front/place.json
 import { archetypeOf } from "../../../shared/front-door/archetypes";
 import { playTile } from "../../../shared/front-door/archetypes.testing";
 import { newGame } from "../../../shared/testing/fixtures";
+import { actFacts } from "../../../shared/words/facts";
 import { formatMoney } from "../../../shared/words/format";
 import { needsWords } from "../../../shared/words/requirement";
 import { sixteenPath } from "../../../shared/words/sixteen";
@@ -18,7 +19,7 @@ import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "../scene/things";
 
 const MARKET = "place.tejuosho-market";
-const OPEN_SHOP = "activity.open-shop";
+const OPEN_SHOP = "activity.open-shop" as const;
 const SHOP = "activity.run-shop";
 
 /** The first seed whose trader from the tile came out of the master's years with the settlement. */
@@ -39,13 +40,18 @@ function marketThings(view: PlayerView) {
 }
 
 describe("the trader's shop at her stall", () => {
-  test("[activity:trader-opens-own-shop] given the content, when Open the shop's sheet is read, then it says the shop costs nothing to open and what it pays a month, the shop's own figure", () => {
+  test("[activity:trader-opens-own-shop] [text:show-then-tell] given the content, when Open the shop's sheet is read, then its line says the shop costs nothing to open and its pay chip what it pays a month, the shop's own figure, from next month", () => {
     const pay = content.activity[SHOP]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The shop pays no fixed figure in content.");
     expect(content.activity[OPEN_SHOP]?.cost).toEqual([]);
     const blurb = blurbOf(OPEN_SHOP) ?? "";
     expect(blurb).toMatch(/costs nothing/i);
-    expect(blurb).toContain(`${formatMoney(pay.amount, pay.currency)} a month`);
+    expect(blurb).not.toContain(formatMoney(pay.amount, pay.currency));
+    const { facts } = actFacts(newGame("scenario.graduate").view(), { id: OPEN_SHOP });
+    expect(facts.slice(0, 2)).toEqual([
+      { kind: "pay", words: `${formatMoney(pay.amount, pay.currency)} a month` },
+      { kind: "when", words: say("ui.fact.next-month") },
+    ]);
   });
 
   test("[activity:trader-opens-own-shop] [world:things-are-tappable-models] given a settled trader whose shop opened at the month's end, when the market is read, then her stall stands with its label, and its sheet says the shop is running, not what it lacks", () => {

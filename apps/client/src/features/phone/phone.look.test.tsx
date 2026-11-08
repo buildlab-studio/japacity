@@ -104,14 +104,18 @@ describe("the phone in the game's look", () => {
     }
   });
 
-  test("[world:phone-rises-over-scene] [world:colours-are-role-tokens] given a life with a job, when Jobs opens, then the job held is a card with its picture and its pay as a green chip", async () => {
+  test("[world:phone-rises-over-scene] [world:colours-are-role-tokens] [text:show-then-tell] given a life with a job, when Jobs opens, then the job held is a card with its picture and its pay as a green chip, first of its facts", async () => {
     const view = richView();
     await openPhone(view);
     const jobs = openApp("jobs");
     const held = jobs.querySelector<HTMLElement>("[data-job-row]");
     expect(view.job.id).not.toBeNull();
     expect(held?.querySelector("[data-tile]")?.getAttribute("data-tile")).toBe(view.job.id);
-    expect(held?.querySelector("[data-money-chip]")).not.toBeNull();
+    // text:show-then-tell: the pay is the first of its facts, a green chip with a coin.
+    const pay = held?.querySelector('[data-fact="pay"]');
+    expect(pay?.className).toContain("bg-tint-money");
+    expect(pay?.querySelector("svg.lucide-coins")).not.toBeNull();
+    expect(held?.querySelector("[data-fact]")).toBe(pay);
   });
 
   test("[world:phone-holds-what-phones-hold] given no offer waits and the phone can open the map, when Jobs opens, then the board where jobs go up stands with the way to it", async () => {

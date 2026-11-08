@@ -19,7 +19,7 @@ export const adviceText: Record<string, string> = {
   // The adviser (advice:licensed-adviser-is-truthful).
   "activity.see-adviser.name": "See the licensed adviser",
   "activity.see-adviser.button": "Book",
-  "activity.see-adviser.blurb": "She reads your whole file and tells you the truth about every route you know of. It costs money.",
+  "activity.see-adviser.blurb": "She reads your whole file and tells you the truth about every route you know of.",
   // The two ways to an agent (advice:agent-kind-drawn-on-offer, advice:advisers-are-invented-people).
   "activity.see-agent-stop.name": "Talk to the agents at the stop",
   "activity.see-agent-stop.button": "Talk",

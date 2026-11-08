@@ -1,6 +1,7 @@
 // The phone's home card (home:view-carries-home), at the top of Bills. The engine decides (home:move-home-once-a-month) and
 // the view carries each move with its charge a month and why it is shut (home:moves-carry-cost-and-reason); the card only says them.
 import type { HomeMoveShut, HomePlace, PlayerView } from "@japacity/sim";
+import { TriangleAlert } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
@@ -128,14 +129,23 @@ export function HomeCard() {
             {roomRentWords(home)}
           </span>
         )}
-        <span className="sticker-chip num bg-sheet-muted chip-wrap" style={{ rotate: "1deg" }} data-home-charge>
-          {chargeWords(home)}
+        {/* text:show-then-tell: what the home costs and who pays the rest as chips; the water's risk as a catch. */}
+        <span className="flex flex-wrap gap-1.5">
+          <span className="sticker-chip num bg-sheet-muted chip-wrap" style={{ rotate: "1deg" }} data-home-charge>
+            {chargeWords(home)}
+          </span>
+          {home.place === null || !hasWords(`phone.home.charge.rest.${home.place}`) ? null : (
+            <span className="sticker-chip bg-tint-people chip-wrap" style={{ rotate: "-1deg" }} data-home-rest>
+              {say(`phone.home.charge.rest.${home.place}`)}
+            </span>
+          )}
+          {home.place === MAKOKO ? (
+            <span className="sticker-chip bg-tint-body chip-wrap" style={{ rotate: "-1.5deg" }} data-home-risk>
+              <TriangleAlert size={14} aria-hidden strokeWidth={2.4} className="shrink-0 text-out" />
+              {say("phone.home.risk")}
+            </span>
+          ) : null}
         </span>
-        {home.place === MAKOKO ? (
-          <p className="text-[13px] text-text-2" data-home-risk>
-            {say("phone.home.risk")}
-          </p>
-        ) : null}
       </div>
       {moves.length === 0 ? null : (
         // One move a row, its picture beside a button as wide as the row: in a two-column grid the ghost button's own size

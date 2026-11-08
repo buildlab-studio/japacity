@@ -11,6 +11,7 @@ import { qualityIn } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
 import { Tile } from "../../shared/tiles/Tile";
+import { chanceTint, Gauge } from "../../shared/ui/ChanceGauge";
 import { nameOf, say } from "../../shared/words/text";
 import { type ChanceBand, chanceOf, huntBand, payWords } from "../../shared/words/jobs";
 import { payAMonth } from "../../shared/words/pay";
@@ -95,23 +96,6 @@ export function jobsOutOfReach(view: PlayerView, open: readonly string[]): OutOf
     .filter((job) => job.needs.length > 0);
 }
 
-const GAUGE: Record<ChanceBand, 1 | 2 | 3> = { long: 1, fair: 2, likely: 3, certain: 3 };
-
-/** The chance as a small three-step gauge, so it reads at a glance beside its word. */
-function Gauge({ chance, chosen }: { chance: ChanceBand; chosen: boolean }) {
-  const steps = GAUGE[chance];
-  return (
-    <span aria-hidden className="flex items-end gap-[3px]" data-gauge={steps}>
-      {([1, 2, 3] as const).map((step) => (
-        <span
-          key={step}
-          className={`w-[4px] rounded-[1px] ${step === 1 ? "h-1.5" : step === 2 ? "h-2.5" : "h-3.5"} ${step <= steps ? (chosen ? "bg-pick-mark" : "bg-text") : chosen ? "bg-on-pick/25" : "bg-sheet-line"}`}
-        />
-      ))}
-    </span>
-  );
-}
-
 /**
  * A job to hunt as a card: its picture, its name, the pay as a green chip and the chance as a
  * word in a pill with its gauge; the job picked ringed in yellow.
@@ -141,8 +125,8 @@ function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: st
                   {pay}
                 </span>
               )}
-              <span className={`sticker-chip ${chance === "long" ? "bg-tint-body" : chance === "fair" ? "bg-[var(--soft)]" : "bg-tint-study"}`} style={{ rotate: "1.5deg" }}>
-                <Gauge chance={chance} chosen={false} />
+              <span className={`sticker-chip ${chanceTint(chance)}`} style={{ rotate: "1.5deg" }}>
+                <Gauge chance={chance} />
                 <span data-chance={chance}>{say(`jobs.chance.${chance}`)}</span>
               </span>
             </span>

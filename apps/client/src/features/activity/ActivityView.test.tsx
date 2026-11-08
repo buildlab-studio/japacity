@@ -54,7 +54,9 @@ describe("the month plan", () => {
     if (paid === undefined) throw new Error("The fixture has no paid activity.");
     await renderWithView(<ActivityView />, view);
     const cost = paid.cost[0]!;
-    expect(screen.getAllByText(say("ui.activity.cost", { amount: formatMoney(cost.amount, cost.currency) })).length).toBeGreaterThan(0);
+    // text:show-then-tell: the price is a chip with a coin and its figure, which a screen reader hears as what it costs.
+    expect(screen.getAllByRole("img", { name: say("ui.activity.cost", { amount: formatMoney(cost.amount, cost.currency) }) }).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(formatMoney(cost.amount, cost.currency)).length).toBeGreaterThan(0);
   });
 
   test("given activities added to the plan, when the plan fills, then adding stops and taking one out frees a slot", async () => {

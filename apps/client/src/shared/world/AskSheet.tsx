@@ -9,6 +9,7 @@ import { type CSSProperties, type ReactNode, useState } from "react";
 import { useGame, useGameStoreIfAny } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
 import { CountsChip } from "../ui/CountsChip";
+import { ChangesAndNeeds, Facts } from "../ui/Facts";
 import { StickerChip } from "../ui/look/StickerChip";
 import { SheetCloseButton, SheetFrame, SheetHandle } from "../ui/SheetFrame";
 import { afterHaving, afterPaying, monthDues, plannedCosts, type AfterPaying, type Money } from "../words/cost";
@@ -163,7 +164,12 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
         <SheetCloseButton label={say("ui.world.close")} />
       </div>
       <div className="p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-        <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>
+        {ask.line === "" ? null : <p className="text-[15px] leading-snug text-text-2">{ask.line}</p>}
+        {ask.chips === undefined || ask.chips.length === 0 ? null : (
+          <div className={ask.line === "" ? "" : "mt-3"} data-ask-chips>
+            <Facts facts={ask.chips} />
+          </div>
+        )}
         {/* What the act means, as sticker chips under the line (the bag's Go home: what ends, what waits). */}
         {ask.counts === undefined ? null : (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -179,17 +185,10 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
             ))}
           </div>
         )}
-        {/* activity:now-acts-spend-half-days: an act done at once says the time it takes in words, beside its price. */}
-        {ask.time === undefined ? null : (
-          <div className="mt-3 flex items-baseline justify-between border-t border-sheet-line pt-2.5" data-ask-time>
-            <span className="text-[14px] font-semibold">{say("ui.world.takes")}</span>
-            <span className="text-[16px] font-bold">{ask.time}</span>
-          </div>
-        )}
-        {ask.does === undefined ? null : (
-          <div className={`flex items-baseline justify-between gap-3 ${ask.time === undefined ? "mt-3 border-t border-sheet-line pt-2.5" : "mt-1"}`} data-ask-does>
-            <span className="shrink-0 text-[14px] font-semibold">{say("ui.world.does")}</span>
-            <span className="truncate text-[15px] font-bold">{ask.does}</span>
+        {/* text:show-then-tell: what the act changes as arrow tags and what it needs as marks, under its facts. */}
+        {(ask.changes?.length ?? 0) + (ask.needs?.length ?? 0) === 0 ? null : (
+          <div className="mt-3" data-ask-changes>
+            <ChangesAndNeeds changes={ask.changes ?? []} needs={ask.needs ?? []} />
           </div>
         )}
         {/* The price stands on the button when the pockets pay for it; otherwise it has its own row. */}

@@ -1,11 +1,13 @@
-// The school sheet (world:one-action-one-sheet; route:school-answers-by-grade): it names the university, its
-// deposit and the chance of an offer, and its corner is a building, not the gear the icon set falls back to.
-import { content } from "@japacity/content";
+// The school sheet (world:one-action-one-sheet; route:school-answers-by-grade, text:show-then-tell): its line the school's own
+// words, the chance of an offer, when it answers and the deposit as chips, the grade it takes as a mark, and its corner a
+// building, not the gear the icon set falls back to.
+import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../../shared/testing/fixtures";
 import { formatMoney } from "../../../shared/words/format";
-import { offerChance, SCHOOL_ICON, schoolSheetLine } from "./school";
+import { factWords } from "../../../shared/ui/Facts";
+import { offerChance, SCHOOL_ICON, schoolFacts } from "./school";
 
 const NORTHGATE = "school.northgate";
 
@@ -15,12 +17,20 @@ function withGrade(grade: number) {
 }
 
 describe("the sheet that applies to one university", () => {
-  test("[world:one-action-one-sheet] given one university the papers can go to, when its sheet shows, then it names the university, its deposit and the chance of an offer", () => {
+  test("[world:one-action-one-sheet] [text:show-then-tell] given one university the papers can go to, when its sheet shows, then its line is the school's own words, the chance of an offer, when it answers and its deposit are chips in that order, and the grade it takes a tick once held", () => {
     const school = content.school[NORTHGATE];
     if (school === undefined) throw new Error("No Northgate.");
-    const line = schoolSheetLine(withGrade(school.minGrade), NORTHGATE);
-    expect(line).toBe(`Your papers go to Northgate University, north-east England. If it says yes, the deposit is ${formatMoney(school.deposit, "GBP")}. Chance of an offer: likely.`);
-    expect(line).not.toMatch(/one university/);
+    const { line, facts, needs } = schoolFacts(withGrade(school.minGrade), NORTHGATE);
+    expect(line).toBe(text[`${NORTHGATE}.blurb`]);
+    expect(facts.map((fact) => [fact.kind, factWords(fact)])).toEqual([
+      ["chance", "Likely"],
+      ["when", "Answers in a month"],
+      ["bill", `Deposit ${formatMoney(school.deposit, "GBP")} if yes`],
+    ]);
+    expect(needs).toEqual([{ state: "done", words: text["quality.education-grade.value.3"], id: "grade" }]);
+    expect(schoolFacts(withGrade(school.minGrade - 1), NORTHGATE).needs[0]?.state).toBe("failed");
+    for (const fact of facts) expect(line ?? "").not.toContain(factWords(fact));
+    expect(line ?? "").not.toMatch(/band|answers in|deposit/i);
   });
 
   test("[world:one-action-one-sheet] given a grade above the school's least, when the chance is read, then it rises by the step for each grade, never past the cap, as the school's answer draws it", () => {
@@ -29,7 +39,7 @@ describe("the sheet that applies to one university", () => {
     const numbers = content.tuning.route;
     expect(offerChance(withGrade(school.minGrade), "school.kingsmere")).toBe(school.offerBp);
     expect(offerChance(withGrade(school.minGrade + 1), "school.kingsmere")).toBe(school.offerBp + numbers.offerPerGradeBp);
-    expect(schoolSheetLine(withGrade(school.minGrade), "school.kingsmere")).toMatch(/Chance of an offer: a fair chance\.$/);
+    expect(schoolFacts(withGrade(school.minGrade), "school.kingsmere").facts[0]).toEqual({ kind: "chance", band: "fair" });
     expect(offerChance(withGrade(school.minGrade + 40), "school.kingsmere")).toBe(numbers.offerMaxBp);
   });
 

@@ -144,8 +144,11 @@ export const offerText: Record<string, string> = {
 
   "offer.held-funds.name": "Olokun Microfinance: proof of funds",
   "offer.held-funds.title": "Funds to show",
-  "offer.held-funds.body":
-    "“We place the funds in your account for as long as you need, to show, not to spend: ₦5,000 a month on every ₦100,000, and ₦1,000 to arrange it.” The small print: the money comes back to them before you fly, and your school fees will still be yours to pay.",
+  "offer.held-funds.body": "“We place the funds in your account for as long as you need, to show and not to spend.”",
+  "offer.held-funds.term.bill": "₦5,000 a month on every ₦100,000",
+  "offer.held-funds.term.fee": "₦1,000 to arrange it",
+  "offer.held-funds.term.catch": "The money goes back to them before you fly",
+  "offer.held-funds.term.catch-2": "Your school fees are still yours to pay",
   "offer.held-funds.choice.take": "Take the funds",
   "offer.held-funds.choice.no": "No, thank you",
 
@@ -182,8 +185,9 @@ export const offerText: Record<string, string> = {
 
   "offer.join-ajo.name": "The savings circle",
   "offer.join-ajo.title": "Join our ajo",
-  "offer.join-ajo.body":
-    "“I run a savings circle: ₦20,000 a month for ten months, each month one of us collects the whole pot, and miss a month and you are out.”",
+  "offer.join-ajo.body": "“I run a savings circle, and each month one of us collects the whole pot.”",
+  "offer.join-ajo.term.bill": "₦20,000 a month for ten months",
+  "offer.join-ajo.term.catch": "Miss a month and you are out",
   "offer.join-ajo.choice.join": "Join the circle",
   "offer.join-ajo.choice.no": "Not this time",
   "offer.held-funds-agent.sign.cash-only": "He only takes cash.",
@@ -220,8 +224,11 @@ export const offerText: Record<string, string> = {
 
   "offer.education-loan.name": "A study lender",
   "offer.education-loan.title": "Fees paid direct",
-  "offer.education-loan.body":
-    "“We pay your fees straight to the university, up to {max}, with interest each year, our fee added to the loan and {fee} to process, and you repay over fifteen years from after your course.”",
+  "offer.education-loan.body": "“We pay your fees straight to the university, and you repay from after your course.”",
+  "offer.education-loan.term.pay": "Up to {max} for your fees",
+  "offer.education-loan.term.time": "Repaid over fifteen years",
+  "offer.education-loan.term.fee": "{fee} to process",
+  "offer.education-loan.term.catch": "Interest each year, and their fee added to the loan",
   "offer.education-loan.choice.take": "Take the loan",
   "offer.education-loan.choice.no": "No, thank you",
   "offer.education-loan.said.take": "The lender paid the university. You owe the lender now, from after your course.",
@@ -229,8 +236,10 @@ export const offerText: Record<string, string> = {
 
   "offer.fee-payment-plan.name": "A payment plan for your fees",
   "offer.fee-payment-plan.title": "A payment plan",
-  "offer.fee-payment-plan.body":
-    "“You can clear the arrears on a plan of {instalment} a month to the end of the course for a {fee} fee, and if you miss a plan payment we will write to you before we withdraw you.”",
+  "offer.fee-payment-plan.body": "“You can clear the arrears on a plan, to the end of the course.”",
+  "offer.fee-payment-plan.term.bill": "{instalment} a month to the course's end",
+  "offer.fee-payment-plan.term.fee": "Plan fee {fee}",
+  "offer.fee-payment-plan.term.catch": "Miss a payment and they write before they withdraw you",
   "offer.fee-payment-plan.choice.agree": "Agree to the plan",
   "offer.fee-payment-plan.choice.no": "Not now",
   "offer.fee-payment-plan.said.agree": "You signed the plan. The fees office spread what you owe to the end of the course.",
@@ -423,13 +432,13 @@ export const offerText: Record<string, string> = {
 
   "offer.relative-sends.name": "Your aunty abroad",
   "offer.relative-sends.title": "For the process",
-  "offer.relative-sends.body": "“Small thing for the process, don't tell your uncle,” and $500 lands in your dollar account.",
+  "offer.relative-sends.body": "“Small thing for the process, don't tell your uncle,” and $500 arrives in your dollar account.",
   // The gift's risk is said before it is taken, and what happened after each answer.
-  "offer.relative-sends.choice.thank": "Take it as it comes: it lands now, flagged for three months",
+  "offer.relative-sends.choice.thank": "Take it as it comes: it arrives now, flagged for three months",
   "offer.relative-sends.choice.note": "Ask her to send it through the bank, with a note",
   "offer.relative-sends.said.thank":
-    "You call to thank her. The $500 lands with nothing to say where it came from, and a visa officer will ask. Ask her for a note saying it was a gift, or let it sit three months before you apply.",
-  "offer.relative-sends.said.note": "She sends it through her bank, with a note: a gift from her, for your travel. The $500 lands, and anyone who asks can see where it came from.",
+    "You call to thank her. The $500 arrives with nothing to say where it came from, and a visa officer will ask. Ask her for a note saying it was a gift, or let it sit three months before you apply.",
+  "offer.relative-sends.said.note": "She sends it through her bank, with a note: a gift from her, for your travel. The $500 arrives, and anyone who asks can see where it came from.",
 
   "offer.december-bonus.name": "A thirteenth month",
   "offer.december-bonus.title": "Thirteenth month pay",

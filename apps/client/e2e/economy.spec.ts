@@ -52,7 +52,8 @@ test("[activity:naira-pay-reviewed-yearly] the nurse's Jobs app says her pay rev
   await placeReady(page);
   await passHomeTeach(page);
   const jobs = await openApp(page, "jobs");
-  await expect(jobs.locator("[data-job-review]")).toHaveText(text["phone.jobs.review.one"] ?? "phone.jobs.review.one");
+  // text:show-then-tell: the next pay review is the held job's when chip.
+  await expect(jobs.locator('[data-job-row] [data-fact="when"]')).toHaveText(text["phone.jobs.review.one"] ?? "phone.jobs.review.one");
   await shoot(page, "economy-jobs-review-phone");
   await putPhoneAway(page);
   const results = await sleepTheMonth(page);

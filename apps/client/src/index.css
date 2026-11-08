@@ -579,10 +579,14 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .brief-stamp { color: #c62828; border: 4px solid #c62828; background: rgba(255, 255, 255, 0.9); }
 @keyframes stamp { 0% { opacity: 0; transform: scale(2.2) rotate(var(--r, -12deg)); } 60% { opacity: 1; transform: scale(0.92) rotate(var(--r, -12deg)); } 100% { opacity: 1; transform: scale(1) rotate(var(--r, -12deg)); } }
 .stamp { animation: stamp 0.38s cubic-bezier(0.3, 1.4, 0.5, 1) 0.26s both; }
+/* A check's verdict on the month's results (world:month-end-results-sheet): a stamp in the out ink, or the money's when it is met,
+   that lands at once and settles inside half a second (world:motions-under-half-second). */
+.check-stamp { color: var(--out); box-shadow: inset 0 0 0 2px currentColor; animation: stamp 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.check-stamp-met { color: var(--money-ink); }
 @keyframes confetti { 0% { opacity: 0; transform: translate(0, -30px) rotate(0deg); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx, 0px), 160px) rotate(var(--rot, 180deg)); } }
 .brief-confetti { animation: confetti 0.48s cubic-bezier(0.2, 0.7, 0.4, 1) both; }
 @media (prefers-reduced-motion: reduce) {
-  .stamp { animation: fade 0.2s ease both !important; }
+  .stamp, .check-stamp { animation: fade 0.2s ease both !important; }
   .brief-confetti { display: none; }
 }
 /* The chip under the band, the giver's toast under it, the dots, and the marker with its ring. */

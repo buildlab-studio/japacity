@@ -429,7 +429,7 @@ describe("the run through the front door", () => {
     // The room's ₦50,000 is living costs, its rent a year's apart. The door says what moving in takes with the agent's and the agreement's fees, as Bills does,
     // then the year's rent after it.
     const { rentYear, feesBp, upkeep } = content.tuning.home.compound;
-    expect(costsOf("compound-room")).toBe(`${formatMoney(rentYear + Math.floor((rentYear * feesBp) / 10000), "NGN")} to move in, then ${formatMoney(rentYear, "NGN")} a year · living ${formatMoney(upkeep, "NGN")} a month`);
+    expect(costsOf("compound-room")).toBe(`${formatMoney(rentYear + Math.floor((rentYear * feesBp) / 10000), "NGN")} to move in · ${formatMoney(rentYear, "NGN")} a year · living ${formatMoney(upkeep, "NGN")} a month`);
     // The trade's settlement is drawn, so its figure is "about"; no other tile's is.
     expect(ARCHETYPES.filter((tile) => moneyDrawn(tile)).map((tile) => tile.id)).toEqual(["trader"]);
     // A home picked is kept through another tile; a home left as it was follows the tile.

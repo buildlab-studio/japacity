@@ -130,7 +130,11 @@ describe("the pay review in Jobs", () => {
     const view = newGame("scenario.nurse").view();
     expect(view.job.review).toBeUndefined();
     await renderWithView(<Jobs />, view);
-    expect(document.querySelector("[data-job-review]")).toBeNull();
+    // text:show-then-tell: the next review is the row's when chip; a job not reviewed has none, and no words of a review.
+    const row = document.querySelector("[data-job-row]");
+    expect(row).not.toBeNull();
+    expect(row?.querySelector('[data-fact="when"]')).toBeNull();
+    expect(row?.textContent).not.toMatch(/Pay review/);
   });
 });
 

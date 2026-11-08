@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { newGame } from "../testing/fixtures";
 import { formatMoney } from "./format";
-import { bandGainNow, courseWords, heldBackWords, ownWorkCapital, studyDoesWords, studyPaysWords } from "./study";
+import { bandGainNow, courseParts, heldBackWords, ownWorkCapital, studyGainNow, studyPaysWords } from "./study";
 import { nameOf, say } from "./text";
 
 const TECH = "quality.tech";
@@ -26,8 +26,8 @@ describe("a study's gain by band", () => {
     expect(bandGainNow(atTech(junior), "activity.learn-free")).toBe(gains[1]);
     expect(bandGainNow(atTech(working), "activity.learn-free")).toBe(gains[2]);
     expect(bandGainNow(atTech(strong), "activity.learn-free")).toBe(0);
-    expect(studyDoesWords(atTech(0), "activity.learn-free")).toBe(say("ui.act.does.skill-month", { amount: gains[0]!, skill: nameOf(TECH) }));
-    expect(studyDoesWords(atTech(strong), "activity.learn-free")).toBe(say("ui.act.does.taught"));
+    expect(studyGainNow(atTech(0), "activity.learn-free")).toEqual({ taught: false, words: say("ui.act.does.skill-month", { amount: gains[0]!, skill: nameOf(TECH) }) });
+    expect(studyGainNow(atTech(strong), "activity.learn-free")).toEqual({ taught: true });
   });
 
   test("[activity:paid-tech-courses] given the bootcamp near its ceiling, when its gain is read, then it never takes tech past it", () => {
@@ -38,23 +38,23 @@ describe("a study's gain by band", () => {
 
   test("[activity:study-days-capped] given a day of class, when what it does is read, then it says the month's three days together, never a day's share as a month", () => {
     const month = content.activity["activity.learn-tech"]!.bandGains![0]!;
-    expect(studyDoesWords(atTech(0), "activity.learn-tech")).toBe(say("ui.act.does.days", { amount: month, skill: nameOf(TECH) }));
+    expect(studyGainNow(atTech(0), "activity.learn-tech")).toEqual({ taught: false, words: say("ui.act.does.days", { amount: month, skill: nameOf(TECH) }) });
   });
 
   test("[quality:skill-bands-slow-gains] given an act not read by band, when what it does is read, then nothing is said here", () => {
-    expect(studyDoesWords(atTech(0), "activity.study-english")).toBeNull();
+    expect(studyGainNow(atTech(0), "activity.study-english")).toBeNull();
   });
 });
 
 describe("a course's months, its end and its cost", () => {
-  test("[activity:paid-tech-courses] given the short course, when its course is read, then it says its months and that it ends with a piece for the portfolio", () => {
-    const words = courseWords("activity.online-course");
-    expect(words).toContain(say("ui.act.course.months", { count: content.activity["activity.online-course"]!.course!.months }));
-    expect(words).toContain(say("ui.act.does.skill", { amount: 1, skill: nameOf("quality.portfolio") }));
-    expect(courseWords("activity.learn-free")).toBeNull();
+  test("[activity:paid-tech-courses] [text:show-then-tell] given the short course, when its course is read, then it says its months for a chip and that it ends with a piece for the portfolio for a tag", () => {
+    const parts = courseParts("activity.online-course");
+    expect(parts?.months).toBe(say("ui.act.course.months", { count: content.activity["activity.online-course"]!.course!.months }));
+    expect(parts?.gains).toContain(say("ui.act.does.skill", { amount: 1, skill: nameOf("quality.portfolio") }));
+    expect(courseParts("activity.learn-free")).toBeNull();
   });
 
-  test("[activity:paid-tech-courses] given the diploma, when its cost is read, then it is a sum a month for its twelve months, as a bill", () => {
+  test("[activity:paid-tech-courses] [text:show-then-tell] given the diploma, when its cost is read, then it is a sum a month for its twelve months, as a bill's chip", () => {
     expect(studyPaysWords("activity.tech-diploma")).toBe(say("ui.act.course.monthly", { amount: formatMoney(40_000_00, "NGN"), months: 12 }));
   });
 

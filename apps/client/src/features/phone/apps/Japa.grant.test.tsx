@@ -7,7 +7,7 @@ import { fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { recordedGame, recordedSave } from "../../../shared/testing/fixtures";
-import { hasWords, nameOf, runningName } from "../../../shared/words/text";
+import { hasWords, nameOf } from "../../../shared/words/text";
 import { reloadSeen } from "../seen";
 import { openJapa } from "../phone.testing";
 
@@ -49,8 +49,9 @@ describe("the plan once a route with no file is granted", () => {
     const papers = document.querySelector("[data-papers]");
     expect(papers).not.toBeNull();
     expect(papers?.textContent).not.toMatch(RAW_KEY);
-    const passport = document.querySelector('[data-paper="document.passport"]')?.textContent ?? "";
-    expect(passport.indexOf(runningName(SKILLED))).toBeGreaterThanOrEqual(0);
-    expect(passport.indexOf(runningName(SKILLED))).toBeLessThan(passport.indexOf(runningName("route.uk-masters")));
+    // text:show-then-tell: each way it counts toward is a plane chip, the skilled route's first.
+    const ways = [...document.querySelectorAll('[data-paper="document.passport"] [data-counts]')].map((chip) => chip.getAttribute("data-counts"));
+    expect(ways[0]).toBe(SKILLED);
+    expect(ways).toContain("route.uk-masters");
   });
 });

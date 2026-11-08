@@ -1,5 +1,6 @@
-// The waiting months' cards say what each act counts toward (activity:waiting-months-build-profile): the
-// sheet a thing opens (world:things-are-tappable-models, world:one-action-one-sheet) shows the card with its route in words.
+// The waiting months' acts say what each counts toward (activity:waiting-months-build-profile): the sheet a thing opens
+// (world:things-are-tappable-models, world:one-action-one-sheet) shows each act, as a row among several or a card alone, with
+// its route in words on a chip.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -14,7 +15,8 @@ const ACTS = ["activity.open-source", "activity.tech-posts", "activity.conferenc
 
 function cardOf(id: string): HTMLElement {
   const name = say(`${id}.name`);
-  const card = [...document.querySelectorAll("[data-activity-picker] > li")].find((item) => item.querySelector("h3")?.textContent === name);
+  // A picker of several acts is rows, each named in its own line; an act alone is a card under its heading.
+  const card = [...document.querySelectorAll("[data-activity-picker] li")].find((item) => (item.querySelector("[data-act-name]") ?? item.querySelector("h3"))?.textContent === name);
   if (card === undefined) throw new Error(`No card for ${id}`);
   return card as HTMLElement;
 }

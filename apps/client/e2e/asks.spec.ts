@@ -137,6 +137,11 @@ async function takeNextStep(page: Page, game: Game): Promise<void> {
     await rideTo(page, at.place);
     await doAct(page, at.thing, at.act);
     const card = page.getByRole("dialog");
+    // world:one-action-one-sheet: on a sheet of several acts, the act's row is picked first, and the one button is its.
+    const row = card.locator(`[data-act-row="${pick.activity}"]`);
+    // The sheet rises a moment after the tap: its main button stands once it is drawn, the foot's for a picker.
+    await card.locator("[data-act-main], [data-ask-main]").first().waitFor({ state: "visible", timeout: 20_000 });
+    if ((await row.count()) > 0) await row.click();
     if (pick.param !== null && pick.activity === "activity.job-hunt") await card.locator(`[role="radio"][data-job="${pick.param}"]`).click();
     else if (pick.param !== null) {
       // One choice shows no list: the first meetup hears of one route (guide:first-meetup-hears-fitting-route), and the card takes it.

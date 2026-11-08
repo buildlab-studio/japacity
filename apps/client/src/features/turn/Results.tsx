@@ -12,6 +12,7 @@ import { qualityIn } from "@japacity/sim";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
+import { CheckMeter } from "../../shared/ui/CheckMeter";
 import { StateTag } from "../../shared/ui/StateTag";
 import { Counter } from "../../shared/world/TopBand";
 import { WorldSheet } from "../../shared/world/WorldSheet";
@@ -26,6 +27,7 @@ import { ToneTag } from "../../shared/ui/ToneTag";
 import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults } from "./month.results";
 import { turnWords } from "./turn.words";
 import { localCurrency } from "../../shared/words/wayHome";
+import { readyWords } from "../../shared/words/ready";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
 function useResultsOpen(): boolean {
@@ -105,7 +107,9 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
   // An offer that opened and was answered within the month (asked around, then walked on) needs no answer now.
   const told = [...midMonth, ...report.lines].filter((line) => !(line.key === OFFER_OPENED && typeof line.params["offer"] === "string" && !view.offers.some((offer) => offer.entry === line.params["offer"])));
   const close = monthClose(told, report.lines);
-  const story = close.moments;
+  // world:month-end-results-sheet: a month with a funds check shows the check's bar in the saved bar's place, so one figure shows.
+  const check = close.moments.find((line) => line.key === FUNDS_SHORT || line.key === FUNDS_COVERED) ?? null;
+  const story = close.moments.filter((line) => line !== check);
   const expiring = runningOut(view);
   const back = (): void => {
     cue("close");
@@ -118,7 +122,7 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
     onAsk?.(offer);
   };
   // Nothing told but the money: no face, no event, no draw and no paper running out.
-  const quiet = asked.length === 0 && story.length === 0 && draw === null && expiring.length === 0;
+  const quiet = asked.length === 0 && story.length === 0 && check === null && draw === null && expiring.length === 0;
   // The visa's answer and the room on the water cleared away stand first and alone, before the money.
   const bigNews = story.some((line) => leadsAlone(line) || isEvicted(line));
   const storySection =
@@ -210,12 +214,17 @@ export function Results({ place, foot = null, onAsk }: { place: string; foot?: R
           </div>
         )}
 
-        {save === null ? null : (
+        {check !== null ? (
+          <ul className="flex flex-col" data-results-check>
+            <FundsCheck line={check} />
+          </ul>
+        ) : save === null ? null : (
           <section className="flex flex-col gap-1.5" data-results-savings>
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="label text-text-2">{turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")}</h3>
-              <span className="num text-[14px]">
-                {save.kind === "funds" ? turnWords("turn.results.savings-line", { shown: formatMoney(save.shown, save.currency), required: formatMoney(save.required, save.currency) }) : `${String(save.percent)}%`}
+              {/* With no funds to show, how ready is a band word, never a figure (world:month-end-results-sheet). */}
+              <span className={save.kind === "funds" ? "num text-[14px]" : "text-[14px] font-semibold"} data-results-ready={save.kind === "funds" ? undefined : save.percent}>
+                {save.kind === "funds" ? turnWords("turn.results.savings-line", { shown: formatMoney(save.shown, save.currency), required: formatMoney(save.required, save.currency) }) : readyWords(save.percent)}
               </span>
             </div>
             <Bar value={save.kind === "funds" ? save.shown : save.percent} max={save.kind === "funds" ? save.required : 100} label={turnWords(save.kind === "funds" ? "turn.results.savings" : "turn.results.ready")} />
@@ -317,6 +326,38 @@ function momentPicture(key: string): string {
   if (key.startsWith("line.obligation")) return "🧾";
   if (key.startsWith("line.lottery") || key.startsWith("line.luck")) return "🎟️";
   return "✨";
+}
+
+/** The month's funds check (world:month-end-results-sheet): shown against needed, as a bar with both figures and a stamp. */
+const FUNDS_SHORT = "line.route.funds-short";
+const FUNDS_COVERED = "line.route.funds-covered";
+
+function FundsCheck({ line }: { line: ReportLine }) {
+  const { route, shown, required, months } = line.params;
+  const shownMoney = moneyOf(shown);
+  const neededMoney = moneyOf(required);
+  if (typeof route !== "string" || shownMoney === null || neededMoney === null) return null;
+  const met = line.key === FUNDS_COVERED;
+  return (
+    <li data-funds-check={met ? "covered" : "short"} data-story-line={line.key}>
+      <CheckMeter
+        title={words("ui.results.funds.title", { route })}
+        value={shownMoney.amount}
+        max={neededMoney.amount}
+        shown={say("ui.results.funds.shown", { amount: formatMoney(shownMoney.amount, shownMoney.currency) })}
+        needed={say("ui.results.funds.needed", { amount: formatMoney(neededMoney.amount, neededMoney.currency) })}
+        met={met}
+        stamp={say(met ? "ui.results.funds.covered" : "ui.results.funds.short")}
+        note={met && typeof months === "number" ? sayCount("ui.results.funds.months", months, { count: months }) : null}
+      />
+    </li>
+  );
+}
+
+/** A typed money param of a line, or null. */
+function moneyOf(param: ReportLine["params"][string] | undefined): { amount: number; currency: Parameters<typeof formatMoney>[1] } | null {
+  if (param === null || typeof param !== "object" || !("amount" in param) || !("currency" in param)) return null;
+  return { amount: param.amount, currency: param.currency };
 }
 
 /** One moment of the month: a picture and its words; the best one leads as a card with a larger picture. */

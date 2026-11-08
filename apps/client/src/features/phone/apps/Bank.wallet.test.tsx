@@ -88,7 +88,7 @@ describe("sending money home from the Bank", () => {
     const quote = remitQuote(view.rates, content.tuning.remit, currency, quarterOf(view.pockets[currency].bank));
     for (const channel of ["app", "bank", "informal"] as const) {
       const option = document.querySelector<HTMLElement>(`[data-channel="${channel}"]`)!;
-      expect(option.querySelector("[data-arrives]")?.textContent).toBe(say("ui.remit.arrives", { naira: formatMoney(quote[channel].naira, "NGN"), fee: formatMoney(quote[channel].fee, currency) }));
+      expect(option.querySelector("[data-arrives]")?.textContent).toBe(formatMoney(quote[channel].naira, "NGN"));
     }
     // The channels differ, so the choice means something.
     expect(new Set(Object.values(quote).map((terms) => terms.naira)).size).toBe(3);

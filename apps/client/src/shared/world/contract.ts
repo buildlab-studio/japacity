@@ -4,6 +4,8 @@
 import type { DayPart } from "@japacity/sim";
 import type { ReactNode } from "react";
 
+import type { Change, Fact, Need } from "../words/facts";
+
 /** What a tap on a thing does (world:things-are-tappable-models). */
 type ActKind =
   /** Happens at once with no sheet: sit, turn on, look. */
@@ -153,10 +155,6 @@ export interface Ask {
   rows?: { label: string; value: string; strong?: boolean }[];
   /** "now" when the act happens at once (a ride, the deposit, the plane); the default counts when the month ends. */
   when?: "now" | "month";
-  /** The month's free time the act takes, in words ("A morning", "A day"), for an act done at once (activity:now-acts-spend-half-days). */
-  time?: string;
-  /** What the act does, in words, on one line ("Fills you, lifts you"), from its effects (world:one-action-one-sheet). */
-  does?: string;
   /** An act with a price: the main button says the act and its price ("Indomie and egg · ₦1,500"), world:one-action-one-sheet. */
   priced?: true;
   /** A reason the act cannot happen yet, in words; the main button is shut and says it (world:one-action-one-sheet). */
@@ -167,6 +165,12 @@ export interface Ask {
   spent?: string;
   /** What the act means, a few words each, as chips under the line: the bag's Go home says what ends and what waits (return.md). */
   facts?: string[];
+  /** The act's facts, typed, drawn by the shared Facts in their one order under the line (text:show-then-tell): its pay, chance, time past a morning, and the rest. */
+  chips?: Fact[];
+  /** What the act changes, as arrow tags under its facts: a gain up, a cost to the body or the mood down (text:show-then-tell). */
+  changes?: Change[];
+  /** What the act needs or why it waits, as marks beside its changes (world:one-action-one-sheet). */
+  needs?: Need[];
   /** The act whose ways it counts toward show as a chip under the line (activity:waiting-months-build-profile). */
   counts?: string;
   /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (return:return-reopens-home-charges). */

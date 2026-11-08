@@ -104,7 +104,7 @@ export const uiText: Record<string, string> = {
   "ui.results.unpaid.credit-standing-mood": "{obligation}: {amount} went unpaid. A mark on your credit file, and your standing and your mood took a hit.",
   "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
   "ui.line.goal-first": "A new goal: {goal}. {first}",
-  "ui.line.remit-landed": "Landed in your naira account at home: {amount}.",
+  "ui.line.remit-arrived": "{amount} received in your naira account at home.",
   "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got} at the bank.",
   // The charge on a change, told once, on its own line.
@@ -368,8 +368,6 @@ export const uiText: Record<string, string> = {
   "ui.route.school.naira": "About {naira} from naira at the bank rate, with the bank's charge.",
   "ui.route.school.short": "Not enough for the deposit: it needs {need} in the naira bank and you have {have}. Short by {short}. Cash does not count.",
   "ui.route.schools.before": "What the universities ask",
-  // The sheet that sends papers to one university names it, its deposit and the chance.
-  "ui.route.apply-sheet": "Your papers go to {school}. If it says yes, the deposit is {deposit}. Chance of an offer: {chance}.",
   "ui.route.foreign-fee": "Fees in pounds are bought from naira at the bank rate, plus the bank's charge.",
   "ui.route.school.chosen": "Deposit paid",
   "ui.route.pay-deposit": "Pay the deposit",
@@ -428,8 +426,9 @@ export const uiText: Record<string, string> = {
   // route:education-loan-pays-the-school: what the lender pays the university for the amount picked, and when it is repaid.
   "ui.offer.loan.pays": "The lender pays the university {amount}. You owe {owed} with its fee added.",
   "ui.offer.loan.starts": "Nothing to pay while you study. Repayments start the month after your Graduate visa, or after the course ends without it, and run {years} years.",
-  "ui.offer.job": "{job}, paying {amount} a month",
-  "ui.offer.job.catch": "{job}, about {amount} a month: it depends on the catch",
+  // An offer of work: the job's name, its pay a month as a chip; a boat's pay scales with the catch (activity:catch-drawn-each-month).
+  "ui.offer.job.about": "About {amount} a month",
+  "ui.offer.job.catch": "It depends on the catch",
   "ui.offer.job-ends": "Taking it ends your months as a nurse. The health care route needs twenty-four of them.",
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",
@@ -561,7 +560,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.costs.family-house": "Your share about {amount} a month, as you go · family around",
   "ui.door.home.costs.makoko": "{amount} now for the room · living as you go",
   // The move-in with the agent's and the agreement's fees, as Bills says it (home:compound-room-is-a-home).
-  "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
+  "ui.door.home.costs.compound-room": "{movein} to move in · {rent} a year · living {amount} a month",
   "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
   // Each home's line on the door, in the order offered.
   "ui.door.home.line.compound-room": "Your things, your spot by the gate",
@@ -776,7 +775,11 @@ export const uiText: Record<string, string> = {
   "ui.req.route-funds": "Funds covered {months} months in a row for {route}",
   "ui.req.route-funds.one": "Funds covered for 1 month for {route}",
   "ui.req.route-funds.zero": "Enough funds shown for {route}",
-  "ui.req.route-unexplained": "Unexplained money at most {percent} of the funds for {route}",
+  "ui.req.route-unexplained": "Unexplained money no more than {share} of the funds for {route}",
+  // A share of a sum in words, never a percentage (text:money-in-bank-words).
+  "ui.part.one-in": "one in {count}",
+  "ui.part.in-ten": "{count} in ten",
+  "ui.part.in-hundred": "{count} in a hundred",
   "ui.req.money-min": "At least {amount}",
   "ui.req.money-min-pocket": "At least {amount} in {pocket}",
   "ui.req.money-can-pay": "{amount} to pay with",
@@ -926,26 +929,12 @@ export const uiText: Record<string, string> = {
   "ui.remit.title": "Send money home",
   "ui.remit.nothing": "Nothing in a bank abroad to send.",
   "ui.remit.channel": "How to send it",
-  "ui.remit.channel.app": "By app",
-  "ui.remit.channel.bank": "By bank transfer",
-  "ui.remit.channel.informal": "Through someone",
-  "ui.remit.arrives": "Arrives: {naira}. Fee: {fee}",
-  // The Bank's send money home abroad (apps/client/src/features/phone/apps/Bank.tsx, SendChooser).
-  "ui.remit.who": "To your naira account at home. What the family asks for is paid from it.",
-  "ui.remit.terms.app": "The app's rate, a little under the bank's, and a fee of {fee}. Lands today in the bank at home.",
-  "ui.remit.terms.app.free": "No fee, but the app's rate is a little under the bank's. Lands today in the bank at home.",
-  "ui.remit.terms.bank": "The bank's rate and a fee of {fee}. Lands next month in the bank at home.",
-  "ui.remit.terms.bank.free": "The bank's rate, no fee. Lands next month in the bank at home.",
-  "ui.remit.terms.informal": "No fee, the street rate. Lands today as cash, but {loss} of the time it never arrives.",
-  "ui.remit.quote": "{one} buys {rate} this way. {naira} lands at home.",
+  // The Bank's send money home abroad (apps/client/src/features/phone/apps/Bank.tsx, SendChooser), in a bank app's plain words.
+  "ui.remit.who": "To your naira account at home",
   "ui.remit.go": "Send {amount}",
-  "ui.remit.line.app": "{sent} goes by app. {naira} lands in the bank at home today. The fee: {fee}.",
-  "ui.remit.line.app.free": "{sent} goes by app, no fee. {naira} lands in the bank at home today.",
-  "ui.remit.line.bank": "{sent} goes by bank transfer now. {naira} lands in the bank at home next month. The fee: {fee}.",
-  "ui.remit.line.bank.free": "{sent} goes by bank transfer now, no fee. {naira} lands in the bank at home next month.",
-  "ui.remit.line.informal": "{sent} goes through someone, no fee. {naira} lands at home as cash today, if it arrives at all.",
+  "ui.remit.line": "What the family asks for is paid from this account.",
   "ui.remit.sent": "Money sent home",
-  "ui.remit.sent-later": "Money sent, lands next month",
+  "ui.remit.sent-later": "Money sent, arriving next month",
 
   // Status abroad (status:view-shows-status, status:renewing-a-status)
   "ui.status.title": "Status",
@@ -1004,11 +993,9 @@ export const uiText: Record<string, string> = {
   "ui.credit.missed": "{count} missed.",
   "ui.credit.missed.one": "1 missed.",
   "ui.credit.missed.zero": "None missed.",
-  "ui.credit.next-ten": "What the next ten points buy, up to {mark}",
+  "ui.credit.next-ten": "The next ten points, up to {mark}",
   "ui.credit.next-none": "Nothing new in the next ten points.",
   "ui.credit.need": "{name} at {min}",
-  "ui.credit.open": "Open to you now:",
-  "ui.credit.later": "Further off:",
 
   // Goals
   "ui.goal.title": "Goals",
@@ -1091,7 +1078,7 @@ export const uiText: Record<string, string> = {
 
   // The news front page (director:one-era-at-a-time)
   "ui.news.era": "The times",
-  "ui.news.era-before": "Since before your story began.",
+  "ui.news.era-before": "Before your story began",
 
   // Being run down (health:low-wellbeing-warns-first, health:view-shows-health-warning)
   "ui.health.run-down": "You are run down",

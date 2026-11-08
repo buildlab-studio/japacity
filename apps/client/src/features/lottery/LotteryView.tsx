@@ -14,7 +14,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { Sheet } from "../../shared/ui/Sheet";
-import { formatBp, formatMoney, formatNumber } from "../../shared/words/format";
+import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, sayCount } from "../../shared/words/text";
 import { Chances } from "./Chances";
 import { canBuy, closesAt, salesClosed, serverDrawLoader, type LoadDraw, type Lottery } from "./draw";
@@ -57,11 +57,18 @@ export function Close({ lottery }: { lottery: Lottery }) {
   );
 }
 
-/** How the jackpot grows while nobody wins it, and its cap (lottery:jackpot-rolls-over); nothing when it does not grow. */
+/** A hundred naira in kobo: the share the jackpot keeps is said as naira of every ₦100, never a percentage. */
+const HUNDRED_NAIRA = 10_000;
+
+/**
+ * How the jackpot grows while nobody wins it, and its cap (lottery:jackpot-rolls-over), the share in money: "₦10 of every ₦100"
+ * (text:money-in-bank-words); nothing when it does not grow.
+ */
 export function Grows({ lottery }: { lottery: Lottery }) {
   const { odds } = lottery;
   if (odds.jackpotGrowthBp <= 0) return null;
-  return <p className="text-sm text-text-2">{say("ui.lottery.grows", { share: formatBp(odds.jackpotGrowthBp), cap: formatMoney(odds.jackpotCap, "NGN") })}</p>;
+  const kept = Math.floor((HUNDRED_NAIRA * odds.jackpotGrowthBp) / 10_000);
+  return <p className="text-sm text-text-2">{say("ui.lottery.grows", { kept: formatMoney(kept, "NGN"), each: formatMoney(HUNDRED_NAIRA, "NGN"), cap: formatMoney(odds.jackpotCap, "NGN") })}</p>;
 }
 
 /** lottery:jackpot-rolls-over, lottery:screen-states-odds-plainly: the jackpot standing, and whether it rolled over from the last draw or starts again; with how it grows unless `grows` is false. */

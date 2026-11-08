@@ -22,7 +22,9 @@ describe("the catch on the screens", () => {
     expect(payLine(NAIRA(75000), CREW)).toBe("About ₦75,000 a month: it depends on the catch");
     expect(payLine(NAIRA(70000), RACKS)).toBe("Pays ₦70,000 a month");
     expect(payLine(NAIRA(70000))).toBe("Pays ₦70,000 a month");
-    expect(say("ui.offer.job.catch", { job: "Third in the canoe", amount: "₦75,000" })).toBe("Third in the canoe, about ₦75,000 a month: it depends on the catch");
+    // text:show-then-tell: an offer of a boat's work says its pay as a chip, about, and the catch beside it.
+    expect(say("ui.offer.job.about", { amount: "₦75,000" })).toBe("About ₦75,000 a month");
+    expect(say("ui.offer.job.catch")).toBe("It depends on the catch");
   });
 
   test("[activity:catch-drawn-each-month] [world:month-end-results-sheet] given a good, a fair and a lean month in the crew, when the month's pay line is said, then it leads with the catch's word", () => {

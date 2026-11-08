@@ -10,7 +10,9 @@ import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
 import { firstJob, huntOrder, jobsOutOfReach } from "./JobList";
-import { chanceBand, huntBand, jobCardLine, jobChanceBp } from "../../shared/words/jobs";
+import { chanceBand, huntBand, jobChanceBp } from "../../shared/words/jobs";
+import { jobFacts } from "../../shared/words/facts";
+import { factWords } from "../../shared/ui/Facts";
 import { say } from "../../shared/words/text";
 
 const HUNT = "activity.job-hunt";
@@ -201,14 +203,16 @@ describe("the jobs list as picture cards", () => {
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
   });
 
-  test("[activity:job-hunt-lands-offer] given a starting life's first hunt, when each job's card line is read, then it is the job's own words, its pay and its own chance word alone, and no line promises the hunt", () => {
+  test("[activity:job-hunt-lands-offer] [text:show-then-tell] given a starting life's first hunt, when each job's card is read, then its line is the job's own words, its pay and its own chance word chips beside it, and nothing promises the hunt", () => {
     const view = engineView();
     // A side job paid by level says its tier beside its pay (activity:side-jobs-pay-by-tier); the jobs paid one figure are read here.
     for (const job of huntOf(view).filter((id) => (entryOf(id).tiers ?? []).length === 0)) {
       const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${HUNT}.blurb`];
       const band = say(`jobs.chance.${huntBand(jobChanceBp(entryOf(job), networkOf(view)))}`);
-      expect(jobCardLine(view, HUNT, job)).toBe(`${own ?? ""} ${say("jobs.card", { pay: payWords(job), chance: band })}`);
-      expect(jobCardLine(view, HUNT, job)).not.toMatch(/for sure|first hunt|certain/i);
+      const { line, facts } = jobFacts(view, HUNT, job);
+      expect(line).toBe(own);
+      expect(facts.slice(0, 2).map(factWords)).toEqual([payWords(job), band]);
+      expect([line, ...facts.map(factWords)].join(" ")).not.toMatch(/for sure|first hunt|certain/i);
     }
   });
 });

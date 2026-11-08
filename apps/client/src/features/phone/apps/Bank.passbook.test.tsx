@@ -42,7 +42,7 @@ function text(selector: string): string {
 }
 
 describe("the Bank's first page, the passbook", () => {
-  test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given the nurse a month into its care plan, when the Bank opens, then it leads with what is held against the road's whole cost, the bar and the pace line the view gives, the best road beside it", async () => {
+  test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] [text:show-then-tell] given the nurse a month into its care plan, when the Bank opens, then it leads with what is held against the road's whole cost, the bar and the pace the view gives, the best road beside it, as chips", async () => {
     const view = nurse().view();
     const book = passbookOf(view);
     expect(book.months).toBeGreaterThan(1);
@@ -51,12 +51,13 @@ describe("the Bank's first page, the passbook", () => {
     expect(card.querySelector("[data-passbook-held]")?.textContent).toBe(formatMoney(book.held, "NGN"));
     expect(card.querySelector("[data-passbook-target]")?.textContent).toBe(say("passbook.of", { target: formatMoney(book.target!.total, "NGN") }));
     expect(card.querySelector('[role="progressbar"]')?.getAttribute("aria-valuemax")).toBe(String(book.target!.total));
-    const pace = text("[data-pace]");
-    expect(pace).toContain(say("passbook.pace", { months: book.months! }));
+    // text:show-then-tell: the pace and the best road stand as two chips, each its months in green.
+    expect(text("[data-pace-now]")).toBe(say("passbook.pace", { months: book.months! }));
     const best = book.roads.find((road) => road.road === book.best)!;
     expect(document.querySelector("[data-pace-best]")?.getAttribute("data-pace-best")).toBe(String(best.months));
     // A road that covers the whole cost at once says so in words, not as a nought.
-    expect(pace).toContain(best.months === 0 ? `${say("passbook.with.now")}.` : `${String(best.months)}.`);
+    expect(text("[data-pace-best]").endsWith(best.months === 0 ? say("passbook.with.now") : String(best.months))).toBe(true);
+    expect(text("[data-pace]")).not.toMatch(/%/);
     // The first page comes before the rest of the bank.
     const order = ["[data-passbook]", "[data-stamps]", "[data-roads]", "[data-bank-saved]", "[data-bank-lately]"].map((selector) => document.querySelector(selector));
     expect(order.slice(1).every((element, index) => (order[index]!.compareDocumentPosition(element!) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)).toBe(true);

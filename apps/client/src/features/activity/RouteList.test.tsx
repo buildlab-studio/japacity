@@ -20,8 +20,19 @@ function card(id: string): HTMLElement {
   return found;
 }
 
+/** The routes an act lists to pick from: its rows with a route, never the row of the act itself in a picker of several. */
+function routeRows(id: string): HTMLElement[] {
+  return within(card(id))
+    .queryAllByRole("radio")
+    .filter((row) => row.hasAttribute("data-route"));
+}
+
+/** The act's one main button: on its card, or in the foot of a picker of several while its row is picked (world:one-action-one-sheet). */
 function addButton(id: string): HTMLButtonElement {
-  return within(card(id)).getByRole("button", { name: new RegExp(`^${buttonOf(id)}`) });
+  const button = document.querySelector<HTMLButtonElement>(`button[data-act-main="${id}"]`);
+  if (button === null) throw new Error(`No button for ${id}`);
+  expect(button.textContent?.startsWith(buttonOf(id))).toBe(true);
+  return button;
 }
 
 /** The banker with two routes heard of: the hub desk's "Ask about routes" sheet. */
@@ -39,7 +50,7 @@ describe("the routes list", () => {
     expect(official?.params).toEqual(expect.arrayContaining([UK, CANADA]));
     await renderWithView(<ActivityPicker only={[OFFICIAL, FRIEND, ADVISER]} />, view);
     expect(document.querySelector("select")).toBeNull();
-    const rows = within(card(OFFICIAL)).getAllByRole("radio");
+    const rows = routeRows(OFFICIAL);
     expect(rows.map((row) => row.getAttribute("data-route"))).toEqual(official?.params);
     for (const id of [UK, CANADA]) {
       const row = rows.find((candidate) => candidate.getAttribute("data-route") === id);
@@ -51,7 +62,7 @@ describe("the routes list", () => {
 
   test("[world:one-action-one-sheet] given two routes heard of, when the official page shows, then nothing is picked for the player and Do this is shut until a row is tapped, then plans that route", async () => {
     const { store, authority } = await renderWithView(<ActivityPicker only={[OFFICIAL]} />, twoRoutesHeard());
-    expect(within(card(OFFICIAL)).getAllByRole("radio").every((row) => row.getAttribute("aria-checked") === "false")).toBe(true);
+    expect(routeRows(OFFICIAL).every((row) => row.getAttribute("aria-checked") === "false")).toBe(true);
     expect(addButton(OFFICIAL).disabled).toBe(true);
     expect(addButton(OFFICIAL).querySelector("[data-after]")?.textContent).toBe(say("routes.pick-first"));
     fireEvent.click(within(card(OFFICIAL)).getByRole("radio", { name: new RegExp(nameOf(CANADA)) }));
@@ -62,13 +73,13 @@ describe("the routes list", () => {
     expect(store.getState().plan.some((pick) => pick?.activity === OFFICIAL)).toBe(false);
   });
 
-  test("[world:one-action-one-sheet] given one route heard of, when someone who went shows, then it stays a card whose one row is picked, and the adviser stays a card with no list", async () => {
+  test("[world:one-action-one-sheet] given one route heard of, when someone who went shows, then its one route row is picked under it, and the adviser shows no list", async () => {
     const view = viewAfter(newGame("scenario.banker"), [{ type: "route/hear", route: UK, via: "test" }]);
     await renderWithView(<ActivityPicker only={[FRIEND, ADVISER]} />, view);
-    const rows = within(card(FRIEND)).getAllByRole("radio");
+    const rows = routeRows(FRIEND);
     expect(rows.map((row) => [row.getAttribute("data-route"), row.getAttribute("aria-checked")])).toEqual([[UK, "true"]]);
     expect(addButton(FRIEND).disabled).toBe(false);
-    expect(within(card(ADVISER)).queryAllByRole("radio")).toEqual([]);
+    expect(routeRows(ADVISER)).toEqual([]);
   });
 
   test("[world:one-action-one-sheet] given a sponsor's route looked into, when finding a sponsor shows, then its row says looked into", async () => {
@@ -80,7 +91,7 @@ describe("the routes list", () => {
     const view = game.view();
     expect(view.activities.find((option) => option.id === SPONSOR)?.params).toContain(SKILLED);
     await renderWithView(<ActivityPicker only={[SPONSOR]} />, view);
-    const row = within(card(SPONSOR)).getAllByRole("radio").find((candidate) => candidate.getAttribute("data-route") === SKILLED);
+    const row = routeRows(SPONSOR).find((candidate) => candidate.getAttribute("data-route") === SKILLED);
     expect(row?.querySelector("[data-route-state]")?.textContent).toBe(say("ui.route.state.known"));
   });
 });

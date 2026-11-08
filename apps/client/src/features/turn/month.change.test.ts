@@ -147,7 +147,7 @@ describe("a change of money on the results", () => {
     }
   });
 
-  test("[world:month-end-results-sheet] [abroad-money:remit-sends-money-home] given pounds sent home by app, when the month's money is read, then the pounds count as money out and the naira as landed at home, never both as sent", () => {
+  test("[world:month-end-results-sheet] [abroad-money:remit-sends-money-home] [text:money-in-bank-words] given pounds sent home by app, when the month's money is read, then the pounds count as money out and the naira as received at home, never both as sent", () => {
     const game = recordedGame("graduate-careful");
     const pounds = game.view().pockets.GBP.bank;
     const sent = Math.floor(pounds / 2 / 100) * 100;
@@ -159,7 +159,8 @@ describe("a change of money on the results", () => {
     expect(money.find((entry) => entry.currency === "GBP")).toMatchObject({ sign: -1, amount: sent });
     const naira = money.find((entry) => entry.currency === "NGN");
     expect(naira).toMatchObject({ sign: 1, amount: landed });
-    expect(words(naira?.line.key ?? "", naira?.line.params)).toBe(`Landed in your naira account at home: ${formatMoney(landed, "NGN")}.`);
+    // text:money-in-bank-words: the naira is received, a bank app's word, never "landed".
+    expect(words(naira?.line.key ?? "", naira?.line.params)).toBe(`${formatMoney(landed, "NGN")} received in your naira account at home.`);
     expect(kept(money)).toEqual([
       { currency: "GBP", amount: -sent },
       { currency: "NGN", amount: landed },

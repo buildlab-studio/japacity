@@ -18,11 +18,12 @@ export const uiWorldText: Record<string, string> = {
   "ui.body.hungry": "Hungry",
   "ui.body.tired": "Tired",
   "ui.body.both": "Hungry, tired",
-  // What an act does, in words, beside the time it takes (world:one-action-one-sheet; quality:body-belly-and-energy: the body in words only).
-  "ui.world.does": "Does",
-  "ui.act.does.fills": "fills you",
-  "ui.act.does.rests": "rests you",
-  "ui.act.does.lifts": "lifts you",
+  // What an act changes, as tags with their arrows (text:show-then-tell; quality:body-belly-and-energy: the body in words only): a gain up, a cost down.
+  "ui.act.does.fills": "Fills you",
+  "ui.act.does.rests": "Rests you",
+  "ui.act.does.lifts": "Lifts you",
+  "ui.act.does.tires": "Tires you",
+  "ui.act.does.wears": "Wears you",
   "ui.act.does.skill": "+{amount} {skill}",
   "ui.world.short": "{amount} short",
   "ui.world.short-label": "Short",
@@ -58,7 +59,6 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.done": "Done",
   "ui.world.counts-at-end": "Counts when the month ends",
   // activity:now-acts-spend-half-days: the time an act done at once takes, in a person's words, never a number of days.
-  "ui.world.takes": "Takes",
   "ui.world.time.morning": "A morning",
   "ui.world.time.day": "A day",
   "ui.world.time.weekend": "A weekend",
@@ -142,17 +142,14 @@ export const uiWorldText: Record<string, string> = {
   // how long a course runs, what it costs when nothing is paid now, and why one waits.
   // activity:capital-opens-own-work: the capital stays in the work.
   "ui.world.capital-kept": "Not given back if the work ends",
-  "ui.act.capped": "Three days of class this month already.",
-  "ui.act.on-course": "You are on a course. One study at a time.",
-  "ui.act.does.taught": "Teaches you nothing more at your level",
+  "ui.act.capped": "Three days of class this month already",
+  "ui.act.on-course": "One study at a time",
   "ui.act.does.skill-month": "+{amount} {skill} a month",
-  "ui.act.does.days": "+{amount} {skill} over three days of class",
+  "ui.act.does.days": "+{amount} {skill} over three days",
   "ui.act.course.months": "{count} months",
   "ui.act.course.months.one": "One month",
-  "ui.act.course.only": "{months}.",
-  "ui.act.course.ends": "{months}. It ends with {gains}.",
-  "ui.act.course.monthly": "{amount} a month for {months} months, as a bill.",
-  "ui.act.course.after-job": "Nothing now. {amount} over {months} months once a developer job is yours.",
+  "ui.act.course.monthly": "{amount} a month × {months}",
+  "ui.act.course.after-job": "{amount} over {months} months, once in a developer job",
   // The first night of a life, told once on a small card before the first sleep (world:sleep-ends-the-month).
   "ui.night.first": "Each night you sleep is a month of your life.",
   "ui.night.first.ok": "Sleep",
