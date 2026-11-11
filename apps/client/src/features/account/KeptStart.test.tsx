@@ -154,7 +154,7 @@ describe("the username's own step (account:sign-in-without-secret)", () => {
     expect(box.value).toBe("");
     expect(box.closest("[data-guest-fields]")).not.toBeNull();
     // The step says what the username is for, so it is never taken for the character's name asked at the door after it.
-    expect(document.getElementById("guest-username-said")?.textContent).toBe("Other players see this, on the street and on boards. You can change it once for free.");
+    expect(document.getElementById("guest-username-help")?.textContent).toBe("Other players see this, on the street and on boards. You can change it once for free.");
     expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
     expect(document.querySelector("[data-guest-line]")).toBeNull();
     expect(line()).toContain(say("ui.account.kept.why", { email: EMAIL }));
@@ -325,6 +325,6 @@ describe("a proof this browser holds when the gate opens (account:sign-in-withou
     expect(screen.getByText(say("ui.guest.reminder"))).toBeDefined();
     expect(line()).toBeNull();
     // On the door's last page, after the character's name, the username says who sees it.
-    expect(document.getElementById("guest-username-said")?.textContent).toBe(say("ui.account.name.intro"));
+    expect(document.getElementById("guest-username-help")?.textContent).toBe(say("ui.account.name.intro"));
   });
 });

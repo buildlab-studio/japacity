@@ -210,7 +210,7 @@ describe("the username box (account:username-typed-and-checked)", () => {
 });
 
 describe("the page's username on a small phone", () => {
-  test("[prologue:front-door-three-screens] [account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given the door's page online, then the username box stands over the homes, the line on who sees it shows while the box is empty or typed in and goes once a name is left in it, and the guest line stands once, under Begin", async () => {
+  test("[prologue:front-door-three-screens] [account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given the door's page online, then the username box stands over the homes, the line on who sees it stands under the label over the box whether the box is empty, typed in or left with a name, the line under the box holds only the name's state, and the guest line stands once, under Begin", async () => {
     const account = fakeAccount(undefined, () => "free");
     online(account);
     await toTheDoor();
@@ -218,13 +218,18 @@ describe("the page's username on a small phone", () => {
     const fields = document.querySelector("[data-guest-fields]")!;
     const homes = document.querySelector("[data-door-home]")!;
     expect(fields.compareDocumentPosition(homes) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const help = (): string | null => document.getElementById("guest-username-help")?.textContent ?? null;
     const said = (): string | null => document.getElementById("guest-username-said")?.textContent ?? null;
-    expect(said()).toBe(say("ui.account.name.intro"));
+    const label = fields.querySelector("label[for='guest-username']")!;
+    expect(help()).toBe(say("ui.account.name.intro"));
+    expect(label.compareDocumentPosition(document.getElementById("guest-username-help")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.getElementById("guest-username-help")!.compareDocumentPosition(usernameBox()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.focus(usernameBox());
     typeUsername("ada_lagos");
-    expect(said()).toBe(say("ui.account.name.intro"));
+    expect(help()).toBe(say("ui.account.name.intro"));
     expect(await screen.findByText(say("ui.account.name.available"))).toBeDefined();
     fireEvent.blur(usernameBox());
+    expect(help()).toBe(say("ui.account.name.intro"));
     expect(said()).toBeNull();
     expect(screen.getByText(say("ui.account.name.available"))).toBeDefined();
     // The guest line, once, in the foot under Begin.

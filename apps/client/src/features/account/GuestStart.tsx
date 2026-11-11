@@ -7,12 +7,12 @@
 // browser, is said as that and not as "try again"; a session lost a second time in a row, or cookies off, is said as a
 // browser that keeps no sign-in (account:bot-check-on-guest-creation).
 import { USERNAME, USERNAME_LONGEST as LONGEST } from "@japacity/api";
-import { Check } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 
 import type { AccountApi, FreeAnswer, GuestFailure, NewLifeEmail } from "../../shared/net/auth";
 import { isReported } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { focusFirstField } from "../../shared/ui/firstField";
 import { say } from "../../shared/words/text";
 import type { LoadTurnstile } from "./Turnstile";
@@ -245,8 +245,8 @@ export function useFreeCheck(value: string, ask: (username: string) => Promise<F
 /**
  * The username on the page, its rule, the check as it is typed, and the guest line said once (account:username-and-unconfirmed-email,
  * account:username-typed-and-checked, account:guest-reminded-to-secure); a life that starts kept by a proved email says no guest line
- * and nothing in its place (account:guest-secures-the-life). The line on who sees the name shows while the box is empty or typed
- * in; a name left in it keeps only its free or taken line, so one thing is said under the box at a time once the player moves on.
+ * and nothing in its place (account:guest-secures-the-life). The field says itself in one order (world:field-says-its-state): the
+ * label, the line on who sees the name under it, the box, and directly under the box its one state, free or what is wrong.
  * `first`: the box is the first field to fill on its screen and takes the focus as it opens on a desktop, never on a touch phone
  * (account:username-typed-and-checked).
  */
@@ -257,13 +257,16 @@ function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept
   useEffect(() => {
     if (firstAtOpen.current) focusFirstField(box.current);
   }, [box]);
-  const [typing, setTyping] = useState(false);
-  const intro = value.trim() === "" || typing;
+  // Begin's refusal stands alone under the box; the check's answer shows only while there is none.
+  const checked = problem === null ? free : null;
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
       <label className="label block text-text-2" htmlFor="guest-username">
         {say("ui.account.name.label")}
       </label>
+      <FieldNote id="guest-username-help" state="help" className="mt-1" data-username-help>
+        {say("ui.account.name.intro")}
+      </FieldNote>
       <input
         ref={box}
         id="guest-username"
@@ -276,10 +279,8 @@ function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept
         autoCapitalize="off"
         spellCheck={false}
         aria-invalid={problem !== null || (free !== null && free !== "free")}
-        aria-describedby="guest-username-check guest-username-said"
+        aria-describedby="guest-username-help guest-username-check guest-username-said"
         onChange={(event) => onChange(event.target.value)}
-        onFocus={() => setTyping(true)}
-        onBlur={() => setTyping(false)}
         // account:username-typed-and-checked: Enter in the box is Begin; inside the invite page's form it submits on its own.
         onKeyDown={(event) => {
           if (onEnter === undefined || !plainEnter(event)) return;
@@ -288,20 +289,14 @@ function GuestFields({ box, value, onChange, onEnter, problem, ask, widget, kept
         }}
       />
       {/* Polite, so the answer is heard as the player types; Begin's own refusal below is the alert. */}
-      {/* A free name in money in's green with a tick, read on the sheet by day and by night (world:reach-and-read). */}
-      <p id="guest-username-check" role="status" className={`text-[13px] font-bold ${free === null || problem !== null ? "" : "mt-1.5"} ${free === "free" ? "text-in" : "text-text"}`} data-username-check={free ?? ""}>
-        {free === "free" && problem === null ? <Check size={14} strokeWidth={3} className="mr-1 inline-block align-[-2px]" aria-hidden /> : null}
-        {free === null || problem !== null ? null : say(FREE_WORDS[free])}
-      </p>
-      {problem !== null ? (
-        <p id="guest-username-said" role="alert" className="mt-1.5 text-[13px] font-bold text-text">
+      <FieldNote id="guest-username-check" role="status" state={checked === null ? null : checked === "free" ? "good" : "problem"} className={checked === null ? "" : "mt-1.5"} data-username-check={free ?? ""}>
+        {checked === null ? null : say(FREE_WORDS[checked])}
+      </FieldNote>
+      {problem === null ? null : (
+        <FieldNote id="guest-username-said" role="alert" state="problem" className="mt-1.5">
           {problem}
-        </p>
-      ) : intro ? (
-        <p id="guest-username-said" className="mt-1 text-[12px] text-text-2">
-          {say("ui.account.name.intro")}
-        </p>
-      ) : null}
+        </FieldNote>
+      )}
       {kept ? null : (
         <p className="mt-2 text-[13px] leading-snug" data-guest-line>
           {say("ui.guest.reminder")}
