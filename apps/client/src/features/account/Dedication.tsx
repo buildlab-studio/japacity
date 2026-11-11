@@ -17,9 +17,10 @@ import type { MyLight, SharedLight } from "@japacity/api";
 import { checkLight, DEDICATION_NICKNAME, DEDICATION_SHORT, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type LightAsked, type LightProblem, lightWords, lightYears } from "@japacity/content";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { lightOne, putOutMine, readLights, useWater } from "../../shared/dedication/lights";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { say, sayCount } from "../../shared/words/text";
 import { Bulb, capTop, Glow } from "./bulb";
 
@@ -277,7 +278,11 @@ function thisYear(): number {
 }
 
 /** One box with its label inside, above its value: drawn alike, no fieldset or legend. */
-const BOX = "flex flex-col gap-[3px] rounded-[12px] border-[1.5px] border-[#3b4c77] bg-[#24345a] px-4 py-2.5";
+const BOX = "flex flex-col gap-[3px] rounded-[12px] border-[1.5px] bg-[#24345a] px-4 py-2.5";
+/** A box's edge: the page's own, or the out colour while a problem with what it holds stands (world:field-says-its-state). */
+const edge = (problem: LightProblem | null): string => `${BOX} ${problem === null ? "border-[#3b4c77]" : "border-out"}`;
+/** The problems that are the name's; the rest are the years'. */
+const NAME_PROBLEMS: ReadonlySet<LightProblem> = new Set(["name-empty", "name-words", "name-characters"]);
 const BOX_LABEL = "text-[13px] text-[#c8c3b4]";
 const FIELD = "bg-transparent text-[18px] font-semibold text-text outline-hidden placeholder:font-medium placeholder:text-[#8e97ab]";
 
@@ -294,6 +299,17 @@ function NameIt({ year, onLit }: { year: number; onLit: (mine: MyLight) => void 
   }, []);
   // A field says what is wrong only once something is in it; an empty name simply keeps Light it from working.
   const problems = checked.ok ? (refused !== null && refused !== "out" ? refused.problems : []) : checked.problems.filter((problem) => problem !== "name-empty");
+  // One line under each box, its first problem (world:field-says-its-state).
+  const nameProblem = problems.find((problem) => NAME_PROBLEMS.has(problem)) ?? null;
+  const yearsProblem = problems.find((problem) => !NAME_PROBLEMS.has(problem)) ?? null;
+  const nameNote = useId();
+  const yearsNote = useId();
+  const noteOf = (problem: LightProblem | null, id: string) => (
+    // Mounted before its words, so a problem is heard as the player types.
+    <FieldNote id={id} role="status" state={problem === null ? null : "problem"} className={problem === null ? "" : "mt-1.5"} {...(problem === null ? {} : { "data-light-problem": problem })}>
+      {problem === null ? null : say(`ui.dedication.problem.${problem}`, { first: String(LIGHT_FIRST_YEAR), year: String(year) })}
+    </FieldNote>
+  );
   const light = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
     if (!checked.ok || sending) return;
@@ -305,42 +321,46 @@ function NameIt({ year, onLit }: { year: number; onLit: (mine: MyLight) => void 
   };
   return (
     <form className="flex w-full flex-col gap-2.5 text-left" onSubmit={(event) => void light(event)} noValidate data-name-it>
-      <label className={BOX}>
-        <span className={BOX_LABEL}>{say("ui.dedication.name")}</span>
-        <input
-          ref={name}
-          className={`${FIELD} w-full`}
-          type="text"
-          value={asked.name}
-          maxLength={LIGHT_NAME_CHARACTERS}
-          autoComplete="off"
-          autoCapitalize="words"
-          enterKeyHint="done"
-          onChange={(event) => {
-            setRefused(null);
-            setAsked({ ...asked, name: event.target.value });
-          }}
-          data-light-name-field
-        />
-      </label>
-      <div className={BOX} role="group" aria-labelledby="dedication-years">
-        <span id="dedication-years" className={BOX_LABEL}>
-          {say("ui.dedication.years")}
-        </span>
-        <div className="flex items-center gap-2.5">
-          <input className={`${FIELD} w-[4.6ch] tabular-nums`} type="text" inputMode="numeric" maxLength={4} placeholder="1951" value={asked.from} aria-label={say("ui.dedication.from")} onChange={(event) => setAsked({ ...asked, from: event.target.value })} data-light-from />
-          <span className="text-[18px] font-medium text-[#8e97ab]" aria-hidden>
-            {say("ui.dedication.between")}
+      <div className="flex flex-col">
+        <label className={edge(nameProblem)}>
+          <span className={BOX_LABEL}>{say("ui.dedication.name")}</span>
+          <input
+            ref={name}
+            className={`${FIELD} w-full`}
+            type="text"
+            value={asked.name}
+            maxLength={LIGHT_NAME_CHARACTERS}
+            autoComplete="off"
+            autoCapitalize="words"
+            enterKeyHint="done"
+            aria-invalid={nameProblem !== null}
+            data-field-inner
+            aria-describedby={nameNote}
+            onChange={(event) => {
+              setRefused(null);
+              setAsked({ ...asked, name: event.target.value });
+            }}
+            data-light-name-field
+          />
+        </label>
+        {noteOf(nameProblem, nameNote)}
+      </div>
+      <div className="flex flex-col">
+        <div className={edge(yearsProblem)} role="group" aria-labelledby="dedication-years" aria-describedby={yearsNote}>
+          <span id="dedication-years" className={BOX_LABEL}>
+            {say("ui.dedication.years")}
           </span>
-          <input className={`${FIELD} w-[4.6ch] tabular-nums`} type="text" inputMode="numeric" maxLength={4} placeholder="2024" value={asked.to} aria-label={say("ui.dedication.to")} onChange={(event) => setAsked({ ...asked, to: event.target.value })} data-light-to />
+          <div className="flex items-center gap-2.5">
+            <input className={`${FIELD} w-[4.6ch] tabular-nums`} type="text" inputMode="numeric" maxLength={4} placeholder="1951" value={asked.from} aria-label={say("ui.dedication.from")} aria-invalid={yearsProblem === "first-year" || yearsProblem === "last-before"} data-field-inner onChange={(event) => setAsked({ ...asked, from: event.target.value })} data-light-from />
+            <span className="text-[18px] font-medium text-[#8e97ab]" aria-hidden>
+              {say("ui.dedication.between")}
+            </span>
+            <input className={`${FIELD} w-[4.6ch] tabular-nums`} type="text" inputMode="numeric" maxLength={4} placeholder="2024" value={asked.to} aria-label={say("ui.dedication.to")} aria-invalid={yearsProblem === "last-year" || yearsProblem === "last-before"} data-field-inner onChange={(event) => setAsked({ ...asked, to: event.target.value })} data-light-to />
+          </div>
         </div>
+        {noteOf(yearsProblem, yearsNote)}
       </div>
       <div aria-live="polite" className="flex flex-col gap-1" data-light-problems>
-        {problems.map((problem) => (
-          <p key={problem} className="text-[14px] font-semibold text-signal" data-light-problem={problem}>
-            {say(`ui.dedication.problem.${problem}`, { first: String(LIGHT_FIRST_YEAR), year: String(year) })}
-          </p>
-        ))}
         {refused === "out" ? (
           <p className="text-[14px] font-semibold text-signal" data-light-out>
             {say("ui.dedication.out")}

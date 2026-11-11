@@ -331,3 +331,32 @@ describe("light one for yours", () => {
     expect(page.querySelectorAll("[data-light-name]")).toHaveLength(0);
   });
 });
+
+describe("the light's boxes say their state (world:field-says-its-state)", () => {
+  test("[world:field-says-its-state] given a name of five words and a last year before the first, then each box carries its one problem directly under it, in the out colour with its icon, the box's edge in the out colour and its field marked", async () => {
+    server({ count: 0, lights: [] });
+    const page = await opened(2026);
+    fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
+    type(page, "Mama Nkechi Grace Obi Ade", "1951", "1950");
+    expect(problems(page)).toEqual(["Four words at most.", "The last year cannot come before the first."]);
+    const name = within(page).getByRole("textbox", { name: "Who is it for?" });
+    const nameBox = name.closest("label")!;
+    const years = within(page).getByRole("group", { name: "Years, if you want" });
+    for (const [box, field] of [
+      [nameBox, name],
+      [years, within(page).getByRole("textbox", { name: "Last year" })],
+    ] as const) {
+      const line = box.nextElementSibling!;
+      expect(line.hasAttribute("data-light-problem")).toBe(true);
+      expect(line.className.split(" ")).toContain("text-out");
+      expect(line.querySelector("svg")?.getAttribute("class")).toContain("lucide-circle-alert");
+      expect(box.className.split(" ")).toContain("border-out");
+      expect(field.getAttribute("aria-invalid")).toBe("true");
+    }
+    expect(name.getAttribute("aria-describedby")).toBe(nameBox.nextElementSibling!.id);
+    type(page, "Mama Nkechi", "1951", "1951");
+    expect(problems(page)).toEqual([]);
+    expect(nameBox.className).toBe(years.className);
+    expect(nameBox.className.split(" ")).not.toContain("border-out");
+  });
+});

@@ -46,3 +46,20 @@ describe("the study lender's card", () => {
     expect(card()?.querySelector("[data-loan-starts]")?.textContent).toBe(say("ui.offer.loan.starts", { years: 15 }));
   });
 });
+
+describe("the amount's help (world:field-says-its-state)", () => {
+  test("[world:field-says-its-state] given the lender's offer, when its card shows, then what the amount may be stands under the label as help in the quiet ink with no icon, over the slider and the box, which it describes", async () => {
+    const { game, max, min } = lent();
+    await renderWithGame(<OfferView />, game);
+    const box = card()!.querySelector<HTMLInputElement>("input[type='number']")!;
+    const help = document.getElementById(box.getAttribute("aria-describedby") ?? "")!;
+    expect(help.textContent).toBe(say("ui.offer.bounds", { min: formatMoney(min, "GBP"), max: formatMoney(max, "GBP") }));
+    expect(help.className.split(" ")).toContain("text-text-2");
+    expect(help.className).not.toMatch(/font-bold/);
+    expect(help.querySelector("svg")).toBeNull();
+    const label = card()!.querySelector(`label[for='${box.id}']`)!;
+    const slider = card()!.querySelector("input[type='range']")!;
+    const follows = (a: Element, b: Element) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    expect(follows(label, help) && follows(help, slider) && follows(slider, box)).toBe(true);
+  });
+});
