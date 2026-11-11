@@ -115,7 +115,7 @@ export function AdminPage({ api, tab: first = "health" }: { api: AdminApi; tab?:
           <div role="tablist" aria-label={words("admin.tabs")} className="flex flex-wrap gap-1.5 lg:flex-col lg:gap-5">
             {GROUPS.map((group) => (
               <div key={group.key} className="contents lg:flex lg:flex-col lg:gap-0.5">
-                <span className="hidden text-[11px] font-semibold tracking-wider text-text-2 uppercase lg:mb-1.5 lg:block lg:px-2.5">{words(`admin.group.${group.key}`)}</span>
+                <span className="hidden text-xs font-semibold tracking-wider text-text-2 uppercase lg:mb-1.5 lg:block lg:px-2.5">{words(`admin.group.${group.key}`)}</span>
                 {group.sections.map((id) => (
                   <button
                     key={id}

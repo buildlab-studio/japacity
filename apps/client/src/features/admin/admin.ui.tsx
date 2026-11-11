@@ -84,7 +84,7 @@ export function Stat({ label, value, note, tone = "plain" }: { label: string; va
   const colour = tone === "good" ? "text-good" : tone === "bad" ? "text-bad" : "";
   return (
     <div role="group" aria-labelledby={id} className="flex min-w-0 flex-col gap-1 rounded-xl border border-sheet-line bg-sheet-2 px-4 py-3">
-      <span id={id} className="text-[11px] font-semibold tracking-wider text-text-2 uppercase">
+      <span id={id} className="text-xs font-semibold tracking-wider text-text-2 uppercase">
         {label}
       </span>
       <span className={`text-[1.75rem] leading-none font-semibold tabular-nums ${colour}`}>{value}</span>
@@ -111,7 +111,7 @@ const PILLS: Record<Tone, string> = {
 /** A state as a soft pill with a dot. */
 export function Pill({ tone, children, ...rest }: { tone: Tone; children: ReactNode } & Record<`data-${string}`, string>) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full py-0.5 pr-2 pl-1.5 text-xs font-semibold whitespace-nowrap before:size-1.5 before:rounded-full before:content-[''] ${PILLS[tone]}`} {...rest}>
+    <span className={`inline-flex items-center gap-1.5 rounded-md py-0.5 pr-2 pl-1.5 text-xs font-semibold whitespace-nowrap before:size-1.5 before:rounded-xs before:content-[''] ${PILLS[tone]}`} {...rest}>
       {children}
     </span>
   );
@@ -125,7 +125,7 @@ export function stateWords(state: CheckState): string {
 export function Badge({ count, tone }: { count: number; tone: "alarm" | "wait" }) {
   if (count === 0) return null;
   const colour = tone === "alarm" ? "bg-(--bad-fill) text-bad" : "bg-(--wait-fill) text-(--wait)";
-  return <span className={`ml-auto inline-grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-bold tabular-nums ${colour}`}>{count}</span>;
+  return <span className={`ml-auto inline-grid h-5 min-w-5 place-items-center rounded-md px-1.5 text-xs font-bold tabular-nums ${colour}`}>{count}</span>;
 }
 
 export interface Row {
@@ -163,7 +163,7 @@ export function Table({ caption, head, rows, hideCaption = false }: { caption: s
         <thead>
           <tr className="border-b border-sheet-line">
             {head.map((name, at) => (
-              <th key={`${name}-${String(at)}`} scope="col" className="py-1.5 pr-3 text-[11px] font-semibold tracking-wider whitespace-nowrap text-text-2 uppercase">
+              <th key={`${name}-${String(at)}`} scope="col" className="py-1.5 pr-3 text-xs font-semibold tracking-wider whitespace-nowrap text-text-2 uppercase">
                 {name}
               </th>
             ))}
@@ -210,11 +210,11 @@ export function BarTable({ caption, head, bars, hideCaption = false }: { caption
         <caption className={hideCaption ? "sr-only" : "pb-2 text-left text-sm font-semibold"}>{caption}</caption>
         <thead>
           <tr className="border-b border-sheet-line">
-            <th scope="col" className="py-1.5 pr-3 text-[11px] font-semibold tracking-wider text-text-2 uppercase">
+            <th scope="col" className="py-1.5 pr-3 text-xs font-semibold tracking-wider text-text-2 uppercase">
               {head[0]}
             </th>
             <th scope="col" aria-label={words("admin.bar")} className="w-full py-1.5" />
-            <th scope="col" className="py-1.5 pl-3 text-right text-[11px] font-semibold tracking-wider text-text-2 uppercase">
+            <th scope="col" className="py-1.5 pl-3 text-right text-xs font-semibold tracking-wider text-text-2 uppercase">
               {head[1]}
             </th>
           </tr>
@@ -231,7 +231,7 @@ export function BarTable({ caption, head, bars, hideCaption = false }: { caption
               <tr key={bar.label}>
                 <td className="py-1.5 pr-3 whitespace-nowrap">{bar.label}</td>
                 <td className="py-1.5">
-                  {bar.size === null ? null : <span aria-hidden="true" className="block h-2.5 rounded-full bg-(--bar) opacity-80" style={{ width: `${String(Math.max(2, (bar.size / largest) * 100))}%` }} />}
+                  {bar.size === null ? null : <span aria-hidden="true" className="block h-2.5 rounded-xs bg-(--bar) opacity-80" style={{ width: `${String(Math.max(2, (bar.size / largest) * 100))}%` }} />}
                 </td>
                 <td className="py-1.5 pl-3 text-right whitespace-nowrap text-text-2">{bar.text}</td>
               </tr>
@@ -410,8 +410,8 @@ export function ReasonDialog<T extends Reply>({ open, onOpenChange, act, summary
 /** A toggle as a button that names the act it opens. */
 export function Toggle({ on, act, onClick }: { on: boolean; act: string; onClick: () => void }) {
   return (
-    <button type="button" aria-label={act} title={act} onClick={onClick} className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${on ? "bg-accent" : "bg-text-2/40"}`}>
-      <span aria-hidden="true" className={`absolute top-0.5 size-5 rounded-full bg-white shadow-xs transition-transform ${on ? "translate-x-[1.125rem]" : "translate-x-0.5"}`} />
+    <button type="button" aria-label={act} title={act} onClick={onClick} className={`relative h-6 w-10 shrink-0 rounded-md transition-colors ${on ? "bg-accent" : "bg-text-2/40"}`}>
+      <span aria-hidden="true" className={`absolute top-0.5 size-5 rounded-sm bg-white shadow-xs transition-transform ${on ? "translate-x-[1.125rem]" : "translate-x-0.5"}`} />
     </button>
   );
 }

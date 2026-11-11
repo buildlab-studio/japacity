@@ -64,6 +64,6 @@ describe("what follows a commit", () => {
 
     for (let attempt = 0; attempt < 2; attempt += 1) expect((await view(server, "acc-1")).body).toMatchObject({ ok: false, code: "diverged" });
 
-    expect(await listAlarms(server.deps)).toEqual([{ kind: "diverged", day: time.utcDay(server.deps.now()), character: broken, v: 2 }]);
+    expect(await listAlarms(server.deps)).toEqual([{ kind: "diverged", day: time.utcDay(server.deps.now()), character: broken, v: 2, at: server.deps.now() }]);
   });
 });

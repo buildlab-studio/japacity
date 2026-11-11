@@ -7,7 +7,7 @@ import { noViolations, test, watchPolicy } from "./support/policy";
 import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.testing";
 import { json, ONLINE, quietSocket } from "./support/api";
 import { type Broken, expectNothingBroken, NEVER_SHOWN } from "./support/check";
-import { shootAtSize } from "./support/preview";
+import { shootAtSize, shootPhone } from "./support/preview";
 
 const TABS = ["Health", "Overview", "Players", "Money", "Moderation", "Adverts", "Settings"] as const;
 
@@ -73,6 +73,10 @@ test("an admin at /admin sees every area of the page, each from the admin routes
     await loaded[tab]();
     await expectNothingBroken(page, `on the ${tab} tab`, BROKEN);
     await shootAtSize(page, `admin-${tab.toLowerCase()}`, info.project.name, true);
+    // The brief's phone size, beside the Pixel 7's; the viewport goes back afterwards.
+    const viewport = page.viewportSize();
+    await shootPhone(page, `admin-${tab.toLowerCase()}-390`, info.project.name, { width: 390, height: 844 });
+    if (viewport !== null) await page.setViewportSize(viewport);
   }
   for (const { path } of seen) expect(path === "/api/account" || path.startsWith("/api/admin/"), path).toBe(true);
 });

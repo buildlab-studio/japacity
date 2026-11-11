@@ -37,6 +37,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.abroad-money": "Money abroad",
   "guide.page.numbers.name.account": "Accounts and signing in",
   "guide.page.numbers.name.activity": "Jobs and things to do",
+  "guide.page.numbers.name.admin": "What the team watches",
   "guide.page.numbers.name.advert": "Adverts",
   "guide.page.numbers.name.analytics": "What the game counts about play",
   "guide.page.numbers.name.assets": "The game's models and pictures",

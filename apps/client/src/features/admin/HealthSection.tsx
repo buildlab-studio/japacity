@@ -157,7 +157,7 @@ function Headline({ checks }: { checks: readonly CheckView[] }) {
   return (
     <Card data-headline={inAlarm > 0 ? "alarm" : "clear"}>
       <div className="flex items-center gap-4">
-        <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-full text-lg font-bold ${inAlarm > 0 ? "bg-bad text-white" : "bg-good text-white"}`}>
+        <span aria-hidden="true" className={`grid size-10 shrink-0 place-items-center rounded-lg text-lg font-bold ${inAlarm > 0 ? "bg-bad text-white" : "bg-good text-white"}`}>
           {inAlarm > 0 ? inAlarm : "✓"}
         </span>
         <div>
