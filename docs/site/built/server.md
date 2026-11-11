@@ -36,7 +36,7 @@ The Hono app is built in `apps/server/src/app.ts` from its dependencies, so a te
 | The draw | `/api/draw/:n` | A draw's published commitments and result |
 | Notices | `/api/notify`, `/api/notify/key`, `/api/notify/subscribe` | The bank-full notice: the setting, the public key, a device that agreed |
 | Moderation | `/api/moderation/*`, `/api/feedback` | Standing, appeals, feedback |
-| Admin | `/api/admin/*` | Switches, dials, the moderation queue, analytics, adverts. Open only to the accounts in the deployment's `ADMIN_ACCOUNTS` secret (server:ledger-alarm-lists-suspects) |
+| Admin | `/api/admin/*` | The checks, the figures, the moderation queue, adverts, switches and dials ([the admin page](../../rules/admin.md)). Open only to the accounts in the deployment's `ADMIN_ACCOUNTS` secret (server:ledger-alarm-lists-suspects) |
 | The start screen | `/api/lights`, `/api/dedication/lights`, `/api/dedication/light` | The two lights of the lives being played (account:two-lights-and-wink-lines), and the dedication's lights (server:dedication-routes) |
 | Other | `/api/health`, `/api/counters`, `/api/csp-report`, `/api/adverts`, `/api/boards/*` | Liveness, usage counts, the page policy's reports (server:csp-reports-to-own-origin), adverts, the place boards |
 
@@ -137,6 +137,7 @@ The Worker has two crons in production: every five minutes and daily at 00:00 UT
 | Every 5 minutes | Advert links | Rechecks the links of every approved campaign about to start, and pulls one that fails |
 | Every 5 minutes | Board week | Turns the place boards' figures over to the new Lagos week (city:boards-switch-when-and-who) |
 | Every 5 minutes | Online now | Samples how many are online, for the day's peak (analytics:session-split-by-command-gaps) |
+| Every 5 minutes | Checks | Measures every check, writes each change of state and mails the admins of a change into or out of alarm (admin:checks-have-three-states, admin:check-change-sends-email) |
 | Daily, 00:00 UTC | Deletions | Removes every account whose deletion is due (account:deleted-data-removed-within-month) |
 | Daily, 00:00 UTC | Counters | Adds the day's game counters from the command log, once (analytics:nightly-game-counters) |
 | Daily, 00:00 UTC | Lives | Counts the lives being played, home and abroad, for the two lights (account:two-lights-and-wink-lines) |
