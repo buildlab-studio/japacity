@@ -121,11 +121,14 @@ describe("the code step (account:code-form-forgives)", () => {
     expect(change.className).not.toMatch(/\b(block|flex|min-h-\S+)\b/);
   });
 
-  test("[account:code-form-forgives] given a wrong code, then the slot says so in the bad colour, the digits are selected so typing replaces them, and Sign in stays off until they change: the same code is never sent twice", async () => {
+  test("[account:code-form-forgives] [world:field-says-its-state] given a wrong code, then the slot under the field says so in the out colour with the problem's icon and the field is marked, the digits are selected so typing replaces them, and Sign in stays off until they change: the same code is never sent twice", async () => {
     const { account, field } = await answered({ ok: false, why: "wrong-code" });
     await waitFor(() => expect(slot().textContent).toBe(say("ui.account.fail.wrong-code")));
     expect(say("ui.account.fail.wrong-code")).toBe("That code is not right.");
-    expect(slot().className).toContain("text-bad");
+    expect(slot().className).toContain("text-out");
+    expect(slot().querySelector("svg")?.getAttribute("class")).toContain("lucide-circle-alert");
+    expect(field.getAttribute("aria-invalid")).toBe("true");
+    expect(field.getAttribute("aria-describedby")).toBe(slot().id);
     await waitFor(() => expect(document.activeElement).toBe(field));
     expect([field.selectionStart, field.selectionEnd]).toEqual([0, 6]);
     expect(go().disabled).toBe(true);
@@ -226,7 +229,9 @@ describe("the code step (account:code-form-forgives)", () => {
     fireEvent.change(field, { target: { value: "000000" } });
     await waitFor(() => expect(slot().textContent).toBe(say("ui.account.fail.wrong-code")));
     expect(nudgeLink()).toBeNull();
-    expect(slot().childElementCount).toBe(0);
+    // The error's icon and its words, and nothing else: no quiet link beside them.
+    expect([...slot().children].map((child) => child.tagName.toLowerCase())).toEqual(["svg", "span"]);
+    expect(slot().querySelector("button")).toBeNull();
     expect(account.calls).toContain('signInWithCode("ada@example.test","000000")');
     // The digits change and the error goes; the way to a new code is back.
     fireEvent.change(field, { target: { value: "00000" } });
