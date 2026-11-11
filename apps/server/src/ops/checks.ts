@@ -20,6 +20,9 @@ export const CHECK_ROWS = "admin.checks";
 /** admin.md Numbers: the counted day is the day that ended once the time is past this hour UTC, and the day before it until then. */
 export const COUNTED_DAY_HOUR = 2;
 
+/** analytics:nightly-game-counters: the total every nightly run writes, whoever played; its presence says the day was counted. */
+export const NIGHTLY_MARK = "players/total";
+
 /** admin.md Numbers: every check's limit. */
 export const CHECK_LIMIT = 0;
 
@@ -103,7 +106,8 @@ async function measure(deps: ServerDeps, ports: CheckPorts, check: CheckName, af
     case "nightly-counts": {
       const name = time.dayName(day);
       const totals = await deps.stores.counters.days(name, name);
-      const counted = totals.some((row) => row.name === "players/active");
+      // The nightly job writes the accounts' total on every run, so a day with no one playing still reads as counted.
+      const counted = totals.some((row) => row.name === NIGHTLY_MARK);
       return { value: counted ? 0 : 1, found: { kind: "day", day: name, counted } };
     }
     default: {

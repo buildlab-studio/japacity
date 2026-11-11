@@ -49,7 +49,7 @@ function harness(seed: { reports?: Report[]; now?: number } = {}): { deps: Serve
 
 /** A counted day: the nightly job's one row that says the day was counted. */
 async function counted(deps: ServerDeps, day: number): Promise<void> {
-  await deps.stores.counters.add([{ day: time.dayName(day), region: "NG", name: "players/active", key: "NG", count: 12 }]);
+  await deps.stores.counters.add([{ day: time.dayName(day), region: "NG", name: "players/total", key: "NG", count: 12 }]);
 }
 
 const only = (views: readonly CheckView[], check: CheckView["check"]) => {
@@ -111,6 +111,13 @@ describe("the checks", () => {
     const view = only(await evaluateChecks(h.deps, h.ports, null), "asked-early");
     expect(view).toMatchObject({ state: "alarm", value: 3, found: { kind: "asks", rows: [{ day: time.dayName(YESTERDAY), name: "ask/shown", key: "notify:before", count: 3 }] } });
     expect(view.history.map((change) => change.state)).toEqual(["alarm", "no-data"]);
+  });
+
+  test("[admin:checks-have-three-states] given a counted day on which no one played, when the checks are evaluated, then nightly-counts is OK: the accounts' total says the day was counted", async () => {
+    const h = harness();
+    await h.deps.stores.counters.add([{ day: time.dayName(YESTERDAY), region: "NG", name: "players/total", key: "NG", count: 3 }]);
+    const views = await evaluateChecks(h.deps, h.ports, null);
+    expect(only(views, "nightly-counts")).toMatchObject({ state: "ok", value: 0, found: { kind: "day", counted: true } });
   });
 
   test("[admin:checks-have-three-states] [moderation:reports-decided-within-target] given an open report older than the target, when the checks are evaluated, then reports-overdue is in alarm with the queue's figures", async () => {
