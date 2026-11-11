@@ -66,7 +66,9 @@ describe("the line under a field (world:field-says-its-state)", () => {
       if (at < 0) throw new Error(`No block for ${selector} in index.css.`);
       return CSS.slice(CSS.indexOf("{", at) + 1, CSS.indexOf("}", at));
     };
-    expect(block(':is(input, select, textarea)[aria-invalid="true"] {')).toMatch(/border-color:\s*var\(--out\)/);
-    expect(block(':is(input, select, textarea)[aria-invalid="true"]:not([data-field-inner]):focus {')).toMatch(/box-shadow:\s*0 0 0 2px var\(--action\)/);
+    const marked = block(':is(input, select, textarea)[aria-invalid="true"]:not([data-field-inner]) {');
+    expect(marked).toMatch(/border-color:\s*var\(--out\)/);
+    expect(marked).toMatch(/box-shadow:\s*inset 0 0 0 1px var\(--out\)/);
+    expect(block(':is(input, select, textarea)[aria-invalid="true"]:not([data-field-inner]):focus {')).toMatch(/box-shadow:\s*inset 0 0 0 1px var\(--out\), 0 0 0 2px var\(--action\)/);
   });
 });
