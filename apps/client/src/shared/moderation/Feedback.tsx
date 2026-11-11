@@ -4,10 +4,11 @@
 // Tell us opens the same box (analytics:client-sends-interface-counts).
 import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
 import { Ban, BellDot, ChevronRight, MessageSquareText } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useId, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../ui/Button";
+import { FieldNote } from "../ui/FieldNote";
 import { ROW, ROWS_CARD } from "../ui/rows";
 import { Sheet } from "../ui/Sheet";
 import { graphicsMode } from "../graphics/mode";
@@ -38,6 +39,8 @@ export function FeedbackForm({ moderation, screen, max, initial = "" }: { modera
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
   const used = [...text.trim()].length;
+  const over = used > max;
+  const countId = useId();
 
   async function send() {
     setBusy(true);
@@ -59,13 +62,18 @@ export function FeedbackForm({ moderation, screen, max, initial = "" }: { modera
         void send();
       }}
     >
-      <label className="flex flex-col gap-1">
-        <span className="font-medium">{words("ui.feedback.label")}</span>
-        <textarea value={text} rows={5} onChange={(event) => setText(event.target.value)} className="rounded-md border border-sheet-line bg-sheet-2 p-3 text-ink" />
-      </label>
-      <p className={`text-sm ${used > max ? "text-bad" : "text-text-2"}`}>{words("ui.feedback.count", { used, max })}</p>
+      <div className="flex flex-col">
+        <label className="flex flex-col gap-1">
+          <span className="font-medium">{words("ui.feedback.label")}</span>
+          <textarea value={text} rows={5} onChange={(event) => setText(event.target.value)} aria-invalid={over} aria-describedby={countId} className="rounded-md border border-sheet-line bg-sheet-2 p-3 text-ink" />
+        </label>
+        {/* The count is the box's one state line: quiet while it fits, the problem once it runs over (world:field-says-its-state). */}
+        <FieldNote id={countId} state={over ? "problem" : "help"} className="mt-1.5" data-feedback-count>
+          {words("ui.feedback.count", { used, max })}
+        </FieldNote>
+      </div>
       <div>
-        <Button type="submit" variant="primary" disabled={busy || used === 0 || used > max}>
+        <Button type="submit" variant="primary" disabled={busy || used === 0 || over}>
           {words("ui.feedback.send")}
         </Button>
       </div>

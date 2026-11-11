@@ -6,9 +6,10 @@
 // A life that came by the code on the ways back in meets the same screen under a line that says why it is here, and without
 // that quiet line, since the player has just tried the ways back in (account:sign-in-without-secret).
 import { ArrowLeft } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useId, useState, type FormEvent, type ReactNode } from "react";
 
 import type { AccountApi, AgeStanding, Full } from "../../shared/net/auth";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { say } from "../../shared/words/text";
 
 /** How far back the year list runs: every adult's year, with no line drawn at any age. */
@@ -48,18 +49,24 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
   const [year, setYear] = useState("");
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(said);
+  // The answer itself is what is wrong (none picked, or a date that is no date): the three fields are marked (world:field-says-its-state).
+  const [invalid, setInvalid] = useState(false);
+  const noteId = useId();
 
   async function answer(event: FormEvent) {
     event.preventDefault();
     const birth = birthOf(day, month, year);
     if (birth === "") {
       setProblem(say("ui.account.age.empty"));
+      setInvalid(true);
       return;
     }
     setBusy(true);
     setProblem(null);
+    setInvalid(false);
     try {
       const answer = await account.declareAge(birth);
+      setInvalid(answer === "bad-date");
       if (answer === "bad-date") setProblem(say("ui.account.age.bad-date"));
       else if (answer === "bot-check") setProblem(say("ui.account.bot.failed"));
       else onStanding(answer);
@@ -84,10 +91,10 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
         </h1>
       </div>
       <p className="text-[14px] leading-snug text-text-2">{intro ?? say("ui.account.age.intro")}</p>
-      <fieldset className="flex flex-col gap-1.5">
+      <fieldset className="flex flex-col">
         <legend className="label mb-1.5 text-text-2">{say("ui.account.age.label")}</legend>
-        <div className="grid grid-cols-[1fr_1.6fr_1.2fr] gap-1.5">
-          <select className={FIELD} aria-label={say("ui.account.age.day")} value={day} onChange={(event) => setDay(event.target.value)}>
+        <div className="grid grid-cols-[1fr_1.6fr_1.2fr] gap-1.5" data-age-fields>
+          <select className={FIELD} aria-label={say("ui.account.age.day")} aria-invalid={invalid} aria-describedby={problem === null ? undefined : noteId} value={day} onChange={(event) => setDay(event.target.value)}>
             <option value="" disabled>
               {say("ui.account.age.day")}
             </option>
@@ -97,7 +104,7 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
               </option>
             ))}
           </select>
-          <select className={FIELD} aria-label={say("ui.account.age.month")} value={month} onChange={(event) => setMonth(event.target.value)}>
+          <select className={FIELD} aria-label={say("ui.account.age.month")} aria-invalid={invalid} aria-describedby={problem === null ? undefined : noteId} value={month} onChange={(event) => setMonth(event.target.value)}>
             <option value="" disabled>
               {say("ui.account.age.month")}
             </option>
@@ -107,7 +114,7 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
               </option>
             ))}
           </select>
-          <select className={FIELD} aria-label={say("ui.account.age.year")} value={year} onChange={(event) => setYear(event.target.value)}>
+          <select className={FIELD} aria-label={say("ui.account.age.year")} aria-invalid={invalid} aria-describedby={problem === null ? undefined : noteId} value={year} onChange={(event) => setYear(event.target.value)}>
             <option value="" disabled>
               {say("ui.account.age.year")}
             </option>
@@ -118,15 +125,16 @@ export function AgeScreen({ account, onStanding, onBack = null, onReturning = nu
             ))}
           </select>
         </div>
+        {/* Directly under the fields it speaks for; an alert, so it is heard when Continue is refused. */}
+        {problem === null ? null : (
+          <FieldNote id={noteId} role="alert" state="problem" className="mt-1.5" data-age-said>
+            {problem}
+          </FieldNote>
+        )}
       </fieldset>
       <button type="submit" className="btn-main mt-1" disabled={busy}>
         <span>{say("ui.account.age.go")}</span>
       </button>
-      {problem === null ? null : (
-        <p role="alert" className="text-[14px] font-bold text-bad">
-          {problem}
-        </p>
-      )}
       {onReturning === null ? null : (
         <button type="button" className="press min-h-11 self-start text-[14px] font-bold text-text-2 underline underline-offset-4" onClick={onReturning} data-age-returning>
           {say("ui.account.age.returning")}

@@ -5,14 +5,15 @@
 // (account:bot-check-on-code-send). Each step's field is the first to fill there and takes the
 // focus as the step opens on a desktop, never on a touch phone; a refusal for it focuses it on both. Once the
 // code is sent the step says one thing at a time: where the code went, with a quiet way back to the address; the field,
-// which sends itself at the sixth digit; the one button; and one status slot under them, a polite live
-// region mounted from the start, holding one line at a time, an error replacing whatever stood there. A refused code is
+// which sends itself at the sixth digit; one status slot directly under it, a polite live region mounted with the step,
+// holding one line at a time, an error replacing whatever stood there (world:field-says-its-state); and the one button. A refused code is
 // never sent again unchanged, a code that is spent or ran out leaves only "Send a new code", and the way to a new code
 // shows once the wait after a send is over.
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { FIRST_FIELD, focusFirstField } from "../../shared/ui/firstField";
 import { say } from "../../shared/words/text";
 import { CODE_ACTION, loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
@@ -123,7 +124,10 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
   // The code is spent or ran out: only a new one helps.
   const [dead, setDead] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [problem, setProblem] = useState<string | null>(null);
+  // What went wrong, and whether it is about what the field holds, which marks the field (world:field-says-its-state).
+  const [problem, setProblemWith] = useState<{ words: string; field: boolean } | null>(null);
+  const setProblem = (words: string | null, field = false) => setProblemWith(words === null ? null : { words, field });
+  const slotId = useId();
   const [line, setLine] = useState<Line>("none");
   // The form's own check is mounted only where the parent holds none.
   const own = useUnseenCheck(held !== undefined ? null : sitekey === undefined ? siteKey() : sitekey, load, undefined, CODE_ACTION);
@@ -179,12 +183,12 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
     const address = (sentTo ?? email).trim();
     // A send refused for the address: the field it is about takes the focus on every device.
     if (address === "") {
-      setProblem(say("ui.account.email.empty"));
+      setProblem(say("ui.account.email.empty"), true);
       focusFirstField(emailField.current, true);
       return;
     }
     if (known === undefined && !EMAIL_SHAPE.test(address)) {
-      setProblem(say("ui.account.email.shape"));
+      setProblem(say("ui.account.email.shape"), true);
       focusFirstField(emailField.current, true);
       return;
     }
@@ -216,7 +220,7 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
   function check(typed: string) {
     if (sentTo === null || typed === refused) return;
     if (!CODE.test(typed)) {
-      setProblem(say("ui.account.code.short"));
+      setProblem(say("ui.account.code.short"), true);
       focusFirstField(codeField.current, true);
       return;
     }
@@ -225,7 +229,7 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
       (result) => {
         if (result.ok && result.newLife === true && onNewLife !== undefined) return onNewLife(sentTo);
         if (result.ok) return onSignedIn();
-        setProblem(failureWords(result));
+        setProblem(failureWords(result), result.why === "wrong-code" || result.why === "bad-code");
         if (result.why === "taken") onTaken?.(sentTo);
         if (DEAD.has(result.why)) setDead(true);
         if (result.why === "wrong-code" || result.why === "bad-code") {
@@ -264,34 +268,48 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
     </button>
   );
   // One thing at a time: an error, else the line the step is at.
-  const said: ReactNode = problem ?? (sentTo === null || line === "none" ? "" : line === "resent" ? say("ui.account.code.resent") : withButton(say("ui.account.code.nudge"), again));
+  const said: ReactNode = problem?.words ?? (sentTo === null || line === "none" ? "" : line === "resent" ? say("ui.account.code.resent") : withButton(say("ui.account.code.nudge"), again));
+
+  const invalid = problem?.field === true;
+  // One status slot, a polite live region by its role, mounted with each step before its words, so each line is read out as it
+  // comes; directly under the field it speaks for (world:field-says-its-state).
+  const slot = (
+    <FieldNote id={slotId} role="status" state={problem !== null ? "problem" : said === "" ? null : "help"} className={said === "" ? "" : "mt-1.5"} data-code-said={problem === null ? line : "problem"}>
+      {said}
+    </FieldNote>
+  );
 
   return (
     <div className="flex flex-col gap-3">
       {sentTo === null ? (
         <form className="flex flex-col gap-2" onSubmit={send} noValidate>
-          {known === undefined ? (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium">{say("ui.account.email.label")}</span>
-              <input
-                ref={emailField}
-                className={FIELD}
-                {...{ [FIRST_FIELD]: "" }}
-                type="email"
-                name="email"
-                autoComplete={passkeyAutofill ? "username webauthn" : "email"}
-                inputMode="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  onEmailTyped?.();
-                }}
-              />
-            </label>
-          ) : null}
+          <div className="flex flex-col">
+            {known === undefined ? (
+              <label className="flex flex-col gap-1">
+                <span className="text-sm font-medium">{say("ui.account.email.label")}</span>
+                <input
+                  ref={emailField}
+                  className={FIELD}
+                  {...{ [FIRST_FIELD]: "" }}
+                  type="email"
+                  name="email"
+                  autoComplete={passkeyAutofill ? "username webauthn" : "email"}
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={email}
+                  aria-invalid={invalid}
+                  aria-describedby={slotId}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    onEmailTyped?.();
+                  }}
+                />
+              </label>
+            ) : null}
+            {slot}
+          </div>
           <div>
             <Button type="submit" disabled={busy}>
               {sendLabel ?? say("ui.account.email.send")}
@@ -322,20 +340,25 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
                 )
               : say("ui.account.code.sent", { email: sentTo })}
           </p>
-          {dead ? null : (
-            <input
-              ref={codeField}
-              className={`${FIELD} tracking-[0.3em]`}
-              {...{ [FIRST_FIELD]: "" }}
-              name="code"
-              aria-label={say("ui.account.code.label")}
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              pattern="\d{6}"
-              value={code}
-              onChange={(event) => typeCode(event.target.value)}
-            />
-          )}
+          <div className="flex flex-col">
+            {dead ? null : (
+              <input
+                ref={codeField}
+                className={`${FIELD} tracking-[0.3em]`}
+                {...{ [FIRST_FIELD]: "" }}
+                name="code"
+                aria-label={say("ui.account.code.label")}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="\d{6}"
+                value={code}
+                aria-invalid={invalid}
+                aria-describedby={slotId}
+                onChange={(event) => typeCode(event.target.value)}
+              />
+            )}
+            {slot}
+          </div>
           <div>
             {dead ? (
               <Button type="submit" variant="primary" disabled={busy}>
@@ -349,10 +372,6 @@ export function CodeForm({ account, sitekey, load = loadTurnstile, check: held, 
           </div>
         </form>
       )}
-      {/* One status slot, a polite live region by its role, mounted from the start, so each line is read out as it comes. */}
-      <p role="status" className={`text-[14px] leading-snug ${problem === null ? "text-text-2" : "text-bad"}`} data-code-said={problem === null ? line : "problem"}>
-        {said}
-      </p>
       {own.widget}
     </div>
   );

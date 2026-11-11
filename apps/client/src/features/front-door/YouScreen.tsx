@@ -16,6 +16,7 @@ import { LOOKS } from "../../shared/front-door/looks";
 import { OwnColoursRows } from "../../shared/front-door/OwnColours";
 import { isMade, type LookStyle, ownOf, reportOwn, useOwnColours } from "../../shared/front-door/style";
 import { bringIntoView } from "../../shared/front-door/view";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { focusFirstField } from "../../shared/ui/firstField";
 import type { Tint } from "../../shared/ui/look/tint";
 import { say } from "../../shared/words/text";
@@ -73,7 +74,7 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
   );
 }
 
-/** The name: its title and its line of what it is for, the box with the dice, the pool's three names, and what is wrong with it. */
+/** The name: its title and its line of what it is for, the box with the dice, what is wrong with it directly under the box, and the pool's three names. */
 export function NameField({ name, suggestion, typed, problem, tried, needed, suggestions, onName, onReroll, onEnter, className }: NameProps & { className: string }) {
   // The first field to fill takes the focus as the screen opens on a desktop; after a Begin refused for the empty box it takes it on every device and comes into view.
   const box = useRef<HTMLInputElement>(null);
@@ -87,9 +88,9 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
         {say("prologue.door.name.title")}
       </label>
       {/* What the name is for, so it is never taken for the username asked on its own step (prologue:front-door-builds-a-person). */}
-      <p id="door-name-hint" className="mt-0.5 text-[13px] leading-snug text-text-2" data-door-name-hint>
+      <FieldNote id="door-name-hint" state="help" className="mt-0.5" data-door-name-hint>
         {say("prologue.door.name.hint")}
-      </p>
+      </FieldNote>
       <div className="mt-2 flex gap-2.5">
         <input
           ref={box}
@@ -103,7 +104,7 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
           autoCapitalize="words"
           spellCheck={false}
           aria-invalid={needed || (tried && problem !== null)}
-          aria-describedby={needed ? "door-name-hint door-name-needed" : "door-name-hint"}
+          aria-describedby={needed || (tried && problem !== null) ? "door-name-hint door-name-needed" : "door-name-hint"}
           onFocus={(event) => {
             if (!typed) event.target.select();
           }}
@@ -116,6 +117,16 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
           <Dices size={26} strokeWidth={2.2} aria-hidden />
         </button>
       </div>
+      {/* The one state line, directly under the box and over the pool's names (world:field-says-its-state). */}
+      {needed ? (
+        <FieldNote id="door-name-needed" role="alert" state="problem" className="mt-1.5" data-door-name-needed>
+          {say("prologue.door.name.needed")}
+        </FieldNote>
+      ) : tried && problem !== null ? (
+        <FieldNote id="door-name-needed" role="alert" state="problem" className="mt-1.5">
+          {problemWords(problem)}
+        </FieldNote>
+      ) : null}
       {suggestions.length === 0 ? null : (
         <div role="group" aria-label={say("prologue.door.name.suggested")} className="mt-2.5 flex flex-wrap gap-2" data-door-suggested>
           {suggestions.map((one) => (
@@ -125,15 +136,6 @@ export function NameField({ name, suggestion, typed, problem, tried, needed, sug
           ))}
         </div>
       )}
-      {needed ? (
-        <p id="door-name-needed" role="alert" className="mt-1.5 text-[13px] font-bold text-out" data-door-name-needed>
-          {say("prologue.door.name.needed")}
-        </p>
-      ) : tried && problem !== null ? (
-        <p role="alert" className="mt-1.5 text-[13px] font-bold text-out">
-          {problemWords(problem)}
-        </p>
-      ) : null}
     </div>
   );
 }

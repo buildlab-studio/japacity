@@ -16,12 +16,12 @@
 // of the phone's Settings (AccountButton.tsx). This file is the sheet: it and its words (content's ui/ui.accountSheet.text.ts)
 // ride a chunk of their own, fetched by the row (engine:first-download-has-budget).
 import type { AccountView } from "@japacity/api";
-import { Check } from "lucide-react";
 import { useCallback, useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { say } from "../../shared/words/text";
 import { setUsageCounts } from "../../shared/analytics/start";
@@ -109,22 +109,6 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 }
 
 /**
- * account:username-typed-and-checked: the rename box says whether the name being typed is free, with the door's own check;
- * saving is the check that counts, so once it refuses, its words stand alone.
- */
-function RenameCheck({ id, account, name, own, quiet }: { id: string; account: AccountApi; name: string; own: string; quiet: boolean }) {
-  const ask = useCallback((username: string) => account.usernameFree(username), [account]);
-  const free = useFreeCheck(name, ask, own);
-  const said = free === null || quiet ? null : say(FREE_WORDS[free]);
-  return (
-    <p id={id} role="status" className={`text-sm font-bold ${free === "free" ? "text-in" : "text-text"}`} data-rename-check={free ?? ""}>
-      {free === "free" && said !== null ? <Check size={14} strokeWidth={3} className="mr-1 inline-block align-[-2px]" aria-hidden /> : null}
-      {said}
-    </p>
-  );
-}
-
-/**
  * account:username-and-unconfirmed-email: the username as a labelled row, with "Change it" as a quiet link while a change is
  * open, else the day the next one opens; and the line a saved change leaves.
  */
@@ -149,16 +133,24 @@ function UsernameRow({ onChange, changed }: { onChange: () => void; changed: str
 }
 
 /**
- * account:username-and-unconfirmed-email: the change's own step: the box, its one line (whether the name is free, or the
- * refusal once saving says no), "Your first change is free" while it is, and Save. A refusal goes with the step.
+ * account:username-and-unconfirmed-email: the change's own step: "Your first change is free" while it is, as the help over the box,
+ * the box, its one line (whether the name is free, or the refusal once saving says no), and Save. A refusal goes with the step.
+ * account:username-typed-and-checked: the box says whether the name being typed is free, with the door's own check; saving is the
+ * check that counts, so once it refuses, its words stand alone (world:field-says-its-state).
  */
 function RenameStep({ account, onSaved }: { account: AccountApi; onSaved: (name: string) => void }) {
   const me = useAccountView();
   const [name, setName] = useState(me?.username ?? "");
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  const ask = useCallback((username: string) => account.usernameFree(username), [account]);
+  const free = useFreeCheck(name, ask, me?.username ?? null);
+  const boxId = useId();
+  const helpId = useId();
   const checkId = useId();
+  const saidId = useId();
   if (me === null) return null;
+  const checked = problem === null ? free : null;
 
   async function save(event: FormEvent) {
     event.preventDefault();
@@ -174,28 +166,40 @@ function RenameStep({ account, onSaved }: { account: AccountApi; onSaved: (name:
     void refreshAccount(account);
   }
 
+  const helped = me.renameFrom === 0;
   return (
     <form className="flex flex-col gap-3" onSubmit={(event) => void save(event)} noValidate data-rename>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{say("ui.account.name.label")}</span>
+      <div className="flex flex-col">
+        <label className="text-sm font-medium" htmlFor={boxId}>
+          {say("ui.account.name.label")}
+        </label>
+        {helped ? (
+          <FieldNote id={helpId} state="help" className="mt-0.5">
+            {say("ui.account.name.free")}
+          </FieldNote>
+        ) : null}
         <input
-          className="min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base"
+          id={boxId}
+          className="mt-1.5 min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base"
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
           maxLength={20}
           value={name}
-          aria-describedby={checkId}
+          aria-invalid={problem !== null || (free !== null && free !== "free")}
+          aria-describedby={`${helped ? `${helpId} ` : ""}${checkId} ${saidId}`}
           onChange={(event) => (setName(event.target.value), setProblem(null))}
         />
-      </label>
-      <RenameCheck id={checkId} account={account} name={name} own={me.username} quiet={problem !== null} />
-      {problem === null ? null : (
-        <p role="alert" className="-mt-2 text-sm font-bold text-bad">
-          {problem}
-        </p>
-      )}
-      {me.renameFrom === 0 ? <p className="text-sm text-text-2">{say("ui.account.name.free")}</p> : null}
+        {/* Polite, so the answer is heard as the player types; saving's own refusal below is the alert. */}
+        <FieldNote id={checkId} role="status" state={checked === null ? null : checked === "free" ? "good" : "problem"} className={checked === null ? "" : "mt-1.5"} data-rename-check={free ?? ""}>
+          {checked === null ? null : say(FREE_WORDS[checked])}
+        </FieldNote>
+        {problem === null ? null : (
+          <FieldNote id={saidId} role="alert" state="problem" className="mt-1.5">
+            {problem}
+          </FieldNote>
+        )}
+      </div>
       <div>
         <Button type="submit" variant="primary" disabled={busy}>
           {say("ui.account.name.change.go")}
