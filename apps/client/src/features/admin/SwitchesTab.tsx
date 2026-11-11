@@ -25,6 +25,23 @@ function switchName(name: SwitchName): string {
   return words(`admin.switch.${name}`);
 }
 
+function reasonExample(name: SwitchName, on: boolean) {
+  const way = on ? "off" : "on";
+  switch (name) {
+    case "signups":
+    case "lottery":
+    case "adverts":
+    case "partnerPlay":
+      return `admin.switch.reason.example.${way}.${name}` as const;
+    case "boards.this-week.everyone":
+    case "boards.this-week.friends":
+    case "boards.all-time.everyone":
+    case "boards.all-time.friends":
+    case "boards.joined-week":
+      return `admin.switch.reason.example.${way}.board` as const;
+  }
+}
+
 function valueOf(typed: string): number | null {
   return WHOLE.test(typed) && Number(typed) <= MAX_DIAL ? Number(typed) : null;
 }
@@ -38,7 +55,13 @@ function SwitchRow({ api, name, on, onDone }: { api: AdminApi; name: SwitchName;
         <span className="font-semibold">{switchName(name)}</span>
         <Tag tone={on ? "good" : "bad"}>{words(on ? "admin.switch.on" : "admin.switch.off")}</Tag>
       </div>
-      <Field label={words("admin.switch.reason", { name: switchName(name) })} value={reason} onChange={(event) => setReason(event.target.value)} />
+      <Field
+        label={words("admin.switch.reason")}
+        aria-label={words("admin.switch.reason.for", { name: switchName(name) })}
+        hint={words(reasonExample(name, on))}
+        value={reason}
+        onChange={(event) => setReason(event.target.value)}
+      />
       <Confirm
         label={words(on ? "admin.switch.turn-off" : "admin.switch.turn-on", { name: switchName(name) })}
         summary={words(on ? "admin.switch.confirm.off" : "admin.switch.confirm.on", { name: switchName(name), reason: why })}
@@ -76,7 +99,7 @@ function DialRow({ api, dial, now, onDone }: { api: AdminApi; dial: DialName; no
       <div className="grid gap-3 sm:grid-cols-3">
         {dial === "placeTarget" ? <Choice label={words("admin.dial.place")} value={place} options={PLACES.map((id) => ({ value: id, label: id }))} onChange={setPlace} /> : null}
         <Field label={`${words("admin.dial.value")}: ${name}`} inputMode="numeric" value={typed} onChange={(event) => setTyped(event.target.value)} />
-        <Field label={`${words("admin.dial.reason")}: ${name}`} value={reason} onChange={(event) => setReason(event.target.value)} />
+        <Field label={words("admin.dial.reason")} aria-label={words("admin.dial.reason.for", { name })} hint={words("admin.dial.reason.example")} value={reason} onChange={(event) => setReason(event.target.value)} />
       </div>
       <div className="flex flex-wrap gap-4">
         <Confirm label={words("admin.dial.set")} summary={summary(value)} blocked={value === null ? words("admin.dial.bad") : reasonBlock} send={() => api.setDial(change(value), why)} onDone={onDone} />

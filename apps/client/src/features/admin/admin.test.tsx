@@ -593,7 +593,7 @@ describe("the switches tab", () => {
     expect(within(row).getByText(words("admin.switch.on"))).toBeTruthy();
     const off = within(row).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) });
     expect(off).toHaveProperty("disabled", true);
-    fireEvent.change(within(row).getByLabelText(words("admin.switch.reason", { name: words("admin.switch.signups") })), { target: { value: " Database at its limit " } });
+    fireEvent.change(within(row).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.signups") })), { target: { value: " Database at its limit " } });
     fireEvent.click(off);
     await confirm(words("admin.switch.confirm.off", { name: words("admin.switch.signups"), reason: "Database at its limit" }));
     await waitFor(() => expect(server.calls.filter((call) => call.path === "/api/admin/switches/log")).toHaveLength(2));
@@ -602,6 +602,15 @@ describe("the switches tab", () => {
     const lottery = screen.getByText(words("admin.switch.lottery")).closest("li")!;
     expect(within(lottery).getByRole("button", { name: words("admin.switch.turn-on", { name: words("admin.switch.lottery") }) })).toBeTruthy();
     expectOnlyAdminRoutes(server.calls);
+  });
+
+  test("[server:four-off-switches] given the switch rows, when the tab opens, then each reason box reads \"Reason for the change\" and its example fits the way the switch would turn", async () => {
+    page("switches");
+    const signups = (await screen.findByText(words("admin.switch.signups"))).closest("li")!;
+    const lottery = screen.getByText(words("admin.switch.lottery")).closest("li")!;
+    expect(within(signups).getByText(words("admin.switch.reason"))).toBeTruthy();
+    expect(within(signups).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.signups") })).getAttribute("placeholder")).toBe(words("admin.switch.reason.example.off.signups"));
+    expect(within(lottery).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.lottery") })).getAttribute("placeholder")).toBe(words("admin.switch.reason.example.on.lottery"));
   });
 
   test("[city:boards-switch-when-and-who] given the switch row, when the tab opens, then each of the five board switches is listed with its state, the joined-week board off", async () => {
@@ -630,7 +639,7 @@ describe("the switches tab", () => {
     expect(within(months).getByText("25")).toBeTruthy();
     expect(screen.queryByText(/top-up/i)).toBeNull();
     const value = within(months).getByLabelText(`${words("admin.dial.value")}: ${words("admin.dial.computerAfterMonths")}`);
-    fireEvent.change(within(months).getByLabelText(`${words("admin.dial.reason")}: ${words("admin.dial.computerAfterMonths")}`), { target: { value: "Quiet week" } });
+    fireEvent.change(within(months).getByLabelText(words("admin.dial.reason.for", { name: words("admin.dial.computerAfterMonths") })), { target: { value: "Quiet week" } });
     fireEvent.change(value, { target: { value: "-1" } });
     expect(within(months).getByRole("button", { name: words("admin.dial.set") })).toHaveProperty("disabled", true);
     fireEvent.change(value, { target: { value: "0" } });
@@ -640,7 +649,7 @@ describe("the switches tab", () => {
     const place = screen.getByText(words("admin.dial.placeTarget")).closest("li")!;
     fireEvent.change(within(place).getByLabelText(words("admin.dial.place")), { target: { value: "place.ojuelegba" } });
     expect(within(place).getByText("40")).toBeTruthy();
-    fireEvent.change(within(place).getByLabelText(`${words("admin.dial.reason")}: ${words("admin.dial.placeTarget")}`), { target: { value: "Back to normal" } });
+    fireEvent.change(within(place).getByLabelText(words("admin.dial.reason.for", { name: words("admin.dial.placeTarget") })), { target: { value: "Back to normal" } });
     fireEvent.click(within(place).getByRole("button", { name: words("admin.dial.clear") }));
     await confirm(words("admin.dial.confirm.place.unset", { dial: words("admin.dial.placeTarget"), place: "place.ojuelegba", reason: "Back to normal" }));
     await waitFor(() => expect(posts(server.calls)).toHaveLength(2));
