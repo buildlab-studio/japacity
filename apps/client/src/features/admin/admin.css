@@ -1,6 +1,8 @@
 /* The admin page's own paint (admin:sections-alarms-first): a cool blue-grey ground, white cards with hairlines,
    near-black text, one blue accent used thinly, and the two states as soft tints. The theme's utilities inline the
-   game's tokens, so redefining them here repaints only the admin page; the night paint follows the game's switch. */
+   game's tokens, so redefining them here repaints only the admin page; the night paint follows the game's switch. The
+   body takes them too while the page is open, so a dialog rendered beside the page keeps the same paint. */
+body:has([data-page="admin"]),
 [data-page="admin"] {
   --sheet: #eef2f7;
   --sheet-2: #ffffff;
@@ -24,6 +26,7 @@
   color: var(--text);
 }
 
+[data-paint="night"] body:has([data-page="admin"]),
 [data-paint="night"] [data-page="admin"] {
   --sheet: #0f1115;
   --sheet-2: #171a21;

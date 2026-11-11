@@ -263,14 +263,14 @@ function Queue({ shared }: { shared: Shared }) {
               {view.items.length === 0 ? (
                 <p className="text-sm text-text-2">{words("admin.moderation.empty")}</p>
               ) : (
-                <div className="lg:grid lg:grid-cols-[minmax(16rem,2fr)_3fr] lg:gap-x-4">
+                <div className="lg:grid lg:grid-cols-[minmax(16rem,2fr)_3fr] lg:gap-x-4" style={{ gridTemplateRows: `repeat(${String(view.items.length)}, min-content) minmax(0, 1fr)` }}>
                   {/* On a desktop the list and each row show through (display: contents), so the rows fill the left column and the chosen row's detail the right one. */}
                   <ol aria-label={words("admin.moderation.queue")} className="flex flex-col divide-y divide-sheet-line lg:contents">
                     {view.items.map((item) => {
                       const open = current?.id === item.id;
                       return (
                         <li key={item.id} data-item={item.id} data-open={open ? "true" : "false"} className="flex flex-col lg:contents">
-                          <button type="button" aria-pressed={open} onClick={() => setChosen(item.id)} className={`flex w-full items-center gap-3 rounded-md px-2 py-2.5 text-left transition-colors lg:col-start-1 lg:border-b lg:border-sheet-line ${open ? "bg-(--accent-fill)" : "hover:bg-sheet-muted"}`}>
+                          <button type="button" aria-pressed={open} onClick={() => setChosen(item.id)} className={`flex w-full items-center gap-3 rounded-md px-2 py-2.5 text-left transition-colors lg:col-start-1 lg:self-start lg:border-b lg:border-sheet-line ${open ? "bg-(--accent-fill)" : "hover:bg-sheet-muted"}`}>
                             <Pill tone={item.age > target ? "alarm" : "wait"}>{item.age > target ? words("admin.queue.past") : words("admin.queue.waiting")}</Pill>
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-sm font-medium">{itemTitle(item)}</span>
@@ -279,7 +279,7 @@ function Queue({ shared }: { shared: Shared }) {
                             <span className="shrink-0 text-xs text-text-2 tabular-nums">{duration(item.age)}</span>
                           </button>
                           {open ? (
-                            <div className="mt-2 rounded-lg border border-sheet-line bg-sheet p-3 lg:col-start-2 lg:row-start-1 lg:mt-0 lg:self-start lg:p-4" style={{ gridRow: `1 / span ${String(view.items.length)}` }} data-panel={item.id}>
+                            <div className="mt-2 rounded-lg border border-sheet-line bg-sheet p-3 lg:col-start-2 lg:row-start-1 lg:mt-0 lg:self-start lg:p-4" style={{ gridRow: `1 / span ${String(view.items.length + 1)}` }} data-panel={item.id}>
                               <Detail shared={shared} item={item} onDone={decided} />
                             </div>
                           ) : null}
