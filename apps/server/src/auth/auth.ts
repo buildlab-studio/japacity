@@ -43,12 +43,13 @@ export interface OtpMessage {
   type: "sign-in" | "email-verification" | "forget-password" | "change-email";
 }
 
-/** account:passkey-needs-signed-in-session: what the account's email is told, by a send the request never awaits. */
-export interface AuthNotice {
-  email: string;
-  kind: "passkey-added";
-  at: number;
-}
+/**
+ * What an account's email is told, by a send the request never awaits: a passkey added (account:passkey-needs-signed-in-session),
+ * or a check that went into alarm or cleared (admin:check-change-sends-email), to an admin.
+ */
+export type AuthNotice =
+  | { email: string; kind: "passkey-added"; at: number }
+  | { email: string; kind: "check-changed"; at: number; check: string; state: "alarm" | "ok"; value: string; limit: string; link: string };
 
 /** The deployment's keys and outside services for sign-in. */
 export interface AuthKeys {

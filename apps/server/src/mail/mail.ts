@@ -108,9 +108,16 @@ export function codeMail(message: OtpMessage, mail: MailWords): Letter {
   return letter(words(mail.text, "mail.code.subject", params), words(mail.text, "mail.code.body", params));
 }
 
-/** account:passkey-needs-signed-in-session: the notice's mail. The time is said in UTC, the same for every reader. */
+/**
+ * account:passkey-needs-signed-in-session, admin:check-change-sends-email: a notice's mail. The time is said in UTC, the same
+ * for every reader. A check's name and state are content's words for them, so the mail never shows an id.
+ */
 export function noticeMail(notice: AuthNotice, mail: MailWords): Letter {
-  const params = { date: new Date(notice.at).toUTCString() };
+  const date = new Date(notice.at).toUTCString();
+  const params =
+    notice.kind === "check-changed"
+      ? { date, check: words(mail.text, `mail.check.${notice.check}`, {}), state: words(mail.text, `mail.check.state.${notice.state}`, {}), value: notice.value, limit: notice.limit, link: notice.link }
+      : { date };
   return letter(words(mail.text, `mail.${notice.kind}.subject`, params), words(mail.text, `mail.${notice.kind}.body`, params));
 }
 

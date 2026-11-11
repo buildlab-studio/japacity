@@ -11,6 +11,7 @@ import { productionConfig } from "./config";
 import { quicknet } from "./lottery/beacon";
 import { advertLinksJob } from "./advert/scheduled";
 import { boardsWeekJob } from "./boards/scheduled";
+import { checksJob } from "./scheduled/checks";
 import { COUNTERS_CRON, countersJob } from "./scheduled/counters";
 import { runDeletions } from "./scheduled/deletion";
 import { drawJob } from "./scheduled/lottery";
@@ -18,6 +19,7 @@ import { LIVES_CRON, livesJob } from "./scheduled/lives";
 import { MONEY_CRON, moneyJob } from "./scheduled/money";
 import { notifyJob } from "./scheduled/notify";
 import { onlineJob } from "./scheduled/online";
+import { moderationPorts } from "./moderation/ports";
 import { runJobs } from "./scheduled/run";
 import type { NamedJob } from "./scheduled/run";
 import { standInJob } from "./scheduled/standIn";
@@ -59,6 +61,8 @@ export default {
       // city:boards-switch-when-and-who: the board figures' week turns on the five-minute cron.
       job("boards-week", ({ deps }) => boardsWeekJob(deps, cron)),
       ...(daily ? [job("deletions", ({ deps }, auth) => runDeletions(deps, auth))] : []),
+      // admin:checks-have-three-states, admin:check-change-sends-email: the checks, measured on the five-minute cron, the admins told of a change.
+      job("checks", ({ deps }, auth, keys) => checksJob(deps, moderationPorts(deps, { auth, keys }), { auth, keys }, cron)),
       // analytics:session-split-by-command-gaps: online now, sampled for the day's peak on the five-minute cron.
       job("online", ({ deps, handle }) => onlineJob(deps, pgDayLog(handle), cron)),
       // analytics:nightly-game-counters, server:daily-money-report: both read the day's characters from the command log.

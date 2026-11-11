@@ -72,6 +72,18 @@ describe("the mail transport", () => {
     expect(box.sent[0]?.body).toMatchObject({ Text: expect.stringContaining("to remove it and sign out on every phone") as unknown });
   });
 
+  test("[admin:check-change-sends-email] given the local transport, when a check's notice is sent, then the mail names the check and its state in words, the value against the limit, the time in UTC and the admin page's link", async () => {
+    const box = inbox();
+    const mail = mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
+    const notice = { email: "ada@example.com", kind: "check-changed", at: Date.UTC(2026, 10, 11, 14, 5), check: "money-suspects", state: "alarm", value: "2", limit: "0", link: "https://japacity.test/admin" } as const;
+    await mail.sendNotice(notice);
+    expect(box.sent[0]?.body).toMatchObject({ To: [{ Email: "ada@example.com" }], Subject: "Japacity: Money suspects is in alarm" });
+    const letter = noticeMail(notice, WORDS);
+    expect(letter.text).toContain("Money suspects is in alarm since Wed, 11 Nov 2026 14:05:00 GMT: 2 against a limit of 0.");
+    expect(letter.text).toContain("https://japacity.test/admin");
+    expect(noticeMail({ ...notice, state: "ok", value: "0" }, WORDS).subject).toBe("Japacity: Money suspects is OK");
+  });
+
   // A deployment sends through its MAIL binding (decision 0007); one without it sends nothing.
   test("[account:sign-in-routes-rate-limited] given no MAIL_TRANSPORT and no MAIL binding, when a code or a notice is sent, then the send is refused and nothing is fetched", async () => {
     const box = inbox();

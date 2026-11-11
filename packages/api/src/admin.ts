@@ -14,16 +14,17 @@ export interface AdminRefusal {
   refusals?: string[];
 }
 
+/** admin:checks-have-three-states: `at` is when the alarm was raised; an alarm stored without one is taken as raised when its day's job ran. */
 export type Alarm =
   /** server:ledger-alarm-lists-suspects: `ledgerReport` named the character as suspect. */
-  | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
+  | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number; at?: number }
   /**
    * lottery:money-report-checks-draws: `win` paid for the draw other than its result gives (`win`), or
    * `ticket` taken for it other than its sales (`ticket`); `limit` is the figure it should have been.
    */
-  | { kind: "draw"; day: number; draw: number; check: "win" | "ticket"; total: number; limit: number }
+  | { kind: "draw"; day: number; draw: number; check: "win" | "ticket"; total: number; limit: number; at?: number }
   /** server:log-rows-hash-state: a load found the replay's hash differs from the stored one; the character waits for the rollback tool. */
-  | { kind: "diverged"; day: number; character: string; v: number };
+  | { kind: "diverged"; day: number; character: string; v: number; at?: number };
 
 /** Why a replay could not run at all. */
 export interface LoadFailure {

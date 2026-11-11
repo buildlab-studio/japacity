@@ -14,6 +14,7 @@ export type * from "./analytics";
 export type * from "./boards";
 export type * from "./admin";
 export type * from "./admin.analytics";
+export * from "./admin.checks";
 export type * from "./admin.advert";
 export * from "./socket";
 export * from "./moderation";

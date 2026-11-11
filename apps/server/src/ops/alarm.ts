@@ -36,7 +36,9 @@ export async function listAlarms(deps: Pick<ServerDeps, "stores">): Promise<Alar
 /** Adds the alarms to the list and to the audit store. */
 export async function raiseAlarms(deps: Pick<ServerDeps, "stores" | "now">, alarms: readonly Alarm[]): Promise<void> {
   const list = await cached(deps.stores.audit);
-  for (const alarm of alarms) {
+  for (const raised of alarms) {
+    // admin:checks-have-three-states: a check counts an alarm by when it was raised.
+    const alarm: Alarm = { ...raised, at: raised.at ?? deps.now() };
     await deps.stores.audit.retire({ character: ALARM_ROWS, why: "alarm", at: deps.now(), note: JSON.stringify(alarm), segments: [], log: [], snapshots: [] });
     list.push(alarm);
   }

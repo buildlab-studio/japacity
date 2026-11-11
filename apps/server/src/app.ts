@@ -20,6 +20,7 @@ import { adminDedicationRoutes } from "./routes/admin/dedication";
 import { adminRoutes } from "./routes/admin/admin";
 import { adminSwitchRoutes } from "./routes/admin/switches";
 import { adminAnalyticsRoutes } from "./routes/admin/analytics";
+import { adminCheckRoutes } from "./routes/admin/checks";
 import { countersRoute } from "./routes/counters";
 import { cspReportRoute } from "./routes/csp";
 import { feedbackRoute } from "./routes/feedback";
@@ -76,7 +77,9 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
   // server:csp-reports-to-own-origin: the page's content policy reports here.
   app.route("/", cspReportRoute(deps));
-  app.route("/", adminModerationRoutes(deps, moderationPorts(deps, accounts)));
+  const ports = moderationPorts(deps, accounts);
+  app.route("/", adminModerationRoutes(deps, ports));
+  app.route("/api/admin", adminCheckRoutes(deps, ports));
   app.route("/", feedbackRoute(deps));
   app.route("/", inviteRoutes(deps));
   app.route("/", pairRoutes(deps));
