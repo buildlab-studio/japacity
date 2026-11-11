@@ -83,3 +83,22 @@ describe("the team's notice and the appeal", () => {
     expect(screen.getByText(words("ui.notice.report.no-action"))).toBeTruthy();
   });
 });
+
+describe("the feedback box's line (world:field-says-its-state)", () => {
+  test("[world:field-says-its-state] given the box within its length, then the count under it is quiet help; given it over, then the count is a problem in the out colour with its icon and the box is marked and described by it", () => {
+    render(<FeedbackForm moderation={fakeModeration()} screen="home" max={500} />);
+    const box = screen.getByRole("textbox", { name: words("ui.feedback.label") });
+    fireEvent.change(box, { target: { value: "a".repeat(500) } });
+    const count = document.querySelector("[data-feedback-count]")!;
+    expect(count.className.split(" ")).toContain("text-text-2");
+    expect(count.querySelector("svg")).toBeNull();
+    expect(box.getAttribute("aria-invalid")).toBe("false");
+    fireEvent.change(box, { target: { value: "a".repeat(501) } });
+    expect(count.className.split(" ")).toContain("text-out");
+    expect(count.className.split(" ")).toContain("font-bold");
+    expect(count.querySelector("svg")?.getAttribute("class")).toContain("lucide-circle-alert");
+    expect(box.getAttribute("aria-invalid")).toBe("true");
+    expect(box.getAttribute("aria-describedby")).toBe(count.id);
+    expect(box.closest("label")?.nextElementSibling).toBe(count);
+  });
+});

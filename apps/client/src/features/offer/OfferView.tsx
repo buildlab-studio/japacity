@@ -7,6 +7,7 @@ import { Eye, X } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { FieldNote } from "../../shared/ui/FieldNote";
 import { Empty } from "../../shared/ui/Panel";
 import { Face, faceMark } from "../../shared/ui/look/Face";
 import { StickerChip } from "../../shared/ui/look/StickerChip";
@@ -126,6 +127,10 @@ function AmountPicker({ min, max, value, currency, onChange }: { min: number; ma
       <label htmlFor={id} className="text-sm font-medium">
         {say("ui.offer.amount")}: <span className="font-semibold">{formatMoney(value, currency)}</span>
       </label>
+      {/* What the amount may be, as the help under the label, over the slider and the box (world:field-says-its-state). */}
+      <FieldNote id={`${id}-bounds`} state="help" className="-mt-1">
+        {say("ui.offer.bounds", { min: formatMoney(min, currency), max: formatMoney(max, currency) })}
+      </FieldNote>
       <input
         type="range"
         min={minMajor}
@@ -144,11 +149,9 @@ function AmountPicker({ min, max, value, currency, onChange }: { min: number; ma
         max={maxMajor}
         value={toMajor(value)}
         onChange={(event) => set(Number(event.target.value))}
+        aria-describedby={`${id}-bounds`}
         className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3 tabular-nums"
       />
-      <p id={`${id}-bounds`} className="text-xs text-text-2">
-        {say("ui.offer.bounds", { min: formatMoney(min, currency), max: formatMoney(max, currency) })}
-      </p>
     </div>
   );
 }
