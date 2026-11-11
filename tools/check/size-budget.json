@@ -22,7 +22,7 @@
       "measured": 82256
     },
     "shared": {
-      "budget": 64185,
+      "budget": 64915,
       "measured": 61129
     },
     "total": {
@@ -54,6 +54,7 @@
     "main lowered from 289643 to 67015 (measured 63824, from 275851) for the life's screens moved out of the first visit: everything the game draws once a life exists (the world, the phone and its apps, the map, the prologue, the road, the ending, the share cards, the results) is one part fetched apart (app/Life.tsx) while the player is on the start screen, so the entry holds the start screen, the age screen, the door, sign in, the invite page, the splash and the trouble cards",
     "content-sim raised from 299631 to 316761 (measured 301678, from 285363) for the modules both the start screen and the life's screens use that the bundler gave chunks of their own, out of the entry: four of them (the report sheet's, the looks', the clock's and the world clock's) each hold a module of the simulation, so they are counted with it; the simulation's own chunk fell from 285363 to 282366 and nothing in it is new",
     "shared raised from 33895 to 64185 (measured 61129, from 32281) for the same move: the modules the start screen and the life's screens share (the sheet library, the save sheet, the face, the loader, the words) left the entry for chunks both import, and are counted here; no module is in two chunks",
-    "total lowered from 709538 to 534331 (measured 508887, from 675751) for the moves above together: a first visit downloads 166864 fewer bytes gzipped; the life's screens (177750) and the whole game (1069026) are printed beside the budgets with none of their own"
+    "total lowered from 709538 to 534331 (measured 508887, from 675751) for the moves above together: a first visit downloads 166864 fewer bytes gzipped; the life's screens (177750) and the whole game (1069026) are printed beside the budgets with none of their own",
+    "shared raised from 64185 to 64915 (measured 64649, from 63923) for the one line a field says about its state: the shared FieldNote with its problem and good icons, which the start screen's fields (the username, the code form, the age answer, the door's name) and the life's fields both import, so the bundler gives it a chunk of its own counted here; main (66211) stays inside its budget"
   ]
 }
