@@ -36,7 +36,7 @@ export function AnalyticsTab({ api }: { api: AdminApi }) {
         {({ dashboard: data }) => (
           <div className="flex flex-col gap-6">
             <p>{words("admin.analytics.window", { from: data.from, day: data.day, minShown: data.minShown })}</p>
-            {data.askBeforeEarlyWin ? (
+            {data.askedEarly.length > 0 ? (
               <p role="alert" data-fault="ask-before-early-win" className="rounded-md border-2 border-bad p-3 font-semibold text-bad">
                 {words("admin.analytics.ask")}
               </p>

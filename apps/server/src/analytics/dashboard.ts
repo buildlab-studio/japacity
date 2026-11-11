@@ -1,6 +1,6 @@
 // analytics:dashboard-shows-fixed-list, analytics:small-counts-shown-as-fewer and analytics:day-one-and-seven-return: the dashboard's data, for the day asked and the 30
 // before it. A figure under `minShown` is never shown as itself (analytics:small-counts-shown-as-fewer).
-import type { DailyRow, Dashboard, Shown, WeekRow } from "@japacity/api";
+import type { AskedEarlyRow, DailyRow, Dashboard, Shown, WeekRow } from "@japacity/api";
 import type { Content } from "@japacity/sim";
 import { int, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
@@ -21,6 +21,20 @@ function sum(rows: readonly CounterTotal[], test: (row: CounterTotal) => boolean
 }
 
 const weekOf = (day: number) => day - ((day + MONDAY_OFFSET) % WEEK_DAYS);
+
+const ASKS = new Set(["ask/shown", "ask/accepted"]);
+
+/** analytics:day-one-and-seven-return: the `ask/*` counters' `:before` counts by ask and day, every region added up, zero left out. */
+export function askedEarly(rows: readonly CounterTotal[]): AskedEarlyRow[] {
+  const found = new Map<string, AskedEarlyRow>();
+  for (const row of rows) {
+    if (!ASKS.has(row.name) || !row.key.endsWith(":before") || row.count === 0) continue;
+    const id = `${row.day} ${row.name} ${row.key}`;
+    const held = found.get(id) ?? { day: row.day, name: row.name, key: row.key, count: 0 };
+    found.set(id, { ...held, count: held.count + row.count });
+  }
+  return [...found.values()].sort((one, two) => one.day.localeCompare(two.day) || one.name.localeCompare(two.name) || one.key.localeCompare(two.key));
+}
 
 function rate(part: number, whole: number, minShown: number): number | null {
   return whole < minShown || part < minShown ? null : int.mulDiv(part, 10000, whole);
@@ -62,7 +76,7 @@ export function dashboard(content: Content, day: string, totals: readonly Counte
     minShown,
     reference: { d1Bp: refD1Bp, d7Bp: refD7Bp },
     // A fault is shown whatever its size: it names no one, and one is enough to look.
-    askBeforeEarlyWin: totals.some((row) => (row.name === "ask/shown" || row.name === "ask/accepted") && row.key.endsWith(":before") && row.count > 0),
+    askedEarly: askedEarly(totals),
     daily,
     weeks,
     counters: totals.map((row) => ({ ...row, count: shown(row.count, minShown) })),

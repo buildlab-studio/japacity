@@ -1,5 +1,6 @@
 // The admin routes of the dashboard and the Numbers tab (analytics:dashboard-shows-fixed-list, analytics:small-counts-shown-as-fewer, analytics:day-one-and-seven-return, analytics:admin-stats-for-admins-only and analytics:session-split-by-command-gaps). A figure under `minShown` is never shown as itself (analytics:small-counts-shown-as-fewer).
 import type { AdminRefusal } from "./admin";
+import type { AskedEarlyRow } from "./admin.checks";
 
 /** A count, or the floor it is under when it is under `minShown`. */
 export type Shown = number | { fewerThan: number };
@@ -38,8 +39,8 @@ export interface Dashboard {
   from: string;
   minShown: number;
   reference: { d1Bp: number; d7Bp: number };
-  /** analytics:day-one-and-seven-return, guide:nothing-asked-before-early-win: an ask made before the early win, which the page shows in red. */
-  askBeforeEarlyWin: boolean;
+  /** analytics:day-one-and-seven-return, guide:nothing-asked-before-early-win: the asks made before the early win, by ask and day, every region added up; a count is a fault whatever its size. */
+  askedEarly: AskedEarlyRow[];
   daily: DailyRow[];
   weeks: WeekRow[];
   counters: ShownTotal[];

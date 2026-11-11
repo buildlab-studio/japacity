@@ -145,7 +145,7 @@ const DASHBOARD: DashboardReply = {
     from: "2026-09-08",
     minShown: 10,
     reference: { d1Bp: 4000, d7Bp: 1500 },
-    askBeforeEarlyWin: true,
+    askedEarly: [{ day: DAYS[2] ?? "", name: "ask/shown", key: "notify:before", count: 3 }],
     daily: DAYS.map((day, at) => ({ day, players: at === 0 ? { fewerThan: 10 } : 120 + at, newPlayers: at === 2 ? 34 : { fewerThan: 10 }, turnsEnded: 900 + at })),
     weeks: [
       { week: "2026-09-28", newPlayers: 210, d1: 92, d7: 25, d1Bp: 4380, d7Bp: 1190, earlyWin: { "1": 80, "2": 61, "3": 30, later: 22, none: { fewerThan: 10 } } },
