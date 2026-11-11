@@ -411,7 +411,7 @@ export function ReasonDialog<T extends Reply>({ open, onOpenChange, act, summary
 export function Toggle({ on, act, onClick }: { on: boolean; act: string; onClick: () => void }) {
   return (
     <button type="button" aria-label={act} title={act} onClick={onClick} className={`relative h-6 w-10 shrink-0 rounded-md transition-colors ${on ? "bg-accent" : "bg-text-2/40"}`}>
-      <span aria-hidden="true" className={`absolute top-0.5 size-5 rounded-sm bg-white shadow-xs transition-transform ${on ? "translate-x-[1.125rem]" : "translate-x-0.5"}`} />
+      <span aria-hidden="true" className={`absolute left-0 top-0.5 size-5 rounded-sm bg-white shadow-xs transition-transform ${on ? "translate-x-[1.125rem]" : "translate-x-0.5"}`} />
     </button>
   );
 }

@@ -66,7 +66,19 @@ test("an admin at /admin sees every area of the page, each from the admin routes
     },
     Moderation: () => expect(page.getByRole("heading", { name: "Report report.1: scam" })).toBeVisible(),
     Adverts: () => expect(page.getByRole("heading", { name: "Campaign campaign-a1" })).toBeVisible(),
-    Settings: () => expect(page.getByRole("table", { name: "Changes, oldest first" })).toBeVisible(),
+    Settings: async () => {
+      await expect(page.getByRole("table", { name: "Changes, oldest first" })).toBeVisible();
+      // Each toggle's knob stands inside its track: at the left when off, at the right when on.
+      const knobs = await page.locator("[data-switch] button[aria-label]").evaluateAll((buttons) =>
+        buttons.map((button) => {
+          const track = button.getBoundingClientRect();
+          const knob = button.querySelector("span")!.getBoundingClientRect();
+          return { inside: knob.left >= track.left && knob.right <= track.right, right: knob.left - track.left > track.width / 4, on: (button.getAttribute("aria-label") ?? "").endsWith(" off") };
+        }),
+      );
+      expect(knobs.length).toBeGreaterThan(0);
+      for (const knob of knobs) expect(knob).toEqual({ inside: true, right: knob.on, on: knob.on });
+    },
   };
   for (const tab of TABS) {
     await page.getByRole("tab", { name: new RegExp(`^${tab}`) }).click();
