@@ -109,6 +109,12 @@
   :focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 }
 
+/* A box with a problem standing (world:field-says-its-state): its edge in the out colour over whatever edge it draws, focused or not,
+   and the yellow focus ring outside the edge so both read. Outside the layers, so it stands over a box's own edge. A field drawn
+   inside a box of its parent's (`data-field-inner`) leaves the edge to that box. */
+:is(input, select, textarea)[aria-invalid="true"] { border-color: var(--out); }
+:is(input, select, textarea)[aria-invalid="true"]:not([data-field-inner]):focus { box-shadow: 0 0 0 2px var(--action); }
+
 /* A hit area of at least 44 by 44 CSS pixels round a control drawn smaller (world:reach-and-read): an invisible pad centred on it that
    takes the tap without moving what stands beside it. In the components layer, so a control placed absolutely keeps its place. */
 @layer components {
