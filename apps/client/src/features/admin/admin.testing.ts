@@ -1,6 +1,7 @@
 // The admin routes' answers for the page's tests and its browser pictures, in
 // the server's shapes. Made-up accounts and businesses only.
 import type {
+  ChecksReply,
   AlarmsReply,
   CampaignsReply,
   DashboardReply,
@@ -39,6 +40,19 @@ const ALARMS: AlarmsReply = {
     { kind: "suspect", day: YESTERDAY, character: "character.c-7f2a", reason: "salary", currency: "NGN", total: 900_000_000, ceiling: 300_000_000 },
     { kind: "draw", day: YESTERDAY, draw: 412, check: "win", total: 61_000_000, limit: 60_000_000 },
     { kind: "diverged", day: YESTERDAY, character: "character.c-19bd", v: 88 },
+  ],
+};
+
+/** admin:checks-have-three-states: the checks at noon on the 8th: two in alarm, three OK, one with no data. */
+export const CHECKS: ChecksReply = {
+  ok: true,
+  checks: [
+    { check: "money-suspects", state: "alarm", value: 1, limit: 0, since: NOW - 11 * HOUR_MS, found: { kind: "alarms", alarms: [{ kind: "suspect", day: YESTERDAY, character: "character.c-7f2a", reason: "salary", currency: "NGN", total: 900_000_000, ceiling: 300_000_000 }] }, history: [{ state: "alarm", value: 1, limit: 0, at: NOW - 11 * HOUR_MS }, { state: "ok", value: 0, limit: 0, at: NOW - 3 * DAY_MS }] },
+    { check: "draw-payouts", state: "ok", value: 0, limit: 0, since: NOW - 3 * DAY_MS, found: { kind: "alarms", alarms: [] }, history: [{ state: "ok", value: 0, limit: 0, at: NOW - 3 * DAY_MS }] },
+    { check: "diverged-lives", state: "alarm", value: 1, limit: 0, since: NOW - 2 * HOUR_MS, found: { kind: "alarms", alarms: [{ kind: "diverged", day: YESTERDAY, character: "character.c-19bd", v: 88 }] }, history: [{ state: "alarm", value: 1, limit: 0, at: NOW - 2 * HOUR_MS }, { state: "ok", value: 0, limit: 0, at: NOW - 9 * DAY_MS, admin: "account.owner", reason: "Replayed and rolled back." }, { state: "alarm", value: 1, limit: 0, at: NOW - 10 * DAY_MS }] },
+    { check: "asked-early", state: "ok", value: 0, limit: 0, since: NOW - 3 * DAY_MS, found: { kind: "asks", rows: [] }, history: [{ state: "ok", value: 0, limit: 0, at: NOW - 3 * DAY_MS }] },
+    { check: "reports-overdue", state: "ok", value: 0, limit: 0, since: NOW - 3 * DAY_MS, found: { kind: "queue", overdue: 0, oldest: 2 * HOUR_MS, target: 24 * HOUR_MS }, history: [{ state: "ok", value: 0, limit: 0, at: NOW - 3 * DAY_MS }] },
+    { check: "nightly-counts", state: "no-data", value: 1, limit: 0, since: null, found: { kind: "day", day: "2026-10-07", counted: false }, history: [] },
   ],
 };
 
@@ -299,6 +313,7 @@ export const ADMIN_GETS: Record<string, unknown> = {
   "/api/account": { ok: true, account: { id: "account.owner", country: "NG", age: { passed: true, method: "declared" }, createdAt: NOW - 90 * DAY_MS, character: null, admin: true, ways: { google: null, email: "owner@example.com", passkeys: 1 } } },
   "/api/admin/report": REPORT,
   "/api/admin/alarms": ALARMS,
+  "/api/admin/checks": CHECKS,
   "/api/admin/rejections": REJECTIONS,
   "/api/admin/moderation/queue": QUEUE,
   "/api/admin/moderation/log": LOG,

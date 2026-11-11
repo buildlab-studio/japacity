@@ -9,7 +9,7 @@ import { json, ONLINE, quietSocket } from "./support/api";
 import { type Broken, expectNothingBroken, NEVER_SHOWN } from "./support/check";
 import { shootAtSize } from "./support/preview";
 
-const TABS = ["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"] as const;
+const TABS = ["Health", "Overview", "Players", "Money", "Moderation", "Adverts", "Settings"] as const;
 
 const BROKEN: readonly Broken[] = [...NEVER_SHOWN, ["a words key with no words", /\badmin\.[a-z-]+\.[a-z-]+/]];
 
@@ -50,25 +50,26 @@ test("an admin at /admin sees every area of the page, each from the admin routes
   const seen = await fakeServer(page, true);
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Admin", level: 1 })).toBeVisible();
-  await expect(page.getByRole("tab")).toHaveText([...TABS]);
+  // A rail item carries its count after its name (Health 2, Moderation 3, Adverts 1).
+  await expect(page.getByRole("tab")).toContainText([...TABS]);
 
   const loaded: Record<(typeof TABS)[number], () => Promise<void>> = {
-    Money: () => expect(page.getByRole("table", { name: "Created" })).toBeVisible(),
-    Rejections: () => expect(page.getByRole("table", { name: "Rejected commands by code" })).toBeVisible(),
-    Rollback: async () => {
+    Health: () => expect(page.getByRole("table", { name: "Refused commands" })).toBeVisible(),
+    Overview: () => expect(page.getByRole("list", { name: "Waiting for you" })).toBeVisible(),
+    Players: () => expect(page.getByRole("table", { name: "Return by sign-up week" })).toBeVisible(),
+    Money: async () => {
+      await expect(page.getByRole("table", { name: "Created" })).toBeVisible();
       await page.getByLabel("Character id").fill("character.c-19bd");
       await page.getByRole("button", { name: "Run the check" }).click();
       await page.getByRole("dialog").getByRole("button", { name: "Send" }).click();
       await expect(page.getByText("First difference at version 88: stored a91f03c2, replayed 5be0d417.")).toBeVisible();
     },
     Moderation: () => expect(page.getByRole("heading", { name: "Report report.1: scam" })).toBeVisible(),
-    Analytics: () => expect(page.getByRole("table", { name: "By sign-up week" })).toBeVisible(),
-    Numbers: () => expect(page.getByRole("table", { name: "Online now (a command in the last five minutes)" })).toBeVisible(),
     Adverts: () => expect(page.getByRole("heading", { name: "Campaign campaign-a1" })).toBeVisible(),
-    Switches: () => expect(page.getByRole("table", { name: "Changes, oldest first" })).toBeVisible(),
+    Settings: () => expect(page.getByRole("table", { name: "Changes, oldest first" })).toBeVisible(),
   };
   for (const tab of TABS) {
-    await page.getByRole("tab", { name: tab }).click();
+    await page.getByRole("tab", { name: new RegExp(`^${tab}`) }).click();
     await loaded[tab]();
     await expectNothingBroken(page, `on the ${tab} tab`, BROKEN);
     await shootAtSize(page, `admin-${tab.toLowerCase()}`, info.project.name, true);

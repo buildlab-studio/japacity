@@ -8,7 +8,7 @@ import { formatMoney } from "../../shared/words/format";
 import "../../shared/testing/render";
 import { ADMIN_GETS, CAMPAIGNS, PENDING_LIGHTS, QUEUE, ROLLBACK, SWITCH_ROW, YESTERDAY } from "./admin.testing";
 import { words } from "./admin.words";
-import { AdminPage, type AdminTab } from "./AdminPage";
+import { AdminPage, type AdminSection } from "./AdminPage";
 import { AdminRoute } from "./AdminRoute";
 import { adminApi, type AdminApi } from "./api";
 import type { StepUp } from "./stepUp";
@@ -45,7 +45,7 @@ function expectOnlyAdminRoutes(calls: readonly Call[]): void {
   expect(calls.some((call) => call.path === "/api/command" || call.path === "/api/view")).toBe(false);
 }
 
-function page(tab: AdminTab, over: Record<string, Handler> = {}) {
+function page(tab: AdminSection, over: Record<string, Handler> = {}) {
   const server = fakeServer(over);
   render(<AdminPage api={server.admin} tab={tab} />);
   return server;
@@ -77,7 +77,7 @@ describe("where the admin page mounts", () => {
     );
     expect(await screen.findByRole("heading", { name: words("admin.title"), level: 1 })).toBeTruthy();
     expect(screen.queryByText("the game")).toBeNull();
-    expect(screen.getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"]);
+    expect(screen.getAllByRole("tab").map((tab) => tab.textContent?.replace(/\d+$/, ""))).toEqual(["Health", "Overview", "Players", "Money", "Moderation", "Adverts", "Settings"]);
     // On a phone the tabs wrap to a second row rather than run off the right edge unseen.
     const row = screen.getByRole("tablist");
     expect(row.className).toContain("flex-wrap");
@@ -203,7 +203,7 @@ describe("the admin's passkey, asked in place", () => {
     let held = true;
     const server = fakeServer({
       "GET /api/account": () => accountReply(held),
-      "GET /api/admin/report": () => {
+      "GET /api/admin/checks": () => {
         held = false;
         return { ok: false, code: "not-legal", detail: "The admin view needs your passkey again." };
       },
@@ -223,7 +223,7 @@ describe("the money tab", () => {
     expect(within(created).getByRole("row", { name: `salary GBP ${formatMoney(320_000, "GBP")} 320,000` })).toBeTruthy();
     const destroyed = screen.getByRole("table", { name: words("admin.money.destroyed") });
     expect(within(destroyed).getByRole("row", { name: `rent NGN ${formatMoney(48_000_000, "NGN")} 48,000,000` })).toBeTruthy();
-    expect(screen.getByText(words("admin.money.for", { day: "2026-10-07" }))).toBeTruthy();
+    expect(screen.getByText(words("admin.money.for", { day: "7 Oct 2026" }))).toBeTruthy();
     expect(server.calls.find((call) => call.path === "/api/admin/report")?.query).toBe("");
     expectOnlyAdminRoutes(server.calls);
   });
@@ -233,65 +233,54 @@ describe("the money tab", () => {
     await screen.findByRole("table", { name: words("admin.money.created") });
     const day = screen.getByLabelText(words("admin.money.day"));
     fireEvent.change(day, { target: { value: "2026-10-7" } });
-    expect(screen.getByRole("button", { name: words("admin.money.show") })).toHaveProperty("disabled", true);
+    expect(screen.getByRole("button", { name: words("admin.show") })).toHaveProperty("disabled", true);
     // A day past its month's end is no date: it is refused, never run on into the next month.
     for (const impossible of ["2026-02-30", "2026-04-31"]) {
       fireEvent.change(day, { target: { value: impossible } });
-      expect(screen.getByRole("button", { name: words("admin.money.show") })).toHaveProperty("disabled", true);
+      expect(screen.getByRole("button", { name: words("admin.show") })).toHaveProperty("disabled", true);
     }
     fireEvent.change(day, { target: { value: "2026-10-07" } });
-    fireEvent.click(screen.getByRole("button", { name: words("admin.money.show") }));
+    fireEvent.click(screen.getByRole("button", { name: words("admin.show") }));
     await waitFor(() => expect(server.calls.filter((call) => call.path === "/api/admin/report").map((call) => call.query)).toEqual(["", `?day=${String(YESTERDAY)}`]));
   });
 
 
-  test("[server:ledger-alarm-lists-suspects] given alarms raised, when the tab opens, then each is listed with its figures, and a character's alarm opens the rollback check on that character", async () => {
-    page("money");
-    const alarms = await screen.findByRole("list", { name: words("admin.money.alarms") });
-    const items = within(alarms).getAllByRole("listitem");
-    expect(items.map((item) => item.querySelector("span")?.textContent)).toEqual([
-      `2026-10-07: character.c-7f2a made ${formatMoney(900_000_000, "NGN")} NGN by salary, over its ceiling of ${formatMoney(300_000_000, "NGN")}.`,
-      "2026-10-07: draw 412 failed the win check at 61,000,000, over its limit of 60,000,000.",
-      "2026-10-07: character.c-19bd diverged at version 88 and waits for the rollback tool.",
-    ]);
-    expect(within(items[1]!).queryByRole("button")).toBeNull();
-    fireEvent.click(within(items[2]!).getByRole("button", { name: words("admin.alarm.check", { character: "character.c-19bd" }) }));
-    expect(screen.getByRole("tab", { name: words("admin.tab.rollback") }).getAttribute("aria-selected")).toBe("true");
-    expect(screen.getByLabelText(words("admin.rollback.character"))).toHaveProperty("value", "character.c-19bd");
+  test("[server:ledger-alarm-lists-suspects] [admin:checks-have-three-states] given a suspect named, when Health opens and the money suspects row is opened, then the alarm is listed with its figures and its rollback check is a step away", async () => {
+    page("health");
+    const row = (await screen.findByText(words("admin.check.money-suspects"))).closest("[data-check]")!;
+    fireEvent.click(within(row as HTMLElement).getByRole("button", { name: words("admin.check.open", { name: words("admin.check.money-suspects") }) }));
+    const found = within(row as HTMLElement).getByRole("list", { name: words("admin.check.found") });
+    expect(within(found).getAllByRole("listitem").map((item) => item.querySelector("span")?.textContent)).toEqual([`7 Oct: character.c-7f2a made ${formatMoney(900_000_000, "NGN")} NGN by salary, over its ceiling of ${formatMoney(300_000_000, "NGN")}.`]);
+    fireEvent.click(within(found).getByRole("button", { name: words("admin.alarm.check", { character: "character.c-7f2a" }) }));
+    expect(screen.getByRole("tab", { name: words("admin.section.money") }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByLabelText(words("admin.rollback.character"))).toHaveProperty("value", "character.c-7f2a");
   });
 
-  test("[server:ledger-alarm-lists-suspects] given the alarms route refuses, when the tab opens, then the refusal shows as it came", async () => {
-    page("money", { "GET /api/admin/alarms": () => ({ ok: false, code: "missing", detail: "No alarms store." }) });
-    expect((await screen.findByRole("alert")).textContent).toBe(words("admin.refused.code", { code: "missing", detail: "No alarms store." }));
+  test("[server:daily-money-report] given the report route refuses, when Money opens, then the refusal shows as it came", async () => {
+    page("money", { "GET /api/admin/report": () => ({ ok: false, code: "missing", detail: "No ledger store." }) });
+    expect((await screen.findByRole("alert")).textContent).toBe(words("admin.refused.code", { code: "missing", detail: "No ledger store." }));
   });
 });
 
-describe("the rejections tab", () => {
-  test("[server:rejections-write-nothing] given rejections counted, when the tab opens, then each code shows with its count", async () => {
-    page("rejections");
-    const table = await screen.findByRole("table", { name: words("admin.rejections.title") });
-    expect(within(table).getAllByRole("row").map((row) => row.textContent)).toEqual(["CodeCount", "rate-limited3", "setpiece-open17", "stale41"]);
-  });
-});
-
-describe("the rollback tab", () => {
+describe("the rollback check", () => {
   test("[server:rollback-check-finds-divergence] given a character, when the check is run, then it is confirmed first, asked once for that one character, and the first difference and the dropped commands show", async () => {
-    const server = page("rollback", { "GET /api/admin/rollback/character.c-19bd": () => ROLLBACK });
+    const server = page("money", { "GET /api/admin/rollback/character.c-19bd": () => ROLLBACK });
     const run = screen.getByRole("button", { name: words("admin.rollback.run") });
     expect(run).toHaveProperty("disabled", true);
     fireEvent.change(screen.getByLabelText(words("admin.rollback.character")), { target: { value: "character.c-19bd" } });
     fireEvent.click(run);
-    expect(server.calls).toEqual([]);
+    const rollbacks = () => server.calls.filter((call) => call.path.startsWith("/api/admin/rollback/")).map((call) => `${call.method} ${call.path}`);
+    expect(rollbacks()).toEqual([]);
     await confirm(words("admin.rollback.confirm", { character: "character.c-19bd" }));
     expect(await screen.findByText(words("admin.rollback.diff", { v: 88, stored: "a91f03c2", replayed: "5be0d417" }))).toBeTruthy();
     expect(screen.getByText(words("admin.rollback.summary", { character: "character.c-19bd", v: 96, replayed: 96 }))).toBeTruthy();
     const dropped = screen.getByRole("table", { name: words("admin.rollback.dropped") });
     expect(within(dropped).getByRole("row", { name: "88 lottery/buy cannot-afford Not enough money for 3 tickets." })).toBeTruthy();
-    expect(server.calls.map((call) => `${call.method} ${call.path}`)).toEqual(["GET /api/admin/rollback/character.c-19bd"]);
+    expect(rollbacks()).toEqual(["GET /api/admin/rollback/character.c-19bd"]);
   });
 
   test("[server:rollback-check-finds-divergence] given a character the server does not hold, when the check is run, then its refusal shows; given a clean one, then no difference is said", async () => {
-    page("rollback", {
+    page("money", {
       "GET /api/admin/rollback/character.gone": () => ({ ok: false, code: "missing", detail: "No character character.gone." }),
       "GET /api/admin/rollback/character.clean": () => ({ ok: true, report: { character: "character.clean", v: 4, replayed: 4, firstDiff: null, dropped: [] } }),
     });
@@ -306,10 +295,11 @@ describe("the rollback tab", () => {
     expect(await screen.findByText(words("admin.rollback.clean"))).toBeTruthy();
   });
 
-  test("[server:no-mass-rollback] given the rollback tab, then it offers a check on one character and no control that changes any character", () => {
-    page("rollback");
-    expect(screen.getAllByRole("textbox")).toHaveLength(1);
-    expect(screen.getAllByRole("button").map((button) => button.textContent).filter((name) => !["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Adverts", "Switches"].includes(name))).toEqual([words("admin.rollback.run")]);
+  test("[server:no-mass-rollback] given the rollback card, then it offers a check on one character and no control that changes any character", () => {
+    page("money");
+    const card = screen.getByRole("region", { name: words("admin.rollback.title") });
+    expect(within(card).getAllByRole("textbox")).toHaveLength(1);
+    expect(within(card).getAllByRole("button").map((button) => button.textContent)).toEqual([words("admin.rollback.run")]);
   });
 });
 
@@ -318,7 +308,10 @@ describe("the moderation tab", () => {
     page("moderation");
     const queue = await screen.findByRole("list", { name: words("admin.moderation.queue") });
     expect([...queue.querySelectorAll("[data-item]")].map((item) => item.getAttribute("data-item"))).toEqual(["report.1", "report.2", "appeal.1"]);
-    expect(screen.getByText(words("admin.moderation.summary", { count: 3, oldest: "1 d 6 h", target: "1 d", overdue: 1 }))).toBeTruthy();
+    expect(screen.getByRole("group", { name: words("admin.queue.open") }).textContent).toContain("3");
+    expect(screen.getByRole("group", { name: words("admin.queue.oldest") }).textContent).toContain("1 d 6 h");
+    expect(screen.getByRole("group", { name: words("admin.queue.oldest") }).textContent).toContain(words("admin.queue.target", { target: "1 d" }));
+    expect(screen.getByRole("group", { name: words("admin.queue.overdue") }).textContent).toContain("1");
   });
 
   test("[moderation:queue-item-shows-context] given a report, when it is shown, then its reason, the held messages as phrases with times, and both accounts' region, age, past reports and earlier actions show, and never an email", async () => {
@@ -326,17 +319,19 @@ describe("the moderation tab", () => {
     const item = (await screen.findByRole("heading", { name: words("admin.moderation.report", { id: "report.1", reason: "scam" }) })).closest("li")!;
     const held = within(item).getByRole("heading", { name: words("admin.moderation.messages") }).nextElementSibling!;
     expect([...held.querySelectorAll("li")].map((line) => line.textContent)).toEqual([
-      "2026-10-07 05:00 UTC, from account.ada: Can you send me something small?",
-      "2026-10-07 05:01 UTC, from account.ada: I need {fill} (50k)",
+      "7 Oct 2026 06:00 WAT, from account.ada: Can you send me something small?",
+      "7 Oct 2026 06:01 WAT, from account.ada: I need {fill} (50k)",
     ]);
     const reporter = item.querySelector("[data-account='account.bola']")!;
     expect(reporter.textContent).toContain("Region GB, account 3 d old");
-    expect(reporter.textContent).toContain("report.1: scam, 2026-10-07 06:00 UTC, open");
+    expect(reporter.textContent).toContain("report.1: scam, 7 Oct 2026 07:00 WAT, open");
     const reported = item.querySelector("[data-account='account.ada']")!;
-    expect(reported.textContent).toContain("report.old: harassment, 2026-09-18 12:00 UTC, decided, acted");
-    expect(reported.textContent).toContain("2026-09-19 12:00 UTC: warn by account.owner, for harassment");
-    expect(within(item).getByText(words("admin.moderation.hold", { until: "2026-10-21 12:00 UTC" }))).toBeTruthy();
+    expect(reported.textContent).toContain("report.old: harassment, 18 Sep 2026 13:00 WAT, decided, acted");
+    expect(reported.textContent).toContain("19 Sep 2026 13:00 WAT: warn by account.owner, for harassment");
+    expect(within(item).getByText(words("admin.moderation.hold", { until: "21 Oct 2026 13:00 WAT" }))).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/@/);
+    // The second row is chosen, and its detail takes the first's place.
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(words("admin.moderation.report", { id: "report.2", reason: "other" })) }));
     const other = screen.getByRole("heading", { name: words("admin.moderation.report", { id: "report.2", reason: "other" }) }).closest("li")!;
     expect(within(other).getByText(words("admin.moderation.unverified"))).toBeTruthy();
     expect(other.querySelector("[data-account='account.chidi']")?.textContent).toContain("No region, account gone");
@@ -389,8 +384,9 @@ describe("the moderation tab", () => {
 
   test("[moderation:actioned-player-told-and-appeals] given an appeal, when it is decided, then the outcome and reason are sent; the server's not-yours refusal shows as it came", async () => {
     const server = page("moderation", { "POST /api/admin/moderation/appeal.1/close": () => ({ ok: false, code: "not-yours", detail: "Another admin decides an appeal against your own action." }) });
-    const item = (await screen.findByRole("heading", { name: words("admin.moderation.appeal", { id: "appeal.1" }) })).closest("li")!;
-    expect(within(item).getByText(words("admin.moderation.against", { action: "warn", account: "account.ada", admin: "account.owner", at: "2026-09-19 12:00 UTC", reason: "harassment" }))).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(words("admin.moderation.appeal", { id: "appeal.1" })) }));
+    const item = screen.getByRole("heading", { name: words("admin.moderation.appeal", { id: "appeal.1" }) }).closest("li")!;
+    expect(within(item).getByText(words("admin.moderation.against", { action: "warn", account: "account.ada", admin: "account.owner", at: "19 Sep 2026 13:00 WAT", reason: "harassment" }))).toBeTruthy();
     fireEvent.change(within(item).getByLabelText(words("admin.decide.outcome")), { target: { value: "overturned" } });
     fireEvent.click(within(item).getByRole("button", { name: words("admin.decide.send") }));
     await confirm(words("admin.decide.confirm", { item: "appeal.1", outcome: "overturned", reason: "other" }));
@@ -406,7 +402,7 @@ describe("the moderation tab", () => {
     fireEvent.change(screen.getByLabelText(words("admin.log.account")), { target: { value: "account.ada" } });
     fireEvent.click(show);
     const table = await screen.findByRole("table", { name: words("admin.log.title") });
-    expect(within(table).getByRole("row", { name: "2026-09-19 12:00 UTC account.owner report.old warn account account.ada harassment First time." })).toBeTruthy();
+    expect(within(table).getByRole("row", { name: "19 Sep 2026 13:00 WAT account.owner report.old warn account account.ada harassment First time." })).toBeTruthy();
     expect(within(table).queryAllByRole("button")).toEqual([]);
     expect(server.calls.filter((call) => call.path === "/api/admin/moderation/log").map((call) => call.query)).toEqual(["?account=account.ada"]);
   });
@@ -420,7 +416,7 @@ describe("the dedication lights", () => {
     expect(items.map((item) => item.getAttribute("data-light"))).toEqual(["account.ada", "account.bola"]);
     expect(items[0]?.textContent).toContain("Mama Nkechi");
     expect(items[0]?.textContent).toContain("1951 to 2024");
-    expect(items[0]?.textContent).toContain(words("admin.lights.who", { username: "ada_lagos", account: "account.ada", region: "NG", at: "2026-10-06 12:00 UTC" }));
+    expect(items[0]?.textContent).toContain(words("admin.lights.who", { username: "ada_lagos", account: "account.ada", region: "NG", at: "6 Oct 2026 13:00 WAT" }));
     expect(items[1]?.textContent).toContain(words("admin.lights.no-years"));
     expect(within(items[0] as HTMLElement).getByRole("button", { name: words("admin.lights.approve") })).toBeTruthy();
     expect(within(items[0] as HTMLElement).getByRole("button", { name: words("admin.lights.refuse") })).toBeTruthy();
@@ -458,43 +454,6 @@ describe("the dedication lights", () => {
   test("[moderation:dedication-lights-await-approval] given no light awaiting a look, when the tab opens, then the list says so", async () => {
     page("moderation", { "GET /api/admin/dedication/pending": () => ({ ok: true, lights: [] }) });
     expect(await screen.findByText(words("admin.lights.empty"))).toBeTruthy();
-  });
-});
-
-describe("the analytics tab", () => {
-  test("[analytics:dashboard-shows-fixed-list] [analytics:small-counts-shown-as-fewer] given the dashboard, when the tab opens, then the daily series shows as a table and a count under minShown only as fewer than", async () => {
-    const server = page("analytics");
-    const daily = await screen.findByRole("table", { name: words("admin.analytics.daily") });
-    expect(within(daily).getAllByRole("row").map((row) => [...row.querySelectorAll("td")].map((cell) => cell.textContent))).toEqual([
-      [],
-      ["2026-10-06", "fewer than 10", "fewer than 10", "900"],
-      ["2026-10-07", "121", "fewer than 10", "901"],
-      ["2026-10-08", "122", "34", "902"],
-    ]);
-    expect(screen.getByText(words("admin.analytics.window", { from: "2026-09-08", day: "2026-10-08", minShown: 10 }))).toBeTruthy();
-    expect(server.calls.find((call) => call.path === "/api/admin/analytics")?.query).toBe("");
-  });
-
-  test("[analytics:day-one-and-seven-return] given the sign-up weeks, when the tab opens, then day 1 and day 7 show beside the reference lines, a hidden rate says so, and an ask before the early win shows in red", async () => {
-    page("analytics");
-    const weeks = await screen.findByRole("table", { name: words("admin.analytics.weeks") });
-    const cells = within(weeks).getAllByRole("row").slice(1).map((row) => [...row.querySelectorAll("td")].map((cell) => cell.textContent));
-    expect(cells).toEqual([
-      ["2026-09-28", "210", "92", "43.8%, at or over the line", "25", "11.9%, under the line", "80", "61", "30", "22", "fewer than 10"],
-      ["2026-10-05", "64", "fewer than 10", "hidden", "fewer than 10", "hidden", "21", "14", "fewer than 10", "fewer than 10", "fewer than 10"],
-    ]);
-    expect(screen.getByText(words("admin.analytics.reference", { d1: "40%", d7: "15%" }))).toBeTruthy();
-    const fault = screen.getByRole("alert");
-    expect(fault.textContent).toBe(words("admin.analytics.ask"));
-    expect(fault.className).toContain("text-bad");
-  });
-
-  test("[analytics:dashboard-shows-fixed-list] given a day typed, when it is shown, then the dashboard for that day is asked", async () => {
-    const server = page("analytics");
-    await screen.findByRole("table", { name: words("admin.analytics.daily") });
-    fireEvent.change(screen.getByLabelText(words("admin.analytics.day")), { target: { value: "2026-10-01" } });
-    fireEvent.click(screen.getByRole("button", { name: words("admin.analytics.show") }));
-    await waitFor(() => expect(server.calls.filter((call) => call.path === "/api/admin/analytics").map((call) => call.query)).toEqual(["", "?day=2026-10-01"]));
   });
 });
 
@@ -557,14 +516,14 @@ describe("the adverts tab", () => {
     expect(within(refused).queryByRole("group")).toBeNull();
     const card = live.closest("[data-campaign]")!;
     const reviews = within(card as HTMLElement).getByRole("table", { name: words("admin.reviews") });
-    expect(within(reviews).getByRole("row", { name: "creative-d4 1 account.owner 2026-10-06 12:00 UTC format, not-game-like, text 2026-10-08 approved Clean." })).toBeTruthy();
+    expect(within(reviews).getByRole("row", { name: "creative-d4 1 account.owner 6 Oct 2026 13:00 WAT format, not-game-like, text 2026-10-08 approved Clean." })).toBeTruthy();
   });
 
   test("[advert:advertiser-records-stored] given a campaign's daily counts, when the tab opens, then they show as a table by day, slot and region, and a campaign with none says so", async () => {
     page("adverts");
     const live = (await screen.findByRole("heading", { name: words("admin.campaign.title", { id: "campaign-c3" }) })).closest("li")!;
     const counts = within(live).getByRole("table", { name: words("admin.counts") });
-    expect(within(counts).getAllByRole("row").map((row) => row.textContent)).toEqual(["DaySlotRegionImpressionsTaps", "2026-10-06advert.phone-tileGB1,20431", "2026-10-07advert.phone-tileGB3889"]);
+    expect(within(counts).getAllByRole("row").map((row) => row.textContent)).toEqual(["DaySlotRegionImpressionsTaps", "6 Octadvert.phone-tileGB1,20431", "7 Octadvert.phone-tileGB3889"]);
     const pending = screen.getByRole("heading", { name: words("admin.campaign.title", { id: "campaign-a1" }) }).closest("li")!;
     expect(within(within(pending).getByRole("table", { name: words("admin.counts") })).getByText(words("admin.none"))).toBeTruthy();
   });
@@ -586,16 +545,20 @@ describe("the adverts tab", () => {
   });
 });
 
-describe("the switches tab", () => {
-  test("[server:four-off-switches] given the switch row, when a switch is turned off, then a reason is needed, it is confirmed, the change is sent with the reason, and the row and the log are read again", async () => {
-    const server = page("switches", { "POST /api/admin/switches": () => ({ ok: true, switches: { ...SWITCH_ROW, signups: false }, dials: { placeTargets: {}, computerAfterMonths: null } }) });
+describe("the Settings section", () => {
+  test("[server:four-off-switches] [admin:actions-confirm-with-reason] given the switch row, when a switch is turned off, then its toggle opens a dialog that says what happens, needs a reason and names the act on its button; the change is sent with the reason, and the row and the log are read again", async () => {
+    const server = page("settings", { "POST /api/admin/switches": () => ({ ok: true, switches: { ...SWITCH_ROW, signups: false }, dials: { placeTargets: {}, computerAfterMonths: null } }) });
     const row = (await screen.findByText(words("admin.switch.signups"))).closest("li")!;
     expect(within(row).getByText(words("admin.switch.on"))).toBeTruthy();
-    const off = within(row).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) });
+    fireEvent.click(within(row).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(words("admin.switch.confirm.off", { name: words("admin.switch.signups"), what: words("admin.switch.signups.what") }))).toBeTruthy();
+    const off = within(dialog).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) });
     expect(off).toHaveProperty("disabled", true);
-    fireEvent.change(within(row).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.signups") })), { target: { value: " Database at its limit " } });
+    fireEvent.change(within(dialog).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.signups") })), { target: { value: " Database at its limit " } });
+    expect(server.calls.filter((call) => call.method === "POST")).toEqual([]);
     fireEvent.click(off);
-    await confirm(words("admin.switch.confirm.off", { name: words("admin.switch.signups"), reason: "Database at its limit" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     await waitFor(() => expect(server.calls.filter((call) => call.path === "/api/admin/switches/log")).toHaveLength(2));
     expect(posts(server.calls)).toEqual([{ method: "POST", path: "/api/admin/switches", query: "", body: { name: "signups", on: false, reason: "Database at its limit" } }]);
     expect(server.calls.filter((call) => call.method === "GET" && call.path === "/api/admin/switches")).toHaveLength(2);
@@ -604,17 +567,23 @@ describe("the switches tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[server:four-off-switches] given the switch rows, when the tab opens, then each reason box reads \"Reason for the change\" and its example fits the way the switch would turn", async () => {
-    page("switches");
+  test("[server:four-off-switches] given the switch rows, when a toggle opens its dialog, then the reason box reads \"Reason for the change\" and its example fits the way the switch would turn", async () => {
+    page("settings");
     const signups = (await screen.findByText(words("admin.switch.signups"))).closest("li")!;
+    fireEvent.click(within(signups).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) }));
+    let dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText(words("admin.switch.reason"))).toBeTruthy();
+    expect(within(dialog).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.signups") })).getAttribute("placeholder")).toBe(words("admin.switch.reason.example.off.signups"));
+    fireEvent.click(within(dialog).getByRole("button", { name: words("admin.confirm.cancel") }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     const lottery = screen.getByText(words("admin.switch.lottery")).closest("li")!;
-    expect(within(signups).getByText(words("admin.switch.reason"))).toBeTruthy();
-    expect(within(signups).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.signups") })).getAttribute("placeholder")).toBe(words("admin.switch.reason.example.off.signups"));
-    expect(within(lottery).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.lottery") })).getAttribute("placeholder")).toBe(words("admin.switch.reason.example.on.lottery"));
+    fireEvent.click(within(lottery).getByRole("button", { name: words("admin.switch.turn-on", { name: words("admin.switch.lottery") }) }));
+    dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByLabelText(words("admin.switch.reason.for", { name: words("admin.switch.lottery") })).getAttribute("placeholder")).toBe(words("admin.switch.reason.example.on.lottery"));
   });
 
-  test("[city:boards-switch-when-and-who] given the switch row, when the tab opens, then each of the five board switches is listed with its state, the joined-week board off", async () => {
-    page("switches");
+  test("[city:boards-switch-when-and-who] given the switch row, when Settings opens, then each of the five board switches is listed with its state, the joined-week board off", async () => {
+    page("settings");
     await screen.findByText(words("admin.switch.signups"));
     const states = (["boards.this-week.everyone", "boards.this-week.friends", "boards.all-time.everyone", "boards.all-time.friends", "boards.joined-week"] as const).map((name) => {
       const row = screen.getByText(words(`admin.switch.${name}`)).closest("li")!;
@@ -624,34 +593,41 @@ describe("the switches tab", () => {
     expect(states).toEqual(["on", "on", "on", "on", "off"]);
   });
 
-  test("[server:four-off-switches] given the switch log, when the tab opens, then every change shows with who, when and why, oldest first", async () => {
-    page("switches");
+  test("[server:four-off-switches] given the switch log, when Settings opens, then every change shows with who, when and why, oldest first", async () => {
+    page("settings");
     const log = await screen.findByRole("table", { name: words("admin.switch.log") });
     expect(within(log).getAllByRole("row").slice(1).map((row) => row.textContent)).toEqual([
-      "2026-10-08 09:00 UTCaccount.ownerlottery offDraw audit",
-      "2026-10-08 10:00 UTCaccount.ownerplaceTarget place.ojuelegba 40Busy evening",
+      "8 Oct 2026 10:00 WATaccount.ownerlottery offDraw audit",
+      "8 Oct 2026 11:00 WATaccount.ownerplaceTarget place.ojuelegba 40Busy evening",
     ]);
   });
 
-  test("[server:private-settings-and-dials] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent; there is no top-up dial", async () => {
-    const server = page("switches", { "POST /api/admin/dials": () => ADMIN_GETS["/api/admin/switches"] });
+  test("[server:private-settings-and-dials] [admin:actions-confirm-with-reason] given the dials, when one is set at 0 and one unset, then each is done in a dialog that needs a reason and names the act; a value that is not a whole number cannot be sent; there is no top-up dial", async () => {
+    const server = page("settings", { "POST /api/admin/dials": () => ADMIN_GETS["/api/admin/switches"] });
     const months = (await screen.findByText(words("admin.dial.computerAfterMonths"))).closest("li")!;
     expect(within(months).getByText("25")).toBeTruthy();
     expect(screen.queryByText(/top-up/i)).toBeNull();
-    const value = within(months).getByLabelText(`${words("admin.dial.value")}: ${words("admin.dial.computerAfterMonths")}`);
-    fireEvent.change(within(months).getByLabelText(words("admin.dial.reason.for", { name: words("admin.dial.computerAfterMonths") })), { target: { value: "Quiet week" } });
+    fireEvent.click(within(months).getByRole("button", { name: words("admin.dial.set.for", { name: words("admin.dial.computerAfterMonths") }) }));
+    let dialog = await screen.findByRole("dialog");
+    const value = within(dialog).getByLabelText(`${words("admin.dial.value")}: ${words("admin.dial.computerAfterMonths")}`);
+    const set = within(dialog).getByRole("button", { name: words("admin.dial.set.act", { name: words("admin.dial.computerAfterMonths") }) });
+    fireEvent.change(within(dialog).getByLabelText(words("admin.dial.reason.for", { name: words("admin.dial.computerAfterMonths") })), { target: { value: "Quiet week" } });
     fireEvent.change(value, { target: { value: "-1" } });
-    expect(within(months).getByRole("button", { name: words("admin.dial.set") })).toHaveProperty("disabled", true);
+    expect(set).toHaveProperty("disabled", true);
     fireEvent.change(value, { target: { value: "0" } });
-    fireEvent.click(within(months).getByRole("button", { name: words("admin.dial.set") }));
-    await confirm(words("admin.dial.confirm", { dial: words("admin.dial.computerAfterMonths"), value: 0, reason: "Quiet week" }));
+    expect(within(dialog).getByText(words("admin.dial.confirm", { dial: words("admin.dial.computerAfterMonths"), value: 0 }))).toBeTruthy();
+    fireEvent.click(set);
     await waitFor(() => expect(posts(server.calls)).toHaveLength(1));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     const place = screen.getByText(words("admin.dial.placeTarget")).closest("li")!;
-    fireEvent.change(within(place).getByLabelText(words("admin.dial.place")), { target: { value: "place.ojuelegba" } });
-    expect(within(place).getByText("40")).toBeTruthy();
-    fireEvent.change(within(place).getByLabelText(words("admin.dial.reason.for", { name: words("admin.dial.placeTarget") })), { target: { value: "Back to normal" } });
-    fireEvent.click(within(place).getByRole("button", { name: words("admin.dial.clear") }));
-    await confirm(words("admin.dial.confirm.place.unset", { dial: words("admin.dial.placeTarget"), place: "place.ojuelegba", reason: "Back to normal" }));
+    fireEvent.click(within(place).getByRole("button", { name: words("admin.dial.set.for", { name: words("admin.dial.placeTarget") }) }));
+    dialog = await screen.findByRole("dialog");
+    fireEvent.change(within(dialog).getByLabelText(words("admin.dial.place")), { target: { value: "place.ojuelegba" } });
+    expect(within(dialog).getByText(words("admin.dial.held", { value: "40" }))).toBeTruthy();
+    fireEvent.click(within(dialog).getByLabelText(words("admin.dial.clear")));
+    fireEvent.change(within(dialog).getByLabelText(words("admin.dial.reason.for", { name: words("admin.dial.placeTarget") })), { target: { value: "Back to normal" } });
+    expect(within(dialog).getByText(words("admin.dial.confirm.place.unset", { dial: words("admin.dial.placeTarget"), place: "place.ojuelegba" }))).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button", { name: words("admin.dial.clear.act", { name: words("admin.dial.placeTarget") }) }));
     await waitFor(() => expect(posts(server.calls)).toHaveLength(2));
     expect(posts(server.calls).map((call) => call.body)).toEqual([
       { dial: "computerAfterMonths", value: 0, reason: "Quiet week" },

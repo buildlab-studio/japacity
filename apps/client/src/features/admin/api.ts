@@ -7,6 +7,8 @@ import type {
   AlarmsReply,
   CampaignReply,
   CampaignsReply,
+  CheckName,
+  ChecksReply,
   CloseReportBody,
   CreativeReply,
   DashboardReply,
@@ -48,6 +50,10 @@ export interface AdminApi {
   stepUp: () => Promise<StepUp>;
   report: (day: number | null) => Promise<LedgerReportReply>;
   alarms: () => Promise<AlarmsReply>;
+  /** admin:checks-have-three-states: every check with its state, value, what it found and its history. */
+  checks: () => Promise<ChecksReply>;
+  /** admin:check-handled-with-reason: the check is OK from now, with the reason in its history. */
+  handleCheck: (check: CheckName, reason: string) => Promise<ChecksReply>;
   rejections: () => Promise<RejectionsReply>;
   rollback: (character: string) => Promise<RollbackCheck | AdminRefusal>;
   queue: () => Promise<QueueReply>;
@@ -106,6 +112,8 @@ export function adminApi(server: Api, baseUrl: string, stepUp: () => Promise<Ste
     stepUp,
     report: (day) => settle(server.get(`/api/admin/report${query({ day: day === null ? undefined : String(day) })}`)),
     alarms: () => settle(server.get("/api/admin/alarms")),
+    checks: () => settle(server.get("/api/admin/checks")),
+    handleCheck: (check, reason) => settle(server.post(`/api/admin/checks/${part(check)}/handle`, { reason })),
     rejections: () => settle(server.get("/api/admin/rejections")),
     rollback: (character) => settle(server.get(`/api/admin/rollback/${part(character)}`)),
     queue: () => settle(server.get("/api/admin/moderation/queue")),
