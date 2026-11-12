@@ -15,17 +15,17 @@
   "dependencies": {
     "@fontsource/rubik": "5.3.0",
     "@japacity/brand": "workspace:*",
-    "@remotion/bundler": "4.0.540",
-    "@remotion/cli": "4.0.540",
-    "@remotion/renderer": "4.0.540",
-    "@remotion/transitions": "4.0.540",
-    "lucide-react": "^1.67.0",
+    "@remotion/bundler": "4.0.542",
+    "@remotion/cli": "4.0.542",
+    "@remotion/renderer": "4.0.542",
+    "@remotion/transitions": "4.0.542",
+    "lucide-react": "^1.70.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "remotion": "4.0.540"
+    "remotion": "4.0.542"
   },
   "devDependencies": {
-    "@remotion/player": "4.0.540",
+    "@remotion/player": "4.0.542",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0"
   }
