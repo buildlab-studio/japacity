@@ -12,6 +12,7 @@
     "typecheck": "tsc -p tsconfig.json && pnpm -r run typecheck",
     "lint": "NODE_OPTIONS=--max-old-space-size=8192 eslint . --max-warnings 0",
     "test": "vitest run",
+    "test:play": "vitest run --project play",
     "check:types": "pnpm --filter @japacity/server run types:check",
     "types": "pnpm --filter @japacity/server run types",
     "check:rules": "tsx tools/check/rules.ts",

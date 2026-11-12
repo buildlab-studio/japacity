@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 
 // check:size after check:assets: it builds the client and holds what a first visit downloads to its budgets (engine:first-download-has-budget).
 // check:types first: the Workers' typecheck reads the files `wrangler types` generated, so a stale one is named before it misleads.
-const STEPS = ["check:types", "typecheck", "lint", "test", "check:rules", "check:version", "check:assets", "check:size", "check:scrub"] as const;
+const STEPS = ["check:types", "typecheck", "lint", "test", "test:play", "check:rules", "check:version", "check:assets", "check:size", "check:scrub"] as const;
 
 for (const step of STEPS) {
   console.log(`\n> ${step}`);

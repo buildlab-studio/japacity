@@ -64,7 +64,7 @@ Before saying a change is done, run:
 pnpm check
 ```
 
-It runs the server's types, typecheck, lint, tests, the rule-name check, the content version, the asset check, the size budget and the scrub check, in that order, and ends with `CHECK PASSED` or the step that failed. Paste the output in your pull request.
+It runs the server's types, typecheck, lint, tests, simulated play, the rule-name check, the content version, the asset check, the size budget and the scrub check, in that order, and ends with `CHECK PASSED` or the step that failed. Paste the output in your pull request.
 
 ## Run the whole game locally
 

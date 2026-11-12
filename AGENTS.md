@@ -9,8 +9,9 @@ Run from the repository root. pnpm switches itself to the pinned version there.
 | Command | Does |
 |---|---|
 | `pnpm install` | Install |
-| `pnpm check` | Types, lint, tests, rule names, the content version, assets, the size budget and the scrub check. Must end with `CHECK PASSED` before you say you are done |
-| `pnpm test` | Tests only. `pnpm vitest run --project sim path/to/file` for one file |
+| `pnpm check` | Types, lint, tests, simulated play, rule names, the content version, assets, the size budget and the scrub check. Must end with `CHECK PASSED` before you say you are done |
+| `pnpm test` | Tests only, simulated play left out. `pnpm vitest run --project sim path/to/file` for one file |
+| `pnpm test:play` | Simulated play only: the balance, endings and random-play files, most of the tests' time. `pnpm test:play path/to/file` for one |
 | `pnpm typecheck`, `pnpm lint` | One step each |
 | `pnpm check:rules` | Every rule name has a test, and every cited name exists |
 | `pnpm bless` | Regenerate the golden files. The only way they change |

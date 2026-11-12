@@ -11,10 +11,12 @@ const contentEntry = fileURLToPath(new URL("./packages/content/src/index.ts", im
 
 const fixtureFolders = ["tools/__fixtures__/**"];
 
+/** Whether the command line names this project with --project. */
+const asked = (name: string): boolean => process.argv.some((arg, at, all) => arg === `--project=${name}` || (arg === "--project" && all[at + 1] === name));
+
 // The lock races need a real Postgres, so the db-race project is defined only
 // when it is asked for by name: `pnpm vitest run --project db-race`.
-const raceAsked = process.argv.some((arg, at, all) => arg === "--project=db-race" || (arg === "--project" && all[at + 1] === "db-race"));
-const raceProject = raceAsked
+const raceProject = asked("db-race")
   ? [
       {
         test: {
@@ -22,6 +24,29 @@ const raceProject = raceAsked
           environment: "node",
           include: ["packages/db/src/race/*.race.test.ts"],
           testTimeout: 30000,
+        },
+      },
+    ]
+  : [];
+// Simulated play: whole lives played month by month, holding the economy to its targets
+// (scenario:economy-meets-its-targets) and the engine to its invariants over many random lives. These files
+// take most of the tests' time, so they are the play project, defined only when asked for by name:
+// `pnpm test:play`, which `pnpm check` runs after `pnpm test`, and CI's play jobs, one file to a runner.
+const PLAY_TESTS = [
+  "packages/sim/src/simulated-play/balance.*.test.ts",
+  "packages/sim/src/simulated-play/endings.test.ts",
+  "packages/sim/src/simulated-play/randomPlay*.test.ts",
+];
+const playProject = asked("play")
+  ? [
+      {
+        resolve: { alias: { "@japacity/content": contentEntry } },
+        test: {
+          name: "play",
+          environment: "node",
+          include: PLAY_TESTS,
+          setupFiles: ["packages/sim/vitest.setup.ts"],
+          testTimeout: 60000,
         },
       },
     ]
@@ -52,11 +77,13 @@ export default defineConfig({
           name: "sim",
           environment: "node",
           include: ["packages/sim/src/**/*.test.ts"],
+          exclude: PLAY_TESTS,
           setupFiles: ["packages/sim/vitest.setup.ts"],
           // Simulated play plays hundreds of months per property run.
           testTimeout: 60000,
         },
       },
+      ...playProject,
       {
         test: {
           name: "content",

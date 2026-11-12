@@ -284,4 +284,24 @@ describe("the workflows", () => {
       "/packages/content/src/legal/ @Alameen688",
     ]);
   });
+
+  test("given the check workflow, when its simulated-play jobs are read, then the play project's files are listed, each played on its own runner, and the play job fails unless the listing passed and the playing passed or was not needed", () => {
+    const text = read("check.yml");
+    expect(text).toContain("pnpm exec vitest list --project=play --filesOnly --json=");
+    // Every push and every run by hand plays every file; a pull request plays them when its diff reaches the simulation.
+    expect(text).toContain('if [ "$EVENT" != "pull_request" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi');
+    expect(text).toContain("'^(packages/sim/|packages/content/|vitest\\.config\\.ts$|package\\.json$|pnpm-lock\\.yaml$|pnpm-workspace\\.yaml$|\\.node-version$|\\.github/workflows/check\\.yml$)'");
+    expect(text).toMatch(/\n {2}play-run:\n {4}needs: play-files\n {4}if: needs\.play-files\.outputs\.files != '\[\]'\n/);
+    expect(text).toContain("        file: ${{ fromJSON(needs.play-files.outputs.files) }}\n");
+    expect(text).toContain('        run: pnpm test:play "$FILE"\n');
+    expect(text).toMatch(/\n {2}play:\n {4}needs: \[play-files, play-run\]\n {4}if: always\(\)\n/);
+    expect(text).toContain('[ "$LISTED" = "success" ] && { [ "$PLAYED" = "success" ] || [ "$PLAYED" = "skipped" ]; }');
+  });
+
+  test("given the scripts, when the unit tests and the full check are read, then pnpm test leaves simulated play out and pnpm check runs it right after", () => {
+    const root = readJson<{ scripts: Record<string, string> }>(join(REPO_ROOT, "package.json"));
+    expect(root.scripts["test"]).toBe("vitest run");
+    expect(root.scripts["test:play"]).toBe("vitest run --project play");
+    expect(readFileSync(join(REPO_ROOT, "tools", "check", "all.ts"), "utf8")).toContain('"test", "test:play", "check:rules"');
+  });
 });

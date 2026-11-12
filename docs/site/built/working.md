@@ -38,10 +38,11 @@ pnpm docs:preview  # the built site on port 5181
 | Command | What it does |
 |---|---|
 | `pnpm install` | Install everything |
-| `pnpm check` | The Workers' type files, typecheck, lint, test, rule-name check, content version check, asset check, size check, scrub check. Run before saying a change is done |
+| `pnpm check` | The Workers' type files, typecheck, lint, test, simulated play, rule-name check, content version check, asset check, size check, scrub check. Run before saying a change is done |
 | `pnpm typecheck` | Type-check every package |
 | `pnpm lint` | ESLint, including the simulation purity rules |
-| `pnpm test` | Vitest, all projects |
+| `pnpm test` | Vitest, all projects but simulated play |
+| `pnpm test:play` | Vitest's play project: the simulated-play files that play whole lives, most of the tests' time |
 | `pnpm check:rules` | Every rule in `docs/rules/` has a test, and every cited name exists |
 | `pnpm check:rules --write-pending` | Rewrite `tools/rules-pending.json` to the rules that have no test yet |
 | `pnpm check:version` | The content version moved with any change to the content's data or the simulation's code (server:content-version-sealed) |

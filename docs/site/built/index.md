@@ -118,7 +118,7 @@ When a rule page and a test disagree, nobody quietly picks one: the change stops
 
 ```mermaid
 flowchart LR
-  T["check:types"] --> A["typecheck"] --> B["lint"] --> C["test"] --> D["check:rules"] --> V["check:version"] --> E["check:assets"] --> S["check:size"] --> F["check:scrub"] --> G["CHECK PASSED"]
+  T["check:types"] --> A["typecheck"] --> B["lint"] --> C["test"] --> P["test:play"] --> D["check:rules"] --> V["check:version"] --> E["check:assets"] --> S["check:size"] --> F["check:scrub"] --> G["CHECK PASSED"]
 ```
 
 | Step | Runs | Holds |
@@ -126,7 +126,8 @@ flowchart LR
 | `check:types` | `wrangler types --check` for the server | The Worker's generated type file is not stale, so the typecheck that reads them is not misled |
 | `typecheck` | `tsc` on the root files, then every package's own typecheck | The types line up across the workspace, under strict settings |
 | `lint` | ESLint, zero warnings allowed | The simulation's purity rules (no clock, no `Math.random`, no division outside `engine/int.ts`, no decimal literals, imports of `zod` only), content's whole-number rule, and no focused or skipped test |
-| `test` | Vitest, every project | The rule tests, the golden replays, the property tests, the client's component tests and the server's Worker tests |
+| `test` | Vitest, every project but `play` | The rule tests, the golden replays, the property tests, the client's component tests and the server's Worker tests |
+| `test:play` | Vitest's `play` project | Simulated play: the economy meets its targets in whole lives played month by month, and random lives keep the invariants (scenario:economy-meets-its-targets) |
 | `check:rules` | `tools/check/rules.ts` | Every rule has a test and every cited name exists |
 | `check:version` | `tools/check/version.ts` | The content version moved with any change to the content's data or the simulation's code: the fingerprint in `packages/content/src/seal.json` still matches, or the version was raised and sealed (server:content-version-sealed) |
 | `check:assets` | `tools/assets/assets-check.ts` | The city's models: file names, sizes, the palette, footprints, and a render of each staged place in Playwright's Chromium |
