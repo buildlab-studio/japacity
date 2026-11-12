@@ -112,8 +112,8 @@ describe("adding a passkey", () => {
     const asked = await h.call("/api/auth/passkey/generate-register-options", { jar });
     expect(asked.status).toBe(200);
     const reply = await h.call("/api/auth/passkey/verify-registration", { method: "POST", jar, json: { response: { id: "eA", rawId: "eA", type: "public-key", response: { clientDataJSON: "e30", attestationObject: "oA" }, clientExtensionResults: {} } } });
-    // The library answers any failed verification 500 with its own code.
-    expect({ status: reply.status, code: (await reply.json<{ code?: string }>()).code }).toEqual({ status: 500, code: "FAILED_TO_VERIFY_REGISTRATION" });
+    // The library refuses any failed verification 400 with its own code.
+    expect({ status: reply.status, code: (await reply.json<{ code?: string }>()).code }).toEqual({ status: 400, code: "FAILED_TO_VERIFY_REGISTRATION" });
     expect(h.tables.passkey).toEqual([]);
     expect(await notes(h)).toEqual([]);
     expect(h.notices).toEqual([]);
