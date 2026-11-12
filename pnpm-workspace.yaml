@@ -12,3 +12,9 @@ allowBuilds:
 # The asset tools reach sharp through gltf-transform; 0.35.5 clears the librsvg advisory.
 overrides:
   sharp: ^0.35.5
+  # The docs site's VitePress 1 asks for vite 5; vite 6.4.4 (with esbuild 0.25) clears vite's and esbuild's advisories and VitePress 1 builds on it.
+  vitepress>vite: ^6.4.4
+  # ESLint's config lookup asks for minimatch 10; 11.0.1 clears its advisory.
+  "minimatch@>=7.0.0 <11.0.1": ^11.0.1
+  # drizzle-kit's loader asks for esbuild 0.18; 0.25 clears the development server advisory and drizzle-kit generates the same.
+  "@esbuild-kit/core-utils>esbuild": ^0.25.12
