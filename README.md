@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/5949493c-b849-43f5-b139-ab0121b32426
 
 ## Play it
 
-The game lives at **[japacity.app](https://japacity.app)**, in any phone's browser.
+Play it in your browser, on a phone or a computer. Nothing to download.
 
 ## Made of
 
