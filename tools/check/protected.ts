@@ -1,7 +1,8 @@
-// Fails a pull request that changes tests, goldens, schemas, the lint config,
-// or loosens the pending-rules list, unless it carries the
-// approved-test-change label. Editing a test is the quickest way to a pass;
-// this makes that visible and gated. See docs/design/02-quality-and-testing.md section 5.
+// Fails a pull request that takes a check away, unless it carries the approved-test-change label.
+// Editing a test is ordinary work: a test follows the behaviour it describes. What needs a maintainer's
+// word is a change that removes a check: a test file deleted, a test file left with fewer tests or
+// fewer assertions, a golden changed, or the pending-rules list grown. Skipped, focused and commented-out
+// tests are refused by lint. See decision 0039 and docs/design/02-quality-and-testing.md section 5.
 //
 // Usage: pnpm check:protected -- <base-ref>
 // CI sets APPROVED_TEST_CHANGE=1 when the label is present.
@@ -24,22 +25,14 @@ export interface ProtectedChange {
   readonly reason: string;
 }
 
-const PROTECTED: ReadonlyArray<{ readonly reason: string; readonly matches: (path: string) => boolean }> = [
-  { reason: "test file", matches: (path) => path.endsWith(".test.ts") || path.endsWith(".test.tsx") },
-  // tools/goldens/ holds the tools that write the goldens, not goldens.
-  { reason: "golden file", matches: (path) => !path.startsWith("tools/") && (path.startsWith("goldens/") || path.includes("/goldens/")) },
-  { reason: "schema", matches: (path) => path.endsWith(".schema.ts") },
-  { reason: "lint config", matches: (path) => path === "eslint.config.js" },
-  { reason: "engine contract", matches: (path) => path === "packages/sim/src/engine/types.ts" },
-  { reason: "rule page", matches: (path) => path.startsWith("docs/rules/") },
-  {
-    reason: "check tooling",
-    matches: (path) =>
-      // tools/repo.ts holds `isMain`, which decides whether each check runs at all.
-      /^tsconfig[^/]*\.json$/.test(path) || path === "vitest.config.ts" || path === "tools/repo.ts" || /^tools\/check\/[^/]*\.ts$/.test(path),
-  },
-  { reason: "pending rules list", matches: (path) => path === PENDING_FILE },
-];
+/** Reads a file at the base (the merge base) or at the head; null when it does not exist there. */
+export type ReadFile = (side: "base" | "head", path: string) => string | null;
+
+export const isTestFile = (path: string): boolean => path.endsWith(".test.ts") || path.endsWith(".test.tsx");
+
+// tools/goldens/ holds the tools that write the goldens, not goldens.
+export const isGolden = (path: string): boolean =>
+  !path.startsWith("tools/") && (path.startsWith("goldens/") || path.includes("/goldens/"));
 
 /** Parses `git diff --name-status` output. */
 export function parseNameStatus(output: string): Change[] {
@@ -53,8 +46,24 @@ export function parseNameStatus(output: string): Change[] {
     });
 }
 
-export function protectedReason(path: string): string | null {
-  return PROTECTED.find((rule) => rule.matches(path))?.reason ?? null;
+/** Drops block comments and whole-line comments, so a commented-out check is not counted. */
+function withoutComments(source: string): string {
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .split("\n")
+    .filter((line) => !line.trimStart().startsWith("//"))
+    .join("\n");
+}
+
+/**
+ * The tests and the assertions a test file holds: each `test(` or `it(` call, with any modifier such as
+ * `.each` or `.prop` (a table counts once), and each `expect(` call, with any modifier such as `.soft`.
+ */
+export function countChecks(source: string): { readonly tests: number; readonly assertions: number } {
+  const code = withoutComments(source);
+  const tests = code.match(/(?<![\w.$])(?:test|it)(?:\.[A-Za-z]+)*\s*\(/g)?.length ?? 0;
+  const assertions = code.match(/(?<![\w.$])expect(?:\.[A-Za-z]+)?\s*\(/g)?.length ?? 0;
+  return { tests, assertions };
 }
 
 /** Ids present in `head` but not in `base`. Either side may be missing (null). */
@@ -68,27 +77,45 @@ export function addedPendingNames(base: string | null, head: string | null): str
   return parse(head).filter((name) => !before.has(name));
 }
 
+/** Why a change to an existing test file takes a check away, or null when it keeps every one. */
+function weakenedTest(change: Change, read: ReadFile): string | null {
+  if (change.status === "D" || (change.status === "R" && !isTestFile(change.path))) return "test file deleted";
+  const before = read("base", change.from);
+  const after = read("head", change.path);
+  if (before === null) return null;
+  if (after === null) return "test file deleted";
+  const was = countChecks(before);
+  const now = countChecks(after);
+  const fewer: string[] = [];
+  if (now.tests < was.tests) fewer.push(`tests ${String(was.tests)} to ${String(now.tests)}`);
+  if (now.assertions < was.assertions) fewer.push(`assertions ${String(was.assertions)} to ${String(now.assertions)}`);
+  return fewer.length === 0 ? null : `fewer ${fewer.join(", ")}`;
+}
+
 /**
- * Picks the changes that need approval. Additions are free, except that new
- * names in the pending-rules list loosen the traceability check. Removing names,
- * or deleting the list, only tightens it.
+ * Picks the changes that need approval. Added files are free, and so is an edit to a test that keeps its
+ * tests and assertions. A copy leaves its source in place, so it takes nothing away.
  */
-export function findProtectedChanges(
-  changes: readonly Change[],
-  readPending: (side: "base" | "head") => string | null,
-): ProtectedChange[] {
+export function findProtectedChanges(changes: readonly Change[], read: ReadFile): ProtectedChange[] {
   const found: ProtectedChange[] = [];
   for (const change of changes) {
-    const touchesPending = change.from === PENDING_FILE || change.path === PENDING_FILE;
-    if (touchesPending && (change.status === "M" || change.status === "A")) {
-      const added = addedPendingNames(readPending("base"), readPending("head"));
-      if (added.length > 0) found.push({ change, reason: `pending rules list gained ${added.join(", ")}` });
+    if (change.from === PENDING_FILE || change.path === PENDING_FILE) {
+      // Removing names, or deleting the list, only tightens the traceability check.
+      if (change.status === "M" || change.status === "A") {
+        const added = addedPendingNames(read("base", PENDING_FILE), read("head", PENDING_FILE));
+        if (added.length > 0) found.push({ change, reason: `pending rules list gained ${added.join(", ")}` });
+      }
       continue;
     }
-    if (touchesPending && change.status === "D") continue;
     if (!["M", "D", "R", "T"].includes(change.status)) continue;
-    const reason = protectedReason(change.from) ?? protectedReason(change.path);
-    if (reason !== null) found.push({ change, reason });
+    if (isGolden(change.from) || isGolden(change.path)) {
+      found.push({ change, reason: "golden file" });
+      continue;
+    }
+    if (isTestFile(change.from)) {
+      const reason = weakenedTest(change, read);
+      if (reason !== null) found.push({ change, reason });
+    }
   }
   return found;
 }
@@ -104,7 +131,11 @@ function git(args: readonly string[]): string {
 
 function showOrNull(ref: string, path: string): string | null {
   try {
-    return execFileSync("git", ["show", `${ref}:${path}`], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    return execFileSync("git", ["show", `${ref}:${path}`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      maxBuffer: 64 * 1024 * 1024,
+    });
   } catch {
     return null;
   }
@@ -118,22 +149,22 @@ export function main(argv: readonly string[], env: NodeJS.ProcessEnv): number {
   }
   const mergeBase = git(["merge-base", base, "HEAD"]).trim();
   const changes = parseNameStatus(git(["diff", "--name-status", "-M", `${base}...HEAD`]));
-  const found = findProtectedChanges(changes, (side) => showOrNull(side === "base" ? mergeBase : "HEAD", PENDING_FILE));
+  const found = findProtectedChanges(changes, (side, path) => showOrNull(side === "base" ? mergeBase : "HEAD", path));
   const approved = env["APPROVED_TEST_CHANGE"] === "1";
 
   if (found.length === 0) {
-    console.log("protected: no protected files changed");
+    console.log("protected: no test, assertion, golden or pending rule taken away");
     return 0;
   }
-  console.log(`protected: ${String(found.length)} protected change(s):`);
+  console.log(`protected: ${String(found.length)} change(s) take a check away:`);
   for (const item of found) console.log(describeChange(item));
   if (approved) {
     console.log("protected: approved by the approved-test-change label");
     return 0;
   }
   console.log(
-    "protected: FAILED. Tests, goldens, schemas, the lint config and the pending list are not changed to get a pass. " +
-      "If this change is intended, a maintainer adds the approved-test-change label.",
+    "protected: FAILED. A test file is not deleted, a test or an assertion is not removed, a golden is not changed " +
+      "and the pending list does not grow to get a pass. If this change is intended, a maintainer adds the approved-test-change label.",
   );
   return 1;
 }

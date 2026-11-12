@@ -19,7 +19,7 @@ Japacity is a browser life-sim about leaving Nigeria. The simulation is pure and
 4. **Write the code.** Plain functions and plain data, no classes. A kind changes only its own slice, only in `evolve`; to change another kind, emit an effect. Exhaustive switches end in a `never` check. Comments say why, never what.
 5. **A bug fix starts with a failing test** that shows the bug.
 
-Never edit, delete, skip or loosen an existing test, golden, schema or lint rule to get a pass. Never commit a focused or skipped test. If one is wrong, stop and report it. CI fails a change to a protected file (tests, goldens, schemas, the lint config, the engine's types, `docs/rules/`, the check tools, `tools/rules-pending.json`) unless a maintainer approves it.
+Never edit, delete, skip or loosen an existing test, golden, schema or lint rule to get a pass. Never commit a focused or skipped test. If one is wrong, stop and report it. CI fails a change that takes a check away (a test file deleted, fewer tests or assertions in one, a golden changed, `tools/rules-pending.json` grown) unless a maintainer approves it (decision 0039).
 
 ## The check
 

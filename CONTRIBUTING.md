@@ -74,7 +74,7 @@ It runs the server's types, typecheck, lint, tests, simulated play, the rule-nam
 
 If a test, a golden file or a schema disagrees with your change, stop and report it. Do not edit, delete, skip or loosen it to make the check pass. The same goes for `eslint.config.js` and `tools/rules-pending.json`.
 
-CI enforces this. A pull request that modifies, deletes or renames a protected file fails unless a maintainer adds the `approved-test-change` label. The check (`.github/workflows/check.yml`) runs on every pull request and every push to `main`.
+Changing a test along with the behaviour it describes is ordinary work. What CI stops is a change that takes a check away: a pull request that deletes a test file, leaves a test file with fewer tests or fewer assertions, changes a golden file or grows `tools/rules-pending.json` fails unless a maintainer adds the `approved-test-change` label. Skipped, focused and commented-out tests fail lint. See decision 0039. The check (`.github/workflows/check.yml`) runs on every pull request and every push to `main`.
 
 ## Rules have names
 
@@ -100,7 +100,7 @@ The maintainer applies these rules in GitHub's settings; the repository holds th
 - The check workflow must pass before a pull request merges.
 - History stays linear (squash merges), force pushes are blocked, and `main` cannot be deleted.
 - A change to a file in `.github/CODEOWNERS` (the lint config, `tests/`, the scrub check, `tools/repo.ts` with the checks' run guard, the Worker configs, the workflows, `packages/content/src/legal/`) from an outside contributor needs the maintainer's review, and a new commit dismisses an earlier approval. The maintainer's own pull requests merge through the ruleset's pull-request bypass, which waives that review alone.
-- An outside contribution certifies the DCO in its description (above), and a change to a protected test, golden or schema needs the `approved-test-change` label.
+- An outside contribution certifies the DCO in its description (above), and a change that takes away a test, an assertion or a golden needs the `approved-test-change` label.
 - A merge to `main` deploys staging once the check passes on it (`.github/workflows/deploy-staging.yml`). Production deploys only from a release tag `v*`, or when the maintainer starts it by hand from `main`, only after the maintainer approves the run, and only the commit on `main` that staging serves (`.github/workflows/deploy-production.yml`). Each deploy migrates the database, snapshots every character, builds, deploys and checks that the deployment answers as the commit deployed. A deploy by hand from a checkout, in the same order (`apps/server/README.md`), is the fallback.
 - The whole browser suite runs each night and when started by hand (`.github/workflows/browser.yml`), with no secrets; a pull request does not wait for it.
 - A fork cannot deploy this project. The deploy jobs run only in `buildlab-studio/japacity`, their Cloudflare secrets live in this repository's `staging` and `production` environments, and a pull request from a fork runs the check with no secrets at all.

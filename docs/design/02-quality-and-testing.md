@@ -104,7 +104,7 @@ The ten rules are in `../../AGENTS.md`, and `.claude/skills/japacity-dev/` holds
 
 | Rule | Enforced by |
 |---|---|
-| Never edit, delete, skip or loosen a test, golden, schema or lint rule to get a pass | `pnpm check:protected` fails a pull request that changes a protected file without the `approved-test-change` label |
+| Never edit, delete, skip or loosen a test, golden, schema or lint rule to get a pass | `pnpm check:protected` fails a pull request that deletes a test file, leaves one with fewer tests or assertions, changes a golden or grows the pending list, without the `approved-test-change` label (decision 0039); lint refuses skipped, focused and commented-out tests; review reads the rest |
 | A bug fix starts with a failing test | Review |
 | New behaviour needs a named rule and a test that cites it | `pnpm check:rules` |
 | The simulation stays pure | Lint |
