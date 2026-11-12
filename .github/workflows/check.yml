@@ -1,7 +1,7 @@
 name: check
 
 # The quick checks on every push to main and every pull request: the Workers' generated types, typecheck, lint, the unit tests,
-# the size budget of a first visit and the audit of the production dependencies (about five minutes); on a pull request also a
+# the size budget of a first visit and the audit of the production dependencies (about half an hour on GitHub's runners, most of it the unit tests); on a pull request also a
 # secret scan of its commits. The full check (`pnpm check`: the rules and assets checks too) and the browser
 # suite stay local, run before every push, so Actions minutes stay low on the
 # free plan. It runs with no secrets, on pull_request (never
@@ -24,7 +24,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
